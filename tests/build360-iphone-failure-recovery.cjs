@@ -1,0 +1,93 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {harness}=require('./helpers/core-harness');
+const {scenario}=require('./helpers/business-scenario');
+
+// The daily close now names the exact owner that failed instead of collapsing every domain into advanced-owner.
+let postAckProof=Promise.resolve();
+{
+  const {s}=harness(['capability-registry-core','company-definitions','company-platform-core','company-adapters-core','transaction-core','banking-core','advanced-core']);
+  s.GH_CORPORATE_CORE={};s.GH_FLEET_CORE={};s.GH_ROUTE_CORE={};s.GH_MOBILITY_CORE={};
+  const migrated=s.GH_COMPANY_PLATFORM.migrateState({simSeconds:86400,onboardingComplete:true,openedCompanies:['bank'],companyRegistry:{},companyFinance:{},advanced:{cyber:{coverage:90},safety:{score:90},procurement:{savings:0}}}),state=migrated.state,phases=[];
+  s.GH_DOMAIN_COMMANDS={dispatchSystem(_ctx,domain){if(domain==='banking')throw Object.assign(new Error('bank-day-injected'),{code:'BANK_DAY'});return {result:{}};}};
+  let caught=null;try{s.GH_ADVANCED.onFinancialDay(state,1,(name,work)=>{phases.push(name);return work();});}catch(error){caught=error;}
+  assert(caught);assert.equal(caught.code,'FINANCIAL_DAY_OWNER_FAILED');assert.match(caught.owner,/bank:banking-services-v1/);assert.equal(caught.cause.code,'BANK_DAY');assert(phases.includes('simulation.finance-day.owner.bank'));
+}
+
+// A staged company owner returns control to the frame scheduler between its internal units of work.
+{
+  const {s}=harness(['capability-registry-core','company-definitions','company-platform-core','company-adapters-core','transaction-core','advanced-core']);
+  s.GH_CORPORATE_CORE={};s.GH_FLEET_CORE={};s.GH_ROUTE_CORE={};s.GH_MOBILITY_CORE={};
+  s.GH_INSURANCE_CORE={DAILY_FINANCIAL_ORDER:300,onFinancialDay(){throw new Error('staged-hook-not-used');},* onFinancialDayStages(){yield 'office:a';yield 'claim-settlement';return {day:1};}};
+  const migrated=s.GH_COMPANY_PLATFORM.migrateState({simSeconds:86400,onboardingComplete:true,openedCompanies:['insurance'],companyRegistry:{},companyFinance:{},advanced:{cyber:{coverage:90},safety:{score:90},procurement:{savings:0}}}),state=migrated.state;
+  s.GH_DOMAIN_COMMANDS={dispatchSystem(){return {result:{}};}};
+  const stages=s.GH_ADVANCED.onFinancialDayStages(state,1),seen=[];let step;while(!(step=stages.next()).done)seen.push(step.value);
+  assert(seen.includes('insurance.office:a'));assert(seen.includes('insurance.claim-settlement'));assert.equal(step.value,4500);
+}
+
+// Due terms build one transaction index and expose bounded batches, so a large due-day cannot monopolize one frame.
+{
+  const {s,state,command}=scenario();state.simSeconds=20*86400;
+  for(let index=0;index<19;index++)command('finance','credit',{company:'air',amount:1000+index,note:'bounded due-term proof',taxable:false,reference:`DUE-BATCH-${index}`,counterparty:'عميل اختبار',termsDays:1});
+  state.simSeconds=21*86400;const batches=[];
+  const transaction=s.GH_TRANSACTION_CORE.execute(state,{label:'bounded-due-terms-proof',apply(){let remaining;do{const out=s.GH_FINANCE_CORE.execute({state},'settle-due-terms',{day:21,company:'air',maxRows:8});batches.push(out.collected);remaining=out.remaining;}while(remaining>0);}});
+  assert.equal(transaction.committed,true);assert.deepEqual(batches,[8,8,3]);assert.equal(state.finance.receivables.length,0);
+}
+
+// A restore failure must never stop later owner undos, and its exported timing must retain both causes.
+{
+  const {s}=harness(['transaction-core']);const state={root:{value:1}},undoCalls=[];
+  let caught=null;
+  try{s.GH_TRANSACTION_CORE.execute(state,{label:'iphone-rollback-proof',scope:['root'],apply(){
+    state.root.value=2;
+    s.GH_TRANSACTION_CORE.registerUndo(()=>undoCalls.push('registered'));
+    Object.defineProperty(state,'unremovable',{value:true,configurable:false,enumerable:true});
+    throw Object.assign(new Error('original-owner-failure'),{code:'OWNER_FAILED'});
+  }});}catch(error){caught=error;}
+  assert(caught);assert.equal(caught.code,'TRANSACTION_ROLLBACK_FAILED');
+  assert.match(String(caught.cause?.message),/original-owner-failure/);
+  assert.deepEqual(undoCalls,['registered'],'registered undos still run after snapshot restore fails');
+  const metric=s.GH_TRANSACTION_CORE.telemetry().last;
+  assert.equal(metric.stage,'rollback-failed');assert.equal(metric.error.code,'OWNER_FAILED');
+  assert(metric.rollbackFailures.some(row=>row.component==='snapshot-restore'));
+}
+
+// Frozen row containers are immutable rollback leaves, even when they were frozen outside the seal registry.
+{
+  const {s}=harness(['transaction-core']);const frozen=Object.freeze({id:'immutable',value:1}),state={rows:{items:[frozen],mutable:{id:'m',value:1}}},before=JSON.stringify({rows:state.rows});
+  assert.throws(()=>s.GH_TRANSACTION_CORE.execute(state,{label:'frozen-row-proof',scope:['rows'],rowRoots:{rows:{level:'rows'}},apply(){state.rows.mutable.value=9;state.rows.items=[frozen];throw new Error('stop');}}),/stop/);
+  assert.equal(JSON.stringify({rows:state.rows}),before);
+}
+
+// A full/deep scoped rollback may encounter an externally frozen subtree. The subtree cannot have been changed,
+// so rollback must adopt the captured value and continue restoring the remaining roots instead of hiding the
+// original owner failure behind "Unable to delete property". Public restoreObject remains strict (Build 340).
+{
+  const {s}=harness(['transaction-core']);const nested={value:1},frozen=Object.freeze({id:'external-constant',value:1,nested}),state={first:{frozen,changed:1},second:{changed:1}},before=JSON.stringify(state);
+  let caught=null;try{s.GH_TRANSACTION_CORE.execute(state,{label:'frozen-deep-scope-proof',scope:['first','second'],apply(){state.first.changed=9;state.first.frozen.nested.value=9;state.second.changed=9;throw Object.assign(new Error('owner-failure-after-frozen'),{code:'OWNER_FROZEN_TEST'});}});}catch(error){caught=error;}
+  assert(caught);assert.equal(caught.code,'OWNER_FROZEN_TEST');assert.equal(JSON.stringify(state),before);assert.equal(state.first.frozen,frozen);assert.equal(Object.isFrozen(state.first.frozen),true);
+  const metric=s.GH_TRANSACTION_CORE.telemetry().last;assert.equal(metric.committed,false);assert.equal(metric.rollbackFailures.length,0);assert.deepEqual(metric.rollbackFrozenPaths,['first.frozen']);
+  assert.throws(()=>s.GH_TRANSACTION_CORE.restoreObject({o:Object.freeze({a:1})},{o:{a:2}}),/Cannot delete property|read only|frozen/i,'public restore remains strict');
+}
+
+// Publication happens only after the device has acknowledged the durable generation. Frozen external leaves must be
+// adopted atomically, and a successful publication must never request native reconciliation or invite a duplicate retry.
+{
+  const {s}=harness(['transaction-core']);const frozen=Object.freeze({id:'external-constant',value:1}),live={saveRevision:7,root:{frozen,value:1}},recovery=[];
+  s.GH_PERSISTENCE={markRecoveryRequired:(reason,evidence)=>recovery.push({reason,evidence})};
+  postAckProof=s.GH_TRANSACTION_CORE.executeDurable(live,{label:'post-ack-frozen-publication',integrity:false,persist:async draft=>({ok:true,saveRevision:draft.saveRevision}),apply(draft){draft.root.frozen={id:'external-constant',value:2,added:true};draft.root.value=2;return 'committed';}}).then(result=>{
+    assert.equal(result.committed,true);assert.equal(result.value,'committed');assert.equal(live.saveRevision,8);assert.equal(live.root.value,2);assert.equal(live.root.frozen.value,2);assert.equal(live.root.frozen.added,true);assert.notEqual(live.root.frozen,frozen);assert.deepEqual(recovery,[]);
+  });
+}
+
+// Health cannot report a failed calendar rollback as healthy.
+{
+  const {s}=harness(['diagnostics-core']);
+  s.GH_FLEET_DATA={mode:()=> 'store',forEachFieldClasses(){},idCollisions:()=>({duplicate:0,missing:0}),size:()=>0};
+  s.GH_TRANSACTION_CORE={execute(){}};s.GH_SIMULATION_CORE={create(){}};s.GH_SAVE_SCHEMA={normalize(){}};
+  const state={simSeconds:100,speed:0,saveVersion:'3.0.0',cash:1,debt:0,groupValue:1,finance:{receivables:[],payables:[],invoices:[],cheques:[]},diagnostics:{},simulationKernel:{lastAdvanceFailure:{code:'TRANSACTION_ROLLBACK_FAILED',from:100,to:200,error:'rollback failed',errorDetail:{code:'TRANSACTION_ROLLBACK_FAILED'}}}};
+  const report=s.GH_DIAGNOSTICS.runHealthCheck(state,{simulation:{}},{trackTransitions:false});
+  assert.equal(report.status,'critical');assert(report.issues.some(row=>row.id==='TRANSACTION_ROLLBACK_FAILED'));
+}
+
+postAckProof.then(()=>console.log('BUILD360_IPHONE_FAILURE_RECOVERY_PASS'));

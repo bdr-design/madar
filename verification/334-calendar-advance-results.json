@@ -1,0 +1,171 @@
+{
+  "results": [
+    {
+      "case": "unfounded-group-real-next-day",
+      "before": {
+        "time": 0,
+        "owners": [],
+        "books": [
+          "group"
+        ]
+      },
+      "after": {
+        "time": 86400,
+        "day": 1,
+        "hour": 24,
+        "kernel": {
+          "version": "3.0.0",
+          "frames": 21,
+          "slices": 2,
+          "chunks": 9,
+          "hours": 2,
+          "days": 1,
+          "conflicts": 0,
+          "cancels": 0,
+          "maxChunkMs": 11.300000011920929,
+          "lastChunkMs": 1.7000000029802322,
+          "longTasks": 0,
+          "hardTasks": 0,
+          "droppedRealSeconds": 0,
+          "backlogClamps": 0,
+          "maxCreateMs": 0.09999999403953552,
+          "lastCreateMs": 0,
+          "maxFinishMs": 0.09999999403953552,
+          "lastFinishMs": 0,
+          "maxCycleMs": 28.200000032782555,
+          "lastCycleMs": 28.200000032782555,
+          "maxMaintenanceMs": 2,
+          "lastMaintenanceMs": 2,
+          "maxRenderMs": 2.0999999940395355,
+          "lastRenderMs": 1.5,
+          "lastFrame": {
+            "createMs": 0,
+            "chunkMs": 1.7000000029802322,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 0,
+            "totalMs": 2.2000000029802322
+          },
+          "maxFrame": {
+            "createMs": 0,
+            "chunkMs": 11.300000011920929,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 0,
+            "totalMs": 11.400000005960464
+          },
+          "cooldownFrames": 0,
+          "deferredRuns": 9,
+          "lastError": "",
+          "fatalError": null,
+          "lastBoundary": "hour:24",
+          "lastSliceSeconds": 3600,
+          "lastMaintenanceHour": 23,
+          "lastCancelReason": "",
+          "lastCommitReason": "committed",
+          "lastWorkStage": "finish",
+          "governor": "GREEN",
+          "avgChunkMs": 5.700000001324548,
+          "avgWorkMs": 3.9615384615384617,
+          "manualFailures": 0,
+          "manualThrottleYields": 0,
+          "lastAdvanceFailure": null,
+          "lastProgressSim": 86400,
+          "lastProgressAt": 1718.5,
+          "activeFrameBudgetMs": 7.358661836672982,
+          "frameCadencePressure": 0.028,
+          "lastFrameIntervalMs": 16.6,
+          "aggregateSlices": 1,
+          "jobCleanups": 2,
+          "cleanupErrors": 0,
+          "simSeconds": 86400,
+          "speed": 0,
+          "backlog": 0,
+          "jobActive": false,
+          "jobReadyToFinish": false,
+          "jobSlice": 0,
+          "jobSpeed": 0,
+          "hidden": false,
+          "manualAdvance": null,
+          "pacing": {
+            "version": "3.0.0",
+            "lastReal": 1716.7000000029802,
+            "backlog": 0,
+            "hidden": false,
+            "lastRender": 1321.2000000029802,
+            "droppedRealSeconds": 0,
+            "backlogClamps": 0,
+            "stallGaps": 0,
+            "config": {
+              "maxRealDelta": 3,
+              "maxBacklogNormal": 12,
+              "maxBacklogFast": 96,
+              "frameBudgetMs": 4,
+              "manualFrameBudgetMs": 10,
+              "renderEveryNormalMs": 260,
+              "renderEveryFastMs": 650
+            }
+          },
+          "config": {
+            "allowedSpeeds": [
+              0,
+              30,
+              120,
+              300,
+              600
+            ],
+            "fallbackSpeed": 30,
+            "quantumRealSeconds": 1,
+            "maxRealDelta": 3,
+            "maxBacklogNormal": 12,
+            "maxBacklogFast": 96,
+            "frameBudgetMs": 4,
+            "manualFrameBudgetMs": 10,
+            "adaptiveFrameBudgetMinMs": 1.5,
+            "chunkItems": 32,
+            "manualChunkItems": 64,
+            "renderEveryNormalMs": 260,
+            "renderEveryFastMs": 650,
+            "minRealSliceSeconds": 1,
+            "maintenanceEveryHours": 12,
+            "manualBatchSeconds": 3600,
+            "manualMinBatchSeconds": 300,
+            "manualRetryLimit": 3,
+            "longTaskWarnMs": 28,
+            "hardTaskMs": 120,
+            "hardTaskLimit": 3,
+            "conflictLimit": 3,
+            "cooldownAfterMs": 24,
+            "manualAggregateMaxSeconds": 86400
+          },
+          "runtime": {
+            "version": "1.0.0",
+            "ticks": 21,
+            "wakes": 1,
+            "cancelledWakes": 1,
+            "errors": 0,
+            "longTicks": 0,
+            "maxTickMs": 11.400000005960464,
+            "lastTickMs": 2.2000000029802322,
+            "lastDelayMs": 250,
+            "pending": true,
+            "running": true,
+            "inTick": false,
+            "intervals": {
+              "manual": 8,
+              "live": 16,
+              "deferred": 50,
+              "paused": 250,
+              "hidden": 1000
+            }
+          }
+        },
+        "owners": [],
+        "books": [
+          "group"
+        ]
+      }
+    }
+  ],
+  "errors": []
+}

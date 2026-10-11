@@ -1,0 +1,557 @@
+(()=>{
+  'use strict';
+  const VERSION='3.0.0',LIMIT=240,ALLOWED_SPEEDS=[0,1,2,3,4,5];
+  let installed=false,lastLongTaskAt=0,eventSeq=0,longTaskObserverStatus='unavailable';
+  const faultRecorders=new WeakMap();
+  const recorderFrameBuffers=new WeakMap();
+  // Runtime-only, bounded flight/departure evidence. It is deliberately kept
+  // outside the saved game so large fleets never add save or frame cost.
+  const assetDepartureTraces=new WeakMap();
+  const deferredDiagnosticEvents=new WeakMap(),DEFERRED_EVENT_LIMIT=512;
+  const fleetData=()=>{const api=globalThis.GH_FLEET_DATA||(typeof require==='function'?require('./fleet-access-core.js'):null);if(!api)throw new Error('fleet-data-access-unavailable');return api;};
+  function ensure(state){
+    state.diagnostics=state.diagnostics&&typeof state.diagnostics==='object'?state.diagnostics:{};
+    // Build 335 persisted the heavy fault recorder inside the game state. Adopt
+    // it once into runtime-only storage, then remove it from the durable tree.
+    if(Object.prototype.hasOwnProperty.call(state.diagnostics,'faultRecorder')){if(state.diagnostics.faultRecorder&&!faultRecorders.has(state))faultRecorders.set(state,state.diagnostics.faultRecorder);delete state.diagnostics.faultRecorder;}
+    state.diagnostics.events=Array.isArray(state.diagnostics.events)?state.diagnostics.events:[];
+    state.diagnostics.lastHealth=state.diagnostics.lastHealth&&typeof state.diagnostics.lastHealth==='object'?state.diagnostics.lastHealth:null;
+    state.diagnostics.counters=state.diagnostics.counters&&typeof state.diagnostics.counters==='object'?state.diagnostics.counters:{};
+    state.diagnostics.activeIssues=state.diagnostics.activeIssues&&typeof state.diagnostics.activeIssues==='object'?state.diagnostics.activeIssues:{};
+    state.diagnostics.resolvedIssues=Array.isArray(state.diagnostics.resolvedIssues)?state.diagnostics.resolvedIssues:[];
+    return state.diagnostics;
+  }
+  function recorderFor(state){ensure(state);return faultRecorders.get(state)||null;}
+  const DEPARTURE_TRACE_LIMIT=160,DEPARTURE_TRACE_SAMPLE_LIMIT=24;
+  function addDepartureBucket(bucket,key,count){key=String(key||'unknown').slice(0,64);const n=Math.max(0,Math.floor(Number(count)||0));if(!n)return;if(Object.prototype.hasOwnProperty.call(bucket,key)){bucket[key]+=n;return;}if(Object.keys(bucket).length<32)bucket[key]=n;else bucket.other=(Number(bucket.other)||0)+n;}
+  function departureTraceFor(state){let trace=assetDepartureTraces.get(state);if(!trace){trace={version:1,startedAt:new Date().toISOString(),totalAttempts:0,totalDeparted:0,totalScheduled:0,totalBlocked:0,byMode:{},byReason:{},recent:[],droppedRows:0};assetDepartureTraces.set(state,trace);}return trace;}
+  function recordAssetDepartureTrace(state,input={}){
+    if(!state||typeof state!=='object')return null;
+    const trace=departureTraceFor(state),source=String(input.source||'unknown').slice(0,32),simSeconds=Number(input.simSeconds??state.simSeconds)||0,nowMs=Number(input.atMs)||Date.now();
+    const attempts=Math.max(0,Math.floor(Number(input.attempts)||0)),departed=Math.max(0,Math.floor(Number(input.departed)||0)),scheduled=Math.max(0,Math.floor(Number(input.scheduled)||0)),blocked=Math.max(0,Math.floor(Number(input.blocked)||0));
+    if(!attempts&&!departed&&!scheduled&&!blocked&&!(input.reasonCounts&&Object.keys(input.reasonCounts).length))return {recorded:0,totalAttempts:trace.totalAttempts,totalDeparted:trace.totalDeparted,totalScheduled:trace.totalScheduled,totalBlocked:trace.totalBlocked};
+    trace.totalAttempts+=attempts;trace.totalDeparted+=departed;trace.totalScheduled+=scheduled;trace.totalBlocked+=blocked;
+    for(const [mode,count] of Object.entries(input.modeCounts||{}))addDepartureBucket(trace.byMode,String(mode||'unknown').slice(0,20),count);
+    for(const [reason,count] of Object.entries(input.reasonCounts||{}))addDepartureBucket(trace.byReason,reason,count);
+    const rows=Array.isArray(input.samples)?input.samples.slice(0,DEPARTURE_TRACE_SAMPLE_LIMIT).map((row,index)=>cleanDetail({atMs:nowMs,simSeconds,source,...row,...(index===0&&input.planner?{planner:input.planner}:{}),...(index===0&&input.performance?{performance:input.performance}:{})})):[];
+    if(!rows.length)rows.push(cleanDetail({atMs:nowMs,simSeconds,source,outcome:blocked?'blocked':scheduled?'scheduled':'departed',attempts,departed,scheduled,blocked,modeCounts:input.modeCounts||{},reasonCounts:input.reasonCounts||{},routeIds:Array.isArray(input.routeIds)?input.routeIds.slice(0,12):[],planner:input.planner||undefined,performance:input.performance||undefined,error:input.error?String(input.error).slice(0,240):undefined}));
+    for(const row of rows){trace.recent.unshift(row);if(trace.recent.length>DEPARTURE_TRACE_LIMIT){trace.recent.length=DEPARTURE_TRACE_LIMIT;trace.droppedRows++;}}
+    return {recorded:rows.length,totalAttempts:trace.totalAttempts,totalDeparted:trace.totalDeparted,totalScheduled:trace.totalScheduled,totalBlocked:trace.totalBlocked};
+  }
+  function departureTraceSnapshot(state){const trace=state&&assetDepartureTraces.get(state);if(!trace)return null;const {recent=[],...base}=trace;return {...cleanDetail(base),recent:recent.slice(0,DEPARTURE_TRACE_LIMIT).map(row=>cleanDetail(row))};}
+  function annotateLastAssetDepartureTrace(state,commandName,detail={}){const trace=state&&assetDepartureTraces.get(state),row=trace?.recent?.[0];if(!row||String(row.commandName||'')!==String(commandName||''))return false;if(detail.performance)row.performance=cleanDetail(detail.performance);if(detail.planner&&!row.planner)row.planner=cleanDetail(detail.planner);return true;}
+  function cleanDetail(value,depth=0){
+    if(depth>5)return '[depth-limit]';
+    if(value==null||typeof value==='string'||typeof value==='number'||typeof value==='boolean')return value;
+    if(value instanceof Error){const out={name:value.name,message:value.message,stack:String(value.stack||'').split('\n').slice(0,12).join('\n')};if(value.code!=null)out.code=String(value.code).slice(0,120);if(value.transactionLabel!=null)out.transactionLabel=String(value.transactionLabel).slice(0,160);if(value.transactionStage!=null)out.transactionStage=String(value.transactionStage).slice(0,80);if(value.owner!=null)out.owner=String(value.owner).slice(0,160);if(value.rollbackError)out.rollbackError=cleanDetail(value.rollbackError,depth+1);if(value.cause)out.cause=cleanDetail(value.cause,depth+1);return out;}
+    if(Array.isArray(value))return value.slice(0,30).map(x=>cleanDetail(x,depth+1));
+    if(typeof value==='object'){
+      const out={};let count=0;
+      for(const [k,v] of Object.entries(value)){
+        if(count++>=40){out.__truncated=true;break;}
+        if(/logo|image|base64|blob|dataurl/i.test(k)&&typeof v==='string'&&v.length>400){out[k]=`[omitted ${v.length} chars]`;continue;}
+        out[k]=cleanDetail(v,depth+1);
+      }
+      return out;
+    }
+    return String(value);
+  }
+  function recordNow(state,type,detail={},severity='info'){
+    const d=ensure(state),event={id:`DG-${Date.now()}-${++eventSeq}`,type:String(type),severity:String(severity||'info'),at:Date.now(),simSeconds:Number(state.simSeconds)||0,detail:cleanDetail(detail)};
+    d.events.unshift(event);if(d.events.length>LIMIT)d.events.length=LIMIT;
+    d.counters[event.type]=(Number(d.counters[event.type])||0)+1;
+    return event;
+  }
+  function record(state,type,detail={},severity='info'){
+    if(globalThis.window?.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){let rows=deferredDiagnosticEvents.get(state);if(!rows){rows=[];deferredDiagnosticEvents.set(state,rows);}rows.push({type:String(type),severity:String(severity||'info'),detail:cleanDetail(detail),simSeconds:Number(state?.simSeconds)||0,at:Date.now()});if(rows.length>DEFERRED_EVENT_LIMIT)rows.shift();return {deferred:true,type:String(type)};}
+    return recordNow(state,type,detail,severity);
+  }
+  function flushDeferred(state){const rows=deferredDiagnosticEvents.get(state)||[];deferredDiagnosticEvents.delete(state);for(const row of rows){const event=recordNow(state,row.type,row.detail,row.severity);event.at=row.at;event.simSeconds=row.simSeconds;}return rows.length;}
+  const RECORDER_SAMPLE_LIMIT=240,RECORDER_EVENT_LIMIT=120,RECORDER_FRAME_LIMIT=240,RECORDER_STALL_MS=6000,RECORDER_RATE_WINDOW_MS=3000,FRAME_EVENT_COOLDOWN_MS=250,CADENCE_WINDOW=120;
+  const recorderNow=meta=>{const n=Number(meta?.nowMs);return Number.isFinite(n)?n:Date.now();};
+  const FREQUENT_RECORDER_EVENTS=new Set(['FRAME_DROP','LONG_TASK_TRACE']);
+  const roundMs=value=>Math.round((Number(value)||0)*100)/100;
+  function newFrameBuffer(){return {rows:new Array(RECORDER_FRAME_LIMIT),write:0,count:0,totalFrames:0,intervalCount:0,callbackCount:0,jankyFrames:0,estimatedMissedFrames:0,longGaps:0,longTasks:0,maxIntervalMs:0,maxCallbackMs:0,sumIntervalMs:0,sumCallbackMs:0,firstRafMs:null,lastRafMs:null,lastCallbackStartMs:null,baselineIntervalMs:null,cadenceSamples:[],cadenceConfidence:'uncalibrated',cadenceModeShare:0,lastFrameEventAtMs:0,gapsSinceEvent:0,maxGapSinceEventMs:0,intervalHistogram:new Uint32Array(2001),callbackHistogram:new Uint32Array(2001),longTasksRecent:[],wallOffsetMs:0};}
+  function histogramAdd(hist,value){const ms=Number(value);if(Number.isFinite(ms)&&ms>=0)hist[Math.min(hist.length-1,Math.floor(ms*2))]++;}
+  function histogramQuantile(hist,count,q){if(!count)return null;const target=Math.max(1,Math.ceil(count*q));let seen=0;for(let i=0;i<hist.length;i++){seen+=hist[i];if(seen>=target)return roundMs(Math.min((hist.length-1)/2,i/2+.25));}return (hist.length-1)/2;}
+  function frameRows(buffer,limit=RECORDER_FRAME_LIMIT){if(!buffer?.count)return [];const out=[],count=Math.min(buffer.count,limit),start=(buffer.write-buffer.count+buffer.rows.length)%buffer.rows.length,skip=buffer.count-count;for(let i=skip;i<buffer.count;i++){const row=buffer.rows[(start+i)%buffer.rows.length];if(row)out.push(row);}return out;}
+  function cadenceEstimate(buffer,gapMs){
+    if(gapMs>=6&&gapMs<=60){buffer.cadenceSamples.push(gapMs);if(buffer.cadenceSamples.length>CADENCE_WINDOW)buffer.cadenceSamples.shift();}
+    const samples=buffer.cadenceSamples;if(samples.length<6)return;
+    const buckets=new Map();for(const value of samples){const bucket=Math.round(value);buckets.set(bucket,(buckets.get(bucket)||0)+1);}
+    const ranked=[...buckets.entries()].sort((a,b)=>b[1]-a[1]||(a[0]-b[0]));let [bucket,count]=ranked[0];
+    if(buffer.baselineIntervalMs!=null&&ranked.length>1){const currentBucket=Math.round(buffer.baselineIntervalMs),currentCount=buckets.get(currentBucket)||0,share=count/samples.length;if(bucket>currentBucket*1.5&&share<.7){bucket=currentBucket;count=currentCount;}else if(bucket<currentBucket*.65&&share<.35){bucket=currentBucket;count=currentCount;}}
+    const selected=samples.filter(value=>Math.round(value)===bucket).sort((a,b)=>a-b),middle=Math.floor(selected.length/2),estimate=selected.length%2?selected[middle]:(selected[middle-1]+selected[middle])/2;
+    buffer.baselineIntervalMs=estimate;buffer.cadenceModeShare=count/samples.length;buffer.cadenceConfidence=samples.length<12||buffer.cadenceModeShare<.35?'provisional':buffer.cadenceModeShare>=.6?'steady':'mixed';
+  }
+  function frameSummary(buffer){if(!buffer)return {measured:false,frameCallbacks:0,visibleIntervals:0,jankyFrames:0,estimatedMissedFrames:0};const elapsed=buffer.intervalCount?buffer.sumIntervalMs:0,effectiveFps=elapsed>0?roundMs(buffer.intervalCount*1000/elapsed):null,interval=buffer.baselineIntervalMs;return {measured:true,frameCallbacks:buffer.totalFrames,visibleIntervals:buffer.intervalCount,effectiveFps,estimatedRefreshHz:interval>0?roundMs(1000/interval):null,estimatedObservedCadenceHz:interval>0?roundMs(1000/interval):null,hardwareRefreshRateMeasured:false,expectedFrameIntervalMs:interval==null?null:roundMs(interval),cadenceEstimator:'rolling-modal-visible-interval-v2',cadenceSamples:buffer.cadenceSamples.length,cadenceConfidence:buffer.cadenceConfidence,cadenceModeShare:roundMs(buffer.cadenceModeShare),jankyFrames:buffer.jankyFrames,estimatedMissedFrames:buffer.estimatedMissedFrames,longGaps:buffer.longGaps,longTasks:buffer.longTasks,maxFrameIntervalMs:roundMs(buffer.maxIntervalMs),p50FrameIntervalMs:histogramQuantile(buffer.intervalHistogram,buffer.intervalCount,.5),p95FrameIntervalMs:histogramQuantile(buffer.intervalHistogram,buffer.intervalCount,.95),maxCallbackDurationMs:roundMs(buffer.maxCallbackMs),p95CallbackDurationMs:histogramQuantile(buffer.callbackHistogram,buffer.callbackCount,.95),recentTraceFrames:buffer.count,traceCapacity:RECORDER_FRAME_LIMIT,percentilesScope:'whole-recording histogram capped at 1000ms; frameTrace contains most recent bounded window'};}
+  function recorderSnapshotData(state,includeHistory=false){const r=recorderFor(state);if(!r)return null;const buffer=recorderFrameBuffers.get(state),{samples=[],events=[],...base}=r,sampleLimit=includeHistory?RECORDER_SAMPLE_LIMIT:30,eventLimit=includeHistory?RECORDER_EVENT_LIMIT:30,traceLimit=includeHistory?RECORDER_FRAME_LIMIT:12;return {...cleanDetail(base),samples:samples.slice(0,sampleLimit).map(row=>cleanDetail(row)),events:events.slice(0,eventLimit).map(row=>cleanDetail(row)),sampleCount:Number(r.totalSamples)||samples.length,eventCount:Number(r.totalEvents)||events.length,frameSummary:frameSummary(buffer),frameTrace:frameRows(buffer,traceLimit).map(row=>cleanDetail(row))};}
+  function overlapsLongTask(task,start,end){return Number(task?.endPerfMs)>Number(start)&&Number(task?.startPerfMs)<Number(end);}
+  function transactionEvidence(provider,wallOffsetMs,frameEndPerfMs){try{const metric=typeof provider==='function'?provider():null;if(!metric)return null;const recordedAtMs=Number(metric.recordedAtMs),completionPerfMs=Number.isFinite(recordedAtMs)?recordedAtMs-Number(wallOffsetMs):null;return cleanDetail({label:metric.label||null,correlationId:metric.correlationId||null,stage:metric.stage||null,committed:metric.committed===true,totalMs:metric.totalMs,snapshotMs:metric.snapshotMs,validateMs:metric.validateMs,applyMs:metric.applyMs,postCommitCriticalMs:metric.postCommitCriticalMs,postCommitCriticalTasks:metric.postCommitCriticalTasks,rollbackMs:metric.rollbackMs,rollbackStorage:metric.rollbackStorage,rollbackFailures:metric.rollbackFailures||null,error:metric.error||null,fullSnapshot:metric.fullSnapshot,fullSnapshotFallback:metric.fullSnapshotFallback,fallbackReason:metric.fallbackReason,profiled:metric.profiled===true,profileContext:metric.profileContext||null,phaseBreakdown:metric.phaseBreakdown||null,recordedAtMs:Number.isFinite(recordedAtMs)?recordedAtMs:null,ageMs:Number.isFinite(recordedAtMs)?roundMs(Math.max(0,Number(wallOffsetMs)+Number(frameEndPerfMs)-recordedAtMs)):null,completionPerfMs});}catch(error){return {captureError:String(error?.message||error)};}}
+  // Build 359: a frame's simulation stages (create, chunks, finish, maintenance, render) and the parts of the render
+  // callback, rounded; the largest of each names the sub-stage of a slow simulation frame.
+  function timingRow(value){if(!value||typeof value!=='object')return null;const out={};for(const [key,ms] of Object.entries(value))if(key.endsWith('Ms')&&Number.isFinite(Number(ms)))out[key]=roundMs(ms);return Object.keys(out).length?out:null;}
+  function largestTiming(row,skip=[]){let best=null;for(const [key,ms] of Object.entries(row||{}))if(!skip.includes(key)&&Number(ms)>0&&(!best||Number(ms)>best[1]))best=[key,Number(ms)];return best?{name:best[0].replace(/Ms$/,''),durationMs:roundMs(best[1])}:null;}
+  function simulationSubStage(previous){const stage=largestTiming(previous?.simulationStages,['totalMs']);if(!stage)return {};const part=stage.name==='render'?largestTiming(previous?.renderParts,['recordedAtMs']):null;return {subStage:stage.name,subStageMs:stage.durationMs,...(part?{renderPart:part.name,renderPartMs:part.durationMs}:{})};}
+  function frameDropCause(previous,current,longTasks,transaction){
+    const stages=[['simulation',previous?.simulationMs],['target-update',previous?.targetUpdateMs],['marker-animation',previous?.markerAnimationMs],['structural-render',previous?.structuralRenderMs]].filter(row=>Number.isFinite(Number(row[1]))).sort((a,b)=>Number(b[1])-Number(a[1])),top=stages[0],baseline=Number(current?.expectedFrameIntervalMs)||16.67,workLimit=Math.max(8,baseline*.6);
+    if(previous&&Number(previous.callbackDurationMs)>=workLimit&&top&&Number(top[1])>=Math.max(4,Number(previous.callbackDurationMs)*.35))return {kind:'measured-app-stage',stage:top[0],durationMs:roundMs(top[1]),...(top[0]==='simulation'?simulationSubStage(previous):{}),confidence:'strong-correlation',basis:'previous-requestAnimationFrame callback stage timing'};
+    if(previous&&Number(previous.recorderOverheadMs)>=workLimit&&Number(previous.recorderOverheadMs)>=Number(previous.callbackDurationMs)*.35)return {kind:'diagnostic-recorder-overhead',durationMs:roundMs(previous.recorderOverheadMs),confidence:'measured-overhead',basis:'diagnostic recording work after the preceding app callback'};
+    const taskTotal=Number(current?.simulationTaskMs)||0,taskMax=Number(current?.simulationTaskMaxMs)||0,taskFirst=Number(current?.simulationTaskFirstStartedAtMs),taskLast=Number(current?.simulationTaskLastEndedAtMs),gapStart=Number(previous?.rafTimestampMs),gapEnd=Number(current?.rafTimestampMs)+Number(current?.callbackDelayMs),taskOverlaps=previous&&Number.isFinite(taskFirst)&&Number.isFinite(taskLast)&&taskLast>=gapStart&&taskFirst<=gapEnd;
+    if(taskOverlaps&&taskTotal>=workLimit)return {kind:'measured-simulation-task',stage:current?.simulationStage||null,durationMs:roundMs(taskTotal),maxTaskMs:roundMs(taskMax),taskCount:Math.max(0,Math.floor(Number(current?.simulationTaskCount)||0)),confidence:taskMax>=workLimit?'measured-blocking-task':'measured-overlap',basis:'simulation timer tasks drained by this requestAnimationFrame overlap the delayed frame interval'};
+    if(longTasks.length)return {kind:'browser-long-task-overlap',confidence:'measured-overlap',basis:'PerformanceLongTaskTiming overlaps the delayed frame interval'};
+    if(Number(current?.callbackDelayMs)>=workLimit)return {kind:'main-thread-queue-delay',confidence:'measured-delay-unattributed',basis:'requestAnimationFrame callback began late; no measured app stage explains the delay'};
+    if(previous?.guardReason&&Number(previous.callbackDurationMs)>=workLimit)return {kind:'measured-lifecycle-guard',stage:previous.guardReason,durationMs:roundMs(previous.callbackDurationMs),confidence:'measured-app-callback',basis:'preceding guarded requestAnimationFrame callback duration'};
+    if(previous&&Number(previous.callbackDurationMs)>=workLimit)return {kind:'app-loop-work-unattributed',confidence:'measured-work-incomplete',basis:'app loop occupied the main thread but measured sub-stages do not explain its full duration'};
+    const txPerf=Number(transaction?.completionPerfMs);if(transaction&&Number(transaction.totalMs)>=workLimit&&Number.isFinite(txPerf)&&txPerf>=gapStart&&txPerf<=gapEnd)return {kind:'transaction-correlated',stage:transaction.stage||null,durationMs:roundMs(transaction.totalMs),confidence:'timestamp-within-frame-gap',basis:'simulation transaction completion timestamp falls within the delayed frame window; timing overlap is approximate'};
+    return {kind:'unattributed-scheduler-or-compositor',confidence:'insufficient-main-thread-evidence',basis:'frame cadence dropped without a matching measured app stage or supported long-task entry'};
+  }
+  function recorderFrame(state,sample={},meta={}){
+    const r=recorderFor(state),buffer=recorderFrameBuffers.get(state);if(!r?.active||!buffer)return null;
+    const captureStartedMs=Number(globalThis.performance?.now?.()??Date.now()),rafMs=Number(sample.rafTimestampMs),startMs=Number(sample.callbackStartMs),endMs=Number(sample.callbackEndMs);if(!Number.isFinite(rafMs)||!Number.isFinite(startMs)||!Number.isFinite(endMs)||endMs<startMs)return null;
+    const previous=buffer.count?buffer.rows[(buffer.write-1+buffer.rows.length)%buffer.rows.length]:null,gapMs=previous?Math.max(0,rafMs-Number(previous.rafTimestampMs)):0,callbackDelayMs=Math.max(0,startMs-rafMs),callbackMs=endMs-startMs,visible=sample.visible!==false,hidden=sample.hidden===true,visibleInterval=!!previous&&previous.visible!==false&&previous.hidden!==true&&visible&&!hidden;
+    if(visibleInterval&&gapMs>2&&gapMs<1000){buffer.intervalCount++;buffer.sumIntervalMs+=gapMs;buffer.maxIntervalMs=Math.max(buffer.maxIntervalMs,gapMs);histogramAdd(buffer.intervalHistogram,gapMs);cadenceEstimate(buffer,gapMs);}
+    else if(visibleInterval&&gapMs>=1000)buffer.longGaps++;
+    buffer.callbackCount++;buffer.sumCallbackMs+=callbackMs;buffer.maxCallbackMs=Math.max(buffer.maxCallbackMs,callbackMs);histogramAdd(buffer.callbackHistogram,callbackMs);
+    const expected=buffer.baselineIntervalMs,threshold=expected==null?34:Math.max(12,expected*1.5),janky=visibleInterval&&gapMs>threshold&&gapMs<1000,missed=janky&&expected>0?Math.max(1,Math.round(gapMs/expected)-1):0;
+    const row={sequence:buffer.totalFrames+1,rafTimestampMs:roundMs(rafMs),recordedAtMs:Math.round(buffer.wallOffsetMs+endMs),simSeconds:Number(sample.simSeconds)||0,frameIntervalMs:previous?roundMs(gapMs):null,visibleInterval,effectiveFps:visibleInterval&&gapMs>0?roundMs(1000/gapMs):null,expectedFrameIntervalMs:expected==null?null:roundMs(expected),cadenceSampleCount:buffer.cadenceSamples.length,cadenceConfidence:buffer.cadenceConfidence,callbackDelayMs:roundMs(callbackDelayMs),callbackDurationMs:roundMs(callbackMs),simulationMs:roundMs(sample.simulationMs),simulationTaskMs:roundMs(sample.simulationTaskMs),simulationTaskMaxMs:roundMs(sample.simulationTaskMaxMs),simulationTaskCount:Math.max(0,Math.floor(Number(sample.simulationTaskCount)||0)),simulationTaskFirstStartedAtMs:sample.simulationTaskFirstStartedAtMs!=null&&Number.isFinite(Number(sample.simulationTaskFirstStartedAtMs))?roundMs(sample.simulationTaskFirstStartedAtMs):null,simulationTaskLastEndedAtMs:sample.simulationTaskLastEndedAtMs!=null&&Number.isFinite(Number(sample.simulationTaskLastEndedAtMs))?roundMs(sample.simulationTaskLastEndedAtMs):null,targetUpdateMs:roundMs(sample.targetUpdateMs),markerAnimationMs:roundMs(sample.markerAnimationMs),structuralRenderMs:roundMs(sample.structuralRenderMs),guardReason:String(sample.guardReason||''),simulationProgressExpected:sample.simulationProgressExpected!==false,targetUpdated:sample.targetUpdated===true,markerAnimated:sample.markerAnimated===true,structureRendered:sample.structureRendered===true,fleetSize:Number(sample.fleetSize)||0,ownMarkers:Number(sample.ownMarkers)||0,mobilityMarkers:Number(sample.mobilityMarkers)||0,panel:String(sample.panel||''),mapActive:sample.mapActive===true,visible,hidden,simulationStage:String(sample.simulationStage||''),simulationGovernor:String(sample.simulationGovernor||''),simulationBacklog:Number(sample.simulationBacklog)||0,simulationJobActive:sample.simulationJobActive===true,manualAdvance:sample.manualAdvance===true,lastCreateMs:roundMs(sample.lastCreateMs),lastChunkMs:roundMs(sample.lastChunkMs),lastFinishMs:roundMs(sample.lastFinishMs),lastCycleMs:roundMs(sample.lastCycleMs),simulationStages:timingRow(sample.simulationStages),renderParts:timingRow(sample.renderParts),recorderOverheadMs:0};
+    // The host can intentionally guard the simulation loop while UI such as the 3D conference owns the frame. Keep the
+    // stall and live-rate windows anchored to that expected pause so the first resumed engine frame is not blamed for it.
+    if(!row.simulationProgressExpected){const pausedAtMs=row.recordedAtMs;r.lastProgressAtMs=pausedAtMs;r.lastProgressSim=row.simSeconds;r.flags.simStall=false;const rateWindow=r.rateWindow||{};r.rateWindow={...rateWindow,atMs:pausedAtMs,simSeconds:row.simSeconds};r.lastExpectedPause={atMs:pausedAtMs,simSeconds:row.simSeconds,reason:row.guardReason||row.simulationStage||'host-guard'};}
+    buffer.rows[buffer.write]=row;buffer.write=(buffer.write+1)%buffer.rows.length;buffer.count=Math.min(buffer.count+1,buffer.rows.length);buffer.totalFrames++;
+    if(janky){buffer.jankyFrames++;buffer.estimatedMissedFrames+=missed;buffer.gapsSinceEvent++;buffer.maxGapSinceEventMs=Math.max(buffer.maxGapSinceEventMs,gapMs);const eventAtMs=Math.round(buffer.wallOffsetMs+endMs);if(!buffer.lastFrameEventAtMs||eventAtMs-buffer.lastFrameEventAtMs>=FRAME_EVENT_COOLDOWN_MS){const intervalStart=previous?.rafTimestampMs??rafMs,longTasks=buffer.longTasksRecent.filter(task=>overlapsLongTask(task,intervalStart,startMs)).slice(-8),overlappingLongTasks=longTasks.map(task=>({startPerfMs:task.startPerfMs,endPerfMs:task.endPerfMs,durationMs:task.durationMs,name:task.name,primaryAttribution:task.attribution?.[0]||null,attributionCount:task.attribution?.length||0})),transaction=transactionEvidence(meta.transactionProvider,buffer.wallOffsetMs,endMs),cause=frameDropCause(previous,row,longTasks,transaction);recorderEvent(state,'FRAME_DROP',{frameIntervalMs:roundMs(gapMs),effectiveFps:row.effectiveFps,expectedFrameIntervalMs:row.expectedFrameIntervalMs,estimatedMissedFrames:missed,coalescedJankyFrames:buffer.gapsSinceEvent,maxGapMs:roundMs(buffer.maxGapSinceEventMs),currentFrame:{callbackDelayMs:row.callbackDelayMs,callbackDurationMs:row.callbackDurationMs,simulationMs:row.simulationMs,simulationTaskMs:row.simulationTaskMs,simulationTaskMaxMs:row.simulationTaskMaxMs,simulationTaskCount:row.simulationTaskCount,simulationTaskFirstStartedAtMs:row.simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs:row.simulationTaskLastEndedAtMs,targetUpdateMs:row.targetUpdateMs,markerAnimationMs:row.markerAnimationMs,structuralRenderMs:row.structuralRenderMs},precedingFrame:previous?cleanDetail(previous):null,context:{panel:row.panel,fleetSize:row.fleetSize,ownMarkers:row.ownMarkers,mobilityMarkers:row.mobilityMarkers,mapActive:row.mapActive,simulationStage:row.simulationStage,simulationGovernor:row.simulationGovernor,simulationBacklog:row.simulationBacklog,simulationJobActive:row.simulationJobActive,manualAdvance:row.manualAdvance},overlappingLongTasks,transaction,cause,traceBasis:'measured requestAnimationFrame timestamps, simulation timer intervals and app stage durations; not a JavaScript call stack'},missed>=3?'warning':'info',{nowMs:eventAtMs});buffer.lastFrameEventAtMs=eventAtMs;buffer.gapsSinceEvent=0;buffer.maxGapSinceEventMs=0;}}
+    buffer.lastRafMs=rafMs;buffer.lastCallbackStartMs=startMs;buffer.firstRafMs=buffer.firstRafMs==null?rafMs:buffer.firstRafMs;
+    const captureEndedMs=Number(globalThis.performance?.now?.()??Date.now());row.recorderOverheadMs=Number.isFinite(captureStartedMs)&&Number.isFinite(captureEndedMs)?roundMs(Math.max(0,captureEndedMs-captureStartedMs)):null;
+    return {recorded:true,frameCallbacks:buffer.totalFrames,jankyFrames:buffer.jankyFrames};
+  }
+  const recorderRevenueSignal=state=>{
+    let total=Number(state.todayProfit)||0;
+    for(const value of Object.values(state.sectorProfitToday||{}))total+=Number(value)||0;
+    for(const value of Object.values(state.tripRevenueAccrued||{}))total+=Number(value)||0;
+    return Math.round(total*100)/100;
+  };
+  // Build 359 (a million assets: summing every asset's progress was 40 ms on iPhone at 24,000 assets, once every 3 s): the
+  // moving count comes from the fleet store's class count (1 ms on the desktop at 24,000) and progress is the store's
+  // revision, which every fleet write advances, so an unchanged revision while assets move is the stall the check looks
+  // for. Assets not yet in a store (before migration) are summed as before.
+  // Build 371 (a million moving aircraft: the count read every row, about 130 ms each rate window, and cost 2.1 s of 90 s
+  // of play while recording): a fleet whose revision has not moved since the last signal reuses its count (nothing was
+  // written, so the count is the same, and the stall check compares like with like); a moving fleet above
+  // ASSET_SIGNAL_SWEEP_ROWS takes the moving count of the app's last complete status sweep (meta.fleetPhaseHint, for a
+  // fleet of the same size, at most a few seconds old) instead of reading every row in one frame.
+  const ASSET_SIGNAL_SWEEP_ROWS=50000;
+  const recorderAssetSignal=(state,hint=null,last=null)=>{
+    const fleet=fleetData(),revision=fleet.revision(state);
+    if(revision!==null){
+      const assets=fleet.size(state);
+      if(last&&last.progress===revision&&last.assets===assets&&Number.isFinite(last.moving))return {assets,moving:last.moving,progress:revision};
+      if(assets>ASSET_SIGNAL_SWEEP_ROWS&&hint&&hint.assets===assets&&Number.isFinite(hint.moving))return {assets,moving:hint.moving,progress:revision};
+      return {assets,moving:fleet.countByPhase(state).get('moving')||0,progress:revision};
+    }
+    let assets=0,moving=0,progress=0;
+    fleet.scan(state,['phase','progress'],a=>{assets++;if(a&&a.phase==='moving'){moving++;progress+=Number(a.progress)||0;}});
+    return {assets,moving,progress:Math.round(progress*1e6)/1e6};
+  };
+  function recorderEvent(state,type,detail={},severity='warning',meta={}){
+    ensure(state);const r=recorderFor(state);if(!r?.active&&meta.force!==true)return null;
+    const atMs=recorderNow(meta),event={id:`FR-${Math.round(atMs)}-${++eventSeq}`,type:String(type),severity:String(severity||'warning'),atMs,at:new Date(atMs).toISOString(),simSeconds:Number(state.simSeconds)||0,detail:cleanDetail(detail)};
+    r.events=Array.isArray(r.events)?r.events:[];r.events.unshift(event);if(r.events.length>RECORDER_EVENT_LIMIT)r.events.length=RECORDER_EVENT_LIMIT;
+    r.counts=r.counts&&typeof r.counts==='object'?r.counts:{};r.counts[event.type]=(Number(r.counts[event.type])||0)+1;r.totalEvents=(Number(r.totalEvents)||0)+1;
+    // Build 359: frame drops fill the bounded event list; the first and last event of every other type are kept apart so
+    // a rare finding (a stall, a speed underrun) keeps its detail in the report.
+    if(!FREQUENT_RECORDER_EVENTS.has(event.type)){r.keyEvents=r.keyEvents&&typeof r.keyEvents==='object'?r.keyEvents:{};const kept=r.keyEvents[event.type]||(r.keyEvents[event.type]={first:event,last:event});kept.last=event;}
+    return event;
+  }
+  function recorderIsActive(state){return faultRecorders.get(state)?.active===true;}
+  function recorderStart(state,simulation={},meta={}){
+    ensure(state);globalThis.GH_TRANSACTION_CORE?.resetProfileTelemetry?.();const atMs=recorderNow(meta),asset=recorderAssetSignal(state),revenue=recorderRevenueSignal(state),simSeconds=Number(state.simSeconds)||0;
+    const perfNow=Number(meta.performanceNowMs??globalThis.performance?.now?.()??atMs),buffer=newFrameBuffer();buffer.wallOffsetMs=atMs-(Number.isFinite(perfNow)?perfNow:atMs);recorderFrameBuffers.set(state,buffer);
+    const recorder={version:3,active:true,startedAt:new Date(atMs).toISOString(),startedAtMs:atMs,endedAt:null,endedAtMs:null,startedSimSeconds:simSeconds,lastSampleAtMs:atMs,lastProgressAtMs:atMs,lastProgressSim:simSeconds,lastAssetChangeAtMs:atMs,lastRevenueChangeAtMs:atMs,lastAssetSignal:asset,lastRevenueSignal:revenue,lastEngine:{frames:Number(simulation.frames)||0,slices:Number(simulation.slices)||0,cancels:Number(simulation.cancels)||0,hardTasks:Number(simulation.hardTasks)||0,backlogClamps:Number(simulation.backlogClamps)||0,manualFailures:Number(simulation.manualFailures)||0},rateWindow:{atMs,simSeconds,asset,revenue,requestedRate:Number(simulation.manualAdvance?.speed??simulation.speed)||0},flags:{simStall:false,assetRevenueStall:false},counts:{},totalSamples:0,totalEvents:0,frameCapabilities:{rafTimestamp:true,appStageTiming:true,transactionPhaseProfile:!!globalThis.GH_TRANSACTION_CORE?.resetProfileTelemetry,observedCadenceEstimator:'rolling-modal-visible-interval-v2',hardwareRefreshRateMeasured:false,longTaskObserver:longTaskObserverStatus},samples:[],events:[],summary:null,meta:cleanDetail(meta.context||{})};faultRecorders.set(state,recorder);
+    recorderSample(state,simulation,{...meta,forceSample:true});
+    return recorderSnapshotData(state,false);
+  }
+  function recorderSample(state,simulation={},meta={}){
+    ensure(state);const r=recorderFor(state);if(!r?.active)return r||null;
+    // Build 359: the asset signal is taken once per rate window (and on start and stop); samples in between carry the
+    // last one.
+    const atMs=recorderNow(meta),simSeconds=Number(state.simSeconds)||0,requestedRate=Number(simulation.manualAdvance?.speed??simulation.speed)||0,assetDue=meta.forceSample===true||!r.lastAssetSignal||atMs-Number(r.rateWindow?.atMs??atMs)>=RECORDER_RATE_WINDOW_MS,asset=assetDue?recorderAssetSignal(state,meta.fleetPhaseHint,r.lastAssetSignal):r.lastAssetSignal,revenue=recorderRevenueSignal(state),engine={frames:Number(simulation.frames)||0,slices:Number(simulation.slices)||0,cancels:Number(simulation.cancels)||0,hardTasks:Number(simulation.hardTasks)||0,backlogClamps:Number(simulation.backlogClamps)||0,manualFailures:Number(simulation.manualFailures)||0};
+    const prevEngine=r.lastEngine||{};
+    if(engine.cancels>Number(prevEngine.cancels||0))recorderEvent(state,'SIM_SLICE_CANCELLED',{delta:engine.cancels-Number(prevEngine.cancels||0),reason:simulation.lastCancelReason||'',jobActive:!!simulation.jobActive,jobReadyToFinish:!!simulation.jobReadyToFinish},'warning',{nowMs:atMs});
+    if(engine.hardTasks>Number(prevEngine.hardTasks||0))recorderEvent(state,'SIM_STAGE_HARD_TASK',{delta:engine.hardTasks-Number(prevEngine.hardTasks||0),stage:simulation.lastWorkStage||'',lastCreateMs:Number(simulation.lastCreateMs)||0,lastChunkMs:Number(simulation.lastChunkMs)||0,lastFinishMs:Number(simulation.lastFinishMs)||0,maxCycleMs:Number(simulation.maxCycleMs)||0,governor:simulation.governor||''},'warning',{nowMs:atMs});
+    if(engine.backlogClamps>Number(prevEngine.backlogClamps||0))recorderEvent(state,'LIVE_BACKLOG_CLAMP',{delta:engine.backlogClamps-Number(prevEngine.backlogClamps||0),backlog:Number(simulation.backlog)||0,requestedRate,governor:simulation.governor||''},'warning',{nowMs:atMs});
+    if(engine.manualFailures>Number(prevEngine.manualFailures||0)||simulation.lastAdvanceFailure&&JSON.stringify(simulation.lastAdvanceFailure)!==JSON.stringify(r.lastAdvanceFailure||null)){
+      if(simulation.lastAdvanceFailure)recorderEvent(state,'CALENDAR_ADVANCE_FAILED',simulation.lastAdvanceFailure,'warning',{nowMs:atMs});
+    }
+    r.lastAdvanceFailure=cleanDetail(simulation.lastAdvanceFailure||null);
+    const progressed=simSeconds>Number(r.lastProgressSim||0)+1e-6;
+    if(progressed){r.lastProgressAtMs=atMs;r.lastProgressSim=simSeconds;r.flags.simStall=false;}
+    // A presentation/lifecycle guard explicitly anchors lastExpectedPause from recorderFrame. Keep a short resume grace
+    // window too: the first live engine frame may legitimately spend its time rebuilding a slice before simSeconds moves.
+    const expectedPauseAge=atMs-Number(r.lastExpectedPause?.atMs||0),hostPauseRecent=Number.isFinite(expectedPauseAge)&&expectedPauseAge>=0&&expectedPauseAge<2000;
+    const engineAlive=engine.frames>Number(prevEngine.frames||0),expectedProgress=requestedRate>0&&!simulation.hidden&&!hostPauseRecent;
+    if(expectedProgress&&engineAlive&&!progressed&&atMs-Number(r.lastProgressAtMs||atMs)>=RECORDER_STALL_MS&&!r.flags.simStall){
+      r.flags.simStall=true;recorderEvent(state,'SIM_PROGRESS_STALLED',{stalledMs:atMs-Number(r.lastProgressAtMs||atMs),simSeconds,requestedRate,jobActive:!!simulation.jobActive,jobReadyToFinish:!!simulation.jobReadyToFinish,stage:simulation.lastWorkStage||'',governor:simulation.governor||'',backlog:Number(simulation.backlog)||0},'warning',{nowMs:atMs});
+    }
+    if(asset.progress!==r.lastAssetSignal?.progress||asset.moving!==r.lastAssetSignal?.moving){r.lastAssetChangeAtMs=atMs;r.lastAssetSignal=asset;r.flags.assetRevenueStall=false;}
+    if(revenue!==r.lastRevenueSignal){r.lastRevenueChangeAtMs=atMs;r.lastRevenueSignal=revenue;r.flags.assetRevenueStall=false;}
+    const rw=r.rateWindow||{atMs,simSeconds,asset,revenue,requestedRate},windowMs=atMs-Number(rw.atMs||atMs);
+    if(windowMs>=RECORDER_RATE_WINDOW_MS){
+      const simDelta=simSeconds-Number(rw.simSeconds||0),actualRate=windowMs>0?simDelta/(windowMs/1000):0,expected=Number(rw.requestedRate||requestedRate)||0;
+      if(!simulation.manualAdvance&&expected>0&&actualRate<expected*.85)recorderEvent(state,'LIVE_SPEED_UNDERRUN',{requestedRate:expected,actualRate:Math.round(actualRate*10)/10,windowMs,simDelta,governor:simulation.governor||'',backlog:Number(simulation.backlog)||0},'warning',{nowMs:atMs});
+      const assetUnchanged=asset.moving>0&&asset.progress===rw.asset?.progress&&asset.moving===rw.asset?.moving,revenueUnchanged=revenue===rw.revenue;
+      if(simDelta>0&&assetUnchanged&&revenueUnchanged&&!r.flags.assetRevenueStall){r.flags.assetRevenueStall=true;recorderEvent(state,'ASSET_REVENUE_PROGRESS_STALLED',{windowMs,simDelta,movingAssets:asset.moving,assetProgressSignal:asset.progress,revenueSignal:revenue,requestedRate:expected},'warning',{nowMs:atMs});}
+      r.rateWindow={atMs,simSeconds,asset,revenue,requestedRate};
+    }
+    const sample={atMs,simSeconds,requestedRate,actualGovernor:simulation.governor||'',backlog:Number(simulation.backlog)||0,jobActive:!!simulation.jobActive,jobReadyToFinish:!!simulation.jobReadyToFinish,stage:simulation.lastWorkStage||'',frames:engine.frames,slices:engine.slices,cancels:engine.cancels,hardTasks:engine.hardTasks,backlogClamps:engine.backlogClamps,manualFailures:engine.manualFailures,manualYields:Number(simulation.manualThrottleYields)||0,asset,revenue};
+    r.samples=Array.isArray(r.samples)?r.samples:[];
+    if(meta.forceSample===true||!r.samples.length||atMs-Number(r.lastSampleAtMs||0)>=500){r.samples.unshift(sample);if(r.samples.length>RECORDER_SAMPLE_LIMIT)r.samples.length=RECORDER_SAMPLE_LIMIT;r.totalSamples=(Number(r.totalSamples)||0)+1;r.lastSampleAtMs=atMs;}
+    r.lastEngine=engine;r.lastSeen={atMs,simSeconds,requestedRate,asset,revenue,simulation:cleanDetail({governor:simulation.governor,avgChunkMs:simulation.avgChunkMs,avgWorkMs:simulation.avgWorkMs,lastWorkStage:simulation.lastWorkStage,lastCreateMs:simulation.lastCreateMs,lastChunkMs:simulation.lastChunkMs,lastFinishMs:simulation.lastFinishMs,lastCycleMs:simulation.lastCycleMs,lastCancelReason:simulation.lastCancelReason,lastCommitReason:simulation.lastCommitReason,backlog:simulation.backlog,jobActive:simulation.jobActive,jobReadyToFinish:simulation.jobReadyToFinish,manualAdvance:simulation.manualAdvance})};
+    return recorderSnapshotData(state,false);
+  }
+  function recorderStop(state,simulation={},meta={}){
+    ensure(state);const r=recorderFor(state);if(!r)return null;
+    if(r.active)recorderSample(state,simulation,{...meta,forceSample:true});
+    const atMs=recorderNow(meta);r.active=false;r.endedAtMs=atMs;r.endedAt=new Date(atMs).toISOString();
+    const events=Array.isArray(r.events)?r.events:[],counts={...(r.counts||{})},priority=['FRAME_DROP','LONG_TASK_TRACE','CALENDAR_ADVANCE_FAILED','SIM_PROGRESS_STALLED','ASSET_REVENUE_PROGRESS_STALLED','LIVE_BACKLOG_CLAMP','LIVE_SPEED_UNDERRUN','SIM_SLICE_CANCELLED','SIM_STAGE_HARD_TASK'];
+    const kept=r.keyEvents||{},findings=priority.filter(type=>Number(counts[type])>0).map(type=>({type,count:Number(counts[type])||0,last:events.find(e=>e.type===type)||kept[type]?.last||null,...(kept[type]?{first:kept[type].first}:{})}));
+    const buffer=recorderFrameBuffers.get(state),summary=frameSummary(buffer);r.summary={status:findings.length?'captured':'no-fault-captured',durationMs:Math.max(0,atMs-Number(r.startedAtMs||atMs)),simDelta:(Number(state.simSeconds)||0)-Number(r.startedSimSeconds||0),samples:Number(r.totalSamples)||r.samples?.length||0,events:Number(r.totalEvents)||events.length,findings,frameSummary:summary,engine:cleanDetail(simulation),endedSimSeconds:Number(state.simSeconds)||0};
+    return cleanDetail(r.summary);
+  }
+  function recorderSnapshot(state,options={}){return recorderSnapshotData(state,options.includeHistory===true);}
+  function issue(id,severity,title,detail,domain='system',evidence={}){return {id,severity,title,detail,domain,evidence:cleanDetail(evidence)};}
+  function finiteNumber(value){return typeof value==='number'&&Number.isFinite(value);}
+  function simulationRateSummary(state,simulation={}){
+    const speedLevel=Number.isFinite(Number(state?.speed))?Number(state.speed):0,effectiveRate=Number.isFinite(Number(simulation?.speed))?Number(simulation.speed):null,manual=simulation?.manualAdvance&&typeof simulation.manualAdvance==='object'?simulation.manualAdvance:null,manualRate=manual&&(Number.isFinite(Number(manual.requestedSpeed))?Number(manual.requestedSpeed):Number.isFinite(Number(manual.speed))?Number(manual.speed):null),requestedRate=manualRate??effectiveRate;
+    return {speed:speedLevel,speedLevel,effectiveRate,requestedRate,manualAdvance:!!manual};
+  }
+  function createGovernorEventCoalescer({emit,nowMs=()=>Date.now(),windowMs=10000}={}){
+    if(typeof emit!=='function')throw new TypeError('Governor event emitter is required');windowMs=Math.max(1000,Number(windowMs)||10000);
+    const rank={GREEN:0,YELLOW:1,ORANGE:2,RED:3};let lastEmitAt=-Infinity,emittedPressureRank=1,pending=null;
+    const number=value=>Number.isFinite(Number(value))?Number(value):0;
+    const add=(sample,at)=>{
+      const level=String(sample?.level||'GREEN').toUpperCase(),row={level:Object.hasOwn(rank,level)?level:'GREEN',avgChunkMs:number(sample?.avgChunkMs),avgWorkMs:number(sample?.avgWorkMs),stage:String(sample?.stage||''),took:number(sample?.took),speed:number(sample?.speed)};
+      if(!pending)pending={count:0,firstAtMs:at,lastAtMs:at,levels:{GREEN:0,YELLOW:0,ORANGE:0,RED:0},peakLevel:row.level,peakStage:row.stage,maxTook:0,maxTookStage:row.stage,maxAvgWorkMs:0,maxAvgChunkMs:0,last:row};
+      pending.count++;pending.lastAtMs=at;pending.levels[row.level]++;if(rank[row.level]>rank[pending.peakLevel]){pending.peakLevel=row.level;pending.peakStage=row.stage;}if(row.took>pending.maxTook){pending.maxTook=row.took;pending.maxTookStage=row.stage;}pending.maxAvgWorkMs=Math.max(pending.maxAvgWorkMs,row.avgWorkMs);pending.maxAvgChunkMs=Math.max(pending.maxAvgChunkMs,row.avgChunkMs);pending.last=row;return row;
+    };
+    const summary=reason=>pending?{...pending.last,coalesced:true,reason,transitions:pending.count,firstAtMs:pending.firstAtMs,lastAtMs:pending.lastAtMs,windowMs,levels:{...pending.levels},peakLevel:pending.peakLevel,peakStage:pending.peakStage,maxTook:pending.maxTook,maxTookStage:pending.maxTookStage,maxAvgWorkMs:pending.maxAvgWorkMs,maxAvgChunkMs:pending.maxAvgChunkMs}:null;
+    const publish=reason=>{const out=summary(reason);if(!out)return null;pending=null;lastEmitAt=out.lastAtMs;emittedPressureRank=Math.max(rank.YELLOW,rank[out.peakLevel]??rank.YELLOW);emit(out);return out;};
+    const discard=()=>{const discarded=pending?.count||0;pending=null;lastEmitAt=-Infinity;emittedPressureRank=rank.YELLOW;return discarded;};
+    return Object.freeze({
+      observe(sample){const raw=Number(nowMs()),at=Number.isFinite(raw)?raw:Date.now(),row=add(sample,at),pressureRank=rank[row.level],first=!Number.isFinite(lastEmitAt),intervalDue=!first&&at-lastEmitAt>=windowMs;if(first||intervalDue)return publish(pressureRank>=rank.ORANGE?'pressure-escalation':'interval');if(pressureRank>=rank.ORANGE&&pressureRank>emittedPressureRank)return publish('pressure-escalation');return null;},
+      flush(reason='flush'){return publish(String(reason||'flush'));},
+      discard,
+      reset:discard,
+      snapshot(){return pending?{pendingTransitions:pending.count,firstAtMs:pending.firstAtMs,lastAtMs:pending.lastAtMs,peakLevel:pending.peakLevel,lastLevel:pending.last.level,windowMs}:{pendingTransitions:0,firstAtMs:null,lastAtMs:null,peakLevel:null,lastLevel:null,windowMs};}
+    });
+  }
+  function layoutSnapshot(){
+    const doc=globalThis.document;if(!doc?.querySelector)return null;
+    const pack=(el)=>{if(!el?.getBoundingClientRect)return null;const r=el.getBoundingClientRect();return {left:Number(r.left)||0,top:Number(r.top)||0,right:Number(r.right)||0,bottom:Number(r.bottom)||0,width:Number(r.width)||0,height:Number(r.height)||0};};
+    const actions=doc.querySelector('.topbar .top-actions');
+    return {
+      viewport:{width:Number(globalThis.innerWidth)||Number(doc.documentElement?.clientWidth)||0,height:Number(globalThis.innerHeight)||Number(doc.documentElement?.clientHeight)||0},
+      topbar:pack(doc.querySelector('.topbar')),brand:pack(doc.querySelector('.topbar .brand')),kpis:pack(doc.querySelector('.topbar .top-kpis')),actions:pack(actions),mapActions:pack(doc.querySelector('.map-actions')),
+      actionButtons:actions?[...actions.querySelectorAll('button')].filter(el=>{const st=globalThis.getComputedStyle?.(el);return st?.display!=='none'&&st?.visibility!=='hidden';}).map(el=>({id:el.id||null,rect:pack(el)})):[]
+    };
+  }
+  function rectOverlap(a,b,tolerance=1){if(!a||!b)return false;return a.left<b.right-tolerance&&a.right>b.left+tolerance&&a.top<b.bottom-tolerance&&a.bottom>b.top+tolerance;}
+  // Build 372: the fleet part of the check lives in fleet-health-core (the fleet engine's worker runs it on its replica).
+  const fleetHealth=()=>{const api=globalThis.GH_FLEET_HEALTH||(typeof require==='function'?require('./fleet-health-core.js'):null);if(!api)throw new Error('fleet-health-core-unavailable');return api;};
+  function runHealthCheck(state,extra={},options={}){
+    const issues=[];ensure(state);
+    const add=(id,severity,title,detail,domain,evidence)=>issues.push(issue(id,severity,title,detail,domain,evidence));
+    const simSeconds=Number(state.simSeconds);
+    if(!Number.isFinite(simSeconds)||simSeconds<0)add('SIM_TIME_INVALID','critical','زمن المحاكاة غير صالح','simSeconds يجب أن يكون رقمًا محدودًا وغير سالب.','simulation',{simSeconds:state.simSeconds});
+    if(!ALLOWED_SPEEDS.includes(Number(state.speed)))add('SIM_SPEED_INVALID','critical','سرعة غير معتمدة','السرعة الحالية ليست ضمن الإيقاف أو مستويات التشغيل الخمسة المعتمدة.','simulation',{speed:state.speed});
+    const sim=extra.simulation||{};
+    if(sim.fatalError)add(String(sim.fatalError?.code||'SIM_FATAL_STATE')==='TRANSACTION_ROLLBACK_FAILED'?'TRANSACTION_ROLLBACK_FAILED':'SIM_FATAL_STATE','critical','المحرك في حالة خطأ قاتل',String(sim.fatalError?.message||sim.fatalError),'simulation',sim.fatalError);
+    if(Number(sim.backlogSeconds)>60)add('SIM_BACKLOG_HIGH','warning','تراكم محاكاة مرتفع','يوجد backlog مرتفع وقد يؤدي إلى تباطؤ أو خفض سرعة تلقائي.','simulation',{backlogSeconds:sim.backlogSeconds});
+    if(Number(sim.conflictRate)>0.1)add('SIM_CONFLICT_HIGH','warning','معدل تعارض معاملات مرتفع','تتكرر إلغاءات معاملات المحاكاة أكثر من المتوقع.','simulation',{conflictRate:sim.conflictRate});
+    const recovery=state.simulationKernel?.boundaryRecovery;
+    if(recovery?.failed)add('BOUNDARY_RECOVERY_FAILED','critical','فشل استرداد حدود الزمن','تم إيقاف الاسترداد بعد فشل سابق ويجب مراجعة التشخيص.','simulation',recovery);
+    const advanceFailure=state.simulationKernel?.lastAdvanceFailure;
+    if(advanceFailure){const rollback=advanceFailure.code==='TRANSACTION_ROLLBACK_FAILED'||JSON.stringify(advanceFailure.errorDetail||{}).includes('TRANSACTION_ROLLBACK_FAILED')||/rollback failed/i.test(String(advanceFailure.error||''));add(rollback?'TRANSACTION_ROLLBACK_FAILED':'SIM_CALENDAR_ADVANCE_FAILED',rollback?'critical':'warning',rollback?'فشل استرجاع إقفال يومي':'تعذر تقديم التاريخ',rollback?'فشل الإقفال اليومي ثم تعذر استرجاع إحدى مكوناته؛ أوقفت المحاكاة لحماية الحفظ.':'توقف تقديم التاريخ عند آخر حالة معتمدة دون اعتماد حركة جزئية.','simulation',advanceFailure);}
+    const lastCommit=state.simulationKernel?.lastAtomicCommit;
+    if(lastCommit&&finiteNumber(lastCommit.from)&&finiteNumber(lastCommit.to)&&lastCommit.to<lastCommit.from)add('ATOMIC_COMMIT_REVERSED','critical','معاملة زمنية معكوسة','آخر Atomic Commit تحرك إلى زمن أقدم.','transaction',lastCommit);
+    if(!globalThis.GH_TRANSACTION_CORE?.execute)add('TX_CORE_MISSING','critical','Transaction Core غير متاح','لا يمكن ضمان All-or-Nothing بدون Transaction Core.','transaction');
+    if(!globalThis.GH_SIMULATION_CORE?.create)add('SIM_CORE_MISSING','critical','Simulation Core غير متاح','محرك الزمن المركزي غير محمل.','simulation');
+    if(!globalThis.GH_SAVE_SCHEMA?.normalize)add('SAVE_SCHEMA_CORE_MISSING','critical','Save Schema Core غير متاح','طبقة التوافق مع الحفظ غير محملة.','save');
+    const expectedVersions=Object.freeze({hr:'3.0.2'});
+    for(const [name,core] of [['transaction',globalThis.GH_TRANSACTION_CORE],['simulation',globalThis.GH_SIMULATION_CORE],['save',globalThis.GH_SAVE_SCHEMA],['determinism',globalThis.GH_DETERMINISM],['procurement',globalThis.GH_PROCUREMENT_CORE],['hr',globalThis.GH_HR_CORE],['lifecycle',globalThis.GH_LIFECYCLE_CORE],['policy',globalThis.GH_POLICY_CORE],['dependencies',globalThis.GH_DEPENDENCY_CORE],['ledger',globalThis.GH_EVENT_LEDGER],['deliveryMonitor',globalThis.GH_DELIVERY_MONITOR],['integrity',globalThis.GH_INTEGRITY_CORE],['workflow',globalThis.GH_WORKFLOW]]){const expected=expectedVersions[name]||VERSION;if(core?.VERSION&&String(core.VERSION)!==expected)add('CORE_VERSION_MISMATCH','critical','عدم تطابق إصدارات الأنظمة',`${name} يعمل على ${core.VERSION} بينما الإصدار المعتمد له ${expected}.`,'system',{name,version:core.VERSION,expected});}
+    for(const [key,label] of [['cash','السيولة الموحدة'],['debt','الدين الموحد'],['groupValue','قيمة المجموعة']]){const v=Number(state[key]);if(!Number.isFinite(v)||v<0)add(`STATE_${key.toUpperCase()}_INVALID`,'critical',`${label} غير صالحة`,`${key} يجب أن يكون رقمًا محدودًا وغير سالب.`,'finance',{value:state[key]});}
+    if(String(state.saveVersion||'3.0.0')!=='3.0.0')add('SAVE_SCHEMA_UNEXPECTED','warning','نسخة الحفظ غير متوقعة','المشروع مصمم حاليًا لحفظ 3.0.0.','save',{saveVersion:state.saveVersion});
+
+    // The fleet's asset issues (fleet-health-core). Build 372: extra.fleetAssetIssues carries them as the fleet engine's
+    // worker found them on its replica (the store as of its last exchange, at most one step behind); otherwise they are
+    // found here.
+    const fleetIssues=Array.isArray(extra.fleetAssetIssues)?extra.fleetAssetIssues:fleetHealth().assetIssues(state,fleetData());
+    for(const row of fleetIssues)add(...row);
+
+    const books=state.finance?.companyBooks||state.companyBooks||{};
+    for(const [company,book] of Object.entries(books||{})){
+      const balance=Number(book?.balance??book?.cash??0),debt=Number(book?.debt??0);
+      if(!Number.isFinite(balance))add('FIN_BALANCE_NAN','critical','رصيد شركة غير رقمي',`رصيد ${company} ليس رقمًا صالحًا.`,'finance',{company,balance:book?.balance});
+      if(!Number.isFinite(debt)||debt<0)add('FIN_DEBT_INVALID','warning','دين شركة غير صالح',`دين ${company} يجب أن يكون رقمًا غير سالب.`,'finance',{company,debt:book?.debt});
+    }
+    const deliveries=state.realism?.procurement?.deliveries||[];
+    const overdueDeliveries=Array.isArray(deliveries)?deliveries.filter(d=>d?.status==='pending'&&Number.isFinite(Number(d.dueAtSeconds))&&Number(d.dueAtSeconds)<Number(state.simSeconds||0)-5):[];
+    if(overdueDeliveries.length)add('PROCUREMENT_DELIVERY_OVERDUE','warning','أصول مستحقة لم تدخل القواعد','يوجد طلب تسليم تجاوز موعده التشغيلي ولم يدخل الأصل إلى الأسطول بعد.','assets',{count:overdueDeliveries.length,ids:overdueDeliveries.slice(0,12).map(d=>d.id)});
+    const collections=[['receivables',state.finance?.receivables],['payables',state.finance?.payables],['invoices',state.finance?.invoices],['cheques',state.finance?.cheques]];
+    for(const [name,list] of collections)if(list!=null&&!Array.isArray(list))add(`FIN_${name.toUpperCase()}_INVALID`,'critical',`هيكل ${name} غير صالح`,`يجب أن يكون ${name} مصفوفة.`,'finance',{type:typeof list});
+    if((state.finance?.receivables?.length||0)>5000)add('AR_VOLUME_HIGH','warning','سجل الذمم المدينة ضخم','عدد السجلات مرتفع رغم نظام الضغط التاريخي.','finance',{count:state.finance.receivables.length});
+    if((state.finance?.payables?.length||0)>5000)add('AP_VOLUME_HIGH','warning','سجل الذمم الدائنة ضخم','عدد السجلات مرتفع رغم نظام الضغط التاريخي.','finance',{count:state.finance.payables.length});
+
+
+    const integrity=Object.prototype.hasOwnProperty.call(extra,'integrity')?extra.integrity:globalThis.GH_INTEGRITY_CORE?.check?.(state);
+    if(integrity?.issues?.length)for(const x of integrity.issues)add(`BIZ_${x.id}`,x.severity,x.title,x.detail,x.domain||'business',x.evidence||{});
+    const layout=layoutSnapshot();
+    if(layout?.topbar){
+      const buttons=(layout.actionButtons||[]).map(x=>x.rect).filter(Boolean);
+      if(buttons.length>1){const tops=buttons.map(r=>r.top),bottoms=buttons.map(r=>r.bottom);if(Math.max(...tops)-Math.min(...tops)>4||Math.max(...bottoms)-Math.min(...bottoms)>4)add('UI_TOPBAR_ACTION_WRAP','warning','التفاف أزرار الشريط العلوي','أزرار الإجراءات ليست على صف واحد؛ قد يكون عدد الأعمدة أقل من عدد الأزرار.','ui',{layout});}
+      for(const item of layout.actionButtons||[]){const r=item.rect,t=layout.topbar;if(r&&(r.top<t.top-1||r.bottom>t.bottom+1))add('UI_TOPBAR_ACTION_OVERFLOW','warning','زر خارج حدود الشريط العلوي',`الزر ${item.id||'غير معروف'} خرج عموديًا من حاوية الشريط.`,'ui',{button:item,topbar:t});}
+      if(rectOverlap(layout.actions,layout.kpis,2))add('UI_TOPBAR_ACTION_KPI_OVERLAP','warning','تداخل الإجراءات مع المؤشرات','منطقة أزرار الشريط تتداخل مع بطاقات KPI.','ui',{layout});
+      if(rectOverlap(layout.kpis,layout.brand,2))add('UI_TOPBAR_KPI_BRAND_OVERLAP','warning','تداخل المؤشرات مع هوية المجموعة','بطاقات KPI تتداخل مع اسم/شعار المجموعة.','ui',{layout});
+      if(layout.mapActions&&layout.mapActions.top<layout.topbar.bottom+3)add('UI_MAP_TOOLS_TOPBAR_OVERLAP','warning','تداخل أدوات الخريطة مع الشريط العلوي','أدوات الخريطة بدأت قبل نهاية الشريط العلوي.','ui',{layout});
+      const interactionIssues=globalThis.GH_INTERACTION?.validate?.(globalThis.document)||[];for(const ii of interactionIssues){add(ii.id||'BUTTON_INTEGRITY','warning',ii.id==='DISABLED_WITHOUT_REASON'?'زر معطل بلا سبب واضح':'خلل في ربط زر',ii.label||'زر غير معروف','ui',{button:ii});}
+    }
+
+    const diag=state.diagnostics;
+
+    const severityRank={critical:3,warning:2,info:1,ok:0};
+    issues.sort((a,b)=>(severityRank[b.severity]||0)-(severityRank[a.severity]||0));
+    const critical=issues.filter(x=>x.severity==='critical').length,warning=issues.filter(x=>x.severity==='warning').length;
+    const report={format:'gh-health-v3',version:VERSION,at:new Date().toISOString(),checkedAtMs:Date.now(),simSeconds:Number(state.simSeconds)||0,status:critical?'critical':warning?'warning':'healthy',counts:{critical,warning,total:issues.length},issues,summary:{assets:fleetData().size(state),events:(state.eventLog||[]).length,diagnosticEvents:(diag.events||[]).length,receivables:state.finance?.receivables?.length||0,payables:state.finance?.payables?.length||0,...simulationRateSummary(state,sim)},simulation:cleanDetail(sim),layout:cleanDetail(layout)};
+    if(options.trackTransitions!==false){
+      const previous=diag.activeIssues&&typeof diag.activeIssues==='object'?diag.activeIssues:{};
+      const next={};
+      for(const current of issues){
+        const prior=previous[current.id];
+        next[current.id]={id:current.id,severity:current.severity,title:current.title,detail:current.detail,domain:current.domain,firstSeenAt:prior?.firstSeenAt||report.at,lastSeenAt:report.at,occurrences:(Number(prior?.occurrences)||0)+1,evidence:current.evidence};
+        if(!prior)record(state,'ISSUE_OPEN',{id:current.id,title:current.title,domain:current.domain},current.severity);
+        else if(prior.severity!==current.severity)record(state,'ISSUE_SEVERITY_CHANGED',{id:current.id,from:prior.severity,to:current.severity,title:current.title},current.severity);
+      }
+      for(const [id,prior] of Object.entries(previous)){
+        if(next[id])continue;
+        const resolved={...prior,resolvedAt:report.at,resolvedSimSeconds:Number(state.simSeconds)||0};
+        diag.resolvedIssues.unshift(resolved);
+        if(diag.resolvedIssues.length>80)diag.resolvedIssues.length=80;
+        record(state,'ISSUE_RESOLVED',{id,title:prior.title,domain:prior.domain},'info');
+      }
+      diag.activeIssues=next;
+    }
+    if(options.storeResult!==false)diag.lastHealth=report;
+    if(options.recordEvent===true)record(state,'HEALTH_CHECK',{status:report.status,counts:report.counts},critical?'critical':warning?'warning':'info');
+    return report;
+  }
+  let exportEvidenceSequence=0;
+  function captureExportEvidence(state,extra={},options={}){
+    const hasIntegrity=Object.prototype.hasOwnProperty.call(extra,'integrity'),simulation=Object.prototype.hasOwnProperty.call(extra,'simulation')?extra.simulation:(globalThis.GH_SIM_KERNEL?.snapshot?.()||{}),integrity=hasIntegrity?extra.integrity:(globalThis.GH_INTEGRITY_CORE?.check?.(state)||null),health=Object.prototype.hasOwnProperty.call(extra,'health')?extra.health:runHealthCheck(state,{...extra,simulation,integrity},{recordEvent:options.recordEvent===true,trackTransitions:options.trackTransitions===true,storeResult:options.storeResult===true}),capturedAtMs=Date.now(),generatedAt=new Date(capturedAtMs).toISOString(),saveRevision=Number(state.saveRevision)||0,simSeconds=Number(state.simSeconds)||0,stateRevision=Number(state.controlPlane?.revision)||0,fleetRevision=Number(state.fleet?.revision)||0,transactionRevision=Number(globalThis.GH_TRANSACTION_CORE?.revision?.(state))||0,controlEventSequence=Number(state.controlPlane?.eventSequence)||0,diagnosticEventCount=state.diagnostics?.events?.length||0,diagnosticEventHead=state.diagnostics?.events?.[0]?.id||null;
+    return Object.freeze({format:'gh-diagnostic-evidence-v1',id:`DX-${capturedAtMs}-${++exportEvidenceSequence}-${saveRevision}-${simSeconds}`,capturedAtMs,generatedAt,saveRevision,simSeconds,stateRevision,fleetRevision,transactionRevision,controlEventSequence,diagnosticEventCount,diagnosticEventHead,integrityCalls:hasIntegrity?Math.max(0,Number(extra.integrityCalls)||0):1,simulation,integrity,health});
+  }
+  function stateSummary(state,simulation={}){const deliveries=state.realism?.procurement?.deliveries||[],energy=globalThis.GH_INTEGRITY_CORE?.energyLifecycleSnapshot?.(state)||null;return {profile:{name:state.profile?.name||null,creditRating:state.profile?.creditRating||null},simSeconds:Number(state.simSeconds)||0,...simulationRateSummary(state,simulation),cash:Number(state.cash)||0,debt:Number(state.debt)||0,groupValue:Number(state.groupValue)||0,assets:fleetData().size(state),openedCompanies:[...(state.openedCompanies||[])],globalBases:(state.globalBases||[]).length,customHubs:(state.customHubs||[]).length,branches:(state.branches||[]).length,energy:cleanDetail(energy),finance:{invoices:state.finance?.invoices?.length||0,cheques:state.finance?.cheques?.length||0,receivables:state.finance?.receivables?.length||0,payables:state.finance?.payables?.length||0},execution:{commands:state.domainRuntime?.commands?.length||0,rolledBack:(state.domainRuntime?.commands||[]).filter(row=>row.status==='rolled_back').length},procurement:{manualOnly:state.advanced?.procurement?.manualOnly===true,pendingDeliveries:deliveries.filter(row=>row.status==='pending').length,completedDeliveries:deliveries.filter(row=>row.status==='delivered').length}};}
+  const profilerClock=()=>globalThis.performance?.now?.()??Date.now();
+  function profileNode(value,bytes,depth=0,budget={nodes:0},limits={maxDepth:3,topN:10,maxNodes:180,minChildBytes:1024}){
+    const out={kind:Array.isArray(value)?'array':value&&typeof value==='object'?'object':typeof value,bytes:null};
+    try{out.bytes=bytes(value);}catch(error){out.error=String(error?.message||error);return out;}
+    if(Array.isArray(value))out.count=value.length;else if(value&&typeof value==='object')out.count=Object.keys(value).length;
+    if(!value||typeof value!=='object'||depth>=limits.maxDepth||budget.nodes>=limits.maxNodes)return out;
+    const entries=Array.isArray(value)?value.map((child,index)=>[String(index),child]):Object.entries(value),weighted=[];
+    for(const [key,child] of entries){
+      try{weighted.push({key,bytes:bytes(child),value:child});}catch(error){weighted.push({key,bytes:null,error:String(error?.message||error),value:null});}
+    }
+    weighted.sort((a,b)=>(b.bytes||0)-(a.bytes||0));
+    out.children=weighted.slice(0,limits.topN).map(row=>{
+      budget.nodes++;const child={key:row.key,bytes:row.bytes};if(row.error)child.error=row.error;
+      if(row.value&&typeof row.value==='object'&&Number(row.bytes)>=limits.minChildBytes&&depth+1<limits.maxDepth&&budget.nodes<limits.maxNodes)child.profile=profileNode(row.value,bytes,depth+1,budget,limits);
+      return child;
+    });
+    return out;
+  }
+  function assetSamples(assets,bytes){
+    if(!Array.isArray(assets)||!assets.length)return [];
+    const chosen=[],push=(label,asset)=>{if(asset&&!chosen.some(row=>row.assetId===asset.id)){const fields=[];for(const [key,value] of Object.entries(asset)){try{fields.push({key,bytes:bytes(value)});}catch(error){fields.push({key,bytes:null,error:String(error?.message||error)});}}fields.sort((a,b)=>(b.bytes||0)-(a.bytes||0));chosen.push({label,assetId:asset.id||null,phase:asset.phase||null,bytes:bytes(asset),fields:fields.slice(0,24)});}};
+    push('moving',assets.find(asset=>asset?.phase==='moving'));push('non-moving',assets.find(asset=>asset?.phase!=='moving'));push('first',assets[0]);return chosen;
+  }
+  function stateByteProfileLegacy(state){
+    const started=profilerClock(),encoder=globalThis.TextEncoder?new TextEncoder():null,bytes=value=>{const json=JSON.stringify(value);return encoder?encoder.encode(json).byteLength:json.length*2;},rows=[];let rootBytes=0;
+    try{rootBytes=bytes(state);}catch(_error){rootBytes=Infinity;}
+    for(const [key,value] of Object.entries(state||{})){try{const size=bytes(value),subtrees=[];if(value&&typeof value==='object'&&!Array.isArray(value))for(const [subKey,subValue] of Object.entries(value)){try{const subBytes=bytes(subValue);if(subBytes>=50*1024)subtrees.push({key:subKey,bytes:subBytes});}catch(_error){subtrees.push({key:subKey,bytes:null,error:'serialization-error'});}}subtrees.sort((a,b)=>(b.bytes||0)-(a.bytes||0));rows.push({key,bytes:size,subtrees:subtrees.slice(0,24)});}catch(error){rows.push({key,bytes:null,error:String(error?.message||error),subtrees:[]});}}
+    rows.sort((a,b)=>(b.bytes||0)-(a.bytes||0));const visibleRows=rows.slice(0,64),attributedBytes=rows.reduce((sum,row)=>sum+(Number.isFinite(row.bytes)?row.bytes:0),0),targeted={};
+    for(const key of ['domainRuntime','documentProofs'])if(state?.[key]&&typeof state[key]==='object')targeted[key]=profileNode(state[key],bytes);
+    const fleet=fleetData();if(fleet.mode(state)==='store'){targeted.assets={count:fleet.size(state),storage:'gh-fleet-store-v3',bytes:fleet.stats(state).columnBytes};const samples=[];let moving=null,nonMoving=null,first=null;fleet.forEach(state,asset=>{if(!first)first=asset;if(!moving&&asset.phase==='moving')moving=asset;if(!nonMoving&&asset.phase!=='moving')nonMoving=asset;});const chosen=[['moving',moving],['non-moving',nonMoving],['first',first]];for(const [label,asset] of chosen)if(asset&&!samples.some(row=>row.assetId===asset.id)){const plain=fleet.plain(asset),fields=[];for(const [key,value] of Object.entries(plain))try{fields.push({key,bytes:bytes(value)});}catch(error){fields.push({key,bytes:null,error:String(error?.message||error)});}fields.sort((a,b)=>(b.bytes||0)-(a.bytes||0));samples.push({label,assetId:asset.id||null,phase:asset.phase||null,bytes:bytes(plain),fields:fields.slice(0,24)});}targeted.assetSamples=samples;}else if(Array.isArray(state?.assets)){targeted.assets=profileNode(state.assets,bytes);targeted.assetSamples=assetSamples(state.assets,bytes);}
+    if(state?.realism?.procurement&&typeof state.realism.procurement==='object')targeted['realism.procurement']=profileNode(state.realism.procurement,bytes);
+    const cold=globalThis.GH_STATE_CODEC?.coldArchiveStats?.(state)||null,externalBytes=cold?.ok?Number(cold.bytes)||0:0;if(cold)targeted.coldArchive=cleanDetail(cold);
+    return {profileVersion:'build337-targeted-topn-v1',rootBytes,externalBytes,residentBytes:Number.isFinite(rootBytes)?rootBytes+externalBytes:null,attributedBytes,unattributedRootBytes:Number.isFinite(rootBytes)?rootBytes-attributedBytes:null,rows:visibleRows,targeted,profilerDurationMs:Math.max(0,profilerClock()-started)};
+  }
+  const JSON_NODE_QUANTUM=128,JSON_STRING_QUANTUM=4096;
+  const workClock=options=>typeof options?.clock==='function'?options.clock:profilerClock;
+  const workYield=options=>typeof options?.yieldToHost==='function'?options.yieldToHost:()=>new Promise(resolve=>setTimeout(resolve,0));
+  async function drainWorkAsync(iterator,options={},name='work'){
+    const clock=workClock(options),yieldToHost=workYield(options),budgetMs=Math.max(.25,Number(options.budgetMs)||8),batchSize=Math.max(1,Math.floor(Number(options.batchSize)||1024)),started=clock();let sliceStarted=started,batch=0,busyMs=0,maxSliceMs=0,yields=0,units=0,step;
+    for(;;){step=iterator.next();if(step.done)break;units+=Math.max(0,Number(step.value?.units)||1);batch++;const now=clock();if(batch>=batchSize||now-sliceStarted>=budgetMs){const busy=Math.max(0,now-sliceStarted);busyMs+=busy;maxSliceMs=Math.max(maxSliceMs,busy);yields++;await yieldToHost();sliceStarted=clock();batch=0;}}
+    const ended=clock(),tail=Math.max(0,ended-sliceStarted);busyMs+=tail;maxSliceMs=Math.max(maxSliceMs,tail);return {value:step.value,timing:{name,wallMs:Math.max(0,ended-started),busyMs,maxSliceMs,yields,units,batchSize,budgetMs}};
+  }
+  function* jsonStringByteSteps(text,context){
+    text=String(text);let bytes=2;
+    for(let index=0;index<text.length;index++){
+      const code=text.charCodeAt(index);
+      if(code===0x22||code===0x5c||code===8||code===9||code===10||code===12||code===13)bytes+=2;
+      else if(code<0x20)bytes+=6;
+      else if(code<0x80)bytes++;
+      else if(code<0x800)bytes+=2;
+      else if(code>=0xd800&&code<=0xdbff){const next=text.charCodeAt(index+1);if(next>=0xdc00&&next<=0xdfff){bytes+=4;index++;}else bytes+=6;}
+      else if(code>=0xdc00&&code<=0xdfff)bytes+=6;
+      else bytes+=3;
+      if(++context.stringUnits%JSON_STRING_QUANTUM===0)yield {phase:'json-string',units:JSON_STRING_QUANTUM};
+    }
+    return bytes;
+  }
+  function jsonPrepared(input,key){
+    let value=input;if(value&&typeof value==='object'&&typeof value.toJSON==='function')value=value.toJSON(key);
+    const tag=value&&typeof value==='object'?Object.prototype.toString.call(value):'';
+    if(tag==='[object Number]'||tag==='[object String]'||tag==='[object Boolean]'||tag==='[object BigInt]')value=value.valueOf();
+    const type=typeof value;return {value,type,serializable:type!=='undefined'&&type!=='function'&&type!=='symbol'};
+  }
+  function* jsonByteSizeSteps(input,key='',context=null,depth=0){
+    const ctx=context||{active:new Set(),nodes:0,stringUnits:0,onMeasured:null},prepared=jsonPrepared(input,key);if(!prepared.serializable)return undefined;
+    const value=prepared.value,type=prepared.type;let bytes;
+    if(value===null)bytes=4;
+    else if(type==='string')bytes=yield* jsonStringByteSteps(value,ctx);
+    else if(type==='number')bytes=Number.isFinite(value)?String(JSON.stringify(value)).length:4;
+    else if(type==='boolean')bytes=value?4:5;
+    else if(type==='bigint')throw new TypeError('Do not know how to serialize a BigInt');
+    else{
+      if(ctx.active.has(value))throw new TypeError('Converting circular structure to JSON');ctx.active.add(value);
+      try{
+        if(Array.isArray(value)){
+          bytes=2+Math.max(0,value.length-1);
+          for(let index=0;index<value.length;index++){const child=yield* jsonByteSizeSteps(value[index],String(index),ctx,depth+1);bytes+=child===undefined?4:child;if(++ctx.nodes%JSON_NODE_QUANTUM===0)yield {phase:'json-node',units:JSON_NODE_QUANTUM};}
+        }else{
+          bytes=2;let members=0;
+          for(const memberKey of Object.keys(value)){const child=yield* jsonByteSizeSteps(value[memberKey],memberKey,ctx,depth+1);if(child===undefined)continue;if(members++)bytes++;bytes+=(yield* jsonStringByteSteps(memberKey,ctx))+1+child;if(++ctx.nodes%JSON_NODE_QUANTUM===0)yield {phase:'json-node',units:JSON_NODE_QUANTUM};}
+        }
+      }finally{ctx.active.delete(value);}
+    }
+    ctx.onMeasured?.({value,key,depth,bytes});return bytes;
+  }
+  function* profiledNodeSteps(value,knownBytes=null,depth=0,budget={nodes:0},limits={maxDepth:3,topN:10,maxNodes:180,minChildBytes:1024}){
+    const out={kind:Array.isArray(value)?'array':value&&typeof value==='object'?'object':typeof value,bytes:knownBytes};
+    if(out.bytes===null)try{out.bytes=yield* jsonByteSizeSteps(value);}catch(error){out.bytes=null;out.error=String(error?.message||error);return out;}
+    if(Array.isArray(value))out.count=value.length;else if(value&&typeof value==='object')out.count=Object.keys(value).length;
+    if(!value||typeof value!=='object'||depth>=limits.maxDepth||budget.nodes>=limits.maxNodes)return out;
+    const keys=Array.isArray(value)?Array.from({length:value.length},(_unused,index)=>String(index)):Object.keys(value),weighted=[];
+    for(const childKey of keys){const child=value[childKey];try{const bytes=yield* jsonByteSizeSteps(child,childKey);weighted.push(bytes===undefined?{key:childKey,bytes:null,error:'not-json-serializable',value:null}:{key:childKey,bytes,value:child});}catch(error){weighted.push({key:childKey,bytes:null,error:String(error?.message||error),value:null});}yield {phase:'profile-child',units:1};}
+    weighted.sort((a,b)=>(b.bytes||0)-(a.bytes||0));out.children=[];
+    for(const row of weighted.slice(0,limits.topN)){budget.nodes++;const child={key:row.key,bytes:row.bytes};if(row.error)child.error=row.error;if(row.value&&typeof row.value==='object'&&Number(row.bytes)>=limits.minChildBytes&&depth+1<limits.maxDepth&&budget.nodes<limits.maxNodes)child.profile=yield* profiledNodeSteps(row.value,row.bytes,depth+1,budget,limits);out.children.push(child);}
+    return out;
+  }
+  function* describedAssetSteps(label,asset){
+    if(!asset)return null;const fields=[];
+    for(const [key,value] of Object.entries(asset)){try{fields.push({key,bytes:yield* jsonByteSizeSteps(value,key)});}catch(error){fields.push({key,bytes:null,error:String(error?.message||error)});}yield {phase:'asset-field',units:1};}
+    fields.sort((a,b)=>(b.bytes||0)-(a.bytes||0));let bytes=null;try{bytes=yield* jsonByteSizeSteps(asset);}catch(_error){}return {label,assetId:asset.id||null,phase:asset.phase||null,bytes,fields:fields.slice(0,24)};
+  }
+  function* storeAssetSamplesSteps(state,fleet){
+    const samples=[],stats=fleet.stats(state),limit=Math.max(0,Number(stats.length)||0),found={first:null,moving:null,nonMoving:null},chunk=2048;
+    for(let from=0;from<limit&&(!found.first||!found.moving||!found.nonMoving);from+=chunk){fleet.scan(state,['id','phase'],row=>{const copy={id:row.id,phase:row.phase};if(!found.first)found.first=copy;if(!found.moving&&row.phase==='moving')found.moving=copy;if(!found.nonMoving&&row.phase!=='moving')found.nonMoving=copy;},{from,to:Math.min(limit,from+chunk)});yield {phase:'fleet-samples',units:Math.min(chunk,limit-from)};}
+    for(const [label,row] of [['moving',found.moving],['non-moving',found.nonMoving],['first',found.first]])if(row&&!samples.some(sample=>sample.assetId===row.id)){const plain=fleet.plain(state,row.id),sample=yield* describedAssetSteps(label,plain);if(sample)samples.push(sample);}
+    return samples;
+  }
+  function* stateByteProfileSteps(state,options={}){
+    const clock=workClock(options),started=clock(),rows=[],rowBytes=new Map();let rootBytes=2,rootMembers=0,rootFailed=false;
+    for(const key of Object.keys(state||{})){
+      const value=state[key],subtrees=[],context={active:new Set(),nodes:0,stringUnits:0,onMeasured:row=>{if(row.depth===1&&!Array.isArray(value)&&row.bytes>=50*1024)subtrees.push({key:row.key,bytes:row.bytes});}};let size=null,error=null;
+      try{size=yield* jsonByteSizeSteps(value,key,context);if(size!==undefined){const keyBytes=yield* jsonStringByteSteps(key,context);rootBytes+=(rootMembers++?1:0)+keyBytes+1+size;}}
+      catch(failure){rootFailed=true;error=String(failure?.message||failure);}
+      subtrees.sort((a,b)=>(b.bytes||0)-(a.bytes||0));const row={key,bytes:size,subtrees:subtrees.slice(0,24)};if(error)row.error=error;rows.push(row);rowBytes.set(key,size);yield {phase:'state-root',units:1};
+    }
+    if(rootFailed)rootBytes=Infinity;rows.sort((a,b)=>(b.bytes||0)-(a.bytes||0));const visibleRows=rows.slice(0,64),attributedBytes=rows.reduce((sum,row)=>sum+(Number.isFinite(row.bytes)?row.bytes:0),0),targeted={};
+    for(const key of ['domainRuntime','documentProofs'])if(state?.[key]&&typeof state[key]==='object')targeted[key]=yield* profiledNodeSteps(state[key],rowBytes.get(key));
+    const fleet=fleetData();if(fleet.mode(state)==='store'){const stats=fleet.stats(state);targeted.assets={count:fleet.size(state),storage:'gh-fleet-store-v3',bytes:stats.columnBytes};targeted.assetSamples=yield* storeAssetSamplesSteps(state,fleet);}
+    else if(Array.isArray(state?.assets)){targeted.assets=yield* profiledNodeSteps(state.assets,rowBytes.get('assets'));const samples=[],chosen=[['moving',state.assets.find(asset=>asset?.phase==='moving')],['non-moving',state.assets.find(asset=>asset?.phase!=='moving')],['first',state.assets[0]]];for(const [label,asset] of chosen)if(asset&&!samples.some(row=>row.assetId===asset.id)){const sample=yield* describedAssetSteps(label,asset);if(sample)samples.push(sample);}targeted.assetSamples=samples;}
+    if(state?.realism?.procurement&&typeof state.realism.procurement==='object')targeted['realism.procurement']=yield* profiledNodeSteps(state.realism.procurement);
+    const cold=globalThis.GH_STATE_CODEC?.coldArchiveStats?.(state)||null,externalBytes=cold?.ok?Number(cold.bytes)||0:0;if(cold)targeted.coldArchive=cleanDetail(cold);
+    const profilerDurationMs=Math.max(0,clock()-started);return {profileVersion:'build337-targeted-topn-v1',measurementMode:'build363-staged-exact-v1',rootBytes,externalBytes,residentBytes:Number.isFinite(rootBytes)?rootBytes+externalBytes:null,attributedBytes,unattributedRootBytes:Number.isFinite(rootBytes)?rootBytes-attributedBytes:null,rows:visibleRows,targeted,profilerDurationMs};
+  }
+  function stateByteProfile(state,options={}){const steps=stateByteProfileSteps(state,options);let step;while(!(step=steps.next()).done){}const profile=step.value;profile.profilerBusyMs=profile.profilerDurationMs;profile.profilerWallMs=profile.profilerDurationMs;profile.profilerMaxSliceMs=profile.profilerDurationMs;profile.profilerYields=0;return profile;}
+  async function stateByteProfileAsync(state,options={}){const work=await drainWorkAsync(stateByteProfileSteps(state,options),options,'state-byte-profile'),profile=work.value;profile.profilerDurationMs=work.timing.busyMs;profile.profilerBusyMs=work.timing.busyMs;profile.profilerWallMs=work.timing.wallMs;profile.profilerMaxSliceMs=work.timing.maxSliceMs;profile.profilerYields=work.timing.yields;return {profile,timing:work.timing};}
+  function jsonGap(space){if(typeof space==='number')return ' '.repeat(Math.min(10,Math.max(0,Math.floor(space))));if(typeof space==='string')return space.slice(0,10);return '';}
+  const JSON_OUTPUT_QUANTUM=32*1024,JSON_QUOTE_INPUT_QUANTUM=16*1024;
+  function appendJsonOutput(context,text){if(!text)return null;context.output+=text;if(context.output.length<context.outputQuantum)return null;const ready=context.output;context.output='';return ready;}
+  function* jsonQuotedTextSteps(text,context){
+    text=String(text);let ready=appendJsonOutput(context,'"');if(ready!==null)yield ready;
+    // Native quoting is substantially faster than inspecting every UTF-16 code
+    // unit in JavaScript.  Splitting is exact as long as a surrogate pair is
+    // kept in one chunk; JSON escaping has no other cross-character state.
+    for(let start=0;start<text.length;){let end=Math.min(text.length,start+JSON_QUOTE_INPUT_QUANTUM);if(end<text.length){const high=text.charCodeAt(end-1),low=text.charCodeAt(end);if(high>=0xd800&&high<=0xdbff&&low>=0xdc00&&low<=0xdfff)end--;}const quoted=JSON.stringify(text.slice(start,end));ready=appendJsonOutput(context,quoted.slice(1,-1));if(ready!==null)yield ready;start=end;}
+    ready=appendJsonOutput(context,'"');if(ready!==null)yield ready;
+  }
+  function* jsonTextStepsPrepared(value,key,depth,context){
+    const type=typeof value,gap=context.gap,indent=gap.repeat(depth),childIndent=gap.repeat(depth+1);
+    let ready;if(value===null){ready=appendJsonOutput(context,'null');if(ready!==null)yield ready;return;}
+    if(type==='string'){yield* jsonQuotedTextSteps(value,context);return;}
+    if(type==='number'){ready=appendJsonOutput(context,Number.isFinite(value)?String(JSON.stringify(value)):'null');if(ready!==null)yield ready;return;}
+    if(type==='boolean'){ready=appendJsonOutput(context,value?'true':'false');if(ready!==null)yield ready;return;}
+    if(type==='bigint')throw new TypeError('Do not know how to serialize a BigInt');
+    if(context.active.has(value))throw new TypeError('Converting circular structure to JSON');context.active.add(value);
+    try{
+      if(Array.isArray(value)){
+        if(!value.length){ready=appendJsonOutput(context,'[]');if(ready!==null)yield ready;return;}ready=appendJsonOutput(context,gap?'[\n':'[');if(ready!==null)yield ready;
+        for(let index=0;index<value.length;index++){if(index){ready=appendJsonOutput(context,gap?',\n':',');if(ready!==null)yield ready;}if(gap){ready=appendJsonOutput(context,childIndent);if(ready!==null)yield ready;}const prepared=jsonPrepared(value[index],String(index));if(!prepared.serializable){ready=appendJsonOutput(context,'null');if(ready!==null)yield ready;}else yield* jsonTextStepsPrepared(prepared.value,String(index),depth+1,context);}
+        if(gap){ready=appendJsonOutput(context,'\n');if(ready!==null)yield ready;ready=appendJsonOutput(context,indent);if(ready!==null)yield ready;}ready=appendJsonOutput(context,']');if(ready!==null)yield ready;return;
+      }
+      const entries=[];for(const memberKey of Object.keys(value)){const prepared=jsonPrepared(value[memberKey],memberKey);if(prepared.serializable)entries.push([memberKey,prepared.value]);}
+      if(!entries.length){ready=appendJsonOutput(context,'{}');if(ready!==null)yield ready;return;}ready=appendJsonOutput(context,gap?'{\n':'{');if(ready!==null)yield ready;
+      for(let index=0;index<entries.length;index++){const [memberKey,member]=entries[index];if(index){ready=appendJsonOutput(context,gap?',\n':',');if(ready!==null)yield ready;}if(gap){ready=appendJsonOutput(context,childIndent);if(ready!==null)yield ready;}yield* jsonQuotedTextSteps(memberKey,context);ready=appendJsonOutput(context,gap?': ':':');if(ready!==null)yield ready;yield* jsonTextStepsPrepared(member,memberKey,depth+1,context);}
+      if(gap){ready=appendJsonOutput(context,'\n');if(ready!==null)yield ready;ready=appendJsonOutput(context,indent);if(ready!==null)yield ready;}ready=appendJsonOutput(context,'}');if(ready!==null)yield ready;
+    }finally{context.active.delete(value);}
+  }
+  function* jsonTextSteps(value,options={}){const prepared=jsonPrepared(value,'');if(!prepared.serializable)return undefined;const context={active:new Set(),gap:jsonGap(options.space),output:'',outputQuantum:Math.max(4096,Math.floor(Number(options.outputQuantum)||JSON_OUTPUT_QUANTUM))};yield* jsonTextStepsPrepared(prepared.value,'',0,context);if(context.output)yield context.output;return true;}
+  async function stringifyAsync(value,options={}){
+    const clock=workClock(options),yieldToHost=workYield(options),budgetMs=Math.max(.25,Number(options.budgetMs)||8),batchSize=Math.max(1,Math.floor(Number(options.batchSize)||64)),started=clock(),steps=jsonTextSteps(value,options),chunks=[];let sliceStarted=started,busyMs=0,maxSliceMs=0,yields=0,units=0,outputChars=0,batch=0,step;
+    for(;;){step=steps.next();if(step.done)break;chunks.push(step.value);units++;outputChars+=step.value.length;batch++;const now=clock();if(batch>=batchSize||now-sliceStarted>=budgetMs){const busy=Math.max(0,now-sliceStarted);busyMs+=busy;maxSliceMs=Math.max(maxSliceMs,busy);yields++;await yieldToHost();sliceStarted=clock();batch=0;}}
+    if(step.value===undefined){const ended=clock(),tail=Math.max(0,ended-sliceStarted);return {text:undefined,timing:{name:'json-stringify',wallMs:Math.max(0,ended-started),busyMs:busyMs+tail,maxSliceMs:Math.max(maxSliceMs,tail),yields,units,outputChars,batchSize,budgetMs}};}
+    batch=0;
+    let layer=chunks;
+    while(layer.length>1){const next=[];for(let index=0;index<layer.length;index+=2){next.push(index+1<layer.length?layer[index]+layer[index+1]:layer[index]);batch++;const now=clock();if(batch>=batchSize||now-sliceStarted>=budgetMs){const busy=Math.max(0,now-sliceStarted);busyMs+=busy;maxSliceMs=Math.max(maxSliceMs,busy);yields++;await yieldToHost();sliceStarted=clock();batch=0;}}layer=next;}
+    const ended=clock(),tail=Math.max(0,ended-sliceStarted);busyMs+=tail;maxSliceMs=Math.max(maxSliceMs,tail);return {text:layer[0]||'',timing:{name:'json-stringify',wallMs:Math.max(0,ended-started),busyMs,maxSliceMs,yields,units,outputChars,batchSize,budgetMs}};
+  }
+  async function utf8ByteLengthAsync(text,options={}){
+    text=String(text);const clock=workClock(options),yieldToHost=workYield(options),budgetMs=Math.max(.25,Number(options.budgetMs)||8),encoder=globalThis.TextEncoder?new TextEncoder():null,started=clock();let bytes=0,yields=0,busyMs=0,maxSliceMs=0,sliceStarted=started;
+    for(let start=0;start<text.length;){let end=Math.min(text.length,start+32*1024);if(end<text.length){const high=text.charCodeAt(end-1),low=text.charCodeAt(end);if(high>=0xd800&&high<=0xdbff&&low>=0xdc00&&low<=0xdfff)end--;}const part=text.slice(start,end);if(encoder)bytes+=encoder.encode(part).byteLength;else bytes+=part.length*2;start=end;const now=clock();if(now-sliceStarted>=budgetMs){const busy=Math.max(0,now-sliceStarted);busyMs+=busy;maxSliceMs=Math.max(maxSliceMs,busy);yields++;await yieldToHost();sliceStarted=clock();}}
+    const ended=clock(),tail=Math.max(0,ended-sliceStarted);busyMs+=tail;return {bytes,timing:{name:'utf8-size',wallMs:Math.max(0,ended-started),busyMs,maxSliceMs:Math.max(maxSliceMs,tail),yields,characters:text.length,budgetMs}};
+  }
+  function exportBundle(state,extra={}){
+    const d=ensure(state),evidence=extra.evidence||captureExportEvidence(state,extra),simulationBase=evidence.simulation||{},transactionTelemetry=globalThis.GH_TRANSACTION_CORE?.telemetry?.()||null,persistenceTelemetry=globalThis.GH_PERSISTENCE?.telemetry?.()||null,appRuntime=globalThis.GH_APP_RUNTIME_METRICS?.snapshot?.()||null,controlPlaneTelemetry=globalThis.GH_CONTROL_PLANE?.telemetry?.()||null,saveSchemaTelemetry=globalThis.GH_SAVE_SCHEMA?.telemetry?.()||null,profiledTransactions=transactionTelemetry?.profiledSamples||[],simulationProfiles=profiledTransactions.filter(row=>String(row?.label||'').startsWith('simulation:')).sort((a,b)=>(Number(b.totalMs)||0)-(Number(a.totalMs)||0)),slowestTransactions=[...profiledTransactions].sort((a,b)=>(Number(b.totalMs)||0)-(Number(a.totalMs)||0)).slice(0,24);
+    const runtimeInstrumentation={app:appRuntime,transaction:transactionTelemetry,persistence:persistenceTelemetry,controlPlane:controlPlaneTelemetry,saveSchema:saveSchemaTelemetry};
+    const simulation={...simulationBase,lastFinishBreakdown:simulationProfiles[0]||transactionTelemetry?.lastSimulation||null,transactionProfile:{enabled:profiledTransactions.length>0,capturedCount:Number(transactionTelemetry?.profiledCount)||profiledTransactions.length,slowestSimulationFinishes:simulationProfiles.slice(0,12),slowestTransactions},lastSaveBreakdown:{app:appRuntime?.lastSavePreparation||null,persistence:persistenceTelemetry?.timings?.lastSaveBreakdown||null,nativeAck:persistenceTelemetry?.timings?.lastNativeAck||null}};
+    const health=evidence.health,integrity=evidence.integrity,closure=(globalThis.GH_DELIVERY_MONITOR?.inspect||globalThis.GH_DELIVERY_MONITOR?.reconcile)?.(state)||null,ledger=globalThis.GH_EVENT_LEDGER?.summary?.(state)||null,actionTasks=globalThis.GH_UI_QUALITY?.collectTasks?.(state)||[],proofForensics=globalThis.GH_DOCUMENT_PROOF?.forensicInspectStateProofs?.(state)||null,byteProfile=stateByteProfile(state);
+    return {format:'global-holdings-diagnostic-bundle',diagnosticsVersion:VERSION,generatedAt:evidence.generatedAt||new Date().toISOString(),evidenceId:evidence.id||null,faultRecorder:recorderSnapshotData(state,true),assetDepartureTrace:departureTraceSnapshot(state),appVersion:extra.appVersion||null,saveSchemaVersion:extra.saveSchemaVersion||state.saveVersion||null,health,integrity:cleanDetail(integrity),proofForensics:cleanDetail(proofForensics),stateByteProfile:byteProfile,runtimeInstrumentation,deliveryClosure:cleanDetail(closure),eventLedger:{summary:cleanDetail(ledger),events:cleanDetail((state.businessLedger?.events||[]).slice(0,160))},dependencies:cleanDetail((state.dependencyGraph?.edges||[]).slice(0,220)),actionCenter:{count:actionTasks.length,tasks:cleanDetail(actionTasks.slice(0,120))},workflow:cleanDetail(globalThis.GH_WORKFLOW?.summary?.(state)||null),simulation,stateSummary:stateSummary(state,simulation),events:cleanDetail(d.events.slice(0,LIMIT)),environment:{userAgent:globalThis.navigator?.userAgent||null,language:globalThis.navigator?.language||null,online:globalThis.navigator?.onLine??null,nativeBuild:Number(globalThis.GH_NATIVE_BUILD)||null,nativeSourceSnapshot:String(globalThis.GH_NATIVE_SOURCE_SNAPSHOT||'')||null}};
+  }
+  async function exportBundleAsync(state,extra={},options={}){
+    const clock=workClock(options),totalStarted=clock(),stages=[],measure=async(name,work)=>{const started=clock(),value=await work(),ended=clock(),duration=Math.max(0,ended-started),timing={name,wallMs:duration,busyMs:duration,maxSliceMs:duration,yields:0,units:1};stages.push(timing);return value;};
+    const evidence=extra.evidence||options.evidence||await measure('evidence',()=>captureExportEvidence(state,extra)),d=ensure(state),simulationBase=evidence.simulation||{};
+    const instrumentation=await measure('runtime-instrumentation',()=>{const transactionTelemetry=globalThis.GH_TRANSACTION_CORE?.telemetry?.()||null,persistenceTelemetry=globalThis.GH_PERSISTENCE?.telemetry?.()||null,appRuntime=globalThis.GH_APP_RUNTIME_METRICS?.snapshot?.()||null,controlPlaneTelemetry=globalThis.GH_CONTROL_PLANE?.telemetry?.()||null,saveSchemaTelemetry=globalThis.GH_SAVE_SCHEMA?.telemetry?.()||null,profiledTransactions=transactionTelemetry?.profiledSamples||[],simulationProfiles=profiledTransactions.filter(row=>String(row?.label||'').startsWith('simulation:')).sort((a,b)=>(Number(b.totalMs)||0)-(Number(a.totalMs)||0)),slowestTransactions=[...profiledTransactions].sort((a,b)=>(Number(b.totalMs)||0)-(Number(a.totalMs)||0)).slice(0,24);return {runtimeInstrumentation:{app:appRuntime,transaction:transactionTelemetry,persistence:persistenceTelemetry,controlPlane:controlPlaneTelemetry,saveSchema:saveSchemaTelemetry},simulation:{...simulationBase,lastFinishBreakdown:simulationProfiles[0]||transactionTelemetry?.lastSimulation||null,transactionProfile:{enabled:profiledTransactions.length>0,capturedCount:Number(transactionTelemetry?.profiledCount)||profiledTransactions.length,slowestSimulationFinishes:simulationProfiles.slice(0,12),slowestTransactions},lastSaveBreakdown:{app:appRuntime?.lastSavePreparation||null,persistence:persistenceTelemetry?.timings?.lastSaveBreakdown||null,nativeAck:persistenceTelemetry?.timings?.lastNativeAck||null}}};});
+    const summaries=await measure('read-only-summaries',()=>({closure:(globalThis.GH_DELIVERY_MONITOR?.inspect||globalThis.GH_DELIVERY_MONITOR?.reconcile)?.(state)||null,ledger:globalThis.GH_EVENT_LEDGER?.summary?.(state)||null,actionTasks:globalThis.GH_UI_QUALITY?.collectTasks?.(state)||[]}));
+    let proofForensics=null,proofTiming={name:'proof-forensics',wallMs:0,busyMs:0,maxSliceMs:0,yields:0,units:0};const proofOwner=globalThis.GH_DOCUMENT_PROOF;
+    if(typeof proofOwner?.forensicInspectStateProofsAsync==='function'){const proof=await proofOwner.forensicInspectStateProofsAsync(state,options);proofForensics=proof.result;proofTiming=proof.timing;}
+    else if(typeof proofOwner?.forensicInspectStateProofs==='function')proofForensics=await measure('proof-forensics',()=>proofOwner.forensicInspectStateProofs(state));
+    if(!stages.some(row=>row.name==='proof-forensics'))stages.push(proofTiming);
+    const byteWork=await stateByteProfileAsync(state,options);stages.push(byteWork.timing);
+    const bundle=await measure('bundle-compose',()=>({format:'global-holdings-diagnostic-bundle',diagnosticsVersion:VERSION,generatedAt:evidence.generatedAt||new Date().toISOString(),evidenceId:evidence.id||null,faultRecorder:recorderSnapshotData(state,true),assetDepartureTrace:departureTraceSnapshot(state),appVersion:extra.appVersion||null,saveSchemaVersion:extra.saveSchemaVersion||state.saveVersion||null,health:evidence.health,integrity:cleanDetail(evidence.integrity),proofForensics:cleanDetail(proofForensics),stateByteProfile:byteWork.profile,runtimeInstrumentation:instrumentation.runtimeInstrumentation,deliveryClosure:cleanDetail(summaries.closure),eventLedger:{summary:cleanDetail(summaries.ledger),events:cleanDetail((state.businessLedger?.events||[]).slice(0,160))},dependencies:cleanDetail((state.dependencyGraph?.edges||[]).slice(0,220)),actionCenter:{count:summaries.actionTasks.length,tasks:cleanDetail(summaries.actionTasks.slice(0,120))},workflow:cleanDetail(globalThis.GH_WORKFLOW?.summary?.(state)||null),simulation:instrumentation.simulation,stateSummary:stateSummary(state,instrumentation.simulation),events:cleanDetail(d.events.slice(0,LIMIT)),environment:{userAgent:globalThis.navigator?.userAgent||null,language:globalThis.navigator?.language||null,online:globalThis.navigator?.onLine??null,nativeBuild:Number(globalThis.GH_NATIVE_BUILD)||null,nativeSourceSnapshot:String(globalThis.GH_NATIVE_SOURCE_SNAPSHOT||'')||null}}));
+    const current={saveRevision:Number(state.saveRevision)||0,stateRevision:Number(state.controlPlane?.revision)||0,simSeconds:Number(state.simSeconds)||0,fleetRevision:Number(state.fleet?.revision)||0,transactionRevision:Number(globalThis.GH_TRANSACTION_CORE?.revision?.(state))||0,controlEventSequence:Number(state.controlPlane?.eventSequence)||0,diagnosticEventCount:state.diagnostics?.events?.length||0,diagnosticEventHead:state.diagnostics?.events?.[0]?.id||null},source={saveRevision:evidence.saveRevision,stateRevision:evidence.stateRevision,simSeconds:evidence.simSeconds,fleetRevision:evidence.fleetRevision,transactionRevision:evidence.transactionRevision,controlEventSequence:evidence.controlEventSequence,diagnosticEventCount:evidence.diagnosticEventCount,diagnosticEventHead:evidence.diagnosticEventHead},consistent=Object.keys(source).every(key=>source[key]===undefined||Object.is(source[key],current[key])),ended=clock();bundle.exportPerformance={mode:'cooperative-v1',evidenceId:evidence.id||null,integrityCalls:Number(evidence.integrityCalls)||0,wallMs:Math.max(0,ended-totalStarted),busyMs:stages.reduce((sum,row)=>sum+(Number(row.busyMs)||0),0),maxSliceMs:Math.max(0,...stages.map(row=>Number(row.maxSliceMs)||0)),yields:stages.reduce((sum,row)=>sum+(Number(row.yields)||0),0),budgetMs:Math.max(.25,Number(options.budgetMs)||8),consistent,source,current,stages};if(!consistent){const error=new Error('diagnostic-export-state-changed');error.code='DIAGNOSTIC_EXPORT_STATE_CHANGED';error.exportPerformance=bundle.exportPerformance;throw error;}return bundle;
+  }
+  function installGlobalHandlers(stateProvider,extraProvider=()=>({})){
+    if(installed||typeof globalThis.addEventListener!=='function')return;installed=true;
+    const getState=()=>{try{return stateProvider?.();}catch{return null;}};
+    globalThis.addEventListener('error',event=>{const s=getState();if(s)record(s,'WINDOW_ERROR',{message:event.message,filename:event.filename,lineno:event.lineno,colno:event.colno,error:event.error},'critical');});
+    globalThis.addEventListener('unhandledrejection',event=>{const s=getState();if(s)record(s,'UNHANDLED_REJECTION',{reason:event.reason},'critical');});
+    const originalError=globalThis.console?.error?.bind(globalThis.console),originalWarn=globalThis.console?.warn?.bind(globalThis.console);
+    if(originalError)globalThis.console.error=(...args)=>{const s=getState();if(s)record(s,'CONSOLE_ERROR',{args},'critical');originalError(...args);};
+    if(originalWarn)globalThis.console.warn=(...args)=>{const s=getState();if(s)record(s,'CONSOLE_WARN',{args},'warning');originalWarn(...args);};
+    globalThis.addEventListener('visibilitychange',()=>{const s=getState();if(s)record(s,'VISIBILITY_CHANGE',{state:globalThis.document?.visibilityState},'info');});
+    if(globalThis.PerformanceObserver){try{const observer=new PerformanceObserver(list=>{const s=getState();if(!s)return;for(const entry of list.getEntries()){const duration=Number(entry.duration)||0,startPerfMs=Number(entry.startTime)||0,endPerfMs=startPerfMs+duration,r=recorderFor(s),buffer=recorderFrameBuffers.get(s);if(r?.active&&buffer&&duration>=50){const attribution=Array.from(entry.attribution||[]).slice(0,4).map(row=>({containerType:String(row.containerType||''),containerName:String(row.containerName||''),containerId:String(row.containerId||''),containerSrc:String(row.containerSrc||'')})),task={startPerfMs,endPerfMs,durationMs:roundMs(duration),name:String(entry.name||'longtask'),attribution};buffer.longTasks++;buffer.longTasksRecent.push(task);if(buffer.longTasksRecent.length>32)buffer.longTasksRecent.shift();recorderEvent(s,'LONG_TASK_TRACE',{...task,observedBy:'PerformanceLongTaskTiming'},duration>=120?'warning':'info',{nowMs:Math.round(buffer.wallOffsetMs+endPerfMs)});}if(duration>=120&&Date.now()-lastLongTaskAt>250){lastLongTaskAt=Date.now();record(s,'LONG_TASK',{duration:Math.round(duration),name:entry.name||'task',extra:cleanDetail(extraProvider?.())},duration>=500?'warning':'info');}}});observer.observe({entryTypes:['longtask']});longTaskObserverStatus='installed';}catch(error){longTaskObserverStatus='unsupported-or-error';console.debug('Long Task diagnostics unavailable',error);}}else longTaskObserverStatus='unsupported';
+  }
+  function clear(state){const d=ensure(state);d.events=[];d.counters={};d.resolvedIssues=[];d.activeIssues={};d.lastHealth=null;faultRecorders.delete(state);recorderFrameBuffers.delete(state);assetDepartureTraces.delete(state);d.clearedAt=new Date().toISOString();d.clearedSimSeconds=Number(state?.simSeconds)||0;return {clearedAt:d.clearedAt,simSeconds:d.clearedSimSeconds};}
+  const API=Object.freeze({VERSION,LIMIT,ALLOWED_SPEEDS,ensure,record,flushDeferred,recordAssetDepartureTrace,annotateLastAssetDepartureTrace,departureTraceSnapshot,runHealthCheck,captureExportEvidence,stateByteProfile,stateByteProfileAsync,exportBundle,exportBundleAsync,stringifyAsync,utf8ByteLengthAsync,layoutSnapshot,createGovernorEventCoalescer,installGlobalHandlers,clear,recorderStart,recorderSample,recorderEvent,recorderIsActive,recorderFrame,recorderStop,recorderSnapshot});
+  globalThis.GH_DIAGNOSTICS=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_DIAGNOSTICS=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})();
