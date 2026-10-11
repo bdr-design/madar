@@ -162,6 +162,18 @@
     const type=typeof routeOrType==='string'?routeOrType:(routeMode(routeOrType)||fallbackType),base=ROUTE_FLEET_CAPACITY[type]||1,stored=routeOrType&&typeof routeOrType==='object'?routeOrType.fleetCapacity:undefined;
     return Number.isSafeInteger(stored)&&stored>base?Math.min(stored,ROUTE_MAX_FLEET_CAPACITY[type]||base):base;
   }
+  const fleetSaveValidation=()=>globalThis.GH_FLEET_SAVE_VALIDATION||(typeof require==='function'?require('./fleet-save-validation-core.js'):null);
+  // Everything outside the fleet that changes the compact worker answer.  The route and company registries are bounded,
+  // so this context stays small even when the fleet has one million unique ids and names.
+  function fleetValidationParams(state,routes=null,routeIds=null){
+    const platform=globalThis.GH_COMPANY_PLATFORM,definitions=typeof platform?.listDefinitions==='function'?platform.listDefinitions():[],legacyModes=new Set();
+    for(const mode of ROUTE_TYPES)legacyModes.add(mode);
+    for(const definition of definitions)for(const mode of definition?.legacy?.assetOwnerModes||[])legacyModes.add(String(mode));
+    const legacyAssetOwners={};for(const mode of legacyModes){const owner=platform?.ownerForLegacyAssetMode?.(mode);if(owner)legacyAssetOwners[mode]=String(owner);}
+    const custom=Array.isArray(routes)?routes:Array.isArray(state?.customRoutes)?state.customRoutes:[],known=routeIds instanceof Set?[...routeIds]:[...BUILTIN_ROUTES,...custom.map(route=>route?.id).filter(Boolean)],registry=object(state?.companyRegistry)?state.companyRegistry:{};
+    const params={routeIds:known,routes:custom.filter(route=>route?.id).map(route=>[route.id,routeMode(route),routeOwner(route),routeCapacity(route,routeMode(route))]),registryCompanies:Object.entries(registry).filter(([,record])=>object(record)).map(([id])=>id),companyReferenceCompanies:Object.entries(registry).filter(([,record])=>Boolean(record)).map(([id])=>id),definitionCompanies:[...new Set(definitions.flatMap(definition=>[definition?.id,definition?.definitionId,...(definition?.legacy?.companyAliases||[])]).map(value=>String(value||'').trim()).filter(Boolean))],legacyAssetOwners};
+    params.contextToken=fleetSaveValidation()?.contextToken?.(params)||'';return params;
+  }
   function clearLegacyRouteAssignment(asset){asset.routeId=null;asset.routeSignature=null;asset.routeSlot=null;asset.departureScheduled=false;delete asset.departureScheduledAt;asset.releaseExclusiveRouteOnArrival=false;asset.phase='idle';asset.progress=0;asset.dwellRemaining=0;asset.reverse=false;}
   function migrationTrim(state){
     const cp=state.controlPlane;if(object(cp)){
@@ -185,7 +197,7 @@
   }
   function migrateLegacy(input){
     if(!object(input))return {state:input,changed:false};
-    let state=structured(input),changed=false;const retired=retiredFeatureKey(),companyUpgrade=globalThis.GH_COMPANY_PLATFORM?.migrateState?.(state);
+    let state=structured(input),changed=false;const retired=retiredFeatureKey(),platform=globalThis.GH_COMPANY_PLATFORM,platformReady=state.companyPlatform?.schema===platform?.STATE_SCHEMA&&Number(state.companyPlatform?.schemaVersion)===Number(platform?.STATE_SCHEMA_VERSION),companyUpgrade=platformReady?{state,changed:false}:platform?.migrateState?.(state,{inPlace:true});
     if(companyUpgrade?.state){state=companyUpgrade.state;changed=companyUpgrade.changed===true;}
     if(Number(state.speed)===5){state.speed=1;changed=true;}
     if(object(state.advanced)&&Object.prototype.hasOwnProperty.call(state.advanced,retired)){delete state.advanced[retired];changed=true;}
@@ -227,11 +239,17 @@
       for(const asset of rows)if(asset!==keeper){if(asset.phase==='moving'){if(asset.releaseExclusiveRouteOnArrival!==true){asset.releaseExclusiveRouteOnArrival=true;changed=true;}}else{clearLegacyRouteAssignment(asset);changed=true;}}
     }
     const signatureGroups=new Map();for(const route of state.customRoutes){const signature=routeSignature(route),rows=signatureGroups.get(signature)||[];rows.push(route);signatureGroups.set(signature,rows);}
+    // A legacy save can contain hundreds of duplicate route groups and a very large fleet. The former repair filtered
+    // the whole fleet once per group, then filtered that result repeatedly from the sort comparator. Index duplicate
+    // route users in one fleet pass, preserving the original row order used by the repair's keeper selection.
+    const duplicateSignatureByRouteId=new Map();for(const [signature,routes] of signatureGroups)if(routes.length>1)for(const route of routes)duplicateSignatureByRouteId.set(route.id,signature);
+    const duplicateUsersBySignature=new Map();for(const asset of assets){const signature=duplicateSignatureByRouteId.get(asset.routeId);if(signature===undefined)continue;const rows=duplicateUsersBySignature.get(signature)||[];rows.push(asset);duplicateUsersBySignature.set(signature,rows);}
     const removedRouteIds=new Set();
-    for(const routes of signatureGroups.values())if(routes.length>1){
-      const ids=new Set(routes.map(route=>route.id)),users=assets.filter(asset=>ids.has(asset.routeId)),type=routeMode(routes[0]);
+    for(const [signature,routes] of signatureGroups)if(routes.length>1){
+      const ids=new Set(routes.map(route=>route.id)),users=duplicateUsersBySignature.get(signature)||[],type=routeMode(routes[0]);
       if(['air','sea','road'].includes(type)){
-        const canonical=routes.slice().sort((a,b)=>users.filter(asset=>asset.routeId===b.id).length-users.filter(asset=>asset.routeId===a.id).length||String(a.id).localeCompare(String(b.id)))[0],capacity=routeCapacity(canonical,type),accepted=[],retained=new Set([canonical.id]);
+        const userCountByRoute=new Map();for(const asset of users)userCountByRoute.set(asset.routeId,(userCountByRoute.get(asset.routeId)||0)+1);
+        const canonical=routes.slice().sort((a,b)=>(userCountByRoute.get(b.id)||0)-(userCountByRoute.get(a.id)||0)||String(a.id).localeCompare(String(b.id)))[0],capacity=routeCapacity(canonical,type),accepted=[],retained=new Set([canonical.id]);
         for(const asset of users.slice().sort((a,b)=>Number(b.phase==='moving')-Number(a.phase==='moving')||Number(b.routeId===canonical.id)-Number(a.routeId===canonical.id)||String(a.id).localeCompare(String(b.id)))){
           const compatible=assetMode(asset)===type&&routeOwner(canonical)===(assetOwner(asset)||globalThis.GH_COMPANY_PLATFORM?.ownerForLegacyAssetMode?.(assetMode(asset))||assetMode(asset))&&[canonical.fromFacility,canonical.toFacility].includes(asset.baseFacility);
           if(compatible&&accepted.length<capacity){asset.routeId=canonical.id;asset.routeSignature=routeSignature(canonical);asset.routeSlot=accepted.length;if(asset.releaseExclusiveRouteOnArrival===true)asset.releaseExclusiveRouteOnArrival=false;accepted.push(asset);changed=true;continue;}
@@ -244,19 +262,23 @@
       const keeper=users.find(asset=>asset.phase==='moving')||users[0]||null,canonicalId=keeper?.routeId||routes[0].id;
       if(keeper?.releaseExclusiveRouteOnArrival===true){keeper.releaseExclusiveRouteOnArrival=false;changed=true;}
       for(const asset of users)if(asset!==keeper){if(asset.phase==='moving'){if(asset.releaseExclusiveRouteOnArrival!==true){asset.releaseExclusiveRouteOnArrival=true;changed=true;}}else{clearLegacyRouteAssignment(asset);changed=true;}}
-      const retained=new Set(assets.map(asset=>asset.routeId).filter(id=>ids.has(id)));retained.add(canonicalId);
+      const retained=new Set(users.map(asset=>asset.routeId).filter(id=>ids.has(id)));retained.add(canonicalId);
       for(const route of routes)if(!retained.has(route.id)){removedRouteIds.add(route.id);changed=true;}
     }
     fleet.commit(state,assets);
     if(removedRouteIds.size)state.customRoutes=state.customRoutes.filter(route=>!removedRouteIds.has(route.id));
+    // Build the two fleet reference sets in one pass and without million-entry temporary arrays. Older saves used
+    // assets.map(...).filter(...) plus spread for each set, briefly allocating several arrays the size of the fleet.
+    const activeRouteIds=object(state.routeCache)?new Set():null,referencedFacilityIds=object(state.routeEndpoints)?new Set():null;
+    if(activeRouteIds||referencedFacilityIds)for(const asset of assets){if(activeRouteIds&&asset.routeId)activeRouteIds.add(asset.routeId);if(referencedFacilityIds&&asset.baseFacility)referencedFacilityIds.add(asset.baseFacility);}
     if(object(state.routeCache)){
       for(const id of Object.keys(state.routeCache))if(invalidRouteIds.has(id)||removedRouteIds.has(id)){delete state.routeCache[id];changed=true;}
       for(const route of state.customRoutes){const entry=state.routeCache[route.id];if(entry?.route){delete entry.route;entry.canonicalRouteId=route.id;entry.routeSignature=routeSignature(route);changed=true;}}
-      const active=new Set([...assets.map(asset=>asset.routeId).filter(Boolean),...state.customRoutes.map(route=>route.id)]),entries=Object.entries(state.routeCache);
+      const active=activeRouteIds;for(const route of state.customRoutes)active.add(route.id);const entries=Object.entries(state.routeCache);
       entries.sort((a,b)=>Number(active.has(b[0]))-Number(active.has(a[0])));let kept=entries.slice(0,STATE_LIMITS.routeCache);while(kept.length&&serializedBytes(Object.fromEntries(kept))>STATE_LIMITS.routeCacheBytes)kept.pop();if(kept.length!==entries.length){state.routeCache=Object.fromEntries(kept);changed=true;}
     }
     if(object(state.routeEndpoints)){
-      const referenced=new Set([...state.customRoutes.flatMap(route=>[route.fromFacility,route.toFacility]),...assets.map(asset=>asset.baseFacility).filter(Boolean)]);
+      const referenced=referencedFacilityIds;for(const route of state.customRoutes){referenced.add(route.fromFacility);referenced.add(route.toFacility);}
       for(const [id,endpoint] of Object.entries(state.routeEndpoints))if(endpoint?.routeEndpoint&&!referenced.has(id)){delete state.routeEndpoints[id];changed=true;}
     }
     const before=JSON.stringify({cp:state.controlPlane?.events?.length,cc:state.controlPlane?.commands?.length,dc:state.domainRuntime?.commands?.length,be:state.businessLedger?.events?.length});migrationTrim(state);const after=JSON.stringify({cp:state.controlPlane?.events?.length,cc:state.controlPlane?.commands?.length,dc:state.domainRuntime?.commands?.length,be:state.businessLedger?.events?.length});if(before!==after)changed=true;
@@ -399,7 +421,7 @@
     return globalThis.GH_TRANSACTION_CORE?.containerChanges?.(current,known)||null;
   }
   function validateDocumentProofState(s,errors,verificationCache,metric,trust=false){
-    const work=metric?(metric.documentProofWork={stateChecks:1,archiveResidencyRows:0,recordRows:0,recordVerifyCalls:0,liveDocuments:0,archiveDocuments:0,documentVerifyCalls:0,dependencyChecks:0,changeSetChecks:0,changeListKinds:0,changeRemovedDocumentEntries:0,changeRemovedDocuments:0,changeRemovedRecords:0,changeRemovedCheckpoints:0,changeChangedCheckpoints:0,changeChangedPeriods:0,changeChangedRecords:0,changeRecordDocumentLinks:0,changeChangedDocumentEntries:0,changeRecheckDocuments:0,checkpointVerifyCalls:0,checkpointRows:0,checkpointPeriodRows:0,checkpointDigestRows:0,sealVerifyCalls:0,sealRows:0,archiveMode:'full',total:1}):null;
+    const work=metric?(metric.documentProofWork={stateChecks:1,archiveResidencyRows:0,recordRows:0,recordVerifyCalls:0,liveDocuments:0,archiveDocuments:0,documentVerifyCalls:0,documentSerializationRows:0,dependencyChecks:0,changeSetChecks:0,changeListKinds:0,changeRemovedDocumentEntries:0,changeRemovedDocuments:0,changeRemovedRecords:0,changeRemovedCheckpoints:0,changeChangedCheckpoints:0,changeChangedPeriods:0,changeChangedRecords:0,changeRecordDocumentLinks:0,changeChangedDocumentEntries:0,changeRecheckDocuments:0,checkpointVerifyCalls:0,checkpointRows:0,checkpointPeriodRows:0,checkpointDigestRows:0,sealVerifyCalls:0,sealRows:0,archiveMode:'full',total:1}):null;
     const store=s?.documentProofs;if(store===undefined)return;
     if(!object(store)||store.schema!=='gh-document-proofs-v1'||!object(store.recordsById)){errors.push('document-proof-shape');return;}
     const archived=store.archiveById||{};if(!object(archived)){errors.push('document-proof-archive-shape');return;}
@@ -444,7 +466,10 @@
       // verifies it again. Full validations (load, import, a confirmed audit fault) always verify every document.
       // Build 359: a record without its signed content (compact or archived form: its issue time and chain link are read
       // only when the document is verified) must also be the very record verified then.
-      let text=null;try{text=JSON.stringify(document);}catch(_error){text=null;}
+      // A sealed document paired with a sealed record cannot change in place. It is still verified below, but serializing
+      // the whole document merely to seed the mutable-document text cache duplicates the worker's full-document walk.
+      // The exact identity cache written after verification is sufficient for this immutable pair.
+      let text=null;if(!(sealedObject(document)&&sealedObject(record))){if(work)work.documentSerializationRows++;try{text=JSON.stringify(document);}catch(_error){text=null;}}
       seenDocuments.add(proofId);const known=VERIFIED_DOCUMENTS.get(proofId);
       if(trust&&text!==null&&known&&known.digest===record.contentDigest&&known.text===text&&(known.record===record||object(record.signedContent))){if(known.record===record&&sealedObject(document))VERIFIED_SEALED_DOCUMENTS.set(document,record);return relied;}
       // A full pass may skip it too when the record is the same sealed object (it cannot have changed) and that record
@@ -530,7 +555,7 @@
     if(!answered&&(!trust||VERIFIED_DOCUMENTS.size>seenDocuments.size*2+64))for(const proofId of [...VERIFIED_DOCUMENTS.keys()])if(!seenDocuments.has(proofId))VERIFIED_DOCUMENTS.delete(proofId);
     if(metric)metric.documentVerifyMs+=Math.max(0,metricClock()-documentVerificationStart);
     // A pass that verified the archive part without a fault remembers its version, if nothing in it can change.
-    if(!answered){const current=version||archiveVersion(s,store);ARCHIVE_MEMO=errors.length===errorsBefore&&rememberable(current)?{version:current,archive:store.archiveById,checkpoints:store.checkpointsById,periods:store.periodDigests,lists:archiveLists(s),...index}:null;}if(work)work.total=work.stateChecks+work.archiveResidencyRows+work.recordRows+work.recordVerifyCalls+work.liveDocuments+work.archiveDocuments+work.documentVerifyCalls+work.dependencyChecks+work.changeSetChecks+work.changeListKinds+work.changeRemovedDocumentEntries+work.changeRemovedDocuments+work.changeRemovedRecords+work.changeRemovedCheckpoints+work.changeChangedCheckpoints+work.changeChangedPeriods+work.changeChangedRecords+work.changeRecordDocumentLinks+work.changeChangedDocumentEntries+work.changeRecheckDocuments+work.checkpointVerifyCalls+work.checkpointRows+work.checkpointPeriodRows+work.checkpointDigestRows+work.sealVerifyCalls+work.sealRows;
+    if(!answered){const current=version||archiveVersion(s,store);ARCHIVE_MEMO=errors.length===errorsBefore&&rememberable(current)?{version:current,archive:store.archiveById,checkpoints:store.checkpointsById,periods:store.periodDigests,lists:archiveLists(s),...index}:null;}if(work)work.total=work.stateChecks+work.archiveResidencyRows+work.recordRows+work.recordVerifyCalls+work.liveDocuments+work.archiveDocuments+work.documentVerifyCalls+work.documentSerializationRows+work.dependencyChecks+work.changeSetChecks+work.changeListKinds+work.changeRemovedDocumentEntries+work.changeRemovedDocuments+work.changeRemovedRecords+work.changeRemovedCheckpoints+work.changeChangedCheckpoints+work.changeChangedPeriods+work.changeChangedRecords+work.changeRecordDocumentLinks+work.changeChangedDocumentEntries+work.changeRecheckDocuments+work.checkpointVerifyCalls+work.checkpointRows+work.checkpointPeriodRows+work.checkpointDigestRows+work.sealVerifyCalls+work.sealRows;
   }
   // Build 359 (owner: no command or save may walk every document): persistence ran a full validation (every proof and
   // document verified afresh, 77 ms on iPhone at 13,291 documents) on every tenth save. That verification is now an
@@ -609,7 +634,28 @@
       if(route?.id){routeIds.add(route.id);if(!routeById.has(route.id))routeById.set(route.id,route);}
     }
     // routeUsers: routeId -> {users, stable (users that are not transitional), first: index and mode of the first user}.
-    const routeUsers=new Map();let fleetLogicalRows=0;
+    const routeUsers=new Map();let fleetLogicalRows=0,companyFleetValidation=null;
+    // Build 372: the fleet worker now returns the final bounded validation evidence instead of materializing one
+    // JavaScript object for every distinct fleet class. The context token covers every bounded route/company input;
+    // current() covers the replica revision. Both must still match after an asynchronous wait.
+    const validationCore=fleetSaveValidation(),validationParams=validationCore?.contextToken?fleetValidationParams(s,routes,routeIds):null,validationRequired=!rowScan&&options?.requireFleetValidation===true;
+    const acceptFleetValidation=value=>{
+      if(!validationCore?.accepts||!validationParams||!value)return null;const wrapper=value,result=object(wrapper?.result)?wrapper.result:wrapper;
+      if(typeof wrapper?.current==='function'&&wrapper.current()!==true)return null;
+      const current=fleetValidationParams(s);if(current.contextToken!==validationParams.contextToken)return null;
+      return validationCore.accepts(result,{rows:fleetData().size(s),routeIds,contextToken:validationParams.contextToken})?result:null;
+    };
+    let compactValidation=!rowScan?acceptFleetValidation(options?.fleetValidationResult):null;
+    if(!compactValidation&&!rowScan&&typeof options?.fleetValidation==='function'){
+      let asked=null;try{asked=options.fleetValidation(s,validationParams);}catch(_error){asked=null;}
+      if(asked&&typeof asked.then==='function'){
+        const box={done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});
+        const waitedAt=metricClock();let waits=0;while(!box.done&&waits<FLEET_CLASSES_WAITS){waits++;yield 'fleet-validation-wait';}
+        const waited=Math.max(0,metricClock()-waitedAt);pausedMs+=waited;sectionStarted+=waited;fleetWork.validationWaits=waits;
+        if(box.done)compactValidation=acceptFleetValidation(box.value);
+      }else compactValidation=acceptFleetValidation(asked);
+    }
+    fleetWork.workerValidation=compactValidation?1:0;
     // Build 372: options.fleetClasses(s, fields, numeric) -> a promise of {rows: [[row, count, index, members]...], ids,
     // current()} (or null): the classes of rows and the id check, found by the fleet engine's worker on a replica that is
     // this store, so the main thread does not read every row. Only a caller that runs these sections across frames passes
@@ -617,7 +663,7 @@
     // current() still holds (the same store at the same revision); otherwise, and without them, it reads the store
     // itself as before. The checks run on the same rows either way.
     let workerClasses=null;
-    if(!rowScan&&typeof options?.fleetClasses==='function'){
+    if(!compactValidation&&!validationRequired&&!rowScan&&typeof options?.fleetClasses==='function'){
       let asked=null;try{asked=options.fleetClasses(s,FLEET_VALIDATION_FIELDS,FLEET_NUMERIC_FIELDS);}catch(_error){asked=null;}
       if(asked&&typeof asked.then==='function'){
         const box={done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});
@@ -642,13 +688,23 @@
         const route=routeById.get(asset.routeId);if(route&&(routeMode(route)!==mode||routeOwner(route)!==owner))errors.push('asset-route-company');
       }
     };
-    if(workerClasses)for(const [row,count,index,members] of workerClasses.rows)visitAssetClass(row,count,{index,members});
-    else forEachSaveAssetClass(s,visitAssetClass,rowScan);
-    if(!rowScan){fleetWork.idCollisionChecks++;const ids=workerClasses?.ids||fleetData().idCollisions(s);if(ids.duplicate||ids.missing)duplicateAssetId=true;}
+    if(compactValidation){
+      fleetLogicalRows=compactValidation.logicalRows;fleetWork.assetFieldVisits=compactValidation.assetFieldVisits;fleetWork.idCollisionChecks++;
+      errors.push(...compactValidation.errors);duplicateAssetId=compactValidation.ids.duplicate||compactValidation.ids.missing;companyFleetValidation=compactValidation.companyPlatform;
+      for(const [routeId,users,stable,firstIndex,firstMode] of compactValidation.routeUsers)routeUsers.set(routeId,{users,stable,firstIndex,firstMode});
+    }else if(validationRequired){
+      // Large-fleet callers request fail-closed behavior: a missing/stale worker answer must never turn into a
+      // synchronous million-row scan. Company Platform receives the same requirement below.
+      errors.push('fleet-validation-unavailable');fleetLogicalRows=fleetData().size(s);
+    }else{
+      if(workerClasses)for(const [row,count,index,members] of workerClasses.rows)visitAssetClass(row,count,{index,members});
+      else forEachSaveAssetClass(s,visitAssetClass,rowScan);
+      if(!rowScan){fleetWork.idCollisionChecks++;const ids=workerClasses?.ids||fleetData().idCollisions(s);if(ids.duplicate||ids.missing)duplicateAssetId=true;}
+    }
     if(duplicateAssetId)errors.push('asset-id');
     for(const [routeId,users] of routeUsers){fleetWork.routeUserGroups++;const route=routeById.get(routeId),type=routeMode(route)||users.firstMode,capacity=routeCapacity(route||type,type);if(users.stable>capacity)errors.push('asset-route-capacity');}
-    for(const group of routeSignatureGroups.values()){fleetWork.routeSignatureGroups++;if(group.length>1){let stable=0;for(const route of group){fleetWork.routeSignatureRows++;const users=routeUsers.get(route.id);if(!users||users.stable>0)stable++;}if(stable!==1)errors.push('route-geometry-duplicate');}}
-    yield* pause('fleet-routes',fleetWork,{logicalRows:fleetLogicalRows,scan:rowScan?'rows':'classes'});
+    if(!(validationRequired&&!compactValidation))for(const group of routeSignatureGroups.values()){fleetWork.routeSignatureGroups++;if(group.length>1){let stable=0;for(const route of group){fleetWork.routeSignatureRows++;const users=routeUsers.get(route.id);if(!users||users.stable>0)stable++;}if(stable!==1)errors.push('route-geometry-duplicate');}}
+    yield* pause('fleet-routes',fleetWork,{logicalRows:fleetLogicalRows,scan:compactValidation?'worker-summary':validationRequired?'worker-required':rowScan?'rows':'classes'});
     const routeStateWork=metric.routeStateWork={endpointRows:0,cacheRows:0,cacheByteChecks:0,retiredFeatureChecks:0};
     if(object(s?.routeEndpoints)){const entries=Object.entries(s.routeEndpoints);if(entries.length>STATE_LIMITS.routeEndpoints)errors.push('route-endpoint-capacity');for(const [id,endpoint] of entries){routeStateWork.endpointRows++;if(!id||!object(endpoint)||endpoint.id!==id||!validPoint(endpoint.coords))errors.push('route-endpoint');}}
     else if(s?.routeEndpoints!==undefined)errors.push('route-endpoints-shape');
@@ -720,9 +776,9 @@
     {const {total:_total,archiveMemoHit,...work}=metric.authorizationWork||{};yield* pause('authorization',work,{archiveMemoHit:archiveMemoHit===true});}
     started=metricClock();validateDocumentProofState(s,errors,verificationCache,metric,trust);metric.documentProofMs=Math.max(0,metricClock()-started);
     {const {total:_total,archiveMode,...work}=metric.documentProofWork||{};yield* pause('document-proofs',work,{archiveMode:archiveMode||'unavailable'});}
-    started=metricClock();const companyValidator=globalThis.GH_COMPANY_PLATFORM?.validateState,companyValidation=companyValidator?.(s,{assetScan:rowScan?'rows':'classes',measureWork:true}),companyPlatformWork=metric.companyPlatformWork=object(companyValidation?.work)?companyValidation.work:{validationCalls:typeof companyValidator==='function'?1:0};metric.companyPlatformMs=Math.max(0,metricClock()-started);if(companyValidation&&!companyValidation.ok)errors.push(...companyValidation.errors.map(error=>`company-platform:${error}`));
-    const validationEnded=metricClock();metric.sectionSamples.push({name:'company-platform',durationMs:Math.max(0,validationEnded-sectionStarted),units:workTotal(companyPlatformWork),details:{work:{...companyPlatformWork},logicalRows:Number.isSafeInteger(companyValidation?.logicalRows)?companyValidation.logicalRows:fleetLogicalRows,scan:rowScan?'rows':'classes'}});metric.totalMs=Math.max(0,validationEnded-validationStart-pausedMs);metric.errors=new Set(errors).size;metric.otherMs=Math.max(0,metric.totalMs-metric.authorizationMs-metric.documentProofMs-metric.companyPlatformMs);publishValidationMetric(metric);
+    started=metricClock();const companyValidator=globalThis.GH_COMPANY_PLATFORM?.validateState,companyOptions={assetScan:rowScan?'rows':'classes',measureWork:true};if(companyFleetValidation)companyOptions.fleetAssetValidation=companyFleetValidation;else if(validationRequired)companyOptions.requireFleetAssetValidation=true;const companyValidation=companyValidator?.(s,companyOptions),companyPlatformWork=metric.companyPlatformWork=object(companyValidation?.work)?companyValidation.work:{validationCalls:typeof companyValidator==='function'?1:0};metric.companyPlatformMs=Math.max(0,metricClock()-started);if(companyValidation&&!companyValidation.ok)errors.push(...companyValidation.errors.map(error=>`company-platform:${error}`));
+    const validationEnded=metricClock();metric.sectionSamples.push({name:'company-platform',durationMs:Math.max(0,validationEnded-sectionStarted),units:workTotal(companyPlatformWork),details:{work:{...companyPlatformWork},logicalRows:Number.isSafeInteger(companyValidation?.logicalRows)?companyValidation.logicalRows:fleetLogicalRows,scan:companyFleetValidation?'worker-summary':validationRequired?'worker-required':rowScan?'rows':'classes'}});metric.totalMs=Math.max(0,validationEnded-validationStart-pausedMs);metric.errors=new Set(errors).size;metric.otherMs=Math.max(0,metric.totalMs-metric.authorizationMs-metric.documentProofMs-metric.companyPlatformMs);publishValidationMetric(metric);
     return {ok:errors.length===0,errors:[...new Set(errors)]};
   }
-  const API=Object.freeze({VERSION,SAVE_SCHEMA_VERSION,STATE_LIMITS,ROUTE_FLEET_CAPACITY,normalize,validate,validationSteps,inheritVerified,createProofAudit,migrateLegacy,measure:Object.freeze({mapBytes,routeWithinBytes,serializedBytes}),telemetry:()=>JSON.parse(JSON.stringify(runtimeTelemetry))});globalThis.GH_SAVE_SCHEMA=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_SAVE_SCHEMA=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,SAVE_SCHEMA_VERSION,STATE_LIMITS,ROUTE_FLEET_CAPACITY,normalize,validate,validationSteps,fleetValidationParams,inheritVerified,createProofAudit,migrateLegacy,measure:Object.freeze({mapBytes,routeWithinBytes,serializedBytes}),telemetry:()=>JSON.parse(JSON.stringify(runtimeTelemetry))});globalThis.GH_SAVE_SCHEMA=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_SAVE_SCHEMA=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

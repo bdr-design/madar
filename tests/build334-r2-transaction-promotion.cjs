@@ -29,4 +29,10 @@ test('a caught cross-state join violation still aborts the transaction that requ
  assert.throws(()=>tx.execute(state,{scope:['assets'],apply(){state.assets[0].fuel=9;try{tx.join(foreign,{apply(){foreign.value=2;}});}catch(_e){}return true;}}),/Cross-state transaction join/);
  assert.equal(state.assets[0].fuel,100);assert.equal(foreign.value,1);assert.equal(tx.isActive(),false);
 });
+test('active transaction ownership is reported only for its target',()=>{
+ const {s}=harness(['transaction-core']);const tx=s.GH_TRANSACTION_CORE,owner={value:1},foreign={value:2};
+ assert.equal(tx.isActiveFor(owner),false);assert.equal(tx.isActiveFor(foreign),false);
+ tx.execute(owner,{apply(){assert.equal(tx.isActive(),true);assert.equal(tx.isActiveFor(owner),true);assert.equal(tx.isActiveFor(foreign),false);owner.value=3;}});
+ assert.equal(owner.value,3);assert.equal(tx.isActiveFor(owner),false);assert.equal(tx.isActiveFor(foreign),false);
+});
 console.log(JSON.stringify({suite:'build334-r2-transaction-promotion',passed:results.filter(x=>x.ok).length,total:results.length,results},null,2));if(results.some(x=>!x.ok))process.exitCode=1;

@@ -275,12 +275,103 @@
       yield {bucket,list,members:changes?changes.changed:list};
     }
   }
+  const ARCHIVED_WORKER_VERSION='GH-PROOF-VERIFY-372.1.0',ARCHIVED_WORKER_TEXT_LIMIT=LIMITS.materialBytes*3,ARCHIVED_WORKER_TRANSFER_LIMIT=1024*1024,ARCHIVED_WORKER_TRANSFER_SIZE=new WeakMap();
+  // A bounded clone-size estimate without allocating serialized text. JSON.stringify here used to walk and allocate the entire document on
+  // the main thread immediately before postMessage walked it again. Strings are charged conservatively for UTF-8 and
+  // escaping; an oversized value stops at the transfer cap and travels alone.
+  function workerTransferSize(value){
+    if(!value||typeof value!=='object')return 0;const known=ARCHIVED_WORKER_TRANSFER_SIZE.get(value);if(known!==undefined)return known;
+    const stack=[value],seen=new WeakSet();let size=0;
+    while(stack.length&&size<=ARCHIVED_WORKER_TRANSFER_LIMIT){const node=stack.pop(),type=typeof node;if(node===null||type==='undefined'){size+=4;continue;}if(type==='string'){size+=8+node.length*3;continue;}if(type==='number'||type==='bigint'){size+=24;continue;}if(type==='boolean'){size+=4;continue;}if(type!=='object'){size+=16;continue;}if(seen.has(node))continue;seen.add(node);if(ArrayBuffer.isView(node)){size+=32+node.byteLength;continue;}if(node instanceof ArrayBuffer){size+=24+node.byteLength;continue;}let keys;try{keys=Object.keys(node);}catch(_error){size=ARCHIVED_WORKER_TRANSFER_LIMIT+1;break;}size+=16+keys.length*8;for(const key of keys){size+=8+key.length*3;try{stack.push(node[key]);}catch(_error){size=ARCHIVED_WORKER_TRANSFER_LIMIT+1;break;}}}
+    size=Math.min(ARCHIVED_WORKER_TRANSFER_LIMIT+1,size);if(sealedValue(value))ARCHIVED_WORKER_TRANSFER_SIZE.set(value,size);return size;
+  }
+  function archivedProjection(record,signatureDigest=null){
+    const compact={};
+    if(isArchivedForm(record)||isCompactForm(record)){for(const field of ARCHIVED_FIELDS)compact[field]=field==='form'?ARCHIVED_FORM_V2:field==='chain'?clone(chainOf(record)):(record[field]??null);}
+    else for(const field of ARCHIVED_FIELDS)compact[field]=field==='form'?ARCHIVED_FORM_V2:field==='issuedAtSim'?Number(record.signedContent.issuedAtSim)||0:field==='chain'?clone(record.signedContent.chain??null):field==='signatureDigest'?signatureDigest:(record[field]??null);
+    return compact;
+  }
+  // Pure worker entry: rebuild the same signed content the main verifier uses and return its canonical text and digest.
+  // The main thread still checks the source and proposed record with verifyDocument before publishing either map.
+  function hashArchivedCandidate(job){
+    if(!job||typeof job!=='object'||Array.isArray(job)||!Number.isSafeInteger(job.token)||!job.document||typeof job.document!=='object'||!job.record||typeof job.record!=='object')throw new TypeError('document-proof-worker-job-invalid');
+    const content=archivedSignedContent(job.document,job.record),contentStable=stable(content),source=job.sourceSignedContent&&typeof job.sourceSignedContent==='object'?job.sourceSignedContent:null,sourceStable=source?stable(source):contentStable;
+    if(contentStable.length>ARCHIVED_WORKER_TEXT_LIMIT||sourceStable.length>ARCHIVED_WORKER_TEXT_LIMIT)throw new Error('document-proof-worker-content-capacity');
+    const signature=value=>{if(!value||typeof value!=='object')return null;const text=stable(value);return {stable:text,digest:digest(text)};};
+    return {token:job.token,ok:true,contentStable,contentDigest:digest(contentStable),sourceStable,sourceDigest:digest(sourceStable),profile:content.material?.profile??null,documentId:content.documentId??null,documentType:content.documentType??null,recordSignature:signature(job.recordSignatureSnapshot),documentSignature:signature(job.documentSignatureSnapshot)};
+  }
+  // Selection for the asynchronous maintenance path is read-only. Cursor publication happens with the converted maps,
+  // in the short main-thread transaction after the worker result has passed all freshness checks.
+  function prepareArchivedRecords(state,{limit=ARCHIVED_BATCH}={}){
+    const store=ensure(state),maximum=Math.max(1,Math.min(ARCHIVED_BATCH,Math.floor(Number(limit)||ARCHIVED_BATCH))),base=ARCHIVED_PASSES.get(state)||null,count=(base?.count||0)+1,sweep=(base?.sweep||0)+(count%ARCHIVED_SWEEP===0?1:0),view={read:base?.read||new WeakMap(),last:base?.last||new Map(),sweep},candidates=[],jobs=[],readUpdates=[];let transferBytes=0;
+    for(const {bucket,list,members} of archivedCandidates(state,view)){
+      let complete=true;
+      for(const document of members){
+        if(candidates.length>=maximum){complete=false;break;}if(!document||typeof document!=='object')continue;
+        const record=getRecord(state,document.documentProofId);
+        if(!record||record.form===ARCHIVED_FORM_V2||Number(record.version)!==RECORD_VERSION||store.supersededById?.[record.id]||archivedDocument(state,record.id)!==document)continue;
+        if(!isArchivedForm(record)&&!isCompactForm(record)&&record.signedContent?.schema!==CONTENT_SCHEMA)continue;
+        // The worker result is tied to object identity. An unsealed pair could change in place while the worker owns its
+        // clone, so leave it for the next maintenance round after persistence seals it.
+        if(!sealedValue(list)||!sealedValue(document)||!sealedValue(record)){complete=false;continue;}
+        const proof=record.authorizationProofId?(state.authorization?.proofsById?.[record.authorizationProofId]||state.authorization?.proofArchiveById?.[record.authorizationProofId]):null;if(record.authorizationProofId&&!proof)continue;
+        const compact=archivedProjection(record,null),token=candidates.length+1,whole=!isArchivedForm(record)&&!isCompactForm(record),transfer=workerTransferSize(document)+(whole?workerTransferSize(record.signedContent):0);if(candidates.length&&transferBytes+transfer>ARCHIVED_WORKER_TRANSFER_LIMIT){complete=false;break;}transferBytes+=transfer;
+        compact.authorizationDigest=proof?proof.proofDigest:null;
+        const candidate={token,bucket,list,document,record,proof,compact,whole,hot:store.recordsById[record.id]===record};candidates.push(candidate);
+        jobs.push({token,document,record:compact,sourceSignedContent:whole?record.signedContent:null,recordSignatureSnapshot:whole?record.signatureSnapshot:null,documentSignatureSnapshot:document.signatureSnapshot});
+      }
+      if(complete&&sealedValue(list))readUpdates.push({bucket,list,priorRead:base?.read?.get(list),priorLast:base?.last?.get(bucket)});
+      if(candidates.length>=maximum)break;
+    }
+    return {version:ARCHIVED_WORKER_VERSION,state,store,recordsRoot:state.finance?.auditArchive?.records||null,hot:store.recordsById,cold:store.archiveById,over:store.supersededById,base,baseCount:base?.count||0,baseSweep:base?.sweep||0,count,sweep,candidates,jobs,readUpdates};
+  }
+  function archivedPlanCurrent(state,plan){
+    if(!plan||plan.version!==ARCHIVED_WORKER_VERSION||plan.state!==state||plan.store!==state?.documentProofs||plan.hot!==plan.store.recordsById||plan.cold!==plan.store.archiveById||plan.over!==plan.store.supersededById||plan.recordsRoot!==(state.finance?.auditArchive?.records||null))return false;
+    const current=ARCHIVED_PASSES.get(state)||null;if(current!==plan.base||(current?.count||0)!==plan.baseCount||(current?.sweep||0)!==plan.baseSweep)return false;
+    for(const row of plan.candidates)if(row.list!==state.finance?.auditArchive?.records?.[row.bucket]||getRecord(state,row.record.id)!==row.record||archivedDocument(state,row.record.id)!==row.document||!sealedValue(row.record)||!sealedValue(row.document))return false;
+    return true;
+  }
+  function publishArchivedPass(state,plan){
+    let pass=plan.base,created=false;if(!pass){pass={count:plan.baseCount,sweep:plan.baseSweep,read:new WeakMap(),last:new Map()};created=true;}
+    const tx=globalThis.GH_TRANSACTION_CORE,previous=plan.readUpdates.map(row=>({list:row.list,bucket:row.bucket,read:pass.read.get(row.list),last:pass.last.get(row.bucket),hadLast:pass.last.has(row.bucket)})),oldCount=pass.count,oldSweep=pass.sweep;
+    if(tx?.isActive?.())tx.registerUndo(()=>{pass.count=oldCount;pass.sweep=oldSweep;for(const row of previous){if(row.read===undefined)pass.read.delete(row.list);else pass.read.set(row.list,row.read);if(row.hadLast)pass.last.set(row.bucket,row.last);else pass.last.delete(row.bucket);}if(created)ARCHIVED_PASSES.delete(state);});
+    pass.count=plan.count;pass.sweep=plan.sweep;for(const row of plan.readUpdates){pass.read.set(row.list,plan.sweep);pass.last.set(row.bucket,row.list);}if(created)ARCHIVED_PASSES.set(state,pass);
+  }
+  function validWorkerRow(row,token){if(!row||row.token!==token||!Number.isSafeInteger(token))return false;if(row.ok===false)return typeof row.reason==='string'&&row.reason.length<=240;if(row.ok!==true)return false;return typeof row.contentStable==='string'&&row.contentStable.length<=ARCHIVED_WORKER_TEXT_LIMIT&&typeof row.sourceStable==='string'&&row.sourceStable.length<=ARCHIVED_WORKER_TEXT_LIMIT&&isDigest(row.contentDigest)&&isDigest(row.sourceDigest)&&(row.recordSignature===null||row.recordSignature&&typeof row.recordSignature.stable==='string'&&isDigest(row.recordSignature.digest))&&(row.documentSignature===null||row.documentSignature&&typeof row.documentSignature.stable==='string'&&isDigest(row.documentSignature.digest));}
+  function withArchivedHashes(value,run){const prior=ACTIVE_ARCHIVED_HASHES;ACTIVE_ARCHIVED_HASHES=value;try{return run();}finally{ACTIVE_ARCHIVED_HASHES=prior;}}
+  function commitArchivedRecords(state,plan,answers){
+    if(!archivedPlanCurrent(state,plan))return {compacted:0,stale:true};
+    if(!Array.isArray(answers)||answers.length!==plan.candidates.length)return {compacted:0,invalid:true};
+    const byToken=new Map();for(const row of answers){if(!validWorkerRow(row,row?.token)||byToken.has(row.token))return {compacted:0,invalid:true};byToken.set(row.token,row);}if(plan.candidates.some(row=>!byToken.has(row.token)))return {compacted:0,invalid:true};
+    const store=plan.store,made=[],authorizationCache={proofs:new Map(),sealDigests:new Map(),mandateDigests:new Map()};
+    for(const candidate of plan.candidates){
+      const answer=byToken.get(candidate.token);if(!answer?.ok||answer.contentDigest!==candidate.record.contentDigest||answer.sourceDigest!==candidate.record.contentDigest||answer.profile!==candidate.record.materialProfile||answer.documentId!==candidate.record.documentId||answer.documentType!==candidate.record.documentType)continue;
+      const compact={...candidate.compact};if(candidate.whole)compact.signatureDigest=answer.recordSignature?.digest??null;
+      const pair={document:candidate.document,stable:answer.contentStable,digest:answer.contentDigest,profile:answer.profile,documentId:answer.documentId,documentType:answer.documentType},pairs=new Map([[candidate.record,pair],[compact,pair]]),records=new Map();if(candidate.whole)records.set(candidate.record,{stable:answer.sourceStable,digest:answer.sourceDigest});
+      const signatures=new Map();if(candidate.record.signatureSnapshot&&answer.recordSignature)signatures.set(candidate.record.signatureSnapshot,answer.recordSignature.digest);if(candidate.document.signatureSnapshot&&answer.documentSignature)signatures.set(candidate.document.signatureSnapshot,answer.documentSignature.digest);
+      const hashes={pairs,records,signatures},sourceCache={records:new Map(),signedContentStable:new Map(),authorization:authorizationCache};
+      const sourceCheck=withArchivedHashes(hashes,()=>verifyDocument(state,candidate.document,sourceCache));if(!sourceCheck.ok)continue;
+      // The authorization proof may have changed by replacement while the hash was in flight. Source verification above
+      // used the current proof; publish its current digest into the v2 record.
+      const proof=compact.authorizationProofId?(state.authorization?.proofsById?.[compact.authorizationProofId]||state.authorization?.proofArchiveById?.[compact.authorizationProofId]):null;if(compact.authorizationProofId&&!proof)continue;compact.authorizationDigest=proof?proof.proofDigest:null;
+      const nextHot={...store.recordsById},nextCold=candidate.hot?(store.archiveById||{}):{...(store.archiveById||{})};(candidate.hot?nextHot:nextCold)[compact.id]=compact;
+      const trial={...state,documentProofs:{...store,recordsById:nextHot,archiveById:nextCold}},targetPair={...pair,document:candidate.document},targetHashes={pairs:new Map([[compact,targetPair]]),records:new Map(),signatures},targetRecords=new Map(sourceCache.records),targetTexts=new Map(sourceCache.signedContentStable);targetRecords.delete(compact.id);targetTexts.delete(compact.id);
+      const targetCheck=withArchivedHashes(targetHashes,()=>verifyDocument(trial,candidate.document,{records:targetRecords,signedContentStable:targetTexts,authorization:sourceCache.authorization})),seal=globalThis.GH_TRANSACTION_CORE?.sealValue;if(!targetCheck.ok||typeof seal==='function'&&seal(compact)!==true)continue;
+      made.push({compact,hot:candidate.hot,document:candidate.document,answer});
+    }
+    publishArchivedPass(state,plan);
+    if(!made.length)return {compacted:0};
+    const coldIds=made.filter(row=>!row.hot).map(row=>row.compact.id),nextHot={...store.recordsById},nextCold=coldIds.length?{...(store.archiveById||{})}:(store.archiveById||{});for(const row of made)(row.hot?nextHot:nextCold)[row.compact.id]=row.compact;
+    store.recordsById=nextHot;if(coldIds.length)store.archiveById=derive(nextCold,store.archiveById,{changed:coldIds});
+    for(const row of made){const kept={document:row.document,stable:row.answer.contentStable,digest:row.answer.contentDigest,profile:row.answer.profile,documentId:row.answer.documentId,documentType:row.answer.documentType};WORKER_ARCHIVED_CONTENT.set(row.compact,kept);if(row.document.signatureSnapshot&&row.answer.documentSignature)WORKER_SIGNATURE_DIGESTS.set(row.document.signatureSnapshot,row.answer.documentSignature.digest);}
+    return {compacted:made.length};
+  }
   function compactArchivedRecords(state,{limit=ARCHIVED_BATCH}={}){
     const store=ensure(state),cache={records:new Map(),signedContentStable:new Map()},made=[];
-    let pass=ARCHIVED_PASSES.get(state);if(!pass){pass={count:0,sweep:0,read:new WeakMap(),last:new Map()};ARCHIVED_PASSES.set(state,pass);}
+    let pass=ARCHIVED_PASSES.get(state),created=false;if(!pass){pass={count:0,sweep:0,read:new WeakMap(),last:new Map()};ARCHIVED_PASSES.set(state,pass);created=true;}
     pass.count++;if(pass.count%ARCHIVED_SWEEP===0)pass.sweep++;
     // A pass inside a transaction that rolls back forgets the collections it read (its conversions are undone too).
-    const readNow=[],tx=globalThis.GH_TRANSACTION_CORE;if(tx?.isActive?.()){const last=new Map(pass.last);tx.registerUndo(()=>{for(const list of readNow)pass.read.delete(list);pass.last=last;});}
+    const readNow=[],tx=globalThis.GH_TRANSACTION_CORE;if(tx?.isActive?.()){const last=new Map(pass.last),count=pass.count-1,sweep=pass.sweep-(pass.count%ARCHIVED_SWEEP===0?1:0);tx.registerUndo(()=>{for(const row of readNow){if(row.had)pass.read.set(row.list,row.value);else pass.read.delete(row.list);}pass.last=last;pass.count=count;pass.sweep=sweep;if(created)ARCHIVED_PASSES.delete(state);});}
     for(const {bucket,list,members} of archivedCandidates(state,pass)){
       let complete=true;
       for(const document of members){
@@ -298,7 +389,7 @@
         made.push({compact,hot:store.recordsById[record.id]===record});
       }
       // A collection read to its end is remembered (its next version is read for its new documents only).
-      if(complete&&Object.isFrozen(list)){pass.read.set(list,pass.sweep);pass.last.set(bucket,list);readNow.push(list);}
+      if(complete&&Object.isFrozen(list)){readNow.push({list,had:pass.read.has(list),value:pass.read.get(list)});pass.read.set(list,pass.sweep);pass.last.set(bucket,list);}
       if(made.length>=limit)break;
     }
     if(!made.length)return {compacted:0};
@@ -335,7 +426,7 @@
       for(const id in registry){if(!Object.prototype.hasOwnProperty.call(registry,id)||position++<index)continue;if(read>=scan||made.length>=limit){end=false;break;}consider(registry[id]);index++;read++;}
       if(end){source=0;index=0;}break;
     }
-    LIVE_CURSORS.set(state,{source,index});
+    {const prior=LIVE_CURSORS.get(state),tx=globalThis.GH_TRANSACTION_CORE;if(tx?.isActive?.())tx.registerUndo(()=>{if(prior)LIVE_CURSORS.set(state,prior);else LIVE_CURSORS.delete(state);});LIVE_CURSORS.set(state,{source,index});}
     if(!made.length)return {compacted:0,read};
     const nextHot={...store.recordsById},coldIds=made.filter(row=>!row.hot).map(row=>row.compact.id),nextCold=coldIds.length?{...(store.archiveById||{})}:(store.archiveById||{});
     for(const {compact,hot} of made)(hot?nextHot:nextCold)[compact.id]=compact;
@@ -567,7 +658,19 @@
     return null;
   }
   function archivedSignedContent(document,record){const issuer={...clone(document.issuerSnapshot),companyId:clean(document.company||document.companyId||'group',100)};return signedContent(document,issuer,counterpartySnapshot(document),{issuedAtSim:record.issuedAtSim,fixedIssuedAt:true,chain:chainOf(record)});}
-  const signatureDigestOf=snapshot=>snapshot&&typeof snapshot==='object'?digest(stable(snapshot)):null;
+  // A maintenance worker may precompute the canonical text and digests for one exact document/record pair. The scoped
+  // certificate is visible only while the main-thread verifier rechecks the pair's envelope, authorization and chain.
+  // Published certificates are consumed later only after both objects have been sealed by persistence.
+  let ACTIVE_ARCHIVED_HASHES=null;
+  const WORKER_ARCHIVED_CONTENT=new WeakMap(),WORKER_SIGNATURE_DIGESTS=new WeakMap();
+  const sealedValue=value=>globalThis.GH_TRANSACTION_CORE?.isSealed?.(value)===true;
+  const activePair=(document,record)=>ACTIVE_ARCHIVED_HASHES?.pairs?.get(record)?.document===document?ACTIVE_ARCHIVED_HASHES.pairs.get(record):null;
+  function signatureDigestOf(snapshot){
+    if(!snapshot||typeof snapshot!=='object')return null;
+    const active=ACTIVE_ARCHIVED_HASHES?.signatures?.get(snapshot);if(active!==undefined)return active;
+    const known=WORKER_SIGNATURE_DIGESTS.get(snapshot);if(known!==undefined&&sealedValue(snapshot))return known;
+    return digest(stable(snapshot));
+  }
   // What the document itself must carry for an archived-form record (the envelope a whole record checks against its copies).
   function archivedEnvelope(document,record){
     const currentCompanyId=clean(document.company||document.companyId||'group',100);
@@ -581,9 +684,33 @@
   // The rebuilt signed content of a sealed record and sealed document is computed once per pair.
   const ARCHIVED_CONTENT=new WeakMap();
   function archivedContentStable(document,record){
+    const scoped=activePair(document,record);if(scoped)return scoped;
     const sealed=globalThis.GH_TRANSACTION_CORE?.isSealed,known=ARCHIVED_CONTENT.get(record);if(known&&known.document===document)return known;
+    const worker=WORKER_ARCHIVED_CONTENT.get(record);if(worker&&worker.document===document&&sealedValue(record)&&sealedValue(document)){ARCHIVED_CONTENT.set(record,worker);return worker;}
     const content=archivedSignedContent(document,record),out={stable:stable(content),profile:content.material?.profile,documentId:content.documentId,documentType:content.documentType};
     if(typeof sealed==='function'&&sealed(record)&&sealed(document)){const kept={...out,document};ARCHIVED_CONTENT.set(record,kept);return kept;}return out;
+  }
+  // Before the schema's unchanged full validation, sealed archived pairs can have their canonical text and SHA prepared
+  // in bounded worker batches. The verifier below still runs normally: these certificates only replace rebuilding and
+  // hashing the exact sealed objects, while envelope, authorization, residency and chain checks stay on this thread.
+  const ARCHIVED_VERIFICATION_MEMO=new WeakMap();
+  function archivedVerificationSnapshot(state){const store=state?.documentProofs||null,recordsRoot=state?.finance?.auditArchive?.records||null,lists=[];if(recordsRoot&&typeof recordsRoot==='object'&&!Array.isArray(recordsRoot))for(const [bucket,list] of Object.entries(recordsRoot))if(!String(bucket).startsWith('companyLedger-')&&Array.isArray(list))lists.push([bucket,list]);return {store,hot:store?.recordsById,cold:store?.archiveById,over:store?.supersededById,recordsRoot,lists};}
+  function sameArchivedVerificationSnapshot(state,snapshot){const current=archivedVerificationSnapshot(state);if(!snapshot||current.store!==snapshot.store||current.hot!==snapshot.hot||current.cold!==snapshot.cold||current.over!==snapshot.over||current.recordsRoot!==snapshot.recordsRoot||current.lists.length!==snapshot.lists.length)return false;for(let index=0;index<current.lists.length;index++)if(current.lists[index][0]!==snapshot.lists[index][0]||current.lists[index][1]!==snapshot.lists[index][1])return false;return true;}
+  function archivedVerificationKnown(document,record,whole){const content=WORKER_ARCHIVED_CONTENT.get(record)||ARCHIVED_CONTENT.get(record);if(!content||content.document!==document||!isDigest(content.digest)||!sealedValue(document)||!sealedValue(record)||whole&&!SEALED_RECORD_CONTENT.has(record))return false;return record.signatureDigest===null||WORKER_SIGNATURE_DIGESTS.get(document.signatureSnapshot)!==undefined;}
+  function prepareArchivedVerification(state,{cursor=null,limit=100,scan=2000}={}){
+    const maximum=Math.max(1,Math.min(200,Math.floor(Number(limit)||100))),maximumScan=Math.max(maximum,Math.min(10000,Math.floor(Number(scan)||2000))),snapshot=archivedVerificationSnapshot(state),memo=ARCHIVED_VERIFICATION_MEMO.get(state);
+    if(!cursor&&sameArchivedVerificationSnapshot(state,memo))return {...snapshot,version:ARCHIVED_WORKER_VERSION,state,candidates:[],jobs:[],cursor:null,done:true,memo:true,examined:0};
+    let restarted=false;if(cursor&&!sameArchivedVerificationSnapshot(state,cursor)){cursor=null;restarted=true;}
+    const source=cursor||{...snapshot,bucket:0,index:0,deferred:false},candidates=[],jobs=[];let bucket=Math.max(0,Math.floor(Number(source.bucket)||0)),index=Math.max(0,Math.floor(Number(source.index)||0)),examined=0,deferred=source.deferred===true,transferBytes=0;
+    while(bucket<snapshot.lists.length&&examined<maximumScan&&candidates.length<maximum){const [name,list]=snapshot.lists[bucket];if(index>=list.length){bucket++;index=0;continue;}const document=list[index++];examined++;if(!document||typeof document!=='object')continue;const record=getRecord(state,document.documentProofId);if(!sealedValue(list)||!sealedValue(document)||record&&!sealedValue(record)){if(record)deferred=true;continue;}if(!record||Number(record.version)!==RECORD_VERSION||archivedDocument(state,record.id)!==document)continue;if(!isArchivedForm(record)&&!isCompactForm(record)&&record.signedContent?.schema!==CONTENT_SCHEMA)continue;const whole=!isArchivedForm(record)&&!isCompactForm(record);if(archivedVerificationKnown(document,record,whole))continue;const transfer=workerTransferSize(document)+(whole?workerTransferSize(record.signedContent):0);if(candidates.length&&transferBytes+transfer>ARCHIVED_WORKER_TRANSFER_LIMIT){index--;examined--;break;}transferBytes+=transfer;const projected=archivedProjection(record,null),token=candidates.length+1;candidates.push({token,bucket:name,list,document,record,whole});jobs.push({token,document,record:projected,sourceSignedContent:whole?record.signedContent:null,recordSignatureSnapshot:whole?record.signatureSnapshot:null,documentSignatureSnapshot:document.signatureSnapshot});}
+    while(bucket<snapshot.lists.length&&index>=snapshot.lists[bucket][1].length){bucket++;index=0;}const done=bucket>=snapshot.lists.length,next=done?null:{...snapshot,bucket,index,deferred};return {...snapshot,version:ARCHIVED_WORKER_VERSION,state,candidates,jobs,cursor:next,done,deferred,restarted,examined};
+  }
+  function archivedVerificationPlanCurrent(state,plan){if(!plan||plan.version!==ARCHIVED_WORKER_VERSION||plan.state!==state||!sameArchivedVerificationSnapshot(state,plan))return false;for(const row of plan.candidates)if(state.finance?.auditArchive?.records?.[row.bucket]!==row.list||getRecord(state,row.record.id)!==row.record||archivedDocument(state,row.record.id)!==row.document||!sealedValue(row.list)||!sealedValue(row.record)||!sealedValue(row.document))return false;return true;}
+  function commitArchivedVerification(state,plan,answers){
+    if(!archivedVerificationPlanCurrent(state,plan))return {verified:0,stale:true,done:false,cursor:null};if(!Array.isArray(answers)||answers.length!==plan.candidates.length)return {verified:0,invalid:true,done:plan.done,cursor:plan.cursor};
+    const byToken=new Map();for(const row of answers){if(!validWorkerRow(row,row?.token)||byToken.has(row.token))return {verified:0,invalid:true,done:plan.done,cursor:plan.cursor};byToken.set(row.token,row);}if(plan.candidates.some(row=>!byToken.has(row.token)))return {verified:0,invalid:true,done:plan.done,cursor:plan.cursor};
+    const authorizationCache={proofs:new Map(),sealDigests:new Map(),mandateDigests:new Map()};let verified=0,complete=true;for(const candidate of plan.candidates){const answer=byToken.get(candidate.token);if(!answer?.ok||answer.contentDigest!==candidate.record.contentDigest||answer.sourceDigest!==candidate.record.contentDigest||answer.profile!==candidate.record.materialProfile||answer.documentId!==candidate.record.documentId||answer.documentType!==candidate.record.documentType){complete=false;continue;}const pair={document:candidate.document,stable:answer.contentStable,digest:answer.contentDigest,profile:answer.profile,documentId:answer.documentId,documentType:answer.documentType},pairs=new Map([[candidate.record,pair]]),records=new Map();if(candidate.whole)records.set(candidate.record,{stable:answer.sourceStable,digest:answer.sourceDigest});const signatures=new Map();if(candidate.record.signatureSnapshot&&answer.recordSignature)signatures.set(candidate.record.signatureSnapshot,answer.recordSignature.digest);if(candidate.document.signatureSnapshot&&answer.documentSignature)signatures.set(candidate.document.signatureSnapshot,answer.documentSignature.digest);const cache={records:new Map(),signedContentStable:new Map(),authorization:authorizationCache},check=withArchivedHashes({pairs,records,signatures},()=>verifyDocument(state,candidate.document,cache));if(!check.ok){complete=false;continue;}WORKER_ARCHIVED_CONTENT.set(candidate.record,pair);if(candidate.whole)SEALED_RECORD_CONTENT.set(candidate.record,answer.sourceStable);if(candidate.record.signatureSnapshot&&answer.recordSignature)WORKER_SIGNATURE_DIGESTS.set(candidate.record.signatureSnapshot,answer.recordSignature.digest);if(candidate.document.signatureSnapshot&&answer.documentSignature)WORKER_SIGNATURE_DIGESTS.set(candidate.document.signatureSnapshot,answer.documentSignature.digest);verified++;}
+    if(plan.done&&!plan.deferred&&complete&&verified===plan.candidates.length)ARCHIVED_VERIFICATION_MEMO.set(state,{store:plan.store,hot:plan.hot,cold:plan.cold,over:plan.over,recordsRoot:plan.recordsRoot,lists:plan.lists});return {verified,complete,done:plan.done,cursor:plan.cursor};
   }
   function verifyArchivedRecord(state,proofRecord,seen,cache){
     if(Object.keys(proofRecord).sort().join(',')!==(proofRecord.form===ARCHIVED_FORM_V2?ARCHIVED_KEYS_V2:ARCHIVED_KEYS)||Number(proofRecord.version)!==RECORD_VERSION||!/^[a-f0-9]{64}$/i.test(String(proofRecord.contentDigest||''))||(proofRecord.signatureDigest!==null&&!/^[a-f0-9]{64}$/i.test(String(proofRecord.signatureDigest||''))))return {ok:false,reason:'document-proof-archived-shape'};
@@ -643,7 +770,7 @@
       if(isCompactForm(proofRecord))return verifyCompactRecord(state,proofRecord,seen,cache);
       // Build 358: a sealed record (frozen, see GH_TRANSACTION_CORE.registerSealedCollections) cannot change, so its signed
       // content is canonicalized and hashed once; the chain and authorization checks below still run on every call.
-      const sealedContent=SEALED_RECORD_CONTENT.get(proofRecord);let signedContentStable=sealedContent??cache?.signedContentStable?.get(proofId);if(signedContentStable===undefined){signedContentStable=stable(proofRecord.signedContent);}cache?.signedContentStable?.set(proofId,signedContentStable);if(sealedContent===undefined){if(digest(signedContentStable)!==proofRecord.contentDigest)return {ok:false,reason:'document-proof-record-tampered'};if(globalThis.GH_TRANSACTION_CORE?.isSealed?.(proofRecord))SEALED_RECORD_CONTENT.set(proofRecord,signedContentStable);}const authorization=verifyAuthorizationReference(state,proofRecord,cache);if(!authorization.ok)return authorization;
+      const certifiedRecord=ACTIVE_ARCHIVED_HASHES?.records?.get(proofRecord),sealedContent=SEALED_RECORD_CONTENT.get(proofRecord);let signedContentStable=sealedContent??cache?.signedContentStable?.get(proofId)??certifiedRecord?.stable;if(signedContentStable===undefined){signedContentStable=stable(proofRecord.signedContent);}cache?.signedContentStable?.set(proofId,signedContentStable);if(sealedContent===undefined){if((certifiedRecord?.digest??digest(signedContentStable))!==proofRecord.contentDigest)return {ok:false,reason:'document-proof-record-tampered'};if(globalThis.GH_TRANSACTION_CORE?.isSealed?.(proofRecord))SEALED_RECORD_CONTENT.set(proofRecord,signedContentStable);}const authorization=verifyAuthorizationReference(state,proofRecord,cache);if(!authorization.ok)return authorization;
       if(Number(proofRecord.version)===2&&proofRecord.signedContent?.schema==='gh-signed-document-content-v2')return {ok:false,legacy:true,readOnly:true,recordIntegrity:true,modern:false,reason:'document-proof-v2-legacy-read-only',record:clone(proofRecord)};
       if(Number(proofRecord.version)!==RECORD_VERSION||proofRecord.signedContent?.schema!==CONTENT_SCHEMA)return {ok:false,reason:'document-proof-version-unsupported'};let profile;try{profile=profileFor(proofRecord.documentType);}catch(error){return {ok:false,reason:String(error?.message||error)};}
       if(proofRecord.materialProfile!==profile||proofRecord.signedContent?.material?.profile!==profile)return {ok:false,reason:'document-material-profile-mismatch'};if(proofRecord.signedContent.documentId!==proofRecord.documentId||proofRecord.signedContent.documentType!==proofRecord.documentType)return {ok:false,reason:'document-proof-record-envelope-mismatch'};if(stable(proofRecord.signedContent.issuer)!==stable(proofRecord.issuerSnapshot)||stable(proofRecord.signedContent.recipient)!==stable(proofRecord.counterpartySnapshot))return {ok:false,reason:'document-proof-record-snapshot-mismatch'};
@@ -661,13 +788,13 @@
     if(Number(document.documentVersion)!==RECORD_VERSION||document.documentSchema!==CONTENT_SCHEMA)return {ok:false,reason:'document-proof-version-unsupported'};
     let content;try{content=archivedContentStable(document,record);}catch(error){return {ok:false,reason:String(error?.message||error)};}
     if(content.profile!==record.materialProfile)return {ok:false,reason:'document-material-profile-mismatch'};
-    const verifiedStable=cache?.signedContentStable?.get(record.id);if(verifiedStable!==undefined?content.stable!==verifiedStable:digest(content.stable)!==record.contentDigest)return {ok:false,reason:'document-content-tampered'};
+    const verifiedStable=cache?.signedContentStable?.get(record.id);if(verifiedStable!==undefined?content.stable!==verifiedStable:(content.digest??=digest(content.stable))!==record.contentDigest)return {ok:false,reason:'document-content-tampered'};
     return withRecordCopy({ok:true,modern:true},record);
   }
   function verifyDocument(state,document,cache=null){
     const record=getRecord(state,document?.documentProofId);if(!record)return {ok:false,reason:'document-proof-not-found'};if(isArchivedForm(record)||isCompactForm(record))return verifyArchivedDocument(state,document,record,cache);const envelope=verifyEnvelope(document,record);if(!envelope.ok)return envelope;const recordVerification=verifyRecord(state,record.id,new Set(),cache),issuer={...clone(record.issuerSnapshot),companyId:envelope.currentCompanyId};
-    if(Number(record.version)===2&&record.signedContent?.schema==='gh-signed-document-content-v2'){if(!(recordVerification.legacy&&recordVerification.recordIntegrity))return recordVerification;const content=signedContentV2(document,issuer,envelope.currentCounterparty,{issuedAtSim:record.signedContent?.issuedAtSim});const verifiedStable=cache?.signedContentStable?.get(record.id);if(verifiedStable!==undefined?stable(content)!==verifiedStable:digest(content)!==record.contentDigest)return {ok:false,reason:'document-content-tampered'};return recordVerification;}
-    if(!recordVerification.ok)return recordVerification;if(Number(document.documentVersion)!==RECORD_VERSION||document.documentSchema!==CONTENT_SCHEMA)return {ok:false,reason:'document-proof-version-unsupported'};let content;try{content=signedContent(document,issuer,envelope.currentCounterparty,{issuedAtSim:record.signedContent?.issuedAtSim,fixedIssuedAt:true,chain:record.signedContent?.chain||null});}catch(error){return {ok:false,reason:String(error?.message||error)};}if(record.materialProfile!==content.material.profile)return {ok:false,reason:'document-material-profile-mismatch'};const verifiedStable=cache?.signedContentStable?.get(record.id);if(verifiedStable!==undefined?stable(content)!==verifiedStable:digest(content)!==record.contentDigest)return {ok:false,reason:'document-content-tampered'};return withRecordCopy({ok:true,modern:true},record);
+    if(Number(record.version)===2&&record.signedContent?.schema==='gh-signed-document-content-v2'){if(!(recordVerification.legacy&&recordVerification.recordIntegrity))return recordVerification;const certified=activePair(document,record),content=certified?null:signedContentV2(document,issuer,envelope.currentCounterparty,{issuedAtSim:record.signedContent?.issuedAtSim}),actualStable=certified?.stable??stable(content),verifiedStable=cache?.signedContentStable?.get(record.id);if(verifiedStable!==undefined?actualStable!==verifiedStable:(certified?.digest??digest(actualStable))!==record.contentDigest)return {ok:false,reason:'document-content-tampered'};return recordVerification;}
+    if(!recordVerification.ok)return recordVerification;if(Number(document.documentVersion)!==RECORD_VERSION||document.documentSchema!==CONTENT_SCHEMA)return {ok:false,reason:'document-proof-version-unsupported'};const certified=activePair(document,record);let content=null;try{if(!certified)content=signedContent(document,issuer,envelope.currentCounterparty,{issuedAtSim:record.signedContent?.issuedAtSim,fixedIssuedAt:true,chain:record.signedContent?.chain||null});}catch(error){return {ok:false,reason:String(error?.message||error)};}if(record.materialProfile!==(certified?.profile??content.material.profile))return {ok:false,reason:'document-material-profile-mismatch'};const actualStable=certified?.stable??stable(content),verifiedStable=cache?.signedContentStable?.get(record.id);if(verifiedStable!==undefined?actualStable!==verifiedStable:(certified?.digest??digest(actualStable))!==record.contentDigest)return {ok:false,reason:'document-content-tampered'};return withRecordCopy({ok:true,modern:true},record);
   }
 
   function firstDifferencePath(expected,actual,path='$'){
@@ -775,5 +902,5 @@
   // Build 359: the archive, checkpoints and period sums are replaced on every change (copy-on-write), never edited: each is
   // sealed whole once its members are (a container, GH_TRANSACTION_CORE), so commands share them without walking them.
   (globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys,options)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys,options])))('documentProofs',['archiveById','checkpointsById','periodDigests','sealedPeriods'],{container:true});
-  const API=Object.freeze({VERSION,ARCHIVED_FORM_V2,COMPACT_FORM,compactLiveRecords,checkpointAuditSteps,walkDocuments,walkDocumentEntries,checkpointVerified,periodVerified,releasesAuthorization,SCHEMA,CONTENT_SCHEMA,RECORD_VERSION,LIMITS,DOCUMENT_TYPES,TRANSITIONS,ensure,record:getRecord,records,sequenceMark,recordsSince,compact,checkpoint:getCheckpoint,checkpointAncestors,compactArchivedRecords,ARCHIVED_FORM,verifyCheckpoints,migratePeriodDigests,sealDocuments,verifySeals,stateDocumentEntries,stateDocuments,companyProfile,issuerSnapshot,counterpartySnapshot,materialDetails,signedContent,sealDocument,amendDocument,markLegacy,verifyRecord,verifyDocument,forensicInspectStateProofsSteps,forensicInspectStateProofs,forensicInspectStateProofsAsync,ledgerProjection,migrateLegacyLedgerProjections,collectResultDocuments,bindAuthorization,locateDocument});globalThis.GH_DOCUMENT_PROOF=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_DOCUMENT_PROOF=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,ARCHIVED_WORKER_VERSION,ARCHIVED_FORM_V2,COMPACT_FORM,compactLiveRecords,checkpointAuditSteps,walkDocuments,walkDocumentEntries,checkpointVerified,periodVerified,releasesAuthorization,SCHEMA,CONTENT_SCHEMA,RECORD_VERSION,LIMITS,DOCUMENT_TYPES,TRANSITIONS,ensure,record:getRecord,records,sequenceMark,recordsSince,compact,checkpoint:getCheckpoint,checkpointAncestors,compactArchivedRecords,prepareArchivedRecords,commitArchivedRecords,prepareArchivedVerification,commitArchivedVerification,hashArchivedCandidate,ARCHIVED_FORM,verifyCheckpoints,migratePeriodDigests,sealDocuments,verifySeals,stateDocumentEntries,stateDocuments,companyProfile,issuerSnapshot,counterpartySnapshot,materialDetails,signedContent,sealDocument,amendDocument,markLegacy,verifyRecord,verifyDocument,forensicInspectStateProofsSteps,forensicInspectStateProofs,forensicInspectStateProofsAsync,ledgerProjection,migrateLegacyLedgerProjections,collectResultDocuments,bindAuthorization,locateDocument});globalThis.GH_DOCUMENT_PROOF=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_DOCUMENT_PROOF=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

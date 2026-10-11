@@ -18,7 +18,8 @@ const workerSource=['fleet-store-core.js','simulation-asset-core.js','fleet-even
 const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event-core.js','fleet-engine-thread.js'].map(read);
 
 (async()=>{
-  const browser=await chromium.launch({headless:true});
+  const executablePath=['/usr/bin/chromium','/usr/bin/chromium-browser'].find(file=>fs.existsSync(file));
+  const browser=await chromium.launch({headless:true,...(executablePath?{executablePath}:{})});
   try{
     const page=await browser.newPage(),errors=[];page.on('pageerror',error=>errors.push(String(error)));
     await page.setContent('<!doctype html><meta charset="utf-8">');
@@ -38,6 +39,10 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
       const ids=()=>[...Array(store.length).keys()].filter(index=>STORE.isAlive(store,index));
       // A transaction as Transaction Core runs it for a row root: one store journal, undo callbacks settled with it.
       const tx=()=>{const journal=STORE.beginJournal(store),undo=[];return {registerUndo(rollback,commit){undo.push([rollback,commit]);},commit(){STORE.endJournal(journal);for(const [,commit] of undo)commit?.();},rollback(){STORE.rollbackJournal(journal);for(let k=undo.length-1;k>=0;k--)undo[k][0]?.();}};};
+      // Mutation catch-up starts before the Store lazily opens its journal. This
+      // preserves Transaction Core's real owner order: on rollback Store rows
+      // are restored first, then the worker's speculative journal is settled.
+      const mutationTx=()=>{const undo=[],critical=[];let journal=null;const api={registerUndo(rollback,commit){undo.push([rollback,commit]);},afterCommit(fn){critical.push(fn);},beginStore(){journal=STORE.beginJournal(store);api.registerUndo(()=>STORE.rollbackJournal(journal),()=>STORE.endJournal(journal));},commit(){for(const fn of critical)fn();for(const [,commit] of undo)commit?.();},rollback(){for(let k=undo.length-1;k>=0;k--)undo[k][0]?.();}};return api;};
       const until=async test=>{for(let k=0;k<20000&&!test();k++)await new Promise(resolve=>setTimeout(resolve,2));if(!test())throw new Error('timeout');};
       // prime:false compares the replica as it is (a step or window open, or just settled), with no exchange first.
       const check=async(label,{prime=true}={})=>{
@@ -46,7 +51,7 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
         const a=new Uint8Array(store.rows,0,store.length*STORE.STRIDE),b=new Uint8Array(replica.rows);let row=-1;
         if(a.length!==b.length)row=-2;else for(let i=0;i<a.length;i++)if(a[i]!==b[i]){row=Math.floor(i/STORE.STRIDE);break;}
         const norm=list=>JSON.stringify(list.map(value=>value===undefined?null:value));
-        const same={rows:row===-1,values:norm(store.values)===norm(replica.values),extras:JSON.stringify(store.extras)===JSON.stringify(replica.extras),length:store.length===replica.length,live:store.live===replica.live,structure:store.structure===replica.structure};
+        const same={rows:row===-1,values:norm(store.values)===norm(replica.values),extras:JSON.stringify(store.extras)===JSON.stringify(replica.extras),length:store.length===replica.length,live:store.live===replica.live,structure:store.structure===replica.structure,workerLog:replica.replicaLogClean===true};
         log.push({label,row,...same,fullSyncs:client.stats().fullSyncs});
         if(Object.values(same).some(ok=>!ok))throw new Error(`${label}: replica differs ${JSON.stringify({row,...same})}`);
       };
@@ -61,6 +66,32 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
       await check('seed');
       const seedStats=client.stats();
       const detached=chunks.every(chunk=>chunk.byteLength===0);
+      // 1b. A durable bulk writer streams only each bounded append slice into
+      // one worker journal. Commit keeps it; rollback restores it even when the
+      // final main-side slice was never flushed. No final readRows over the
+      // aggregate append is allowed, and simulation stays blocked while open.
+      {
+        const before=client.stats(),x=mutationTx(),session=client.beginMutation(store,{tx:x,label:'qa-mutation-commit'});if(!session)throw new Error('mutation begin refused');x.beginStore();
+        if(client.request(store,{from:0,to:1,context,contextKey:'blocked'})!==null)throw new Error('simulation entered open mutation');
+        for(let batch=0;batch<4;batch++){
+          for(let i=0;i<37;i++)STORE.add(store,{...structuredClone(fleet[(batch+i)%fleet.length]),id:`QA-MUT-C-${batch}-${i}`,name:`Mutation commit ${batch}/${i}`});
+          if(!client.flushMutation(session,store))throw new Error(`mutation flush ${batch} refused:${session.reason}`);
+          await check(`mutation-commit-open-${batch}`,{prime:false});
+        }
+        for(let i=0;i<19;i++)STORE.add(store,{...structuredClone(fleet[i%fleet.length]),id:`QA-MUT-C-F-${i}`,name:`Mutation commit final ${i}`});
+        if(!client.finishMutation(session,store))throw new Error(`mutation final refused:${session.reason}`);await check('mutation-commit-final',{prime:false});x.commit();
+        await check('mutation-commit-settled',{prime:false});
+        const after=client.stats();if(after.fullSyncs!==before.fullSyncs||after.maxMutationRows>37||(after.mutationFlushes||0)-(before.mutationFlushes||0)!==5)throw new Error(`mutation commit was not bounded:${JSON.stringify({before,after})}`);
+      }
+      await check('mutation-before-rollback');
+      {
+        const originalLength=store.length,x=mutationTx(),session=client.beginMutation(store,{tx:x,label:'qa-mutation-rollback'});if(!session)throw new Error('rollback mutation begin refused');x.beginStore();
+        for(let batch=0;batch<3;batch++){for(let i=0;i<29;i++)STORE.add(store,{...structuredClone(fleet[i%fleet.length]),id:`QA-MUT-R-${batch}-${i}`,name:`Mutation rollback ${batch}/${i}`});if(!client.flushMutation(session,store))throw new Error('rollback mutation flush refused');}
+        // Deliberately leave one slice only on main; both journals must still
+        // land at the same pre-mutation bytes and counters after outer rollback.
+        for(let i=0;i<13;i++)STORE.add(store,{...structuredClone(fleet[i%fleet.length]),id:`QA-MUT-R-U-${i}`,name:`Mutation rollback unflushed ${i}`});x.rollback();
+        if(store.length!==originalLength)throw new Error('mutation main rollback length');await check('mutation-rollback-settled',{prime:false});await check('mutation-rollback-next');
+      }
       // 2. Steps replayed: committed, rolled back, discarded.
       let t=0;await replay(t,t+1800,'commit');t+=1800;await check('step-commit');
       await replay(t,t+1800,'rollback');await check('step-rollback');
@@ -71,6 +102,9 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
         if(outcome==='commit'){x.commit();t+=3600;}else x.rollback();await check(`main-engine-${outcome}`);
       }
       // 4. A column pass (the daily flight counters), committed and rolled back.
+      // Clear one presence bit first: columnWriter must log/send `present` itself when the pass exposes that field. The
+      // thread no longer copies the presence column for passes whose fields were already present everywhere.
+      STORE.set(store,ids()[0],'flightHours',undefined);await check('column-presence-prep');
       for(const outcome of ['commit','rollback']){
         const x=tx(),put=STORE.columnWriter(store,['flightHours']);for(const index of ids())put(index,'flightHours',(index%500)+(outcome==='commit'?1:2));
         outcome==='commit'?x.commit():x.rollback();await check(`column-${outcome}`);
@@ -81,6 +115,12 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
         const x=tx(),put=STORE.columnWriter(store,['flightHours']);for(const index of ids())put(index,'flightHours',7777);
         for(const index of ids().slice(0,500))STORE.set(store,index,'condition',12);STORE.add(store,{...structuredClone(fleet[0]),id:'QA-INSIDE',name:'Inside'});
         if(!client.prime(store))throw new Error('prime inside refused');x.rollback();await check('rollback-after-exchange');
+      }
+      // A value-table-only append has no row or fleet-length change. Its rollback must still send the shorter value
+      // table to the worker; otherwise the main-side length tag can say current while inspect exposes a stale tail.
+      {
+        const x=tx();STORE.intern(store,{qa:'value-only-open'});if(!client.prime(store))throw new Error('prime value-only refused');
+        await check('value-only-open',{prime:false});x.rollback();await check('value-only-rollback');
       }
       // 4c. Rows written here after a replayed step while it is open (the rest of a slice before its post-commit checks):
       // a request that needs the replica to be the store (fieldClasses) sends them into the step, which journals them with
@@ -97,6 +137,38 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
         const asked=client.fieldClasses(store,{fields:['type','mode']});if(!asked)throw new Error(`${label}: refused ${JSON.stringify(client.stats().replicaRefusals)}`);
         const found=await asked;if(!found||!client.current(found,store))throw new Error(`${label}: no current result`);
       };
+      const sparseColumns=(seed,{transfer=true,limit=Infinity,exceptional=false}={})=>{
+        const rows=ids().slice(0,limit),fields=['flightHours','flightCycles','nextCheckHours'],indices=Int32Array.from(rows),values=exceptional?new Float64Array(rows.length*fields.length):new Float32Array(rows.length*fields.length),plan={fields,indices,values,count:rows.length};
+        for(let row=0;row<rows.length;row++){values[row*3]=(row+seed)%8192;values[row*3+1]=(row+seed)%1024;values[row*3+2]=600+(row+seed)%2048;}
+        if(exceptional&&rows.length>8){plan.exceptionalPositions=new Int32Array([7]);values[21]=Infinity;values[22]=.1;values[23]=-Infinity;}
+        const stages=STORE.columnPlanStages(store,plan,{rowSlice:1024,label:'qa.sparse-columns',replicaTransfer:transfer});let step;while(!(step=stages.next()).done){}if(step.value.count!==rows.length)throw new Error('sparse column plan incomplete');return {plan,result:step.value};
+      };
+      const dualSparseColumns=seed=>{
+        const rows=ids(),fields=['flightHours','flightCycles','nextCheckHours'],exceptionAt=7,indices=new Int32Array(rows.length-1),values=new Float32Array((rows.length-1)*3),exceptionalIndices=new Int32Array([rows[exceptionAt]]),exceptionalValues=new Float64Array([Infinity,.1,-Infinity]);let out=0;
+        for(let row=0;row<rows.length;row++){if(row===exceptionAt)continue;indices[out]=rows[row];values[out*3]=(row+seed)%8192;values[out*3+1]=(row+seed)%1024;values[out*3+2]=600+(row+seed)%2048;out++;}
+        const plan={fields,indices,values,count:indices.length,exceptional:{indices:exceptionalIndices,values:exceptionalValues,count:1},totalCount:rows.length},stages=STORE.columnPlanStages(store,plan,{rowSlice:1024,label:'qa.dual-sparse-columns',replicaTransfer:true});let step;while(!(step=stages.next()).done){}if(step.value.count!==rows.length||!step.value.replicaTransfer)throw new Error('dual sparse column plan incomplete');return {plan,result:step.value};
+      };
+      // Keep a dense shared free stack for the step/window cases below. The worker may consume some refs while advancing,
+      // so the tests prove same-length reuse from the post-apply table instead of assuming one preselected ref survives.
+      for(let index=0;index<8192;index++)STORE.intern(store,{qa:'open-reuse-hole',index});STORE.collectValues(store);await check('open-reuse-prepared');
+      // A value interned here reuses a free ref while the worker's step journal is open. Sending it into that step and
+      // rolling back must free the same ref on both sides before any new prime/exchange.
+      {
+        const ticket=await step(t,t+1),x=tx();if(!client.apply(ticket,store,{contextKey:'k',tx:x}))throw new Error('apply open-reuse refused');
+        const length=store.values.length,free=STORE.stats(store).freeValues,reused=STORE.intern(store,{qa:'open-reused-value'});
+        if(reused>=length||store.values.length!==length||STORE.stats(store).freeValues!==free-1)throw new Error(`open step did not reuse one free ref: ${reused}/${length}`);
+        await askInside('open-reuse-sent');await check('open-reuse-inside',{prime:false});x.rollback();
+        await check('open-reuse-rollback-settled',{prime:false});await check('open-reuse-next');
+      }
+      // Same-length reuse after request is invisible to revision/length stamps. The dirty replica log must make apply
+      // reject the stale ticket before it can replay worker refs over the main thread's newly occupied ref.
+      {
+        const ticket=await step(t,t+1),x=tx(),length=store.values.length,reused=STORE.intern(store,{qa:'reuse-after-request'});
+        if(reused>=length||store.values.length!==length)throw new Error('request guard setup did not reuse');
+        if(client.apply(ticket,store,{contextKey:'k',tx:x})!==null)throw new Error('dirty value reuse after request was accepted');
+        if(client.stats().lastReason!=='store-changed')throw new Error(`wrong dirty ticket reason: ${client.stats().lastReason}`);
+        x.rollback();await check('reuse-after-request-settled',{prime:false});await check('reuse-after-request-next');
+      }
       for(const outcome of ['commit','rollback']){
         const ticket=await step(t,t+1800),x=tx();if(!client.apply(ticket,store,{contextKey:'k',tx:x}))throw new Error(`apply refused ${client.stats().lastReason}`);
         writeInside(`step-${outcome}`);await askInside(`in-step-${outcome}`);await check(`in-step-${outcome}`,{prime:false});
@@ -104,13 +176,32 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
         if(outcome==='commit'){x.commit();t+=1800;}else x.rollback();
         await check(`in-step-${outcome}-settled`,{prime:false});await check(`in-step-${outcome}-next`);
       }
+      // Two real legs retain one outer rollback journal, while each worker result contains only that leg's delta. Between
+      // legs a dense main-origin reuse batch is synced into the open worker journal; the second result must not echo it.
       for(const outcome of ['rollback','commit']){
-        const session=client.beginWindow(store,{from:t,target:t+3600});if(!session)throw new Error('window refused');const x=tx();
-        const ticket=client.requestWindow(session,store,{from:t,to:t+3600,context,contextKey:'w',tripAlertLimit:64,order:'sweep',budget:40000});if(!ticket)throw new Error(`window step refused ${session.reason}`);
-        await until(()=>ticket.status!=='pending');if(!client.applyWindow(ticket,store,{contextKey:'w',tx:x}))throw new Error(`window apply refused ${session.reason}`);
-        writeInside(`window-${outcome}`);await askInside(`in-window-${outcome}`);await check(`in-window-${outcome}`,{prime:false});
-        if(outcome==='commit'){x.commit();t+=3600;}else x.rollback();
+        const session=client.beginWindow(store,{from:t,target:t+2});if(!session)throw new Error('window refused');const x=tx();
+        let ticket=client.requestWindow(session,store,{from:t,to:t+1,context,contextKey:'w',tripAlertLimit:64,order:'events',budget:40000});if(!ticket)throw new Error(`window first leg refused ${session.reason}`);
+        await until(()=>ticket.status!=='pending');if(!client.applyWindow(ticket,store,{contextKey:'w',tx:x}))throw new Error(`window first apply refused ${session.reason}`);
+        const length=store.values.length,refs=[];for(let index=0;index<512;index++){const ref=STORE.intern(store,{qa:`window-${outcome}`,index});if(ref>=length)throw new Error('dense window reuse appended');refs.push(ref);}
+        if(store.values.length!==length||new Set(refs).size!==refs.length)throw new Error('dense window reuse was not one-ref-per-value');
+        await askInside(`in-window-reuse-${outcome}`);await check(`in-window-reuse-${outcome}`,{prime:false});
+        ticket=client.requestWindow(session,store,{from:t+1,to:t+2,context,contextKey:'w',tripAlertLimit:64,order:'events',budget:40000});if(!ticket)throw new Error(`window second leg refused ${session.reason}`);
+        await until(()=>ticket.status!=='pending');const reusedSet=new Set(refs);if(ticket.result.values.some(([ref])=>reusedSet.has(ref)))throw new Error('second window leg resent cumulative value refs');
+        if(!client.applyWindow(ticket,store,{contextKey:'w',tx:x}))throw new Error(`window second apply refused ${session.reason}`);
+        await check(`in-window-${outcome}`,{prime:false});
+        if(outcome==='commit'){x.commit();t+=2;}else x.rollback();
+        if(refs.some(ref=>(store.values[ref]===null)!==(outcome==='rollback')))throw new Error(`window ${outcome} value settlement mismatch`);
         await check(`in-window-${outcome}-settled`,{prime:false});await check(`in-window-${outcome}-next`);
+      }
+      // A same-length reuse that has not been synced after leg one must block leg two. Revision and table length alone are
+      // unchanged; this is specifically the STORE.replicaClean guard on requestWindow.
+      {
+        const session=client.beginWindow(store,{from:t,target:t+2});if(!session)throw new Error('dirty window refused');const x=tx();
+        const first=client.requestWindow(session,store,{from:t,to:t+1,context,contextKey:'dirty-w',tripAlertLimit:64,order:'events',budget:40000});if(!first)throw new Error('dirty window first leg refused');
+        await until(()=>first.status!=='pending');if(!client.applyWindow(first,store,{contextKey:'dirty-w',tx:x}))throw new Error('dirty window first apply refused');
+        const length=store.values.length,reused=STORE.intern(store,{qa:'reuse-between-window-legs'});if(reused>=length||store.values.length!==length)throw new Error('between-leg guard setup did not reuse');
+        if(client.requestWindow(session,store,{from:t+1,to:t+2,context,contextKey:'dirty-w',tripAlertLimit:64,order:'events',budget:40000})!==null||session.reason!=='store-changed')throw new Error(`dirty between-leg reuse was accepted: ${session.reason}`);
+        x.rollback();await check('reuse-between-window-legs-settled',{prime:false});await check('reuse-between-window-legs-next');
       }
       // Columns rewritten wholesale after the step (the day close's flight counters) go into it too, through its journal's
       // column snapshot: equal inside, and after commit or rollback before any new exchange.
@@ -121,6 +212,33 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
         await askInside(`in-step-columns-${outcome}`);await check(`in-step-columns-${outcome}`,{prime:false});
         if(outcome==='commit'){x.commit();t+=1800;}else x.rollback();
         await check(`in-step-columns-${outcome}-settled`,{prime:false});await check(`in-step-columns-${outcome}-next`);
+      }
+      // The staged daily plan returns its original sparse typed buffers to the worker. No full-column gather runs on the
+      // UI thread, and the open worker journal still gives byte-identical commit and rollback. A column written before the
+      // plan deliberately selects the complete-column fallback because the plan cannot describe that earlier ordering.
+      for(const outcome of ['rollback','commit']){
+        const ticket=await step(t,t+1800),x=tx();if(!client.apply(ticket,store,{contextKey:'k',tx:x}))throw new Error('sparse apply refused');
+        const beforeStats=client.stats(),sparse=outcome==='rollback'?dualSparseColumns(23):sparseColumns(17);if(!sparse.result.replicaTransfer)throw new Error('sparse plan ownership was not accepted');await askInside(`in-step-sparse-${outcome}`);const afterStats=client.stats();
+        if(afterStats.columnPlanSyncs!==beforeStats.columnPlanSyncs+1||afterStats.columnSyncs!==beforeStats.columnSyncs)throw new Error(`sparse plan used wrong transport: ${JSON.stringify({beforeStats,afterStats})}`);
+        if(sparse.plan.indices.byteLength!==0||sparse.plan.values.byteLength!==0||sparse.plan.exceptionalPositions&&sparse.plan.exceptionalPositions.byteLength!==0||sparse.plan.exceptional&&(sparse.plan.exceptional.indices.byteLength!==0||sparse.plan.exceptional.values.byteLength!==0))throw new Error(`owned sparse buffers were not transferred/detached:${JSON.stringify({indices:sparse.plan.indices.byteLength,values:sparse.plan.values.byteLength,exceptionalIndices:sparse.plan.exceptional?.indices.byteLength,exceptionalValues:sparse.plan.exceptional?.values.byteLength})}`);
+        try{const reused=STORE.columnPlanStages(store,sparse.plan,{replicaTransfer:true});reused.next();throw new Error('detached sparse plan was reusable');}catch(error){if(!String(error?.message||error).includes('fleet-store-column-plan-invalid'))throw error;}
+        await check(`in-step-sparse-${outcome}`,{prime:false});if(outcome==='commit'){x.commit();t+=1800;}else x.rollback();
+        await check(`in-step-sparse-${outcome}-settled`,{prime:false});await check(`in-step-sparse-${outcome}-next`);
+      }
+      {
+        const ticket=await step(t,t+1800),x=tx();if(!client.apply(ticket,store,{contextKey:'k',tx:x}))throw new Error('sparse fallback apply refused');
+        const put=STORE.columnWriter(store,['condition']);for(const index of ids().slice(0,64))put(index,'condition',55);const beforeStats=client.stats(),sparse=sparseColumns(31);if(sparse.result.replicaTransfer)throw new Error('ordered fallback incorrectly retained sparse ownership');await askInside('in-step-sparse-fallback');const afterStats=client.stats();
+        if(afterStats.columnPlanSyncs!==beforeStats.columnPlanSyncs||afterStats.columnSyncs!==beforeStats.columnSyncs+1)throw new Error('prior column write did not select full-column fallback');
+        if(!sparse.plan.indices.byteLength||!sparse.plan.values.byteLength)throw new Error('fallback detached caller-owned buffers');
+        await check('in-step-sparse-fallback',{prime:false});x.rollback();await check('in-step-sparse-fallback-settled',{prime:false});await check('in-step-sparse-fallback-next');
+      }
+      // Without the explicit ownership flag, a caller can keep and reuse its plan after replica sync. Both exchanges use
+      // the complete-column fallback and leave the typed buffers attached.
+      {
+        const reusable=sparseColumns(41,{transfer:false,limit:2048});if(reusable.result.replicaTransfer)throw new Error('reusable plan was consumed');const beforeStats=client.stats();if(!client.prime(store))throw new Error('reusable plan prime refused');await check('sparse-reusable-first',{prime:false});
+        if(client.stats().columnSyncs!==beforeStats.columnSyncs+1||!reusable.plan.indices.byteLength||!reusable.plan.values.byteLength)throw new Error('reusable plan changed ownership');
+        const stages=STORE.columnPlanStages(store,reusable.plan,{rowSlice:1024,replicaTransfer:false});let stepResult;while(!(stepResult=stages.next()).done){}if(stepResult.value.replicaTransfer)throw new Error('reused plan was consumed');if(!client.prime(store))throw new Error('reused plan second prime refused');await check('sparse-reusable-second',{prime:false});
+        if(!reusable.plan.indices.byteLength||!reusable.plan.values.byteLength)throw new Error('reused plan buffers detached');
       }
       // New route plans after a step keep the refusal (the caller reads the store itself).
       {
@@ -160,8 +278,9 @@ const pageSources=['fleet-store-core.js','simulation-asset-core.js','fleet-event
     assert.equal(result.detached,true,'the seed chunks were moved to the worker, not copied');
     assert.equal(result.seedStats.seedSyncs,1);assert.equal(result.seedStats.fullSyncs,0);
     assert.equal(result.before.fullSyncs,0,'no whole copy before the reset');assert.deepEqual(result.before.fullSyncReasons,{});
-    assert.ok(result.before.compactions>=2);assert.ok(result.before.applied>=4);assert.equal(result.before.windowCommits,2);assert.equal(result.before.windowRollbacks,2);
-    assert.equal(result.before.openSyncs,8,'rows and columns written after a replayed step or window leg went into it');
+    assert.ok(result.before.compactions>=2);assert.ok(result.before.applied>=4);assert.equal(result.before.windowCommits,2);assert.equal(result.before.windowRollbacks,3);
+    assert.equal(result.before.openSyncs,12,'rows, columns, sparse plans, and a reused value ref written after a replayed step or window leg went into it');
+    assert.equal(result.before.columnPlanSyncs,2,'committed and rolled-back sparse plans reused their typed buffers');
     assert.deepEqual(result.before.replicaRefusals,{'routes-since-step':1});
     assert.equal(result.after.fullSyncs,1);assert.deepEqual(result.after.fullSyncReasons,{'store-replaced':1});
     console.log(JSON.stringify({ok:true,steps:result.after.applied,seedMs:result.seedStats.maxSeedSyncMs,routeAnswerMs:result.seedStats.maxRouteAnswerMs}));

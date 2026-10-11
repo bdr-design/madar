@@ -30,10 +30,9 @@ function fleetAsset(id,routeId='R1'){
   const row=state.domainRuntime.idempotency[key];
   assert.equal(row.fingerprintVersion,2);
   assert.match(row.fingerprint,/^v2:sha256:[a-f0-9]{64}$/);
-  assert.equal(row.result.result.schema,'gh-fleet-batch-receipt-v1');
+  assert.equal(row.result.result.schema,s.GH_DOMAIN_COMMANDS.FLEET_RECEIPT_SCHEMA);
   assert.equal(row.result.result.count,1);
-  assert.equal(Object.hasOwn(row.result.result.assets[0],'staffing'),false);
-  assert.equal(Object.hasOwn(row.result.result.assets[0],'lastTrip'),false);
+  assert.equal(Object.hasOwn(row.result.result,'assets'),false,'stored receipt must use compact columns');
   const after=Buffer.byteLength(JSON.stringify(state.domainRuntime.idempotency));
   assert.ok(after<before/4,`receipt did not compact enough: ${before} -> ${after}`);
 
@@ -66,7 +65,7 @@ function fleetAsset(id,routeId='R1'){
   assert.ok(initial.result[0].staffing,'initial result must stay full');
   const cacheKey=JSON.stringify(['fleet','assign-routes-batch','K-NEW']),row=state.domainRuntime.idempotency[cacheKey];
   assert.match(row.fingerprint,/^v2:sha256:[a-f0-9]{64}$/);
-  assert.equal(row.result.result.schema,'gh-fleet-batch-receipt-v1');
+  assert.equal(row.result.result.schema,s.GH_DOMAIN_COMMANDS.FLEET_RECEIPT_SCHEMA);
   const replay=s.GH_DOMAIN_COMMANDS.dispatchSystem({state},'fleet','assign-routes-batch',payload,options);
   assert.equal(executions,1,'replay re-executed owner');
   assert.equal(replay.result[0].id,'A1');

@@ -1,0 +1,45 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..'),web=name=>path.join(ROOT,'WebApp',name);
+const STORE=require(web('fleet-store-core.js')),FLEET=require(web('fleet-access-core.js')),ROUTE=require(web('route-core.js')),FLEET_CORE=require(web('fleet-core.js')),PLAN=require(web('fleet-legacy-route-plan-core.js')),QUERY=require(web('fleet-query-core.js'));
+const routes={
+ A:{id:'A',type:'air',routeMode:'air',ownerCompanyId:'air',route:[[0,0],[0,1]]},
+ B:{id:'B',type:'air',routeMode:'air',ownerCompanyId:'air',route:[[.001,0],[.001,1]]},
+ ROAD:{id:'ROAD',type:'road',routeMode:'road',ownerCompanyId:'road',route:[[10,0],[10,1]]}
+};
+const assets=[
+ {id:'A-MOVE',type:'air',routeId:'A',routeSlot:0,routeSignature:'old',phase:'moving',releaseExclusiveRouteOnArrival:true},
+ {id:'A-IDLE',type:'air',routeId:'A',routeSlot:0,routeSignature:'old',phase:'idle'},
+ {id:'B-IDLE',type:'air',routeId:'B',routeSlot:0,routeSignature:'old',phase:'idle',departureScheduled:true,departureScheduledAt:99,progress:.4,dwellRemaining:20},
+ {id:'B-MOVE',type:'air',routeId:'B',routeSlot:1,routeSignature:'old',phase:'moving'},
+ ...Array.from({length:66},(_,index)=>({id:`R-${index}`,type:'road',routeId:'ROAD',routeSlot:index<2?0:index,routeSignature:index===0?'wrong':ROUTE.signature(routes.ROAD),phase:index===65?'moving':'idle',...(index===64?{departureScheduled:true,departureScheduledAt:123,progress:.5,dwellRemaining:30}:{})})),
+ {id:'MISS',type:'sea',routeId:'MISSING',routeSlot:0,routeSignature:'legacy-sig',phase:'idle'},
+ {id:'NONE',type:'road',routeId:null,phase:'idle'}
+];
+
+function reference(input){
+ const rows=structuredClone(input),sharedSlots=new Map(),signatures=new Map(),capacities=new Map(),repairs=new Map();let changed=false,released=0,pending=0;
+ const repairsOf=index=>{let list=repairs.get(index);if(!list){list=[];repairs.set(index,list);}return list;},clear=index=>{repairsOf(index).push(['clear']);changed=true;released++;},assign=(index,field,value)=>{repairsOf(index).push(['set',field,value]);changed=true;},current=(row,index)=>{const out={routeId:row.routeId,phase:row.phase,release:row.releaseExclusiveRouteOnArrival};for(const op of repairs.get(index)||[]){if(op[0]==='clear'){out.routeId=null;out.phase='idle';out.release=false;}else if(op[1]==='releaseExclusiveRouteOnArrival')out.release=op[2];}return out;},airRouteIds=new Set();
+ rows.forEach((row,index)=>{if(!row.routeId)return;const route=routes[row.routeId];let signature;if(route){signature=signatures.get(row.routeId);if(signature===undefined){signature=ROUTE.signature(route);signatures.set(row.routeId,signature);}}else signature=String(row.routeSignature||row.routeId);if(row.routeSignature!==signature)assign(index,'routeSignature',signature);let used=sharedSlots.get(row.routeId);if(!used){used=new Set();sharedSlots.set(row.routeId,used);}let slot=Number.isInteger(row.routeSlot)&&row.routeSlot>=0&&!used.has(row.routeSlot)?row.routeSlot:0;while(used.has(slot))slot++;const capacityKey=route?`route:${row.routeId}`:`type:${row.type}`;let capacity=capacities.get(capacityKey);if(capacity===undefined){capacity=FLEET_CORE.routeCapacity(route||row.type);capacities.set(capacityKey,capacity);}if(slot>=capacity){if(row.phase==='moving'){if(row.releaseExclusiveRouteOnArrival!==true)assign(index,'releaseExclusiveRouteOnArrival',true);pending++;if(row.type==='air')airRouteIds.add(row.routeId);}else clear(index);return;}used.add(slot);if(row.routeSlot!==slot)assign(index,'routeSlot',slot);if(row.releaseExclusiveRouteOnArrival===true)assign(index,'releaseExclusiveRouteOnArrival',false);if(row.type==='air')airRouteIds.add(row.routeId);});
+ const groups=[];for(const routeId of airRouteIds){const route=routes[routeId];if(!route)continue;const signature=ROUTE.signature(route),group=groups.find(ids=>{const other=routes[ids[0]];return other&&(ROUTE.signature(other)===signature||ROUTE.corridorMetrics(other,route).duplicate);});if(group)group.push(routeId);else groups.push([routeId]);}const duplicates=groups.filter(ids=>ids.length>=2);
+ if(duplicates.length){const groupOf=new Map(),users=duplicates.map(()=>[]);duplicates.forEach((ids,group)=>ids.forEach(id=>groupOf.set(id,group)));rows.forEach((row,index)=>{if(row.type!=='air')return;const now=current(row,index),group=now.routeId?groupOf.get(now.routeId):undefined;if(group!==undefined)users[group].push({index,...now});});duplicates.forEach((ids,group)=>{const members=users[group],moving=members.find(row=>row.phase==='moving'),canonicalId=moving?.routeId||ids[0];for(const row of members){if(row.routeId===canonicalId){if(row.release===true)assign(row.index,'releaseExclusiveRouteOnArrival',false);continue;}if(row.phase==='moving'){if(row.release!==true)assign(row.index,'releaseExclusiveRouteOnArrival',true);pending++;}else clear(row.index);}});}
+ const clearRow=row=>{row.routeId=null;row.routeSignature=null;row.routeSlot=null;row.departureScheduled=false;delete row.departureScheduledAt;row.releaseExclusiveRouteOnArrival=false;row.phase='idle';row.progress=0;row.dwellRemaining=0;};for(const [index,list] of repairs)for(const op of list)if(op[0]==='clear')clearRow(rows[index]);else rows[index][op[1]]=structuredClone(op[2]);
+ return {rows,changed,released,pending,changedIndices:[...repairs.keys()].filter(index=>JSON.stringify(rows[index])!==JSON.stringify(input[index])).sort((a,b)=>a-b)};
+}
+
+const expected=reference(assets),state={simSeconds:22,resetEpoch:2,fleet:STORE.fromAssets(assets,{at:22})},params={routesToken:'routes-3',requestToken:'startup-route-repair'},stamp=PLAN.capture(state,FLEET,params),result=PLAN.plan(state,FLEET,{routes,request:PLAN.serializableCapture(stamp)});
+assert(PLAN.validPlan(result));assert.equal(result.released,expected.released);assert.equal(result.pending,expected.pending);assert.deepEqual([...result.indices],expected.changedIndices);
+const delegated=QUERY.run('legacyRoutePlan',state,FLEET,{routes,request:PLAN.serializableCapture(stamp)});assert(PLAN.validPlan(delegated));assert.deepEqual([...delegated.indices],[...result.indices]);assert.strictEqual(delegated.columns.indices,delegated.indices);assert.strictEqual(delegated.columns.values,delegated.templateRefs);
+const actual=structuredClone(assets);for(let offset=0;offset<result.changed;offset++){const row=actual[result.indices[offset]],patch=PLAN.patchAt(result,offset);Object.assign(row,structuredClone(patch.set));for(const field of patch.delete)delete row[field];}
+for(let index=0;index<actual.length;index++)assert.deepEqual(actual[index],expected.rows[index],`row ${index}`);
+assert.equal(PLAN.current(stamp,state,FLEET,{...params,routes,result}),true);assert.deepEqual(new Set(PLAN.transferables(result)),new Set([result.indices.buffer,result.templateRefs.buffer]));assert.equal([...PLAN.chunks(result,7)].reduce((sum,row)=>sum+row.indices.length,0),result.changed);
+const routeChanged=structuredClone(routes);routeChanged.B.route[0][0]=.2;assert.equal(PLAN.current(stamp,state,FLEET,{...params,routes:routeChanged,result}),false,'corridor geometry is an exact dependency');
+const missingAdded={...routes,MISSING:{id:'MISSING',type:'sea',routeMode:'sea',ownerCompanyId:'sea',route:[[20,0],[20,1]]}};assert.equal(PLAN.current(stamp,state,FLEET,{...params,routes:missingAdded,result}),false,'missing route becoming available invalidates repair');
+STORE.set(state.fleet,0,'condition',89);assert.equal(PLAN.current(stamp,state,FLEET,{...params,routes,result}),false,'any fleet write invalidates repair');
+assert.equal(PLAN.validPlan({...result,indices:new Uint32Array([result.sourceLength]),changed:1,templateRefs:new Uint8Array([0])}),false);
+
+// Mutation gate: A and B have different exact signatures but are a near
+// duplicate corridor. Removing that predicate must retain B-IDLE incorrectly.
+const source=fs.readFileSync(web('fleet-legacy-route-plan-core.js'),'utf8'),needle='||owners.route.corridorMetrics(other,route).duplicate',mutated=source.replace(needle,'||false');assert.notEqual(mutated,source);const box={module:{exports:{}},exports:{},require:id=>require(path.join(ROOT,'WebApp',id.replace(/^\.\//,''))),structuredClone,console};box.globalThis=box;box.GH_ROUTE_CORE=ROUTE;box.GH_FLEET_CORE=FLEET_CORE;vm.createContext(box);vm.runInContext(mutated,box,{filename:'fleet-legacy-route-plan-mutant.js'});const mutant=box.module.exports,mutantResult=mutant.plan({simSeconds:22,resetEpoch:2,fleet:STORE.fromAssets(assets,{at:22})},FLEET,{routes}),normalOffset=[...result.indices].indexOf(2),mutantOffset=[...mutantResult.indices].indexOf(2);assert(normalOffset>=0&&mutantOffset>=0);assert.notDeepEqual(mutant.patchAt(mutantResult,mutantOffset),PLAN.patchAt(result,normalOffset),'corridor mutation must change B-IDLE from a clear to a retained assignment');
+
+console.log(JSON.stringify({ok:true,rows:assets.length,changed:result.changed,released:result.released,pending:result.pending,mutation:true}));

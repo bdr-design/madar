@@ -21,6 +21,16 @@
   function decodeTree(tree){const codec=stateCodec();return codec?codec.decodeState(tree):tree;}
   function parseState(json){return decodeTree(JSON.parse(json));}
   const clock=()=>globalThis.performance?.now?.()??Date.now();
+  const FLEET_MAIN_THREAD_ROWS=2048;
+  // A recurring save may use a current compact worker answer. A synchronous caller asks the provider for cache only;
+  // an asynchronous sliced save may start a query and wait. Above the bounded fallback limit, absence/staleness is a
+  // validation failure instead of permission to scan the whole fleet on the presentation thread.
+  function fleetValidationOptions(state,{allowAsync=false}={}){
+    const fleet=globalThis.GH_FLEET_DATA,policy=globalThis.GH_FLEET_MAIN_THREAD_POLICY;let rows=Infinity;
+    try{rows=Number(fleet?.size?.(state));if(!Number.isSafeInteger(rows)||rows<0)rows=Infinity;}catch(_error){rows=Infinity;}
+    let requireFleetValidation;try{requireFleetValidation=policy?.decision?policy.decision(state,fleet,{operation:'persistence-save-validation',limit:FLEET_MAIN_THREAD_ROWS}).allowed===false:rows>FLEET_MAIN_THREAD_ROWS;}catch(_error){requireFleetValidation=true;}
+    const provider=globalThis.GH_FLEET_VALIDATION_PROVIDER,options={requireFleetValidation};if(typeof provider==='function')options.fleetValidation=(target,params)=>provider(target,params,{syncOnly:!allowAsync});return options;
+  }
   const pending=new Map(), slotPending=new Map(), samples=[],timingSamples=[];
   let lastSaveBreakdown=null,lastNativeAck=null,lastSaveAtMs=null;
   function rememberTiming(row){const value={...row,recordedAtMs:Date.now()};timingSamples.push(value);if(timingSamples.length>24)timingSamples.shift();return value;}
@@ -45,7 +55,7 @@
     // can rely on them not changing (see GH_TRANSACTION_CORE.registerSealedCollections).
     try{globalThis.GH_TRANSACTION_CORE?.sealCollections?.(state);}catch(_error){/* sealing is an optimisation */}
     const full=fullValidationReason!==null,schema=globalThis.GH_SAVE_SCHEMA;if(prevalidated&&!full)return;
-    const v=(full?schema?.validate?.(state):schema?.validate?.(state,{trustVerified:true}))||{ok:false,errors:['save-schema-unavailable']};
+    const validationOptions={...(full?{}:{trustVerified:true}),...fleetValidationOptions(state,{allowAsync:false})},v=schema?.validate?.(state,validationOptions)||{ok:false,errors:['save-schema-unavailable']};
     if(!v.ok)throw new Error(`invalid-save:${(v.errors||[]).join(',')}`);
     if(full)fullValidationReason=null;
   }
@@ -343,8 +353,9 @@
       let stage=clock();const previous=Math.max(0,Math.floor(Number(state.saveRevision)||0)),copy=globalThis.GH_TRANSACTION_CORE.deepClone(state,{shareJournaledRoots:true});copy.saveRevision=previous+1;globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(state,copy);timing.cloneMs=clock()-stage;
       await yieldToFrame();stage=clock();
       const schema=globalThis.GH_SAVE_SCHEMA;let check;
-      if(typeof schema?.validationSteps==='function'){const steps=schema.validationSteps(copy,{trustVerified:true});let slice=clock(),step;while(!(step=steps.next()).done)if(clock()-slice>=SLICE_MS){await yieldToFrame();slice=clock();}check=step.value;}
-      else check=schema?.validate?.(copy,{trustVerified:true})||{ok:true};
+      const validationOptions={trustVerified:true,...fleetValidationOptions(copy,{allowAsync:true})};
+      if(typeof schema?.validationSteps==='function'){const steps=schema.validationSteps(copy,validationOptions);let slice=clock(),step;while(!(step=steps.next()).done){if(step.value==='fleet-validation-wait'){await yieldToFrame();slice=clock();}else if(clock()-slice>=SLICE_MS){await yieldToFrame();slice=clock();}}check=step.value;}
+      else check=schema?.validate?.(copy,validationOptions)||{ok:true};
       timing.validateMs=clock()-stage;if(check&&check.ok===false)return {ok:false,reason:`invalid-state:${(check.errors||[]).join(',')}`};
       const out=await commitDurableState(copy,{storageKey,appVersion,prevalidated:true,expectedPreviousRevision:previous,yieldToFrame,[SLICED_COMMIT]:true});
       if(Number(state.saveRevision)===previous)state.saveRevision=copy.saveRevision;

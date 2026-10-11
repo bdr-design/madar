@@ -8,14 +8,14 @@
 //   - a store holding a row with neither ownerCompanyId nor companyId (owned through the legacy mode table, which only the
 //     main thread has): the worker declines (null) and the main thread's pass gives the legacy owner;
 //   - with a step in flight: null at once; current(result, store) is false after a write;
-//   - conditionSum (the daily close's insured condition total) is the same double on both sides and equals realism-core's
-//     own pass (a row at 0, NaN or without a condition counts 100);
+//   - conditionSum returns bit-identical insured and readiness totals (zero/NaN/missing count 100 for insurance and zero
+//     for readiness), and equals the former main-thread passes;
 //   - the module's passes give exactly what app.js's own passes gave before Build 372 (kept here verbatim).
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright');
 const web=path.join(path.resolve(__dirname,'..'),'WebApp'),read=file=>fs.readFileSync(path.join(web,file),'utf8');
 const FIX=require('./helpers/fleet-fixture');
-const cores=['fleet-store-core.js','simulation-asset-core.js','fleet-event-core.js','fleet-access-core.js','fleet-health-core.js','fleet-query-core.js'];
+const cores=['fleet-store-core.js','simulation-asset-core.js','route-core.js','fleet-event-core.js','fleet-access-core.js','fleet-core.js','fleet-health-core.js','fleet-legacy-route-plan-core.js','fleet-staffing-reconcile-plan-core.js','fleet-reference-query-core.js','fleet-query-core.js'];
 const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-worker.js').replace(/^importScripts\([^)]*\);$/m,'');
 
 (async()=>{
@@ -38,7 +38,7 @@ const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-work
         const expected=Q.run(name,state,DATA,{...params,legacyOwner}),ok=same(found.result,expected);
         log.push({label,ok,size:name==='dispatchEligible'?expected.indices.length:name==='routeCards'?expected.cards.length:name==='routeCenter'?expected.manualAssets.length:expected.sum});if(!ok)throw new Error(`${label}: differs`);
       };
-      client.prime(store);await new Promise(resolve=>setTimeout(resolve,300));
+      client.prime(store);await new Promise(resolve=>setTimeout(resolve,1000));
       const live=()=>{const out=[];for(let i=0;i<store.length;i++)if(STORE.isAlive(store,i))out.push(i);return out;};
       const rows=live();for(const index of rows.slice(100,400))STORE.set(store,index,'routeId',null);STORE.set(store,rows[500],'salePending',true);STORE.removeMany(store,[rows[600],rows[601]]);
       for(const [companyId,type] of [['road','road'],['air','air'],['sea','sea']]){
@@ -46,7 +46,13 @@ const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-work
         await compare(`eligible-${companyId}-cut`,'dispatchEligible',{companyId,type,limit:7});
         await compare(`cards-${companyId}`,'routeCards',{companyId,routeIds:Object.keys(routes)});
       }
+      const oneRoadIndex=Q.run('dispatchEligible',state,DATA,{companyId:'road',type:'road',limit:1,legacyOwner}).indices[0],oneRoadId=STORE.idAt(store,oneRoadIndex);
+      await compare('eligible-road-id','dispatchEligible',{companyId:'road',type:'road',assetId:oneRoadId,limit:1});
+      await compare('eligible-road-mode-routes','dispatchEligible',{companyId:'road',type:'road',limit:7,includeModeRouteIds:true});
       await compare('route-center-air','routeCenter',{companyId:'air',routeIds:['A1'],manualNeedle:'GH air',manualLimit:80,idleLimit:60,facilityAliases:{'F-AIR-A':['id:F-AIR-A'],'P-AIR-B':['id:P-AIR-B']},assignableRoutes:[{id:'A1',fromAliases:['id:F-AIR-A'],toAliases:['id:P-AIR-B'],legKm:900,capacity:1000,limit:40}]});
+      await compare('reference-usage','referenceUsage',{routeIds:['R1','A1','missing'],baseIds:['F-ROAD-A','F-AIR-A'],excludeAssetId:'QA-0000000',collectRouteIds:true,requestToken:'browser-reference-gate'});
+      await compare('legacy-route-plan','legacyRoutePlan',{routes:Object.entries(routes),request:{token:'browser-legacy-route'}});
+      await compare('staffing-reconcile-plan','staffingReconcilePlan',{requestToken:'browser-staffing',facilitiesToken:'facilities-1',ownerToken:'owners-1',request:{token:'browser-staffing'}});
       // The insured condition total (a row at 0, one NaN and one without a condition count as 100): the same double.
       STORE.set(store,rows[900],'condition',0);STORE.set(store,rows[901],'condition',NaN);STORE.set(store,rows[902],'condition',undefined);STORE.set(store,rows[903],'condition',63.17);
       await compare('condition-sum','conditionSum',{});
@@ -80,14 +86,14 @@ const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-work
         });return {legacy:false,cards:[...out]};};
       const asOld=[];for(const [companyId,type] of [['road','road'],['air','air'],['sea','sea']])for(const limit of [20000,7])asOld.push(same(Q.run('dispatchEligible',state,DATA,{companyId,type,limit,legacyOwner}),oldEligible(state,companyId,type,limit)));
       for(const companyId of ['road','air','sea'])asOld.push(same(Q.run('routeCards',state,DATA,{companyId,routeIds:Object.keys(routes),legacyOwner}),oldCards(companyId,Object.keys(routes))));
-      // realism-core fleetConditionSum as it reads the store itself.
-      const oldConditionSum=()=>{let sum=0;DATA.scan(state,['condition'],a=>{sum+=Number(a.condition)||100;});return sum;};
-      asOld.push(Object.is(Q.run('conditionSum',state,DATA,{}).sum,oldConditionSum()));
+      // realism-core fleetConditionSum and app.js readiness pass as they read the store themselves.
+      const oldConditionSums=()=>{let sum=0,readiness=0;DATA.scan(state,['condition'],a=>{const condition=Number(a.condition);sum+=condition||100;readiness+=condition||0;});return {sum,readiness};};
+      const conditionResult=Q.run('conditionSum',state,DATA,{}),oldCondition=oldConditionSums();asOld.push(Object.is(conditionResult.sum,oldCondition.sum)&&Object.is(conditionResult.readiness,oldCondition.readiness));
       const stats=client.stats();client.terminate('done');
       return {log,asOld,declined,legacyCounted:mainLegacy.legacy===false,withoutTableLegacy:withoutTable.legacy===true,refusedInFlight,staleAfterWrite:client.current(late,store)===false,queryRequests:stats.queryRequests,maxQueryWorkerMs:stats.maxQueryWorkerMs};
     },{workerSource,fleet:FIX.fleet(),routes:FIX.routes,context:FIX.context(0)});
     for(const row of result.log)console.log(JSON.stringify(row));
-    assert.deepEqual(errors,[]);assert.ok(result.log.length===11&&result.log.every(row=>row.ok));
+    assert.deepEqual(errors,[]);assert.ok(result.log.length===16&&result.log.every(row=>row.ok));
     assert.ok(result.log.find(row=>row.label==='eligible-road-cut').size===7);
     assert.deepEqual(result.asOld,Array(10).fill(true),'the module gives what app.js gave (legacy row included)');
     assert.equal(result.declined,true,'the worker declines a pass needing the legacy owner table');

@@ -3,18 +3,18 @@
 // table, extras) and runs GH_FLEET_EVENTS.advance on it with the same code as the main thread; the main thread replays
 // the result (rows written, values interned) inside the simulation slice's transaction. Each step stays open here until
 // the main thread settles it: 'commit' keeps it, 'rollback' restores the replica exactly (its own store journal).
-// Messages in:  replica (whole store), seed (Build 372: the chunk buffers a decoded store came from), compact (the main
-//               thread's compaction, by its removed rows), sync (rows and values changed on the main thread; Build 372:
+// Messages in:  replica (small whole store), replica-begin/chunk/end (a large no-seed store streamed in bounded slices),
+//               seed (Build 372: decoded-store chunk buffers), compact (the main thread's removed rows), sync (rows and values changed on the main thread; Build 372:
 //               addressed to the open step or window, written inside its journal), columns
 //               (fields rewritten wholesale), routes, specs, advance, settle, health (Build 372: the health check's fleet
 //               issues, fleet-health-core, on the replica), classes (the save check's classes of rows and id check on
 //               the replica), query (a fleet-query-core pass on the replica), inspect (a copy of the replica, for gates).
 // Messages out: ready, route-keys (after a replica or seed: the (route, base) pairs its rows name, for the main thread to
 //               resolve), result (or fallback with a reason: the main thread then runs that step itself), error.
-importScripts('fleet-store-core.js','simulation-asset-core.js','fleet-event-core.js','fleet-access-core.js','fleet-health-core.js','fleet-query-core.js');
+importScripts('fleet-store-core.js','simulation-asset-core.js','route-core.js','fleet-event-core.js','fleet-access-core.js','fleet-core.js','fleet-health-core.js','fleet-day-core.js','fleet-ui-summary-core.js','fleet-global-route-query-core.js','fleet-route-normalization-core.js','fleet-startup-normalization-core.js','fleet-sale-plan-core.js','fleet-manual-departure-plan-core.js','fleet-reference-query-core.js','asset-purchase-plan-core.js','asset-purchase-apply-core.js','fleet-save-validation-core.js','fleet-legacy-route-plan-core.js','fleet-staffing-reconcile-plan-core.js','fleet-query-core.js','fleet-dispatch-core.js');
 
 const STORE=self.GH_FLEET_STORE,EVENTS=self.GH_FLEET_EVENTS,VERSION='GH-FLEET-ENGINE-WORKER-372.2.0';
-let store=null,routes=new Map(),specs={},open=null;
+let store=null,routes=new Map(),specs={},open=null,replicaAssembly=null;
 
 const routeKey=(routeId,base)=>String(routeId||'')+'\u0000'+String(base||'');
 class MissingRoute extends Error{}
@@ -34,6 +34,13 @@ function routeKeys(){
 }
 function imported(importId){self.postMessage({type:'ready',version:VERSION,id:0,length:store.length});self.postMessage({type:'route-keys',version:VERSION,importId,keys:routeKeys()});}
 function catalogSpecs(asset){return asset?.specs?null:(specs[asset?.type]?.[asset?.catalogId]||null);}
+function addressedToOpen(message){
+  if(!open)return false;
+  if(open.kind==='step')return message.step!=null&&message.step===open.id;
+  if(open.kind==='window')return message.window!=null&&message.window===open.id;
+  if(open.kind==='mutation')return message.mutation!=null&&message.mutation===open.id;
+  return false;
+}
 
 function advance(message){
   if(!store)return {fallback:'replica-missing'};
@@ -67,36 +74,30 @@ function beginWindow(message){
   if(!store)throw new Error('window-replica-missing');
   if(open)throw new Error('window-while-step-open');
   const from=Number(message.from),target=Number(message.target);if(!Number.isFinite(from)||!Number.isFinite(target)||target<=from)throw new Error('window-range-invalid');
-  open={kind:'window',id:message.id,journal:STORE.beginJournal(store),staticBefore:STORE.staticSnapshot(store),length:store.length,structure:store.structure,valuesLength:store.values.length,nextFrom:from,target,nextSeq:0};
+  open={kind:'window',id:message.id,journal:STORE.beginJournal(store),length:store.length,structure:store.structure,nextFrom:from,target,nextSeq:0};
 }
 function advanceWindow(message){
   if(!store)return {fallback:'replica-missing'};
   if(!open||open.kind!=='window'||open.id!==message.windowId)return {fallback:'window-session-missing'};
   const from=Number(message.from),to=Number(message.to),seq=Number(message.seq);
   if(seq!==open.nextSeq||!Number.isFinite(from)||!Number.isFinite(to)||Math.abs(from-open.nextFrom)>1e-6||to<=from||to>open.target+1e-6){STORE.rollbackJournal(open.journal);open=null;return {fallback:'window-sequence-invalid'};}
-  const revision=store.revision;
-  let out;
+  const revision=store.revision,staticBefore=STORE.staticSnapshot(store);let out,delta;
   try{
-    out=EVENTS.advance(store,{from:message.from,to:message.to,context:message.context,resolveRoute,catalogSpecs,tripAlertLimit:message.tripAlertLimit,order:message.order,...(Number.isFinite(message.maxEvents)?{maxEvents:message.maxEvents}:{})});
+    const captured=STORE.captureReplicaChanges(store,()=>EVENTS.advance(store,{from:message.from,to:message.to,context:message.context,resolveRoute,catalogSpecs,tripAlertLimit:message.tripAlertLimit,order:message.order,...(Number.isFinite(message.maxEvents)?{maxEvents:message.maxEvents}:{})}));
+    out=captured.value;delta=captured.changes;
   }catch(error){
     STORE.rollbackJournal(open.journal);open=null;
     return {fallback:error instanceof MissingRoute?String(error.message):`engine-error:${String(error?.message||error).slice(0,160)}`};
   }
   if(store.length!==open.length||store.structure!==open.structure){STORE.rollbackJournal(open.journal);open=null;return {fallback:'structure-changed'};}
-  // The outer journal contains every row touched since the start of the window.
-  // The main side removes rows already equal to its last applied checkpoint, so
-  // repeated hourly steps retain the exact per-step revision and data semantics.
-  const log=open.journal.log,indices=new Int32Array(log.count);
-  for(let k=0;k<log.count;k++)indices[k]=log.rows[k];
-  indices.sort();
-  const rows=STORE.readRows(store,indices),values=[];
-  for(const ref of open.journal.reused)values.push([ref,store.values[ref]]);
-  for(let ref=open.valuesLength;ref<store.values.length;ref++)values.push([ref,store.values[ref]]);
+  if(delta.compactions.length||delta.columns.length){STORE.rollbackJournal(open.journal);open=null;return {fallback:'window-delta-unsupported'};}
+  // The outer journal remains cumulative for an exact whole-window rollback. The capture log is reset after every leg,
+  // so only this hour's rows and values cross the thread boundary instead of resending every earlier hour (O(legs²)).
+  const indices=delta.rows,rows=STORE.readRows(store,indices),values=delta.valuesDirty?STORE.replicaValueChanges(store,delta.valueRefs).changes:[];
   const budget=Math.max(1,Math.floor(Number(message.budget)||1500));
   open.nextFrom=Number(out.completeTo);open.nextSeq++;
   if(!Number.isFinite(open.nextFrom)||open.nextFrom<from-1e-6||open.nextFrom>to+1e-6){STORE.rollbackJournal(open.journal);open=null;return {fallback:'window-complete-to-invalid'};}
-  // The chunks written outside the fast path since the window began (the rows sent are those of the whole window too).
-  return {windowId:message.windowId,seq,from,to,out,indices,bytes:rows.bytes,extras:rows.extras,values,revisionDelta:store.revision-revision,staticRows:STORE.staticChunksSince(store,open.staticBefore),
+  return {windowId:message.windowId,seq,from,to,out,indices,bytes:rows.bytes,extras:rows.extras,values,revisionDelta:store.revision-revision,staticRows:STORE.staticChunksSince(store,staticBefore),
     nextBudgetTime:EVENTS.timeForEventBudget(store,budget)};
 }
 
@@ -106,11 +107,13 @@ self.addEventListener('message',event=>{
     switch(message.type){
       case 'replica':
         if(open){STORE.rollbackJournal(open.journal);open=null;}
-        store=STORE.importReplica(message.payload);imported(message.importId);
+        replicaAssembly=null;
+        store=STORE.importReplica(message.payload);STORE.disableReplicaLog(store);imported(message.importId);
         return;
       // Build 372: the chunks the main thread's store was decoded from (moved here, not copied there), assembled here.
       case 'seed':{
         if(open){STORE.rollbackJournal(open.journal);open=null;}
+        replicaAssembly=null;
         const meta=message.meta||{},byteLength=Number(meta.byteLength),chunkBytes=Number(meta.chunkBytes),chunks=Array.isArray(message.chunks)?message.chunks:[];
         const length=Number(meta.length),bytes=length*STORE.STRIDE;
         if(!Number.isSafeInteger(byteLength)||!Number.isSafeInteger(bytes)||bytes<0||bytes>byteLength||!(chunkBytes>0)||chunks.length!==Math.ceil(byteLength/chunkBytes))throw new Error('fleet-seed-invalid');
@@ -121,9 +124,43 @@ self.addEventListener('message',event=>{
           if(!view||view.length!==Math.min(chunkBytes,byteLength-start))throw new Error('fleet-seed-chunk-invalid');
           if(start<bytes)rows.set(view.subarray(0,Math.min(view.length,bytes-start)),start);
         }
-        store=STORE.importReplica({length:meta.length,live:meta.live,structure:meta.structure,revision:meta.revision,values:message.values,extras:message.extras,rows:rows.buffer});
+        store=STORE.importReplica({length:meta.length,live:meta.live,structure:meta.structure,revision:meta.revision,values:message.values,extras:message.extras,rows:rows.buffer});STORE.disableReplicaLog(store);
         imported(message.importId);
         return;
+      }
+      // A large store with no native seed is copied by the main side in bounded frame slices. The worker owns the large
+      // target allocation; every main-thread message contains only one bounded row/value/extra chunk. Nothing can query
+      // a partly assembled or stale store, and replica-end publishes it only after exact sequential coverage.
+      case 'replica-begin':{
+        if(open){STORE.rollbackJournal(open.journal);open=null;}
+        const meta=message.meta||{},length=Number(meta.length),live=Number(meta.live),valuesLength=Number(meta.valuesLength),bytes=length*STORE.STRIDE;
+        if(!Number.isSafeInteger(message.importId)||!Number.isSafeInteger(length)||length<0||!Number.isSafeInteger(live)||live<0||live>length||!Number.isSafeInteger(valuesLength)||valuesLength<1||!Number.isSafeInteger(bytes)||bytes<0)throw new Error('fleet-replica-begin-invalid');
+        store=null;replicaAssembly={importId:message.importId,meta:{length,live,structure:Number(meta.structure)||0,revision:Number(meta.revision)||0},rows:new ArrayBuffer(bytes),rowAt:0,values:new Array(valuesLength),valueAt:0,extras:{}};
+        return;
+      }
+      case 'replica-chunk':{
+        const build=replicaAssembly;if(!build||message.importId!==build.importId)return;
+        if(message.kind==='rows'){
+          const from=Number(message.from),count=Number(message.count),bytes=message.bytes;
+          if(!Number.isSafeInteger(from)||from!==build.rowAt||!Number.isSafeInteger(count)||count<=0||from+count>build.meta.length||!(bytes instanceof ArrayBuffer)||bytes.byteLength!==count*STORE.STRIDE)throw new Error('fleet-replica-row-chunk-invalid');
+          new Uint8Array(build.rows,from*STORE.STRIDE,bytes.byteLength).set(new Uint8Array(bytes));build.rowAt+=count;return;
+        }
+        if(message.kind==='values'){
+          const from=Number(message.from),values=message.values;
+          if(!Number.isSafeInteger(from)||from!==build.valueAt||!Array.isArray(values)||!values.length||from+values.length>build.values.length)throw new Error('fleet-replica-value-chunk-invalid');
+          for(let index=0;index<values.length;index++)build.values[from+index]=values[index]===undefined?null:values[index];build.valueAt+=values.length;return;
+        }
+        if(message.kind==='extras'){
+          if(!Array.isArray(message.entries)||!message.entries.length)throw new Error('fleet-replica-extra-chunk-invalid');
+          for(const entry of message.entries){const key=entry?.[0],index=Number(key);if(!Array.isArray(entry)||entry.length!==2||!Number.isSafeInteger(index)||index<0||index>=build.meta.length||String(index)!==String(key)||Object.prototype.hasOwnProperty.call(build.extras,key))throw new Error('fleet-replica-extra-entry-invalid');build.extras[key]=entry[1];}return;
+        }
+        throw new Error('fleet-replica-chunk-kind');
+      }
+      case 'replica-abort':if(replicaAssembly&&message.importId===replicaAssembly.importId)replicaAssembly=null;return;
+      case 'replica-end':{
+        const build=replicaAssembly;if(!build||message.importId!==build.importId)return;
+        if(build.rowAt!==build.meta.length||build.valueAt!==build.values.length)throw new Error('fleet-replica-incomplete');
+        replicaAssembly=null;store=STORE.importReplica({...build.meta,values:build.values,extras:build.extras,rows:build.rows});STORE.disableReplicaLog(store);imported(message.importId);return;
       }
       case 'compact':
         if(!store||open){self.postMessage({type:'error',version:VERSION,id:message.id,error:open?'compact-while-step-open':'replica-missing'});return;}
@@ -134,7 +171,7 @@ self.addEventListener('message',event=>{
         // addressed to it (message.step / message.window) and are written inside its journal: settling it commits or rolls
         // them back with it. Never a shorter store there (that sync waits for the step to settle). Any other sync waits
         // for no step to be open.
-        const into=!!open&&(open.kind==='step'?message.step!=null&&message.step===open.id:message.window!=null&&message.window===open.id);
+        const into=addressedToOpen(message);
         if(!store||(open&&!into)){self.postMessage({type:'error',version:VERSION,id:message.id,error:open?'sync-while-step-open':'replica-missing'});return;}
         if(into&&message.length<store.length){self.postMessage({type:'error',version:VERSION,id:message.id,error:'sync-into-step-shorter'});return;}
         // Rows appended on the main thread (purchases) arrive with their records. Build 372: a shorter store is a rollback
@@ -150,10 +187,19 @@ self.addEventListener('message',event=>{
       // Build 372: columns addressed to the open step or window (message.step / message.window) are snapshotted into its
       // journal first (rememberColumn), so settling it commits or restores them with it.
       case 'columns':{
-        const into=!!open&&(open.kind==='step'?message.step!=null&&message.step===open.id:message.window!=null&&message.window===open.id);
+        const into=addressedToOpen(message);
         if(!store||(open&&!into)){self.postMessage({type:'error',version:VERSION,id:message.id,error:open?'columns-while-step-open':'replica-missing'});return;}
-        if(into)for(const [name] of message.payload?.columns||[])STORE.rememberColumn(store,name,{quiet:true});
+        const reported=new Set(message.reported||[]);if(into)for(const [name] of message.payload?.columns||[])STORE.rememberColumn(store,name,{quiet:!reported.has(name)});
         STORE.writeColumns(store,message.payload,{reported:message.reported||[]});
+        return;
+      }
+      // A sparse, already validated main-side mass write can return the exact typed plan that produced it. Applying the
+      // plan here avoids gathering and copying every affected full column on the UI thread. The worker drains the staged
+      // iterator in this worker task; when a step/window is open its existing journal receives the same rollback columns.
+      case 'column-plan':{
+        const into=addressedToOpen(message);
+        if(!store||(open&&!into)){self.postMessage({type:'error',version:VERSION,id:message.id,error:open?'column-plan-while-step-open':'replica-missing'});return;}
+        const stages=STORE.columnPlanStages(store,message.plan,{rowSlice:4096,label:'worker.column-plan'});while(!stages.next().done){}
         return;
       }
       case 'routes':
@@ -185,15 +231,46 @@ self.addEventListener('message',event=>{
       // thread's store). No legacy owner table here: a pass that needs one answers {legacy:true}.
       case 'query':{
         if(!store||!self.GH_FLEET_QUERY||!self.GH_FLEET_DATA){self.postMessage({type:'query',version:VERSION,id:message.id,unavailable:!store?'replica-missing':'query-core-missing'});return;}
-        const started=performance.now(),result=self.GH_FLEET_QUERY.run(String(message.name),{fleet:store,simSeconds:Number(message.simSeconds)||0},self.GH_FLEET_DATA,message.params||{});
-        self.postMessage({type:'query',version:VERSION,id:message.id,result,ms:performance.now()-started});
+        const started=performance.now();
+        try{
+          const result=self.GH_FLEET_QUERY.run(String(message.name),{fleet:store,simSeconds:Number(message.simSeconds)||0},self.GH_FLEET_DATA,message.params||{});
+          const transfers=[];for(const view of [result?.columns?.indices,result?.columns?.values])if(ArrayBuffer.isView(view)&&view.buffer instanceof ArrayBuffer&&view.buffer.byteLength&&!transfers.includes(view.buffer))transfers.push(view.buffer);
+          self.postMessage({type:'query',version:VERSION,id:message.id,result,ms:performance.now()-started},transfers);
+        }catch(error){
+          // A read-only auxiliary pass may fail closed without destroying the event worker and forcing every later
+          // simulation step back onto the UI thread. The caller keeps its exact main-thread fallback.
+          self.postMessage({type:'query',version:VERSION,id:message.id,unavailable:`query-error:${String(error?.message||error).slice(0,160)}`,ms:performance.now()-started});
+        }
+        return;
+      }
+      // Build 372: compute the existing assign -> normalize -> depart writes speculatively on this replica, roll the
+      // replica back, and transfer only the fixed-width rows that changed. No event/window journal may be open: unlike
+      // the small read-only queries above, dispatch temporarily writes the replica under its own private journal.
+      case 'dispatch-plan':{
+        if(!store||open||!self.GH_FLEET_DISPATCH_CORE||!self.GH_FLEET_DATA){self.postMessage({type:'dispatch-plan',version:VERSION,id:message.id,unavailable:!store?'replica-missing':open?'step-open':'dispatch-core-missing'});return;}
+        const started=performance.now();
+        try{
+          const input=message.input||{},context=input.context||{},tag=message.tag||{};
+          // Incremental replay preserves bytes, membership and value refs, while its local revision can legitimately
+          // differ after a main-side transaction rollback (one restored row versus the main journal's two history
+          // moves). Pin the candidate to the main tag that ordered this request, after checking every structural part
+          // the worker can prove locally. The main side still rejects any later write by that revision.
+          if(tag.length!==store.length||tag.structure!==store.structure||tag.valuesLength!==store.values.length||!Number.isSafeInteger(tag.revision))throw new Error('fleet-dispatch-replica-tag-mismatch');
+          const plan=self.GH_FLEET_DISPATCH_CORE.compute({fleet:store,simSeconds:Number(context.simSeconds)||0,routesRevision:Number(context.routesRevision)||0,customRoutes:Array.isArray(input.registeredRoutes)?input.registeredRoutes:[]},input);
+          plan.tag={revision:tag.revision,structure:tag.structure,length:tag.length,valuesLength:tag.valuesLength,simSeconds:Number(context.simSeconds)||0};
+          self.postMessage({type:'dispatch-plan',version:VERSION,id:message.id,plan,ms:performance.now()-started},self.GH_FLEET_DISPATCH_CORE.transferables(plan));
+        }catch(error){
+          // A bad/stale dispatch request is request-local. Disabling the shared event worker here would turn a rejected
+          // command into persistent main-thread simulation work.
+          self.postMessage({type:'dispatch-plan',version:VERSION,id:message.id,unavailable:`dispatch-plan-error:${String(error?.message||error).slice(0,180)}`,ms:performance.now()-started});
+        }
         return;
       }
       // A copy of the replica, on request only (the differential gates compare it with the main thread's store).
       case 'inspect':{
         if(!store){self.postMessage({type:'inspect',version:VERSION,id:message.id,missing:true});return;}
         const rows=store.rows.slice(0,store.length*STORE.STRIDE);
-        self.postMessage({type:'inspect',version:VERSION,id:message.id,length:store.length,live:store.live,structure:store.structure,values:store.values,extras:store.extras,rows},[rows]);
+        self.postMessage({type:'inspect',version:VERSION,id:message.id,length:store.length,live:store.live,structure:store.structure,values:store.values,extras:store.extras,replicaLogClean:STORE.replicaClean(store),rows},[rows]);
         return;
       }
       case 'specs':specs=message.specs&&typeof message.specs==='object'?message.specs:{};return;
@@ -204,6 +281,15 @@ self.addEventListener('message',event=>{
         return;
       }
       case 'window-begin':beginWindow(message);return;
+      // A main-side durable mutation flushes bounded replica deltas into this
+      // journal after each apply slice. No simulation/query starts while it is
+      // open; commit keeps the streamed rows and rollback restores the exact
+      // pre-mutation replica without a main-thread catch-up copy.
+      case 'mutation-begin':{
+        if(!store)throw new Error('mutation-replica-missing');if(open)throw new Error('mutation-while-step-open');
+        const tag=message.tag||{};if(tag.length!==store.length||tag.valuesLength!==store.values.length||tag.structure!==store.structure)throw new Error('mutation-replica-tag-mismatch');
+        open={kind:'mutation',id:message.id,journal:STORE.beginJournal(store)};return;
+      }
       case 'window-advance':{
         const started=performance.now(),result=advanceWindow(message),ms=performance.now()-started;
         if(result.fallback){self.postMessage({type:'result',version:VERSION,id:message.id,fallback:result.fallback,ms});return;}
@@ -220,6 +306,16 @@ self.addEventListener('message',event=>{
         if(message.outcome==='commit')STORE.endJournal(open.journal);else STORE.rollbackJournal(open.journal);
         open=null;
         return;
+      case 'mutation-settle':{
+        if(!open||open.kind!=='mutation'||open.id!==message.id)return;
+        if(message.outcome==='commit')STORE.endJournal(open.journal);else STORE.rollbackJournal(open.journal);
+        open=null;const tag=message.tag||{};
+        if(tag.length!==store.length||tag.valuesLength!==store.values.length)throw new Error('mutation-settle-shape-mismatch');
+        if(Number.isSafeInteger(tag.live)&&tag.live>=0)store.live=tag.live;
+        if(Number.isSafeInteger(tag.structure)&&tag.structure>=0)store.structure=tag.structure;
+        if(Number.isSafeInteger(tag.revision)&&tag.revision>=0)store.revision=tag.revision;
+        return;
+      }
       default:return;
     }
   }catch(error){

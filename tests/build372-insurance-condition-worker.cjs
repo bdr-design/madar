@@ -3,6 +3,7 @@
 // incidents rewrite conditions after the fleet pass, so its memo no longer holds and the stage read every row on the
 // main thread (169 ms at a million assets). A staged close now asks the fleet engine's worker
 // (GH_FLEET_QUERY_PROVIDER, fleet-query-core conditionSum) and waits for it one stage at a time ('realism.insurance-wait').
+// The same answer carries the operations readiness total so the app does not scan the fleet again after this close.
 // This gate runs the real daily close (business scenario, maintenance due) and holds:
 //   - staged, with a provider answering the store's own total after a few waits: the insurance results equal the plain
 //     close's exactly, the stage waited, and the provider was asked once;
@@ -33,15 +34,20 @@ function setup(){
   return {...sc,day,FLEET};
 }
 const insuranceOf=state=>JSON.stringify({claimsTrend:state.realism.insurance.claimsTrend,renewalIndex:state.realism.insurance.renewalIndex});
+const directReadiness=(state,FLEET)=>{let total=0;FLEET.scan(state,['condition'],row=>{total+=Number(row.condition)||0;});return total;};
 
 // The plain close (no provider, not staged).
 const plain=(()=>{const {s,state,day}=setup();let asked=0;s.GH_FLEET_QUERY_PROVIDER=()=>{asked++;return null;};s.GH_REALISM.onDay(state,day);return {insurance:insuranceOf(state),asked};})();
 assert.equal(plain.asked,0,'not asked outside a staged transaction');
 
 // A staged close whose provider answers after `after` calls of step(): {result,current} built by `answer`.
-async function staged(answer,after=3){
-  const {s,state,day,FLEET}=setup(),TX=s.GH_TRANSACTION_CORE;let asked=0,resolveAnswer=null;
+async function staged(answer,after=3,{mutateAfterInsurance=false}={}){
+  const {s,state,day,FLEET}=setup(),TX=s.GH_TRANSACTION_CORE;let asked=0,resolveAnswer=null,mutated=false;
   s.GH_FLEET_QUERY_PROVIDER=(st,name,params)=>{
+    // This gate owns conditionSum only. Decline the earlier combined daily
+    // query without counting it, so the assertions remain about insurance
+    // refreshes rather than the independent fleetDay optimization.
+    if(name==='fleetDay')return null;
     asked++;assert.equal(name,'conditionSum');
     const result=s.GH_FLEET_QUERY.run(name,st,FLEET,params),revision=st.fleet.revision;
     return new Promise(resolve=>{resolveAnswer=()=>resolve(answer({result,fresh:()=>st.fleet.revision===revision}));});
@@ -50,20 +56,31 @@ async function staged(answer,after=3){
   const stages=[];
   for(let call=0;call<5000&&!handle.done;call++){
     if(resolveAnswer&&stages.filter(stage=>stage==='realism.insurance-wait').length>=after){resolveAnswer();resolveAnswer=null;}
-    handle.step((globalThis.performance?.now?.()??Date.now())+30);stages.push(handle.stage);
+    // One yielded stage per call lets this gate inject the same revision change that a due delivery makes between the
+    // insurance stage and the final readiness refresh.
+    handle.step(-Infinity);stages.push(handle.stage);
+    if(mutateAfterInsurance&&!mutated&&handle.stage==='realism.insurance'){
+      s.GH_FLEET_STORE.add(state.fleet,{id:'INS-QA-LATE-DELIVERY',type:'air',assetMode:'air',ownerCompanyId:'air',condition:37,purchasePrice:1,phase:'idle'});mutated=true;
+    }
     await new Promise(resolve=>setImmediate(resolve));
   }
   assert.equal(handle.done,true);assert.equal(handle.error,null,String(handle.error?.stack||handle.error));assert.equal(handle.result.committed,true);
-  return {insurance:insuranceOf(state),asked,waits:stages.filter(stage=>stage==='realism.insurance-wait').length};
+  return {insurance:insuranceOf(state),readiness:s.GH_REALISM.fleetReadinessTotal(state),directReadiness:directReadiness(state,FLEET),asked,waits:stages.filter(stage=>stage==='realism.insurance-wait').length};
 }
 
 (async()=>{
   const used=await staged(({result,fresh})=>({result,current:fresh}));
   assert.equal(used.asked,1,'the staged close asked the worker once');assert.ok(used.waits>=3,`waited ${used.waits}`);
   assert.equal(used.insurance,plain.insurance,'the worker total gives the plain close\'s insurance results');
+  assert.ok(Object.is(used.readiness,used.directReadiness),'the accepted worker answer also supplies exact post-close readiness');
 
-  const planted=await staged(({result})=>({result:{...result,sum:result.sum*0.5},current:()=>true}));
+  const planted=await staged(({result})=>({result:{...result,sum:result.sum*0.5,readiness:result.readiness*0.5},current:()=>true}));
   assert.notEqual(planted.insurance,plain.insurance,'the stage uses the provider\'s total');
+  assert.notEqual(planted.readiness,planted.directReadiness,'a claimed-current readiness result is the one exposed to the operations brief');
+
+  const delivered=await staged(({result,fresh})=>({result,current:fresh}),1,{mutateAfterInsurance:true});
+  assert.equal(delivered.asked,2,'a fleet delivery after insurance refreshes readiness on the worker');
+  assert.ok(Object.is(delivered.readiness,delivered.directReadiness),'the refreshed result includes the delivered asset exactly');
 
   const stale=await staged(({result})=>({result:{...result,sum:result.sum*0.5},current:()=>false}));
   assert.equal(stale.insurance,plain.insurance,'a total that no longer describes the store is not used');

@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='3.0.0';
+  const VERSION='3.0.1';
   const ROUTE_TYPES=Object.freeze(['air','sea','road']);
   const fleetData=()=>{const api=globalThis.GH_FLEET_DATA||(typeof require==='function'?require('./fleet-access-core.js'):null);if(!api)throw new Error('fleet-data-access-unavailable');return api;};
   // fleetCapacity: the most assets one route may carry (Build 358; GH_FLEET_CORE.routeCapacity reads it per mode).
@@ -198,15 +198,38 @@
     const next={...state.routeCache,[id]:entry};if(bytes(next)>LIMITS.cacheBytes)throw new Error('route-cache-size-capacity');
     state.routeCache[id]=entry;return entry;
   }
-  // Build 358 (million-asset): the bases and routes assets use are read once from their columns (cached per chunk),
-  // not by walking the fleet per endpoint or per route.
+  // Build 372 (million-asset interactive commands): route replacement/deletion used to build a distinct-ref table and
+  // replacement then scanned the whole fleet a second time.  The UI may now bind an exact worker answer to the command
+  // context.  It is deliberately outside the signed payload: the durable command checks freshness against its draft and
+  // rejects a stale/mismatched proof.  Callers which have not been migrated retain the old exact fallback for now.
+  const referenceCore=()=>globalThis.GH_FLEET_REFERENCE_QUERY||(typeof require==='function'?require('./fleet-reference-query-core.js'):null);
+  const routeEndpointIds=state=>Object.entries(state?.routeEndpoints||{}).filter(([,endpoint])=>endpoint?.routeEndpoint).map(([id])=>id);
+  function referenceRequest(state,command,payload={}){
+    if(command==='replace')return {routeIds:[text(payload.replaceId,80)],baseIds:routeEndpointIds(state),excludeAssetId:text(payload.assetId,100)};
+    if(command==='delete')return {routeIds:[text(payload.id,80)],baseIds:routeEndpointIds(state)};
+    if(command==='dedupe')return {collectRouteIds:true};
+    return null;
+  }
+  function sameReferenceRequest(core,supplied,expected){
+    const a=core.normalized(supplied||{}),b=core.normalized(expected||{});
+    return JSON.stringify([a.routeIds,a.baseIds,a.excludeAssetId,a.type,a.collectRouteIds])===JSON.stringify([b.routeIds,b.baseIds,b.excludeAssetId,b.type,b.collectRouteIds]);
+  }
+  function referenceLookup(ctx,state,params){
+    const proof=ctx?.fleetReferenceUsage;if(!proof)return null;
+    const core=referenceCore(),supplied=proof.params||params,result=proof.result;
+    if(!core?.validPlan||!core?.lookup||!sameReferenceRequest(core,supplied,params)||!core.validPlan(result,supplied)||typeof proof.current!=='function'||proof.current(state)!==true)throw new Error('route-fleet-reference-proof-stale');
+    return core.lookup(result);
+  }
   const routeIdsInUse=state=>fleetData().distinctRefs(state,'routeId');
-  function collectUnusedEndpoints(state){
-    let bases=null;
+  function collectUnusedEndpoints(state,references=null){
+    // customRoutes is capped at 960 and routeEndpoints at 1,440.  Build their relation once rather than doing an N x R
+    // search.  The only unbounded input, baseFacility, comes from the already-current worker lookup when supplied.
+    const routedEndpoints=new Set();for(const route of state.customRoutes||[]){if(route?.fromFacility)routedEndpoints.add(route.fromFacility);if(route?.toFacility)routedEndpoints.add(route.toFacility);}
+    const bases=references?null:fleetData().distinctRefs(state,'baseFacility');
     for(const [endpointId,endpoint] of Object.entries(state.routeEndpoints)){
       if(!endpoint?.routeEndpoint)continue;
-      const stillUsed=state.customRoutes.some(route=>route.fromFacility===endpointId||route.toFacility===endpointId)||(bases||(bases=fleetData().distinctRefs(state,'baseFacility'))).has(endpointId);
-      if(endpoint?.routeEndpoint&&!stillUsed)delete state.routeEndpoints[endpointId];
+      const stillUsed=routedEndpoints.has(endpointId)||(references?references.base(endpointId)>0:bases.has(endpointId));
+      if(!stillUsed)delete state.routeEndpoints[endpointId];
     }
   }
   // The routes a mode holds, its quota and the slots it may still create (bounded by the whole registry too).
@@ -252,20 +275,23 @@
     }
     if(command==='replace'){
       const replaceId=text(payload.replaceId,80),assetId=text(payload.assetId,100),index=state.customRoutes.findIndex(route=>route.id===replaceId);if(index<0)throw new Error('route-replace-missing');
-      let foreignUse=false;if(routeIdsInUse(state).has(replaceId)){const fleet=fleetData();fleet.scan(state,['id','routeId'],row=>{if(row.routeId===replaceId&&row.id!==assetId){foreignUse=true;return fleet.STOP;}});}if(foreignUse)throw new Error('route-replace-in-use');
+      const references=referenceLookup(ctx,state,referenceRequest(state,command,payload));let foreignUse=false;
+      if(references)foreignUse=references.route(replaceId)>0;
+      else if(routeIdsInUse(state).has(replaceId)){const fleet=fleetData();fleet.scan(state,['id','routeId'],row=>{if(row.routeId===replaceId&&row.id!==assetId){foreignUse=true;return fleet.STOP;}});}
+      if(foreignUse)throw new Error('route-replace-in-use');
       const route=canonicalRoute(payload.route,state),existing=conflict(state.customRoutes,route,{ignoreId:replaceId});if(existing)throw new Error(existing.code);
-      state.customRoutes[index]=route;delete state.routeCache[replaceId];collectUnusedEndpoints(state);bumpRoutesRevision(state);return route;
+      state.customRoutes[index]=route;delete state.routeCache[replaceId];collectUnusedEndpoints(state,references);bumpRoutesRevision(state);return route;
     }
     if(command==='delete'){
-      const id=text(payload.id,80),used=routeIdsInUse(state).has(id);if(used)throw new Error('route-in-use');
+      const id=text(payload.id,80),references=referenceLookup(ctx,state,referenceRequest(state,command,payload)),used=references?references.route(id)>0:routeIdsInUse(state).has(id);if(used)throw new Error('route-in-use');
       const before=state.customRoutes.length;state.customRoutes=state.customRoutes.filter(route=>route.id!==id);delete state.routeCache[id];
-      collectUnusedEndpoints(state);
+      collectUnusedEndpoints(state,references);
       if(before!==state.customRoutes.length)bumpRoutesRevision(state);
       return before!==state.customRoutes.length;
     }
     if(command==='dedupe'){
       // Route ids in use: the distinct truthy routeId values, read from the column (no view per asset).
-      const used=fleetData().distinctRefs(state,'routeId'),kept=[],removedIds=[],conflicts=[];
+      const references=referenceLookup(ctx,state,referenceRequest(state,command,payload)),used=references?.routeIds||fleetData().distinctRefs(state,'routeId'),kept=[],removedIds=[],conflicts=[];
       for(const raw of state.customRoutes){
         let route;try{route=canonicalRoute(raw,state);}catch(_error){kept.push(raw);continue;}
         const found=conflict(kept,route);
@@ -296,6 +322,6 @@
   // Build 359 (every command deep-copied the fleet routes, 2.4 MB): a route is added, replaced (capacity, geometry) or
   // removed here, never edited in place, so drafts and snapshots share the routes sealed (GH_TRANSACTION_CORE).
   (globalThis.GH_TRANSACTION_CORE?.registerSealedRoot||(name=>(globalThis.__GH_PENDING_SEALED_ROOTS__=globalThis.__GH_PENDING_SEALED_ROOTS__||[]).push(name)))('customRoutes');
-  const API=Object.freeze({VERSION,corridorIndex,bumpRoutesRevision,ROUTE_TYPES,LIMITS,MODE_ROUTE_QUOTA,modeRouteBudget,allocateRouteSlots,allocateForBudget,NEAR_DUPLICATE,ensure,validPoint,splitAtDateline,routeMode,routeOwnerCompanyId,validateRouteOwnership,validateRoute,canonicalRoute,signature,sample,corridorMetrics,conflict,execute});
+  const API=Object.freeze({VERSION,corridorIndex,bumpRoutesRevision,ROUTE_TYPES,LIMITS,MODE_ROUTE_QUOTA,modeRouteBudget,allocateRouteSlots,allocateForBudget,NEAR_DUPLICATE,ensure,validPoint,splitAtDateline,routeMode,routeOwnerCompanyId,validateRouteOwnership,validateRoute,canonicalRoute,signature,sample,corridorMetrics,conflict,referenceRequest,execute});
   globalThis.GH_ROUTE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('routes',API);if(globalThis.window&&window!==globalThis)window.GH_ROUTE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

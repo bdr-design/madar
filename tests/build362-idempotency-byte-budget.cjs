@@ -10,8 +10,8 @@ const cacheKey=(domain,name,key)=>JSON.stringify([domain,name,key]);
 const plain=value=>JSON.parse(JSON.stringify(value));
 function departAsset(input,index,{wide=false,proof=false}={}){
   return {
-    id:input.id,type:'air',assetMode:'air',catalogId:'A320-200',routeId:wide?'R'.repeat(420):`AIR-ROUTE-${index%11}`,
-    baseFacility:wide?'B'.repeat(420):`AIR-BASE-${index%5}`,phase:index%4===0?'turnaround':'moving',routeSlot:index%24,
+    id:input.id,type:'air',assetMode:'air',catalogId:'A320-200',routeId:wide?`${'R'.repeat(420)}-${index}`:`AIR-ROUTE-${index%11}`,
+    baseFacility:wide?`${'B'.repeat(420)}-${index}`:`AIR-BASE-${index%5}`,phase:index%4===0?'turnaround':'moving',routeSlot:index%24,
     departureScheduled:index%4===0,reverse:index%2===0,...(index%4===0?{departureScheduledAt:123456+index}:{}),
     specs:{capacity:180,capacityUnit:'راكب',blob:'x'.repeat(1200)},staffing:{ready:true,roles:[{id:'pilot'}]},
     ...(proof&&index===0?{documentProofId:'DP-DEPART-1'}:{})
@@ -27,10 +27,13 @@ const departures=count=>Array.from({length:count},(_,index)=>({id:`AIRCRAFT-LONG
   const stored=state.domainRuntime.idempotency[cacheKey('fleet','depart-batch','DEPART-500')].result,receipt=stored.result;
   assert.equal(receipt.schema,D.FLEET_RECEIPT_SCHEMA);assert.equal(receipt.projection,D.FLEET_DEPART_REPLAY_PROJECTION);
   assert.ok(bytes(stored)<=D.FLEET_RECEIPT_REPLAY_BYTES_LIMIT,`depart receipt exceeds row budget: ${bytes(stored)}`);
-  assert.equal(Object.hasOwn(receipt.assets[0],'specs'),false);assert.equal(Object.hasOwn(receipt.assets[0],'type'),false);assert.equal(Object.hasOwn(receipt.assets[0],'routeSlot'),false);
-  assert.deepEqual(Object.keys(receipt.assets[0]).sort(),['baseFacility','departureScheduled','departureScheduledAt','id','phase','reverse','routeId'].sort());
+  assert.ok(bytes(stored)<30000,`column receipt regressed toward the 84-88 KiB diagnostic rows: ${bytes(stored)}`);
+  assert.equal(Object.hasOwn(receipt,'assets'),false,'stored replay must not repeat row objects');assert.ok(receipt.columns?.id&&receipt.columns?.routeId&&receipt.columns?.baseFacility);
   const replay=D.dispatchSystem({state},'fleet','depart-batch',payload,options('DEPART-500'));
   assert.equal(runs,1,'hot replay ran the fleet owner twice');assert.equal(replay.result.length,500);assert.equal(replay.result[0].routeId,'AIR-ROUTE-0');
+  const tampered=JSON.parse(JSON.stringify(state)),tamperedReceipt=tampered.domainRuntime.idempotency[cacheKey('fleet','depart-batch','DEPART-500')].result.result,routeColumn=tamperedReceipt.columns.routeId;
+  if(Array.isArray(routeColumn.dictionary))routeColumn.dictionary[0]='TAMPERED';else if(Array.isArray(routeColumn.raw))routeColumn.raw[0]='TAMPERED';else routeColumn.constant='TAMPERED';
+  assert.throws(()=>D.peekIdempotency(tampered,'fleet','depart-batch','DEPART-500',payload),/idempotency-receipt-integrity/,'column tampering must not replay');
   assert.throws(()=>D.dispatchSystem({state},'fleet','depart-batch',{departures:payload.departures.slice(1)},options('DEPART-500')),/Idempotency payload conflict/);
   const health=D.health(state);assert.ok(health.idempotencyReplayBytes<=D.IDEMPOTENCY_REPLAY_BYTES_LIMIT);assert.ok(health.idempotencyLargestReplayBytes<=D.FLEET_RECEIPT_REPLAY_BYTES_LIMIT);
   console.log(`PASS projected depart replay: ${bytes(stored)} bytes for 500 assets`);
@@ -88,7 +91,7 @@ const departures=count=>Array.from({length:count},(_,index)=>({id:`AIRCRAFT-LONG
   D.register('fleet',{execute(_ctx,_name,payload){runs++;return payload.departures.map((row,index)=>departAsset(row,index));}});
   const payload={departures:departures(500)},key='LEGACY-DEPART',cache=cacheKey('fleet','depart-batch',key);
   D.dispatchSystem({state},'fleet','depart-batch',payload,options(key));const current=state.domainRuntime.idempotency[cache],legacyAssets=payload.departures.map((row,index)=>departAsset(row,index));
-  state.domainRuntime.idempotency[cache]={...current,result:{...current.result,result:{schema:D.FLEET_RECEIPT_SCHEMA,family:'depart-batch',count:legacyAssets.length,assets:legacyAssets,digest:s.GH_AUTHORIZATION.digest(s.GH_AUTHORIZATION.stable(legacyAssets))}}};
+  state.domainRuntime.idempotency[cache]={...current,result:{...current.result,result:{schema:'gh-fleet-batch-receipt-v1',family:'depart-batch',count:legacyAssets.length,assets:legacyAssets,digest:s.GH_AUTHORIZATION.digest(s.GH_AUTHORIZATION.stable(legacyAssets))}}};
   const before=bytes(state.domainRuntime.idempotency[cache].result),first=D.migrateIdempotencyState(state),after=bytes(state.domainRuntime.idempotency[cache].result);
   assert.equal(first.changed,true);assert.equal(first.compactedFleetResults,1);assert.ok(after<before/2,`legacy projection did not shrink enough: ${before} -> ${after}`);
   assert.equal(state.domainRuntime.idempotency[cache].result.result.projection,D.FLEET_DEPART_REPLAY_PROJECTION);
@@ -96,6 +99,59 @@ const departures=count=>Array.from({length:count},(_,index)=>({id:`AIRCRAFT-LONG
   const restored=JSON.parse(JSON.stringify(state));assert.equal(D.migrateIdempotencyState(restored).changed,false);assert.equal(JSON.stringify(restored.domainRuntime.idempotency),canonical);
   const replay=D.dispatchSystem({state:restored},'fleet','depart-batch',payload,options(key));assert.equal(replay.result.length,500);assert.equal(runs,1,'migrated replay ran the owner');
   console.log(`PASS legacy migration: ${before} -> ${after} bytes and idempotent round-trip`);
+})();
+
+(()=>{
+  // Exercise every projected field through constants, dictionaries, raw values,
+  // missing cells, falsy values and a JSON save/restore. A replay must be a
+  // detached logical copy of the original projection.
+  const {s}=harness(['authorization-core','transaction-core','domain-command-core']),D=s.GH_DOMAIN_COMMANDS,state=minimal();let runs=0;
+  const rows=[
+    {id:'A-\u0000-😀',departureScheduled:true,reverse:false,type:'',assetMode:'air',catalogId:'طائرة✈',routeId:'R-مشترك',baseFacility:'',phase:'turnaround',routeSlot:0,departureScheduledAt:0,specs:{capacity:0,capacityUnit:''}},
+    {id:'A-2',departureScheduled:false,reverse:true,type:'air',assetMode:'air',catalogId:'A320',routeId:'R-مشترك',baseFacility:'B-1',phase:'turnaround',routeSlot:7,specs:{capacity:180,capacityUnit:'راكب'}},
+    {id:'A-3',departureScheduled:true,reverse:true,type:'sea',assetMode:'air',catalogId:'A320',routeId:'R-آخر',phase:'turnaround',routeSlot:9,departureScheduledAt:42,specs:{capacity:180}},
+    {id:'A-4',departureScheduled:false,reverse:false,type:'air',assetMode:'air',catalogId:'A350',routeId:'R-آخر',baseFacility:'B-1',phase:'turnaround',routeSlot:11,specs:{capacity:220,capacityUnit:'راكب'}}
+  ];
+  const payload={assignments:rows.map(row=>({id:row.id,routeId:row.routeId}))};
+  D.register('fleet',{execute(){runs++;return structuredClone(rows);}});D.dispatchSystem({state},'fleet','assign-routes-batch',payload,options('PROJECTED-VALUES'));
+  const restored=JSON.parse(JSON.stringify(state)),replay=D.peekIdempotency(restored,'fleet','assign-routes-batch','PROJECTED-VALUES',payload);
+  assert.deepEqual(plain(replay.result),plain(rows));replay.result[0].specs.capacity=999;
+  assert.equal(D.peekIdempotency(restored,'fleet','assign-routes-batch','PROJECTED-VALUES',payload).result[0].specs.capacity,0,'replay aliased the stored dictionary');assert.equal(runs,1);
+  console.log('PASS v2 projection values: exact JSON round-trip and detached replay');
+})();
+
+(()=>{
+  // Semantically unused dictionary entries and extra shape keys used to evade
+  // the logical digest and could retain arbitrary save memory. Version markers
+  // are also part of the replay contract, not optional metadata.
+  const {s}=harness(['authorization-core','transaction-core','domain-command-core']),D=s.GH_DOMAIN_COMMANDS,state=minimal();
+  D.register('fleet',{execute(_ctx,_name,payload){return payload.departures.map((row,index)=>departAsset(row,index));}});
+  const payload={departures:departures(100)},key='ADVERSARIAL-V2',cache=cacheKey('fleet','depart-batch',key);D.dispatchSystem({state},'fleet','depart-batch',payload,options(key));
+  const mutate=fn=>{const copy=JSON.parse(JSON.stringify(state)),receipt=copy.domainRuntime.idempotency[cache].result.result;fn(receipt);assert.throws(()=>D.peekIdempotency(copy,'fleet','depart-batch',key,payload),/idempotency-receipt-(?:integrity|column)/);};
+  mutate(receipt=>{delete receipt.projection;});
+  mutate(receipt=>{receipt.columns.id.extra=['unused'];});
+  mutate(receipt=>{const column=receipt.columns.routeId;assert.ok(Array.isArray(column.dictionary));column.dictionary.push('UNUSED-'+('x'.repeat(4096)));});
+  console.log('PASS v2 adversarial structure: version and canonical columns are enforced');
+})();
+
+(()=>{
+  // A corrupt v1 hot receipt must become a cold at-most-once refusal. A large
+  // v1 receipt must be made cold without cloning the soon-to-be-discarded rows.
+  const {s}=harness(['authorization-core','transaction-core','domain-command-core']),D=s.GH_DOMAIN_COMMANDS,state=minimal();
+  D.register('fleet',{execute(_ctx,_name,payload){return payload.departures.map((row,index)=>departAsset(row,index));}});
+  const payload={departures:departures(3)},key='LEGACY-CORRUPT',cache=cacheKey('fleet','depart-batch',key);D.dispatchSystem({state},'fleet','depart-batch',payload,options(key));
+  const assets=payload.departures.map((row,index)=>departAsset(row,index)),current=state.domainRuntime.idempotency[cache],legacy={schema:'gh-fleet-batch-receipt-v1',family:'depart-batch',count:assets.length,assets,digest:s.GH_AUTHORIZATION.digest(s.GH_AUTHORIZATION.stable(assets))};
+  state.domainRuntime.idempotency[cache]={...current,result:{...current.result,result:legacy}};
+  const direct=D.peekIdempotency(state,'fleet','depart-batch',key,payload);assert.equal(direct.result.length,assets.length);assert.equal(Object.hasOwn(direct.result[0],'specs'),false,'direct v1 compatibility did not apply the replay projection');
+  legacy.digest='bad-digest';assert.throws(()=>D.peekIdempotency(state,'fleet','depart-batch',key,payload),/idempotency-receipt-integrity/,'corrupt v1 replay bypassed integrity before migration');
+  const migrated=D.migrateIdempotencyState(state);assert.equal(migrated.compactedFleetResults,1);assert.equal(state.domainRuntime.idempotency[cache].result.result.schema,D.FLEET_RECEIPT_COLD_SCHEMA);assert.throws(()=>D.peekIdempotency(state,'fleet','depart-batch',key,payload),/idempotency-receipt-cold/);
+
+  const largeState=minimal(),largePayload={departures:[{id:'seed'}]},largeKey='LEGACY-LARGE',largeCache=cacheKey('fleet','depart-batch',largeKey);D.dispatchSystem({state:largeState},'fleet','depart-batch',largePayload,options(largeKey));
+  const largeAssets=Array.from({length:D.FLEET_RECEIPT_REPLAY_LIMIT+1},(_,index)=>({id:`L-${index}`,departureScheduled:false,reverse:false,routeId:'R',baseFacility:'B',phase:'moving'})),largeCurrent=largeState.domainRuntime.idempotency[largeCache];
+  largeState.domainRuntime.idempotency[largeCache]={...largeCurrent,result:{...largeCurrent.result,result:{schema:'gh-fleet-batch-receipt-v1',family:'depart-batch',count:largeAssets.length,assets:largeAssets,proofRefs:[],digest:'unused-for-cold'}}};
+  const nativeClone=s.structuredClone;let clonedDiscardedRows=false;s.structuredClone=value=>{if(value?.result?.assets?.length===largeAssets.length||value?.assets?.length===largeAssets.length)clonedDiscardedRows=true;return nativeClone(value);};
+  D.migrateIdempotencyState(largeState);assert.equal(clonedDiscardedRows,false,'migration cloned a legacy fleet payload before discarding it');assert.equal(largeState.domainRuntime.idempotency[largeCache].result.result.schema,D.FLEET_RECEIPT_COLD_SCHEMA);
+  console.log('PASS legacy adversarial migration: corrupt hot is cold and large rows are not copied');
 })();
 
 async function verifyIncrementalReplayBudget(){

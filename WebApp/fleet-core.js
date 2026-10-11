@@ -25,6 +25,7 @@
   // The route registry holds 240 routes, so the base capacity alone stops at 5,760 aircraft; bulk dispatch raises a
   // route's capacity when a fleet outgrows that. Slots past the base share the base slots' departure times.
   const ROUTE_MAX_FLEET_CAPACITY=Object.freeze({air:8192,sea:8192,road:8192});
+  const DISPATCH_INTENT_SCHEMA='gh-fleet-dispatch-intent-v1';
   // Hard capacity protects assignment integrity; automatic dispatch deliberately
   // targets a much lower density so normal fleets spread across the world
   // instead of filling one corridor to its safety ceiling.
@@ -210,7 +211,7 @@
     const ref=row?.routeRef;if(typeof ref!=='string'||!routeTable||typeof routeTable!=='object'||!Object.prototype.hasOwnProperty.call(routeTable,ref))return undefined;
     return routeTable[ref];
   }
-  function assignRoutesBatch(state,rows,routeTable=null){
+  function assignRoutesBatch(state,rows,routeTable=null,{noResult=false}={}){
     if(!Array.isArray(rows)||!rows.length)throw new Error('route-assignment-batch-empty');
     // Drafts: the assignment below edits assets in place; commit() applies it. Build 358 (million-asset): only the
     // assets being assigned get drafts; the slots the other assets hold come from one row pass in row order.
@@ -270,7 +271,7 @@
     // One signature per route object (rows of one route share it), not one per asset.
     const signatures=new Map();for(const row of prepared){let signature=signatures.get(row.input.route);if(signature===undefined){signature=routeSignature(row.input.route);signatures.set(row.input.route,signature);}applyRouteAssignment(row.asset,row.input,row.slot,signature);}
     fleet.commit(state,prepared.map(row=>row.asset));
-    return prepared.map(row=>fleet.plain(row.asset));
+    return noResult?null:prepared.map(row=>fleet.plain(row.asset));
   }
   function crewRole(id){const fixed=ROLE_DEFAULTS[id]||{name:id,dailyRate:0};return {id,name:fixed.name,dailyRate:fixed.dailyRate};}
   function staffingPlan(asset){
@@ -317,9 +318,9 @@
     else fleet.forEach(state,asset=>add(asset.staffing,1));
     return state.crew;
   }
-  function provisionStaffing(state,asset,base){
+  function provisionStaffing(state,asset,base,{synchronize=true}={}){
     const owner=requireFleetAsset(state,asset);
-    if(asset.staffing?.mode==='automatic-fixed'&&asset.staffing.ready===true){synchronizeCrew(state);return asset.staffing;}
+    if(asset.staffing?.mode==='automatic-fixed'&&asset.staffing.ready===true){if(synchronize)synchronizeCrew(state);return asset.staffing;}
     const plan=staffingPlan(asset,state),labor=laborLedger(state),contractId=nextId(state,'EMP-AUTO');
     const center=base?.name||asset.baseLocation||asset.baseFacility||'المركز التشغيلي';
     const contract={
@@ -333,7 +334,7 @@
     labor.hiringLog=labor.hiringLog.slice(0,200);
     const staffing={...plan,contractId,provisionedAt:Number(state.simSeconds)||0,center};
     if(fleetData().isView(asset))fleetData().update(state,asset,{staffing,crewBlocked:false});else{asset.staffing=staffing;asset.crewBlocked=false;}
-    synchronizeCrew(state);
+    if(synchronize)synchronizeCrew(state);
     return staffing;
   }
   // A procurement receipt owns one employment contract for its entire batch.
@@ -409,22 +410,78 @@
   // a map of every asset; the assets left to staff are found by one pass over the rows (GH_FLEET_DATA.scan) that reads
   // only delivery status, phase and staffing, so only those assets get views (requireFleetAsset has no side effect, so
   // checking it after the cheap skips is the former order's outcome).
-  function reconcileStaffing(state,facilityResolver){
-    const fleet=fleetData(),ids=fleet.idLists;
-    for(const contract of laborLedger(state).employmentContracts){
-      if(contract?.automaticAssetStaffing!==true)continue;
-      const members=ids.is(contract.assetIds)?ids.toArray(contract.assetIds):[contract.assetId],linked=members.map(id=>fleet.get(state,id)).filter(asset=>asset?.staffing?.contractId===contract.id&&asset.staffing?.mode==='automatic-fixed'&&asset.staffing.ready===true);
-      if(linked.length&&ids.is(contract.assetIds)){contract.assetIds=ids.of(linked.map(asset=>asset.id));contract.assetId=linked[0].id;contract.assetCount=linked.length;contract.count=linked.reduce((sum,asset)=>sum+(Number(asset.staffing.total)||0),0);contract.salary=linked.reduce((sum,asset)=>sum+(Number(asset.staffing.monthlyPayroll)||0),0);}
-      if(linked.length&&Array.isArray(contract.roles))delete contract.roles;
+  function staffingPlanOwner(explicit=null){const owner=explicit||globalThis.GH_FLEET_STAFFING_RECONCILE_PLAN;if(!owner?.validPlan||!owner?.applyCrewTotals)throw new Error('fleet-staffing-reconcile-plan-owner-missing');return owner;}
+  // Reconcile contract membership without expanding compact id runs.  The
+  // generator yields after a bounded number of member lookups; a large legacy
+  // plain array is re-encoded through idLists.ofStages instead of one blocking
+  // toArray()/map()/of() chain.
+  function* reconcileStaffingContractsStages(state,{slice=512,label='fleet.staffing-contracts',current=null}={}){
+    const fleet=fleetData(),ids=fleet.idLists,width=Math.max(1,Math.floor(Number(slice)||512)),contracts=laborLedger(state).employmentContracts,source=fleet.source(state),revision=fleet.revision(state),membership=fleet.membershipRevision(state),length=fleet.scanLength(state);let spent=0,visited=0,linkedTotal=0,changed=0;
+    const exact=()=>source===fleet.source(state)&&Object.is(revision,fleet.revision(state))&&membership===fleet.membershipRevision(state)&&length===fleet.scanLength(state)&&(!current||current()===true);
+    const check=()=>{if(!exact())throw new Error('fleet-staffing-reconcile-stale');};
+    const linked=(asset,contract)=>asset?.staffing?.contractId===contract.id&&asset.staffing?.mode==='automatic-fixed'&&asset.staffing.ready===true;
+    check();
+    for(const contract of contracts){
+      if(contract?.automaticAssetStaffing!==true)continue;visited++;
+      const listed=ids.is(contract.assetIds),members=listed?contract.assetIds:[contract.assetId];let linkedCount=0,count=0,salary=0,firstId=null,missing=false;
+      for(const [,id] of ids.entries(members)){
+        const asset=fleet.get(state,id);if(linked(asset,contract)){if(firstId===null)firstId=asset.id;linkedCount++;linkedTotal++;count+=(Number(asset.staffing.total)||0);salary+=(Number(asset.staffing.monthlyPayroll)||0);}else missing=true;
+        if(++spent>=width){spent=0;yield label;check();}
+      }
+      if(!linkedCount)continue;
+      let nextIds=members;
+      if(listed&&(missing||Array.isArray(members))){
+        const kept=[];
+        if(missing){for(const [,id] of ids.entries(members)){const asset=fleet.get(state,id);if(linked(asset,contract))kept.push(asset.id);if(++spent>=width){spent=0;yield label;check();}}}
+        else for(const [,id] of ids.entries(members)){kept.push(id);if(++spent>=width){spent=0;yield label;check();}}
+        nextIds=yield* ids.ofStages(kept,{slice:width,label});check();
+      }
+      if(listed){contract.assetIds=nextIds;contract.assetId=firstId;contract.assetCount=linkedCount;contract.count=count;contract.salary=salary;changed++;}
+      if(Array.isArray(contract.roles)){delete contract.roles;changed++;}
     }
+    check();return {contracts:visited,linked:linkedTotal,changed};
+  }
+  function reconcileStaffingContracts(state,options={}){const stages=reconcileStaffingContractsStages(state,options);let step;do{step=stages.next();}while(!step.done);return step.value;}
+  // Apply a fresh worker plan without rebuilding fleet classes on this thread.
+  // A plan containing repairs intentionally leaves crew totals unpublished:
+  // the caller requests a second proof after the staged writes, then applies
+  // that healthy result with reconcileContracts:false.
+  function* reconcileStaffingPlanStages(state,facilityResolver,result,{slice=256,label='fleet.staffing-repair',current=null,reconcileContracts=true,planCore=null}={}){
+    const owner=staffingPlanOwner(planCore);if(!owner.validPlan(result))throw new TypeError('fleet-staffing-reconcile-plan-invalid');
+    const width=Math.max(1,Math.floor(Number(slice)||256));let contractResult={contracts:0,linked:0,changed:0};
+    if(reconcileContracts)contractResult=yield* reconcileStaffingContractsStages(state,{slice:width,label:`${label}.contracts`,current});
+    if(current&&current()!==true)throw new Error('fleet-staffing-reconcile-stale');
+    const fleet=fleetData();let provisioned=0,spent=0;
+    for(const index of result.indices){
+      const asset=fleet.viewAt(state,index);if(!asset||asset.deliveryStatus==='pending'||asset.phase==='delivery'||asset.staffing?.mode==='automatic-fixed'&&asset.staffing.ready===true)throw new Error('fleet-staffing-reconcile-plan-stale');
+      try{requireFleetAsset(state,asset);}catch(_error){continue;}
+      const base=typeof facilityResolver==='function'?facilityResolver(asset.baseFacility):null;provisionStaffing(state,asset,base,{synchronize:false});provisioned++;
+      if(++spent>=width){spent=0;yield label;}
+    }
+    if(!result.unstaffed){if(current&&current()!==true)throw new Error('fleet-staffing-reconcile-stale');owner.applyCrewTotals(state,result);}
+    return {provisioned,needsRefresh:result.unstaffed>0,contracts:contractResult};
+  }
+  function reconcileStaffingPlan(state,facilityResolver,result,options={}){const stages=reconcileStaffingPlanStages(state,facilityResolver,result,options);let step;do{step=stages.next();}while(!step.done);return step.value;}
+  function reconcileStaffing(state,facilityResolver){
+    const fleet=fleetData();reconcileStaffingContracts(state);
+    // The normal load path is already fully staffed.  Group equal delivery,
+    // phase and staffing values first, so that path examines purchase-batch
+    // classes rather than one million rows.  A class needing repair expands
+    // only through its exact members; indices are sorted to preserve the old
+    // row-order provisioning/sequence result byte for byte.
     const unstaffed=[];
-    fleet.scan(state,['deliveryStatus','phase','staffing'],(asset,index)=>{if(asset.deliveryStatus==='pending'||asset.phase==='delivery')return;if(asset.staffing?.mode==='automatic-fixed'&&asset.staffing.ready===true)return;unstaffed.push(index);});
+    fleet.forEachFieldClasses(state,['deliveryStatus','phase','staffing'],(asset,count,info)=>{
+      if(!count||asset.deliveryStatus==='pending'||asset.phase==='delivery')return;
+      if(asset.staffing?.mode==='automatic-fixed'&&asset.staffing.ready===true)return;
+      info.forEachMember((_member,index)=>unstaffed.push(index));
+    });
+    if(unstaffed.length>1)unstaffed.sort((a,b)=>a-b);
     let provisioned=0;
     for(const index of unstaffed){
       const asset=fleet.viewAt(state,index);if(!asset)continue;
       try{requireFleetAsset(state,asset);}catch(_error){continue;}
       const base=typeof facilityResolver==='function'?facilityResolver(asset.baseFacility):null;
-      provisionStaffing(state,asset,base);provisioned++;
+      provisionStaffing(state,asset,base,{synchronize:false});provisioned++;
     }
     synchronizeCrew(state);
     return provisioned;
@@ -466,7 +523,12 @@
     asset.reverse=asset.baseFacility===route.toFacility;asset.phase='moving';asset.progress=0;asset.dwellRemaining=0;asset.fuel=100;asset.crewBlocked=false;asset.departureScheduled=false;delete asset.departureScheduledAt;delete asset.simulationFault;
     asset.from=asset.reverse?route.to:route.from;asset.to=asset.reverse?route.from:route.to;if(load!=null)asset.load=load;return asset;
   }
-  function departBatch(state,rows,routeTable=null){
+  function departureReplayRow(asset){
+    const row={id:String(asset?.id||''),departureScheduled:asset?.departureScheduled===true,reverse:asset?.reverse===true};
+    for(const key of ['routeId','baseFacility','phase','departureScheduledAt'])if(asset?.[key]!==undefined&&asset?.[key]!==null)row[key]=asset[key];
+    return row;
+  }
+  function departBatch(state,rows,routeTable=null,{replayProjection=false,noResult=false}={}){
     if(!Array.isArray(rows)||!rows.length)throw new Error('departure-batch-empty');
     // Drafts: the departures below edit assets in place; commit() applies them. Build 358 (million-asset): only the
     // departing assets get drafts; route occupancy comes from one row pass in row order.
@@ -510,16 +572,28 @@
       else departDraft(row.asset,row.route,{crewReady:true,load:row.load});
     }
     fleet.commit(state,prepared.map(row=>row.asset));
-    return prepared.map(row=>fleet.plain(row.asset));
+    // Domain-command-core persists and replays this exact projection for depart-batch. Materializing every complete
+    // 128-byte store row here only for that owner to discard most fields accounted for a large part of each 500-aircraft
+    // main-thread block. Keep the public departBatch() result unchanged; the domain batch requests its replay shape
+    // directly, while the single-asset `depart` command still receives the complete asset.
+    return noResult?null:replayProjection?prepared.map(row=>departureReplayRow(row.asset)):prepared.map(row=>fleet.plain(row.asset));
   }
   function validate(ctx,cmd,p={}){
     const state=ctx.state||ctx,asset=p.id?find(state,p.id):null;
+    if(cmd==='dispatch-plan-intent'){
+      const routeIds=Array.isArray(p.routeIds)?p.routeIds:[],companyId=String(p.companyId||''),mode=String(p.mode||''),count=Number(p.count),requestKey=String(p.requestKey||''),catalogRevision=String(p.catalogRevision||'').toLowerCase(),ownershipRevision=String(p.ownershipRevision||'').toLowerCase(),assignmentDigest=String(p.assignmentDigest||'').toLowerCase(),planDigest=String(p.planDigest||'').toLowerCase(),sha256=/^[0-9a-f]{64}$/;
+      if(p.schema!==DISPATCH_INTENT_SCHEMA||!companyId||!['air','sea','road'].includes(mode)||!Number.isSafeInteger(count)||count<1||count>1_000_000||!requestKey||requestKey.length>160||!sha256.test(catalogRevision)||!sha256.test(ownershipRevision)||!sha256.test(assignmentDigest)||!sha256.test(planDigest)||!Number.isSafeInteger(Number(p.routesRevision))||Number(p.routesRevision)<0||!Number.isFinite(Number(p.simSeconds))||routeIds.length>4096||routeIds.some(id=>typeof id!=='string'||!id||id.length>160)||new Set(routeIds).size!==routeIds.length)return {ok:false,reason:'fleet-dispatch-intent-invalid'};
+      const P=platform(),company=P?.requireCompany?.(state,companyId,{operational:true,capability:'operations.fleet'}),modes=P?.getRouteModes?.(state,companyId)||company?.definition?.classification?.routeModes||[];
+      if(!company||!modes.includes(mode)||Number(state.routesRevision)!==Number(p.routesRevision)||!Object.is(Number(state.simSeconds)||0,Number(p.simSeconds)))return {ok:false,reason:'fleet-dispatch-intent-context'};
+      return true;
+    }
     if(['service','assign-route','depart','request-sale','finalize-sale','return-lease','sell','dispose'].includes(cmd)&&!asset)return {ok:false,reason:'asset-not-found'};
     if(cmd==='service'&&asset.phase==='moving')return {ok:false,reason:'asset-moving'};
     return true;
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx,asset=p.id?find(state,p.id):null;
+    if(cmd==='dispatch-plan-intent')return {schema:DISPATCH_INTENT_SCHEMA,companyId:String(p.companyId),mode:String(p.mode),count:Number(p.count),requestKey:String(p.requestKey),routesRevision:Number(p.routesRevision),simSeconds:Number(p.simSeconds),catalogRevision:String(p.catalogRevision).toLowerCase(),ownershipRevision:String(p.ownershipRevision).toLowerCase(),assignmentDigest:String(p.assignmentDigest).toLowerCase(),planDigest:String(p.planDigest).toLowerCase(),routeIds:[...p.routeIds]};
     if(cmd==='service'){
       const owner=requireFleetAsset(state,asset),cost=Math.max(0,Number(p.cost)||0),supplier=p.supplier||'شبكة الصيانة المعتمدة';let payment=null;if(cost>0){const finance=globalThis.GH_FINANCE_CORE;if(!finance?.execute)throw new Error('finance-core-missing');payment=finance.execute({state},'pay-by-cheque',{company:owner.companyId,amount:cost,note:p.note||`صيانة ${asset.name}`,beneficiary:supplier,line:'maintenance',taxable:p.taxable!==false,requestRef:`MAINT-${asset.id}-${Math.floor(Number(state.simSeconds)||0)}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('maintenance-cheque-not-cleared');}
       const fleet=fleetData();return fleet.plain(fleet.update(state,asset,{fuel:100,condition:100,crewBlocked:false,simulationFault:undefined,lastMaintenanceAt:Number(state.simSeconds)||0,lastMaintenanceCost:cost,lastMaintenanceSupplier:supplier,lastMaintenanceCheque:payment?.cheque?.id||null,lastMaintenanceInvoice:payment?.invoice?.number||null}));
@@ -527,7 +601,7 @@
     if(cmd==='assign-route')return assignRoutesBatch(state,[p])[0];
     if(cmd==='assign-routes-batch')return assignRoutesBatch(state,p.assignments,p.routes);
     if(cmd==='depart')return departBatch(state,[p])[0];
-    if(cmd==='depart-batch')return departBatch(state,p.departures,p.routes);
+    if(cmd==='depart-batch')return departBatch(state,p.departures,p.routes,{replayProjection:true});
     if(cmd==='request-sale'){
       const fleet=fleetData(),draft=fleet.draft(state,asset);
       draft.salePending=true;draft.saleRequestedAt=Number(state.simSeconds)||0;draft.saleReturnMode=p.returnMode||'owned-center';draft.saleStatus=draft.phase==='moving'?'finish-current-trip':'returning';
@@ -562,6 +636,6 @@
     if(cmd==='reconcile-staffing')return reconcileStaffing(state,p.facilityResolver);
     throw new Error(`Unknown fleet command: ${cmd}`);
   }
-  const API={VERSION,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch};
+  const API={VERSION,DISPATCH_INTENT_SCHEMA,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffingContractsStages,reconcileStaffingContracts,reconcileStaffingPlanStages,reconcileStaffingPlan,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch};
   globalThis.GH_FLEET_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('fleet',API);if(globalThis.window&&window!==globalThis)window.GH_FLEET_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

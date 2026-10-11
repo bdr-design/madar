@@ -25,7 +25,7 @@ const plain=value=>JSON.parse(JSON.stringify(value));// the harness runs the cor
   assert.equal(limit,512);
   // At the limit: replay rows, replayed back.
   const small=payloadOf(limit),first=D.dispatchSystem({state},'fleet','assign-routes-batch',small,options('K-SMALL'));
-  assert.equal(first.result.length,limit);assert.equal(rowOf(state,'K-SMALL').result.result.schema,'gh-fleet-batch-receipt-v1');
+  assert.equal(first.result.length,limit);assert.equal(rowOf(state,'K-SMALL').result.result.schema,D.FLEET_RECEIPT_SCHEMA);assert.equal(Array.isArray(rowOf(state,'K-SMALL').result.result.assets),false,'v2 must not repeat one object and its keys per row');
   const replay=D.dispatchSystem({state},'fleet','assign-routes-batch',small,options('K-SMALL'));
   assert.equal(runs(),1,'a repeated request does not run again');assert.equal(replay.result.length,limit);assert.equal(replay.result[limit-1].id,`A${limit}`);
   // Above it: a cold receipt, a repeated request refused without running.

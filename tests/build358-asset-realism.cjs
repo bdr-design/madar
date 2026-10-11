@@ -62,6 +62,18 @@ assert(trip('sea',boxes,9000,300).fees>boxes.capacity*.82*300,'a container ship 
 // A spec from before the real catalogue still reads (plain market of its mode).
 assert(trip('air',{capacity:180,fuelBurnKgPerKm:3},1000,2).revenue>0);
 
+// Dispatch batches use one exact label per distinct capacity tuple; every label must equal the former per-row formatter.
+{
+  const labelAssets=all.map(({mode,item})=>({type:mode,assetMode:mode,specs:item.specs})).concat([
+    {type:'air',specs:{capacity:'101.4',capacityUnit:'seats',cargo:true}},
+    {type:'sea',specs:{capacity:0,capacityUnit:'TEU'}},
+    {type:'road',specs:{capacity:14,capacityUnit:'t',market:'container'}},
+    {type:'air',specs:{}},{type:'road'},
+  ]),before=JSON.stringify(labelAssets),expected=labelAssets.map(asset=>S.loadLabel(asset));
+  assert.deepEqual(S.loadLabels(labelAssets),expected,'batched dispatch labels match the legacy per-asset formatter');
+  assert.equal(JSON.stringify(labelAssets),before,'label batching does not mutate assets');
+}
+
 // Crew follows the model.
 require(path.join(root,'WebApp/fleet-core.js'));
 const F=globalThis.GH_FLEET_CORE;

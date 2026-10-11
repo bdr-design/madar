@@ -280,9 +280,17 @@
     if(companyId&&!route.ownerCompanyId)route.ownerCompanyId=companyId;
     const operationProfileId=String(route.operationProfileId||operationProfileForLegacyMode(routeMode)||'').trim();if(operationProfileId&&!route.operationProfileId)route.operationProfileId=operationProfileId;
   }
-  function migrateState(input){
+  function migrateState(input,options={}){
     if(!object(input))throw new Error('company-platform-state-invalid');
-    const original=JSON.stringify(input),state=clone(input);
+    // Save Schema already owns a private structured clone while upgrading a
+    // legacy root.  Reuse that draft when explicitly requested instead of
+    // cloning a million legacy asset objects for a second time.  That caller
+    // already knows this is a legacy save and must write the canonical form,
+    // so serializing the entire input before and after merely to rediscover
+    // `changed === true` would add two more full-fleet passes before the first
+    // frame. Public calls retain the original pure/non-mutating contract and
+    // exact changed result.
+    const inPlace=options?.inPlace===true,original=inPlace?null:JSON.stringify(input),state=inPlace?input:clone(input);
     state.companyRegistry=object(state.companyRegistry)?state.companyRegistry:{};state.companyModules=object(state.companyModules)?state.companyModules:{};
     state.openedCompanies=unique(state.openedCompanies);state.unlockedSectors=unique(unique(state.unlockedSectors).map(normalizeSectorId));
     const ids=new Set([...Object.keys(state.companyRegistry),...state.openedCompanies]);if(state.onboardingComplete||state.companyRegistry.group)ids.add('group');
@@ -292,7 +300,11 @@
       const definition=definitionFor(state,companyId);if(definition)for(const sectorId of definition.classification.sectorIds)if(!state.unlockedSectors.includes(sectorId)&&state.openedCompanies.includes(companyId))state.unlockedSectors.push(sectorId);
     }
     syncBrandedNames(state);
-    {const fleet=fleetData();fleet.forEach(state,asset=>{const patch=assetMigrationPatch(asset);if(patch)fleet.update(state,asset,patch);});}
+    // The migration already visits every legacy asset to add canonical owner
+    // fields. Fold the dynamic-ownership feature check into that same visit;
+    // a second `some()` over a million rows added no independent evidence.
+    let separatedAssets=false;
+    {const fleet=fleetData();fleet.forEach(state,asset=>{const patch=assetMigrationPatch(asset),mode=String(patch?.assetMode||asset.assetMode||''),owner=String(patch?.ownerCompanyId||asset.ownerCompanyId||'');if(patch)fleet.update(state,asset,patch);if(owner&&mode&&owner!==ownerForLegacyAssetMode(mode))separatedAssets=true;});}
     for(const delivery of Array.isArray(state.realism?.procurement?.deliveries)?state.realism.procurement.deliveries:[])for(const asset of Array.isArray(delivery?.assets)?delivery.assets:delivery?.asset?[delivery.asset]:[])migrateAsset(asset);
     for(const route of Array.isArray(state.customRoutes)?state.customRoutes:[])migrateRoute(route);
     for(const bucket of ['globalBases','customHubs','branches']){
@@ -306,13 +318,13 @@
     }
     const previous=object(state.companyPlatform)?state.companyPlatform:{},definitionVersions=object(previous.definitionVersions)?{...previous.definitionVersions}:{},features=unique(previous.features),components=object(previous.components)?{...previous.components}:{};
     for(const definition of listDefinitions())definitionVersions[definition.definitionId]=Math.max(Number(definitionVersions[definition.definitionId])||0,definition.definitionVersion);
-    const builtins=new Set(source.BUILTIN_COMPANY_IDS||[]),dynamic=[...ids].some(id=>id!=='group'&&!builtins.has(id)),separated=(state.customRoutes||[]).some(route=>route.ownerCompanyId&&route.routeMode&&route.ownerCompanyId!==ownerForLegacyRouteMode(route.routeMode))||fleetData().some(state,asset=>asset.ownerCompanyId&&asset.assetMode&&asset.ownerCompanyId!==ownerForLegacyAssetMode(asset.assetMode));
+    const builtins=new Set(source.BUILTIN_COMPANY_IDS||[]),dynamic=[...ids].some(id=>id!=='group'&&!builtins.has(id)),separated=(state.customRoutes||[]).some(route=>route.ownerCompanyId&&route.routeMode&&route.ownerCompanyId!==ownerForLegacyRouteMode(route.routeMode))||separatedAssets;
     if(dynamic&&!features.includes('dynamic-company-instances-v1'))features.push('dynamic-company-instances-v1');if(separated&&!features.includes('separated-company-ownership-v1'))features.push('separated-company-ownership-v1');features.sort();
     state.companyPlatform={...previous,schema:STATE_SCHEMA,schemaVersion:STATE_SCHEMA_VERSION,components:{...components,registry:1,ownership:1,modules:1},definitionVersions,features};if(dynamic||separated)state.companyPlatform.minimumReaderBuild=Math.max(MINIMUM_DYNAMIC_COMPANY_BUILD,Number(previous.minimumReaderBuild)||0);
-    const validation=validateState(state);return {state,changed:original!==JSON.stringify(state),errors:validation.errors,warnings:validation.warnings};
+    const validation=validateState(state);return {state,changed:inPlace||original!==JSON.stringify(state),errors:validation.errors,warnings:validation.warnings};
   }
   function validateState(state,options={}){
-    const errors=[],warnings=[],measure=options?.measureWork===true,work=measure?{stateChecks:1,registryRows:0,openedNormalizationRows:0,openedRows:0,assetFieldVisits:0,assetFallbackRows:0,deliveryRows:0,deliveryProjectionRows:0,deliveryAssetRows:0,routeRows:0,facilityRows:0,companyFinanceRows:0}:null;let logicalRows=0;
+    const errors=[],warnings=[],measure=options?.measureWork===true,work=measure?{stateChecks:1,registryRows:0,openedNormalizationRows:0,openedRows:0,assetEvidenceChecks:0,assetFieldVisits:0,assetFallbackRows:0,deliveryRows:0,deliveryProjectionRows:0,deliveryAssetRows:0,routeRows:0,facilityRows:0,companyFinanceRows:0}:null;let logicalRows=0;
     const answer=()=>{const out={ok:errors.length===0,errors:[...new Set(errors)],warnings:[...new Set(warnings)]};if(measure){out.work=work;out.logicalRows=logicalRows;}return out;};
     if(!object(state)){errors.push('company-platform-root');return answer();}
     if(state.companyPlatform!==undefined&&(!object(state.companyPlatform)||state.companyPlatform.schema!==STATE_SCHEMA||Number(state.companyPlatform.schemaVersion)!==STATE_SCHEMA_VERSION))errors.push('company-platform-schema');
@@ -335,8 +347,13 @@
     // Build 358 (million-asset validation): one check per class of rows with the same owner, mode, type, class and id
     // pattern (GH_FLEET_DATA.forEachFieldClasses). These checks read only class-level values, so a class either passes
     // whole or fails for every member; a failing class is then reported member by member, exactly as a per-row scan.
-    const assetFields=['id','ownerCompanyId','companyId','assetMode','type','assetClass'];
-    if(options?.assetScan==='rows'||typeof fleetData().forEachFieldClasses!=='function')fleetData().forEachFields(state,assetFields,asset=>{if(work)work.assetFieldVisits++;logicalRows++;validateAsset(asset);},{raw:true});
+    const assetFields=['id','ownerCompanyId','companyId','assetMode','type','assetClass'],evidence=options?.fleetAssetValidation,evidenceValid=object(evidence)&&evidence.schema==='gh-company-platform-fleet-validation/v1'&&evidence.version==='GH-FLEET-SAVE-VALIDATION-1.0.0'&&Number.isSafeInteger(evidence.logicalRows)&&evidence.logicalRows>=0&&evidence.logicalRows===fleetData().size(state)&&Array.isArray(evidence.errors)&&evidence.errors.length<=1024&&evidence.errors.every(error=>typeof error==='string'&&error.length<=400&&/^asset-(?:company-reference|class):/.test(error))&&typeof evidence.overflow==='boolean';
+    // Save Schema can pass the worker's compact, revision-checked fleet evidence. The remaining delivery, route,
+    // facility and finance checks stay local and bounded. An unavailable required answer fails closed without walking
+    // the fleet on the main thread; ordinary callers retain the original class/row validation behavior.
+    if(evidenceValid){if(work)work.assetEvidenceChecks++;logicalRows=evidence.logicalRows;errors.push(...evidence.errors);if(evidence.overflow)errors.push('asset-validation-overflow');}
+    else if(options?.requireFleetAssetValidation===true){if(work)work.assetEvidenceChecks++;errors.push('asset-validation-unavailable');}
+    else if(options?.assetScan==='rows'||typeof fleetData().forEachFieldClasses!=='function')fleetData().forEachFields(state,assetFields,asset=>{if(work)work.assetFieldVisits++;logicalRows++;validateAsset(asset);},{raw:true});
     else fleetData().forEachFieldClasses(state,assetFields,(asset,count,info)=>{if(work)work.assetFieldVisits++;if(count>0)logicalRows+=count;const before=errors.length;validateAsset(asset);if(errors.length===before||info.members<=1)return;errors.length=before;info.forEachMember(member=>{if(work)work.assetFallbackRows++;validateAsset(member);});});
     for(const delivery of Array.isArray(state.realism?.procurement?.deliveries)?state.realism.procurement.deliveries:[]){if(work)work.deliveryRows++;let assets;if(fleetData().isCompactReceipt(delivery)){assets=[];for(const row of fleetData().receiptDistinctFields(delivery,['ownerCompanyId','companyId','assetMode','type','assetClass'])){if(work)work.deliveryProjectionRows++;assets.push({...row,id:delivery.id});}}else assets=Array.isArray(delivery?.assets)?delivery.assets:delivery?.asset?[delivery.asset]:[];for(const asset of assets){if(work)work.deliveryAssetRows++;validateAsset(asset,'delivery-asset');}}
     for(const route of Array.isArray(state.customRoutes)?state.customRoutes:[]){if(work)work.routeRows++;const companyId=String(route?.ownerCompanyId||route?.companyId||route?.company||ownerForLegacyRouteMode(route?.routeMode||route?.type)||''),routeMode=String(route?.routeMode||route?.type||'');if(!validReference(companyId))errors.push(`route-company-reference:${route?.id||'unknown'}`);if(!validDataId(routeMode))errors.push(`route-mode:${route?.id||'unknown'}`);}

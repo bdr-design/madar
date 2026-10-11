@@ -299,6 +299,7 @@
     return target;
   }
   function isActive(){return !!activeContext;}
+  function isActiveFor(target){return !!activeContext&&activeContext.target===target;}
   // Fleet Core v4: an owner that journals its own writes registers an undo (run
   // after the snapshot restore on rollback, newest first) and a release (run once
   // the transaction has committed and its critical hooks succeeded).
@@ -347,6 +348,8 @@
   // Nothing deeper is edited in place: arrays and objects inside a member are replaced, never mutated. Under that
   // contract three shallow levels restore the root exactly, and leaves (route geometry, archived rows) are shared
   // instead of deep-copied. level:'containers' certifies writes never reach members' fields (two levels).
+  // level:'root' is the stricter copy-on-write contract: the owner only replaces properties of the root, and never
+  // edits a referenced child. Its rollback therefore needs the root's own shallow members only.
   // immutable:[keys] names collections whose members are never edited after insertion (only the collection is copied).
   const isPlainRecord=value=>!!value&&typeof value==='object'&&!ArrayBuffer.isView(value)&&!(value instanceof ArrayBuffer);
   // A sealed container cannot change (its writers replace it): it is kept by reference, and restoring it is a no-op (the
@@ -365,6 +368,7 @@
     for(const key of current)delete ref[key];for(const key of keys)ref[key]=values[key];
   }
   function captureRows(root,policy){
+    if(policy?.level==='root')return {root:captureMembers(root),containers:[],rows:[]};
     const rows=policy?.level==='containers'?null:[],immutable=new Set(Array.isArray(policy?.immutable)?policy.immutable.map(String):[]),containers=[],seen=new Set([root]);
     // An array root is itself the collection: its members are the rows.
     if(Array.isArray(root)){if(rows)for(const member of root)if(isPlainRecord(member)&&!seen.has(member)){seen.add(member);rows.push(captureMembers(member));}return {root:captureMembers(root),containers,rows:rows||[]};}
@@ -771,5 +775,5 @@
       throw error;
     }finally{if(!durableCommitted&&rootSessions.length)try{rollbackJournaledRoots(rootSessions);}catch{}if(globalThis.__GH_DURABLE_COMMAND_CONTEXT__===context)delete globalThis.__GH_DURABLE_COMMAND_CONTEXT__;durableTargets.delete(liveState);}
   }
-  const API=Object.freeze({VERSION,deepClone,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,deepClone,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

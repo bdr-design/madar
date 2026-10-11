@@ -129,6 +129,16 @@ function pruneOrphanFinanceBooks(s){
   throw new Error(`finance-company-orphan:${id}`);
  }
 }
+// The legacy first-book allocation is a one-time load migration.  It used to
+// call fleet.count once for every opened company, so C companies caused C full
+// fleet passes (and C sets of row views) before the first frame.  Ownership is
+// determined from these five fields only; aggregate their exact row classes in
+// one pass and reuse the totals for every company.
+function fleetOwnerCounts(s){
+ const fleet=fleetData(),counts=new Map(),owner=a=>String(a?.ownerCompanyId||a?.companyId||a?.company||globalThis.GH_COMPANY_PLATFORM?.ownerForLegacyAssetMode?.(a?.assetMode||a?.type)||'');
+ fleet.forEachFieldClasses(s,['ownerCompanyId','companyId','company','assetMode','type'],(row,count)=>{if(!count)return;const id=owner(row);counts.set(id,(counts.get(id)||0)+count);});
+ return counts;
+}
 function ensure(s){
  if(activeEnsureTarget===s&&activeEnsureComplete)return s.companyFinance;
  s.finance=s.finance&&typeof s.finance==='object'?s.finance:{};for(const k of ['invoices','payables','receivables','cheques','periods','journalEntries','transfers','payrollReports','dailyCompanyReports','taxSettlements','debtRecords','debtSettlements','intercompanyLoans','intercompanyLoanSettlements','cashPoolSweeps','commercialContracts','customerLoanPaymentReceipts','customerFinancingReceipts','customerSalePaymentReceipts','customerSaleCreditNotes'])s.finance[k]=Array.isArray(s.finance[k])?s.finance[k]:[];
@@ -152,7 +162,7 @@ function ensure(s){
  for(const id of Object.keys(s.companyFinance))if(!ids.includes(id)&&!isZeroFinancePlaceholder(s.companyFinance[id]))throw new Error(`finance-company-unknown:${id}`);
  s.companyFinance.group.accounts=s.treasury.accounts;
  migrateFormalParties(s);backfillDebtRegister(s);ensureDebtBalances(s);
- if(!had&&(s.openedCompanies||[]).length){const opened=s.openedCompanies.map(t=>requireCompany(s,t)).filter(t=>t!=='group'),src=s.treasury.accounts[0],pool=num(src.balance)*.55,assetOwner=a=>String(a?.ownerCompanyId||a?.companyId||a?.company||globalThis.GH_COMPANY_PLATFORM?.ownerForLegacyAssetMode?.(a?.assetMode||a?.type)||''),weights=opened.map(t=>[t,Math.max(1,fleetData().count(s,a=>assetOwner(a)===t)*2+1)]),sw=weights.reduce((n,x)=>n+x[1],0)||1;let alloc=0;weights.forEach(([t,x],i)=>{const a=i===weights.length-1?Math.max(0,pool-alloc):Math.floor(pool*x/sw);s.companyFinance[t].accounts[0].balance=a;alloc+=a;});src.balance=Math.max(0,num(src.balance)-alloc);}
+ if(!had&&(s.openedCompanies||[]).length){const opened=s.openedCompanies.map(t=>requireCompany(s,t)).filter(t=>t!=='group'),src=s.treasury.accounts[0],pool=num(src.balance)*.55,ownerCounts=fleetOwnerCounts(s),weights=opened.map(t=>[t,Math.max(1,(ownerCounts.get(t)||0)*2+1)]),sw=weights.reduce((n,x)=>n+x[1],0)||1;let alloc=0;weights.forEach(([t,x],i)=>{const a=i===weights.length-1?Math.max(0,pool-alloc):Math.floor(pool*x/sw);s.companyFinance[t].accounts[0].balance=a;alloc+=a;});src.balance=Math.max(0,num(src.balance)-alloc);}
  s.companyBudgets=s.companyBudgets&&typeof s.companyBudgets==='object'&&!Array.isArray(s.companyBudgets)?s.companyBudgets:{};
  s.finance.centralTreasury=s.finance.centralTreasury&&typeof s.finance.centralTreasury==='object'&&!Array.isArray(s.finance.centralTreasury)?s.finance.centralTreasury:{};const ct=s.finance.centralTreasury;ct.minOperatingCash=ct.minOperatingCash&&typeof ct.minOperatingCash==='object'&&!Array.isArray(ct.minOperatingCash)?ct.minOperatingCash:{};for(const t of ids.filter(x=>x!=='group'))ct.minOperatingCash[t]=num(ct.minOperatingCash[t]);ct.lastPolicyAt=num(ct.lastPolicyAt);ct.lastSweepAt=num(ct.lastSweepAt);backfillPayrollTransfers(s);reconcile(s);return s.companyFinance;
 }

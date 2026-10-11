@@ -93,21 +93,26 @@
     // A corrupt/future save remains untouched for recovery or explicit export.
     // Build 358: a native save may keep the fleet records in vault chunks ('chunks-v1'); the native bootstrap fetched
     // them into __GH_NATIVE_SAVE_CHUNKS__ (id -> ArrayBuffer). A missing chunk is a corrupt save, like invalid JSON.
-    const nativeChunks=nativeRaw&&typeof globalThis.__GH_NATIVE_SAVE_CHUNKS__?.get==='function'?globalThis.__GH_NATIVE_SAVE_CHUNKS__:null;let chunkManifest=null;
+    const nativeChunks=nativeRaw&&typeof globalThis.__GH_NATIVE_SAVE_CHUNKS__?.get==='function'?globalThis.__GH_NATIVE_SAVE_CHUNKS__:null;let chunkManifest=null,adoptedFleetChunks=false;
     let saved,textChunkIds=[];try{saved=JSON.parse(raw);chunkManifest=saved?.fleet?.rows?.$ghBinary==='chunks-v1'?saved.fleet.rows:null;textChunkIds=nativeChunks&&Array.isArray(saved?.stateCodec?.chunks)?saved.stateCodec.chunks.slice():[];if(globalThis.GH_STATE_CODEC?.decodeState)saved=globalThis.GH_STATE_CODEC.decodeState(saved,{resolveChunk:id=>nativeChunks?.get(id)});}catch{throw new Error('MIGRATION_JSON_INVALID');}
-    // Build 372: the fleet chunk buffers, as read, become the engine thread's first replica (moved to its worker, so the
-    // store is not copied again when the thread first runs). Set before anything writes the decoded store.
-    if(chunkManifest&&nativeChunks&&globalThis.GH_FLEET_STORE?.isStore?.(saved?.fleet)===true&&typeof globalThis.GH_FLEET_STORE.setReplicaSeed==='function'){
-      try{globalThis.GH_FLEET_STORE.setReplicaSeed(saved.fleet,{chunks:chunkManifest.chunks.map(id=>nativeChunks.get(id)),chunkBytes:chunkManifest.chunkBytes,byteLength:chunkManifest.byteLength});}catch{}
+    // Build 372: adopt the vault ids before any migration writes the decoded store. A later write then moves that
+    // chunk's stamp and gives it a new id on the first save; adopting after migration would incorrectly bind the old
+    // vault id to the new bytes and silently reuse the stale chunk. The same untouched buffers become the engine
+    // thread's first replica (moved to its worker, so the store is not copied again when the thread first runs).
+    if(chunkManifest&&nativeChunks&&globalThis.GH_FLEET_STORE?.isStore?.(saved?.fleet)===true){
+      try{adoptedFleetChunks=globalThis.GH_STATE_CODEC?.adoptChunkIds?.(saved.fleet,chunkManifest)===true;}catch{}
+      if(typeof globalThis.GH_FLEET_STORE.setReplicaSeed==='function')try{globalThis.GH_FLEET_STORE.setReplicaSeed(saved.fleet,{chunks:chunkManifest.chunks.map(id=>nativeChunks.get(id)),chunkBytes:chunkManifest.chunkBytes,byteLength:chunkManifest.byteLength});}catch{}
     }
     if(nativeRaw)try{delete globalThis.__GH_NATIVE_SAVE_JSON__;}catch{globalThis.__GH_NATIVE_SAVE_JSON__=null;}
     if(nativeChunks)try{delete globalThis.__GH_NATIVE_SAVE_CHUNKS__;}catch{globalThis.__GH_NATIVE_SAVE_CHUNKS__=null;}
-    const currentFleet=globalThis.GH_FLEET_STORE?.isStore?.(saved.fleet)===true&&saved.saveVersion===SAVE_V3,
-      schemaUpgrade=currentFleet?{state:saved,changed:false}:(saveSchema.migrateLegacy?.(saved)||{state:saved,changed:false}),
+    const currentFleet=globalThis.GH_FLEET_STORE?.isStore?.(saved.fleet)===true&&saved.saveVersion===SAVE_V3,hasSchemaMigrator=typeof saveSchema.migrateLegacy==='function',
+      schemaUpgrade=currentFleet?{state:saved,changed:false}:(hasSchemaMigrator?saveSchema.migrateLegacy(saved):{state:saved,changed:false}),
       // A current store may contain a 128 MB ArrayBuffer. Company migration
       // is an upgrade for legacy saves only; cloning a current v3 root here
       // would duplicate the fleet before ordinary load normalization.
-      companyUpgrade=currentFleet?{state:schemaUpgrade.state,changed:false}:migrateCompanyPlatform(schemaUpgrade.state),
+      // Save Schema owns the legacy company upgrade too. Running it again here
+      // cloned/stringified/scanned the whole legacy fleet a second time.
+      companyUpgrade=currentFleet||hasSchemaMigrator?{state:schemaUpgrade.state,changed:false}:migrateCompanyPlatform(schemaUpgrade.state),
       fleetUpgrade=migrateFleet(companyUpgrade.state),legacyUpgrade={state:fleetUpgrade.state,changed:schemaUpgrade.changed===true||companyUpgrade.changed===true||fleetUpgrade.changed===true};saved=legacyUpgrade.state;
     const validation=saveSchema.validate(saved);
     if(!validation.ok)throw new Error(`MIGRATION_SAVE_REJECTED:${validation.errors.join(',')}`);
@@ -130,9 +135,8 @@
       if(localStorage.getItem(storageKey)!==out.json)throw new Error('MIGRATION_READBACK_FAILED');
       if(migratedLegacyKey)localStorage.removeItem(migratedLegacyKey);
     }
-    // The loaded fleet keeps the chunk ids it was read from, and the vault already holds them: the first save of the
-    // session uploads only the chunks it changes.
-    if(chunkManifest&&state?.fleet&&globalThis.GH_STATE_CODEC?.adoptChunkIds?.(state.fleet,chunkManifest))globalThis.GH_PERSISTENCE?.noteVaultChunks?.(chunkManifest.chunks);
+    // The vault already holds the ids adopted above: the first save uploads only chunks changed during or after load.
+    if(adoptedFleetChunks)globalThis.GH_PERSISTENCE?.noteVaultChunks?.(chunkManifest.chunks);
     // The text chunks of the sealed collections are in the vault too (the codec reuses their ids for the same text).
     if(textChunkIds.length)globalThis.GH_PERSISTENCE?.noteVaultChunks?.(textChunkIds);
     return {state,source,migratedLegacyKey,needsCanonicalPersist};

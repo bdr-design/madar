@@ -43,6 +43,17 @@
     const specs=asset.specs||{},used=Math.round((specs.capacity||0)*marketOf(asset).load);
     return `${fmtNumber(used)} / ${fmtNumber(specs.capacity||0)} ${specs.capacityUnit||''}`;
   }
+  // A dispatch labels many assets from a small catalogue repeatedly. Cache the formatted labels for this batch only:
+  // market load, rounded capacity, raw capacity and unit fully determine the exact legacy string.
+  function loadLabels(assets){
+    const byUsed=new Map();return (Array.isArray(assets)?assets:[]).map(asset=>{
+      const specs=asset?.specs||{},capacity=specs.capacity||0,unit=specs.capacityUnit||'',used=Math.round(capacity*marketOf(asset).load);
+      let byCapacity=byUsed.get(used);if(!byCapacity){byCapacity=new Map();byUsed.set(used,byCapacity);}
+      let byUnit=byCapacity.get(capacity);if(!byUnit){byUnit=new Map();byCapacity.set(capacity,byUnit);}
+      if(byUnit.has(unit))return byUnit.get(unit);
+      const label=`${fmtNumber(used)} / ${fmtNumber(capacity)} ${unit}`;byUnit.set(unit,label);return label;
+    });
+  }
   function normalizeAsset(asset,route,catalogSpecs){
     // Build 359: a route's speedFactor (the maritime CII plan's slow steaming, GH_GOVERNANCE_CORE.seaSpeedFactor) slows
     // every voyage on it; 1 on any other route.
@@ -255,6 +266,6 @@
   }
   const API=Object.freeze({VERSION,MAX_BATCH_ITEMS,WRITE_FIELDS,makeEffects,validateBatch,validateResults,processRow,processBatch(input){validateBatch(input);return input.rows.map(row=>processRow(row,input));},
     // Fleet Core v4 shares the exact trip economics and labels with the slice engine.
-    computeTripEconomics,baseTripEconomics,marketOf,fuelPriceFactor,FUEL_OF_MODE,loadLabel,normalizeAsset,assetOwner,assetMode,routeMode,routeOwner,fmtMoney,formatDuration});
+    computeTripEconomics,baseTripEconomics,marketOf,fuelPriceFactor,FUEL_OF_MODE,loadLabel,loadLabels,normalizeAsset,assetOwner,assetMode,routeMode,routeOwner,fmtMoney,formatDuration});
   return API;
 });

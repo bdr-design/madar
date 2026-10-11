@@ -95,6 +95,36 @@
     if(Array.isArray(list)){list.forEach((id,index)=>fn(id,index));return;}if(!isRunList(list))return;let index=0;
     for(const segment of list.$ids){if(Array.isArray(segment)){const pattern={p:segment[0],w:segment[1]};for(let k=0;k<segment[3];k++)fn(STORE.joinPattern(pattern,segment[2]+k),index++);}else fn(segment,index++);}
   }
+  // Lazy [index,id] iteration for staged consumers.  Unlike repeated at(), a
+  // segmented list is traversed once, so a contract containing many literal
+  // and run segments remains O(members + segments) and never expands through
+  // toArray() before the first caller yield.
+  function* idListEntries(list){
+    if(Array.isArray(list)){for(let index=0;index<list.length;index++)yield [index,list[index]];return;}
+    if(!isRunList(list))return;let index=0;
+    for(const segment of list.$ids){
+      if(Array.isArray(segment)){const pattern={p:segment[0],w:segment[1]};for(let offset=0;offset<segment[3];offset++)yield [index++,STORE.joinPattern(pattern,segment[2]+offset)];}
+      else yield [index++,segment];
+    }
+  }
+  // The staged form of idListOf.  It keeps the same canonical result while
+  // bounding validation and run detection for a large legacy plain array.
+  function* idListOfStages(values,{slice=4096,label='fleet.id-list-encode'}={}){
+    if(!Array.isArray(values)||values.length<ID_LIST_MIN)return values;
+    const width=Math.max(1,Math.floor(Number(slice)||4096));let spent=0;
+    for(let index=0;index<values.length;index++){
+      if(typeof values[index]!=='string')return values;
+      if(++spent>=width&&index+1<values.length){spent=0;yield label;}
+    }
+    const segments=[];spent=0;
+    for(let index=0;index<values.length;){
+      const split=STORE.splitPattern(values[index]);let count=1;
+      if(split){const {p,w}=split.pattern;while(index+count<values.length&&split.number+count<=0xFFFFFFFF&&sameSplit(values[index+count],p,w,split.number+count)){count++;if(++spent>=width){spent=0;yield label;}}}
+      if(split&&count>=2)segments.push([split.pattern.p,split.pattern.w,split.number,count]);else{segments.push(values[index]);count=1;}
+      index+=count;if(++spent>=width&&index<values.length){spent=0;yield label;}
+    }
+    return segments.length*4<=values.length?{$ids:segments}:values;
+  }
   function idListToArray(list){if(Array.isArray(list))return list.slice();const out=[];idListForEach(list,id=>out.push(id));return out;}
   function idListIndexOf(list,id){
     if(Array.isArray(list))return list.indexOf(id);if(!isRunList(list))return -1;const split=STORE.splitPattern(id);let offset=0;
@@ -116,7 +146,7 @@
     }
     return {$ids:segments};
   }
-  const ID_LISTS=Object.freeze({MIN:ID_LIST_MIN,of:idListOf,is:idListIs,valid:idListValid,length:idListLength,at:idListAt,forEach:idListForEach,toArray:idListToArray,indexOf:idListIndexOf,without:idListWithout,hasDuplicate:idListHasDuplicate,hasEmpty:idListHasEmpty});
+  const ID_LISTS=Object.freeze({MIN:ID_LIST_MIN,of:idListOf,ofStages:idListOfStages,is:idListIs,valid:idListValid,length:idListLength,at:idListAt,entries:idListEntries,forEach:idListForEach,toArray:idListToArray,indexOf:idListIndexOf,without:idListWithout,hasDuplicate:idListHasDuplicate,hasEmpty:idListHasEmpty});
 
   // ------------------------------------------------------------ views ---
   function readOnly(){throw new TypeError('fleet-view-read-only');}
@@ -397,12 +427,19 @@
   function beginJournal(state){const store=storeOf(state);return store?STORE.beginJournal(store):null;}
   function commitJournal(state,journal){if(!journal)return false;const store=storeOf(state);if(!store)return false;STORE.endJournal(journal);return true;}
   function rollbackJournal(state,journal){if(!journal)return false;STORE.rollbackJournal(journal);return true;}
+  // Reserve physical rows for a forthcoming bulk append. `additional` is relative to the current append position
+  // (store.length, including dead rows); array mode grows dynamically and needs no preparatory copy.
+  function* reserveCapacityStages(state,additional,{rowSlice=4096,label='fleet.capacity-copy'}={}){
+    additional=Number(additional);if(!Number.isSafeInteger(additional)||additional<0)throw new RangeError('fleet-capacity-additional-invalid');
+    const store=storeOf(state);if(!store)return {stale:false,grown:false,capacity:size(state)+additional};
+    return yield* STORE.reserveCapacityStages(store,store.length+additional,{rowSlice,label});
+  }
   const maintenanceDays=new WeakMap();
   function* maintainStages(state,day){
     const store=storeOf(state);if(!store)return {compacted:null,values:null};
     if(globalThis.GH_TRANSACTION_CORE?.isActive?.())throw new Error('fleet-maintenance-inside-transaction');
     const stats=STORE.stats(store),dead=Math.max(0,stats.length-stats.live);let compacted=null,values=null;
-    if(stats.length>0&&dead/stats.length>.1){compacted=STORE.compactRows(store);yield {stage:'compact',...compacted};}
+    if(stats.length>0&&dead/stats.length>.1){compacted=typeof STORE.compactRowsStages==='function'?yield* STORE.compactRowsStages(store,{rowSlice:4096}):STORE.compactRows(store);yield {stage:'compact',...compacted};if(compacted?.stale)return {compacted,values:null};}
     const currentDay=day==null?Math.floor(timeOf(state)/86400):Math.max(0,Math.floor(Number(day)||0));
     if(maintenanceDays.get(store)!==currentDay){
       if(typeof STORE.collectValuesStages==='function')values=yield* STORE.collectValuesStages(store,{rowSlice:4096});
@@ -680,6 +717,16 @@
     const store=storeOf(state);if(store)return STORE.columnWriter(store,fields);
     return (index,field,value)=>{const asset=liveAsset(state,index);if(!asset)return;if(value===undefined)delete asset[field];else asset[field]=copyValue(value);};
   }
+  // Ordered numeric plans returned by a worker can prepare their rollback columns and apply their rows over many staged
+  // turns. Store mode validates raw slots inside Fleet Store; array mode keeps the same row-major result and pacing.
+  function* columnPlanStages(state,plan,{rowSlice=4096,label='fleet.column-plan',replicaTransfer=false}={}){
+    const store=storeOf(state);if(store)return yield* STORE.columnPlanStages(store,plan,{rowSlice,label,replicaTransfer});
+    const fields=Array.isArray(plan?.fields)?plan.fields:[],indices=plan?.indices,values=plan?.values,count=Number(plan?.count),width=fields.length;
+    if(!Number.isSafeInteger(count)||count<0||!ArrayBuffer.isView(indices)||indices.length!==count||!ArrayBuffer.isView(values)||values.length!==count*width||!width)throw new Error('fleet-column-plan-invalid');
+    rowSlice=Math.max(256,Math.floor(Number(rowSlice)||4096));const write=columnWriter(state,fields);let previous=-1;
+    for(let from=0;from<count;from+=rowSlice){const to=Math.min(count,from+rowSlice);for(let row=from;row<to;row++){const index=Number(indices[row]);if(!Number.isSafeInteger(index)||index<=previous||!liveAsset(state,index))throw new Error(`fleet-column-plan-index:${index}`);previous=index;const at=row*width;for(let field=0;field<width;field++){const value=values[at+field];if(typeof value!=='number'||!Number.isFinite(value)||!Object.is(Math.fround(value),value))throw new Error(`fleet-column-plan-value:${index}:${fields[field]}`);write(index,fields[field],value);}}if(to<count)yield label;}
+    return {count,fields:[...fields],replicaTransfer:false};
+  }
   // Replace the asset with the same id by a whole new value (same position).
   function put(state,asset){
     if(!isObject(asset))throw new TypeError('fleet-put-asset-object-required');
@@ -708,7 +755,7 @@
     const store=storeOf(state);if(store)return STORE.removeMany(store,doomed);
     const drop=new Set(doomed),assets=arrayOf(state);invalidateArrayIndex(assets);let write=0;for(let read=0;read<assets.length;read++){if(drop.has(read))continue;if(write!==read)assets[write]=assets[read];write++;}assets.length=write;return drop.size;}
 
-  const API=Object.freeze({VERSION,forEachFieldClasses,idCollisions,countByFields,countByPhase,presentedPhase,idAtRow,distinctRefs,idLists:ID_LISTS,STOP,SKIP_ROUTE,scan,scanRouted,scanStages,scanLength,columnWriter,configure,mode,source,ensure,size,persistenceRecordCount,isCompactReceipt,compactReceipt,receiptAssets,receiptAssetCount,receiptFirstAsset,receiptFields,receiptDistinctFields,revision,stats,membershipRevision,beginJournal,commitJournal,rollbackJournal,maintain,maintainStages,storeOf,isView,
+  const API=Object.freeze({VERSION,forEachFieldClasses,idCollisions,countByFields,countByPhase,presentedPhase,idAtRow,distinctRefs,idLists:ID_LISTS,STOP,SKIP_ROUTE,scan,scanRouted,scanStages,scanLength,columnWriter,columnPlanStages,reserveCapacityStages,configure,mode,source,ensure,size,persistenceRecordCount,isCompactReceipt,compactReceipt,receiptAssets,receiptAssetCount,receiptFirstAsset,receiptFields,receiptDistinctFields,revision,stats,membershipRevision,beginJournal,commitJournal,rollbackJournal,maintain,maintainStages,storeOf,isView,
     get,has,forEach,forEachFields,some,every,find,filter,count,sum,dailyLeaseCosts,payrollTotals,map,list,ids,indexById,plain,released,viewAt,indexOf:indexOfId,
     update,put,add,addMany,remove,removeMany,removeWhere,drafts,draft,commit});
   globalThis.GH_FLEET_DATA=API;

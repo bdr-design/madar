@@ -82,19 +82,39 @@
   const runtime=new WeakMap();
   let epochCounter=0;
   function makeViews(buffer){return {buffer,f64:new Float64Array(buffer),u32:new Uint32Array(buffer),i32:new Int32Array(buffer),f32:new Float32Array(buffer),u8:new Uint8Array(buffer)};}
+  // Intern-table free refs form an insertion-ordered stack. Chunked prev/next links make removal by ref O(1) while
+  // preserving that exact order across replicas; the old Array.lastIndexOf + splice became quadratic for dense replays.
+  const FREE_LINK_ROWS=4096;
+  function newFreeStack(){return {head:0,tail:0,count:0,chunks:[]};}
+  function freeLinks(free,ref,create=false){const chunk=Math.floor(ref/FREE_LINK_ROWS);let links=free.chunks[chunk];if(!links&&create)free.chunks[chunk]=links={prev:new Uint32Array(FREE_LINK_ROWS),next:new Uint32Array(FREE_LINK_ROWS)};return links?{links,at:ref%FREE_LINK_ROWS}:null;}
+  function freeHas(free,ref){const slot=freeLinks(free,ref);return !!slot&&(free.head===ref||slot.links.prev[slot.at]!==0||slot.links.next[slot.at]!==0);}
+  function pushFreeRef(r,ref){
+    if(!(ref>0)||freeHas(r.free,ref))throw new Error('fleet-free-ref-duplicate');
+    const free=r.free,slot=freeLinks(free,ref,true),tail=free.tail;slot.links.prev[slot.at]=tail;slot.links.next[slot.at]=0;
+    if(tail){const prior=freeLinks(free,tail,true);prior.links.next[prior.at]=ref;}else free.head=ref;
+    free.tail=ref;free.count++;
+  }
+  function removeFreeRef(r,ref){
+    const free=r.free,slot=freeLinks(free,ref);if(!slot||!freeHas(free,ref))return false;
+    const prev=slot.links.prev[slot.at],next=slot.links.next[slot.at];
+    if(prev){const before=freeLinks(free,prev);before.links.next[before.at]=next;}else free.head=next;
+    if(next){const after=freeLinks(free,next);after.links.prev[after.at]=prev;}else free.tail=prev;
+    slot.links.prev[slot.at]=0;slot.links.next[slot.at]=0;free.count--;return true;
+  }
+  function popFreeRef(r){const ref=r.free.tail;if(ref&&!removeFreeRef(r,ref))throw new Error('fleet-free-stack-invalid');return ref;}
   function rt(store){
     let r=runtime.get(store);
     if(!r||r.values!==store.values||r.views.buffer!==store.rows){
-      r={values:store.values,views:makeViews(store.rows),index:new Map(),indexedTo:0,free:[],ids:null,profileGroups:null,leaseGroups:null,payrollGroups:null,
+      r={values:store.values,views:makeViews(store.rows),index:new Map(),indexedTo:0,free:newFreeStack(),ids:null,profileGroups:null,leaseGroups:null,payrollGroups:null,
         dirty:[],dirtyFrom:store.revision,dirtyLost:false,dirtyColumns:null,suppressDirtyLog:false,
         dirtyChunks:new Uint8Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),allDirty:true,journal:null,epoch:++epochCounter,valuesGeneration:++epochCounter,
-        uid:++epochCounter,chunkVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),staticVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),identityVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),routedVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),massVersion:0,
-        replica:newReplicaLog(store.capacity),replicaSeed:null};
+        uid:++epochCounter,valueRevision:++epochCounter,chunkVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),staticVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),identityVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),routedVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),massVersion:0,
+        replica:newReplicaLog(store.capacity),replicaSeed:null,replicaBaseline:false};
       runtime.set(store,r);
     }
-    if(r.indexedTo>store.values.length){r.index=new Map();r.indexedTo=0;r.free=[];r.valuesGeneration=++epochCounter;}
+    if(r.indexedTo>store.values.length){r.index=new Map();r.indexedTo=0;r.free=newFreeStack();r.valuesGeneration=++epochCounter;}
     if(r.indexedTo<store.values.length){
-      for(let ref=Math.max(1,r.indexedTo);ref<store.values.length;ref++){const stored=store.values[ref];if(stored===null||stored===undefined){r.free.push(ref);continue;}const key=valueKey(stored);if(!r.index.has(key))r.index.set(key,ref);}
+      for(let ref=Math.max(1,r.indexedTo);ref<store.values.length;ref++){const stored=store.values[ref];if(stored===null||stored===undefined){pushFreeRef(r,ref);continue;}const key=valueKey(stored);if(!r.index.has(key))r.index.set(key,ref);}
       r.indexedTo=store.values.length;
     }
     return r;
@@ -121,9 +141,9 @@
     if(value===null||value===undefined)return 0;
     const r=rt(store),key=valueKey(value),found=r.index.get(key);if(found!==undefined)return found;
     const stored=typeof value==='string'?value:jsonCopy(value);let ref;
-    if(r.free.length){ref=r.free.pop();store.values[ref]=stored;if(r.journal&&r.journal.active)r.journal.reused.push(ref);}
+    if(r.free.count){ref=popFreeRef(r);store.values[ref]=stored;if(r.journal&&r.journal.active)r.journal.reused.push(ref);}
     else{ref=store.values.length;store.values.push(stored);r.indexedTo=store.values.length;}
-    r.index.set(key,ref);return ref;
+    r.valueRevision++;r.index.set(key,ref);logReplicaValue(r,ref);return ref;
   }
   function value(store,ref){return ref===0?null:store.values[ref];}
   function copyValue(value){return value&&typeof value==='object'?jsonCopy(value):value;}
@@ -151,19 +171,40 @@
     const r=runtime.get(store);if(r)r.views=makeViews(next);
     return r;
   }
+  function extendRuntimeCapacity(r,cap){
+    if(!r)return;const chunks=Math.max(1,Math.ceil(cap/CHUNK_ROWS));
+    if(r.dirtyChunks.length<chunks){const next=new Uint8Array(chunks);next.set(r.dirtyChunks);r.dirtyChunks=next;}
+    if(r.chunkVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.chunkVersions);r.chunkVersions=next;}
+    if(r.staticVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.staticVersions);r.staticVersions=next;}
+    if(r.identityVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.identityVersions);r.identityVersions=next;}
+    if(r.routedVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.routedVersions);r.routedVersions=next;}
+    if(r.replica.bits.length<Math.ceil(cap/32)){const next=new Uint32Array(Math.ceil(cap/32));next.set(r.replica.bits);r.replica.bits=next;}
+    if(r.replica.chunks.length<chunks){const next=new Uint8Array(chunks);next.set(r.replica.chunks);r.replica.chunks=next;}
+    if(r.journal&&r.journal.active&&r.journal.seen.length<cap){const seen=new Uint8Array(cap);seen.set(r.journal.seen);r.journal.seen=seen;}
+  }
   function ensureCapacity(store,needed){
     if(needed<=store.capacity)return;let cap=Math.max(16,store.capacity);while(cap<needed)cap=Math.ceil(cap*1.5);
-    const r=resize(store,cap);
-    if(r){
-      const chunks=Math.max(1,Math.ceil(cap/CHUNK_ROWS));if(r.dirtyChunks.length<chunks){const next=new Uint8Array(chunks);next.set(r.dirtyChunks);r.dirtyChunks=next;}
-      if(r.chunkVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.chunkVersions);r.chunkVersions=next;}
-      if(r.staticVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.staticVersions);r.staticVersions=next;}
-      if(r.identityVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.identityVersions);r.identityVersions=next;}
-      if(r.routedVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.routedVersions);r.routedVersions=next;}
-      if(r.replica.bits.length<Math.ceil(cap/32)){const next=new Uint32Array(Math.ceil(cap/32));next.set(r.replica.bits);r.replica.bits=next;}
-      if(r.replica.chunks.length<chunks){const next=new Uint8Array(chunks);next.set(r.replica.chunks);r.replica.chunks=next;}
-      if(r.journal&&r.journal.active&&r.journal.seen.length<cap){const seen=new Uint8Array(cap);seen.set(r.journal.seen);r.journal.seen=seen;}
+    const r=resize(store,cap);extendRuntimeCapacity(r,cap);
+  }
+  // Reserve a known bulk append without copying the current record buffer in one frame. The private target is filled in
+  // bounded row slices and published by one pointer swap. Capacity is physical storage, so publishing it changes no
+  // logical revision/structure/epoch and creates no replica delta. A write, compaction, log drain or journal boundary
+  // while the builder is paused makes its snapshot stale and leaves the live buffer untouched.
+  function* reserveCapacityStages(store,needed,{rowSlice=4096,label='fleet.capacity-copy'}={}){
+    needed=Number(needed);if(!Number.isSafeInteger(needed)||needed<0)throw new RangeError('fleet-store-capacity-invalid');
+    if(needed<=store.capacity)return {stale:false,grown:false,capacity:store.capacity};
+    let cap=Math.max(16,store.capacity);while(cap<needed){const next=Math.ceil(cap*1.5);if(!Number.isSafeInteger(next)||next<=cap)throw new RangeError('fleet-store-capacity-invalid');cap=next;}
+    rowSlice=Math.max(256,Math.floor(Number(rowSlice)||4096));
+    const r=rt(store),rows=store.rows,capacity=store.capacity,length=store.length,live=store.live,revision=store.revision,structure=store.structure,replica=r.replica,rowsVersion=replica.rowsVersion,drainVersion=replica.drainVersion,journal=r.journal&&r.journal.active?r.journal:null;
+    const journalFresh=()=>journal?journal.active&&r.journal===journal:!(r.journal&&r.journal.active);
+    const fresh=()=>runtime.get(store)===r&&r.views.buffer===rows&&store.rows===rows&&store.capacity===capacity&&store.length===length&&store.live===live&&store.revision===revision&&store.structure===structure&&r.replica===replica&&replica.rowsVersion===rowsVersion&&replica.drainVersion===drainVersion&&journalFresh();
+    const target=new ArrayBuffer(cap*STRIDE),sourceBytes=new Uint8Array(rows),targetBytes=new Uint8Array(target),used=length*STRIDE,sliceBytes=rowSlice*STRIDE;
+    for(let from=0;from<used;from+=sliceBytes){
+      if(!fresh())return {stale:true,grown:false,capacity:store.capacity};const to=Math.min(used,from+sliceBytes);targetBytes.set(sourceBytes.subarray(from,to),from);yield {stage:'capacity-copy',rows:to/STRIDE,total:length};
     }
+    if(!fresh())return {stale:true,grown:false,capacity:store.capacity};
+    store.rows=target;store.capacity=cap;r.views=makeViews(target);extendRuntimeCapacity(r,cap);
+    return {stale:false,grown:true,capacity:cap};
   }
   function trimCapacity(store){if(store.capacity!==store.length)resize(store,store.length);return store;}
   function isAlive(store,index){return index>=0&&index<store.length&&(views(store).u8[index*STRIDE+O.flags]&ALIVE)!==0;}
@@ -222,7 +263,7 @@
   function beginJournal(store){
     const r=rt(store);if(r.journal&&r.journal.active)return r.journal;
     const journal={store,runtime:r,length:store.length,live:store.live,structure:store.structure,revision:store.revision,high:store.revision,highStructure:store.structure,valuesLength:store.values.length,reused:[],
-      log:takeLog(r),seen:takeSeen(r,store.capacity),fields:new Map(),ids:r.ids,idOps:[],idCollision:false,active:true};
+      log:takeLog(r),seen:takeSeen(r,store.capacity),fields:new Map(),preparedFields:new Map(),ids:r.ids,idOps:[],idCollision:false,active:true};
     r.journal=journal;return journal;
   }
   function journalFor(store){
@@ -252,12 +293,24 @@
   // too) and every compaction, in order. Rows the thread replays from its own worker are not logged (withoutReplicaLog):
   // the replica already holds them. The log lives on the runtime: a new runtime (a decoded or restored store) starts a
   // new one, and the thread then needs a new replica.
-  function newReplicaLog(capacity){const rows=Math.max(1,capacity);return {bits:new Uint32Array(Math.ceil(rows/32)),chunks:new Uint8Array(Math.ceil(rows/CHUNK_ROWS)),any:false,columns:null,compactions:[],suppress:0};}
+  function newReplicaLog(capacity){const rows=Math.max(1,capacity);return {bits:new Uint32Array(Math.ceil(rows/32)),chunks:new Uint8Array(Math.ceil(rows/CHUNK_ROWS)),rowsVersion:0,drainVersion:0,any:false,columns:null,reportedColumns:null,columnPlan:null,compactions:[],valueBits:new Uint32Array(1),valueRefs:[],valuesDirty:false,trackValues:false,suppress:0,disabled:false};}
   function logReplica(r,index){
-    const log=r.replica;if(log.suppress)return;
-    log.bits[index>>>5]|=1<<(index&31);log.chunks[index>>>CHUNK_SHIFT]=1;log.any=true;
+    const log=r.replica;if(log.disabled||log.suppress)return;
+    // A retained mass-write plan describes the state at the instant it completed. Any later row write may override one
+    // of its fields, so the exact plan can no longer replace the final row image on the replica.
+    log.columnPlan=null;log.bits[index>>>5]|=1<<(index&31);log.chunks[index>>>CHUNK_SHIFT]=1;log.rowsVersion++;log.any=true;
   }
-  function logReplicaColumn(r,name){const log=r.replica;if(log.suppress)return;if(!log.columns)log.columns=new Set();log.columns.add(name);log.any=true;}
+  function logReplicaColumn(r,name,reported=true){const log=r.replica;if(log.disabled||log.suppress)return;log.columnPlan=null;if(!log.columns)log.columns=new Set();log.columns.add(name);if(reported){if(!log.reportedColumns)log.reportedColumns=new Set();log.reportedColumns.add(name);}log.any=true;}
+  // Interned values are mirrored by reference number. Keep a compact, single-consumer change log just like the row
+  // replica log: one bit prevents duplicate refs, while the short list makes draining proportional to changes. Before
+  // this log the engine thread compared and then copied the whole value table on every exchange; unique trip records can
+  // make that table as large as the fleet and caused a million-entry scan plus allocation on the main thread.
+  function logReplicaValue(r,ref){
+    const log=r.replica;if(log.disabled||!log.trackValues||log.suppress||!(ref>0))return;const word=ref>>>5;
+    if(word>=log.valueBits.length){let size=log.valueBits.length;while(size<=word)size*=2;const next=new Uint32Array(size);next.set(log.valueBits);log.valueBits=next;}
+    const bit=1<<(ref&31);if(!(log.valueBits[word]&bit)){log.valueBits[word]|=bit;log.valueRefs.push(ref);}log.valuesDirty=true;
+  }
+  function logReplicaValueLength(r){const log=r.replica;if(!log.disabled&&log.trackValues&&!log.suppress)log.valuesDirty=true;}
   function logDirty(r,index){
     logReplica(r,index);
     if(r.suppressDirtyLog||r.dirtyLost)return;
@@ -286,9 +339,10 @@
   // change what that owner tracks (columnWriter setting presence bits of fields the engine never schedules on).
   function rememberColumn(store,name,{quiet=false}={}){
     if(!own(SLOTS,name))throw new RangeError(`fleet-store-column:${name}`);
-    const journal=journalFor(store);if(journal&&!journal.fields.has(name))journal.fields.set(name,{copy:gatherField(store,name),logCount:journal.log.count});
-    const r=rt(store);r.allDirty=true;r.massVersion++;store.revision++;if(journal)journal.high=store.revision;logReplicaColumn(r,name);
-    if(!quiet&&!r.suppressDirtyLog){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(name);}
+    const journal=journalFor(store),r=rt(store),effectiveQuiet=quiet||r.suppressDirtyLog,snapshot=journal?.fields.get(name);
+    if(journal&&!snapshot){const prepared=journal.preparedFields?.get(name);if(prepared){journal.preparedFields.delete(name);prepared.quiet=effectiveQuiet;journal.fields.set(name,prepared);}else journal.fields.set(name,{copy:gatherField(store,name),logCount:journal.log.count,quiet:effectiveQuiet});}else if(snapshot&&!effectiveQuiet)snapshot.quiet=false;
+    r.allDirty=true;r.massVersion++;store.revision++;if(journal)journal.high=store.revision;logReplicaColumn(r,name,!effectiveQuiet);
+    if(!effectiveQuiet){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(name);}
   }
   function bumpStructure(store){store.structure++;const r=runtime.get(store);if(r&&r.journal&&r.journal.active&&store.structure>r.journal.highStructure)r.journal.highStructure=store.structure;}
   function unindexValue(r,stored,ref){if(stored===null||stored===undefined)return;const key=valueKey(stored);if(r.index.get(key)===ref)r.index.delete(key);}
@@ -313,13 +367,13 @@
     // Values interned inside the transaction leave the table and the index.
     const valuesChanged=store.values.length>journal.valuesLength||journal.reused.length>0;
     for(let ref=journal.valuesLength;ref<store.values.length;ref++)unindexValue(r,store.values[ref],ref);
-    for(let k=journal.reused.length-1;k>=0;k--){const ref=journal.reused[k];unindexValue(r,store.values[ref],ref);store.values[ref]=null;r.free.push(ref);}
-    if(store.values.length>journal.valuesLength)store.values.length=journal.valuesLength;
+    for(let k=journal.reused.length-1;k>=0;k--){const ref=journal.reused[k];unindexValue(r,store.values[ref],ref);store.values[ref]=null;pushFreeRef(r,ref);logReplicaValue(r,ref);}
+    if(store.values.length>journal.valuesLength){store.values.length=journal.valuesLength;logReplicaValueLength(r);}
     r.indexedTo=store.values.length;
     // Field snapshots first, then logged rows (a field snapshotted before a
     // row was logged is restored from that row's block, otherwise from the
     // snapshot).
-    const snaps=[...journal.fields].map(([name,snap])=>{const [view,k]=SLOTS[name];return {target:v[view],per:PER_ROW[view],k,copy:snap.copy,logCount:snap.logCount};});
+    const snaps=[...journal.fields].map(([name,snap])=>{const [view,k]=SLOTS[name];return {name,target:v[view],per:PER_ROW[view],k,copy:snap.copy,logCount:snap.logCount,quiet:snap.quiet===true};});
     for(const s of snaps){const n=Math.min(s.copy.length,store.capacity);for(let index=0;index<n;index++)s.target[index*s.per+s.k]=s.copy[index];}
     const words=v.u32;
     for(let slotIndex=0;slotIndex<log.count;slotIndex++){
@@ -335,15 +389,15 @@
     // Counters only grow: a value seen during the transaction is never reused.
     if(structureChanged)store.structure++;
     store.revision++;
-    if(journal.fields.size){r.allDirty=true;r.massVersion++;if(!r.dirtyColumns)r.dirtyColumns=new Set();for(const name of journal.fields.keys()){r.dirtyColumns.add(name);logReplicaColumn(r,name);}}
+    if(snaps.length){r.allDirty=true;r.massVersion++;for(const snap of snaps){const reported=!snap.quiet&&!r.suppressDirtyLog;logReplicaColumn(r,snap.name,reported);if(reported){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(snap.name);}}}
     if(idsKept){const rows=new Set();for(const [index] of journal.idOps)rows.add(index);for(const index of rows){if(isAlive(store,index)&&!idsMap(store,r,index,idAt(store,index))){r.ids=null;break;}}}
-    if(valuesChanged)r.valuesGeneration=++epochCounter;
+    if(valuesChanged){r.valueRevision++;r.valuesGeneration=++epochCounter;}
     endJournal(journal);
   }
   function endJournal(journal){
     if(!journal.active)return;journal.active=false;
     const log=journal.log;for(let slotIndex=0;slotIndex<log.count;slotIndex++)journal.seen[log.rows[slotIndex]]=0;
-    const r=runtime.get(journal.store);if(r&&r.journal===journal)r.journal=null;
+    journal.preparedFields?.clear();const r=runtime.get(journal.store);if(r&&r.journal===journal)r.journal=null;
     if(r&&r===journal.runtime)releaseJournal(r,journal);
   }
   function journalStats(store){const r=rt(store),j=r.journal;return j&&j.active?{rows:j.log.count,columns:[...j.fields.keys()],reused:j.reused.length}:null;}
@@ -449,6 +503,98 @@
       if(kind==='f64')v.f64[index*F64_PER_ROW+O[field]]=value;else if(kind==='f32x')v.f32[index*WORDS_PER_ROW+O[field]]=value;else v.i32[index*WORDS_PER_ROW+O[field]]=value===null?I32_NULL:value;
     };
   }
+  // Prepare a mass-column rollback snapshot without copying a million-entry column in one turn. Prepared snapshots are
+  // invisible to rollback until columnWriter performs the first real write; abandoning a staged plan therefore changes
+  // neither the store nor its dirty/replica logs. A write during preparation invalidates the local copy and the enclosing
+  // transaction retries instead of installing a mixed snapshot.
+  function* prepareColumnSnapshotStages(store,name,{rowSlice=4096,label='fleet.column-plan'}={}){
+    if(!own(SLOTS,name))throw new RangeError(`fleet-store-column:${name}`);
+    const journal=journalFor(store);if(!journal||journal.fields.has(name)||journal.preparedFields?.has(name))return false;
+    rowSlice=Math.max(256,Math.floor(Number(rowSlice)||4096));
+    const r=rt(store),length=store.length,revision=store.revision,structure=store.structure,rows=store.rows,logCount=journal.log.count,[view,k]=SLOTS[name],per=PER_ROW[view],source=r.views[view],copy=new source.constructor(length);
+    const fresh=()=>journal.active&&runtime.get(store)===r&&r.journal===journal&&store.rows===rows&&store.length===length&&store.revision===revision&&store.structure===structure&&journal.log.count===logCount;
+    for(let from=0;from<length;from+=rowSlice){
+      if(!fresh())throw new Error('fleet-store-column-plan-changed');const to=Math.min(length,from+rowSlice);
+      for(let index=from;index<to;index++)copy[index]=source[index*per+k];
+      yield label;
+    }
+    if(!fresh())throw new Error('fleet-store-column-plan-changed');
+    if(!journal.fields.has(name)&&!journal.preparedFields.has(name))journal.preparedFields.set(name,{copy,logCount,quiet:false});
+    return true;
+  }
+  // Apply an ordered row-major numeric column plan. Validation, presence discovery, every rollback-column copy and the
+  // writes themselves are sliced. Validation uses raw store slots (no view/proxy/materialization per row) and completes
+  // before the first write. Generic plans preserve columnWriter's IEEE/extras behavior for every number; a domain plan
+  // may set rejectNaN to reject NaN during this preflight without leaving a partial write.
+  function* columnPlanStages(store,plan,{rowSlice=4096,label='fleet.column-plan',replicaTransfer=false}={}){
+    const fields=Array.isArray(plan?.fields)?[...plan.fields]:[],indices=plan?.indices,values=plan?.values,count=Number(plan?.count),width=fields.length,dual=plan?.exceptional!=null,exceptional=dual?plan.exceptional:null,rejectNaN=plan?.rejectNaN===true;
+    const exceptionalCount=dual?Number(exceptional?.count):0,exceptionalIndices=dual?exceptional?.indices:null,exceptionalValues=dual?exceptional?.values:null,totalCount=dual?Number(plan?.totalCount):count,exceptionalPositions=dual?null:(plan?.exceptionalPositions==null?null:plan.exceptionalPositions);
+    if(!Number.isSafeInteger(count)||count<0||!width)throw new Error('fleet-store-column-plan-invalid');
+    if(dual){
+      if(!(indices instanceof Int32Array)||indices.length!==count||!(values instanceof Float32Array)||values.length!==count*width||!Number.isSafeInteger(exceptionalCount)||exceptionalCount<0||!(exceptionalIndices instanceof Int32Array)||exceptionalIndices.length!==exceptionalCount||!(exceptionalValues instanceof Float64Array)||exceptionalValues.length!==exceptionalCount*width||!Number.isSafeInteger(totalCount)||totalCount!==count+exceptionalCount)throw new Error('fleet-store-column-plan-invalid');
+    }else if(!ArrayBuffer.isView(indices)||indices.length!==count||!ArrayBuffer.isView(values)||values.length!==count*width)throw new Error('fleet-store-column-plan-invalid');
+    if(exceptionalPositions!==null&&(!(exceptionalPositions instanceof Int32Array)||exceptionalPositions.length>count))throw new Error('fleet-store-column-plan-exceptions');
+    if(new Set(fields).size!==width)throw new Error('fleet-store-column-plan-fields');
+    rowSlice=Math.max(256,Math.floor(Number(rowSlice)||4096));
+    const metas=fields.map(field=>{const kind=HOT_KIND.get(field);if(kind!=='f64'&&kind!=='f32x'&&kind!=='i32')throw new RangeError(`fleet-store-column-writer:${field}`);return {field,kind,bit:presentBit(field)};});
+    const r=rt(store),journal=journalFor(store),length=store.length,revision=store.revision,structure=store.structure,rows=store.rows,v=r.views,fastFields=new Set(),replica=r.replica,drainVersion=replica.drainVersion;
+    // `replicaTransfer` explicitly gives the replica owner these typed buffers after a successful apply. The engine may
+    // detach them on its next exchange. Callers that need to retain/reuse a plan leave it false and take the ordinary
+    // full-column path. A transferred plan is eligible only as the first mass write since the previous exchange because
+    // it cannot describe an earlier column write's ordering.
+    const retainPlan=replicaTransfer===true&&totalCount>0&&!replica.disabled&&!replica.suppress&&!replica.columns&&!replica.reportedColumns&&!replica.columnPlan;let needPresent=false,previous=-1,fastAt=0,dualExceptionalAt=0,exceptionalAt=0,exceptionalPrevious=-1;
+    const journalFresh=()=>!journal||journal.active&&r.journal===journal;
+    const fresh=()=>runtime.get(store)===r&&journalFresh()&&r.replica===replica&&replica.drainVersion===drainVersion&&store.rows===rows&&store.length===length&&store.revision===revision&&store.structure===structure;
+    for(let from=0;from<totalCount;from+=rowSlice){
+      if(!fresh())throw new Error('fleet-store-column-plan-changed');const to=Math.min(totalCount,from+rowSlice);
+      for(let row=from;row<to;row++){
+        let index,source,sourceRow,isExceptional=false;
+        if(dual){
+          const fastIndex=fastAt<count?Number(indices[fastAt]):Infinity,exceptionIndex=dualExceptionalAt<exceptionalCount?Number(exceptionalIndices[dualExceptionalAt]):Infinity;
+          if(fastIndex===exceptionIndex)throw new Error(`fleet-store-column-plan-index:${fastIndex}`);
+          if(fastIndex<exceptionIndex){index=fastIndex;source=values;sourceRow=fastAt++;}else{index=exceptionIndex;source=exceptionalValues;sourceRow=dualExceptionalAt++;isExceptional=true;}
+        }else{
+          index=Number(indices[row]);source=values;sourceRow=row;
+          if(exceptionalPositions&&exceptionalAt<exceptionalPositions.length&&exceptionalPositions[exceptionalAt]<row)throw new Error('fleet-store-column-plan-exceptions');
+          isExceptional=!!exceptionalPositions&&exceptionalAt<exceptionalPositions.length&&exceptionalPositions[exceptionalAt]===row;
+          if(isExceptional){if(row<=exceptionalPrevious)throw new Error('fleet-store-column-plan-exceptions');exceptionalPrevious=row;exceptionalAt++;}
+        }
+        if(!Number.isSafeInteger(index)||index<=previous||index<0||index>=length||!(v.u8[index*STRIDE+O.flags]&ALIVE))throw new Error(`fleet-store-column-plan-index:${index}`);previous=index;
+        const flags=v.u8[index*STRIDE+O.flags],extras=(flags&EXTRAS)&&own(store.extras,index)?store.extras[index]:null,present=v.u32[index*WORDS_PER_ROW+O.present],at=sourceRow*width;
+        for(let fieldIndex=0;fieldIndex<width;fieldIndex++){
+          const meta=metas[fieldIndex],value=source[at+fieldIndex],valid=typeof value==='number'&&(!rejectNaN||!Number.isNaN(value));
+          // columnWriter is the byte-level reference: values that do not fit a hot f32/i32 slot go through set() into
+          // extras, while every IEEE f64 value and exact f32 value stays in its slot. A domain plan can reject NaN before
+          // the first write without changing generic Store parity.
+          if(!valid)throw new Error(`fleet-store-column-plan-value:${index}:${meta.field}`);
+          const has=(present&meta.bit)!==0,fast=hotFits(meta.kind,value)&&!(extras&&own(extras,meta.field))&&(has||ENGINE_SCHEDULE_FREE.has(meta.field));
+          if(fast){fastFields.add(meta.field);if(!has)needPresent=true;}
+        }
+      }
+      // Always hand control back after validation chunks while more work remains, including after the last validation
+      // chunk: the next turn starts snapshotting instead of combining two bounded passes into one frame.
+      yield label;
+    }
+    if(dual&&(fastAt!==count||dualExceptionalAt!==exceptionalCount)||exceptionalPositions&&exceptionalAt!==exceptionalPositions.length)throw new Error('fleet-store-column-plan-exceptions');
+    if(!fresh())throw new Error('fleet-store-column-plan-changed');
+    if(needPresent)yield* prepareColumnSnapshotStages(store,'present',{rowSlice,label});
+    for(const field of fields)if(fastFields.has(field))yield* prepareColumnSnapshotStages(store,field,{rowSlice,label});
+    if(!fresh())throw new Error('fleet-store-column-plan-changed');
+    const write=columnWriter(store,fields);let appliedRevision=store.revision;fastAt=0;dualExceptionalAt=0;
+    for(let from=0;from<totalCount;from+=rowSlice){
+      if(runtime.get(store)!==r||r.replica!==replica||replica.drainVersion!==drainVersion||!journalFresh()||store.rows!==rows||store.length!==length||store.structure!==structure||store.revision!==appliedRevision)throw new Error('fleet-store-column-plan-changed');
+      const to=Math.min(totalCount,from+rowSlice);for(let row=from;row<to;row++){
+        let index,source,sourceRow;if(dual){const fastIndex=fastAt<count?indices[fastAt]:Infinity,exceptionIndex=dualExceptionalAt<exceptionalCount?exceptionalIndices[dualExceptionalAt]:Infinity;if(fastIndex<exceptionIndex){index=fastIndex;source=values;sourceRow=fastAt++;}else{index=exceptionIndex;source=exceptionalValues;sourceRow=dualExceptionalAt++;}}else{index=indices[row];source=values;sourceRow=row;}
+        const at=sourceRow*width;for(let field=0;field<width;field++)write(index,fields[field],source[at+field]);
+      }appliedRevision=store.revision;if(to<totalCount)yield label;
+    }
+    if(retainPlan&&r.replica===replica&&replica.drainVersion===drainVersion&&replica.columns){
+      const columns=[...replica.columns],reportedColumns=replica.reportedColumns?[...replica.reportedColumns]:[],allowed=new Set(['present',...fields]);
+      const expectedReported=columns.filter(name=>name!=='present');
+      if(columns.length&&columns.every(name=>allowed.has(name))&&reportedColumns.length===expectedReported.length&&reportedColumns.every(name=>expectedReported.includes(name)))replica.columnPlan={fields:[...fields],indices,values,count,rejectNaN,...(dual?{exceptional:{indices:exceptionalIndices,values:exceptionalValues,count:exceptionalCount},totalCount}:{exceptionalPositions}),columns,reportedColumns};
+    }
+    return {count:totalCount,fields:[...fields],replicaTransfer:!!replica.columnPlan&&replica.columnPlan.indices===indices&&replica.columnPlan.values===values};
+  }
   // Hot-path entry for owners that write records directly (the event engine):
   // journal the row once, bump the revision, mark its chunk dirty.
   function touch(store,index){remember(store,index);}
@@ -462,9 +608,12 @@
     return {complete,indices,columns,revision:store.revision,epoch:r.epoch};
   }
   // Build 372: the replica log since the last drain (see newReplicaLog): {runtime, rows (ascending, below the store's
-  // length), columns, compactions}. Draining clears it. Cost: one word per 32 rows of the chunks written, and the rows.
+  // length), columns, an exact sparse columnPlan when one can replace their full copies, compactions, valueRefs and
+  // valuesDirty}. Draining clears it. Cost is proportional to changed chunks and value refs; it never scans or copies
+  // the full intern table.
   function drainReplica(store){
-    const r=rt(store),log=r.replica,out={runtime:r.uid,rows:null,columns:log.columns?[...log.columns]:[],compactions:log.compactions};
+    const r=rt(store),log=r.replica,out={runtime:r.uid,rows:null,columns:log.columns?[...log.columns]:[],reportedColumns:log.reportedColumns?[...log.reportedColumns]:[],columnPlan:log.columnPlan,compactions:log.compactions,valueRefs:Int32Array.from(log.valueRefs),valuesDirty:log.valuesDirty};
+    r.replicaBaseline=true;
     const list=[];
     if(log.any){
       const bits=log.bits,length=store.length;
@@ -477,15 +626,29 @@
         }
       }
     }
-    out.rows=Int32Array.from(list);log.columns=null;log.compactions=[];log.any=false;
+    out.rows=Int32Array.from(list);log.columns=null;log.reportedColumns=null;log.columnPlan=null;log.compactions=[];log.any=false;log.rowsVersion++;log.drainVersion++;
+    for(const ref of log.valueRefs)log.valueBits[ref>>>5]&=~(1<<(ref&31));log.valueRefs=[];log.valuesDirty=false;if(!log.disabled)log.trackValues=true;
     return out;
   }
   // Nothing written since the last drain (the replica, once brought to the store, still equals it).
-  function replicaClean(store){const log=rt(store).replica;return !log.any&&!log.compactions.length&&!log.columns;}
+  function replicaClean(store){const log=rt(store).replica;return !log.any&&!log.compactions.length&&!log.columns&&!log.reportedColumns&&!log.columnPlan&&!log.valuesDirty;}
   // Build 372: what the replica log holds besides rows, without draining it: compactions and columns rewritten wholesale.
   function replicaPending(store){const log=rt(store).replica;return {compactions:log.compactions.length,columns:log.columns?[...log.columns]:[]};}
   // The engine thread replays rows its replica computed: they are not logged for it again.
   function withoutReplicaLog(store,fn){const log=rt(store).replica;log.suppress++;try{return fn();}finally{log.suppress--;}}
+  // A worker-side store is itself the replica and has no downstream consumer. Disable its outbound log permanently;
+  // otherwise unique values created by engine steps accumulate in valueRefs for the lifetime of the worker.
+  function disableReplicaLog(store){const r=rt(store);r.replica=newReplicaLog(store.capacity);r.replica.disabled=true;r.replicaBaseline=true;}
+  // Worker-only, synchronous delta capture. Its permanently disabled log is enabled just for `fn`, drained, then disabled
+  // again. A calendar window can therefore send only the rows/values touched by this leg while its full outer journal
+  // remains intact for rollback. Reusing the same bitsets avoids allocating a capacity-sized tracker every hour.
+  function captureReplicaChanges(store,fn){
+    if(typeof fn!=='function')throw new TypeError('fleet-replica-capture-function');
+    const r=rt(store),log=r.replica;if(!log.disabled||!replicaClean(store))throw new Error('fleet-replica-capture-owner');
+    log.disabled=false;log.trackValues=true;let complete=false;
+    try{const value=fn(),changes=drainReplica(store);complete=true;return {value,changes};}
+    finally{if(!complete&&!replicaClean(store))drainReplica(store);log.disabled=true;}
+  }
   // Build 372: a store decoded from the native vault's chunks (migration-core) keeps those chunk buffers, untouched since
   // they were read, as the engine thread's first replica: they are moved to its worker (no copy on this thread) instead
   // of the whole store being copied when the thread first runs. The seed is the store as decoded (the replica log starts
@@ -495,12 +658,25 @@
     // The vault holds the record buffer as saved (its capacity, at least the store's rows); the replica takes its rows.
     if(!Array.isArray(chunks)||!Number.isSafeInteger(chunkBytes)||chunkBytes<=0||!Number.isSafeInteger(byteLength)||byteLength%STRIDE!==0||byteLength<store.length*STRIDE||chunks.length!==Math.ceil(byteLength/chunkBytes))return false;
     for(let index=0;index<chunks.length;index++){const chunk=chunks[index],size=Math.min(chunkBytes,byteLength-index*chunkBytes);if(!(chunk instanceof ArrayBuffer)||chunk.byteLength!==size)return false;}
-    const r=rt(store);r.replica=newReplicaLog(store.capacity);
+    const r=rt(store);if(r.replicaBaseline||r.replicaSeed||r.replica.trackValues||r.replica.disabled||r.journal&&r.journal.active)return false;
+    r.replica=newReplicaLog(store.capacity);r.replica.trackValues=true;r.replicaBaseline=true;
     r.replicaSeed={runtime:r.uid,chunks,chunkBytes,byteLength,length:store.length,live:store.live,structure:store.structure,revision:store.revision,values:store.values.map(value=>value===undefined?null:value),extras:{...store.extras}};
     return true;
   }
   function hasReplicaSeed(store){const r=runtime.get(store);return !!r&&!!r.replicaSeed&&r.replicaSeed.runtime===r.uid;}
   function takeReplicaSeed(store){const r=rt(store),seed=r.replicaSeed;r.replicaSeed=null;return seed&&seed.runtime===r.uid?seed:null;}
+  // Starts a complete replica snapshot without enumerating the pending row log. A complete snapshot supersedes every
+  // earlier delta, so replacing the bitsets is both exact and O(number of tracking words), rather than drainReplica's
+  // O(changed rows) materialisation. The returned token is deliberately opaque to callers; replicaSnapshotFresh proves
+  // that no row, value, extra, counter, runtime or replica-log owner changed while a staged copier yielded.
+  function beginReplicaSnapshot(store){
+    const r=rt(store);if(r.replica.disabled)return null;
+    r.replica=newReplicaLog(store.capacity);r.replica.trackValues=true;r.replicaBaseline=true;r.replicaSeed=null;
+    return {runtime:r,log:r.replica,rows:store.rows,values:store.values,extras:store.extras,length:store.length,live:store.live,structure:store.structure,revision:store.revision,valueRevision:r.valueRevision};
+  }
+  function replicaSnapshotFresh(store,snapshot){
+    const r=runtime.get(store);return !!snapshot&&r===snapshot.runtime&&r.replica===snapshot.log&&store.rows===snapshot.rows&&store.values===snapshot.values&&store.extras===snapshot.extras&&store.length===snapshot.length&&store.live===snapshot.live&&store.structure===snapshot.structure&&store.revision===snapshot.revision&&r.valueRevision===snapshot.valueRevision&&replicaClean(store);
+  }
   // Replica side: the main thread's compaction (compactRows) replayed by its list of removed rows, so both stores move
   // the same rows to the same places, whatever this side's own liveness flags say.
   function compactRowsAt(store,{dead,length}){
@@ -969,8 +1145,47 @@
         if(lo&&(bits[index>>>5]&(1<<(index&31)))){bits[index>>>5]&=~(1<<(index&31));const to=index-lo;bits[to>>>5]|=1<<(to&31);log.chunks[to>>>CHUNK_SHIFT]=1;}
       }
     }
-    log.compactions.push({dead:Int32Array.from(dead),length});log.any=true;
+    log.columnPlan=null;log.compactions.push({dead:Int32Array.from(dead),length});log.rowsVersion++;log.any=true;
     r.allDirty=true;r.massVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);return {removed,length:write};
+  }
+  // Build a compacted record buffer in bounded read-only slices, then publish it in one constant-time swap. Until the
+  // swap the live store, extras and replica log are untouched. Any row write or replica-log drain while the builder is
+  // paused makes the snapshot stale and discards the private buffer; row order and compaction replay therefore always
+  // describe one exact store state.
+  function* compactRowsStages(store,{rowSlice=4096}={}){
+    const r=rt(store);if(r.journal&&r.journal.active)throw new Error('fleet-store-compact-inside-transaction');
+    const length=store.length;if(store.live===length)return {stale:false,removed:0,length};
+    rowSlice=Math.max(256,Math.floor(Number(rowSlice)||4096));
+    const live=store.live,revision=store.revision,structure=store.structure,rows=store.rows,extras=store.extras,replica=r.replica,replicaVersion=replica.rowsVersion;
+    // Publish a tight buffer. This does require old+live record storage while building, but never old+capacity; after a
+    // >10% dead threshold it is the smallest atomic target possible and permanently releases the dead capacity at swap.
+    const targetCapacity=live,source=new Uint8Array(rows),sourceWords=new Uint32Array(rows),targetBuffer=new ArrayBuffer(targetCapacity*STRIDE),targetWords=new Uint32Array(targetBuffer),dead=new Int32Array(Math.max(0,length-live)),nextExtras={};
+    const nextBits=new Uint32Array(Math.ceil(Math.max(1,targetCapacity)/32)),nextChunks=new Uint8Array(Math.max(1,Math.ceil(targetCapacity/CHUNK_ROWS)));
+    const fresh=()=>runtime.get(store)===r&&r.replica===replica&&replica.rowsVersion===replicaVersion&&store.rows===rows&&store.extras===extras&&store.length===length&&store.live===live&&store.revision===revision&&store.structure===structure;
+    let write=0,deadCount=0;
+    for(let from=0;from<length;from+=rowSlice){
+      if(!fresh())return {stale:true,removed:0,length:store.length};const to=Math.min(length,from+rowSlice);let read=from;
+      while(read<to){
+        if(!(source[read*STRIDE+O.flags]&ALIVE)){if(deadCount>=dead.length)throw new Error('fleet-store-compact-live-count');dead[deadCount++]=read;read++;continue;}
+        const start=read;while(read<to&&(source[read*STRIDE+O.flags]&ALIVE))read++;
+        const run=read-start;
+        for(let index=start;index<read;index++){
+          const moved=write+(index-start),src=index*WORDS_PER_ROW,dst=moved*WORDS_PER_ROW;for(let word=0;word<WORDS_PER_ROW;word++)targetWords[dst+word]=sourceWords[src+word];
+          if(own(extras,index))nextExtras[moved]=extras[index];
+          if(replica.bits[index>>>5]&(1<<(index&31))){nextBits[moved>>>5]|=1<<(moved&31);nextChunks[moved>>>CHUNK_SHIFT]=1;}
+        }
+        write+=run;
+      }
+      // The final build chunk yields too, so the freshness check and atomic publication never share a turn with a full
+      // row chunk.
+      yield {stage:'compact-build',rows:to,total:length};
+    }
+    if(!fresh())return {stale:true,removed:0,length:store.length};
+    if(write!==live||deadCount!==dead.length)throw new Error('fleet-store-compact-live-count');
+    store.rows=targetBuffer;store.capacity=targetCapacity;store.extras=nextExtras;store.length=write;store.live=write;store.structure++;store.revision++;
+    r.views=makeViews(targetBuffer);replica.bits=nextBits;replica.chunks=nextChunks;replica.columnPlan=null;replica.compactions.push({dead,length});replica.rowsVersion++;replica.any=true;
+    r.allDirty=true;r.massVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);
+    return {stale:false,removed:dead.length,length:write};
   }
   // Reclaim interned values no live row references (mark and sweep) onto the
   // free list. Refs never move, so rows and caches of live refs stay valid.
@@ -987,24 +1202,27 @@
     let freed=0;const freedRefs=[];
     for(let ref=1;ref<store.values.length;ref++){
       const stored=store.values[ref];if(used[ref]||stored===null||stored===undefined)continue;
-      const key=valueKey(stored);if(r.index.get(key)===ref)r.index.delete(key);store.values[ref]=null;r.free.push(ref);freedRefs.push(ref);freed++;
+      const key=valueKey(stored);if(r.index.get(key)===ref)r.index.delete(key);store.values[ref]=null;pushFreeRef(r,ref);freedRefs.push(ref);logReplicaValue(r,ref);freed++;
     }
     // Build 358 (million-asset): a freed ref is held by no live row. Every cache valid now was computed from rows that
     // have not changed since (class tables, id checks and distinct lists per chunk version), so none holds a freed ref
     // and they all stay valid; the id index only forgets id patterns no live row uses. (Dropping the index and every
     // cached scan here cost a full rebuild after each daily maintenance.)
-    if(freed&&r.ids)for(const ref of freedRefs){const map=r.ids.patterns.get(ref);if(!map)continue;if(map.size){r.ids=null;break;}r.ids.patterns.delete(ref);}
-    return {freed,values:store.values.length,free:r.free.length};
+    if(freed){r.valueRevision++;if(r.ids)for(const ref of freedRefs){const map=r.ids.patterns.get(ref);if(!map)continue;if(map.size){r.ids=null;break;}r.ids.patterns.delete(ref);}}
+    return {freed,values:store.values.length,free:r.free.count};
   }
-  // The mark phase is read-only and may span frames. A fleet/value-table write while it is paused invalidates the mark;
-  // the caller retries instead of sweeping from a mixed snapshot. Sweeping is intentionally one bounded value-table
-  // pass: it mutates the free list and therefore must not yield halfway through.
-  function* collectValuesStages(store,{rowSlice=4096}={}){
+  // Mark rows, discover unreachable refs and reclaim them in separately bounded turns. The first two phases are fully
+  // read-only. During reclaim, each batch is revalidated before mutation; if another owner writes between batches the
+  // collector stops. Refs already freed are safe (the mark proved them unreachable) and remain in the replica delta,
+  // while no later candidate from the stale snapshot is touched.
+  function* collectValuesStages(store,{rowSlice=4096,valueSlice=16384,freeSlice=1024}={}){
     const r=rt(store);if(r.journal&&r.journal.active)throw new Error('fleet-store-gc-inside-transaction');
-    rowSlice=Math.max(256,Math.floor(Number(rowSlice)||4096));
-    const revision=store.revision,length=store.length,valuesLength=store.values.length,generation=r.valuesGeneration;
-    const v=r.views,u32=v.u32,u8=v.u8,used=new Uint8Array(valuesLength);used[0]=1;const B=HOT_BIT;
+    rowSlice=Math.max(256,Math.floor(Number(rowSlice)||4096));valueSlice=Math.max(256,Math.floor(Number(valueSlice)||16384));freeSlice=Math.max(256,Math.floor(Number(freeSlice)||1024));
+    const revision=store.revision,length=store.length,valuesLength=store.values.length,generation=r.valuesGeneration,rows=store.rows;
+    let valueRevision=r.valueRevision;const v=r.views,u32=v.u32,u8=v.u8,used=new Uint8Array(valuesLength);used[0]=1;const B=HOT_BIT,candidates=new Int32Array(valuesLength);let candidateCount=0,freed=0;
+    const fresh=()=>runtime.get(store)===r&&store.rows===rows&&store.revision===revision&&store.length===length&&store.values.length===valuesLength&&r.valuesGeneration===generation&&r.valueRevision===valueRevision;
     for(let from=0;from<length;from+=rowSlice){
+      if(!fresh())return {stale:true,freed,values:store.values.length,free:r.free.count};
       const to=Math.min(length,from+rowSlice);
       for(let index=from;index<to;index++){
         if(!(u8[index*STRIDE+O.flags]&ALIVE))continue;const w=index*WORDS_PER_ROW,present=u32[w+O.present];
@@ -1012,20 +1230,28 @@
         if(present&B.id)used[u32[w+O.idPattern]]=1;if(present&B.name)used[u32[w+O.namePattern]]=1;
         if(present&B.routeId)used[u32[w+O.routeId]]=1;if(present&B.baseFacility)used[u32[w+O.baseFacility]]=1;if(present&B.phase)used[u32[w+O.phase]]=1;if(present&B.lastTrip)used[u32[w+O.lastTrip]]=1;
       }
-      if(to<length)yield {stage:'mark',rows:to,total:length};
+      yield {stage:'mark',rows:to,total:length};
     }
-    if(store.revision!==revision||store.length!==length||store.values.length!==valuesLength||r.valuesGeneration!==generation)return {stale:true,freed:0,values:store.values.length,free:r.free.length};
-    let freed=0;const freedRefs=[];
-    for(let ref=1;ref<valuesLength;ref++){
-      const stored=store.values[ref];if(used[ref]||stored===null||stored===undefined)continue;
-      const key=valueKey(stored);if(r.index.get(key)===ref)r.index.delete(key);store.values[ref]=null;r.free.push(ref);freedRefs.push(ref);freed++;
+    for(let from=1;from<valuesLength;from+=valueSlice){
+      if(!fresh())return {stale:true,freed,values:store.values.length,free:r.free.count};const to=Math.min(valuesLength,from+valueSlice);
+      for(let ref=from;ref<to;ref++){const stored=store.values[ref];if(!used[ref]&&stored!==null&&stored!==undefined)candidates[candidateCount++]=ref;}
+      yield {stage:'candidates',refs:to,total:valuesLength,candidates:candidateCount};
     }
-    if(freed&&r.ids)for(const ref of freedRefs){const map=r.ids.patterns.get(ref);if(!map)continue;if(map.size){r.ids=null;break;}r.ids.patterns.delete(ref);}
-    return {stale:false,freed,values:store.values.length,free:r.free.length};
+    for(let from=0;from<candidateCount;from+=freeSlice){
+      if(!fresh())return {stale:true,freed,values:store.values.length,free:r.free.count};const to=Math.min(candidateCount,from+freeSlice);
+      for(let at=from;at<to;at++){
+        const ref=candidates[at],stored=store.values[ref];if(stored===null||stored===undefined)continue;
+        const key=valueKey(stored);if(r.index.get(key)===ref)r.index.delete(key);store.values[ref]=null;pushFreeRef(r,ref);logReplicaValue(r,ref);freed++;
+        if(r.ids){const map=r.ids.patterns.get(ref);if(map){if(map.size)r.ids=null;else r.ids.patterns.delete(ref);}}
+      }
+      if(to>from){r.valueRevision++;valueRevision=r.valueRevision;}
+      if(to<candidateCount)yield {stage:'free',refs:to,total:candidateCount,freed};
+    }
+    return {stale:false,freed,values:store.values.length,free:r.free.count};
   }
   function stats(store){
     const r=rt(store),bytes=STRIDE*store.length;
-    return {length:store.length,live:store.live,capacity:store.capacity,values:store.values.length,freeValues:r.free.length,extras:Object.keys(store.extras).length,columnBytes:bytes,bytesPerAsset:store.length?STRIDE:0};
+    return {length:store.length,live:store.live,capacity:store.capacity,values:store.values.length,freeValues:r.free.count,extras:Object.keys(store.extras).length,columnBytes:bytes,bytesPerAsset:store.length?STRIDE:0};
   }
 
   // ------------------------------------------------------------- replica ---
@@ -1049,27 +1275,44 @@
     for(let ref=1;ref<n;ref++){const a=ref<values.length?values[ref]??null:null,b=ref<previous.length?previous[ref]??null:null;if(a!==b)changes.push([ref,a]);}
     return {length:values.length,changes};
   }
-  // Replica side, outside any journal: sets values by reference number, then rebuilds the free list in ascending order.
+  // Reads only refs named by drainReplica(). A ref beyond the current length was appended and rolled back before the
+  // exchange; the payload's shorter length already removes it on the replica. Values are immutable, so the current
+  // object can be cloned by postMessage without a defensive whole-table snapshot.
+  function replicaValueChanges(store,refs){
+    const values=store.values,changes=[];for(const ref of refs||[])if(ref>0&&ref<values.length)changes.push([ref,values[ref]??null]);
+    return {length:values.length,changes};
+  }
+  // Replica side: sets values by reference number and updates the free stack only for the named refs/changed tail.
   // Build 372: valuesGeneration moves only when a value held at a ref is replaced or removed (appended values and filled
   // free slots change no ref a cached table holds); it moved on every exchange, so the worker rebuilt every class table
   // for each request.
   function applyValueChanges(store,{length,changes}){
-    const r=rt(store),values=store.values;let replaced=false;
+    const r=rt(store),values=store.values,journal=r.journal&&r.journal.active?r.journal:null,previousLength=values.length;let replaced=false,mutated=false;
     for(const [ref,value] of changes){
-      if(ref<values.length&&values[ref]!==null&&values[ref]!==undefined)replaced=true;
+      if(!Number.isSafeInteger(ref)||ref<=0)throw new Error('fleet-replica-value-ref');
+      const wasInside=ref<values.length,existed=wasInside&&values[ref]!==null&&values[ref]!==undefined,wasFree=wasInside&&!existed,next=value===undefined?null:value;
+      if(existed)replaced=true;
+      // A main-thread intern can fill a free ref while a worker step/window journal is open. The worker must journal that
+      // reuse exactly as intern() would; otherwise rolling the open step back leaves the worker holding the new value.
+      if(journal&&!existed&&next!==null&&ref<journal.valuesLength)journal.reused.push(ref);
+      if(wasFree&&next!==null&&!removeFreeRef(r,ref))throw new Error('fleet-replica-free-order');
+      if(existed&&next===null)pushFreeRef(r,ref);
       if(ref<values.length)unindexValue(r,values[ref],ref);
-      while(values.length<ref)values.push(null);
-      values[ref]=value===undefined?null:value;
+      while(values.length<ref){const gap=values.length;values.push(null);if(gap>0)pushFreeRef(r,gap);}
+      values[ref]=next;mutated=true;
+      if(!wasInside&&next===null)pushFreeRef(r,ref);
       if(values[ref]!==null){const key=valueKey(values[ref]);if(!r.index.has(key))r.index.set(key,ref);}
+      logReplicaValue(r,ref);
     }
-    if(values.length>length){for(let ref=length;ref<values.length;ref++){if(values[ref]!==null&&values[ref]!==undefined)replaced=true;unindexValue(r,values[ref],ref);}values.length=length;}
-    while(values.length<length)values.push(null);
-    r.free=[];for(let ref=1;ref<values.length;ref++)if(values[ref]===null)r.free.push(ref);
-    r.indexedTo=values.length;if(replaced)r.valuesGeneration=++epochCounter;
+    if(values.length>length){for(let ref=values.length-1;ref>=length;ref--){if(values[ref]!==null&&values[ref]!==undefined)replaced=true;else if(ref>0&&!removeFreeRef(r,ref))throw new Error('fleet-replica-free-order');unindexValue(r,values[ref],ref);}values.length=length;mutated=true;}
+    while(values.length<length){const ref=values.length;values.push(null);if(ref>0)pushFreeRef(r,ref);mutated=true;}
+    if(values.length!==previousLength)logReplicaValueLength(r);
+    r.indexedTo=values.length;if(mutated)r.valueRevision++;if(replaced)r.valuesGeneration=++epochCounter;
   }
   // Main side: interns `value` at the reference another realm's intern() gave it. Journaled like intern() (an appended
   // value is removed and a reused slot freed again on rollback). False when that reference holds another value or is not
-  // the next slot: the replicas disagree and the caller must not use the result.
+  // the next slot/free-stack head: the replicas disagree and the caller must not use the result. The engine thread wraps
+  // its known replay in withoutReplicaLog; any other caller records the mutation for an existing downstream replica.
   function internAt(store,ref,value){
     if(value===null||value===undefined)return ref===0;
     const r=rt(store),key=valueKey(value),found=r.index.get(key);
@@ -1078,10 +1321,10 @@
     // Build 372: an appended value, as intern() appends one, leaves valuesGeneration alone (no existing ref changes, and rows
     // that take the new ref are written, which moves their chunks): the replay of every step appended its trips' values and
     // so dropped every cached class table (the integrity check rebuilt a million rows every market hour and health check).
-    if(ref===store.values.length){store.values.push(stored);r.indexedTo=store.values.length;r.index.set(key,ref);return true;}
+    if(ref===store.values.length){store.values.push(stored);r.indexedTo=store.values.length;r.index.set(key,ref);r.valueRevision++;logReplicaValue(r,ref);return true;}
     if(!(ref>0&&ref<store.values.length)||(store.values[ref]!==null&&store.values[ref]!==undefined))return false;
-    const at=r.free.lastIndexOf(ref);if(at<0)return false;
-    r.free.splice(at,1);store.values[ref]=stored;if(r.journal&&r.journal.active)r.journal.reused.push(ref);r.index.set(key,ref);r.valuesGeneration=++epochCounter;return true;
+    if(!removeFreeRef(r,ref))return false;
+    store.values[ref]=stored;if(r.journal&&r.journal.active)r.journal.reused.push(ref);r.index.set(key,ref);r.valueRevision++;r.valuesGeneration=++epochCounter;logReplicaValue(r,ref);return true;
   }
   // Build 359: whole columns (a field of every row) for the other side, when the main thread rewrote them wholesale (the
   // daily fleet pass writes flight hours, cycles and the next check of every asset). Before, any column write sent the
@@ -1102,7 +1345,7 @@
       for(let index=0;index<length;index++)target[index*per+k]=source[index];
     }
     const r=rt(store);r.allDirty=true;r.massVersion++;store.revision++;invalidateProfiles(store);
-    const loud=new Set(reported);for(const [name] of columns)if(loud.has(name)&&!r.suppressDirtyLog){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(name);}
+    const loud=new Set(reported),journal=r.journal&&r.journal.active?r.journal:null;for(const [name] of columns)if(loud.has(name)){const snapshot=journal?.fields.get(name);if(snapshot)snapshot.quiet=false;if(!r.suppressDirtyLog){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(name);}}
   }
   // Copies of whole records and their extras, for the rows listed (to send to the other side).
   function readRows(store,indices){
@@ -1146,8 +1389,8 @@
   }
 
   const API=Object.freeze({VERSION,SCHEMA,CHUNK_SHIFT,CHUNK_ROWS,ALIVE,EXTRAS,I32_NULL,PROFILE_FIELDS,BINDING_FIELDS,HOT_FIELDS,HOT_BIT,STRIDE,F64_PER_ROW,WORDS_PER_ROW,SLOTS,SLOT_NAMES,O,
-    create,isStore,ensureCapacity,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
-    views,slot,setSlot,columnWriter,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup});
+    create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
+    views,slot,setSlot,columnWriter,columnPlanStages,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup});
   globalThis.GH_FLEET_STORE=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_FLEET_STORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;
