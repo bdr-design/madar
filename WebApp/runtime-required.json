@@ -897,6 +897,8 @@
     "interface-core.js",
     "interface-layout.css",
     "lifecycle-core.js",
+    "madar-icons.css",
+    "madar-icons.js",
     "madar-shell.css",
     "madar-shell.js",
     "map-asset-query-core.js",

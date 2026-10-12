@@ -3,7 +3,10 @@
    its owner (data-gh-action and the app.js handlers), and retired panel ids still open, redirected to their new home. */
 (()=>{'use strict';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const icon=id=>`<svg aria-hidden="true"><use href="#i-${esc(id)}"></use></svg>`;
+// MADAR icons (madar-icons.js): an option card shows its realistic glyph on a glass tile; the page strip and the
+// frame controls draw the glyph bare.
+const icon=id=>globalThis.GH_ICONS?.tile(id)||'';
+const glyph=id=>globalThis.GH_ICONS?.glyph(id)||'';
 const ui=name=>`assets/images/ui/${name}.webp`;
 const platform=()=>globalThis.GH_COMPANY_PLATFORM;
 // One digit style across the shell, the same Western digits as the money figures in the top bar.
@@ -20,82 +23,82 @@ function companyOfKind(state,kind){return openedCompanies(state).find(row=>kindO
 const fuelled=(state,id)=>{try{return Boolean(globalThis.GH_MARKET_CORE?.companyFuel?.(state,id));}catch(_error){return false;}};
 
 // Each company's control panel. `hero` is the large card; every tile opens one existing page scoped to the company.
-const MANAGE=Object.freeze({key:'manage',title:'الإدارة والهوية',sub:'المدير · الاسم والشعار · الجودة والأتمتة',img:'group-boardroom',icon:'crown',to:id=>['companyManage',{type:id,tab:'overview'}]});
-const FINANCE=Object.freeze({key:'finance',title:'مالية الشركة',sub:'المستندات · الالتزامات · الأرباح',img:'finance-budget',icon:'budget',to:id=>['invoices',{company:id,tab:'overview'}]});
-const BUDGET=Object.freeze({key:'budget',title:'ميزانية الشركة',sub:'سقف شهري ملزم لكل بند',img:'finance-documents',icon:'document',to:id=>['budgets',id]});
-const fleetKind=(sector,unit,fleetTitle,fleetImg,rows)=>Object.freeze({sector,unit,fleet:true,hero:{key:'fleet',title:fleetTitle,img:fleetImg,icon:'assets',to:id=>['assets',id]},tiles:Object.freeze([...rows,
-  {key:'deliveries',title:'قيد التسليم',sub:'الطلبات المدفوعة في الطريق',img:'company-system-v2',icon:'box',to:()=>['procurement']},
+const MANAGE=Object.freeze({key:'manage',title:'الإدارة والهوية',sub:'المدير · الاسم والشعار · الجودة والأتمتة',img:'group-boardroom',icon:'manage',to:id=>['companyManage',{type:id,tab:'overview'}]});
+const FINANCE=Object.freeze({key:'finance',title:'مالية الشركة',sub:'المستندات · الالتزامات · الأرباح',img:'finance-budget',icon:'company-finance',to:id=>['invoices',{company:id,tab:'overview'}]});
+const BUDGET=Object.freeze({key:'budget',title:'ميزانية الشركة',sub:'سقف شهري ملزم لكل بند',img:'finance-documents',icon:'budget',to:id=>['budgets',id]});
+const fleetKind=(sector,unit,fleetTitle,fleetImg,fleetIcon,rows)=>Object.freeze({sector,unit,fleet:true,hero:{key:'fleet',title:fleetTitle,img:fleetImg,icon:fleetIcon,to:id=>['assets',id]},tiles:Object.freeze([...rows,
+  {key:'deliveries',title:'قيد التسليم',sub:'الطلبات المدفوعة في الطريق',img:'company-system-v2',icon:'deliveries',to:()=>['procurement']},
   MANAGE,FINANCE,BUDGET])});
 const KINDS=Object.freeze({
-  air:fleetKind('الطيران','طائرة','الأسطول الجوي','air-widebody',[
-    {key:'buy',title:'شراء طائرات',sub:'جديد ومستعمل · مقارنة · شراء مفصّل',img:'air-narrow',icon:'cart',to:id=>['assetMarket',id]},
-    {key:'routes',title:'الخطوط الجوية',sub:'الخطوط وتعيين الطائرات',img:'routes-map',icon:'route',map:true,to:id=>['routes',id]},
-    {key:'bases',title:'المطارات والقواعد',sub:'قواعد الشركة وفتح قاعدة جديدة',img:'facility-airport-v2',icon:'facility',to:id=>['companyFacilities',id]},
-    {key:'contracts',title:'عقود الشحن الجوي',sub:'المناقصات والعقود السارية',img:'air-cargo',icon:'contract',to:id=>['contracts',id]},
-    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'air-hangar',icon:'tools',fuel:true,to:id=>['maintenance',id]},
-    {key:'crews',title:'الطواقم والأجور',sub:'مستوى الأجور مقابل السوق',img:'air-crew',icon:'people',fuel:true,to:id=>['crews',id]}]),
-  sea:fleetKind('الشحن البحري','سفينة','الأسطول البحري','ship-container',[
-    {key:'buy',title:'شراء سفن',sub:'من المغذّية إلى الناقلات العملاقة',img:'ship-tanker',icon:'cart',to:id=>['assetMarket',id]},
-    {key:'routes',title:'الخطوط البحرية',sub:'الخطوط وتعيين السفن',img:'routes-map',icon:'route',map:true,to:id=>['routes',id]},
-    {key:'bases',title:'الموانئ والقواعد',sub:'موانئ الشركة وفتح ميناء جديد',img:'facility-port-v2',icon:'facility',to:id=>['companyFacilities',id]},
-    {key:'contracts',title:'عقود الشحن البحري',sub:'المناقصات والعقود السارية',img:'ship-lng',icon:'contract',to:id=>['contracts',id]},
-    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'sea-drydock',icon:'tools',fuel:true,to:id=>['maintenance',id]},
-    {key:'carbon',title:'تصنيف الكربون CII',sub:'خطط تحسين الامتثال البحري',img:'ship-support',icon:'leaf',to:()=>['compliance']},
-    {key:'crews',title:'الطواقم والأجور',sub:'مستوى الأجور مقابل السوق',img:'sea-crew',icon:'people',fuel:true,to:id=>['crews',id]}]),
-  road:fleetKind('النقل والتوزيع','شاحنة','الأسطول البري','truck-longhaul-v2',[
-    {key:'buy',title:'شراء شاحنات',sub:'من التوصيل الحضري إلى النقل الثقيل',img:'truck-container',icon:'cart',to:id=>['assetMarket',id]},
-    {key:'routes',title:'المسارات البرية',sub:'المسارات ونقاط التسليم',img:'routes-map',icon:'route',map:true,to:id=>['routes',id]},
-    {key:'bases',title:'المستودعات والمراكز',sub:'مراكز الشركة وفتح مركز جديد',img:'facility-logistics-v2',icon:'facility',to:id=>['companyFacilities',id]},
-    {key:'contracts',title:'عقود التوزيع',sub:'المناقصات والعقود السارية',img:'truck-reefer',icon:'contract',to:id=>['contracts',id]},
-    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'road-workshop',icon:'tools',fuel:true,to:id=>['maintenance',id]},
-    {key:'crews',title:'السائقون والأجور',sub:'مستوى الأجور مقابل السوق',img:'road-drivers',icon:'people',fuel:true,to:id=>['crews',id]}]),
-  mobility:fleetKind('التنقل الذكي','سيارة','سيارات التنقل','mobility-hero',[
-    {key:'buy',title:'شراء سيارات',sub:'سيارات كهربائية وهجينة للمدن',img:'auto-delivery',icon:'cart',to:id=>['assetMarket',id]},
-    {key:'routes',title:'خطوط المدن',sub:'التشغيل داخل المدن',img:'routes-map',icon:'route',map:true,to:id=>['routes',id]},
-    {key:'bases',title:'فروع المدن',sub:'مراكز التشغيل وفتح فرع جديد',img:'mobility-charging',icon:'facility',to:id=>['companyFacilities',id]},
-    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'mobility-driver',icon:'tools',fuel:true,to:id=>['maintenance',id]}]),
-  power:Object.freeze({sector:'الطاقة والتخزين',hero:{key:'projects',title:'المحطات والمشاريع',img:'energy-solar',icon:'energy',to:()=>['energy',{tab:'projects'}]},tiles:Object.freeze([
-    {key:'overview',title:'لوحة الطاقة',sub:'من التطوير إلى التحصيل',img:'energy-battery',icon:'energy',to:()=>['energy',{tab:'overview'}]},
-    {key:'operations',title:'التشغيل والتوزيع',sub:'الأحمال والصيانة المجدولة',img:'energy-control',icon:'ops',to:()=>['energy',{tab:'operations'}]},
-    {key:'control',title:'العقود والتمويل',sub:'عقود البيع والوقود وتمويل المشاريع',img:'ship-lng',icon:'contract',to:()=>['energy',{tab:'control'}]},
-    {key:'revenue',title:'الإيرادات',sub:'التسوية والتدفق النقدي',img:'finance-markets',icon:'market',to:()=>['energy',{tab:'revenue'}]},
-    {key:'sites',title:'مواقع المحطات',sub:'محطات الشركة وموقع محطة جديدة',img:'energy-wind',icon:'facility',to:id=>['companyFacilities',id]},
-    {key:'contracts',title:'المناقصات والعقود',sub:'عقود الطاقة مع العملاء',img:'lead-partners',icon:'contract',to:id=>['contracts',id]},
+  air:fleetKind('الطيران','طائرة','الأسطول الجوي','air-widebody','fleet-air',[
+    {key:'buy',title:'شراء طائرات',sub:'جديد ومستعمل · مقارنة · شراء مفصّل',img:'air-narrow',icon:'buy-air',to:id=>['assetMarket',id]},
+    {key:'routes',title:'الخطوط الجوية',sub:'الخطوط وتعيين الطائرات',img:'routes-map',icon:'route-air',map:true,to:id=>['routes',id]},
+    {key:'bases',title:'المطارات والقواعد',sub:'قواعد الشركة وفتح قاعدة جديدة',img:'facility-airport-v2',icon:'tower',to:id=>['companyFacilities',id]},
+    {key:'contracts',title:'عقود الشحن الجوي',sub:'المناقصات والعقود السارية',img:'air-cargo',icon:'contract-air',to:id=>['contracts',id]},
+    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'air-hangar',icon:'maintenance',fuel:true,to:id=>['maintenance',id]},
+    {key:'crews',title:'الطواقم والأجور',sub:'مستوى الأجور مقابل السوق',img:'air-crew',icon:'pilot',fuel:true,to:id=>['crews',id]}]),
+  sea:fleetKind('الشحن البحري','سفينة','الأسطول البحري','ship-container','fleet-sea',[
+    {key:'buy',title:'شراء سفن',sub:'من المغذّية إلى الناقلات العملاقة',img:'ship-tanker',icon:'buy-sea',to:id=>['assetMarket',id]},
+    {key:'routes',title:'الخطوط البحرية',sub:'الخطوط وتعيين السفن',img:'routes-map',icon:'route-sea',map:true,to:id=>['routes',id]},
+    {key:'bases',title:'الموانئ والقواعد',sub:'موانئ الشركة وفتح ميناء جديد',img:'facility-port-v2',icon:'port',to:id=>['companyFacilities',id]},
+    {key:'contracts',title:'عقود الشحن البحري',sub:'المناقصات والعقود السارية',img:'ship-lng',icon:'contract-sea',to:id=>['contracts',id]},
+    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'sea-drydock',icon:'maintenance',fuel:true,to:id=>['maintenance',id]},
+    {key:'carbon',title:'تصنيف الكربون CII',sub:'خطط تحسين الامتثال البحري',img:'ship-support',icon:'carbon',to:()=>['compliance']},
+    {key:'crews',title:'الطواقم والأجور',sub:'مستوى الأجور مقابل السوق',img:'sea-crew',icon:'captain',fuel:true,to:id=>['crews',id]}]),
+  road:fleetKind('النقل والتوزيع','شاحنة','الأسطول البري','truck-longhaul-v2','fleet-road',[
+    {key:'buy',title:'شراء شاحنات',sub:'من التوصيل الحضري إلى النقل الثقيل',img:'truck-container',icon:'buy-road',to:id=>['assetMarket',id]},
+    {key:'routes',title:'المسارات البرية',sub:'المسارات ونقاط التسليم',img:'routes-map',icon:'route-road',map:true,to:id=>['routes',id]},
+    {key:'bases',title:'المستودعات والمراكز',sub:'مراكز الشركة وفتح مركز جديد',img:'facility-logistics-v2',icon:'warehouse',to:id=>['companyFacilities',id]},
+    {key:'contracts',title:'عقود التوزيع',sub:'المناقصات والعقود السارية',img:'truck-reefer',icon:'contract-road',to:id=>['contracts',id]},
+    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'road-workshop',icon:'maintenance',fuel:true,to:id=>['maintenance',id]},
+    {key:'crews',title:'السائقون والأجور',sub:'مستوى الأجور مقابل السوق',img:'road-drivers',icon:'driver',fuel:true,to:id=>['crews',id]}]),
+  mobility:fleetKind('التنقل الذكي','سيارة','سيارات التنقل','mobility-hero','fleet-car',[
+    {key:'buy',title:'شراء سيارات',sub:'سيارات كهربائية وهجينة للمدن',img:'auto-delivery',icon:'buy-car',to:id=>['assetMarket',id]},
+    {key:'routes',title:'خطوط المدن',sub:'التشغيل داخل المدن',img:'routes-map',icon:'route-city',map:true,to:id=>['routes',id]},
+    {key:'bases',title:'فروع المدن',sub:'مراكز التشغيل وفتح فرع جديد',img:'mobility-charging',icon:'city-branch',to:id=>['companyFacilities',id]},
+    {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'mobility-driver',icon:'maintenance',fuel:true,to:id=>['maintenance',id]}]),
+  power:Object.freeze({sector:'الطاقة والتخزين',hero:{key:'projects',title:'المحطات والمشاريع',img:'energy-solar',icon:'solar',to:()=>['energy',{tab:'projects'}]},tiles:Object.freeze([
+    {key:'overview',title:'لوحة الطاقة',sub:'من التطوير إلى التحصيل',img:'energy-battery',icon:'energy-dash',to:()=>['energy',{tab:'overview'}]},
+    {key:'operations',title:'التشغيل والتوزيع',sub:'الأحمال والصيانة المجدولة',img:'energy-control',icon:'grid',to:()=>['energy',{tab:'operations'}]},
+    {key:'control',title:'العقود والتمويل',sub:'عقود البيع والوقود وتمويل المشاريع',img:'ship-lng',icon:'contract-power',to:()=>['energy',{tab:'control'}]},
+    {key:'revenue',title:'الإيرادات',sub:'التسوية والتدفق النقدي',img:'finance-markets',icon:'revenue',to:()=>['energy',{tab:'revenue'}]},
+    {key:'sites',title:'مواقع المحطات',sub:'محطات الشركة وموقع محطة جديدة',img:'energy-wind',icon:'power-site',to:id=>['companyFacilities',id]},
+    {key:'contracts',title:'المناقصات والعقود',sub:'عقود الطاقة مع العملاء',img:'lead-partners',icon:'tender',to:id=>['contracts',id]},
     MANAGE,FINANCE,BUDGET])}),
-  bank:Object.freeze({sector:'الخدمات المصرفية',hero:{key:'credit',title:'الائتمان والقروض',img:'bank-credit',icon:'bank',to:()=>['bank',{tab:'credit'}]},tiles:Object.freeze([
+  bank:Object.freeze({sector:'الخدمات المصرفية',hero:{key:'credit',title:'الائتمان والقروض',img:'bank-credit',icon:'credit',to:()=>['bank',{tab:'credit'}]},tiles:Object.freeze([
     {key:'overview',title:'لوحة البنك',sub:'الودائع والائتمان والدخل والسلامة',img:'company-bank-v2',icon:'bank',to:()=>['bank',{tab:'overview'}]},
-    {key:'branches',title:'الفروع والخدمات',sub:'الحملات وفتح فرع جديد',img:'bank-branch',icon:'facility',to:()=>['bank',{tab:'branches'}]},
-    {key:'control',title:'السيولة والمخاطر',sub:'التسعير والاستثمار والحدود',img:'bank-vault',icon:'shield',to:()=>['bank',{tab:'control'}]},
-    {key:'revenue',title:'الإيرادات',sub:'الفوائد والرسوم المحققة',img:'finance-markets',icon:'market',to:()=>['bank',{tab:'revenue'}]},
+    {key:'branches',title:'الفروع والخدمات',sub:'الحملات وفتح فرع جديد',img:'bank-branch',icon:'atm',to:()=>['bank',{tab:'branches'}]},
+    {key:'control',title:'السيولة والمخاطر',sub:'التسعير والاستثمار والحدود',img:'bank-vault',icon:'liquidity',to:()=>['bank',{tab:'control'}]},
+    {key:'revenue',title:'الإيرادات',sub:'الفوائد والرسوم المحققة',img:'finance-markets',icon:'revenue',to:()=>['bank',{tab:'revenue'}]},
     MANAGE,FINANCE,BUDGET])}),
-  insurance:Object.freeze({sector:'التأمين',hero:{key:'overview',title:'لوحة التأمين',img:'insurance-hero',icon:'shield',to:()=>['insurance',{tab:'overview'}]},tiles:Object.freeze([
-    {key:'lines',title:'المنتجات والتسعير',sub:'الأسعار وإعادة التأمين',img:'insurance-risk',icon:'market',to:()=>['insurance',{tab:'lines'}]},
-    {key:'offices',title:'المكاتب',sub:'الحملات وفتح مكتب جديد',img:'insurance-branch',icon:'facility',to:()=>['insurance',{tab:'offices'}]},
-    {key:'claims',title:'المطالبات',sub:'الاحتياطي والسداد',img:'insurance-claims',icon:'document',to:()=>['insurance',{tab:'claims'}]},
+  insurance:Object.freeze({sector:'التأمين',hero:{key:'overview',title:'لوحة التأمين',img:'insurance-hero',icon:'umbrella',to:()=>['insurance',{tab:'overview'}]},tiles:Object.freeze([
+    {key:'lines',title:'المنتجات والتسعير',sub:'الأسعار وإعادة التأمين',img:'insurance-risk',icon:'pricing',to:()=>['insurance',{tab:'lines'}]},
+    {key:'offices',title:'المكاتب',sub:'الحملات وفتح مكتب جديد',img:'insurance-branch',icon:'office',to:()=>['insurance',{tab:'offices'}]},
+    {key:'claims',title:'المطالبات',sub:'الاحتياطي والسداد',img:'insurance-claims',icon:'claims',to:()=>['insurance',{tab:'claims'}]},
     MANAGE,FINANCE,BUDGET])}),
-  realestate:Object.freeze({sector:'التطوير العقاري',hero:{key:'overview',title:'لوحة العقار',img:'realestate-sales',icon:'building',to:()=>['realestate',{tab:'overview'}]},tiles:Object.freeze([
-    {key:'projects',title:'المشاريع',sub:'البيع والتأجير والإشغال',img:'realestate-villas',icon:'building',to:()=>['realestate',{tab:'projects'}]},
-    {key:'develop',title:'تطوير مشروع',sub:'المدينة والنوع والتمويل',img:'realestate-hero',icon:'plus',to:()=>['realestate',{tab:'develop'}]},
-    {key:'offices',title:'المكاتب',sub:'مكاتب الشركة وفتح مكتب جديد',img:'realestate-mall',icon:'facility',to:id=>['companyFacilities',id]},
+  realestate:Object.freeze({sector:'التطوير العقاري',hero:{key:'overview',title:'لوحة العقار',img:'realestate-sales',icon:'house',to:()=>['realestate',{tab:'overview'}]},tiles:Object.freeze([
+    {key:'projects',title:'المشاريع',sub:'البيع والتأجير والإشغال',img:'realestate-villas',icon:'construction',to:()=>['realestate',{tab:'projects'}]},
+    {key:'develop',title:'تطوير مشروع',sub:'المدينة والنوع والتمويل',img:'realestate-hero',icon:'develop',to:()=>['realestate',{tab:'develop'}]},
+    {key:'offices',title:'المكاتب',sub:'مكاتب الشركة وفتح مكتب جديد',img:'realestate-mall',icon:'office',to:id=>['companyFacilities',id]},
     MANAGE,FINANCE,BUDGET])}),
-  telecom:Object.freeze({sector:'الاتصالات',hero:{key:'operations',title:'الاشتراكات والشرائح',img:'telecom-store',icon:'tower',to:id=>['companyManage',{type:id,tab:'operations'}]},tiles:Object.freeze([
-    {key:'network',title:'الشبكة والفروع',sub:'فتح الفروع من دليل المدن',img:'telecom-fiber',icon:'facility',to:id=>['companyFacilities',id]},
-    {key:'datacenter',title:'نظرة الشركة',sub:'التشغيل والإيراد والعملاء',img:'telecom-datacenter',icon:'ops',to:id=>['companyManage',{type:id,tab:'overview'}]},
+  telecom:Object.freeze({sector:'الاتصالات',hero:{key:'operations',title:'الاشتراكات والشرائح',img:'telecom-store',icon:'sim',to:id=>['companyManage',{type:id,tab:'operations'}]},tiles:Object.freeze([
+    {key:'network',title:'الشبكة والفروع',sub:'فتح الفروع من دليل المدن',img:'telecom-fiber',icon:'antenna',to:id=>['companyFacilities',id]},
+    {key:'datacenter',title:'نظرة الشركة',sub:'التشغيل والإيراد والعملاء',img:'telecom-datacenter',icon:'datacenter',to:id=>['companyManage',{type:id,tab:'overview'}]},
     {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}],sub:'المدير التنفيذي والتوظيف'},FINANCE,BUDGET])}),
-  dealership:Object.freeze({sector:'وكالة السيارات',hero:{key:'operations',title:'المخزون والمبيعات',img:'auto-hero',icon:'car',to:id=>['companyManage',{type:id,tab:'operations'}]},tiles:Object.freeze([
-    {key:'service',title:'خطط الخدمة والتمويل',sub:'خطط الصيانة وتسوية البيع الممول',img:'auto-service',icon:'tools',to:id=>['companyManage',{type:id,tab:'operations'}]},
-    {key:'showrooms',title:'المعارض والفروع',sub:'فتح فرع من دليل المدن',img:'auto-delivery',icon:'facility',to:id=>['companyFacilities',id]},
+  dealership:Object.freeze({sector:'وكالة السيارات',hero:{key:'operations',title:'المخزون والمبيعات',img:'auto-hero',icon:'car-sales',to:id=>['companyManage',{type:id,tab:'operations'}]},tiles:Object.freeze([
+    {key:'service',title:'خطط الخدمة والتمويل',sub:'خطط الصيانة وتسوية البيع الممول',img:'auto-service',icon:'car-service',to:id=>['companyManage',{type:id,tab:'operations'}]},
+    {key:'showrooms',title:'المعارض والفروع',sub:'فتح فرع من دليل المدن',img:'auto-delivery',icon:'showroom',to:id=>['companyFacilities',id]},
     {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}],sub:'المدير التنفيذي والتوظيف'},FINANCE,BUDGET])})
 });
 function tilesFor(state,id){const kind=KINDS[kindOf(state,id)];if(!kind)return [];return kind.tiles.filter(tile=>!tile.fuel||fuelled(state,id));}
 
 // ---- Group sections ------------------------------------------------------------------------------------------------
 const SECTIONS=Object.freeze({
-  group:Object.freeze({label:'المجموعة',icon:'company',nav:'companies',pages:[['companies',null,'المجموعة','company'],['groupManagement',null,'أداء الشركات','ops'],['assets','all','أسطول المجموعة','assets'],['network',null,'الدليل العالمي','world'],['expansion',null,'كل المنشآت','facility'],['formationContract',null,'عقد التأسيس','contract']]}),
-  finance:Object.freeze({label:'المال',icon:'market',nav:'finance',pages:[['finance',null,'نظرة عامة','market'],['treasury',null,'الخزينة','treasury'],['monthlyFinance',null,'الدخل الشهري','budget'],['budgets',null,'الميزانيات','budget'],['invoices',null,'المستندات','document'],['market',null,'الأسواق والتحوط','market'],['market','deals','الاستحواذات','company'],['stocks',null,'الأسهم والطرح','market']]}),
-  people:Object.freeze({label:'الأفراد',icon:'people',nav:'people',pages:[['peopleHub',null,'نظرة عامة','people'],['labor','dashboard','لوحة الأفراد','people'],['labor','managers','المديرون التنفيذيون','crown'],['labor','jobs','الوظائف','ops'],['labor','contracts','عقود العمل','contract'],['labor','payroll','الرواتب','budget'],['crews',null,'الأجور والطواقم','people']]}),
-  leadership:Object.freeze({label:'الإدارة',icon:'crown',nav:'leadership',pages:[['leadershipHub',null,'نظرة عامة','crown'],['actionCenter',null,'المهام الآن','bell'],['compliance',null,'السلامة والأمن','shield'],['conference',null,'المؤتمر السنوي','governance'],['research',null,'البحث والتطوير','research'],['esg',null,'الاستدامة','leaf'],['businessWorld',null,'العلاقات التجارية','contract'],['realism',null,'السوق والاقتصاد','market'],['news',null,'الأخبار','news']]}),
-  system:Object.freeze({label:'النظام',icon:'settings',nav:'system',pages:[['settings',null,'الحفظ والإعدادات','save'],['updates',null,'التحديثات','update'],['diagnostics',null,'صحة اللعبة','health'],['controlPlane',null,'مركز التحكم','health']]})
+  group:Object.freeze({label:'المجموعة',icon:'group',nav:'companies',pages:[['companies',null,'المجموعة','group'],['groupManagement',null,'أداء الشركات','performance'],['assets','all','أسطول المجموعة','fleet-all'],['network',null,'الدليل العالمي','directory'],['expansion',null,'كل المنشآت','facilities'],['formationContract',null,'عقد التأسيس','charter']]}),
+  finance:Object.freeze({label:'المال',icon:'finance',nav:'finance',pages:[['finance',null,'نظرة عامة','finance'],['treasury',null,'الخزينة','treasury'],['monthlyFinance',null,'الدخل الشهري','monthly-income'],['budgets',null,'الميزانيات','budget'],['invoices',null,'المستندات','documents'],['market',null,'الأسواق والتحوط','markets'],['market','deals','الاستحواذات','acquisitions'],['stocks',null,'الأسهم والطرح','stocks']]}),
+  people:Object.freeze({label:'الأفراد',icon:'people',nav:'people',pages:[['peopleHub',null,'نظرة عامة','people'],['labor','dashboard','لوحة الأفراد','people-dash'],['labor','managers','المديرون التنفيذيون','executive'],['labor','jobs','الوظائف','jobs'],['labor','contracts','عقود العمل','employment'],['labor','payroll','الرواتب','payroll'],['crews',null,'الأجور والطواقم','crews']]}),
+  leadership:Object.freeze({label:'الإدارة',icon:'leadership',nav:'leadership',pages:[['leadershipHub',null,'نظرة عامة','leadership'],['actionCenter',null,'المهام الآن','tasks'],['compliance',null,'السلامة والأمن','safety'],['conference',null,'المؤتمر السنوي','conference'],['research',null,'البحث والتطوير','research'],['esg',null,'الاستدامة','esg'],['businessWorld',null,'العلاقات التجارية','relations'],['realism',null,'السوق والاقتصاد','economy'],['news',null,'الأخبار','news']]}),
+  system:Object.freeze({label:'النظام',icon:'settings',nav:'system',pages:[['settings',null,'الحفظ والإعدادات','settings'],['updates',null,'التحديثات','updates'],['diagnostics',null,'صحة اللعبة','diagnostics'],['controlPlane',null,'مركز التحكم','control-plane']]})
 });
 const SECTION_OF=Object.freeze({companies:'group',groupManagement:'group',network:'group',expansion:'group',ports:'group',formationContract:'group',
   finance:'finance',monthlyFinance:'finance',treasury:'finance',budgets:'finance',invoices:'finance',market:'finance',stocks:'finance',
@@ -164,9 +167,9 @@ function renderCompany(state,id,ctx){
   const hero=kind.hero,[heroPanel,heroArg]=hero.to(id);
   const heroCard=`<button type="button" class="mc-tile mc-hero" ${go(heroPanel,heroArg)} data-tile="${esc(hero.key)}"><img src="${ui(hero.img)}" alt="" decoding="async"><span class="mc-scrim mc-scrim-side"></span><span class="mc-badge">${icon(hero.icon)}</span><span class="mc-text"><small class="mc-kicker">${esc(hero.title)}</small>${heroCount?`<span class="mc-hero-count">${heroCount}</span>`:''}<span class="mc-chips">${heroChips||heroLine}</span></span></button>`;
   const decisions=[];
-  if(kind.fleet&&facts.fleet?.service>0)decisions.push(['tools',`${num(facts.fleet.service)} ${kind.unit} تحتاج صيانة`,'افتح الصيانة لمراجعة السياسة والفحوص','maintenance',id,'مراجعة']);
-  for(const [label,value] of summary?.metrics||[])if(/بانتظار|طلبات|عروض/.test(String(label))&&Number(value)>0)decisions.push(['bell',`${label}: ${value}`,'قرار مفتوح في هذه الشركة',hero.to(id)[0],hero.to(id)[1],'فتح']);
-  if(!facts.manager?.name)decisions.push(['crown','عيّن مديرًا تنفيذيًا','الشركة تعمل بلا مدير رسمي','labor',`managers:${id}`,'تعيين']);
+  if(kind.fleet&&facts.fleet?.service>0)decisions.push(['maintenance',`${num(facts.fleet.service)} ${kind.unit} تحتاج صيانة`,'افتح الصيانة لمراجعة السياسة والفحوص','maintenance',id,'مراجعة']);
+  for(const [label,value] of summary?.metrics||[])if(/بانتظار|طلبات|عروض/.test(String(label))&&Number(value)>0)decisions.push(['tasks',`${label}: ${value}`,'قرار مفتوح في هذه الشركة',hero.to(id)[0],hero.to(id)[1],'فتح']);
+  if(!facts.manager?.name)decisions.push(['executive','عيّن مديرًا تنفيذيًا','الشركة تعمل بلا مدير رسمي','labor',`managers:${id}`,'تعيين']);
   const decisionMarkup=decisions.length?`<section class="mc-decide" aria-label="يحتاج قرارك"><h3>يحتاج قرارك</h3>${decisions.map(([ic,title,copy,panel,arg,label])=>`<div class="mc-decision"><span class="mc-decision-icon">${icon(ic)}</span><span class="mc-decision-copy"><b>${esc(title)}</b><small>${esc(copy)}</small></span><button type="button" class="mc-act" ${go(panel,arg)}>${esc(label)}</button></div>`).join('')}</section>`:'';
   return `<div class="madar-company" data-kind="${esc(kindId)}"><p class="mc-manager">${managerLine}</p><div class="mc-kpis">${kpis.map(([label,value,cls])=>`<div class="mc-kpi"><span>${esc(label)}</span><b class="${esc(cls)}">${esc(value)}</b></div>`).join('')}</div>${heroCard}<div class="mc-grid">${tilesFor(state,id).map(tile=>tileMarkup(tile,id)).join('')}</div>${decisionMarkup}</div>`;
 }
@@ -180,7 +183,7 @@ const STRIP_TABS=Object.freeze({'data-labortab':value=>value,'data-energy-tab':t
 function stripFor(state,panel,arg,place){
   if(place.section==='company'){
     const id=place.company,kind=KINDS[kindOf(state,id)];if(!kind)return [];
-    const rows=[['company',id,'لوحة الشركة','company'],[...kind.hero.to(id),kind.hero.title,kind.hero.icon],...tilesFor(state,id).map(tile=>[...tile.to(id),tile.title,tile.icon])];
+    const rows=[['company',id,'لوحة الشركة','dashboard'],[...kind.hero.to(id),kind.hero.title,kind.hero.icon],...tilesFor(state,id).map(tile=>[...tile.to(id),tile.title,tile.icon])];
     return rows.map(([p,a,label,ic])=>({panel:p,arg:a,label,icon:ic}));
   }
   const section=SECTIONS[place.section];return section?section.pages.map(([p,a,label,ic])=>({panel:p,arg:a===null?undefined:a,label,icon:ic})):[];
@@ -196,16 +199,16 @@ function decorate(root,panel,arg,ctx){
   if(drawer){drawer.dataset.domain=place.section==='company'?'company':place.section;drawer.dataset.company=place.company||'';}
   const mark=document.getElementById('drawerMark'),eyebrow=document.getElementById('drawerEyebrow');
   if(place.section==='company'){
-    if(mark)mark.innerHTML=logoImg(state,place.company)||icon('company');
+    if(mark)mark.innerHTML=logoImg(state,place.company)||icon('group');
     if(eyebrow)eyebrow.textContent=panel==='company'?(KINDS[kindOf(state,place.company)]?.sector||'الشركة'):shortName(state,place.company);
   }else{
-    const section=SECTIONS[place.section];if(mark)mark.innerHTML=icon(section?.icon||'world');if(eyebrow&&section)eyebrow.textContent=section.label;
+    const section=SECTIONS[place.section];if(mark)mark.innerHTML=icon(section?.icon||'map');if(eyebrow&&section)eyebrow.textContent=section.label;
   }
   const nav=document.getElementById('sectionNav');
   if(nav){
     const rows=stripFor(state,panel,arg,place);
     nav.hidden=!rows.length;
-    nav.innerHTML=rows.map(row=>`<button type="button" class="${sameTarget(panel,arg,row)?'on':''}" ${go(row.panel,row.arg)}${sameTarget(panel,arg,row)?' aria-current="page"':''}>${icon(row.icon)}<span>${esc(row.label)}</span></button>`).join('');
+    nav.innerHTML=rows.map(row=>`<button type="button" class="${sameTarget(panel,arg,row)?'on':''}" ${go(row.panel,row.arg)}${sameTarget(panel,arg,row)?' aria-current="page"':''}>${glyph(row.icon)}<span>${esc(row.label)}</span></button>`).join('');
     const active=nav.querySelector('.on');if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),n=nav.getBoundingClientRect();if(a.left<n.left||a.right>n.right)nav.scrollLeft+=(a.left+a.width/2)-(n.left+n.width/2);});
     // A page's own tab bar whose every tab is already a chip in the strip would show the same buttons twice: the strip
     // owns that navigation, so the bar is hidden (it stays in the markup as the page's tab state).
@@ -221,7 +224,7 @@ function syncDock(state,activeCompany=null,force=false){
   const dock=document.getElementById('companyDock');if(!dock)return;
   const rows=openedCompanies(state),signature=rows.map(row=>`${row.id}:${shortName(state,row.id)}`).join('|')+`#${activeCompany||''}`;
   if(signature===dockSignature&&!force)return;dockSignature=signature;
-  dock.innerHTML=rows.map(row=>`<button type="button" class="${row.id===activeCompany?'on':''}" ${go('company',row.id)} aria-label="لوحة ${esc(shortName(state,row.id))}" title="${esc(shortName(state,row.id))}"${row.id===activeCompany?' aria-current="page"':''}>${logoImg(state,row.id)||`<b>${esc(shortName(state,row.id).slice(0,3))}</b>`}</button>`).join('')+`<button type="button" class="dock-add" ${go('companies','subs')} aria-label="فتح شركة جديدة" title="فتح شركة جديدة">${icon('plus')}</button>`;
+  dock.innerHTML=rows.map(row=>`<button type="button" class="${row.id===activeCompany?'on':''}" ${go('company',row.id)} aria-label="لوحة ${esc(shortName(state,row.id))}" title="${esc(shortName(state,row.id))}"${row.id===activeCompany?' aria-current="page"':''}>${logoImg(state,row.id)||`<b>${esc(shortName(state,row.id).slice(0,3))}</b>`}</button>`).join('')+`<button type="button" class="dock-add" ${go('companies','subs')} aria-label="فتح شركة جديدة" title="فتح شركة جديدة">${glyph('add')}</button>`;
   dock.hidden=false;
   const active=dock.querySelector('.on');if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),d=dock.getBoundingClientRect();if(a.left<d.left+36||a.right>d.right)dock.scrollLeft+=(a.left+a.width/2)-(d.left+d.width/2);});
 }
@@ -241,7 +244,7 @@ function install({openDrawer,getState}){
     installed.openDrawer(panel,arg);
   });
   const expand=document.getElementById('drawerExpand');
-  expand?.addEventListener('click',()=>{const shell=document.querySelector('.app-shell'),on=!shell.classList.contains('panel-expanded');shell.classList.toggle('panel-expanded',on);expand.setAttribute('aria-pressed',String(on));expand.querySelector('use')?.setAttribute('href',on?'#i-collapse':'#i-expand');expand.setAttribute('aria-label',on?'العودة بجانب الخريطة':'فتح القسم بالكامل');});
+  expand?.addEventListener('click',()=>{const shell=document.querySelector('.app-shell'),on=!shell.classList.contains('panel-expanded');shell.classList.toggle('panel-expanded',on);expand.setAttribute('aria-pressed',String(on));expand.querySelector('use')?.setAttribute('href',on?'#m-collapse':'#m-expand');expand.setAttribute('aria-label',on?'العودة بجانب الخريطة':'فتح القسم بالكامل');});
   try{syncDock(getState(),null,true);}catch(_error){}
 }
 globalThis.GH_MADAR=Object.freeze({VERSION:'1.0.0',KINDS,SECTIONS,kindOf,openedCompanies,locate,redirect,rail,meta,render,decorate,sync,syncDock,install,tilesFor});

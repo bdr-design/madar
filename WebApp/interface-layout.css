@@ -42,16 +42,16 @@
 .top-kpis{gap:12px;padding:0 10px}
 .top-kpis>div{min-width:0;line-height:1.2}.top-kpis span{display:block;font-size:8.5px;color:var(--muted);white-space:nowrap}.top-kpis strong{display:block;font-size:12px;font-weight:600;direction:ltr;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .top-news-ticker{flex:1 1 auto!important;min-width:110px;gap:7px;padding:0 10px;border:0;text-align:right;overflow:hidden;cursor:pointer}
-.top-news-ticker>svg{width:15px;height:15px;flex:0 0 15px;color:#9A6B12}.top-news-ticker>span{display:grid;min-width:0;flex:1}.top-news-ticker small{font-size:8px;line-height:1.1;color:#9A6B12;font-weight:700}.top-news-ticker strong{font-size:10px;line-height:1.35;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top-news-ticker>em{font-style:normal;font-size:9px;font-weight:700;white-space:nowrap;color:#9A6B12}
+.top-news-ticker>.mg{width:16px;height:16px;flex:0 0 16px;color:#0D3B57}.top-news-ticker>span{display:grid;min-width:0;flex:1}.top-news-ticker small{font-size:8px;line-height:1.1;color:#9A6B12;font-weight:700}.top-news-ticker strong{font-size:10px;line-height:1.35;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top-news-ticker>em{font-style:normal;font-size:9px;font-weight:700;white-space:nowrap;color:#9A6B12}
 .top-actions{gap:2px;padding:0 3px}
-.topbar .icon-btn{width:28px;height:28px;flex:0 0 28px;border:0;border-radius:9px;background:transparent;color:var(--text)}.topbar .icon-btn svg{width:16px;height:16px}
+.topbar .icon-btn{width:28px;height:28px;flex:0 0 28px;border:0;border-radius:9px;background:transparent;color:var(--text)}.topbar .icon-btn .mg{width:17px;height:17px}
 .topbar .icon-btn.active{background:var(--accent-soft);color:#8A5E0F}
 .topbar .icon-btn b{position:absolute;top:-4px;left:-4px;right:auto;min-width:15px;height:15px;padding:0 3px;border-radius:999px;background:var(--danger);color:#FFFFFF;font-size:8.5px;line-height:15px;text-align:center}
 
 /* ---- Rail: the group sections, a floating capsule under the brand ---- */
 .side-nav{position:absolute;z-index:30;top:var(--below-bar);right:var(--edge-right);width:var(--rail);display:flex;flex-direction:column;gap:3px;padding:5px 4px;border-radius:16px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl;max-height:calc(100% - var(--below-bar) - var(--edge-bottom));overflow-y:auto;scrollbar-width:none}
 .side-nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:46px;flex:0 0 46px;padding:0;border:0;border-radius:12px;background:transparent;color:var(--muted);font:500 9px var(--font)}
-.side-nav svg{width:19px;height:19px}
+.side-nav .mg{width:24px;height:24px}
 .side-nav button.active{background:var(--accent-soft);color:#8A5E0F;font-weight:600}
 .side-nav button:hover:not(.active){color:var(--text)}
 
@@ -68,16 +68,17 @@
 .drawer-head .eyebrow{display:block;font-size:9.5px;font-weight:600;color:#9A6B12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .drawer-head h2{margin:0;font:700 15px/1.35 var(--font-head);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
 .drawer-mark{width:38px;height:38px;flex:0 0 38px;border-radius:12px;border:1px solid var(--line);background:#FFFFFF;display:grid;place-items:center;color:#0D3B57;overflow:hidden}
-.drawer-mark img{width:30px;height:24px;object-fit:contain}.drawer-mark svg{width:19px;height:19px}
+.drawer-mark img{width:30px;height:24px;object-fit:contain}
+.drawer-mark:has(>.mi){border:0;background:none}.drawer-mark>.mi{--mi-size:38px}
 .drawer-mark:empty{display:none}
 .drawer-head .close-btn{width:32px;height:32px;flex:0 0 32px;border:1px solid var(--line);border-radius:10px;background:#FFFFFF;color:var(--text);padding:0;display:grid;place-items:center;font-size:15px}
-.drawer-head .close-btn svg{width:15px;height:15px}
+.drawer-head .close-btn .mg{width:15px;height:15px}
 .drawer-head .close-btn[aria-pressed=true]{background:var(--accent-soft);border-color:#EBCB8B;color:#8A5E0F}
 .section-nav{flex:0 0 auto;display:flex;gap:6px;padding:7px 10px 8px;overflow-x:auto;background:#FFFFFF;border-bottom:1px solid var(--line-soft);scrollbar-width:none;overscroll-behavior-x:contain}
 .section-nav::-webkit-scrollbar{display:none}
 .section-nav button{flex:0 0 auto;display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:#FFFFFF;color:#33495A;font:500 11px var(--font);white-space:nowrap}
-.section-nav button svg{width:13px;height:13px}
-.section-nav button.on{background:#0D3B57;border-color:#0D3B57;color:#FFFFFF;font-weight:600}
+.section-nav button .mg{width:17px;height:17px}
+.section-nav button.on{background:#FBF0D9;border-color:#E7B556;color:#5A3D0A;font-weight:600}
 .drawer-body{overflow-y:auto;overflow-x:hidden;min-height:0;flex:1;padding:10px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:var(--surface)}
 .map-popover{display:flex;flex-direction:column;gap:10px;padding:12px;overflow-y:auto}
 .sim-calendar-panel{overflow-y:auto}
@@ -99,7 +100,7 @@
 .company-dock button{position:relative;width:32px;height:32px;padding:0;border-radius:10px;border:1px solid var(--line-soft);background:#FFFFFF;display:grid;place-items:center;color:#0D3B57;cursor:pointer}
 .company-dock button img{width:22px;height:17px;object-fit:contain}
 .company-dock button b{font:700 9px var(--font)}
-.company-dock button svg{width:15px;height:15px}
+.company-dock .mg{width:15px;height:15px}
 .company-dock button.on{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
 .company-dock button.on::after{content:"";position:absolute;bottom:-4px;left:50%;width:12px;height:2.5px;margin-left:-6px;border-radius:3px;background:var(--accent)}
 .company-dock .dock-add{background:#EEF2F5}

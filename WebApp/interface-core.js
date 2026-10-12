@@ -1,15 +1,34 @@
 /* Build 333 Atlas Executive presentation. Business commands retain their atomic owners. */
 (()=>{'use strict';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Build 373: every option shows its own tile from the MADAR icon family (madar-icons.js). A page opened for one company
+// or one tab takes that option's icon, so "buy aircraft" and "buy ships" never share a mark.
 const PANEL_ICONS=Object.freeze({
- map:'i-world',operations:'i-live',leadership:'i-crown',system:'i-settings',control:'i-live',network:'i-world',routes:'i-route',globalRoute:'i-route',assets:'i-assets',assetMarket:'i-box',assetManage:'i-assets',mobilityAsset:'i-assets',companyFacilities:'i-facility',facilityManage:'i-facility',expansion:'i-facility',ports:'i-facility',procurement:'i-box',maintenance:'i-tools',contracts:'i-contract',
- companies:'i-company',companyManage:'i-company',groupManagement:'i-company',formationContract:'i-contract',energy:'i-energy',bank:'i-bank',insurance:'i-shield',realestate:'i-building',
- finance:'i-market',monthlyFinance:'i-market',treasury:'i-treasury',budgets:'i-budget',invoices:'i-document',market:'i-market',
- leadershipHub:'i-crown',actionCenter:'i-bell',peopleHub:'i-people',labor:'i-people',crews:'i-people',compliance:'i-shield',conference:'i-governance',research:'i-research',esg:'i-leaf',businessWorld:'i-contract',realism:'i-market',news:'i-news',
- settings:'i-save',updates:'i-update',diagnostics:'i-health',controlPlane:'i-health'
+ map:'map',company:'dashboard',companies:'group',companyManage:'manage',groupManagement:'performance',formationContract:'charter',
+ network:'directory',expansion:'facilities',companyFacilities:'facilities',facilityManage:'facilities',ports:'port',routes:'routes',globalRoute:'routes',
+ assets:'fleet-all',assetMarket:'market',assetManage:'asset',mobilityAsset:'fleet-car',procurement:'deliveries',maintenance:'maintenance',contracts:'contracts',
+ energy:'energy-dash',bank:'bank',insurance:'umbrella',realestate:'house',
+ finance:'finance',monthlyFinance:'monthly-income',treasury:'treasury',budgets:'budget',invoices:'documents',market:'markets',stocks:'stocks',
+ leadershipHub:'leadership',actionCenter:'tasks',peopleHub:'people',labor:'people-dash',crews:'crews',compliance:'safety',conference:'conference',research:'research',esg:'esg',businessWorld:'relations',realism:'economy',news:'news',
+ settings:'settings',updates:'updates',diagnostics:'diagnostics',controlPlane:'control-plane'
 });
-const iconFor=(panel,fallback='i-company')=>PANEL_ICONS[String(panel||'')]||fallback;
-const iconMarkup=(panel,fallback)=>`<svg aria-hidden="true"><use href="#${iconFor(panel,fallback)}"></use></svg>`;
+const ARG_ICONS=Object.freeze({
+ labor:{dashboard:'people-dash',workforce:'people-dash',managers:'executive',jobs:'jobs',contracts:'employment',payroll:'payroll'},
+ assets:{air:'fleet-air',sea:'fleet-sea',road:'fleet-road',mobility:'fleet-car',all:'fleet-all'},
+ assetMarket:{air:'buy-air',sea:'buy-sea',road:'buy-road',mobility:'buy-car'},
+ routes:{air:'route-air',sea:'route-sea',road:'route-road',mobility:'route-city'},
+ companyFacilities:{air:'tower',sea:'port',road:'warehouse',mobility:'city-branch',power:'power-site',bank:'atm',insurance:'office',realestate:'office',telecom:'antenna',dealership:'showroom'},
+ contracts:{air:'contract-air',sea:'contract-sea',road:'contract-road',power:'tender'},
+ crews:{air:'pilot',sea:'captain',road:'driver'},
+ market:{deals:'acquisitions'},
+ energy:{projects:'solar',overview:'energy-dash',operations:'grid',control:'contract-power',revenue:'revenue'},
+ bank:{credit:'credit',overview:'bank',branches:'atm',control:'liquidity',revenue:'revenue'},
+ insurance:{overview:'umbrella',lines:'pricing',offices:'office',claims:'claims'},
+ realestate:{overview:'house',projects:'construction',develop:'develop'}
+});
+const argKey=arg=>{if(arg&&typeof arg==='object')return String(arg.tab||arg.type||arg.company||'');const text=String(arg??'');if(text.startsWith('{')){try{const value=JSON.parse(text);return String(value?.tab||value?.type||value?.company||'');}catch(_error){return '';}}return text.split(':')[0];};
+const iconFor=(panel,arg)=>ARG_ICONS[String(panel||'')]?.[argKey(arg)]||PANEL_ICONS[String(panel||'')]||'group';
+const iconMarkup=(panel,arg)=>globalThis.GH_ICONS?.tile(iconFor(panel,arg))||'';
 const domainForPanel=panel=>{
  const key=String(panel||'');
  if(['network','routes','globalRoute','assets','assetMarket','assetManage','mobilityAsset','companyFacilities','facilityManage','expansion','ports','procurement','maintenance','contracts'].includes(key))return'operations';
@@ -24,11 +43,11 @@ function historyButton(){const b=document.getElementById('workspaceBack');if(b)b
 function navigate(panel,arg){const key=JSON.stringify([panel,arg??null]);if(returning)returning=false;else if(history.at(-1)?.key!==key){history.push({key,panel,arg});if(history.length>30)history.shift();}historyButton();}
 function back(open){if(history.length<2)return;history.pop();const row=history.at(-1);returning=true;open(row.panel,row.arg);historyButton();}
 function resetHistory(){history.length=0;historyButton();}
-const card=(panel,title,copy,icon='i-company',arg)=>`<button class="command-btn" data-open="${esc(panel)}"${arg===undefined?'':` data-arg="${esc(arg)}"`}><span>${iconMarkup(panel,icon)}</span><div><b>${esc(title)}</b><small>${esc(copy)}</small></div><em aria-hidden="true">←</em></button>`;
+const card=(panel,title,copy,arg)=>`<button class="command-btn" data-open="${esc(panel)}"${arg===undefined?'':` data-arg="${esc(arg)}"`}><span>${iconMarkup(panel,arg)}</span><div><b>${esc(title)}</b><small>${esc(copy)}</small></div><em aria-hidden="true">←</em></button>`;
 function hub(panel,ctx){const s=ctx.state;
-if(panel==='leadershipHub')return `<div class="section-heading"><h3>القرار والرقابة</h3><p>الأعمال التي تحتاج تدخلك أولًا.</p></div><div class="command-grid">${card('actionCenter','المهام الآن','الاستثناءات والقرارات المفتوحة','i-bell')}${card('compliance','السلامة والأمن','سلامة الأسطول والأمن السيبراني والكربون','i-shield')}${card('conference','المؤتمر السنوي','نتائج السنة أمام المساهمين','i-governance')}</div><div class="section-heading"><h3>النمو والعلاقات</h3></div><div class="command-grid">${card('research','البحث والتطوير','مشروعات ترفع الكفاءة','i-ops')}${card('esg','الاستدامة','برامج تخفض الوقود والانبعاثات','i-world')}${card('businessWorld','العلاقات التجارية','العملاء والموردون والرعايات','i-market')}</div><div class="section-heading"><h3>السوق والأخبار</h3></div><div class="command-grid">${card('realism','السوق والاقتصاد','الوقود والطلب والأسعار','i-market')}${card('news','الأخبار','العقود والمال والرعايات','i-news')}</div>`;
+if(panel==='leadershipHub')return `<div class="section-heading"><h3>القرار والرقابة</h3><p>الأعمال التي تحتاج تدخلك أولًا.</p></div><div class="command-grid">${card('actionCenter','المهام الآن','الاستثناءات والقرارات المفتوحة')}${card('compliance','السلامة والأمن','سلامة الأسطول والأمن السيبراني والكربون')}${card('conference','المؤتمر السنوي','نتائج السنة أمام المساهمين')}</div><div class="section-heading"><h3>النمو والعلاقات</h3></div><div class="command-grid">${card('research','البحث والتطوير','مشروعات ترفع الكفاءة')}${card('esg','الاستدامة','برامج تخفض الوقود والانبعاثات')}${card('businessWorld','العلاقات التجارية','العملاء والموردون والرعايات')}</div><div class="section-heading"><h3>السوق والأخبار</h3></div><div class="command-grid">${card('realism','السوق والاقتصاد','الوقود والطلب والأسعار')}${card('news','الأخبار','العقود والمال والرعايات')}</div>`;
 if(panel==='labor'&&String(ctx.currentArg||'').startsWith('managers'))return managerView(ctx);
-if(panel==='peopleHub'){const company=globalThis.GH_COMPANY_PLATFORM?.listInstances?.(s,{includeGroup:false,openedOnly:true,capability:'hr.management'}).find(row=>row.operational)?.id||(s.openedCompanies||[]).find(id=>globalThis.GH_HR_CORE?.MANAGER_COMPANIES?.includes(id));return `<div class="command-grid">${card('labor','المديرون التنفيذيون','المرشحون والتعيين الرسمي','i-company',company?'managers:'+company:'managers')}${card('labor','تغطية الوظائف','احتياجات المراكز والمنشآت','i-ops','dashboard')}${card('labor','العقود','عقود العمل السارية','i-company','contracts')}${card('labor','الرواتب','المسير والتكاليف','i-market','payroll')}${card('crews','الأجور والطواقم','الأجر مقابل السوق والاستقالات','i-company')}</div>`;}
+if(panel==='peopleHub'){const company=globalThis.GH_COMPANY_PLATFORM?.listInstances?.(s,{includeGroup:false,openedOnly:true,capability:'hr.management'}).find(row=>row.operational)?.id||(s.openedCompanies||[]).find(id=>globalThis.GH_HR_CORE?.MANAGER_COMPANIES?.includes(id));return `<div class="command-grid">${card('labor','المديرون التنفيذيون','المرشحون والتعيين الرسمي',company?'managers:'+company:'managers')}${card('labor','تغطية الوظائف','احتياجات المراكز والمنشآت','dashboard')}${card('labor','العقود','عقود العمل السارية','contracts')}${card('labor','الرواتب','المسير والتكاليف','payroll')}${card('crews','الأجور والطواقم','الأجر مقابل السوق والاستقالات')}</div>`;}
 return null;}
 function managerView(ctx){
  const s=ctx.state,H=globalThis.GH_HR_CORE,opened=globalThis.GH_COMPANY_PLATFORM?.listInstances?.(s,{includeGroup:false,openedOnly:true,capability:'hr.management'}).filter(c=>c.operational).map(c=>c.id)||(s.openedCompanies||[]).filter(c=>H.MANAGER_COMPANIES.includes(c)),requested=String(ctx.currentArg||'').split(':')[1],company=opened.includes(requested)?requested:opened[0],current=company?H.officialManager(s,company):null;
@@ -39,7 +58,7 @@ function managerView(ctx){
 }
 function prepare(root,panel,arg,ctx){root.dataset.panel=panel;delete root.dataset.company;const drawer=document.getElementById('drawer');if(drawer)drawer.dataset.domain=domainForPanel(panel);const title={leadershipHub:'القرار والرقابة',peopleHub:'القيادة والموظفون',companies:'المجموعة والشركات',finance:'المركز المالي',labor:String(arg||'').startsWith('managers')?'المديرون التنفيذيون':'الموارد البشرية'}[panel];if(title)document.getElementById('drawerTitle').textContent=title;
 const replacement=hub(panel,ctx);if(replacement!==null)root.innerHTML=replacement;const companySelect=root.querySelector('#uiManagerCompany');if(companySelect)companySelect.onchange=()=>ctx.openDrawer('labor','managers:'+companySelect.value);
-root.querySelectorAll('.command-btn[data-open]').forEach(button=>{const panelName=button.dataset.open,mark=button.querySelector(':scope>span')||document.createElement('span');if(!mark.parentElement)button.prepend(mark);mark.classList.add('command-mark');mark.innerHTML=iconMarkup(panelName);button.dataset.optionLogo=iconFor(panelName);});
+root.querySelectorAll('.command-btn[data-open]').forEach(button=>{const panelName=button.dataset.open,mark=button.querySelector(':scope>span')||document.createElement('span');if(!mark.parentElement)button.prepend(mark);mark.classList.add('command-mark');mark.innerHTML=iconMarkup(panelName,button.dataset.arg);button.dataset.optionLogo=iconFor(panelName,button.dataset.arg);});
 root.querySelectorAll('[style]').forEach(el=>{if(el.namespaceURI!=='http://www.w3.org/1999/xhtml'||el.closest('.financial-paper,.invoice-paper,.authority-paper,.authorization-paper'))return;for(const key of ['background','background-color','background-image','color','box-shadow','text-shadow','border-color'])el.style.removeProperty(key);});
 if(panel==='finance'){const overview=root.querySelector('.finance-overview-v202');if(overview){const d=document.createElement('details');d.className='ui-more';d.innerHTML='<summary>نطاق الحسابات والديون</summary>';overview.before(d);d.append(overview);}root.querySelector('.finance-domain-nav')?.classList.add('ui-finance-tools');}
 root.querySelectorAll('.company-identity-editor').forEach(editor=>{const tools=editor.nextElementSibling,details=document.createElement('details');details.className='ui-more';const summary=document.createElement('summary');summary.textContent='تعديل الاسم والشعار';details.append(summary);editor.before(details);details.append(editor);if(tools?.classList.contains('company-logo-actions'))details.append(tools);});
