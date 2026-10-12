@@ -3764,7 +3764,7 @@
     const from=Math.max(0,Number(meta.from)||0),to=Math.max(from,Number(meta.to)||from+Math.max(0,Number(sliceSeconds)||0)),
       manual=meta.manualAdvance===true,order=manual?'sweep':'events',maxEvents=manual?undefined:1500;
     const aggregate=meta.aggregate===true;
-    let ready=false,cancelled=false,completeTo=from,staged=null,stagedConflict=false,fleetTicket=null,released=false;
+    let ready=false,cancelled=false,completeTo=from,staged=null,stagedConflict=false,fleetTicket=null,released=false,mainThreadRefusal=null;
     // The fleet step on its thread: requested on the first runChunk; false once this slice runs it here.
     const fleetStepPending=()=>{
       if(fleetTicket===false)return false;
@@ -3798,6 +3798,8 @@
             const emptyFleet=window.GH_FLEET_DATA.size(state)===0;
             out=emptyFleet?{completeTo:to,effects:makeSimulationEffects(),events:0,fast:0,slow:0,faults:0}:fleetTicket?fleetEngineThreadClient?.apply(fleetTicket,state.fleet,{contextKey:fleetContextKey(context),tx:TX})||null:null;
             if(!out){
+              // A large fleet never advances on this thread: the slice is refused (rolled back) and the game pauses.
+              const gate=fleetMainThreadGate('simulation-slice');if(!gate.allowed){mainThreadRefusal=gate;throw new Error(gate.reason);}
               // Build 372: a refused result needs no new replica: the worker rolled its step back and the rows this
               // thread now writes are in the store's replica log.
               out=EVENTS.advance(state.fleet,{from,to,context,resolveRoute:fleetResolveRoute,
@@ -3875,15 +3877,19 @@
       },
       finish(){
         if(cancelled||!ready)return {committed:false,reason:'job-not-finished'};
+        // The fleet engine is unavailable and the fleet is too large for this thread: nothing advanced, the game pauses
+        // and says why (play resumes once the engine is back).
+        const refuseMainThread=()=>{state.speed=0;queueMicrotask(()=>{try{setSpeed(0);pushAlert('أُوقفت المحاكاة مؤقتًا: محرك الأسطول غير متاح الآن، والأسطول أكبر من أن يُحسب على الشاشة دون إبطائها. استأنف اللعب بعد لحظات.');}catch(_error){}});return {committed:false,reason:mainThreadRefusal.reason,rows:mainThreadRefusal.rows};};
         let transaction;
         if(stagedSlice){
           if(stagedConflict)return {committed:false,retry:true,reason:'time-conflict'};
           const handle=staged;staged=null;if(activeStagedSlice===handle)activeStagedSlice=null;
-          if(!handle?.done)return {committed:false,reason:'job-not-finished'};if(handle.error)throw handle.error;transaction=handle.result;
+          if(!handle?.done)return {committed:false,reason:'job-not-finished'};if(mainThreadRefusal)return refuseMainThread();if(handle.error)throw handle.error;transaction=handle.result;
         }else{
           if(Math.abs((Number(state.simSeconds)||0)-from)>1e-6)return {committed:false,retry:true,reason:'time-conflict'};
-          transaction=TX.execute(state,transactionOptions());
+          try{transaction=TX.execute(state,transactionOptions());}catch(error){if(mainThreadRefusal)return refuseMainThread();throw error;}
         }
+        if(mainThreadRefusal)return refuseMainThread();
         if(!transaction.committed)return {committed:false,retry:true,reason:transaction.reason||'transaction-rejected'};
         const priorFailure=state.simulationKernel?.lastAdvanceFailure;if(priorFailure&&completeTo+1e-6>=Number(priorFailure.to||Infinity)){delete state.simulationKernel.lastAdvanceFailure;delete state.simulationKernel.runtimeFatal;}
         const completedBoundary=TIME.boundaryAt(completeTo);
@@ -5127,8 +5133,15 @@
   }
   // The drawer's manual-asset search and route assignment candidates are presentation data. Query them together on the
   // fleet worker and only accept a result for this exact store revision; assignments still revalidate in their command.
+  // Build 373 wires the Build 372 policy (fleet-main-thread-policy-core.js): a fallback that scans every fleet row runs on
+  // this thread only for a small fleet; a large fleet waits for the engine worker instead of freezing the screen.
+  function fleetMainThreadGate(operation){
+    const policy=window.GH_FLEET_MAIN_THREAD_POLICY,gate=policy?policy.decision(state,window.GH_FLEET_DATA,{operation}):{allowed:true,rows:window.GH_FLEET_DATA.size(state),limit:Infinity,operation,reason:'bounded-main-thread-fallback'};
+    if(!gate.allowed&&window.__GH_APP_RUNTIME_INSTRUMENTATION__)window.__GH_APP_RUNTIME_INSTRUMENTATION__.fleetMainThreadGuard={operation:gate.operation,rows:gate.rows,limit:gate.limit,reason:gate.reason,at:Date.now()};
+    return gate;
+  }
   function routeCenterDetails(companyId,needle,cards,limit,fleetIndex,manualLimit){
-    if(!cards.length&&!manualLimit)return {manualAssets:[],assignable:new Map()};
+    if(!cards.length&&!manualLimit)return {manualAssets:[],assignable:new Map(),pending:false,status:'ready'};
     const open=cards.filter(card=>card.wantsAssignable),queryStore=state.fleet,store=window.GH_FLEET_DATA.source(state),client=fleetEngineThreadClient,cache=routeCenterDetailsCache;
     let facilitiesCache=routeCenterFacilitiesCache;
     const facilitiesKey=`${Number(state.saveRevision)||0}:${window.GH_TRANSACTION_CORE?.revision?.(state)||0}:${Number(window.GH_MAP_STRUCTURE_REVISION)||0}`;
@@ -5141,7 +5154,7 @@
     for(const card of open)for(const alias of card.aliases)endpointAliases.add(alias);
     const facilityAliases=Object.create(null),matchingFacilityIds=new Set();if(facilitiesCache)for(const alias of endpointAliases)for(const id of facilitiesCache.byAlias.get(alias)||[])matchingFacilityIds.add(id);
     if(facilitiesCache)for(const id of matchingFacilityIds)facilityAliases[id]=facilitiesCache.byId.get(id);
-    const assignableRoutes=cards.map(card=>({id:card.r.id,fromAliases:card.routeConflict?[]:routeCenterFacilityAliases(state,card.r.fromFacility,fleetIndex.facilityAliasCache,facilitiesCache?.byId),toAliases:card.routeConflict?[]:routeCenterFacilityAliases(state,card.r.toFacility,fleetIndex.facilityAliasCache,facilitiesCache?.byId),capacity:card.capacity,conflict:card.routeConflict,legKm:card.r.type==='road'?(card.r.roadNetworkDistanceKm||card.r.distanceKm||routeDistance(card.r.route)):(card.r.maxLegKm||routeLongestLeg(card.r.route)),limit}));
+    const assignableRoutes=cards.map(card=>({id:card.r.id,fromAliases:card.routeConflict?[]:routeCenterFacilityAliases(state,card.r.fromFacility,fleetIndex.facilityAliasCache,facilitiesCache?.byId),toAliases:card.routeConflict?[]:routeCenterFacilityAliases(state,card.r.toFacility,fleetIndex.facilityAliasCache,facilitiesCache?.byId),capacity:card.capacity,conflict:!!card.routeConflict,legKm:card.r.type==='road'?(card.r.roadNetworkDistanceKm||card.r.distanceKm||routeDistance(card.r.route)):(card.r.maxLegKm||routeLongestLeg(card.r.route)),limit}));
     const routeIds=cards.map(card=>card.r.id),params={companyId,routeIds,manualNeedle:needle,manualLimit,idleLimit:60,assignableRoutes,facilityAliases,legacyOwner:routeCenterLegacyOwnerMap()},key=JSON.stringify([fleetIndex.key,companyId,needle,routeIds,assignableRoutes,params.legacyOwner]),cacheRevision=window.GH_FLEET_DATA.revision(state);
     if(cache.key!==key||cache.store!==store||cache.revision!==cacheRevision){cache.key=key;cache.store=store;cache.revision=cacheRevision;cache.result=null;cache.asking=null;}
     const apply=(result,revision)=>{
@@ -5158,17 +5171,19 @@
         if(asked){const token=cache.asking={};asked.then(found=>{
           if(cache.asking!==token)return;cache.asking=null;
           if(!found||!client.current(found,queryStore)){scheduleRouteCenterRetry();return;}
+          if(found.result?.legacy&&!fleetMainThreadGate('route-center').allowed){scheduleRouteCenterRetry();return;}
           const result=found.result&&!found.result.legacy?found.result:window.GH_FLEET_QUERY.run('routeCenter',state,window.GH_FLEET_DATA,params);
           apply(result,found?.revision??window.GH_FLEET_DATA.revision(state));
         },()=>{if(cache.asking===token){cache.asking=null;scheduleRouteCenterRetry();}});}
         else scheduleRouteCenterRetry();
-      }else apply(window.GH_FLEET_QUERY.run('routeCenter',state,window.GH_FLEET_DATA,params),window.GH_FLEET_DATA.revision(state));
+      }else if(fleetMainThreadGate('route-center').allowed)apply(window.GH_FLEET_QUERY.run('routeCenter',state,window.GH_FLEET_DATA,params),window.GH_FLEET_DATA.revision(state));
+      else scheduleRouteCenterRetry();
     }
     const result=cache.result;
-    if(!result||result.legacy)return {manualAssets:[],assignable:new Map()};
+    if(!result||result.legacy)return {manualAssets:[],assignable:new Map(),pending:true,status:'loading'};
     const lists=new Map(result.assignable);
     for(const card of cards){const found=lists.get(card.r.id);if(!found)continue;card.assignable=found.rows;card.assignableMore=found.more;}
-    return {manualAssets:result.manualAssets,assignable:lists};
+    return {manualAssets:result.manualAssets,assignable:lists,pending:false,status:'ready'};
   }
   // The first `limit` assets of the company ready for a manual route (not pending delivery, not moving, no departure
   // scheduled, not for sale) whose name, id or catalog id matches `needle` (views, row order).
@@ -5190,6 +5205,8 @@
       return {r,linked,turn,scheduled,inMotion,primary,avgMargin,avgRevenue,assignable:[],assignableMore:false,capacity,routeConflict,wantsAssignable:!routeConflict};
     });
     const routeDetails=routeCenterDetails(selectedCompanyId,routeAssetNeedle,routeCardRows,assignmentLimit,fleetIndex,selectedMode==='air'||selectedMode==='sea'?80:0);
+    // A large fleet's lists come from the engine worker; until they arrive the page says so (it retries by itself).
+    const routeLoading=routeDetails.pending?'<div class="section-mini route-center-loading" role="status">جارٍ تجهيز بيانات الأسطول… تظهر القوائم خلال لحظات.</div>':'';
     const routeCards=routeCardRows.sort((a,b)=>(b.avgMargin??-Infinity)-(a.avgMargin??-Infinity)).map((x,i)=>{
       const {r,linked,turn,scheduled,inMotion,primary,avgMargin,avgRevenue,assignable,assignableMore,capacity}=x;
       const assignment=assignable.length?`<div class="route-builder route-inline-assignment"><label>الأصل المتاح<select class="route-asset-select" data-route="${esc(r.id)}">${assignable.map(asset=>`<option value="${esc(asset.id)}">${esc(asset.name)}</option>`).join('')}</select></label>${assignableMore?`<small>يعرض أول ${assignmentLimit} أصلًا مطابقًا؛ استخدم بحث الأصول للوصول للبقية.</small>`:''}</div><div class="action-row"><button class="primary-btn assign-route-center" data-route="${esc(r.id)}">تعيين أصل للمسار (${linked.length}/${capacity})</button></div>`:'';
@@ -5206,7 +5223,7 @@
     }
     if(selectedMobility){const centers=window.GH_MOBILITY_CORE?.centerClusters?.(state)||[];workspace=`<article class="list-item sector-mobility"><div class="list-item-head"><div><h3>مسارات ${esc(companyFinanceName(selectedCompanyId))} على شبكة الشوارع</h3><p>كل رحلة تستخدم هندسة قيادة فعلية من مزود الطرق؛ تبقى السيارة عند نقطة الالتقاط إذا تعذر جلب المسار.</p></div><span class="tag positive">${mobility.activeTrips||0} رحلة نشطة</span></div><div class="metric-row"><div><span>السيارات</span><b>${mobility.vehicles||0}</b></div><div><span>المتحركة</span><b>${mobility.moving||0}</b></div><div><span>المتاحة</span><b>${mobility.available||0}</b></div><div><span>الممر</span><b>Street v3</b></div></div><div class="action-row"><button class="primary-btn" data-open="assets" data-arg="${esc(selectedCompanyId)}">إدارة السيارات</button><button class="secondary-btn" data-open="companyFacilities" data-arg="${esc(selectedCompanyId)}">إدارة المراكز</button></div></article>${centers.map(center=>`<article class="list-item"><div class="list-item-head"><div><h3>${esc(center.city)}</h3><p>${esc(center.country||'')} · مركز حضري مستقل</p></div><span class="tag">${center.vehicles} سيارة</span></div><div class="metric-row"><div><span>متحركة</span><b>${center.moving}</b></div><div><span>متاحة</span><b>${center.available}</b></div><div><span>رحلات نشطة</span><b>${center.activeTrips}</b></div><div><span>مساهمة الرحلات</span><b class="positive">${fmtMoney(center.platformRevenue)}</b></div></div></article>`).join('')||'<div class="empty">لا توجد مراكز أو سيارات Mobility مملوكة.</div>'}`;}
     const blockers=lastDepartureBlocked.length&&!selectedMobility?`<article class="list-item"><h3>تعطّل ${lastDepartureBlocked.length} أصل عن آخر انطلاق</h3>${lastDepartureBlocked.filter(b=>routeFilterType==='all'||b.companyId===selectedCompanyId).slice(0,30).map(b=>`<div class="spec-row"><span>${esc(b.name)}</span><span>${esc(b.text)}</span></div>`).join('')}</article>`:'';
-    return `<div class="list"><article class="list-item registry-hero"><div class="list-item-head"><div><h3>مركز المسارات المستقل</h3><p>الجوي والبحري والبري وMobility منفصلة بالكامل؛ لا توجد قائمة مختلطة ولا قرار آلي قد يغير مسارًا.</p></div><span class="tag positive">التحكم بالمسارات</span></div><div class="tabs small">${tabs}</div></article>${overview}${blockers}${workspace}</div>`;
+    return `<div class="list"><article class="list-item registry-hero"><div class="list-item-head"><div><h3>مركز المسارات المستقل</h3><p>الجوي والبحري والبري وMobility منفصلة بالكامل؛ لا توجد قائمة مختلطة ولا قرار آلي قد يغير مسارًا.</p></div><span class="tag positive">التحكم بالمسارات</span></div><div class="tabs small">${tabs}</div></article>${routeLoading}${overview}${blockers}${workspace}</div>`;
   }
 
   async function createRoadRouteFromForm(){
