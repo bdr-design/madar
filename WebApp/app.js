@@ -3809,7 +3809,9 @@
             out=emptyFleet?{completeTo:to,effects:makeSimulationEffects(),events:0,fast:0,slow:0,faults:0}:fleetTicket?fleetEngineThreadClient?.apply(fleetTicket,state.fleet,{contextKey:fleetContextKey(context),tx:TX})||null:null;
             if(!out){
               // A large fleet never advances on this thread: the slice is refused (rolled back) and the game pauses.
-              const gate=fleetMainThreadGate('simulation-slice');if(!gate.allowed){mainThreadRefusal=gate;throw new Error(gate.reason);}
+              // (Inline: test harnesses lift this slice out of app.js without the helpers around it.)
+              const policy=window.GH_FLEET_MAIN_THREAD_POLICY,gate=policy?policy.decision(state,window.GH_FLEET_DATA,{operation:'simulation-slice'}):null;
+              if(gate&&!gate.allowed){const sink=window.__GH_APP_RUNTIME_INSTRUMENTATION__;if(sink)sink.fleetMainThreadGuard={operation:gate.operation,rows:gate.rows,limit:gate.limit,reason:gate.reason,at:Date.now()};mainThreadRefusal=gate;throw new Error(gate.reason);}
               // Build 372: a refused result needs no new replica: the worker rolled its step back and the rows this
               // thread now writes are in the store's replica log.
               out=EVENTS.advance(state.fleet,{from,to,context,resolveRoute:fleetResolveRoute,
