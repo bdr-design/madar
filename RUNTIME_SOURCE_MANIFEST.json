@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "bd1de52344fb62ac9146e3da28dbbdfc0051b231e440872ae8660935f38f5587",
-  "webapp_tree_sha256": "941460cfba3347fd820c5223dc71b3cd67a938f91a80a013ce8304a5b3842d9a",
+  "source_tree_sha256": "1cdc6c43dc1c45235920374cbad3b9ae893497df319465e31cd671f412ab1e61",
+  "webapp_tree_sha256": "c40a546bb2ae2f88dc39d27dd652d941ddc123356c8032d0e08ce08ece797aa4",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 312231,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 942439,
-      "sha256": "f31022a25c070c07ce144162b999b7949cb73937b1fd18c0e320f255416f3ae0"
+      "bytes": 942118,
+      "sha256": "43aa90d7213585013d1aaccf5663676af539d515d96a78fe263f20ececd949cd"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3627,8 +3627,8 @@
       "sha256": "c0b25e4bb96ea11f687f90deff84137e24171be894436351613e6119c26bdb69"
     },
     "WebApp/index.html": {
-      "bytes": 101391,
-      "sha256": "0b3238fd1f84cd166ec3be67c28f67e237284f75d0b4e8fb7f81218b43d0cac6"
+      "bytes": 24539,
+      "sha256": "644a339a9eb68a12730b1ba63c7c7039ca5a346b881ea9a58c81d11359e3b950"
     },
     "WebApp/insurance-core.js": {
       "bytes": 26201,
@@ -3643,8 +3643,8 @@
       "sha256": "db5a33cb22928ee886604299880a0df579444fd864a15aabcf77bd9b5d907773"
     },
     "WebApp/interface-core.js": {
-      "bytes": 16227,
-      "sha256": "0e812759d10df2c515e44c4b9eef376b3d55e6a44a2d47732a16065dcc7d40db"
+      "bytes": 16291,
+      "sha256": "9c52f814c1773ff3e84d47473218cebf41749b08b7e9106a5a0d5c5257829984"
     },
     "WebApp/interface-layout.css": {
       "bytes": 13437,
@@ -3655,20 +3655,20 @@
       "sha256": "b1f725d30a28a6f8f4a66ce3b410c179cd84bdac83bc85117fe10810770a109a"
     },
     "WebApp/madar-icons.css": {
-      "bytes": 1035,
-      "sha256": "c8feebcdfdcc6c7b11d41a1e60bcbe82cd6b25b2bd36a9722d6784d1c6d11cbd"
+      "bytes": 106221,
+      "sha256": "d86656c912cd231233f20522cbd55e4660c43560fc505f95a7890f5c4a00fa60"
     },
     "WebApp/madar-icons.js": {
-      "bytes": 5978,
-      "sha256": "ab079608ac867fa2bf4a699d3deca8f44bfacb89822d5499b574ed42017f4ae6"
+      "bytes": 5743,
+      "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
     },
     "WebApp/madar-shell.css": {
       "bytes": 4892,
       "sha256": "24d8e513722b3d802c1630ea8e2915968c44e4b7d8f8974a7797d63de9a82599"
     },
     "WebApp/madar-shell.js": {
-      "bytes": 31824,
-      "sha256": "952885f25084c46304c35425cdaf093cdbc0ce912644100aa100add52da3d7bc"
+      "bytes": 32601,
+      "sha256": "41675476b5817e1e9fc201c3d784b999e6804eb24d8db1d5e24ed9618f4897d4"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 7759,
@@ -3839,8 +3839,8 @@
       "sha256": "edacf776f6832178ea0e7678e0180b9381b56a3d6aeb57fff33165e24df554d9"
     },
     "WebApp/styles.css": {
-      "bytes": 68337,
-      "sha256": "b439e492b55f1999fd0c3d9d2ef957f1575ce908231d130f41e7860252faf78b"
+      "bytes": 68353,
+      "sha256": "62679681c22ead7d99f51a80a8aa5962c99d70553ed4446451dc946ea5f7d204"
     },
     "WebApp/transaction-core.js": {
       "bytes": 79417,
@@ -3932,7 +3932,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "89c69352bd8fb6271ac2db6f4fd394fb8c33a35eb3b54c7bc87a68983bc65e90"
+      "sha256": "fa5e5779ba34ea5e227e4538acb1bfc217139d648218d0473d272f0c599eb440"
     },
     "BUILD": {
       "bytes": 4,

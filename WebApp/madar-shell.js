@@ -111,7 +111,7 @@ const DEEP_KIND=Object.freeze({energy:'power',bank:'bank',insurance:'insurance',
 // Retired pages open their new home, so every old link, alert and task still lands somewhere real.
 const REDIRECTS=Object.freeze({control:['companies',null],governanceHub:['compliance',null],systemHub:['settings',null],cyber:['compliance',null],safety:['compliance',null]});
 
-let installed=null,stickyCompany=null,dockSignature='';
+let installed=null,stickyCompany=null;
 function argCompany(state,panel,arg){
   if(panel==='company')return String(arg||'');
   if(DEEP_KIND[panel])return companyOfKind(state,DEEP_KIND[panel]);
@@ -194,22 +194,27 @@ function sameTarget(panel,arg,row){
   if(panel==='labor')return String(arg||'dashboard').split(':')[0]===String(row.arg).split(':')[0];
   return String(arg??'')===String(row.arg);
 }
+// Opening a page must stay cheap: the head mark, the page strip and the dock are rewritten only when what they show
+// changes. Identities (names, logos) are re-read when companies open or on the page that edits them.
+let lastMark='',lastNav='',dockKey='',dockActive=null;
+const IDENTITY_PAGES=new Set(['companyManage']);
 function decorate(root,panel,arg,ctx){
-  const state=ctx.state,place=locate(state,panel,arg),drawer=document.getElementById('drawer');
+  const state=ctx.state,place=locate(state,panel,arg),drawer=document.getElementById('drawer'),refresh=IDENTITY_PAGES.has(panel);
   if(drawer){drawer.dataset.domain=place.section==='company'?'company':place.section;drawer.dataset.company=place.company||'';}
-  const mark=document.getElementById('drawerMark'),eyebrow=document.getElementById('drawerEyebrow');
+  const mark=document.getElementById('drawerMark'),eyebrow=document.getElementById('drawerEyebrow'),markKey=`${place.section}|${place.company||''}`;
   if(place.section==='company'){
-    if(mark)mark.innerHTML=logoImg(state,place.company)||icon('group');
+    if(mark&&(markKey!==lastMark||refresh))mark.innerHTML=logoImg(state,place.company)||icon('group');
     if(eyebrow)eyebrow.textContent=panel==='company'?(KINDS[kindOf(state,place.company)]?.sector||'الشركة'):shortName(state,place.company);
   }else{
-    const section=SECTIONS[place.section];if(mark)mark.innerHTML=icon(section?.icon||'map');if(eyebrow&&section)eyebrow.textContent=section.label;
+    const section=SECTIONS[place.section];if(mark&&markKey!==lastMark)mark.innerHTML=icon(section?.icon||'map');if(eyebrow&&section)eyebrow.textContent=section.label;
   }
+  lastMark=markKey;
   const nav=document.getElementById('sectionNav');
   if(nav){
     const rows=stripFor(state,panel,arg,place);
+    const html=rows.map(row=>`<button type="button" class="${sameTarget(panel,arg,row)?'on':''}" ${go(row.panel,row.arg)}${sameTarget(panel,arg,row)?' aria-current="page"':''}>${glyph(row.icon)}<span>${esc(row.label)}</span></button>`).join('');
     nav.hidden=!rows.length;
-    nav.innerHTML=rows.map(row=>`<button type="button" class="${sameTarget(panel,arg,row)?'on':''}" ${go(row.panel,row.arg)}${sameTarget(panel,arg,row)?' aria-current="page"':''}>${glyph(row.icon)}<span>${esc(row.label)}</span></button>`).join('');
-    const active=nav.querySelector('.on');if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),n=nav.getBoundingClientRect();if(a.left<n.left||a.right>n.right)nav.scrollLeft+=(a.left+a.width/2)-(n.left+n.width/2);});
+    if(html!==lastNav){lastNav=html;nav.innerHTML=html;const active=nav.querySelector('.on');if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),n=nav.getBoundingClientRect();if(a.left<n.left||a.right>n.right)nav.scrollLeft+=(a.left+a.width/2)-(n.left+n.width/2);});}
     // A page's own tab bar whose every tab is already a chip in the strip would show the same buttons twice: the strip
     // owns that navigation, so the bar is hidden (it stays in the markup as the page's tab state).
     const chips=new Set(rows.map(row=>`${row.panel}|${JSON.stringify(row.arg??null)}`));
@@ -218,15 +223,20 @@ function decorate(root,panel,arg,ctx){
       bar.classList.toggle('mc-in-strip',tabs.length>0&&tabs.every(button=>{const attr=Object.keys(STRIP_TABS).find(name=>button.hasAttribute(name));return !!attr&&chips.has(`${panel}|${JSON.stringify(STRIP_TABS[attr](button.getAttribute(attr)))}`);}));
     }
   }
-  syncDock(state,place.company,true);
+  syncDock(state,place.company,refresh);
 }
-function syncDock(state,activeCompany=null,force=false){
+function syncDock(state,activeCompany=null,refresh=false){
   const dock=document.getElementById('companyDock');if(!dock)return;
-  const rows=openedCompanies(state),signature=rows.map(row=>`${row.id}:${shortName(state,row.id)}`).join('|')+`#${activeCompany||''}`;
-  if(signature===dockSignature&&!force)return;dockSignature=signature;
-  dock.innerHTML=rows.map(row=>`<button type="button" class="${row.id===activeCompany?'on':''}" ${go('company',row.id)} aria-label="لوحة ${esc(shortName(state,row.id))}" title="${esc(shortName(state,row.id))}"${row.id===activeCompany?' aria-current="page"':''}>${logoImg(state,row.id)||`<b>${esc(shortName(state,row.id).slice(0,3))}</b>`}</button>`).join('')+`<button type="button" class="dock-add" ${go('companies','subs')} aria-label="فتح شركة جديدة" title="فتح شركة جديدة">${glyph('add')}</button>`;
-  dock.hidden=false;
-  const active=dock.querySelector('.on');if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),d=dock.getBoundingClientRect();if(a.left<d.left+36||a.right>d.right)dock.scrollLeft+=(a.left+a.width/2)-(d.left+d.width/2);});
+  const key=(state.openedCompanies||[]).join(',');
+  if(key!==dockKey||refresh||!dock.childElementCount){
+    dockKey=key;dockActive=undefined;
+    dock.innerHTML=openedCompanies(state).map(row=>{const name=shortName(state,row.id);return `<button type="button" ${go('company',row.id)} aria-label="لوحة ${esc(name)}" title="${esc(name)}">${logoImg(state,row.id)||`<b>${esc(name.slice(0,3))}</b>`}</button>`;}).join('')+`<button type="button" class="dock-add" ${go('companies','subs')} aria-label="فتح شركة جديدة" title="فتح شركة جديدة">${glyph('add')}</button>`;
+    dock.hidden=false;
+  }
+  if(activeCompany===dockActive)return;dockActive=activeCompany;
+  const wanted=activeCompany?JSON.stringify(activeCompany):null;let active=null;
+  for(const button of dock.querySelectorAll('button[data-go="company"]')){const on=button.dataset.goArg===wanted;button.classList.toggle('on',on);if(on){button.setAttribute('aria-current','page');active=button;}else button.removeAttribute('aria-current');}
+  if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),d=dock.getBoundingClientRect();if(a.left<d.left+36||a.right>d.right)dock.scrollLeft+=(a.left+a.width/2)-(d.left+d.width/2);});
 }
 function sync(state,panel,arg,open){
   const settings=document.getElementById('settingsBtn'),place=open&&panel?locate(state,panel,arg):{section:'map',company:null};
@@ -244,7 +254,7 @@ function install({openDrawer,getState}){
     installed.openDrawer(panel,arg);
   });
   const expand=document.getElementById('drawerExpand');
-  expand?.addEventListener('click',()=>{const shell=document.querySelector('.app-shell'),on=!shell.classList.contains('panel-expanded');shell.classList.toggle('panel-expanded',on);expand.setAttribute('aria-pressed',String(on));expand.querySelector('use')?.setAttribute('href',on?'#m-collapse':'#m-expand');expand.setAttribute('aria-label',on?'العودة بجانب الخريطة':'فتح القسم بالكامل');});
+  expand?.addEventListener('click',()=>{const shell=document.querySelector('.app-shell'),on=!shell.classList.contains('panel-expanded');shell.classList.toggle('panel-expanded',on);expand.setAttribute('aria-pressed',String(on));const mark=expand.querySelector('.mg');mark?.classList.toggle('ic-collapse',on);mark?.classList.toggle('ic-expand',!on);expand.setAttribute('aria-label',on?'العودة بجانب الخريطة':'فتح القسم بالكامل');});
   try{syncDock(getState(),null,true);}catch(_error){}
 }
 globalThis.GH_MADAR=Object.freeze({VERSION:'1.0.0',KINDS,SECTIONS,kindOf,openedCompanies,locate,redirect,rail,meta,render,decorate,sync,syncDock,install,tilesFor});

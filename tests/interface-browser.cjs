@@ -42,7 +42,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
       await page.waitForTimeout(50);
       const metrics=await page.evaluate(()=>{
         const map=GH_INTERFACE.mapViewport(),drawer=document.querySelector('#drawer').getBoundingClientRect(),body=document.querySelector('#drawerBody'),commands=[...body.querySelectorAll('.command-btn[data-open]')];
-        return {mapWidth:map.width,mapRight:map.right,drawerLeft:drawer.left,overflow:body.scrollWidth>body.clientWidth+2,text:body.innerText.length,domain:document.querySelector('#drawer').dataset.domain||'',commands:commands.length,unmapped:commands.filter(button=>!button.dataset.optionLogo||!button.querySelector(':scope > span svg use')).length,mapModes:getComputedStyle(document.querySelector('.map-modes')).display};
+        return {mapWidth:map.width,mapRight:map.right,drawerLeft:drawer.left,overflow:body.scrollWidth>body.clientWidth+2,text:body.innerText.length,domain:document.querySelector('#drawer').dataset.domain||'',commands:commands.length,unmapped:commands.filter(button=>!button.dataset.optionLogo||!button.querySelector(':scope > span .mi[data-icon]')).length,mapModes:getComputedStyle(document.querySelector('.map-modes')).display};
       });
       assert(metrics.mapWidth>340&&metrics.mapRight<=metrics.drawerLeft+1,`${theme}:${panel} hides map`);
       assert(!metrics.overflow,`${theme}:${panel} overflows`);

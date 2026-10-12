@@ -1424,9 +1424,9 @@
     if(heading)heading.style.transform=`rotate(${markerHeading(kind,bearing).toFixed(1)}deg)`;
   }
   // ---- أيقونات منشآت حقيقية (مطار/ميناء/مركز لوجستي/طاقة/بنك/مقر) بدل رموز الإيموجي ----
-  // Build 373: map facilities draw the MADAR glyphs (madar-icons.js) in their real colours on the marker.
+  // Build 373: map facilities show the MADAR icons (madar-icons.css) in their real colours on the marker.
   const FACILITY_ICON=Object.freeze({airport:'tower',port:'port',logistics:'warehouse',power:'bolt',bank:'bank',mobility:'fleet-car',telecom:'antenna',dealership:'showroom',insurance:'umbrella',realestate:'house',hq:'group'});
-  const FACILITY_SVG=Object.freeze(Object.fromEntries(Object.entries(FACILITY_ICON).map(([kind,key])=>[kind,`<svg class="facility-glyph" viewBox="0 0 24 24"><use href="#m-${key}"></use></svg>`])));
+  const FACILITY_SVG=Object.freeze(Object.fromEntries(Object.entries(FACILITY_ICON).map(([kind,key])=>[kind,`<span class="facility-glyph mg ic-${key}" aria-hidden="true"></span>`])));
   const iconInline=(icon,type,fallback)=>window.GH_ICONS?.inline(icon,type,fallback)||'';
   function facilityKindKey(kind){
     if(['airport','airport-base'].includes(kind)) return 'airport';
@@ -2219,7 +2219,7 @@
 
   function worldInfrastructureIcon(filter,label=''){
     const cacheKey=`${filter}:${label}`;if(worldInfrastructureIconCache.has(cacheKey))return worldInfrastructureIconCache.get(cacheKey);
-    const vector=FACILITY_SVG[filter].replace('<svg ','<svg width="12" height="12" aria-hidden="true" focusable="false" fill="currentColor" '),icon=L.divIcon({className:`world-infrastructure-marker ${filter}`,html:`<span class="world-place-dot" aria-hidden="true">${vector}</span>${label?`<b class="world-place-code" dir="ltr">${esc(label)}</b>`:''}`,iconSize:[22,22],iconAnchor:[11,11]});worldInfrastructureIconCache.set(cacheKey,icon);return icon;
+    const vector=FACILITY_SVG[filter],icon=L.divIcon({className:`world-infrastructure-marker ${filter}`,html:`<span class="world-place-dot" aria-hidden="true">${vector}</span>${label?`<b class="world-place-code" dir="ltr">${esc(label)}</b>`:''}`,iconSize:[22,22],iconAnchor:[11,11]});worldInfrastructureIconCache.set(cacheKey,icon);return icon;
   }
   // Build 359: expansion mode shows the world's airports (those with an IATA code) and ports. Far out they are grouped
   // in one bubble style with a count (tap: zoom in), a group standing on its busiest member; closer in each place is a
@@ -4547,7 +4547,6 @@
     if(drawerUsesBackdrop()) $('backdrop').classList.remove('hidden'); else $('backdrop').classList.add('hidden');
     $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false'); setActiveNav(panelRoot(panel,arg));
     closeMapPopovers(); $('assetCard').classList.add('hidden');
-    requestAnimationFrame(()=>map?.invalidateSize({animate:false}));
   }
   function openDrawerContent(eyebrow,title,html){
     cancelDrawerSearch();clearFleetListSearchRequest();
@@ -4558,9 +4557,8 @@
     $('drawerBody').scrollTop=drawerScrollMemory.content||0;
     if(drawerUsesBackdrop()) $('backdrop').classList.remove('hidden'); else $('backdrop').classList.add('hidden');
     $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false'); closeMapPopovers(); setActiveNav('map');
-    requestAnimationFrame(()=>map?.invalidateSize({animate:false}));
   }
-  function closeDrawer(){ window.GH_INTERFACE.resetHistory(); cancelDrawerSearch(); clearFleetListSearchRequest(); delete $('drawer').dataset.panel; $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('backdrop').classList.add('hidden'); setActiveNav('map'); state.lastPanel=null;state.lastPanelArg=null; requestAnimationFrame(()=>map?.invalidateSize({animate:false})); }
+  function closeDrawer(){ window.GH_INTERFACE.resetHistory(); cancelDrawerSearch(); clearFleetListSearchRequest(); delete $('drawer').dataset.panel; $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('backdrop').classList.add('hidden'); setActiveNav('map'); state.lastPanel=null;state.lastPanelArg=null;  }
   $('workspaceBack').addEventListener('click',()=>window.GH_INTERFACE.back(openDrawer));
   const ADVANCED_OWNED_PANELS=new Set(['realism','companies','leadershipHub','peopleHub','actionCenter','compliance','facilityManage','companyManage','groupManagement','treasury','procurement','energy','bank','insurance','realestate','research','esg','news','businessWorld','labor','settings','updates','diagnostics','controlPlane','conference']);
   function renderPanel(panel,arg){
