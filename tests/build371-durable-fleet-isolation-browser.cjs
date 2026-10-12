@@ -85,7 +85,7 @@ async function scenario(page,{roadRoute,interrupt}){
     // A road geometry arrives (route without verified road geometry, as in an older save).
     const tpl=__AUDIT__.routeTemplatesFor(roadRoute),templateBefore=tpl.distanceKm;
     const geometry={route:tpl.route.map(([lat,lng],i)=>[lat+(i%2?0.05:0),lng]),durationSeconds:tpl.tripSeconds*1.4};window.qaGeometry=geometry;
-    out.directApply=__AUDIT__.applyRoadGeometry(roadRoute,geometry,false);
+    out.directApply=await __AUDIT__.applyRoadGeometry(roadRoute,geometry,false); // Build 372: async; refuses before its first await
     window.qaDeferred=typeof __AUDIT__.applyRoadGeometryWhenSettled==='function'?__AUDIT__.applyRoadGeometryWhenSettled(roadRoute,geometry,true):Promise.resolve('unavailable');
     // Longer than the periodic health check (REALTIME_HEALTH_MS, 10 s) and the street-route polling (1.2 s).
     const windowStart=performance.now();while(performance.now()-windowStart<11000)await new Promise(resolve=>requestAnimationFrame(resolve));

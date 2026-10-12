@@ -1490,7 +1490,13 @@
       const current=routeTemplates[routeId];
       if((Number(state.resetEpoch)||0)!==epoch||!current||current.fromFacility!==from||current.toFacility!==to)return false;
       if((current.roadGeometryVersion===311&&Number(current.roadNetworkDistanceKm)>0)||state.routeCache?.[routeId]?.canonicalRouteId===routeId)return false;
-      if(liveStateWritable())return applyRoadGeometry(routeId,geometry,saveCache);
+      if(liveStateWritable()){
+        // Build 373: after a rolled-back command the engine replica is rebuilt off the UI thread; the geometry waits for
+        // it (as it waits for the command) instead of being dropped by a single refused attempt.
+        const client=fleetEngineThreadClient,store=state.fleet;
+        if(client&&!client.disabled&&typeof client.replicaReady==='function'&&!client.replicaReady(store)){client.prime?.(store);if(!client.replicaReady(store)){await yieldForInteractivePaint(50);continue;}}
+        return applyRoadGeometry(routeId,geometry,saveCache);
+      }
       await yieldForInteractivePaint(50);
     }
     return false;
@@ -1515,8 +1521,12 @@
       for(const chunk of core.chunks(plan,256)){for(let offset=chunk.from;offset<chunk.to;offset++)fleet.update(state,fleet.viewAt(state,plan.indices[offset]),core.patchAt(plan,offset));yield 'road-geometry.rows';}
       return true;
     };
-    let staged;try{staged=TX.beginStaged(state,{label:`road-geometry:${routeId}`,scope,writeRoots:scope,scopedJoin:true,stagedScope:true,rowRoots:{domainRuntime:{level:'containers'},controlPlane:{level:'rows'}},apply});while(!staged.done){await yieldForInteractivePaint();staged.step(-Infinity);}if(staged.error)throw staged.error;if(!staged.result?.committed)throw new Error(staged.result?.reason||'road-geometry-transaction-rejected');}
+    let staged;try{staged=TX.beginStaged(state,{label:`road-geometry:${routeId}`,scope,writeRoots:scope,scopedJoin:true,stagedScope:true,rowRoots:{domainRuntime:{level:'containers'},controlPlane:{level:'rows'}},apply});
+      // Build 373: the frame loop rolls back a staged transaction no owner holds (activeStagedSlice); this one is held for
+      // its whole run, or the loop aborted every road geometry as orphaned between its stages.
+      activeStagedSlice=staged;while(!staged.done){await yieldForInteractivePaint();staged.step(-Infinity);}if(staged.error)throw staged.error;if(!staged.result?.committed)throw new Error(staged.result?.reason||'road-geometry-transaction-rejected');}
     catch(error){if(staged&&!staged.done)staged.abort('road-geometry-failed');nonCritical('road-geometry-cache',error);return false;}
+    finally{if(staged&&activeStagedSlice===staged)activeStagedSlice=null;}
     Object.assign(source,next);return true;
   }
   const ROUTE_CACHE_MAX_AGE_DAYS = 90;
