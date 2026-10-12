@@ -19,7 +19,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     await page.evaluate(async()=>{const d=GH_COMPANY_PLATFORM.definitionFor(__GH_STATE__,'air');await qaContext.runAuthorizedDomainCommand('corporate','open-company',{type:'air',companyId:'air',capital:Math.max(50000000,d.founding.minimumCapital),legalName:'شركة الطيران',formationContract:'BUDGET-QA'});});
     await page.evaluate(()=>qaContext.openDrawer('finance'));await page.locator('#drawerBody .command-btn[data-open="budgets"]').click();
     // Build 373: the group page lists every company; a company's ceiling is edited on its own page.
-    await page.locator('#drawerBody .budget-row [data-open="budgets"][data-arg="air"]').click();
+    await page.locator('#drawerBody .budget-row [data-go="budgets"][data-company="air"]').click();
     const card=page.locator('#drawerBody .budget-card').filter({has:page.locator('.budget-save[data-company="air"]')});
     await card.locator('[data-budget-limit]').fill('10000000');await card.locator('[data-budget-line="capex"]').fill('5000000');
     await card.locator('.budget-save').click();
