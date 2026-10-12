@@ -1,54 +1,61 @@
-/* Build 373 company control panel (owner's design): real images, one badge icon, the title and one status line on a
-   bottom scrim. Images are 640x360 cards decoded lazily, so a panel costs a few small bitmaps, never full photos. */
-.madar-company{display:flex;flex-direction:column;gap:8px}
-.mc-manager{margin:0}
-.mc-status{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600}
+/* Build 373 control panels (owner's design), laid out for the landscape phone: beside the map the status line, three
+   figures, a short hero strip and the first row of page tiles fit the first screen; "بالكامل" is two columns, never one
+   image stretched across the map. Images are 640x360 cards decoded lazily, so a panel costs a few small bitmaps. */
+.madar-company{display:flex;flex-direction:column;gap:7px}
+.mc-main{display:contents}
+.mc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px}
+.mc-manager{margin:0;min-width:0}
+.mc-status{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mc-status i{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
 .mc-status.is-good{color:#0F7650}.mc-status.is-good i{background:#13875E;box-shadow:0 0 0 3px rgba(19,135,94,.16)}
 .mc-status.is-warn{color:#8F5A0C}.mc-status.is-warn i{background:#D08A1F;box-shadow:0 0 0 3px rgba(208,138,31,.18)}
+#drawerBody .mc-pill{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;min-height:0;height:22px;padding:0 8px;border:0;line-height:1;border-radius:999px;background:#0D3B57;color:#FFFFFF;font:600 9.5px var(--font);white-space:nowrap}
+.mc-pill b{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#E7B556;color:#1B1407;font-size:9px;box-sizing:border-box}
 .mc-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.mc-kpi{min-width:0;padding:7px 9px;border-radius:12px;background:#FFFFFF;border:1px solid #E8EDF1}
-.mc-kpi span{display:block;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mc-kpi b{display:block;font:700 13.5px/1.35 var(--font-head);direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
-.mc-kpi b.is-text{direction:rtl;font:600 11px/1.6 var(--font);color:var(--muted)}
+.mc-kpi{min-width:0;padding:4px 8px;border-radius:11px;background:#FFFFFF;border:1px solid #E8EDF1}
+.mc-kpi span{display:block;font-size:8.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-kpi b{display:block;font:700 12.5px/1.45 var(--font-head);direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.mc-kpi b.is-text{direction:rtl;font:600 10.5px/1.7 var(--font);color:var(--muted)}
+.mc-kpi b.positive{color:#0F7650}.mc-kpi b.negative{color:#B42318}
 .mc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-.mc-tile{position:relative;display:block;width:100%;height:86px;padding:0;border:0;border-radius:14px;overflow:hidden;text-align:right;background:#0D3B57;box-shadow:0 4px 12px rgba(16,35,49,.14);cursor:pointer;color:#FFFFFF;font:inherit}
+#drawerBody .mc-tile{position:relative;display:block;width:100%;min-height:0;height:72px;max-width:none;padding:0;border:0;border-radius:13px;overflow:hidden;text-align:right;background:#0D3B57;box-shadow:0 3px 10px rgba(16,35,49,.14);cursor:pointer;color:#FFFFFF;font:inherit}
 .mc-tile>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .mc-tile:active{transform:translateY(1px)}
-.mc-tile:focus-visible{outline:2px solid #E7B556;outline-offset:2px}
-.mc-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,22,33,.9) 0%,rgba(7,22,33,.46) 48%,rgba(7,22,33,0) 80%)}
-.mc-scrim-side{background:linear-gradient(to left,rgba(7,22,33,.9) 0%,rgba(7,22,33,.56) 48%,rgba(7,22,33,0) 82%)}
-.mc-badge{position:absolute;top:6px;right:6px;display:block;line-height:0}
-.mc-badge .mi{--mi-size:26px;box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 6px rgba(7,22,33,.35)}
+.mc-tile:focus-visible,.mc-add:focus-visible,.mc-pill:focus-visible{outline:2px solid #E7B556;outline-offset:2px}
+.mc-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,22,33,.9) 0%,rgba(7,22,33,.46) 50%,rgba(7,22,33,0) 82%)}
+.mc-scrim-side{background:linear-gradient(to left,rgba(7,22,33,.9) 0%,rgba(7,22,33,.56) 50%,rgba(7,22,33,0) 84%)}
+.mc-badge{position:absolute;top:5px;right:5px;display:block;line-height:0}
+.mc-badge .mi{--mi-size:23px;box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 6px rgba(7,22,33,.35)}
 .mc-flag{position:absolute;top:7px;left:7px;height:18px;padding:0 7px;border-radius:999px;font-size:9px;font-weight:600;display:flex;align-items:center;background:#E7B556;color:#1B1407}
-.mc-text{position:absolute;right:9px;left:9px;bottom:7px;display:flex;flex-direction:column;gap:1px;line-height:1.3}
-.mc-text b{display:block;font:700 12px/1.35 var(--font-head);color:#FFFFFF}
-.mc-text small{display:block;font-size:9px;color:rgba(255,255,255,.88);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-text{position:absolute;right:8px;left:8px;bottom:6px;display:flex;flex-direction:column;gap:0;line-height:1.3;min-width:0}
+.mc-text b{display:block;font:700 11px/1.4 var(--font-head);color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-text small{display:block;font-size:8.5px;color:rgba(255,255,255,.88);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mc-routes{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#E7B556;stroke-width:2.2;stroke-linecap:round}
 .mc-routes circle{fill:#FFFFFF;stroke:#0D3B57;stroke-width:1.6}
-.mc-hero{height:118px}
+#drawerBody .mc-hero{height:86px}
 .mc-hero>img{object-position:center 62%}
-.mc-hero .mc-badge{display:none}
-.mc-hero .mc-text{right:12px;left:96px;top:10px;bottom:10px;justify-content:space-between}
-.mc-kicker{font-size:9.5px!important;font-weight:700;color:#F3D9A4!important}
-.mc-hero-count{display:flex;align-items:baseline;gap:5px}
-.mc-hero-count small{font-size:10.5px!important;color:#FFFFFF!important}
-.mc-count{font:700 26px/1.1 var(--font-head)!important;direction:ltr;font-variant-numeric:tabular-nums}
-.mc-chips{display:flex;flex-wrap:wrap;gap:4px}
-.mc-chip{display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:999px;background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.28);font-size:9px;color:#FFFFFF;white-space:nowrap}
-.mc-decide{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.mc-hero .mc-text{right:11px;left:90px;top:8px;bottom:8px;justify-content:space-between}
+.mc-kicker{font-size:9px!important;font-weight:700;color:#F3D9A4!important}
+.mc-hero-count{display:flex;align-items:baseline;gap:5px;white-space:nowrap}
+.mc-hero-count small{font-size:10px!important;color:#FFFFFF!important}
+.mc-count{font:700 22px/1.1 var(--font-head)!important;direction:ltr;font-variant-numeric:tabular-nums}
+.mc-chips{display:flex;flex-wrap:wrap;gap:4px;max-height:38px;overflow:hidden}
+.mc-chip{display:inline-flex;align-items:center;height:17px;padding:0 7px;border-radius:999px;background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.28);font-size:8.5px;color:#FFFFFF;white-space:nowrap}
+#drawerBody .mc-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;min-height:0;height:72px;padding:0;border-radius:13px;border:1.5px dashed #9DB3C2;background:#FFFFFF;color:#0D3B57;font:600 10.5px var(--font)}
+.mc-add .mg{width:22px;height:22px}
+.mc-decide{order:5;display:flex;flex-direction:column;gap:6px;margin-top:2px;scroll-margin-top:6px}
 .mc-decide h3{margin:0;font:700 12px var(--font-head)}
-.mc-decision{display:flex;align-items:center;gap:9px;padding:7px;border-radius:13px;background:#FFFFFF;border:1px solid #E8EDF1}
-.mc-decision-icon{flex:0 0 34px;line-height:0}.mc-decision-icon .mi{--mi-size:34px}
-.mc-decision-copy{flex:1;min-width:0;line-height:1.35}
-.mc-decision-copy b{display:block;font-size:11px;font-weight:600}
-.mc-decision-copy small{display:block;font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mc-act{height:28px;padding:0 11px;border-radius:9px;border:0;background:#0D3B57;color:#FFFFFF;font:600 10.5px var(--font);flex:0 0 auto}
+.mc-decision{display:flex;align-items:center;gap:8px;min-height:44px;box-sizing:border-box;padding:5px 6px;border-radius:12px;background:#FFFFFF;border:1px solid #E8EDF1}
+.mc-decision-icon{flex:0 0 32px;line-height:0}.mc-decision-icon .mi{--mi-size:32px}
+.mc-decision-copy{flex:1;min-width:0;line-height:1.3}
+.mc-decision-copy b{display:block;font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-decision-copy small{display:block;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#drawerBody .mc-act{min-height:0;height:27px;padding:0 10px;line-height:1;border-radius:9px;border:0;background:#0D3B57;color:#FFFFFF;font:600 10px var(--font);flex:0 0 auto}
 #drawerBody .tabs.mc-in-strip{display:none!important}
-/* "بالكامل": the same panel as a wide control room over the map. */
-.panel-expanded .mc-kpis{grid-template-columns:repeat(3,minmax(0,240px))}
-.panel-expanded .mc-hero{height:160px}
-.panel-expanded .mc-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.panel-expanded .mc-tile:not(.mc-hero){height:104px}
-.panel-expanded .mc-decide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-.panel-expanded .mc-decide h3{grid-column:1/-1}
+/* "بالكامل": figures, hero and decisions in one column, every page tile in three columns beside them. */
+.panel-expanded .madar-company{display:grid;grid-template-columns:290px minmax(0,1fr);gap:10px;align-items:start}
+.panel-expanded .mc-main{display:flex;flex-direction:column;gap:7px;min-width:0}
+.panel-expanded .mc-pill{display:none}
+.panel-expanded #drawerBody .mc-hero{height:98px}
+.panel-expanded .mc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panel-expanded #drawerBody .mc-tile:not(.mc-hero),.panel-expanded #drawerBody .mc-add{height:70px}

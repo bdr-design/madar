@@ -145,7 +145,7 @@ async function captureContext(page){
     const prepare=GH_INTERFACE.prepare;
     window.GH_INTERFACE={...GH_INTERFACE,prepare(root,panel,arg,ctx){window.qaPerfContext=ctx;return prepare(root,panel,arg,ctx);}};
   });
-  await page.locator('.side-nav [data-panel=companies]').click();
+  await page.locator('.side-nav [data-panel=groupHub]').click();
   await page.waitForFunction(()=>globalThis.qaPerfContext?.runAuthorizedDomainCommand&&globalThis.qaPerfContext?.buyAsset);
 }
 

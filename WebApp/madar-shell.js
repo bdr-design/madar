@@ -94,22 +94,25 @@ function tilesFor(state,id){const kind=KINDS[kindOf(state,id)];if(!kind)return [
 
 // ---- Group sections ------------------------------------------------------------------------------------------------
 const SECTIONS=Object.freeze({
-  group:Object.freeze({label:'المجموعة',icon:'group',nav:'companies',pages:[['companies',null,'المجموعة','group'],['groupManagement',null,'أداء الشركات','performance'],['assets','all','أسطول المجموعة','fleet-all'],['network',null,'الدليل العالمي','directory'],['expansion',null,'كل المنشآت','facilities'],['formationContract',null,'عقد التأسيس','charter']]}),
-  finance:Object.freeze({label:'المال',icon:'finance',nav:'finance',pages:[['finance',null,'نظرة عامة','finance'],['treasury',null,'الخزينة','treasury'],['monthlyFinance',null,'الدخل الشهري','monthly-income'],['budgets',null,'الميزانيات','budget'],['invoices',null,'المستندات','documents'],['market',null,'الأسواق والتحوط','markets'],['market','deals','الاستحواذات','acquisitions'],['stocks',null,'الأسهم والطرح','stocks']]}),
-  people:Object.freeze({label:'الأفراد',icon:'people',nav:'people',pages:[['peopleHub',null,'نظرة عامة','people'],['labor','dashboard','لوحة الأفراد','people-dash'],['labor','managers','المديرون التنفيذيون','executive'],['labor','jobs','الوظائف','jobs'],['labor','contracts','عقود العمل','employment'],['labor','payroll','الرواتب','payroll'],['crews',null,'الأجور والطواقم','crews']]}),
-  leadership:Object.freeze({label:'الإدارة',icon:'leadership',nav:'leadership',pages:[['leadershipHub',null,'نظرة عامة','leadership'],['actionCenter',null,'المهام الآن','tasks'],['compliance',null,'السلامة والأمن','safety'],['conference',null,'المؤتمر السنوي','conference'],['research',null,'البحث والتطوير','research'],['esg',null,'الاستدامة','esg'],['businessWorld',null,'العلاقات التجارية','relations'],['realism',null,'السوق والاقتصاد','economy'],['news',null,'الأخبار','news']]}),
-  system:Object.freeze({label:'النظام',icon:'settings',nav:'system',pages:[['settings',null,'الحفظ والإعدادات','settings'],['updates',null,'التحديثات','updates'],['diagnostics',null,'صحة اللعبة','diagnostics'],['controlPlane',null,'مركز التحكم','control-plane']]})
+  group:Object.freeze({label:'المجموعة',icon:'group',nav:'companies',pages:[['groupHub',null,'لوحة المجموعة','group'],['companies',null,'الشركات','office'],['groupManagement',null,'أداء الشركات','performance'],['assets','all','أسطول المجموعة','fleet-all'],['network',null,'الدليل العالمي','directory'],['expansion',null,'كل المنشآت','facilities'],['formationContract',null,'عقد التأسيس','charter']]}),
+  finance:Object.freeze({label:'المال',icon:'finance',nav:'finance',pages:[['financeHub',null,'لوحة المال','finance'],['finance',null,'الدفاتر والقوائم','revenue'],['treasury',null,'الخزينة','treasury'],['monthlyFinance',null,'الدخل الشهري','monthly-income'],['budgets',null,'الميزانيات','budget'],['invoices',null,'المستندات','documents'],['market',null,'الأسواق والتحوط','markets'],['market','deals','الاستحواذات','acquisitions'],['stocks',null,'الأسهم والطرح','stocks']]}),
+  people:Object.freeze({label:'الأفراد',icon:'people',nav:'people',pages:[['peopleHub',null,'لوحة الأفراد','people'],['labor','managers','المديرون التنفيذيون','executive'],['labor','dashboard','تغطية الوظائف','people-dash'],['labor','jobs','الوظائف','jobs'],['labor','contracts','عقود العمل','employment'],['labor','payroll','الرواتب','payroll'],['crews',null,'الأجور والطواقم','crews']]}),
+  leadership:Object.freeze({label:'الإدارة',icon:'leadership',nav:'leadership',pages:[['leadershipHub',null,'لوحة الإدارة','leadership'],['actionCenter',null,'المهام الآن','tasks'],['compliance',null,'السلامة والأمن','safety'],['conference',null,'المؤتمر السنوي','conference'],['research',null,'البحث والتطوير','research'],['esg',null,'الاستدامة','esg'],['businessWorld',null,'العلاقات التجارية','relations'],['realism',null,'السوق والاقتصاد','economy'],['news',null,'الأخبار','news']]}),
+  system:Object.freeze({label:'النظام',icon:'settings',nav:'system',pages:[['systemHub',null,'لوحة النظام','settings'],['settings',null,'الحفظ والإعدادات','settings'],['updates',null,'التحديثات','updates'],['diagnostics',null,'صحة اللعبة','diagnostics'],['controlPlane',null,'مركز التحكم','control-plane']]})
 });
-const SECTION_OF=Object.freeze({companies:'group',groupManagement:'group',network:'group',expansion:'group',ports:'group',formationContract:'group',
-  finance:'finance',monthlyFinance:'finance',treasury:'finance',budgets:'finance',invoices:'finance',market:'finance',stocks:'finance',
+const SECTION_OF=Object.freeze({groupHub:'group',companies:'group',groupManagement:'group',network:'group',expansion:'group',ports:'group',formationContract:'group',
+  financeHub:'finance',finance:'finance',monthlyFinance:'finance',treasury:'finance',budgets:'finance',invoices:'finance',market:'finance',stocks:'finance',
   peopleHub:'people',labor:'people',crews:'people',
   leadershipHub:'leadership',actionCenter:'leadership',compliance:'leadership',conference:'leadership',research:'leadership',esg:'leadership',businessWorld:'leadership',realism:'leadership',news:'leadership',
-  settings:'system',updates:'system',diagnostics:'system',controlPlane:'system'});
+  systemHub:'system',settings:'system',updates:'system',diagnostics:'system',controlPlane:'system'});
+// Each section opens on its own control panel (the first page of its strip).
+const HUBS=Object.freeze({groupHub:'group',financeHub:'finance',peopleHub:'people',leadershipHub:'leadership',systemHub:'system'});
+const HUB_TITLES=Object.freeze({groupHub:'لوحة المجموعة',financeHub:'لوحة المال',peopleHub:'لوحة الأفراد',leadershipHub:'لوحة الإدارة',systemHub:'لوحة النظام'});
 // Pages that only exist inside one company: they follow the company that opened them.
 const COMPANY_PAGES=new Set(['company','assets','assetMarket','routes','globalRoute','companyFacilities','facilityManage','assetManage','mobilityAsset','contracts','maintenance','procurement','companyManage','energy','bank','insurance','realestate']);
 const DEEP_KIND=Object.freeze({energy:'power',bank:'bank',insurance:'insurance',realestate:'realestate'});
 // Retired pages open their new home, so every old link, alert and task still lands somewhere real.
-const REDIRECTS=Object.freeze({control:['companies',null],governanceHub:['compliance',null],systemHub:['settings',null],cyber:['compliance',null],safety:['compliance',null]});
+const REDIRECTS=Object.freeze({control:['groupHub',null],governanceHub:['compliance',null],cyber:['compliance',null],safety:['compliance',null]});
 
 let installed=null,stickyCompany=null;
 function argCompany(state,panel,arg){
@@ -131,6 +134,7 @@ function rail(state,panel,arg){const place=locate(state,panel,arg);if(place.sect
 function meta(state,panel,arg){
   if(panel==='company'){const id=String(arg||''),kind=KINDS[kindOf(state,id)];return [kind?.sector||'الشركة',shortName(state,id)];}
   if(panel==='procurement')return ['العمليات','الطلبات قيد التسليم'];
+  if(HUBS[panel])return [SECTIONS[HUBS[panel]].label,HUB_TITLES[panel]];
   return null;
 }
 
@@ -149,32 +153,113 @@ function companyFacts(state,id,ctx){
   try{fleet=ctx.companyFleetStats?.(id)||null;}catch(_error){}
   return {summary,performance,balance,manager,fleet};
 }
+// One panel for a company and for a section, laid out for the landscape phone: the status line (with the count of open
+// decisions), three figures, a short hero strip and the page tiles fit the first screen beside the map. "بالكامل" turns
+// it into two columns (figures, hero and decisions; tiles in three columns) instead of stretching one image across.
+function heroMarkup(hero){
+  const [panel,arg]=hero.to;
+  return `<button type="button" class="mc-tile mc-hero" ${go(panel,arg)} data-tile="${esc(hero.key)}"><img src="${ui(hero.img)}" alt="" decoding="async"><span class="mc-scrim mc-scrim-side"></span><span class="mc-text"><small class="mc-kicker">${esc(hero.title)}</small>${hero.count?`<span class="mc-hero-count">${hero.count}</span>`:''}<span class="mc-chips">${(hero.chips||[]).filter(Boolean).map(text=>`<span class="mc-chip">${esc(text)}</span>`).join('')}</span></span></button>`;
+}
+function panelMarkup({kind='',status,kpis,hero,tiles,extra='',decisions}){
+  const decisionMarkup=decisions.length?`<section class="mc-decide" aria-label="يحتاج قرارك"><h3>يحتاج قرارك</h3>${decisions.map(([ic,title,copy,panel,arg,label])=>`<div class="mc-decision"><span class="mc-decision-icon">${icon(ic)}</span><span class="mc-decision-copy"><b>${esc(title)}</b><small>${esc(copy)}</small></span><button type="button" class="mc-act" ${go(panel,arg)}>${esc(label)}</button></div>`).join('')}</section>`:'';
+  const pill=decisions.length?`<button type="button" class="mc-pill" data-mc-decide>يحتاج قرارك <b>${esc(num(decisions.length))}</b></button>`:'';
+  return `<div class="madar-company"${kind?` data-kind="${esc(kind)}"`:''}><div class="mc-main"><div class="mc-head"><p class="mc-manager">${status}</p>${pill}</div><div class="mc-kpis">${kpis.map(([label,value,cls])=>`<div class="mc-kpi"><span>${esc(label)}</span><b class="${esc(cls)}">${esc(value)}</b></div>`).join('')}</div>${heroMarkup(hero)}${decisionMarkup}</div><div class="mc-grid">${tiles}${extra}</div></div>`;
+}
+const statusLine=(tone,text)=>`<small class="mc-status is-${tone}"><i></i>${esc(text)}</small>`;
 function renderCompany(state,id,ctx){
   const kindId=kindOf(state,id),kind=KINDS[kindId];if(!kind)return '<div class="empty">الشركة غير مفتوحة أو غير معروفة.</div>';
   stickyCompany=id;const facts=companyFacts(state,id,ctx),perf=facts.performance,net=Number(perf?.net)||0,reported=Number(perf?.reportedDays)||0,summary=facts.summary;
   const kpis=[['رصيد الشركة',Number.isFinite(Number(facts.balance))?money(ctx,facts.balance):'—',''],['صافي 30 يومًا',reported?`${net>=0?'+':''}${money(ctx,net)}`:'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],[summary?.primaryOperatingLabel||'التشغيل',typeof summary?.primaryOperatingCount==='number'?num(summary.primaryOperatingCount):(summary?.primaryOperatingCount??'—'),'']];
-  const managerLine=facts.manager?.name?`<small class="mc-status is-good"><i></i>تعمل · المدير: ${esc(facts.manager.name)}</small>`:`<small class="mc-status is-warn"><i></i>بلا مدير تنفيذي معيّن</small>`;
-  let heroLine='',heroChips='',heroCount='';
+  const status=facts.manager?.name?statusLine('good',`تعمل · المدير: ${facts.manager.name}`):statusLine('warn','بلا مدير تنفيذي معيّن');
+  let chips=[],count='';
   if(kind.fleet){
     // The worker summary arrives a moment after the first paint (app.js re-renders the panel then); until it does,
     // the bounded overview count is exact for small fleets.
     const mobility=kindId==='mobility'?globalThis.GH_MOBILITY_CORE?.managementSnapshot?.(state):null,boundedCount=summary?.category==='fleet'&&typeof summary.primaryOperatingCount==='number'?summary.primaryOperatingCount:null,boundedMoving=Number((summary?.metrics||[]).find(([label])=>label==='رحلات جارية')?.[1]),stats=mobility?{total:Number(mobility.vehicles)||0,moving:Number(mobility.moving)||0,service:null}:facts.fleet||(boundedCount!==null?{total:boundedCount,moving:Number.isFinite(boundedMoving)?boundedMoving:0,service:null}:null);
-    heroCount=stats?`<b class="mc-count">${esc(num(stats.total))}</b><small>${esc(kind.unit)}</small>`:`<b class="mc-count">—</b><small>جارٍ تحديث الأسطول</small>`;
-    heroChips=stats?[`في الحركة ${num(stats.moving)}`,stats.service!=null?`تحتاج صيانة ${num(stats.service)}`:''].filter(Boolean).map(text=>`<span class="mc-chip">${esc(text)}</span>`).join(''):'';
+    count=stats?`<b class="mc-count">${esc(num(stats.total))}</b><small>${esc(kind.unit)}</small>`:`<b class="mc-count">—</b><small>جارٍ تحديث الأسطول</small>`;
+    chips=stats?[`في الحركة ${num(stats.moving)}`,stats.service!=null?`تحتاج صيانة ${num(stats.service)}`:'']:[];
   }else{
-    heroLine=(summary?.metrics||[]).slice(0,3).map(([label,value])=>`<span class="mc-chip">${esc(label)} ${esc(typeof value==='number'?num(value):value)}</span>`).join('');
+    chips=(summary?.metrics||[]).slice(0,3).map(([label,value])=>`${label} ${typeof value==='number'?num(value):value}`);
   }
-  const hero=kind.hero,[heroPanel,heroArg]=hero.to(id);
-  const heroCard=`<button type="button" class="mc-tile mc-hero" ${go(heroPanel,heroArg)} data-tile="${esc(hero.key)}"><img src="${ui(hero.img)}" alt="" decoding="async"><span class="mc-scrim mc-scrim-side"></span><span class="mc-badge">${icon(hero.icon)}</span><span class="mc-text"><small class="mc-kicker">${esc(hero.title)}</small>${heroCount?`<span class="mc-hero-count">${heroCount}</span>`:''}<span class="mc-chips">${heroChips||heroLine}</span></span></button>`;
+  const hero=kind.hero;
   const decisions=[];
   if(kind.fleet&&facts.fleet?.service>0)decisions.push(['maintenance',`${num(facts.fleet.service)} ${kind.unit} تحتاج صيانة`,'افتح الصيانة لمراجعة السياسة والفحوص','maintenance',id,'مراجعة']);
   for(const [label,value] of summary?.metrics||[])if(/بانتظار|طلبات|عروض/.test(String(label))&&Number(value)>0)decisions.push(['tasks',`${label}: ${value}`,'قرار مفتوح في هذه الشركة',hero.to(id)[0],hero.to(id)[1],'فتح']);
   if(!facts.manager?.name)decisions.push(['executive','عيّن مديرًا تنفيذيًا','الشركة تعمل بلا مدير رسمي','labor',`managers:${id}`,'تعيين']);
-  const decisionMarkup=decisions.length?`<section class="mc-decide" aria-label="يحتاج قرارك"><h3>يحتاج قرارك</h3>${decisions.map(([ic,title,copy,panel,arg,label])=>`<div class="mc-decision"><span class="mc-decision-icon">${icon(ic)}</span><span class="mc-decision-copy"><b>${esc(title)}</b><small>${esc(copy)}</small></span><button type="button" class="mc-act" ${go(panel,arg)}>${esc(label)}</button></div>`).join('')}</section>`:'';
-  return `<div class="madar-company" data-kind="${esc(kindId)}"><p class="mc-manager">${managerLine}</p><div class="mc-kpis">${kpis.map(([label,value,cls])=>`<div class="mc-kpi"><span>${esc(label)}</span><b class="${esc(cls)}">${esc(value)}</b></div>`).join('')}</div>${heroCard}<div class="mc-grid">${tilesFor(state,id).map(tile=>tileMarkup(tile,id)).join('')}</div>${decisionMarkup}</div>`;
+  return panelMarkup({kind:kindId,status,kpis,hero:{key:hero.key,title:hero.title,img:hero.img,to:hero.to(id),count,chips},tiles:tilesFor(state,id).map(tile=>tileMarkup(tile,id)).join(''),decisions});
 }
+
+// ---- Section panels --------------------------------------------------------------------------------------------------
+// Every figure is read from what the game already keeps (state totals, the daily closes, the task list the alerts use,
+// the HR health summary): opening a section adds no new pass over the fleet, the documents or the ledger.
+const T=(key,title,sub,img,icon,panel,arg,map)=>Object.freeze({key,title,sub,img,icon,map:!!map,to:()=>[panel,arg]});
+const HUB_TILES=Object.freeze({
+  group:[T('performance','أداء الشركات','أرباح وتشغيل كل شركة','group-boardroom','performance','groupManagement'),T('fleet','أسطول المجموعة','الطائرات والسفن والشاحنات','ship-container','fleet-all','assets','all'),T('directory','الدليل العالمي','المدن والمطارات والموانئ','routes-map','directory','network',undefined,true),T('facilities','كل المنشآت','القواعد والموانئ والمراكز','facility-port-v2','facilities','expansion'),T('charter','عقد التأسيس','رأس المال والملكية','finance-documents','charter','formationContract')],
+  finance:[T('treasury','الخزينة','السيولة والتمويل الداخلي','bank-vault','treasury','treasury'),T('budgets','الميزانيات','سقف شهري لكل شركة','company-bank-v2','budget','budgets'),T('invoices','المستندات','الذمم والضرائب والديون','finance-documents','documents','invoices'),T('market','الأسواق والتحوط','الوقود والعملات والمحفظة','finance-markets','markets','market'),T('deals','الاستحواذات','صفقات شراء الشركات','lead-partners','acquisitions','market','deals'),T('stocks','الأسهم والطرح','المحفظة والطرح العام','insurance-risk','stocks','stocks'),T('books','الدفاتر والقوائم','دفاتر الشركات والتحويلات والقوائم','company-hq-v2','revenue','finance')],
+  people:[T('coverage','تغطية الوظائف','احتياجات المراكز والمنشآت','people-team','people-dash','labor','dashboard'),T('jobs','الوظائف','التوظيف والإعلانات','air-crew','jobs','labor','jobs'),T('contracts','عقود العمل','العقود السارية والتجديد','lead-partners','employment','labor','contracts'),T('payroll','الرواتب','المسير والتكاليف','finance-budget','payroll','labor','payroll'),T('crews','الأجور والطواقم','الأجر مقابل السوق والاستقالات','sea-crew','crews','crews')],
+  leadership:[T('compliance','السلامة والأمن','الأسطول والأمن السيبراني والكربون','lead-security','safety','compliance'),T('conference','المؤتمر السنوي','نتائج السنة أمام المساهمين','lead-news','conference','conference'),T('research','البحث والتطوير','مشروعات ترفع الكفاءة','lead-rnd','research','research'),T('esg','الاستدامة','برامج تخفض الوقود والانبعاثات','lead-esg','esg','esg'),T('relations','العلاقات التجارية','العملاء والموردون والرعايات','lead-partners','relations','businessWorld'),T('economy','السوق والاقتصاد','الوقود والطلب والأسعار','finance-markets','economy','realism'),T('news','الأخبار','العقود والمال والرعايات','insurance-risk','news','news')],
+  system:[T('settings','الحفظ والإعدادات','الخانات والتوقيع ووضع التجربة','telecom-datacenter','settings','settings'),T('updates','التحديثات','ملفات التحديث والحزم','energy-control','updates','updates'),T('diagnostics','صحة اللعبة','الأداء والأخطاء والفحص','company-bank-v2','diagnostics','diagnostics'),T('controlPlane','مركز التحكم','الصلاحيات والأنظمة','lead-security','control-plane','controlPlane')]
+});
+const TASK_DOMAINS=Object.freeze({group:['التشغيل','الشركات'],finance:['المال','المالية'],people:['القيادة','الأفراد'],system:['النظام']});
+function sectionTasks(state,section){let tasks=[];try{tasks=globalThis.GH_UI_QUALITY?.collectTasks?.(state)||[];}catch(_error){}const domains=TASK_DOMAINS[section];return domains?tasks.filter(task=>domains.includes(task.domain)):tasks;}
+const taskDecision=task=>[task.priority==='critical'?'safety':'tasks',task.title,task.reason||'يتطلب مراجعة أو متابعة',task.panel||'actionCenter',undefined,'فتح'];
+const countMarkup=(value,unit)=>`<b class="mc-count">${esc(value)}</b><small>${esc(unit)}</small>`;
+const signed=(ctx,value)=>`${value>=0?'+':''}${money(ctx,value)}`;
+function groupHub(state,ctx){
+  const opened=openedCompanies(state),n=opened.length,facilities=(state.globalBases?.length||0)+(state.customHubs?.length||0)+(state.branches?.length||0);
+  let vacant=0;for(const row of opened){try{if(!globalThis.GH_HR_CORE?.officialManager?.(state,row.id))vacant++;}catch(_error){}}
+  const decisions=[];
+  if(vacant)decisions.push(['executive',`${num(vacant)} ${vacant===1?'شركة':'شركات'} بلا مدير تنفيذي`,'أفضل مرشح لكل شركة في اعتماد واحد','labor','managers','تعيين']);
+  if(n&&!facilities)decisions.push(['facilities','لا توجد منشآت بعد','افتح أول قاعدة من الدليل العالمي','network',undefined,'فتح']);
+  decisions.push(...sectionTasks(state,'group').slice(0,3).map(taskDecision));
+  return panelMarkup({status:n?statusLine('good',`${num(n)} ${n===1?'شركة تعمل':'شركات تعمل'} · السمعة ${num(state.profile?.reputation||0)}/100`):statusLine('warn','لا شركات تابعة بعد'),
+    kpis:[['قيمة المجموعة',money(ctx,state.groupValue),''],['السيولة',money(ctx,state.cash),''],['الدين',money(ctx,state.debt),'']],
+    hero:{key:'companies',title:'شركات المجموعة',img:'company-hq-v2',to:['companies'],count:countMarkup(num(n),n===1?'شركة تعمل':'شركات تعمل'),chips:[...opened.slice(0,3).map(row=>KINDS[kindOf(state,row.id)]?.sector||shortName(state,row.id)),n>3?`\u2066+${num(n-3)}\u2069`:'']},
+    tiles:HUB_TILES.group.map(tile=>tileMarkup(tile)).join(''),extra:`<button type="button" class="mc-add" ${go('companies','subs')} data-tile="open-company">${glyph('add')}<span>فتح شركة جديدة</span></button>`,decisions});
+}
+function financeHub(state,ctx){
+  let perf=null;try{perf=globalThis.GH_FINANCE_CORE?.performance?.(state,'group',30)||null;}catch(_error){}
+  const reported=Number(perf?.reportedDays)||0,net=Number(perf?.net)||0,decisions=[];
+  if(reported&&net<0)decisions.push(['monthly-income','آخر 30 يومًا خاسرة',`صافي ${signed(ctx,net)}: راجع الدخل والمصروف`,'monthlyFinance',undefined,'مراجعة']);
+  decisions.push(...sectionTasks(state,'finance').slice(0,3).map(taskDecision));
+  return panelMarkup({status:reported?statusLine(net>=0?'good':'warn',net>=0?'آخر 30 يومًا رابحة':'آخر 30 يومًا خاسرة'):statusLine('good','لم يُقفل أي يوم بعد'),
+    kpis:[['السيولة الموحدة',money(ctx,state.cash),''],['صافي 30 يومًا',reported?signed(ctx,net):'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],['الديون',money(ctx,state.debt),'']],
+    hero:{key:'monthly',title:'الدخل والمصروف · 30 يومًا',img:'finance-budget',to:['monthlyFinance'],count:countMarkup(reported?signed(ctx,net):'—','صافي'),chips:reported?[`دخل ${money(ctx,perf.grossRevenue)}`,`مصروف ${money(ctx,perf.expenses)}`]:['بانتظار أول إقفال يومي']},
+    tiles:HUB_TILES.finance.map(tile=>tileMarkup(tile)).join(''),decisions});
+}
+function peopleHub(state,ctx){
+  let health=null;try{health=globalThis.GH_HR_CORE?.health?.(state,ctx)||null;}catch(_error){}
+  const people=(state.hired?.length||0)+(state.crew||[]).reduce((n,row)=>n+(Number(row?.count)||0),0)+(state.mobility?.drivers?.length||0);
+  const managers=Number(health?.officialManagers)||0,required=Number(health?.officialManagerRequired)||0,vacant=Math.max(0,required-managers),missing=Number(health?.facilityMissing)||0,decisions=[];
+  if(vacant)decisions.push(['executive',`${num(vacant)} ${vacant===1?'شركة':'شركات'} بلا مدير تنفيذي`,'أفضل مرشح لكل شركة في اعتماد واحد','labor','managers','تعيين']);
+  if(missing)decisions.push(['people-dash',`${num(missing)} وظيفة غير مغطاة`,'المراكز والمنشآت تحتاج موظفين','labor','dashboard','توظيف']);
+  decisions.push(...sectionTasks(state,'people').slice(0,3).map(taskDecision));
+  return panelMarkup({status:vacant?statusLine('warn',`${num(vacant)} ${vacant===1?'شركة':'شركات'} بلا مدير تنفيذي`):statusLine('good',required?'كل الشركات لها مدير تنفيذي':'لا شركات تحتاج مديرًا بعد'),
+    kpis:[['الموظفون',num(people),''],['تغطية الوظائف',health?`${num(health.coverage)}%`:'—',''],['عقود سارية',health?num(health.contracts):'—','']],
+    hero:{key:'managers',title:'المديرون التنفيذيون',img:'people-recruit',to:['labor','managers'],count:countMarkup(`${num(managers)}/${num(required)}`,'شركات لها مدير'),chips:[vacant?`${num(vacant)} شواغر`:'',health?.openRequisitions?`طلبات توظيف ${num(health.openRequisitions)}`:'']},
+    tiles:HUB_TILES.people.map(tile=>tileMarkup(tile)).join(''),decisions});
+}
+function leadershipHub(state){
+  const tasks=sectionTasks(state,'leadership'),critical=tasks.filter(task=>task.priority==='critical').length,high=tasks.filter(task=>task.priority==='high').length;
+  return panelMarkup({status:critical?statusLine('warn',`${num(critical)} ${critical===1?'مهمة حرجة تنتظرك':'مهام حرجة تنتظرك'}`):statusLine('good','لا مهام حرجة الآن'),
+    kpis:[['المهام المفتوحة',num(tasks.length),''],['حرجة',num(critical),critical?'negative':''],['السمعة',`${num(state.profile?.reputation||0)}/100`,'']],
+    hero:{key:'tasks',title:'المهام الآن',img:'energy-control',to:['actionCenter'],count:countMarkup(num(tasks.length),tasks.length===1?'مهمة مفتوحة':'مهام مفتوحة'),chips:[`حرجة ${num(critical)}`,`مرتفعة ${num(high)}`]},
+    tiles:HUB_TILES.leadership.map(tile=>tileMarkup(tile)).join(''),decisions:tasks.slice(0,4).map(taskDecision)});
+}
+function systemHub(state,ctx){
+  let save=null;try{save=ctx.savePolicyStatus?.()||null;}catch(_error){}
+  const ago=Number(save?.lastSaveAgoMs),minutes=Math.round(ago/60000),slots=(state.advanced?.saveSlots||[]).filter(Boolean).length;
+  const last=!Number.isFinite(ago)||ago>86400000?'—':minutes<1?'الآن':`قبل ${num(minutes)} د`;
+  const decisions=sectionTasks(state,'system').slice(0,3).map(taskDecision);
+  return panelMarkup({status:decisions.length?statusLine('warn','النظام يحتاج مراجعة'):statusLine('good','الحفظ التلقائي يعمل'),
+    kpis:[['نسخة اللعبة',String(ctx.appVersion||'—'),''],['الكتالوج',String(state.advanced?.content?.catalogVersion||'—'),''],['خانات الحفظ',`${num(slots)} من 3`,'is-text']],
+    hero:{key:'save',title:'آخر حفظ',img:'company-system-v2',to:['settings'],count:countMarkup(last,''),chips:[save?.capMinutes?`تلقائي كل ${num(save.capMinutes)} د`:'','الحفظ والخانات']},
+    tiles:HUB_TILES.system.map(tile=>tileMarkup(tile)).join(''),decisions});
+}
+const HUB_RENDER=Object.freeze({groupHub,financeHub,peopleHub,leadershipHub,systemHub});
 function render(panel,arg,ctx){
   if(panel==='company')return renderCompany(ctx.state,String(arg||''),ctx);
+  if(HUB_RENDER[panel]){stickyCompany=null;return HUB_RENDER[panel](ctx.state,ctx);}
   return null;
 }
 
@@ -247,15 +332,17 @@ function sync(state,panel,arg,open){
 function install({openDrawer,getState}){
   installed={openDrawer,getState};
   document.addEventListener('click',event=>{
+    const pill=event.target.closest?.('#drawer [data-mc-decide]');
+    if(pill){pill.closest('.madar-company')?.querySelector('.mc-decide')?.scrollIntoView({block:'start',behavior:'smooth'});return;}
     const target=event.target.closest?.('[data-go]');if(!target||!installed)return;
     if(!target.closest('#drawer,#sectionNav,#companyDock'))return;
     event.preventDefault();const panel=target.dataset.go;let arg;try{arg=target.dataset.goArg?JSON.parse(target.dataset.goArg):undefined;}catch(_error){arg=undefined;}
-    if(['companies','finance','peopleHub','leadershipHub','settings'].includes(panel))stickyCompany=null;
+    if(HUBS[panel]||['companies','finance','settings'].includes(panel))stickyCompany=null;
     installed.openDrawer(panel,arg);
   });
   const expand=document.getElementById('drawerExpand');
   expand?.addEventListener('click',()=>{const shell=document.querySelector('.app-shell'),on=!shell.classList.contains('panel-expanded');shell.classList.toggle('panel-expanded',on);expand.setAttribute('aria-pressed',String(on));const mark=expand.querySelector('.mg');mark?.classList.toggle('ic-collapse',on);mark?.classList.toggle('ic-expand',!on);expand.setAttribute('aria-label',on?'العودة بجانب الخريطة':'فتح القسم بالكامل');});
   try{syncDock(getState(),null,true);}catch(_error){}
 }
-globalThis.GH_MADAR=Object.freeze({VERSION:'1.0.0',KINDS,SECTIONS,kindOf,openedCompanies,locate,redirect,rail,meta,render,decorate,sync,syncDock,install,tilesFor});
+globalThis.GH_MADAR=Object.freeze({VERSION:'1.1.0',KINDS,SECTIONS,HUBS,kindOf,openedCompanies,locate,redirect,rail,meta,render,decorate,sync,syncDock,install,tilesFor});
 })();

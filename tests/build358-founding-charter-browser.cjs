@@ -42,7 +42,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     assert(founded.hq>=1,'the headquarters stands on the map');
 
     // Subsidiaries: one row per company, the contract in reach, the holding account decides.
-    await page.locator('.side-nav [data-panel=companies]').click();await page.locator('#drawerBody [data-companytab="subs"]').click();
+    await page.locator('.side-nav [data-panel=groupHub]').click();await page.locator('#drawerBody [data-tile="open-company"]').click();
     assert.equal(await page.locator('#drawerBody details.ui-more .company-open-row').count(),0,'no opening row is hidden in a collapsed section');
     assert.equal(await page.locator('#drawerBody .company-open-row[data-company="mobility"] .is-short').count(),1,'120M against a 50M holding account reads short');
     await page.locator('#drawerBody .company-open-row[data-company="air"] [data-open="formationContract"]').click();

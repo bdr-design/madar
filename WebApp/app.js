@@ -6068,7 +6068,7 @@
   // A second tap on the map entry, with nothing open beside the map, frames the whole world.
   $('mapNavBtn').addEventListener('click',()=>{const framed=!document.querySelector('.sheet-dock>.open,.sheet-dock>:not(.hidden):not(.drawer):not(.god-panel)');openWorld();if(framed&&map)map.setView([22,28],3);});
   $('brandBtn').addEventListener('click',openWorld);
-  $('alertsBtn').addEventListener('click',()=>openDrawer('news')); $('topNewsTicker')?.addEventListener('click',()=>openDrawer('news')); $('healthBtn')?.addEventListener('click',()=>openDrawer('diagnostics')); $('settingsBtn').addEventListener('click',()=>openDrawer('settings'));
+  $('alertsBtn').addEventListener('click',()=>openDrawer('news')); $('topNewsTicker')?.addEventListener('click',()=>openDrawer('news')); $('healthBtn')?.addEventListener('click',()=>openDrawer('diagnostics')); $('settingsBtn').addEventListener('click',()=>openDrawer('systemHub'));
   document.querySelectorAll('button[data-map-mode]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setMapMode(btn.dataset.mapMode);}));
   $('drawerClose').addEventListener('click',closeDrawer);
   window.GH_MADAR?.install?.({openDrawer,getState:()=>state});

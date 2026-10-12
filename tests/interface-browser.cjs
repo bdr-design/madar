@@ -26,14 +26,14 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     const original=GH_INTERFACE.prepare;
     window.GH_INTERFACE={...GH_INTERFACE,prepare(root,panel,arg,ctx){window.qaContext=ctx;return original(root,panel,arg,ctx);}};
   });
-  await page.locator('.side-nav [data-panel=companies]').click();
+  await page.locator('.side-nav [data-panel=groupHub]').click();
   await page.evaluate(async()=>{
     for(const type of ['air','sea','road','power','bank','mobility','insurance','realestate'])if(!__GH_STATE__.openedCompanies.includes(type)){const minimum=Number(GH_COMPANY_PLATFORM.definitionFor(__GH_STATE__,type)?.founding?.minimumCapital)||0;await qaContext.runAuthorizedDomainCommand('corporate','open-company',{type,companyId:type,capital:Math.max(50000000,minimum),legalName:'شركة اختبار '+type,formationContract:'INTERFACE-QA-'+type});}
     qaContext.openDrawer('companies');
   });
 
   const report=[];
-  const panels=['companies','company','leadershipHub','peopleHub','finance','compliance','groupManagement','settings','network','routes','assets','assetMarket','companyManage','labor','invoices','monthlyFinance','treasury','energy','bank','insurance','realestate','businessWorld','news','procurement','conference','research','esg','diagnostics','controlPlane'];
+  const panels=['groupHub','financeHub','systemHub','companies','company','leadershipHub','peopleHub','finance','compliance','groupManagement','settings','network','routes','assets','assetMarket','companyManage','labor','invoices','monthlyFinance','treasury','energy','bank','insurance','realestate','businessWorld','news','procurement','conference','research','esg','diagnostics','controlPlane'];
   for(const theme of ['fresh','natural']){
     await page.evaluate(theme=>document.querySelector(`#layerMenu [data-layer=${theme}]`).click(),theme);
     await page.waitForFunction(expected=>__GH_STATE__.mapLayer===expected,theme);
@@ -56,17 +56,20 @@ const {drawFounderSignature}=require('./helpers/signature-input');
   }
 
   const rootRoutes=await page.evaluate(()=>{
-    const read=panel=>{qaContext.openDrawer(panel);return [...document.querySelectorAll('#drawerBody .command-btn[data-open]')].map(button=>button.dataset.open);};
+    const read=panel=>{qaContext.openDrawer(panel);return [...document.querySelectorAll('#drawerBody .command-btn[data-open],#drawerBody [data-go]')].map(button=>button.dataset.open||button.dataset.go);};
     // Build 373: a company's operations live on its own panel (tiles), and the retired hubs redirect to their owners.
     const tiles=id=>{qaContext.openDrawer('company',id);return [...document.querySelectorAll('#drawerBody [data-go]')].map(button=>button.dataset.go);};
     const landing=panel=>{qaContext.openDrawer(panel);return document.querySelector('#drawerBody').dataset.panel;};
-    return {air:tiles('air'),road:tiles('road'),finance:read('finance'),leadership:read('leadershipHub'),retired:{control:landing('control'),governanceHub:landing('governanceHub'),systemHub:landing('systemHub')}};
+    return {air:tiles('air'),road:tiles('road'),finance:read('finance'),leadership:read('leadershipHub'),retired:{control:landing('control'),governanceHub:landing('governanceHub')},systemHub:landing('systemHub'),hubs:Object.fromEntries(['groupHub','financeHub','peopleHub','leadershipHub','systemHub'].map(panel=>[panel,read(panel)]))};
   });
   for(const panel of ['assetMarket','routes','procurement','contracts','companyManage','invoices'])assert(rootRoutes.air.includes(panel),`air panel reaches ${panel}`);
   assert(rootRoutes.road.includes('routes')&&rootRoutes.road.includes('procurement'));
   assert(!rootRoutes.finance.includes('bank'),'the bank belongs to its own company panel');
   assert(rootRoutes.leadership.includes('compliance')&&rootRoutes.leadership.includes('businessWorld')&&!rootRoutes.leadership.includes('groupManagement'));
-  assert.deepEqual(rootRoutes.retired,{control:'companies',governanceHub:'compliance',systemHub:'settings'});
+  assert.deepEqual(rootRoutes.retired,{control:'groupHub',governanceHub:'compliance'});
+  // Build 373 phase 3: each section opens on its own control panel, and every page the old hub cards reached is a tile.
+  assert.equal(rootRoutes.systemHub,'systemHub');
+  for(const [hub,pages] of Object.entries({groupHub:['companies','groupManagement','assets','network','expansion','formationContract'],financeHub:['finance','treasury','budgets','invoices','market','stocks','monthlyFinance'],peopleHub:['labor','crews'],leadershipHub:['actionCenter','compliance','conference','research','esg','businessWorld','realism','news'],systemHub:['settings','updates','diagnostics','controlPlane']}))for(const page of pages)assert(rootRoutes.hubs[hub].includes(page),`${hub} reaches ${page}`);
 
   await page.evaluate(()=>qaContext.openDrawer('labor','managers:air'));
   await page.locator('[data-gh-action=hr-appoint-manager]').first().click();

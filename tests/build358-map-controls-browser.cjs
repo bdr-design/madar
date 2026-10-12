@@ -47,14 +47,14 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     await page.tap('#filterToggle');
 
     // God Mode from Settings.
-    await page.tap('#settingsBtn');const card=page.locator('#drawerBody [data-open="settings"]').first();if(await card.count())await card.tap();
+    await page.tap('#settingsBtn');const card=page.locator('#drawerBody [data-go="settings"]').first();if(await card.count())await card.tap();
     await page.locator('.god-mode-toggle').tap();
     await page.waitForFunction(()=>__GH_STATE__.godMoney===true&&__GH_STATE__.infiniteMoney===true);
     await page.waitForFunction(()=>document.getElementById('cashKpi').textContent==='∞');
     await page.reload();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
     assert.deepEqual(await page.evaluate(()=>[__GH_STATE__.godMoney,__GH_STATE__.infiniteMoney]),[true,true],'God Mode survives a reload');
     // Switching it off works (the command used to return false, read as a rejection, so it stayed on).
-    await page.tap('#settingsBtn');{const again=page.locator('#drawerBody [data-open="settings"]').first();if(await again.count())await again.tap();}
+    await page.tap('#settingsBtn');{const again=page.locator('#drawerBody [data-go="settings"]').first();if(await again.count())await again.tap();}
     await page.locator('.god-mode-toggle').tap();
     await page.waitForFunction(()=>__GH_STATE__.godMoney===false&&__GH_STATE__.infiniteMoney===false);
     await page.waitForFunction(()=>document.getElementById('cashKpi').textContent!=='∞');

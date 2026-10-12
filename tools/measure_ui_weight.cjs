@@ -28,7 +28,7 @@ const median=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)
  await cdp.send('Emulation.setCPUThrottlingRate',{rate:1});
  await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__.onboardingComplete);
  await page.evaluate(()=>{__GH_STATE__.speed=0;const o=GH_INTERFACE.prepare;window.GH_INTERFACE={...GH_INTERFACE,prepare(r,p,a,c){window.qaContext=c;return o(r,p,a,c);}};});
- await page.locator('.side-nav [data-panel=companies]').click();await page.waitForTimeout(300);
+ await page.locator('.side-nav button[data-panel]').first().click();await page.waitForTimeout(300);
  // A fleet so the map has moving markers: 400 used airliners, dispatched with the real button.
  const fleet=await page.evaluate(async()=>{const c=qaContext,s=__GH_STATE__,type='air';s.godMoney=true;s.infiniteMoney=true;
    for(const t of ['air','sea','road','power','bank']){if(!s.openedCompanies.includes(t)){const d=GH_COMPANY_PLATFORM.definitionFor(s,t);await c.runAuthorizedDomainCommand('corporate','open-company',{type:t,companyId:t,capital:Math.max(400000000,d?.founding?.minimumCapital||0),legalName:'Perf '+t,formationContract:'PERF-'+t},{silent:true});}}
@@ -50,6 +50,7 @@ const median=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)
  const hasCompany=await page.evaluate(()=>!!window.GH_MADAR);
  const panels=[['companies'],['finance'],['peopleHub'],['leadershipHub'],['settings'],['assets','air'],['routes','air'],['companyManage',{type:'air',tab:'overview'}],['invoices',{company:'all',tab:'overview'}]];
  if(hasCompany)panels.push(['company','air'],['company','bank'],['company','power']);
+ if(await page.evaluate(()=>!!window.GH_MADAR?.HUBS))panels.push(['groupHub'],['financeHub'],['systemHub']);
  await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});
  const before=await metrics();out.panels={};
  for(const [p,a] of panels){const times=[];for(let i=0;i<3;i++){await page.evaluate(()=>qaContext.openDrawer('map'));await page.waitForTimeout(150);
