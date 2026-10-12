@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "a4f56e38ad4ecc9dcf9496a7082d0e30a35a199450ef9e6efc9e57ca3e0977a5",
-  "webapp_tree_sha256": "7890efc69c2a0a4764bae251dfb2d3d3769d2e2466c8528861b294b0700aaaf4",
+  "source_tree_sha256": "71feb9f2ca370b09240899a15c81f2a3e52814c3ec10aaf8cd05b70fcf7c7807",
+  "webapp_tree_sha256": "aa0caea676df0909e5c849242029e5dabf3daa818c1b96bb3cf3a280015819ef",
   "files": {
     "WebApp/advanced-core.js": {
-      "bytes": 312309,
-      "sha256": "23785bdff9f9e8ab14130fe1f202e7dfd8aec8c9bd1046198bb3ff19e5d79539"
+      "bytes": 317489,
+      "sha256": "16e1ce4992737a004a4b26aeb861be553171490463c6e26a0016d297be4e6786"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -3398,6 +3398,10 @@
       "bytes": 50109,
       "sha256": "a1914de438158bbb77301026413d252d77abe7cf82f1527b4e0628f813c70049"
     },
+    "WebApp/company-revenue-chain-core.js": {
+      "bytes": 14228,
+      "sha256": "4bfebac5b6ad421333eddd14d7c21438136a6b3c4c9c794f2d7f203267e2dd59"
+    },
     "WebApp/conference-3d.css": {
       "bytes": 22562,
       "sha256": "c93703006afc976c5af13b4c0d6c8c34ac2258cdd5e523082614a4d4b1263a27"
@@ -3627,8 +3631,8 @@
       "sha256": "c0b25e4bb96ea11f687f90deff84137e24171be894436351613e6119c26bdb69"
     },
     "WebApp/index.html": {
-      "bytes": 24600,
-      "sha256": "2f4e051bdf2378ea9a97b7acdadc359e0881dfc7890acfe372997a44344cbf2c"
+      "bytes": 24656,
+      "sha256": "4451ddc01eb38f53ce24f52675b73c25b7555fa15585cc040a3ec12e3b61ff39"
     },
     "WebApp/insurance-core.js": {
       "bytes": 26201,
@@ -3663,12 +3667,12 @@
       "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
     },
     "WebApp/madar-shell.css": {
-      "bytes": 6483,
-      "sha256": "b2f9d3cad8e4d7dc125fce2efb255754f52fb40c978a8aef8a318235f16150ae"
+      "bytes": 9082,
+      "sha256": "2ca3c42c858a09cde977744a1cff1959d205cb17544b684e0ada2c79efb19c66"
     },
     "WebApp/madar-shell.js": {
-      "bytes": 46595,
-      "sha256": "278f058e2af1052a2309f20a41faa79baa6f4b8c261315b7b453ce1d80293406"
+      "bytes": 52277,
+      "sha256": "e6172e5e62b40e94b3fb92b28461e1128260be5fb06bd45a25dba5a45769d70c"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 7759,
@@ -3787,8 +3791,8 @@
       "sha256": "9111e731e3d61aec97c73a9c984e8508d0bf3cb18102b1409c073e901944d41c"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 36344,
-      "sha256": "95ba8b9211135fb8f5b8cd18c0b975325e25a6e04d2603f122be5190ffa3f66e"
+      "bytes": 36381,
+      "sha256": "cc10f51772d34fd33662752dce09f417da607f7394d175effa4aa17fd69ad3ee"
     },
     "WebApp/save-policy-core.js": {
       "bytes": 2306,
@@ -3932,7 +3936,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "5a500d426b89e2749f9d42f90e34bb4b32eec116f204ca2791b361a0880a37d9"
+      "sha256": "89bc48f06f63821eac0ca446ee88fac112c6abdb7bc28d8cbf2df3e05d49ac16"
     },
     "BUILD": {
       "bytes": 4,

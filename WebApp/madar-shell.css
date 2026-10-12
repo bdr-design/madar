@@ -59,3 +59,27 @@
 .panel-expanded #drawerBody .mc-hero{height:98px}
 .panel-expanded .mc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .panel-expanded #drawerBody .mc-tile:not(.mc-hero),.panel-expanded #drawerBody .mc-add{height:70px}
+/* Build 373 revenue chain (companies without transport assets, owner's approved design): numbers and lines only, no
+   images; it replaces the hero image and the image tiles of these companies. */
+.mc-chain{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:0;padding:2px 0 0;list-style:none}
+.mc-chain:before{content:"";position:absolute;top:13px;right:10%;left:10%;height:2px;background:#DDE5EA}
+.mc-step{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.mc-step em{position:relative;z-index:1;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 10.5px var(--font);font-style:normal;background:#13875E;color:#FFFFFF}
+.mc-step.is-now em{background:#E7B556;color:#1B1407;box-shadow:0 0 0 4px rgba(231,181,86,.32)}
+.mc-step.is-later em{background:#C3CED6}
+.mc-step small{margin-top:3px;font-size:9.5px;font-weight:600;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-step b{max-width:100%;font:700 10.5px/1.4 var(--font-head);direction:ltr;color:#0D3B57;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-step.is-later small,.mc-step.is-later b{color:#6B7F8D}
+.mc-next{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:#0D3B57;color:#FFFFFF}
+#drawerBody .mc-next p{margin:0;flex:1 1 auto;min-width:0;font-size:11px;line-height:1.55;color:#FFFFFF}
+.mc-next .mc-start{display:block;color:#E7B556;font-size:12px}
+#drawerBody .mc-next p b{color:#E7B556;unicode-bidi:isolate}
+#drawerBody .mc-next-go{flex:0 0 auto;min-height:44px;height:auto;padding:0 14px;border:0;border-radius:10px;background:#E7B556;color:#1B1407;font:700 12px var(--font);cursor:pointer}
+.mc-bulk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#drawerBody .mc-bulk .primary-btn,#drawerBody .mc-bulk .secondary-btn{min-height:44px;width:100%;margin:0}
+.mc-pending{align-items:center}
+.mc-row-actions{display:flex;gap:4px;flex:0 0 auto}
+#drawerBody .mc-row-actions .primary-btn,#drawerBody .mc-row-actions .secondary-btn{min-height:36px;min-width:52px;padding:0 10px;margin:0;font-size:10.5px}
+.mc-pages{display:flex;flex-wrap:wrap;gap:6px}
+#drawerBody .mc-page{display:inline-flex;align-items:center;gap:5px;min-height:36px;height:auto;padding:0 10px;border:1px solid #E1E8ED;border-radius:10px;background:#FFFFFF;color:#102331;font:600 10.5px var(--font);cursor:pointer}
+.mc-page svg,.mc-page i{width:16px;height:16px;flex:0 0 16px}

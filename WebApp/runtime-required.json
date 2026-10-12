@@ -917,6 +917,7 @@
     "madar-icons.css",
     "madar-icons.js",
     "madar-shell.css",
+    "company-revenue-chain-core.js",
     "madar-shell.js",
     "map-asset-query-core.js",
     "map-asset-query-worker.js",
