@@ -64,9 +64,11 @@ async function scenario(page,{roadRoute,interrupt}){
   // hydrateRoadRoutes still requests from the network).
   await page.evaluate(roadRoute=>{const tpl=__AUDIT__.routeTemplatesFor(roadRoute);tpl.roadNetworkDistanceKm=0;delete tpl.roadGeometryVersion;delete __GH_STATE__.routeCache[roadRoute];},roadRoute);
   const pre=await page.evaluate(`(${OBSERVE})()`);
-  // Pause: the first frame yield of the sea dispatch that sees every ship routed and none departed.
+  // Pause: the sea dispatch command's first cooperative yield. Build 372: the dispatch plan assigns and departs in one
+  // staged apply, so there is no gap between assignment and departure to hold; the durable command is open and owns the
+  // state (the same hold build371-native-update-isolation uses).
   await page.evaluate(({interrupt})=>{const original=window.__qaTimeout||(window.__qaTimeout=window.setTimeout);window.qaPause={armed:true,held:null};
-    window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&window.__GH_DURABLE_COMMAND_CONTEXT__&&String(fn).includes('[native code]')){const ships=GH_FLEET_DATA.filter(__GH_STATE__,a=>(a.ownerCompanyId||a.companyId)==='sea');if(ships.length&&ships.every(a=>a.routeId&&a.phase!=='moving'&&!a.departureScheduled)){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}}return original.call(window,fn,ms,...rest);};
+    window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))&&String(fn).includes('[native code]')){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}return original.call(window,fn,ms,...rest);};
     const ops=window.__qaOps||(window.__qaOps=window.GH_OPERATIONS_CORE);window.GH_OPERATIONS_CORE=interrupt?{...ops,execute(ctx,cmd,payload){if(cmd==='record-alert'&&payload?.type==='dispatch')throw new Error('qa-interrupted-after-departures');return ops.execute(ctx,cmd,payload);}}:ops;},{interrupt});
   await page.locator('.dispatch-international-network[data-company="sea"]').first().click();
   await page.waitForFunction(()=>!!qaPause.held,null,{timeout:120000});

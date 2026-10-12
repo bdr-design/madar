@@ -24,9 +24,11 @@ async function setup(page){
   });
 }
 // Pauses the next sea dispatch at its first frame yield that sees the idle ships of one port routed and none departed.
+// Held at the sea dispatch command's first cooperative yield (Build 372: the plan assigns and departs in one staged
+// apply, so no frame shows ships routed but not yet departed; the durable command is open and owns the state).
 async function pausedDispatch(page,{interrupt=false}={}){
   await page.evaluate(({interrupt})=>{const original=window.__qaTimeout||(window.__qaTimeout=window.setTimeout);window.qaPause={armed:true,held:null};
-    window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&window.__GH_DURABLE_COMMAND_CONTEXT__&&String(fn).includes('[native code]')){const ships=GH_FLEET_DATA.filter(__GH_STATE__,a=>(a.ownerCompanyId||a.companyId)==='sea'&&a.routeId&&a.phase!=='moving'&&!a.departureScheduled);if(ships.length){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}}return original.call(window,fn,ms,...rest);};
+    window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))&&String(fn).includes('[native code]')){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}return original.call(window,fn,ms,...rest);};
     const ops=window.__qaOps||(window.__qaOps=window.GH_OPERATIONS_CORE);window.GH_OPERATIONS_CORE=interrupt?{...ops,execute(ctx,cmd,payload){if(cmd==='record-alert'&&payload?.type==='dispatch')throw new Error('qa-interrupted');return ops.execute(ctx,cmd,payload);}}:ops;
     __AUDIT__.openDrawer('routes','sea');},{interrupt});
   const before=await page.evaluate(()=>GH_APP_RUNTIME_METRICS.snapshot().durable.samples.length);
