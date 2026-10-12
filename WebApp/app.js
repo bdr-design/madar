@@ -1763,7 +1763,7 @@
   }
   function worldRouteCandidateSource(type,workerClient=null){
     const rows=type==='air'?WORLD.airports:WORLD.ports,project=type==='air'?airportEntity:portEntity,cache=new Map(),originIndexCache=new Map(),metrics={indexBuilds:0,rowsScanned:0,indexBuildMs:0,indexWorkerMs:0,indexScanWorkMs:0,indexDistanceMs:0,indexSortMs:0,indexMaxSliceMs:0,indexMaxDistanceSliceMs:0,indexMaxSortSliceMs:0,indexCacheHits:0,indexCacheMisses:0,windows:0,candidateRowsRanked:0,reachableMax:0,lastPoolStart:0,lastPoolEnd:0,poolFirstKm:0,poolLastKm:0,lastAcceptedWindow:0,maxAcceptedWindow:0,lastAcceptedWindowStart:0,lastAcceptedWindowEnd:0,assetsPlanned:0,originCount:0,registeredRouteCount:0,routePlanMs:0,routeSelectionMs:0,assignmentMs:0,departureMs:0,dispatchTotalMs:0,routesCreated:0,sharedBatches:0,routesRaisedCapacity:0,maxRouteLoad:0,maxRouteCapacity:0,maxRouteUtilization:0,candidatePoolExhaustions:0,candidateRejections:{missingEndpoint:0,routeGeometry:0,outOfRange:0,corridorConflict:0}};
-    const yieldPlanning=()=>new Promise(resolve=>setTimeout(resolve,0));
+    const yieldPlanning=yieldToEventLoop;
     const compareDistance=(distances,a,b)=>{const difference=distances[a]-distances[b];return Number.isNaN(difference)||difference===0?a-b:difference;};
     const lowerBound=(indices,distances,value)=>{let low=0,high=indices.length;while(low<high){const middle=(low+high)>>>1;if(distances[indices[middle]]<value)low=middle+1;else high=middle;}return low;};
     const upperBound=(indices,distances,value)=>{let low=0,high=indices.length;while(low<high){const middle=(low+high)>>>1;if(distances[indices[middle]]<=value)low=middle+1;else high=middle;}return low;};
@@ -1839,7 +1839,26 @@
       window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`أُنشئ خط ${asset.type==='air'?'جوي':'بحري'} عام: ${route.name}.`,type:'route'});return {assetId:asset.id,routeId:route.id};
     },{afterCommit:result=>{lastDepartureBlocked=[];renderMap();updateKpis();openDrawer('assetManage',result.assetId);}});
   }
-  const yieldFleetPlanning=()=>new Promise(resolve=>setTimeout(resolve,0)),DISPATCH_CHUNK=500,FLEET_DISPATCH_FRAME_BUDGET_MS=6,FLEET_PROJECTION_MAX_ROWS=256;
+  // Cooperative planning hands the thread back between bounded slices. setTimeout(0) did that through a timer: from the
+  // fifth nested timer on, browsers (Chromium and WebKit) clamp it to 4 ms, so a slice of under 1 ms waited 4 ms idle.
+  // A 120,000-aircraft dispatch series made 21,000 such yields: 92 s of its 112 s were the clamp. Slices now continue
+  // through a MessageChannel task (not clamped; input and worker messages still run between them) for up to
+  // FLEET_YIELD_FRAME_WORK_MS of each frame, then wait for the frame to paint (requestAnimationFrame, with a timer for a
+  // hidden page), so rendering and idle-time GC keep their share of every frame.
+  const fleetYieldQueue=[],FLEET_YIELD_FRAME_WORK_MS=10,FLEET_YIELD_PAINT_TIMEOUT_MS=50;let fleetYieldChannel=null,fleetYieldFrameStarted=0;
+  function fleetYieldPost(resolve){fleetYieldQueue.push(resolve);fleetYieldChannel.port2.postMessage(0);}
+  function yieldToEventLoop(){
+    if(fleetYieldChannel===null){try{fleetYieldChannel=typeof MessageChannel==='function'?new MessageChannel():false;if(fleetYieldChannel)fleetYieldChannel.port1.onmessage=()=>{const resolve=fleetYieldQueue.shift();if(resolve)resolve();};}catch(_error){fleetYieldChannel=false;}}
+    if(!fleetYieldChannel)return new Promise(resolve=>setTimeout(resolve,0));
+    const now=performance.now();
+    if(now-fleetYieldFrameStarted<FLEET_YIELD_FRAME_WORK_MS)return new Promise(fleetYieldPost);
+    return new Promise(resolve=>{
+      let done=false;const resume=()=>{if(done)return;done=true;clearTimeout(timer);fleetYieldPost(()=>{fleetYieldFrameStarted=performance.now();resolve();});};
+      const timer=setTimeout(resume,FLEET_YIELD_PAINT_TIMEOUT_MS);
+      try{if(typeof requestAnimationFrame==='function')requestAnimationFrame(resume);else resume();}catch(_error){resume();}
+    });
+  }
+  const yieldFleetPlanning=yieldToEventLoop,DISPATCH_CHUNK=500,FLEET_DISPATCH_FRAME_BUDGET_MS=6,FLEET_PROJECTION_MAX_ROWS=256;
   // Materializing the bounded 20k dispatch page is still enough work to miss several frames when it is expressed as
   // Array.map/filter chains.  Every projection below uses this owner: it checks the clock after every row and also has
   // a hard row ceiling, so cheap rows cannot accidentally make one long task merely because the clock is coarse.

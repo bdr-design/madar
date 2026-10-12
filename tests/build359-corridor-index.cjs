@@ -55,7 +55,12 @@ test('the dispatch runs in chunks and yields after each new route',()=>{
   // Build 372: the plan is computed on the fleet engine thread (GH_FLEET_DISPATCH_CORE) and applied in stages; every
   // UI-thread pass over the batch is a time-budgeted cooperative loop that yields to the frame (it replaced the fixed
   // 500-row chunks).
-  assert.match(app,/yieldFleetPlanning=\(\)=>new Promise\(resolve=>setTimeout\(resolve,0\)\)/);
+  // The yield is a real task boundary that is not clamped to 4 ms (setTimeout(0) nested was), and every frame still
+  // waits for its paint once its work share is spent.
+  assert.match(app,/const yieldFleetPlanning=yieldToEventLoop,/);
+  assert.match(app,/fleetYieldChannel=typeof MessageChannel==='function'\?new MessageChannel\(\):false/);
+  assert.match(app,/if\(now-fleetYieldFrameStarted<FLEET_YIELD_FRAME_WORK_MS\)return new Promise\(fleetYieldPost\);/);
+  assert.match(app,/requestAnimationFrame\(resume\)/);
   assert.match(app,/FLEET_DISPATCH_FRAME_BUDGET_MS=6/);
   assert.match(app,/if\(index\+1<total&&\(sliceRows>=FLEET_PROJECTION_MAX_ROWS\|\|elapsed>=FLEET_DISPATCH_FRAME_BUDGET_MS\)\)\{[^}]*await yieldFleetPlanning\(\);/);
   assert.match(app,/const asked=client\.dispatchPlan\(store,\{input,timeout:120000\}\)/);

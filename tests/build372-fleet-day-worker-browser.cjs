@@ -31,7 +31,11 @@ const server=http.createServer((request,response)=>{
       const state={fleet:STORE.fromAssets(assets,{at:86400}),simSeconds:86400,realism:{economy:{airDemand:113,bunker:null}}},store=state.fleet;
       const params={simSeconds:state.simSeconds,ownerResolution:{platform:true,knownCompanies:[],legacyOwners:[['air','air'],['road','road']]},maintenancePolicies:[['air','preventive'],['road','standard']],airDemand:113,bunker:null};
       const client=GH_FLEET_ENGINE_THREAD.create({workerFactory:()=>new Worker('fleet-engine-worker.js'),resolveRoute:()=>null,routesRevision:()=>0,catalogSpecs:()=>({}),timeoutMs:60000});
-      client.prime(store);await new Promise(resolve=>setTimeout(resolve,80));
+      // 5,000 rows exceed the synchronous replica limit (2,048): the replica is streamed in frame slices and the worker
+      // then names its route pairs. A fixed sleep raced that on slower runners (query() returned null); wait for the
+      // exact replica instead, bounded so a replica that never becomes ready still fails the gate.
+      const readyBy=performance.now()+30000;client.prime(store);
+      while(!client.replicaReady(store)){if(performance.now()>readyBy)throw new Error(`replica not ready: ${JSON.stringify(client.stats())}`);await new Promise(resolve=>setTimeout(resolve,10));client.prime(store);}
       const asked=client.query(store,{name:'fleetDay',params,simSeconds:state.simSeconds}),found=asked&&await asked;
       const expected=Q.run('fleetDay',state,DATA,params),actualPlan=found?.result?.columns,expectedPlan=expected.columns,exceptionValues=actualPlan?.exceptional?.values,expectedExceptionValues=expectedPlan.exceptional.values;
       const same=found&&JSON.stringify(found.result)===JSON.stringify(expected)&&exceptionValues.length===expectedExceptionValues.length&&Array.from(exceptionValues,(value,index)=>Object.is(value,expectedExceptionValues[index])).every(Boolean);
