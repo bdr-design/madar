@@ -10,8 +10,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
 const web=path.join(path.resolve(__dirname,'..'),'WebApp');
-const workerSource=['fleet-store-core.js','simulation-asset-core.js','fleet-event-core.js','fleet-access-core.js','fleet-health-core.js','fleet-query-core.js'].map(file=>fs.readFileSync(path.join(web,file),'utf8')).join('\n;\n')+'\n;\n'+
-  fs.readFileSync(path.join(web,'fleet-engine-worker.js'),'utf8').replace(/^importScripts\([^)]*\);$/m,'');
+// The app's worker assembled from its own importScripts list (a hand-picked subset missed the cores later queries use).
+const workerSource=require('./helpers/fleet-engine-worker').fleetEngineWorkerSource();
 
 // Before the app runs: the vault stand-in (chunks and saves, acknowledged like the native shell), the worker from a
 // blob, and for a reopened game the save and its chunks as the native bootstrap leaves them.
