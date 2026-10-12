@@ -497,7 +497,7 @@
   ];
 
   const defaultState = {
-    saveVersion:SAVE_SCHEMA_VERSION,saveRevision:0,onboardingComplete:false,lastPanel:null,lastPanelArg:null,mapLayer:'dark',
+    saveVersion:SAVE_SCHEMA_VERSION,saveRevision:0,onboardingComplete:false,lastPanel:null,lastPanelArg:null,mapLayer:'fresh',
     profile:{name:'المجموعة العالمية القابضة',shortName:'GH',founder:'المؤسس',englishName:'Global Holdings Group',country:'السعودية',city:'الرياض',locationId:'RUH',mode:'balanced',legalForm:'شركة قابضة مساهمة مقفلة',currency:'USD',fiscalYear:'calendar',reputation:12,creditRating:'BBB',logo:null},
     cash:250000000,debt:84000000,groupValue:412000000,todayProfit:0,
     sectorProfitToday:{air:0,sea:0,road:0,power:0,bank:0,mobility:0},
@@ -1593,14 +1593,15 @@
     return mobilityStreetHydration;
   }
 
-  // Saves from before Build 358 stored the old light default as "standard"; the executive identity opens dark.
-  const normalizeMapLayer=name=>['dark','natural','street','satellite'].includes(name)?name:'dark';
-  const terrainTileUrl=name=>normalizeMapLayer(name)==='dark'?'assets/maps/ne2-dark/{z}/{x}/{y}.webp':'assets/maps/ne2/{z}/{x}/{y}.webp';
+  // The owner's three map styles (Build 373): fresh (the default), natural and satellite. Older saves stored
+  // dark, street or the pre-358 "standard"; they open on the fresh map.
+  const normalizeMapLayer=name=>['fresh','natural','satellite'].includes(name)?name:'fresh';
+  const terrainTileUrl=name=>normalizeMapLayer(name)==='fresh'?'assets/maps/ne2-fresh/{z}/{x}/{y}.webp':'assets/maps/ne2/{z}/{x}/{y}.webp';
   function setMapLayer(name){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true)return false;
     if(!map)return;const selected=normalizeMapLayer(name),layer=layers[selected];terrainLayer?.setUrl(terrainTileUrl(selected));if(currentTile)map.removeLayer(currentTile);mapTileFailures=0;mapTileSuccesses=0;setMapTilesOffline(false);currentTile=layer.addTo(map);
     state.mapLayer=selected;map.fire('baselayerchange');
-    const stage=document.querySelector('.map-stage');stage.classList.remove('map-dark','map-natural','map-street','map-satellite');stage.classList.add(`map-${selected}`);
+    const stage=document.querySelector('.map-stage');stage.classList.remove('map-dark','map-fresh','map-natural','map-street','map-satellite');stage.classList.add(`map-${selected}`);
     document.querySelectorAll('#layerMenu button').forEach(b=>b.classList.toggle('active',b.dataset.layer===selected));
     document.querySelectorAll('[data-map-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapStyle===selected)));
   }
@@ -1645,13 +1646,12 @@
     terrainLayer=L.tileLayer(terrainTileUrl(state.mapLayer),{pane:'localTerrain',className:'gh-terrain-layer',tileSize:L.Browser.retina?128:256,zoomOffset:L.Browser.retina?1:0,maxNativeZoom:L.Browser.retina?3:4,maxZoom:19,minZoom:2,attribution:'Natural Earth'}).addTo(map);
     if(typeof ResizeObserver==='function')new ResizeObserver(()=>map?.invalidateSize({animate:false})).observe($('map'));
     const osmOptions={maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'};
-    layers.dark = observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...osmOptions,minZoom:5}));
+    layers.fresh = observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...osmOptions,minZoom:5}));
     layers.natural = observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...osmOptions,minZoom:5}));
-    layers.street = observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',osmOptions));
     layers.satellite = observeTileLayer(L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'}));
     setMapLayer(state.mapLayer);
     const countryPane=map.createPane('countryLabels');countryPane.style.zIndex='380';countryPane.style.pointerEvents='none';
-    const countryLabels=L.layerGroup().addTo(map),updateCountryLabels=()=>{countryLabels.clearLayers();const zoom=map.getZoom();if(zoom>5||state.mapLayer==='street')return;const minimum=zoom<4?20000000:zoom<5?3000000:1000000,size=map.getSize(),placed=[];for(const row of [...(window.GH_MAP_LABELS||[])].sort((a,b)=>b.population-a.population)){if(row.population<minimum)continue;const point=map.latLngToContainerPoint(row.coords),width=Math.min(132,Math.max(40,row.name.length*6)),box={x:point.x-width/2,y:point.y-12,w:width,h:24};if(box.x+box.w<0||box.y+box.h<0||box.x>size.x||box.y>size.y||placed.some(b=>box.x<b.x+b.w+8&&box.x+box.w+8>b.x&&box.y<b.y+b.h+4&&box.y+box.h+4>b.y))continue;placed.push(box);L.marker(row.coords,{pane:'countryLabels',interactive:false,keyboard:false,icon:L.divIcon({className:'ui-country-label',html:esc(row.name),iconSize:[width,24],iconAnchor:[width/2,12]})}).addTo(countryLabels);}};
+    const countryLabels=L.layerGroup().addTo(map),updateCountryLabels=()=>{countryLabels.clearLayers();const zoom=map.getZoom();if(zoom>5)return;const minimum=zoom<4?20000000:zoom<5?3000000:1000000,size=map.getSize(),placed=[];for(const row of [...(window.GH_MAP_LABELS||[])].sort((a,b)=>b.population-a.population)){if(row.population<minimum)continue;const point=map.latLngToContainerPoint(row.coords),width=Math.min(132,Math.max(40,row.name.length*6)),box={x:point.x-width/2,y:point.y-12,w:width,h:24};if(box.x+box.w<0||box.y+box.h<0||box.x>size.x||box.y>size.y||placed.some(b=>box.x<b.x+b.w+8&&box.x+box.w+8>b.x&&box.y<b.y+b.h+4&&box.y+box.h+4>b.y))continue;placed.push(box);L.marker(row.coords,{pane:'countryLabels',interactive:false,keyboard:false,icon:L.divIcon({className:'ui-country-label',html:esc(row.name),iconSize:[width,24],iconAnchor:[width/2,12]})}).addTo(countryLabels);}};
     map.on('zoomend moveend resize baselayerchange',updateCountryLabels);updateCountryLabels();
     const setInteractionState=active=>{mapInteractionActive=!!active;if(!active){requestVisualResync();updateMarkerPositions(true);}};
     map.on('movestart zoomstart dragstart',()=>setInteractionState(true));

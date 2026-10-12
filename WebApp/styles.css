@@ -26,10 +26,11 @@ small{color: var(--muted);}
 .bottom-nav{display: none;}
 #map{background:var(--sea-ground);}
 .map-natural #map,.map-natural .leaflet-container{background:#b9d8df;}
-.map-natural .ui-country-label{color:#29455d;text-shadow:#fff 0 1px 2px,#fff 0 0 5px;}
+.map-fresh #map,.map-fresh .leaflet-container{background:#5FA9DA;}
+.map-fresh .ui-country-label,.map-natural .ui-country-label{color:#29455d;text-shadow:#fff 0 1px 2px,#fff 0 0 5px;}
+.map-satellite .ui-country-label{color:#FFFFFF;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 6px rgba(0,0,0,.55);}
 .leaflet-container{font-family:var(--font);background:var(--sea-ground);}
 .map-natural .leaflet-tile-pane{filter:saturate(1.08) contrast(.96) brightness(1.04);}
-.map-dark .leaflet-layer:not(.gh-terrain-layer){filter:invert(1) hue-rotate(180deg) brightness(.72) contrast(1.1) saturate(.45);}
 .map-stage.map-tiles-offline .leaflet-tile-pane{opacity: 0;}
 .leaflet-popup-content-wrapper,.leaflet-popup-tip{background: var(--surface); color: var(--text); box-shadow: var(--shadow);}
 .leaflet-popup-content{font: 13px/1.7 var(--font); max-width: 230px;}

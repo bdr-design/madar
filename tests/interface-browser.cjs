@@ -34,7 +34,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
 
   const report=[];
   const panels=['companies','leadershipHub','control','peopleHub','finance','governanceHub','compliance','groupManagement','systemHub','settings','network','routes','assets','assetMarket','companyManage','labor','invoices','monthlyFinance','treasury','energy','bank','insurance','realestate','businessWorld','news','procurement','conference','research','esg','diagnostics','controlPlane'];
-  for(const theme of ['dark','natural']){
+  for(const theme of ['fresh','natural']){
     await page.locator(`[data-map-style=${theme}]`).click();
     await page.waitForFunction(expected=>__GH_STATE__.mapLayer===expected,theme);
     for(const panel of panels){
@@ -51,7 +51,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
       assert.equal(metrics.unmapped,0,`${theme}:${panel} has an option without a logo`);
       assert.notEqual(metrics.mapModes,'none',`${theme}:${panel} hides map modes`);
       report.push({theme,panel,...metrics});
-      if(theme==='dark'&&['companies','finance','labor','companyManage','leadershipHub','insurance','realestate'].includes(panel))await page.screenshot({path:path.join(out,'334-'+panel+'.png')});
+      if(theme==='fresh'&&['companies','finance','labor','companyManage','leadershipHub','insurance','realestate'].includes(panel))await page.screenshot({path:path.join(out,'334-'+panel+'.png')});
     }
   }
 
