@@ -26,7 +26,8 @@ class ConferenceSession{
  }
  async initialize(){try{
    this.setPhase('opening',this.config.live&&this.resumePhase==='preflight');
-   await Promise.all([400,500,600].map(weight=>document.fonts?.load?.(`${weight} 20px "GH Plex Arabic"`,'المؤتمر')||Promise.resolve()));
+   // A font that fails to load (a missing file, a scheme error) leaves the fallback face; it must not fail the conference.
+   await Promise.all([400,500,600].map(weight=>Promise.resolve(document.fonts?.load?.(`${weight} 20px "GH Plex Arabic"`,'المؤتمر')).catch(()=>null)));
    if(this.disposed)return;this.assetsReady=true;this.frames++;this.root.querySelector('.ghc3-loading')?.remove();this.setPhase('presenting',this.config.live&&this.resumePhase!=='presenting');this.root.querySelector('.ghc3-opening')?.classList.add('is-ready');this.persistProgress();if(this.mode!=='manual')this.play();
   }catch(error){if(!this.disposed)this.fail(error);}}
  updateChapter(persist=true){if(this.disposed)return;const row=this.scenes[this.index];this.board.update(this.snapshot,row);this.frames++;this.root.querySelector('.ghc3-current-title').textContent=row.title;this.root.querySelector('.ghc3-count').textContent=`${String(this.index+1).padStart(2,'0')} / ${String(this.scenes.length).padStart(2,'0')}`;

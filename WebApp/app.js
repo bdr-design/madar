@@ -992,6 +992,31 @@
     }else if(!client)scheduleFleetUiSummaryPrime();
     return null;
   }
+  // Build 373: actions that write from a fleet summary (the annual conference's start and preview, a facility's closure)
+  // need one that is exact for the state they run on. advanced-core and conference-core asked ctx for fleetUiSummary and
+  // requireFleetUiSummary, but neither was supplied: above the conference's local limit every such action failed with
+  // conference-fleet-summary-required / fleet-summary-required. The sync form returns the cached worker summary with
+  // current(); the async form waits (bounded) for the worker to answer on an exact replica, retrying while a step is in
+  // flight, and never reads the fleet on this thread beyond the existing small-fleet path.
+  function currentFleetUiSummary(facilities=[],options={}){
+    const store=state?.fleet,revision=window.GH_FLEET_DATA.revision(state),simSeconds=state.simSeconds,value=fleetUiSummary(facilities,options);
+    return value?{...value,current:target=>target===state&&target.fleet===store&&window.GH_FLEET_DATA.revision(target)===revision&&(!options.dynamic||Number(target.simSeconds)===Number(simSeconds))}:null;
+  }
+  async function requireFleetUiSummary(facilities=[],{dynamic=false,timeoutMs=20000}={}){
+    const deadline=performance.now()+Math.max(0,Number(timeoutMs)||0);
+    for(;;){
+      const ready=currentFleetUiSummary(facilities,{dynamic});if(ready)return ready;
+      const core=window.GH_FLEET_UI_SUMMARY,store=state?.fleet,client=fleetEngineThreadClient;
+      if(!core?.requestKey||!core?.lookup||!window.GH_FLEET_STORE?.isStore?.(store))return null;
+      if(client&&!client.disabled&&typeof client.query==='function'){
+        const options=fleetUiSummaryOptions(facilities),key=core.requestKey(options),simSeconds=state.simSeconds,asked=client.query(store,{name:'uiSummary',params:options,simSeconds});
+        if(asked){const found=await asked;if(found&&client.current(found,store)&&found.result?.requestKey===key&&!found.result?.legacy&&(!dynamic||Number(state.simSeconds)===Number(simSeconds)))return {result:found.result,lookup:core.lookup(found.result),current:target=>target===state&&target.fleet===store&&client.current(found,store)&&(!dynamic||Number(target.simSeconds)===Number(simSeconds))};}
+        else try{primeFleetThreadAfterCommand();}catch(_error){}
+      }else if(!client)return null;
+      if(performance.now()>=deadline)return null;
+      await new Promise(resolve=>setTimeout(resolve,50));
+    }
+  }
   const summaryNumber=(value,fallback='—')=>Number.isFinite(Number(value))?fmtNumber(Number(value)):fallback;
   // Build 371: fields the page writes on the live state while a durable command runs (the player's speed, map layer and
   // mode, open panel, competitor toggle; protective stops that set speed 0: a native process recovery, a failed save
@@ -4534,7 +4559,7 @@
   function simulationFaultRecorder(){return window.GH_DIAGNOSTICS.recorderSnapshot?.(state)||null;}
 
   function advancedContext(){
-    return {state,fmtMoney,fmtNumber,formatDuration,esc,typeName,facilityKind,findFacility,competitors,assetCatalog,WORLD,storageKey,
+    return {state,fleetUiSummary:currentFleetUiSummary,requireFleetUiSummary,fmtMoney,fmtNumber,formatDuration,esc,typeName,facilityKind,findFacility,competitors,assetCatalog,WORLD,storageKey,
     getDynamicFacilities,strategicPartners,supplierFor,awardConstruction,payNamedSupplier,canSpend,spend,canCompanySpend,spendCompany,companyOperatingBalance,companyTotalBalance,companyBudget,companyBudgetRemaining,transferBetweenCompanies,bulkTransferFromGroup,transferWithinCompany,creditCompany,companyPerformance:(type,days=30)=>window.GH_FINANCE_CORE.performance(state,type,days),companyFleetStats:id=>{const summary=fleetUiSummary([],{dynamic:true}),owned=summary?.lookup.owner(id);return owned?{total:Number(owned.total)||0,moving:Number(owned.moving)||0,service:Number(owned.needsService)||0}:null;},pushAlert,save,savePolicyStatus,refreshRouteRuntime,runDurableStateCommand,runAuthorizedDomainCommand,dispatchAuthorizedDomain:runAuthorizedDomainCommand,dispatchSystemCommand,authorizationSignatureMarkup,openSignatureDialog,activeAuthorization:()=>clone(founderAuthorization(state)),signatureStatus:()=>{const authority=founderAuthorization(state);return {principalId:FOUNDER_PRINCIPAL_ID,ready:Boolean(authority.signature&&authority.mandate),signatureId:authority.signature?.id||null,signatureVersion:authority.signature?.version||null,mandateId:authority.mandate?.id||null,mandateVersion:authority.mandate?.version||null};},updateKpis,renderMap,panMapTo,openDrawer,openWorldDirectory,buyAsset,routeRuntimeSnapshot:()=>clone(routeTemplates),restoreRouteRuntime:snapshot=>{for(const key of Object.keys(routeTemplates))delete routeTemplates[key];Object.assign(routeTemplates,clone(snapshot||{}));state.routesRevision=(Math.max(0,Math.floor(Number(state.routesRevision)||0))+1);},assignRoute,ensureFacilityWorkforce,ensureBankCorporateClients,bankLiquidityMetrics,bankReviewCorporateLimits,bankDrawCorporateFacility,bankIssueTradeInstrument,bankCashSweep,hardResetGame,worldEntityByKey,appVersion:APP_VERSION,runtimeBuild:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION,runDiagnostics:runFullDiagnostics,exportDiagnostics:exportDiagnosticsFile,startFaultRecorder:startSimulationFaultRecorder,finishFaultRecorder:finishSimulationFaultRecorder,faultRecorder:simulationFaultRecorder,exportControlPlane:exportControlPlaneFile,controlPlane:()=>window.GH_CONTROL_PLANE?.ensure?.(state),controlHealth:()=>window.GH_CONTROL_PLANE?.check?.(state),controlTrace:id=>window.GH_CONTROL_PLANE?.trace?.(state,id),clearDiagnostics:clearDiagnosticsState,diagnostics:()=>state.diagnostics,businessIntegrity:()=>window.GH_INTEGRITY_CORE.check(state),businessLedger:()=>window.GH_EVENT_LEDGER.summary(state),deliveryClosure:()=>window.GH_DELIVERY_MONITOR.reconcile(state),dependencyGraph:()=>state.dependencyGraph,getSimulationSpeed:()=>state.speed,setSimulationSpeed:value=>setSpeed(value),currentPanel:activeDrawerPanel,currentArg:activeDrawerArg};
   }
 
