@@ -41,11 +41,14 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     // Build 372: an order is one plan applied in row stages; a failure after the first stage (here the fleet replica
     // refusing a flush past 512 new rows, the same seam build372-asset-purchase-app-browser uses) must roll back all of it.
     const rollback=await page.evaluate(async()=>{
-      const a=__AUDIT__,s=__GH_STATE__,client=a.fleetEngineThreadClient(),model=GH_ASSET_CATALOG.air.used[0],snapshot=()=>JSON.stringify({fleet:GH_FLEET_DATA.size(s),deliveries:s.realism.procurement.deliveries.length,cheques:s.finance.cheques.length,invoices:s.finance.invoices.length,supplier:s.supplierTransactions.length,cash:GH_FINANCE_CORE.operating(s,'air')}),before=snapshot(),startSize=GH_FLEET_DATA.size(s),original=client.flushMutation;let failedAt=0;
+      const a=__AUDIT__,s=__GH_STATE__,client=a.fleetEngineThreadClient(),model=GH_ASSET_CATALOG.air.used[0],snapshot=()=>JSON.stringify({fleet:GH_FLEET_DATA.size(s),deliveries:s.realism.procurement.deliveries.length,cheques:s.finance.cheques.length,invoices:s.finance.invoices.length,supplier:s.supplierTransactions.length,cash:GH_FINANCE_CORE.operating(s,'air')}),before=snapshot(),startSize=GH_FLEET_DATA.size(s),original=client.flushMutation,originalFinish=client.finishMutation;let failedAt=0;
       // The order runs inside a replica mutation session only once the worker replica has caught up with the fleet.
       for(let attempt=0;attempt<200&&!client.replicaReady(s.fleet);attempt++){const asked=client.query(s.fleet,{name:'purchaseBaseline',params:{plan:null,legacyOwner:{}},simSeconds:s.simSeconds});if(asked)await asked;else await new Promise(resolve=>setTimeout(resolve,10));}
+      // The refusal covers the final flush too: on a fast machine the 600 rows run as 512 + 88, the last stage reaches the
+      // replica only through finishMutation, and a refusal on the intermediate flush alone never fired.
       client.flushMutation=function(session,store){const added=store.length-startSize;if(added>512){failedAt=added;return false;}return original.call(this,session,store);};
-      try{const options={};const order=await a.buyAsset('air','used',model.id,'lease',600,'QA-OMDB',true,'QA-BULK-ROLLBACK','air',options);return {order,error:options.errorMessage,identical:before===snapshot(),failedAt};}finally{client.flushMutation=original;}
+      client.finishMutation=function(session,store){const added=store.length-startSize;if(added>512){failedAt=added;return false;}return originalFinish.call(this,session,store);};
+      try{const options={};const order=await a.buyAsset('air','used',model.id,'lease',600,'QA-OMDB',true,'QA-BULK-ROLLBACK','air',options);return {order,error:options.errorMessage,identical:before===snapshot(),failedAt};}finally{client.flushMutation=original;client.finishMutation=originalFinish;}
     });
     assert.equal(rollback.order,null);assert.ok(rollback.error);assert(rollback.failedAt>512,`the failure came after the first row stage: ${rollback.failedAt}`);assert.equal(rollback.identical,true,'a later stage failure rolls back payment, documents and every earlier asset');
 
