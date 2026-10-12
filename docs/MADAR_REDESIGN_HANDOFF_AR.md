@@ -1,5 +1,32 @@
 # تسليم: إعادة تصميم واجهة مدار (فرع `claude/madar-redesign`)
 
+## ابدأ من هنا: الحالة الحالية والمطلوب
+- آخر commit: `5cbf2a8`. لم يُدمج شيء في `main`.
+- المراحل 3 و4 و5 منفّذة (التفاصيل أدناه). صاحب اللعبة وافق على تصميم المرحلة 3 ولوحة الشركة الأفقية.
+- **المطلوب الآن:** IPA عبر بوابات القبول الكاملة (`.github/workflows/build362-unsigned-ipa.yml`)، ثم تسليم رابطه لصاحب اللعبة.
+- آخر IPA تجريبي بلا بوابة: https://github.com/bdr-design/madar/actions/runs/38272895878 (commit `0dc21b5`).
+
+### حالة البوابة
+- آخر تشغيل محلي على `60b064b` وصل 240 من 331. فشل فيه اختبار واحد فقط: `build334-r2-map-local-dom`، وأُصلح في `5cbf2a8` (يعمل الآن مع `fleetWorker:true`).
+- لم يُشغَّل الجزء من 241 إلى 331 على آخر الإصلاحات. في التشغيل الكامل الأول نجحت كلها ما عدا اختبارات أُصلحت لاحقًا.
+- أُلغي تشغيل GitHub الأخير (`38276398670`) عمدًا لأنه على commit قبل الإصلاح.
+
+### خطوات الإكمال
+1. Node 24.19 (من nodejs.org مع التحقق من SHASUMS256)، و`NODE_PATH` يحوي playwright، ومجلد فيه `leaflet/dist/{leaflet.js,leaflet.css}` منسوخ من `WebApp/vendor/leaflet` (يحتاجه `conference-integration`).
+2. `python3 tools/run_acceptance.py --output /tmp/acc --node <node24> --timeout 300`. المتوقع 331/331. اختبارات WebKit تعمل على CI فقط.
+3. أي تعديل بعدها: `python3 tools/refresh_fingerprints.py` ثم `python3 tools/verify_current_source.py`، ثم أعد `verification/` بـ `git checkout -- verification && git clean -fq verification`، واحذف `tools/__pycache__`.
+4. شغّل `build362-unsigned-ipa.yml` على الفرع (workflow_dispatch). ينجح فقط إذا نجحت كل الاختبارات. ثم سلّم رابط artifact `GlobalHoldings_BUILD362_unsigned_TEST_ipa`.
+
+### أخطاء Build 372 أُصلحت أثناء البوابة (كانت على main أيضًا)
+- `assetPurchaseBaselineTicket`: الطلب يُربط بمراجعة المتجر (`found.revision`) لا بعدّاد نسخة العامل؛ كان كل شراء كبير يُلغى.
+- `fleet-store-core.writeRows({trackIds})` في مزامنة العامل: الصفوف المضافة تدخل فهرس المعرّفات؛ كان الإطلاق بعد الشراء يفشل (`fleet-dispatch-asset-missing`).
+- `routeCenterDetails`: `conflict` يُرسل قيمة منطقية؛ كان كائن المتجر يسبب `DataCloneError` فتعلق صفحة المسارات بعد أول إطلاق.
+- `applyRoadGeometry`: المعاملة المرحلية تُسجَّل في `activeStagedSlice`؛ كانت حلقة الإطار تلغيها كيتيمة فلا تُطبق مسارات OSRM أبدًا.
+- ربط `fleet-main-thread-policy-core.js` (كان غير محمّل): أسطول أكبر من 2,048 لا يتقدم على الخيط الرئيسي عند غياب العامل؛ المحاكاة تتوقف مع تنبيه، وصفحة المسارات تعرض «جارٍ تجهيز بيانات الأسطول».
+- إيقاف المحاكاة من تسعير طلب الشراء حتى اعتماده (`assetPurchaseHolds`)، والأسطول الكبير ينتظر العامل بدل الرفض، و`replicaSyncable` للإطلاق.
+- اختبارات قديمة حُدّثت لبنية Build 372 دون تخفيف شروطها (تجميع العامل من `importScripts` عبر `tests/helpers/fleet-engine-worker.js`، انتظار بناء النسخة على دفعات، نقطة الإيقاف عند أول yield في الإطلاق).
+- `build334-calendar-local-dom` يفشل على main أيضًا وليس في سلسلة `test`؛ لم يُلمس.
+
 ## الحالة باختصار
 - كل العمل في الفرع `claude/madar-redesign`. لم يُدمج شيء في `main`.
 - صاحب اللعبة اعتمد: الخريطة المنعشة + القمر الصناعي، الإطار العائم، لوحة تحكم مستقلة لكل شركة، وأيقونات الاتجاه C (واقعية مجسّمة).
