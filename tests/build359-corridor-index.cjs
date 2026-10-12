@@ -52,12 +52,16 @@ test('a list changed in place is indexed again',()=>{
 
 test('the dispatch runs in chunks and yields after each new route',()=>{
   const app=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8');
-  assert.match(app,/yieldFleetPlanning=\(\)=>new Promise\(resolve=>setTimeout\(resolve,0\)\),DISPATCH_CHUNK=500;/);
-  assert.match(app,/for\(let from=0;from<batch\.length;from\+=DISPATCH_CHUNK\)\{\s*await yieldFleetPlanning\(\);const rows=batch\.slice\(from,from\+DISPATCH_CHUNK\),out=dispatch\('fleet','assign-routes-batch',\{assignments:rows,routes:chunkRoutes\(rows\)\}\)/);
-  assert.match(app,/for\(let from=0;from<departures\.length;from\+=DISPATCH_CHUNK\)\{\s*await yieldFleetPlanning\(\);const rows=departures\.slice\(from,from\+DISPATCH_CHUNK\),out=dispatch\('fleet','depart-batch',\{departures:rows,routes:chunkRoutes\(rows\)\}\)/);
-  assert.match(app,/for\(const asset of members\)assignments\.push\(\{asset,route\}\);\s*await yieldFleetPlanning\(\);/);
+  // Build 372: the plan is computed on the fleet engine thread (GH_FLEET_DISPATCH_CORE) and applied in stages; every
+  // UI-thread pass over the batch is a time-budgeted cooperative loop that yields to the frame (it replaced the fixed
+  // 500-row chunks).
+  assert.match(app,/yieldFleetPlanning=\(\)=>new Promise\(resolve=>setTimeout\(resolve,0\)\)/);
+  assert.match(app,/FLEET_DISPATCH_FRAME_BUDGET_MS=6/);
+  assert.match(app,/if\(index\+1<total&&\(sliceRows>=FLEET_PROJECTION_MAX_ROWS\|\|elapsed>=FLEET_DISPATCH_FRAME_BUDGET_MS\)\)\{[^}]*await yieldFleetPlanning\(\);/);
+  assert.match(app,/const asked=client\.dispatchPlan\(store,\{input,timeout:120000\}\)/);
+  assert.match(app,/await applyFleetDispatchWorkerPlan\(\{draft,dispatch,companyId,mode:type,assignments:batch,routeTable\}\)/);
   assert.doesNotMatch(app,/dispatch\('fleet','assign-routes-batch',\{assignments:batch,routes:routeTable\}\)/,'no single assignment of the whole batch');
-  return {chunk:500};
+  return {frameBudgetMs:6};
 });
 
 const passed=results.filter(row=>row.ok).length;console.log(JSON.stringify({suite:'build359-corridor-index',passed,total:results.length,results},null,1));

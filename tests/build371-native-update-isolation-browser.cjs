@@ -55,7 +55,9 @@ async function settled(page,pattern){
     // 1. During a durable command (the sea dispatch, paused between its assignment and its departures).
     const duringPack=await makePack(page,'during');
     await page.evaluate(()=>{const original=window.setTimeout;window.qaPause={armed:true,held:null,original};
-      window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&window.__GH_DURABLE_COMMAND_CONTEXT__&&String(fn).includes('[native code]')){const ships=GH_FLEET_DATA.filter(__GH_STATE__,a=>(a.ownerCompanyId||a.companyId)==='sea');if(ships.length&&ships.every(a=>a.routeId&&a.phase!=='moving'&&!a.departureScheduled)){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}}return original.call(window,fn,ms,...rest);};
+      // Build 372: the dispatch plan assigns and departs in one staged apply, so the hold is the dispatch command's first
+      // cooperative yield (the durable command is open and owns the state) instead of a gap between assignment and departure.
+      window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))&&String(fn).includes('[native code]')){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}return original.call(window,fn,ms,...rest);};
       __AUDIT__.openDrawer('routes','sea');});
     await page.locator('.dispatch-international-network[data-company="sea"]').first().click();
     await page.waitForFunction(()=>!!qaPause.held,null,{timeout:120000});

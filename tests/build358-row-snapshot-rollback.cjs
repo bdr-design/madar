@@ -23,7 +23,8 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
       await a.runAuthorizedDomainCommand('facilities','create',{facility,bucket:'globalBases'},{silent:true});
       const model=[...GH_ASSET_CATALOG.air.used].sort((x,y)=>(x.leaseMonthly||0)-(y.leaseMonthly||0)||x.price-y.price)[0];
       await a.buyAsset('air','used',model.id,'lease',40,facility.id,true,'RB-AIR-40','air');
-      await a.openDrawer('routes','air');document.querySelector('.dispatch-international-network[data-company="air"]')?.click();
+      // Click as a player does: the panel's buttons are live once it has painted (Build 372 binds them after the first frame).
+      await a.openDrawer('routes','air');await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.querySelector('.dispatch-international-network[data-company="air"]')?.click();
       for(let i=0;i<200&&GH_FLEET_DATA.count(s(),x=>!!x.routeId)<40;i++)await new Promise(r=>setTimeout(r,100));
       // Build 359: the dispatch assigns in chunks, so the routes show before the command ends. The next command waits for it.
       for(let i=0;i<1800&&(window.__GH_DURABLE_COMMAND_CONTEXT__||GH_PERSISTENCE.isLocked());i++)await new Promise(r=>setTimeout(r,100));await GH_PERSISTENCE.drain();

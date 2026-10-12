@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "1cdc6c43dc1c45235920374cbad3b9ae893497df319465e31cd671f412ab1e61",
-  "webapp_tree_sha256": "c40a546bb2ae2f88dc39d27dd652d941ddc123356c8032d0e08ce08ece797aa4",
+  "source_tree_sha256": "0480025b1c9bec2a40a10d0eed40daf51349a58d25a477698635bff0beec594a",
+  "webapp_tree_sha256": "5adcb7ec88fd79eeba5205b459e50f18648f6a915ece61e00b5670e8e41b1c8a",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 312231,
@@ -3787,8 +3787,8 @@
       "sha256": "9111e731e3d61aec97c73a9c984e8508d0bf3cb18102b1409c073e901944d41c"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 35681,
-      "sha256": "3e8860255e1f13bb874c26b0029b9bb94594b4bbe469b50dcc3b54aecbc6dfb7"
+      "bytes": 36344,
+      "sha256": "95ba8b9211135fb8f5b8cd18c0b975325e25a6e04d2603f122be5190ffa3f66e"
     },
     "WebApp/save-policy-core.js": {
       "bytes": 2306,
@@ -3932,7 +3932,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "fa5e5779ba34ea5e227e4538acb1bfc217139d648218d0473d272f0c599eb440"
+      "sha256": "2f5a801a251053bb3d5e056d95e49c7baa4aca1172f42d352b2a98575010481b"
     },
     "BUILD": {
       "bytes": 4,

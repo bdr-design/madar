@@ -21,6 +21,9 @@ function baseEnvironment(){
     companyBook:t=>s.state.companyFinance[t],
     COMPANY_PLATFORM:{listInstances:()=>[]},SIMULATION_ASSET_ENGINE:s.GH_SIMULATION_ASSET_CORE,simulationAssetRuntimeContext:()=>({workerCompatible:false}),routeTemplates:{},competitorAssets:[],BASE_ROUTE_IDS:new Set(),
     queueAssetSaleFinalize:()=>{},diag:()=>{},
+    // Build 371: the compaction owner now also queues the staged fleet maintenance (queueFleetMaintenance) into the
+    // deferred maintenance queue and publishes its pending list for diagnostics.
+    maintenanceQueue:[],runtimeInstrumentation:{maintenance:{pending:[]}},
     processFinancialDay(day){assert.equal(day,s.state.lastFinancialDay+1);s.state.lastFinancialDay=day;},
     dispatchSystemCommand:()=>({ok:true,result:{}}),
     processAssetDraft:()=>{}

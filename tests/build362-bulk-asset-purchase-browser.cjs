@@ -7,7 +7,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
 (async()=>{
   const browser=await chromium.launch({headless:true}),errors=[];
   try{
-    const {page}=await boot({browser,errors,viewport:{width:844,height:390}});page.setDefaultTimeout(180000);
+    const {page}=await boot({browser,errors,viewport:{width:844,height:390},fleetWorker:true});page.setDefaultTimeout(180000);
     const setup=await page.evaluate(async()=>{
       const a=__AUDIT__,s=__GH_STATE__,type='air',definition=GH_COMPANY_PLATFORM.definitionFor(s,type);s.godMoney=true;s.infiniteMoney=true;
       await a.runAuthorizedDomainCommand('corporate','open-company',{type,companyId:type,capital:900000000,legalName:'QA Bulk Assets',formationContract:'QA-BULK-ASSETS'},{silent:true});

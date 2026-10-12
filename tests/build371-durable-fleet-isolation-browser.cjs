@@ -129,7 +129,7 @@ async function scenario(page,{roadRoute,interrupt}){
     // Each scenario in a game of its own: a geometry applied to a custom route's template outside a command is not
     // kept by a later commit (a custom route owns its geometry; the route cache keeps only a canonical marker), a
     // separate, pre-existing behaviour this test does not cover.
-    let {page}=await boot({browser,errors,bypassCSP:true});page.setDefaultTimeout(120000);await osrmDouble(page);
+    let {page}=await boot({browser,errors,bypassCSP:true,fleetWorker:true});page.setDefaultTimeout(120000);await osrmDouble(page);
     let roadRoute=await setup(page);assert(roadRoute,'trucks on a road route');
 
     // 1. Interrupted after its departures: the whole command rolls back.
@@ -140,14 +140,14 @@ async function scenario(page,{roadRoute,interrupt}){
     report.push({name:'paused then interrupted: rolled back, nothing acted on the partial result',refusals:{save:rolled.paused.saveNow,player:rolled.paused.playerCommand},visibleWhilePaused:rolled.paused.visibleShips.join('')});
 
     // 2. The same pause, then committed (a new game).
-    await page.close();({page}=await boot({browser,errors,bypassCSP:true}));page.setDefaultTimeout(120000);await osrmDouble(page);
+    await page.close();({page}=await boot({browser,errors,bypassCSP:true,fleetWorker:true}));page.setDefaultTimeout(120000);await osrmDouble(page);
     roadRoute=await setup(page);assert(roadRoute,'trucks on a road route');
     const committed=await scenario(page,{roadRoute,interrupt:false});
     assert.equal(committed.out.committed,true);
     assert(committed.out.at.rows.sea.every(r=>r.routeId&&(r.phase==='moving'||r.departureScheduled)),'every ship routed and underway after the commit');
     assert.equal(committed.out.at.saveRevision,committed.pre.saveRevision+1);
     const saved=await page.evaluate(async OBSERVE=>{const read=eval(OBSERVE);const ok=await __AUDIT__.saveNow();if(ok!==true)throw new Error(`save-rejected:${ok}`);await GH_PERSISTENCE.drain();return read().rows.sea;},`(${OBSERVE})`);
-    ({page}=await reboot(page,{browser,errors,bypassCSP:true}));
+    ({page}=await reboot(page,{browser,errors,bypassCSP:true,fleetWorker:true}));
     const restored=await page.evaluate(`(${OBSERVE})()`);
     // Identity and lifecycle fields: tripSeconds of a ship is recomputed on load (about 1% apart on 118731e too, with no
     // command involved; a separate, pre-existing difference).
