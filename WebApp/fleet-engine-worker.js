@@ -179,7 +179,7 @@ self.addEventListener('message',event=>{
         if(message.length<store.length)STORE.truncateReplica(store,message.length);
         if(message.length>store.length){STORE.ensureCapacity(store,message.length);store.length=message.length;}
         if(message.values)STORE.applyValueChanges(store,message.values);
-        if(message.rows&&message.rows.indices.length)STORE.writeRows(store,message.rows.indices,message.rows.bytes,message.rows.extras,{staticRows:true});
+        if(message.rows&&message.rows.indices.length)STORE.writeRows(store,message.rows.indices,message.rows.bytes,message.rows.extras,{staticRows:true,trackIds:true});
         store.live=message.live;store.structure=message.structure;
         return;
       }

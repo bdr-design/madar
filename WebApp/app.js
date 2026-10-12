@@ -51,6 +51,7 @@
   const resetMarkerKey = 'global-holdings-reset-epoch';
   let hardResetInProgress=false,hardResetSettlement=Promise.resolve({committed:false});
   let durableCommandInProgress=false;
+  let assetPurchaseHolds=0; // Build 373: asset orders being quoted; the simulation is suspended meanwhile (buyAsset).
   let diagnosticExportTail=Promise.resolve();window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__=false;
   let mapInteractionActive=false,lastMarkerFrameAt=0,lastHudRefreshAt=0,lastMapStructureSignature='',visualResyncRequested=false;
   const markerMotionStates=new Map();let markerVisualCarry=new Map();
@@ -1890,7 +1891,7 @@
     let client=fleetEngineThreadClient,found=null,plan=null;
     if(!client&&size<FLEET_THREAD_EARLY_ROWS)client=fleetEngineThread();
     if(client&&!client.disabled&&typeof client.dispatchPlan==='function'){
-      const exactReplica=typeof client.replicaReady==='function'?client.replicaReady(store):size<FLEET_THREAD_EARLY_ROWS;
+      const exactReplica=typeof client.replicaSyncable==='function'?client.replicaSyncable(store):typeof client.replicaReady==='function'?client.replicaReady(store):size<FLEET_THREAD_EARLY_ROWS;
       if(size<FLEET_THREAD_EARLY_ROWS||exactReplica){const asked=client.dispatchPlan(store,{input,timeout:120000});if(asked)found=await asked;}
     }
     if(found){if(!client.current(found,store))throw new Error('fleet-dispatch-worker-stale');plan=found.plan;}
@@ -4031,7 +4032,7 @@
         pushAlert(`توقف تقديم التاريخ وقائيًا عند آخر حالة معتمدة (${formatSimDate()}). السبب: ${reason}. لم تُعتمد حركة أصل أو إيراد جزئي.`);
       }
     },
-    isSuspended:()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()||window.GH_CONFERENCE?.isPresentationActive?.()||state.timeRecovery?.active===true,
+    isSuspended:()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||assetPurchaseHolds>0||window.GH_PERSISTENCE.isLocked()||window.GH_CONFERENCE?.isPresentationActive?.()||state.timeRecovery?.active===true,
     onFatal:error=>{simulationEngine.cancelAdvance?.('simulation-fatal',{immediate:true});state.speed=0;state.simulationKernel=state.simulationKernel||{};const diagnostic=error?.diagnostic||{name:error?.name||'Error',message:String(error?.message||error),code:error?.code||null,transactionLabel:error?.transactionLabel||null,transactionStage:error?.transactionStage||null};state.simulationKernel.runtimeFatal={at:state.simSeconds,code:error?.code||'SIM_FATAL_STATE',error:diagnostic};if(!state.simulationKernel.lastAdvanceFailure)state.simulationKernel.lastAdvanceFailure={reason:'simulation-fatal',stage:error?.transactionStage||'finish',from:state.simSeconds,to:state.simSeconds,at:state.simSeconds,retries:0,code:error?.code||'SIM_FATAL_STATE',error:String(error?.message||error).slice(0,500),errorDetail:diagnostic};diag('SIM_FATAL',diagnostic,'critical');try{const evidence=captureDiagnosticEvidence({recordEvent:true,trackTransitions:true,storeResult:true});window.GH_CONTROL_PLANE?.check?.(state,{evidence});}catch(healthError){console.error('تعذر تحديث الصحة بعد خطأ المحاكاة',healthError);}console.error('Simulation Core fatal error',error);try{pushAlert('أوقف محرك المحاكاة الوقت لحماية الحفظ بعد خطأ داخلي. افتح مركز الإجراءات لمراجعة السبب قبل إعادة المحاولة.');}catch(alertError){console.error('تعذر تسجيل تنبيه خطأ المحاكاة',alertError);}},
     onWarning:({stage,error})=>{diag('SIM_WARNING',{stage,message:String(error?.message||error)});console.warn(`Simulation Core warning [${stage}]`,error);},
     onThrottle:({took,reason,stage})=>{diag('SIM_THROTTLE',{took,reason,stage});console.warn(`Simulation watchdog throttled after ${Math.round(took)}ms ${stage||'work'} stage`);},
@@ -5847,11 +5848,16 @@ ${page}</div>`;
     const store=target?.fleet,size=window.GH_FLEET_DATA.size(target),large=size>=FLEET_THREAD_EARLY_ROWS;if(!window.GH_FLEET_STORE?.isStore?.(store)){if(large)throw new Error('asset-purchase-store-required');return localPurchaseBaselineTicket(target,plan);}
     let client=fleetEngineThreadClient;if(!client&&!large)client=fleetEngineThread();
     if(client&&!client.disabled){
-      if(large&&!client.replicaReady?.(store))throw new Error('asset-purchase-worker-replica-not-ready');
-      if(!large&&!client.replicaReady?.(store))client.prime?.(store);
-      for(let attempt=0;attempt<80;attempt++){
+      // Build 373: a large fleet waits for its replica like a small one instead of refusing the order at once (a purchase
+      // right after a big dispatch was refused while the replica caught up). Priming is the same sync the idle prime would
+      // run moments later; the whole-fleet baseline still never runs on this thread for a large fleet.
+      if(!client.replicaReady?.(store))client.prime?.(store);
+      for(let attempt=0;attempt<(large?400:80);attempt++){
         const asked=client.query?.(store,{name:'purchaseBaseline',params:{plan,legacyOwner:routeCenterLegacyOwnerMap()},simSeconds:target.simSeconds});
-        if(asked){const found=await asked;if(!found||!client.current(found,store))throw new Error('asset-purchase-worker-baseline-stale');return {result:found.result,current:()=>client.current(found,store),worker:true,client,found};}
+        if(asked){const found=await asked;if(!found||!client.current(found,store))throw new Error('asset-purchase-worker-baseline-stale');
+          // Build 373: the replica keeps its own revision counter; the order is bound to this store's revision, the one the
+          // answer was checked against (client.current), or every order quoted on a worker baseline read as stale.
+          return {result:{...found.result,revision:found.revision},current:()=>client.current(found,store),worker:true,client,found};}
         await new Promise(resolve=>setTimeout(resolve,10));
       }
     }
@@ -5883,7 +5889,11 @@ ${page}</div>`;
   function rebaseAssetPurchaseBaseline(ticket,target){
     if(!ticket?.current?.()||!ticket.result)throw new Error('asset-purchase-id-guard-stale');const actual=window.GH_FLEET_DATA.membershipRevision(target),planned=ticket.result.membershipRevision,plannedStructure=String(planned??'').split(':',1)[0],actualStructure=String(actual??'').split(':',1)[0];if(!plannedStructure||plannedStructure!==actualStructure||ticket.result.fleetSize!==window.GH_FLEET_DATA.size(target)||ticket.result.revision!==window.GH_FLEET_DATA.revision(target))throw new Error('asset-purchase-baseline-stale');return {...ticket.result,membershipRevision:actual};
   }
-  async function buyAsset(type,tab,id,mode='cash',qty=1,baseId=null,silent=false,requestRef=null,requestedOwnerCompanyId=null,purchaseOptions={}){
+  // Build 373: an order is quoted against one fleet revision and refused if the fleet changed before it commits. With
+  // the fleet moving, a simulation step landed between the quote and the commit and every large order was cancelled.
+  // The simulation is suspended (as during any durable command) from the quote to the commit, then resumes.
+  async function buyAsset(...args){assetPurchaseHolds++;try{return await buyAssetHeld(...args);}finally{assetPurchaseHolds--;}}
+  async function buyAssetHeld(type,tab,id,mode='cash',qty=1,baseId=null,silent=false,requestRef=null,requestedOwnerCompanyId=null,purchaseOptions={}){
     purchaseOptions=purchaseOptions&&typeof purchaseOptions==='object'?purchaseOptions:{};const reject=message=>{purchaseOptions.errorMessage=String(message||'تعذر تنفيذ الشراء.');if(!silent)notice(purchaseOptions.errorMessage);return null;};
     const Order=window.GH_ASSET_PURCHASE_ORDER_CORE,Plan=window.GH_ASSET_PURCHASE_PLAN_CORE,Apply=window.GH_ASSET_PURCHASE_APPLY_CORE,maxRequest=Order?.MAX_ASSETS||window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000,requestedQty=Math.floor(Number(qty)||1);
     if(!Order?.quote||!Plan?.applyAtomic||!Apply?.createAdapter)return reject('تعذر تنفيذ الشراء: وحدة الشراء المجمّع غير متاحة.');if(!Number.isSafeInteger(requestedQty)||requestedQty<1||requestedQty>maxRequest)return reject(`العدد يجب أن يكون بين 1 و${fmtNumber(maxRequest)}.`);
