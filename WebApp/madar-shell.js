@@ -95,7 +95,7 @@ function tilesFor(state,id){const kind=KINDS[kindOf(state,id)];if(!kind)return [
 // ---- Group sections ------------------------------------------------------------------------------------------------
 const SECTIONS=Object.freeze({
   group:Object.freeze({label:'المجموعة',icon:'group',nav:'companies',pages:[['groupHub',null,'لوحة المجموعة','group'],['companies',null,'الشركات','office'],['groupManagement',null,'أداء الشركات','performance'],['assets','all','أسطول المجموعة','fleet-all'],['network',null,'الدليل العالمي','directory'],['expansion',null,'كل المنشآت','facilities'],['formationContract',null,'عقد التأسيس','charter']]}),
-  finance:Object.freeze({label:'المال',icon:'finance',nav:'finance',pages:[['financeHub',null,'لوحة المال','finance'],['finance',null,'الدفاتر والقوائم','revenue'],['treasury',null,'الخزينة','treasury'],['monthlyFinance',null,'الدخل الشهري','monthly-income'],['budgets',null,'الميزانيات','budget'],['invoices',null,'المستندات','documents'],['market',null,'الأسواق والتحوط','markets'],['market','deals','الاستحواذات','acquisitions'],['stocks',null,'الأسهم والطرح','stocks']]}),
+  finance:Object.freeze({label:'المال',icon:'finance',nav:'finance',pages:[['financeHub',null,'لوحة المال','finance'],['finance',null,'دفاتر الشركات','revenue'],['finance','transfers','التحويلات والتمويل','liquidity'],['finance','statements','القوائم المالية','performance'],['treasury',null,'الخزينة','treasury'],['monthlyFinance',null,'الدخل الشهري','monthly-income'],['budgets',null,'الميزانيات','budget'],['invoices',null,'المستندات','documents'],['market',null,'الأسواق والتحوط','markets'],['market','deals','الاستحواذات','acquisitions'],['stocks',null,'الأسهم والطرح','stocks']]}),
   people:Object.freeze({label:'الأفراد',icon:'people',nav:'people',pages:[['peopleHub',null,'لوحة الأفراد','people'],['labor','managers','المديرون التنفيذيون','executive'],['labor','dashboard','تغطية الوظائف','people-dash'],['labor','jobs','الوظائف','jobs'],['labor','contracts','عقود العمل','employment'],['labor','payroll','الرواتب','payroll'],['crews',null,'الأجور والطواقم','crews']]}),
   leadership:Object.freeze({label:'الإدارة',icon:'leadership',nav:'leadership',pages:[['leadershipHub',null,'لوحة الإدارة','leadership'],['actionCenter',null,'المهام الآن','tasks'],['compliance',null,'السلامة والأمن','safety'],['conference',null,'المؤتمر السنوي','conference'],['research',null,'البحث والتطوير','research'],['esg',null,'الاستدامة','esg'],['businessWorld',null,'العلاقات التجارية','relations'],['realism',null,'السوق والاقتصاد','economy'],['news',null,'الأخبار','news']]}),
   system:Object.freeze({label:'النظام',icon:'settings',nav:'system',pages:[['systemHub',null,'لوحة النظام','settings'],['settings',null,'الحفظ والإعدادات','settings'],['updates',null,'التحديثات','updates'],['diagnostics',null,'صحة اللعبة','diagnostics'],['controlPlane',null,'مركز التحكم','control-plane']]})
@@ -268,7 +268,9 @@ const STRIP_TABS=Object.freeze({'data-labortab':value=>value,'data-energy-tab':t
 function stripFor(state,panel,arg,place){
   if(place.section==='company'){
     const id=place.company,kind=KINDS[kindOf(state,id)];if(!kind)return [];
-    const rows=[['company',id,'لوحة الشركة','dashboard'],[...kind.hero.to(id),kind.hero.title,kind.hero.icon],...tilesFor(state,id).map(tile=>[...tile.to(id),tile.title,tile.icon])];
+    // A page with no argument returns a one-item target: its label must not land in the argument slot.
+    const row=(target,label,ic)=>[target[0],target[1],label,ic];
+    const rows=[['company',id,'لوحة الشركة','dashboard'],row(kind.hero.to(id),kind.hero.title,kind.hero.icon),...tilesFor(state,id).map(tile=>row(tile.to(id),tile.title,tile.icon))];
     return rows.map(([p,a,label,ic])=>({panel:p,arg:a,label,icon:ic}));
   }
   const section=SECTIONS[place.section];return section?section.pages.map(([p,a,label,ic])=>({panel:p,arg:a===null?undefined:a,label,icon:ic})):[];

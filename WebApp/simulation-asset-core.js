@@ -31,7 +31,7 @@
     if(n>=1e3)return `${sign}$${(n/1e3).toFixed(1)}K`;
     return `${sign}$${n.toFixed(0)}`;
   }
-  const ARABIC_INTEGER_FORMAT=new Intl.NumberFormat('ar-SA',{maximumFractionDigits:0});
+  const ARABIC_INTEGER_FORMAT=new Intl.NumberFormat('ar-SA-u-nu-latn',{maximumFractionDigits:0});
   function fmtNumber(value){return ARABIC_INTEGER_FORMAT.format(value||0);}
   function formatDuration(seconds){
     if(seconds<=0)return 'الآن';
