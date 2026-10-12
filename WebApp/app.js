@@ -1845,10 +1845,11 @@
   // through a MessageChannel task (not clamped; input and worker messages still run between them) for up to
   // FLEET_YIELD_FRAME_WORK_MS of each frame, then wait for the frame to paint (requestAnimationFrame, with a timer for a
   // hidden page), so rendering and idle-time GC keep their share of every frame.
-  const fleetYieldQueue=[],FLEET_YIELD_FRAME_WORK_MS=10,FLEET_YIELD_PAINT_TIMEOUT_MS=50;let fleetYieldChannel=null,fleetYieldFrameStarted=0;
-  function fleetYieldPost(resolve){fleetYieldQueue.push(resolve);fleetYieldChannel.port2.postMessage(0);}
+  const fleetYieldWaiters=new Map(),FLEET_YIELD_FRAME_WORK_MS=10,FLEET_YIELD_PAINT_TIMEOUT_MS=50;let fleetYieldChannel=null,fleetYieldFrameStarted=0,fleetYieldNext=0;
+  // Each wait carries its own id, so one delayed message can never resolve a later wait.
+  function fleetYieldPost(resolve){const id=++fleetYieldNext;fleetYieldWaiters.set(id,resolve);fleetYieldChannel.port2.postMessage(id);}
   function yieldToEventLoop(){
-    if(fleetYieldChannel===null){try{fleetYieldChannel=typeof MessageChannel==='function'?new MessageChannel():false;if(fleetYieldChannel)fleetYieldChannel.port1.onmessage=()=>{const resolve=fleetYieldQueue.shift();if(resolve)resolve();};}catch(_error){fleetYieldChannel=false;}}
+    if(fleetYieldChannel===null){try{fleetYieldChannel=typeof MessageChannel==='function'?new MessageChannel():false;if(fleetYieldChannel)fleetYieldChannel.port1.onmessage=event=>{const resolve=fleetYieldWaiters.get(event.data);if(resolve){fleetYieldWaiters.delete(event.data);resolve();}};}catch(_error){fleetYieldChannel=false;}}
     if(!fleetYieldChannel)return new Promise(resolve=>setTimeout(resolve,0));
     const now=performance.now();
     if(now-fleetYieldFrameStarted<FLEET_YIELD_FRAME_WORK_MS)return new Promise(fleetYieldPost);

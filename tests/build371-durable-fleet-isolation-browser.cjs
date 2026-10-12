@@ -67,8 +67,9 @@ async function scenario(page,{roadRoute,interrupt}){
   // Pause: the sea dispatch command's first cooperative yield. Build 372: the dispatch plan assigns and departs in one
   // staged apply, so there is no gap between assignment and departure to hold; the durable command is open and owns the
   // state (the same hold build371-native-update-isolation uses).
-  await page.evaluate(({interrupt})=>{const original=window.__qaTimeout||(window.__qaTimeout=window.setTimeout);window.qaPause={armed:true,held:null};
-    window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))&&String(fn).includes('[native code]')){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}return original.call(window,fn,ms,...rest);};
+  await page.evaluate(({interrupt})=>{const post=window.__qaPost||(window.__qaPost=MessagePort.prototype.postMessage);window.qaPause={armed:true,held:null};
+    // The dispatch's cooperative yield (yieldToEventLoop) posts on a MessagePort: the first post inside the command is held.
+    MessagePort.prototype.postMessage=function(...args){if(qaPause.armed&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))){qaPause.armed=false;const port=this;qaPause.held=()=>post.call(port,...args);return;}return post.apply(this,args);};
     const ops=window.__qaOps||(window.__qaOps=window.GH_OPERATIONS_CORE);window.GH_OPERATIONS_CORE=interrupt?{...ops,execute(ctx,cmd,payload){if(cmd==='record-alert'&&payload?.type==='dispatch')throw new Error('qa-interrupted-after-departures');return ops.execute(ctx,cmd,payload);}}:ops;},{interrupt});
   await page.locator('.dispatch-international-network[data-company="sea"]').first().click();
   await page.waitForFunction(()=>!!qaPause.held,null,{timeout:120000});
@@ -106,7 +107,7 @@ async function scenario(page,{roadRoute,interrupt}){
   const pausedRoots=await page.evaluate(`(${OBSERVE})()`);assert.equal(pausedRoots.roots,pre.roots,'the live roots are those before the command');assert.equal(pausedRoots.storage,pre.storage);
 
   // --- Resume. ---
-  await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;window.setTimeout=window.__qaTimeout;held();});
+  await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;MessagePort.prototype.postMessage=window.__qaPost;held();});
   await settled(page,'bulk-shared-departure:sea');
   const applied=await page.evaluate(()=>window.qaDeferred);
   const out=await page.evaluate(({roadRoute,OBSERVE})=>{const at=eval(OBSERVE)(),tpl=__AUDIT__.routeTemplatesFor(roadRoute);return {committed:GH_APP_RUNTIME_METRICS.snapshot().durable.last.committed,at,template:tpl.distanceKm,trucks:at.rows.road.filter(r=>r.routeId===roadRoute).map(r=>r.distanceKm),cached:!!__GH_STATE__.routeCache?.[roadRoute]};},{roadRoute,OBSERVE:`(${OBSERVE})`});

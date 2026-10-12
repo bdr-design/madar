@@ -27,15 +27,16 @@ async function setup(page){
 // Held at the sea dispatch command's first cooperative yield (Build 372: the plan assigns and departs in one staged
 // apply, so no frame shows ships routed but not yet departed; the durable command is open and owns the state).
 async function pausedDispatch(page,{interrupt=false}={}){
-  await page.evaluate(({interrupt})=>{const original=window.__qaTimeout||(window.__qaTimeout=window.setTimeout);window.qaPause={armed:true,held:null};
-    window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))&&String(fn).includes('[native code]')){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}return original.call(window,fn,ms,...rest);};
+  await page.evaluate(({interrupt})=>{const post=window.__qaPost||(window.__qaPost=MessagePort.prototype.postMessage);window.qaPause={armed:true,held:null};
+    // The dispatch's cooperative yield (yieldToEventLoop) posts on a MessagePort: the first post inside the command is held.
+    MessagePort.prototype.postMessage=function(...args){if(qaPause.armed&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))){qaPause.armed=false;const port=this;qaPause.held=()=>post.call(port,...args);return;}return post.apply(this,args);};
     const ops=window.__qaOps||(window.__qaOps=window.GH_OPERATIONS_CORE);window.GH_OPERATIONS_CORE=interrupt?{...ops,execute(ctx,cmd,payload){if(cmd==='record-alert'&&payload?.type==='dispatch')throw new Error('qa-interrupted');return ops.execute(ctx,cmd,payload);}}:ops;
     __AUDIT__.openDrawer('routes','sea');},{interrupt});
   const before=await page.evaluate(()=>GH_APP_RUNTIME_METRICS.snapshot().durable.samples.length);
   await page.locator('.dispatch-international-network[data-company="sea"]').first().click();
   await page.waitForFunction(()=>!!qaPause.held,null,{timeout:120000});
   return async()=>{
-    await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;window.setTimeout=window.__qaTimeout;held();});
+    await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;MessagePort.prototype.postMessage=window.__qaPost;held();});
     await page.waitForFunction(before=>{const m=GH_APP_RUNTIME_METRICS.snapshot().durable;return m.samples.length>before&&/bulk-shared-departure:sea/.test(String(m.last?.name||''))&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked();},before,{timeout:180000});
     await page.evaluate(()=>{window.GH_OPERATIONS_CORE=window.__qaOps;return GH_PERSISTENCE.drain();});
     return page.evaluate(()=>GH_APP_RUNTIME_METRICS.snapshot().durable.last.committed);
