@@ -945,6 +945,16 @@
     const store=s.fleet;return asked.then(result=>result?{rows:result.rows,ids:result.ids,current:()=>client.current(result,store)}:null);
   }
   globalThis.GH_FLEET_CLASSES_PROVIDER=(...args)=>fleetClassesForValidation(...args);
+  // Save Schema's required fleet evidence for a fleet above the main-thread limit (control-plane-core and persistence-core
+  // pass requireFleetValidation, and a missing answer fails closed). Nothing supplied it: every hour-boundary integrity
+  // check with more than 2,048 assets failed with fleet-validation-unavailable and stopped the engine at 00:59. The worker
+  // runs fleet-query-core saveValidation on a replica that is exactly this store; the result is used only while current()
+  // holds. A synchronous caller cannot wait for the worker and keeps its fail-closed answer.
+  globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false}={})=>{
+    const client=fleetEngineThreadClient;if(syncOnly||!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
+    const store=s.fleet,asked=client.query(store,{name:'saveValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
+    return asked.then(found=>found?{result:found.result,current:()=>client.current(found,store)}:null);
+  };
   // Build 372: a fleet-query-core pass found by the fleet engine's worker for a staged stage that waits for it (realism-core:
   // the daily close's insured condition total). A promise of {result, current()} or null when the worker cannot vouch for
   // the store as it is (the caller then runs the pass itself).
