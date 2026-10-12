@@ -33,12 +33,12 @@ const {drawFounderSignature}=require('./helpers/signature-input');
   });
 
   const report=[];
-  const panels=['companies','leadershipHub','control','peopleHub','finance','governanceHub','compliance','groupManagement','systemHub','settings','network','routes','assets','assetMarket','companyManage','labor','invoices','monthlyFinance','treasury','energy','bank','insurance','realestate','businessWorld','news','procurement','conference','research','esg','diagnostics','controlPlane'];
+  const panels=['companies','company','leadershipHub','peopleHub','finance','compliance','groupManagement','settings','network','routes','assets','assetMarket','companyManage','labor','invoices','monthlyFinance','treasury','energy','bank','insurance','realestate','businessWorld','news','procurement','conference','research','esg','diagnostics','controlPlane'];
   for(const theme of ['fresh','natural']){
-    await page.locator(`[data-map-style=${theme}]`).click();
+    await page.evaluate(theme=>document.querySelector(`#layerMenu [data-layer=${theme}]`).click(),theme);
     await page.waitForFunction(expected=>__GH_STATE__.mapLayer===expected,theme);
     for(const panel of panels){
-      await page.evaluate(name=>qaContext.openDrawer(name,name==='companyManage'?'air':name==='labor'?'managers:air':name==='assetMarket'?'air':undefined),panel);
+      await page.evaluate(name=>qaContext.openDrawer(name,name==='companyManage'||name==='company'?'air':name==='labor'?'managers:air':name==='assetMarket'?'air':undefined),panel);
       await page.waitForTimeout(50);
       const metrics=await page.evaluate(()=>{
         const map=GH_INTERFACE.mapViewport(),drawer=document.querySelector('#drawer').getBoundingClientRect(),body=document.querySelector('#drawerBody'),commands=[...body.querySelectorAll('.command-btn[data-open]')];
@@ -57,12 +57,16 @@ const {drawFounderSignature}=require('./helpers/signature-input');
 
   const rootRoutes=await page.evaluate(()=>{
     const read=panel=>{qaContext.openDrawer(panel);return [...document.querySelectorAll('#drawerBody .command-btn[data-open]')].map(button=>button.dataset.open);};
-    return {operations:read('control'),finance:read('finance'),leadership:read('leadershipHub')};
+    // Build 373: a company's operations live on its own panel (tiles), and the retired hubs redirect to their owners.
+    const tiles=id=>{qaContext.openDrawer('company',id);return [...document.querySelectorAll('#drawerBody [data-go]')].map(button=>button.dataset.go);};
+    const landing=panel=>{qaContext.openDrawer(panel);return document.querySelector('#drawerBody').dataset.panel;};
+    return {air:tiles('air'),road:tiles('road'),finance:read('finance'),leadership:read('leadershipHub'),retired:{control:landing('control'),governanceHub:landing('governanceHub'),systemHub:landing('systemHub')}};
   });
-  assert(rootRoutes.operations.includes('network')&&rootRoutes.operations.includes('procurement'));
-  assert(!rootRoutes.operations.includes('businessWorld'),'business relations belongs to management');
-  assert(!rootRoutes.finance.includes('bank'),'the bank belongs to the companies center');
-  assert(rootRoutes.leadership.includes('governanceHub')&&!rootRoutes.leadership.includes('groupManagement'));
+  for(const panel of ['assetMarket','routes','procurement','contracts','companyManage','invoices'])assert(rootRoutes.air.includes(panel),`air panel reaches ${panel}`);
+  assert(rootRoutes.road.includes('routes')&&rootRoutes.road.includes('procurement'));
+  assert(!rootRoutes.finance.includes('bank'),'the bank belongs to its own company panel');
+  assert(rootRoutes.leadership.includes('compliance')&&rootRoutes.leadership.includes('businessWorld')&&!rootRoutes.leadership.includes('groupManagement'));
+  assert.deepEqual(rootRoutes.retired,{control:'companies',governanceHub:'compliance',systemHub:'settings'});
 
   await page.evaluate(()=>qaContext.openDrawer('labor','managers:air'));
   await page.locator('[data-gh-action=hr-appoint-manager]').first().click();

@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "af812ef5f6f956010f2e863a05e0feeb353796cceb495620c2c9c7b78cf13d74",
-  "webapp_tree_sha256": "2018883520277c513d8eaa224392b1b8daa18f2e623301559d6ce1463e80dc9b",
+  "source_tree_sha256": "3b06f0ed499ab835733f9270dbccb62bb328d5849b7b2e2a6daca0c60ee23425",
+  "webapp_tree_sha256": "70c440b02257181bca4f30bf315f1036114ba324d4f647f2ea13c7a2e4671887",
   "files": {
     "WebApp/advanced-core.js": {
-      "bytes": 320097,
-      "sha256": "00e66757ee84eb8cbec7926b9387a1f20e44922b03577c082c6f5934243f42cc"
+      "bytes": 312231,
+      "sha256": "5499a1abec66cc3a385fab6a01aa02b722aa4102b711f4a38f47a0461045823e"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 947309,
-      "sha256": "6decdcfc9742cd802fe1565315f5d5ba0d0b7cf34d39b748e0b23cf5e11c157a"
+      "bytes": 943972,
+      "sha256": "3e5b565c3a61d43877288d6790fa0d34cc352961756f7d952b76981dd06f11bd"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -342,13 +342,33 @@
       "bytes": 332,
       "sha256": "1bfa60ce20c905f697afce7d42fed376e738d7aecd659ae097c9fcd742eef5a6"
     },
+    "WebApp/assets/images/ui/air-cargo.webp": {
+      "bytes": 19952,
+      "sha256": "b355aed83405db3e1fa0cedeb90a21b844e3708fc4025f7355442799697f250b"
+    },
     "WebApp/assets/images/ui/air-crew.webp": {
       "bytes": 29082,
       "sha256": "d35685abae9fe660efe06f19b40d6cec8ca776c578ca328ccafbbe07abc0bdf8"
     },
+    "WebApp/assets/images/ui/air-executive.webp": {
+      "bytes": 19522,
+      "sha256": "729482c1e49ae5e339aa4afff19353917ccf2765dba9f86d1f04216087b74065"
+    },
     "WebApp/assets/images/ui/air-hangar.webp": {
       "bytes": 29948,
       "sha256": "539f1b581145d8aa8bf7a900d8cecc3b9750144d3392a9d3347f4aed5bb6c045"
+    },
+    "WebApp/assets/images/ui/air-narrow.webp": {
+      "bytes": 15050,
+      "sha256": "6be418906e68f59434e7e6191b9e0c52931dbaff3726b6add612204e0b1739d1"
+    },
+    "WebApp/assets/images/ui/air-regional.webp": {
+      "bytes": 10784,
+      "sha256": "1fbb3bcdde7014642a40ee7dffc702a89abe17f717c1218a2e62e275ea51aef6"
+    },
+    "WebApp/assets/images/ui/air-widebody.webp": {
+      "bytes": 15174,
+      "sha256": "3121b69a65084cbbecbda2eea9e713cfe379d5889eb88ef5a1fa790364fd547d"
     },
     "WebApp/assets/images/ui/auto-delivery.webp": {
       "bytes": 30836,
@@ -374,6 +394,22 @@
       "bytes": 38668,
       "sha256": "ff753dae8abdaba1b6f3a63f80d414eb00e4fcade1b2271df8c3934994356178"
     },
+    "WebApp/assets/images/ui/company-bank-v2.webp": {
+      "bytes": 35794,
+      "sha256": "6cb028441a1243470163952ba35710910c2b9d0a4108ec22434f5e2a05e2da71"
+    },
+    "WebApp/assets/images/ui/company-energy-v2.webp": {
+      "bytes": 30098,
+      "sha256": "2af241d5261bfdbbf42f1cbb617725b960c6811a715fa3293a4e0b3cb156e090"
+    },
+    "WebApp/assets/images/ui/company-hq-v2.webp": {
+      "bytes": 24614,
+      "sha256": "7897b484e20eb1c661b7abc9b661fc14d087f1ebaab716109896bbe0c4a0724d"
+    },
+    "WebApp/assets/images/ui/company-system-v2.webp": {
+      "bytes": 25752,
+      "sha256": "44296c1e0e1851d94f99758f4e3e935714dc95895b35d23a62f8466aa311e640"
+    },
     "WebApp/assets/images/ui/energy-battery.webp": {
       "bytes": 24538,
       "sha256": "c05ce116ac1f4da1f3c1c509868eb5a32f69540201a089f0804a090b0fba4846"
@@ -389,6 +425,18 @@
     "WebApp/assets/images/ui/energy-wind.webp": {
       "bytes": 22166,
       "sha256": "38678890ffc8716151730d53a5f61ff33f57cd1ace3ac72a03afdca7c419b9f3"
+    },
+    "WebApp/assets/images/ui/facility-airport-v2.webp": {
+      "bytes": 25544,
+      "sha256": "9560bcb712b05116df09faa39dbbd803e8a805d614bf35f5a4b66473d3138fc2"
+    },
+    "WebApp/assets/images/ui/facility-logistics-v2.webp": {
+      "bytes": 37940,
+      "sha256": "562bb9095d1228250981d1baf6c6b9e082b3942ab0bbdfd341d5186b1862acb5"
+    },
+    "WebApp/assets/images/ui/facility-port-v2.webp": {
+      "bytes": 39300,
+      "sha256": "2b72643a7f60d54cb3afa3891ca0c54bb6a76f7fdb57d8e19b48116dc95f7f1c"
     },
     "WebApp/assets/images/ui/finance-budget.webp": {
       "bytes": 27358,
@@ -506,6 +554,10 @@
       "bytes": 33800,
       "sha256": "830ef4ae0900b5b362d51bdc66c5423f3e7728b231b446ca16dd7f8eca98abcb"
     },
+    "WebApp/assets/images/ui/routes-map.webp": {
+      "bytes": 28138,
+      "sha256": "430cfa76d5767fdb58cb9e633210df6095197d6ca426309bc44d873cef9f3167"
+    },
     "WebApp/assets/images/ui/sea-crew.webp": {
       "bytes": 24708,
       "sha256": "039d85b39b4bd7e9cd544f4125a71dbbc285041a8e09ee3c1a9397a88bc1dd92"
@@ -513,6 +565,30 @@
     "WebApp/assets/images/ui/sea-drydock.webp": {
       "bytes": 38116,
       "sha256": "d8d051e8b4c39f7259f4c2e6033831944489a0e0d9426b2049410b2684e25c3d"
+    },
+    "WebApp/assets/images/ui/ship-bulk.webp": {
+      "bytes": 21840,
+      "sha256": "ccaefb8e684aa2acb46977f67cf3c08a33425540397eea9050dcbcc456498823"
+    },
+    "WebApp/assets/images/ui/ship-container.webp": {
+      "bytes": 27064,
+      "sha256": "09c3c2d85a9598f64fcad60e7ded2d0aeb9d7134531d8330bc26fdf30a121c10"
+    },
+    "WebApp/assets/images/ui/ship-lng.webp": {
+      "bytes": 22910,
+      "sha256": "d707720de86b4b7245c1452387722711062e57227e06b76f1182b230b748fa88"
+    },
+    "WebApp/assets/images/ui/ship-roro.webp": {
+      "bytes": 11530,
+      "sha256": "9bd8725dbd8dcba55028dc827fd8ba7d35cf510fb6e6585dcacd18bc996e60c3"
+    },
+    "WebApp/assets/images/ui/ship-support.webp": {
+      "bytes": 30982,
+      "sha256": "3845e88fc94654556a4a0b56f0f2d099c1a2f122b831fd619e8bf5b82345082d"
+    },
+    "WebApp/assets/images/ui/ship-tanker.webp": {
+      "bytes": 22940,
+      "sha256": "1d1ecdb82dadb76555c7ede21b31da9a6ddcbbf41f352a8edac71d755f5c4d1c"
     },
     "WebApp/assets/images/ui/telecom-datacenter.webp": {
       "bytes": 32134,
@@ -529,6 +605,26 @@
     "WebApp/assets/images/ui/telecom-store.webp": {
       "bytes": 32686,
       "sha256": "96fd0593a1c5906fb4dcdb4f42cfad60251aaa091908da44f538b34ee77b97e0"
+    },
+    "WebApp/assets/images/ui/truck-container.webp": {
+      "bytes": 21074,
+      "sha256": "598506e26a6919429a190e6efc43d38825f4f7bc5b88b317c9c64a0f53425faa"
+    },
+    "WebApp/assets/images/ui/truck-longhaul-v2.webp": {
+      "bytes": 17472,
+      "sha256": "bf0bdac36dc5b922ffe3fa83c7eee1fb3d133d444b1bd38227fdd19f0c5b93c9"
+    },
+    "WebApp/assets/images/ui/truck-reefer.webp": {
+      "bytes": 14018,
+      "sha256": "0afb6fe562a724fb3c7336053f5c592ad6d778f34dc801ae98b11f689f1c809f"
+    },
+    "WebApp/assets/images/ui/truck-tanker.webp": {
+      "bytes": 22010,
+      "sha256": "ebae49b4c516bd137e5ef7cbead412a8837b330b75dad72327fb9b31b3e95f9b"
+    },
+    "WebApp/assets/images/ui/truck-urban.webp": {
+      "bytes": 26476,
+      "sha256": "429e5b55b545225c7f039ddf88b461ce86ddb68f3238fde67bc1c03465f51790"
     },
     "WebApp/assets/maps/ne2/0/0/0.webp": {
       "bytes": 10074,
@@ -3531,8 +3627,8 @@
       "sha256": "c0b25e4bb96ea11f687f90deff84137e24171be894436351613e6119c26bdb69"
     },
     "WebApp/index.html": {
-      "bytes": 28473,
-      "sha256": "745dd0a09904d1b7753bf977a5248997f140b32b3a4c7f979bf0e15330dc5321"
+      "bytes": 29276,
+      "sha256": "d249af6f9897cf7b913d84a0a0641e0023ea6d85acd0e7fee81a2fc2b7751503"
     },
     "WebApp/insurance-core.js": {
       "bytes": 26201,
@@ -3547,16 +3643,24 @@
       "sha256": "db5a33cb22928ee886604299880a0df579444fd864a15aabcf77bd9b5d907773"
     },
     "WebApp/interface-core.js": {
-      "bytes": 20522,
-      "sha256": "d907039eaaaf0290b3d949358b3aa8bf8dfbdf955154ef8d43344582b111a311"
+      "bytes": 14742,
+      "sha256": "542824cf4fc9203fda7e2e0c6bcf199c0a418f29afcd5baf66155685c926d625"
     },
     "WebApp/interface-layout.css": {
-      "bytes": 15173,
-      "sha256": "1aac1dc6131be8f408cf5601aedafd98a9cac0bb38e841c77b2016f480dc6a98"
+      "bytes": 13403,
+      "sha256": "dfbb97542b8549b8c65fffdbe9a8f129b852eae27bfaf44ec7b65a22a3a9a3cc"
     },
     "WebApp/lifecycle-core.js": {
       "bytes": 1576,
       "sha256": "b1f725d30a28a6f8f4a66ce3b410c179cd84bdac83bc85117fe10810770a109a"
+    },
+    "WebApp/madar-shell.css": {
+      "bytes": 5030,
+      "sha256": "131132935034dfc5f519c9502a4e916e6ad5966fad8492937f632ff255ecdd4d"
+    },
+    "WebApp/madar-shell.js": {
+      "bytes": 31398,
+      "sha256": "c5f64b8cf3b585bbfd0b9630411dcc825d8aa50589b6f71e49c7fc6f301f8941"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 7759,
@@ -3675,8 +3779,8 @@
       "sha256": "9111e731e3d61aec97c73a9c984e8508d0bf3cb18102b1409c073e901944d41c"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 34557,
-      "sha256": "bba924b5b29787f781cb0e8f94b12dcc2c2a77b32889d2f07f7fd244bc116d3a"
+      "bytes": 35636,
+      "sha256": "d6d0561aab2b2485d5e6e4284d3994d7139b0da4bd9761141278cbdf51d6c22c"
     },
     "WebApp/save-policy-core.js": {
       "bytes": 2306,
@@ -3727,16 +3831,16 @@
       "sha256": "edacf776f6832178ea0e7678e0180b9381b56a3d6aeb57fff33165e24df554d9"
     },
     "WebApp/styles.css": {
-      "bytes": 68926,
-      "sha256": "628e7e7dfd2dd782f846aa2e4cbbcfd4ec7cc804dacfa2eeb6c163f11e874b93"
+      "bytes": 67235,
+      "sha256": "a0ef19977f00d37faeb710d3a5b89612c81b38e2f015662012fddf59d5d6e573"
     },
     "WebApp/transaction-core.js": {
       "bytes": 79417,
       "sha256": "952f53db7bb1ac5e57628539af380bc89d0f599072a20ebddbc01c43330b8e53"
     },
     "WebApp/ui-quality-core.js": {
-      "bytes": 6312,
-      "sha256": "c6056a5a7fdbbaf7bf550eb2350f1fe8879659c4e25ad5afa3914f7e6252a007"
+      "bytes": 6191,
+      "sha256": "a4b126895bf2c6c1f04db86670fae05dd748a93a2dcc1edc4022f3b444829138"
     },
     "WebApp/vendor/leaflet/images/layers-2x.png": {
       "bytes": 1259,
@@ -3820,7 +3924,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "cd001c545f588e6fb31d08d2d3a9fcc64cea4f8c932a4f636dac65645af45a5e"
+      "sha256": "fbb606301f879274083a5635503041b3c21319c65a61c40403f5ee8a138bbf47"
     },
     "BUILD": {
       "bytes": 4,

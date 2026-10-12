@@ -149,12 +149,6 @@ label > input,label > select{margin-top: 4px;}
 .finance-doc-hub-v316 aside button{flex: 0 0 auto;}
 .finance-documents-v316{min-width: 0px;}
 .empty,.empty-state{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:13px;padding:24px 15px;text-align:center;font-size:12px;color:var(--muted);line-height:1.8;}
-.ui-section-hero{display:grid;grid-template-columns:76px minmax(0,1fr);direction:ltr;gap:11px;align-items:center;background:linear-gradient(125deg,color-mix(in srgb,var(--accent) 7%,var(--surface-2)),var(--surface-2));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));border-radius:15px;overflow:hidden;margin-bottom:12px;padding:0;min-height:84px;position:relative;}
-.ui-section-hero::after{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,color-mix(in srgb,var(--accent) 26%,transparent) 1px,transparent 1.5px);background-size:22px 22px;mask-image:linear-gradient(90deg,#000,transparent 58%);pointer-events:none}.ui-section-hero>img{width:76px;height:84px;object-fit:cover;border-radius:0;filter:saturate(.72) contrast(1.05);opacity:.34;}
-.ui-section-hero > div{direction:rtl;position:relative;z-index:2;padding:9px 0 9px 11px}.ui-section-hero h3{font:700 14px/1.5 var(--font-head);color:var(--text);}.ui-section-hero p{font-size:9.5px;color:var(--muted);line-height:1.55}.ui-section-hero span:not(.ui-section-mark){color:var(--accent);font-size:8.5px;font-weight:600;}
-.ui-section-mark{position:absolute;z-index:3;left:18px;top:20px;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:#0D3B57;border:1px solid color-mix(in srgb,var(--accent) 48%,#0D3B57);color:var(--accent)}.ui-section-mark svg{width:21px;height:21px;stroke-width:1.8}
-.ui-section-hero>.company-logo-badge{position:absolute;z-index:2;inset:auto auto 8px 8px;width:34px;height:34px;flex-basis:34px;border-color:var(--line-strong)}
-.ui-hero-note summary{cursor: pointer; font-size: 11px; color: var(--blue); min-height: 24px; padding-top: 4px;}
 .asset-thumb{margin:0 0 11px;border-radius:12px;overflow:hidden;background:var(--surface-3)}.asset-thumb img{display:block;width:100%;height:148px;object-fit:cover;filter:saturate(1.08) contrast(1.03);}
 .thumb-sm img{width: 60px; height: 45px; object-fit: cover; border-radius: 7px;}
 .company-visual-card{padding:0;}.company-visual-card > img{width:100%;height:124px;object-fit:cover;display:block;filter:saturate(1.1) contrast(1.03);}

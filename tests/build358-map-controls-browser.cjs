@@ -19,12 +19,13 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
     if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.click('#speedToggle');
 
-    // Frame: header 38px, rail 56px; the inset on the side without the camera shrinks to a margin.
-    const frame=notch=>page.evaluate(notch=>{const root=document.documentElement;root.style.setProperty('--safe-right','59px');root.style.setProperty('--safe-left','59px');root.dataset.notch=notch;return {top:document.querySelector('.topbar').getBoundingClientRect().height,rail:document.querySelector('.side-nav').getBoundingClientRect().width};},notch);
+    // Build 373 floating frame: the top bar band ends at 38px and the rail floats 6px clear of the inset; the inset on
+    // the side without the camera shrinks to a margin.
+    const frame=notch=>page.evaluate(notch=>{const root=document.documentElement;root.style.setProperty('--safe-right','59px');root.style.setProperty('--safe-left','59px');root.dataset.notch=notch;const rail=document.querySelector('.side-nav').getBoundingClientRect();return {top:document.querySelector('.topbar').getBoundingClientRect().bottom,rail:innerWidth-rail.right};},notch);
     const both=await frame('both'),left=await frame('left');
-    assert.equal(both.top,38,'the top bar is 38px');
-    assert.equal(both.rail,56+59,'with the camera on the rail side the rail keeps the full inset');
-    assert(left.rail<=56+6,`with the camera on the far side the rail drops the inset (${left.rail}px)`);
+    assert.equal(both.top,38,'the top bar band ends at 38px');
+    assert.equal(both.rail,59+6,'with the camera on the rail side the rail clears the full inset');
+    assert(left.rail<=6+6,`with the camera on the far side the rail drops the inset (${left.rail}px)`);
     await page.evaluate(()=>{const root=document.documentElement;root.style.removeProperty('--safe-right');root.style.removeProperty('--safe-left');});
 
     // Filters, by touch.
@@ -37,7 +38,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     // Build 359: the airport filter opens the expansion mode; airports are grouped in bubbles with Western counts.
     await page.waitForFunction(()=>__GH_STATE__.activeFilter==='airport'&&__GH_STATE__.mapMode==='expansion'&&/مطار في نطاق العرض/.test(document.getElementById('mapStatus').textContent));
     assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.map-place-bubble b')].map(b=>b.textContent).filter(text=>!/^[0-9]+(\.[0-9])?[KM]?$/.test(text))),[],'bubble counts use Western digits');
-    const spread=await page.evaluate(()=>{const map=document.getElementById('map').getBoundingClientRect(),cells=new Set();for(const marker of document.querySelectorAll('.world-infrastructure-marker')){const r=marker.getBoundingClientRect(),x=Math.floor((r.left-map.left)/map.width*4),y=Math.floor((r.top-map.top)/map.height*3);if(x>=0&&x<4&&y>=0&&y<3)cells.add(`${x}:${y}`);}return cells.size;});
+    const spread=await page.evaluate(()=>{const map=GH_INTERFACE.mapViewport(),cells=new Set();for(const marker of document.querySelectorAll('.world-infrastructure-marker')){const r=marker.getBoundingClientRect(),x=Math.floor((r.left-map.left)/map.width*4),y=Math.floor((r.top-map.top)/map.height*3);if(x>=0&&x<4&&y>=0&&y<3)cells.add(`${x}:${y}`);}return cells.size;});
     assert(spread>=8,`airports cover the view (${spread} of 12 quarters-thirds hold one)`);
     await page.tap('.filter-btn[data-filter="port"]');await page.waitForFunction(()=>__GH_STATE__.activeFilter==='port');
     await page.tap('.filter-btn[data-filter="all"]');await page.waitForFunction(()=>__GH_STATE__.activeFilter==='all');
