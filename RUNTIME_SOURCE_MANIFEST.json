@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "ae923abec310b86c631c93cad3e74e77b6574c97400d467bdd3577632a0e88a2",
-  "webapp_tree_sha256": "e332631e8c24bf58417d9a2bfec70d18857661ad0ecba7dd8d10b417f99fff0a",
+  "source_tree_sha256": "84ccb793cf0d0779a8a202117aeaed5a93f99f6eea795984e48784801d368697",
+  "webapp_tree_sha256": "82e5f9407128aa2925dccbaf064e56c851ebba2997c1739e621209a32b849956",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 344344,
@@ -3451,8 +3451,8 @@
       "sha256": "9a34dbbdc19bc9528c604ae323b234e8eff87aa52190f86d964de497a9e73a52"
     },
     "WebApp/customer-companies-core.js": {
-      "bytes": 58008,
-      "sha256": "0053e4feec497f2b5bcc469be59dc67081e64883e25336564efbffaf11ced655"
+      "bytes": 58126,
+      "sha256": "753efc63f0b8098d4f854b7a8458e907de10f41e00e6ffc836971a491a5aec24"
     },
     "WebApp/dealer-market-core.js": {
       "bytes": 33742,
@@ -3855,8 +3855,8 @@
       "sha256": "62679681c22ead7d99f51a80a8aa5962c99d70553ed4446451dc946ea5f7d204"
     },
     "WebApp/telecom-market-core.js": {
-      "bytes": 27736,
-      "sha256": "61a32188669aca4116b855d1818a745cd57fcbbbbf9254434a1f466e15f1a570"
+      "bytes": 30491,
+      "sha256": "a0db5fee3a8a657d2dae1b41ac5d1abf68139b6b4dea705bbb17bc7d4c848742"
     },
     "WebApp/transaction-core.js": {
       "bytes": 82757,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "e4bb513bcaf4eccef32afe94527e304cdcf371c433836a977ed251657618554f"
+      "sha256": "6d032a302d5e972704b24d94b29e85b41200a38f7222c194614ff9e7f6bbb7d9"
     },
     "BUILD": {
       "bytes": 4,
