@@ -170,6 +170,13 @@ const AFFINITY_WEIGHT=.5,MAX_AFFINITY_BOOST=.15;
 function affinityBoost(state,country,company,pool='households'){return 1+Math.min(MAX_AFFINITY_BOOST,affinity(state,country,company,pool==='businesses'?'businesses':'households')*AFFINITY_WEIGHT);}
 function companyCustomers(state,company){const row=snapshot(state).totals.byCompany[company];return row?Math.round(row.households+row.businesses):0;}
 
-const API=Object.freeze({VERSION,COMPANIES,HOUSEHOLD_SIZE,BUSINESS_PER_PEOPLE,DEFAULT_POPULATION,MOBILE_LINES_PER_HOUSEHOLD,INCOME_REFERENCE,ELASTICITY,population,market,incomePerPerson,incomeRatio,incomeFactor,economicConditions,demandFactor,priceIndex,propertyValue,REFERENCE_RATE,rivalPrice,snapshot,affinity,affinityBoost,companyCustomers});
+// Build 378: customer satisfaction. Service failures the price does not capture (a car out of stock, a claim paid
+// late, a withdrawal the bank cannot pay) pull a satisfaction score down; it moves a 30th of the way towards the day's
+// service each day, so it recovers over about a month. Below SERVICE_NORMAL customers leave faster and fewer join;
+// normal service (SERVICE_NORMAL) changes nothing.
+const SERVICE_NORMAL=85,SERVICE_DAYS=30;
+function satisfactionStep(previous,quality){const prior=Number(previous),today=Number(quality),from=Number.isFinite(prior)?Math.max(0,Math.min(100,prior)):SERVICE_NORMAL,to=Number.isFinite(today)?Math.max(0,Math.min(100,today)):SERVICE_NORMAL;return Math.round((from+(to-from)/SERVICE_DAYS)*1000)/1000;}
+function serviceEffects(satisfaction){const value=Number(satisfaction),gap=Math.max(0,SERVICE_NORMAL-(Number.isFinite(value)?value:SERVICE_NORMAL));return {churn:Math.min(1.7,1+gap/50),demand:Math.max(.65,1-gap/100)};}
+const API=Object.freeze({SERVICE_NORMAL,satisfactionStep,serviceEffects,VERSION,COMPANIES,HOUSEHOLD_SIZE,BUSINESS_PER_PEOPLE,DEFAULT_POPULATION,MOBILE_LINES_PER_HOUSEHOLD,INCOME_REFERENCE,ELASTICITY,population,market,incomePerPerson,incomeRatio,incomeFactor,economicConditions,demandFactor,priceIndex,propertyValue,REFERENCE_RATE,rivalPrice,snapshot,affinity,affinityBoost,companyCustomers});
 globalThis.GH_CUSTOMER_BASE=API;if(globalThis.window&&window!==globalThis)window.GH_CUSTOMER_BASE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

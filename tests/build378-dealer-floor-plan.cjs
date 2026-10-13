@@ -69,4 +69,13 @@ let bonusPaid=0;
   assert.equal(JSON.stringify(m.oemQuarter.paid.map(row=>row.oemId).sort()),JSON.stringify(paid.map(([oemId])=>oemId).sort()));
   assert.ok(paid.length>0&&missed>0,`q2: ${paid.length} paid, ${missed} missed`);
 }
+// Satisfaction (customer-base-core): buyers who find their car out of stock lower the showroom's score; a low score
+// brings fewer buyers.
+{
+  const starved=setup({cash:0});runDays(starved,1,30);const room=starved.s.customerCompanies.companies.dealership.market.showrooms[0];
+  assert.ok(room.satisfaction<80,`stock-outs: ${room.satisfaction}`);
+  const happy=setup(),unhappy=setup();runDays(happy,0,0);runDays(unhappy,0,0);unhappy.s.customerCompanies.companies.dealership.market.showrooms[0].satisfaction=40;happy.s.customerCompanies.companies.dealership.market.showrooms[0].satisfaction=85;
+  runDays(happy,1,10);runDays(unhappy,1,10);const buyers=env=>env.s.customerCompanies.companies.dealership.market.dailyHistory.slice(0,10).reduce((sum,row)=>sum+row.carsSold+row.lostSales,0);
+  assert.ok(buyers(unhappy)<buyers(happy),`fewer buyers come to an unhappy showroom: ${buyers(unhappy)} vs ${buyers(happy)}`);
+}
 console.log(JSON.stringify({suite:'build378-dealer-floor-plan',shortfall,bonusPaid}));

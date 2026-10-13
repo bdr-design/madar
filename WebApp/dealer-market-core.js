@@ -90,6 +90,7 @@ function yearlyCapacity(m,showroom){const people=base().market(showroom.country,
 function campaignCost(m,showroom){return Math.round(clamp(yearlyCapacity(m,showroom)*20,150000,3000000));}
 const demandFactor=level=>DEMAND_BY_PRICE[String(level)]||1;
 // The buyers a showroom expects in a day at today's choices (no draw): what the weekly reorder plans for.
+const SERVICE_NORMAL=85,service=value=>typeof globalThis.GH_CUSTOMER_BASE?.serviceEffects==='function'?globalThis.GH_CUSTOMER_BASE.serviceEffects(value):{churn:1,demand:1},satisfy=(value,quality)=>typeof globalThis.GH_CUSTOMER_BASE?.satisfactionStep==='function'?globalThis.GH_CUSTOMER_BASE.satisfactionStep(value,quality):value;
 function expectedBuyers(m,showroom,day){if(!showroom.active)return 0;return (BUYERS[0]+BUYERS[1])/2*walkInFactor(showroom)*demandFactor(m.priceLevel)*(Number(showroom.campaignUntil)>day?CAMPAIGN_GROWTH:1);}
 function marketParty(state,showroom){
   const W=globalThis.GH_BUSINESS_WORLD;if(!W?.upsertParty)throw new Error('business-world-customer-owner-unavailable');
@@ -216,7 +217,7 @@ function* dayStages(state,p={}){
     let sold=0,lost=0,revenue=0,cost=0;
     if(showroom.active){
       const room=clamp(1-num(showroom.annualRate)/yearlyCapacity(m,showroom),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,B.affinity(state,showroom.country,'dealership','households')*AFFINITY_WEIGHT);
-      const buyers=Math.round(deterministic(`${showroom.id}:${day}:buyers`,BUYERS[0],BUYERS[1])*walkInFactor(showroom)*economy*demandFactor(m.priceLevel)*rivalDemand(showroom,day)*boost*(Number(showroom.campaignUntil)>day?CAMPAIGN_GROWTH:1)*room);
+      const buyers=Math.round(deterministic(`${showroom.id}:${day}:buyers`,BUYERS[0],BUYERS[1])*walkInFactor(showroom)*economy*demandFactor(m.priceLevel)*rivalDemand(showroom,day)*boost*service(showroom.satisfaction).demand*(Number(showroom.campaignUntil)>day?CAMPAIGN_GROWTH:1)*room);
       for(let index=0;index<buyers;index++){
         const pick=deterministic(`${showroom.id}:${day}:pick:${index}`,0,1);let acc=0,model=shares[shares.length-1];for(const row of shares){acc+=row.share;if(pick<acc){model=row;break;}}
         const line=inventory.find(row=>row.oemId===model.oemId&&row.modelId===model.modelId);
@@ -224,6 +225,8 @@ function* dayStages(state,p={}){
         line.quantity-=1;line.sold=num(line.sold)+1;sold++;revenue+=Math.round(num(line.retailPrice)*m.priceLevel);const unitCost=Number(line.unitCost)>0?Number(line.unitCost):num(model.cost);cost+=unitCost;oemTally.units[line.oemId]=num(oemTally.units[line.oemId])+1;oemTally.cost[line.oemId]=num(oemTally.cost[line.oemId])+unitCost;
       }
     }
+    // Build 378: a buyer who finds no car in stock is a service failure (customer-base-core satisfactionStep).
+    if(showroom.active)showroom.satisfaction=satisfy(showroom.satisfaction,sold+lost?SERVICE_NORMAL*sold/(sold+lost):SERVICE_NORMAL);
     closeSalesMonth(showroom,period);
     if(revenue>0){if(!num(showroom.unbilledSales))showroom.salesPeriod=period;showroom.unbilledSales=num(showroom.unbilledSales)+revenue;showroom.unbilledCost=num(showroom.unbilledCost)+cost;costOfSales+=cost;if(!showroom.partyId)showroom.partyId=marketParty(state,showroom).id;}
     const joined=roundDraw(sold*tier.attach,`${showroom.id}:${day}:plans`),ended=Math.min(num(showroom.servicePlans),roundDraw(num(showroom.servicePlans)/(SERVICE_MONTHS*30),`${showroom.id}:${day}:plans-end`));
