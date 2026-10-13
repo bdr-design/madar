@@ -19,6 +19,12 @@
 - **الأداء:** ~3 ميكروثانية لكل مشروع في اليوم (≤30 مشروعًا)، و~110 بايت لكل مشروع قيد الإنشاء في الحفظ.
 - **اختبار جديد:** `build378-realestate-off-plan` (ضمن السلسلة). نجحت معه: `build364-realestate-internal-leases`، `build363-company-economics-balance`، `build369-external-rent-monthly-ledger`، `build374-customer-base-telecom-market`، `build364-company-overview-summary`، `build374-company-options-browser`، `build373-revenue-chain-browser`، `build361-button-binding-browser`.
 
+### الطاقة: التشغيل على كتل، وعقد الشراء قبل البناء (`energy-core.js`)
+- **الكتل:** الشمسية 4 والرياح 3، موزعة بالتساوي على مدة عقد البناء (`phasedOutput` داخل `siteEconomics`). الكتلة المكتملة تبيع «طاقة اختبار» بـ70% من سعر السوق 14 يومًا ثم بسعر السوق، بحصتها من الإنتاج وتكلفة التشغيل. الكتلة الأخيرة = التشغيل التجاري كما كان. لا حقل جديد في الحفظ (تُحسب يوميًا من عقد البناء). `economics` يجمع المحطات العاملة + المنتجة جزئيًا؛ مسار القدرة القديمة (legacy) لا يتغير ويضاف إليه إنتاج الكتل.
+- **عقد الشراء قبل البناء:** المناقصة تُولَّد لمحطة قيد الإنشاء أيضًا؛ الفوز يُنشئ عقدًا بحالة «بانتظار التشغيل» (`PPA_PENDING`) ببداية مخططة = يوم اكتمال عقد البناء، وسعته محجوزة (`acceptedCapacity`). يوم التشغيل الفعلي يصير «ساري» ويبدأ مدته الكاملة من `commissionedDay`. لا يكسب قبل التشغيل، ولا يدخل في إنتاج الكتل (البيع فيها للسوق).
+- **الأداء:** المحطة المنتجة جزئيًا تُحسب كمحطة عاملة (نفس الكلفة)؛ خريطة عقود البناء تُبنى مرة لكل استدعاء وفقط إن وُجدت محطة شمس/رياح قيد الإنشاء.
+- **اختبار جديد:** `build378-energy-blocks-ppa`. نجحت معه اختبارات الطاقة الخمسة و`build358-directory-open-sites-browser` و`build361-bulk-opening-browser` و`build361-button-binding-browser` و`build374-company-options-browser` و`build371-calendar-cancel-maintenance-browser`.
+
 ## 000. Build 377: أسواق واقعية للشركات بلا أصول (اقرأه أولًا)
 
 كل ما يلي في commit «Build 377» على نفس الفرع. الدراستان اللتان بُني عليهما العمل في المستودع:

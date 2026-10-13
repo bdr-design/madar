@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "c9f462df600ad0743450483ab298b00fb3e73feb92baa3ad12c1a269e104f043",
-  "webapp_tree_sha256": "ef59f870cf3a92b35955d44d1db16e40ec70e7f2b4c4ae208916f7c3bb7c8263",
+  "source_tree_sha256": "4c48675a9ef9c2b1bc7eb422c100dc691d7c8f569c2da04629438eeaa92d10a2",
+  "webapp_tree_sha256": "5528a7638b4f81fd20feb8ff8853cbd1648d0e5d9c5edd443b8e6470065cccd2",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 344344,
@@ -3491,8 +3491,8 @@
       "sha256": "c9a9faf66c8547acca8311ed63c68007ffe383f23a221a9e3ad983fd03d1754c"
     },
     "WebApp/energy-core.js": {
-      "bytes": 53347,
-      "sha256": "b746792c704b870c06933d9f0e3325519db19b2bdb7158650484c9fc0fdca3bf"
+      "bytes": 56449,
+      "sha256": "b27037eff22b0f8874dc3eefa23a4aaeae44b6312a6502f86e901017c4875563"
     },
     "WebApp/event-ledger-core.js": {
       "bytes": 1989,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "bac3d4591c47a20a4e24d1eea1bd6de6eaf4f78b04361c79d1c0a8140f9a69e4"
+      "sha256": "47efde47226bb2b58ecc340a2ea8c43bebc5a15976440651894d9fcef170af70"
     },
     "BUILD": {
       "bytes": 4,
