@@ -27,6 +27,9 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     assert.ok(purchased.first&&purchased.second);assert.deepEqual(purchased.total,{completed:600,facilities:1,chunks:2});// Build 372: one plan per order applied in row stages of 512, whatever the number of facilities (20 rows: one stage).
     assert.deepEqual(purchased.each,{completed:20,facilities:2,chunks:1});
     assert.deepEqual(purchased.byBase,{'QA-OMDB':610,'QA-EGLL':10});assert.equal(purchased.size,620);// Progress is reported per time slice: it only grows, never passes its order's total, and ends at each total.
+    // Build 378: the purchase page shows the group's shared asset room, used and left, after the purchases.
+    const room=await page.evaluate(()=>{__AUDIT__.openDrawer('assetMarket','air');const text=document.querySelector('#drawerBody .group-asset-room')?.textContent||'',limit=GH_PERSISTENCE.fleetRecordLimit(),used=GH_FLEET_DATA.persistenceRecordCount(__GH_STATE__,__GH_STATE__.realism?.procurement?.deliveries||[]);return {text,limit,used};});
+    assert.ok(room.used>=620&&room.text.includes(room.used.toLocaleString('en-US'))&&room.text.includes((room.limit-room.used).toLocaleString('en-US')),`shared room shown: ${JSON.stringify(room)}`);
     const ofTotal=total=>purchased.progress.filter(([,count])=>count===total).map(([done])=>done);
     for(const [total,steps] of [[600,ofTotal(600)],[20,ofTotal(20)]]){assert(steps.length>=1);assert(steps.every((done,index)=>done>0&&done<=total&&(index===0||done>=steps[index-1])));assert.equal(steps.at(-1),total);}
     assert.equal(purchased.progress.length,ofTotal(600).length+ofTotal(20).length);assert.deepEqual(purchased.progress.at(-1),[20,20]);
