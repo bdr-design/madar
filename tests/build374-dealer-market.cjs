@@ -1,7 +1,8 @@
 'use strict';
 // Build 374 (owner's decision): the car dealership sells to its showrooms' countries instead of typed buyers and
 // prices. Here, with the real customer base, dealer market and customer-companies owners: buyers come each day and take
-// models in stock; the day's sales are the company's revenue at the daily close (no document per sale); the stock is
+// models in stock; the sales of a month are invoiced once on the next month's first close, one invoice per showroom (no
+// document per sale or per day; Build 375, owner's decision); the stock is
 // reordered every two weeks to the chosen cover
 // through the existing purchase order and cheque, and a model out of stock loses the sale; a discount sells more;
 // service plans follow sales and bill monthly; at most one buyer a day asks the group's bank for financing and the sale
@@ -11,7 +12,7 @@ const assert=require('node:assert/strict');
 const {harness}=require('./helpers/core-harness');
 const DAY=86400;
 
-function setup({showrooms=[['AUTO-RUH','الرياض','السعودية']],level=null,cash=1e12,bank=true}={}){
+function setup({showrooms=[['AUTO-RUH','الرياض','السعودية']],level=null,cash=1e12,bank=true,bankBranch=true}={}){
   const h=harness([]),s=h.s,parties=new Map(),cheques=[],loanRequests=[];
   s.GH_AUTHORIZATION={registerCommandTargetResolver(){}};
   s.GH_COMPANY_PLATFORM={requireCompany(_state,id){return {id,operational:true,registered:true};},resolveCompany(_state,id){return {id,operational:id!=='bank'||bank};}};
@@ -23,7 +24,7 @@ function setup({showrooms=[['AUTO-RUH','الرياض','السعودية']],level
   s.GH_BANKING_CORE={MAX_OPEN_REQUESTS:5,countryPopulation:name=>({'السعودية':35300000,'الإمارات':9890000}[name]||10000000),customerFinancingQuote(_state,p){return {invoiceAmount:p.invoiceAmount,downPayment:0,loanPrincipal:p.invoiceAmount,originationFee:0,disbursementAmount:p.invoiceAmount,termDays:p.termDays,product:p.product};},customerDisbursementForSale(){return null;},execute(){}};
   s.GH_MAP_LABELS=[];
   h.load('customer-companies-core');h.load('customer-base-core');h.load('dealer-market-core');
-  s.simSeconds=0;s.finance={invoices:[]};s.bank={loanRequests:[]};s.openedCompanies=['dealership','bank'];
+  s.simSeconds=0;s.finance={invoices:[]};s.bank={loanRequests:[],branchNetwork:[{id:'BANK-RUH',servicesActive:bankBranch}]};s.openedCompanies=['dealership','bank'];
   s.customHubs=showrooms.map(([id,city,country])=>({id,kind:'dealership-branch',ownerCompanyId:'dealership',owned:true,city,country,name:`معرض ${city}`}));
   if(level){s.GH_DEALER_MARKET.ensure(s);s.customerCompanies.companies.dealership.market.priceLevel=level;}
   return {s,core:s.GH_CUSTOMER_COMPANIES_CORE,market:s.GH_DEALER_MARKET,cheques,loanRequests};
@@ -44,10 +45,26 @@ const results={};
   assert.equal(s.finance.invoices.filter(row=>/SALE/.test(row.sourceRef||'')).length,0,'no document per sale');
   const sold=data.inventory.reduce((n,row)=>n+row.sold,0);assert.equal(sold,sum.carsSold,'every sale leaves the stock');
   const revenue=m.dailyHistory.reduce((n,row)=>n+row.salesRevenue,0),retail=data.inventory.reduce((n,row)=>n+row.sold*row.retailPrice,0);assert.equal(revenue,retail,'sold at the catalogue retail price');
-  const close=env.market.dailyResult(s,20);assert.equal(close.revenue,m.dailyHistory[0].salesRevenue,'the day\'s sales are the close\'s revenue');assert.equal(close.cashRevenue,close.revenue);
+  const close=env.market.dailyResult(s,20);assert.equal(close.revenue,0,'retail sales are not posted by the daily close');assert.equal(close.cashRevenue,0);
+  assert.equal(s.finance.invoices.filter(row=>/^AUTO-MKT-SALES-INV-/.test(row.sourceRef||'')).length,0,'no sales invoice before the month closes');
+  assert.equal(m.showrooms[0].unbilledSales,revenue,'the month\'s sales wait for its invoice');
   const sales=m.dailyHistory.filter(row=>row.salesRevenue>0);
   const snapshot=JSON.stringify(m);drain(env.core.onFinancialDayStages({state:s,companyId:'dealership'},{day:20}));assert.equal(JSON.stringify(m),snapshot,'a day runs once');
   results.firstWeeks={carsSold:sum.carsSold,restockOrders:restocks.length,salesDays:sales.length};
+}
+
+// 1b. The month's sales are one invoice per showroom on the next month's first close, for exactly that month's sales.
+{
+  const showrooms=[['AUTO-RUH','الرياض','السعودية'],['AUTO-DXB','دبي','الإمارات']],env=setup({showrooms,bank:false}),s=env.s;runDays(env,0,30);
+  const m=s.customerCompanies.companies.dealership.market,january=m.dailyHistory.reduce((n,row)=>n+row.salesRevenue,0);
+  assert.equal(s.finance.invoices.filter(row=>/^AUTO-MKT-SALES-INV-/.test(row.sourceRef||'')).length,0,'January is still open on its last day');
+  runDays(env,31,58);
+  const bills=s.finance.invoices.filter(row=>/^AUTO-MKT-SALES-INV-/.test(row.sourceRef||''));
+  assert.equal(bills.length,2,'one invoice per showroom for January');assert.ok(bills.every(row=>row.sourceRef.endsWith('-2026-01')),'billed for January');
+  assert.equal(Math.round(bills.reduce((n,row)=>n+row.total,0)),Math.round(january),'the invoices carry exactly January\'s sales');
+  assert.deepEqual(new Set(bills.map(row=>row.businessLocationCountry)),new Set(['السعودية','الإمارات']),'each invoice belongs to its showroom');
+  const february=m.dailyHistory.filter(row=>row.day>=31).reduce((n,row)=>n+row.salesRevenue,0);assert.equal(Math.round(env.market.summary(s).unbilledSales),Math.round(february),'February waits for March');
+  results.monthly={januarySales:Math.round(january),invoices:bills.length};
 }
 
 // 2. Without cash for stock, buyers are lost; a discount sells more.
@@ -71,8 +88,20 @@ const results={};
   assert.ok(Math.abs(bills[0].total%49)<1e-6,'billed at the standard plan price');
   assert.ok(env.loanRequests.length>=1,'companies ask the group bank to finance a fleet');assert.ok(s.bank.loanRequests.length<=5,'never above the bank\'s open-request limit');
   const pending=s.customerCompanies.companies.dealership.sales.filter(row=>row.status==='awaiting-bank-decision');assert.ok(pending.length>=1,'a financed sale waits for the bank');
+  const financed=s.customerCompanies.companies.dealership.sales.filter(row=>/^AUTO-MKT-FIN-/.test(row.id));
+  assert.ok(financed.some(row=>row.quantity===1&&/^أسرة /.test(row.customer)),'a household finances one car (Build 375)');
+  assert.ok(financed.filter(row=>row.quantity>1).every(row=>row.total>=1000000),'a fleet is still $1M or more');
   assert.ok(env.market.dailyResult(s,62).expense>0,'the workshop cost is the daily operating expense');
   results.service={plans:showroom.servicePlans,serviceBills:bills.length,financeRequests:env.loanRequests.length};
+}
+
+// 3b. A group bank without an open branch gets no financing request, and the days still close (the real bank refuses a
+// customer request without one: bank-active-branch-required; Build 374 stopped the clock on it).
+{
+  const env=setup({bankBranch:false}),s=env.s;runDays(env,0,62);
+  assert.equal(env.loanRequests.length,0,'no request reaches a bank without a branch');
+  assert.equal(s.customerCompanies.companies.dealership.market.lastProcessedDay,62,'every day closed');
+  results.noBranch={days:63,requests:0};
 }
 
 // 4. Two identical games give identical numbers; a year of three showrooms stays small and cheap.
@@ -85,6 +114,17 @@ const results={};
   assert.ok(bytes<80000,`the saved market stays small: ${bytes} bytes`);
   assert.ok(elapsedMs/365<5,`a day of three showrooms costs under 5 ms: ${(elapsedMs/365).toFixed(3)} ms`);
   const sum=a.market.summary(a.s);results.year={carsSold:sum.carsSold,servicePlans:sum.servicePlans,salesRevenue:Math.round(sum.ytd.salesRevenue),restockSpend:Math.round(sum.ytd.restockSpend),bytes,msPerDay:Number((elapsedMs/365).toFixed(3))};
+}
+
+// 5. The real bank (Build 375, owner's decision): an individual loan finances one car at its price with a $250 fee
+// floor; other products keep their minimums and the $25,000 floor.
+{
+  const B=require('../WebApp/banking-core.js');
+  const car=B.customerFinancingQuote({},{invoiceAmount:31900,downPayment:0,product:'consumer',termDays:1825});
+  assert.equal(car.disbursementAmount,31900,'the bank pays the dealer the car\'s price');assert.equal(car.originationFee,250);assert.equal(car.loanPrincipal,32150,'the loan is the price and its fee, not $1M');
+  const corporate=B.customerFinancingQuote({},{invoiceAmount:2000000,downPayment:0,product:'corporate'});assert.equal(corporate.loanPrincipal,10000000,'corporate keeps its $10M minimum');assert.equal(corporate.originationFee,60000);
+  const small=B.customerFinancingQuote({},{invoiceAmount:500000,downPayment:0,product:'sme'});assert.equal(small.originationFee,30000,'the $25,000 floor stays for the other products (0.6% of $5M)');
+  results.bank={carPrincipal:car.loanPrincipal,carFee:car.originationFee};
 }
 
 console.log(JSON.stringify({suite:'build374-dealer-market',...results}));

@@ -21,11 +21,14 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     // Build 373: the group page lists every company; a company's ceiling is edited on its own page.
     await page.locator('#drawerBody .budget-row [data-go="budgets"][data-company="air"]').click();
     const card=page.locator('#drawerBody .budget-card').filter({has:page.locator('.budget-save[data-company="air"]')});
-    await card.locator('[data-budget-limit]').fill('10000000');await card.locator('[data-budget-line="capex"]').fill('5000000');
+    await card.locator('[data-budget-limit]').selectOption('10000000');await card.locator('[data-budget-line="capex"]').selectOption('5000000');
     await card.locator('.budget-save').click();
     await page.waitForFunction(()=>__GH_STATE__.companyBudgets?.air?.enabled===true);
     const saved=await page.evaluate(()=>({limit:__GH_STATE__.companyBudgets.air.limit,capex:__GH_STATE__.companyBudgets.air.lines.capex,active:document.querySelector('.side-nav [data-nav="finance"]')?.classList.contains('active')}));
     assert.deepEqual(saved,{limit:10000000,capex:5000000,active:true},'the clicked ceiling and line are saved; the Money rail stays active');
+    // Build 375 (owner's rule: nothing typed in): the budget editor and the treasury pages offer choices only.
+    const typed=await page.evaluate(async()=>{const count=()=>({typed:document.querySelectorAll('#drawerBody input[type=number],#drawerBody input[type=text],#drawerBody input:not([type]),#drawerBody textarea').length,choices:document.querySelectorAll('#drawerBody select').length});const out={budget:count()};for(const tab of ['pool','loans','reserve']){qaContext.openDrawer('treasury',tab);await new Promise(resolve=>setTimeout(resolve,30));out[tab]=count();}qaContext.openDrawer('budgets',{company:'air'});await new Promise(resolve=>setTimeout(resolve,30));return out;});
+    for(const [name,row] of Object.entries(typed)){assert.equal(row.typed,0,`no typed field on ${name}`);assert.ok(row.choices>0,`${name} offers choices`);}
     const spend=amount=>page.evaluate(async amount=>{try{await qaContext.runAuthorizedDomainCommand('finance','spend',{company:'air',amount,note:'شراء معدات QA',line:'capex',counterparty:'مورد QA'},{silent:true});return 'ok';}catch(error){return String(error.message);}},amount);
     assert.match(await spend(6000000),/insufficient-funds-or-budget/,'above the capex line is refused');
     assert.equal(await spend(4000000),'ok','within the line is paid');

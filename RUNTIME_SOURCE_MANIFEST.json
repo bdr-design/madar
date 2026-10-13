@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "f2216943566b447b17b976681c7cf9c1097e0be6bea6cb5ede9fb796d73349a8",
-  "webapp_tree_sha256": "13d31117dd73cd79e89c12f72d26bee3a2aa076c71ce87c57bea47c283e8c39f",
+  "source_tree_sha256": "181c57db7b567c6ac8622789b0d3c03cc4336a86bcd6e176414e96f7efffdf5c",
+  "webapp_tree_sha256": "c0e35d37890e40632d22a78d23653b7f3585e612feb0b463baff6ebb71b8791f",
   "files": {
     "WebApp/advanced-core.js": {
-      "bytes": 333728,
-      "sha256": "92daa4c4c1e24faf152c4d9fdd06b8d8b653e32b61f082085e20b77ced91e6d7"
+      "bytes": 334717,
+      "sha256": "dea38354c44a8ede184ff6c66e47f729feed0993cf8ea42b44a310b8120e8829"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 955098,
-      "sha256": "dc74cb4e63ab888747d36df85197293021f5605c05f4d92ec1f2d60c5a3baec4"
+      "bytes": 955707,
+      "sha256": "8c642f77c52f3c3f4507d68bd213599d129911637b6af51b467ef056c6d7b1eb"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3371,8 +3371,8 @@
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 101259,
-      "sha256": "983e0216eb0c8e051b122c11569b398b199e81d083413ed923642decddc1e5ca"
+      "bytes": 101665,
+      "sha256": "e002854af49294fa546c331443d2ef2ca82fd66747c40040b1fc9f0d200f244a"
     },
     "WebApp/business-world-core.js": {
       "bytes": 40178,
@@ -3451,12 +3451,12 @@
       "sha256": "2d2dd47793111a1969b2aefbd23fed4df34341b2f161d198e8605865b8070ed4"
     },
     "WebApp/customer-companies-core.js": {
-      "bytes": 52771,
-      "sha256": "6a510bae6e8914f637c0c48d89d86af779daa19da41205f0798cc1b3cdf615fb"
+      "bytes": 54409,
+      "sha256": "286f9ab38717e9e3f917eaf4ee8ea522ecaa9d11b4614b3727df0f0e065b4415"
     },
     "WebApp/dealer-market-core.js": {
-      "bytes": 22389,
-      "sha256": "dc7ee9173851b89a7c9017674d13348c0ef0bacad3be93533522081023eff716"
+      "bytes": 24956,
+      "sha256": "f0c697f79b8be0da5b5981c74d01e202d1f03ebb8fa0b7e6bda82cd7f47d2839"
     },
     "WebApp/delivery-monitor-core.js": {
       "bytes": 1726,
@@ -3948,7 +3948,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "7817d8fca359b132b66c5d230184e8cdf2dbb9acc622d9f008f6ada3e10c71ba"
+      "sha256": "3eca2e560857c97d921d2bf29c38bb14a59c44c8e378ed59e6968f4dfde6568e"
     },
     "BUILD": {
       "bytes": 4,

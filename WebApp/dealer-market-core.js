@@ -5,14 +5,16 @@
    more); a model out of stock loses the sale. The player chooses the price stance, the stock cover (30, 45 or 60 days:
    the stock is reordered from the makers every two weeks through the existing purchase order, invoice and cheque) and the
    service plan offered after a sale (three tiers, taken by a share of buyers and billed monthly). At most once a day a
-   company orders a fleet financed by the group's bank through the existing customer-finance request (the bank finances
-   from its $1M minimum), and a financed sale settles by itself once the bank's transfer is proven. Nothing is typed in.
-   Money: the day's retail sales and the workshop cost of the plans (45% of their price) are the company's daily revenue
-   and operating expense through the generic daily close (its usual document and terms, no document per sale); service
-   plans are billed once a calendar month per showroom; the stock is reordered every two weeks. Catalogue prices and margins are unchanged. Load: showrooms x models a day; the
+   company orders a fleet, or (Build 375, the bank's individual loans start at $10,000) a household one car, financed by
+   the group's bank through the existing customer-finance request, and a financed sale settles by itself once the bank's
+   transfer is proven. Nothing is typed in.
+   Money (Build 375, owner's decision): a showroom's retail sales add up through the calendar month and are invoiced
+   once, on the first close of the next month, in one invoice per showroom on 7-day terms (no document per sale or per
+   day); the workshop cost of the plans (45% of their price) is the daily operating expense through the generic daily
+   close; service plans are billed once a calendar month per showroom; the stock is reordered every two weeks. Catalogue prices and margins are unchanged. Load: showrooms x models a day; the
    saved rows are per showroom, not per car. Manually entered sales and plans of older saves keep running as before. */
 (()=>{'use strict';
-const VERSION='GH-DEALER-MARKET-1.0.0',DAY=86400;
+const VERSION='GH-DEALER-MARKET-1.1.0',DAY=86400;
 const PRICE_LEVELS=Object.freeze([1,.95,.9]);
 const PRICE_LABELS=Object.freeze({'1':'سعر التجزئة','0.95':'خصم 5%','0.9':'خصم 10%'});
 const DEMAND_BY_PRICE=Object.freeze({'1':1,'0.95':1.35,'0.9':1.75});
@@ -56,7 +58,7 @@ function syncShowrooms(state,m){
   const owned=ownedShowrooms(state),byFacility=new Map(m.showrooms.map(row=>[row.facilityId,row]));
   for(const facility of owned){
     let row=byFacility.get(facility.id);
-    if(!row){const country=String(facility.country||'غير محدد'),city=String(facility.city||'');row={id:`SHOW-${asciiKey(facility.id)}`,facilityId:String(facility.id),branchId:String(facility.id),branchName:String(facility.name||`معرض ${city}`).slice(0,120),branchCity:city.slice(0,80),branchCountry:country.slice(0,80),city,country,marketPopulation:base().population(country),openedDay:today(state),active:true,buyers:0,annualRate:0,soldToday:0,lostToday:0,salesToday:0,salesTotal:0,campaignUntil:0,campaigns:0,campaignSpend:0,servicePlans:0,planName:'خطط صيانة',partyId:null,status:'idle',activeCustomers:0,monthlyPrice:0,nextBillingMonth:'',lastBilledMonth:'',invoiceCount:0,billed:0,collected:0,outstanding:0};m.showrooms.push(row);byFacility.set(facility.id,row);}
+    if(!row){const country=String(facility.country||'غير محدد'),city=String(facility.city||'');row={id:`SHOW-${asciiKey(facility.id)}`,facilityId:String(facility.id),branchId:String(facility.id),branchName:String(facility.name||`معرض ${city}`).slice(0,120),branchCity:city.slice(0,80),branchCountry:country.slice(0,80),city,country,marketPopulation:base().population(country),openedDay:today(state),active:true,buyers:0,annualRate:0,soldToday:0,lostToday:0,salesToday:0,salesTotal:0,campaignUntil:0,campaigns:0,campaignSpend:0,servicePlans:0,planName:'خطط صيانة',partyId:null,status:'idle',activeCustomers:0,monthlyPrice:0,nextBillingMonth:'',lastBilledMonth:'',invoiceCount:0,billed:0,collected:0,outstanding:0,unbilledSales:0,salesPeriod:'',dueSales:0,duePeriod:'',salesInvoices:0,salesBilled:0,lastSalesInvoice:''};m.showrooms.push(row);byFacility.set(facility.id,row);}
     row.active=true;
   }
   const open=new Set(owned.map(row=>String(row.id)));for(const row of m.showrooms)if(!open.has(row.facilityId))row.active=false;
@@ -107,19 +109,27 @@ function restock(state,m,day,inventory,shares){
   }
   return orders;
 }
-// At most one company a day orders a small fleet of one model and asks the group's bank to finance it, through the
-// existing customer-finance request. The bank's consumer financing starts at its product minimum ($1M), so only an
-// order the bank would finance in full is offered; the quote is checked before any customer is recorded.
+// At most one buyer a day asks the group's bank to finance a purchase, through the existing customer-finance request:
+// half the time a company ordering a small fleet of one model ($1M or more), otherwise a household buying one car (the
+// bank's individual loans start at $10,000; cheaper models are chosen more, as at retail). Only an order the bank would
+// finance in full is offered; the quote is checked before any customer is recorded.
 const FLEET_FINANCE_MIN=1000000,FLEET_MAX_UNITS=25;
 // Ten recurring fleet buyers: a returning company is the same named customer, so the named-customer limit lasts.
 const FLEET_BUYERS=Object.freeze(['شركة تأجير السيارات المتحدة','مجموعة النقل المؤسسي','شركة خدمات المرافق الوطنية','شركة الأمن والحراسة الحديثة','مجموعة الضيافة الإقليمية','شركة الإنشاءات المتقدمة','شركة التوزيع الغذائي','شركة خدمات الحقول النفطية','مجموعة الرعاية الصحية الخاصة','شركة الاتصالات الميدانية']);
+// Ten recurring household buyers, for the same reason.
+const HOUSEHOLD_BUYERS=Object.freeze(['أسرة العتيبي','أسرة الشمري','أسرة القحطاني','أسرة الحربي','أسرة الزهراني','أسرة المطيري','أسرة الدوسري','أسرة الغامدي','أسرة السبيعي','أسرة العنزي']);
 function financeRequest(state,m,day,inventory){
   const ops=companies().dealerOps,bank=state.bank,platform=globalThis.GH_COMPANY_PLATFORM,B=globalThis.GH_BANKING_CORE;
-  if(typeof B?.customerFinancingQuote!=='function'||!platform?.resolveCompany?.(state,'bank')?.operational||!Array.isArray(bank?.loanRequests)||bank.loanRequests.length>=(Number(B.MAX_OPEN_REQUESTS)||5))return null;
+  // The bank takes a customer request only at an open branch (submit-customer-loan-request): a group bank without one
+  // gets no request, instead of failing the day's close.
+  if(typeof B?.customerFinancingQuote!=='function'||!platform?.resolveCompany?.(state,'bank')?.operational||!Array.isArray(bank?.loanRequests)||bank.loanRequests.length>=(Number(B.MAX_OPEN_REQUESTS)||5)||!Array.isArray(bank?.branchNetwork)||!bank.branchNetwork.some(row=>row?.servicesActive))return null;
   if(!companies().namedCustomerRoom?.(state)||deterministic(`${day}:auto-finance`,0,1)>=FINANCE_CHANCE)return null;
-  const active=m.showrooms.filter(row=>row.active),fleets=catalogue().map(model=>{const price=Math.round(model.retail*m.priceLevel),quantity=Math.ceil(FLEET_FINANCE_MIN/Math.max(1,price));return {model,price,quantity};}).filter(item=>item.quantity<=FLEET_MAX_UNITS);
-  if(!active.length||!fleets.length)return null;
-  const showroom=active[Math.floor(deterministic(`${day}:auto-finance:showroom`,0,active.length))%active.length],fleet=fleets[Math.floor(deterministic(`${day}:auto-finance:model`,0,fleets.length))%fleets.length],total=fleet.price*fleet.quantity;
+  const household=deterministic(`${day}:auto-finance:kind`,0,1)<.5,models=catalogue();
+  const active=m.showrooms.filter(row=>row.active),fleets=household?[]:models.map(model=>{const price=Math.round(model.retail*m.priceLevel),quantity=Math.ceil(FLEET_FINANCE_MIN/Math.max(1,price));return {model,price,quantity};}).filter(item=>item.quantity<=FLEET_MAX_UNITS);
+  if(!active.length||(!household&&!fleets.length)||!models.length)return null;
+  let fleet;if(household){const shares=modelShares(models),pick=deterministic(`${day}:auto-finance:model`,0,1);let acc=0,model=shares[shares.length-1];for(const row of shares){acc+=row.share;if(pick<acc){model=row;break;}}fleet={model,price:Math.round(model.retail*m.priceLevel),quantity:1};}
+  else fleet=fleets[Math.floor(deterministic(`${day}:auto-finance:model`,0,fleets.length))%fleets.length];
+  const showroom=active[Math.floor(deterministic(`${day}:auto-finance:showroom`,0,active.length))%active.length],total=fleet.price*fleet.quantity;
   let quote=null;try{quote=B.customerFinancingQuote(state,{invoiceAmount:total,downPayment:0,product:'consumer',termDays:1825});}catch(_error){quote=null;}
   if(!quote||Math.abs(Number(quote.disbursementAmount)-total)>.01||Math.abs(Number(quote.invoiceAmount)-total)>.01)return null;
   // A fleet is ordered from its maker for the deal: the shortfall is bought first (if the bank declines, the cars stay
@@ -128,7 +138,7 @@ function financeRequest(state,m,day,inventory){
   if(short>0&&!(state.godMoney&&state.infiniteMoney)&&num(finance().operating?.(state,'dealership'))<cost)return null;
   const n=++m.financeSequence;
   if(short>0){ops.addStock(state,{modelId:fleet.model.modelId,quantity:short,reference:`AUTO-FLEET-STOCK-${n}`});m.ytd.restockSpend+=cost;}
-  return ops.sellVehicle(state,{saleId:`AUTO-MKT-FIN-${n}`,customerName:FLEET_BUYERS[Math.floor(deterministic(`${day}:auto-finance:buyer`,0,FLEET_BUYERS.length))%FLEET_BUYERS.length],industry:'أسطول سيارات شركة',country:showroom.country,modelId:fleet.model.modelId,quantity:fleet.quantity,unitPrice:fleet.price,financeRequested:true,branchId:showroom.branchId});
+  return ops.sellVehicle(state,{saleId:`AUTO-MKT-FIN-${n}`,customerName:household?HOUSEHOLD_BUYERS[Math.floor(deterministic(`${day}:auto-finance:buyer`,0,HOUSEHOLD_BUYERS.length))%HOUSEHOLD_BUYERS.length]:FLEET_BUYERS[Math.floor(deterministic(`${day}:auto-finance:buyer`,0,FLEET_BUYERS.length))%FLEET_BUYERS.length],industry:household?'أسرة · تمويل سيارة':'أسطول سيارات شركة',country:showroom.country,modelId:fleet.model.modelId,quantity:fleet.quantity,unitPrice:fleet.price,financeRequested:true,branchId:showroom.branchId});
 }
 // A financed sale settles by itself once the bank's transfer is proven (the existing verified settlement).
 function settleFinanced(state,data){
@@ -139,6 +149,9 @@ function settleFinanced(state,data){
   return settled;
 }
 
+// A showroom's sales of a closed calendar month become due for its monthly invoice (customer-companies-core bills them
+// after this day's market run). An invoice still waiting (the day's billing limit) takes the next month's sales too.
+function closeSalesMonth(showroom,period){if(showroom.salesPeriod&&showroom.salesPeriod!==period&&num(showroom.unbilledSales)>0){showroom.dueSales=num(showroom.dueSales)+num(showroom.unbilledSales);if(!showroom.duePeriod)showroom.duePeriod=showroom.salesPeriod;showroom.unbilledSales=0;}}
 function* dayStages(state,p={}){
   const m=ensure(state),day=Math.max(0,Math.floor(Number(p.day??today(state))));if(m.lastProcessedDay>=day)return m.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
   const C=companies(),ops=C.dealerOps,data=state.customerCompanies.companies.dealership,B=base();
@@ -146,7 +159,7 @@ function* dayStages(state,p={}){
   const inventory=data.inventory,shares=modelShares(catalogue());
   let orders=[];if(m.showrooms.some(row=>row.active)&&(m.lastRestockDay<0||day-m.lastRestockDay>=RESTOCK_EVERY)){orders=restock(state,m,day,inventory,shares);m.lastRestockDay=day;}
   yield 'dealer-market:restock';
-  const tier=SERVICE_TIERS[m.serviceTier];
+  const tier=SERVICE_TIERS[m.serviceTier],period=finance().calendarMonthForDay(day);
   let carsSold=0,salesRevenue=0,lostSales=0,plansSold=0,plansEnded=0,workshopCost=0;
   for(const showroom of m.showrooms){
     let sold=0,lost=0,revenue=0;
@@ -160,6 +173,8 @@ function* dayStages(state,p={}){
         line.quantity-=1;line.sold=num(line.sold)+1;sold++;revenue+=Math.round(num(line.retailPrice)*m.priceLevel);
       }
     }
+    closeSalesMonth(showroom,period);
+    if(revenue>0){if(!num(showroom.unbilledSales))showroom.salesPeriod=period;showroom.unbilledSales=num(showroom.unbilledSales)+revenue;if(!showroom.partyId)showroom.partyId=marketParty(state,showroom).id;}
     const joined=roundDraw(sold*tier.attach,`${showroom.id}:${day}:plans`),ended=Math.min(num(showroom.servicePlans),roundDraw(num(showroom.servicePlans)/(SERVICE_MONTHS*30),`${showroom.id}:${day}:plans-end`));
     showroom.servicePlans=num(showroom.servicePlans)-ended+joined;showroom.activeCustomers=showroom.servicePlans;showroom.monthlyPrice=showroom.servicePlans?tier.monthlyPrice:0;
     if(showroom.servicePlans>0){if(!showroom.partyId)showroom.partyId=marketParty(state,showroom).id;if(!showroom.nextBillingMonth)showroom.nextBillingMonth=nextMonthOf(state,day);showroom.status='active';}else showroom.status='idle';
@@ -169,22 +184,22 @@ function* dayStages(state,p={}){
     yield `dealer-market:${showroom.id}`;
   }
   const financeSale=m.showrooms.some(row=>row.active)?financeRequest(state,m,day,inventory):null,settled=settleFinanced(state,data);
-  const report={day,revenue:salesRevenue,cashRevenue:salesRevenue,expense:workshopCost,cashExpense:workshopCost,workshopCost,carsSold,salesRevenue,lostSales,plansSold,plansEnded,servicePlans:m.showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),restockOrders:orders.length,restockUnits:orders.reduce((sum,row)=>sum+row.quantity,0),restockSpend:orders.reduce((sum,row)=>sum+row.amount,0),financeRequest:financeSale?.id||null,settledFinanced:settled.length};
+  const report={day,revenue:0,cashRevenue:0,expense:workshopCost,cashExpense:workshopCost,workshopCost,carsSold,salesRevenue,lostSales,plansSold,plansEnded,servicePlans:m.showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),restockOrders:orders.length,restockUnits:orders.reduce((sum,row)=>sum+row.quantity,0),restockSpend:orders.reduce((sum,row)=>sum+row.amount,0),financeRequest:financeSale?.id||null,settledFinanced:settled.length};
   m.ytd.carsSold+=carsSold;m.ytd.salesRevenue+=salesRevenue;m.ytd.lostSales+=lostSales;m.ytd.workshopCost+=workshopCost;m.ytd.plansSold+=plansSold;
   m.dailyHistory.unshift(report);m.dailyHistory=m.dailyHistory.slice(0,DAILY_HISTORY);m.lastProcessedDay=day;
   yield 'dealer-market:close';
   return clone(report);
 }
 function tickDay(state,p={}){const stages=dayStages(state,p);let step;while(!(step=stages.next()).done){}return step.value;}
-// The generic daily close posts the day's retail sales (on its usual terms and document, as insurance premiums and unit
-// sales are posted) and the workshop cost; service plans arrive on their monthly invoices.
+// The generic daily close posts the workshop cost; retail sales and service plans arrive on their monthly invoices
+// (a day closed before Build 375 still reports its sales here).
 function dailyResult(state,day){const row=(read(state)?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.revenue),cashRevenue:num(row.cashRevenue??row.revenue),expense:num(row.expense),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,cashRevenue:0,expense:0,cashExpense:0};}
 function summary(state){
   const m=read(state),inventory=state?.customerCompanies?.companies?.dealership?.inventory||[];
   const stock=inventory.reduce((sum,row)=>sum+Math.max(0,num(row.quantity)-num(row.reserved)),0);
-  if(!m)return {showrooms:0,activeShowrooms:0,priceLevel:1,coverDays:45,serviceTier:'standard',carsSold:0,servicePlans:0,stock,last:null,ytd:null};
+  if(!m)return {unbilledSales:0,salesInvoices:0,showrooms:0,activeShowrooms:0,priceLevel:1,coverDays:45,serviceTier:'standard',carsSold:0,servicePlans:0,stock,last:null,ytd:null};
   const showrooms=Array.isArray(m.showrooms)?m.showrooms:[];
-  return {showrooms:showrooms.length,activeShowrooms:showrooms.filter(row=>row.active).length,priceLevel:m.priceLevel,coverDays:m.coverDays,serviceTier:m.serviceTier,carsSold:showrooms.reduce((sum,row)=>sum+num(row.buyers),0),servicePlans:showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),stock,last:(m.dailyHistory||[])[0]||null,ytd:m.ytd?{...m.ytd}:null};
+  return {unbilledSales:showrooms.reduce((sum,row)=>sum+num(row.unbilledSales)+num(row.dueSales),0),salesInvoices:showrooms.reduce((sum,row)=>sum+num(row.salesInvoices),0),showrooms:showrooms.length,activeShowrooms:showrooms.filter(row=>row.active).length,priceLevel:m.priceLevel,coverDays:m.coverDays,serviceTier:m.serviceTier,carsSold:showrooms.reduce((sum,row)=>sum+num(row.buyers),0),servicePlans:showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),stock,last:(m.dailyHistory||[])[0]||null,ytd:m.ytd?{...m.ytd}:null};
 }
 function execute(ctx,cmd,p={}){const state=ctx.state||ctx;switch(cmd){case'set-price':return setPrice(state,p);case'set-cover':return setCover(state,p);case'set-service-tier':return setServiceTier(state,p);case'showroom-campaign':return showroomCampaign(state,p);case'tick-day':return tickDay(state,p);default:throw new Error(`Unknown dealer market command: ${cmd}`);}}
 
