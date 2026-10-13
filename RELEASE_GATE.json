@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "10ee4c598000886ad8940e01da48953f11922fd0cf0e614ce42d7a5445241a9b",
+  "source_tree_sha256": "fa241314db7e0ee0fd26a8c476fe14ac776f3fbe0573e8530883c1cf38dea1d3",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -79,7 +79,7 @@
     "mode": "direct_git_tracked_branch",
     "branch": "codex/build361-device-archive-1gb",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "10ee4c598000886ad8940e01da48953f11922fd0cf0e614ce42d7a5445241a9b",
+    "source_tree_sha256": "fa241314db7e0ee0fd26a8c476fe14ac776f3fbe0573e8530883c1cf38dea1d3",
     "working_tree_clean": null
   },
   "point": "Build 362 follow-up candidate: customer-focused telecom and dealership companies, safe grouped customer finance and real-estate decisions, refreshed landscape conference theatre, and lifecycle fixes. Local full source acceptance passed 260/260; RELEASE_GATE stays closed pending macOS native/WKWebView/IPA results and physical iPhone validation."

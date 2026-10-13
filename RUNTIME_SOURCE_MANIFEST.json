@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "10ee4c598000886ad8940e01da48953f11922fd0cf0e614ce42d7a5445241a9b",
-  "webapp_tree_sha256": "0897e590b5693eb7194d247a34e6d5f99610d3d2d2874712a87639cd7ee598c0",
+  "source_tree_sha256": "fa241314db7e0ee0fd26a8c476fe14ac776f3fbe0573e8530883c1cf38dea1d3",
+  "webapp_tree_sha256": "6d0cd2629d6d634ccc2f25238c5c3b2ca1ea218917aacbe7d3d3742513e575c1",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 344344,
@@ -3643,8 +3643,8 @@
       "sha256": "45a64fd8291ecff3d64fe92e7d03b4b5d95c1f3c0801b23e60d90355b84df1aa"
     },
     "WebApp/insurance-core.js": {
-      "bytes": 33392,
-      "sha256": "ea424f8c4a75e22af31c235a8a4f03457af92b2a7b3cd5e9be376454434d2f68"
+      "bytes": 33861,
+      "sha256": "df4fe0f7248f7d72fed7d504cc883696d27f435d15eaeffa878d3de9a0894b29"
     },
     "WebApp/integrity-core.js": {
       "bytes": 32426,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "5545f1dcc3e2d84ff75ef5e4076ccb58c45980d49d34ea2b6486203832e1d437"
+      "sha256": "4ba7ec802f7130742c8025afaf04f72e068924434fddeeb287f7f40645a59617"
     },
     "BUILD": {
       "bytes": 4,

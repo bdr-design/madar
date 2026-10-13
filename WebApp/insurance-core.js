@@ -45,6 +45,7 @@
   const LINE_IDS=Object.freeze(Object.keys(LINES));
   const INSURABLE_SHARE=.45,MAX_MARKET_SHARE=.03,BUSINESS_PER_PEOPLE=40,DEFAULT_POPULATION=10000000;
   const SOLVENCY_MARGIN=.2,COMMISSION=.12,CLAIMS_LAG_DAYS=30,PRICE_LEVELS=Object.freeze([.85,.9,.95,1,1.05,1.1,1.15,1.25]);
+  const CLAIMS_LAG_BY_LINE=Object.freeze({motor:30,health:30,property:90,commercial:120});
   const REINSURANCE_LEVELS=Object.freeze([0,.2,.4,.6]),CEDING_COMMISSION=.25;
   // Build 374: a large risk is accepted whole or as a co-insurer's share; the claims reserve (money owed to claimants and
   // held until it is paid) earns the market rate (80% of the base rate, in short government paper).
@@ -208,7 +209,9 @@
     premium+=largePremium;claims+=largeClaims;
     const share=num(ins.reinsurance),ceded=premium*share,cededClaims=claims*share,netClaims=claims-cededClaims,cedingCommission=ceded*CEDING_COMMISSION,commission=(premium-largePremium)*COMMISSION;
     // Claims are paid 30 days after they occur: the reserve holds the group's share (net of reinsurance) until then.
-    if(netClaims>0)ins.claimsReserve.push({id:`INS-RES-${day}`,day,amount:netClaims,payDay:day+CLAIMS_LAG_DAYS});
+    // Build 378: each line pays on its own lag (CLAIMS_LAG_BY_LINE): motor and health a month, property three months,
+    // commercial and the large risks four; one reserve row per line and day.
+    if(netClaims>0)for(const id of LINE_IDS){const gross=num(byLine[id]?.claims)+(id==='commercial'?largeClaims:0),amount=gross*(1-share);if(amount>0)ins.claimsReserve.push({id:`INS-RES-${day}-${id}`,day,line:id,amount,payDay:day+(CLAIMS_LAG_BY_LINE[id]||CLAIMS_LAG_DAYS)});}
     const dueRows=ins.claimsReserve.filter(row=>Number(row.payDay)<=day),claimsDue=dueRows.reduce((sum,row)=>sum+num(row.amount),0),F=globalThis.GH_FINANCE_CORE,available=state.godMoney&&state.infiniteMoney?claimsDue:num(F?.operating?.(state,'insurance')),paid=Math.min(claimsDue,available),Base=globalThis.GH_CUSTOMER_BASE;
     // Build 378: a claim not paid when due is a service failure (customer-base-core satisfactionStep).
     if(typeof Base?.satisfactionStep==='function')ins.satisfaction=Base.satisfactionStep(ins.satisfaction,claimsDue>.01?Base.SERVICE_NORMAL*paid/claimsDue:Base.SERVICE_NORMAL);let claimSettlementReference=null;
@@ -250,6 +253,6 @@
     if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
     throw new Error(`Unknown insurance command: ${cmd}`);
   }
-  const API={VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,addPoliciesFromBank,BANCASSURANCE_SHARE,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
+  const API={CLAIMS_LAG_BY_LINE,VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,addPoliciesFromBank,BANCASSURANCE_SHARE,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
   globalThis.GH_INSURANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('insurance',API);if(globalThis.window&&window!==globalThis)window.GH_INSURANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

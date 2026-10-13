@@ -52,4 +52,13 @@ function insurer(cash,satisfaction){
     for(const line of Object.values(unhappy.insurance.offices[0].lines)){newUnhappy+=line.newToday||0;lapsedUnhappy+=line.lapsedToday||0;}}
   assert.ok(newUnhappy<newHappy&&lapsedUnhappy>lapsedHappy,`unhappy policyholders: ${newUnhappy}/${newHappy} new, ${lapsedUnhappy}/${lapsedHappy} lapsed`);
 }
+// 4. Claims are paid on their line's lag: motor and health 30 days, property 90, commercial 120 (net of reinsurance).
+{
+  const state=insurer(1e9,85);state.simSeconds=86400;I.execute({state},'tick-day',{day:1});
+  const rows=state.insurance.claimsReserve.filter(row=>row.day===1),share=Number(state.insurance.reinsurance)||0;
+  assert.equal(JSON.stringify(rows.map(row=>[row.line,row.payDay-row.day]).sort()),JSON.stringify([['commercial',120],['health',30],['motor',30],['property',90]].filter(([line])=>rows.some(row=>row.line===line)).sort()));
+  assert.ok(rows.length>=3,'claims on several lines');
+  const gross=Object.values(state.insurance.offices[0].lines).reduce((sum,line)=>sum+(line.claimsToday||0),0);
+  assert.ok(Math.abs(rows.reduce((sum,row)=>sum+row.amount,0)-gross*(1-share))<1e-6,'the reserve holds the claims net of reinsurance');
+}
 console.log(JSON.stringify({suite:'build378-customer-satisfaction',ok:true}));
