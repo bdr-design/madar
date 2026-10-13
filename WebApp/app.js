@@ -1686,7 +1686,9 @@
       $('map').innerHTML='<div style="height:100%;display:grid;place-items:center;background:#84958a;color:#152024;padding:28px;text-align:center;font-weight:700">تعذر تهيئة الخريطة المحلية. بيانات اللعبة والحفظ لم تتأثر؛ افتح مركز التشخيص للحصول على سبب الخطأ.</div>';
       return;
     }
-    map = L.map('map',{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:19,worldCopyJump:true,preferCanvas:true}).setView([22,28],3);
+    // Build 378: the map stops at the tiles' edge (85.05° north and south, past which there is only empty sea); east and
+    // west it still wraps around the world.
+    map = L.map('map',{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:19,worldCopyJump:true,preferCanvas:true,maxBounds:L.latLngBounds([[-85.05,-540],[85.05,540]]),maxBoundsViscosity:1}).setView([22,28],3);
     try{const vehiclePane=map.createPane('vehicleCanvas');vehiclePane.style.zIndex='450';vehiclePane.style.pointerEvents='none';vehiclePane.style.width='100%';vehiclePane.style.height='100%';mapVehicleCanvas=window.GH_MAP_VEHICLE_CANVAS?.create?.({map,container:vehiclePane,hardLimit:300,dprCap:2,size:26,hitPadding:5,zIndex:0,onSelect:selectCanvasVehicle})||null;}
     catch(error){mapVehicleCanvas=null;nonCritical('map-vehicle-canvas-disabled',error);}
     const terrainPane=map.createPane('localTerrain');terrainPane.style.zIndex='160';terrainPane.style.pointerEvents='none';
@@ -5847,12 +5849,6 @@ ${page}</div>`;
   // Build 358 (save policy): Save Now and the real-time cap choice in Settings.
   document.addEventListener('click',event=>{const now=event.target.closest?.('.save-now-btn'),cap=event.target.closest?.('[data-save-cap]');if(!now&&!cap)return;event.preventDefault();event.stopPropagation();
     if(now){saveNow();return;}if(setSaveCap(cap.dataset.saveCap)&&activeDrawerPanel==='settings')openDrawer('settings',activeDrawerArg);},true);
-  // Build 358: which side the camera housing is on in landscape (see --rail-safe in interface-layout.css).
-  function syncNotchSide(){
-    const legacy=Number(window.orientation),angle=Number.isFinite(legacy)?legacy:Number(window.screen?.orientation?.angle),turn=((angle%360)+360)%360;
-    document.documentElement.dataset.notch=turn===90?'left':turn===270?'right':'both';
-  }
-  syncNotchSide();window.addEventListener('orientationchange',syncNotchSide);window.screen?.orientation?.addEventListener?.('change',syncNotchSide);window.addEventListener('resize',syncNotchSide);
   document.addEventListener('click',event=>{
     const button=event.target.closest?.('.sign-charter');if(!button)return;
     event.preventDefault();event.stopPropagation();if(button.disabled)return;button.disabled=true;button.classList.add('is-busy');

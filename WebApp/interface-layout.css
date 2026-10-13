@@ -5,8 +5,8 @@
 :root{
   --safe-left:env(safe-area-inset-left,0px);--safe-right:env(safe-area-inset-right,0px);
   --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
-  /* In landscape iOS reports an inset on both sides, but the camera housing is on one only. app.js sets data-notch
-     from the device orientation; the side without it keeps a small margin instead of the full inset. */
+  /* Build 378 (owner's decision): the frame is symmetric. In landscape iOS reports the same inset on both sides, and
+     both sides keep it, so turning the phone no longer pushes the frame towards one edge. */
   --rail-safe:var(--safe-right);--left-safe:var(--safe-left);
   --gap:6px;--bar:32px;--rail:54px;
   --edge-top:calc(var(--safe-top) + var(--gap));--edge-right:calc(var(--rail-safe) + var(--gap));
@@ -16,8 +16,6 @@
   --panel:clamp(260px,calc((100vw - var(--rail) - var(--rail-safe) - var(--left-safe) - 4 * var(--gap)) * .48),380px);
   --float:rgba(255,255,255,.94);--float-shadow:0 4px 14px rgba(16,35,49,.14);--panel-shadow:0 10px 30px rgba(16,35,49,.22);
 }
-:root[data-notch=left]{--rail-safe:min(var(--safe-right),6px)}
-:root[data-notch=right]{--left-safe:min(var(--safe-left),6px)}
 /* One light identity for every map style: white cards, navy ink, gold for decisions. */
 .app-shell{color-scheme:light;--ground:#E8EEF2;--sea-ground:#5FA9DA;--bg:#E8EEF2;--bg-deep:#DCE6EC;--surface:#F6F8FA;--surface-2:#FFFFFF;--surface-3:#EEF3F6;--line:#E1E8ED;--line-soft:#EAEFF3;--line-strong:#CBD6DE;--text:#102331;--muted:#5B6E7C;--faint:#7B8C98;--accent:#E7B556;--accent-2:#C89432;--accent-ink:#1B1407;--accent-soft:#FBF0D9;--blue:#1F56A3;--info:#1F56A3;--info-soft:#E5EEFA;--danger:#C2352B;--danger-ink:#FFFFFF;--danger-soft:#FBE7E4;--good:#13875E;--good-soft:#E3F4EC;--warn:#A86411;--warn-soft:#FCEFD9;--shadow:0 16px 38px rgba(30,54,70,.16);--shadow-soft:0 7px 20px rgba(30,54,70,.12);
   position:fixed;inset:0;overflow:hidden;background:var(--sea-ground);color:var(--text);isolation:isolate}

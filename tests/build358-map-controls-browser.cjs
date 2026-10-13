@@ -19,13 +19,22 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
     if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.click('#speedToggle');
 
-    // Build 373 floating frame: the top bar band ends at 38px and the rail floats 6px clear of the inset; the inset on
-    // the side without the camera shrinks to a margin.
-    const frame=notch=>page.evaluate(notch=>{const root=document.documentElement;root.style.setProperty('--safe-right','59px');root.style.setProperty('--safe-left','59px');root.dataset.notch=notch;const rail=document.querySelector('.side-nav').getBoundingClientRect();return {top:document.querySelector('.topbar').getBoundingClientRect().bottom,rail:innerWidth-rail.right};},notch);
-    const both=await frame('both'),left=await frame('left');
+    // Build 373 floating frame: the top bar band ends at 38px and the rail floats 6px clear of the inset. Build 378
+    // (owner's decision): the frame is symmetric, both sides keep iOS's inset whichever way the phone is turned.
+    const frame=()=>page.evaluate(()=>{const root=document.documentElement;root.style.setProperty('--safe-right','59px');root.style.setProperty('--safe-left','59px');const rail=document.querySelector('.side-nav').getBoundingClientRect(),bar=document.querySelector('.topbar').getBoundingClientRect();return {top:bar.bottom,rail:innerWidth-rail.right,left:bar.left,notch:root.dataset.notch||''};});
+    const both=await frame();
     assert.equal(both.top,38,'the top bar band ends at 38px');
-    assert.equal(both.rail,59+6,'with the camera on the rail side the rail clears the full inset');
-    assert(left.rail<=6+6,`with the camera on the far side the rail drops the inset (${left.rail}px)`);
+    assert.equal(both.rail,59+6,'the rail clears the full inset');assert.equal(both.left,59+6,'and so does the far side');assert.equal(both.notch,'','no side is favoured');
+    // Build 378: the map stops at the tiles' edge north and south (no empty sea past the poles). The map is reached
+    // through its first event (Leaflet keeps no list of maps).
+    await page.evaluate(async()=>{let found=null;const fire=L.Map.prototype.fire;L.Map.prototype.fire=function(...args){found=found||this;return fire.apply(this,args);};window.dispatchEvent(new Event('resize'));await new Promise(resolve=>setTimeout(resolve,300));L.Map.prototype.fire=fire;window.__QA_MAP__=found;});
+    const view=await page.evaluate(()=>({center:window.__QA_MAP__.getCenter(),zoom:window.__QA_MAP__.getZoom()}));
+    const box=await page.locator('#map').boundingBox(),cx=box.x+box.width/2;
+    for(let i=0;i<4;i++){await page.mouse.move(cx,box.y+40);await page.mouse.down();await page.mouse.move(cx,box.y+box.height-20,{steps:8});await page.mouse.up();}
+    await page.waitForTimeout(400);
+    const north=await page.evaluate(()=>window.__QA_MAP__.getBounds().getNorth());
+    assert.ok(north>84&&north<=85.06,`dragged far north, the view stops at the tiles' edge (${north})`);
+    await page.evaluate(view=>{window.__QA_MAP__.setView(view.center,view.zoom,{animate:false});delete window.__QA_MAP__;},view);await page.waitForTimeout(400);
     await page.evaluate(()=>{const root=document.documentElement;root.style.removeProperty('--safe-right');root.style.removeProperty('--safe-left');});
 
     // Filters, by touch.
