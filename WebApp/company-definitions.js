@@ -156,7 +156,7 @@
       founding:{defaultCapital:60000000,minimumCapital:60000000,documentPrefix:'INS'},
       finance:{accountPrefix:'INSURANCE',documentPrefix:'INS',collectionProfileId:'insurance-revenue-v1'},
       hr:{managerRoleProfileId:'ceo-insurance-v1',staffingProfileId:'insurance-office-v1'},
-      facilities:{directoryProviderIds:['world-capitals'],allowedKinds:['insurance'],primaryKind:'insurance',siteTemplate:{label:'مكتب تأمين',facilityKind:'insurance',cost:6000000,dailyCost:9500,capacity:'مبيعات وثائق ومركز مطالبات لسكان الدولة',deliveryCapacity:0,photo:'assets/images/company-system-v2.webp',iconKey:'insurance',groupValueFactor:.72}},
+      facilities:{directoryProviderIds:['world-capitals'],allowedKinds:['insurance'],primaryKind:'insurance',siteTemplate:{label:'مكتب تأمين',facilityKind:'insurance',cost:6000000,dailyCost:4500,capacity:'مبيعات وثائق ومركز مطالبات لسكان الدولة',deliveryCapacity:0,photo:'assets/images/company-system-v2.webp',iconKey:'insurance',groupValueFactor:.72}},
       ui:{extensions:['insurance-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'insurance'},
       conference:{providerId:'generic-company-v1'},adapters:{operations:'insurance-services-v1',facilities:'insurance-network-v1',map:'company-map-v1',conference:'generic-company-v1'},
       legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}

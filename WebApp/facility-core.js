@@ -7,12 +7,15 @@ const DEFAULT_ASSET_CAPACITY=Object.freeze({'airport-base':1000000,'port-base':1
 const LEGACY_ASSET_CAPACITY=Object.freeze({'airport-base':300,'port-base':120,logistics:140,depot:80,'mobility-center':120});
 // Build 363: the former values treated a sizeable part of construction cost as a daily expense. Existing saves are
 // repriced only when they still carry the exact legacy tariff; deliberate player/provider overrides remain untouched.
-const OPERATING_COST_VERSION=2;
+// Build 375: an insurance office ran at $9,500 a day, above a bank branch ($5,500) for a sales and claims office, so a
+// one-office insurer lost money for most of a year; it is now $4,500 (version 3).
+const OPERATING_COST_VERSION=3;
 const OPERATING_COSTS=Object.freeze({
  power:Object.freeze({legacy:38000,current:12000}),
  bank:Object.freeze({legacy:18500,current:5500}),
  'mobility-center':Object.freeze({legacy:9800,current:2200}),
- realestate:Object.freeze({legacy:8000,current:1800})
+ realestate:Object.freeze({legacy:8000,current:1800}),
+ insurance:Object.freeze({legacy:9500,current:4500})
 });
 const CAPACITY_UNIT=/^(\D*?)\d[\d,]*(?=\s*(?:طائرة|سفينة|شاحنة|سيارة))/;
 const ASSET_FACILITY_KINDS=Object.freeze({air:Object.freeze(['airport-base']),sea:Object.freeze(['port-base']),road:Object.freeze(['depot','logistics'])});

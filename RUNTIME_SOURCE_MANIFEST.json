@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "f27363609b8a6bd749efff7647286ff658b8884d1caebe073030341eb82f3a1a",
-  "webapp_tree_sha256": "98870d385268b2418814fbfbdac24b8c6f61479e526e4181a44ed940949471d5",
+  "source_tree_sha256": "a78fd141f009717889d3b5c44905e656039103b865146440722f9e73b54abb70",
+  "webapp_tree_sha256": "e2e378f45ebddb33cf3db375931a7a16fcd19eac30c227934d59557164251309",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 342946,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 958992,
-      "sha256": "bdc5c1e35e0e9879ead542abfb6fcaf1f96ada3f1111cbaa628de7932cea813c"
+      "bytes": 959361,
+      "sha256": "48fe0c19e4dcf9c1c12b103fb22bf77aba85e2148823f562c1ff3141fa6901d8"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3392,7 +3392,7 @@
     },
     "WebApp/company-definitions.js": {
       "bytes": 27360,
-      "sha256": "dc9dd29ebf64e5557299db2a7bca94be80739f14190571c0d3b21a54438c6c76"
+      "sha256": "1b7ecc9c06626e4f63d0c94298f99de2c14db8054097c5e9d0e46bb270ee2118"
     },
     "WebApp/company-platform-core.js": {
       "bytes": 50109,
@@ -3499,8 +3499,8 @@
       "sha256": "189418d5c0903f4d76984b8af51039861ac79701631af6460219297de45ed07a"
     },
     "WebApp/facility-core.js": {
-      "bytes": 24171,
-      "sha256": "15b30f2c1f74b4f09776c62e6573e747019399d57b9e4565c1dec6166d878cd5"
+      "bytes": 24428,
+      "sha256": "9044132422873404befb33d7eabf7e9535d3ce595439291cd702915c3a1bd296"
     },
     "WebApp/finance-core.js": {
       "bytes": 188531,
@@ -3948,7 +3948,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "576604eafa6694bc2c81a653580a0e716eca59225039c5e6fc8859ed54e938da"
+      "sha256": "fb4521d6f3bd145e819b8df7a8d8ae278826f5b194d56641d42b2399c4c33079"
     },
     "BUILD": {
       "bytes": 4,
