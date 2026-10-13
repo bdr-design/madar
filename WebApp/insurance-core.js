@@ -149,6 +149,17 @@
     const line=office.lines.motor,room=Math.max(0,capacityFor(officeMarket(ins,office),'motor')-line.policies),joined=Math.min(room,count);
     line.policies+=joined;return joined;
   }
+  // Build 378: bancassurance. Of the group bank's new customers in a country where the group insurer has an office,
+  // 10% of households take home cover and 10% of businesses commercial cover at the bank's counter (within the line's
+  // room and the insurer's solvency). The bank's referral fee stays inside the group and is not modelled.
+  const BANCASSURANCE_SHARE=.1;
+  function addPoliciesFromBank(state,p={}){
+    const ins=state.insurance&&Array.isArray(state.insurance.offices)?state.insurance:null,country=String(p.country||'').trim();if(!ins||!country||!(state.openedCompanies||[]).includes('insurance')||ins.solvency?.writing===false)return {property:0,commercial:0};
+    const office=ins.offices.find(row=>row.active&&row.country===country);if(!office?.lines)return {property:0,commercial:0};
+    const market=officeMarket(ins,office),joined={};
+    for(const [line,count] of [['property',p.households],['commercial',p.businesses]]){const row=office.lines[line],take=row?roundDraw(Math.max(0,Number(count)||0)*BANCASSURANCE_SHARE,`${country}:${p.day}:bank:${line}`):0,room=row?Math.max(0,capacityFor(market,line)-row.policies):0;joined[line]=Math.min(room,take);if(joined[line])row.policies+=joined[line];}
+    return joined;
+  }
   function setPricing(state,p){
     const ins=ensure(state),line=String(p.line||'');if(!LINES[line])throw new Error('insurance-line-invalid');const level=Number(p.level);if(!PRICE_LEVELS.includes(level))throw new Error('insurance-price-invalid');
     ins.pricing[line]=level;return {line,level,premium:linePrice(ins,line)};
@@ -236,6 +247,6 @@
     if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
     throw new Error(`Unknown insurance command: ${cmd}`);
   }
-  const API={VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
+  const API={VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,addPoliciesFromBank,BANCASSURANCE_SHARE,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
   globalThis.GH_INSURANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('insurance',API);if(globalThis.window&&window!==globalThis)window.GH_INSURANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

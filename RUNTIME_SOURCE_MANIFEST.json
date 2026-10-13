@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "4c48675a9ef9c2b1bc7eb422c100dc691d7c8f569c2da04629438eeaa92d10a2",
-  "webapp_tree_sha256": "5528a7638b4f81fd20feb8ff8853cbd1648d0e5d9c5edd443b8e6470065cccd2",
+  "source_tree_sha256": "ae24ed64cc351cb3937cfb856a2c221754a2a8c532313f883393c47a71ac1a05",
+  "webapp_tree_sha256": "276bdacb76d20279f0b14de9e29f7819d9b415e04e7fe57596bf30e644c5258a",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 344344,
@@ -3371,8 +3371,8 @@
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 106005,
-      "sha256": "8c523c5472d064a1c5b75b5b11203ddffea3844ceef9ffd7ed2afa6b4055a7eb"
+      "bytes": 106718,
+      "sha256": "a177a6c48e67c25afb92251b3e4e49e5735503454d90e78dfa2e2303a70d9fce"
     },
     "WebApp/business-world-core.js": {
       "bytes": 40178,
@@ -3643,8 +3643,8 @@
       "sha256": "45a64fd8291ecff3d64fe92e7d03b4b5d95c1f3c0801b23e60d90355b84df1aa"
     },
     "WebApp/insurance-core.js": {
-      "bytes": 31601,
-      "sha256": "221d39f7c99b2f9d2d814b6bea8ec4d18cca32523d72ceef5b3020a9fe664484"
+      "bytes": 32886,
+      "sha256": "fe0f7e2b802b2d47557f9355a4ec27d3d05dfef7119088d841cf0532b4d1b121"
     },
     "WebApp/integrity-core.js": {
       "bytes": 32426,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "47efde47226bb2b58ecc340a2ea8c43bebc5a15976440651894d9fcef170af70"
+      "sha256": "b8b0cdb6c7d26121bddc4d025576e18770f49b3d5b6199ab6c676b1d82020296"
     },
     "BUILD": {
       "bytes": 4,
