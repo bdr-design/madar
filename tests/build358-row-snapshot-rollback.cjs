@@ -24,7 +24,11 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
       const model=[...GH_ASSET_CATALOG.air.used].sort((x,y)=>(x.leaseMonthly||0)-(y.leaseMonthly||0)||x.price-y.price)[0];
       await a.buyAsset('air','used',model.id,'lease',40,facility.id,true,'RB-AIR-40','air');
       // Click as a player does: the panel's buttons are live once it has painted (Build 372 binds them after the first frame).
-      await a.openDrawer('routes','air');await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.querySelector('.dispatch-international-network[data-company="air"]')?.click();
+      await a.openDrawer('routes','air');
+      // Build 375 (failed on CI twice, 0 of 40 routed): the click went through "?." and was skipped when the button had not
+      // painted within two frames on a slower runner. Wait for the button itself (up to 20 s), and fail if it never shows.
+      let dispatch=null;for(let i=0;i<400&&!(dispatch=document.querySelector('.dispatch-international-network[data-company="air"]:not([disabled])'));i++)await new Promise(r=>setTimeout(r,50));
+      if(!dispatch)throw new Error('air dispatch button never rendered');await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));dispatch.click();
       for(let i=0;i<200&&GH_FLEET_DATA.count(s(),x=>!!x.routeId)<40;i++)await new Promise(r=>setTimeout(r,100));
       // Build 359: the dispatch assigns in chunks, so the routes show before the command ends. The next command waits for it.
       for(let i=0;i<1800&&(window.__GH_DURABLE_COMMAND_CONTEXT__||GH_PERSISTENCE.isLocked());i++)await new Promise(r=>setTimeout(r,100));await GH_PERSISTENCE.drain();
