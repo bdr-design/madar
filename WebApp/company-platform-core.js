@@ -194,10 +194,12 @@
   // renamed itself (record.customName). A save from before this keeps a name the player typed: only the stock names of
   // the definition count as following the group.
   const AR_LEAD=/^(?:شركة|مجموعة)\s+/u,AR_TRAIL=/\s+(?:القابضة|القابضه|المحدودة|للاستثمار)$/u,EN_TRAIL=/[\s,]+(?:holdings?|group|company|co\.?|ltd\.?|llc|inc\.?|plc)$/i;
-  // The stock group keeps the stock subsidiary names (شركة جلوبال هولدينغز للطيران).
-  const STOCK_GROUP_NAME='المجموعة العالمية القابضة';
+  // The stock group keeps the stock subsidiary names (شركة فنتورا للطيران). VENTORA: the group of the old name
+  // (المجموعة العالمية القابضة) takes the new one on load.
+  const STOCK_GROUP_NAME='فنتورا القابضة',LEGACY_GROUP_NAME='المجموعة العالمية القابضة';
+  function renameLegacyGroup(state){const profile=object(state?.profile)?state.profile:null;if(!profile||String(profile.name||'').trim()!==LEGACY_GROUP_NAME)return;profile.name=STOCK_GROUP_NAME;if(!profile.englishName||profile.englishName==='Global Holdings Group')profile.englishName='Ventora Holdings Group';if(!profile.shortName||profile.shortName==='GH')profile.shortName='VH';}
   function trimRoot(value,lead,trail){let text=String(value||'').replace(/\s+/g,' ').trim(),prev;if(lead){const cut=text.replace(lead,'');if(cut.trim())text=cut.trim();}do{prev=text;const cut=text.replace(trail,'');if(cut.trim())text=cut.trim();}while(text!==prev);return text;}
-  function groupBrand(state){const profile=object(state?.profile)?state.profile:{},ar=trimRoot(profile.name,AR_LEAD,AR_TRAIL),en=trimRoot(profile.englishName,null,EN_TRAIL),short=String(profile.shortName||'').trim().toUpperCase();return ar&&String(profile.name||'').trim()!==STOCK_GROUP_NAME?{ar,en,short:short||'GH'}:null;}
+  function groupBrand(state){const profile=object(state?.profile)?state.profile:{},ar=trimRoot(profile.name,AR_LEAD,AR_TRAIL),en=trimRoot(profile.englishName,null,EN_TRAIL),short=String(profile.shortName||'').trim().toUpperCase();return ar&&![STOCK_GROUP_NAME,LEGACY_GROUP_NAME].includes(String(profile.name||'').trim())?{ar,en,short:short||'VH'}:null;}
   function brandedIdentity(state,companyId){
     const definition=definitionFor(state,companyId)||getDefinition(companyId),brand=definition?.identity?.brand,root=definition?.kind==='subsidiary'&&object(brand)?groupBrand(state):null;if(!root)return null;
     const trade=brand.prefix?`${brand.prefix} ${root.ar}`:`${root.ar} ${brand.ar}`,legal=brand.legalAr?`شركة ${root.ar} ${brand.legalAr}`:`شركة ${root.ar} ${brand.ar}`;
@@ -299,7 +301,7 @@
       state.companyRegistry[companyId]=enrichRecord(state,companyId,state.companyRegistry[companyId]);
       const definition=definitionFor(state,companyId);if(definition)for(const sectorId of definition.classification.sectorIds)if(!state.unlockedSectors.includes(sectorId)&&state.openedCompanies.includes(companyId))state.unlockedSectors.push(sectorId);
     }
-    syncBrandedNames(state);
+    renameLegacyGroup(state);syncBrandedNames(state);
     // The migration already visits every legacy asset to add canonical owner
     // fields. Fold the dynamic-ownership feature check into that same visit;
     // a second `some()` over a million rows added no independent evidence.

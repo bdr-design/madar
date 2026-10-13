@@ -49,7 +49,7 @@
   const BUILTIN_DEFINITIONS=deepFreeze([
     {
       schema:FORMAT,id:'group',definitionId:'gh-holding-v1',definitionVersion:1,order:0,kind:'holding',lifecycle:'active',
-      identity:identity('المجموعة العالمية القابضة','Global Holdings Group','جلوبال هولدينغز','Global Holdings','GH','assets/identity/approved/group-symbol.webp','#d0a34a','#0d3b57','#d0a34a','assets/images/company-hq-v2.webp',[],'assets/identity/approved/group-horizontal.webp'),
+      identity:identity('فنتورا القابضة','Ventora Holdings Group','فنتورا','Ventora','VH','assets/identity/approved/group-symbol.webp','#d0a34a','#0d3b57','#d0a34a','assets/images/company-hq-v2.webp',['المجموعة العالمية القابضة','Global Holdings Group','جلوبال هولدينغز','Global Holdings','GH'],'assets/identity/approved/group-horizontal.webp'),
       classification:{primarySectorId:'holding',sectorIds:['holding'],operationProfileId:'holding-governance-v1',assetClasses:[],routeModes:[]},
       capabilities:['company.core','finance.book','finance.budget','finance.tax','documents.identity','documents.signature','conference.host','governance.group','treasury.parent','map.company'],
       founding:{defaultCapital:250000000,minimumCapital:1,legalForm:'شركة قابضة مساهمة مقفلة',checklistIds:['founder-identity','group-name','registered-office','capitalization','signing-authority']},
@@ -63,7 +63,7 @@
     },
     subsidiary({
       id:'air',definitionId:'gh-air-v1',order:10,
-      identity:identity('شركة جلوبال هولدينغز للطيران','Global Holdings Aviation Company','جي إتش إير','GH AIR','GH AIR','assets/identity/approved/air-symbol.webp','#2d72df','#123f69','#2d72df','assets/images/air-cargo.webp',['الشركة العالمية للطيران'],'assets/identity/approved/air-horizontal.webp'),
+      identity:identity('شركة فنتورا للطيران','Ventora Aviation Company','فنتورا إير','VH AIR','VH AIR','assets/identity/approved/air-symbol.webp','#2d72df','#123f69','#2d72df','assets/images/air-cargo.webp',['الشركة العالمية للطيران','شركة جلوبال هولدينغز للطيران','Global Holdings Aviation Company','جي إتش إير','GH AIR','GH AIR'],'assets/identity/approved/air-horizontal.webp'),
       classification:{primarySectorId:'air',sectorIds:['air'],operationProfileId:'fleet-route-air-v1',assetClasses:['aircraft'],routeModes:['air']},
       capabilities:['operations.fleet','asset.aircraft','route.air','facility.airport'],
       founding:{defaultCapital:25000000,minimumCapital:25000000,documentPrefix:'AIR'},
@@ -76,7 +76,7 @@
     }),
     subsidiary({
       id:'sea',definitionId:'gh-marine-v1',order:20,
-      identity:identity('شركة جلوبال هولدينغز للشحن البحري','Global Holdings Marine Shipping Company','جي إتش مارين','GH MARINE','GH MARINE','assets/identity/approved/sea-symbol.webp','#119c94','#0c5961','#12a99c','assets/images/ship-container.webp',['الشركة العالمية للشحن البحري'],'assets/identity/approved/sea-horizontal.webp'),
+      identity:identity('شركة فنتورا للشحن البحري','Ventora Marine Shipping Company','فنتورا مارين','VH MARINE','VH MARINE','assets/identity/approved/sea-symbol.webp','#119c94','#0c5961','#12a99c','assets/images/ship-container.webp',['الشركة العالمية للشحن البحري','شركة جلوبال هولدينغز للشحن البحري','Global Holdings Marine Shipping Company','جي إتش مارين','GH MARINE','GH MARINE'],'assets/identity/approved/sea-horizontal.webp'),
       classification:{primarySectorId:'sea',sectorIds:['sea'],operationProfileId:'fleet-route-sea-v1',assetClasses:['vessel'],routeModes:['sea']},
       capabilities:['operations.fleet','asset.vessel','route.sea','facility.port'],
       founding:{defaultCapital:30000000,minimumCapital:30000000,documentPrefix:'SEA'},
@@ -89,7 +89,7 @@
     }),
     subsidiary({
       id:'road',definitionId:'gh-logistics-v1',order:30,
-      identity:identity('شركة جلوبال هولدينغز للخدمات اللوجستية','Global Holdings Logistics Company','جي إتش لوجستيكس','GH LOGISTICS','GH LOGISTICS','assets/identity/approved/road-symbol.webp','#df8a3d','#65391f','#e08b3e','assets/images/facility-logistics-v2.webp',['اللوجستيات العالمية'],'assets/identity/approved/road-horizontal.webp'),
+      identity:identity('شركة فنتورا للخدمات اللوجستية','Ventora Logistics Company','فنتورا لوجستيكس','VH LOGISTICS','VH LOGISTICS','assets/identity/approved/road-symbol.webp','#df8a3d','#65391f','#e08b3e','assets/images/facility-logistics-v2.webp',['اللوجستيات العالمية','شركة جلوبال هولدينغز للخدمات اللوجستية','Global Holdings Logistics Company','جي إتش لوجستيكس','GH LOGISTICS','GH LOGISTICS'],'assets/identity/approved/road-horizontal.webp'),
       classification:{primarySectorId:'road',sectorIds:['road'],operationProfileId:'fleet-route-road-v1',assetClasses:['truck'],routeModes:['road']},
       capabilities:['operations.fleet','asset.truck','route.road','facility.logistics'],
       founding:{defaultCapital:12000000,minimumCapital:12000000,documentPrefix:'LOG'},
@@ -103,7 +103,7 @@
     subsidiary({
       id:'power',definitionId:'gh-energy-v1',order:40,
       instancePolicy:{mode:'canonical-only',stateScope:'legacy-root'},
-      identity:identity('شركة جلوبال هولدينغز للطاقة','Global Holdings Energy Company','جي إتش إنرجي','GH ENERGY','GH ENERGY','assets/identity/approved/power-symbol.webp','#d0a33f','#5c4a1e','#d0a33f','assets/images/company-energy-v2.webp',['الطاقة العالمية','شركة الطاقة العالمية'],'assets/identity/approved/power-horizontal.webp'),
+      identity:identity('شركة فنتورا للطاقة','Ventora Energy Company','فنتورا إنرجي','VH ENERGY','VH ENERGY','assets/identity/approved/power-symbol.webp','#d0a33f','#5c4a1e','#d0a33f','assets/images/company-energy-v2.webp',['الطاقة العالمية','شركة الطاقة العالمية','شركة جلوبال هولدينغز للطاقة','Global Holdings Energy Company','جي إتش إنرجي','GH ENERGY','GH ENERGY'],'assets/identity/approved/power-horizontal.webp'),
       classification:{primarySectorId:'power',sectorIds:['power'],operationProfileId:'energy-project-v1',assetClasses:['energy-project'],routeModes:[]},
       capabilities:['operations.energy','facility.energy'],
       founding:{defaultCapital:55000000,minimumCapital:55000000,documentPrefix:'NRG'},
@@ -117,7 +117,7 @@
     subsidiary({
       id:'bank',definitionId:'gh-bank-v1',order:50,
       instancePolicy:{mode:'canonical-only',stateScope:'legacy-root'},
-      identity:identity('شركة جلوبال هولدينغز المصرفية','Global Holdings Banking Company','جي إتش بنك','GH BANK','GH BANK','assets/identity/approved/bank-symbol.webp','#735bc7','#34286c','#735bc7','assets/images/company-bank-v2.webp',['بنك المجموعة'],'assets/identity/approved/bank-horizontal.webp'),
+      identity:identity('شركة فنتورا المصرفية','Ventora Banking Company','فنتورا بنك','VH BANK','VH BANK','assets/identity/approved/bank-symbol.webp','#735bc7','#34286c','#735bc7','assets/images/company-bank-v2.webp',['بنك المجموعة','شركة جلوبال هولدينغز المصرفية','Global Holdings Banking Company','جي إتش بنك','GH BANK','GH BANK'],'assets/identity/approved/bank-horizontal.webp'),
       classification:{primarySectorId:'bank',sectorIds:['bank'],operationProfileId:'banking-services-v1',assetClasses:[],routeModes:[]},
       capabilities:['operations.bank','facility.bank'],
       founding:{defaultCapital:75000000,minimumCapital:75000000,documentPrefix:'BNK'},
@@ -131,7 +131,7 @@
     subsidiary({
       id:'mobility',definitionId:'gh-mobility-v1',order:60,
       instancePolicy:{mode:'canonical-only',stateScope:'legacy-root'},
-      identity:identity('شركة جلوبال هولدينغز للتنقل الذكي','Global Holdings Smart Mobility Company','جي إتش موبيليتي','GH MOBILITY','GH MOBILITY','assets/identity/approved/mobility-symbol.webp','#1a9a6b','#15563f','#1a9a6b','assets/images/company-system-v2.webp',['GH Mobility للتنقل الذكي'],'assets/identity/approved/mobility-horizontal.webp'),
+      identity:identity('شركة فنتورا للتنقل الذكي','Ventora Smart Mobility Company','فنتورا موبيليتي','VH MOBILITY','VH MOBILITY','assets/identity/approved/mobility-symbol.webp','#1a9a6b','#15563f','#1a9a6b','assets/images/company-system-v2.webp',['GH Mobility للتنقل الذكي','شركة جلوبال هولدينغز للتنقل الذكي','Global Holdings Smart Mobility Company','جي إتش موبيليتي','GH MOBILITY','GH MOBILITY'],'assets/identity/approved/mobility-horizontal.webp'),
       classification:{primarySectorId:'mobility',sectorIds:['mobility'],operationProfileId:'mobility-fleet-v1',assetClasses:['mobility-vehicle'],routeModes:[]},
       capabilities:['operations.mobility','asset.mobility-vehicle','facility.mobility'],
       founding:{defaultCapital:120000000,minimumCapital:120000000,documentPrefix:'MOVE'},
@@ -150,7 +150,7 @@
     subsidiary({
       id:'insurance',definitionId:'gh-insurance-v1',order:70,
       instancePolicy:{mode:'canonical-only',stateScope:'legacy-root'},
-      identity:identity('شركة جلوبال هولدينغز للتأمين','Global Holdings Insurance Company','جي إتش للتأمين','GH INSURANCE','GH INSURANCE','assets/identity/approved/insurance-symbol.webp','#1f7a8c','#16495a','#1f7a8c','assets/images/company-system-v2.webp',[],'assets/identity/approved/insurance-horizontal.webp'),
+      identity:identity('شركة فنتورا للتأمين','Ventora Insurance Company','فنتورا للتأمين','VH INSURANCE','VH INSURANCE','assets/identity/approved/insurance-symbol.webp','#1f7a8c','#16495a','#1f7a8c','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز للتأمين','Global Holdings Insurance Company','جي إتش للتأمين','GH INSURANCE','GH INSURANCE'],'assets/identity/approved/insurance-horizontal.webp'),
       classification:{primarySectorId:'insurance',sectorIds:['insurance'],operationProfileId:'insurance-services-v1',assetClasses:[],routeModes:[]},
       capabilities:['operations.insurance','facility.insurance'],
       founding:{defaultCapital:60000000,minimumCapital:60000000,documentPrefix:'INS'},
@@ -164,7 +164,7 @@
     subsidiary({
       id:'realestate',definitionId:'gh-realestate-v1',order:80,
       instancePolicy:{mode:'canonical-only',stateScope:'legacy-root'},
-      identity:identity('شركة جلوبال هولدينغز للتطوير العقاري','Global Holdings Real Estate Development Company','جي إتش العقارية','GH REAL ESTATE','GH REAL ESTATE','assets/identity/approved/realestate-symbol.webp','#b5703a','#5a3a22','#b5703a','assets/images/company-hq-v2.webp',[],'assets/identity/approved/realestate-horizontal.webp'),
+      identity:identity('شركة فنتورا للتطوير العقاري','Ventora Real Estate Development Company','فنتورا العقارية','VH REAL ESTATE','VH REAL ESTATE','assets/identity/approved/realestate-symbol.webp','#b5703a','#5a3a22','#b5703a','assets/images/company-hq-v2.webp',['شركة جلوبال هولدينغز للتطوير العقاري','Global Holdings Real Estate Development Company','جي إتش العقارية','GH REAL ESTATE','GH REAL ESTATE'],'assets/identity/approved/realestate-horizontal.webp'),
       classification:{primarySectorId:'realestate',sectorIds:['realestate'],operationProfileId:'real-estate-v1',assetClasses:[],routeModes:[]},
       capabilities:['operations.realestate','facility.realestate'],
       founding:{defaultCapital:150000000,minimumCapital:150000000,documentPrefix:'RLE'},
@@ -180,7 +180,7 @@
     subsidiary({
       id:'telecom',definitionId:'gh-telecom-v1',order:90,
       instancePolicy:{mode:'canonical-only',stateScope:'legacy-root'},
-      identity:identity('شركة جلوبال هولدينغز للاتصالات','Global Holdings Telecom Company','جي إتش تيليكوم','GH TELECOM','GH TEL','assets/identity/approved/telecom-symbol.webp','#1688a8','#123f59','#1688a8','assets/images/company-system-v2.webp',[],'assets/identity/approved/telecom-horizontal.webp'),
+      identity:identity('شركة فنتورا للاتصالات','Ventora Telecom Company','فنتورا تيليكوم','VH TELECOM','VH TEL','assets/identity/approved/telecom-symbol.webp','#1688a8','#123f59','#1688a8','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز للاتصالات','Global Holdings Telecom Company','جي إتش تيليكوم','GH TELECOM','GH TEL'],'assets/identity/approved/telecom-horizontal.webp'),
       classification:{primarySectorId:'telecom',sectorIds:['telecom'],operationProfileId:'telecom-customer-cycle-v1',assetClasses:[],routeModes:[]},
       capabilities:['operations.telecom','facility.telecom'],
       founding:{defaultCapital:45000000,minimumCapital:45000000,documentPrefix:'TEL'},
@@ -194,7 +194,7 @@
     subsidiary({
       id:'dealership',definitionId:'gh-dealership-v1',order:100,
       instancePolicy:{mode:'canonical-only',stateScope:'legacy-root'},
-      identity:identity('شركة جلوبال هولدينغز لوكالات السيارات','Global Holdings Automotive Retail Company','جي إتش أوتو','GH AUTO','GH AUTO','assets/identity/approved/dealership-symbol.webp','#c47b35','#57371f','#cf8135','assets/images/company-system-v2.webp',[],'assets/identity/approved/dealership-horizontal.webp'),
+      identity:identity('شركة فنتورا لوكالات السيارات','Ventora Automotive Retail Company','فنتورا أوتو','VH AUTO','VH AUTO','assets/identity/approved/dealership-symbol.webp','#c47b35','#57371f','#cf8135','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز لوكالات السيارات','Global Holdings Automotive Retail Company','جي إتش أوتو','GH AUTO','GH AUTO'],'assets/identity/approved/dealership-horizontal.webp'),
       classification:{primarySectorId:'dealership',sectorIds:['dealership','automotive-retail'],operationProfileId:'automotive-retail-customer-cycle-v1',assetClasses:[],routeModes:[]},
       capabilities:['operations.dealer','facility.dealership'],
       founding:{defaultCapital:65000000,minimumCapital:65000000,documentPrefix:'AUTO'},

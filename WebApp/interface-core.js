@@ -10,7 +10,7 @@ const PANEL_ICONS=Object.freeze({
  energy:'energy-dash',bank:'bank',insurance:'umbrella',realestate:'house',
  finance:'finance',monthlyFinance:'monthly-income',treasury:'treasury',budgets:'budget',invoices:'documents',market:'markets',stocks:'stocks',
  leadershipHub:'leadership',actionCenter:'tasks',peopleHub:'people',labor:'people-dash',crews:'crews',compliance:'safety',conference:'conference',research:'research',esg:'esg',businessWorld:'relations',realism:'economy',news:'news',
- settings:'settings',updates:'updates',diagnostics:'diagnostics',controlPlane:'control-plane'
+ settings:'settings',investorMode:'treasury',updates:'updates',diagnostics:'diagnostics',controlPlane:'control-plane'
 });
 const ARG_ICONS=Object.freeze({
  labor:{dashboard:'people-dash',workforce:'people-dash',managers:'executive',jobs:'jobs',contracts:'employment',payroll:'payroll'},
@@ -35,7 +35,7 @@ const domainForPanel=panel=>{
  if(['groupHub','companies','companyManage','groupManagement','formationContract','energy','bank','insurance','realestate'].includes(key))return'companies';
  if(['financeHub','finance','monthlyFinance','treasury','budgets','invoices','market'].includes(key))return'finance';
  if(['leadershipHub','actionCenter','peopleHub','labor','crews','compliance','conference','research','esg','businessWorld','realism','news'].includes(key))return'leadership';
- if(['systemHub','settings','updates','diagnostics','controlPlane'].includes(key))return'system';
+ if(['systemHub','settings','investorMode','updates','diagnostics','controlPlane'].includes(key))return'system';
  return'map';
 };
 const history=[];let returning=false,pending=null;

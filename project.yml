@@ -23,11 +23,12 @@ targets:
     info:
       path: iOS/GlobalHoldings/Info.plist
       properties:
-        CFBundleDisplayName: "MADAR"
+        CFBundleDisplayName: "VENTORA"
+        GHEdition: "development"
         CFBundleIconName: "AppIcon"
         CFBundleShortVersionString: "3.0.0"
         CFBundleVersion: "362"
-        GHSourceSnapshotSHA256: "e2e378f45ebddb33cf3db375931a7a16fcd19eac30c227934d59557164251309"
+        GHSourceSnapshotSHA256: "d3d3974e2c6e6dc5ed02ca95ae3d5a85dc4d34a9b9ac6b8955581afd89ae1003"
         LSRequiresIPhoneOS: true
         UIRequiresFullScreen: true
         UILaunchStoryboardName: LaunchScreen
@@ -38,14 +39,14 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         CFBundleDocumentTypes:
-          - CFBundleTypeName: "Global Holdings Update"
+          - CFBundleTypeName: "VENTORA Update"
             CFBundleTypeRole: Editor
             LSHandlerRank: Owner
             LSItemContentTypes:
               - com.bdran.globalholdings.update
         UTExportedTypeDeclarations:
           - UTTypeIdentifier: com.bdran.globalholdings.update
-            UTTypeDescription: "Global Holdings Update"
+            UTTypeDescription: "VENTORA Update"
             UTTypeConformsTo:
               - public.data
             UTTypeTagSpecification:

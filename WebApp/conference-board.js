@@ -22,9 +22,9 @@ function documentFor(snapshot,scene){
   ]:[];
   doc.stats=[];doc.note=usable(row)?'المصدر: الإقفالات المالية اليومية المسجلة داخل اللعبة. لا تُقدّر القيم غير المتاحة.':row.dataQuality?.reason||'لا توجد إقفالات مالية معتمدة لهذه الفترة.';
  }else if(scene.kind==='opening'){
-  doc.title=String(snapshot.year);doc.numeric=true;doc.heroLabel='المؤتمر التنفيذي السنوي';doc.unit=g.name||'Global Holdings';doc.chartTitle='نطاق المؤتمر';doc.list=[{label:'الشركات المشاركة',value:`${int(companies.length)} شركة`},{label:'الموظفون',value:`${int(totalHeadcount)} موظف`},{label:'سنة العرض',value:String(snapshot.year)}];doc.stats=[];
+  doc.title=String(snapshot.year);doc.numeric=true;doc.heroLabel='المؤتمر التنفيذي السنوي';doc.unit=g.name||'Ventora';doc.chartTitle='نطاق المؤتمر';doc.list=[{label:'الشركات المشاركة',value:`${int(companies.length)} شركة`},{label:'الموظفون',value:`${int(totalHeadcount)} موظف`},{label:'سنة العرض',value:String(snapshot.year)}];doc.stats=[];
  }else if(scene.kind==='closing'){
-  doc.title='الفصل القادم';doc.unit=g.name||'Global Holdings';doc.chartTitle='الأولويات التنفيذية';doc.list=[{label:'شركات المجموعة',value:companies.length?companyCount(companies.length):''},{label:'الموظفون',value:totalHeadcount?`${int(totalHeadcount)} موظف`:''},{label:'الأولوية التنفيذية',value:g.priority||'لم تعتمد بعد'}];doc.stats=[];
+  doc.title='الفصل القادم';doc.unit=g.name||'Ventora';doc.chartTitle='الأولويات التنفيذية';doc.list=[{label:'شركات المجموعة',value:companies.length?companyCount(companies.length):''},{label:'الموظفون',value:totalHeadcount?`${int(totalHeadcount)} موظف`:''},{label:'الأولوية التنفيذية',value:g.priority||'لم تعتمد بعد'}];doc.stats=[];
  }else if(scene.kind==='portfolio'){
   doc.title='أعمال متنوعة.\nرؤية واحدة.';doc.unit='محفظة المجموعة';doc.series=companies.filter(c=>usable(c)&&c.complete).map(c=>({label:c.legalName||c.type,value:number(c.net),color:number(c.net)<0?COLORS.red:COLORS.blue}));doc.chartTitle='صافي نتائج الشركات ذات الفترات المكتملة';doc.stats=[];
  }else if(scene.kind==='people'){
@@ -83,7 +83,7 @@ function graphHTML(doc){
 }
 function identityFor(snapshot,scene){
  const type=String(scene.type||'group'),owner=type==='group'?(snapshot.group||{}):(snapshot.companies||[]).find(row=>row.type===type)||{};
- return {name:String(owner.legalName||owner.name||(type==='group'?'Global Holdings':type)),shortName:String(owner.shortName||owner.brand?.shortName||scene.type||'GH'),logo:safeLogo(scene.logo||owner.brand?.logo),markLogo:safeLogo(owner.brand?.variants?.mark),type,year:String(snapshot.year||'')};
+ return {name:String(owner.legalName||owner.name||(type==='group'?'Ventora':type)),shortName:String(owner.shortName||owner.brand?.shortName||scene.type||'VH'),logo:safeLogo(scene.logo||owner.brand?.logo),markLogo:safeLogo(owner.brand?.variants?.mark),type,year:String(snapshot.year||'')};
 }
 function statsHTML(stats){return stats?.length?`<div class="ghc3-stats" data-count="${stats.length}">${stats.map(m=>`<div><b dir="auto">${esc(m.value)}${m.unit?`<small>${esc(m.unit)}</small>`:''}</b><span>${esc(m.label)}</span></div>`).join('')}</div>`:'';}
 function compactMoney(value){const part=amount(value);return `${part.value} ${part.unit}`;}

@@ -137,7 +137,7 @@ jobs:
           TEST_DIR="$RUNNER_TEMP/build362-native-storage-tests"
           mkdir -p "$TEST_DIR"
           python3 "$SOURCE_DIR/tests/native/prepare_native_tests.py" --source "$SOURCE_DIR" --output "$TEST_DIR"
-          xcrun swiftc "$TEST_DIR/main.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalGameStorage.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalSaveVault.swift" -o "$TEST_DIR/native-tests"
+          xcrun swiftc "$TEST_DIR/main.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalGameStorage.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalSaveVault.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraPack.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraReleaseKey.swift" -o "$TEST_DIR/native-tests"
           cd "$TEST_DIR"
           GH_NATIVE_AUDIT_EPHEMERAL=1 ./native-tests | tee "$GITHUB_WORKSPACE/.ci-output/native-storage-tests.log"
           cp native-tests.json "$GITHUB_WORKSPACE/.ci-output/native-tests.json"

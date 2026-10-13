@@ -98,13 +98,13 @@ const SECTIONS=Object.freeze({
   finance:Object.freeze({label:'المال',icon:'finance',nav:'finance',pages:[['financeHub',null,'لوحة المال','finance'],['finance',null,'دفاتر الشركات','revenue'],['finance','transfers','التحويلات والتمويل','liquidity'],['finance','statements','القوائم المالية','performance'],['treasury',null,'الخزينة','treasury'],['monthlyFinance',null,'الدخل الشهري','monthly-income'],['budgets',null,'الميزانيات','budget'],['invoices',null,'المستندات','documents'],['market',null,'الأسواق والتحوط','markets'],['market','deals','الاستحواذات','acquisitions'],['stocks',null,'الأسهم والطرح','stocks']]}),
   people:Object.freeze({label:'الأفراد',icon:'people',nav:'people',pages:[['peopleHub',null,'لوحة الأفراد','people'],['labor','managers','المديرون التنفيذيون','executive'],['labor','dashboard','تغطية الوظائف','people-dash'],['labor','jobs','الوظائف','jobs'],['labor','contracts','عقود العمل','employment'],['labor','payroll','الرواتب','payroll'],['crews',null,'الأجور والطواقم','crews']]}),
   leadership:Object.freeze({label:'الإدارة',icon:'leadership',nav:'leadership',pages:[['leadershipHub',null,'لوحة الإدارة','leadership'],['actionCenter',null,'المهام الآن','tasks'],['compliance',null,'السلامة والأمن','safety'],['conference',null,'المؤتمر السنوي','conference'],['research',null,'البحث والتطوير','research'],['esg',null,'الاستدامة','esg'],['businessWorld',null,'العلاقات التجارية','relations'],['realism',null,'السوق والاقتصاد','economy'],['news',null,'الأخبار','news']]}),
-  system:Object.freeze({label:'النظام',icon:'settings',nav:'system',pages:[['systemHub',null,'لوحة النظام','settings'],['settings',null,'الحفظ والإعدادات','settings'],['updates',null,'التحديثات','updates'],['diagnostics',null,'صحة اللعبة','diagnostics'],['controlPlane',null,'مركز التحكم','control-plane']]})
+  system:Object.freeze({label:'النظام',icon:'settings',nav:'system',pages:[['systemHub',null,'لوحة النظام','settings'],['settings',null,'الحفظ والإعدادات','settings'],['investorMode',null,'وضع المستثمر الحر','treasury'],['updates',null,'التحديثات','updates'],['diagnostics',null,'صحة اللعبة','diagnostics'],['controlPlane',null,'مركز التحكم','control-plane']]})
 });
 const SECTION_OF=Object.freeze({groupHub:'group',companies:'group',groupManagement:'group',network:'group',expansion:'group',ports:'group',formationContract:'group',
   financeHub:'finance',finance:'finance',monthlyFinance:'finance',treasury:'finance',budgets:'finance',invoices:'finance',market:'finance',stocks:'finance',
   peopleHub:'people',labor:'people',crews:'people',
   leadershipHub:'leadership',actionCenter:'leadership',compliance:'leadership',conference:'leadership',research:'leadership',esg:'leadership',businessWorld:'leadership',realism:'leadership',news:'leadership',
-  systemHub:'system',settings:'system',updates:'system',diagnostics:'system',controlPlane:'system'});
+  systemHub:'system',settings:'system',investorMode:'system',updates:'system',diagnostics:'system',controlPlane:'system'});
 // Each section opens on its own control panel (the first page of its strip).
 const HUBS=Object.freeze({groupHub:'group',financeHub:'finance',peopleHub:'people',leadershipHub:'leadership',systemHub:'system'});
 const HUB_TITLES=Object.freeze({groupHub:'لوحة المجموعة',financeHub:'لوحة المال',peopleHub:'لوحة الأفراد',leadershipHub:'لوحة الإدارة',systemHub:'لوحة النظام'});
@@ -129,7 +129,9 @@ function locate(state,panel,arg){
   if(COMPANY_PAGES.has(panel)&&stickyCompany&&opened.has(stickyCompany)&&panel!=='companyManage')return {section:'company',company:stickyCompany};
   return {section:SECTION_OF[panel]||(COMPANY_PAGES.has(panel)?'group':'map'),company:null};
 }
-function redirect(panel,arg){const target=REDIRECTS[panel];return target?[target[0],target[1]===null?undefined:target[1]]:null;}
+// VENTORA: the release edition (GH_EDITION from the iPhone app) has no developer pages; a link to one opens the settings.
+const DEV_PAGES=new Set(['updates','diagnostics','controlPlane']),isRelease=()=>globalThis.GH_EDITION==='release',shown=page=>!(isRelease()&&DEV_PAGES.has(page));
+function redirect(panel,arg){if(!shown(panel))return ['settings',undefined];const target=REDIRECTS[panel];return target?[target[0],target[1]===null?undefined:target[1]]:null;}
 function rail(state,panel,arg){const place=locate(state,panel,arg);if(place.section==='company')return '';return SECTIONS[place.section]?.nav||'map';}
 function meta(state,panel,arg){
   if(panel==='company'){const id=String(arg||''),kind=KINDS[kindOf(state,id)];return [kind?.sector||'الشركة',shortName(state,id)];}
@@ -233,7 +235,7 @@ const HUB_TILES=Object.freeze({
   finance:[T('treasury','الخزينة','السيولة والتمويل الداخلي','bank-vault','treasury','treasury'),T('budgets','الميزانيات','سقف شهري لكل شركة','company-bank-v2','budget','budgets'),T('invoices','المستندات','الذمم والضرائب والديون','finance-documents','documents','invoices'),T('market','الأسواق والتحوط','الوقود والعملات والمحفظة','finance-markets','markets','market'),T('deals','الاستحواذات','صفقات شراء الشركات','lead-partners','acquisitions','market','deals'),T('stocks','الأسهم والطرح','المحفظة والطرح العام','insurance-risk','stocks','stocks'),T('books','الدفاتر والقوائم','دفاتر الشركات والتحويلات والقوائم','company-hq-v2','revenue','finance')],
   people:[T('coverage','تغطية الوظائف','احتياجات المراكز والمنشآت','people-team','people-dash','labor','dashboard'),T('jobs','الوظائف','التوظيف والإعلانات','air-crew','jobs','labor','jobs'),T('contracts','عقود العمل','العقود السارية والتجديد','lead-partners','employment','labor','contracts'),T('payroll','الرواتب','المسير والتكاليف','finance-budget','payroll','labor','payroll'),T('crews','الأجور والطواقم','الأجر مقابل السوق والاستقالات','sea-crew','crews','crews')],
   leadership:[T('compliance','السلامة والأمن','الأسطول والأمن السيبراني والكربون','lead-security','safety','compliance'),T('conference','المؤتمر السنوي','نتائج السنة أمام المساهمين','lead-news','conference','conference'),T('research','البحث والتطوير','مشروعات ترفع الكفاءة','lead-rnd','research','research'),T('esg','الاستدامة','برامج تخفض الوقود والانبعاثات','lead-esg','esg','esg'),T('relations','العلاقات التجارية','العملاء والموردون والرعايات','lead-partners','relations','businessWorld'),T('economy','السوق والاقتصاد','الوقود والطلب والأسعار','finance-markets','economy','realism'),T('news','الأخبار','العقود والمال والرعايات','insurance-risk','news','news')],
-  system:[T('settings','الحفظ والإعدادات','الخانات والتوقيع ووضع التجربة','telecom-datacenter','settings','settings'),T('updates','التحديثات','ملفات التحديث والحزم','energy-control','updates','updates'),T('diagnostics','صحة اللعبة','الأداء والأخطاء والفحص','company-bank-v2','diagnostics','diagnostics'),T('controlPlane','مركز التحكم','الصلاحيات والأنظمة','lead-security','control-plane','controlPlane')]
+  system:[T('settings','الحفظ والإعدادات','الخانات والتوقيع والحفظ','telecom-datacenter','settings','settings'),T('investor','وضع المستثمر الحر','سيولة بلا حدود للتجربة','bank-vault','treasury','investorMode'),T('updates','التحديثات','ملفات التحديث والحزم','energy-control','updates','updates'),T('diagnostics','صحة اللعبة','الأداء والأخطاء والفحص','company-bank-v2','diagnostics','diagnostics'),T('controlPlane','مركز التحكم','الصلاحيات والأنظمة','lead-security','control-plane','controlPlane')]
 });
 const TASK_DOMAINS=Object.freeze({group:['التشغيل','الشركات'],finance:['المال','المالية'],people:['القيادة','الأفراد'],system:['النظام']});
 function sectionTasks(state,section){let tasks=[];try{tasks=globalThis.GH_UI_QUALITY?.collectTasks?.(state)||[];}catch(_error){}const domains=TASK_DOMAINS[section];return domains?tasks.filter(task=>domains.includes(task.domain)):tasks;}
@@ -287,9 +289,9 @@ function systemHub(state,ctx){
   const last=!Number.isFinite(ago)||ago>86400000?'—':minutes<1?'الآن':`قبل ${num(minutes)} د`;
   const decisions=sectionTasks(state,'system').slice(0,3).map(taskDecision);
   return panelMarkup({status:decisions.length?statusLine('warn','النظام يحتاج مراجعة'):statusLine('good','الحفظ التلقائي يعمل'),
-    kpis:[['نسخة اللعبة',String(ctx.appVersion||'—'),''],['الكتالوج',String(state.advanced?.content?.catalogVersion||'—'),''],['خانات الحفظ',`${num(slots)} من 3`,'is-text']],
+    kpis:[['نسخة اللعبة',String(ctx.appVersion||'—'),''],...(isRelease()?[]:[['الكتالوج',String(state.advanced?.content?.catalogVersion||'—'),'']]),['خانات الحفظ',`${num(slots)} من 3`,'is-text']],
     hero:{key:'save',title:'آخر حفظ',img:'company-system-v2',to:['settings'],count:countMarkup(last,''),chips:[save?.capMinutes?`تلقائي كل ${num(save.capMinutes)} د`:'','الحفظ والخانات']},
-    tiles:HUB_TILES.system.map(tile=>tileMarkup(tile)).join(''),decisions});
+    tiles:HUB_TILES.system.filter(tile=>shown(tile.to()[0])).map(tile=>tileMarkup(tile)).join(''),decisions});
 }
 const HUB_RENDER=Object.freeze({groupHub,financeHub,peopleHub,leadershipHub,systemHub});
 function render(panel,arg,ctx){
@@ -308,7 +310,7 @@ function stripFor(state,panel,arg,place){
     const rows=[['company',id,'لوحة الشركة','dashboard'],row(kind.hero.to(id),kind.hero.title,kind.hero.icon),...tilesFor(state,id).map(tile=>row(tile.to(id),tile.title,tile.icon))];
     return rows.map(([p,a,label,ic])=>({panel:p,arg:a,label,icon:ic}));
   }
-  const section=SECTIONS[place.section];return section?section.pages.map(([p,a,label,ic])=>({panel:p,arg:a===null?undefined:a,label,icon:ic})):[];
+  const section=SECTIONS[place.section];return section?section.pages.filter(([p])=>shown(p)).map(([p,a,label,ic])=>({panel:p,arg:a===null?undefined:a,label,icon:ic})):[];
 }
 function sameTarget(panel,arg,row){
   if(row.panel!==panel)return false;if(row.arg===undefined||row.arg===null)return arg===undefined||arg===null||arg===''||typeof arg==='object'&&!arg.tab&&!arg.view;

@@ -7,9 +7,9 @@
   <meta name="theme-color" content="#0d3b57">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MADAR">
+  <meta name="apple-mobile-web-app-title" content="VENTORA">
   <meta name="description" content="لعبة إدارة عالمية للطيران والشحن البحري والنقل البري والطاقة.">
-  <title>MADAR · مدار</title>
+  <title>VENTORA · فنتورا</title>
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="interface-layout.css">
@@ -27,20 +27,20 @@
 
   <section id="founderFlow" class="incorporation-flow hidden" aria-labelledby="incorporationTitle">
     <div class="incorporation-workspace">
-      <header class="incorporation-masthead"><span class="incorporation-wordmark" dir="ltr">GH<span>GLOBAL HOLDINGS</span></span><nav class="incorporation-progress" aria-label="مراحل التأسيس"><span id="founderDataStep" aria-current="step"><b>1</b> المجموعة</span><i></i><span id="founderReviewStep"><b>2</b> العقد والتوقيع</span></nav></header>
+      <header class="incorporation-masthead"><span class="incorporation-wordmark" dir="ltr">VENTORA<span>BUSINESS SIMULATOR</span></span><nav class="incorporation-progress" aria-label="مراحل التأسيس"><span id="founderDataStep" aria-current="step"><b>1</b> المجموعة</span><i></i><span id="founderReviewStep"><b>2</b> العقد والتوقيع</span></nav></header>
       <form id="founderForm" class="incorporation-form" novalidate>
         <div id="founderDataPane" class="incorporation-stage">
           <div class="incorporation-fields">
             <header class="incorporation-intro"><p>مكتب تأسيس المجموعات</p><h1 id="incorporationTitle">مجموعة تحمل اسمك.</h1><span>العقد يُكتب أمامك وأنت تملأ البيانات.</span></header>
-            <label class="incorporation-wide">اسم المجموعة<input id="founderName" required maxlength="42" value="المجموعة العالمية القابضة" autocomplete="organization"></label>
+            <label class="incorporation-wide">اسم المجموعة<input id="founderName" required maxlength="42" value="فنتورا القابضة" autocomplete="organization"></label>
             <div class="incorporation-grid">
               <label>اسم المؤسس<input id="founderOwner" required maxlength="32" value="المؤسس" autocomplete="name"></label>
               <label>المقر الرئيسي<select id="founderLocation"><option value="RUH">الرياض · السعودية</option></select><small>يقام مبنى المقر في هذه المدينة على الخريطة.</small></label>
             </div>
             <label class="incorporation-wide">رأس المال الافتتاحي<select id="founderMode"><option value="balanced">50 مليون دولار</option><option value="investor">250 مليون دولار</option><option value="sandbox">مليار دولار</option></select><small>يودع في الحساب الجاري للقابضة، ومنه تُموَّل الشركات التابعة.</small></label>
             <details class="incorporation-customize"><summary><span>الهوية</span><small>الاختصار والاسم الإنجليزي والشعار · اختياري</small></summary>
-              <div class="incorporation-grid"><label>اختصار المجموعة<input id="founderShort" maxlength="4" value="GH" dir="auto" autocomplete="off"></label><label>الاسم الإنجليزي<input id="founderEnglishName" maxlength="60" placeholder="اختياري" dir="ltr" autocomplete="off"></label></div>
-              <div class="incorporation-brand"><div id="founderLogoPreview" class="incorporation-logo"><span>GH</span></div><div class="incorporation-upload"><label for="founderLogoUpload">رفع شعار<input id="founderLogoUpload" type="file" accept="image/png,image/jpeg,image/webp"></label><button id="founderLogoClear" type="button" hidden>إزالة الصورة</button><span id="founderLogoStatus" role="status"></span></div></div>
+              <div class="incorporation-grid"><label>اختصار المجموعة<input id="founderShort" maxlength="4" value="VH" dir="auto" autocomplete="off"></label><label>الاسم الإنجليزي<input id="founderEnglishName" maxlength="60" placeholder="اختياري" dir="ltr" autocomplete="off"></label></div>
+              <div class="incorporation-brand"><div id="founderLogoPreview" class="incorporation-logo"><span>VH</span></div><div class="incorporation-upload"><label for="founderLogoUpload">رفع شعار<input id="founderLogoUpload" type="file" accept="image/png,image/jpeg,image/webp"></label><button id="founderLogoClear" type="button" hidden>إزالة الصورة</button><span id="founderLogoStatus" role="status"></span></div></div>
             </details>
             <footer class="incorporation-actions"><button id="founderReview" class="incorporation-primary" type="button">التالي: العقد والتوقيع <span aria-hidden="true">←</span></button></footer>
           </div>
@@ -62,8 +62,8 @@
   <div id="app" class="app-shell">
     <header class="topbar">
       <button class="brand" id="brandBtn" type="button" aria-label="العودة للخريطة">
-        <span id="brandMark" class="brand-mark">GH</span>
-        <span class="brand-copy"><strong id="groupName">المجموعة العالمية القابضة</strong><small id="runtimeBuildBadge" hidden>BUILD —</small></span>
+        <span id="brandMark" class="brand-mark">VH</span>
+        <span class="brand-copy"><strong id="groupName">فنتورا القابضة</strong><small id="runtimeBuildBadge" hidden>BUILD —</small></span>
       </button>
       <div id="simClockChip" class="sim-clock-chip" aria-live="polite">
         <button id="simCalendarToggle" class="sim-clock-toggle" type="button" aria-expanded="false" aria-controls="simCalendarPanel" title="فتح التقويم التشغيلي">

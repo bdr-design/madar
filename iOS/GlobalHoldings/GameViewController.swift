@@ -3,6 +3,36 @@ import CoreFoundation
 import WebKit
 import CryptoKit
 import UniformTypeIdentifiers
+import MachO
+
+private let ventoraSky = UIColor(red: 0.122, green: 0.471, blue: 0.784, alpha: 1)
+
+/// VENTORA release edition on a modified (jailbroken) iPhone: the tools that edit a running game's memory and files
+/// need one. The release edition does not open the game there. The checks only look for files and libraries that a
+/// stock iPhone never has, so an ordinary device is never refused.
+enum VentoraDeviceIntegrity {
+    private static let paths = [
+        "/Applications/Cydia.app", "/Applications/Sileo.app", "/Applications/Zebra.app", "/Applications/Filza.app",
+        "/var/jb", "/private/var/jb", "/Library/MobileSubstrate/MobileSubstrate.dylib", "/usr/lib/TweakInject",
+        "/etc/apt", "/private/var/lib/apt", "/usr/sbin/sshd", "/usr/bin/ssh", "/var/binpack"
+    ]
+    private static let libraries = ["substrate", "substitute", "libhooker", "tweakinject", "ellekit", "frida", "cycript", "sslkillswitch"]
+
+    static func isModified() -> Bool {
+        #if targetEnvironment(simulator)
+        return false
+        #else
+        let fm = FileManager.default
+        if paths.contains(where: { fm.fileExists(atPath: $0) }) { return true }
+        for index in 0..<_dyld_image_count() {
+            guard let raw = _dyld_get_image_name(index) else { continue }
+            let name = String(cString: raw).lowercased()
+            if libraries.contains(where: { name.contains($0) }) { return true }
+        }
+        return false
+        #endif
+    }
+}
 
 /// A native owner for the WebApp lifecycle. It remains available when the web
 /// interface cannot load, so update, recovery and diagnostics never depend on
@@ -44,6 +74,9 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         configuration.userContentController.add(self, name: "saveBridge")
         configuration.userContentController.add(self, name: "diagnosticBridge")
         configuration.setURLSchemeHandler(schemeHandler, forURLScheme: "gh")
+        if ventoraReleaseEdition {
+            configuration.userContentController.addUserScript(WKUserScript(source: "window.GH_EDITION='release';", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        }
 
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = self
@@ -54,7 +87,8 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         webView.scrollView.alwaysBounceHorizontal = false
         webView.allowsBackForwardNavigationGestures = false
         webView.isOpaque = false
-        webView.backgroundColor = UIColor(red: 0.024, green: 0.063, blue: 0.094, alpha: 1)
+        webView.backgroundColor = ventoraSky
+        if ventoraReleaseEdition { webView.isInspectable = false }
         view = webView
     }
 
@@ -64,6 +98,13 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     }
 
     private func initializeRuntime() {
+        if ventoraReleaseEdition && VentoraDeviceIntegrity.isModified() {
+            showLaunchOverlay()
+            launchPrimaryButton?.isEnabled = false
+            launchPrimaryButton?.alpha = 0.55
+            showLaunchStatus("لا تعمل VENTORA على جهاز معدّل (Jailbreak) حفاظًا على عدالة اللعبة وحماية حفظك.")
+            return
+        }
         do {
             try GlobalGameStorage.shared.ensureInitialized()
             showLaunchOverlay()
@@ -123,38 +164,24 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         }
     }
 
+    /// VENTORA entry screen: the launch art fills the screen, one «دخول اللعبة» button sits over the calm sea on the
+    /// left, and a status line under it reports loading and failures. The development edition keeps two small update
+    /// and restore buttons in the corner; the release edition has neither.
     private func showLaunchOverlay(recoveryMessage: String? = nil) {
         launchTimeoutWorkItem?.cancel()
         launchOverlay?.removeFromSuperview()
         let overlay = UIView()
-        overlay.backgroundColor = UIColor(red: 0.024, green: 0.063, blue: 0.094, alpha: 1)
+        overlay.backgroundColor = ventoraSky
         overlay.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(overlay)
 
-        let title = UILabel()
-        title.text = recoveryMessage == nil ? "GLOBAL HOLDINGS" : "استرداد Global Holdings"
-        title.textColor = .white
-        title.font = .systemFont(ofSize: 31, weight: .bold)
-        title.textAlignment = .center
-        title.adjustsFontSizeToFitWidth = true
-
-        let subtitle = UILabel()
-        subtitle.text = recoveryMessage ?? "مركز القيادة والاستثمار العالمي"
-        subtitle.textColor = UIColor.white.withAlphaComponent(0.68)
-        subtitle.font = .systemFont(ofSize: 14, weight: .medium)
-        subtitle.textAlignment = .center
-        subtitle.numberOfLines = 3
-
-        let version = UILabel()
-        let storage = GlobalGameStorage.shared
-        let installedNote = storage.installedBuild > 0 && storage.installedBuild != storage.bundledBuild
-            ? " ⚠︎ مثبّت فعليًا BUILD\(storage.installedBuild) (لم تُستبدل بعد بـ BUILD\(storage.bundledBuild))"
-            : ""
-        version.text = "محتوى اللعبة: \(storage.currentVersion) · BUILD\(storage.bundledBuild)\(installedNote)"
-        version.numberOfLines = 2
-        version.textColor = UIColor(red: 0.15, green: 0.84, blue: 0.74, alpha: 1)
-        version.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
-        version.textAlignment = .center
+        let art = UIImageView(image: UIImage(named: "LaunchArt"))
+        art.contentMode = .scaleAspectFill
+        art.clipsToBounds = true
+        art.isAccessibilityElement = true
+        art.accessibilityLabel = "VENTORA"
+        art.translatesAutoresizingMaskIntoConstraints = false
+        overlay.addSubview(art)
 
         let recovering = recoveryMessage != nil
         let play = makeButton(title: recovering ? "إعادة محاولة التشغيل" : "دخول اللعبة", primary: true)
@@ -163,51 +190,107 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         } else {
             play.addTarget(self, action: #selector(enterGame), for: .touchUpInside)
         }
+        play.translatesAutoresizingMaskIntoConstraints = false
+        overlay.addSubview(play)
 
-        let update = makeButton(title: "تثبيت تحديث من الملفات", primary: false)
-        update.addTarget(self, action: #selector(openUpdatePicker), for: .touchUpInside)
+        // The status line: loading, recovery and failure messages on a dark glass pill.
+        let status = UIView()
+        status.backgroundColor = UIColor.black.withAlphaComponent(0.38)
+        status.layer.cornerRadius = 12
+        status.translatesAutoresizingMaskIntoConstraints = false
+        status.isHidden = recoveryMessage == nil
+        let subtitle = UILabel()
+        subtitle.text = recoveryMessage.map { "استرداد VENTORA · \($0)" }
+        subtitle.textColor = .white
+        subtitle.font = .systemFont(ofSize: 13, weight: .semibold)
+        subtitle.textAlignment = .center
+        subtitle.numberOfLines = 3
+        subtitle.translatesAutoresizingMaskIntoConstraints = false
+        status.addSubview(subtitle)
+        overlay.addSubview(status)
 
-        var views: [UIView] = [title, subtitle, version, play, update]
-        if GlobalGameStorage.shared.hasPreviousVersion {
-            let restore = UIButton(type: .system)
-            restore.setTitle("استرجاع النسخة السابقة", for: .normal)
-            restore.setTitleColor(UIColor.white.withAlphaComponent(0.75), for: .normal)
-            restore.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
-            restore.addTarget(self, action: #selector(confirmRestorePreviousVersion), for: .touchUpInside)
-            views.append(restore)
-        }
+        let version = UILabel()
+        let storage = GlobalGameStorage.shared
+        let installedNote = !ventoraReleaseEdition && storage.installedBuild > 0 && storage.installedBuild != storage.bundledBuild
+            ? " ⚠︎ مثبّت فعليًا BUILD\(storage.installedBuild)"
+            : ""
+        version.text = ventoraReleaseEdition ? "الإصدار \(storage.currentVersion)" : "\(storage.currentVersion) · BUILD\(storage.bundledBuild)\(installedNote)"
+        version.textColor = .white
+        version.font = .monospacedDigitSystemFont(ofSize: 11, weight: .semibold)
+        version.layer.shadowColor = UIColor.black.cgColor
+        version.layer.shadowOpacity = 0.6
+        version.layer.shadowRadius = 2
+        version.layer.shadowOffset = .zero
+        version.translatesAutoresizingMaskIntoConstraints = false
+        overlay.addSubview(version)
 
-        let stack = UIStackView(arrangedSubviews: views)
-        stack.axis = .vertical
-        stack.alignment = .fill
-        stack.spacing = 13
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        overlay.addSubview(stack)
-
-        NSLayoutConstraint.activate([
+        let safe = overlay.safeAreaLayoutGuide
+        var constraints: [NSLayoutConstraint] = [
             overlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             overlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             overlay.topAnchor.constraint(equalTo: view.topAnchor),
             overlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            stack.centerXAnchor.constraint(equalTo: overlay.safeAreaLayoutGuide.centerXAnchor),
-            stack.centerYAnchor.constraint(equalTo: overlay.safeAreaLayoutGuide.centerYAnchor),
-            stack.widthAnchor.constraint(lessThanOrEqualToConstant: 360),
-            stack.leadingAnchor.constraint(greaterThanOrEqualTo: overlay.safeAreaLayoutGuide.leadingAnchor, constant: 26),
-            stack.trailingAnchor.constraint(lessThanOrEqualTo: overlay.safeAreaLayoutGuide.trailingAnchor, constant: -26),
-            play.heightAnchor.constraint(equalToConstant: 52),
-            update.heightAnchor.constraint(equalToConstant: 48)
-        ])
+            art.leadingAnchor.constraint(equalTo: overlay.leadingAnchor),
+            art.trailingAnchor.constraint(equalTo: overlay.trailingAnchor),
+            art.topAnchor.constraint(equalTo: overlay.topAnchor),
+            art.bottomAnchor.constraint(equalTo: overlay.bottomAnchor),
+            play.leftAnchor.constraint(equalTo: safe.leftAnchor, constant: 28),
+            play.centerYAnchor.constraint(equalTo: safe.centerYAnchor, constant: -10),
+            play.widthAnchor.constraint(equalToConstant: 220),
+            play.heightAnchor.constraint(equalToConstant: 56),
+            status.topAnchor.constraint(equalTo: play.bottomAnchor, constant: 12),
+            status.centerXAnchor.constraint(equalTo: play.centerXAnchor),
+            status.widthAnchor.constraint(lessThanOrEqualToConstant: 300),
+            status.widthAnchor.constraint(greaterThanOrEqualTo: play.widthAnchor),
+            subtitle.leadingAnchor.constraint(equalTo: status.leadingAnchor, constant: 12),
+            subtitle.trailingAnchor.constraint(equalTo: status.trailingAnchor, constant: -12),
+            subtitle.topAnchor.constraint(equalTo: status.topAnchor, constant: 8),
+            subtitle.bottomAnchor.constraint(equalTo: status.bottomAnchor, constant: -8),
+            version.leftAnchor.constraint(equalTo: safe.leftAnchor, constant: 30),
+            version.bottomAnchor.constraint(equalTo: safe.bottomAnchor, constant: -12)
+        ]
+
+        var update: UIButton?
+        if !ventoraReleaseEdition {
+            var corner: [UIView] = []
+            let updateButton = makeCornerButton(title: "تحديث")
+            updateButton.addTarget(self, action: #selector(openUpdatePicker), for: .touchUpInside)
+            corner.append(updateButton)
+            if GlobalGameStorage.shared.hasPreviousVersion {
+                let restore = makeCornerButton(title: "استرجاع")
+                restore.addTarget(self, action: #selector(confirmRestorePreviousVersion), for: .touchUpInside)
+                corner.append(restore)
+            }
+            let row = UIStackView(arrangedSubviews: corner)
+            row.axis = .horizontal
+            row.spacing = 8
+            row.semanticContentAttribute = .forceLeftToRight
+            row.translatesAutoresizingMaskIntoConstraints = false
+            overlay.addSubview(row)
+            constraints += [
+                row.leftAnchor.constraint(equalTo: safe.leftAnchor, constant: 26),
+                row.topAnchor.constraint(equalTo: safe.topAnchor, constant: 14),
+                updateButton.heightAnchor.constraint(equalToConstant: 34)
+            ]
+            update = updateButton
+        }
+        NSLayoutConstraint.activate(constraints)
         launchOverlay = overlay
         launchSubtitleLabel = subtitle
         launchPrimaryButton = play
         launchUpdateButton = update
     }
 
+    private func showLaunchStatus(_ text: String) {
+        launchSubtitleLabel?.text = text
+        launchSubtitleLabel?.superview?.isHidden = false
+    }
+
     private func beginLaunchLoading() {
         launchAttempt &+= 1
         let attempt = launchAttempt
         launchTimeoutWorkItem?.cancel()
-        launchSubtitleLabel?.text = "جارٍ استعادة عالمك والتحقق من الحفظ وتجهيز الخريطة…"
+        showLaunchStatus("جارٍ استعادة عالمك والتحقق من الحفظ وتجهيز الخريطة…")
         launchPrimaryButton?.setTitle("جارٍ التشغيل…", for: .normal)
         launchPrimaryButton?.isEnabled = false
         launchPrimaryButton?.alpha = 0.72
@@ -215,7 +298,9 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         launchUpdateButton?.alpha = 0.55
         let timeout = DispatchWorkItem { [weak self] in
             guard let self, self.launchAttempt == attempt, self.launchOverlay != nil else { return }
-            self.showLaunchFailure("لم يكتمل تجهيز اللعبة خلال المهلة. لم يُعرض عالم افتراضي بدل حفظك؛ أعد المحاولة أو ثبّت تحديثًا سليمًا.")
+            self.showLaunchFailure(ventoraReleaseEdition
+                ? "لم يكتمل تجهيز اللعبة خلال المهلة. لم يُعرض عالم افتراضي بدل حفظك؛ أعد المحاولة."
+                : "لم يكتمل تجهيز اللعبة خلال المهلة. لم يُعرض عالم افتراضي بدل حفظك؛ أعد المحاولة أو ثبّت تحديثًا سليمًا.")
         }
         launchTimeoutWorkItem = timeout
         DispatchQueue.main.asyncAfter(deadline: .now() + 45, execute: timeout)
@@ -224,7 +309,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     private func showLaunchFailure(_ message: String) {
         launchTimeoutWorkItem?.cancel()
         launchTimeoutWorkItem = nil
-        launchSubtitleLabel?.text = message
+        showLaunchStatus(message)
         launchPrimaryButton?.setTitle("إعادة محاولة التشغيل", for: .normal)
         launchPrimaryButton?.isEnabled = true
         launchPrimaryButton?.alpha = 1
@@ -246,14 +331,25 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     private func makeButton(title: String, primary: Bool) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
-        button.setTitleColor(primary ? UIColor(red: 0.01, green: 0.12, blue: 0.11, alpha: 1) : .white, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: primary ? 19 : 15, weight: .bold)
         button.backgroundColor = primary
-            ? UIColor(red: 0.15, green: 0.84, blue: 0.74, alpha: 1)
-            : UIColor.white.withAlphaComponent(0.10)
-        button.layer.cornerRadius = 14
-        button.layer.borderWidth = primary ? 0 : 1
-        button.layer.borderColor = UIColor.white.withAlphaComponent(0.18).cgColor
+            ? UIColor(red: 0.05, green: 0.50, blue: 0.70, alpha: 1)
+            : UIColor.black.withAlphaComponent(0.30)
+        button.layer.cornerRadius = primary ? 28 : 17
+        button.layer.borderWidth = 1.5
+        button.layer.borderColor = UIColor.white.withAlphaComponent(primary ? 0.75 : 0.45).cgColor
+        button.layer.shadowColor = UIColor(red: 0.02, green: 0.19, blue: 0.29, alpha: 1).cgColor
+        button.layer.shadowOpacity = primary ? 0.45 : 0
+        button.layer.shadowRadius = 10
+        button.layer.shadowOffset = CGSize(width: 0, height: 6)
+        return button
+    }
+
+    private func makeCornerButton(title: String) -> UIButton {
+        let button = makeButton(title: title, primary: false)
+        button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
         return button
     }
 
@@ -268,6 +364,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     }
 
     @objc private func openUpdatePicker() {
+        guard !ventoraReleaseEdition else { return }
         let types = ["saneiupdate", "ghupdate"].compactMap { UTType(filenameExtension: $0) }
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: types.isEmpty ? [.data] : types, asCopy: true)
         picker.delegate = self
@@ -281,6 +378,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     }
 
     func importUpdate(from url: URL) {
+        guard !ventoraReleaseEdition else { return }
         do {
             let local = try GlobalGameStorage.shared.copyIncomingUpdate(from: url)
             guard isViewLoaded, view.window != nil else {
@@ -295,7 +393,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
     private func confirmAndApplyUpdate(_ url: URL) {
         let alert = UIAlertController(
-            title: "تحديث Global Holdings",
+            title: "تحديث VENTORA",
             message: "تم العثور على حزمة تحديث. الإصدار الحالي: \(GlobalGameStorage.shared.currentVersion)",
             preferredStyle: .alert
         )
@@ -622,6 +720,10 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         guard message.name == "updateBridge" else { return }
         switch action {
         case "installWebPack":
+            guard !ventoraReleaseEdition else {
+                reportToWeb(success: false, message: "تحديثات VENTORA تصل من متجر التطبيقات.")
+                return
+            }
             guard let manifest = payload["manifest"] as? [String: Any],
                   let files = payload["files"] as? [[String: Any]],
                   let operationsJSON = payload["operationsJSON"] as? String,
@@ -1020,7 +1122,8 @@ private final class GlobalGameSchemeHandler: NSObject, WKURLSchemeHandler {
             serveSaveChunk(urlSchemeTask, url: url, id: String(path.dropFirst("save-chunk/".count)))
             return
         }
-        guard let file = GlobalGameStorage.shared.fileURL(for: path), let data = try? Data(contentsOf: file) else {
+        guard let file = GlobalGameStorage.shared.fileURL(for: path), let stored = try? Data(contentsOf: file),
+              let data = VentoraPack.open(stored, path: path) else {
             finish404(urlSchemeTask, url: url)
             return
         }
