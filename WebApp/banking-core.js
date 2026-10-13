@@ -98,7 +98,7 @@
     bank.riskPolicy=bank.riskPolicy&&typeof bank.riskPolicy==='object'?bank.riskPolicy:{};
     bank.riskPolicy={maxLdr:clamp(bank.riskPolicy.maxLdr||95,55,120),minLcr:clamp(bank.riskPolicy.minLcr||110,100,200),minNsfr:clamp(bank.riskPolicy.minNsfr||105,100,180),minCet1:clamp(bank.riskPolicy.minCet1||10.5,4.5,30),sectorConcentration:clamp(bank.riskPolicy.sectorConcentration||25,10,60),...bank.riskPolicy};
     bank.alm=bank.alm&&typeof bank.alm==='object'?bank.alm:{};
-    bank.alm={maturityLadder:{overnight:0,under30:0,under365:0,over365:0},interestRateGap:0,liquidityGap30d:0,weightedDepositRate:0,...bank.alm};
+    bank.alm={maturityLadder:{overnight:0,under30:0,under365:0,over365:0},interestRateGap:0,liquidityGap30d:0,weightedDepositRate:0,...bank.alm};bank.autoLiquidity=bank.autoLiquidity===true;bank.pendingWriteOffLoss=num(bank.pendingWriteOffLoss);
     bank.branchNetwork=bank.branchNetwork.map(row=>branchTemplate(state,row));
     bank.customerInstallmentSchedule=bank.customerInstallmentSchedule&&typeof bank.customerInstallmentSchedule==='object'&&!Array.isArray(bank.customerInstallmentSchedule)?bank.customerInstallmentSchedule:{};
     if((Number(bank.customerCreditSchema)||0)<2){
@@ -365,6 +365,49 @@
     const bank=ensure(state),amount=num(p.amount),kind=['sovereign','central-bank','covered-bond'].includes(p.kind)?p.kind:'sovereign',termDays=Math.floor(Number(p.termDays)||0),yieldRate=liquidityYield(state,kind,termDays),account=F.book(state,'bank').accounts[0],minimum=Math.max(5000000,num(bank.deposits)*.12);if(amount<=0||num(account.balance)-amount<minimum)throw new Error('bank-liquidity-buffer');
     const id=`HQLA-${++bank.sequence}`,factor=kind==='sovereign'||kind==='central-bank'?1:.85;account.balance-=amount;const security={id,kind,amount,yieldRate,termDays,hqlaFactor:factor,purchasedDay:Math.floor(now(state)/86400),maturityDay:Math.floor(now(state)/86400)+termDays,status:'ساري'};bank.treasurySecurities.unshift(security);F.journal(state,'bank',`${id} · استثمار سيولة`,[{account:'أوراق مالية عالية السيولة',debit:amount},{account:account.id,credit:amount}],id);F.reconcile(state);reconcilePrudential(state);return clone(security);
   }
+  // Build 374 (owner's decision): the bank is run by choices. Risk appetite is one of three presets that set the five
+  // limits together; the "balanced" preset is the bank's default limits.
+  const RISK_PRESETS=Object.freeze({
+    cautious:Object.freeze({label:'حذر',maxLdr:80,minLcr:130,minNsfr:115,minCet1:13,sectorConcentration:20}),
+    balanced:Object.freeze({label:'متوازن',maxLdr:95,minLcr:110,minNsfr:105,minCet1:10.5,sectorConcentration:25}),
+    growth:Object.freeze({label:'نمو',maxLdr:110,minLcr:100,minNsfr:100,minCet1:9,sectorConcentration:35})
+  });
+  function setRiskPreset(state,p){const preset=RISK_PRESETS[String(p.preset||'')];if(!preset)throw new Error('bank-risk-preset-invalid');const {label:_label,...limits}=preset;const policy=setRiskPolicy(state,limits);const bank=ensure(state);bank.riskPolicy.preset=String(p.preset);return {...policy,preset:String(p.preset)};}
+  function riskPreset(policy){for(const [id,row] of Object.entries(RISK_PRESETS))if(['maxLdr','minLcr','minNsfr','minCet1','sectorConcentration'].every(key=>Number(policy?.[key])===row[key]))return id;return null;}
+  // Automatic treasury (off unless the player turns it on): each day the cash above 1.6x the liquidity floor is invested
+  // in 90-day sovereign paper down to 1.3x, and cash below the floor is topped up with 180-day wholesale funding (at most
+  // 15% of deposits outstanding). The floor is the one investLiquidity already enforces.
+  function setAutoLiquidity(state,p){const bank=ensure(state);bank.autoLiquidity=p.enabled===true;return {enabled:bank.autoLiquidity};}
+  function liquidityFloor(bank){return Math.max(5000000,num(bank.deposits)*.12);}
+  function autoLiquidity(state,bank,F){
+    if(bank.autoLiquidity!==true)return null;
+    const account=F.book(state,'bank').accounts[0],floor=liquidityFloor(bank),cash=num(account.balance);
+    if(cash>floor*1.6){const amount=Math.floor((cash-floor*1.3)/100000)*100000;if(amount>=1000000){const security=investLiquidity(state,{amount,kind:'sovereign',termDays:90},F);return {invested:amount,securityId:security.id};}}
+    if(cash<floor&&num(bank.deposits)>0){const room=Math.max(0,num(bank.deposits)*.15-num(bank.wholesaleFunding)),amount=Math.min(room,Math.ceil((floor*1.3-cash)/100000)*100000);if(amount>=1000000){const facility=raiseWholesaleFunding(state,{amount,termDays:180},F);return {wholesale:amount,facilityId:facility.id};}}
+    return null;
+  }
+  // A defaulted loan (stage 3) waits for the player's decision. Restructure once: back to watch (stage 2) with a year
+  // more and one point more interest. Or write it off: the collateral recovers (1 - LGD) of the balance in cash; the
+  // loss is taken from the provisions held, and any loss beyond them is today's credit-loss expense at the next close.
+  function nonPerformingLoans(state){return (state.bank?.loanPortfolios||[]).filter(row=>row&&row.stage===3&&row.status==='متعثرة'&&num(row.outstanding)>0);}
+  function resolveNpl(state,p,F){
+    const bank=ensure(state),loan=bank.loanPortfolios.find(row=>row.id===String(p.loanId||''));if(!loan||loan.stage!==3||loan.status!=='متعثرة'||num(loan.outstanding)<=0)throw new Error('bank-npl-not-found');
+    const day=Math.floor(now(state)/86400),outstanding=num(loan.outstanding);
+    if(p.action==='restructure'){
+      if(loan.restructured)throw new Error('bank-npl-already-restructured');
+      loan.stage=2;loan.status='مراقبة';loan.daysPastDue=30;loan.restructured=true;loan.restructuredDay=day;loan.rate=Number((num(loan.rate)+.01).toFixed(4));loan.termDays=Math.max(1,Math.floor(Number(loan.termDays)||0))+365;loan.remainingDays=Math.max(0,Math.floor(Number(loan.remainingDays)||0))+365;
+      bank.recoveries.unshift({id:`NPL-${loan.id}-${day}`,loanId:loan.id,day,action:'restructure',outstanding});bank.recoveries=bank.recoveries.slice(0,100);reconcilePrudential(state);return {loanId:loan.id,action:'restructure',outstanding,rate:loan.rate};
+    }
+    if(p.action!=='write-off')throw new Error('bank-npl-action-invalid');
+    const recovery=Math.round(outstanding*(1-Math.min(1,num(loan.lgd||.35)))),loss=outstanding-recovery,fromProvisions=Math.min(num(bank.provisions),loss),shortfall=loss-fromProvisions,account=F.book(state,'bank').accounts[0];
+    if(recovery>0){account.balance+=recovery;F.journal(state,'bank',`استرداد ضمان قرض متعثر · ${loan.id}`,[{account:account.id,debit:recovery},{account:'محفظة القروض',credit:recovery}],`NPL-RECOVERY-${loan.id}`);}
+    bank.provisions=num(bank.provisions)-fromProvisions;bank.pendingWriteOffLoss=num(bank.pendingWriteOffLoss)+shortfall;bank.loans=Math.max(0,num(bank.loans)-outstanding);
+    const branch=bank.branchNetwork.find(row=>row.id===loan.branchId);if(branch)branch.loans=Math.max(0,num(branch.loans)-outstanding);
+    loan.outstanding=0;loan.status='مشطوبة';loan.writtenOffDay=day;loan.recovery=recovery;loan.writeOffLoss=loss;
+    bank.recoveries.unshift({id:`NPL-${loan.id}-${day}`,loanId:loan.id,day,action:'write-off',outstanding,recovery,loss,fromProvisions,shortfall});bank.recoveries=bank.recoveries.slice(0,100);
+    const nplAmount=bank.loanPortfolios.filter(row=>row.stage===3&&row.status==='متعثرة').reduce((sum,row)=>sum+num(row.outstanding),0);bank.npl=bank.loans?nplAmount/bank.loans*100:0;
+    F.reconcile(state);reconcilePrudential(state);return {loanId:loan.id,action:'write-off',outstanding,recovery,loss,shortfall};
+  }
   function branchServiceRevenue(branch){
     const enabled=new Set(branch.services||[]),r=num(branch.retailCustomers),b=num(branch.businessCustomers),out={accounts:0,payments:0,cards:0,merchant:0,cashManagement:0,fx:0,tradeFinance:0,retailFinance:0,businessFinance:0,projectFinance:0};
     if(enabled.has('حسابات وودائع'))out.accounts=r*.35+b*2;
@@ -439,16 +482,18 @@
       else{facility.status='متأخر';facility.overdueSinceDay=Number(facility.overdueSinceDay)||day;facility.daysPastDue=Math.max(1,day-facility.overdueSinceDay+1);wholesaleOverdue+=outstanding;}
     }
     for(const instrument of [...bank.lettersOfCredit,...bank.guarantees])if(instrument.status==='ساري'&&Number(instrument.expiryDay||Infinity)<=day){instrument.status='منتهي';instrument.expiredDay=day;expired++;}
-    bank.retailCustomers=bank.branchNetwork.reduce((sum,row)=>sum+num(row.retailCustomers),0);bank.businessCustomers=bank.branchNetwork.reduce((sum,row)=>sum+num(row.businessCustomers),0);bank.dailyServiceFeeRevenue=serviceFees;bank.lastProcessedDay=day;bank.interestIncomeYTD+=interestIncome+securityIncome;bank.depositInterestExpenseYTD+=depositInterestExpense+wholesaleInterestExpense;bank.creditLossExpenseYTD+=creditLossExpense;bank.provisions+=creditLossExpense;bank.feeIncomeYTD+=serviceFees;for(const [key,value] of Object.entries(revenueBreakdown))bank.revenueYTD[key]=num(bank.revenueYTD[key])+num(value);bank.revenueYTD.treasury=num(bank.revenueYTD.treasury)+num(securityIncome);
+    const writeOffShortfall=num(bank.pendingWriteOffLoss);if(writeOffShortfall>0){creditLossExpense+=writeOffShortfall;bank.pendingWriteOffLoss=0;}
+    bank.retailCustomers=bank.branchNetwork.reduce((sum,row)=>sum+num(row.retailCustomers),0);bank.businessCustomers=bank.branchNetwork.reduce((sum,row)=>sum+num(row.businessCustomers),0);bank.dailyServiceFeeRevenue=serviceFees;bank.lastProcessedDay=day;bank.interestIncomeYTD+=interestIncome+securityIncome;bank.depositInterestExpenseYTD+=depositInterestExpense+wholesaleInterestExpense;bank.creditLossExpenseYTD+=creditLossExpense;bank.provisions+=creditLossExpense-writeOffShortfall;bank.feeIncomeYTD+=serviceFees;for(const [key,value] of Object.entries(revenueBreakdown))bank.revenueYTD[key]=num(bank.revenueYTD[key])+num(value);bank.revenueYTD.treasury=num(bank.revenueYTD.treasury)+num(securityIncome);
     // Repaid portfolios carry no balance; the daily pass and the save keep the last 100 and fold older ones into a summary
     // (count and principal), so a long game does not walk an ever-growing list (nothing looks a portfolio up by id).
     {const repaid=bank.loanPortfolios.filter(row=>row.status==='مسددة');if(repaid.length>100){const drop=new Set(repaid.slice(100));const archive=bank.repaidLoanArchive=bank.repaidLoanArchive&&typeof bank.repaidLoanArchive==='object'?bank.repaidLoanArchive:{count:0,principal:0,fees:0};for(const row of drop){archive.count++;archive.principal+=num(row.principal);archive.fees+=num(row.originationFee);}bank.loanPortfolios=bank.loanPortfolios.filter(row=>!drop.has(row));}}
     for(const request of [...bank.loanRequests])if(day>=Number(request.expiresDay)){closeLoanRequest(bank,request,'منتهي',{decidedDay:day});notifyCustomerLoanDecision(state,request,'expired','bank-loan-request-expired');}
+    const autoTreasury=autoLiquidity(state,bank,F);
     const newRequest=generateLoanRequest(state,bank,day);
     const nplAmount=bank.loanPortfolios.filter(row=>row.stage===3&&row.status!=='مسددة').reduce((sum,row)=>sum+num(row.outstanding),0);bank.npl=bank.loans?nplAmount/bank.loans*100:0;const costSnapshot=operatingCosts(state,bank),serviceOpex=costSnapshot.serviceOpex,facilityOpex=costSnapshot.facilityOpex,opex=costSnapshot.opex,feeIncome=serviceFees,transactionFeeIncome=num(bank.transactionFeeByDay?.[String(day)]),reportedFeeIncome=feeIncome+transactionFeeIncome,netBankingIncome=interestIncome+securityIncome+reportedFeeIncome-depositInterestExpense-wholesaleInterestExpense-creditLossExpense-opex;bank.netBankingIncomeYTD+=netBankingIncome;
     for(const branch of bank.branchNetwork){const loanShare=bank.loans?num(branch.loans)/bank.loans:1/Math.max(1,bank.branchNetwork.length),depositShare=bank.deposits?num(branch.deposits)/bank.deposits:1/Math.max(1,bank.branchNetwork.length),branchInterest=interestIncome*loanShare,branchFees=feeIncome*(num(branch.retailCustomers)+num(branch.businessCustomers)*8)/Math.max(1,bank.retailCustomers+bank.businessCustomers*8),branchExpense=depositInterestExpense*depositShare,branchLoss=creditLossExpense*loanShare,branchServiceOpex=branch.servicesActive?BRANCH_SERVICE_OPEX:0,facilityCost=costSnapshot.byFacility[branch.facilityId],branchFacilityOpex=facilityCost?.ownerCompanyId==='bank'?num(facilityCost.amount):0,branchOpex=branchServiceOpex+branchFacilityOpex;const ownBreakdown=branch._dailyFeeBreakdown||branchServiceRevenue(branch),ownFees=Object.values(ownBreakdown).reduce((a,v)=>a+num(v),0);branch.incomeStatement={interestIncome:branchInterest,feeIncome:ownFees,feeBreakdown:{...ownBreakdown},interestExpense:branchExpense,creditLossExpense:branchLoss,opex:branchOpex,serviceOpex:branchServiceOpex,facilityOpex:branchFacilityOpex,net:branchInterest+ownFees-branchExpense-branchLoss-branchOpex};delete branch._dailyFeeBreakdown;}
     const customerInterestPaid=num(customerBatch.interestPaid),cashPostedInterestIncome=corporateInterestIncome+customerInterestPaid,unpostedInterestIncome=Math.max(0,interestIncome-cashPostedInterestIncome);
-    F.reconcile(state);reconcilePrudential(state);const report={day,newLoanRequest:newRequest?.id||null,newDeposits,newRetail,newBusiness,lostRetail:lostRetailTotal,lostBusiness:lostBusinessTotal,depositWithdrawals:withdrawn,serviceFees,feeIncome,transactionFeeIncome,reportedFeeIncome,revenueBreakdown:{...revenueBreakdown},principalRepaid,corporatePrincipalRepaid,customerInstallmentsDue:customerBatch.due,customerInstallmentsPaid:customerBatch.paid,customerInstallmentsMissed:customerBatch.missed,customerInstallmentPrincipalPaid:customerBatch.principalPaid,customerInstallmentInterestPaid:customerInterestPaid,corporateInterestIncome,cashPostedInterestIncome,unpostedInterestIncome,corporateOverdue,securitiesMatured,wholesalePrincipalRepaid,wholesaleOverdue,expired,customers:bank.retailCustomers+bank.businessCustomers,interestIncome,securityIncome,reserveIncome,depositInterestExpense,wholesaleInterestExpense,creditLossExpense,opex,serviceOpex,facilityOpex,netBankingIncome,lcr:bank.lcr,nsfr:bank.nsfr,cet1:bank.cet1,npl:bank.npl};bank.dailyHistory.unshift(report);bank.dailyHistory=bank.dailyHistory.slice(0,400);return clone(report);
+    F.reconcile(state);reconcilePrudential(state);const report={day,autoTreasury,newLoanRequest:newRequest?.id||null,newDeposits,newRetail,newBusiness,lostRetail:lostRetailTotal,lostBusiness:lostBusinessTotal,depositWithdrawals:withdrawn,serviceFees,feeIncome,transactionFeeIncome,reportedFeeIncome,revenueBreakdown:{...revenueBreakdown},principalRepaid,corporatePrincipalRepaid,customerInstallmentsDue:customerBatch.due,customerInstallmentsPaid:customerBatch.paid,customerInstallmentsMissed:customerBatch.missed,customerInstallmentPrincipalPaid:customerBatch.principalPaid,customerInstallmentInterestPaid:customerInterestPaid,corporateInterestIncome,cashPostedInterestIncome,unpostedInterestIncome,corporateOverdue,securitiesMatured,wholesalePrincipalRepaid,wholesaleOverdue,expired,customers:bank.retailCustomers+bank.businessCustomers,interestIncome,securityIncome,reserveIncome,depositInterestExpense,wholesaleInterestExpense,creditLossExpense,opex,serviceOpex,facilityOpex,netBankingIncome,lcr:bank.lcr,nsfr:bank.nsfr,cet1:bank.cet1,npl:bank.npl};bank.dailyHistory.unshift(report);bank.dailyHistory=bank.dailyHistory.slice(0,400);return clone(report);
   }
   // Called only through the existing company operations provider. Keep the
   // domain command inside the caller's atomic time/day boundary transaction.
@@ -476,6 +521,9 @@
     if(cmd==='sync-corporate-clients')return syncCorporateClients(state,p,F);
     if(cmd==='set-deposit-pricing')return setDepositPricing(state,p);
     if(cmd==='set-risk-policy')return setRiskPolicy(state,p);
+    if(cmd==='set-risk-preset')return setRiskPreset(state,p);
+    if(cmd==='set-auto-liquidity')return setAutoLiquidity(state,p);
+    if(cmd==='resolve-npl')return resolveNpl(state,p,F);
     if(cmd==='raise-wholesale-funding')return raiseWholesaleFunding(state,p,F);
     if(cmd==='invest-liquidity')return investLiquidity(state,p,F);
     if(cmd==='review-limits'){const collateral=reviewCollateralByOwner(ctx,state);for(const client of Object.values(bank.corporateClients)){const type=String(client.ownerCompanyId||client.company||'');if(!isOperationalFinanceCompany(state,type,F))continue;const assets=collateral.get(type),cash=F.total(state,type),book=F.book(state,type),debt=num(book?.debt),base=Math.max(5000000,cash*.35+assets*.12-debt*.08);if(!book)throw new Error(`bank-client-finance-book-missing:${type}`);client.ownerCompanyId=type;client.creditLimit=Math.max(5000000,Math.round(base/100000)*100000);client.lastReview=now(state);client.rating=debt>cash*2?'BB':cash>debt?'A-':'BBB';}bank.riskReviews.unshift({at:now(state),type:'corporate-limits',clients:Object.keys(bank.corporateClients).length,collateralSource:collateral.source});bank.riskReviews=bank.riskReviews.slice(0,80);return true;}
@@ -494,5 +542,5 @@
     if(cmd==='tick-day')return tickDay(state,p,F);
     throw new Error(`Unknown banking command: ${cmd}`);
   }
-  const API={campaignCost,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API={RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

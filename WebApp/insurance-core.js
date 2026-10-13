@@ -44,6 +44,10 @@
   const INSURABLE_SHARE=.45,MAX_MARKET_SHARE=.03,BUSINESS_PER_PEOPLE=40,DEFAULT_POPULATION=10000000;
   const COMMISSION=.12,CLAIMS_LAG_DAYS=30,PRICE_LEVELS=Object.freeze([.85,.9,.95,1,1.05,1.1,1.15,1.25]);
   const REINSURANCE_LEVELS=Object.freeze([0,.2,.4,.6]),CEDING_COMMISSION=.25;
+  // Build 374: a large risk is accepted whole or as a co-insurer's share; the claims reserve (money owed to claimants and
+  // held until it is paid) earns the market rate (80% of the base rate, in short government paper).
+  const RISK_SHARES=Object.freeze([.25,.5,1]),RESERVE_YIELD_SHARE=.8,REFERENCE_BASE=.046;
+  function baseRate(state){const rate=Number(state.realism?.economy?.baseRate??state.advanced?.economy?.baseRate);return Number.isFinite(rate)&&rate>0?rate:REFERENCE_BASE;}
   const CAMPAIGN_DAYS=30,CAMPAIGN_GROWTH=1.6;
   const MAX_OPEN_RISKS=5,RISK_DAYS=7,HISTORY=40,DAILY_HISTORY=90;
   const SMALL_STATES=Object.freeze({'الإمارات':9890000,'سنغافورة':5920000,'عُمان':4580000,'البحرين':1500000,'المالديف':520000,'أيرلندا':5120000,'مالطا':530000,'الكونغو الديمقراطية':102000000,'الكونغو':6000000,'ملاوي':20400000,'موريشيوس':1260000});
@@ -107,6 +111,7 @@
     const day=Math.floor(now(state)/86400);if(day>=Number(risk.expiresDay)){closeRisk(ins,risk,'منتهي',{decidedDay:day});throw new Error('insurance-risk-expired');}
     if(p.decision==='decline'){closeRisk(ins,risk,'معتذر عنه',{decidedDay:day});return {id:risk.id,status:'معتذر عنه'};}
     if(p.decision!=='accept')throw new Error('insurance-risk-decision-invalid');
+    const share=p.share===undefined?1:Number(p.share);if(!RISK_SHARES.includes(share))throw new Error('insurance-risk-share-invalid');if(share<1){risk.premium=Math.round(risk.premium*share);risk.expectedLoss=Math.round(risk.expectedLoss*share);risk.sumInsured=Math.round(risk.sumInsured*share);risk.share=share;}
     // A large risk earns its premium over the year and may produce one large claim (probability from its grade).
     const claimDay=day+Math.floor(deterministic(`${risk.id}:claim-day`,20,360)),claimChance=clamp(risk.expectedLoss/Math.max(1,risk.sumInsured*.15),0,.6),claims=deterministic(`${risk.id}:claim`,0,1)<claimChance;
     const F=globalThis.GH_FINANCE_CORE;if(!F?.execute)throw new Error('finance-core-missing');const document=F.execute({state},'register-commercial-contract',{id:`LEGAL-${risk.id}`,company:'insurance',contractType:'وثيقة تأمين خطر تجاري كبير',counterparty:risk.subject,title:`وثيقة ${risk.subject}`,startDay:day,endDay:day+365,amount:risk.premium,terms:{officeId:risk.officeId,grade:risk.grade,sumInsured:risk.sumInsured,premium:risk.premium,expectedLoss:risk.expectedLoss},sourceRefs:[risk.id]});
@@ -127,6 +132,7 @@
     const ins=ensure(state),line=String(p.line||'');if(!LINES[line])throw new Error('insurance-line-invalid');const level=Number(p.level);if(!PRICE_LEVELS.includes(level))throw new Error('insurance-price-invalid');
     ins.pricing[line]=level;return {line,level,premium:linePrice(ins,line)};
   }
+  function setPricingAll(state,p){const ins=ensure(state),level=Number(p.level);if(!PRICE_LEVELS.includes(level))throw new Error('insurance-price-invalid');for(const id of LINE_IDS)ins.pricing[id]=level;return {level,lines:LINE_IDS.length};}
   function setReinsurance(state,p){const ins=ensure(state),share=Number(p.share);if(!REINSURANCE_LEVELS.includes(share))throw new Error('insurance-reinsurance-invalid');ins.reinsurance=share;return {share};}
   function campaignCost(ins,office){return Math.round(clamp(officeMarket(ins,{...office}).households*2,150000,3000000));}
   function officeCampaign(state,p){
@@ -168,10 +174,11 @@
     const dueRows=ins.claimsReserve.filter(row=>Number(row.payDay)<=day),claimsDue=dueRows.reduce((sum,row)=>sum+num(row.amount),0),F=globalThis.GH_FINANCE_CORE,available=state.godMoney&&state.infiniteMoney?claimsDue:num(F?.operating?.(state,'insurance')),paid=Math.min(claimsDue,available);let claimSettlementReference=null;
     if(paid>.01){if(!F?.execute)throw new Error('insurance-claim-finance-core-missing');const settlement=F.execute({state},'settle-insurance-claims',{company:'insurance',amount:paid,day,reference:`INS-CLAIM-PAY-${day}`,sourceRefs:dueRows.map(row=>row.id||`INS-RES-${row.day}`)});claimSettlementReference=settlement.reference;let remaining=paid;for(let index=0;index<ins.claimsReserve.length;index++){const row=ins.claimsReserve[index];if(Number(row.payDay)<=day&&remaining>.01){const applied=Math.min(num(row.amount),remaining);row.amount=Math.max(0,num(row.amount)-applied);remaining-=applied;}if(index>0&&index%128===0)yield 'claim-reserve';}ins.claimsReserve=ins.claimsReserve.filter(row=>num(row.amount)>.01);}
     yield 'claim-settlement';
-    const revenue=premium+cedingCommission,expense=netClaims+commission+ceded,net=revenue-expense,cashExpense=commission+ceded;
-    const report={day,premium,largePremium,claims,cededClaims,claimsCount,claimsDue,claimsPaid:paid,claimsUnpaid:Math.max(0,claimsDue-paid),claimSettlementReference,reserve:ins.claimsReserve.reduce((sum,row)=>sum+num(row.amount),0),commission,ceded,cedingCommission,revenue,expense,cashExpense,net,newPolicies,lapsed,catastrophe,byLine,newRisk:generateRisk(state,ins,day)?.id||null};
+    const reserveHeld=ins.claimsReserve.reduce((sum,row)=>sum+num(row.amount),0),investmentIncome=reserveHeld*baseRate(state)*RESERVE_YIELD_SHARE/365;
+    const revenue=premium+cedingCommission+investmentIncome,expense=netClaims+commission+ceded,net=revenue-expense,cashExpense=commission+ceded;
+    const report={day,premium,largePremium,investmentIncome,claims,cededClaims,claimsCount,claimsDue,claimsPaid:paid,claimsUnpaid:Math.max(0,claimsDue-paid),claimSettlementReference,reserve:ins.claimsReserve.reduce((sum,row)=>sum+num(row.amount),0),commission,ceded,cedingCommission,revenue,expense,cashExpense,net,newPolicies,lapsed,catastrophe,byLine,newRisk:generateRisk(state,ins,day)?.id||null};
     for(const request of [...ins.riskRequests])if(day>=Number(request.expiresDay))closeRisk(ins,request,'منتهي',{decidedDay:day});
-    ins.ytd.premium+=premium;ins.ytd.claims+=claims-cededClaims;ins.ytd.commission+=commission;ins.ytd.ceded+=ceded;ins.ytd.cedingCommission+=cedingCommission;ins.ytd.net+=net;ins.ytd.largeRiskPremium+=largePremium;
+    ins.ytd.premium+=premium;ins.ytd.investmentIncome=num(ins.ytd.investmentIncome)+investmentIncome;ins.ytd.claims+=claims-cededClaims;ins.ytd.commission+=commission;ins.ytd.ceded+=ceded;ins.ytd.cedingCommission+=cedingCommission;ins.ytd.net+=net;ins.ytd.largeRiskPremium+=largePremium;
     // Only the newest day keeps its per-line detail; older days keep their totals (history stays small in the save).
     if(ins.dailyHistory[0]?.byLine){const {byLine:_detail,...totals}=ins.dailyHistory[0];ins.dailyHistory[0]=totals;}
     ins.dailyHistory.unshift(report);ins.dailyHistory=ins.dailyHistory.slice(0,DAILY_HISTORY);ins.lastProcessedDay=day;return clone(report);
@@ -199,10 +206,10 @@
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx;
-    if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='set-pricing')return setPricing(state,p);if(cmd==='set-reinsurance')return setReinsurance(state,p);
+    if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='set-pricing')return setPricing(state,p);if(cmd==='set-reinsurance')return setReinsurance(state,p);if(cmd==='set-pricing-all')return setPricingAll(state,p);
     if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
     throw new Error(`Unknown insurance command: ${cmd}`);
   }
-  const API={VERSION,DAILY_FINANCIAL_ORDER:300,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
+  const API={VERSION,DAILY_FINANCIAL_ORDER:300,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
   globalThis.GH_INSURANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('insurance',API);if(globalThis.window&&window!==globalThis)window.GH_INSURANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

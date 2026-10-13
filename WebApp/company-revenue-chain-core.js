@@ -57,10 +57,14 @@
     const steps=[step('branches','الفروع',count(branches),branches>0),step('plans','الباقات',count(plans),branches>0),step('customers','العملاء',count(customers),customers>0),step('billed','فاتورة الشهر',money(billed),billed>0),step('collected','المحصّل',pct(billed?collected/billed*100:0),collected>0)];
     let next;
     if(!branches)next={text:'افتح أول فرع من دليل المدن؛ الفرع يخدم المشتركين ويصدر فواتيرهم.',label:'فتح فرع',panel:'companyFacilities',arg:id};
-    else if(!customers)next={text:'أضف أول مشترك أو شريحة سوق؛ كل شريحة تُفوتر شهريًا بفاتورة واحدة.',label:'إضافة مشتركين',panel:'companyManage',arg:{type:id,tab:'operations'}};
+    // Build 374: subscribers come from the telecom market (telecom-market-core); companies ask for business contracts.
+    const requests=arr(obj(obj(obj(obj(state?.customerCompanies).companies).telecom).market).requests);
+    if(!customers)next={text:'المشتركون ينضمون من سوق دولة الفرع مع كل إقفال يومي، وأسرع كلما كان سعر الباقة تحت السوق.',label:'أسعار الباقات',panel:'companyManage',arg:{type:id,tab:'operations'}};
+    else if(requests.length)next={text:`${requests.length===1?'شركة تطلب':requests.length===2?'شركتان تطلبان':`${requests.length} شركات تطلب`} عقد خطوط أعمال، ويسقط الطلب عند انتهاء مهلته.`,label:'تفاصيل الطلبات',panel:'companyManage',arg:{type:id,tab:'operations'}};
     else if(outstanding>0)next={text:'ذمم من فواتير الاشتراكات لم تُحصّل بعد.',amount:outstanding,label:'المستندات',panel:'invoices',arg:{company:id,tab:'overview'}};
-    else next={text:'كل شريحة جديدة تضيف فاتورة شهرية؛ باقة الأعمال أعلى قيمة من الباقات الفردية.',label:'إضافة شريحة',panel:'companyManage',arg:{type:id,tab:'operations'}};
-    return {steps,next,decisions:[],batch:null};
+    else next={text:'كل فرع في دولة أخرى يفتح سوقًا جديدًا، والحملة تسرّع انضمام المشتركين 30 يومًا.',label:'الفروع',panel:'companyFacilities',arg:id};
+    const decisions=requests.slice(0,MAX_DECISIONS).map(row=>({id:String(row.id),title:String(row.customerName||'شركة'),detail:{lines:num(row.lines),monthlyValue:num(row.monthlyValue),months:num(row.months)},daysLeft:daysLeft(state,row)}));
+    return {steps,next,decisions,batch:'telecom'};
   }
 
   function bankRequests(state,filter){return arr(obj(state?.bank).loanRequests).filter(filter);}
@@ -72,11 +76,11 @@
     const steps=[step('branches','المعارض',count(branches),branches>0),step('suppliers','المصنّعون',text(`${agreed}/${suppliers.length}`),suppliers.length>0&&agreed===suppliers.length),step('inventory','المخزون',count(inventory),inventory>0),step('sales','المبيعات',count(sold),sold>0),step('settle','بانتظار التسوية',count(pending),sold>0&&pending===0)];
     let next;
     if(!branches)next={text:'افتح أول معرض من دليل المدن؛ المعرض يبيع السيارات ويخدمها بعد البيع.',label:'فتح معرض',panel:'companyFacilities',arg:id};
-    else if(suppliers.length&&agreed<suppliers.length)next={text:'سجّل اتفاقيات التوريد مع المصنّعين قبل أول طلب شراء.',label:'اتفاقيات المصنّعين',panel:'companyManage',arg:{type:id,tab:'operations'}};
-    else if(!inventory&&!sold)next={text:'اشترِ أول مخزون من المصنّع: طلب شراء وفاتورة مورد وشيك.',label:'شراء مخزون',panel:'companyManage',arg:{type:id,tab:'operations'}};
+    else if(suppliers.length&&agreed<suppliers.length)next={text:'اتفاقيات التوريد مع المصنّعين تُسجَّل تلقائيًا مع أول إقفال يومي للمعرض.',label:'سياسة البيع',panel:'companyManage',arg:{type:id,tab:'operations'}};
+    else if(!inventory&&!sold)next={text:'المخزون يُطلب من المصنّعين تلقائيًا كل أسبوع ليغطي المدة التي تختارها، بأمر شراء وفاتورة مورد وشيك.',label:'سياسة البيع',panel:'companyManage',arg:{type:id,tab:'operations'}};
     else if(requests.length)next={text:`${requests.length} ${requests.length===1?'طلب تمويل لعميل ينتظر':'طلبات تمويل لعملاء تنتظر'} قرار بنك المجموعة؛ البيع لا يُسوّى قبلها.`,label:'تفاصيل التمويل',panel:'companyManage',arg:{type:id,tab:'operations'}};
-    else if(pending)next={text:'مبيعات بالتمويل جاهزة للتسوية بعد إثبات تحويل البنك.',label:'تسوية المبيعات',panel:'companyManage',arg:{type:id,tab:'operations'}};
-    else next={text:'بيع جديد نقدًا أو بتمويل من بنك المجموعة، وخطط صيانة شهرية بعد البيع.',label:'المبيعات',panel:'companyManage',arg:{type:id,tab:'operations'}};
+    else if(pending)next={text:'مبيعات بالتمويل تُسوّى تلقائيًا فور إثبات تحويل البنك.',label:'المبيعات',panel:'companyManage',arg:{type:id,tab:'operations'}};
+    else next={text:'كل معرض في دولة أخرى يفتح سوقًا جديدًا، والحملة تزيد المشترين 60% لمدة 30 يومًا.',label:'المعارض',panel:'companyFacilities',arg:id};
     return {steps,next,decisions:requests.slice(0,MAX_DECISIONS).map(request=>loanDecision(state,request)),batch:'dealership'};
   }
 
@@ -85,12 +89,15 @@
     const income=num(daily?.interestIncome)+num(daily?.reportedFeeIncome??daily?.feeIncome);
     const within=(value,limit,above)=>!Number.isFinite(Number(value))||!Number.isFinite(Number(limit))||(above?Number(value)>=Number(limit):Number(value)<=Number(limit));
     const safe=within(b.lcr,policy.minLcr,true)&&within(b.cet1,policy.minCet1,true)&&within(b.loanDepositRatio,policy.maxLdr,false);
+    // Build 374: a defaulted loan (stage 3) waits for the player's decision on the credit page.
+    const defaulted=arr(b.loanPortfolios).filter(row=>row.stage===3&&row.status==='متعثرة'&&num(row.outstanding)>0).length;
     const steps=[step('branches','الفروع',count(branches),branches>0),step('deposits','الودائع',money(deposits),deposits>0),step('credit','قرار القروض',requests.length?text(`${requests.length} ${requests.length===1?'طلب':'طلبات'}`):money(loans),!requests.length&&loans>0),step('income','فوائد ورسوم آخر يوم',money(income),income>0),step('safety','السلامة',text(safe?'ضمن الحدود':'خارج الحدود'),safe&&branches>0)];
     let next;
     if(!branches)next={text:'افتح أول فرع؛ الفروع تجمع الودائع التي تموّل القروض.',label:'الفروع',panel:'bank',arg:{tab:'branches'}};
     else if(requests.length){const left=Math.min(...requests.map(row=>daysLeft(state,row)));next={text:`${requests.length} ${requests.length===1?'طلب تمويل ينتظر':'طلبات تمويل تنتظر'} قرارك؛ أقربها يسقط بعد ${left} ${left===1?'يوم':'أيام'}.`,label:'الائتمان',panel:'bank',arg:{tab:'credit'}};}
+    else if(defaulted)next={text:`${defaulted===1?'قرض متعثر ينتظر':defaulted===2?'قرضان متعثران ينتظران':`${defaulted} قروض متعثرة تنتظر`} قرارك: إعادة جدولة أو شطب واسترداد الضمان.`,label:'الائتمان',panel:'bank',arg:{tab:'credit'}};
     else if(!safe)next={text:'مؤشر سلامة خارج حدوده؛ راجع السيولة والمخاطر قبل منح قروض جديدة.',label:'السيولة والمخاطر',panel:'bank',arg:{tab:'control'}};
-    else next={text:'كل قرض جديد يرفع دخل الفوائد ضمن حدود السيولة ورأس المال.',label:'الائتمان',panel:'bank',arg:{tab:'credit'}};
+    else next={text:'كل قرض توافق عليه من طلبات العملاء يرفع دخل الفوائد ضمن حدود السيولة ورأس المال.',label:'الائتمان',panel:'bank',arg:{tab:'credit'}};
     return {steps,next,decisions:requests.slice(0,MAX_DECISIONS).map(request=>loanDecision(state,request)),batch:'bank'};
   }
 

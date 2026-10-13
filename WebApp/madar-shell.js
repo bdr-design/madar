@@ -178,6 +178,7 @@ function chainDecisionDetail(ctx,kindId,row){
   const x=row.detail||{},left=Number(row.daysLeft),due=Number.isFinite(left)?` · ${left?`يسقط بعد ${num(left)} ${left===1?'يوم':left<11?'أيام':'يومًا'}`:'يسقط اليوم'}`:'';
   if(kindId==='insurance')return `قسط سنوي ${money(ctx,x.premium)} · خسارة متوقعة ${money(ctx,x.expectedLoss)}${due}`;
   if(kindId==='realestate')return `إيجار سنوي ${money(ctx,x.annualRent)} · ${num(x.years)} ${x.years>2&&x.years<11?'سنوات':'سنة'}${due}`;
+  if(kindId==='telecom')return `${num(x.lines)} خط · ${money(ctx,x.monthlyValue)} شهريًا · ${num(x.months)} شهرًا${due}`;
   return `${money(ctx,x.amount)}${x.grade?` · درجة ${x.grade}`:''}${due}`;
 }
 function renderChainCompany(state,id,ctx,kindId,kind){

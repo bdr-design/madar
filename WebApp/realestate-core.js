@@ -99,6 +99,30 @@
     const day=Math.floor(now(state)/86400),project={id:`RE-PRJ-${++re.sequence}`,officeId:office.id,city:office.city,country:office.country,type,name:`${q.name} · ${office.city}`,mode,units:q.units,unitCost:Math.round((q.land+q.build)/q.units),landCost:q.land,buildCost:q.build,priceLevel:level,startDay:day,completeDay:day+q.days,status:'قيد الإنشاء',milestonesPaid:0,sold:0,presold:0,leased:0,handedOver:0,salesRevenue:0,rentRevenue:0,today:null};
     project.cheques=[payContractor(state,project,first,'الأرض والدفعة الأولى')];project.milestonesPaid=1;const legal=F.execute({state},'register-commercial-contract',{id:`LEGAL-${project.id}`,company:'realestate',contractType:'عقد أرض وإنشاء',counterparty:`مقاول البناء · ${project.city}`,title:`عقد تطوير ${project.name}`,startDay:day,endDay:project.completeDay,amount:q.total,terms:{officeId:office.id,country:office.country,type,mode,units:q.units,landCost:q.land,buildCost:q.build,milestones:[...MILESTONES]},sourceRefs:[project.id],linkedDocumentNumbers:project.cheques});project.legalDocumentId=legal.id;project.documentProofId=legal.documentProofId;project.contentDigest=legal.contentDigest;re.ytd.capex+=first;re.projects.push(project);return clone(project);
   }
+  // Build 374 (owner's decision). A project under construction can borrow 40% or 60% of its land and build cost from
+  // construction lenders, once, through Finance Core's existing debt (fixed rate, due two years after completion; the
+  // interest and repayment follow the company's debt). A completed lease building with only walk-in tenants (no lease
+  // contract running) can be sold to a property fund at its rent capitalised at 7% (vacant units at their cost); the
+  // sale is recognised in the next daily close as unit sales are, with the same 2% commission.
+  const CONSTRUCTION_SHARES=Object.freeze([.4,.6]),FUND_CAP_RATE=.07;
+  function financeConstruction(state,p){
+    const re=ensure(state),project=re.projects.find(row=>row.id===p.projectId);if(!project)throw new Error('realestate-project-not-found');if(project.status!=='قيد الإنشاء')throw new Error('realestate-construction-finance-closed');if(project.constructionLoanId)throw new Error('realestate-construction-already-financed');
+    const share=Number(p.share);if(!CONSTRUCTION_SHARES.includes(share))throw new Error('realestate-construction-share-invalid');
+    const day=Math.floor(now(state)/86400),amount=Math.round((num(project.landCost)+num(project.buildCost))*share),F=globalThis.GH_FINANCE_CORE;if(!F?.execute)throw new Error('finance-core-missing');
+    const ref=`RE-CONSTR-${project.id}`,result=F.execute({state},'raise-debt',{company:'realestate',amount,liabilityAccount:'قروض إنشاءات عقارية',lender:'بنوك تمويل الإنشاءات',termDays:Math.max(365,Number(project.completeDay)-day+730),fixedRate:true,note:`تمويل إنشاء ${project.name}`,ref});
+    project.constructionLoanId=ref;project.constructionLoan=amount;project.constructionShare=share;return {projectId:project.id,amount,ref:result.ref||ref};
+  }
+  function fundValue(project){const type=TYPES[project.type];if(!type)return 0;const vacant=Math.max(0,num(project.units)-num(project.leased));return Math.round(num(project.leased)*type.rent*num(project.priceLevel||1)/FUND_CAP_RATE+vacant*num(project.unitCost));}
+  function canSellToFund(project){return !!project&&project.mode==='lease'&&project.status==='مكتمل'&&num(project.leased)>0&&!(Array.isArray(project.leases)&&project.leases.some(row=>!row.ended));}
+  function sellToFund(state,p){
+    const re=ensure(state),project=re.projects.find(row=>row.id===p.projectId);if(!project)throw new Error('realestate-project-not-found');if(!canSellToFund(project))throw new Error('realestate-fund-sale-not-allowed');
+    const day=Math.floor(now(state)/86400),price=fundValue(project);
+    re.pendingFundSales=Array.isArray(re.pendingFundSales)?re.pendingFundSales:[];re.pendingFundSales.push({projectId:project.id,name:project.name,amount:price,day});
+    re.completedArchive.unshift({id:project.id,name:project.name,units:project.units,salesRevenue:price,rentRevenue:num(project.rentRevenue),completeDay:project.completeDay,soldToFundDay:day});re.completedArchive=re.completedArchive.slice(0,100);
+    re.projects=re.projects.filter(row=>row.id!==project.id);
+    for(const request of [...re.tenantRequests])if(request.projectId===project.id)closeRequest(re,request,'ملغى',{decidedDay:day,reason:'بيع المبنى لصندوق'});
+    return {projectId:project.id,price,units:project.units};
+  }
   function setProjectPrice(state,p){const re=ensure(state),project=re.projects.find(row=>row.id===p.projectId);if(!project)throw new Error('realestate-project-not-found');const level=Number(p.level);if(!PRICE_LEVELS.includes(level))throw new Error('realestate-price-invalid');project.priceLevel=level;return clone(project);}
   // Corporate tenants: a business asks for a block of completed (or soon completed) units at its rent and term.
   const TENANTS=Object.freeze(['شركة استشارات دولية','مجموعة تجزئة إقليمية','شركة تقنية ناشئة','مكتب محاماة','بنك استثماري','شركة توزيع أغذية','مزود خدمات لوجستية']);
@@ -192,6 +216,8 @@
   function tickDay(state,p={}){
     const re=ensure(state),day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(state)/86400)));if(re.lastProcessedDay===day)return re.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
     let sales=0,rent=0,internalRentRevenue=0,externalRentRevenue=0,costOfSales=0,opex=0,commission=0,capex=0,newBuyers=0,newTenants=0,vacated=0;const completed=[],internalRentByCompany=new Map(),rentInvoices=[];
+    // Build 374: buildings sold to a property fund since the last close are that close's sales.
+    const fundSales=Array.isArray(re.pendingFundSales)?re.pendingFundSales:[];for(const row of fundSales){sales+=num(row.amount);commission+=num(row.amount)*SALES_COMMISSION;}re.pendingFundSales=[];
     for(const project of re.projects){
       const office=re.offices.find(row=>row.id===project.officeId),type=TYPES[project.type],today={day,sold:0,leased:0,vacated:0,rent:0,sales:0};
       // Construction milestones and completion.
@@ -247,7 +273,7 @@
       catch(error){if(!/insufficient-service-cash-or-budget/.test(String(error?.message||error)))throw error;account.carriedOver=(Number(account.carriedOver)||0)+1;}
     }
     const revenue=sales+rent,expense=opex+commission,net=revenue-expense;
-    const report={day,sales,rent,internalRentRevenue,externalRentRevenue,internalRentRows,internalRentSettlements,rentInvoices,costOfSales,opex,commission,capex,revenue,expense,net,newBuyers,newTenants,vacated,completed,newRequest:generateRequest(state,re,day)?.id||null};
+    const report={day,fundSales:fundSales.map(row=>({projectId:row.projectId,amount:row.amount})),sales,rent,internalRentRevenue,externalRentRevenue,internalRentRows,internalRentSettlements,rentInvoices,costOfSales,opex,commission,capex,revenue,expense,net,newBuyers,newTenants,vacated,completed,newRequest:generateRequest(state,re,day)?.id||null};
     re.ytd.sales+=sales;re.ytd.rent+=rent;re.ytd.costOfSales+=costOfSales;re.ytd.opex+=opex;re.ytd.commission+=commission;re.ytd.net+=net;re.ytd.capex+=capex;
     re.dailyHistory.unshift(report);re.dailyHistory=re.dailyHistory.slice(0,DAILY_HISTORY);re.lastProcessedDay=day;return clone(report);
   }
@@ -267,9 +293,9 @@
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx;
-    if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='start-project')return startProject(state,p);if(cmd==='set-project-price')return setProjectPrice(state,p);if(cmd==='decide-request')return decideRequest(state,p);if(cmd==='decide-requests-batch')return decideRequestsBatch(state,p);if(cmd==='lease-to-company')return leaseToCompany(state,p);if(cmd==='collect-rent-invoice')return collectRentInvoice(state,p);
+    if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='start-project')return startProject(state,p);if(cmd==='set-project-price')return setProjectPrice(state,p);if(cmd==='decide-request')return decideRequest(state,p);if(cmd==='decide-requests-batch')return decideRequestsBatch(state,p);if(cmd==='lease-to-company')return leaseToCompany(state,p);if(cmd==='finance-construction')return financeConstruction(state,p);if(cmd==='sell-to-fund')return sellToFund(state,p);if(cmd==='collect-rent-invoice')return collectRentInvoice(state,p);
     throw new Error(`Unknown real estate command: ${cmd}`);
   }
-  const API={VERSION,DAILY_FINANCIAL_ORDER:350,TYPES,TYPE_IDS,PRICE_LEVELS,SIZE_LEVELS,MAX_ACTIVE_PROJECTS,MAX_INTERNAL_LEASES,MAX_OPEN_REQUESTS,ensure,officeMarket,projectQuote,arrivals,tickDay,dailyResult,summary,rentInvoices,rentInvoiceStatus,leaseToCompany,decideRequestsBatch,onFinancialDay,execute};
+  const API={VERSION,DAILY_FINANCIAL_ORDER:350,CONSTRUCTION_SHARES,FUND_CAP_RATE,fundValue,canSellToFund,TYPES,TYPE_IDS,PRICE_LEVELS,SIZE_LEVELS,MAX_ACTIVE_PROJECTS,MAX_INTERNAL_LEASES,MAX_OPEN_REQUESTS,ensure,officeMarket,projectQuote,arrivals,tickDay,dailyResult,summary,rentInvoices,rentInvoiceStatus,leaseToCompany,decideRequestsBatch,onFinancialDay,execute};
   globalThis.GH_REALESTATE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('realestate',API);if(globalThis.window&&window!==globalThis)window.GH_REALESTATE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

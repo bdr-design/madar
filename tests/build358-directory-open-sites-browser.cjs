@@ -41,11 +41,13 @@ const COMPANIES=['bank','power','road','mobility','telecom','dealership'];
       await audit.runAuthorizedDomainCommand('customer-companies','receive-stock',{company:'dealership',modelId:'corolla',quantity:1,reference:'AUTO-BRANCH-PO-1'},{silent:true});
       await audit.runAuthorizedDomainCommand('customer-companies','retail-sale',{company:'dealership',saleId:'AUTO-BRANCH-SALE-1',customerName:'عميل وكالة الفرع',branchId:dealer.id,modelId:'corolla',quantity:1,termsDays:0},{silent:true});
       const telecomSummary=window.GH_CUSTOMER_COMPANIES_CORE.snapshot(state,'telecom').telecom,dealerSummary=window.GH_CUSTOMER_COMPANIES_CORE.snapshot(state,'dealership').dealership;
-      return {telecomInvoice:state.finance.invoices.find(row=>row.sourceRef==='TEL-INV-TEL-BRANCH-CYCLE-1-2026-02')?.businessLocationId,telecomBranch:telecomSummary.branches.find(row=>row.id===telecom.id),dealerInvoice:state.finance.invoices.find(row=>row.sourceRef==='AUTO-SALE-AUTO-BRANCH-SALE-1')?.businessLocationId,dealerBranch:dealerSummary.branches.find(row=>row.id===dealer.id),billingEvent:state.businessWorld.events.some(row=>row.reference==='BILL-telecom-2026-02')};
+      return {telecomInvoice:state.finance.invoices.find(row=>row.sourceRef==='TEL-INV-TEL-BRANCH-CYCLE-1-2026-02')?.businessLocationId,telecomBranch:telecomSummary.branches.find(row=>row.id===telecom.id),dealerInvoice:state.finance.invoices.find(row=>row.sourceRef==='AUTO-SALE-AUTO-BRANCH-SALE-1')?.businessLocationId,dealerBranch:dealerSummary.branches.find(row=>row.id===dealer.id),billingEvent:state.businessWorld.events.some(row=>row.reference==='BILL-telecom-2026-02'),marketSubscribers:(state.customerCompanies.companies.telecom.market?.branches||[]).filter(row=>row.branchId===telecom.id&&row.status==='active').reduce((sum,row)=>sum+Number(row.activeCustomers||0),0)};
     });
     assert.equal(customerBranchFlows.telecomInvoice,customerBranchFlows.telecomBranch.id,'telecom monthly invoice keeps the verified branch');
     assert.equal(customerBranchFlows.dealerInvoice,customerBranchFlows.dealerBranch.id,'dealership sale invoice keeps the verified branch');
-    assert.equal(customerBranchFlows.telecomBranch.customerCount,1,'telecom branch aggregates its customer without cloning a customer row');
+    // Build 374: the branch also serves its country's market subscribers (telecom-market-core); the named customer still
+    // counts once, beside them.
+    assert.equal(customerBranchFlows.telecomBranch.customerCount,1+customerBranchFlows.marketSubscribers,'telecom branch aggregates its customer without cloning a customer row');
     assert.equal(customerBranchFlows.dealerBranch.sales,1,'dealership branch aggregates its completed sale');
     assert.equal(customerBranchFlows.billingEvent,true,'the monthly invoice batch creates one sourced official news item');
     assert.deepEqual(warnings,[],'no command was rolled back');
