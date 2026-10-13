@@ -171,7 +171,8 @@ function* dayStages(state,p={}){
 }
 function tickDay(state,p={}){const stages=dayStages(state,p);let step;while(!(step=stages.next()).done){}return step.value;}
 // The generic daily close posts the network and acquisition costs; revenue arrives on the monthly invoices.
-function dailyResult(state,day){const row=(read(state)?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:0,expense:num(row.expense),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,expense:0,cashExpense:0};}
+// The day's invoices (customer-companies-core records them as invoiced) are its revenue without cash: they posted it.
+function dailyResult(state,day){const row=(read(state)?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.invoiced),cashRevenue:0,expense:num(row.expense),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,cashRevenue:0,expense:0,cashExpense:0};}
 function summary(state){
   const m=read(state);if(!m)return {branches:0,activeBranches:0,subscribers:0,monthlyRecurring:0,byPlan:Object.fromEntries(PLAN_IDS.map(id=>[id,0])),pricing:Object.fromEntries(PLAN_IDS.map(id=>[id,1])),openRequests:0,activeContracts:0,last:null};
   const branches=Array.isArray(m.branches)?m.branches:[],byPlan=Object.fromEntries(PLAN_IDS.map(id=>[id,branches.reduce((sum,row)=>sum+num(row.plans?.[id]?.subscribers),0)]));

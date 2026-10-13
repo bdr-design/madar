@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "181c57db7b567c6ac8622789b0d3c03cc4336a86bcd6e176414e96f7efffdf5c",
-  "webapp_tree_sha256": "c0e35d37890e40632d22a78d23653b7f3585e612feb0b463baff6ebb71b8791f",
+  "source_tree_sha256": "1e8e8e1643e8f020a518eb17595d8cab4474aab4c284ad75938b5c271aa36b99",
+  "webapp_tree_sha256": "ab05e808359cf26793dc5ebfa6409d3ea181acd7e6c1f314a599bf3a3e128175",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 334717,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 955707,
-      "sha256": "8c642f77c52f3c3f4507d68bd213599d129911637b6af51b467ef056c6d7b1eb"
+      "bytes": 958570,
+      "sha256": "dd3ccea98dadcbb1d0a4fdd7997b6c97885314c05a17e6ae35d37e33c9a3b82b"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3371,8 +3371,8 @@
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 101665,
-      "sha256": "e002854af49294fa546c331443d2ef2ca82fd66747c40040b1fc9f0d200f244a"
+      "bytes": 101707,
+      "sha256": "9b412f2bba039c53cbee2fd07ef3ca8529a9c6d5b2225356fd303e4559185b72"
     },
     "WebApp/business-world-core.js": {
       "bytes": 40178,
@@ -3451,12 +3451,12 @@
       "sha256": "2d2dd47793111a1969b2aefbd23fed4df34341b2f161d198e8605865b8070ed4"
     },
     "WebApp/customer-companies-core.js": {
-      "bytes": 54409,
-      "sha256": "286f9ab38717e9e3f917eaf4ee8ea522ecaa9d11b4614b3727df0f0e065b4415"
+      "bytes": 55032,
+      "sha256": "f0adea385ecffd67c61c782baf6294249615a7456e25e3b919645656fd30b021"
     },
     "WebApp/dealer-market-core.js": {
-      "bytes": 24956,
-      "sha256": "f0c697f79b8be0da5b5981c74d01e202d1f03ebb8fa0b7e6bda82cd7f47d2839"
+      "bytes": 25731,
+      "sha256": "d90c0fda7b2a3d57c7181525821740d50a746d03268aee81820386d1233e5193"
     },
     "WebApp/delivery-monitor-core.js": {
       "bytes": 1726,
@@ -3503,8 +3503,8 @@
       "sha256": "4ad465536c37bbd4bfe75d3e100767fc1f15c160678dd00be2f58808ad2f2220"
     },
     "WebApp/finance-core.js": {
-      "bytes": 186093,
-      "sha256": "efef1ecc657db0cb7fd3315f317fe1a691c2eec91e42e614955a380bd0554c6a"
+      "bytes": 188531,
+      "sha256": "603a43ecb9df763ca69c1a85c0ccaf3f5efad77b1ad59eb4d3da2870d7d93f81"
     },
     "WebApp/finance-presentation.css": {
       "bytes": 33498,
@@ -3727,8 +3727,8 @@
       "sha256": "56424623df0232109e3ac824e0f479c5d713f7f2db3ea4efc42f26fb1f6b891c"
     },
     "WebApp/market-core.js": {
-      "bytes": 18113,
-      "sha256": "322622130714940d3ba6be902c61f862cad2376e2dae19dda43306b12a03a526"
+      "bytes": 18487,
+      "sha256": "abb429a0168a7e9494a1eb3d012cd5fb8cf573589f2d329eaedf404c422bb43d"
     },
     "WebApp/market-reference-core.js": {
       "bytes": 4206,
@@ -3775,8 +3775,8 @@
       "sha256": "59ec1d2750f314d1236bbb890be3dd0154ff37768a748ae194548397b7b688a4"
     },
     "WebApp/realestate-core.js": {
-      "bytes": 42462,
-      "sha256": "d3b81a145e6d6fda4e4b3d27894798fce0cc90e3c2b085cd286d9f894adaa724"
+      "bytes": 42478,
+      "sha256": "944ac8164aafc4842f0b8173aa6ede9e41a6a0d8ff6107fd0112ce6ebb50d08e"
     },
     "WebApp/realism-core.js": {
       "bytes": 113457,
@@ -3855,8 +3855,8 @@
       "sha256": "62679681c22ead7d99f51a80a8aa5962c99d70553ed4446451dc946ea5f7d204"
     },
     "WebApp/telecom-market-core.js": {
-      "bytes": 23816,
-      "sha256": "bd460a4af46baa03ea3ba7accf4db656ac31a96983157cfdf2cb0358f9c51541"
+      "bytes": 23979,
+      "sha256": "c9ba814af91c1006fac967eba48339960dbf1d4408678e78c2fff785d12b6cb9"
     },
     "WebApp/transaction-core.js": {
       "bytes": 79417,
@@ -3948,7 +3948,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "3eca2e560857c97d921d2bf29c38bb14a59c44c8e378ed59e6968f4dfde6568e"
+      "sha256": "3eb04553c055132ac73a678c7d7545b17d503657eaaa55345b99954004bc271b"
     },
     "BUILD": {
       "bytes": 4,

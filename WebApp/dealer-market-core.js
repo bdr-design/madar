@@ -50,7 +50,7 @@ function ensure(state){
   m.version=VERSION;m.priceLevel=PRICE_LEVELS.includes(Number(m.priceLevel))?Number(m.priceLevel):1;m.coverDays=COVER_DAYS.includes(Number(m.coverDays))?Number(m.coverDays):45;m.serviceTier=SERVICE_TIERS[m.serviceTier]?m.serviceTier:'standard';
   for(const key of ['showrooms','dailyHistory'])m[key]=Array.isArray(m[key])?m[key].filter(Boolean):[];
   m.lastProcessedDay=Number.isFinite(Number(m.lastProcessedDay))?Math.floor(Number(m.lastProcessedDay)):-1;m.lastRestockDay=Number.isFinite(Number(m.lastRestockDay))?Math.floor(Number(m.lastRestockDay)):-1;m.financeSequence=Math.max(0,Math.floor(Number(m.financeSequence)||0));
-  m.ytd=m.ytd&&typeof m.ytd==='object'?m.ytd:{};for(const key of ['carsSold','salesRevenue','lostSales','restockSpend','workshopCost','campaignCost','plansSold'])m.ytd[key]=num(m.ytd[key]);
+  m.ytd=m.ytd&&typeof m.ytd==='object'?m.ytd:{};for(const key of ['carsSold','salesRevenue','lostSales','restockSpend','workshopCost','campaignCost','plansSold','costOfSales'])m.ytd[key]=num(m.ytd[key]);
   syncShowrooms(state,m);return m;
 }
 function ownedShowrooms(state){return (Array.isArray(state.customHubs)?state.customHubs:[]).filter(row=>row?.owned===true&&row.kind==='dealership-branch'&&String(row.ownerCompanyId||row.company||'')==='dealership');}
@@ -58,7 +58,7 @@ function syncShowrooms(state,m){
   const owned=ownedShowrooms(state),byFacility=new Map(m.showrooms.map(row=>[row.facilityId,row]));
   for(const facility of owned){
     let row=byFacility.get(facility.id);
-    if(!row){const country=String(facility.country||'غير محدد'),city=String(facility.city||'');row={id:`SHOW-${asciiKey(facility.id)}`,facilityId:String(facility.id),branchId:String(facility.id),branchName:String(facility.name||`معرض ${city}`).slice(0,120),branchCity:city.slice(0,80),branchCountry:country.slice(0,80),city,country,marketPopulation:base().population(country),openedDay:today(state),active:true,buyers:0,annualRate:0,soldToday:0,lostToday:0,salesToday:0,salesTotal:0,campaignUntil:0,campaigns:0,campaignSpend:0,servicePlans:0,planName:'خطط صيانة',partyId:null,status:'idle',activeCustomers:0,monthlyPrice:0,nextBillingMonth:'',lastBilledMonth:'',invoiceCount:0,billed:0,collected:0,outstanding:0,unbilledSales:0,salesPeriod:'',dueSales:0,duePeriod:'',salesInvoices:0,salesBilled:0,lastSalesInvoice:''};m.showrooms.push(row);byFacility.set(facility.id,row);}
+    if(!row){const country=String(facility.country||'غير محدد'),city=String(facility.city||'');row={id:`SHOW-${asciiKey(facility.id)}`,facilityId:String(facility.id),branchId:String(facility.id),branchName:String(facility.name||`معرض ${city}`).slice(0,120),branchCity:city.slice(0,80),branchCountry:country.slice(0,80),city,country,marketPopulation:base().population(country),openedDay:today(state),active:true,buyers:0,annualRate:0,soldToday:0,lostToday:0,salesToday:0,salesTotal:0,campaignUntil:0,campaigns:0,campaignSpend:0,servicePlans:0,planName:'خطط صيانة',partyId:null,status:'idle',activeCustomers:0,monthlyPrice:0,nextBillingMonth:'',lastBilledMonth:'',invoiceCount:0,billed:0,collected:0,outstanding:0,unbilledSales:0,unbilledCost:0,salesPeriod:'',dueSales:0,dueCost:0,duePeriod:'',salesInvoices:0,salesBilled:0,lastSalesInvoice:''};m.showrooms.push(row);byFacility.set(facility.id,row);}
     row.active=true;
   }
   const open=new Set(owned.map(row=>String(row.id)));for(const row of m.showrooms)if(!open.has(row.facilityId))row.active=false;
@@ -151,7 +151,7 @@ function settleFinanced(state,data){
 
 // A showroom's sales of a closed calendar month become due for its monthly invoice (customer-companies-core bills them
 // after this day's market run). An invoice still waiting (the day's billing limit) takes the next month's sales too.
-function closeSalesMonth(showroom,period){if(showroom.salesPeriod&&showroom.salesPeriod!==period&&num(showroom.unbilledSales)>0){showroom.dueSales=num(showroom.dueSales)+num(showroom.unbilledSales);if(!showroom.duePeriod)showroom.duePeriod=showroom.salesPeriod;showroom.unbilledSales=0;}}
+function closeSalesMonth(showroom,period){if(showroom.salesPeriod&&showroom.salesPeriod!==period&&num(showroom.unbilledSales)>0){showroom.dueSales=num(showroom.dueSales)+num(showroom.unbilledSales);showroom.dueCost=num(showroom.dueCost)+num(showroom.unbilledCost);if(!showroom.duePeriod)showroom.duePeriod=showroom.salesPeriod;showroom.unbilledSales=0;showroom.unbilledCost=0;}}
 function* dayStages(state,p={}){
   const m=ensure(state),day=Math.max(0,Math.floor(Number(p.day??today(state))));if(m.lastProcessedDay>=day)return m.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
   const C=companies(),ops=C.dealerOps,data=state.customerCompanies.companies.dealership,B=base();
@@ -160,9 +160,12 @@ function* dayStages(state,p={}){
   let orders=[];if(m.showrooms.some(row=>row.active)&&(m.lastRestockDay<0||day-m.lastRestockDay>=RESTOCK_EVERY)){orders=restock(state,m,day,inventory,shares);m.lastRestockDay=day;}
   yield 'dealer-market:restock';
   const tier=SERVICE_TIERS[m.serviceTier],period=finance().calendarMonthForDay(day);
-  let carsSold=0,salesRevenue=0,lostSales=0,plansSold=0,plansEnded=0,workshopCost=0;
+  // Build 375: the maker's cost of each car sold is its cost of sales (no cash: the stock was paid when it was bought, as
+  // capital spending). It waits with the showroom's sales and is expensed on the day their monthly invoice is issued, so
+  // the company's profit is its margin, on the same day as the sale's revenue.
+  let carsSold=0,salesRevenue=0,lostSales=0,plansSold=0,plansEnded=0,workshopCost=0,costOfSales=0;
   for(const showroom of m.showrooms){
-    let sold=0,lost=0,revenue=0;
+    let sold=0,lost=0,revenue=0,cost=0;
     if(showroom.active){
       const room=clamp(1-num(showroom.annualRate)/yearlyCapacity(m,showroom),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,B.affinity(state,showroom.country,'dealership','households')*AFFINITY_WEIGHT);
       const buyers=Math.round(deterministic(`${showroom.id}:${day}:buyers`,BUYERS[0],BUYERS[1])*demandFactor(m.priceLevel)*boost*(Number(showroom.campaignUntil)>day?CAMPAIGN_GROWTH:1)*room);
@@ -170,11 +173,11 @@ function* dayStages(state,p={}){
         const pick=deterministic(`${showroom.id}:${day}:pick:${index}`,0,1);let acc=0,model=shares[shares.length-1];for(const row of shares){acc+=row.share;if(pick<acc){model=row;break;}}
         const line=inventory.find(row=>row.oemId===model.oemId&&row.modelId===model.modelId);
         if(!line||num(line.quantity)-num(line.reserved)<1){lost++;continue;}
-        line.quantity-=1;line.sold=num(line.sold)+1;sold++;revenue+=Math.round(num(line.retailPrice)*m.priceLevel);
+        line.quantity-=1;line.sold=num(line.sold)+1;sold++;revenue+=Math.round(num(line.retailPrice)*m.priceLevel);cost+=num(model.cost);
       }
     }
     closeSalesMonth(showroom,period);
-    if(revenue>0){if(!num(showroom.unbilledSales))showroom.salesPeriod=period;showroom.unbilledSales=num(showroom.unbilledSales)+revenue;if(!showroom.partyId)showroom.partyId=marketParty(state,showroom).id;}
+    if(revenue>0){if(!num(showroom.unbilledSales))showroom.salesPeriod=period;showroom.unbilledSales=num(showroom.unbilledSales)+revenue;showroom.unbilledCost=num(showroom.unbilledCost)+cost;costOfSales+=cost;if(!showroom.partyId)showroom.partyId=marketParty(state,showroom).id;}
     const joined=roundDraw(sold*tier.attach,`${showroom.id}:${day}:plans`),ended=Math.min(num(showroom.servicePlans),roundDraw(num(showroom.servicePlans)/(SERVICE_MONTHS*30),`${showroom.id}:${day}:plans-end`));
     showroom.servicePlans=num(showroom.servicePlans)-ended+joined;showroom.activeCustomers=showroom.servicePlans;showroom.monthlyPrice=showroom.servicePlans?tier.monthlyPrice:0;
     if(showroom.servicePlans>0){if(!showroom.partyId)showroom.partyId=marketParty(state,showroom).id;if(!showroom.nextBillingMonth)showroom.nextBillingMonth=nextMonthOf(state,day);showroom.status='active';}else showroom.status='idle';
@@ -184,16 +187,17 @@ function* dayStages(state,p={}){
     yield `dealer-market:${showroom.id}`;
   }
   const financeSale=m.showrooms.some(row=>row.active)?financeRequest(state,m,day,inventory):null,settled=settleFinanced(state,data);
-  const report={day,revenue:0,cashRevenue:0,expense:workshopCost,cashExpense:workshopCost,workshopCost,carsSold,salesRevenue,lostSales,plansSold,plansEnded,servicePlans:m.showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),restockOrders:orders.length,restockUnits:orders.reduce((sum,row)=>sum+row.quantity,0),restockSpend:orders.reduce((sum,row)=>sum+row.amount,0),financeRequest:financeSale?.id||null,settledFinanced:settled.length};
-  m.ytd.carsSold+=carsSold;m.ytd.salesRevenue+=salesRevenue;m.ytd.lostSales+=lostSales;m.ytd.workshopCost+=workshopCost;m.ytd.plansSold+=plansSold;
+  const report={day,revenue:0,cashRevenue:0,expense:workshopCost,cashExpense:workshopCost,workshopCost,costOfSales,carsSold,salesRevenue,lostSales,plansSold,plansEnded,servicePlans:m.showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),restockOrders:orders.length,restockUnits:orders.reduce((sum,row)=>sum+row.quantity,0),restockSpend:orders.reduce((sum,row)=>sum+row.amount,0),financeRequest:financeSale?.id||null,settledFinanced:settled.length};
+  m.ytd.carsSold+=carsSold;m.ytd.salesRevenue+=salesRevenue;m.ytd.lostSales+=lostSales;m.ytd.workshopCost+=workshopCost;m.ytd.costOfSales+=costOfSales;m.ytd.plansSold+=plansSold;
   m.dailyHistory.unshift(report);m.dailyHistory=m.dailyHistory.slice(0,DAILY_HISTORY);m.lastProcessedDay=day;
   yield 'dealer-market:close';
   return clone(report);
 }
 function tickDay(state,p={}){const stages=dayStages(state,p);let step;while(!(step=stages.next()).done){}return step.value;}
 // The generic daily close posts the workshop cost; retail sales and service plans arrive on their monthly invoices
-// (a day closed before Build 375 still reports its sales here).
-function dailyResult(state,day){const row=(read(state)?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.revenue),cashRevenue:num(row.cashRevenue??row.revenue),expense:num(row.expense),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,cashRevenue:0,expense:0,cashExpense:0};}
+// (a day closed before Build 375 still reports its sales here). The day's invoices (invoiced) are revenue and the cars they bill
+// their cost of sales (invoicedCost), both without cash.
+function dailyResult(state,day){const row=(read(state)?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.revenue)+num(row.invoiced),cashRevenue:num(row.cashRevenue??row.revenue),expense:num(row.expense)+num(row.invoicedCost),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,cashRevenue:0,expense:0,cashExpense:0};}
 function summary(state){
   const m=read(state),inventory=state?.customerCompanies?.companies?.dealership?.inventory||[];
   const stock=inventory.reduce((sum,row)=>sum+Math.max(0,num(row.quantity)-num(row.reserved)),0);

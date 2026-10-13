@@ -62,6 +62,8 @@ const results={};
   const bills=s.finance.invoices.filter(row=>/^AUTO-MKT-SALES-INV-/.test(row.sourceRef||''));
   assert.equal(bills.length,2,'one invoice per showroom for January');assert.ok(bills.every(row=>row.sourceRef.endsWith('-2026-01')),'billed for January');
   assert.equal(Math.round(bills.reduce((n,row)=>n+row.total,0)),Math.round(january),'the invoices carry exactly January\'s sales');
+  const billedDay=env.market.dailyResult(s,31),dayBills=s.finance.invoices.filter(row=>/^AUTO-MKT-(SALES|SVC)-INV-/.test(row.sourceRef||'')&&row.at>=31*DAY&&row.at<32*DAY);
+  assert.equal(Math.round(billedDay.revenue),Math.round(dayBills.reduce((n,row)=>n+row.total,0)),'the day\'s invoices are its revenue in the daily report');assert.equal(billedDay.cashRevenue,0,'and are not posted again as cash');
   assert.deepEqual(new Set(bills.map(row=>row.businessLocationCountry)),new Set(['السعودية','الإمارات']),'each invoice belongs to its showroom');
   const february=m.dailyHistory.filter(row=>row.day>=31).reduce((n,row)=>n+row.salesRevenue,0);assert.equal(Math.round(env.market.summary(s).unbilledSales),Math.round(february),'February waits for March');
   results.monthly={januarySales:Math.round(january),invoices:bills.length};
@@ -92,6 +94,16 @@ const results={};
   assert.ok(financed.some(row=>row.quantity===1&&/^أسرة /.test(row.customer)),'a household finances one car (Build 375)');
   assert.ok(financed.filter(row=>row.quantity>1).every(row=>row.total>=1000000),'a fleet is still $1M or more');
   assert.ok(env.market.dailyResult(s,62).expense>0,'the workshop cost is the daily operating expense');
+  // Build 375: the makers' cost of the cars sold is their cost of sales, without cash (the stock was paid when bought),
+  // expensed on the day their monthly invoice is issued (February 1 bills January), with the sales' revenue.
+  const day62=m.dailyHistory.find(row=>row.day===62),cost=env.market.dailyResult(s,62),billed=env.market.dailyResult(s,31),catalogue=env.market.catalogue();
+  assert.ok(day62.costOfSales>0&&day62.costOfSales<day62.salesRevenue,'a car costs the maker less than its retail price');
+  assert.equal(cost.expense,day62.workshopCost,'a day without an invoice expenses only the workshop');assert.equal(cost.cashExpense,day62.workshopCost);
+  const januaryCost=m.dailyHistory.filter(row=>row.day<=30).reduce((n,row)=>n+row.costOfSales,0),day31=m.dailyHistory.find(row=>row.day===31);
+  assert.equal(Math.round(billed.expense),Math.round(day31.workshopCost+januaryCost),'January\'s cars are expensed with January\'s invoice');assert.equal(billed.cashExpense,day31.workshopCost,'the cost of sales moves no cash');
+  assert.ok(billed.revenue>billed.expense,'the invoice day shows the margin, not the whole sale');
+  const sold=s.customerCompanies.companies.dealership.inventory.reduce((n,row)=>n+row.sold*catalogue.find(x=>x.modelId===row.modelId).cost,0),financedCost=s.customerCompanies.companies.dealership.sales.filter(row=>row.status==='sold-financed').reduce((n,row)=>n+row.quantity*catalogue.find(x=>x.modelId===row.modelId).cost,0);
+  assert.equal(Math.round(m.ytd.costOfSales),Math.round(sold-financedCost),'every retail car sold is costed once at its maker\'s price');
   results.service={plans:showroom.servicePlans,serviceBills:bills.length,financeRequests:env.loanRequests.length};
 }
 

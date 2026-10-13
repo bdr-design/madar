@@ -60,7 +60,11 @@ const results={};
   for(const row of invoices)assert.match(row.sourceRef,/-2026-02$/);
   const ruh=m.branches.find(row=>row.facilityId==='TEL-RUH'),billed=invoices.find(row=>row.businessLocationId==='TEL-RUH');assert.ok(billed.total>0);
   const last=m.dailyHistory[0],result=env.market.dailyResult(s,58);
-  assert.equal(result.revenue,0,'revenue arrives on the invoices, never twice');assert.ok(result.expense>0&&Math.abs(result.expense-last.networkCost-last.acquisitionCost)<1e-6);
+  assert.equal(result.revenue,0,'revenue arrives on the invoices, never twice');
+  // Build 375: on the day the invoices are issued they are the company's revenue in its daily report, without cash
+  // (the invoices posted it), so the company's profit counts them.
+  const billedDay=env.market.dailyResult(s,31),februaryBills=s.finance.invoices.filter(row=>/^TEL-(MKT|ENT)-INV-/.test(row.sourceRef||'')&&/-2026-02$/.test(row.sourceRef));
+  assert.equal(Math.round(billedDay.revenue),Math.round(februaryBills.reduce((n,row)=>n+row.total,0)),'the day\'s invoices are its revenue');assert.equal(billedDay.cashRevenue,0,'and are not posted again as cash');assert.ok(result.expense>0&&Math.abs(result.expense-last.networkCost-last.acquisitionCost)<1e-6);
   assert.ok(last.networkCost/(sum.monthlyRecurring/30)>.3&&last.networkCost/(sum.monthlyRecurring/30)<.45,'the network costs about 37% of the price');
   const snapshot=JSON.stringify(m);drain(env.core.onFinancialDayStages({state:s,companyId:'telecom'},{day:58}));assert.equal(JSON.stringify(m),snapshot,'a day runs once');
   assert.ok(ruh.marketPopulation===35300000,'the branch keeps its population, as the bank and insurer do');

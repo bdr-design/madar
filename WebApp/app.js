@@ -871,7 +871,10 @@
       if(!out.ok)throw new Error(out.reason);
       metric.ok=true;metric.deferred=!!out.deferred;metric.saveRevisionAfter=Number(state.saveRevision)||0;metric.totalMs=Math.max(0,metricClock()-totalStart);if(runtimeMetrics)runtimeMetrics.lastSavePreparation={...metric};
       diag(out.deferred?'SAVE_COALESCED':'SAVE_OK',{bytes:out.utf8Bytes??null,saveRevision:state.saveRevision,deferred:!!out.deferred});return true;
-    }catch(error){metric.error=String(error.message||error);metric.totalMs=Math.max(0,metricClock()-totalStart);if(runtimeMetrics)runtimeMetrics.lastSavePreparation={...metric};diag('SAVE_FAILED',{message:String(error.message||error)});if(options.throwOnError)throw error;console.warn('تعذر حفظ اللعبة',error);return false;}
+    }catch(error){metric.error=String(error.message||error);metric.totalMs=Math.max(0,metricClock()-totalStart);if(runtimeMetrics)runtimeMetrics.lastSavePreparation={...metric};diag('SAVE_FAILED',{message:String(error.message||error)});
+      // Build 375: a large fleet's evidence was not current: ask the worker once (off this thread) and save again with it.
+      if(!options.fleetRetry&&/fleet-validation-unavailable/.test(metric.error)){const params=window.GH_SAVE_SCHEMA?.fleetValidationParams?.(state),asked=params?globalThis.GH_FLEET_VALIDATION_PROVIDER?.(state,params):null;if(asked&&typeof asked.then==='function')asked.then(found=>{if(found)persistStateNow({...options,fleetRetry:true,throwOnError:false});},()=>{});}
+      if(options.throwOnError)throw error;console.warn('تعذر حفظ اللعبة',error);return false;}
   }
   // Build 359 (the ordinary save was one block of 80-200 ms: schema, serialization and encoding at once): Save Now saves
   // a copy of the state in slices across frames (GH_PERSISTENCE.commitStateSliced, which holds the persistence lock from
@@ -950,10 +953,17 @@
   // check with more than 2,048 assets failed with fleet-validation-unavailable and stopped the engine at 00:59. The worker
   // runs fleet-query-core saveValidation on a replica that is exactly this store; the result is used only while current()
   // holds. A synchronous caller cannot wait for the worker and keeps its fail-closed answer.
+  // Build 375 (iPhone diagnostic, 300,000 assets: the ordinary save failed with fleet-validation-unavailable): the
+  // background save of a hidden app and the real-time cap checkpoint are synchronous, so they could never use the worker.
+  // The last answer is kept (one reference, no copy) and a synchronous caller gets it; Save Schema still accepts it only
+  // while current() holds (the same store at the same revision) and the context token matches, else it fails closed.
+  let lastFleetValidation=null;
   globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false}={})=>{
-    const client=fleetEngineThreadClient;if(syncOnly||!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
-    const store=s.fleet,asked=client.query(store,{name:'saveValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
-    return asked.then(found=>found?{result:found.result,current:()=>client.current(found,store)}:null);
+    const client=fleetEngineThreadClient;if(!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
+    const store=s.fleet;
+    if(syncOnly){const last=lastFleetValidation;return last&&last.store===store?{result:last.found.result,current:()=>client.current(last.found,store)}:null;}
+    const asked=client.query(store,{name:'saveValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
+    return asked.then(found=>{if(!found)return null;lastFleetValidation={store,found};return {result:found.result,current:()=>client.current(found,store)};});
   };
   // Build 372: a fleet-query-core pass found by the fleet engine's worker for a staged stage that waits for it (realism-core:
   // the daily close's insured condition total). A promise of {result, current()} or null when the worker cannot vouch for
@@ -1238,13 +1248,13 @@
   function postAccruedExpense(company,amount,note,method='قيد مستحق',dueDay=null,number=null,expenseAccount='مصروف تشغيلي',extra={}){
     company=String(company||'');amount=Math.max(0,Number(amount)||0);if(!isFinanceCompany(company)||amount<=0){console.warn('accrual rejected: company-not-found',company);return null;}
     if(number){const existing=state.finance.invoices.find(x=>x.number===String(number));if(existing)return existing;}
-    try{return dispatchSystemCommand({state},'finance','accrue-expense',{company,amount,note,method,dueDay,number,expenseAccount,...extra},{actor:'financial-close'}).result||null;}catch(error){console.warn('accrual rejected',error);return null;}
+    try{return dispatchSystemCommand({state},'finance','accrue-expense',{company,amount,note,method,dueDay,number,expenseAccount,...extra,closeOwned:true},{actor:'financial-close'}).result||null;}catch(error){console.warn('accrual rejected',error);return null;}
   }
 
   function settleCheque(cheque){return dispatchSystemCommand({state},'finance','settle-cheque',{id:cheque?.id},{actor:'finance-scheduler'}).result;}
   async function settleIssuedCheque(id){const cheque=state.finance.cheques.find(row=>row.id===id);if(!cheque){notice('الشيك غير موجود.');return false;}const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;try{const before=companyOperatingBalance(cheque.company||'group'),out=await runAuthorizedDomainCommand('finance','settle-cheque',{id}),result=out.result,after=companyOperatingBalance(cheque.company||'group');if(result.settled!==true)throw new Error(result.reason||'cheque-not-settled');if(!(state.godMoney&&state.infiniteMoney)&&Math.abs((before-after)-Number(cheque.amount||0))>.01)throw new Error('cheque-current-account-posting-mismatch');pushAlert(`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}return true;}catch(error){notice(`تعذر صرف الشيك: ${String(error.message||error)}`);return false;}}
   async function spendCompany(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=await runAuthorizedDomainCommand('finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable});return !!out.result;}
-  function spendCompanySystem(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=dispatchSystemCommand({state},'finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable},{actor:'financial-close'});return !!out.result;}
+  function spendCompanySystem(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=dispatchSystemCommand({state},'finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable,closeOwned:true},{actor:'financial-close'});return !!out.result;}
   const spend = (amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true) => spendCompany('group',amount,note,method,taxable);
 
   // ---- HR: موظفو المنشآت والقيادات فقط؛ طواقم الأصول يملكها Fleet Core ----
@@ -3095,7 +3105,11 @@
         if(revenue>0)post('دخل',revenue,`تسوية رحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية تشغيل يومية',taxable,'مدفوعة',companyId,profile.source,{settlementAccount:clearing});
         if(fuel>0)post('مصروف',fuel,`تكلفة تشغيل رحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية مورد تشغيل يومية',taxable,'مدفوعة',companyId,mobility?'السائقون ومزودو التشغيل':'موردو الوقود المعتمدون',{settlementAccount:clearing});
         if(maint>0)post('مصروف',maint,`مخصص صيانة رحلات يومية ${typeName(companyId)} · ${count} رحلة`,'مخصص صيانة يومي',false,'مدفوعة',companyId,'مراكز الصيانة المعتمدة',{settlementAccount:clearing});
-        const amount=Number(tripCash[companyId])||0;if(Math.abs(amount)>=.005||revenue>0){const before=companyOperatingBalance(companyId),settlement=dispatchSystemCommand({state},'finance','settle-daily-cash',{company:companyId,amount,grossAmount:revenue,deductions:fuel+maint,tripCount:count,invoiceNumbers,day:state.lastFinancialDay,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,note:`تحويل صافي تشغيل اليوم ${state.lastFinancialDay} إلى الحساب الجاري · ${typeName(companyId)}`},{actor:'financial-close'}).result,after=companyOperatingBalance(companyId);if(Math.abs((after-before)-Number(settlement?.amount||0))>.01)throw new Error(`daily-profit-current-account-mismatch:${companyId}`);if(settlement?.shortfall>0)pushAlert(`رحّلت تسوية نقدية غير مغطاة بقيمة ${fmtMoney(settlement.shortfall)} في ${typeName(companyId)} إلى إقفال اليوم التالي دون إسقاطها.`);}
+        // Build 375: port, airport and road fees of the day's trips. They were deducted from the trips' margin and cash
+        // (cashContribution) with no document; the settlement carried them as an unexplained adjustment.
+        const amount=Number(tripCash[companyId])||0,fees=Math.round(Math.max(0,revenue-fuel-maint-amount)*100)/100;
+        if(fees>=.01)post('مصروف',fees,`رسوم موانئ ومطارات وطرق لرحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية رسوم تشغيل يومية',taxable,'مدفوعة',companyId,'سلطات الموانئ والمطارات والطرق',{settlementAccount:clearing});
+        if(Math.abs(amount)>=.005||revenue>0){const before=companyOperatingBalance(companyId),settlement=dispatchSystemCommand({state},'finance','settle-daily-cash',{company:companyId,amount,grossAmount:revenue,deductions:fuel+maint+(fees>=.01?fees:0),tripCount:count,invoiceNumbers,day:state.lastFinancialDay,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,note:`تحويل صافي تشغيل اليوم ${state.lastFinancialDay} إلى الحساب الجاري · ${typeName(companyId)}`},{actor:'financial-close'}).result,after=companyOperatingBalance(companyId);if(Math.abs((after-before)-Number(settlement?.amount||0))>.01)throw new Error(`daily-profit-current-account-mismatch:${companyId}`);if(settlement?.shortfall>0)pushAlert(`رحّلت تسوية نقدية غير مغطاة بقيمة ${fmtMoney(settlement.shortfall)} في ${typeName(companyId)} إلى إقفال اليوم التالي دون إسقاطها.`);}
       });yield 'finance-day.trip-settlement';}
       const companyContractRevenue=zeroCompanyMap(state),companyContractCost=zeroCompanyMap(state),contractDailyRows=[];
       const contractTerms={};for(const id of (state.acceptedContracts||[])){const c=contracts.find(x=>x.id===id);if(!c)continue;const companyId=contractOwnerCompanyId(c,state);if(!companyId)throw new Error(`contract-owner-unresolved-or-ambiguous:${id}`);const termDays=Math.max(1,Number(c.termMonths)||1)*30,dailyRevenue=c.value/termDays,dailyCost=c.cost/termDays;contractTerms[id]=termDays;companyContractRevenue[companyId]=(companyContractRevenue[companyId]||0)+dailyRevenue;companyContractCost[companyId]=(companyContractCost[companyId]||0)+dailyCost;contractDailyRows.push({id,companyId,sector:c.sector,client:c.client,name:c.name,revenue:dailyRevenue,cost:dailyCost});}const expiredContracts=dispatchSystemCommand({state},'contracts','tick-day',{day:state.lastFinancialDay,terms:contractTerms},{actor:'simulation'}).result?.expired||[];for(const id of expiredContracts){const c=contracts.find(x=>x.id===id);if(c)pushAlert(`اكتمل عقد ${c.name} وانتهت مدته التشغيلية بعد ${c.termMonths} شهرًا.`);}
@@ -3168,7 +3182,10 @@
       // from the realism close's fleet pass when the fleet is unchanged since, else read in slices of rows across
       // frames; the postings below do not touch the fleet.
       let fleetConditionTotal=window.GH_REALISM?.fleetReadinessTotal?.(state)??null;if(fleetConditionTotal===null){fleetConditionTotal=0;yield* window.GH_FLEET_DATA.scanStages(state,['condition'],a=>{fleetConditionTotal+=Number(a.condition)||0;},32768,'finance-day.fleet-readiness');}
-      const net=Object.values(closedSectorProfit).reduce((a,b)=>a+(Number(b)||0),0)-groupCost-groupPayrollExpense;phase('simulation.finance-day.daily-close-postings',()=>{dispatchSystemCommand({state},'finance','record-daily-close',{day:state.lastFinancialDay,sectors:closedSectorProfit,companies:companyDaily,net},{actor:'financial-close'});dispatchSystemCommand({state},'corporate','adjust-group-value',{delta:net*.03},{actor:'financial-close'});runOperationsCycle(net,fleetConditionTotal);});
+      // Build 375: documents made outside this close since the last one (Finance Core noted them) join each company's report.
+      let groupInvestmentResult=0;{const offClose=window.GH_FINANCE_CORE.takeOffClosePnl?.(state)||{};groupInvestmentResult=(Number(offClose.group?.revenue)||0)-(Number(offClose.group?.expense)||0);for(const companyId of companyIds){const row=offClose[companyId],daily=companyDaily[companyId];if(!row||!daily)continue;const revenue=Math.max(0,Number(row.revenue)||0),expense=Math.max(0,Number(row.expense)||0);if(!revenue&&!expense)continue;closedSectorProfit[companyId]=(Number(closedSectorProfit[companyId])||0)+revenue-expense;daily.operatingRevenue+=revenue;daily.grossRevenue+=revenue;daily.net=closedSectorProfit[companyId];daily.expenses=Math.max(0,daily.grossRevenue-daily.net);}}
+      // The holding's investment result (listed dividends, realized gains and losses, stake income) is the group's result.
+      const net=Object.values(closedSectorProfit).reduce((a,b)=>a+(Number(b)||0),0)-groupCost-groupPayrollExpense+groupInvestmentResult;phase('simulation.finance-day.daily-close-postings',()=>{dispatchSystemCommand({state},'finance','record-daily-close',{day:state.lastFinancialDay,sectors:closedSectorProfit,companies:companyDaily,net},{actor:'financial-close'});dispatchSystemCommand({state},'corporate','adjust-group-value',{delta:net*.03},{actor:'financial-close'});runOperationsCycle(net,fleetConditionTotal);});
       // رواتب تقويمية في تاريخ 27؛ إذا وصل حفظ قديم بعد التاريخ تُنفّذ مرة واحدة للشهر نفسه.
       if(payrollDueToday){
         const reportId=`PAYROLL-${payrollMeta.monthKey}`,payrollItems=[...companyIds,'group'].map(company=>payrollPlan[company]).filter(row=>row&&row.amount>0),lines=[];
