@@ -63,10 +63,17 @@ function syncBranches(state,m){
   return m.branches;
 }
 function peersIn(m,country){return Math.max(1,m.branches.filter(row=>row.active&&row.country===country).length);}
-function capacity(m,branch,id){const market=base().market(branch.country,branch.marketPopulation),q=PLAN_MARKET[id];return Math.max(100,Math.round(num(market[q.pool])*q.penetration*MAX_MARKET_SHARE/peersIn(m,branch.country)));}
+// Build 377: a branch's country prices its plans, network and acquisition costs at its income (telecomPrice, Riyadh = 1),
+// and fixed broadband (home and family plans) reaches fewer households where incomes are low (broadbandReach).
+function localPrice(country){const value=Number(base().incomeFactor?.(country,'telecomPrice'));return Number.isFinite(value)&&value>0?value:1;}
+function reach(country,id){if(id!=='home'&&id!=='family')return 1;const value=Number(base().incomeFactor?.(country,'broadbandReach'));return Number.isFinite(value)&&value>0?value:1;}
+function capacity(m,branch,id){const market=base().market(branch.country,branch.marketPopulation),q=PLAN_MARKET[id];return Math.max(100,Math.round(num(market[q.pool])*Math.min(.95,q.penetration*reach(branch.country,id))*MAX_MARKET_SHARE/peersIn(m,branch.country)));}
 const growthFactor=level=>clamp(1+(1-level)*3,.6,1.4),churnFactor=level=>clamp(1+(level-1)*4,.5,1.6);
 // The monthly recurring revenue of a branch at today's prices: what its next invoice bills.
-function branchRecurring(m,branch){let total=0;for(const id of PLAN_IDS)total+=num(branch.plans?.[id]?.subscribers)*planPrice(id)*num(m.pricing[id]||1);return total;}
+// The price level (customer-base-core priceIndex) is kept on the market by the day's run (one number), so every reader
+// of the monthly bill sees the same prices.
+const marketPrices=m=>Number(m?.priceIndex)>0?Number(m.priceIndex):1;
+function branchRecurring(m,branch){let total=0;for(const id of PLAN_IDS)total+=num(branch.plans?.[id]?.subscribers)*planPrice(id)*num(m.pricing[id]||1);return total*localPrice(branch.country)*marketPrices(m);}
 function branchSubscribers(branch){let total=0;for(const id of PLAN_IDS)total+=num(branch.plans?.[id]?.subscribers);return total;}
 function campaignCost(m,branch){return Math.round(clamp(capacity(m,branch,'mobile')*.4,200000,4000000));}
 
@@ -94,8 +101,8 @@ function generateRequest(state,m,day){
   if(deterministic(`${day}:tel-request`,0,1)>=Math.min(.5,.1+.05*active.length))return null;
   if(!companies().namedCustomerRoom?.(state))return null;
   const seed=`${day}:tel-request`,branch=active[Math.floor(deterministic(`${seed}:branch`,0,active.length))%active.length],[kind,industry]=ENTERPRISES[Math.floor(deterministic(`${seed}:kind`,0,ENTERPRISES.length))%ENTERPRISES.length];
-  const lines=Math.round(deterministic(`${seed}:lines`,5,200))*10,level=Math.round(deterministic(`${seed}:price`,.85,1)*100)/100,months=CONTRACT_TERMS[Math.floor(deterministic(`${seed}:term`,0,CONTRACT_TERMS.length))%CONTRACT_TERMS.length],price=Math.round(planPrice('business')*level*100)/100;
-  const request={id:`TEL-REQ-${++m.sequence}`,day,expiresDay:day+REQUEST_DAYS,customerName:`${kind} · ${branch.city||branch.country}`,industry,branchRowId:branch.id,city:branch.city,country:branch.country,lines,monthlyPrice:price,priceLevel:level,months,monthlyValue:Math.round(lines*price*100)/100,networkCost:lines*PLAN_MARKET.business.networkCost,status:'بانتظار القرار'};
+  const lines=Math.round(deterministic(`${seed}:lines`,5,200))*10,level=Math.round(deterministic(`${seed}:price`,.85,1)*100)/100,months=CONTRACT_TERMS[Math.floor(deterministic(`${seed}:term`,0,CONTRACT_TERMS.length))%CONTRACT_TERMS.length],price=Math.round(planPrice('business')*localPrice(branch.country)*marketPrices(m)*level*100)/100;
+  const request={id:`TEL-REQ-${++m.sequence}`,day,expiresDay:day+REQUEST_DAYS,customerName:`${kind} · ${branch.city||branch.country}`,industry,branchRowId:branch.id,city:branch.city,country:branch.country,lines,monthlyPrice:price,priceLevel:level,months,monthlyValue:Math.round(lines*price*100)/100,networkCost:lines*PLAN_MARKET.business.networkCost*localPrice(branch.country)*marketPrices(m),status:'بانتظار القرار'};
   m.requests.push(request);return request;
 }
 function closeRequest(m,request,status,extra={}){m.requests=m.requests.filter(row=>row.id!==request.id);m.requestHistory.unshift({...request,...extra,status});m.requestHistory=m.requestHistory.slice(0,REQUEST_HISTORY);}
@@ -138,31 +145,52 @@ function branchCampaign(state,p={}){
   return {branchId:branch.id,city:branch.city,cost,until:branch.campaignUntil,chequeId:payment.cheque.id};
 }
 
+// Build 377 (owner's decision, IFRS 15): a subscription's revenue is earned day by day as the service is given, not on
+// the invoice day. Each branch and business contract accrues today's share of its monthly bill (the monthly amount over
+// the days of the calendar month) into the current month; when the month closes, its accrued amount waits as one
+// billable period and customer-companies-core bills exactly that amount on the next monthly run (billing in arrears).
+// The company's daily report carries the accrual (revenue without cash); the invoice moves the receivable and the cash
+// only, so nothing is counted twice. A row billed in advance for the current month by an older save starts accruing on
+// the next month (that month is already in its results), and a row never billed starts today.
+const round2=value=>Math.round(num(value)*100)/100;
+function periodOf(day){return finance().calendarMonthForDay(day);}
+function daysInPeriod(period){const match=/^(\d{4})-(\d{2})$/.exec(String(period));return match?new Date(Date.UTC(Number(match[1]),Number(match[2]),0)).getUTCDate():30;}
+function nextPeriod(period){const match=/^(\d{4})-(\d{2})$/.exec(String(period));if(!match)return period;const y=Number(match[1]),mo=Number(match[2]);return mo===12?`${y+1}-01`:`${y}-${String(mo+1).padStart(2,'0')}`;}
+function accrueRow(row,day,monthly){
+  const period=periodOf(day);
+  if(row.billing!=='arrears'){row.billing='arrears';row.accrualFromPeriod=row.lastBilledMonth===period?nextPeriod(period):period;row.billables=[];}
+  row.billables=Array.isArray(row.billables)?row.billables:[];
+  if(row.accrual&&row.accrual.period!==period){if(num(row.accrual.amount)>0)row.billables.push({period:row.accrual.period,amount:round2(row.accrual.amount)});row.accrual=null;}
+  if(String(period)<String(row.accrualFromPeriod||period)||!(monthly>0))return 0;
+  const today=monthly/daysInPeriod(period);row.accrual=row.accrual||{period,amount:0};row.accrual.amount=num(row.accrual.amount)+today;return today;
+}
 // The day: each branch's plans gain and lose subscribers; costs are the day's operating expense.
 function* dayStages(state,p={}){
   const m=ensure(state),day=Math.max(0,Math.floor(Number(p.day??today(state))));if(m.lastProcessedDay>=day)return m.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
-  const B=base(),byPlan=Object.fromEntries(PLAN_IDS.map(id=>[id,{subscribers:0,newSubscribers:0,lostSubscribers:0}]));
-  let networkCost=0,acquisitionCost=0,newSubscribers=0,lostSubscribers=0,subscribers=0,recurring=0;
+  const B=base();m.priceIndex=typeof B.priceIndex==='function'?B.priceIndex(state):1;const demand=typeof B.demandFactor==='function'?B.demandFactor(state,'telecom'):1,byPlan=Object.fromEntries(PLAN_IDS.map(id=>[id,{subscribers:0,newSubscribers:0,lostSubscribers:0}]));
+  let networkCost=0,acquisitionCost=0,newSubscribers=0,lostSubscribers=0,subscribers=0,recurring=0,accrued=0;
   for(const branch of m.branches){
-    const campaign=Number(branch.campaignUntil)>day,affinity={households:B.affinity(state,branch.country,'telecom','households'),businesses:B.affinity(state,branch.country,'telecom','businesses')};
+    const campaign=Number(branch.campaignUntil)>day,local=localPrice(branch.country)*marketPrices(m),rivalLevel=(typeof globalThis.GH_CUSTOMER_BASE?.rivalPrice==='function'?globalThis.GH_CUSTOMER_BASE.rivalPrice(branch.country,'telecom',day):1),affinity={households:B.affinity(state,branch.country,'telecom','households'),businesses:B.affinity(state,branch.country,'telecom','businesses')};
     for(const id of PLAN_IDS){
-      const q=PLAN_MARKET[id],row=branch.plans[id],level=num(m.pricing[id]||1),held=num(row.subscribers),seed=`${branch.id}:${day}:${id}`;
+      // Build 377: joining and leaving follow the plan's price against the country's rival operator (rivalPrice).
+      const q=PLAN_MARKET[id],row=branch.plans[id],level=num(m.pricing[id]||1)/rivalLevel,held=num(row.subscribers),seed=`${branch.id}:${day}:${id}`;
       const churn=q.churn*churnFactor(level)*(campaign?CAMPAIGN_CHURN:1)*(branch.active?1:CLOSED_CHURN)/30,lost=Math.min(held,roundDraw(held*churn,`${seed}:lost`));
       const room=clamp(1-held/capacity(m,branch,id),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,affinity[q.pool==='businesses'?'businesses':'households']*AFFINITY_WEIGHT);
-      const joined=branch.active?Math.round(deterministic(`${seed}:new`,q.growth[0],q.growth[1])*growthFactor(level)*boost*(campaign?CAMPAIGN_GROWTH:1)*room):0;
+      const joined=branch.active?Math.round(deterministic(`${seed}:new`,q.growth[0],q.growth[1])*growthFactor(level)*boost*demand*(campaign?CAMPAIGN_GROWTH:1)*room):0;
       row.subscribers=Math.max(0,held-lost+joined);row.newToday=joined;row.lostToday=lost;
-      networkCost+=row.subscribers*q.networkCost/30;acquisitionCost+=joined*q.acquisition;newSubscribers+=joined;lostSubscribers+=lost;
+      networkCost+=row.subscribers*q.networkCost*local/30;acquisitionCost+=joined*q.acquisition*local;newSubscribers+=joined;lostSubscribers+=lost;
       byPlan[id].subscribers+=row.subscribers;byPlan[id].newSubscribers+=joined;byPlan[id].lostSubscribers+=lost;
     }
     const total=branchSubscribers(branch),monthly=branchRecurring(m,branch);
     branch.activeCustomers=total;branch.monthlyPrice=total?monthly/total:0;subscribers+=total;recurring+=monthly;
     if(total>0){startBilling(state,branch);branch.status='active';}else branch.status='idle';
+    accrued+=accrueRow(branch,day,monthly);
     yield `telecom-market:${branch.id}`;
   }
-  for(const contract of m.contracts){if(contract.status!=='active')continue;if(day>=Number(contract.endDay)){contract.status='ended';contract.endedDay=day;continue;}networkCost+=num(contract.activeCustomers)*PLAN_MARKET.business.networkCost/30;recurring+=num(contract.activeCustomers)*num(contract.monthlyPrice);}
+  for(const contract of m.contracts){if(contract.status!=='active'){if(contract.billing==='arrears')accrueRow(contract,day,0);continue;}if(day>=Number(contract.endDay)){contract.status='ended';contract.endedDay=day;accrueRow(contract,day,0);continue;}networkCost+=num(contract.activeCustomers)*PLAN_MARKET.business.networkCost*localPrice(contract.country)*marketPrices(m)/30;const monthly=num(contract.activeCustomers)*num(contract.monthlyPrice);recurring+=monthly;accrued+=accrueRow(contract,day,monthly);}
   for(const request of [...m.requests])if(day>=Number(request.expiresDay))closeRequest(m,request,'منتهي',{decidedDay:day});
   const newRequest=generateRequest(state,m,day);
-  const expense=networkCost+acquisitionCost,report={day,revenue:0,expense,cashExpense:expense,networkCost,acquisitionCost,newSubscribers,lostSubscribers,subscribers,monthlyRecurring:recurring,activeContracts:m.contracts.filter(row=>row.status==='active').length,newRequest:newRequest?.id||null,byPlan};
+  const expense=networkCost+acquisitionCost,report={day,revenue:0,accrued:round2(accrued),expense,cashExpense:expense,networkCost,acquisitionCost,newSubscribers,lostSubscribers,subscribers,monthlyRecurring:recurring,activeContracts:m.contracts.filter(row=>row.status==='active').length,newRequest:newRequest?.id||null,byPlan};
   m.ytd.networkCost+=networkCost;m.ytd.acquisitionCost+=acquisitionCost;m.ytd.newSubscribers+=newSubscribers;m.ytd.lostSubscribers+=lostSubscribers;
   if(m.dailyHistory[0]?.byPlan){const {byPlan:_detail,...totals}=m.dailyHistory[0];m.dailyHistory[0]=totals;}
   m.dailyHistory.unshift(report);m.dailyHistory=m.dailyHistory.slice(0,DAILY_HISTORY);m.lastProcessedDay=day;
@@ -172,7 +200,7 @@ function* dayStages(state,p={}){
 function tickDay(state,p={}){const stages=dayStages(state,p);let step;while(!(step=stages.next()).done){}return step.value;}
 // The generic daily close posts the network and acquisition costs; revenue arrives on the monthly invoices.
 // The day's invoices (customer-companies-core records them as invoiced) are its revenue without cash: they posted it.
-function dailyResult(state,day){const row=(read(state)?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.invoiced),cashRevenue:0,expense:num(row.expense),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,cashRevenue:0,expense:0,cashExpense:0};}
+function dailyResult(state,day){const row=(read(state)?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.accrued)+num(row.invoiced),cashRevenue:0,expense:num(row.expense),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,cashRevenue:0,expense:0,cashExpense:0};}
 function summary(state){
   const m=read(state);if(!m)return {branches:0,activeBranches:0,subscribers:0,monthlyRecurring:0,byPlan:Object.fromEntries(PLAN_IDS.map(id=>[id,0])),pricing:Object.fromEntries(PLAN_IDS.map(id=>[id,1])),openRequests:0,activeContracts:0,last:null};
   const branches=Array.isArray(m.branches)?m.branches:[],byPlan=Object.fromEntries(PLAN_IDS.map(id=>[id,branches.reduce((sum,row)=>sum+num(row.plans?.[id]?.subscribers),0)]));
@@ -181,6 +209,6 @@ function summary(state){
 }
 function execute(ctx,cmd,p={}){const state=ctx.state||ctx;switch(cmd){case'set-plan-price':return setPlanPrice(state,p);case'branch-campaign':return branchCampaign(state,p);case'decide-request':return decideRequest(state,p);case'decide-requests-batch':return decideRequestsBatch(state,p);case'tick-day':return tickDay(state,p);default:throw new Error(`Unknown telecom market command: ${cmd}`);}}
 
-const API=Object.freeze({VERSION,PLAN_IDS,PRICE_LEVELS,PRICE_LABELS,PLAN_MARKET,MAX_MARKET_SHARE,CAMPAIGN_DAYS,MAX_OPEN_REQUESTS,REQUEST_DAYS,read,ensure,capacity,campaignCost,planPrice,planLabel,branchRecurring,dayStages,tickDay,dailyResult,summary,execute});
+const API=Object.freeze({VERSION,PLAN_IDS,PRICE_LEVELS,PRICE_LABELS,PLAN_MARKET,MAX_MARKET_SHARE,CAMPAIGN_DAYS,MAX_OPEN_REQUESTS,REQUEST_DAYS,read,ensure,capacity,campaignCost,planPrice,planLabel,branchRecurring,localPrice,dayStages,tickDay,dailyResult,summary,execute});
 globalThis.GH_TELECOM_MARKET=API;if(globalThis.window&&window!==globalThis)window.GH_TELECOM_MARKET=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

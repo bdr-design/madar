@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "d627e4073359d1a83c8258aa96d2a16a39278ea215872750f78e797ac6b49cc1",
-  "webapp_tree_sha256": "d3d3974e2c6e6dc5ed02ca95ae3d5a85dc4d34a9b9ac6b8955581afd89ae1003",
+  "source_tree_sha256": "2b411757dbfbae4a1b8f7715686ddb3e6007718c31b81d50b38f6d5ec5c2efd1",
+  "webapp_tree_sha256": "4d8f769539d2b02c3323921ceadb5aded22ed7abe99e8471b31b30f010545ac3",
   "files": {
     "WebApp/advanced-core.js": {
-      "bytes": 344334,
-      "sha256": "9f6b5c5a5580390630c316e5e5a79348a3d9804da9cbe822c08abbd9a233e45f"
+      "bytes": 344344,
+      "sha256": "ca3ceb686ced25a6e630a2c598698dd547bb1048c486f699d2ff5eecdcc3578b"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -3371,8 +3371,8 @@
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 101707,
-      "sha256": "9b412f2bba039c53cbee2fd07ef3ca8529a9c6d5b2225356fd303e4559185b72"
+      "bytes": 106005,
+      "sha256": "8c523c5472d064a1c5b75b5b11203ddffea3844ceef9ffd7ed2afa6b4055a7eb"
     },
     "WebApp/business-world-core.js": {
       "bytes": 40178,
@@ -3399,8 +3399,8 @@
       "sha256": "e8bad15d2da1239ccf5d861e2fcf2b5475809f4ed49f25f4e7cd4f4859b3d045"
     },
     "WebApp/company-revenue-chain-core.js": {
-      "bytes": 15746,
-      "sha256": "55d6bcefaed21d58830790dfd83b79de210092d78a1308705fbd383dfb0e9c2b"
+      "bytes": 3080,
+      "sha256": "5ea4f5b7e6b21a4fc77b871351c78df56dd06ec4a30b0c3c142f3e29b9a4dc78"
     },
     "WebApp/conference-3d.css": {
       "bytes": 22562,
@@ -3447,16 +3447,16 @@
       "sha256": "f377686631f8b44f859087b8616b695782236fd9594afb4e544ae794c448ca38"
     },
     "WebApp/customer-base-core.js": {
-      "bytes": 9517,
-      "sha256": "2d2dd47793111a1969b2aefbd23fed4df34341b2f161d198e8605865b8070ed4"
+      "bytes": 20822,
+      "sha256": "9a34dbbdc19bc9528c604ae323b234e8eff87aa52190f86d964de497a9e73a52"
     },
     "WebApp/customer-companies-core.js": {
-      "bytes": 55032,
-      "sha256": "f0adea385ecffd67c61c782baf6294249615a7456e25e3b919645656fd30b021"
+      "bytes": 57888,
+      "sha256": "957c391d0c944c68205c473ee3cbd61da897484f49c2b954f6ff5c714b32bd7d"
     },
     "WebApp/dealer-market-core.js": {
-      "bytes": 25731,
-      "sha256": "d90c0fda7b2a3d57c7181525821740d50a746d03268aee81820386d1233e5193"
+      "bytes": 30764,
+      "sha256": "db16ddbf31880bbb2d8c1abf491f54f74f9e06bb91e2c077c7da94561c0a14d3"
     },
     "WebApp/delivery-monitor-core.js": {
       "bytes": 1726,
@@ -3643,8 +3643,8 @@
       "sha256": "45a64fd8291ecff3d64fe92e7d03b4b5d95c1f3c0801b23e60d90355b84df1aa"
     },
     "WebApp/insurance-core.js": {
-      "bytes": 27569,
-      "sha256": "4a91bd517c1757cf94f899c2918b6b8738b1df982b35d93dc4455e56adcd95c1"
+      "bytes": 31601,
+      "sha256": "221d39f7c99b2f9d2d814b6bea8ec4d18cca32523d72ceef5b3020a9fe664484"
     },
     "WebApp/integrity-core.js": {
       "bytes": 32426,
@@ -3675,12 +3675,12 @@
       "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
     },
     "WebApp/madar-shell.css": {
-      "bytes": 14150,
-      "sha256": "2f8b67869702b0736b0042a1d622b95215b52b2a8e90d6d0e4a1f2fccd664051"
+      "bytes": 12091,
+      "sha256": "03c1e9d11aad5ef221e129319881e261a7318b061e888d7519d3b6f91fff066a"
     },
     "WebApp/madar-shell.js": {
-      "bytes": 53038,
-      "sha256": "92b333745115d59e3925abd3db4e41179445fbd5f322eb80de8b1a58482e96ce"
+      "bytes": 51454,
+      "sha256": "23f840c444b868356f450218ba751145674eb1fdd99d127319fd67d1a29866c5"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 7759,
@@ -3775,8 +3775,8 @@
       "sha256": "59ec1d2750f314d1236bbb890be3dd0154ff37768a748ae194548397b7b688a4"
     },
     "WebApp/realestate-core.js": {
-      "bytes": 42478,
-      "sha256": "944ac8164aafc4842f0b8173aa6ede9e41a6a0d8ff6107fd0112ce6ebb50d08e"
+      "bytes": 47844,
+      "sha256": "0530e6fa61d28b16b2c37602e4995726e0d8505ab7101af27bf88606ebf6c7fe"
     },
     "WebApp/realism-core.js": {
       "bytes": 113457,
@@ -3855,8 +3855,8 @@
       "sha256": "62679681c22ead7d99f51a80a8aa5962c99d70553ed4446451dc946ea5f7d204"
     },
     "WebApp/telecom-market-core.js": {
-      "bytes": 23979,
-      "sha256": "c9ba814af91c1006fac967eba48339960dbf1d4408678e78c2fff785d12b6cb9"
+      "bytes": 27736,
+      "sha256": "61a32188669aca4116b855d1818a745cd57fcbbbbf9254434a1f466e15f1a570"
     },
     "WebApp/transaction-core.js": {
       "bytes": 82757,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "4209735c193f2ad2f65ef2023f9e21c3767650d8101825fd8ea71a79487308ac"
+      "sha256": "b2b79d8b1015cebb7770e44036d9afd2b6214967dc9426661ecdc0a0a63cf4d2"
     },
     "BUILD": {
       "bytes": 4,

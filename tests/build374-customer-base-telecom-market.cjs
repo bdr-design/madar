@@ -39,9 +39,10 @@ const results={};
   const before=JSON.stringify({bank:s.bank,insurance:s.insurance,realEstate:s.realEstate,customerCompanies:s.customerCompanies});
   const snap=env.base.snapshot(s),ksa=snap.byCountry['السعودية'];
   assert.equal(JSON.stringify({bank:s.bank,insurance:s.insurance,realEstate:s.realEstate,customerCompanies:s.customerCompanies}),before,'reading the base changes nothing');
-  assert.equal(ksa.households,Math.round(35300000/4.5));assert.equal(ksa.companies.bank.households,780000);assert.equal(ksa.companies.insurance.households,12000,'an insurer counts a household once, by its widest household line');
+  assert.equal(ksa.households,Math.round(35300000/4.5));// Build 377: a bank's retail customers are people; about 2.5 of them (55% of a 4.5-person household) share a household.
+  assert.ok(Math.abs(ksa.companies.bank.households-780000/(.55*4.5))<1e-6,'the bank\'s 780,000 retail customers are about 315,152 households');assert.equal(ksa.companies.insurance.households,12000,'an insurer counts a household once, by its widest household line');
   assert.equal(ksa.companies.realestate.households,160);assert.equal(ksa.companies.realestate.businesses,30);
-  assert.ok(env.base.affinity(s,'السعودية','telecom')>.09&&env.base.affinity(s,'السعودية','telecom')<.11,'the bank and insurer reach about a tenth of Saudi households');
+  assert.ok(env.base.affinity(s,'السعودية','telecom')>.0415&&env.base.affinity(s,'السعودية','telecom')<.0419,'the bank and insurer reach about 4.2% of Saudi households (bank 4.02%, insurer 0.15%)');
   assert.equal(env.base.affinity(s,'مصر','telecom'),0,'no group company in Egypt');
   assert.equal(env.base.snapshot(s),snap,'the base is memoised for the day');
   results.affinity=Number(env.base.affinity(s,'السعودية','telecom').toFixed(4));
@@ -55,20 +56,37 @@ const results={};
   assert.equal(m.branches.length,2);assert.ok(m.branches.every(row=>row.activeCustomers>3000),'both branches gained subscribers');
   assert.ok(sum.byPlan.mobile>sum.byPlan.home&&sum.byPlan.home>sum.byPlan.business,'mobile is the widest plan, business the narrowest');
   const invoices=s.finance.invoices.filter(row=>/^TEL-MKT-INV-/.test(row.sourceRef));
-  assert.equal(invoices.length,2,'one invoice per branch for the first full month (February)');
+  // Build 377 (IFRS 15): revenue is earned day by day and billed in arrears: one invoice per branch for January (the
+  // first month is billed too), issued on February's first close for exactly what January earned.
+  assert.equal(invoices.length,2,'one invoice per branch for January, billed in arrears');
   assert.deepEqual(invoices.map(row=>row.businessLocationCountry).sort(),['الإمارات','السعودية']);
-  for(const row of invoices)assert.match(row.sourceRef,/-2026-02$/);
+  for(const row of invoices)assert.match(row.sourceRef,/-2026-01$/);
   const ruh=m.branches.find(row=>row.facilityId==='TEL-RUH'),billed=invoices.find(row=>row.businessLocationId==='TEL-RUH');assert.ok(billed.total>0);
+  const january=m.dailyHistory.filter(row=>row.day<=30).reduce((n,row)=>n+row.accrued,0);
+  assert.ok(Math.abs(invoices.reduce((n,row)=>n+row.total,0)-january)<.05,`January's invoices carry exactly what January earned: ${january}`);
   const last=m.dailyHistory[0],result=env.market.dailyResult(s,58);
-  assert.equal(result.revenue,0,'revenue arrives on the invoices, never twice');
-  // Build 375: on the day the invoices are issued they are the company's revenue in its daily report, without cash
-  // (the invoices posted it), so the company's profit counts them.
-  const billedDay=env.market.dailyResult(s,31),februaryBills=s.finance.invoices.filter(row=>/^TEL-(MKT|ENT)-INV-/.test(row.sourceRef||'')&&/-2026-02$/.test(row.sourceRef));
-  assert.equal(Math.round(billedDay.revenue),Math.round(februaryBills.reduce((n,row)=>n+row.total,0)),'the day\'s invoices are its revenue');assert.equal(billedDay.cashRevenue,0,'and are not posted again as cash');assert.ok(result.expense>0&&Math.abs(result.expense-last.networkCost-last.acquisitionCost)<1e-6);
+  assert.ok(last.accrued>0&&result.revenue===last.accrued,'every day earns its share of the monthly bill');assert.equal(result.cashRevenue,0,'without cash');
+  const billedDay=env.market.dailyResult(s,31),day31=m.dailyHistory.find(row=>row.day===31);
+  assert.equal(billedDay.revenue,day31.accrued,'the invoice day counts its own accrual only, never the invoices again');assert.equal(billedDay.cashRevenue,0);assert.ok(Math.abs(day31.billedArrears-invoices.reduce((n,row)=>n+row.total,0))<.01,'the invoices are recorded apart from the revenue');
+  assert.ok(m.branches.every(row=>row.accrual?.period==='2026-02'&&row.accrual.amount>0&&row.billables.length===0),'February accrues and waits for March');
+  assert.ok(result.expense>0&&Math.abs(result.expense-last.networkCost-last.acquisitionCost)<1e-6);
   assert.ok(last.networkCost/(sum.monthlyRecurring/30)>.3&&last.networkCost/(sum.monthlyRecurring/30)<.45,'the network costs about 37% of the price');
   const snapshot=JSON.stringify(m);drain(env.core.onFinancialDayStages({state:s,companyId:'telecom'},{day:58}));assert.equal(JSON.stringify(m),snapshot,'a day runs once');
   assert.ok(ruh.marketPopulation===35300000,'the branch keeps its population, as the bank and insurer do');
-  results.twoBranches={subscribers:sum.subscribers,monthlyRecurring:Math.round(sum.monthlyRecurring),februaryInvoices:invoices.length};
+  results.twoBranches={subscribers:sum.subscribers,monthlyRecurring:Math.round(sum.monthlyRecurring),januaryInvoices:invoices.length};
+}
+
+// 2b. Build 377: a branch an older save billed in advance for the current month earns nothing more this month (it is in
+// its results) and accrues from the next month; its next invoice bills that month in arrears.
+{
+  const env=setup({branches:[['TEL-RUH','الرياض','السعودية']]}),s=env.s;runDays(env,0,9);
+  const m=s.customerCompanies.companies.telecom.market,branch=m.branches[0];
+  for(const key of ['billing','accrual','billables','accrualFromPeriod'])delete branch[key];branch.lastBilledMonth='2026-01';
+  runDays(env,10,40);
+  assert.equal(branch.billables.length,0,'January was billed in advance: nothing more is billed for it');
+  assert.equal(m.dailyHistory.filter(row=>row.day>=10&&row.day<=30).reduce((n,row)=>n+row.accrued,0),0,'and nothing more is earned for it');
+  assert.ok(m.dailyHistory.find(row=>row.day===31).accrued>0&&branch.accrual.period==='2026-02','February accrues from its first day');
+  results.legacyAdvance={februaryAccrued:Math.round(branch.accrual.amount)};
 }
 
 // 3. Price stance: under the market grows faster than over it; nothing outside the three stances is accepted.
@@ -102,9 +120,11 @@ const results={};
   const batch=env.core.execute({state:s},'telecom-decide-requests-batch',{batchId:'TEL-BATCH-1',decisions:rest.map(row=>({id:row.id,decision:'decline'}))});
   assert.equal(batch.declined,rest.length);assert.equal(JSON.stringify(env.core.execute({state:s},'telecom-decide-requests-batch',{batchId:'TEL-BATCH-1',decisions:rest.map(row=>({id:row.id,decision:'decline'}))})),JSON.stringify(batch),'a replayed batch returns its first result');
   assert.equal(m().requests.length,0);
-  const contract=m().contracts[0];runDays(env,day,day+62);
+  const contract=m().contracts[0],startDay=day;runDays(env,day,day+62);
   const bills=s.finance.invoices.filter(row=>row.sourceRef.startsWith(`TEL-ENT-INV-${contract.id}-`));
-  assert.ok(bills.length>=1,'the contract is billed monthly');assert.ok(Math.abs(bills[0].total-contract.activeCustomers*contract.monthlyPrice)<.01);
+  // Build 377: billed in arrears for what each month earned: the first month from the day it started, then whole months.
+  const monthly=contract.activeCustomers*contract.monthlyPrice,start=new Date(Date.UTC(2026,0,1)+startDay*86400000),monthDays=new Date(Date.UTC(start.getUTCFullYear(),start.getUTCMonth()+1,0)).getUTCDate(),firstMonth=monthly*(monthDays-start.getUTCDate()+1)/monthDays;
+  assert.ok(bills.length>=2,'the contract is billed monthly');assert.ok(Math.abs(bills[0].total-firstMonth)<.02,`the first month from its start day: ${bills[0].total} vs ${firstMonth}`);assert.ok(Math.abs(bills[1].total-monthly)<.02,'then a whole month');
   results.contracts={requestsSeen:rest.length+1,firstLines:first.lines,bills:bills.length};
 }
 

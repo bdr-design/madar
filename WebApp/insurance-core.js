@@ -36,13 +36,15 @@
   const roundDraw=(value,seed)=>Math.floor(Math.max(0,value)+deterministic(seed,0,1));
   const LINES=Object.freeze({
     motor:{name:'تأمين المركبات',buyers:'household',premium:650,frequency:.12,severity:3500,lapse:.12,growth:[6,22]},
-    health:{name:'التأمين الصحي',buyers:'household',premium:1800,frequency:.9,severity:900,lapse:.08,growth:[3,14]},
+    // Build 377 (owner's decision, realism): health cover pays out about 80% of its premium (1.6 claims of $900 a year
+    // per policy); it was 45%.
+    health:{name:'التأمين الصحي',buyers:'household',premium:1800,frequency:1.6,severity:900,lapse:.08,growth:[3,14]},
     property:{name:'تأمين المنازل والممتلكات',buyers:'household',premium:420,frequency:.02,severity:14000,lapse:.06,growth:[3,12]},
     commercial:{name:'التأمين التجاري',buyers:'business',premium:25000,frequency:.08,severity:220000,lapse:.10,growth:[0,2]}
   });
   const LINE_IDS=Object.freeze(Object.keys(LINES));
   const INSURABLE_SHARE=.45,MAX_MARKET_SHARE=.03,BUSINESS_PER_PEOPLE=40,DEFAULT_POPULATION=10000000;
-  const COMMISSION=.12,CLAIMS_LAG_DAYS=30,PRICE_LEVELS=Object.freeze([.85,.9,.95,1,1.05,1.1,1.15,1.25]);
+  const SOLVENCY_MARGIN=.2,COMMISSION=.12,CLAIMS_LAG_DAYS=30,PRICE_LEVELS=Object.freeze([.85,.9,.95,1,1.05,1.1,1.15,1.25]);
   const REINSURANCE_LEVELS=Object.freeze([0,.2,.4,.6]),CEDING_COMMISSION=.25;
   // Build 374: a large risk is accepted whole or as a co-insurer's share; the claims reserve (money owed to claimants and
   // held until it is paid) earns the market rate (80% of the base rate, in short government paper).
@@ -80,9 +82,19 @@
     const owned=new Set(facilities.map(row=>row.id));for(const office of ins.offices)if(!owned.has(office.facilityId))office.active=false;
     return ins.offices;
   }
+  // Build 377: a country's income sets its premiums and claim costs (insurancePrice, so a line's loss ratio is the same
+  // everywhere) and how many of its households buy cover at all (insuranceReach). Large commercial risks keep their
+  // sums insured: plants, ships and aircraft are valued in world markets. Saudi Arabia is the reference (1).
+  function incomeFactor(country,sector){const B=globalThis.GH_CUSTOMER_BASE;return typeof B?.incomeFactor==='function'?B.incomeFactor(country,sector):1;}
+  // The economy of the day (customer-base-core): the price level raises premiums and claim costs alike, and new policies
+  // follow economic activity.
+  // Build 377: customers of the group's other companies in the office's country buy cover more readily
+  // (customer-base-core affinityBoost, at most +15%), households for household lines and businesses for commercial.
+  function groupReach(state,country){const B=globalThis.GH_CUSTOMER_BASE;if(typeof B?.affinityBoost!=='function')return {households:1,businesses:1};return {households:B.affinityBoost(state,country,'insurance','households'),businesses:B.affinityBoost(state,country,'insurance','businesses')};}
+  function economy(state){const B=globalThis.GH_CUSTOMER_BASE;return {prices:typeof B?.priceIndex==='function'?B.priceIndex(state):1,demand:typeof B?.demandFactor==='function'?B.demandFactor(state,'insurance'):1};}
   function officeMarket(ins,office){
     if(!(Number(office.marketPopulation)>0))office.marketPopulation=countryPopulation(office.country);
-    const peers=Math.max(1,ins.offices.filter(row=>row.active&&row.country===office.country).length),households=Math.round(clamp(num(office.marketPopulation)*INSURABLE_SHARE*MAX_MARKET_SHARE/peers,300,200000));
+    const peers=Math.max(1,ins.offices.filter(row=>row.active&&row.country===office.country).length),households=Math.round(clamp(num(office.marketPopulation)*Math.min(.9,INSURABLE_SHARE*incomeFactor(office.country,'insuranceReach'))*MAX_MARKET_SHARE/peers,300,200000));
     return {population:num(office.marketPopulation),households,businesses:Math.max(30,Math.round(households/BUSINESS_PER_PEOPLE))};
   }
   const capacityFor=(market,line)=>LINES[line].buyers==='business'?market.businesses:market.households;
@@ -128,6 +140,15 @@
     for(const item of normalized){const risk=ins.riskRequests.find(row=>row.id===item.id);if(!risk){items.push({riskId:item.id,status:'تجاوز',reason:'insurance-risk-not-found'});skipped++;continue;}if(day>=Number(risk.expiresDay)){closeRisk(ins,risk,'منتهي',{decidedDay:day,batchId});items.push({riskId:item.id,status:'منتهي',reason:'insurance-risk-expired'});skipped++;continue;}const result=decideRisk(state,item);items.push({...result});if(item.decision==='accept'){accepted++;totalPremium+=num(result.premium);totalInsured+=num(risk.sumInsured);}else declined++;}
     const result={batchId,periodId,accepted,declined,skipped,totalPremium,totalInsured,items};ins.riskDecisionBatches.unshift({batchId,fingerprint,result:clone(result),at:now(state)});ins.riskDecisionBatches.splice(120);return result;
   }
+  // Build 377 (owner's decision): the group's car dealer offers the group's motor cover with every car it sells. Buyers who
+  // take it join the motor line of an active office in their country (up to the office's market), as new policies do;
+  // returns how many joined.
+  function addMotorPoliciesFromSales(state,p={}){
+    const ins=state.insurance&&Array.isArray(state.insurance.offices)?state.insurance:null,country=String(p.country||'').trim(),count=Math.max(0,Math.floor(Number(p.count)||0));if(!ins||!country||!count||!(state.openedCompanies||[]).includes('insurance'))return 0;
+    const office=ins.offices.find(row=>row.active&&row.country===country);if(!office?.lines?.motor||ins.solvency?.writing===false)return 0;
+    const line=office.lines.motor,room=Math.max(0,capacityFor(officeMarket(ins,office),'motor')-line.policies),joined=Math.min(room,count);
+    line.policies+=joined;return joined;
+  }
   function setPricing(state,p){
     const ins=ensure(state),line=String(p.line||'');if(!LINES[line])throw new Error('insurance-line-invalid');const level=Number(p.level);if(!PRICE_LEVELS.includes(level))throw new Error('insurance-price-invalid');
     ins.pricing[line]=level;return {line,level,premium:linePrice(ins,line)};
@@ -147,15 +168,20 @@
   function* tickDayStages(state,p={}){
     const ins=ensure(state),day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(state)/86400)));if(ins.lastProcessedDay===day)return ins.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
     let premium=0,claims=0,claimsCount=0,newPolicies=0,lapsed=0;const byLine={};for(const id of LINE_IDS)byLine[id]={premium:0,claims:0,policies:0};
-    const catastrophe=deterministic(`${day}:ins-cat`,0,1)<.004?ins.offices.filter(row=>row.active).map(row=>row.country)[Math.floor(deterministic(`${day}:ins-cat-country`,0,Math.max(1,ins.offices.length)))]||null:null;
+    // Build 377 (solvency): the regulator asks an insurer to hold capital of 20% of a year's premium (its last 30 days at a
+    // yearly pace). Below it, no new cover is written (policies in force carry on) until the capital is restored.
+    const premium30=ins.dailyHistory.slice(0,30).reduce((sum,row)=>sum+num(row.premium),0),solvencyRequired=premium30*365/Math.max(1,Math.min(30,ins.dailyHistory.length))*SOLVENCY_MARGIN,capitalHeld=state.godMoney&&state.infiniteMoney?Infinity:num(globalThis.GH_FINANCE_CORE?.operating?.(state,'insurance')),writing=!(solvencyRequired>0)||capitalHeld>=solvencyRequired;
+    ins.solvency={required:Math.round(solvencyRequired),held:Number.isFinite(capitalHeld)?Math.round(capitalHeld):null,ratio:solvencyRequired>0&&Number.isFinite(capitalHeld)?Math.round(capitalHeld/solvencyRequired*1000)/10:null,writing};
+    const conditions=economy(state),catastrophe=deterministic(`${day}:ins-cat`,0,1)<.004?ins.offices.filter(row=>row.active).map(row=>row.country)[Math.floor(deterministic(`${day}:ins-cat-country`,0,Math.max(1,ins.offices.length)))]||null:null;
     for(const office of ins.offices){
-      const market=officeMarket(ins,office),campaign=office.campaignUntil>day,today={day,newPolicies:0,lapsed:0,claims:0,premium:0};
+      const market=officeMarket(ins,office),campaign=office.campaignUntil>day,today={day,newPolicies:0,lapsed:0,claims:0,premium:0},local=incomeFactor(office.country,'insurancePrice')*conditions.prices,reach=groupReach(state,office.country),rivalLevel=(typeof globalThis.GH_CUSTOMER_BASE?.rivalPrice==='function'?globalThis.GH_CUSTOMER_BASE.rivalPrice(office.country,'insurance',day):1);
       for(const id of LINE_IDS){
-        const row=LINES[id],line=office.lines[id],level=num(ins.pricing[id]||1),q=quote(state,id),capacity=capacityFor(market,id),room=clamp(1-line.policies/Math.max(1,capacity),0,1);
+        // Build 377: buyers and lapses follow the price against the country's rival insurer (customer-base-core rivalPrice).
+        const row=LINES[id],line=office.lines[id],level=num(ins.pricing[id]||1),relative=level/rivalLevel,q={...quote(state,id),lapse:clamp(row.lapse*(1+(relative-1)*2.5),.02,.4),growthFactor:clamp(1+(1-relative)*2,.4,1.6)},capacity=capacityFor(market,id),room=clamp(1-line.policies/Math.max(1,capacity),0,1);
         const lapsedToday=office.active||line.policies?Math.min(line.policies,roundDraw(line.policies*q.lapse/365,`${office.id}:${day}:${id}:lapse`)):0;
-        const newToday=office.active?Math.round(deterministic(`${office.id}:${day}:${id}:new`,row.growth[0],row.growth[1])*q.growthFactor*(campaign?CAMPAIGN_GROWTH:1)*room):0;
+        const newToday=office.active&&writing?Math.round(deterministic(`${office.id}:${day}:${id}:new`,row.growth[0],row.growth[1])*q.growthFactor*conditions.demand*reach[row.buyers==='business'?'businesses':'households']*(campaign?CAMPAIGN_GROWTH:1)*room):0;
         line.policies=Math.max(0,line.policies-lapsedToday+newToday);line.newToday=newToday;line.lapsedToday=lapsedToday;
-        const dailyPremium=line.policies*linePrice(ins,id)/365,expectedClaims=line.policies*row.frequency/365*adverseSelection(level)*(catastrophe===office.country&&id==='property'?5:1),count=roundDraw(expectedClaims,`${office.id}:${day}:${id}:claims`),severity=row.severity*deterministic(`${office.id}:${day}:${id}:severity`,.6,1.4),amount=count*severity;
+        const dailyPremium=line.policies*linePrice(ins,id)*local/365,expectedClaims=line.policies*row.frequency/365*adverseSelection(level)*(catastrophe===office.country&&id==='property'?5:1),count=roundDraw(expectedClaims,`${office.id}:${day}:${id}:claims`),severity=row.severity*local*deterministic(`${office.id}:${day}:${id}:severity`,.6,1.4),amount=count*severity;
         line.premiumToday=dailyPremium;line.claimsToday=amount;line.claimsCountToday=count;
         premium+=dailyPremium;claims+=amount;claimsCount+=count;newPolicies+=newToday;lapsed+=lapsedToday;byLine[id].premium+=dailyPremium;byLine[id].claims+=amount;byLine[id].policies+=line.policies;
         today.newPolicies+=newToday;today.lapsed+=lapsedToday;today.claims+=amount;today.premium+=dailyPremium;
@@ -210,6 +236,6 @@
     if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
     throw new Error(`Unknown insurance command: ${cmd}`);
   }
-  const API={VERSION,DAILY_FINANCIAL_ORDER:300,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
+  const API={VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
   globalThis.GH_INSURANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('insurance',API);if(globalThis.window&&window!==globalThis)window.GH_INSURANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

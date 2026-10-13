@@ -1,11 +1,11 @@
 'use strict';
-// Build 373 (owner's approved design): a company without transport assets (insurance, real estate, bank, telecom, car
-// dealership) opens on its revenue chain instead of the image hero and tiles: five steps, the next step, the decisions
-// waiting for the player and a light link to every page the tiles opened. Its decisions are accepted or rejected one by
-// one or all in one batch through the owners' existing batch commands. Here, in the real app: each panel shows its
-// chain with no image and every former tile still reachable; three insurance risks are accepted in one batch, two
-// tenant requests rejected in one batch, one bank request rejected alone, and the dealership's customer-finance request
-// rejected from its own panel without touching the bank's other request.
+// Build 373: the decisions waiting in a company without transport assets (insurance, real estate, bank, telecom, car
+// dealership) are accepted or rejected one by one or all in one batch from its panel, through the owners' existing batch
+// commands. Build 377 (owner's decision): the revenue-chain design is gone; these companies open on the same panel as
+// the airline (the image hero with their main count, the image tiles, then "needs your decision"). Here, in the real
+// app: each panel is the airline's, with no chain step, and every tile is also in the page strip; three insurance risks
+// are accepted in one batch, two tenant requests rejected in one batch, one bank request rejected alone, and the
+// dealership's customer-finance request rejected from its own panel without touching the bank's other request.
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
 const KINDS=['insurance','realestate','bank','telecom','dealership'];
@@ -22,12 +22,12 @@ const KINDS=['insurance','realestate','bank','telecom','dealership'];
 
     for(const id of KINDS){
       await page.evaluate(id=>__AUDIT__.openDrawer('company',id),id);
-      const panel=await page.evaluate(()=>{const root=document.querySelector('#drawerBody .mc-chained');if(!root)return null;return {steps:root.querySelectorAll('.mc-step').length,now:root.querySelectorAll('.mc-step.is-now').length,next:!!root.querySelector('.mc-next [data-go]'),start:!!root.querySelector('.mc-start'),images:root.querySelectorAll('img').length,oldTiles:root.querySelectorAll('.mc-tile').length,pages:[...root.querySelectorAll('.mc-page')].map(button=>`${button.dataset.go}|${button.dataset.goArg||''}`),strip:[...document.querySelectorAll('#sectionNav [data-go]')].map(button=>`${button.dataset.go}|${button.dataset.goArg||''}`)};});
-      assert.ok(panel,`${id}: the revenue chain replaces the old panel`);
-      assert.equal(panel.steps,5,`${id}: five steps`);assert.equal(panel.now,1,`${id}: one current step`);assert.equal(panel.next,true,`${id}: the next step opens a page`);assert.equal(panel.start,true,`${id}: a new company starts from the first step`);
-      assert.equal(panel.images,0,`${id}: no image in the panel`);assert.equal(panel.oldTiles,0,`${id}: no image tile`);
-      for(const target of panel.pages)assert.ok(panel.strip.includes(target),`${id}: page ${target} is also in the page strip`);
-      assert.ok(panel.pages.length>=6,`${id}: every former tile stays reachable: ${panel.pages.length}`);
+      const panel=await page.evaluate(id=>{const root=document.querySelector(`#drawerBody .madar-company[data-kind="${id}"]`);if(!root)return null;return {chain:root.querySelectorAll('.mc-chain,.mc-step,.mc-next,.mc-pages').length,chained:root.classList.contains('mc-chained'),hero:root.querySelectorAll('.mc-hero').length,count:root.querySelector('.mc-hero .mc-count')?.textContent.trim()||'',tiles:[...root.querySelectorAll('.mc-grid .mc-tile')].map(button=>({target:`${button.dataset.go}|${button.dataset.goArg||''}`,image:!!button.querySelector('img'),title:button.querySelector('.mc-text b')?.textContent.trim()||''})),strip:[...document.querySelectorAll('#sectionNav [data-go]')].map(button=>`${button.dataset.go}|${button.dataset.goArg||''}`)};},id);
+      assert.ok(panel,`${id}: the company panel opens`);
+      assert.equal(panel.chain,0,`${id}: no revenue-chain step`);assert.equal(panel.chained,false,`${id}: not the chain design`);
+      assert.equal(panel.hero,1,`${id}: the airline's image hero`);assert.match(panel.count,/^\d[\d,]*$/,`${id}: the hero carries the company's main count`);
+      assert.ok(panel.tiles.length>=5,`${id}: the airline's image tiles: ${panel.tiles.length}`);
+      for(const tile of panel.tiles){assert.ok(tile.image&&tile.title,`${id}: tile ${tile.target} has its image and title`);assert.ok(panel.strip.includes(tile.target),`${id}: page ${tile.target} is also in the page strip`);}
     }
 
     await page.evaluate(()=>{

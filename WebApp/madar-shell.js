@@ -162,20 +162,18 @@ function heroMarkup(hero){
   const [panel,arg]=hero.to;
   return `<button type="button" class="mc-tile mc-hero" ${go(panel,arg)} data-tile="${esc(hero.key)}"><img src="${ui(hero.img)}" alt="" decoding="async"><span class="mc-scrim mc-scrim-side"></span><span class="mc-text"><small class="mc-kicker">${esc(hero.title)}</small>${hero.count?`<span class="mc-hero-count">${hero.count}</span>`:''}<span class="mc-chips">${(hero.chips||[]).filter(Boolean).map(text=>`<span class="mc-chip">${esc(text)}</span>`).join('')}</span></span></button>`;
 }
-function panelMarkup({kind='',status,kpis,hero,tiles,extra='',decisions}){
-  const decisionMarkup=decisions.length?`<section class="mc-decide" aria-label="يحتاج قرارك"><h3>يحتاج قرارك</h3>${decisions.map(([ic,title,copy,panel,arg,label])=>`<div class="mc-decision"><span class="mc-decision-icon">${icon(ic)}</span><span class="mc-decision-copy"><b>${esc(title)}</b><small>${esc(copy)}</small></span><button type="button" class="mc-act" ${go(panel,arg)}>${esc(label)}</button></div>`).join('')}</section>`:'';
-  const pill=decisions.length?`<button type="button" class="mc-pill" data-mc-decide>يحتاج قرارك <b>${esc(num(decisions.length))}</b></button>`:'';
+function panelMarkup({kind='',status,kpis,hero,tiles,extra='',decisions,pending=null}){
+  const pendingCount=pending?.count||0,total=decisions.length+pendingCount;
+  const decisionMarkup=total?`<section class="mc-decide" aria-label="يحتاج قرارك"><h3>يحتاج قرارك</h3>${pending?.markup||''}${decisions.map(([ic,title,copy,panel,arg,label])=>`<div class="mc-decision"><span class="mc-decision-icon">${icon(ic)}</span><span class="mc-decision-copy"><b>${esc(title)}</b><small>${esc(copy)}</small></span><button type="button" class="mc-act" ${go(panel,arg)}>${esc(label)}</button></div>`).join('')}</section>`:'';
+  const pill=total?`<button type="button" class="mc-pill" data-mc-decide>يحتاج قرارك <b>${esc(num(total))}</b></button>`:'';
   return `<div class="madar-company"${kind?` data-kind="${esc(kind)}"`:''}><div class="mc-main"><div class="mc-head"><p class="mc-manager">${status}</p>${pill}</div><div class="mc-kpis">${kpis.map(([label,value,cls])=>`<div class="mc-kpi"><span>${esc(label)}</span><b class="${esc(cls)}">${esc(value)}</b></div>`).join('')}</div>${heroMarkup(hero)}${decisionMarkup}</div><div class="mc-grid">${tiles}${extra}</div></div>`;
 }
 const statusLine=(tone,text)=>`<small class="mc-status is-${tone}"><i></i>${esc(text)}</small>`;
-// Build 373 (owner's approved design, replacing the image hero and tiles of these companies): a company without transport
-// assets opens on its revenue chain (company-revenue-chain-core: five steps in the order the game earns its money, where
-// the player stands, the one next step), then the decisions waiting for the player, each accepted or rejected alone or
-// all in one batch through the owners' existing batch commands (advanced-core company-decide-pending), then every page
-// the tiles opened, as light links (the page strip above keeps them too). No images, no pass over the fleet: one read of
-// the owners' records the pages already read.
-const CHAIN_KINDS=new Set(['insurance','realestate','telecom','dealership','bank']);
-function chainValue(ctx,value){if(value&&value.money!==undefined)return money(ctx,value.money);if(value&&value.count!==undefined)return num(value.count);if(value&&value.pct!==undefined)return `${Math.round(Number(value.pct)||0)}%`;return String(value?.text??'—');}
+// Build 377 (owner's decision): the companies without transport assets open on the same panel as the airline again
+// (the hero with their main count and tiles); the decisions waiting for the player (insurance risks, tenant requests,
+// bank and dealership customer-finance requests, from company-revenue-chain-core) are accepted or rejected in its
+// "needs your decision" section, one by one or all in one batch, through the owners' existing batch commands.
+const SERVICE_KINDS=new Set(['insurance','realestate','telecom','dealership','bank']);
 function chainDecisionDetail(ctx,kindId,row){
   const x=row.detail||{},left=Number(row.daysLeft),due=Number.isFinite(left)?` · ${left?`يسقط بعد ${num(left)} ${left===1?'يوم':left<11?'أيام':'يومًا'}`:'يسقط اليوم'}`:'';
   if(kindId==='insurance')return `قسط سنوي ${money(ctx,x.premium)} · خسارة متوقعة ${money(ctx,x.expectedLoss)}${due}`;
@@ -183,28 +181,24 @@ function chainDecisionDetail(ctx,kindId,row){
   if(kindId==='telecom')return `${num(x.lines)} خط · ${money(ctx,x.monthlyValue)} شهريًا · ${num(x.months)} شهرًا${due}`;
   return `${money(ctx,x.amount)}${x.grade?` · درجة ${x.grade}`:''}${due}`;
 }
-function renderChainCompany(state,id,ctx,kindId,kind){
-  let chain=null;try{chain=globalThis.GH_REVENUE_CHAIN?.build?.(state,id,kindId,{operating:company=>ctx.companyOperatingBalance?.(company)});}catch(_error){chain=null;}
-  if(!chain)return null;
-  const facts=companyFacts(state,id,ctx),perf=facts.performance,reported=Number(perf?.reportedDays)||0,net=Number(perf?.net)||0,lastDay=Number(perf?.lastDayNet)||0;
-  const signed=value=>`${value>=0?'+':''}${money(ctx,value)}`;
-  const kpis=[['آخر إقفال',reported?signed(lastDay):'لم يُقفل بعد',reported?(lastDay>=0?'positive':'negative'):'is-text'],['صافي 30 يومًا',reported?signed(net):'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],['رصيد الشركة',Number.isFinite(Number(facts.balance))?money(ctx,facts.balance):'—','']];
-  const status=facts.manager?.name?statusLine('good',`تعمل · المدير: ${facts.manager.name}`):statusLine('warn','بلا مدير تنفيذي معيّن');
-  const steps=chain.steps.map((row,index)=>{const tone=index===chain.current?'now':row.done?'done':'later';return `<li class="mc-step is-${tone}"${index===chain.current?' aria-current="step"':''}><em aria-hidden="true">${tone==='done'?'✓':index+1}</em><small>${esc(row.label)}</small>${tone==='later'?'':`<b>${esc(chainValue(ctx,row.value))}</b>`}</li>`;}).join('');
-  const next=chain.next,nextMarkup=next?`<div class="mc-next"><p>${chain.steps.some(row=>row.done)?'':'<b class="mc-start">ابدأ من هنا</b>'}${esc(next.text)}${next.amount!==undefined?` <b>${esc(money(ctx,next.amount))}</b>`:''}</p><button type="button" class="mc-next-go" ${go(next.panel,next.arg)}>${esc(next.label)}</button></div>`:'';
-  const decide=globalThis.GH_ADVANCED?.pendingDecisionAction,rows=chain.decisions||[];
+function pendingDecisions(state,id,ctx,kindId){
+  let chain=null;try{chain=globalThis.GH_REVENUE_CHAIN?.build?.(state,id,kindId);}catch(_error){chain=null;}
+  const decide=globalThis.GH_ADVANCED?.pendingDecisionAction,rows=chain?.decisions||[];if(!rows.length)return null;
   const bulk=decide&&rows.length>1?`<div class="mc-bulk">${decide(chain.batch,id,'accept',`قبول الكل (${num(rows.length)})`)}${decide(chain.batch,id,'reject',`رفض الكل (${num(rows.length)})`,{secondary:true})}</div>`:'';
-  const decisionRows=rows.map(row=>`<div class="mc-decision mc-pending"><span class="mc-decision-copy"><b>${esc(row.title)}</b><small>${esc(chainDecisionDetail(ctx,kindId,row))}</small></span>${decide?`<span class="mc-row-actions">${decide(chain.batch,id,'accept','قبول',{request:row.id})}${decide(chain.batch,id,'reject','رفض',{request:row.id,secondary:true})}</span>`:''}</div>`).join('');
-  const executive=facts.manager?.name?'':`<div class="mc-decision"><span class="mc-decision-icon">${icon('executive')}</span><span class="mc-decision-copy"><b>عيّن مديرًا تنفيذيًا</b><small>الشركة تعمل بلا مدير رسمي</small></span><button type="button" class="mc-act" ${go('labor',`managers:${id}`)}>تعيين</button></div>`;
-  const pending=rows.length+(executive?1:0);
-  const decisions=pending?`<section class="mc-decide" aria-label="يحتاج قرارك"><h3>يحتاج قرارك</h3>${bulk}${decisionRows}${executive}</section>`:'';
-  const pill=pending?`<button type="button" class="mc-pill" data-mc-decide>يحتاج قرارك <b>${esc(num(pending))}</b></button>`:'';
-  const pages=[kind.hero,...tilesFor(state,id)].map(tile=>{const [panel,arg]=tile.to(id);return `<button type="button" class="mc-page" ${go(panel,arg)} data-tile="${esc(tile.key)}">${glyph(tile.icon)}<span>${esc(tile.title)}</span></button>`;}).join('');
-  return `<div class="madar-company mc-chained" data-kind="${esc(kindId)}"><div class="mc-main"><div class="mc-head"><p class="mc-manager">${status}</p>${pill}</div><div class="mc-kpis">${kpis.map(([label,value,cls])=>`<div class="mc-kpi"><span>${esc(label)}</span><b class="${esc(cls)}">${esc(value)}</b></div>`).join('')}</div><ol class="mc-chain" aria-label="سلسلة الإيراد">${steps}</ol>${nextMarkup}${decisions}</div><nav class="mc-pages" aria-label="صفحات الشركة">${pages}</nav></div>`;
+  const markup=bulk+rows.map(row=>`<div class="mc-decision mc-pending"><span class="mc-decision-copy"><b>${esc(row.title)}</b><small>${esc(chainDecisionDetail(ctx,kindId,row))}</small></span>${decide?`<span class="mc-row-actions">${decide(chain.batch,id,'accept','قبول',{request:row.id})}${decide(chain.batch,id,'reject','رفض',{request:row.id,secondary:true})}</span>`:''}</div>`).join('');
+  return {count:rows.length,markup};
+}
+function marketChip(state,kindId,ctx){
+  const B=globalThis.GH_CUSTOMER_BASE;
+  if(kindId==='insurance'){const ratio=Number(state.insurance?.solvency?.ratio);return Number.isFinite(ratio)?`الملاءة ${num(Math.round(ratio))}%${state.insurance.solvency.writing===false?' · الاكتتاب موقوف':''}`:'';}
+  if(kindId==='bank'){const ratio=Number(state.bank?.leverageRatio);return Number.isFinite(ratio)&&ratio>0?`الرافعة ${ratio.toFixed(1)}%`:'';}
+  if(kindId==='realestate'){const value=Number(B?.propertyValue?.(state));return Number.isFinite(value)?`سوق العقار ${num(Math.round(value*100))}`:'';}
+  if(kindId==='dealership'){const last=state.customerCompanies?.companies?.dealership?.market?.dailyHistory?.[0];return last?`ما بعد البيع ${money(ctx,(Number(last.serviceRevenue)||0)+(Number(last.usedRevenue)||0)+(Number(last.financeCommission)||0))} يوميًا`:'';}
+  if(kindId==='telecom'){const branches=state.customerCompanies?.companies?.telecom?.market?.branches||[],day=Math.floor((Number(state.simSeconds)||0)/86400),cheaper=typeof B?.rivalPrice==='function'?branches.filter(row=>B.rivalPrice(row.country,'telecom',day)<1).length:0;return branches.length?`منافس أرخص في ${num(cheaper)} من ${num(branches.length)} فرع`:'';}
+  return '';
 }
 function renderCompany(state,id,ctx){
   const kindId=kindOf(state,id),kind=KINDS[kindId];if(!kind)return '<div class="empty">الشركة غير مفتوحة أو غير معروفة.</div>';
-  if(CHAIN_KINDS.has(kindId)){const chained=renderChainCompany(state,id,ctx,kindId,kind);if(chained)return chained;}
   stickyCompany=id;const facts=companyFacts(state,id,ctx),perf=facts.performance,net=Number(perf?.net)||0,reported=Number(perf?.reportedDays)||0,summary=facts.summary;
   const kpis=[['رصيد الشركة',Number.isFinite(Number(facts.balance))?money(ctx,facts.balance):'—',''],['صافي 30 يومًا',reported?`${net>=0?'+':''}${money(ctx,net)}`:'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],[summary?.primaryOperatingLabel||'التشغيل',typeof summary?.primaryOperatingCount==='number'?num(summary.primaryOperatingCount):(summary?.primaryOperatingCount??'—'),'']];
   const status=facts.manager?.name?statusLine('good',`تعمل · المدير: ${facts.manager.name}`):statusLine('warn','بلا مدير تنفيذي معيّن');
@@ -216,14 +210,17 @@ function renderCompany(state,id,ctx){
     count=stats?`<b class="mc-count">${esc(num(stats.total))}</b><small>${esc(kind.unit)}</small>`:`<b class="mc-count">—</b><small>جارٍ تحديث الأسطول</small>`;
     chips=stats?[`في الحركة ${num(stats.moving)}`,stats.service!=null?`تحتاج صيانة ${num(stats.service)}`:'']:[];
   }else{
-    chips=(summary?.metrics||[]).slice(0,3).map(([label,value])=>`${label} ${typeof value==='number'?num(value):value}`);
+    chips=(summary?.metrics||[]).slice(0,SERVICE_KINDS.has(kindId)?2:3).map(([label,value])=>`${label} ${typeof value==='number'?num(value):value}`);
+    // Build 377 (owner's decision): the companies without transport assets show their main count like the fleet
+    // companies, and the market they sell into (solvency, leverage, the property market, rivals, after-sales).
+    if(SERVICE_KINDS.has(kindId)){const n=summary?.primaryOperatingCount;if(typeof n==='number')count=`<b class="mc-count">${esc(num(n))}</b><small>${esc(summary.primaryOperatingLabel||'')}</small>`;chips.push(marketChip(state,kindId,ctx));}
   }
   const hero=kind.hero;
-  const decisions=[];
+  const decisions=[],pending=SERVICE_KINDS.has(kindId)?pendingDecisions(state,id,ctx,kindId):null;
   if(kind.fleet&&facts.fleet?.service>0)decisions.push(['maintenance',`${num(facts.fleet.service)} ${kind.unit} تحتاج صيانة`,'افتح الصيانة لمراجعة السياسة والفحوص','maintenance',id,'مراجعة']);
-  for(const [label,value] of summary?.metrics||[])if(/بانتظار|طلبات|عروض/.test(String(label))&&Number(value)>0)decisions.push(['tasks',`${label}: ${value}`,'قرار مفتوح في هذه الشركة',hero.to(id)[0],hero.to(id)[1],'فتح']);
+  if(!pending?.count)for(const [label,value] of summary?.metrics||[])if(/بانتظار|طلبات|عروض/.test(String(label))&&Number(value)>0)decisions.push(['tasks',`${label}: ${value}`,'قرار مفتوح في هذه الشركة',hero.to(id)[0],hero.to(id)[1],'فتح']);
   if(!facts.manager?.name)decisions.push(['executive','عيّن مديرًا تنفيذيًا','الشركة تعمل بلا مدير رسمي','labor',`managers:${id}`,'تعيين']);
-  return panelMarkup({kind:kindId,status,kpis,hero:{key:hero.key,title:hero.title,img:hero.img,to:hero.to(id),count,chips},tiles:tilesFor(state,id).map(tile=>tileMarkup(tile,id)).join(''),decisions});
+  return panelMarkup({kind:kindId,status,kpis,hero:{key:hero.key,title:hero.title,img:hero.img,to:hero.to(id),count,chips},tiles:tilesFor(state,id).map(tile=>tileMarkup(tile,id)).join(''),decisions,pending});
 }
 
 // ---- Section panels --------------------------------------------------------------------------------------------------

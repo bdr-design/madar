@@ -45,7 +45,12 @@ const results={};
   assert.equal(s.finance.invoices.filter(row=>/SALE/.test(row.sourceRef||'')).length,0,'no document per sale');
   const sold=data.inventory.reduce((n,row)=>n+row.sold,0);assert.equal(sold,sum.carsSold,'every sale leaves the stock');
   const revenue=m.dailyHistory.reduce((n,row)=>n+row.salesRevenue,0),retail=data.inventory.reduce((n,row)=>n+row.sold*row.retailPrice,0);assert.equal(revenue,retail,'sold at the catalogue retail price');
-  const close=env.market.dailyResult(s,20);assert.equal(close.revenue,0,'retail sales are not posted by the daily close');assert.equal(close.cashRevenue,0);
+  // Build 377: the close posts the day's after-sales business (workshop, trade-ins resold, commissions), paid on the day;
+  // the new cars' retail sales still wait for the month's invoice.
+  const close=env.market.dailyResult(s,20),day20=m.dailyHistory.find(row=>row.day===20),afterSales=day20.serviceRevenue+day20.usedRevenue+day20.financeCommission;
+  // Build 377 (IFRS 15): a car sold today is today's revenue and its maker's cost today's cost of sales, without cash.
+  assert.ok(afterSales>0,'the after-sales business earns every day');assert.equal(close.revenue,afterSales+day20.recognizedSales,'the day\'s cars are its revenue');assert.equal(day20.recognizedSales,day20.salesRevenue);assert.equal(close.cashRevenue,afterSales,'the cars bring no cash before their invoice');
+  assert.equal(close.expense,day20.workshopCost+day20.serviceCost+day20.usedCost+day20.recognizedCost,'the close carries the day\'s cars\' cost of sales');assert.equal(day20.recognizedCost,day20.costOfSales);
   assert.equal(s.finance.invoices.filter(row=>/^AUTO-MKT-SALES-INV-/.test(row.sourceRef||'')).length,0,'no sales invoice before the month closes');
   assert.equal(m.showrooms[0].unbilledSales,revenue,'the month\'s sales wait for its invoice');
   const sales=m.dailyHistory.filter(row=>row.salesRevenue>0);
@@ -63,10 +68,28 @@ const results={};
   assert.equal(bills.length,2,'one invoice per showroom for January');assert.ok(bills.every(row=>row.sourceRef.endsWith('-2026-01')),'billed for January');
   assert.equal(Math.round(bills.reduce((n,row)=>n+row.total,0)),Math.round(january),'the invoices carry exactly January\'s sales');
   const billedDay=env.market.dailyResult(s,31),dayBills=s.finance.invoices.filter(row=>/^AUTO-MKT-(SALES|SVC)-INV-/.test(row.sourceRef||'')&&row.at>=31*DAY&&row.at<32*DAY);
-  assert.equal(Math.round(billedDay.revenue),Math.round(dayBills.reduce((n,row)=>n+row.total,0)),'the day\'s invoices are its revenue in the daily report');assert.equal(billedDay.cashRevenue,0,'and are not posted again as cash');
+  // Build 377: the day's after-sales cash business is added to the invoices, and only it is cash.
+  const day31=m.dailyHistory.find(row=>row.day===31),afterSales31=day31.serviceRevenue+day31.usedRevenue+day31.financeCommission;
+  // Build 377: January's sales invoices only bill what January already recognised; the day's service-plan invoices are
+  // still its revenue.
+  const serviceBills=dayBills.filter(row=>/^AUTO-MKT-SVC-INV-/.test(row.sourceRef||'')).reduce((n,row)=>n+row.total,0);
+  assert.equal(Math.round(billedDay.revenue),Math.round(serviceBills+afterSales31+day31.recognizedSales),'the sales invoices are not revenue again');assert.equal(billedDay.cashRevenue,afterSales31,'and are not posted again as cash');
+  assert.equal(Math.round(m.dailyHistory.filter(row=>row.day<=30).reduce((n,row)=>n+row.recognizedSales,0)),Math.round(january),'January\'s sales were its revenue in January');
   assert.deepEqual(new Set(bills.map(row=>row.businessLocationCountry)),new Set(['السعودية','الإمارات']),'each invoice belongs to its showroom');
   const february=m.dailyHistory.filter(row=>row.day>=31).reduce((n,row)=>n+row.salesRevenue,0);assert.equal(Math.round(env.market.summary(s).unbilledSales),Math.round(february),'February waits for March');
   results.monthly={januarySales:Math.round(january),invoices:bills.length};
+}
+
+// 1c. Build 377: a save from before the sale-day rule recognises its sales not yet invoiced once, on its first day under
+// the rule, and their invoice later bills them without counting them again.
+{
+  const env=setup(),s=env.s;runDays(env,0,9);
+  const m=s.customerCompanies.companies.dealership.market,showroom=m.showrooms[0];delete m.salesRecognition;
+  const legacy=showroom.unbilledSales,legacyCost=showroom.unbilledCost;assert.ok(legacy>0);
+  runDays(env,10,10);const day10=m.dailyHistory.find(row=>row.day===10);
+  assert.equal(day10.recognizedSales,day10.salesRevenue+legacy,'the older sales are recognised once, with the day\'s own');assert.equal(day10.recognizedCost,day10.costOfSales+legacyCost);
+  runDays(env,11,11);assert.equal(m.dailyHistory.find(row=>row.day===11).recognizedSales,m.dailyHistory.find(row=>row.day===11).salesRevenue,'and only once');
+  results.legacy={recognised:Math.round(legacy)};
 }
 
 // 2. Without cash for stock, buyers are lost; a discount sells more.
@@ -98,9 +121,12 @@ const results={};
   // expensed on the day their monthly invoice is issued (February 1 bills January), with the sales' revenue.
   const day62=m.dailyHistory.find(row=>row.day===62),cost=env.market.dailyResult(s,62),billed=env.market.dailyResult(s,31),catalogue=env.market.catalogue();
   assert.ok(day62.costOfSales>0&&day62.costOfSales<day62.salesRevenue,'a car costs the maker less than its retail price');
-  assert.equal(cost.expense,day62.workshopCost,'a day without an invoice expenses only the workshop');assert.equal(cost.cashExpense,day62.workshopCost);
+  // Build 377: the workshop includes the walk-in service, and the trade-ins resold that day carry their cost.
+  const daily=row=>row.workshopCost+row.serviceCost+row.usedCost;
+  assert.equal(cost.expense,daily(day62)+day62.recognizedCost,'a day expenses its workshop and its own cars');assert.equal(cost.cashExpense,daily(day62));
   const januaryCost=m.dailyHistory.filter(row=>row.day<=30).reduce((n,row)=>n+row.costOfSales,0),day31=m.dailyHistory.find(row=>row.day===31);
-  assert.equal(Math.round(billed.expense),Math.round(day31.workshopCost+januaryCost),'January\'s cars are expensed with January\'s invoice');assert.equal(billed.cashExpense,day31.workshopCost,'the cost of sales moves no cash');
+  assert.equal(Math.round(billed.expense),Math.round(daily(day31)+day31.recognizedCost),'January\'s cars were expensed in January, not with the invoice');assert.equal(billed.cashExpense,daily(day31),'the cost of sales moves no cash');
+  assert.equal(Math.round(m.dailyHistory.filter(row=>row.day<=30).reduce((n,row)=>n+row.recognizedCost,0)),Math.round(januaryCost),'each car\'s cost on the day of its sale');
   assert.ok(billed.revenue>billed.expense,'the invoice day shows the margin, not the whole sale');
   const sold=s.customerCompanies.companies.dealership.inventory.reduce((n,row)=>n+row.sold*catalogue.find(x=>x.modelId===row.modelId).cost,0),financedCost=s.customerCompanies.companies.dealership.sales.filter(row=>row.status==='sold-financed').reduce((n,row)=>n+row.quantity*catalogue.find(x=>x.modelId===row.modelId).cost,0);
   assert.equal(Math.round(m.ytd.costOfSales),Math.round(sold-financedCost),'every retail car sold is costed once at its maker\'s price');

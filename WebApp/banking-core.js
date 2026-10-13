@@ -21,7 +21,7 @@
   const RISK_GRADES=Object.freeze({
     AAA:{pd:.001,lgd:.20},AA:{pd:.002,lgd:.24},A:{pd:.004,lgd:.28},BBB:{pd:.012,lgd:.35},BB:{pd:.035,lgd:.42},B:{pd:.08,lgd:.52},C:{pd:.18,lgd:.65}
   });
-  const ASF_WHOLESALE=.50;
+  const ASF_WHOLESALE=.50,MIN_LEVERAGE_RATIO=3,RESERVE_REQUIREMENT=.05,DEPOSIT_INSURANCE_PREMIUM=.001;
   const BRANCH_SERVICE_OPEX=4300,RESERVE_YIELD_SHARE=.35;
   const ALL_BRANCH_SERVICES=Object.freeze(['حسابات وودائع','تحويلات ومدفوعات','بطاقات','تمويل أفراد','تمويل شركات','تمويل مشاريع','تجارة دولية','إدارة نقد الشركات','صرف العملات','قبول التجار ونقاط البيع']);
   const clone=value=>globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value));
@@ -278,7 +278,10 @@
     const rwa=bank.loanPortfolios.reduce((sum,row)=>sum+num(row.outstanding)*num(PRODUCTS[row.product]?.riskWeight||.72),0)+Object.values(bank.corporateClients).reduce((sum,row)=>sum+num(row.drawn)*.85,0)+offBalance*.35+num(bank.branches)*2500000;
     const equity=Math.max(0,cash+num(bank.loans)+securityAssets-deposits-wholesale-num(bank.provisions));
     const stableFunding=Math.round(mix.sight*DEPOSIT_PRODUCTS.sight.asf+mix.savings*DEPOSIT_PRODUCTS.savings.asf+mix.term*DEPOSIT_PRODUCTS.term.asf+wholesale*ASF_WHOLESALE+equity),lcr=clamp(hqla/stressedOutflows*100,0,500),nsfr=clamp(stableFunding/Math.max(1,requiredStableFunding)*100,0,400),cet1=rwa?clamp(equity/rwa*100,0,100):equity>0?100:0;
-    return {offBalance,hqla,requiredStableFunding,stressedOutflows,rwa,cet1Capital:equity,stableFunding,lcr,nsfr,cet1,capitalRatio:cet1,loanDepositRatio:deposits?num(bank.loans)/deposits*100:0,alm:{weightedDepositRate:(mix.sight*num(pricing(state,bank).sight)+mix.savings*num(pricing(state,bank).savings)+mix.term*num(pricing(state,bank).term))/(deposits||1),maturityLadder:{overnight:mix.sight,under30:mix.savings*.35+wholesale*.15,under365:mix.savings*.65+mix.term*.45+wholesale*.35,over365:mix.term*.55+wholesale*.50},interestRateGap:num(bank.loans)-deposits,liquidityGap30d:hqla-stressedOutflows}};
+    // Build 377 (Basel III leverage ratio): capital over the whole exposure, on and off balance sheet (guarantees and letters
+    // of credit at 50%), with no risk weights. Regulators require at least 3%.
+    const exposure=cash+num(bank.loans)+securityAssets+offBalance*.5,leverageRatio=exposure>0?clamp(equity/exposure*100,0,100):equity>0?100:0;
+    return {offBalance,hqla,requiredStableFunding,stressedOutflows,rwa,cet1Capital:equity,stableFunding,lcr,nsfr,cet1,capitalRatio:cet1,leverageRatio,loanDepositRatio:deposits?num(bank.loans)/deposits*100:0,alm:{weightedDepositRate:(mix.sight*num(pricing(state,bank).sight)+mix.savings*num(pricing(state,bank).savings)+mix.term*num(pricing(state,bank).term))/(deposits||1),maturityLadder:{overnight:mix.sight,under30:mix.savings*.35+wholesale*.15,under365:mix.savings*.65+mix.term*.45+wholesale*.35,over365:mix.term*.55+wholesale*.50},interestRateGap:num(bank.loans)-deposits,liquidityGap30d:hqla-stressedOutflows}};
   }
   function reconcilePrudential(state){
     const bank=ensure(state);
@@ -299,6 +302,8 @@
     if(offBalanceDelta)projected.guarantees=[...bank.guarantees,{status:'ساري',amount:offBalanceDelta}];
     const cash=num(globalThis.GH_FINANCE_CORE?.operating?.(state,'bank'))+cashDelta,metrics=prudentialMetrics(state,projected,cash),violations=[];
     if(!Number.isFinite(cash)||cash<0)violations.push({metric:'cash',projected:cash,minimum:0});
+    // The leverage floor is the regulator's, not a policy the player sets.
+    if(Number.isFinite(metrics.leverageRatio)&&metrics.leverageRatio+1e-9<MIN_LEVERAGE_RATIO)violations.push({metric:'leverageRatio',projected:metrics.leverageRatio,minimum:MIN_LEVERAGE_RATIO});
     for(const [metric,key] of [['lcr','minLcr'],['nsfr','minNsfr'],['cet1','minCet1']]){const minimum=Number(bank.riskPolicy[key]);if(!Number.isFinite(minimum)||minimum<=0)throw new Error(`bank-risk-policy-invalid:${key}`);if(!Number.isFinite(metrics[metric])||metrics[metric]+1e-9<minimum)violations.push({metric,projected:metrics[metric],minimum});}
     const maximum=Number(bank.riskPolicy.maxLdr);if(!Number.isFinite(maximum)||maximum<=0)throw new Error('bank-risk-policy-invalid:maxLdr');
     if(num(bank.deposits)>0&&metrics.loanDepositRatio>maximum+1e-9)violations.push({metric:'loanDepositRatio',projected:metrics.loanDepositRatio,maximum});
@@ -320,7 +325,7 @@
   }
   function assertProjectedCredit(state,proposal){
     const preview=creditRiskPreview(state,proposal);if(preview.accepted)return preview;
-    const labels={cash:'السيولة المتاحة',lcr:'تغطية السيولة',nsfr:'التمويل المستقر',cet1:'كفاية رأس المال',loanDepositRatio:'القروض إلى الودائع',sectorConcentration:'التركّز القطاعي'};
+    const labels={leverageRatio:'نسبة الرافعة المالية',cash:'السيولة المتاحة',lcr:'تغطية السيولة',nsfr:'التمويل المستقر',cet1:'كفاية رأس المال',loanDepositRatio:'القروض إلى الودائع',sectorConcentration:'التركّز القطاعي'};
     const error=new Error(`رُفض التمويل: يتجاوز حدود سياسة البنك بعد التنفيذ (${preview.violations.map(row=>labels[row.metric]||row.metric).join('، ')})`);error.code='bank-projected-risk-limit';error.violations=preview.violations;throw error;
   }
   function syncCorporateClients(state,p,F){
@@ -358,6 +363,18 @@
     if(p.disbursementRecipient){F.journal(state,'bank',`${id} · ${product.name}`,[{account:`محفظة قروض · ${product.name}`,debit:amount},{account:'تمويلات عملاء مستحقة للتحويل',credit:cashDisbursement},{account:'إيراد رسوم ترتيب تمويل',credit:fee}],id);}
     else{book.accounts[0].balance-=cashDisbursement;F.journal(state,'bank',`${id} · ${product.name}`,[{account:`محفظة قروض · ${product.name}`,debit:amount},{account:book.accounts[0].id,credit:cashDisbursement},{account:'إيراد رسوم ترتيب تمويل',credit:fee}],id);}
     bank.loanPortfolios.unshift(portfolio);cachePortfolio(bank,portfolio);recordTransactionFee(bank,{id:`FEE-${id}`,at:now(state),day:Math.floor(now(state)/86400),amount:fee,category:'arrangement',sourceId:id});bank.creditDecisions.unshift({id:`CRD-${id}`,loanId:id,at:now(state),decision:'موافق',riskGrade,pd:risk.pd,lgd,expectedLoss,collateralCoverage,amount,product:productId});bank.creditDecisions=bank.creditDecisions.slice(0,300);bank.loans+=amount;bank.provisions+=provision;bank.feeIncomeYTD+=fee;bank.revenueYTD.arrangement=num(bank.revenueYTD.arrangement)+fee;branch.loans+=amount;F.reconcile(state);reconcilePrudential(state);return clone(portfolio);
+  }
+  // Build 377 (owner's decision): the group's developer sends its home buyers to the group's bank. Once a month the bank
+  // books the month's mortgages of one country as one portfolio (product 'mortgage', one borrower per unit) at a branch
+  // it runs there. The same limits apply as to any loan; when the bank cannot lend (no branch, liquidity, limits), the
+  // buyers financed elsewhere and nothing is booked. Returns the portfolio or null.
+  const MORTGAGE_DECLINES=new Set(['bank-liquidity-buffer','bank-loan-deposit-limit','bank-projected-risk-limit','bank-active-branch-required']);
+  function originateMarketMortgage(state,p={}){
+    if(!(state.openedCompanies||[]).includes('bank')||!state.bank)return null;
+    const F=globalThis.GH_FINANCE_CORE,country=String(p.country||'').trim(),amount=Math.round(num(p.amount)),units=Math.max(1,Math.floor(num(p.units)));if(!F?.execute||!country||amount<PRODUCTS.mortgage.minimum)return null;
+    const bank=ensure(state),branch=bank.branchNetwork.find(row=>row.servicesActive&&row.country===country&&(row.services||[]).includes('تمويل أفراد'));if(!branch)return null;
+    try{return originateLoan(state,{product:'mortgage',branchId:branch.id,amount,borrowers:units,sector:'real-estate',collateralCoverage:1.4,reference:String(p.reference||'')},F);}
+    catch(error){if(MORTGAGE_DECLINES.has(String(error?.code||error?.message||'')))return null;throw error;}
   }
   function setDepositPricing(state,p){const bank=ensure(state),stance=String(p.stance||'');if(!(stance in DEPOSIT_STANCES))throw new Error('bank-deposit-stance-invalid');bank.depositPricing={stance,lastChangedAt:now(state)};return {...bank.depositPricing,...pricing(state,bank)};}
   function setRiskPolicy(state,p){const bank=ensure(state),policy={...bank.riskPolicy};if(p.maxLdr!==undefined)policy.maxLdr=clamp(p.maxLdr,55,120);if(p.minLcr!==undefined)policy.minLcr=clamp(p.minLcr,100,200);if(p.minNsfr!==undefined)policy.minNsfr=clamp(p.minNsfr,100,180);if(p.minCet1!==undefined)policy.minCet1=clamp(p.minCet1,4.5,30);if(p.sectorConcentration!==undefined)policy.sectorConcentration=clamp(p.sectorConcentration,10,60);policy.lastChangedAt=now(state);bank.riskPolicy=policy;bank.riskReviews.unshift({at:now(state),type:'risk-policy',policy:clone(policy)});return clone(policy);}
@@ -411,7 +428,10 @@
     const nplAmount=bank.loanPortfolios.filter(row=>row.stage===3&&row.status==='متعثرة').reduce((sum,row)=>sum+num(row.outstanding),0);bank.npl=bank.loans?nplAmount/bank.loans*100:0;
     F.reconcile(state);reconcilePrudential(state);return {loanId:loan.id,action:'write-off',outstanding,recovery,loss,shortfall};
   }
-  function branchServiceRevenue(branch){
+  // Build 377: a branch's fees and what its new customers deposit follow its country's income (bankFees, bankDeposits;
+  // Riyadh = 1). Loans keep their own amounts: borrowers ask for them one by one.
+  function incomeFactor(country,sector){const B=globalThis.GH_CUSTOMER_BASE,value=typeof B?.incomeFactor==='function'?Number(B.incomeFactor(country,sector)):1;return Number.isFinite(value)&&value>0?value:1;}
+  function branchServiceRevenue(branch,prices=1){
     const enabled=new Set(branch.services||[]),r=num(branch.retailCustomers),b=num(branch.businessCustomers),out={accounts:0,payments:0,cards:0,merchant:0,cashManagement:0,fx:0,tradeFinance:0,retailFinance:0,businessFinance:0,projectFinance:0};
     if(enabled.has('حسابات وودائع'))out.accounts=r*.35+b*2;
     if(enabled.has('تحويلات ومدفوعات'))out.payments=r*.25+b*3;
@@ -423,7 +443,7 @@
     if(enabled.has('تمويل أفراد'))out.retailFinance=r*.12;
     if(enabled.has('تمويل شركات'))out.businessFinance=b*4;
     if(enabled.has('تمويل مشاريع'))out.projectFinance=b*3;
-    for(const key of Object.keys(out))out[key]=Math.round(out[key]);
+    const local=incomeFactor(branch.country,'bankFees')*(Number(prices)>0?Number(prices):1);for(const key of Object.keys(out))out[key]=Math.round(out[key]*local);
     return out;
   }
   function sumRevenueBreakdown(out,row){for(const key of Object.keys(out))out[key]+=num(row[key]);return out;}
@@ -441,19 +461,27 @@
     const bank=ensure(state),day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(state)/86400)));if(bank.lastProcessedDay===day)return bank.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
     let newDeposits=0,newRetail=0,newBusiness=0,serviceFees=0,principalRepaid=0,corporatePrincipalRepaid=0,corporateInterestIncome=0,corporateOverdue=0,securitiesMatured=0,wholesalePrincipalRepaid=0,wholesaleOverdue=0,expired=0,interestIncome=0,depositInterestExpense=0,creditLossExpense=0,securityIncome=0,reserveIncome=0,wholesaleInterestExpense=0,revenueBreakdown={accounts:0,payments:0,cards:0,merchant:0,cashManagement:0,fx:0,tradeFinance:0,retailFinance:0,businessFinance:0,projectFinance:0};
     let lostRetailTotal=0,lostBusinessTotal=0,withdrawn=0;const withdrawalRequests=[];
-    const marketRate=marketBaseRate(state)*.7,pricingBoost=clamp((num(pricing(state,bank).savings)+num(pricing(state,bank).term)*.65-marketRate)*9,-.25,.35);
+    const prices=typeof globalThis.GH_CUSTOMER_BASE?.priceIndex==='function'?globalThis.GH_CUSTOMER_BASE.priceIndex(state):1,marketRate=marketBaseRate(state)*.7,depositRates=num(pricing(state,bank).savings)+num(pricing(state,bank).term)*.65,pricingBoost=clamp((depositRates-marketRate)*9,-.25,.35);
+    // Build 377: a branch's savers compare the bank's deposit rates with their country's rival bank (customer-base-core
+    // rivalPrice: a rival paying up to 6% more or less than the market).
+    // Build 377: customers of the group's other companies in the branch's country open accounts more readily
+    // (customer-base-core affinityBoost, at most +15%).
+    const groupReach=(country,pool)=>{const B=globalThis.GH_CUSTOMER_BASE;return typeof B?.affinityBoost==='function'?B.affinityBoost(state,country,'bank',pool):1;};
+    const boostFor=country=>{const B=globalThis.GH_CUSTOMER_BASE,rival=typeof B?.rivalPrice==='function'?B.rivalPrice(country,'bank',day):1;return clamp((depositRates-marketRate*rival)*9,-.25,.35);};
     for(const branch of bank.branchNetwork.filter(row=>row.servicesActive)){
       if(Number(branch.lastProcessedDay)>=day)continue;const market=branchMarket(bank,branch),retailRoom=clamp(1-num(branch.retailCustomers)/market.retailCapacity,0,1),businessRoom=clamp(1-num(branch.businessCustomers)/market.businessCapacity,0,1);
-      const campaign=Number(branch.campaignUntil)>day,churnFactor=campaign?CAMPAIGN_CHURN:1,growthFactor=campaign?CAMPAIGN_GROWTH:1;
+      const campaign=Number(branch.campaignUntil)>day,churnFactor=campaign?CAMPAIGN_CHURN:1,growthFactor=campaign?CAMPAIGN_GROWTH:1,pricingBoost=boostFor(branch.country);
       const retailChurn=clamp(BASE_RETAIL_CHURN*(1-pricingBoost),.03,.12)*churnFactor/365,businessChurn=clamp(BASE_BUSINESS_CHURN*(1-pricingBoost*.6),.02,.08)*churnFactor/365,lostRetail=Math.min(num(branch.retailCustomers),roundDraw(num(branch.retailCustomers)*retailChurn,`${branch.id}:${day}:retail-churn`)),lostBusiness=Math.min(num(branch.businessCustomers),roundDraw(num(branch.businessCustomers)*businessChurn,`${branch.id}:${day}:business-churn`)),weight=num(branch.retailCustomers)+num(branch.businessCustomers)*8,leavingShare=weight>0?(lostRetail+lostBusiness*8)/weight:0;
       if(lostRetail||lostBusiness){branch.retailCustomers-=lostRetail;branch.businessCustomers-=lostBusiness;lostRetailTotal+=lostRetail;lostBusinessTotal+=lostBusiness;const leaving=num(branch.deposits)*leavingShare;if(leaving>0)withdrawalRequests.push({branch,amount:leaving});}
-      const retail=Math.round(deterministic(`${branch.id}:${day}:retail`,18,65)*(1+pricingBoost)*growthFactor*retailRoom),business=Math.round(deterministic(`${branch.id}:${day}:business`,1,7)*(1+pricingBoost*.6)*growthFactor*businessRoom),deposits=Math.round(retail*deterministic(`${branch.id}:${day}:rdep`,9000,26000)+business*deterministic(`${branch.id}:${day}:bdep`,180000,720000));
-      branch.retailCustomers+=retail;branch.businessCustomers+=business;branch.today={day,newRetail:retail,newBusiness:business,lostRetail,lostBusiness,withdrawn:0};branch.deposits+=deposits;branch.depositMix.sight+=deposits*.45;branch.depositMix.savings+=deposits*.35;branch.depositMix.term+=deposits*.20;branch.lastProcessedDay=day;newRetail+=retail;newBusiness+=business;newDeposits+=deposits;const branchRevenue=branchServiceRevenue(branch),branchServiceFees=Object.values(branchRevenue).reduce((a,v)=>a+num(v),0);branch._dailyFeeBreakdown=branchRevenue;serviceFees+=branchServiceFees;sumRevenueBreakdown(revenueBreakdown,branchRevenue);
+      const retail=Math.round(deterministic(`${branch.id}:${day}:retail`,18,65)*(1+pricingBoost)*growthFactor*groupReach(branch.country,'households')*retailRoom),business=Math.round(deterministic(`${branch.id}:${day}:business`,1,7)*(1+pricingBoost*.6)*growthFactor*groupReach(branch.country,'businesses')*businessRoom),deposits=Math.round((retail*deterministic(`${branch.id}:${day}:rdep`,9000,26000)+business*deterministic(`${branch.id}:${day}:bdep`,180000,720000))*incomeFactor(branch.country,'bankDeposits')*prices);
+      branch.retailCustomers+=retail;branch.businessCustomers+=business;branch.today={day,newRetail:retail,newBusiness:business,lostRetail,lostBusiness,withdrawn:0};branch.deposits+=deposits;branch.depositMix.sight+=deposits*.45;branch.depositMix.savings+=deposits*.35;branch.depositMix.term+=deposits*.20;branch.lastProcessedDay=day;newRetail+=retail;newBusiness+=business;newDeposits+=deposits;const branchRevenue=branchServiceRevenue(branch,prices),branchServiceFees=Object.values(branchRevenue).reduce((a,v)=>a+num(v),0);branch._dailyFeeBreakdown=branchRevenue;serviceFees+=branchServiceFees;sumRevenueBreakdown(revenueBreakdown,branchRevenue);
     }
     if(newDeposits>0){const account=F.book(state,'bank').accounts[0];account.balance+=newDeposits;F.journal(state,'bank',`ودائع عملاء جديدة · يوم ${day}`,[{account:account.id,debit:newDeposits},{account:'ودائع العملاء',credit:newDeposits}],`DEP-${day}`);bank.deposits+=newDeposits;}
     // Leaving customers withdraw their deposits; a withdrawal is paid from the bank's cash and never beyond it.
     const requested=withdrawalRequests.reduce((sum,row)=>sum+row.amount,0);if(requested>0){const account=F.book(state,'bank').accounts[0],paid=Math.min(requested,num(bank.deposits),Math.max(0,num(account.balance)));if(paid>0){const scale=paid/requested;for(const row of withdrawalRequests){const amount=row.amount*scale,before=num(row.branch.deposits);if(row.branch.today?.day===day)row.branch.today.withdrawn=amount;row.branch.deposits=Math.max(0,before-amount);if(before>0)for(const key of Object.keys(DEPOSIT_PRODUCTS))row.branch.depositMix[key]=num(row.branch.depositMix[key])*(row.branch.deposits/before);}account.balance-=paid;F.journal(state,'bank',`سحب ودائع عملاء مغادرين · يوم ${day}`,[{account:'ودائع العملاء',debit:paid},{account:account.id,credit:paid}],`DEP-OUT-${day}`);bank.deposits=Math.max(0,num(bank.deposits)-paid);withdrawn=paid;}bank.unpaidWithdrawals=Math.max(0,requested-paid);}
     const mix=depositMix(bank);depositInterestExpense=(mix.sight*num(pricing(state,bank).sight)+mix.savings*num(pricing(state,bank).savings)+mix.term*num(pricing(state,bank).term))/365;
+    // Build 377: the deposit insurance scheme's premium (0.1% of deposits a year) is a cost of the deposits.
+    const depositInsurance=num(bank.deposits)*DEPOSIT_INSURANCE_PREMIUM/365;depositInterestExpense+=depositInsurance;bank.depositInsuranceYTD=num(bank.depositInsuranceYTD)+depositInsurance;
     for(const portfolio of bank.loanPortfolios.filter(row=>row.status==='نشطة'||row.status==='مراقبة'||row.status==='متعثرة')){
       interestIncome+=num(portfolio.outstanding)*num(portfolio.rate)/365;const defaultRoll=deterministic(`${portfolio.id}:${day}:credit`,0,1),dailyPd=num(portfolio.pd||RISK_GRADES.BBB.pd)/365;
       if(defaultRoll<dailyPd&&portfolio.stage<3){portfolio.stage=portfolio.stage===1?2:3;portfolio.daysPastDue=portfolio.stage===2?30:90;portfolio.status=portfolio.stage===3?'متعثرة':'مراقبة';bank.delinquencyEvents.unshift({id:`DLQ-${portfolio.id}-${day}`,loanId:portfolio.id,day,stage:portfolio.stage,outstanding:num(portfolio.outstanding)});}
@@ -471,7 +499,9 @@
     const bankAccount=F.book(state,'bank').accounts[0];
     // Positive operating cash is held as remunerated central-bank/overnight liquidity. Previously it earned nothing on a
     // normal bank close, so even a prudently capitalised new bank was structurally loss-making until the player approved loans.
-    reserveIncome=num(bankAccount.balance)*Math.max(0,marketBaseRate(state))*RESERVE_YIELD_SHARE/365;securityIncome+=reserveIncome;
+    // Build 377: the required reserve (5% of deposits) is held at the central bank and earns nothing; the cash above it
+    // earns the overnight rate as before.
+    reserveIncome=Math.max(0,num(bankAccount.balance)-num(bank.deposits)*RESERVE_REQUIREMENT)*Math.max(0,marketBaseRate(state))*RESERVE_YIELD_SHARE/365;securityIncome+=reserveIncome;
     for(const security of bank.treasurySecurities.filter(row=>row.status==='ساري')){
       securityIncome+=num(security.amount)*num(security.yieldRate)/365;
       if(day<Number(security.maturityDay))continue;
@@ -494,7 +524,7 @@
     const autoTreasury=autoLiquidity(state,bank,F);
     const newRequest=generateLoanRequest(state,bank,day);
     const nplAmount=bank.loanPortfolios.filter(row=>row.stage===3&&row.status!=='مسددة').reduce((sum,row)=>sum+num(row.outstanding),0);bank.npl=bank.loans?nplAmount/bank.loans*100:0;const costSnapshot=operatingCosts(state,bank),serviceOpex=costSnapshot.serviceOpex,facilityOpex=costSnapshot.facilityOpex,opex=costSnapshot.opex,feeIncome=serviceFees,transactionFeeIncome=num(bank.transactionFeeByDay?.[String(day)]),reportedFeeIncome=feeIncome+transactionFeeIncome,netBankingIncome=interestIncome+securityIncome+reportedFeeIncome-depositInterestExpense-wholesaleInterestExpense-creditLossExpense-opex;bank.netBankingIncomeYTD+=netBankingIncome;
-    for(const branch of bank.branchNetwork){const loanShare=bank.loans?num(branch.loans)/bank.loans:1/Math.max(1,bank.branchNetwork.length),depositShare=bank.deposits?num(branch.deposits)/bank.deposits:1/Math.max(1,bank.branchNetwork.length),branchInterest=interestIncome*loanShare,branchFees=feeIncome*(num(branch.retailCustomers)+num(branch.businessCustomers)*8)/Math.max(1,bank.retailCustomers+bank.businessCustomers*8),branchExpense=depositInterestExpense*depositShare,branchLoss=creditLossExpense*loanShare,branchServiceOpex=branch.servicesActive?BRANCH_SERVICE_OPEX:0,facilityCost=costSnapshot.byFacility[branch.facilityId],branchFacilityOpex=facilityCost?.ownerCompanyId==='bank'?num(facilityCost.amount):0,branchOpex=branchServiceOpex+branchFacilityOpex;const ownBreakdown=branch._dailyFeeBreakdown||branchServiceRevenue(branch),ownFees=Object.values(ownBreakdown).reduce((a,v)=>a+num(v),0);branch.incomeStatement={interestIncome:branchInterest,feeIncome:ownFees,feeBreakdown:{...ownBreakdown},interestExpense:branchExpense,creditLossExpense:branchLoss,opex:branchOpex,serviceOpex:branchServiceOpex,facilityOpex:branchFacilityOpex,net:branchInterest+ownFees-branchExpense-branchLoss-branchOpex};delete branch._dailyFeeBreakdown;}
+    for(const branch of bank.branchNetwork){const loanShare=bank.loans?num(branch.loans)/bank.loans:1/Math.max(1,bank.branchNetwork.length),depositShare=bank.deposits?num(branch.deposits)/bank.deposits:1/Math.max(1,bank.branchNetwork.length),branchInterest=interestIncome*loanShare,branchFees=feeIncome*(num(branch.retailCustomers)+num(branch.businessCustomers)*8)/Math.max(1,bank.retailCustomers+bank.businessCustomers*8),branchExpense=depositInterestExpense*depositShare,branchLoss=creditLossExpense*loanShare,branchServiceOpex=branch.servicesActive?BRANCH_SERVICE_OPEX:0,facilityCost=costSnapshot.byFacility[branch.facilityId],branchFacilityOpex=facilityCost?.ownerCompanyId==='bank'?num(facilityCost.amount):0,branchOpex=branchServiceOpex+branchFacilityOpex;const ownBreakdown=branch._dailyFeeBreakdown||branchServiceRevenue(branch,prices),ownFees=Object.values(ownBreakdown).reduce((a,v)=>a+num(v),0);branch.incomeStatement={interestIncome:branchInterest,feeIncome:ownFees,feeBreakdown:{...ownBreakdown},interestExpense:branchExpense,creditLossExpense:branchLoss,opex:branchOpex,serviceOpex:branchServiceOpex,facilityOpex:branchFacilityOpex,net:branchInterest+ownFees-branchExpense-branchLoss-branchOpex};delete branch._dailyFeeBreakdown;}
     const customerInterestPaid=num(customerBatch.interestPaid),cashPostedInterestIncome=corporateInterestIncome+customerInterestPaid,unpostedInterestIncome=Math.max(0,interestIncome-cashPostedInterestIncome);
     F.reconcile(state);reconcilePrudential(state);const report={day,autoTreasury,newLoanRequest:newRequest?.id||null,newDeposits,newRetail,newBusiness,lostRetail:lostRetailTotal,lostBusiness:lostBusinessTotal,depositWithdrawals:withdrawn,serviceFees,feeIncome,transactionFeeIncome,reportedFeeIncome,revenueBreakdown:{...revenueBreakdown},principalRepaid,corporatePrincipalRepaid,customerInstallmentsDue:customerBatch.due,customerInstallmentsPaid:customerBatch.paid,customerInstallmentsMissed:customerBatch.missed,customerInstallmentPrincipalPaid:customerBatch.principalPaid,customerInstallmentInterestPaid:customerInterestPaid,corporateInterestIncome,cashPostedInterestIncome,unpostedInterestIncome,corporateOverdue,securitiesMatured,wholesalePrincipalRepaid,wholesaleOverdue,expired,customers:bank.retailCustomers+bank.businessCustomers,interestIncome,securityIncome,reserveIncome,depositInterestExpense,wholesaleInterestExpense,creditLossExpense,opex,serviceOpex,facilityOpex,netBankingIncome,lcr:bank.lcr,nsfr:bank.nsfr,cet1:bank.cet1,npl:bank.npl};bank.dailyHistory.unshift(report);bank.dailyHistory=bank.dailyHistory.slice(0,400);return clone(report);
   }
@@ -545,5 +575,5 @@
     if(cmd==='tick-day')return tickDay(state,p,F);
     throw new Error(`Unknown banking command: ${cmd}`);
   }
-  const API={RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API={originateMarketMortgage,RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();
