@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "d7b9fef00d0a7fe38ce0e82ba6b9e1eb303a70f52c416469bb84f9f7919f1b52",
-  "webapp_tree_sha256": "2b9b7e7814969d8d0819e041e4b3cb994d491cfb2d9a11f0e5128db911964d2f",
+  "source_tree_sha256": "ae923abec310b86c631c93cad3e74e77b6574c97400d467bdd3577632a0e88a2",
+  "webapp_tree_sha256": "e332631e8c24bf58417d9a2bfec70d18857661ad0ecba7dd8d10b417f99fff0a",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 344344,
@@ -3451,12 +3451,12 @@
       "sha256": "9a34dbbdc19bc9528c604ae323b234e8eff87aa52190f86d964de497a9e73a52"
     },
     "WebApp/customer-companies-core.js": {
-      "bytes": 57888,
-      "sha256": "957c391d0c944c68205c473ee3cbd61da897484f49c2b954f6ff5c714b32bd7d"
+      "bytes": 58008,
+      "sha256": "0053e4feec497f2b5bcc469be59dc67081e64883e25336564efbffaf11ced655"
     },
     "WebApp/dealer-market-core.js": {
-      "bytes": 30764,
-      "sha256": "db16ddbf31880bbb2d8c1abf491f54f74f9e06bb91e2c077c7da94561c0a14d3"
+      "bytes": 33742,
+      "sha256": "c32114450cead5849a8ef8b25df1a2cfba4ebf7db24ff89ea818980874755367"
     },
     "WebApp/delivery-monitor-core.js": {
       "bytes": 1726,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "2f63921a3715a339e808f4c48c6351123d5fbbb24b942fc623d635290fdcf313"
+      "sha256": "e4bb513bcaf4eccef32afe94527e304cdcf371c433836a977ed251657618554f"
     },
     "BUILD": {
       "bytes": 4,
