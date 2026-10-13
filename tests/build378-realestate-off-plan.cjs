@@ -23,8 +23,8 @@ const unitPrice=project=>Math.round(RE.TYPES[project.type].price*(Number(project
   for(let day=1;day<=1500;day++){
     state.simSeconds=day*86400;const before=re.projects.find(row=>row.id===id),value=before?.offPlan?.value||0,soldBefore=before?.presold||0;
     const report=RE.tickDay(state,{day}),result=RE.dailyResult(state,day),project=re.projects.find(row=>row.id===id);
-    near(result.expense,report.opex+report.commission+report.costOfSales,1e-6,'expense = opex + commission + cost of sales');
-    near(result.cashExpense,report.opex+report.commission,1e-6,'the cost of sales is not paid again');
+    near(result.expense,report.opex+report.commission+report.serviceCost+report.costOfSales+report.depreciation,1e-6,'expense = opex + commission + service cost + cost of sales + depreciation');
+    near(result.cashExpense,report.opex+report.commission+report.serviceCost,1e-6,'the cost of sales is not paid again');
     totals.revenue+=report.offPlanRevenue;totals.cash+=report.offPlanCash;
     if(project?.offPlan){
       assert.ok(project.offPlan.recognized+1e-6>=lastRecognized,'recognised revenue never goes back');lastRecognized=project.offPlan.recognized;
@@ -72,4 +72,41 @@ const unitPrice=project=>Math.round(RE.TYPES[project.type].price*(Number(project
   const sale=RE.execute({state},'sell-to-fund',{projectId:'RE-FUND-QA'});state.simSeconds=2*86400;re.lastProcessedDay=1;
   const report=RE.tickDay(state,{day:2});assert.ok(report.sales>=sale.price);assert.ok(report.costOfSales>=80*1416000,'the building\'s cost is the sale\'s cost');
 }
-console.log(JSON.stringify({suite:'build378-realestate-off-plan',ok:true}));
+// 5. Construction risk (projects started from Build 378): some run late (learnt at mid-construction, 2-15% of the
+// duration) and some over cost (1-10% of the build cost on the last payment, which is then the units' cost, off-plan
+// units included). A project from an older save never does.
+let risk={late:0,over:0,projects:0};
+{
+  const {state,re,id}=setup(),legacy=re.projects.find(row=>row.id===id);delete legacy.risk;const ids=[];
+  for(let i=0;i<11;i++)ids.push(RE.execute({state},'start-project',{officeId:re.offices[0].id,type:'residential',size:1,priceLevel:1,mode:'sale'}).id);
+  const planned=Object.fromEntries(re.projects.map(row=>[row.id,{complete:row.completeDay,unitCost:row.unitCost}])),seen=new Map();
+  for(let day=1;day<=720;day++){
+    state.simSeconds=day*86400;const before=new Map(re.projects.map(row=>[row.id,{cost:row.offPlan?.recognizedCost||0,cash:row.offPlan?.cost||0}]));
+    const report=RE.tickDay(state,{day});for(const row of re.projects)seen.set(row.id,{...row,offPlan:row.offPlan?{...row.offPlan}:null});
+  }
+  for(const projectId of [id,...ids]){
+    const row=seen.get(projectId)||re.completedArchive.find(item=>item.id===projectId),plan=planned[projectId];risk.projects++;
+    if(projectId===id){assert.equal(row.delayDays,undefined);assert.equal(row.overrun,undefined);continue;}
+    if(row.delayDays){risk.late++;assert.ok(row.delayDays<=Math.round(540*.15)+1);assert.equal(row.completeDay,plan.complete+row.delayDays,'the delay moves completion');}
+    if(row.overrun){risk.over++;assert.ok(row.overrun<=row.buildCost*.1+1);assert.equal(row.unitCost,Math.round((row.landCost+row.buildCost+row.overrun)/row.units),'the overrun is the units\' cost');}
+  }
+  assert.ok(risk.late>0&&risk.late<11&&risk.over>0&&risk.over<11,JSON.stringify(risk));
+}
+// 6. Service charges: from handover the owners pay a yearly charge (residential $1,800 a unit at Riyadh prices), 85% of
+// it the building's running cost; it is the company's, so it continues once a sold-out project leaves the active list.
+{
+  const {state,re,id}=setup();let last=null;for(let day=1;day<=700;day++){state.simSeconds=day*86400;last=RE.tickDay(state,{day});}
+  const project=re.projects.find(row=>row.id===id);assert.ok(project.handedOver>100);
+  near(last.serviceCharges,project.handedOver*1800/365,1e-6,'every handed-over unit pays its charge');
+  near(last.serviceCost,last.serviceCharges*.85,1e-6);near(RE.dailyResult(state,last.day).cashExpense,last.opex+last.commission+last.serviceCost,1e-6,'its running cost is paid');
+  const handed=project.handedOver;re.projects=re.projects.filter(row=>row.id!==id);state.simSeconds=701*86400;const after=RE.tickDay(state,{day:701});
+  near(after.serviceCharges,handed*1800/365,1e-6,'charges continue after the project leaves the active list');
+}
+// 7. A building kept to let is depreciated: its build cost (not the land) over 40 years, an expense but not cash.
+{
+  const {state,re}=setup(),office=re.offices[0];
+  re.projects.push({id:'RE-DEP-QA',officeId:office.id,city:office.city,country:office.country,type:'office',name:'مكاتب مؤجرة',mode:'lease',units:80,unitCost:1416000,landCost:17280000,buildCost:96000000,priceLevel:1,startDay:0,completeDay:1,status:'مكتمل',milestonesPaid:3,sold:0,presold:0,leased:40,handedOver:0,salesRevenue:0,rentRevenue:0,cheques:[],leases:[]});
+  state.simSeconds=2*86400;re.lastProcessedDay=1;const report=RE.tickDay(state,{day:2}),result=RE.dailyResult(state,2);
+  near(report.depreciation,96000000/(40*365),1e-6,'build cost over 40 years');near(result.expense-result.cashExpense,report.costOfSales+report.depreciation,1e-6,'not paid in cash');
+}
+console.log(JSON.stringify({suite:'build378-realestate-off-plan',risk}));
