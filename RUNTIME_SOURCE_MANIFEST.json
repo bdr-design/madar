@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "b8e9c16702144efc7ef80f03744148a3d91ad115ce4ce8daf8aae44dcb6f8c0a",
-  "webapp_tree_sha256": "d8666fca8fc69ff41e04370f1876b59a463159d8ffb02005f5b7dc2ab3700d14",
+  "source_tree_sha256": "e8b183463b6f2631714b0ccf3e009b731a55f420259e49fd8ade7cd9401779fd",
+  "webapp_tree_sha256": "0e613e178b17250481e9f9a88bc95bf03eee0f8d55ccc342f892f95ef237774a",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 347409,
@@ -3679,8 +3679,8 @@
       "sha256": "03c1e9d11aad5ef221e129319881e261a7318b061e888d7519d3b6f91fff066a"
     },
     "WebApp/madar-shell.js": {
-      "bytes": 51454,
-      "sha256": "23f840c444b868356f450218ba751145674eb1fdd99d127319fd67d1a29866c5"
+      "bytes": 53687,
+      "sha256": "f7f589947e44184722a610864dce64c0c9de67ab7c77400d76b8bc67fdc49ecb"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 7759,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "4a384a63d923c62133c49cabea5afc721297ffdc928b8a95db98b4b28aae7360"
+      "sha256": "302ad6905f3715cad3a58f9e370f34c52bb7fbe06f7cfb7db3f774e58acadaf4"
     },
     "BUILD": {
       "bytes": 4,

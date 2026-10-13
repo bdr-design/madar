@@ -27,7 +27,10 @@ const KINDS=['insurance','realestate','bank','telecom','dealership'];
       assert.equal(panel.chain,0,`${id}: no revenue-chain step`);assert.equal(panel.chained,false,`${id}: not the chain design`);
       assert.equal(panel.hero,1,`${id}: the airline's image hero`);assert.match(panel.count,/^\d[\d,]*$/,`${id}: the hero carries the company's main count`);
       assert.ok(panel.tiles.length>=5,`${id}: the airline's image tiles: ${panel.tiles.length}`);
-      for(const tile of panel.tiles){assert.ok(tile.image&&tile.title,`${id}: tile ${tile.target} has its image and title`);assert.ok(panel.strip.includes(tile.target),`${id}: page ${tile.target} is also in the page strip`);}
+      for(const tile of panel.tiles){assert.ok(tile.image&&tile.title,`${id}: tile ${tile.target} has its image and title`);assert.ok(panel.strip.includes(tile.target),`${id}: page ${tile.target} is also in the page strip`);}      // Build 378: at most three short chips, all on the hero's one line, none repeating the main count's label.
+      const chips=await page.evaluate(id=>{const root=document.querySelector(`#drawerBody .madar-company[data-kind="${id}"]`),hero=root.querySelector('.mc-hero .mc-chips'),items=[...hero.querySelectorAll('.mc-chip')];return {texts:items.map(x=>x.textContent.trim()),label:root.querySelector('.mc-hero .mc-hero-count small')?.textContent.trim()||'',lines:new Set(items.map(x=>Math.round(x.getBoundingClientRect().top))).size};},id);
+      assert.ok(chips.texts.length<=3&&chips.lines<=1,`${id}: chips fit one line: ${JSON.stringify(chips)}`);
+      if(chips.label)assert.ok(!chips.texts.some(text=>text.startsWith(chips.label)),`${id}: no chip repeats the main count`);
     }
 
     await page.evaluate(()=>{

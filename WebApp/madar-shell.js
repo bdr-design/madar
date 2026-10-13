@@ -190,11 +190,23 @@ function pendingDecisions(state,id,ctx,kindId){
 }
 function marketChip(state,kindId,ctx){
   const B=globalThis.GH_CUSTOMER_BASE;
-  if(kindId==='insurance'){const ratio=Number(state.insurance?.solvency?.ratio);return Number.isFinite(ratio)?`الملاءة ${num(Math.round(ratio))}%${state.insurance.solvency.writing===false?' · الاكتتاب موقوف':''}`:'';}
+  if(kindId==='insurance'){const raw=state.insurance?.solvency?.ratio,ratio=raw==null?NaN:Number(raw);return Number.isFinite(ratio)?`الملاءة ${num(Math.round(ratio))}%${state.insurance.solvency.writing===false?' · الاكتتاب موقوف':''}`:'';}
   if(kindId==='bank'){const ratio=Number(state.bank?.leverageRatio);return Number.isFinite(ratio)&&ratio>0?`الرافعة ${ratio.toFixed(1)}%`:'';}
   if(kindId==='realestate'){const value=Number(B?.propertyValue?.(state));return Number.isFinite(value)?`سوق العقار ${num(Math.round(value*100))}`:'';}
-  if(kindId==='dealership'){const last=state.customerCompanies?.companies?.dealership?.market?.dailyHistory?.[0];return last?`ما بعد البيع ${money(ctx,(Number(last.serviceRevenue)||0)+(Number(last.usedRevenue)||0)+(Number(last.financeCommission)||0))} يوميًا`:'';}
-  if(kindId==='telecom'){const branches=state.customerCompanies?.companies?.telecom?.market?.branches||[],day=Math.floor((Number(state.simSeconds)||0)/86400),cheaper=typeof B?.rivalPrice==='function'?branches.filter(row=>B.rivalPrice(row.country,'telecom',day)<1).length:0;return branches.length?`منافس أرخص في ${num(cheaper)} من ${num(branches.length)} فرع`:'';}
+  if(kindId==='dealership'){const last=state.customerCompanies?.companies?.dealership?.market?.dailyHistory?.[0];return last?`بعد البيع ${money(ctx,(Number(last.serviceRevenue)||0)+(Number(last.usedRevenue)||0)+(Number(last.financeCommission)||0))}/يوم`:'';}
+  if(kindId==='telecom'){const branches=state.customerCompanies?.companies?.telecom?.market?.branches||[],day=Math.floor((Number(state.simSeconds)||0)/86400),cheaper=typeof B?.rivalPrice==='function'?branches.filter(row=>B.rivalPrice(row.country,'telecom',day)<1).length:0;return branches.length?`منافس أرخص ${num(cheaper)}/${num(branches.length)}`:'';}
+  return '';
+}
+// Build 378: a second market fact per company, in the hero like the air company's "in motion": the stock finance, the
+// network, off-plan units or service charges, claims awaiting payment, bancassurance, and satisfaction when it slips.
+function marketChip2(state,kindId,ctx){
+  const satisfied=value=>Number.isFinite(Number(value))&&Number(value)<80?`الرضا ${num(Math.round(Number(value)))}`:'';
+  if(kindId==='dealership'){const m=state.customerCompanies?.companies?.dealership?.market;return m?`تمويل: ${m.floorPlan?'بنك':'نقدًا'}`:'';}
+  if(kindId==='telecom'){const branches=state.customerCompanies?.companies?.telecom?.market?.branches||[],own=branches.filter(row=>Number(row.networkLevel)>0).length;return branches.length?`شبكة خاصة ${num(own)}/${num(branches.length)}`:'';}
+  if(kindId==='realestate'){const re=state.realEstate,presold=(re?.projects||[]).reduce((sum,row)=>sum+(Number(row.presold)||0),0),roll=Number(re?.serviceChargeRoll)||0;return presold?`خارطة ${num(presold)} وحدة`:roll>0?`رسوم ${money(ctx,roll)}/سنة`:'';}
+  if(kindId==='insurance'){const ins=state.insurance,low=satisfied(ins?.satisfaction);if(low)return low;const reserve=(ins?.claimsReserve||[]).reduce((sum,row)=>sum+(Number(row.amount)||0),0);return reserve>0?`مطالبات ${money(ctx,reserve)}`:'';}
+  if(kindId==='bank'){const low=satisfied(state.bank?.satisfaction);if(low)return low;const sold=Number(state.bank?.dailyHistory?.[0]?.groupInsured)||0;return sold?`تأمين بنكي ${num(sold)}`:'';}
+  if(kindId==='power'){let mw=0;try{for(const row of globalThis.GH_ENERGY_CORE?.siteEconomics?.(state)||[])if(!row.commissioned&&Number(row.phasedShare)>0)mw+=(Number(row.capacity)||0)*Number(row.phasedShare);}catch(_error){mw=0;}return mw>0?`كتل تبيع ${num(Math.round(mw))} MW`:'';}
   return '';
 }
 function renderCompany(state,id,ctx){
@@ -210,10 +222,13 @@ function renderCompany(state,id,ctx){
     count=stats?`<b class="mc-count">${esc(num(stats.total))}</b><small>${esc(kind.unit)}</small>`:`<b class="mc-count">—</b><small>جارٍ تحديث الأسطول</small>`;
     chips=stats?[`في الحركة ${num(stats.moving)}`,stats.service!=null?`تحتاج صيانة ${num(stats.service)}`:'']:[];
   }else{
-    chips=(summary?.metrics||[]).slice(0,SERVICE_KINDS.has(kindId)?2:3).map(([label,value])=>`${label} ${typeof value==='number'?num(value):value}`);
+    // A metric that repeats the hero's main count is left out (Build 378) to make room for the market facts.
+    const main=String(summary?.primaryOperatingLabel||''),repeats=label=>SERVICE_KINDS.has(kindId)&&main.includes(String(label||'').replace(/^ال/,''));
+    chips=(summary?.metrics||[]).filter(([label])=>!repeats(label)).slice(0,SERVICE_KINDS.has(kindId)?1:3).map(([label,value])=>`${label} ${typeof value==='number'?num(value):value}`);
+    if(kindId==='power')chips.push(marketChip2(state,kindId,ctx));
     // Build 377 (owner's decision): the companies without transport assets show their main count like the fleet
     // companies, and the market they sell into (solvency, leverage, the property market, rivals, after-sales).
-    if(SERVICE_KINDS.has(kindId)){const n=summary?.primaryOperatingCount;if(typeof n==='number')count=`<b class="mc-count">${esc(num(n))}</b><small>${esc(summary.primaryOperatingLabel||'')}</small>`;chips.push(marketChip(state,kindId,ctx));}
+    if(SERVICE_KINDS.has(kindId)){const n=summary?.primaryOperatingCount;if(typeof n==='number')count=`<b class="mc-count">${esc(num(n))}</b><small>${esc(summary.primaryOperatingLabel||'')}</small>`;chips.push(marketChip(state,kindId,ctx),marketChip2(state,kindId,ctx));}
   }
   const hero=kind.hero;
   const decisions=[],pending=SERVICE_KINDS.has(kindId)?pendingDecisions(state,id,ctx,kindId):null;
