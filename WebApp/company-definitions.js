@@ -29,7 +29,10 @@
   // Build 358: how the group's name brands each subsidiary (GH_COMPANY_PLATFORM.brandedIdentity): «العساف» + «للطيران».
   const BRAND=Object.freeze({air:{ar:'للطيران',en:'Aviation',short:'AIR',glyph:GLYPH.air},sea:{ar:'للشحن البحري',en:'Marine',short:'MARINE',glyph:GLYPH.sea},road:{ar:'للنقل',en:'Logistics',short:'LOGISTICS',glyph:GLYPH.road},
     power:{ar:'للطاقة',en:'Energy',short:'ENERGY',glyph:GLYPH.power},bank:{prefix:'بنك',legalAr:'المصرفية',en:'Bank',short:'BANK',glyph:GLYPH.bank},mobility:{ar:'للتنقل الذكي',en:'Mobility',short:'MOBILITY',glyph:GLYPH.mobility},
-    insurance:{ar:'للتأمين',en:'Insurance',short:'INSURANCE',glyph:GLYPH.insurance},realestate:{ar:'للتطوير العقاري',en:'Real Estate',short:'REAL ESTATE',glyph:GLYPH.realestate}});
+    insurance:{ar:'للتأمين',en:'Insurance',short:'INSURANCE',glyph:GLYPH.insurance},realestate:{ar:'للتطوير العقاري',en:'Real Estate',short:'REAL ESTATE',glyph:GLYPH.realestate},
+    // Build 375: telecom and the car dealership follow the group's name too («العساف للاتصالات»); no glyph, so their approved
+    // logos stay.
+    telecom:{ar:'للاتصالات',en:'Telecom',short:'TEL',glyph:null},dealership:{ar:'لوكالات السيارات',en:'Auto',short:'AUTO',glyph:null}});
   const subsidiary=(data)=>({
     ...data,identity:{...data.identity,brand:BRAND[data.id]||null},schema:FORMAT,definitionVersion:1,kind:'subsidiary',lifecycle:'active',
     instancePolicy:{mode:'multi',stateScope:'company',...(data.instancePolicy||{})},

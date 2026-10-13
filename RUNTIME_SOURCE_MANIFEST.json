@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "1e8e8e1643e8f020a518eb17595d8cab4474aab4c284ad75938b5c271aa36b99",
-  "webapp_tree_sha256": "ab05e808359cf26793dc5ebfa6409d3ea181acd7e6c1f314a599bf3a3e128175",
+  "source_tree_sha256": "f27363609b8a6bd749efff7647286ff658b8884d1caebe073030341eb82f3a1a",
+  "webapp_tree_sha256": "98870d385268b2418814fbfbdac24b8c6f61479e526e4181a44ed940949471d5",
   "files": {
     "WebApp/advanced-core.js": {
-      "bytes": 334717,
-      "sha256": "dea38354c44a8ede184ff6c66e47f729feed0993cf8ea42b44a310b8120e8829"
+      "bytes": 342946,
+      "sha256": "dd415069f53018f9a306eae49861f66645a32e639b4d6872b8f2c07b4f2768e3"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 958570,
-      "sha256": "dd3ccea98dadcbb1d0a4fdd7997b6c97885314c05a17e6ae35d37e33c9a3b82b"
+      "bytes": 958992,
+      "sha256": "bdc5c1e35e0e9879ead542abfb6fcaf1f96ada3f1111cbaa628de7932cea813c"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3391,8 +3391,8 @@
       "sha256": "46047a5a0404aab5c69a37b2b32a4d8f35aa770d5c71e71db9384cecdc21fcb6"
     },
     "WebApp/company-definitions.js": {
-      "bytes": 27038,
-      "sha256": "6222f87e3ffc1779ef0eaa64d7308144058fbfb7157f84b07ac213fe3cd6a94d"
+      "bytes": 27360,
+      "sha256": "dc9dd29ebf64e5557299db2a7bca94be80739f14190571c0d3b21a54438c6c76"
     },
     "WebApp/company-platform-core.js": {
       "bytes": 50109,
@@ -3499,8 +3499,8 @@
       "sha256": "189418d5c0903f4d76984b8af51039861ac79701631af6460219297de45ed07a"
     },
     "WebApp/facility-core.js": {
-      "bytes": 23389,
-      "sha256": "4ad465536c37bbd4bfe75d3e100767fc1f15c160678dd00be2f58808ad2f2220"
+      "bytes": 24171,
+      "sha256": "15b30f2c1f74b4f09776c62e6573e747019399d57b9e4565c1dec6166d878cd5"
     },
     "WebApp/finance-core.js": {
       "bytes": 188531,
@@ -3675,8 +3675,8 @@
       "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
     },
     "WebApp/madar-shell.css": {
-      "bytes": 9082,
-      "sha256": "2ca3c42c858a09cde977744a1cff1959d205cb17544b684e0ada2c79efb19c66"
+      "bytes": 14150,
+      "sha256": "2f8b67869702b0736b0042a1d622b95215b52b2a8e90d6d0e4a1f2fccd664051"
     },
     "WebApp/madar-shell.js": {
       "bytes": 52414,
@@ -3727,8 +3727,8 @@
       "sha256": "56424623df0232109e3ac824e0f479c5d713f7f2db3ea4efc42f26fb1f6b891c"
     },
     "WebApp/market-core.js": {
-      "bytes": 18487,
-      "sha256": "abb429a0168a7e9494a1eb3d012cd5fb8cf573589f2d329eaedf404c422bb43d"
+      "bytes": 18692,
+      "sha256": "94ce25b6a2625ef4087a8ec0af0e62fd8ffbdeeca4048d01269ad32c8d21b0bb"
     },
     "WebApp/market-reference-core.js": {
       "bytes": 4206,
@@ -3948,7 +3948,7 @@
     },
     "project.yml": {
       "bytes": 2413,
-      "sha256": "3eb04553c055132ac73a678c7d7545b17d503657eaaa55345b99954004bc271b"
+      "sha256": "576604eafa6694bc2c81a653580a0e716eca59225039c5e6fc8859ed54e938da"
     },
     "BUILD": {
       "bytes": 4,

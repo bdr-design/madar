@@ -86,7 +86,9 @@ if(cmd==='tick-prices'){
   s.simulationWorld=s.simulationWorld&&typeof s.simulationWorld==='object'?s.simulationWorld:{};
   s.simulationWorld.competitors=Array.isArray(s.simulationWorld.competitors)?s.simulationWorld.competitors:[];
   for(const row of s.market){
-    const fundamentals=(rnd.nextFloat(s,'market-fundamentals')-.49)*.006;
+    // Build 375: the hourly drift gave a median +59% a year with a 90% chance of profit; centred at .4976 a stock's median
+    // year is about +6% (plus its dividend) and about four in ten years lose.
+    const fundamentals=(rnd.nextFloat(s,'market-fundamentals')-.4976)*.006;
     const sentiment=(rnd.nextFloat(s,'market-sentiment')-.5)*.012;
     const change=Math.max(-4.5,Math.min(4.5,(fundamentals+sentiment)*100));
     // Build 375: the market value and the P/E follow the price (they stayed at their opening values).
