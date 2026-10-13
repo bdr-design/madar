@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "2b411757dbfbae4a1b8f7715686ddb3e6007718c31b81d50b38f6d5ec5c2efd1",
-  "webapp_tree_sha256": "4d8f769539d2b02c3323921ceadb5aded22ed7abe99e8471b31b30f010545ac3",
+  "source_tree_sha256": "c9f462df600ad0743450483ab298b00fb3e73feb92baa3ad12c1a269e104f043",
+  "webapp_tree_sha256": "ef59f870cf3a92b35955d44d1db16e40ec70e7f2b4c4ae208916f7c3bb7c8263",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 344344,
@@ -3775,8 +3775,8 @@
       "sha256": "59ec1d2750f314d1236bbb890be3dd0154ff37768a748ae194548397b7b688a4"
     },
     "WebApp/realestate-core.js": {
-      "bytes": 47844,
-      "sha256": "0530e6fa61d28b16b2c37602e4995726e0d8505ab7101af27bf88606ebf6c7fe"
+      "bytes": 51214,
+      "sha256": "446787c7b11fecb5d0eb6ac5876106c72fd0f9f155b9c3d3350d6df751af6d03"
     },
     "WebApp/realism-core.js": {
       "bytes": 113457,
@@ -3956,7 +3956,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "b2b79d8b1015cebb7770e44036d9afd2b6214967dc9426661ecdc0a0a63cf4d2"
+      "sha256": "bac3d4591c47a20a4e24d1eea1bd6de6eaf4f78b04361c79d1c0a8140f9a69e4"
     },
     "BUILD": {
       "bytes": 4,
