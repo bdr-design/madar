@@ -26,7 +26,9 @@ const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-work
       const client=GH_FLEET_ENGINE_THREAD.create({workerFactory:()=>new Worker(url),resolveRoute:id=>plans.get(String(id))?{...plans.get(String(id))}:null,routesRevision:()=>0,catalogSpecs:()=>({}),timeoutMs:60000});
       const live=()=>[...Array(state.fleet.length).keys()].filter(index=>STORE.isAlive(state.fleet,index));
       const check=async label=>{
-        const asked=client.health(state.fleet,{simSeconds:state.simSeconds});if(!asked)throw new Error(`${label}: health refused`);
+        // The replica is built in chunks off the UI thread (a first sync, a compaction or a new store rebuild it): wait
+        // for it here; the refusal with a step in flight is checked directly below.
+        let asked=null;for(let attempt=0;attempt<1000&&!(asked=client.health(state.fleet,{simSeconds:state.simSeconds}));attempt++)await new Promise(resolve=>setTimeout(resolve,10));if(!asked)throw new Error(`${label}: health refused`);
         const found=await asked;if(!found)throw new Error(`${label}: no result`);
         const expected=HEALTH.assetIssues(state,DATA),same=JSON.stringify(found.issues)===JSON.stringify(expected);
         log.push({label,issues:expected.map(row=>row[0]),same,store:found.store===state.fleet});

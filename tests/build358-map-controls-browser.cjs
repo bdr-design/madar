@@ -19,12 +19,22 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
     if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.click('#speedToggle');
 
-    // Frame: header 38px, rail 56px; the inset on the side without the camera shrinks to a margin.
-    const frame=notch=>page.evaluate(notch=>{const root=document.documentElement;root.style.setProperty('--safe-right','59px');root.style.setProperty('--safe-left','59px');root.dataset.notch=notch;return {top:document.querySelector('.topbar').getBoundingClientRect().height,rail:document.querySelector('.side-nav').getBoundingClientRect().width};},notch);
-    const both=await frame('both'),left=await frame('left');
-    assert.equal(both.top,38,'the top bar is 38px');
-    assert.equal(both.rail,56+59,'with the camera on the rail side the rail keeps the full inset');
-    assert(left.rail<=56+6,`with the camera on the far side the rail drops the inset (${left.rail}px)`);
+    // Build 373 floating frame: the top bar band ends at 38px and the rail floats 6px clear of the inset. Build 378
+    // (owner's decision): the frame is symmetric, both sides keep iOS's inset whichever way the phone is turned.
+    const frame=()=>page.evaluate(()=>{const root=document.documentElement;root.style.setProperty('--safe-right','59px');root.style.setProperty('--safe-left','59px');const rail=document.querySelector('.side-nav').getBoundingClientRect(),bar=document.querySelector('.topbar').getBoundingClientRect();return {top:bar.bottom,rail:innerWidth-rail.right,left:bar.left,notch:root.dataset.notch||''};});
+    const both=await frame();
+    assert.equal(both.top,38,'the top bar band ends at 38px');
+    assert.equal(both.rail,59+6,'the rail clears the full inset');assert.equal(both.left,59+6,'and so does the far side');assert.equal(both.notch,'','no side is favoured');
+    // Build 378: the map stops at the tiles' edge north and south (no empty sea past the poles). The map is reached
+    // through its first event (Leaflet keeps no list of maps).
+    await page.evaluate(async()=>{let found=null;const fire=L.Map.prototype.fire;L.Map.prototype.fire=function(...args){found=found||this;return fire.apply(this,args);};window.dispatchEvent(new Event('resize'));await new Promise(resolve=>setTimeout(resolve,300));L.Map.prototype.fire=fire;window.__QA_MAP__=found;});
+    const view=await page.evaluate(()=>({center:window.__QA_MAP__.getCenter(),zoom:window.__QA_MAP__.getZoom()}));
+    const box=await page.locator('#map').boundingBox(),cx=box.x+box.width/2;
+    for(let i=0;i<4;i++){await page.mouse.move(cx,box.y+40);await page.mouse.down();await page.mouse.move(cx,box.y+box.height-20,{steps:8});await page.mouse.up();}
+    await page.waitForTimeout(400);
+    const north=await page.evaluate(()=>window.__QA_MAP__.getBounds().getNorth());
+    assert.ok(north>84&&north<=85.06,`dragged far north, the view stops at the tiles' edge (${north})`);
+    await page.evaluate(view=>{window.__QA_MAP__.setView(view.center,view.zoom,{animate:false});delete window.__QA_MAP__;},view);await page.waitForTimeout(400);
     await page.evaluate(()=>{const root=document.documentElement;root.style.removeProperty('--safe-right');root.style.removeProperty('--safe-left');});
 
     // Filters, by touch.
@@ -37,7 +47,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     // Build 359: the airport filter opens the expansion mode; airports are grouped in bubbles with Western counts.
     await page.waitForFunction(()=>__GH_STATE__.activeFilter==='airport'&&__GH_STATE__.mapMode==='expansion'&&/مطار في نطاق العرض/.test(document.getElementById('mapStatus').textContent));
     assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.map-place-bubble b')].map(b=>b.textContent).filter(text=>!/^[0-9]+(\.[0-9])?[KM]?$/.test(text))),[],'bubble counts use Western digits');
-    const spread=await page.evaluate(()=>{const map=document.getElementById('map').getBoundingClientRect(),cells=new Set();for(const marker of document.querySelectorAll('.world-infrastructure-marker')){const r=marker.getBoundingClientRect(),x=Math.floor((r.left-map.left)/map.width*4),y=Math.floor((r.top-map.top)/map.height*3);if(x>=0&&x<4&&y>=0&&y<3)cells.add(`${x}:${y}`);}return cells.size;});
+    const spread=await page.evaluate(()=>{const map=GH_INTERFACE.mapViewport(),cells=new Set();for(const marker of document.querySelectorAll('.world-infrastructure-marker')){const r=marker.getBoundingClientRect(),x=Math.floor((r.left-map.left)/map.width*4),y=Math.floor((r.top-map.top)/map.height*3);if(x>=0&&x<4&&y>=0&&y<3)cells.add(`${x}:${y}`);}return cells.size;});
     assert(spread>=8,`airports cover the view (${spread} of 12 quarters-thirds hold one)`);
     await page.tap('.filter-btn[data-filter="port"]');await page.waitForFunction(()=>__GH_STATE__.activeFilter==='port');
     await page.tap('.filter-btn[data-filter="all"]');await page.waitForFunction(()=>__GH_STATE__.activeFilter==='all');
@@ -45,15 +55,15 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     assert.equal(await page.locator('#layerMenu [data-layer="natural"].active').count(),1);
     await page.tap('#filterToggle');
 
-    // God Mode from Settings.
-    await page.tap('#settingsBtn');const card=page.locator('#drawerBody [data-open="settings"]').first();if(await card.count())await card.tap();
+    // The unlimited-money mode («وضع المستثمر الحر») from its own page in the system section.
+    await page.tap('#settingsBtn');const card=page.locator('#drawerBody [data-go="investorMode"]').first();if(await card.count())await card.tap();
     await page.locator('.god-mode-toggle').tap();
     await page.waitForFunction(()=>__GH_STATE__.godMoney===true&&__GH_STATE__.infiniteMoney===true);
     await page.waitForFunction(()=>document.getElementById('cashKpi').textContent==='∞');
     await page.reload();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
     assert.deepEqual(await page.evaluate(()=>[__GH_STATE__.godMoney,__GH_STATE__.infiniteMoney]),[true,true],'God Mode survives a reload');
     // Switching it off works (the command used to return false, read as a rejection, so it stayed on).
-    await page.tap('#settingsBtn');{const again=page.locator('#drawerBody [data-open="settings"]').first();if(await again.count())await again.tap();}
+    await page.tap('#settingsBtn');{const again=page.locator('#drawerBody [data-go="investorMode"]').first();if(await again.count())await again.tap();}
     await page.locator('.god-mode-toggle').tap();
     await page.waitForFunction(()=>__GH_STATE__.godMoney===false&&__GH_STATE__.infiniteMoney===false);
     await page.waitForFunction(()=>document.getElementById('cashKpi').textContent!=='∞');

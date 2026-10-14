@@ -19,8 +19,8 @@ globalThis.GH_ASSET_CATALOG={air:{new:[{id:'A-1',name:'Test Aircraft',icon:'✈'
 require('../WebApp/procurement-core.js');
 const Procurement=globalThis.GH_PROCUREMENT_CORE;
 const app=fs.readFileSync(path.join(__dirname,'../WebApp/app.js'),'utf8');
-assert.match(app,/runAuthorizedCompositeCommand\(chunks\.length>1\?'asset-purchase-bulk':'asset-purchase',async\(\{state:draft,dispatch,recordAlert\}\)=>\{/,'the UI purchase path wraps every allocation in one durable composite command');
-assert.match(app,/await procurement\.withPurchaseBatchAsync\(draft,async\(\)=>\{/,'the durable purchase reuses one indexed procurement batch across every allocation');
+assert.match(app,/runAuthorizedCompositeCommand\('asset-purchase-order',async\(\{state:draft,dispatch,recordAlert,fleetMutation\}\)=>\{/,'the UI purchase path wraps every allocation in one durable composite command (Build 372: one asset-purchase order)');
+assert.match(app,/await driveAssetPurchaseStages\(Apply\.reserveCapacityStages\(draft,provisional\.plan,/,'the durable purchase reuses one indexed procurement batch across every allocation (Build 372: indexed capacity stages)');assert.match(app,/await Plan\.applyAtomic\(bound\.plan,adapter,\{budgetMs:4,maxRowsPerSlice:512,yieldControl:async stage=>\{/,'Build 372: the whole order is applied atomically across cooperative slices');
 const bases=Array.from({length:4},(_,i)=>({id:`BASE-${i+1}`,name:`Base ${i+1}`}));
 const item=globalThis.GH_ASSET_CATALOG.air.new[0];
 

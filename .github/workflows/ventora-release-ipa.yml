@@ -1,0 +1,232 @@
+name: VENTORA release iPhone IPA
+
+# The release edition of the same source: GHEdition = release (no developer tools, no update files, no Safari
+# inspection), the WebApp minified and sealed with a key made for this build only. The development IPA stays on
+# build362-unsigned-ipa.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      acceptance:
+        description: "Run the full source acceptance gate first"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ventora-release-ipa
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: acceptance, minify, seal, and unsigned iPhoneOS release build
+    runs-on: macos-15
+    timeout-minutes: 180
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@v4
+
+      - name: Select Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.19.0"
+
+      - name: Verify the exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_DIR="$GITHUB_WORKSPACE"
+          mkdir -p "$SOURCE_DIR/.ci-output"
+          python3 "$SOURCE_DIR/tools/verify_current_source.py" --root "$SOURCE_DIR" | tee "$SOURCE_DIR/.ci-output/source-verification.json"
+          (cd "$SOURCE_DIR" && shasum -a 256 -c SOURCE_INTEGRITY_SHA256.txt) > "$SOURCE_DIR/.ci-output/source-package-integrity.log"
+          grep -q 'GHEdition: "development"' "$SOURCE_DIR/project.yml"
+          grep -q 'static func bytes() -> \[UInt8\] { \[\] }' "$SOURCE_DIR/iOS/GlobalHoldings/VentoraReleaseKey.swift"
+          echo "SOURCE_DIR=$SOURCE_DIR" >> "$GITHUB_ENV"
+          echo "OUT=$SOURCE_DIR/.ci-output" >> "$GITHUB_ENV"
+          echo "REL=$RUNNER_TEMP/ventora-release" >> "$GITHUB_ENV"
+
+      - name: Install pinned dependencies and browser engines
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SOURCE_DIR"
+          npm install --no-save --package-lock=false --no-audit --no-fund
+          npx playwright install chromium webkit
+          npm run lint
+
+      - name: Run the full source acceptance gate
+        if: ${{ inputs.acceptance }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACCEPTANCE_DIR="$RUNNER_TEMP/ventora-source-acceptance"
+          python3 "$SOURCE_DIR/tools/run_acceptance.py" --output "$ACCEPTANCE_DIR" --timeout 300 | tee "$OUT/source-acceptance.log"
+          cp "$ACCEPTANCE_DIR/results.json" "$OUT/source-acceptance-results.json"
+          python3 - "$ACCEPTANCE_DIR/results.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          result=json.loads(Path(sys.argv[1]).read_text())
+          if result.get('completed') is not True or result.get('all_tests_passed') is not True or result.get('runtime_unchanged') is not True: raise SystemExit('Full source acceptance did not pass')
+          if result.get('passed')!=result.get('total') or result.get('total',0)<300: raise SystemExit('Acceptance gates are missing or failed')
+          print('Acceptance: %s/%s gates' % (result['passed'],result['total']))
+          PY
+
+      - name: Minify the WebApp and run the release smoke test on it
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$REL/smoke-root"
+          cp -R "$SOURCE_DIR/WebApp" "$REL/minified"
+          node "$SOURCE_DIR/tools/release/build-release-webapp.cjs" --web "$REL/minified" --minify-only --report "$OUT/release-minify.json"
+          ln -s "$REL/minified" "$REL/smoke-root/WebApp"
+          (cd "$SOURCE_DIR" && node tests/release/ventora-release-smoke.cjs "$REL/smoke-root") | tee "$OUT/release-smoke.log"
+
+      - name: Seal the WebApp with this build's key and prove it opens
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -R "$REL/minified" "$REL/sealed"
+          node "$SOURCE_DIR/tools/release/build-release-webapp.cjs" --web "$REL/sealed" --swift "$REL/VentoraReleaseKey.swift" --seal-only --report "$OUT/release-seal.json"
+          node "$SOURCE_DIR/tests/release/ventora-seal-roundtrip.cjs" "$REL/sealed" "$REL/minified" "$REL/VentoraReleaseKey.swift" | tee "$OUT/release-seal-roundtrip.log"
+          # The app's own opener (VentoraPack.swift, CryptoKit) opens a sealed script to the minified bytes and refuses
+          # an edited, swapped or unsealed one.
+          mkdir -p "$REL/swift-check"
+          cat > "$REL/swift-check/main.swift" <<'SWIFT'
+          import Foundation
+          let args = CommandLine.arguments
+          let sealed = URL(fileURLWithPath: args[1]), plain = URL(fileURLWithPath: args[2])
+          func check(_ ok: Bool, _ what: String) { if !ok { print("FAIL: \(what)"); exit(1) } }
+          check(VentoraPack.sealsFiles, "the release key is present")
+          var opened = 0
+          for name in ["app.js", "finance-core.js", "madar-shell.css", "fleet-engine-worker.js"] {
+              let data = try! Data(contentsOf: sealed.appendingPathComponent(name)), expected = try! Data(contentsOf: plain.appendingPathComponent(name))
+              check(VentoraPack.open(data, path: name) == expected, "\(name) opens to the minified bytes")
+              check(VentoraPack.open(data, path: "x-" + name) == nil, "\(name) is bound to its path")
+              var edited = data; edited[edited.count - 20] ^= 1
+              check(VentoraPack.open(edited, path: name) == nil, "an edited \(name) is refused")
+              check(VentoraPack.open(expected, path: name) == nil, "an unsealed \(name) is refused")
+              opened += 1
+          }
+          let index = try! Data(contentsOf: sealed.appendingPathComponent("index.html"))
+          check(VentoraPack.open(index, path: "index.html") == index, "index.html stays readable")
+          print("VENTORA_SWIFT_SEAL_CHECK_PASS opened=\(opened)")
+          SWIFT
+          xcrun swiftc "$REL/swift-check/main.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraPack.swift" "$REL/VentoraReleaseKey.swift" -o "$REL/swift-check/check"
+          "$REL/swift-check/check" "$REL/sealed" "$REL/minified" | tee "$OUT/release-swift-seal-check.log"
+
+      - name: Prove a save edited on disk is refused under the release seal
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$REL/vault-check"
+          rm -rf "$HOME/Library/Application Support/GlobalHoldingsSaveVault"
+          cat > "$REL/vault-check/main.swift" <<'SWIFT'
+          import Foundation
+          import CryptoKit
+          func check(_ ok: Bool, _ what: String) { if !ok { print("FAIL: \(what)"); exit(1) } }
+          check(VentoraSaveSeal.active, "the save seal is active")
+          let vault = GlobalSaveVault.shared
+          let json = "{\"saveVersion\":\"3.0.0\",\"saveRevision\":1,\"simSeconds\":10,\"resetEpoch\":0,\"cash\":100}"
+          _ = try! vault.commit(json, runtimeVersion: "3.0.0")
+          check(vault.currentSave() == json, "a sealed save reads back")
+          let file = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("GlobalHoldingsSaveVault/save-A.json")
+          var text = String(data: try! Data(contentsOf: file), encoding: .utf8)!
+          check(text.contains("\"seal\":\""), "the envelope carries its seal")
+          // The money edited and the plain SHA-256 recomputed: what a save editor does.
+          let edited = json.replacingOccurrences(of: "\"cash\":100", with: "\"cash\":999999999")
+          let hex: (String) -> String = { SHA256.hash(data: Data($0.utf8)).map { String(format: "%02x", $0) }.joined() }
+          text = text.replacingOccurrences(of: hex(json), with: hex(edited)).replacingOccurrences(of: "\\\"cash\\\":100", with: "\\\"cash\\\":999999999")
+          check(text.contains("999999999"), "the edit landed in the file")
+          try! Data(text.utf8).write(to: file, options: .atomic)
+          check(vault.currentSave() == nil, "the edited save is refused")
+          print("VENTORA_SAVE_SEAL_CHECK_PASS")
+          SWIFT
+          xcrun swiftc "$REL/vault-check/main.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalGameStorage.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalSaveVault.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraPack.swift" "$REL/VentoraReleaseKey.swift" -o "$REL/vault-check/check"
+          "$REL/vault-check/check" | tee "$OUT/release-save-seal-check.log"
+          rm -rf "$HOME/Library/Application Support/GlobalHoldingsSaveVault"
+
+      - name: Build a fresh unsigned arm64 iPhoneOS release app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SOURCE_DIR"
+          # This checkout becomes the release edition; nothing here is committed.
+          rm -rf WebApp && cp -R "$REL/sealed" WebApp
+          cp "$REL/VentoraReleaseKey.swift" iOS/GlobalHoldings/VentoraReleaseKey.swift
+          TREE=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['treeSha256'])" "$OUT/release-seal.json")
+          python3 - "$TREE" <<'PY'
+          import re,sys
+          from pathlib import Path
+          p=Path('project.yml');s=p.read_text()
+          s=s.replace('GHEdition: "development"','GHEdition: "release"',1)
+          s,n=re.subn(r'GHSourceSnapshotSHA256: "[0-9a-f]{64}"','GHSourceSnapshotSHA256: "%s"'%sys.argv[1],s)
+          if n!=1 or 'GHEdition: "release"' not in s: raise SystemExit('project.yml release edits failed')
+          p.write_text(s)
+          PY
+          xcrun swiftc -parse iOS/GlobalHoldings/*.swift
+          if ! command -v xcodegen >/dev/null 2>&1; then brew install xcodegen; fi
+          xcodegen generate --spec project.yml
+          DERIVED_DATA="$RUNNER_TEMP/ventora-derived-data"
+          xcodebuild \
+            -project GlobalHoldings.xcodeproj \
+            -scheme GlobalHoldings \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$DERIVED_DATA" \
+            ARCHS=arm64 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            clean build 2>&1 | tee "$OUT/xcodebuild.log"
+          test -d "$DERIVED_DATA/Build/Products/Release-iphoneos/GlobalHoldings.app"
+
+      - name: Assemble and verify the unsigned VENTORA release IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/ventora-derived-data/Build/Products/Release-iphoneos/GlobalHoldings.app"
+          STAGE="$RUNNER_TEMP/ventora-ipa"
+          IPA="$OUT/VENTORA_release_unsigned.ipa"
+          mkdir -p "$STAGE/Payload"
+          ditto "$APP" "$STAGE/Payload/GlobalHoldings.app"
+          (cd "$STAGE" && /usr/bin/zip -qry "$IPA" Payload)
+          python3 - "$REL/sealed" "$IPA" "$OUT/release-ipa-verification.json" "$GITHUB_SHA" <<'PY'
+          import hashlib,json,plistlib,sys,zipfile
+          from pathlib import Path
+          sealed,ipa,report,commit=Path(sys.argv[1]),Path(sys.argv[2]),Path(sys.argv[3]),sys.argv[4]
+          prefix='Payload/GlobalHoldings.app/'
+          expected={str(p.relative_to(sealed)).replace('\\','/'):hashlib.sha256(p.read_bytes()).hexdigest() for p in sealed.rglob('*') if p.is_file()}
+          with zipfile.ZipFile(ipa) as archive:
+              if archive.testzip() is not None: raise SystemExit('IPA CRC failure')
+              rows={row.filename:row for row in archive.infolist() if not row.is_dir()}
+              info=plistlib.loads(archive.read(prefix+'Info.plist'))
+              if info.get('GHEdition')!='release' or info.get('CFBundleDisplayName')!='VENTORA': raise SystemExit('IPA is not the VENTORA release edition')
+              actual={name[len(prefix+'WebApp/'):]:hashlib.sha256(archive.read(name)).hexdigest() for name in rows if name.startswith(prefix+'WebApp/')}
+              if actual!=expected: raise SystemExit('IPA WebApp differs from the sealed tree')
+              plain=[name for name in actual if name.rsplit('.',1)[-1].lower() in ('js','css','json') and name!='runtime-required.json' and not archive.read(prefix+'WebApp/'+name).startswith(b'VENC1')]
+              if plain: raise SystemExit('Readable game files in the release IPA: '+', '.join(plain[:6]))
+          result={'ipa':ipa.name,'ipa_sha256':hashlib.sha256(ipa.read_bytes()).hexdigest(),'ipa_bytes':ipa.stat().st_size,'webapp_files':len(expected),'edition':'release','commit':commit,'unsigned':True}
+          report.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))
+          PY
+
+      - name: Preserve verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VENTORA-release-verification
+          path: .ci-output
+          if-no-files-found: warn
+          retention-days: 30
+          include-hidden-files: true
+
+      - name: Upload the VENTORA release IPA as a single file
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          path: .ci-output/VENTORA_release_unsigned.ipa
+          archive: false
+          if-no-files-found: error
+          retention-days: 30

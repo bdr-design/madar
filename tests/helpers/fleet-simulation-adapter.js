@@ -38,10 +38,12 @@ function createSimulationAdapter({from=7200,assets=null,routeOverrides={},financ
     recordAssetDepartureTrace:()=>null,
     simulationAssetRuntimeContext:()=>fixture.context(Number(state.simSeconds)||0),
     catalogItem:()=>null,queueAssetSaleFinalize:()=>{},
+    // Build 371: a committed day queues the staged fleet maintenance owner (runDeferredMaintenance in app.js).
+    queueFleetMaintenance:day=>{s.__fleetMaintenanceDays.push(day);},
     processFinancialDay:day=>{s.__financialDays.push(day);state.lastFinancialDay=day;},
     processMarket:hour=>{s.__marketHours.push(hour);state.lastMarketHour=hour;},
     diag:()=>{},pushAlert:()=>{},routeDistance:()=>0,
-    __financialDays:[],__marketHours:[],__GH_BUILD339_WRITE_AUDIT__:true
+    __financialDays:[],__marketHours:[],__fleetMaintenanceDays:[],__GH_BUILD339_WRITE_AUDIT__:true
   });
   if(!deliveryWork)s.GH_REALISM.hasPendingDeliveries=()=>false;
   s.GH_TRANSACTION_CORE.registerJournaledRoot('fleet',{

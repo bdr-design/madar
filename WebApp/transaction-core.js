@@ -7,6 +7,35 @@
   // replacement.  A durable publish, a recovery restore and a hard reset all
   // preserve the root object identity, so a WeakMap keyed only by that identity
   // would otherwise keep metadata for the state that was just replaced.
+  // VENTORA money guard. Between two transactions nothing may change a company balance, a holding of shares, the group
+  // value or the debt: every legitimate change runs inside one (execute, staged or durable) or replaces the state
+  // (restoreObject). The values a transaction leaves are kept here, masked (not findable by searching memory for the
+  // number); at the start of the next transaction a value raised (the debt lowered) by anything else, a memory editor, is
+  // put back in the release edition. GH_MONEY_GUARD_STRICT turns any difference into an error: the acceptance gate runs with it to prove
+  // that no legitimate path changes these values outside a transaction.
+  const MONEY_GUARD=(()=>{
+    const seals=new WeakMap(),scratch=new DataView(new ArrayBuffer(8)),salt=[(Math.random()*0x100000000)>>>0,(Math.random()*0x100000000)>>>0];
+    let restored=0,observed=0;
+    const hide=value=>{scratch.setFloat64(0,value);return [scratch.getUint32(0)^salt[0],scratch.getUint32(4)^salt[1]];};
+    const show=hidden=>{scratch.setUint32(0,hidden[0]^salt[0]);scratch.setUint32(4,hidden[1]^salt[1]);return scratch.getFloat64(0);};
+    function cells(state){
+      const out=[],books=state.companyFinance;
+      if(books&&typeof books==='object')for(const id of Object.keys(books)){const accounts=books[id]&&books[id].accounts;if(Array.isArray(accounts))for(let i=0;i<accounts.length;i++){const account=accounts[i];if(account&&typeof account==='object'&&typeof account.balance==='number')out.push([`b|${id}|${i}`,account,'balance']);}}
+      const portfolio=state.portfolio;if(portfolio&&typeof portfolio==='object'&&!Array.isArray(portfolio))for(const sym of Object.keys(portfolio))if(typeof portfolio[sym]==='number')out.push([`p|${sym}`,portfolio,sym]);
+      for(const key of ['groupValue','debt'])if(typeof state[key]==='number')out.push([`s|${key}`,state,key]);
+      return out;
+    }
+    function seal(state){if(!state||typeof state!=='object'||Array.isArray(state))return;const map=new Map();for(const [key,owner,field] of cells(state))map.set(key,hide(owner[field]));seals.set(state,map);}
+    function verify(state){
+      if(!state||typeof state!=='object'||Array.isArray(state))return;const map=seals.get(state);if(!map)return seal(state);
+      const strict=globalThis.GH_MONEY_GUARD_STRICT===true,release=globalThis.GH_EDITION==='release';let changed=null;
+      for(const [key,owner,field] of cells(state)){const hidden=map.get(key);if(!hidden)continue;const value=show(hidden);if(Object.is(value,owner[field]))continue;changed=changed||key;observed++;
+        // What a cheat does: money, shares or the group value raised, the debt lowered. Only that is put back.
+        const cheat=key==='s|debt'?!(owner[field]>=value):!(owner[field]<=value);if(release&&!strict&&cheat){owner[field]=value;restored++;}}
+      if(changed&&strict)throw new Error(`money-guard-changed-outside-transaction:${changed}`);
+    }
+    return Object.freeze({seal,verify,telemetry:()=>({restored,observed})});
+  })();
   const STATE_REPLACEMENT_OBSERVERS=new Set();
   function registerStateReplacementObserver(observer){if(typeof observer!=='function')throw new TypeError('transaction-state-replacement-observer-required');STATE_REPLACEMENT_OBSERVERS.add(observer);return ()=>STATE_REPLACEMENT_OBSERVERS.delete(observer);}
   function notifyStateReplacement(phase,target,snapshot,kind,ok=null){for(const observer of STATE_REPLACEMENT_OBSERVERS)try{observer({phase,target,snapshot,kind,ok});}catch(error){globalThis.console?.warn?.('State replacement observer failed',error);}}
@@ -277,12 +306,12 @@
     notifyStateReplacement('before',target,snapshot,replacementKind);
     try{
       const preserved=[...JOURNALED_ROOTS.keys()].filter(key=>Object.prototype.hasOwnProperty.call(target,key)||Object.prototype.hasOwnProperty.call(snapshot,key)||(rootValues&&Object.prototype.hasOwnProperty.call(rootValues,key)));
-      if(!preserved.length){const restored=restoreValue(target,snapshot,rollback,'$');notifyStateReplacement('after',target,snapshot,replacementKind,true);return restored;}
+      if(!preserved.length){const restored=restoreValue(target,snapshot,rollback,'$');MONEY_GUARD.seal(target);notifyStateReplacement('after',target,snapshot,replacementKind,true);return restored;}
       const keep=new Set(preserved),current=Object.keys(target),wanted=Object.keys(snapshot);
       for(const key of current)if(!keep.has(key)&&!Object.prototype.hasOwnProperty.call(snapshot,key))delete target[key];
       for(const key of wanted){if(keep.has(key))continue;const sv=snapshot[key],tv=target[key];target[key]=sv&&typeof sv==='object'?restoreValue(tv,sv,rollback,key):sv;}
       for(const key of preserved)if(!Object.prototype.hasOwnProperty.call(target,key)&&rootValues&&Object.prototype.hasOwnProperty.call(rootValues,key))target[key]=rootValues[key];
-      notifyStateReplacement('after',target,snapshot,replacementKind,true);return target;
+      MONEY_GUARD.seal(target);notifyStateReplacement('after',target,snapshot,replacementKind,true);return target;
     }catch(error){notifyStateReplacement('after',target,snapshot,replacementKind,false);throw error;}
   }
   // Publishing a draft after the durable store has acknowledged it is not a rollback. Externally frozen leaves
@@ -542,8 +571,10 @@
   // execute()/executeDurable() on it throws 'staged-transaction-in-progress'. abort() rolls everything back exactly like a
   // failed execute(). execute() is the same machinery driven to completion in one call.
   function execute(target,options={}){
+    if(!activeContext)MONEY_GUARD.verify(target);
     const steps=executeSteps(target,options,null),step=steps.next();
     if(!step.done)throw new Error('transaction-unexpected-suspension');
+    if(!activeContext)MONEY_GUARD.seal(target);
     return step.value;
   }
   const WAIT_STAGE=/-wait$/;
@@ -551,10 +582,11 @@
     if(!target||typeof target!=='object'||Array.isArray(target))throw new TypeError('Transaction target must be an object');
     if(activeContext)throw new Error('Nested state transactions are forbidden; domain commands must join their owner');
     if(stagedTargets.has(target))throw new Error('staged-transaction-in-progress');
+    MONEY_GUARD.verify(target);
     const token={label:String(options.label||'staged-transaction'),abort:null},steps=executeSteps(target,options,token);let done=false,result=null,error=null,stage='start',count=0;
     const advance=resume=>{
       if(done)return;stagedTargets.set(target,token);
-      try{const step=resume();count++;if(step.done){done=true;result=step.value;}else stage=String(step.value||'apply');}
+      try{const step=resume();count++;if(step.done){done=true;result=step.value;MONEY_GUARD.seal(target);}else stage=String(step.value||'apply');}
       catch(caught){done=true;error=caught;}
       finally{if(done&&stagedTargets.get(target)===token)stagedTargets.delete(target);}
     };
@@ -741,6 +773,7 @@
     if(actualRevision!==expectedRevision)throw rejection(`state-revision-conflict:${expectedRevision}:${actualRevision}`,label,'admission');
     // Build 358: phase timings of every durable command (diagnostics: telemetry().lastDurable / durableSamples).
     const durableStart=runtimeClock(),durableTiming={label,cloneMs:0,inheritMs:0,baselineIntegrityMs:0,applyMs:0,validateMs:0,integrityMs:0,persistMs:0,publishMs:0,afterMs:0,totalMs:0,committed:false};let mark=durableStart;const lap=key=>{const now=runtimeClock();durableTiming[key]+=Math.max(0,now-mark);mark=now;};
+    MONEY_GUARD.verify(liveState);
     const transactionId=String(options.transactionId||`DTX-${String(++durableSequence).padStart(9,'0')}`),rootSessions=beginJournaledRoots(liveState);let draft;
     try{draft=deepClone(liveState,{shareJournaledRoots:true});}catch(error){rollbackJournaledRoots(rootSessions);throw error;}
     lap('cloneMs');
@@ -762,11 +795,11 @@
       if(Number(liveState.saveRevision||0)!==expectedRevision)throw rejection(`state-revision-conflict:${expectedRevision}:${Number(liveState.saveRevision)||0}`,label,'pre-persist');
       phase='durable-commit';const persist=options.persist||((state,meta)=>{const owner=globalThis.GH_PERSISTENCE;if(!owner?.commitDurableState)throw new Error('durable-persistence-owner-unavailable');return owner.commitDurableState(state,meta);}),persisted=await persist(draft,{...(options.persistence||{}),expectedPreviousRevision:expectedRevision,transactionId,idempotencyKey:options.idempotencyKey||null,prevalidated:true});if(persisted===false||persisted?.ok===false)throw rejection(persisted?.reason||'durable-persistence-rejected',label,phase);durableCommitted=true;commitJournaledRoots(rootSessions);
       lap('persistMs');
-      phase='publish';if(typeof options.publish==='function')await options.publish(liveState,draft,context);else publishObject(liveState,draft);lap('publishMs');
+      phase='publish';if(typeof options.publish==='function')await options.publish(liveState,draft,context);else publishObject(liveState,draft);MONEY_GUARD.seal(liveState);lap('publishMs');
       for(const task of afterPublishTasks)try{await task(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-publish side effect failed`,error);}
       if(typeof options.afterCommit==='function')try{await options.afterCommit(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-commit side effect failed`,error);}
       lap('afterMs');durableTiming.committed=true;durableTiming.totalMs=Math.max(0,runtimeClock()-durableStart);publishDurableMetric(durableTiming);
-      advanceRevision(liveState);return {committed:true,durable:true,transactionId,label,saveRevision:Number(liveState.saveRevision)||0,value,persistence:persisted};
+      advanceRevision(liveState);MONEY_GUARD.seal(liveState);return {committed:true,durable:true,transactionId,label,saveRevision:Number(liveState.saveRevision)||0,value,persistence:persisted};
     }catch(error){
       durableTiming.totalMs=Math.max(0,runtimeClock()-durableStart);durableTiming.stage=phase;publishDurableMetric(durableTiming);
       error.transactionLabel=error.transactionLabel||label;error.transactionStage=error.transactionStage||phase;error.transactionId=error.transactionId||transactionId;error.durableCommitted=durableCommitted;
@@ -775,5 +808,5 @@
       throw error;
     }finally{if(!durableCommitted&&rootSessions.length)try{rollbackJournaledRoots(rootSessions);}catch{}if(globalThis.__GH_DURABLE_COMMAND_CONTEXT__===context)delete globalThis.__GH_DURABLE_COMMAND_CONTEXT__;durableTargets.delete(liveState);}
   }
-  const API=Object.freeze({VERSION,deepClone,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,moneyGuard:MONEY_GUARD,deepClone,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

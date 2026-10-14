@@ -16,8 +16,8 @@ const fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
 const web=path.join(process.env.GH_AUDIT_ROOT||path.resolve(__dirname,'..'),'WebApp');
 // The local page has no URL to load worker files from: the worker is the same files, inlined into one blob.
-const workerSource=['fleet-store-core.js','simulation-asset-core.js','fleet-event-core.js'].map(file=>fs.readFileSync(path.join(web,file),'utf8')).join('\n;\n')+'\n;\n'+
-  fs.readFileSync(path.join(web,'fleet-engine-worker.js'),'utf8').replace(/^importScripts\([^)]*\);$/m,'');
+// The app's worker assembled from its own importScripts list (a hand-picked subset missed the cores later queries use).
+const workerSource=require('./helpers/fleet-engine-worker').fleetEngineWorkerSource();
 
 (async()=>{
   const browser=await chromium.launch({headless:true}),errors=[];

@@ -11,6 +11,10 @@ const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
 const {scenario}=require(path.join(ROOT,'tests/helpers/business-scenario'));
 const e=scenario(),s=e.s,state=e.state,FLEET=s.GH_FLEET_DATA,STORE=s.GH_FLEET_STORE,TX=s.GH_TRANSACTION_CORE;
 e.load('migration-core');e.load('state-codec-core');e.load('persistence-core');
+// Build 372: above the bounded main-thread fallback (2,048 rows) a save takes the fleet's compact validation from the fleet
+// engine worker. This suite has no worker, so the same query runs in-process, called as the worker calls it.
+e.load('fleet-save-validation-core');e.load('fleet-query-core');
+s.GH_FLEET_VALIDATION_PROVIDER=(target,params)=>s.GH_FLEET_QUERY.run('saveValidation',{fleet:target.fleet,simSeconds:Number(target.simSeconds)||0},s.GH_FLEET_DATA,params);
 const P=s.GH_PERSISTENCE,CODEC=s.GH_STATE_CODEC,results=[];
 async function test(name,fn){try{results.push({name,ok:true,detail:await fn()});}catch(error){results.push({name,ok:false,error:String(error.stack||error).slice(0,2000)});}}
 

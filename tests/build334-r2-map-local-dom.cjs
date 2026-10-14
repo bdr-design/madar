@@ -5,7 +5,8 @@ const out=path.resolve(process.env.GH_LOCAL_EVIDENCE||path.join(__dirname,'../ve
 (async()=>{
  const browser=await chromium.launch({headless:true}),results=[],errors=[];let passed=false;
  try{
-  const {page}=await boot({browser,errors});const e=scenario();e.manualPurchase(1);e.s.GH_REALISM.onSimulationTime(e.state,60);
+  const {page}=await boot({browser,errors,fleetWorker:true}); // Build 373: large fleets advance on the engine worker only (fleet-main-thread-policy)
+ const e=scenario();e.manualPurchase(1);e.s.GH_REALISM.onSimulationTime(e.state,60);
   const result=await page.evaluate(async fixture=>{
    // Since Build 357 the live fleet is a record store: the Node fixture's plain assets (and the test fleets below) go into
    // one, and assets are read through GH_FLEET_DATA. A plain state.assets array would stay beside the store, unsimulated.

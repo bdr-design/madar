@@ -27,7 +27,8 @@ fs.mkdirSync(out,{recursive:true});
    for(const kind of ['companies','labor']){
     try{
      if(kind==='companies'){
-      await click(page.locator('.side-nav [data-panel=companies]'));
+      await click(page.locator('.side-nav [data-panel=groupHub]'));
+      await click(page.locator('#sectionNav').getByRole('button',{name:'الشركات',exact:true}));
       await click(page.getByRole('button',{name:'الشركات التابعة',exact:true}));
       assert.equal(await page.locator('#drawerBody .company-open-list').count(),1,'actual subsidiaries click must render the companies available to open');
       assert.equal(await page.locator('#drawerBody [data-companytab="subs"].active').count(),1);
@@ -42,14 +43,17 @@ fs.mkdirSync(out,{recursive:true});
       assert.equal(await page.locator('#drawerBody [data-companytab="holding"].active').count(),1);
       assert.equal(await page.locator('#drawerBody .company-visual-grid').count(),0);
      }else{
-      const tabs=[['jobs','الوظائف والاحتياج'],['managers','مديرو الشركات'],['contracts','العقود'],['payroll','الرواتب'],['dashboard','لوحة HR']];
+      // Build 373: the people section strip owns the HR tabs; the page's own bar is hidden so no button shows twice.
+      const tabs=[['jobs','الوظائف'],['managers','المديرون التنفيذيون'],['contracts','عقود العمل'],['payroll','الرواتب'],['dashboard','تغطية الوظائف']];
       for(const [id,label] of tabs){
-       await click(page.locator('.side-nav [data-panel=leadershipHub]'));
-       await click(page.locator('#drawerBody .command-btn[data-open="peopleHub"]'));
-       await click(page.locator('#drawerBody .command-btn[data-open="labor"][data-arg="dashboard"]'));
-       await click(page.getByRole('button',{name:label,exact:true}));
+       // Build 373: people have their own rail section.
+       await click(page.locator('.side-nav [data-panel=peopleHub]'));
+       await click(page.locator('#drawerBody [data-tile="coverage"]'));
+       await click(page.locator('#sectionNav').getByRole('button',{name:label,exact:true}));
        assert.equal(await page.locator(`#drawerBody [data-labortab="${id}"].active`).count(),1,`actual HR click must activate ${id}`);
-       assert((await page.locator('#drawerBody').innerText()).length>100);
+       assert.equal(await page.locator(`#sectionNav [aria-current=page]`).innerText(),label,`the strip marks ${id} as the current page`);
+       assert.equal(await page.locator('#drawerBody [data-labortab]:visible').count(),0,'the HR tabs are not shown twice');
+       assert((await page.locator('#drawerBody').innerText()).trim().length>20,`${id} renders its content`);
       }
       await page.screenshot({path:path.join(out,`334-tabs-hr-${orientation}.png`)});
      }

@@ -64,9 +64,12 @@ async function scenario(page,{roadRoute,interrupt}){
   // hydrateRoadRoutes still requests from the network).
   await page.evaluate(roadRoute=>{const tpl=__AUDIT__.routeTemplatesFor(roadRoute);tpl.roadNetworkDistanceKm=0;delete tpl.roadGeometryVersion;delete __GH_STATE__.routeCache[roadRoute];},roadRoute);
   const pre=await page.evaluate(`(${OBSERVE})()`);
-  // Pause: the first frame yield of the sea dispatch that sees every ship routed and none departed.
-  await page.evaluate(({interrupt})=>{const original=window.__qaTimeout||(window.__qaTimeout=window.setTimeout);window.qaPause={armed:true,held:null};
-    window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&window.__GH_DURABLE_COMMAND_CONTEXT__&&String(fn).includes('[native code]')){const ships=GH_FLEET_DATA.filter(__GH_STATE__,a=>(a.ownerCompanyId||a.companyId)==='sea');if(ships.length&&ships.every(a=>a.routeId&&a.phase!=='moving'&&!a.departureScheduled)){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}}return original.call(window,fn,ms,...rest);};
+  // Pause: the sea dispatch command's first cooperative yield. Build 372: the dispatch plan assigns and departs in one
+  // staged apply, so there is no gap between assignment and departure to hold; the durable command is open and owns the
+  // state (the same hold build371-native-update-isolation uses).
+  await page.evaluate(({interrupt})=>{const post=window.__qaPost||(window.__qaPost=MessagePort.prototype.postMessage);window.qaPause={armed:true,held:null};
+    // The dispatch's cooperative yield (yieldToEventLoop) posts on a MessagePort: the first post inside the command is held.
+    MessagePort.prototype.postMessage=function(...args){if(qaPause.armed&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))){qaPause.armed=false;const port=this;qaPause.held=()=>post.call(port,...args);return;}return post.apply(this,args);};
     const ops=window.__qaOps||(window.__qaOps=window.GH_OPERATIONS_CORE);window.GH_OPERATIONS_CORE=interrupt?{...ops,execute(ctx,cmd,payload){if(cmd==='record-alert'&&payload?.type==='dispatch')throw new Error('qa-interrupted-after-departures');return ops.execute(ctx,cmd,payload);}}:ops;},{interrupt});
   await page.locator('.dispatch-international-network[data-company="sea"]').first().click();
   await page.waitForFunction(()=>!!qaPause.held,null,{timeout:120000});
@@ -83,7 +86,7 @@ async function scenario(page,{roadRoute,interrupt}){
     // A road geometry arrives (route without verified road geometry, as in an older save).
     const tpl=__AUDIT__.routeTemplatesFor(roadRoute),templateBefore=tpl.distanceKm;
     const geometry={route:tpl.route.map(([lat,lng],i)=>[lat+(i%2?0.05:0),lng]),durationSeconds:tpl.tripSeconds*1.4};window.qaGeometry=geometry;
-    out.directApply=__AUDIT__.applyRoadGeometry(roadRoute,geometry,false);
+    out.directApply=await __AUDIT__.applyRoadGeometry(roadRoute,geometry,false); // Build 372: async; refuses before its first await
     window.qaDeferred=typeof __AUDIT__.applyRoadGeometryWhenSettled==='function'?__AUDIT__.applyRoadGeometryWhenSettled(roadRoute,geometry,true):Promise.resolve('unavailable');
     // Longer than the periodic health check (REALTIME_HEALTH_MS, 10 s) and the street-route polling (1.2 s).
     const windowStart=performance.now();while(performance.now()-windowStart<11000)await new Promise(resolve=>requestAnimationFrame(resolve));
@@ -104,7 +107,7 @@ async function scenario(page,{roadRoute,interrupt}){
   const pausedRoots=await page.evaluate(`(${OBSERVE})()`);assert.equal(pausedRoots.roots,pre.roots,'the live roots are those before the command');assert.equal(pausedRoots.storage,pre.storage);
 
   // --- Resume. ---
-  await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;window.setTimeout=window.__qaTimeout;held();});
+  await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;MessagePort.prototype.postMessage=window.__qaPost;held();});
   await settled(page,'bulk-shared-departure:sea');
   const applied=await page.evaluate(()=>window.qaDeferred);
   const out=await page.evaluate(({roadRoute,OBSERVE})=>{const at=eval(OBSERVE)(),tpl=__AUDIT__.routeTemplatesFor(roadRoute);return {committed:GH_APP_RUNTIME_METRICS.snapshot().durable.last.committed,at,template:tpl.distanceKm,trucks:at.rows.road.filter(r=>r.routeId===roadRoute).map(r=>r.distanceKm),cached:!!__GH_STATE__.routeCache?.[roadRoute]};},{roadRoute,OBSERVE:`(${OBSERVE})`});
@@ -129,7 +132,7 @@ async function scenario(page,{roadRoute,interrupt}){
     // Each scenario in a game of its own: a geometry applied to a custom route's template outside a command is not
     // kept by a later commit (a custom route owns its geometry; the route cache keeps only a canonical marker), a
     // separate, pre-existing behaviour this test does not cover.
-    let {page}=await boot({browser,errors,bypassCSP:true});page.setDefaultTimeout(120000);await osrmDouble(page);
+    let {page}=await boot({browser,errors,bypassCSP:true,fleetWorker:true});page.setDefaultTimeout(120000);await osrmDouble(page);
     let roadRoute=await setup(page);assert(roadRoute,'trucks on a road route');
 
     // 1. Interrupted after its departures: the whole command rolls back.
@@ -140,14 +143,14 @@ async function scenario(page,{roadRoute,interrupt}){
     report.push({name:'paused then interrupted: rolled back, nothing acted on the partial result',refusals:{save:rolled.paused.saveNow,player:rolled.paused.playerCommand},visibleWhilePaused:rolled.paused.visibleShips.join('')});
 
     // 2. The same pause, then committed (a new game).
-    await page.close();({page}=await boot({browser,errors,bypassCSP:true}));page.setDefaultTimeout(120000);await osrmDouble(page);
+    await page.close();({page}=await boot({browser,errors,bypassCSP:true,fleetWorker:true}));page.setDefaultTimeout(120000);await osrmDouble(page);
     roadRoute=await setup(page);assert(roadRoute,'trucks on a road route');
     const committed=await scenario(page,{roadRoute,interrupt:false});
     assert.equal(committed.out.committed,true);
     assert(committed.out.at.rows.sea.every(r=>r.routeId&&(r.phase==='moving'||r.departureScheduled)),'every ship routed and underway after the commit');
     assert.equal(committed.out.at.saveRevision,committed.pre.saveRevision+1);
     const saved=await page.evaluate(async OBSERVE=>{const read=eval(OBSERVE);const ok=await __AUDIT__.saveNow();if(ok!==true)throw new Error(`save-rejected:${ok}`);await GH_PERSISTENCE.drain();return read().rows.sea;},`(${OBSERVE})`);
-    ({page}=await reboot(page,{browser,errors,bypassCSP:true}));
+    ({page}=await reboot(page,{browser,errors,bypassCSP:true,fleetWorker:true}));
     const restored=await page.evaluate(`(${OBSERVE})()`);
     // Identity and lifecycle fields: tripSeconds of a ship is recomputed on load (about 1% apart on 118731e too, with no
     // command involved; a separate, pre-existing difference).

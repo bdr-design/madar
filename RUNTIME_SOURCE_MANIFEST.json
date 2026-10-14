@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "38703f481b8c97db89dae154395d171a827010ba8976e1e207de2b00f5b750f9",
-  "webapp_tree_sha256": "9e94712be378953d62e6515248ecc0691bfa22e2f382add8d797b661aa83002b",
+  "source_tree_sha256": "22124c6a1a07cadae785a47b68ee62b6703d9e939e2240b272d7851d3a10fa78",
+  "webapp_tree_sha256": "71312d95df5e3178a773bb06e4c9fccca328c2de191ae60ace4c5ee805998a3a",
   "files": {
     "WebApp/advanced-core.js": {
-      "bytes": 320097,
-      "sha256": "00e66757ee84eb8cbec7926b9387a1f20e44922b03577c082c6f5934243f42cc"
+      "bytes": 347626,
+      "sha256": "7a4a1bc2c35ceb423a773b9fd9913c5df3df3e1f052e747022d9abf1481b1735"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 947368,
-      "sha256": "0e799b1d30c6f849b94b4d0d5dda6799f60e127ce059ab197c64aadf7415e6e1"
+      "bytes": 959742,
+      "sha256": "28a70c4f0a1fb12b6e64a2a800070512fcd16f5cf2cb5d0ce6f3300631d33a30"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -215,8 +215,8 @@
       "sha256": "5fd91cf9fc4f7c94fe640fbeff2bd4e8c816129d1580ee830b4be0d9268384f3"
     },
     "WebApp/assets/identity/global-holdings.svg": {
-      "bytes": 544,
-      "sha256": "702f51054a7b583fe7c24f0c2022bc60c00e9da270fe07214dfb6c42b5e1da0c"
+      "bytes": 958,
+      "sha256": "0711ba9da649eda2899b9d58d6296a1a10ba3f8da40fa9a8eabf84a864332d3e"
     },
     "WebApp/assets/identity/group-default.svg": {
       "bytes": 560,
@@ -337,6 +337,294 @@
     "WebApp/assets/images/truck-urban.webp": {
       "bytes": 99800,
       "sha256": "30ffea4f7a0c65fa8509b95eb16106a25ddbe504d3f2152e9a09807f22f44b5c"
+    },
+    "WebApp/assets/images/ui/SOURCE.txt": {
+      "bytes": 332,
+      "sha256": "1bfa60ce20c905f697afce7d42fed376e738d7aecd659ae097c9fcd742eef5a6"
+    },
+    "WebApp/assets/images/ui/air-cargo.webp": {
+      "bytes": 19952,
+      "sha256": "b355aed83405db3e1fa0cedeb90a21b844e3708fc4025f7355442799697f250b"
+    },
+    "WebApp/assets/images/ui/air-crew.webp": {
+      "bytes": 29082,
+      "sha256": "d35685abae9fe660efe06f19b40d6cec8ca776c578ca328ccafbbe07abc0bdf8"
+    },
+    "WebApp/assets/images/ui/air-executive.webp": {
+      "bytes": 19522,
+      "sha256": "729482c1e49ae5e339aa4afff19353917ccf2765dba9f86d1f04216087b74065"
+    },
+    "WebApp/assets/images/ui/air-hangar.webp": {
+      "bytes": 29948,
+      "sha256": "539f1b581145d8aa8bf7a900d8cecc3b9750144d3392a9d3347f4aed5bb6c045"
+    },
+    "WebApp/assets/images/ui/air-narrow.webp": {
+      "bytes": 15050,
+      "sha256": "6be418906e68f59434e7e6191b9e0c52931dbaff3726b6add612204e0b1739d1"
+    },
+    "WebApp/assets/images/ui/air-regional.webp": {
+      "bytes": 10784,
+      "sha256": "1fbb3bcdde7014642a40ee7dffc702a89abe17f717c1218a2e62e275ea51aef6"
+    },
+    "WebApp/assets/images/ui/air-widebody.webp": {
+      "bytes": 15174,
+      "sha256": "3121b69a65084cbbecbda2eea9e713cfe379d5889eb88ef5a1fa790364fd547d"
+    },
+    "WebApp/assets/images/ui/auto-delivery.webp": {
+      "bytes": 30836,
+      "sha256": "e405b75980bba9a1f431667c059218af1b21257f30817c887cdacbe26c60c90b"
+    },
+    "WebApp/assets/images/ui/auto-hero.webp": {
+      "bytes": 33980,
+      "sha256": "ffed5886906f04f0d1cba959ee232e72bf585c8d447c7c96a1038c67c17a7b1b"
+    },
+    "WebApp/assets/images/ui/auto-service.webp": {
+      "bytes": 32548,
+      "sha256": "1ad0931c446e3174a5b7f0492416f7d71223c0e771a61894ec9e742e8fb21fb8"
+    },
+    "WebApp/assets/images/ui/bank-branch.webp": {
+      "bytes": 38086,
+      "sha256": "af48e5b602f44340047122326e4501634defa96b2419d63afd31f920047426a4"
+    },
+    "WebApp/assets/images/ui/bank-credit.webp": {
+      "bytes": 26524,
+      "sha256": "c34fcb81b2b7aba237396c692b1dd8cc8d95b0570940f98826a33c020cdf89ff"
+    },
+    "WebApp/assets/images/ui/bank-vault.webp": {
+      "bytes": 38668,
+      "sha256": "ff753dae8abdaba1b6f3a63f80d414eb00e4fcade1b2271df8c3934994356178"
+    },
+    "WebApp/assets/images/ui/company-bank-v2.webp": {
+      "bytes": 35794,
+      "sha256": "6cb028441a1243470163952ba35710910c2b9d0a4108ec22434f5e2a05e2da71"
+    },
+    "WebApp/assets/images/ui/company-energy-v2.webp": {
+      "bytes": 30098,
+      "sha256": "2af241d5261bfdbbf42f1cbb617725b960c6811a715fa3293a4e0b3cb156e090"
+    },
+    "WebApp/assets/images/ui/company-hq-v2.webp": {
+      "bytes": 24614,
+      "sha256": "7897b484e20eb1c661b7abc9b661fc14d087f1ebaab716109896bbe0c4a0724d"
+    },
+    "WebApp/assets/images/ui/company-system-v2.webp": {
+      "bytes": 25752,
+      "sha256": "44296c1e0e1851d94f99758f4e3e935714dc95895b35d23a62f8466aa311e640"
+    },
+    "WebApp/assets/images/ui/energy-battery.webp": {
+      "bytes": 24538,
+      "sha256": "c05ce116ac1f4da1f3c1c509868eb5a32f69540201a089f0804a090b0fba4846"
+    },
+    "WebApp/assets/images/ui/energy-control.webp": {
+      "bytes": 30498,
+      "sha256": "8449f5a90eaf75d88d0c9b065c83cb9c4959f6241ba3fca62100870c75f09c25"
+    },
+    "WebApp/assets/images/ui/energy-solar.webp": {
+      "bytes": 30348,
+      "sha256": "355de66b9cc96214d2d54e172774f1909d71286fb49a7399f2a60af3a59aa510"
+    },
+    "WebApp/assets/images/ui/energy-wind.webp": {
+      "bytes": 22166,
+      "sha256": "38678890ffc8716151730d53a5f61ff33f57cd1ace3ac72a03afdca7c419b9f3"
+    },
+    "WebApp/assets/images/ui/facility-airport-v2.webp": {
+      "bytes": 25544,
+      "sha256": "9560bcb712b05116df09faa39dbbd803e8a805d614bf35f5a4b66473d3138fc2"
+    },
+    "WebApp/assets/images/ui/facility-logistics-v2.webp": {
+      "bytes": 37940,
+      "sha256": "562bb9095d1228250981d1baf6c6b9e082b3942ab0bbdfd341d5186b1862acb5"
+    },
+    "WebApp/assets/images/ui/facility-port-v2.webp": {
+      "bytes": 39300,
+      "sha256": "2b72643a7f60d54cb3afa3891ca0c54bb6a76f7fdb57d8e19b48116dc95f7f1c"
+    },
+    "WebApp/assets/images/ui/finance-budget.webp": {
+      "bytes": 27358,
+      "sha256": "a68324d15928282a75085706f52fdf2fa9c605178dc5b13ce432d3337389a773"
+    },
+    "WebApp/assets/images/ui/finance-documents.webp": {
+      "bytes": 31368,
+      "sha256": "e4c27a87a44734246aa646534c0fa4ea086a5576de1fca9cba73af576fe9a545"
+    },
+    "WebApp/assets/images/ui/finance-markets.webp": {
+      "bytes": 33304,
+      "sha256": "cc5c9d2f4f71ff23cd422020e97e2ad651fb9b9dff37adbf63de225dc0480353"
+    },
+    "WebApp/assets/images/ui/group-boardroom.webp": {
+      "bytes": 26566,
+      "sha256": "3c8cf32d6ceda1fef49a17a12dc2fa1e8a046d0f043a508750a6f568d817a22b"
+    },
+    "WebApp/assets/images/ui/hero/auto-hero.webp": {
+      "bytes": 61248,
+      "sha256": "e9a4e03289f9d503201cea5ff4b50dfc7ffa7a0a8209212c37a1200e2fe8bbd5"
+    },
+    "WebApp/assets/images/ui/hero/insurance-hero.webp": {
+      "bytes": 68002,
+      "sha256": "9ec502d698801fc771122be9e7026f48e6f65076ab814fcd5a30cb1422a53783"
+    },
+    "WebApp/assets/images/ui/hero/mobility-hero.webp": {
+      "bytes": 74810,
+      "sha256": "cdc8104f8cab81b942f64eeee3890c656c174a02a40b102a581db316e2cbc152"
+    },
+    "WebApp/assets/images/ui/hero/realestate-hero.webp": {
+      "bytes": 63376,
+      "sha256": "34fcd335d22e2b632247f3886424cee3dd7e058d43220c4a26e7092e281f06d6"
+    },
+    "WebApp/assets/images/ui/hero/telecom-hero.webp": {
+      "bytes": 68656,
+      "sha256": "3e835cc6694e47694d27746076b0959ddaea398f94043c9a7403d4f8bd9791cd"
+    },
+    "WebApp/assets/images/ui/insurance-branch.webp": {
+      "bytes": 38264,
+      "sha256": "29c0d4694454172fb3bea8b46456b0c47b6945e1bfbbcad21d8e1f16c11b609d"
+    },
+    "WebApp/assets/images/ui/insurance-claims.webp": {
+      "bytes": 34236,
+      "sha256": "4025d8eff6c24c99c091570396ad707666cd802e0a2d6836f7b9cc1110156c8b"
+    },
+    "WebApp/assets/images/ui/insurance-hero.webp": {
+      "bytes": 36224,
+      "sha256": "f10bb55f71fedc5ddbb806089bfec7743b92757dfe1f03733a632925a3e39198"
+    },
+    "WebApp/assets/images/ui/insurance-risk.webp": {
+      "bytes": 34280,
+      "sha256": "60e18d853c3c64fa58ee06ed1b027254b06d22e7658e4f1b6b2cdbed66820dff"
+    },
+    "WebApp/assets/images/ui/lead-esg.webp": {
+      "bytes": 34258,
+      "sha256": "c3d4fa1311bcda2a3926151f5e26d1d3f5b472b783e8f589239a13ccbbcd86be"
+    },
+    "WebApp/assets/images/ui/lead-news.webp": {
+      "bytes": 25808,
+      "sha256": "2a0f0bccdf65b4b447a29c8a6c7a0603275f2bb47eb6488da533a7502563b5b6"
+    },
+    "WebApp/assets/images/ui/lead-partners.webp": {
+      "bytes": 29274,
+      "sha256": "f3d7548bcab12b26a60bf05fdb8c83ef2286b1d0fcc12eea8304b3b4d6920db8"
+    },
+    "WebApp/assets/images/ui/lead-rnd.webp": {
+      "bytes": 35916,
+      "sha256": "91d10dd5734a6d7f26b3a031169a465fd79cceac6ae76967c2b4ebe76136c77e"
+    },
+    "WebApp/assets/images/ui/lead-security.webp": {
+      "bytes": 27440,
+      "sha256": "47d819a59a5f4425fc2e56d5db692e46b9ebd0ecdbfbabaec3da73fa5f4f66f1"
+    },
+    "WebApp/assets/images/ui/mobility-charging.webp": {
+      "bytes": 26698,
+      "sha256": "4f299d01aaf9e59290fcdebe75ea9b1f31c5ab4a665bafdf7ea6c4d65aa0b76c"
+    },
+    "WebApp/assets/images/ui/mobility-driver.webp": {
+      "bytes": 33698,
+      "sha256": "264e17ec6d12621939f5015a1ed2b0c876a6a87a58e44eef217ca14c6fd8cb41"
+    },
+    "WebApp/assets/images/ui/mobility-hero.webp": {
+      "bytes": 42166,
+      "sha256": "85ae2c3fe964132ec65f037704cd1d5bc3ed1865b8d4964776c723194b1aca82"
+    },
+    "WebApp/assets/images/ui/people-recruit.webp": {
+      "bytes": 23856,
+      "sha256": "00369f7f19bb5d4a6ad689ab878b03b5e1a9dce5c6c6a0b74b87f85912b65a9e"
+    },
+    "WebApp/assets/images/ui/people-team.webp": {
+      "bytes": 28828,
+      "sha256": "103a50600ee99cffa05b9d006d909740425576554132107c0bc615df68ac9b5f"
+    },
+    "WebApp/assets/images/ui/realestate-hero.webp": {
+      "bytes": 33032,
+      "sha256": "33024f141d8d00da90adaa111a1ef6f68eff84ec3c4dafb02c874fcf4740cde2"
+    },
+    "WebApp/assets/images/ui/realestate-mall.webp": {
+      "bytes": 48132,
+      "sha256": "f0c05dd1a9f0f34aeb4f9e6a10fa44f3b33576e63e2a8c55a1e1fdb6c8402388"
+    },
+    "WebApp/assets/images/ui/realestate-sales.webp": {
+      "bytes": 30014,
+      "sha256": "e48440de0ed56b285a9bf43419f4c5decd5264628301690b6882f045fb3de60d"
+    },
+    "WebApp/assets/images/ui/realestate-villas.webp": {
+      "bytes": 38858,
+      "sha256": "fba0acf7f11aef2bf495d59836cd36c1a787800cb17691c5d7faf6c1c3b3ae6a"
+    },
+    "WebApp/assets/images/ui/road-drivers.webp": {
+      "bytes": 24468,
+      "sha256": "160a408494b0a33097a39e43f81009376629784e625c583b74720db1c18cad62"
+    },
+    "WebApp/assets/images/ui/road-workshop.webp": {
+      "bytes": 33800,
+      "sha256": "830ef4ae0900b5b362d51bdc66c5423f3e7728b231b446ca16dd7f8eca98abcb"
+    },
+    "WebApp/assets/images/ui/routes-map.webp": {
+      "bytes": 28138,
+      "sha256": "430cfa76d5767fdb58cb9e633210df6095197d6ca426309bc44d873cef9f3167"
+    },
+    "WebApp/assets/images/ui/sea-crew.webp": {
+      "bytes": 24708,
+      "sha256": "039d85b39b4bd7e9cd544f4125a71dbbc285041a8e09ee3c1a9397a88bc1dd92"
+    },
+    "WebApp/assets/images/ui/sea-drydock.webp": {
+      "bytes": 38116,
+      "sha256": "d8d051e8b4c39f7259f4c2e6033831944489a0e0d9426b2049410b2684e25c3d"
+    },
+    "WebApp/assets/images/ui/ship-bulk.webp": {
+      "bytes": 21840,
+      "sha256": "ccaefb8e684aa2acb46977f67cf3c08a33425540397eea9050dcbcc456498823"
+    },
+    "WebApp/assets/images/ui/ship-container.webp": {
+      "bytes": 27064,
+      "sha256": "09c3c2d85a9598f64fcad60e7ded2d0aeb9d7134531d8330bc26fdf30a121c10"
+    },
+    "WebApp/assets/images/ui/ship-lng.webp": {
+      "bytes": 22910,
+      "sha256": "d707720de86b4b7245c1452387722711062e57227e06b76f1182b230b748fa88"
+    },
+    "WebApp/assets/images/ui/ship-roro.webp": {
+      "bytes": 11530,
+      "sha256": "9bd8725dbd8dcba55028dc827fd8ba7d35cf510fb6e6585dcacd18bc996e60c3"
+    },
+    "WebApp/assets/images/ui/ship-support.webp": {
+      "bytes": 30982,
+      "sha256": "3845e88fc94654556a4a0b56f0f2d099c1a2f122b831fd619e8bf5b82345082d"
+    },
+    "WebApp/assets/images/ui/ship-tanker.webp": {
+      "bytes": 22940,
+      "sha256": "1d1ecdb82dadb76555c7ede21b31da9a6ddcbbf41f352a8edac71d755f5c4d1c"
+    },
+    "WebApp/assets/images/ui/telecom-datacenter.webp": {
+      "bytes": 32134,
+      "sha256": "92224d1673a88aa34edbcd7721525a3ee598afa7a552c47faac2b746a3a99004"
+    },
+    "WebApp/assets/images/ui/telecom-fiber.webp": {
+      "bytes": 36126,
+      "sha256": "390f7d5329ea67f9a5c66bbb22aaf94a902a4e11bf578432c927bc327a9ce3b6"
+    },
+    "WebApp/assets/images/ui/telecom-hero.webp": {
+      "bytes": 37586,
+      "sha256": "58a624ce97ab0d1362e805497cfbedb398c19022f3024a01cb704eee69f82b76"
+    },
+    "WebApp/assets/images/ui/telecom-store.webp": {
+      "bytes": 32686,
+      "sha256": "96fd0593a1c5906fb4dcdb4f42cfad60251aaa091908da44f538b34ee77b97e0"
+    },
+    "WebApp/assets/images/ui/truck-container.webp": {
+      "bytes": 21074,
+      "sha256": "598506e26a6919429a190e6efc43d38825f4f7bc5b88b317c9c64a0f53425faa"
+    },
+    "WebApp/assets/images/ui/truck-longhaul-v2.webp": {
+      "bytes": 17472,
+      "sha256": "bf0bdac36dc5b922ffe3fa83c7eee1fb3d133d444b1bd38227fdd19f0c5b93c9"
+    },
+    "WebApp/assets/images/ui/truck-reefer.webp": {
+      "bytes": 14018,
+      "sha256": "0afb6fe562a724fb3c7336053f5c592ad6d778f34dc801ae98b11f689f1c809f"
+    },
+    "WebApp/assets/images/ui/truck-tanker.webp": {
+      "bytes": 22010,
+      "sha256": "ebae49b4c516bd137e5ef7cbead412a8837b330b75dad72327fb9b31b3e95f9b"
+    },
+    "WebApp/assets/images/ui/truck-urban.webp": {
+      "bytes": 26476,
+      "sha256": "429e5b55b545225c7f039ddf88b461ce86ddb68f3238fde67bc1c03465f51790"
     },
     "WebApp/assets/maps/ne2/0/0/0.webp": {
       "bytes": 10074,
@@ -1706,1373 +1994,1373 @@
       "bytes": 426,
       "sha256": "2f02bf651a4a44927949147c2a1e8fb5c51b56602d39c16daf208b78afdd4a61"
     },
-    "WebApp/assets/maps/ne2-dark/0/0/0.webp": {
-      "bytes": 2760,
-      "sha256": "e4a2da5d15967e7be9845e3fec51d5ba4f787a0ca9f445fa69057d05dd7080aa"
-    },
-    "WebApp/assets/maps/ne2-dark/1/0/0.webp": {
-      "bytes": 2878,
-      "sha256": "b3882b4c4b27ab2e4c0b2d5d77d1dbcad2d980b151c2c4f69b809838ab7dd1a4"
-    },
-    "WebApp/assets/maps/ne2-dark/1/0/1.webp": {
-      "bytes": 1030,
-      "sha256": "0707929eba5e8303a78e7a46f6f31de65db3142a9aa98c4b99fa2f73949b9150"
-    },
-    "WebApp/assets/maps/ne2-dark/1/1/0.webp": {
-      "bytes": 2418,
-      "sha256": "ff9fbe06e26a9aff7bc5f6f523566081264fabeebcad1fdc2708c80c06e3d30a"
-    },
-    "WebApp/assets/maps/ne2-dark/1/1/1.webp": {
-      "bytes": 1286,
-      "sha256": "8b708d2c7fd73f450b0f2d5443ff698ae57fa7b38856ce40c21fd60cb748c5cd"
-    },
-    "WebApp/assets/maps/ne2-dark/2/0/0.webp": {
-      "bytes": 1734,
-      "sha256": "40a8b2e84f215a307d5b6f71771a04dd12ba2a26e01cdf9dfe9989624492b22d"
-    },
-    "WebApp/assets/maps/ne2-dark/2/0/1.webp": {
-      "bytes": 1178,
-      "sha256": "d02f1d1aeb899e6b08baab9522c973a4cd30365516b6bb54f0348e63034e557f"
-    },
-    "WebApp/assets/maps/ne2-dark/2/0/2.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/2/0/3.webp": {
-      "bytes": 716,
-      "sha256": "e8c5c80a228f162005c467e8dc1afae78aa6851289c3a09274e707c9de6de2e1"
-    },
-    "WebApp/assets/maps/ne2-dark/2/1/0.webp": {
-      "bytes": 2636,
-      "sha256": "9eb43d25396b1927e0d243e87e0d75c869d54db0fac2585f1b6e63bae611b2c5"
-    },
-    "WebApp/assets/maps/ne2-dark/2/1/1.webp": {
-      "bytes": 2102,
-      "sha256": "401f9be82ff110f54c867f097bf3827f4139d780befea93daca8ed9934322340"
-    },
-    "WebApp/assets/maps/ne2-dark/2/1/2.webp": {
-      "bytes": 952,
-      "sha256": "7f46f8c11bd94ff74763f6ec83eda7151186fa711c0f28788127f16c43351fca"
-    },
-    "WebApp/assets/maps/ne2-dark/2/1/3.webp": {
-      "bytes": 1012,
-      "sha256": "1cffddf03f6fefce8c1b14d766e2dc0318ca7378f5c6533a00575bfad584d254"
-    },
-    "WebApp/assets/maps/ne2-dark/2/2/0.webp": {
-      "bytes": 1526,
-      "sha256": "d572f1b7ef90470f512b755b66ad5ada4d098a67890febb5ad404fa52cd2a91f"
-    },
-    "WebApp/assets/maps/ne2-dark/2/2/1.webp": {
-      "bytes": 2434,
-      "sha256": "8a20444681f7beaad61cd755089464fe0ad1af63aa7a1dfc19474188a8d346ff"
-    },
-    "WebApp/assets/maps/ne2-dark/2/2/2.webp": {
-      "bytes": 642,
-      "sha256": "c165c58bf6043fd37fd6925db91d87b3d78d232dcef8b8fd089c96c27fdaa2ea"
-    },
-    "WebApp/assets/maps/ne2-dark/2/2/3.webp": {
-      "bytes": 658,
-      "sha256": "fc29825b554d0dae59bdd7031c6dd1b5aa6b3c8be7bd6360615f5de9b49bfb84"
-    },
-    "WebApp/assets/maps/ne2-dark/2/3/0.webp": {
-      "bytes": 1038,
-      "sha256": "a9eb1d2d6ee9705e0f7d87c4ea0a7390a09685908e2b6f46a50ec98ec49cd494"
-    },
-    "WebApp/assets/maps/ne2-dark/2/3/1.webp": {
-      "bytes": 1712,
-      "sha256": "24532accdbe66e73c803bb707ec296f7b3b8a019d9e010b5abb4b644feedeb75"
-    },
-    "WebApp/assets/maps/ne2-dark/2/3/2.webp": {
-      "bytes": 1382,
-      "sha256": "87eccc19e86eb98ffa61361ef743f231505d0477beb0cddc26f8259ebff2b2ca"
-    },
-    "WebApp/assets/maps/ne2-dark/2/3/3.webp": {
-      "bytes": 836,
-      "sha256": "e9c3e4ac532a04dc29272dbf86bf3d868b20c641a0ab6e1b788412e23f52672a"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/1.webp": {
-      "bytes": 732,
-      "sha256": "f58c36371b9fcb3f36b2d752a016afc89754bba28fe2b0919e2d84e4e3334c71"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/2.webp": {
-      "bytes": 1480,
-      "sha256": "878e0a9a1020cd773fc695001724582c5b34e0acb7178e75e07ca50fa5a5eb01"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/3.webp": {
-      "bytes": 222,
-      "sha256": "30b2a3851f9ebe3e24900a1811e4df937835e042b5032f52cb6c49f83a23868e"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/4.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/5.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/6.webp": {
-      "bytes": 600,
-      "sha256": "94792b75d45fcfdcf3f6373c59fb613f4df1dc2f53b09d76eab92ba1f50c928e"
-    },
-    "WebApp/assets/maps/ne2-dark/3/0/7.webp": {
-      "bytes": 374,
-      "sha256": "f3677c87832893cc07c737e3545b757829c37889c1334145ada04adb7097a0d3"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/0.webp": {
-      "bytes": 520,
-      "sha256": "cd9dd29e42ff7374aece6529c560fbe672df057c3883e2f1110dc984557ee57f"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/1.webp": {
-      "bytes": 3564,
-      "sha256": "faf4d913d722be61c1e478eec62fa4a902bde92d1e7c0631716bb49a2477073d"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/2.webp": {
-      "bytes": 1354,
-      "sha256": "821a7c9372d53e6a4ca4631e39ebdc08f30a750ccd09bd5834addcdcef5c25a1"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/3.webp": {
-      "bytes": 1144,
-      "sha256": "d8e4cc76c969a13721eb283e1623b8057aa124769dd78e4b14ab9b493fc3c482"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/4.webp": {
-      "bytes": 218,
-      "sha256": "0d6ae66a466ac94813b41f2ae13193401f3830629fbedb4b693ebc7647f4ab93"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/5.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/6.webp": {
-      "bytes": 740,
-      "sha256": "92ae2b0b5324b392046743f61fb73294b83eea597bc01c21a2533ddf7f49179f"
-    },
-    "WebApp/assets/maps/ne2-dark/3/1/7.webp": {
-      "bytes": 326,
-      "sha256": "4aea3233978ea78a42e92d11ee52cf8eec98da3f085391cdeeac706c6d02f28d"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/0.webp": {
-      "bytes": 2026,
-      "sha256": "74ad535f24493c68d57f44a5d94ed02580c7faa57088e61c01887f6801c1cc13"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/1.webp": {
-      "bytes": 3006,
-      "sha256": "9e52200b4e24b3ee625e80bb708c268f4e533b50c55583ef3d92f920f42ba624"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/2.webp": {
-      "bytes": 2150,
-      "sha256": "b44f113e3dc98a79096199dd289f0a649e6467c99fcef48d52112843f834dae6"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/3.webp": {
-      "bytes": 1488,
-      "sha256": "644d22f1bc3af6a23a65805b8c18dbdfb4ae28845b685ea50d496c2e9fe7d206"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/4.webp": {
-      "bytes": 1182,
-      "sha256": "cccaf4042fc63eaadca4a341a47d6eebeeafccb96a87545467c7b3d718b0763d"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/5.webp": {
-      "bytes": 1028,
-      "sha256": "8328bae6e0cb01314649efc392bba11d490d5545b8cc0996f12d8d0be872ed2a"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/6.webp": {
-      "bytes": 1222,
-      "sha256": "a686896e3e1412004db1e72e877b0c006ec90d6a762a5cb14b78aaedca0bdc0d"
-    },
-    "WebApp/assets/maps/ne2-dark/3/2/7.webp": {
-      "bytes": 464,
-      "sha256": "948f264b7ecba6e4f686283464488dd01ac1ded21e32609f98acc2d9f76c1e2b"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/0.webp": {
-      "bytes": 1224,
-      "sha256": "48acb90d8acd15a41a685b8bb87dd2de91dc1e1fe502d924bc8aa049a893a14d"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/1.webp": {
-      "bytes": 1288,
-      "sha256": "96d651da710646e3987eab1ba30e266fb9273facffb2b88e8014ff5db824a84d"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/2.webp": {
-      "bytes": 1244,
-      "sha256": "c1cd3b3f2adc600445c16ab13c2d459aa3feff98feeb821229b4bf6763881c60"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/3.webp": {
-      "bytes": 774,
-      "sha256": "4dc49ae0bcb8b85ef83d642795bd590a38597574deec94c441a3233b513c3465"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/4.webp": {
-      "bytes": 442,
-      "sha256": "a532cdf5969ac08cb106f5b1f7738b9740ba35be943624d8e7c2552bea10dcba"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/5.webp": {
-      "bytes": 210,
-      "sha256": "2894c554e32fc55a52bc5d26e61ce724b43a2b27c33dc58e17201e857af33e3a"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/6.webp": {
-      "bytes": 766,
-      "sha256": "66a0625c8fb0fd3cb98a9ae26225b8ed6bb9c4c0c99350eac95d051ea025a5a4"
-    },
-    "WebApp/assets/maps/ne2-dark/3/3/7.webp": {
-      "bytes": 466,
-      "sha256": "8873c6eb95b9a49da63bc115a07e58a43f155c4c2fc61fec06e9ef701a2b7cc5"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/0.webp": {
-      "bytes": 536,
-      "sha256": "3c28194bbca13cebe7bf1a3fee7ac8b38625115155ae8c2f593caefda2fe86d0"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/1.webp": {
-      "bytes": 1098,
-      "sha256": "3ca54a472a3b27b9252ec18f620e0361164b6150d6053b1e998c38f450db1ce5"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/2.webp": {
-      "bytes": 2298,
-      "sha256": "31f10bcd3a3166796a045522492e0213207182fdc32972e349c84d2478fc6394"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/3.webp": {
-      "bytes": 1980,
-      "sha256": "5ce6f8e45615304e404864327b6e9005df5878247387dad413b31c2c573e3342"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/4.webp": {
-      "bytes": 1076,
-      "sha256": "ddb54a29af7a4d2272a94e831b8fd42db353da0d24519bf5f83ebcd621d456a7"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/5.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/6.webp": {
-      "bytes": 690,
-      "sha256": "d06f1909de232e1fabc91a58cc348aae1472922acf54bcdb5a923c48b5a2c008"
-    },
-    "WebApp/assets/maps/ne2-dark/3/4/7.webp": {
-      "bytes": 320,
-      "sha256": "a1c691ef0cb0d9d8bad6bc19f8f0477a0615de621ff0a9398e503d4c8e19b862"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/0.webp": {
-      "bytes": 718,
-      "sha256": "9713bee803592230b4db83084fef6d9cbd70e3610b762dfaf343c1f5a8419d06"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/1.webp": {
-      "bytes": 1784,
-      "sha256": "d63aec7ba27df9640469c30cc3e50e52cd82035b389dfc4542a495e1db888278"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/2.webp": {
-      "bytes": 762,
-      "sha256": "36d50c842a2787510a1195a135f2de3dfaaff8489527f4441e037a44145950c7"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/3.webp": {
-      "bytes": 2058,
-      "sha256": "52fddcb3d01edc03cf099652b2451f21288189d92b23ef0df4f6caa9baa02c7a"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/4.webp": {
-      "bytes": 392,
-      "sha256": "98fafe8369b28ace306c9c3fa0a04d303b5f31a435328c5c21cc36d99c136613"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/5.webp": {
-      "bytes": 280,
-      "sha256": "ab2a0598c387700eeddc1d707f0a98518b7203aa04f616ec7a2330e12aa7aade"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/6.webp": {
-      "bytes": 708,
-      "sha256": "678a033829c795477fbb1c48420fbc4ac3600f9791ac824c441c4e98f55dba65"
-    },
-    "WebApp/assets/maps/ne2-dark/3/5/7.webp": {
-      "bytes": 266,
-      "sha256": "295ea364b06f06151a9c8c703fa3651e40a4761cfefe4dee2964e4e10269a656"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/0.webp": {
-      "bytes": 518,
-      "sha256": "793b0a265dc39325f3a97fef7caba12eca39e3ba637d2ee0ca193ef80970a4a1"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/1.webp": {
-      "bytes": 1196,
-      "sha256": "31e267a9964f2477379c9a2e171f1df827708488875cf40e32a13e91cef6bcf2"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/2.webp": {
-      "bytes": 836,
-      "sha256": "5e819d0849d047870cea9a6906eb5917a2a2263b0cfae1539c719e2e153847c5"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/3.webp": {
-      "bytes": 2622,
-      "sha256": "21a25af62df21e91f5e13dd9995bee969aec90f1497959a4b6216ab39f604d4d"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/4.webp": {
-      "bytes": 1440,
-      "sha256": "30d51f87bd4297872e0c6d07f08f983ccda046923b45a2a651079d03dd9ba265"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/5.webp": {
-      "bytes": 392,
-      "sha256": "142ca21ad1ba02c0826cb1796df574cf7919f5308eeb0d96dd75ed67f47b3ad5"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/6.webp": {
-      "bytes": 486,
-      "sha256": "b62ad2b0ffdbba7cdd214644979e07f5d5575a162ae83a1f74ea4768fdae89f0"
-    },
-    "WebApp/assets/maps/ne2-dark/3/6/7.webp": {
-      "bytes": 322,
-      "sha256": "626abccd129e75078859740a731afffd0ae235a9180bb5e02ae91d81a4a62bc3"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/1.webp": {
-      "bytes": 1080,
-      "sha256": "db684b917580351a8890b4771e039492e78a0108a0a212e99a90d6d0af3869d5"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/2.webp": {
-      "bytes": 1672,
-      "sha256": "f201bf1f06ac759837b6e9c6a912108bfb67c3ee9b11e5e84577e31e42a21390"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/3.webp": {
-      "bytes": 380,
-      "sha256": "340c3fae015d36b5c36a2391a2a1de5fe1f29ede546c397106d8aee1684f5290"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/4.webp": {
-      "bytes": 1420,
-      "sha256": "db992d0d3b39b5c353083fc43bf85b7796ffd147ac06fc71a9b16a946e5da67a"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/5.webp": {
-      "bytes": 482,
-      "sha256": "cb6ee8e14598e7e75b12d5af700ce50d394a6c3f9fb1edab18aef92d0222e7a4"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/6.webp": {
-      "bytes": 1018,
-      "sha256": "50516152caac90a97b530bf638e5de7c8aede7e63fa9d498c330840aac086ce9"
-    },
-    "WebApp/assets/maps/ne2-dark/3/7/7.webp": {
-      "bytes": 618,
-      "sha256": "eac7550d7f45f3df6012e0f9d71a6c3af8d09e5ca82d9b9769e1c8cbe59beda9"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/1.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/12.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/13.webp": {
-      "bytes": 530,
-      "sha256": "fa99b10ccc8c958abf6b501a1be416a5185f77002ec9c103eece96921b056973"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/14.webp": {
-      "bytes": 230,
-      "sha256": "eb87911df96b6c62caf94bdbcfc0ecb25d533fb01904e6da020cbdc5bf0ce993"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/15.webp": {
-      "bytes": 380,
-      "sha256": "2263a78ca625bc4c7a353f3bd1f2dec3c8a2e7717a7d51e619d327ae7a4f65b6"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/2.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/3.webp": {
-      "bytes": 860,
-      "sha256": "31bbaff4201411e600ebff46b6016c3112f39bdffad04d3d7d6eb512aeb6eba1"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/4.webp": {
-      "bytes": 1644,
-      "sha256": "38c46711d09633416bd8fb7b22f0fa77afc824762d7a831ff2e4b40cec6c4a76"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/5.webp": {
-      "bytes": 504,
-      "sha256": "59b1304babbe1a7d7b4ce672add79222b8be618394928eeb9467a4c21bdb8735"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/6.webp": {
-      "bytes": 212,
-      "sha256": "d1d9626f5075b723718b31f16433864f4d7c7e51941120dad87927b0c4245fed"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/7.webp": {
-      "bytes": 220,
-      "sha256": "c148e4ea9a54f691761db327f089953ae24994e41f10a85ea28c6bcaaf256da4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/8.webp": {
-      "bytes": 232,
-      "sha256": "e563329844d5e6e33760ac13c144ccc8c6d0d09507f6b4ae893052e3b0bad53d"
-    },
-    "WebApp/assets/maps/ne2-dark/4/0/9.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/1.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/12.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/13.webp": {
-      "bytes": 832,
-      "sha256": "09e28b5236d18f688a1c0ec85e07d828ff3cf0de2a4c2891965aeccdd0228e5f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/14.webp": {
-      "bytes": 348,
-      "sha256": "443e8123b692a639c2261e4a4434dd01c96b23def23b67615df1dce622252cf0"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/15.webp": {
-      "bytes": 346,
-      "sha256": "a1563230f795f426e96cf567770c0e85360ca73e61128c0a8b53f4f0b993d25b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/2.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/3.webp": {
-      "bytes": 1024,
-      "sha256": "f03adbc3725fd677ef814083002b98704d5c4e2211050e0bc3ba84d3e4c0775f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/4.webp": {
-      "bytes": 2602,
-      "sha256": "2db573451fb6410a91546923e1f14e75fe647a0197575f923602a2b4a79e2de0"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/5.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/6.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/7.webp": {
-      "bytes": 304,
-      "sha256": "2b6f57ef6b5853a6c42859fe8d3de45c36c54ab41e72d4d103646becc278c39c"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/8.webp": {
-      "bytes": 208,
-      "sha256": "d364e63c601d2934502649fec824c5d401c6bd10370167db012b668d2abdf522"
-    },
-    "WebApp/assets/maps/ne2-dark/4/1/9.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/1.webp": {
-      "bytes": 1388,
-      "sha256": "d9c96a9ebc26848d24fdb2eff9df13ef33c9731656114a2479ae43c80de168ff"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/11.webp": {
-      "bytes": 286,
-      "sha256": "142f3e5182fb59d1e112b9a4fa536e1b4c3e80141cd815bd57c06eb91c775cec"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/12.webp": {
-      "bytes": 700,
-      "sha256": "dce867d6169fec69b9dff1d57acc505107f16b486ed1cf71fef8e24962732289"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/13.webp": {
-      "bytes": 314,
-      "sha256": "51b08241b268a015411a6cbb7a477f4fc9981b758af25d341659934446fab0a2"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/14.webp": {
-      "bytes": 280,
-      "sha256": "c93889cb32639b0c50728da3425350353f09a8e3adcc1ca4f69c909abfcf1146"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/15.webp": {
-      "bytes": 266,
-      "sha256": "563b1b07e8f22e1e2c87124d48131a92587d46fbd4145fb49b29abab80a5acef"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/2.webp": {
-      "bytes": 768,
-      "sha256": "94920aced283a2080d7467ef1f8350abaa0e0f5b8b54bcd2c58114dd67475055"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/3.webp": {
-      "bytes": 1452,
-      "sha256": "346f825a3fe577b205bf38a7252355b062bc60946de538b852c096b3a9e459f1"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/4.webp": {
-      "bytes": 426,
-      "sha256": "f9f1ef17347eeb6356cd9c25bbc5bebe721412165d8466b170f784d6604900a4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/5.webp": {
-      "bytes": 750,
-      "sha256": "310ca34aea56623fd124f0add3a04946d7e8df829b1b81186d2dd8ed2aa8fb75"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/6.webp": {
-      "bytes": 2576,
-      "sha256": "50a23e9196f57cc25f39a0e076cad8ba9aec51a1a663fa031a6513c95c29a7fc"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/7.webp": {
-      "bytes": 920,
-      "sha256": "6fb3f6a8a2240b89f0ca3477dcb862c559a67f568e65f413244851db132e7ee1"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/8.webp": {
-      "bytes": 574,
-      "sha256": "f964b4dccd40b0521ca863fb0cd776784af8a44d8860db1bf15bcaee67c13601"
-    },
-    "WebApp/assets/maps/ne2-dark/4/10/9.webp": {
-      "bytes": 304,
-      "sha256": "62b92848bc0183aced16d15678e677d841432bef20153988e05847f96ac16cf8"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/1.webp": {
-      "bytes": 262,
-      "sha256": "9926e24aaa87ce9f4c5ae4118cce5810b0c45f92dc93452b22acc9ddb99b372a"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/10.webp": {
-      "bytes": 278,
-      "sha256": "815d1970200d17d393b2cdf6461c643b7b8d4123359dc428a41d5d17731313b0"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/11.webp": {
-      "bytes": 232,
-      "sha256": "7d1d16c3ed7d33dfb203cdf6907117bd959d11f2c0f9a3b031cdb5660d49e83f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/12.webp": {
-      "bytes": 768,
-      "sha256": "17209eb5e24f032a461218ba13dd86fd00c16d86ba423ea3a76bc1912300a9f9"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/13.webp": {
-      "bytes": 314,
-      "sha256": "6ca331467a346d4868b371f9525db3abeea80deddbe888932b9e0f42269d8f30"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/14.webp": {
-      "bytes": 296,
-      "sha256": "9bf04518b83c9b47393f88b1e539b5fc7c411b00af5401e590bc950de79ade8c"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/15.webp": {
-      "bytes": 256,
-      "sha256": "0dc25e4f3247faa49ce88f6f1c21aff2c8a2ed99b9f96bd6e266ab91c5d05435"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/2.webp": {
-      "bytes": 480,
-      "sha256": "d869b6154414c15eda966edeb070e158d2cd2c3c09298f9200cca398f5929893"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/3.webp": {
-      "bytes": 1798,
-      "sha256": "2b95e1212b4a2be244ce9063b6bf816629bba79acfd17e6162fc222949270388"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/4.webp": {
-      "bytes": 360,
-      "sha256": "eaca09fa2e0c995dc9877a66484b5c1045a0774ad4beb11a9aaad434d0bdf2e6"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/5.webp": {
-      "bytes": 1258,
-      "sha256": "06b4053911744a9ffc36f2c58127bd9a3b0bed8e934fcac8f671e9d9cadeb0d5"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/6.webp": {
-      "bytes": 2824,
-      "sha256": "acfc0d30fe53651815a9859b879ad5258c78dbb287c3fc0dd117130811e97af7"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/7.webp": {
-      "bytes": 936,
-      "sha256": "10caeb6e1d4fa69919e1ac093d0472de6854f22885f89493e2f96a46f88f7e07"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/8.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/11/9.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/1.webp": {
-      "bytes": 902,
-      "sha256": "17bff3cf6a4ae61784fcefc5c6210191e91e28cfbcc33cc620e88a972acda6f5"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/11.webp": {
-      "bytes": 462,
-      "sha256": "0dcf4a67e46a0ade2a83da7387e696f31c64952dc597d9e39f959bc510e17c3e"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/12.webp": {
-      "bytes": 446,
-      "sha256": "7aab4f94bf44c9489bb6a4d4585e0d058d0fc4ebbeefe7643bdf6819cbad6a07"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/13.webp": {
-      "bytes": 332,
-      "sha256": "168afeafbbb8f6fe6185a7ae9e690a2061a6266799db4de542fe08bba2aa84cf"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/14.webp": {
-      "bytes": 308,
-      "sha256": "63035578d11f5255357176b7115ebad4c994015b8c24aab380521df3a4cd8777"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/15.webp": {
-      "bytes": 298,
-      "sha256": "8315c3c15b7e1cf192f4d3fceb7e010494d6f7cf017825ff23b83e4eea8a9cb4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/2.webp": {
-      "bytes": 1364,
-      "sha256": "27673eedf441d891edcd5890c9e3e647b9e3aa82c806750c15a5c8980e5d487a"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/3.webp": {
-      "bytes": 850,
-      "sha256": "3c336dcece703f559f926af6555d687e62ac554f8fa8a7c380c283808740b06c"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/4.webp": {
-      "bytes": 658,
-      "sha256": "46425d4c643f33650761c4871fb67a697fa8c2a9ede9590f0b84e217c0cf7756"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/5.webp": {
-      "bytes": 1888,
-      "sha256": "811a0e160a1edc679455a8377bc37e7071a6d1eea28bade46c7d39a8b41539b8"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/6.webp": {
-      "bytes": 3402,
-      "sha256": "d68cee9c5e1ad299776d5834867a0648ef6474daea2098134beccd46ef4b069d"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/7.webp": {
-      "bytes": 2166,
-      "sha256": "92a6d6e7b48ff7bdbc142f7784b705272e1e746a797e195eee8e2f90b7c18eb4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/8.webp": {
-      "bytes": 780,
-      "sha256": "1eebcae09ba08e3c1f799d1264d35dc683a90b8ab8b3c17c5d7b7714fae0c3f4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/12/9.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/1.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/11.webp": {
-      "bytes": 330,
-      "sha256": "f6f0f9ae4053c164594949f1a95bf4591bf5680d6a806718a638de2e2ac97f61"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/12.webp": {
-      "bytes": 492,
-      "sha256": "a27c437fb616b6db61821246c854c91d806e9d28176044255bbbfcf852885ffd"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/13.webp": {
-      "bytes": 320,
-      "sha256": "a027e460bdedaed21b931e5fb2b00e6c000cc59543d5aac53942b1ba394fdf17"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/14.webp": {
-      "bytes": 318,
-      "sha256": "78838aa00a4fd0497b4a9824d31b8a35af74406da0309870943cdca2b4f57798"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/15.webp": {
-      "bytes": 352,
-      "sha256": "7cec342941203f9e1ba51bf921b57c8ed7595385be3bd3b2bad2404ad0a88997"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/2.webp": {
-      "bytes": 346,
-      "sha256": "e80c3f0bb501b69d11a68f2c2d90b69224b63aaedcaf04e9a0c4463cbfa74677"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/3.webp": {
-      "bytes": 1158,
-      "sha256": "5c354c6a4d061ce6efe5fe2272fd153a4053b5768570722323f8cea24228e34b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/4.webp": {
-      "bytes": 946,
-      "sha256": "5535b985e05a49c1ad2dc796c72311e42d90aaad6505800d53c43b639d7001b3"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/5.webp": {
-      "bytes": 1050,
-      "sha256": "d57294bc02018a81fcc381221930083e47527cbcd9f652fafb688af2e48a954f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/6.webp": {
-      "bytes": 2042,
-      "sha256": "10038a5f9b374307bdf780d9533725a850db1f6d597114eecf9d454e63d9385e"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/7.webp": {
-      "bytes": 1740,
-      "sha256": "24521f56a72c56f981d236d79e73105a041e3d4bbd5bf36310e1b5fe56f5802d"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/8.webp": {
-      "bytes": 2238,
-      "sha256": "feaf7b7d8373a13e9c50f979f28d390aa7ed4eb04cbae61030afbbf47989182b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/13/9.webp": {
-      "bytes": 756,
-      "sha256": "02753fc166716a815748bb3f65762d03be65854cfddd5b1b85468b905f6e02a6"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/1.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/10.webp": {
-      "bytes": 340,
-      "sha256": "cae247edd2e65498630a9ecb5d515e90a751e21e2b8c3b9620bbe1fcb7157a48"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/11.webp": {
-      "bytes": 242,
-      "sha256": "42f6fa4bfd6f1360dcdce7f7a062b9715696cc5ae1ba04a856c3a6d0574dcb8a"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/12.webp": {
-      "bytes": 630,
-      "sha256": "95fc75087b6bf8d14d310bc5245e885203abd95349e5bc5bfacb04f22b9a439a"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/13.webp": {
-      "bytes": 304,
-      "sha256": "68ca35b6464d27acd85f4ab2c36fdc9b092d4cdaab119b3d79ff7f8ebb5fba6f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/14.webp": {
-      "bytes": 408,
-      "sha256": "30fd6151156fa58617284c559105462cfe511fa4342b073a0cab17110fa5cb63"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/15.webp": {
-      "bytes": 308,
-      "sha256": "c5502f2096aa82b28ff3c64cd7b5bfc0ef3b58de8a8ac93cd4628ae3d7b883b5"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/2.webp": {
-      "bytes": 800,
-      "sha256": "d9e590d8e029c4fe3e5d44e1ceaa11ad0bdb4801158fea4ebbc0d8c9ebd1d651"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/3.webp": {
-      "bytes": 1162,
-      "sha256": "0ffc48861a2959c4345a4347c9c4ba19910c3c4ac87bd45b93a2fee3dc4b0e43"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/4.webp": {
-      "bytes": 1870,
-      "sha256": "0eb9635f5f16541be59d3627222263295981b42eef0375bbc6ffacca4003a937"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/5.webp": {
-      "bytes": 1694,
-      "sha256": "156fced26bbbd364d0385ad39e1803b1b38036aeaa9c33158074e6b18c34490f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/6.webp": {
-      "bytes": 670,
-      "sha256": "5cc5fd5185caf7a69c2be5bc4d88204f1f86e0d9d30d5febf348f893dda691a6"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/7.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/8.webp": {
-      "bytes": 1802,
-      "sha256": "e928046ce133298fdbdb71a85b217f4e4773d1a41556daa195398ec2bd98f8f8"
-    },
-    "WebApp/assets/maps/ne2-dark/4/14/9.webp": {
-      "bytes": 1166,
-      "sha256": "222c01a5cd7b7b2ec2aa9c653451b8a41e872a094ff03da39bc6b41ab1a16d23"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/1.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/10.webp": {
-      "bytes": 652,
-      "sha256": "2544690ba69c9ed436bd3cb2bf91431dcf0c852732067c815837b62ea680dfb8"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/12.webp": {
-      "bytes": 920,
-      "sha256": "86d19e6bdb21181f13f4f04bb20c604b243a08ccac12adeefb14c26dab60541b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/13.webp": {
-      "bytes": 992,
-      "sha256": "719d689f7acd275d9e55e875b03597463d2938e268ebacb53da827c30cc7b192"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/14.webp": {
-      "bytes": 402,
-      "sha256": "ce8fe37414bc80dd95d7fa143543ba35ad71b22b9caf58be6aa909ba430f45c7"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/15.webp": {
-      "bytes": 854,
-      "sha256": "a1d85ef444c5046b22cb725256f3977d708557fa84c7a8edb6f7c12d72118171"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/2.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/3.webp": {
-      "bytes": 1008,
-      "sha256": "d2acb8e11aa50607200d3223a138e958ae57c882a728786f5694d652dcadaed1"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/4.webp": {
-      "bytes": 1768,
-      "sha256": "5df4e423eb653a00ca7023582b20b52b904d5887cd271b896c73df4388028063"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/5.webp": {
-      "bytes": 484,
-      "sha256": "6a7f518d9fa848d176cf57b152eeaa38c3046d6a5ad3f89707a73687b8a3d965"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/6.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/7.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/8.webp": {
-      "bytes": 538,
-      "sha256": "9612eeb5efd1beb87f88fac8b5bc8cf69e7c10b6ca828a5b0d4430ca3e329e3a"
-    },
-    "WebApp/assets/maps/ne2-dark/4/15/9.webp": {
-      "bytes": 554,
-      "sha256": "8d4c3f0b60d01d0862d71aaf52f27d7ed79438f0a4829296a91313016601a3f3"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/1.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/12.webp": {
-      "bytes": 378,
-      "sha256": "70d3dfccfb8f5c2253418bee88cc4be91fa610d6954eabc9f09248b4f329d50b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/13.webp": {
-      "bytes": 614,
-      "sha256": "4f7bbee8921f969cdc2118563cddbf498cbe35ada857ccfb89d70e3f76b68e13"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/14.webp": {
-      "bytes": 354,
-      "sha256": "bd57cf8a3bb07b2509f3f137996bb2f644e9acaf70436dc314e326d77a478bd0"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/15.webp": {
-      "bytes": 318,
-      "sha256": "b761e455d0d44b351c75d03262ce31e6dc184ee27217659a70e36ccb676b1fad"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/2.webp": {
-      "bytes": 1200,
-      "sha256": "da17e3bd650d93ee6ddd154be85176c3f3cd2274af011ae983f5e8d390b51f71"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/3.webp": {
-      "bytes": 1618,
-      "sha256": "810a5e7bcfa79803955e02c64626d182df0b1520a82b94682af50a9a14d860ca"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/4.webp": {
-      "bytes": 2084,
-      "sha256": "6e769a572f7f57aa6fa1d10a6611c66f2b218d84aba5531727dd0c76c199c014"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/5.webp": {
-      "bytes": 2678,
-      "sha256": "9aa850e292dd43e6962e75025b1f19ca8fbb332d5e4b62c187e07f3a04c473c0"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/6.webp": {
-      "bytes": 1144,
-      "sha256": "cdb988203caaf18d88556a20be38f4f1d82dc74be4136979a7f643e221464ed4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/7.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/8.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/2/9.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/1.webp": {
-      "bytes": 910,
-      "sha256": "7f34c0fea7617b9b7893aa62175a40f7ab843b67aea52b93a2ed915f7a79356f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/12.webp": {
-      "bytes": 582,
-      "sha256": "4cc2c71c026673ffd81f196be1518c32701b50503c1267d6d47dac1284b3ea58"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/13.webp": {
-      "bytes": 604,
-      "sha256": "17f992724e93fac8d5c038777eed98639ac8bc1790aad383dc778c594b64f42e"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/14.webp": {
-      "bytes": 310,
-      "sha256": "45c1cfa8562a7f0bfd2971c731d811f059ce0fe9fc57f639701c8aadbf14d4f4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/15.webp": {
-      "bytes": 310,
-      "sha256": "2d0e9fb47543701a18977e17911788b70caf6c990d20d0fcca0db78907554ca7"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/2.webp": {
-      "bytes": 2816,
-      "sha256": "6a2cc11173bf295ef7a5f1213ab356355557ccd38ee6053436a2ea52248a7c2f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/3.webp": {
-      "bytes": 2716,
-      "sha256": "22a43126214181f874c4254c9ead4d235287e32dc92197c4e8f3e827ebeacf13"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/4.webp": {
-      "bytes": 638,
-      "sha256": "acb1d49ca8c73db319bfe9ba3c880a7d05e64d1fffa5b844dbad507007641de5"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/5.webp": {
-      "bytes": 600,
-      "sha256": "03d968faee1feb0543793961fa7a4ebef020be2f46355611d21a09fc28745374"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/6.webp": {
-      "bytes": 1754,
-      "sha256": "834b624d2e3ead2aa60beda2c6f1e1713d9347b3c322ea18cc221a768e8797b4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/7.webp": {
-      "bytes": 926,
-      "sha256": "df15f55f046552e41aafd12810600529513b4ff68488571088e6afc9c5f59887"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/8.webp": {
-      "bytes": 254,
-      "sha256": "315194834e0839b8e9547391ad5c6a392f547e9ed8c13c65541bcaafd6fce15d"
-    },
-    "WebApp/assets/maps/ne2-dark/4/3/9.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/0.webp": {
-      "bytes": 530,
-      "sha256": "06ea35767cec31b5b1cd73d0659121250f56ecbd4e977adc6b4a698beda99da8"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/1.webp": {
-      "bytes": 3020,
-      "sha256": "75d1ca290a85dcac2e0a951907359437feb6253a151ac610788be9b890af10bd"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/10.webp": {
-      "bytes": 1804,
-      "sha256": "b2e613b9f4472a17958d9f9e46c566971422c4d86c8aec5bb475e8ee24c7a9ce"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/12.webp": {
-      "bytes": 1242,
-      "sha256": "2afe3a14bf688b1aaa066b905f78422782e8613782901824eedce38e7fd7a68e"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/13.webp": {
-      "bytes": 546,
-      "sha256": "6bce4c46bc7e05bc5eac6674d52a4bd11166263cb5caba285e51abd4695587b3"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/14.webp": {
-      "bytes": 380,
-      "sha256": "3c1ff99979b8b80349957aed8fe98bb5ae1de9631e805ab18917bd7b3a7545bb"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/15.webp": {
-      "bytes": 316,
-      "sha256": "27b3ba2980c47497dab1abb63c5b89575965f6372d137c2419b723a6a3b6e668"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/2.webp": {
-      "bytes": 2790,
-      "sha256": "10566500a17700958e37632619494437e20394687ff19ed6dc0c1e26b283761b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/3.webp": {
-      "bytes": 2890,
-      "sha256": "ffd28bb37bbe34bcbc750309b822446238af6ff3dcbab9f385df457b578aa65c"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/4.webp": {
-      "bytes": 1810,
-      "sha256": "e7278a18dcf346a97bb94714974a3760bbc5ccdb73ab9f218b9a024904a610a4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/5.webp": {
-      "bytes": 984,
-      "sha256": "2261ed81143f74672787fdc4e2b7a4d3244269850ad890e04d2c4c418bb8cfb2"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/6.webp": {
-      "bytes": 1100,
-      "sha256": "d5c46f74c8126e3fbc3cd6728dbdf110b79e64eb2499f20cfde0e33f2c009faf"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/7.webp": {
-      "bytes": 2136,
-      "sha256": "6799c070939a543e45c9a8f8813f8e2a91ee91d6fc6fb899620ff440fe2aff95"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/8.webp": {
-      "bytes": 1290,
-      "sha256": "15a923d2df012c246facde38704766100f7d27e2a4411a5d0b0b09632b3d5039"
-    },
-    "WebApp/assets/maps/ne2-dark/4/4/9.webp": {
-      "bytes": 1014,
-      "sha256": "f8690adfd38b16cf9e214128135d515ff96d9f24879432e850b2e880fae438fc"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/0.webp": {
-      "bytes": 370,
-      "sha256": "a0fa04c8d909d09e9f692ad84d6a00dee23eb76078c525d1756b68c18f0ce93f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/1.webp": {
-      "bytes": 1660,
-      "sha256": "c4550f1aa9803cda69eeae453df4ed3de9c6576fbdf32646cba7bcfe9ce289da"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/10.webp": {
-      "bytes": 668,
-      "sha256": "bc8f0970b3548c847b578c70fdc823e2f0e9b6c164d3a69ad58f4caffad9aa3d"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/11.webp": {
-      "bytes": 772,
-      "sha256": "54bb5ca782ca045ef1ce4d105c0a5102198476e7e06d58b43000ee3d4101cbe3"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/12.webp": {
-      "bytes": 828,
-      "sha256": "14f63cef98629ff7e962ca463113779f590c176cfad25312ffb2b70325bba2b4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/13.webp": {
-      "bytes": 596,
-      "sha256": "edd978722632767e774324c38aeb5503aaae9058145e28816fc2b81210085507"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/14.webp": {
-      "bytes": 320,
-      "sha256": "bb106fc4b62f64d6f594870e4ea707ea1ce828d96d67bf7bdf1ad589f0151618"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/15.webp": {
-      "bytes": 580,
-      "sha256": "ae2826dc8e68dfa44f5ffe062554ddc4cdbf89a20d336cbcba094cf61e875953"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/2.webp": {
-      "bytes": 736,
-      "sha256": "d77dfb0593136b33bc1e0629cb9d6dc2e717a02c182d974e45baad9062bd7dbe"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/3.webp": {
-      "bytes": 1538,
-      "sha256": "1ad3bfcda1da4c3a7f3e33698e80faf4b922feda8b454a8a17e405f80357bb8c"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/4.webp": {
-      "bytes": 1430,
-      "sha256": "f040c26fbcf36f4f6ffc9ab769fcc0c56d85026ff993e7f39b89495551045008"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/5.webp": {
-      "bytes": 1620,
-      "sha256": "045af28dbf6699dc0a5f7cb8f7b2d3a6db8a383156f7950f78b9e573dca74e8b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/6.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/7.webp": {
-      "bytes": 820,
-      "sha256": "c6bd43bdb6da6373cc7ec2f8509dd45ebb8275f4c1622f4c50f57132cb6d7377"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/8.webp": {
-      "bytes": 764,
-      "sha256": "705f6791ee75eb27e0feea0d167e9255598ce5cea7275b89f8f0632e11430e3f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/5/9.webp": {
-      "bytes": 1252,
-      "sha256": "a975112b642a994b6c55504ba7abb07c8dee2c2b7d120a23fc7cab1d944803fa"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/0.webp": {
-      "bytes": 966,
-      "sha256": "a7e9d3b23f86093fe7808e0c8cec82423db48ecb3ce23a26031651cbc3288027"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/1.webp": {
-      "bytes": 1042,
-      "sha256": "53f1ffe8db27828d22f9365d9226e6a2767052bfc1609587ed13725b105bddab"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/10.webp": {
-      "bytes": 254,
-      "sha256": "a88a909e55533a8b9b952370c6c49de8479377a60648a6961ae99d4c537f70fc"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/12.webp": {
-      "bytes": 222,
-      "sha256": "7d5b1abda29f33952767e1a7e9b4e621b114fc1114007a81b3055885400b688e"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/13.webp": {
-      "bytes": 740,
-      "sha256": "9dce7baa3418ad1ca87d2bb9b7571d0785dd973a50269500951299280d4a87cb"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/14.webp": {
-      "bytes": 424,
-      "sha256": "b5b661741629bc80b0473858537746fbba959552b560c1ef44b6dbc2cbaf4da1"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/15.webp": {
-      "bytes": 352,
-      "sha256": "41af6db3f9a2a975255aecdc4cfcedb4857c56da4da47b3ababcb108eddb533b"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/2.webp": {
-      "bytes": 488,
-      "sha256": "5f4d8486f34ed5467350b8de8262ab3bfef83933acbaa9a470c53c35776d1559"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/3.webp": {
-      "bytes": 1722,
-      "sha256": "e622dbf739c5d3898e44598fba7cb1672e5393a44c11e8edbb22b7892f2893b0"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/4.webp": {
-      "bytes": 906,
-      "sha256": "e2e02b00b23bbee6f325c4c0f3c9e921d821f04ea1e5f8c6681870254f358e94"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/5.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/6.webp": {
-      "bytes": 242,
-      "sha256": "a5c43b6dd0c36da59a4d61b7c6f4de6aebb6bca952c2af1dc5f7a88abdad7a81"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/7.webp": {
-      "bytes": 230,
-      "sha256": "2073c42233bc998e6bba63a33da501537535b4b7032c85e8cce7b2381008d212"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/8.webp": {
-      "bytes": 762,
-      "sha256": "115cacb57daf5d8801f5b5c6e58f2a5e70aaa22be8f6df6f9bb41630ad5b86c2"
-    },
-    "WebApp/assets/maps/ne2-dark/4/6/9.webp": {
-      "bytes": 292,
-      "sha256": "f68298d6b59bebcf4d0c22911c412dd7465cc4549fd02a340456b36b3827a2a7"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/0.webp": {
-      "bytes": 210,
-      "sha256": "16bf054e937632eddf76cbb2326d13553d243332d0633851b98fb8610b97f277"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/1.webp": {
-      "bytes": 1006,
-      "sha256": "dff5640ce85722327c582d9fbae0017aae70ff6152cd42b757d833ee7f2f329e"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/12.webp": {
-      "bytes": 734,
-      "sha256": "98d41d70b985258ff66f0394e967e722d974c01ac9ba6c22041fad288f3bc94f"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/13.webp": {
-      "bytes": 424,
-      "sha256": "9a087a46df6d8a9ab2f0ab9c5371cc52eb36ecc5d5ef2acfde3a19db2c505580"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/14.webp": {
-      "bytes": 458,
-      "sha256": "c06d88d868b63d4d0300370358d4657b588bbc48403d7ebc558ab754e5114693"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/15.webp": {
-      "bytes": 494,
-      "sha256": "f695e9c3d2260be031f3745a56aff5a7bd62691a72688e4dcc48286bc2f08217"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/2.webp": {
-      "bytes": 988,
-      "sha256": "d23206d873bdd3f5a09f4a8ef5df9cbfc12288f7ab079a29e26e94c7ba5f6fe2"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/3.webp": {
-      "bytes": 424,
-      "sha256": "0b82d548d67ee258fb9773ccee4882701d1733c7e0caa1ad000e27c13c6f29c4"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/4.webp": {
-      "bytes": 1132,
-      "sha256": "c01cdea0ae0dcb967a723c689a3fed7a85ec1a10cdc13d72a5599f9daa3c2b74"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/5.webp": {
-      "bytes": 1276,
-      "sha256": "0208acac2e4e208bb70f8ba977f95a342ec0cbe8e64f308a8e94bea6ab1e5a89"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/6.webp": {
-      "bytes": 1298,
-      "sha256": "62a359dc82800cb98ab2555aa1d2a750ca363f6c1ce8d7bd5d4cf6161ef9f1b6"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/7.webp": {
-      "bytes": 744,
-      "sha256": "883f64b174ab7cd8c2ee66fd1917c4048ac2315e4ecba5ab0e8511ad054711e1"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/8.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/7/9.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/8/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/8/1.webp": {
-      "bytes": 784,
-      "sha256": "9d8dde2f82ca6dab8f381820ee5932fa4a68819ae2880d5cbb5cbaaf82bfe908"
-    },
-    "WebApp/assets/maps/ne2-dark/4/8/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/8/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
-    },
-    "WebApp/assets/maps/ne2-dark/4/8/12.webp": {
+    "WebApp/assets/maps/ne2-fresh/0/0/0.webp": {
+      "bytes": 7768,
+      "sha256": "ac8088bae60023d6727e5ea66f4eeab5c9b275658666bdbd1e2e54372128c0d9"
+    },
+    "WebApp/assets/maps/ne2-fresh/1/0/0.webp": {
+      "bytes": 7448,
+      "sha256": "1667ff741460b56da0fc317aae32d7754357d1129e16eb622e04b97c0ecfc123"
+    },
+    "WebApp/assets/maps/ne2-fresh/1/0/1.webp": {
+      "bytes": 3542,
+      "sha256": "364661901808c4577e8c9fdda1302a38768cb846f935ebfa6a33add096222ef7"
+    },
+    "WebApp/assets/maps/ne2-fresh/1/1/0.webp": {
+      "bytes": 7472,
+      "sha256": "7a2fe5d06f2be8ff3a77c1a117ab6e9cc6a1ba3208b9db90c8bf7cf72b95ae5b"
+    },
+    "WebApp/assets/maps/ne2-fresh/1/1/1.webp": {
+      "bytes": 3910,
+      "sha256": "b7f47f8dfea97b3cf562b083977cdf71b751cb3a2eac6756af0190846bcf6a4a"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/0/0.webp": {
+      "bytes": 4358,
+      "sha256": "e136da3c1fa328a43f107357b21b87a9cb50953a31192c86036539881211b4e6"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/0/1.webp": {
+      "bytes": 5448,
+      "sha256": "c51597489d14f6ce2da20b15fdf6624824dc20c35ccc4ba9c01b95c0cb463dd2"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/0/2.webp": {
       "bytes": 664,
-      "sha256": "41d8e75e8e7e3f68638cb0a508eed54b4a12e38093a4fee66b4bba78d2797b19"
+      "sha256": "9d25a9514e0f9d6e237be4d6525fc8ae12abdf6e8f9e2a805289aae6d04fd706"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/13.webp": {
-      "bytes": 286,
-      "sha256": "4ade9c163166d9c9aaaad7ff945c03ff75b5b64fc148353ea2f391afe8216775"
+    "WebApp/assets/maps/ne2-fresh/2/0/3.webp": {
+      "bytes": 2652,
+      "sha256": "50ef47f5474038a70a630734a616a4f7a6e1dea21fbb232217569e80329af55e"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/14.webp": {
+    "WebApp/assets/maps/ne2-fresh/2/1/0.webp": {
+      "bytes": 7546,
+      "sha256": "dcd3b1ac7eea1fef96264a77bf5a4a9b00e230a2c6153e67e860d52038966162"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/1/1.webp": {
+      "bytes": 5592,
+      "sha256": "f34ff4b467985bcf8e8898d3590bb48e91435576b2e234753b638445d0444c97"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/1/2.webp": {
+      "bytes": 3450,
+      "sha256": "6eb48685d6338c4ca945b11d1cebe2b95ce51b7c1f05a9dd6ea559784fa6e637"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/1/3.webp": {
+      "bytes": 4290,
+      "sha256": "86ffdba6b7330621001b7ab1d353d68d230c1a139cabcd992570471e0cdf0580"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/2/0.webp": {
+      "bytes": 3798,
+      "sha256": "f20476cb4820e9a4a5ebb624e23b1cb7c2984a82866150af93d1737b0920fd67"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/2/1.webp": {
+      "bytes": 9944,
+      "sha256": "51abee91ad39dc80279657d459724b67cb5697f4d1cd9237be6b9939d0377594"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/2/2.webp": {
+      "bytes": 2556,
+      "sha256": "ed17230347db89345b247881f4efc5d03546eb4855785008b16a8924caba1224"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/2/3.webp": {
+      "bytes": 2108,
+      "sha256": "514a50dfa40e9d0c03dfa8cc4ce24db935df80571cebdd8fb633d877f6cf114e"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/3/0.webp": {
+      "bytes": 3746,
+      "sha256": "d4685ef32fef5adfcd63875eb9dc9ae0d395273f267528f05b4fb36d9a0918a1"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/3/1.webp": {
+      "bytes": 8382,
+      "sha256": "2547e5877828d0f2e1a24550b99fdafb50e985e785f7fc2ce3305fa83b15b98a"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/3/2.webp": {
+      "bytes": 3380,
+      "sha256": "9151cc8ee0d9059f93172e82b6c50d6d7e8a0cc9459f94198220bf3a94b39811"
+    },
+    "WebApp/assets/maps/ne2-fresh/2/3/3.webp": {
+      "bytes": 3094,
+      "sha256": "a64565beae4c5bd69d6d04d4d6aef06e6abc598d2af225ffe424fe2cde51fc8c"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/0.webp": {
+      "bytes": 638,
+      "sha256": "2ebe7a00aa121886421aa8d150dfbc8be747c9db38a6d680b0925d9873973f9e"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/1.webp": {
+      "bytes": 2854,
+      "sha256": "1a0ea6a5e007a05c9880939e394b58e1e6524c01ed6d9671e63adc75cb93e999"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/2.webp": {
+      "bytes": 6052,
+      "sha256": "d6b9b517cbe89fe40a78ee2c3b8a5cfd3653c755ed15d7b6067e6f979598c1a6"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/3.webp": {
+      "bytes": 962,
+      "sha256": "7fffed39ee51b6469f6c631c8710895c87a7fd24ace8f58be4bfaa17527a0766"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/4.webp": {
+      "bytes": 1086,
+      "sha256": "7916198cfdc6d53e3109a81cac9603ff7753323b7c025482b297a69c4b838ac2"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/5.webp": {
+      "bytes": 636,
+      "sha256": "f555c1e337aebadcf34bcb7014e596cb0416ee8fd3c2d4c891c395481f4dd76e"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/6.webp": {
+      "bytes": 1746,
+      "sha256": "1e0558b6a1a03dad830e5eaf3c8197824c801be2429f2397e61367954e3e65bd"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/0/7.webp": {
+      "bytes": 1420,
+      "sha256": "b44a306dd2ede9a69e29c664a4102b61301dd43e53c82bedb611c64f137b0d71"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/0.webp": {
+      "bytes": 1308,
+      "sha256": "c594a719d82ce50c520472f56627c68e47d3fcc649cd3b09bd26a6f385585ce6"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/1.webp": {
+      "bytes": 7720,
+      "sha256": "2d08e9b709a7aedcc240b2819a1356107a5cf270f54b0a2df3ca89c50ff89610"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/2.webp": {
+      "bytes": 9852,
+      "sha256": "c11b4b8fda4eb2b92d56f73394e9315718c45b4788c9fec5f8e9d09adaa1dd47"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/3.webp": {
+      "bytes": 5294,
+      "sha256": "25415e94fad5396d1fc50ca251d43a8cbc8feaa55e32beed6c03afb1361d6bcc"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/4.webp": {
+      "bytes": 506,
+      "sha256": "cff223131334778862910278f87d6e60c2d59bdfb267411729f6a19bf0989952"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/5.webp": {
+      "bytes": 584,
+      "sha256": "0299acd912f76a77c1b62e61a34e5962678ca4c7753ee820b05d55cc5b1bef73"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/6.webp": {
+      "bytes": 2544,
+      "sha256": "3930bca61b40b5a9ec0376a865d890fdcfcf3af10ca33d33206150993fd78eec"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/1/7.webp": {
+      "bytes": 1976,
+      "sha256": "3fdea4079d75b1a972ce90d2c3b6238cdebb0ff0aa08cd96b8046c6520d2a64b"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/0.webp": {
+      "bytes": 5488,
+      "sha256": "cb575c47000399cdd3d051039c16e9242d3e745b70b1a21633d0740e9e3e5a14"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/1.webp": {
+      "bytes": 8150,
+      "sha256": "46236149731c76b22e892ca91969da7ae5d8845d7832fa4f0a7c9c4b0f4ca71a"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/2.webp": {
+      "bytes": 6550,
+      "sha256": "3671add3169d80a79a3fbdf2fc68cc8fdd1880e06c457404845bfde4a0d0b772"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/3.webp": {
+      "bytes": 4954,
+      "sha256": "d81201cf015729501b2ad64c7b91ee53f182cf6336026d3574b61eb92a987551"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/4.webp": {
+      "bytes": 6688,
+      "sha256": "22f8af128563bb7e635992141a998f9a5af63e1efadc6a621cfe1cbf210bd87c"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/5.webp": {
+      "bytes": 3478,
+      "sha256": "972c74c118a1aeb3290a34ee0272fa73e6d9383183394f09439df5c6131bd9c8"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/6.webp": {
+      "bytes": 3924,
+      "sha256": "e68a843bd6b03c44d005b6cbe71ccbf55a189c6a9198e668d9fe0c2085bc15eb"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/2/7.webp": {
+      "bytes": 2604,
+      "sha256": "2fe98fad051303da2a9ba129eaeb3d86e915806937cfb97eebed37fe4b539309"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/0.webp": {
+      "bytes": 3528,
+      "sha256": "7db17938da95f70780ae0e04c7515c9eeb80c8d095d3d7666ba512a1ea6a88d9"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/1.webp": {
+      "bytes": 4066,
+      "sha256": "38ff1baeb30e704deb51832b5a4c6350fe5fd776c03d31b4e9f47d3f8fcc7efb"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/2.webp": {
+      "bytes": 3512,
+      "sha256": "1f4f68afb88cbb51dc2d06d7a15009f1c1bb8cbdfeed367392d85364d9818383"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/3.webp": {
+      "bytes": 3452,
+      "sha256": "ad177a0435a3468fdaacf544c6dcf266ad3d99a0f0bab54c37d63450d2c8fa81"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/4.webp": {
+      "bytes": 1998,
+      "sha256": "3d9895787725468e41968adcd041e80753e449b7319b6e424170646c695c3a90"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/5.webp": {
+      "bytes": 1318,
+      "sha256": "07a567b9fa021b77f01c665aaae61da583f7ba89c57ab2a73347a7f45b354e0e"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/6.webp": {
+      "bytes": 2458,
+      "sha256": "f5eac8e0dc3bd9c18e4184954847ffaef33bf8ddf1b0b2f3399de46939ed046d"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/3/7.webp": {
+      "bytes": 3754,
+      "sha256": "64ca7fbfab3cf0c44832192dcf014a60d7cea14d0060c16ea6f4b3a6e42b7ab6"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/0.webp": {
+      "bytes": 1432,
+      "sha256": "49a0c6a8c8f32560e61710c52e431bc3befeaccbb3d46476f6f6b5f01447c005"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/1.webp": {
+      "bytes": 3456,
+      "sha256": "d953abdc02ed07e2a54898a71e98d9caada774b37fc2374b0a16ec64ae91833a"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/2.webp": {
+      "bytes": 8684,
+      "sha256": "a912eb8eabfaf464ef49a43d8a0feaf1833e2e79c50e3c34fee4a67436b7279f"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/3.webp": {
+      "bytes": 10212,
+      "sha256": "1aef9d40f5ba67a20e787bd7354c3cdeb471bc7af6c199de2f8678ac7654107a"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/4.webp": {
+      "bytes": 5448,
+      "sha256": "d45d6dd5fb21e436c86eed21e96052a83f98351dd2d16656a57e10a56798336f"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/5.webp": {
+      "bytes": 1304,
+      "sha256": "c04305112495981a4d0eb39a119fe9785bcb6ad5b96c16662d6e65853cac4482"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/6.webp": {
+      "bytes": 2144,
+      "sha256": "22ef47178c6371e73cd2e7a996c541ab058210fd7db0d993192bfedb46b56156"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/4/7.webp": {
+      "bytes": 942,
+      "sha256": "f785d7f3878aa8fb01e7055de0e9f7341baadd9c56861eb10c77a88e5645dec1"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/0.webp": {
+      "bytes": 1628,
+      "sha256": "238f14963568d540a0d860eba513588d1c85d81cb051f415aec3d429d59faa85"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/1.webp": {
+      "bytes": 4540,
+      "sha256": "5569bbd2fdd33497ed51ed2216a2e1d2fe24791ba3fa6ed76879d5ee87f624c2"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/2.webp": {
+      "bytes": 6310,
+      "sha256": "923e7765b80bb0e9c991b5b813ba0ffc73e6cf3d07687c921b138905dacf865b"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/3.webp": {
+      "bytes": 10310,
+      "sha256": "0399c70fe9c325a678377dc4ff6eec3689c8ed3796076af161f8f2b918bf1791"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/4.webp": {
+      "bytes": 1774,
+      "sha256": "4dd11bab8ff12e2bcf6f3fa5b30d5d2792d29639228c8c6ac55c922ca6b39e08"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/5.webp": {
+      "bytes": 922,
+      "sha256": "c026d88bcc086ee00accc43f8ebd21e3cb8fc1f9eb7ff54bde2b2bac124069e6"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/6.webp": {
+      "bytes": 2666,
+      "sha256": "91220f5c1e27800950f5459ddbd32c4525cafc3f2951d89bb65a69d135859f96"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/5/7.webp": {
+      "bytes": 798,
+      "sha256": "236642f90bd2ce05bd097b85a835b98b128c2ac999157080293d89e9d4346bd6"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/0.webp": {
+      "bytes": 1202,
+      "sha256": "ce4417fd276616b1af5c66b9e75570221406a4b0e490b8fa2ec8bcde1db7d879"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/1.webp": {
+      "bytes": 5984,
+      "sha256": "761ecee18a006e7547b062d0d899a304941104d1c38f0bbf02eab5b3190f665d"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/2.webp": {
+      "bytes": 13016,
+      "sha256": "d2fb278087eec07c58ebaf0960e9f27719440738b4934d4991f90ce050844a7f"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/3.webp": {
+      "bytes": 10988,
+      "sha256": "ef9ee01ac4bff66d9dc2e1f91483c25f75e6fa0b7a110f3a8d1869960807f11c"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/4.webp": {
+      "bytes": 4330,
+      "sha256": "d8b32971f2a3ac65378f563e79f31cee975946474809d4db1161ef4ce2a2f9ce"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/5.webp": {
+      "bytes": 972,
+      "sha256": "34a06709fc31a6ccc77ca1ad3ff5c8951e90b4ecdae84d80a5e438c2d4f344a0"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/6.webp": {
+      "bytes": 1472,
+      "sha256": "2097a01f368eeb960d1d833959a96280461938fe6657d8534af0160bb259bb14"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/6/7.webp": {
+      "bytes": 1914,
+      "sha256": "9012926551be76e68b88258544df0644890b43cd0edb30c4ffe809fc993b8fd5"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/0.webp": {
+      "bytes": 584,
+      "sha256": "6c667332c58e0fe0a48847bfde442ab16b1506deb54ea7047ee0aa9336190e0a"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/1.webp": {
+      "bytes": 3888,
+      "sha256": "77f07b0d57fb397d93841c002d8791bf003976773f09ce874b19c43cf1eec901"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/2.webp": {
+      "bytes": 8596,
+      "sha256": "b5dfe2cd17a0484ba40ec79fc337ebf9b963604abe9886bd65bf3c0a3a6e2608"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/3.webp": {
+      "bytes": 2242,
+      "sha256": "c9c8a8050468961112e474336b79e9083a8e4036741808c7ba058f9d0437cc5e"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/4.webp": {
+      "bytes": 4712,
+      "sha256": "2ea07575bd4c24964ec1cfb077157efa85713f8761ee222cb04bdbbe9d7e8403"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/5.webp": {
+      "bytes": 1544,
+      "sha256": "57d0c4dd2ebed525f521a7d96925b3f527f7aa036693f676cae750fb077521f3"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/6.webp": {
+      "bytes": 3206,
+      "sha256": "b25201f35de83e799697de75da75ad9d348a600cc0a2927bf498385dfed086b9"
+    },
+    "WebApp/assets/maps/ne2-fresh/3/7/7.webp": {
+      "bytes": 2924,
+      "sha256": "d17ce5014b28953f0ff50ee6d6ac2e805e98deebc0dd0d4ae603319ca4273b30"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/0/0.webp": {
+      "bytes": 580,
+      "sha256": "802b1a441049f6c156bbd60e5bebb3f6a6a06db1837d7180065b1238cf44ee5a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/0/1.webp": {
+      "bytes": 534,
+      "sha256": "9c4cbf683344a02c953b384add507859930f09b61fc1e2e03170afa9178b45d1"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/0/10.webp": {
+      "bytes": 862,
+      "sha256": "72af86eaa6e69583ad1556eaa8494b6650dedc7fb92d14883f41b051c42df556"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/0/11.webp": {
+      "bytes": 888,
+      "sha256": "5638af073c6f69d1691cca8fa98aa1f4c59c0e1a8ebd0989baee192259464de4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/0/12.webp": {
+      "bytes": 552,
+      "sha256": "c883999571b3653c93a6a5681ce69dca59b826955e35192aea4723d38daac340"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/0/13.webp": {
+      "bytes": 1114,
+      "sha256": "234713681e935d7e6ec52c1236cecf1c0bdf8180e63a562eb0c6ba28bc6ba030"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/0/14.webp": {
       "bytes": 322,
-      "sha256": "81f3cc096ffedf9c81445d73d19c7682df247e7ddbe13446019b70d5da51314a"
+      "sha256": "9c3215b25428c14388544f8ecafa42ca1191ab44b2fca0aa3fa7c4d8c119b65a"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/15.webp": {
-      "bytes": 308,
-      "sha256": "b178ce6f4bdd5b5b707cfe258b4650ee495681d93601804630dc740e02520b89"
+    "WebApp/assets/maps/ne2-fresh/4/0/15.webp": {
+      "bytes": 1344,
+      "sha256": "deca53983be3a3b371f90edc1f7e43c11b924c5d5db3ae031b03068caa158085"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/2.webp": {
-      "bytes": 1130,
-      "sha256": "d5f3ce5c275a78de57996d1f06d0302e75364f41ff666a7a93510e556b16f80a"
+    "WebApp/assets/maps/ne2-fresh/4/0/2.webp": {
+      "bytes": 744,
+      "sha256": "70910354074632c2c8dd485cb2f9115977207dbc1c8e4917c22d6d6a67fb1b9a"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/3.webp": {
-      "bytes": 860,
-      "sha256": "00e22fbdf40a2b2c503595c038a96b55605aa4a121d21db44cbd149ad884a093"
+    "WebApp/assets/maps/ne2-fresh/4/0/3.webp": {
+      "bytes": 2602,
+      "sha256": "b91e30268b538c1ffd3d98e8edb513884288206a30441a6fe8cd442e6706ee1b"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/4.webp": {
-      "bytes": 1906,
-      "sha256": "61a425d3f80930e60e3e91697241fb2a1be7e44ce9ba605a8dff5dbe99d64fe3"
+    "WebApp/assets/maps/ne2-fresh/4/0/4.webp": {
+      "bytes": 4952,
+      "sha256": "ac5f7cd31fdea76a65432a9033109e0ad1c30b5473d053ce3d22ff24c896dbf4"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/5.webp": {
-      "bytes": 2338,
-      "sha256": "f89b515908ed4a0631d4e233da2a4576a17a0eda705a71d0f7b1da855dc5fef5"
+    "WebApp/assets/maps/ne2-fresh/4/0/5.webp": {
+      "bytes": 1638,
+      "sha256": "5efe859abbce67e0592aeb394e7a751fa17d2d33eeab5f28a579c61482192c5f"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/6.webp": {
-      "bytes": 1680,
-      "sha256": "76c0e8f360c8dec7e44f1bbb60f378a8cb2e04acd2893dbe5dcddcdf6fa39417"
+    "WebApp/assets/maps/ne2-fresh/4/0/6.webp": {
+      "bytes": 1356,
+      "sha256": "4620300e0042be004b1f76b2033b3ac41c36c9465a8435370a0032e8b170c3c7"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/7.webp": {
-      "bytes": 766,
-      "sha256": "c28d1fd8a08adedf6ab9319b4320d8728bc2c7f30ee6434fd5bc76ed15047edd"
+    "WebApp/assets/maps/ne2-fresh/4/0/7.webp": {
+      "bytes": 1834,
+      "sha256": "05025ca2fcbefa815bfa71ccc905e76be737a08bea2074599157c8af2a83a1c0"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/8.webp": {
-      "bytes": 642,
-      "sha256": "5a0947e2ed1023d4a10f0e266c8ea57059ab98049624d283c3be63ea3f383055"
+    "WebApp/assets/maps/ne2-fresh/4/0/8.webp": {
+      "bytes": 1894,
+      "sha256": "8a96582c1ba4e156d6c1c81486e90cce2535a8cabf17f0a036054da59637e0ca"
     },
-    "WebApp/assets/maps/ne2-dark/4/8/9.webp": {
-      "bytes": 556,
-      "sha256": "6d5a1a1d1a47b34fcef1d214fd5002fa69fcd52ff9977930cadc90ff84c18b0f"
+    "WebApp/assets/maps/ne2-fresh/4/0/9.webp": {
+      "bytes": 1422,
+      "sha256": "36f43f6519b27fe6e5a39f8fd9013fab23fc38ab24a7df06cc3d8a0ee7c26b8f"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/0.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
+    "WebApp/assets/maps/ne2-fresh/4/1/0.webp": {
+      "bytes": 568,
+      "sha256": "b6af2312007de9d754a5f9a83c5725fc657119fd6fed8c6b3bd971925b2c895e"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/1.webp": {
-      "bytes": 416,
-      "sha256": "28bcfac7477a4238f489d692a0e66fdd882cc7e9e347978f07a203b53ae599e0"
+    "WebApp/assets/maps/ne2-fresh/4/1/1.webp": {
+      "bytes": 426,
+      "sha256": "0ac2f86c1b2b6ef2b9fa9077859659fbdb4f09e53c8f6a0390377b7e2823a0e1"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/10.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
+    "WebApp/assets/maps/ne2-fresh/4/1/10.webp": {
+      "bytes": 886,
+      "sha256": "b193beedbbd1064cbefcbc1ef945cbeed770795436f9d0037d94f21da55635a5"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/11.webp": {
-      "bytes": 196,
-      "sha256": "9b75ce3f5cce4ee8acd54f1ab03fef239acf563577d3e9a6b203d0f8816c82af"
+    "WebApp/assets/maps/ne2-fresh/4/1/11.webp": {
+      "bytes": 696,
+      "sha256": "60ff09477740966378092dcad6ce3ad62756802726c5ce049127f82b895480ec"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/12.webp": {
-      "bytes": 734,
-      "sha256": "3284aff91d8d097044d5e34128d6f34ff0ee42ce388466a1071a7d5c1d34b571"
+    "WebApp/assets/maps/ne2-fresh/4/1/12.webp": {
+      "bytes": 366,
+      "sha256": "3003df4d9829fdafc46d51c7dedb96e64c0631dc61301788537e6356ad296663"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/13.webp": {
-      "bytes": 302,
-      "sha256": "367bbd069a0f2c39f0f90dc503d92a67fa85b6db20df8de085144cd4695f2174"
+    "WebApp/assets/maps/ne2-fresh/4/1/13.webp": {
+      "bytes": 2734,
+      "sha256": "cb6bf7ab1707d30c96779cee9412ce1638abe0a26cb3188c76c36df1b30be5bb"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/14.webp": {
-      "bytes": 282,
-      "sha256": "9722f81d50049f54f7466cc3eac19ef59cb5aaaf0edccd48e602ca93fa42daba"
+    "WebApp/assets/maps/ne2-fresh/4/1/14.webp": {
+      "bytes": 1218,
+      "sha256": "8dbc2fbe29c281f1e996fa4c07e4eda341b8f87092c1c412d7b86442f80ea66a"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/15.webp": {
-      "bytes": 278,
-      "sha256": "11e5629f27850a630f3ad1df4bc36c73cd39281c4ad194d8f30e217fede8efdb"
+    "WebApp/assets/maps/ne2-fresh/4/1/15.webp": {
+      "bytes": 1404,
+      "sha256": "6dd447f2db9f696b856eea65ece283fa550b4b6029904807fb71cc0e215145df"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/2.webp": {
-      "bytes": 322,
-      "sha256": "eed0923fb0d3556e52ab8cce605ee750b153c0a3134272fa78cf6bc547819eda"
+    "WebApp/assets/maps/ne2-fresh/4/1/2.webp": {
+      "bytes": 464,
+      "sha256": "f1ae69df7c2c4e122ba6890092d4ab2518255e4ca6af0d057c14ead71aae304c"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/3.webp": {
+    "WebApp/assets/maps/ne2-fresh/4/1/3.webp": {
+      "bytes": 5016,
+      "sha256": "1548c598c4efc94de4bd657b58a5f6c7b722be5bf4b6dd86219bfdde47e4ffef"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/1/4.webp": {
+      "bytes": 12418,
+      "sha256": "15a0ffb6d770ef73b66c733cb3cc7d54135d9f4c98eec4b6ab87ea37debb7bff"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/1/5.webp": {
+      "bytes": 700,
+      "sha256": "ee330f3045eedd990cb74bc901b6c76048ecadbbff01557814627f682fb8b2bb"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/1/6.webp": {
+      "bytes": 810,
+      "sha256": "6da45e4ef8bfba438ba0ec143b4cfe5dd5df293d188ce003d2a7f0b44157f044"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/1/7.webp": {
+      "bytes": 792,
+      "sha256": "82c933be93e4f3452a287a83fcb0a274d74770aeb3bf2c7506359c3f59d3d3a4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/1/8.webp": {
+      "bytes": 1440,
+      "sha256": "8385903616b003aff74cf14a15dc98dce97cb3e5f490ce781a150878e417cf46"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/1/9.webp": {
+      "bytes": 976,
+      "sha256": "79a35583be8899b9134fbdf5e4c3cf2dff9ea6dd2f08b4f8aa91050d1af2a06d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/0.webp": {
+      "bytes": 370,
+      "sha256": "da6248d8a077f41a70dd2f4f7c54df2ddd960c13fb74c94584e58aaae98e63ac"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/1.webp": {
+      "bytes": 2888,
+      "sha256": "105f8dd4f01b24a9dfe08ebe7461c632f27c2d5861b089ebce87d62d05f4afc2"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/10.webp": {
+      "bytes": 1072,
+      "sha256": "9870ad40e4f95265ebded226b3850bc60b24374ad2638f5ad38784a6d50b377a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/11.webp": {
+      "bytes": 828,
+      "sha256": "a5554d836a51a96157e821a820b16a3e8fda7adbd99d669ebf64dc08e20e48f8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/12.webp": {
+      "bytes": 2714,
+      "sha256": "e570dbf98e98a513de9a014084008efd910d9ef60de0e87492539c4bdaf81057"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/13.webp": {
+      "bytes": 1564,
+      "sha256": "4c2fef2b2ae1e792c083b754ed3c9b0f719b2804f1270b3b8bb9dfeea5240072"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/14.webp": {
+      "bytes": 768,
+      "sha256": "81ea763500df9b284f4e62bd046886bdbda71ecf68247076360eef462adfe057"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/15.webp": {
+      "bytes": 710,
+      "sha256": "2e180f8116411b8daf4968be42abea10e7db26b3e56db45bbe21da570ee8fb96"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/2.webp": {
+      "bytes": 1772,
+      "sha256": "efcc0f0669688d041dd9aafa97d9dc3aafdd19ff648d9618d12343ca3cafe51d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/3.webp": {
+      "bytes": 4014,
+      "sha256": "d63fb084139d249455eb85c7d7286de3ab873b764b5b44833cae0ea44e4cfe50"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/4.webp": {
+      "bytes": 5690,
+      "sha256": "1a6863530eb3a4e5fb17017aabdb770cada890e02bec2f574352386c4bd002ad"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/5.webp": {
+      "bytes": 4770,
+      "sha256": "bd9ebc8fbd993aacec3817e2a84de1cd6147d11cb1f252545796fafd4beb3f04"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/6.webp": {
+      "bytes": 13352,
+      "sha256": "9f13503360b0ecf6596652b6c7e2cf0ed9b62abc34bf3fe0f92125dc3216fc09"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/7.webp": {
+      "bytes": 3950,
+      "sha256": "f0b4df5b1ede2da5191f142d454d899ed1449e49a9e6f509aefe02c6de9e34da"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/8.webp": {
+      "bytes": 3302,
+      "sha256": "b2352f4a80c90533e70b5607006cc3e7d2c7dcd13cffed0159b9ccd5820dde77"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/10/9.webp": {
+      "bytes": 2540,
+      "sha256": "aae977f34bf3fe75a87f986be879f3f4cb1a8573509418399fcbfbc0e3910ab1"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/0.webp": {
+      "bytes": 328,
+      "sha256": "9f2e48a916c0e6ce8191bca52a8d88cc45d44e237ae91a0a1bf3d9b055631dd7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/1.webp": {
+      "bytes": 610,
+      "sha256": "fbf5b81fa94ebeb470c1000d364f46c043ae2cb69e86f14d37bc6d0096662595"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/10.webp": {
+      "bytes": 918,
+      "sha256": "fcaeb287daf71188a44960abaae2c3b60003f268a1bb59618de2c68860e00a49"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/11.webp": {
+      "bytes": 716,
+      "sha256": "2459e5096c86be1774e6e08c67be9aea8239762dee22e5973857becd2a1675a6"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/12.webp": {
+      "bytes": 2292,
+      "sha256": "5d428e5b8de8e3e84fdcbf60ebcb62b3844a61dbc56f14dead3e24cb9f2d2ee9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/13.webp": {
+      "bytes": 2366,
+      "sha256": "3104a8d9100a8afc546fbda3333d1d82baf1dafbef23d9e293293e771ebc12c4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/14.webp": {
+      "bytes": 808,
+      "sha256": "3dc1c93c16f3ca37b4217b04443a419e0a591cd5554f7fc8e4b03ff7b1961a28"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/15.webp": {
+      "bytes": 704,
+      "sha256": "994947a359fc5a45edf5cecc8af2c3031fb2b46f11e2e8917205f0cd147e4634"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/2.webp": {
+      "bytes": 960,
+      "sha256": "c2d3ff7215629d036a911d167be6c756170598a74afbcbfee7359da270ec674f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/3.webp": {
+      "bytes": 5260,
+      "sha256": "f6910fd7fd7be17f3826dcf090c9878849c64c0dccdabb55202c445fdffaa0cf"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/4.webp": {
+      "bytes": 3858,
+      "sha256": "3467eea9d48d5930dc3ce37dc8130147e9e64f718b6e7793580b55a5c8730563"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/5.webp": {
+      "bytes": 9500,
+      "sha256": "a89d991d3022cf1e3d49f7ec4d96f58631b9296d139f3ad5632adefa41cf0ced"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/6.webp": {
+      "bytes": 15838,
+      "sha256": "1b6b0e32fc3b45ea7895517f2848cbbd39c24a651cf465bd262ec386a6eef662"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/7.webp": {
+      "bytes": 3850,
+      "sha256": "00a67a40c3e5491df70b09277499d99b363840af12461708ce282fa889c541a7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/8.webp": {
+      "bytes": 1520,
+      "sha256": "bef2e9529a1167a952d1e05922da26d68be37c597b6590a9115e4d7ab201c739"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/11/9.webp": {
+      "bytes": 1314,
+      "sha256": "34a279be34a537566ad8d79dfb665c683d83011a82e266284acccd25b40bf3ea"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/0.webp": {
+      "bytes": 468,
+      "sha256": "71cc7d70b89666fdc7cc08da1c39b631541cabe8861b8101ac86b4efb39474a0"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/1.webp": {
+      "bytes": 1938,
+      "sha256": "f7cf2d885cfd6df44c63f2cdbf0ef521187b41c74ad71bed20846c62a2fedad6"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/10.webp": {
+      "bytes": 504,
+      "sha256": "b14fa945abac6207a00f91c0cdd4bccab433a1cb5a065b3f91db6895604b3fbf"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/11.webp": {
+      "bytes": 1146,
+      "sha256": "ae9ef4720fa2d6fb354493be411089b0327cfecf43239456d988ddd2d1f9feb7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/12.webp": {
+      "bytes": 1372,
+      "sha256": "b75c7bd3462edc7463f4a604dfd54dd7ee67499f15ab414001d1d413ca78e9d0"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/13.webp": {
+      "bytes": 920,
+      "sha256": "7bfe225f1a33cb3d4a847fdd0f1ae97f345cc508700d892f2a6b7beb449ed679"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/14.webp": {
+      "bytes": 1140,
+      "sha256": "75b4fdaf0f9c0957a1732b4cab69e61d359112f208d77a373315c0f0c652569e"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/15.webp": {
+      "bytes": 1286,
+      "sha256": "7a041ba197ea73e4607e2983b009ed69677fd033a2df70c6eb50551b18ae15f8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/2.webp": {
+      "bytes": 4484,
+      "sha256": "a0c7298a30974454de9e6c9aa5ea424b21fde0f081e8a0df90e4d9c109b567b0"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/3.webp": {
+      "bytes": 6908,
+      "sha256": "4cb7d78b50e89fa933423105d26788dfde37af6dff1a12e9d4edaf69d96f8936"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/4.webp": {
+      "bytes": 9630,
+      "sha256": "c3afe30e93172ef26d09a7d81340b5d6b738dc18b136fc48dceae1870a83566c"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/5.webp": {
+      "bytes": 15766,
+      "sha256": "a343fabe2622a3ce09535e4cd7dbcc85a587ebf49b132f5f3e57601f674b83b9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/6.webp": {
+      "bytes": 20796,
+      "sha256": "0bcf62d7d786cdf1ac610c37724a02f72370cf303f083e42be9f7346a9086245"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/7.webp": {
+      "bytes": 7858,
+      "sha256": "adf519e53524063396b95c6fcfee4a5c78349ae5f221d14c418969e6a2c123de"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/8.webp": {
+      "bytes": 3196,
+      "sha256": "6df5e9624bf08ab161909a1f57f67fd1828f43b722d077fa702920747eca26cf"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/12/9.webp": {
+      "bytes": 1210,
+      "sha256": "351b432587a6b8133d3f381a03bf25e5c2067581657e749eefd3002cef21ce3d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/0.webp": {
+      "bytes": 394,
+      "sha256": "326fb1ed27c975615219685e53284b94a7847181cd39dc7079d3980313c5fad6"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/1.webp": {
+      "bytes": 434,
+      "sha256": "fa2e2f48d3b2ef970b2af3b9b2af3a6610b6347b9d0043691aa7c45b72c4502a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/10.webp": {
+      "bytes": 816,
+      "sha256": "a8ed7df62685a787930c4fcf38230bb41047f98dcd53257b936845f86fd7673e"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/11.webp": {
+      "bytes": 800,
+      "sha256": "b07c9cddd3ad65165fa1da82b676de9d0826d0159fa33b6e6fe8065b3204aa3f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/12.webp": {
+      "bytes": 1112,
+      "sha256": "a2a0336154958923359cb79f4d6e2073ef6178ae78aa69608b75116e0c33e1fe"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/13.webp": {
+      "bytes": 1132,
+      "sha256": "424ab668fa6b9129e9cad0d84d6990dc5a7b59f3dac55e1db1239f6098646f9a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/14.webp": {
+      "bytes": 1756,
+      "sha256": "6dbf0cf0c83091035ecad7357bc553042e84e25fc7014655f5134b2eb417f70b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/15.webp": {
+      "bytes": 1672,
+      "sha256": "b787be66831af4041ef03812955055f3ac98f8b779eb6d44f56c4689b53d91f6"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/2.webp": {
+      "bytes": 680,
+      "sha256": "1c473d95fe87c7d447871b748aa8aefa6e2bff63042aa939feefb40bb585f02e"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/3.webp": {
+      "bytes": 6280,
+      "sha256": "7c3256e80f21f8a5c52a5c1774898db71e07622f0fb78d86c6f32809776e81ef"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/4.webp": {
+      "bytes": 10394,
+      "sha256": "8a7603e303c5d9de1d2cde1503d9884f54c5e39fd6dda908375d0d87d06342bb"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/5.webp": {
+      "bytes": 11584,
+      "sha256": "262d574cfe5a168d64056fa5ebe31d669eafd0980db117918094e383ba07087d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/6.webp": {
+      "bytes": 8304,
+      "sha256": "d35565d62f88943cb69596304b7a2a70b4151ef232240ae7f9104d716a922da9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/7.webp": {
+      "bytes": 5892,
+      "sha256": "a8f719946de7257a025a727df2dfeff362e86e34593a82fb4d32790203618fd8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/8.webp": {
+      "bytes": 6816,
+      "sha256": "b23f499b4202ad9e78366a3972b9b0e8a034c6395453bdd81ba6873909884da3"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/13/9.webp": {
+      "bytes": 4400,
+      "sha256": "86d4ad6e749869f27a4f246b0f0719453b49a2010de0607eebe486738e56c807"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/0.webp": {
+      "bytes": 550,
+      "sha256": "ba6334c5451d7eaf6576ee60c994e8f7b54142c75a526f758fecbaba20bee02f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/1.webp": {
+      "bytes": 496,
+      "sha256": "116c580fdd5bd7720eea62af188a00bfc4c9340926109bd8f67da488af6633d7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/10.webp": {
+      "bytes": 1336,
+      "sha256": "fc5c73fb2d37a87070a0d15df01ef7058a9e8fd5cfd51a15b7371261a09a2b32"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/11.webp": {
+      "bytes": 672,
+      "sha256": "074db1ec73c175983ead8d4d864412ed3246c2a011374863b30681b0035c7e98"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/12.webp": {
+      "bytes": 1506,
+      "sha256": "66deb13e69bfd98b7f39aa6652b5856ea507b323b524d238830cf1ab9803a85d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/13.webp": {
+      "bytes": 1674,
+      "sha256": "9f4db9490ebaf602025b8ccef8b751f8f69937cc22082402d0ec65aa02cbe9cf"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/14.webp": {
+      "bytes": 2476,
+      "sha256": "2a4ae22e16bd8b17dacd8842bd0a74c3d0c4fdd690dafb7568afd2757c674e11"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/15.webp": {
+      "bytes": 1288,
+      "sha256": "d4b6ed7221cc8ce778a2b127351f8fe898aeb2b38f3b479e4359abe185f7f6df"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/2.webp": {
+      "bytes": 1480,
+      "sha256": "903646537321361e16a89fd9dda3ac2e8d1beff4285e6279b94a2f5699865a01"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/3.webp": {
+      "bytes": 4878,
+      "sha256": "42e2fbdfb463e8ff9d2e61da1e8071a5367f61013ac23f24567095bc1593b961"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/4.webp": {
+      "bytes": 11508,
+      "sha256": "805cb46970a3ce63b0e7ef46b417ad26327fbaad245346dfb5d990c7b7ce3b03"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/5.webp": {
+      "bytes": 5652,
+      "sha256": "1140d640d44f5c7545a609cad43a8c67768208dced087c67e864b175ce989d48"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/6.webp": {
+      "bytes": 2944,
+      "sha256": "6f4a81a18b2d9c88ed4584906ad8cbfa267806b598bc6008ce4deb8a4c9c0439"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/7.webp": {
+      "bytes": 2312,
+      "sha256": "a8769bca85413fc03428d32630e4f084a7efe4c34300de9e117b455274650990"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/8.webp": {
+      "bytes": 6198,
+      "sha256": "18a430397f46eb41c2ee8a29797eadc3bb05430be9f5ff1f2b78847a2f7e1ac2"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/14/9.webp": {
+      "bytes": 5738,
+      "sha256": "cf94213153c1a3c1364998e73fd7325d04c105d818497a12848ca7498ba872c3"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/0.webp": {
+      "bytes": 486,
+      "sha256": "ed6e36da3fd6c964b5808d19c3bcb1d450718e781af1102d9afdb37ad9e1de8d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/1.webp": {
+      "bytes": 446,
+      "sha256": "931dad42057dfcc2b44ebd2b4841eced33988500459e546995d028ae9377508b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/10.webp": {
+      "bytes": 2752,
+      "sha256": "c477bc4ccd508d10d48f68ffd80ac32ec0146d9d90d727292a99e91702582fa2"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/11.webp": {
+      "bytes": 1122,
+      "sha256": "6fdd6ab85d7be042ffa48f165cf950068fbbb96d5990a3a8093a4689b47bb020"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/12.webp": {
+      "bytes": 3078,
+      "sha256": "ee1bc288bad00a7c7672bc6dcd93344929679d2e00b09ddd515cf52c35f5c018"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/13.webp": {
+      "bytes": 3096,
+      "sha256": "71a247a901f55ca4532fa02b4253071bc5542c0774a5ee33056fbbf3b17a9fa8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/14.webp": {
+      "bytes": 1258,
+      "sha256": "273444a710fa6b215a8d729aa655e45587b44d3249ddb1501ea4ad1c53c97eee"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/15.webp": {
+      "bytes": 3710,
+      "sha256": "7fa1fde73c5fa97099927d600130c8214837c38d30c2f663f8613db5a796a9f2"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/2.webp": {
+      "bytes": 400,
+      "sha256": "70bf938b7fe199114113de176da3f509d88e95621a62ca2b0f0002c05aafccbc"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/3.webp": {
+      "bytes": 4406,
+      "sha256": "a19f119f22e971fa1daa6893815a339afe5ae5f7ab7eb91c712db354513ba573"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/4.webp": {
+      "bytes": 8716,
+      "sha256": "e151e46e12ac3a3b4c0f5953d76a73b620a2a12a826cdd9fa9c99c7fd6cb1009"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/5.webp": {
+      "bytes": 2512,
+      "sha256": "91c565ba607f8c90d712b233cc8e632b0fd71e0874e0c1bce43484eea1ac7ce3"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/6.webp": {
+      "bytes": 1316,
+      "sha256": "13b31b75ec444202e68b8293b746f2054ac03854cefe31d711102e487a293d84"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/7.webp": {
+      "bytes": 1964,
+      "sha256": "8026e08b22a478b72a6e648c290d5043a1850b0d1c7b8acc1467819ea6fbdc69"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/8.webp": {
+      "bytes": 2622,
+      "sha256": "f14ccdfdc69907f141b600e73c53dbb1ef43835f6eff1b4dfb8068d9ea03c3a9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/15/9.webp": {
+      "bytes": 2196,
+      "sha256": "8561593701bb7dafc2e8c836d925c56a1e222d0819a233ee5e00df36f5e14111"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/0.webp": {
+      "bytes": 498,
+      "sha256": "af19082b47f3831809a0749361def783c1cc418fda2a06404bb9e93d177bc3e6"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/1.webp": {
+      "bytes": 554,
+      "sha256": "82a1ccfa150c02109460a05b6a5ef6af871880a8a50930ffdf59d7e1461c87a4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/10.webp": {
+      "bytes": 614,
+      "sha256": "3a2b586611d5833b3e468abe51b15e1e219c46a999a7691eae1886d8ea7b03c4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/11.webp": {
+      "bytes": 740,
+      "sha256": "bee8059ae041e6776707d0cbed247e1324f52d8f4672493c2d3339789336202c"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/12.webp": {
+      "bytes": 1002,
+      "sha256": "a36659a41359c6e61f0b4e58d635cb55ed6bc20e996f7c51a427695115682ee4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/13.webp": {
+      "bytes": 2532,
+      "sha256": "d7a670060ae6bf3ea3d5bf7980e374730072b4bbdedfb8601b081d4eb1362c43"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/14.webp": {
+      "bytes": 2190,
+      "sha256": "28d04445d4d60a25c5a38b5456d721629c5b3803dc48b816604bd019e65771d3"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/15.webp": {
+      "bytes": 1642,
+      "sha256": "e5c7d350015da9e40e2497c2b9114169a177b6de360275fc8cd3f5a06b73a554"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/2.webp": {
+      "bytes": 2460,
+      "sha256": "8b0b8d2dac1c6a726ac8d9d22a22ed4361ea90a429efcb3e0d38dbede41ecf11"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/3.webp": {
+      "bytes": 5270,
+      "sha256": "d0c1d5a5abb5547eadf5b86844ab3a04e880478662b0394b31eb399130231a7a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/4.webp": {
+      "bytes": 12848,
+      "sha256": "6cb402e0409ca85f9542cda2cdc9a6fd3f2fcea7e632c3b858d308571bcd566f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/5.webp": {
+      "bytes": 13066,
+      "sha256": "85bd47e23abb961c5555ebb9b98388ddb1d241d11c8ed84d5a8704927f1125a1"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/6.webp": {
+      "bytes": 5554,
+      "sha256": "fa4dc0186fec0a688b4f7541a9ebbb43c1981301831ad036c5c46750f4017514"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/7.webp": {
+      "bytes": 490,
+      "sha256": "0e14044df8edef71856466ed215707587c4f9d63083f367fb69bd321d1e1802e"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/8.webp": {
+      "bytes": 396,
+      "sha256": "405aae59c79182b5484fa30f883b3959372b70b89970538ef32ba8a4631a391b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/2/9.webp": {
+      "bytes": 1082,
+      "sha256": "c367e9c4ae673e75beeb72f9a471af9d37d6f15e8262f0d4239cc0018ed6feba"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/0.webp": {
+      "bytes": 534,
+      "sha256": "aef40c7339bc1101d50729ecceeb8963b52d72f3d7a00bae0eb4dca3760ab109"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/1.webp": {
+      "bytes": 2202,
+      "sha256": "5918e6c422406bf0a3f24c08bca9b0cb17a95c992453dfb6e6718846af8e8025"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/10.webp": {
+      "bytes": 666,
+      "sha256": "00005661216f2109f883e99a7b16331c1b035c14e5194d9433afa0e21a364e8f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/11.webp": {
+      "bytes": 688,
+      "sha256": "d4e22589479d6d8c5954115be21cbaf4fc0bea9ab88599b080e24f9197ff6dea"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/12.webp": {
+      "bytes": 1448,
+      "sha256": "b14cb9b0374ee723246e931f0eb10acb0ca697511bca19abc3af82feb4c5aa75"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/13.webp": {
+      "bytes": 2396,
+      "sha256": "0c121bc7f8aaea2a50e8015a00addf2e6b07661021cc11a9363906b66bf62476"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/14.webp": {
+      "bytes": 1564,
+      "sha256": "758d90b43121b42894ac24a2431b9b9ec60975323783a041b5e0fe56b4fef236"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/15.webp": {
+      "bytes": 1932,
+      "sha256": "12dc276fc62e3784169a46ecb7dd612cd430cf4472ebb12456d99a79af9ebc99"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/2.webp": {
+      "bytes": 5514,
+      "sha256": "e33d7b87460b2c489239c2f35e14fd23b98f19a1fb902076d589e2bae2a82166"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/3.webp": {
+      "bytes": 6456,
+      "sha256": "22871a50b3b5ecc0f24bfa5f04c0660ee7658008c85e1e1725f6ba984f459abb"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/4.webp": {
+      "bytes": 4066,
+      "sha256": "d89a5244892afa4f1584b36a2d8938e8eb1b994cb463ef5ffffb1a14af9bc432"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/5.webp": {
+      "bytes": 5600,
+      "sha256": "7ca77bf25053e7f9285c0dfe6e3a033fc7fc049cd9de9e349f52308d374b908a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/6.webp": {
+      "bytes": 10658,
+      "sha256": "1b66c2d4259d4e25ef3255db6c6afb28c522d4264a1992997ac376d85a36697f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/7.webp": {
+      "bytes": 3910,
+      "sha256": "01a5dd50594fd0a44b603b02c840bfa1f8d759a34bc11d88d0b485be6a8a9ebe"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/8.webp": {
+      "bytes": 704,
+      "sha256": "de465a5a6217d736d2a57a9058a02a8bf129e1564f0a5925dd7d2f6e0c0b16bb"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/3/9.webp": {
+      "bytes": 1064,
+      "sha256": "68f40f675d0fc5e0e842a7bd3fdeceb65b356694a163bb618216d2573559d4d4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/0.webp": {
+      "bytes": 1384,
+      "sha256": "7cbc39bf37e296ede76ecb6f7ec45afb0f778df0b490b6518c037e22a194fa25"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/1.webp": {
+      "bytes": 8150,
+      "sha256": "9017e8bc9619c2e63acfe45bc46ec4a4544d8ac42725e13d545b1fe972c8d4da"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/10.webp": {
+      "bytes": 6178,
+      "sha256": "47181da318483199206ca35f48a2fbd9d1421e340a0c89fbf9815865761d5cda"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/11.webp": {
+      "bytes": 664,
+      "sha256": "e724b0530623a162c4b778ddf7ffa350b37e314267b5d64817766e7361bacfd9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/12.webp": {
+      "bytes": 3340,
+      "sha256": "99514c583451eff5ea4517e94c8fb2b46aa4fb57901011b4b1fd7826a0f90bd9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/13.webp": {
+      "bytes": 2988,
+      "sha256": "303544dad52786d83fbabb4189bb985b7fab99d5632d3c4175da628fb172e879"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/14.webp": {
+      "bytes": 2188,
+      "sha256": "95d6cc3e6495bfba9d306c61dfc8e7178cd8440a58a7c62b1cd2f2c302df25a7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/15.webp": {
+      "bytes": 1462,
+      "sha256": "221eda494c932c43a0e2d51c23c874ce61961f105328b52013439f0490693da5"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/2.webp": {
+      "bytes": 6476,
+      "sha256": "d1fb3aecfd645de4b50e809ea783531a80a5e48dc3f3a59a38f4f1709db071cd"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/3.webp": {
+      "bytes": 8230,
+      "sha256": "e613ec97f0d1262f78fc49b2d1b8d3ba5c0b9091172b72f040ca4e6a0dd9f748"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/4.webp": {
+      "bytes": 4998,
+      "sha256": "5b1a35653e4c3d13c630565551a49995c114b095c34b8c4f37147f55910cff23"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/5.webp": {
+      "bytes": 6702,
+      "sha256": "06f8ec9725d107495c57bf241ab5c984007279e4fe7f34fe113e312c7dbd3d7f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/6.webp": {
+      "bytes": 3828,
+      "sha256": "7130ad7b71fade889591d32929045c3dfecbbab1843fcc18ad641544ec5dd3a7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/7.webp": {
+      "bytes": 8300,
+      "sha256": "14acdab67fac9aaa0e82d2758b75acf5a0444503c1373ff62a7119efb5cf9148"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/8.webp": {
+      "bytes": 6632,
+      "sha256": "466177d9404001afb23849ed56b7f3e3c46cd3a68398d05d1abbd1e5c564e07e"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/4/9.webp": {
+      "bytes": 5424,
+      "sha256": "46f2c474e917a4668887fbbecd6c61d504a1a94410571ca9a98a108eb4433c6b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/0.webp": {
+      "bytes": 888,
+      "sha256": "d818c4a588f0064548b5b44c7a1607dc0a9844019df7f35afbf3379ad2fe8ad8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/1.webp": {
+      "bytes": 4162,
+      "sha256": "423e8facd8a49daf4706ed1c5d3c4ef3e5752b41a0a53c551d6187d5792a079d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/10.webp": {
+      "bytes": 1988,
+      "sha256": "ea70585342618047c413b79e6ea6921ae06c571728e7b1f34d0060652cb5c4dd"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/11.webp": {
+      "bytes": 2662,
+      "sha256": "994f26a26769001757ed8cc970d6b1377f5428b578411c71fb09d0f7a16f9f32"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/12.webp": {
+      "bytes": 2594,
+      "sha256": "ef253f462bf03ae8353615b016e4dc8ea193cb726ced81759e4d53a2555732a9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/13.webp": {
+      "bytes": 1572,
+      "sha256": "200a0a74b74f9349ce592819314311346a970e1a4ea6caab2afe2236a29fdd9a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/14.webp": {
+      "bytes": 1142,
+      "sha256": "ead8114060daa43ef234fe5d79c8723db788744e67d6f63370959e592f0392c9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/15.webp": {
+      "bytes": 2884,
+      "sha256": "65964814513bf6615bedc972a15f7bc39c7c5c6bcfa0bf2eea006c3e6c25b01f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/2.webp": {
+      "bytes": 2068,
+      "sha256": "5349d93befb4f933d2cf51b47f0e5ff64b830d76e719a47221102eaf38443c1c"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/3.webp": {
+      "bytes": 4464,
+      "sha256": "2dba1e77738787c6e5374db43bb170356adc56c8cce349c4a8f4167b0cad826a"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/4.webp": {
+      "bytes": 4328,
+      "sha256": "b81c37a8ecab575f0f9fb3de8ff45d1af15f0c6ec24212219c4857b13830ca09"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/5.webp": {
+      "bytes": 4744,
+      "sha256": "42d1017995592f8362f1b2973fab79ecd7278113159777804abf4b8df006f794"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/6.webp": {
+      "bytes": 1164,
+      "sha256": "f8a2c5255e42484ee5df336b41f08d3881f508ad4451261bd78e5739e16dda3f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/7.webp": {
+      "bytes": 4882,
+      "sha256": "5a10f415d139a06ccc289eb2c2d3a04f00b127285d833a15538e6ffe1b55b585"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/8.webp": {
+      "bytes": 7182,
+      "sha256": "193b0a6de5d34dad63de37b36cfd10828b7a52c237f932b9a1d05aee6b7d5f41"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/5/9.webp": {
+      "bytes": 6016,
+      "sha256": "49ae2c572402a3c4f68a68f1e3484fefde5940a42da6109a37b411cb2479cf2d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/0.webp": {
+      "bytes": 2386,
+      "sha256": "1546736c196054f2699349ae346532bb995edc6957e9f79a9682c6eb1f6b9711"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/1.webp": {
+      "bytes": 3150,
+      "sha256": "69fbddfd4b6be43d9671c86507f403dd37375b45dee20eed82a6f775fccd791d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/10.webp": {
+      "bytes": 1170,
+      "sha256": "92e2b48face428124602819850ba98e965af9b7ae350d1cb40d5e12797a3670c"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/11.webp": {
+      "bytes": 1552,
+      "sha256": "0200511493c3f56166e4010d566be567bbc9d723f3c5423ccd83d95653e9a5e7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/12.webp": {
+      "bytes": 466,
+      "sha256": "59008b0a6e096c55e327a92aab7cb5b9f47af44e44b422b627e68bd36cb3fcb4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/13.webp": {
+      "bytes": 2104,
+      "sha256": "08d9d2ed4d1248edaf1c155cef06f262c89ba3045e3e75f1bcbd8eced4f701d3"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/14.webp": {
+      "bytes": 2566,
+      "sha256": "6ddee0e518668e9152d1547d520a8b91e4c06bb074a88de6d3257ed619201d6b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/15.webp": {
+      "bytes": 1944,
+      "sha256": "052d7254540960a55d0de44258123f06c1342a15bcafe60e0ca8a1c4e42852f9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/2.webp": {
+      "bytes": 1700,
+      "sha256": "f3587c46d21dea40d3bf8b970c465282bf5edc4bc0d1333aa264b0bc7b2bf5ff"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/3.webp": {
+      "bytes": 5380,
+      "sha256": "ea512e12b4b4a884f4b4093bde72c9428badf4bd89c6098415995d5ce2a4c4cc"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/4.webp": {
+      "bytes": 2646,
+      "sha256": "abbd71fa0dde2dd35b2c4f048dc48c038629ed9e2f0fdbd402b01772a2e6c539"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/5.webp": {
+      "bytes": 944,
+      "sha256": "9d4a6fa527619b8a41e632047aa9779599a43c1f27042b3d9f56c34e72610cac"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/6.webp": {
+      "bytes": 1718,
+      "sha256": "277fb6a0630577e474c6c8a93441249afe8331e13de5c3ba0f386ef4ec9a3f15"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/7.webp": {
+      "bytes": 1508,
+      "sha256": "6dcee6c6aefb0b3a92090f893a94f8a46643456ba05b9d83005b165847acf96b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/8.webp": {
+      "bytes": 4838,
+      "sha256": "8c5ed8bc19f4222739d101c7024daf0f4c5b24b76b477f355b37db53a14db2ef"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/6/9.webp": {
+      "bytes": 1170,
+      "sha256": "c5f893e19415aa82614f33aa0bfdda93574c37681e584e3424b8084fd4d48cb7"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/0.webp": {
+      "bytes": 708,
+      "sha256": "a054dececd084a493240f0b56c33a2bb0ee65e49084c8918cc806a179f7915fc"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/1.webp": {
+      "bytes": 2386,
+      "sha256": "9805b3afee7566d45aed828d9dc50128a37594e95671433eb4fb28531cf04f92"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/10.webp": {
+      "bytes": 1220,
+      "sha256": "f457e9834761a60d79baf0323ca48754f78dfaf202dd204cbad6c2c576e29c4e"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/11.webp": {
+      "bytes": 1348,
+      "sha256": "ffb5e11d0f4755ed1c0a398bc615cfa10890acd494de96212f7d36ebc72d58d8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/12.webp": {
+      "bytes": 1894,
+      "sha256": "b8e7881885fb36fbd8a925a1f545193935684410b273df02e381e929fd2fd6ed"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/13.webp": {
+      "bytes": 2448,
+      "sha256": "20002d719199adb6fcc233a9318b24f39053c575864d081402d10ddf61e986ae"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/14.webp": {
+      "bytes": 3208,
+      "sha256": "5fcbc7cd54ce234fd8210c56c9d1ed20f49862e63677a4ce78fb2a19cda225f3"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/15.webp": {
+      "bytes": 2782,
+      "sha256": "c5e52f36a072995a2693e8fd4daf8cda9cad0074bcc46fd27f3adc8c675dfab4"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/2.webp": {
+      "bytes": 2262,
+      "sha256": "8c174de57f526db4b6354313a2a7dffaedcdb17969d4f0c036fb4142ade7037c"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/3.webp": {
+      "bytes": 1320,
+      "sha256": "d23addccb927cd80b1c29a5a0bdda399fbce98b2f04f097e9901d53be356e0c9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/4.webp": {
+      "bytes": 3300,
+      "sha256": "02d5ed324cf97e0ef76e06019b09f374e62ffa8b541e51647bb4b7e42ae7130f"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/5.webp": {
+      "bytes": 4452,
+      "sha256": "be719d9fe64297209850f6fbddd07bf4625b991431a4a6ac3fd06e0101410f83"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/6.webp": {
+      "bytes": 6038,
+      "sha256": "31a39551421b2ed62a26502e2c17568ffb6bfa4ac7483b728180c4c8f87286c8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/7.webp": {
+      "bytes": 3974,
+      "sha256": "ac252b5088396d269428354a2e670752f3d30e37fd167960a7cd6111a48a0ff9"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/8.webp": {
+      "bytes": 2028,
+      "sha256": "81c15da5947fbd21c80926c2a5f4b766b4977f5edd7807c51104e61bf139d856"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/7/9.webp": {
+      "bytes": 1474,
+      "sha256": "8aa1b2c219540a2284dafacba115fb434d91e17c4bb0e8c7fb25c2c3f82cb742"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/0.webp": {
+      "bytes": 612,
+      "sha256": "bbb1e02b6cc90c314357230a125544f01e9aa8df4f838cc8378e29e7837d9741"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/1.webp": {
+      "bytes": 1926,
+      "sha256": "12b6536deb75c0cfdbb924f3890330c37e663cd35f62914c273b66653de74ff1"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/10.webp": {
+      "bytes": 1994,
+      "sha256": "cf8d4d7141c0eba9eaed1e205391ea1ccc01d122e7e0e222dfa91b7776820ee5"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/11.webp": {
+      "bytes": 1148,
+      "sha256": "9142531589f6dc87b16c7fa0d6616aaa82c5606284e12e1eebe1ae56f686d746"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/12.webp": {
+      "bytes": 1990,
+      "sha256": "f2c49bb6ea0539d58160afc2f7a9f842477d593002b98304f777984f118bf9e0"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/13.webp": {
+      "bytes": 1040,
+      "sha256": "8f4a8c7df12550031c6e85eba5ceb2775d0db042c91b50914201d490133eea55"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/14.webp": {
+      "bytes": 1480,
+      "sha256": "3c3a4998903558d9c811f90e25504817b7610e72c57d5127f249f32cdd5338eb"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/15.webp": {
+      "bytes": 724,
+      "sha256": "701348e835823ff6cd61bb38141792741aab30e3795d2f435ac0e564e8cfaf57"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/2.webp": {
+      "bytes": 2820,
+      "sha256": "b8651f71f9b9e7913a31d86014b0301cb64a26baaaa8e3e1f5f7171e1fcd1bf1"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/3.webp": {
+      "bytes": 2898,
+      "sha256": "55d65c0722cda294e0db5a72d9aa8a1137c05999a775b07da2aabda4b9b4a644"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/4.webp": {
+      "bytes": 6950,
+      "sha256": "05171e0f82eccc2d7b1d40dddd2b58c685648f5deff24931389fc43a0236c4da"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/5.webp": {
+      "bytes": 10222,
+      "sha256": "94f4e19c0ce879cc6793c87fc1d60c711057504bd2729861babf8325de5a020b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/6.webp": {
+      "bytes": 7158,
+      "sha256": "1a9676239a7673054bf318c18adb6673dc4e548c0da21a23593fb202c702bbbc"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/7.webp": {
+      "bytes": 5760,
+      "sha256": "978da7dd9c8218d6a22913fdab23b5dbd4ba52348277bc9e2a461fee7a34d8d8"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/8.webp": {
+      "bytes": 4928,
+      "sha256": "d1d052a56b56e8e22dba6952d078babd32bce81b9c4d820c398bc8ac85702035"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/8/9.webp": {
+      "bytes": 2780,
+      "sha256": "186c8bfcb31cccd0e4e9ba98a5f492d825a1b25f8c4b65ea7d241bd40967d07d"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/0.webp": {
+      "bytes": 364,
+      "sha256": "f76b33db5dabbd89cadcb504d29063881d445c78e673d8381467b827baac91c5"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/1.webp": {
       "bytes": 1046,
-      "sha256": "a9ad8be8e438610fa834da82fb7583f253744f8e55614d5fca35ab6e92beb331"
+      "sha256": "b7b07d00a3657bca022b87ffe2a57a167bbb3b63434d51012f396ea1644d07bb"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/4.webp": {
-      "bytes": 1080,
-      "sha256": "dfd6b1a03d34d6b587ddae486aad584e7a26e22a34dab5ef2d19e94156d4ea94"
+    "WebApp/assets/maps/ne2-fresh/4/9/10.webp": {
+      "bytes": 1870,
+      "sha256": "9d3cc7fe57e2eb4759c6dd9b068b5013d07cbf6a73affaef98e2a45c5bd5c946"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/5.webp": {
-      "bytes": 1160,
-      "sha256": "e810d28a5714d091cc2c9fb7ad6090c3ae1f1034ec62fcf66c7f9e644587f773"
+    "WebApp/assets/maps/ne2-fresh/4/9/11.webp": {
+      "bytes": 566,
+      "sha256": "1245bd2ffc50ec0317e83ad6c251b9d0b8e247facffe85ca482457deff3c9fd6"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/6.webp": {
-      "bytes": 2474,
-      "sha256": "dd314c0be224794061e20a0758c9af410e37aa5261c1d03d256b0e06c7117296"
+    "WebApp/assets/maps/ne2-fresh/4/9/12.webp": {
+      "bytes": 2438,
+      "sha256": "b04daad92ce32b6fdf4e6777686b1b9222706ea0f1f6ed65876f046fd0f5747c"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/7.webp": {
-      "bytes": 1452,
-      "sha256": "736c6ba17b91690844b32323bfbe189810d0092bed561d554315b9db924ac624"
+    "WebApp/assets/maps/ne2-fresh/4/9/13.webp": {
+      "bytes": 870,
+      "sha256": "db7422c5aedd374b197e5fb062123943e87e28031453fb2a04629774074da149"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/8.webp": {
-      "bytes": 1322,
-      "sha256": "25f0b0803a328c76c1bca995a485af2852f0b0ee50e47518782dd5a43f7e4dde"
+    "WebApp/assets/maps/ne2-fresh/4/9/14.webp": {
+      "bytes": 550,
+      "sha256": "ec41c5c5ecb1bd9c5fdd1be750cdb68e3188f4fc4e8fabe5841eeb05c1fbd4ab"
     },
-    "WebApp/assets/maps/ne2-dark/4/9/9.webp": {
-      "bytes": 762,
-      "sha256": "fbdb09c624bb141e43cbee32c4d8c7fc308bebf25c068cc501720374c29594d7"
+    "WebApp/assets/maps/ne2-fresh/4/9/15.webp": {
+      "bytes": 588,
+      "sha256": "e9d71dd6638ee10a9937ca8563736177c85a892c6c6bb6301eb400d6c0b97157"
     },
-    "WebApp/assets/maps/ne2-dark/SOURCE.txt": {
-      "bytes": 132,
-      "sha256": "3cf8de3f5d25c1c633bd03d6a003f2111700a5293b049f841b83632b7fa10f3c"
+    "WebApp/assets/maps/ne2-fresh/4/9/2.webp": {
+      "bytes": 754,
+      "sha256": "139238a2f100ffe0617620d06ffeb062cf94bb162abf2881a38916d2d82b146b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/3.webp": {
+      "bytes": 3618,
+      "sha256": "18611ae5e3af1366258cf8244492ef535993037fcb47c1ef525772185377ac7b"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/4.webp": {
+      "bytes": 4708,
+      "sha256": "e01006912dd3556b7e4e6384096232833f7dc29bece5e8e4df04e98e54abbb2e"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/5.webp": {
+      "bytes": 6436,
+      "sha256": "1d54878f52fc30b7b8b90916dd59e0dcd649fe19a5278ac363527e67de6f2874"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/6.webp": {
+      "bytes": 11220,
+      "sha256": "22e34ff9271d339b4ce62a22f06090f8248059e9407c282cb4065236a7273c77"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/7.webp": {
+      "bytes": 10630,
+      "sha256": "fc715a2ce43747ad35ca2fc86bd17208f5ac28996d98992ae2fc2e2644a53750"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/8.webp": {
+      "bytes": 9116,
+      "sha256": "e844c4bd67c4b26e022c518e6696b7a26b29ffb325b89dd4f09e8edda1e1a364"
+    },
+    "WebApp/assets/maps/ne2-fresh/4/9/9.webp": {
+      "bytes": 4208,
+      "sha256": "ba663d2953abb181b3b14f4e4fdf0962c49497ec20bfaa15e637bb4826e43331"
+    },
+    "WebApp/assets/maps/ne2-fresh/SOURCE.txt": {
+      "bytes": 133,
+      "sha256": "c22e1f0e0baee07621cb2e8afe3afa807bf7237b1ca385246131d541c655d63a"
     },
     "WebApp/authorization-core.js": {
       "bytes": 42094,
@@ -3083,12 +3371,12 @@
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 95228,
-      "sha256": "29467aa20109246da9b21324e2cf12f75e0e1f71b0c2a2892bad0949443d5c5c"
+      "bytes": 108188,
+      "sha256": "1316d719cbd6d66f69875cc5dc7c620b8bb5226c7edeae16e049af19a6332c8c"
     },
     "WebApp/business-world-core.js": {
-      "bytes": 39551,
-      "sha256": "4215f882eb2ef0ccb215f0b6b36688ebd8cb1a12ba1a826387947c1cbe1fe7b2"
+      "bytes": 40178,
+      "sha256": "61af1f9527c9434f6c1fd53c0bb0f8ea4c4e7c8b0abe2ece26aa618c68e930f4"
     },
     "WebApp/capability-registry-core.js": {
       "bytes": 10944,
@@ -3103,36 +3391,40 @@
       "sha256": "46047a5a0404aab5c69a37b2b32a4d8f35aa770d5c71e71db9384cecdc21fcb6"
     },
     "WebApp/company-definitions.js": {
-      "bytes": 27038,
-      "sha256": "6222f87e3ffc1779ef0eaa64d7308144058fbfb7157f84b07ac213fe3cd6a94d"
+      "bytes": 28734,
+      "sha256": "6b17f8123a5e5b1cb458f5e200e51a63090550673a7c67ffc102f10451fc21e7"
     },
     "WebApp/company-platform-core.js": {
-      "bytes": 50109,
-      "sha256": "a1914de438158bbb77301026413d252d77abe7cf82f1527b4e0628f813c70049"
+      "bytes": 50695,
+      "sha256": "e8bad15d2da1239ccf5d861e2fcf2b5475809f4ed49f25f4e7cd4f4859b3d045"
+    },
+    "WebApp/company-revenue-chain-core.js": {
+      "bytes": 3080,
+      "sha256": "5ea4f5b7e6b21a4fc77b871351c78df56dd06ec4a30b0c3c142f3e29b9a4dc78"
     },
     "WebApp/conference-3d.css": {
       "bytes": 22562,
       "sha256": "c93703006afc976c5af13b4c0d6c8c34ac2258cdd5e523082614a4d4b1263a27"
     },
     "WebApp/conference-3d.js": {
-      "bytes": 14515,
-      "sha256": "0174cfc70e8f4ab8d829799229ac1fd2ffcfa8468e86dc5569855b6a795b3d2f"
+      "bytes": 14629,
+      "sha256": "44624b9d1cbe2937836f1f833157e7425a5dbff3d8c7cf49a1d2bfaceb119f20"
     },
     "WebApp/conference-board-layout.css": {
       "bytes": 16729,
       "sha256": "75fbe2f7a973fc2665525a1a877380dc95c029eeb0c47efc2e61a7061bf749a3"
     },
     "WebApp/conference-board.js": {
-      "bytes": 29258,
-      "sha256": "2290ed81417284f67108f7f5a59b62346f487864d5c24bf0dbbb234c32d1cde8"
+      "bytes": 29234,
+      "sha256": "854cbf20d180d01de281d206df5db0bcb8f988a64987815c43510a61827259b8"
     },
     "WebApp/conference-core.js": {
-      "bytes": 83208,
-      "sha256": "1eddf2bfa05c246fadefe6b50fb9a95a1326f7ec03ca813dad103a2e14c9ce5b"
+      "bytes": 83189,
+      "sha256": "e01f9a0f599f7fc640422defda636373a4662cf20bd6a5c377e2ecbf2032cd16"
     },
     "WebApp/conference-model.js": {
-      "bytes": 14148,
-      "sha256": "4e054bc2500f5dd7af599a9506c82761a405181c69739a10755fa72963eadd75"
+      "bytes": 14124,
+      "sha256": "878e131d57e07696101d11b1224e5540b51638f14714f4a406a27b8d36a35946"
     },
     "WebApp/conference-side-brand.css": {
       "bytes": 1333,
@@ -3147,16 +3439,24 @@
       "sha256": "8ef4780c3aa0803c158bf77f2ce847854fb542e051c6a8bbf03c0a6eb6a36fba"
     },
     "WebApp/control-plane-core.js": {
-      "bytes": 45593,
-      "sha256": "ee7f2ef2d325cf972166e54dccb97ef704384ad2b68881db6c1cf1c05cda3589"
+      "bytes": 45586,
+      "sha256": "ddf4c2de9ab5e937a83e47781ad3e05ef0a49e0cdf9fa8389419b27627e88481"
     },
     "WebApp/corporate-core.js": {
       "bytes": 19209,
-      "sha256": "0b635f054bb20984a50bf440b3408d60e7e5aa0d9227b910372738b3a03e8a57"
+      "sha256": "f377686631f8b44f859087b8616b695782236fd9594afb4e544ae794c448ca38"
+    },
+    "WebApp/customer-base-core.js": {
+      "bytes": 21836,
+      "sha256": "df39514ddc70cf4ecc7cd1ac5be61d188f84b9de9f4a8ca382234c88ef9145d1"
     },
     "WebApp/customer-companies-core.js": {
-      "bytes": 43960,
-      "sha256": "55f29638e33b9196a0d09b6e1c1592e5e8870e100d9232fd6a75db7788746ebc"
+      "bytes": 58126,
+      "sha256": "753efc63f0b8098d4f854b7a8458e907de10f41e00e6ffc836971a491a5aec24"
+    },
+    "WebApp/dealer-market-core.js": {
+      "bytes": 34356,
+      "sha256": "43315ea91920daaa4b05a2e66826b472be0f6f301d5fb7061b08122542f16e93"
     },
     "WebApp/delivery-monitor-core.js": {
       "bytes": 1726,
@@ -3187,24 +3487,24 @@
       "sha256": "87ad120eafa2b290310c4b2ee5c4b3f0b698dac68680090560ccdd8fa742dc49"
     },
     "WebApp/economics-core.js": {
-      "bytes": 9877,
-      "sha256": "d9c58d75e590e14646880de0b495d16faa76389f0cf16d22ee1bc1befb26fa29"
+      "bytes": 10278,
+      "sha256": "c9a9faf66c8547acca8311ed63c68007ffe383f23a221a9e3ad983fd03d1754c"
     },
     "WebApp/energy-core.js": {
-      "bytes": 51630,
-      "sha256": "03f0f635f6cae485ba3b5ab26bdfc8325a2046784eadcee893dfee82778e91cb"
+      "bytes": 56449,
+      "sha256": "b27037eff22b0f8874dc3eefa23a4aaeae44b6312a6502f86e901017c4875563"
     },
     "WebApp/event-ledger-core.js": {
       "bytes": 1989,
       "sha256": "189418d5c0903f4d76984b8af51039861ac79701631af6460219297de45ed07a"
     },
     "WebApp/facility-core.js": {
-      "bytes": 23389,
-      "sha256": "4ad465536c37bbd4bfe75d3e100767fc1f15c160678dd00be2f58808ad2f2220"
+      "bytes": 24428,
+      "sha256": "9044132422873404befb33d7eabf7e9535d3ce595439291cd702915c3a1bd296"
     },
     "WebApp/finance-core.js": {
-      "bytes": 186093,
-      "sha256": "efef1ecc657db0cb7fd3315f317fe1a691c2eec91e42e614955a380bd0554c6a"
+      "bytes": 188945,
+      "sha256": "ba73071b61ea7dfe867bdb206940e9463919659c2981be71d2e55e7718e876f5"
     },
     "WebApp/finance-presentation.css": {
       "bytes": 33498,
@@ -3239,12 +3539,12 @@
       "sha256": "11e4d591056fa961920fb515df375780a8f77e7aa745fef817f888d4c60ecdb0"
     },
     "WebApp/fleet-engine-thread.js": {
-      "bytes": 54623,
-      "sha256": "9c3a574908f4a5915d7cb468c57aaa9a304dfc1e3457d9c4fac1b3d9ffabc490"
+      "bytes": 55541,
+      "sha256": "33e966ddfb4b79eda2bc27fb9439b68a6c905243e090176dd8fa81a29fe4c62e"
     },
     "WebApp/fleet-engine-worker.js": {
-      "bytes": 26730,
-      "sha256": "4d7b69212deea884ceb0b419d8829243669b465a27ba221f4bf5c631bc7cb7fc"
+      "bytes": 26744,
+      "sha256": "d56b93dff2cfb8748907eb1806ad8dab1d3c42f134ea89dc4a8b6b236e944211"
     },
     "WebApp/fleet-event-core.js": {
       "bytes": 48478,
@@ -3307,8 +3607,8 @@
       "sha256": "f172b2141a0837c36cfd01f2bb0509a8550d9d846332d7207605b37edaad7bc0"
     },
     "WebApp/fleet-store-core.js": {
-      "bytes": 122727,
-      "sha256": "e8a88782610adef7827cfd2002de5692ddc50fdc9138b9052734a5ab8ce84369"
+      "bytes": 123354,
+      "sha256": "6bd18623e21dfa754db02cfe58baf62e437192c59bc71f446ef5b0648da41dcc"
     },
     "WebApp/fleet-ui-summary-core.js": {
       "bytes": 15363,
@@ -3324,7 +3624,7 @@
     },
     "WebApp/game-lifecycle-core.js": {
       "bytes": 12277,
-      "sha256": "d584b9e973c0693e4314b7fd83fcb0640fb1ecb569b4f7bb4ecc534d517206d8"
+      "sha256": "c04e4ea2c68c43188de8a4e10694080dedecbc11ef1a1abae3664f2c3012c50c"
     },
     "WebApp/governance-core.js": {
       "bytes": 16755,
@@ -3335,16 +3635,16 @@
       "sha256": "42c106b4fd71adc08e2edfdc8afac5cfe4e3490a331b613f0c34b0739d20e65b"
     },
     "WebApp/identity-system.js": {
-      "bytes": 27138,
-      "sha256": "c0b25e4bb96ea11f687f90deff84137e24171be894436351613e6119c26bdb69"
+      "bytes": 27111,
+      "sha256": "848478faf7b2c52d333aa1c4c734685028a9e8d30b5570eca1c8ac0efcbdf6a7"
     },
     "WebApp/index.html": {
-      "bytes": 28220,
-      "sha256": "38a2075526c440ad6a3f5fd34378b09a7872d8d0878716cbcd54a862579d8a66"
+      "bytes": 24775,
+      "sha256": "45a64fd8291ecff3d64fe92e7d03b4b5d95c1f3c0801b23e60d90355b84df1aa"
     },
     "WebApp/insurance-core.js": {
-      "bytes": 26201,
-      "sha256": "ff9f05eb2d7b378d5f1de16ff14dfdb0c118869830f003f47412e690eb6e52c9"
+      "bytes": 33861,
+      "sha256": "df4fe0f7248f7d72fed7d504cc883696d27f435d15eaeffa878d3de9a0894b29"
     },
     "WebApp/integrity-core.js": {
       "bytes": 32426,
@@ -3355,16 +3655,32 @@
       "sha256": "db5a33cb22928ee886604299880a0df579444fd864a15aabcf77bd9b5d907773"
     },
     "WebApp/interface-core.js": {
-      "bytes": 20522,
-      "sha256": "d907039eaaaf0290b3d949358b3aa8bf8dfbdf955154ef8d43344582b111a311"
+      "bytes": 14258,
+      "sha256": "bc22647a75520d691f59f7229906d69734754dc2b4ecbbfae34b19dcde997a09"
     },
     "WebApp/interface-layout.css": {
-      "bytes": 15155,
-      "sha256": "8772fe8ebb36e13d71d323911b91d46d59d843ae5bb2ace4ff7bf89c8f6e8ec2"
+      "bytes": 13302,
+      "sha256": "22d6248f354d42f824b178ae8f30953ac42a79d4a2ecbef69fc2beae66e4073f"
     },
     "WebApp/lifecycle-core.js": {
       "bytes": 1576,
       "sha256": "b1f725d30a28a6f8f4a66ce3b410c179cd84bdac83bc85117fe10810770a109a"
+    },
+    "WebApp/madar-icons.css": {
+      "bytes": 106221,
+      "sha256": "d86656c912cd231233f20522cbd55e4660c43560fc505f95a7890f5c4a00fa60"
+    },
+    "WebApp/madar-icons.js": {
+      "bytes": 5743,
+      "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
+    },
+    "WebApp/madar-shell.css": {
+      "bytes": 12091,
+      "sha256": "03c1e9d11aad5ef221e129319881e261a7318b061e888d7519d3b6f91fff066a"
+    },
+    "WebApp/madar-shell.js": {
+      "bytes": 53687,
+      "sha256": "f7f589947e44184722a610864dce64c0c9de67ab7c77400d76b8bc67fdc49ecb"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 7759,
@@ -3411,8 +3727,8 @@
       "sha256": "56424623df0232109e3ac824e0f479c5d713f7f2db3ea4efc42f26fb1f6b891c"
     },
     "WebApp/market-core.js": {
-      "bytes": 18113,
-      "sha256": "322622130714940d3ba6be902c61f862cad2376e2dae19dda43306b12a03a526"
+      "bytes": 18692,
+      "sha256": "94ce25b6a2625ef4087a8ec0af0e62fd8ffbdeeca4048d01269ad32c8d21b0bb"
     },
     "WebApp/market-reference-core.js": {
       "bytes": 4206,
@@ -3431,16 +3747,16 @@
       "sha256": "3ea505f5ec0293750fa9dc931d0fddc5687cdefdf62327d53555b1c253045366"
     },
     "WebApp/mobility-core.js": {
-      "bytes": 77274,
-      "sha256": "0092181885e07005a2dd3e657b100ac1afeed9f2c6aab017cb44b5c740c2f5ec"
+      "bytes": 77317,
+      "sha256": "cb5ba75c64b35291627e2baeaca89a6412f52890ca1545e2508f83e9447a505b"
     },
     "WebApp/operations-core.js": {
       "bytes": 2211,
       "sha256": "b456a744f67a407c3ff66fa47b41a87fa5b7e5046898100f056db750c9190dcb"
     },
     "WebApp/persistence-core.js": {
-      "bytes": 52313,
-      "sha256": "1945ace8f51d0ca7929499674acc76ffc0d371788e9d90225b6ceb85bbf9d46c"
+      "bytes": 52306,
+      "sha256": "90d9004a90bcb2735788a7af2e9e4abc48bd866edab70a6a0666ebe608a773d1"
     },
     "WebApp/policy-core.js": {
       "bytes": 1915,
@@ -3459,12 +3775,12 @@
       "sha256": "59ec1d2750f314d1236bbb890be3dd0154ff37768a748ae194548397b7b688a4"
     },
     "WebApp/realestate-core.js": {
-      "bytes": 38566,
-      "sha256": "4b1e946f0b390ccf7aae167b62e52005335b4ae810cc191efb790918cf3e0b62"
+      "bytes": 53440,
+      "sha256": "a8e086a7de08d8c1c1333a95e6aa366db39f50400085d9f374adff931fdfce6c"
     },
     "WebApp/realism-core.js": {
-      "bytes": 113384,
-      "sha256": "e8e370b4578695d6ce3ffba0470b64d3531b021bb44e079736ff6ce531de4e6f"
+      "bytes": 113457,
+      "sha256": "d148c0475287fe375cdacb91f35ed6460e234974f4fb9ba7722608d773271fe9"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -3483,8 +3799,8 @@
       "sha256": "9111e731e3d61aec97c73a9c984e8508d0bf3cb18102b1409c073e901944d41c"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 32142,
-      "sha256": "ac07c0556652b9a4ea32221b609b8f30ea85778344a1486e49ae116d8232a7f5"
+      "bytes": 36469,
+      "sha256": "054ffdb99b65482c4b740bb20e129ef6201b647b1236c9343793db2a3db1d8f7"
     },
     "WebApp/save-policy-core.js": {
       "bytes": 2306,
@@ -3503,8 +3819,8 @@
       "sha256": "a232973e5a74617d48f52b20e0eb9ec2a96583bfb6741400641eb118eb705182"
     },
     "WebApp/simulation-asset-core.js": {
-      "bytes": 28109,
-      "sha256": "7079a3777a71dad672f77d11a43d5288d2807d73c852c9cc4e0b583ae4d6a4e4"
+      "bytes": 28119,
+      "sha256": "4522dbd90f1bcebd73923cc41e8f317146194b1af55ff3062f40c6ce602dce40"
     },
     "WebApp/simulation-asset-worker.js": {
       "bytes": 1677,
@@ -3535,16 +3851,20 @@
       "sha256": "edacf776f6832178ea0e7678e0180b9381b56a3d6aeb57fff33165e24df554d9"
     },
     "WebApp/styles.css": {
-      "bytes": 68849,
-      "sha256": "9e8deb2e57efa8e78632f708126ee6990c63b7184fbc7a9e1ef9af09718e05cb"
+      "bytes": 68353,
+      "sha256": "62679681c22ead7d99f51a80a8aa5962c99d70553ed4446451dc946ea5f7d204"
+    },
+    "WebApp/telecom-market-core.js": {
+      "bytes": 30491,
+      "sha256": "a0db5fee3a8a657d2dae1b41ac5d1abf68139b6b4dea705bbb17bc7d4c848742"
     },
     "WebApp/transaction-core.js": {
-      "bytes": 79417,
-      "sha256": "952f53db7bb1ac5e57628539af380bc89d0f599072a20ebddbc01c43330b8e53"
+      "bytes": 82757,
+      "sha256": "00aa96d37a0df1441c016402095a1cc215263a21e3fc21205a12467e5daf0b52"
     },
     "WebApp/ui-quality-core.js": {
-      "bytes": 6312,
-      "sha256": "c6056a5a7fdbbaf7bf550eb2350f1fe8879659c4e25ad5afa3914f7e6252a007"
+      "bytes": 6266,
+      "sha256": "c20472c3a1b4b91f3473b568843b6ad28b966fdf59e97e6cdb35151541ee1bdb"
     },
     "WebApp/vendor/leaflet/images/layers-2x.png": {
       "bytes": 1259,
@@ -3591,8 +3911,8 @@
       "sha256": "ac85c6e05e16ee9e7ac927d2e46bd83c577c7d208bff503709decd1f3dd2421b"
     },
     "iOS/GlobalHoldings/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png": {
-      "bytes": 320845,
-      "sha256": "0cd0d2b7b7928718cde72c2c9d64aa46f01cdc36ecb09cb9186d065b489cfe88"
+      "bytes": 1306821,
+      "sha256": "b248c5fa4c40b02f0a596e3a0504d35e24ac2141430c52fa9eb57059bb3a8af2"
     },
     "iOS/GlobalHoldings/Assets.xcassets/AppIcon.appiconset/Contents.json": {
       "bytes": 216,
@@ -3602,33 +3922,41 @@
       "bytes": 63,
       "sha256": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b"
     },
-    "iOS/GlobalHoldings/Assets.xcassets/MadarLogo.imageset/Contents.json": {
-      "bytes": 159,
-      "sha256": "6c0d2cdd58f5ab4c6ce7b737bd07c868bf30186812d236d4a2b4aaff721081e7"
+    "iOS/GlobalHoldings/Assets.xcassets/LaunchArt.imageset/Contents.json": {
+      "bytes": 152,
+      "sha256": "7e6f88e9560ab1a9b6b8e36045c7f11630b0d21f082bfbd794865042ec7f5f87"
     },
-    "iOS/GlobalHoldings/Assets.xcassets/MadarLogo.imageset/MadarLogo.png": {
-      "bytes": 841452,
-      "sha256": "8d1ccfd7205fc6de34b3bc40c3d8a0157c8492be9637255d829fcfe60fbcbe38"
+    "iOS/GlobalHoldings/Assets.xcassets/LaunchArt.imageset/LaunchArt.jpg": {
+      "bytes": 529662,
+      "sha256": "fb1f39319701ee46535d728017504706109fa8d47a00b4a2a49cf81728f4eca9"
     },
     "iOS/GlobalHoldings/GameViewController.swift": {
-      "bytes": 65381,
-      "sha256": "32f46b6d28ab3f97efe422752d0d7a613c49e82aa2f2bbd5ae0dafa4f0a87cb7"
+      "bytes": 70820,
+      "sha256": "73fe880b28b9ba162464a3a2bba5a3d7061cd8e367dde4f9eb679f894c5ef4d6"
     },
     "iOS/GlobalHoldings/GlobalGameStorage.swift": {
-      "bytes": 66664,
-      "sha256": "63a17c82ccfaa52d0a2ef01bc484a3e80bc2080322dc039e763ca8b5359105a5"
+      "bytes": 66640,
+      "sha256": "85b3daf696406b798960f2e67bd999eb74af623b62c212a3280a7324e5173f4d"
     },
     "iOS/GlobalHoldings/GlobalSaveVault.swift": {
-      "bytes": 79246,
-      "sha256": "928732f8776b6d32c420b3aa0df5b9a86e6b46e882b1795dcbd7e31895fdf52a"
+      "bytes": 79969,
+      "sha256": "ba7b53fb0f1af37ea0c2e8e49b727a22a50dfd7f35146210716b97bb3a78e8cf"
     },
     "iOS/GlobalHoldings/LaunchScreen.storyboard": {
-      "bytes": 3135,
-      "sha256": "35d134160f529d08e96a2473b77f0f4497bd6b5df05cdfe4a4b3b90b7db5bbda"
+      "bytes": 3110,
+      "sha256": "633cd8e3539590a75b5038c8bcc2ab45b3d4fb21b2994e8261472b4c33b381e7"
+    },
+    "iOS/GlobalHoldings/VentoraPack.swift": {
+      "bytes": 3499,
+      "sha256": "343ab7ab7d31e6452148efa9a0340b9bade8823dd67f72c99342e866b7f981c6"
+    },
+    "iOS/GlobalHoldings/VentoraReleaseKey.swift": {
+      "bytes": 327,
+      "sha256": "db25983ae6ac93f83839e18c596fc40a60c54125312c57e52706edbfbe96041b"
     },
     "project.yml": {
-      "bytes": 2413,
-      "sha256": "38da82d2ba93aeef9e938bd629c3cc5af3fd8359140b4c004efafa2bc16bf9b3"
+      "bytes": 2432,
+      "sha256": "cb20ea92e44a011a309fd3df3aed73bb6f9e300d91842ccf390438e8d4deb463"
     },
     "BUILD": {
       "bytes": 4,

@@ -186,7 +186,7 @@ function stateSnapshot(){
       const original=GH_INTERFACE.prepare;
       globalThis.GH_INTERFACE={...GH_INTERFACE,prepare(root,panel,arg,ctx){globalThis.qaContext=ctx;return original(root,panel,arg,ctx);}};
     });
-    await page.locator('.side-nav [data-panel=companies]').click();
+    await page.locator('.side-nav [data-panel=groupHub]').click();
     await page.waitForFunction(()=>globalThis.qaContext?.runAuthorizedDomainCommand);
 
     await page.evaluate(async()=>{
