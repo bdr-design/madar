@@ -58,6 +58,13 @@
   // Both consumers' condition totals in one row-order pass: insurance treats zero/missing as 100, while the operations
   // readiness brief treats them as zero. Returning both prevents a repeated million-row pass on the main thread.
   function conditionSum(state,fleet){let sum=0,readiness=0;fleet.scan(state,['condition'],row=>{const condition=Number(row.condition);sum+=condition||100;readiness+=condition||0;});return {legacy:false,sum,readiness};}
+  // Same identity predicates as Realism's daily integrity pass; only the bounded count crosses the worker boundary.
+  function identityIntegrity(state,fleet){
+    const collisions=fleet.idCollisions(state);let sound=!collisions.duplicate&&!collisions.missing;
+    if(sound)fleet.forEachFieldClasses(state,['id'],row=>{if(typeof row.id!=='string'||row.id==='')sound=false;});
+    let issueCount=0;if(!sound){const ids=new Set();fleet.scan(state,['id'],row=>{if(!row.id||ids.has(row.id))issueCount++;ids.add(row.id);});}
+    return {rows:fleet.size(state),issueCount};
+  }
   // Save Schema's fleet evidence stays entirely beside the replica.  Unlike fieldClasses, this result is bounded by
   // validation error kinds and the route registry; unique asset ids/names never become one posted object per asset.
   function saveValidation(state,fleet,params={}){
@@ -141,9 +148,9 @@
   function salePlan(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_SALE_PLAN')(state,fleet,params||{}));}
   function manualDeparturePlan(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_MANUAL_DEPARTURE_PLAN')(state,fleet,params||{}));}
   function referenceUsage(state,fleet,params){const result=queryModule('GH_FLEET_REFERENCE_QUERY')(state,fleet,params||{});return result?.legacy?result:{...result,columns:{indices:result.routeCounts,values:result.baseCounts}};}
-  const QUERIES=Object.freeze({dispatchEligible,routeCards,conditionSum,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
+  const QUERIES=Object.freeze({dispatchEligible,routeCards,conditionSum,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
   function run(name,state,fleet,params){const query=QUERIES[name];if(!query)throw new Error(`fleet-query-unknown:${name}`);return query(state,fleet,params||{});}
-  const API=Object.freeze({VERSION,DISPATCH_FIELDS,CARD_FIELDS,ROUTE_CENTER_FIELDS,ROUTE_CENTER_RESULT_FIELDS,dispatchEligible,routeCards,conditionSum,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage,run,names:Object.freeze(Object.keys(QUERIES))});
+  const API=Object.freeze({VERSION,DISPATCH_FIELDS,CARD_FIELDS,ROUTE_CENTER_FIELDS,ROUTE_CENTER_RESULT_FIELDS,dispatchEligible,routeCards,conditionSum,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage,run,names:Object.freeze(Object.keys(QUERIES))});
   globalThis.GH_FLEET_QUERY=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_FLEET_QUERY=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

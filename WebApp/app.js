@@ -893,7 +893,7 @@
   }
   async function persistStateSliced(){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__)return false;
-    if(stagedStateBusy())return persistStateNow();
+    if(stagedStateBusy()){await stagedStateSettled();return persistStateSliced();}
     const out=await window.GH_PERSISTENCE.commitStateSliced(state,{storageKey,appVersion:APP_VERSION,prepare:prepareSlicedSave,yieldToFrame:()=>yieldForInteractivePaint(document.hidden?0:80)});
     if(out?.ok)diag('SAVE_OK',{bytes:out.utf8Bytes??null,saveRevision:state.saveRevision,sliced:true});else{diag('SAVE_FAILED',{message:String(out?.reason||'sliced-save-failed'),sliced:true});console.warn('تعذر حفظ اللعبة',out?.reason);}
     return out?.ok===true;
@@ -901,6 +901,7 @@
   function save(){
     const tx=window.GH_TRANSACTION_CORE;
     if(tx.isActive()){tx.afterCommit(()=>persistStateNow({throwOnError:true}),{critical:true,priority:100,key:'save'});return true;}
+    if(largeNativeSave()&&!durableCommandInProgress&&!hardResetInProgress&&!window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__&&!window.GH_PERSISTENCE.isLocked()){persistStateSliced().catch(error=>console.warn('تعذر حفظ اللعبة',error));return true;}
     return persistStateNow();
   }
   if(startupLoadMeta?.source==='native'&&startupLoadMeta.needsCanonicalPersist){
@@ -937,11 +938,7 @@
   // saved in slices (commitDurableState yieldToFrame), with a frame painted whenever a slice has run 10 ms. The draft is
   // private and the lifecycle lock holds the live state still, so the result is the one-shot result.
   async function validateDraftInSlices(draft){
-    const schema=window.GH_SAVE_SCHEMA;if(typeof schema.validationSteps!=='function')return schema.validate(draft,{trustVerified:true});
-    const clockNow=()=>globalThis.performance?.now?.()??Date.now(),steps=schema.validationSteps(draft,{trustVerified:true,fleetClasses:fleetClassesForValidation});let slice=clockNow(),step;
-    // Build 372: while the fleet's classes are on the worker the section waits; this loop sleeps instead of spinning.
-    while(!(step=steps.next()).done){if(step.value==='fleet-classes-wait'){await new Promise(resolve=>setTimeout(resolve,4));slice=clockNow();}else if(clockNow()-slice>=10){await yieldForInteractivePaint();slice=clockNow();}}
-    return step.value;
+    return window.GH_TRANSACTION_CORE.validateSchemaInSlices(draft,{yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),onSlice:(start,end)=>window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.schema',start,end)});
   }
   // Build 372: the save check's classes of rows and id check over the fleet (every row: 400 ms on the main thread at a
   // million assets), found by the fleet engine's worker on a replica that is exactly this store (fieldClasses), for the
@@ -1269,7 +1266,16 @@
   }
 
   function settleCheque(cheque){return dispatchSystemCommand({state},'finance','settle-cheque',{id:cheque?.id},{actor:'finance-scheduler'}).result;}
-  async function settleIssuedCheque(id){const cheque=state.finance.cheques.find(row=>row.id===id);if(!cheque){notice('الشيك غير موجود.');return false;}const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;try{const before=companyOperatingBalance(cheque.company||'group'),out=await runAuthorizedDomainCommand('finance','settle-cheque',{id}),result=out.result,after=companyOperatingBalance(cheque.company||'group');if(result.settled!==true)throw new Error(result.reason||'cheque-not-settled');if(!(state.godMoney&&state.infiniteMoney)&&Math.abs((before-after)-Number(cheque.amount||0))>.01)throw new Error('cheque-current-account-posting-mismatch');pushAlert(`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}return true;}catch(error){notice(`تعذر صرف الشيك: ${String(error.message||error)}`);return false;}}
+  async function settleIssuedCheque(id){
+    const cheque=state.finance.cheques.find(row=>row.id===id);if(!cheque){notice('الشيك غير موجود.');return false;}
+    const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;let result;
+    try{const out=await runAuthorizedDomainCommand('finance','settle-cheque',{id});result=out.result;if(result.settled!==true)throw new Error(result.reason||'cheque-not-settled');}
+    catch(error){if(error?.durableCommitted!==true)notice(`تعذر صرف الشيك: ${String(error.message||error)}`);return false;}
+    // Finance validated the posting before durable ACK. A later presentation failure must never report payment failure.
+    try{pushAlert(result.reason==='already-settled'?`الشيك ${id} مصروف سابقًا؛ لم يُخصم المبلغ مرة أخرى.`:`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}}
+    catch(error){console.warn('Cheque committed; presentation refresh failed',error);}
+    return true;
+  }
   async function spendCompany(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=await runAuthorizedDomainCommand('finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable});return !!out.result;}
   function spendCompanySystem(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=dispatchSystemCommand({state},'finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable,closeOwned:true},{actor:'financial-close'});return !!out.result;}
   const spend = (amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true) => spendCompany('group',amount,note,method,taxable);
@@ -3136,7 +3142,7 @@
         // (cashContribution) with no document; the settlement carried them as an unexplained adjustment.
         const amount=Number(tripCash[companyId])||0,fees=Math.round(Math.max(0,revenue-fuel-maint-amount)*100)/100;
         if(fees>=.01)post('مصروف',fees,`رسوم موانئ ومطارات وطرق لرحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية رسوم تشغيل يومية',taxable,'مدفوعة',companyId,'سلطات الموانئ والمطارات والطرق',{settlementAccount:clearing});
-        if(Math.abs(amount)>=.005||revenue>0){const before=companyOperatingBalance(companyId),settlement=dispatchSystemCommand({state},'finance','settle-daily-cash',{company:companyId,amount,grossAmount:revenue,deductions:fuel+maint+(fees>=.01?fees:0),tripCount:count,invoiceNumbers,day:state.lastFinancialDay,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,note:`تحويل صافي تشغيل اليوم ${state.lastFinancialDay} إلى الحساب الجاري · ${typeName(companyId)}`},{actor:'financial-close'}).result,after=companyOperatingBalance(companyId);if(Math.abs((after-before)-Number(settlement?.amount||0))>.01)throw new Error(`daily-profit-current-account-mismatch:${companyId}`);if(settlement?.shortfall>0)pushAlert(`رحّلت تسوية نقدية غير مغطاة بقيمة ${fmtMoney(settlement.shortfall)} في ${typeName(companyId)} إلى إقفال اليوم التالي دون إسقاطها.`);}
+        if(Math.abs(amount)>=.005||revenue>0){const before=companyOperatingBalance(companyId),settlement=dispatchSystemCommand({state},'finance','settle-daily-cash',{company:companyId,amount,grossAmount:revenue,deductions:fuel+maint+(fees>=.01?fees:0),tripCount:count,invoiceNumbers,day:state.lastFinancialDay,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,note:`تحويل صافي تشغيل اليوم ${state.lastFinancialDay} إلى الحساب الجاري · ${typeName(companyId)}`},{actor:'financial-close'}).result;window.GH_FINANCE_CORE.assertAccountPosting(state,settlement,{company:companyId,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,balanceBefore:before,code:`daily-profit-current-account-mismatch:${companyId}`});if(settlement?.shortfall>0)pushAlert(`رحّلت تسوية نقدية غير مغطاة بقيمة ${fmtMoney(settlement.shortfall)} في ${typeName(companyId)} إلى إقفال اليوم التالي دون إسقاطها.`);}
       });yield 'finance-day.trip-settlement';}
       const companyContractRevenue=zeroCompanyMap(state),companyContractCost=zeroCompanyMap(state),contractDailyRows=[];
       const contractTerms={};for(const id of (state.acceptedContracts||[])){const c=contracts.find(x=>x.id===id);if(!c)continue;const companyId=contractOwnerCompanyId(c,state);if(!companyId)throw new Error(`contract-owner-unresolved-or-ambiguous:${id}`);const termDays=Math.max(1,Number(c.termMonths)||1)*30,dailyRevenue=c.value/termDays,dailyCost=c.cost/termDays;contractTerms[id]=termDays;companyContractRevenue[companyId]=(companyContractRevenue[companyId]||0)+dailyRevenue;companyContractCost[companyId]=(companyContractCost[companyId]||0)+dailyCost;contractDailyRows.push({id,companyId,sector:c.sector,client:c.client,name:c.name,revenue:dailyRevenue,cost:dailyCost});}const expiredContracts=dispatchSystemCommand({state},'contracts','tick-day',{day:state.lastFinancialDay,terms:contractTerms},{actor:'simulation'}).result?.expired||[];for(const id of expiredContracts){const c=contracts.find(x=>x.id===id);if(c)pushAlert(`اكتمل عقد ${c.name} وانتهت مدته التشغيلية بعد ${c.termMonths} شهرًا.`);}
@@ -3858,7 +3864,7 @@
         }
         if(!handle?.done)return {committed:false,reason:'job-not-finished'};if(handle.error)throw handle.error;
         const transaction=handle.result;if(!transaction?.committed)return {committed:false,retry:true,reason:transaction?.reason||'transaction-rejected'};
-        const priorFailure=state.simulationKernel?.lastAdvanceFailure;if(priorFailure&&completeTo+1e-6>=Number(priorFailure.to||Infinity)){delete state.simulationKernel.lastAdvanceFailure;delete state.simulationKernel.runtimeFatal;}
+        recordSimulationRecovery(completeTo);
         if(mapRevisionBumps)window.GH_MAP_STRUCTURE_REVISION=((Number(window.GH_MAP_STRUCTURE_REVISION)||0)+mapRevisionBumps)>>>0;
         if(departureTrace)recordAssetDepartureTrace({...departureTrace,source:'simulation-calendar-window',simSeconds:completeTo});
         return {committed:true,completeTo,boundary:TIME.boundaryAt(completeTo),events:totalEvents,fast:totalFast,slow:totalSlow,faults:totalFaults,departureTrace,order,aggregateSubSlices:subSlices};
@@ -3866,6 +3872,12 @@
       cancel(){cancelled=true;cleanup('cancelled');},
       cleanup({outcome}={}){cleanup(outcome||'cleanup');}
     };
+  }
+  function recordSimulationRecovery(completeTo){
+    const kernel=state.simulationKernel,prior=kernel?.lastAdvanceFailure;if(!prior||!Number.isFinite(prior.to)||completeTo+1e-6<prior.to)return false;
+    if(prior.code==='TRANSACTION_ROLLBACK_FAILED'||JSON.stringify(prior.errorDetail||{}).includes('TRANSACTION_ROLLBACK_FAILED')||/rollback failed/i.test(prior.error||'')||kernel.boundaryRecovery?.failed||window.GH_PERSISTENCE.telemetry?.().recoveryRequired)return false;
+    kernel.lastRecoveredFailure={...prior,recoveredAt:completeTo};if(kernel.runtimeFatal)kernel.lastRecoveredFatal={...kernel.runtimeFatal,recoveredAt:completeTo};
+    delete kernel.lastAdvanceFailure;delete kernel.runtimeFatal;diag('SIM_RECOVERED',{from:prior.from,to:prior.to,recoveredAt:completeTo});return true;
   }
   function createSimulationSliceJob(sliceSeconds,meta={}){
     if(meta.aggregate===true)return createManualCalendarWindowJob(sliceSeconds,meta);
@@ -4003,7 +4015,7 @@
         }
         if(mainThreadRefusal)return refuseMainThread();
         if(!transaction.committed)return {committed:false,retry:true,reason:transaction.reason||'transaction-rejected'};
-        const priorFailure=state.simulationKernel?.lastAdvanceFailure;if(priorFailure&&completeTo+1e-6>=Number(priorFailure.to||Infinity)){delete state.simulationKernel.lastAdvanceFailure;delete state.simulationKernel.runtimeFatal;}
+        recordSimulationRecovery(completeTo);
         const completedBoundary=TIME.boundaryAt(completeTo);
         // Store GC/compaction can touch a million rows. Queue its staged owner
         // after the slice commits; runDeferredMaintenance advances exactly one
@@ -4163,6 +4175,7 @@
       }
     },
     isSuspended:()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||assetPurchaseHolds>0||window.GH_PERSISTENCE.isLocked()||window.GH_CONFERENCE?.isPresentationActive?.()||state.timeRecovery?.active===true,
+    canRecoverFatal:()=>!state.simulationKernel?.runtimeFatal&&!state.simulationKernel?.lastAdvanceFailure&&!state.simulationKernel?.boundaryRecovery?.failed&&!window.GH_PERSISTENCE.telemetry?.().recoveryRequired,
     onFatal:error=>{simulationEngine.cancelAdvance?.('simulation-fatal',{immediate:true});state.speed=0;state.simulationKernel=state.simulationKernel||{};const diagnostic=error?.diagnostic||{name:error?.name||'Error',message:String(error?.message||error),code:error?.code||null,transactionLabel:error?.transactionLabel||null,transactionStage:error?.transactionStage||null};state.simulationKernel.runtimeFatal={at:state.simSeconds,code:error?.code||'SIM_FATAL_STATE',error:diagnostic};if(!state.simulationKernel.lastAdvanceFailure)state.simulationKernel.lastAdvanceFailure={reason:'simulation-fatal',stage:error?.transactionStage||'finish',from:state.simSeconds,to:state.simSeconds,at:state.simSeconds,retries:0,code:error?.code||'SIM_FATAL_STATE',error:String(error?.message||error).slice(0,500),errorDetail:diagnostic};diag('SIM_FATAL',diagnostic,'critical');try{const evidence=captureDiagnosticEvidence({recordEvent:true,trackTransitions:true,storeResult:true});window.GH_CONTROL_PLANE?.check?.(state,{evidence});}catch(healthError){console.error('تعذر تحديث الصحة بعد خطأ المحاكاة',healthError);}console.error('Simulation Core fatal error',error);try{pushAlert('أوقف محرك المحاكاة الوقت لحماية الحفظ بعد خطأ داخلي. افتح مركز الإجراءات لمراجعة السبب قبل إعادة المحاولة.');}catch(alertError){console.error('تعذر تسجيل تنبيه خطأ المحاكاة',alertError);}},
     onWarning:({stage,error})=>{diag('SIM_WARNING',{stage,message:String(error?.message||error)});console.warn(`Simulation Core warning [${stage}]`,error);},
     onThrottle:({took,reason,stage})=>{diag('SIM_THROTTLE',{took,reason,stage});console.warn(`Simulation watchdog throttled after ${Math.round(took)}ms ${stage||'work'} stage`);},

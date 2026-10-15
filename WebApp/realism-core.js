@@ -440,7 +440,7 @@
     const ids=fleet.idCollisions(state);if(ids.duplicate||ids.missing)return false;
     let sound=true;fleet.forEachFieldClasses(state,['id'],row=>{if(typeof row.id!=='string'||row.id==='')sound=false;});return sound;
   }
-  function integrity(state,day){const r=migrate(state),issues=[];for(const t of companyTypes(state)){const b=books(state,t);if(!b||!Array.isArray(b.accounts))issues.push(`دفتر ${t} غير صالح`);else if(b.accounts.some(a=>!Number.isFinite(Number(a.balance))))issues.push(`رصيد غير رقمي في ${t}`);}if(!fleetIdsSound(state)){const ids=new Set();fleetData().forEach(state,a=>{if(!a.id||ids.has(a.id))issues.push('معرف أصل مكرر');ids.add(a.id);});}const qids=new Set();for(const q of r.eventQueue){if(qids.has(q.id))issues.push('حدث زمني مكرر');qids.add(q.id);}r.controls.issues=issues;r.controls.lastIntegrityDay=day;return issues;}
+  function integrity(state,day,identityIssueCount=null){const r=migrate(state),issues=[];for(const t of companyTypes(state)){const b=books(state,t);if(!b||!Array.isArray(b.accounts))issues.push(`دفتر ${t} غير صالح`);else if(b.accounts.some(a=>!Number.isFinite(Number(a.balance))))issues.push(`رصيد غير رقمي في ${t}`);}if(identityIssueCount!==null){for(let n=0;n<identityIssueCount;n++)issues.push('معرف أصل مكرر');}else if(!fleetIdsSound(state)){const ids=new Set();fleetData().forEach(state,a=>{if(!a.id||ids.has(a.id))issues.push('معرف أصل مكرر');ids.add(a.id);});}const qids=new Set();for(const q of r.eventQueue){if(qids.has(q.id))issues.push('حدث زمني مكرر');qids.add(q.id);}r.controls.issues=issues;r.controls.lastIntegrityDay=day;return issues;}
   // Build 358: the daily close as stages. The app's staged day boundary (GH_TRANSACTION_CORE.beginStaged) runs one or
   // more stages per frame inside the same transaction; onDay() runs them all at once. Order and results are identical.
   // The statements memo window (closeFinancials -> updateBudgets) never spans a pause.
@@ -627,6 +627,18 @@
     const key=conditionSumKey(state);conditionSumMemo=key?{state,key,sum:insured,readiness}:null;
     ops.maintenance=maintenance;return ops;
   }
+  function* dailyIdentityFromWorker(state){
+    const fleet=fleetData(),rows=fleet.size(state);if(rows<=2048||globalThis.GH_TRANSACTION_CORE?.isStaged?.(state)!==true)return null;
+    const provider=globalThis.GH_FLEET_QUERY_PROVIDER;let asked=null;try{asked=provider?.(state,'identityIntegrity',{});}catch{}
+    if(asked&&typeof asked.then==='function'){
+      const box={done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});
+      for(let waits=0;!box.done&&waits<CONDITION_SUM_WAITS;waits++)yield 'realism.identity-wait';
+      const found=box.value,result=found?.result;
+      if(box.done&&typeof found?.current==='function'&&found.current()===true&&result?.rows===rows&&Number.isSafeInteger(result.issueCount)&&result.issueCount>=0&&result.issueCount<=rows)return result.issueCount;
+    }
+    // An unavailable/stale worker cannot turn a large close into a whole-fleet UI-thread pass.
+    throw new Error('realism-identity-worker-unavailable');
+  }
   function* onDayStages(state,day){
     migrate(state);
     const ops=yield* fleetDayPass(state);
@@ -659,7 +671,8 @@
     // A delivery above can invalidate the insurance query. Refresh only then, still on the worker, so the app's
     // operations brief does not repeat the full condition scan on the main thread.
     yield* conditionSumFromWorker(state);
-    integrity(state,day);
+    const identityIssueCount=yield* dailyIdentityFromWorker(state);yield 'realism.identity';
+    integrity(state,day,identityIssueCount);
     return 0;
   }
   function onDay(state,day){const stages=onDayStages(state,day);let step;while(!(step=stages.next()).done){}return step.value;}

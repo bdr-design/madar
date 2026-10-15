@@ -275,7 +275,8 @@
     if(!Number.isFinite(simSeconds)||simSeconds<0)add('SIM_TIME_INVALID','critical','زمن المحاكاة غير صالح','simSeconds يجب أن يكون رقمًا محدودًا وغير سالب.','simulation',{simSeconds:state.simSeconds});
     if(!ALLOWED_SPEEDS.includes(Number(state.speed)))add('SIM_SPEED_INVALID','critical','سرعة غير معتمدة','السرعة الحالية ليست ضمن الإيقاف أو مستويات التشغيل الخمسة المعتمدة.','simulation',{speed:state.speed});
     const sim=extra.simulation||{};
-    if(sim.fatalError)add(String(sim.fatalError?.code||'SIM_FATAL_STATE')==='TRANSACTION_ROLLBACK_FAILED'?'TRANSACTION_ROLLBACK_FAILED':'SIM_FATAL_STATE','critical','المحرك في حالة خطأ قاتل',String(sim.fatalError?.message||sim.fatalError),'simulation',sim.fatalError);
+    const activeFatal=sim.fatalError||state.simulationKernel?.runtimeFatal?.error;
+    if(activeFatal)add(String(activeFatal?.code||'SIM_FATAL_STATE')==='TRANSACTION_ROLLBACK_FAILED'?'TRANSACTION_ROLLBACK_FAILED':'SIM_FATAL_STATE','critical','المحرك في حالة خطأ قاتل',String(activeFatal?.message||activeFatal),'simulation',activeFatal);
     if(Number(sim.backlogSeconds)>60)add('SIM_BACKLOG_HIGH','warning','تراكم محاكاة مرتفع','يوجد backlog مرتفع وقد يؤدي إلى تباطؤ أو خفض سرعة تلقائي.','simulation',{backlogSeconds:sim.backlogSeconds});
     if(Number(sim.conflictRate)>0.1)add('SIM_CONFLICT_HIGH','warning','معدل تعارض معاملات مرتفع','تتكرر إلغاءات معاملات المحاكاة أكثر من المتوقع.','simulation',{conflictRate:sim.conflictRate});
     const recovery=state.simulationKernel?.boundaryRecovery;

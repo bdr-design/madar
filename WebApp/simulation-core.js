@@ -38,7 +38,7 @@
   const systemNowMs=()=>globalThis.performance?.now?.() ?? Date.now();
   function errorDetail(error,depth=0,seen=new Set()){
     if(error==null)return null;if(depth>5)return {message:'error-chain-depth-limit'};if(typeof error!=='object')return {message:String(error).slice(0,500)};if(seen.has(error))return {message:'error-chain-cycle'};seen.add(error);
-    const out={name:String(error.name||'Error').slice(0,80),message:String(error.message||error).slice(0,500)};if(error.code!=null)out.code=String(error.code).slice(0,120);if(error.transactionLabel!=null)out.transactionLabel=String(error.transactionLabel).slice(0,160);if(error.transactionStage!=null)out.transactionStage=String(error.transactionStage).slice(0,80);if(error.owner!=null)out.owner=String(error.owner).slice(0,160);if(error.stack)out.stack=String(error.stack).split('\n').slice(0,12).join('\n');if(error.rollbackError)out.rollbackError=errorDetail(error.rollbackError,depth+1,seen);if(error.cause)out.cause=errorDetail(error.cause,depth+1,seen);return out;
+    const out={name:String(error.name||'Error').slice(0,80),message:String(error.message||error).slice(0,500)};if(error.code!=null)out.code=String(error.code).slice(0,120);if(error.transactionLabel!=null)out.transactionLabel=String(error.transactionLabel).slice(0,160);if(error.transactionStage!=null)out.transactionStage=String(error.transactionStage).slice(0,80);if(error.owner!=null)out.owner=String(error.owner).slice(0,160);if(error.stack)out.stack=String(error.stack).split('\n').slice(0,12).join('\n');if(error.postingEvidence)out.postingEvidence={...error.postingEvidence};if(error.rollbackError)out.rollbackError=errorDetail(error.rollbackError,depth+1,seen);if(error.cause)out.cause=errorDetail(error.cause,depth+1,seen);return out;
   }
 
   function normalizeConfig(options={}){
@@ -89,7 +89,7 @@
 
     const report=(stage,error,fatal=false)=>{
       const text=`${stage}:${error?.stack||error}`;health.lastError=text;
-      if(fatal){health.fatalError=errorDetail(error);adapter.onFatal?.(error instanceof Error?error:new Error(String(error)));}
+      if(fatal){health.fatalRecoveryTarget=Math.max(simNow(),Number(health.lastAdvanceFailure?.to)||0,jobStart+jobSlice);health.fatalError=errorDetail(error);adapter.onFatal?.(error instanceof Error?error:new Error(String(error)));}
       else adapter.onWarning?.({stage,error});
     };
     const getSpeed=()=>{
@@ -113,7 +113,7 @@
       cancelJob(`manual-advance-failed:${reason}`);manualAdvance=null;pacing.reset(clock());
       const detail={reason:String(reason||'manual-advance-failed'),stage:String(meta.stage||''),from:Number(meta.from??at),to:Number(meta.to??at),at,retries:Number(failed.retries)||0,error:meta.error?String(meta.error?.message||meta.error):'',errorDetail:errorDetail(meta.error)};
       health.manualFailures++;health.lastAdvanceFailure=detail;
-      try{adapter.onAdvance?.({active:false,failed:true,target:failed.target,remaining:Math.max(0,failed.target-at),reason:detail.reason,stage:detail.stage,from:detail.from,to:detail.to,retries:detail.retries,error:detail.error});}catch(error){report('advance-failed',error,false);}
+      try{adapter.onAdvance?.({active:false,failed:true,target:failed.target,remaining:Math.max(0,failed.target-at),reason:detail.reason,stage:detail.stage,from:detail.from,to:detail.to,retries:detail.retries,error:detail.error,errorDetail:detail.errorDetail});}catch(error){report('advance-failed',error,false);}
       return true;
     }
     function completeManualAdvance(){
@@ -256,6 +256,13 @@
       const actualTo=Number(result?.completeTo??to);
       if(!Number.isFinite(actualTo)||actualTo<from-1e-6||actualTo>to+1e-6){health.lastCommitReason='invalid-complete-to';cancelJob('invalid-complete-to');report('sliceFinish',new Error(`adapter-complete-to-invalid:${actualTo}:${from}:${to}`),true);pacing.clearBacklog();return {done:false,breakFrame:true};}
       const committedTo=Math.max(from,Math.min(to,actualTo)),committedSlice=committedTo-from,committedBoundary=boundaryFor(committedTo);
+      // A reset or a new request is not recovery. Only a verified commit through the failed target can resolve it.
+      if(health.fatalError&&committedTo+1e-6>=health.fatalRecoveryTarget){
+        const rollback=JSON.stringify(health.fatalError).includes('TRANSACTION_ROLLBACK_FAILED')||/rollback failed/i.test(health.fatalError.message||'');
+        if(!rollback&&adapter.canRecoverFatal?.({committedTo,target:health.fatalRecoveryTarget,error:health.fatalError})===true){
+          health.lastRecoveredFatal={error:health.fatalError,target:health.fatalRecoveryTarget,recoveredAt:committedTo};health.fatalError=null;health.lastError='';health.lastAdvanceFailure=null;
+        }
+      }
       conflictStreak=0;if(manualAdvance){manualAdvance.retries=0;manualAdvance.retryKey='';}
       // A bounded event pass may commit only through its final fully processed timestamp.
       // Keep both authoritative time and live backlog aligned to that exact checkpoint.

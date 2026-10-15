@@ -286,10 +286,16 @@
     // brought to the store first; with a step or window in flight, only once this side replayed its result (both then
     // hold that step), what this side wrote since sent into it (syncIntoOpen). Returns the store's tag (for current()),
     // or null.
-    function replicaIsStore(store){
+    function replicaIsStore(store,{validation=false}={}){
       const refuse=reason=>{const r=stats.replicaRefusals||(stats.replicaRefusals={});r[reason]=(r[reason]||0)+1;return null;};
       if(disabled||!worker||!STORE.isStore(store)||!synced||synced.store!==store)return refuse('no-replica');
-      if(mutationSession)return refuse('mutation-open');
+      if(mutationSession){
+        // Read-only save validation is allowed after the final bounded flush, before durable ACK. The worker's
+        // mutation journal stays open: rejection/NACK still restores both replicas, and no gameplay query is admitted.
+        const session=mutationSession,clean=validation&&session.status==='open'&&session.ready&&!session.settled&&session.store===store&&synced.runtime===STORE.chunkStamp(store).runtime&&STORE.replicaClean(store)&&synced.length===store.length&&synced.valuesLength===store.values.length;
+        if(!clean)return refuse('mutation-open');
+        return {store,runtime:session.runtime,revision:store.revision,structure:store.structure,length:store.length};
+      }
       if(pending&&!pending.applied)return refuse('step-not-replayed');
       if(!pending&&!windowSession){if(!prime(store))return refuse('prime');}
       else if(synced.runtime!==STORE.chunkStamp(store).runtime)return refuse('store-changed');
@@ -521,7 +527,7 @@
       // fieldClasses). Resolves with {store, runtime, revision, structure, length, result}, or null (no worker, a replica
       // that is not the store, or a pass that needs the legacy owner table); the caller checks current(result) first.
       query(store,{name,params={},simSeconds=0}={}){
-        const tag=replicaIsStore(store);if(!tag)return null;const id=nextId++;
+        const tag=replicaIsStore(store,{validation:name==='saveValidation'});if(!tag)return null;const id=nextId++;
         stats.queryRequests=(stats.queryRequests||0)+1;
         return new Promise(resolve=>{queryRequests.set(id,{tag,resolve});post({type:'query',id,name:String(name),params,simSeconds:Number(simSeconds)||0});});
       },

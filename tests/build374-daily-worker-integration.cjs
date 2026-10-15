@@ -30,6 +30,8 @@ async function run(kind){
   if(kind==='abort'){
     assert.equal(h.error.code,'TRANSACTION_STAGED_ABORTED');assert.deepEqual(snapshot(s,state),before);
     for(const p of pending)p.resolve();await new Promise(resolve=>setImmediate(resolve));assert.deepEqual(snapshot(s,state),before);
+  }else if(['null','stale','absent'].includes(kind)){
+    assert.match(h.error?.message||'',/realism-identity-worker-unavailable/);const after=snapshot(s,state);assert.ok(after.revision>=before.revision&&after.structure>=before.structure,'rollback invalidates stale fleet tokens');assert.deepEqual({...after,revision:before.revision,structure:before.structure},before,'missing current large-fleet identity evidence rolls back the complete close');
   }else{
     assert.equal(h.error,null,String(h.error?.stack||h.error));assert.equal(h.result.committed,true);
     assert.deepEqual(snapshot(s,state),expected,'financial results and fleet bytes exactly equal the original close');

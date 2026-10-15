@@ -55,6 +55,7 @@
     if(error.owner!=null)out.owner=String(error.owner).slice(0,160);
     if(error.stack)out.stack=String(error.stack).split('\n').slice(0,12).join('\n');
     if(Array.isArray(error.failures))out.failures=error.failures.slice(0,16).map(row=>({component:String(row?.component||'unknown').slice(0,120),error:compactError(row?.error??row,depth+1,seen)}));
+    if(error.postingEvidence)out.postingEvidence={...error.postingEvidence};
     if(error.rollbackError)out.rollbackError=compactError(error.rollbackError,depth+1,seen);
     if(error.cause)out.cause=compactError(error.cause,depth+1,seen);
     return out;
@@ -818,6 +819,28 @@
   function telemetrySnapshot(){const out=deepClone(runtimeTelemetry);if(activeContext)out.active={label:activeContext.label,rollbackStorage:activeContext.rollbackStorage,fullSnapshot:activeContext.rollbackStorage==='full-snapshot',fallbackReason:activeContext.timing?.fallbackReason||null,journalRecords:activeContext.timing?.journalRecords||0,profiled:activeContext.timing?.profiled===true,phaseBreakdown:activeContext.timing?.phaseBreakdown?deepClone(activeContext.timing.phaseBreakdown):null};return out;}
   function rejection(reason,label,stage='validate'){const error=new Error(reason);error.transactionLabel=label;error.transactionStage=stage;return error;}
   function criticalIds(result){return new Set((((result?.critical)||((result?.issues)||[]).filter(row=>row.severity==='critical'))||[]).map(row=>String(row.id||row.code||row.title)));}
+  // The transaction lock remains held while validation yields. Worker evidence must match this exact store/context;
+  // a large fleet without current evidence is rejected rather than synchronously rescanned on the UI thread.
+  async function validateSchemaInSlices(draft,{yieldToHost,onSlice=()=>{},budgetMs=4}={}){
+    const schema=globalThis.GH_SAVE_SCHEMA;if(!schema)return undefined;
+    if(typeof yieldToHost!=='function'||typeof schema.validationSteps!=='function'){
+      const start=runtimeClock();try{return schema.validate?.(draft,{trustVerified:true});}finally{onSlice(start,runtimeClock());}
+    }
+    const fleet=globalThis.GH_FLEET_DATA,policy=globalThis.GH_FLEET_MAIN_THREAD_POLICY;let rows=Infinity;
+    try{rows=Number(fleet?.size?.(draft));if(!Number.isSafeInteger(rows)||rows<0)rows=Infinity;}catch{}
+    const requireFleetValidation=policy?.decision?policy.decision(draft,fleet,{operation:'command-save-validation',limit:2048}).allowed===false:rows>2048;
+    const provider=globalThis.GH_FLEET_VALIDATION_PROVIDER,options={trustVerified:true,requireFleetValidation};
+    if(typeof provider==='function')options.fleetValidation=(state,params)=>provider(state,params);
+    const steps=schema.validationSteps(draft,options),budget=Math.max(1,Number(budgetMs)||4);let start=runtimeClock(),reported=false;
+    try{for(;;){
+      const step=steps.next(),end=runtimeClock(),waiting=step.value==='fleet-validation-wait'||step.value==='fleet-classes-wait';
+      if(step.done||waiting||end-start>=budget){
+        onSlice(start,end);reported=true;if(step.done)return step.value;
+        if(waiting)await new Promise(resolve=>setTimeout(resolve,4));else await yieldToHost();
+        start=runtimeClock();reported=false;
+      }
+    }}finally{if(!reported)onSlice(start,runtimeClock());steps.return?.();}
+  }
   async function executeDurable(liveState,options={}){
     if(!liveState||typeof liveState!=='object'||Array.isArray(liveState))throw new TypeError('Durable transaction target must be an object');
     if(typeof options.apply!=='function')throw new TypeError('Durable transaction apply callback is required');
@@ -849,7 +872,7 @@
       if(context.poisoned)throw rejection(context.poisonReason||'durable-command-poisoned',label,phase);
       if(Number(draft.saveRevision||0)!==expectedRevision)throw rejection('draft-save-revision-mutated',label,phase);
       draft.saveRevision=expectedRevision+1;phase='validate';
-      mark=runtimeClock();let schema;try{schema=globalThis.GH_SAVE_SCHEMA?.validate?.(draft,{trustVerified:true});}finally{globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',mark,runtimeClock());}lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
+      mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
       if(options.integrity!==false&&globalThis.GH_INTEGRITY_CORE?.check){const integrity=globalThis.GH_INTEGRITY_CORE.check(draft),introduced=(((integrity?.critical)||((integrity?.issues)||[]).filter(row=>row.severity==='critical'))||[]).filter(row=>!priorCritical.has(String(row.id||row.code||row.title)));if(introduced.length)throw rejection(`critical-integrity:${introduced.map(row=>row.id||row.code||row.title).join(',')}`,label,phase);}
       if(typeof options.validate==='function'){const validation=await options.validate(draft,context);if(validation===false||validation?.ok===false)throw rejection(validation?.reason||'validation-rejected',label,phase);}
       lap('integrityMs');
@@ -869,5 +892,5 @@
       throw error;
     }finally{if(!durableCommitted&&rootSessions.length)try{rollbackJournaledRoots(rootSessions);}catch{}if(globalThis.__GH_DURABLE_COMMAND_CONTEXT__===context)delete globalThis.__GH_DURABLE_COMMAND_CONTEXT__;durableTargets.delete(liveState);}
   }
-  const API=Object.freeze({VERSION,moneyGuard:MONEY_GUARD,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,moneyGuard:MONEY_GUARD,validateSchemaInSlices,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

@@ -286,7 +286,7 @@ self.addEventListener('message',event=>{
       }
       case 'window-begin':beginWindow(message);return;
       // A main-side durable mutation flushes bounded replica deltas into this
-      // journal after each apply slice. No simulation/query starts while it is
+      // journal after each apply slice. Only read-only save validation after the final flush may query while it is
       // open; commit keeps the streamed rows and rollback restores the exact
       // pre-mutation replica without a main-thread catch-up copy.
       case 'mutation-begin':{
