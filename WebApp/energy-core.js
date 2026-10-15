@@ -12,6 +12,41 @@
   });
   // Contracts are priced from the market (GH_REALISM forwards, GH_FINANCE_CORE debt rates), never typed in.
   const FUEL_TERMS=Object.freeze([365,730,1095]),FUEL_MARGIN=.02,TAKE_OR_PAY=.75,PROJECT_PREMIUM=.015,PROJECT_LEVERAGE=.75;
+  // One paid acceleration per construction contract. The original timeline remains available for historical output.
+  const CONSTRUCTION_ACCELERATION_RATE=.10;
+  function constructionProgress(contract,day){
+    const start=Math.floor(num(contract?.awardedAt)/86400),lead=Math.max(1,num(contract?.leadDays)||180),a=contract?.constructionAcceleration;
+    if(!a)return clamp((day-start)/lead,0,1);
+    if(day>=start+lead)return 1;
+    const originalLead=Math.max(1,Number(a.originalCompleteDay)-start),prior=clamp((Number(a.day)-start)/originalLead,0,1);
+    return day<=Number(a.day)?clamp((day-start)/originalLead,0,1):clamp(prior+(1-prior)*(day-Number(a.day))/Math.max(1,start+lead-Number(a.day)),0,1);
+  }
+  function constructionAccelerationQuote(state,contractOrId,facility=null){
+    const contract=typeof contractOrId==='object'?contractOrId:(state.constructionContracts||[]).find(row=>row.id===contractOrId);
+    if(!contract||contract.facilityKind!=='power'||String(contract.ownerCompanyId||contract.company)!=='power'||contract.commissioned||contract.constructionAcceleration)return null;
+    facility=facility||(state.customHubs||[]).find(row=>row.constructionContractId===contract.id);
+    if(!facility||facility.owned!==true||facility.kind!=='power'||String(facility.ownerCompanyId||facility.companyId||facility.company)!=='power'||facility.commissioned)return null;
+    const day=Math.floor(now(state)/86400),start=Math.floor(num(contract.awardedAt)/86400),lead=Math.max(1,num(contract.leadDays)||180),originalCompleteDay=start+lead,remaining=originalCompleteDay-day;
+    if(remaining<=1||day<start||!Number.isFinite(Number(contract.amount))||Number(contract.amount)<=0)return null;
+    const completeDay=day+Math.ceil(remaining/2),fee=Math.round(Number(contract.amount)*(remaining/lead)*CONSTRUCTION_ACCELERATION_RATE);
+    return fee>0?{contractId:contract.id,facilityId:facility.id,day,originalCompleteDay,completeDay,daysSaved:originalCompleteDay-completeDay,fee}:null;
+  }
+  function accelerateConstruction(state,p={}){
+    for(const key of ['ownerCompanyId','companyId','company'])if(p[key]!=null&&p[key]!=='power')throw new Error('construction-acceleration-owner-invalid');
+    const contract=(state.constructionContracts||[]).find(row=>row.id===String(p.contractId||''));
+    if(!contract||contract.facilityKind!=='power'||String(contract.ownerCompanyId||contract.company)!=='power')throw new Error('construction-acceleration-unavailable');
+    if(contract?.constructionAcceleration)return {...clone(contract.constructionAcceleration),idempotent:true};
+    const quote=constructionAccelerationQuote(state,contract);if(!quote)throw new Error('construction-acceleration-unavailable');
+    if(Number(p.expectedFee)!==quote.fee||Number(p.expectedCompleteDay)!==quote.completeDay)throw new Error('construction-acceleration-quote-changed');
+    const F=globalThis.GH_FINANCE_CORE;if(!F?.execute)throw new Error('finance-core-missing');
+    const paid=F.execute({state},'pay-by-cheque',{company:'power',amount:quote.fee,beneficiary:contract.contractor||'مقاول إنشاء محطة الطاقة',note:`رسوم تسريع إنشاء ${contract.siteName||quote.facilityId}`,line:'capex',requestRef:`ENERGY-ACCEL-${contract.id}`});
+    if(paid?.cheque?.status!=='مصروف'||paid.invoice?.status!=='مسددة')throw new Error('construction-acceleration-cheque-not-cleared');
+    const legal=F.execute({state},'register-commercial-contract',{id:`LEGAL-ENERGY-ACCEL-${contract.id}`,company:'power',contractType:'ملحق تسريع إنشاء',counterparty:contract.contractor||'مقاول إنشاء محطة الطاقة',title:`تسريع إنشاء ${contract.siteName||quote.facilityId}`,startDay:quote.day,endDay:quote.completeDay,amount:quote.fee,terms:{constructionContractId:contract.id,originalCompleteDay:quote.originalCompleteDay,completeDay:quote.completeDay,rate:CONSTRUCTION_ACCELERATION_RATE,oneTime:true},sourceRefs:[contract.id,quote.facilityId],linkedDocumentNumbers:[paid.cheque.id,paid.invoice.number]});
+    contract.constructionAcceleration={...quote,chequeId:paid.cheque.id,invoiceNumber:paid.invoice.number,legalDocumentId:legal.id};contract.leadDays=quote.completeDay-Math.floor(num(contract.awardedAt)/86400);
+    const facility=(state.customHubs||[]).find(row=>row.id===quote.facilityId);facility.cost=num(facility.cost)+quote.fee;
+    const site=(state.energy?.sites||[]).find(row=>row.facilityId===facility.id);if(site)site.capex=num(site.capex)+quote.fee;
+    return clone(contract.constructionAcceleration);
+  }
   function hash(text){let h=2166136261>>>0;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
   function deterministic(seed,min,max){return min+(hash(seed)/4294967295)*(max-min);}
   function inferFacility(facility){const text=String(facility.capacity||''),amount=num(facility.capacityAmount||text.match(/[\d,.]+/)?.[0]?.replace(/,/g,'')),kind=facility.energyKind||(/شمس/.test(`${facility.name} ${text}`)?'solar':/رياح/.test(`${facility.name} ${text}`)?'wind':/تخزين|MWh/.test(`${facility.name} ${text}`)?'storage':/غاز/.test(`${facility.name} ${text}`)?'gas':'solar');return {kind,amount};}
@@ -155,8 +190,8 @@
   const PHASED_BLOCKS=Object.freeze({solar:4,wind:3}),TEST_ENERGY_DAYS=14,TEST_ENERGY_PRICE=.7;
   function phasedOutput(site,day,contracts){
     const blocks=PHASED_BLOCKS[site.kind],contract=blocks&&contracts?contracts.get(site.constructionContractId):null;if(!contract||contract.commissioned)return null;
-    const start=Math.floor(num(contract.awardedAt)/86400),lead=Math.max(1,num(contract.leadDays)||180);let commercial=0,test=0;
-    for(let block=1;block<blocks;block++){const done=start+Math.round(block*lead/blocks);if(day>=done+TEST_ENERGY_DAYS)commercial++;else if(day>=done)test++;}
+    const start=Math.floor(num(contract.awardedAt)/86400),lead=Math.max(1,num(contract.leadDays)||180),a=contract.constructionAcceleration,originalLead=a?Number(a.originalCompleteDay)-start:lead;let commercial=0,test=0;
+    for(let block=1;block<blocks;block++){let done=start+Math.round(block*originalLead/blocks);if(a&&done>Number(a.day))done=Number(a.day)+Math.ceil((done-Number(a.day))*(start+lead-Number(a.day))/Math.max(1,Number(a.originalCompleteDay)-Number(a.day)));if(day>=done+TEST_ENERGY_DAYS)commercial++;else if(day>=done)test++;}
     return commercial+test?{share:(commercial+test)/blocks,test:test/blocks,priceFactor:(commercial+test*TEST_ENERGY_PRICE)/(commercial+test)}:null;
   }
   function siteEconomics(state){
@@ -262,6 +297,6 @@
     const company=platform.requireCompany(ctx.state,ctx.companyId,{registered:true,operational:true,capability:'operations.energy'});
     return commands.dispatchSystem({state:ctx.state},'energy','tick-day',{...p,ownerCompanyId:company.id},{actor:'simulation-scheduler'}).result;
   }
-  function execute(ctx,cmd,p={}){const state=ctx.state||ctx;if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'power',p);if(cmd==='ensure')return ensure(state);if(cmd==='accept-ppa')return acceptPpa(state,p);if(cmd==='set-dispatch-policy')return setDispatchPolicy(state,p);if(cmd==='sign-fuel-contract')return signFuelContract(state,p);if(cmd==='schedule-maintenance')return scheduleMaintenance(state,p);if(cmd==='set-auto-maintenance')return setAutoMaintenance(state,p);if(cmd==='finance-project')return financeProject(state,p);if(cmd==='bid-tender')return bidTender(state,p);if(cmd==='tick-day')return tickDay(state,p);throw new Error(`Unknown energy command: ${cmd}`);}
-  const API={AUTO_MAINTENANCE_LOSS,tenderQuote,MAX_OPEN_TENDERS,VERSION,DAILY_FINANCIAL_ORDER:200,onFinancialDay,KIND,FUEL_TERMS,fuelOffer,maintenanceQuote,outageAging,projectFinanceRate,projectFinanceRoom,ensure,economics,siteEconomics,acceptPpa,tickDay,execute};globalThis.GH_ENERGY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('energy',API);if(globalThis.window&&window!==globalThis)window.GH_ENERGY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  function execute(ctx,cmd,p={}){const state=ctx.state||ctx;if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'power',p);if(cmd==='ensure')return ensure(state);if(cmd==='accept-ppa')return acceptPpa(state,p);if(cmd==='set-dispatch-policy')return setDispatchPolicy(state,p);if(cmd==='sign-fuel-contract')return signFuelContract(state,p);if(cmd==='schedule-maintenance')return scheduleMaintenance(state,p);if(cmd==='set-auto-maintenance')return setAutoMaintenance(state,p);if(cmd==='finance-project')return financeProject(state,p);if(cmd==='accelerate-construction')return accelerateConstruction(state,p);if(cmd==='bid-tender')return bidTender(state,p);if(cmd==='tick-day')return tickDay(state,p);throw new Error(`Unknown energy command: ${cmd}`);}
+  const API={CONSTRUCTION_ACCELERATION_RATE,constructionProgress,constructionAccelerationQuote,AUTO_MAINTENANCE_LOSS,tenderQuote,MAX_OPEN_TENDERS,VERSION,DAILY_FINANCIAL_ORDER:200,onFinancialDay,KIND,FUEL_TERMS,fuelOffer,maintenanceQuote,outageAging,projectFinanceRate,projectFinanceRoom,ensure,economics,siteEconomics,acceptPpa,tickDay,execute};globalThis.GH_ENERGY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('energy',API);if(globalThis.window&&window!==globalThis)window.GH_ENERGY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

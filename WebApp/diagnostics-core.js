@@ -90,6 +90,7 @@
   // Exact synchronous intervals only. No timers, state/fleet scans or durable rows; when recording is off this is a
   // WeakMap lookup. Worker/native waits and whole async-command durations must never be submitted as blocking work.
   function recordMainThreadWork(state,stage,startPerfMs,endPerfMs){
+    try{globalThis.GH_PERFORMANCE_TRACE?.recordWork?.(stage,startPerfMs,endPerfMs);}catch{/* Optional tracing must never reject business work. */}
     const r=faultRecorders.get(state),buffer=recorderFrameBuffers.get(state);if(!r?.active||!buffer)return false;
     if(!Number.isFinite(startPerfMs)||!Number.isFinite(endPerfMs)||endPerfMs<startPerfMs)return false;
     const durationMs=endPerfMs-startPerfMs;if(durationMs<1)return false;

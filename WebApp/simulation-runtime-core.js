@@ -7,7 +7,7 @@
   const VERSION='1.0.0';
   const systemNow=()=>globalThis.performance?.now?.() ?? Date.now();
 
-  function create({engine,getSpeed=()=>0,isHidden=()=>false,hasDeferredWork=()=>false,onError=()=>{}}={},options={}){
+  function create({engine,getSpeed=()=>0,isHidden=()=>false,hasDeferredWork=()=>false,onError=()=>{},onTask=null}={},options={}){
     if(!engine||typeof engine.frame!=='function'||typeof engine.snapshot!=='function')throw new TypeError('Simulation runtime requires an engine');
     const clock=typeof options.nowMs==='function'?options.nowMs:systemNow,
       schedule=typeof options.setTimer==='function'?options.setTimer:(fn,delay)=>setTimeout(fn,delay),
@@ -41,6 +41,7 @@
       catch(error){health.errors++;try{onError(error);}catch(_error){}}
       finally{
         const ended=clock(),took=Math.max(0,ended-started);health.lastTickMs=took;health.maxTickMs=Math.max(health.maxTickMs,took);if(took>=50)health.longTicks++;
+        if(onTask)try{onTask(started,ended);}catch{/* Evidence cannot break the simulation scheduler. */}
         workSinceDrain+=took;maxWorkSinceDrain=Math.max(maxWorkSinceDrain,took);ticksSinceDrain++;if(firstWorkStartedAtMs===null)firstWorkStartedAtMs=started;lastWorkEndedAtMs=ended;
         inTick=false;health.inTick=false;arm();
       }

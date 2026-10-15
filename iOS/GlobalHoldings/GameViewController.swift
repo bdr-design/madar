@@ -40,6 +40,7 @@ enum VentoraDeviceIntegrity {
 final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, UIDocumentPickerDelegate {
     private var webView: WKWebView!
     private let schemeHandler = GlobalGameSchemeHandler()
+    private let performanceDiagnostics = PerformanceDiagnostics()
     private var launchOverlay: UIView?
     private weak var launchSubtitleLabel: UILabel?
     private weak var launchPrimaryButton: UIButton?
@@ -73,6 +74,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         configuration.userContentController.add(self, name: "updateBridge")
         configuration.userContentController.add(self, name: "saveBridge")
         configuration.userContentController.add(self, name: "diagnosticBridge")
+        configuration.userContentController.addUserScript(WKUserScript(source: "window.GH_NATIVE_PERFORMANCE_TRACE=1;", injectionTime: .atDocumentStart, forMainFrameOnly: true))
         configuration.setURLSchemeHandler(schemeHandler, forURLScheme: "gh")
         if ventoraReleaseEdition {
             configuration.userContentController.addUserScript(WKUserScript(source: "window.GH_EDITION='release';", injectionTime: .atDocumentStart, forMainFrameOnly: true))
@@ -552,6 +554,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     }
 
     private func prepareNextNativeBootstrap(force: Bool, pause: Bool = false) {
+        performanceDiagnostics.suspend()
         // Recovery flags survive ordinary save completions until consumed by the
         // next successful top-level navigation. They do not hold a stale payload.
         bootstrapForceOnNavigation = bootstrapForceOnNavigation || force
@@ -713,6 +716,15 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             return
         }
         if message.name == "diagnosticBridge" {
+            if performanceDiagnostics.handle(payload, emit: { [weak self] detail in
+                guard let self, requestDocument == self.nativeNavigationToken, !self.navigationPreparing else { return }
+                self.webView.callAsyncJavaScript("window.dispatchEvent(new CustomEvent('gh-performance-native',{detail:payload}));", arguments: ["payload": detail], in: nil, in: .page) { _ in }
+            }, export: { [weak self] url in
+                guard let self, requestDocument == self.nativeNavigationToken, !self.navigationPreparing else { return }
+                let share = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                if let popover = share.popoverPresentationController { popover.sourceView = self.view; popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 1, height: 1) }
+                self.present(share, animated: true)
+            }) { return }
             guard action == "exportDiagnostic", let json = payload["json"] as? String else { return }
             exportDiagnosticBundle(json: json, requestedName: payload["filename"] as? String)
             return
@@ -949,6 +961,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        performanceDiagnostics.suspend()
         recoveredWebProcess = true
         prepareNextNativeBootstrap(force: true, pause: true)
         loadGame(cacheBuster: "recovery-\(GlobalSaveVault.shared.currentGeneration())-\(UUID().uuidString)")

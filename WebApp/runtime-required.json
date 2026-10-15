@@ -941,6 +941,8 @@
     "mobility-core.js",
     "operating-acquisition-core.js",
     "operations-core.js",
+    "performance-report-store.js",
+    "performance-trace-core.js",
     "persistence-core.js",
     "phone-layout.css",
     "phone-typography.css",

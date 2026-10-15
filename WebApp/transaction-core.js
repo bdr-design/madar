@@ -675,7 +675,10 @@
     let phaseDepth=0;
     const measure=(name,work)=>{
       if(typeof work!=='function')throw new TypeError('Profile phase callback is required');
-      if(!profiled)return work();
+      if(!profiled){
+        if(!globalThis.GH_PERFORMANCE_TRACE?.active)return work();
+        const started=runtimeClock();try{return work();}finally{try{globalThis.GH_PERFORMANCE_TRACE.recordWork(String((typeof name==='function'?name():name)||'transaction.phase').slice(0,96),started,runtimeClock());}catch{/* Evidence must not affect an atomic transaction. */}}
+      }
       const depth=phaseDepth++,started=runtimeClock();let ok=false;
       try{const value=work();ok=true;return value;}
       finally{phaseBreakdown.push({name:String((typeof name==='function'?name():name)||'unnamed').slice(0,100),durationMs:Math.max(0,runtimeClock()-started),depth,ok});if(phaseBreakdown.length>64)phaseBreakdown.shift();phaseDepth--;}

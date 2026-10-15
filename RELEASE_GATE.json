@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "8a1eccc5db565b5f42ca4f0471b94f6883b7c2c0142ddd41dfb33c4f943f686f",
+  "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -14,7 +14,7 @@
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
     "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale.",
-    "Current diagnostic/news/frame and authorised health-status candidate passed all 378 mandatory local source gates. Fresh macOS native/WKWebView validation and the new unsigned IPA remain pending. Physical iPhone profiling remains unverified; production approval remains closed."
+    "The integrated candidate passed all 394 local mandatory source gates. Fresh macOS native report-vault, save-worker/vault, WKWebView and unsigned iPhoneOS build validation are pending. Physical iPhone frame/thermal/battery profiling and general 99% accuracy remain unverified. Production approval stays closed."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -84,9 +84,9 @@
     "mode": "direct_git_tracked_branch",
     "branch": "codex/financial-audit-20261014",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "8a1eccc5db565b5f42ca4f0471b94f6883b7c2c0142ddd41dfb33c4f943f686f",
+    "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
     "working_tree_clean": false,
-    "note": "All 378 mandatory local source gates passed for the diagnostic/news/frame and user-authorised health-status fixes. Direct Git push and a fresh unsigned test IPA with full native Apple validation are authorised and pending. Source-native delivery evidence will be published on its separate CI receipt ref. Physical iPhone profiling and production approval remain pending.",
+    "note": "Integrated paid construction acceleration and manual performance-trace candidate passed all 394 mandatory local source gates and lint. A fresh unsigned test IPA requires the mandatory exact-source macOS native, report-vault, WKWebView and iPhoneOS build gates. Physical iPhone profiling and production approval remain pending; general 99% accuracy is not verified.",
     "news_work": {
       "local_targeted_checks": {
         "passed": 14,
@@ -128,9 +128,25 @@
         "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
         "acceptance_contract_sha256": "5dd57562744ce11ec73b15e1aa3f21d9a62cf6225ebe6a4eb6f7fdb8c8ee7092"
       }
+    },
+    "delivery_382": {
+      "authorised": true,
+      "scope": "Integrate current fixes, paid construction acceleration and manual performance evidence; push and build test IPA",
+      "source_acceptance": "PASS_394_OF_394",
+      "local_source_evidence": {
+        "verified": true,
+        "passed": 394,
+        "total": 394,
+        "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+        "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311"
+      },
+      "native_validation": "PENDING_FRESH_CI",
+      "ipa_built": false,
+      "physical_iphone_tested": false,
+      "production_approved": false
     }
   },
-  "point": "Current diagnostic/news/frame and authorised health-status candidate passed all 378 local source gates. Direct Git push and a fresh unsigned test IPA after full Apple validation are authorised. Production release remains closed.",
+  "point": "Integrated paid construction acceleration and manual performance-trace candidate passed all 394 mandatory local source gates and lint. A fresh unsigned test IPA requires the mandatory exact-source macOS native, report-vault, WKWebView and iPhoneOS build gates. Physical iPhone profiling and production approval remain pending; general 99% accuracy is not verified.",
   "local_business_options_evidence": {
     "validation_type": "targeted",
     "passed": 21,
@@ -174,6 +190,19 @@
       "current_native": "NOT_RUN",
       "ipa": "NOT_BUILT",
       "pushed": false
+    },
+    {
+      "verified": true,
+      "passed": 378,
+      "total": 378,
+      "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
+      "acceptance_contract_sha256": "5dd57562744ce11ec73b15e1aa3f21d9a62cf6225ebe6a4eb6f7fdb8c8ee7092",
+      "validation_type": "full",
+      "status": "PASS_CURRENT_378_OF_378",
+      "results": "/workspace/acceptance/delivery-377-20261015/full-after-health/results.json",
+      "physical_iphone": "NOT_RUN",
+      "current_native": "PENDING_FRESH_CI",
+      "ipa": "PENDING_FRESH_CI"
     }
   ],
   "local_performance_batch1_evidence": {
@@ -247,13 +276,17 @@
   },
   "local_full_source_evidence": {
     "verified": true,
-    "passed": 378,
-    "total": 378,
-    "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
-    "acceptance_contract_sha256": "5dd57562744ce11ec73b15e1aa3f21d9a62cf6225ebe6a4eb6f7fdb8c8ee7092",
+    "passed": 394,
+    "total": 394,
+    "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+    "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311",
     "validation_type": "full",
-    "status": "PASS_CURRENT_378_OF_378",
-    "results": "/workspace/acceptance/delivery-377-20261015/full-after-health/results.json",
+    "status": "PASS_CURRENT_394_OF_394",
+    "results": "/workspace/release-382-20261015/acceptance-03/results.json",
+    "results_sha256": "791b535416928cd89002ba19670ea9edafb8af5121a6e2ece90b157c0c5afd60",
+    "runtime_unchanged": true,
+    "gates_unchanged": true,
+    "lint": "PASS",
     "physical_iphone": "NOT_RUN",
     "current_native": "PENDING_FRESH_CI",
     "ipa": "PENDING_FRESH_CI"
@@ -354,5 +387,37 @@
     "physical_iphone": "NOT_RUN",
     "ipa": "PENDING_CI",
     "publish_authorized": true
+  },
+  "gates": {
+    "build380_construction_acceleration": "PASS_IN_CURRENT_FULL_394_SOURCE_GATE_SUITE: paid energy/real-estate acceleration, company debit/VAT/proofs, invoice/P&L, stale/replay/cash/late-failure/native-NACK rollback, fleet boundary and no-fleet quote checks. Native/iPhone verification pending.",
+    "build381_manual_performance_trace": {
+      "status": "full-local-source-pass-native-and-device-pending",
+      "scope": "Manual bounded performance evidence, independent report retention, native sensor and vault source; no generative model or network",
+      "new_source_gates": 5,
+      "native_macos_gate": "performance-report-vault.swift mandatory before IPA in both workflows",
+      "full_source_acceptance_run": true,
+      "ios_native_compiled": false,
+      "physical_iphone_profiled": false,
+      "targeted_suites_passed": 20,
+      "targeted_suites_total": 20,
+      "synthetic_positive_scenarios": 1024,
+      "synthetic_clean_scenarios": 1024,
+      "synthetic_detected": 1024,
+      "synthetic_stage_correct": 1024,
+      "general_accuracy_99_verified": false,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "native_hardware_tested": false,
+      "source_gate_floor": 394,
+      "full_source_acceptance": {
+        "verified": true,
+        "passed": 394,
+        "total": 394,
+        "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+        "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311"
+      }
+    }
   }
 }

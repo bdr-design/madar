@@ -139,6 +139,16 @@ jobs:
           node "$SOURCE_DIR/tests/native/test_update_bridge.cjs" --tests "$TEST_DIR" --web "$SOURCE_DIR/WebApp" --out "$TEST_DIR" | tee "$GITHUB_WORKSPACE/.ci-output/native-bridge-tests.log"
           cp update-bridge-tests.json "$GITHUB_WORKSPACE/.ci-output/update-bridge-tests.json"
 
+
+      - name: Run native performance-report vault checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          PERF_TEST_DIR="$RUNNER_TEMP/ventora-performance-vault-tests"
+          mkdir -p "$PERF_TEST_DIR"
+          xcrun swiftc -swift-version 5 "$SOURCE_DIR/iOS/GlobalHoldings/PerformanceReportVault.swift" "$SOURCE_DIR/tests/native/performance-report-vault.swift" -o "$PERF_TEST_DIR/performance-vault-tests"
+          "$PERF_TEST_DIR/performance-vault-tests" | tee "$GITHUB_WORKSPACE/.ci-output/native-performance-vault-tests.log"
+
       - name: Run native WKWebView origin and frame smoke checks
         shell: bash
         run: |

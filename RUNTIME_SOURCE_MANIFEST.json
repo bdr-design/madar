@@ -3,12 +3,12 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "8a1eccc5db565b5f42ca4f0471b94f6883b7c2c0142ddd41dfb33c4f943f686f",
-  "webapp_tree_sha256": "83fe13c5889c1b57556b16fca8d905359943ed0271ec46af0de35a30376a83be",
+  "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+  "webapp_tree_sha256": "a1b03d8ee5e41853e711e9b0b68251eafe5d56bd1234cd6bf105fa3388d21b1f",
   "files": {
     "WebApp/advanced-core.js": {
-      "bytes": 353682,
-      "sha256": "c2b1f694d1d77d3ae80d8f015ddde38e6a03fba13afa480db2819bbf715a71ab"
+      "bytes": 363663,
+      "sha256": "08ff0a7f3b282902937a7a29437e17630f143be75a8032582e13f518dfbea83b"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 968435,
-      "sha256": "eb3154782810ba34502be10635bd1e406bd3563a86093315e9084cb876cf074b"
+      "bytes": 975933,
+      "sha256": "703307e353e4693e37ceeec97054883ec38508fc5a0a05f3e664755bb32f04fc"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3475,8 +3475,8 @@
       "sha256": "11650b4b91eebd66bf301e2f4682b07696618001760c7f7c074ff597f089469a"
     },
     "WebApp/diagnostics-core.js": {
-      "bytes": 98501,
-      "sha256": "c115d56be7e1514a6a1dc8f260a14fcdc3e67deffc9e8454e282a46b984c9556"
+      "bytes": 98648,
+      "sha256": "d23b41355b7c217686c77ffc2db961239f0f5ffddc9ca865936dba2be42a4b06"
     },
     "WebApp/directory-core.js": {
       "bytes": 28241,
@@ -3495,8 +3495,8 @@
       "sha256": "50a1acfec0ef63e416027041b66ed9d027d18bfa97ebbcaf5d17d41491ca2ed0"
     },
     "WebApp/energy-core.js": {
-      "bytes": 58590,
-      "sha256": "75831fdc5029d435690ea95c88ada9462ba7ffbd7e9a0d06d589529b96adca7c"
+      "bytes": 63562,
+      "sha256": "331cbdbed8aa035685a618f2c89a171673f5791768138bd596ecb4930b6ce7d7"
     },
     "WebApp/event-ledger-core.js": {
       "bytes": 1989,
@@ -3643,8 +3643,8 @@
       "sha256": "848478faf7b2c52d333aa1c4c734685028a9e8d30b5570eca1c8ac0efcbdf6a7"
     },
     "WebApp/index.html": {
-      "bytes": 25043,
-      "sha256": "b3ba937a8d00b80345cdad1ff6a91d336a8269472b3fa904fe324907d4db3842"
+      "bytes": 25149,
+      "sha256": "31ce0879d2e03c2c7381fbe4f5317b47e7dfe3237834b17bdddc2eb0acd34edd"
     },
     "WebApp/insurance-core.js": {
       "bytes": 34055,
@@ -3762,6 +3762,14 @@
       "bytes": 2211,
       "sha256": "b456a744f67a407c3ff66fa47b41a87fa5b7e5046898100f056db750c9190dcb"
     },
+    "WebApp/performance-report-store.js": {
+      "bytes": 8355,
+      "sha256": "a27952c8b7304d08bf523f4fc7973e0b8c81ab43c7e1487b22648e6adf6ec984"
+    },
+    "WebApp/performance-trace-core.js": {
+      "bytes": 21296,
+      "sha256": "4fb4d99863e1449c9968862129c17ec8b27898e7cb550a7a5d43e3d38dfab61d"
+    },
     "WebApp/persistence-core.js": {
       "bytes": 56434,
       "sha256": "7d7c9a86cd57ffd4cb394c2196cafec2a6a080df25529af47e3e226a42057cfc"
@@ -3791,12 +3799,12 @@
       "sha256": "59ec1d2750f314d1236bbb890be3dd0154ff37768a748ae194548397b7b688a4"
     },
     "WebApp/realestate-core.js": {
-      "bytes": 54938,
-      "sha256": "cc827dfaab3d50c9ee0df2bf2f3e8bbb5895bdc4a29c8ae8e3b48c75e93c8ebc"
+      "bytes": 58602,
+      "sha256": "5ad4da7517949f91a835da43fdf03fd24f3a9775e2563a219d88d58d52f9975d"
     },
     "WebApp/realism-core.js": {
-      "bytes": 114703,
-      "sha256": "1ecebd395b0cfe30bbb8518c35ac604816112a2c1e036d0ca9eb5b144d639eb3"
+      "bytes": 114961,
+      "sha256": "fa5f5b52e76c10e2670c09416e70c310b203cfa732e889b50c2f837adbf19691"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -3815,8 +3823,8 @@
       "sha256": "f57ffab1ac776ccaa527a4c42994c6cf082730ddcb180d8233ebab3aa1af1923"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 36650,
-      "sha256": "d77d0b0507f703a8ded5426e27f2d9caf2ec131009ccd68041e01a83e5b44fac"
+      "bytes": 36718,
+      "sha256": "b942e6e5d548c186c1b9df503430888528c98a98019ae164168a141aeb19a36c"
     },
     "WebApp/save-checksum-thread.js": {
       "bytes": 6942,
@@ -3859,8 +3867,8 @@
       "sha256": "5485fd451db02ca304b593b1fdfd9248ac2c78cdfc2aa4f568f389e8aa28956b"
     },
     "WebApp/simulation-runtime-core.js": {
-      "bytes": 4834,
-      "sha256": "39152d4bf3efdba8528b617270def173b1a0ccc14df0d44b10c2171b224c24a7"
+      "bytes": 4952,
+      "sha256": "f912ed62cd1f71b0dca2a9c50f9e2602e4fdeab51b25905dae78addd1abf3b5f"
     },
     "WebApp/simulation-time-core.js": {
       "bytes": 2145,
@@ -3883,8 +3891,8 @@
       "sha256": "a0db5fee3a8a657d2dae1b41ac5d1abf68139b6b4dea705bbb17bc7d4c848742"
     },
     "WebApp/transaction-core.js": {
-      "bytes": 90360,
-      "sha256": "4932e75fe017f334ee02fea76b5831d9f7354b5d7d0fd0c42aad23eceef7e6b2"
+      "bytes": 90700,
+      "sha256": "89023748d7af1b6c670eb45edd3c0870c078fd32d367dbfdc6971589f42bd5a6"
     },
     "WebApp/ui-quality-core.js": {
       "bytes": 6266,
@@ -3955,8 +3963,8 @@
       "sha256": "fb1f39319701ee46535d728017504706109fa8d47a00b4a2a49cf81728f4eca9"
     },
     "iOS/GlobalHoldings/GameViewController.swift": {
-      "bytes": 70820,
-      "sha256": "73fe880b28b9ba162464a3a2bba5a3d7061cd8e367dde4f9eb679f894c5ef4d6"
+      "bytes": 72097,
+      "sha256": "9a99ca6946dfb98e0fa3969080153c432e1a201aba664a8ef7885faffd2df374"
     },
     "iOS/GlobalHoldings/GlobalGameStorage.swift": {
       "bytes": 66640,
@@ -3970,6 +3978,14 @@
       "bytes": 3110,
       "sha256": "633cd8e3539590a75b5038c8bcc2ab45b3d4fb21b2994e8261472b4c33b381e7"
     },
+    "iOS/GlobalHoldings/PerformanceDiagnostics.swift": {
+      "bytes": 7700,
+      "sha256": "89cfd7e45bb168cdaad680044469df51de6d1d37029725b98927eda7adbadf4a"
+    },
+    "iOS/GlobalHoldings/PerformanceReportVault.swift": {
+      "bytes": 2739,
+      "sha256": "6121be658b0bfced44eb9907da61f574a12a10ca5205effe6b74202ed8217b17"
+    },
     "iOS/GlobalHoldings/VentoraPack.swift": {
       "bytes": 3499,
       "sha256": "343ab7ab7d31e6452148efa9a0340b9bade8823dd67f72c99342e866b7f981c6"
@@ -3980,7 +3996,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "c4d592525c8619d277a1b095dc9be5f2ebcdc1bc7d2ccef9745be3e070fea3d9"
+      "sha256": "82ca43b83b235e120477ae991285d58e47a594aca6ad7313d34cd1ff6a586904"
     },
     "BUILD": {
       "bytes": 4,

@@ -64,5 +64,15 @@
         "sha256": "e75ab3b0d76cc600118b038ef0ffc847c572bd3c8c09687f3187f1430a4be60a"
       }
     ]
+  },
+  "approved_construction_progress_edits": {
+    "WebApp/realism-core.js": [
+      {
+        "reason": "Owner authorised paid acceleration of power/realestate construction. This exact branch only uses the energy contract schedule when a one-time acceleration exists; fleet customer/pricing logic is preserved byte-for-byte.",
+        "before": "const elapsed=Math.max(0,day-p.startDay);p.progress=clamp(elapsed/p.totalDays*100,0,100);",
+        "after": "const elapsed=Math.max(0,day-p.startDay);if(companyId==='power'&&c.facilityKind==='power'&&c.constructionAcceleration&&globalThis.GH_ENERGY_CORE?.constructionProgress){p.totalDays=Math.max(1,Number(c.leadDays)||p.totalDays);p.progress=globalThis.GH_ENERGY_CORE.constructionProgress(c,day)*100;}else p.progress=clamp(elapsed/p.totalDays*100,0,100);",
+        "sha256": "1385c1280544f101b5aa7311299a663c0818a2a8ee26f49c2f6e4a6eb3fcddc2"
+      }
+    ]
   }
 }

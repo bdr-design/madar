@@ -38,7 +38,7 @@ function nativeShell({workerSource,saved,chunks}){
     window.__GH_NATIVE_SAVE_CHUNKS__=map;window.__SEED_CHUNKS__=[...map.values()];
   }
 }
-const exportVault=page=>page.evaluate(()=>{const v=window.__VAULT__,saved=v.saves.at(-1),ids=JSON.parse(saved)?.fleet?.rows?.chunks||[];
+const exportVault=page=>page.evaluate(()=>{const v=window.__VAULT__,saved=v.saves.at(-1);if(typeof saved!=='string')throw new Error('No acknowledged native save to export');const ids=JSON.parse(saved)?.fleet?.rows?.chunks||[];
   const b64=bytes=>{let out='';for(let i=0;i<bytes.length;i+=32768)out+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(out);};
   return {saved,chunks:ids.map(id=>[id,b64(v.chunks.get(id))])};});
 const compare=page=>page.evaluate(async()=>{
@@ -89,8 +89,10 @@ const settled=page=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEX
     const afterPlay=await compare(second.page);
     assert.equal(afterPlay.row,-1,'replica rows equal after play');assert.equal(afterPlay.values,true);assert.equal(afterPlay.extras,true);
     assert.equal(afterPlay.stats.fullSyncs,0,`no whole copy in play: ${JSON.stringify(afterPlay.stats.fullSyncReasons)}`);assert.equal(afterPlay.stats.fallbacks,0);assert.ok(afterPlay.stats.applied>=6);
-    // The reopened game saves, and that save reopens.
-    const again=await second.page.evaluate(()=>GH_PERSISTENCE.drain({timeoutMs:60000}));assert.equal(again?.ok,true,'session 2 saves');
+    // Drain waits for already requested saves; live play deliberately does not request an automatic save.
+    // Explicitly save the played state and require a new acknowledged commit before reopening it.
+    const again=await second.page.evaluate(async()=>{const before=__VAULT__.saves.length,requested=__AUDIT__.save();await GH_PERSISTENCE.slicedSettled?.();const drained=await GH_PERSISTENCE.drain({timeoutMs:60000});return {requested,ok:drained.ok,commits:__VAULT__.saves.length-before,savedSimSeconds:JSON.parse(__VAULT__.saves.at(-1)||'null')?.simSeconds,simSeconds:__GH_STATE__.simSeconds};});
+    assert.equal(again.requested,true,'session 2 explicitly requests a save');assert.equal(again.ok,true,'session 2 saves');assert.ok(again.commits>=1,'a new native save is acknowledged');assert.equal(again.savedSimSeconds,again.simSeconds,'the acknowledged save contains the played state');
     const vault2=await exportVault(second.page);await second.page.close();
     const third=await boot({browser,errors,viewport:{width:844,height:390},bypassCSP:true,beforeScripts:{fn:nativeShell,arg:{workerSource,...vault2}}});
     await third.page.waitForFunction(()=>(window.__AUDIT__.fleetEngineThreadClient?.()?.stats?.().seedSyncs||0)>=1,null,{timeout:30000});

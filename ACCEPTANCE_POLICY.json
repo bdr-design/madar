@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 387,
+  "minimum_acceptance_gates": 394,
   "required_commands": [
     [
       "node",
@@ -1548,6 +1548,34 @@
     [
       "node",
       "tests/build379-validation-slices.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build381-performance-trace.cjs"
+    ],
+    [
+      "node",
+      "tests/build381-performance-store.cjs"
+    ],
+    [
+      "node",
+      "tests/build381-performance-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build381-performance-budget-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build381-performance-native-contract.cjs"
     ]
   ]
 }

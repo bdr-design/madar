@@ -110,6 +110,34 @@
   // The contract price is fixed on signing; it is the price the units were handed over at before Build 378.
   const offPlanUnitPrice=(type,project)=>Math.round(type.price*local(project)*project.priceLevel*OFF_PLAN_DISCOUNT);
   const cents=value=>Math.round(value*100)/100;
+  const CONSTRUCTION_ACCELERATION_RATE=.10;
+  function projectProgress(project,day){
+    const start=num(project.startDay),end=num(project.completeDay),a=project.constructionAcceleration;
+    if(!a)return clamp((day-start)/Math.max(1,end-start),0,1);
+    if(day>=end)return 1;
+    const prior=clamp((Number(a.day)-start)/Math.max(1,Number(a.originalCompleteDay)-start),0,1);
+    return day<=Number(a.day)?clamp((day-start)/Math.max(1,Number(a.originalCompleteDay)-start),0,1):clamp(prior+(1-prior)*(day-Number(a.day))/Math.max(1,end-Number(a.day)),0,1);
+  }
+  function constructionAccelerationQuote(state,project){
+    if(!project||project.status!=='قيد الإنشاء'||project.constructionAcceleration||![1,2].includes(project.milestonesPaid))return null;
+    const day=Math.floor(now(state)/86400),remaining=Number(project.completeDay)-day,span=Number(project.completeDay)-Number(project.startDay);
+    if(remaining<=1||span<=0||day<Number(project.startDay)||!Number.isFinite(remaining)||!Number.isFinite(Number(project.buildCost)))return null;
+    const completeDay=day+Math.ceil(remaining/2),fee=Math.round(num(project.buildCost)*(remaining/span)*CONSTRUCTION_ACCELERATION_RATE);
+    return fee>0?{projectId:project.id,day,originalCompleteDay:Number(project.completeDay),completeDay,daysSaved:Number(project.completeDay)-completeDay,fee}:null;
+  }
+  function accelerateConstruction(state,p={}){
+    for(const key of ['ownerCompanyId','companyId','company'])if(p[key]!=null&&p[key]!=='realestate')throw new Error('construction-acceleration-owner-invalid');
+    const re=ensure(state),project=re.projects.find(row=>row.id===String(p.projectId||''));
+    if(project?.constructionAcceleration)return {...clone(project.constructionAcceleration),idempotent:true};
+    const quote=constructionAccelerationQuote(state,project);if(!quote)throw new Error('construction-acceleration-unavailable');
+    if(Number(p.expectedFee)!==quote.fee||Number(p.expectedCompleteDay)!==quote.completeDay)throw new Error('construction-acceleration-quote-changed');
+    const chequeId=payContractor(state,project,quote.fee,'تسريع الإنشاء'),F=globalThis.GH_FINANCE_CORE;
+    const legal=F.execute({state},'register-commercial-contract',{id:`LEGAL-RE-ACCEL-${project.id}`,company:'realestate',contractType:'ملحق تسريع إنشاء',counterparty:`مقاول البناء · ${project.city}`,title:`تسريع إنشاء ${project.name}`,startDay:quote.day,endDay:quote.completeDay,amount:quote.fee,terms:{originalContractId:project.legalDocumentId,projectId:project.id,originalCompleteDay:quote.originalCompleteDay,completeDay:quote.completeDay,rate:CONSTRUCTION_ACCELERATION_RATE,oneTime:true},sourceRefs:[project.id,project.legalDocumentId].filter(Boolean),linkedDocumentNumbers:[chequeId]});
+    project.constructionAcceleration={...quote,chequeId,legalDocumentId:legal.id};project.completeDay=quote.completeDay;project.cheques.push(chequeId);
+    project.accelerationCost=quote.fee;project.unitCost=Math.round((num(project.landCost)+num(project.buildCost)+num(project.overrun)+quote.fee)/project.units);
+    if(project.offPlan)project.offPlan.cost=num(project.offPlan.units)*project.unitCost;
+    return clone(project.constructionAcceleration);
+  }
   function offPlanOf(project,type){
     if(project.offPlan&&typeof project.offPlan==='object')return {plan:project.offPlan,commission:0};
     // A save from before Build 378: its presold units are signed now at the same contract price; their commission
@@ -121,7 +149,7 @@
   // Today's step towards the contracts' share at the project's progress (never back: a construction that waits for its
   // milestone moves its completion day, not its recognised share).
   function offPlanStep(project,plan,day){
-    const span=Math.max(1,num(project.completeDay)-num(project.startDay)),progress=Math.max(num(plan.progress),clamp((day-num(project.startDay))/span,0,1));
+    const progress=Math.max(num(plan.progress),projectProgress(project,day));
     const revenue=cents(plan.value*progress-plan.recognized),cost=cents(plan.cost*progress-plan.recognizedCost),cash=Math.max(0,cents(plan.value*(OFF_PLAN_DEPOSIT+(OFF_PLAN_PAID_AT_COMPLETION-OFF_PLAN_DEPOSIT)*progress)-plan.collected));
     plan.progress=progress;plan.recognized+=revenue;plan.recognizedCost+=cost;plan.collected+=cash;
     return {revenue,cost,cash};
@@ -165,7 +193,7 @@
   // With the state, the fund pays today's market: its yield moves with the base rate (5%-10%) and the rent with the market.
   function fundValue(project,state=null){const type=TYPES[project.type];if(!type)return 0;const vacant=Math.max(0,num(project.units)-num(project.leased));let cap=FUND_CAP_RATE,move=1;if(state){const B=globalThis.GH_CUSTOMER_BASE,rate=Number(B?.economicConditions?.(state)?.rate);if(Number.isFinite(rate))cap=clamp(FUND_CAP_RATE+(rate-Number(B.REFERENCE_RATE||.046)),.05,.1);move=Math.sqrt(marketMove(project,marketValue(state)));}return Math.round(num(project.leased)*type.rent*local(project)*num(project.priceLevel||1)*move/cap+vacant*num(project.acquisitionVacantUnitValue??project.unitCost));}
   function buildingDepreciation(re,project){
-    const basis=num(project.buildCost)+num(project.overrun),recorded=Number(project.accumulatedDepreciation);
+    const basis=num(project.buildCost)+num(project.overrun)+num(project.accelerationCost),recorded=Number(project.accumulatedDepreciation);
     if(Number.isFinite(recorded))return Math.min(basis,Math.max(0,recorded));
     // Earlier saves expensed this fixed daily amount without storing it on the building.
     const completedDay=Math.floor(Number(project.completeDay)),lastDay=Math.floor(Number(re.lastProcessedDay));
@@ -289,12 +317,13 @@
     const fundSales=Array.isArray(re.pendingFundSales)?re.pendingFundSales:[];for(const row of fundSales){sales+=num(row.amount);costOfSales+=num(row.cost);commission+=num(row.amount)*SALES_COMMISSION;}re.pendingFundSales=[];
     for(const project of re.projects){
       const office=re.offices.find(row=>row.id===project.officeId),type=TYPES[project.type],today={day,sold:0,leased:0,vacated:0,rent:0,sales:0};
+      const acceleration=project.constructionAcceleration;if(acceleration&&acceleration.reportedDay==null){capex+=num(acceleration.fee);acceleration.reportedDay=day;}
       const offPlan=project.mode==='sale'&&project.status==='قيد الإنشاء'?offPlanOf(project,type):null;if(offPlan)commission+=offPlan.commission;
       // Construction milestones and completion.
       if(project.status==='قيد الإنشاء'){
         const half=project.startDay+Math.floor((project.completeDay-project.startDay)/2);
-        if(project.milestonesPaid===1&&day>=half){const amount=project.buildCost*MILESTONES[1];if(payMilestone(state,project,amount,'منتصف الإنشاء')){project.milestonesPaid=2;capex+=amount;if(project.risk===1&&!project.delayDays&&deterministic(`${project.id}:delay`,0,1)<DELAY_CHANCE){const delay=Math.max(1,Math.round((project.completeDay-project.startDay)*deterministic(`${project.id}:delay-days`,.02,MAX_DELAY)));project.completeDay+=delay;project.delayDays=delay;}}}
-        if(project.milestonesPaid===2&&day>=project.completeDay&&payMilestone(state,project,finalPayment(project),'التسليم')){const amount=finalPayment(project),overrun=amount-num(project.buildCost)*MILESTONES[2];if(overrun>.5){project.overrun=overrun;project.unitCost=Math.round((num(project.landCost)+num(project.buildCost)+overrun)/project.units);if(project.offPlan)project.offPlan.cost=num(project.offPlan.units)*project.unitCost;}project.milestonesPaid=3;capex+=amount;project.status='مكتمل';completed.push(project.id);
+        if(project.milestonesPaid===1&&(acceleration?projectProgress(project,day)>=.5:day>=half)){const amount=project.buildCost*MILESTONES[1];if(payMilestone(state,project,amount,'منتصف الإنشاء')){project.milestonesPaid=2;capex+=amount;if(project.risk===1&&!project.delayDays&&deterministic(`${project.id}:delay`,0,1)<DELAY_CHANCE){const delay=Math.max(1,Math.round(((acceleration?.originalCompleteDay??project.completeDay)-project.startDay)*deterministic(`${project.id}:delay-days`,.02,MAX_DELAY)));project.completeDay+=delay;project.delayDays=delay;}}}
+        if(project.milestonesPaid===2&&day>=project.completeDay&&payMilestone(state,project,finalPayment(project),'التسليم')){const amount=finalPayment(project),overrun=amount-num(project.buildCost)*MILESTONES[2];if(overrun>.5){project.overrun=overrun;project.unitCost=Math.round((num(project.landCost)+num(project.buildCost)+overrun+num(project.accelerationCost))/project.units);if(project.offPlan)project.offPlan.cost=num(project.offPlan.units)*project.unitCost;}project.milestonesPaid=3;capex+=amount;project.status='مكتمل';completed.push(project.id);
           // Off-plan units are handed over now: the rest of their revenue and cost, and the last 30% of their price.
           if(offPlan){const plan=offPlan.plan,revenue=cents(plan.value-plan.recognized),cost=cents(plan.cost-plan.recognizedCost),cash=Math.max(0,cents(plan.value-plan.collected));sales+=revenue;costOfSales+=cost;offPlanRevenue+=revenue;offPlanCash+=cash;project.salesRevenue+=revenue;today.sales+=revenue;financeHomes(project,project.presold,plan.value);project.sold+=project.presold;project.handedOver+=project.presold;manage(project,project.presold);project.presold=0;project.offPlan=null;}}
       }
@@ -331,7 +360,7 @@
         for(const lease of activeLeases)if(lease.tenantCompanyId){const amount=lease.units*type.rent*local(project)*lease.rentLevel/365,companyId=lease.tenantCompanyId,row=internalRentByCompany.get(companyId)||{companyId,amount:0,sourceRefs:[]};row.amount+=amount;if(row.sourceRefs.length<80&&!row.sourceRefs.includes(lease.id))row.sourceRefs.push(lease.id);internalRentByCompany.set(companyId,row);internalRentRevenue+=amount;}
       }
       if(project.status==='مكتمل'){const held=project.mode==='lease'?project.units:Math.max(0,project.units-project.sold);opex+=held*project.unitCost*PROPERTY_OPEX/365;if(project.mode==='lease'){
-        const basis=num(project.buildCost)+num(project.overrun),booked=buildingDepreciation(re,project),daily=Math.min(Math.max(0,basis-booked),basis/BUILDING_LIFE_DAYS);
+        const basis=num(project.buildCost)+num(project.overrun)+num(project.accelerationCost),booked=buildingDepreciation(re,project),daily=Math.min(Math.max(0,basis-booked),basis/BUILDING_LIFE_DAYS);
         project.accumulatedDepreciation=booked+daily;depreciation+=daily;
       }}
       project.today=today;
@@ -373,9 +402,9 @@
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx;
-    if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'realestate',p);if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='start-project')return startProject(state,p);if(cmd==='set-project-price')return setProjectPrice(state,p);if(cmd==='decide-request')return decideRequest(state,p);if(cmd==='decide-requests-batch')return decideRequestsBatch(state,p);if(cmd==='lease-to-company')return leaseToCompany(state,p);if(cmd==='finance-construction')return financeConstruction(state,p);if(cmd==='sell-to-fund')return sellToFund(state,p);if(cmd==='collect-rent-invoice')return collectRentInvoice(state,p);
+    if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'realestate',p);if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='start-project')return startProject(state,p);if(cmd==='set-project-price')return setProjectPrice(state,p);if(cmd==='decide-request')return decideRequest(state,p);if(cmd==='decide-requests-batch')return decideRequestsBatch(state,p);if(cmd==='lease-to-company')return leaseToCompany(state,p);if(cmd==='finance-construction')return financeConstruction(state,p);if(cmd==='accelerate-construction')return accelerateConstruction(state,p);if(cmd==='sell-to-fund')return sellToFund(state,p);if(cmd==='collect-rent-invoice')return collectRentInvoice(state,p);
     throw new Error(`Unknown real estate command: ${cmd}`);
   }
-  const API={PROPERTY_OPEX,VERSION,DAILY_FINANCIAL_ORDER:350,CONSTRUCTION_SHARES,FUND_CAP_RATE,fundValue,canSellToFund,TYPES,TYPE_IDS,PRICE_LEVELS,SIZE_LEVELS,MAX_ACTIVE_PROJECTS,MAX_INTERNAL_LEASES,MAX_OPEN_REQUESTS,ensure,officeMarket,projectQuote,cityFactor,arrivals,tickDay,dailyResult,summary,rentInvoices,rentInvoiceStatus,leaseToCompany,decideRequestsBatch,onFinancialDay,execute};
+  const API={CONSTRUCTION_ACCELERATION_RATE,constructionAccelerationQuote,projectProgress,PROPERTY_OPEX,VERSION,DAILY_FINANCIAL_ORDER:350,CONSTRUCTION_SHARES,FUND_CAP_RATE,fundValue,canSellToFund,TYPES,TYPE_IDS,PRICE_LEVELS,SIZE_LEVELS,MAX_ACTIVE_PROJECTS,MAX_INTERNAL_LEASES,MAX_OPEN_REQUESTS,ensure,officeMarket,projectQuote,cityFactor,arrivals,tickDay,dailyResult,summary,rentInvoices,rentInvoiceStatus,leaseToCompany,decideRequestsBatch,onFinancialDay,execute};
   globalThis.GH_REALESTATE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('realestate',API);if(globalThis.window&&window!==globalThis)window.GH_REALESTATE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();
