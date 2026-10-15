@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "ce2075f58fcab803db51afc9c9f563ca205b6def9d8f20e7f0a714c6e7e426f0",
+  "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -14,7 +14,7 @@
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
     "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale.",
-    "Current bounded-pipeline candidate awaits fresh 364/364 acceptance, macOS native/WKWebView including the actual checksum worker on gh://app, and a fresh unsigned iPhoneOS IPA. Physical iPhone remains unverified; production release closed."
+    "Current diagnostic/news/frame and authorised health-status candidate passed all 378 mandatory local source gates. Fresh macOS native/WKWebView validation and the new unsigned IPA remain pending. Physical iPhone profiling remains unverified; production approval remains closed."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -22,7 +22,7 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "PENDING_FRESH_FULL_364_GATE_RUN; previous 362 success is historical",
+    "full_source_acceptance": "PASS_LOCAL_CURRENT_378_OF_378; fresh Apple validation pending",
     "native_swift_tests": "DIRECT_CI_PASS",
     "physical_iphone_profile": "PENDING",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
@@ -84,11 +84,53 @@
     "mode": "direct_git_tracked_branch",
     "branch": "codex/financial-audit-20261014",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "ce2075f58fcab803db51afc9c9f563ca205b6def9d8f20e7f0a714c6e7e426f0",
+    "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
     "working_tree_clean": false,
-    "note": "User authorized تثبيت الإصلاح الأخير وتحديث بوابة القبول والرفع وتسليم IPA on 2026-10-15. Current local 364 source gates and native CI must pass before the fresh unsigned development IPA. No production approval or physical iPhone claim."
+    "note": "All 378 mandatory local source gates passed for the diagnostic/news/frame and user-authorised health-status fixes. Direct Git push and a fresh unsigned test IPA with full native Apple validation are authorised and pending. Source-native delivery evidence will be published on its separate CI receipt ref. Physical iPhone profiling and production approval remain pending.",
+    "news_work": {
+      "local_targeted_checks": {
+        "passed": 14,
+        "total": 14
+      },
+      "full_acceptance": "covered-by-current-377-gate-acceptance",
+      "mandatory_gates": 373,
+      "published": false,
+      "ipa_built": false,
+      "physical_iphone_tested": false
+    },
+    "frame_work": {
+      "status": "all-local-source-gates-passed-native-and-device-pending",
+      "report": "docs/FRAME_LATENCY_FIXES_AR.md",
+      "mandatory_gates": 377,
+      "full_acceptance": {
+        "passed": 377,
+        "total": 377,
+        "runtime_source_sha256": "80a003e7fb614bcbd086e6b23a6633603060f99f964a92b1620510365e661c5f",
+        "acceptance_contract_sha256": "448367295b8439237e4aed9ef795edb11cb2dc372fc23d257715e5f60128f359"
+      },
+      "evidence": "/workspace/acceptance/frame-fixes-20261015/full-verified/results.json",
+      "device_tested": false,
+      "ipa_built": false,
+      "published": false
+    },
+    "delivery_377": {
+      "authorised": true,
+      "scope": "approved diagnostic/news/frame fixes plus authorised health status reopening and duplicate integrity-check fixes",
+      "source_acceptance": "PASS_378_OF_378",
+      "native_validation": "PENDING_FRESH_CI",
+      "ipa_built": false,
+      "physical_iphone_tested": false,
+      "production_approved": false,
+      "local_source_evidence": {
+        "verified": true,
+        "passed": 378,
+        "total": 378,
+        "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
+        "acceptance_contract_sha256": "5dd57562744ce11ec73b15e1aa3f21d9a62cf6225ebe6a4eb6f7fdb8c8ee7092"
+      }
+    }
   },
-  "point": "Local performance batch 1 accepted by all 362 current mandatory local source gates and lint: exact-context validation reuse and independent bounded checksum/base64 worker for large native sliced saves, background saves and checkpoints; one fresh validated sliced retry preserves save behavior. Previous financial/UI changes preserved. Current macOS native/WKWebView (checksum worker via gh://app), IPA and physical iPhone pending. No push or IPA; release closed.",
+  "point": "Current diagnostic/news/frame and authorised health-status candidate passed all 378 local source gates. Direct Git push and a fresh unsigned test IPA after full Apple validation are authorised. Production release remains closed.",
   "local_business_options_evidence": {
     "validation_type": "targeted",
     "passed": 21,
@@ -204,9 +246,17 @@
     }
   },
   "local_full_source_evidence": {
-    "verified": false,
-    "status": "PENDING_FRESH_FULL_364_GATE_RUN",
-    "results": "/workspace/acceptance/performance-pipeline-20261015-full/results.json"
+    "verified": true,
+    "passed": 378,
+    "total": 378,
+    "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
+    "acceptance_contract_sha256": "5dd57562744ce11ec73b15e1aa3f21d9a62cf6225ebe6a4eb6f7fdb8c8ee7092",
+    "validation_type": "full",
+    "status": "PASS_CURRENT_378_OF_378",
+    "results": "/workspace/acceptance/delivery-377-20261015/full-after-health/results.json",
+    "physical_iphone": "NOT_RUN",
+    "current_native": "PENDING_FRESH_CI",
+    "ipa": "PENDING_FRESH_CI"
   },
   "local_performance_pipeline_evidence": {
     "validation_type": "targeted_and_component_profile",

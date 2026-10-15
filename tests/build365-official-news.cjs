@@ -14,7 +14,7 @@ const official=(id,kind,reference,at,extra={})=>({id,kind,reference,at,title:`خ
     official('NEWS-P-1','payment','PAY-P-1',86400*43,{title:'تسوية فاتورة شهرية',sourceDomain:'finance'}),
     official('NEWS-S-1','sponsorship','SPON-ACCEPT-S-1',86400*42,{title:'اعتماد عقد رعاية',sourceDomain:'business-world'}),
     {id:'LEGACY-C-1',kind:'contract',reference:'CONTRACT-OLD-1',at:86400*40,title:'عقد قديم موثق'},
-    official('NEWS-DUP','contract','CONTRACT-C-1',86400*41,{title:'نسخة مكررة'}),
+    official('NEWS-DUP','contract','CONTRACT-C-1',86400*41,{title:'نسخة مكررة',company:'power'}),
     official('NEWS-BID','bid','BID-1',86400*39,{title:'عرض غير معتمد'}),
     official('NEWS-REJECT','sponsorship','SPON-REJECT-SP-1',86400*38,{title:'رعاية مرفوضة'}),
     {...official('NEWS-NO-DOC','payment','PAY-NODOC-1',86400*37),documentRef:''},
@@ -28,7 +28,7 @@ const official=(id,kind,reference,at,extra={})=>({id,kind,reference,at,title:`خ
    s.businessWorld.events=events;
   },events);
   const summary=await page.evaluate(()=>window.GH_ADVANCED.newsSummary(window.__GH_STATE__));
-  assert.equal(summary.count,3,'only entries with explicit official flags and complete source/document proof remain');
+  assert.equal(summary.count,4,'three fully sourced events plus the actual original group incorporation record');
   assert.equal(summary.latest.reference,'CONTRACT-C-1');
   const refs=await page.evaluate(()=>window.GH_ADVANCED.newsSummary(window.__GH_STATE__).latest);
   assert.equal(refs.official,true);
@@ -44,9 +44,9 @@ const official=(id,kind,reference,at,extra={})=>({id,kind,reference,at,title:`خ
    navRect:(()=>{const r=document.querySelector('.side-nav').getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})(),mapRect:(()=>{const r=document.querySelector('.map-stage').getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})(),sheetRect:(()=>{const r=document.querySelector('.sheet-dock').getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})(),
    title:document.querySelector('#drawerTitle')?.textContent||''
   }));
-  assert.equal(result.cards,3,'news UI renders only the three fully sourced official records');
+  assert.equal(result.cards,4,'news UI renders the three sourced records and original group incorporation');
   assert(result.refs.some(ref=>ref.includes('الإدارة المالية')),'source organization remains visible');
-  assert.equal(result.thumbnails,2,'artwork is capped to the first three follow-up stories');
+  assert.equal(result.thumbnails,3,'artwork is capped to the first three follow-up stories');
   assert(!result.text.includes('DOC-NEWS-'),'document identifiers stay out of the newsroom UI');
   assert(!/تحذير واجهة|عرض غير معتمد|مرفوضة|خبر منافس مولد|نسخة مكررة|عقد قديم موثق/.test(result.text));
   assert.equal(result.oldCenterButton,false,'approval/execution log center has no UI entry point');
@@ -60,7 +60,7 @@ const official=(id,kind,reference,at,extra={})=>({id,kind,reference,at,title:`خ
   assert.doesNotMatch(await page.locator('.official-news-page').innerText(),/TEL-INV-PRODUCER-2026-02/,'the newsroom does not expose document identifiers in event details');
   await page.evaluate(()=>{const s=window.__GH_STATE__;for(let i=0;i<300;i++)window.GH_BUSINESS_WORLD.recordEvent(s,{kind:'bid',company:'group',title:`نشاط غير رسمي ${i}`,reference:`BID-NOISE-${i}`});});
   const retained=await page.evaluate(()=>({count:window.GH_ADVANCED.newsSummary(window.__GH_STATE__).count,hasBilling:window.__GH_STATE__.businessWorld.events.some(event=>event.reference==='BILL-telecom-2026-02-PRODUCER')}));
-  assert.equal(retained.count,4,'official stories remain available after a burst of non-news business events');assert.equal(retained.hasBilling,true,'the official record is retained ahead of low-value feed noise');
+  assert.equal(retained.count,5,'official stories and incorporation remain available after non-news events');assert.equal(retained.hasBilling,true,'the official record is retained ahead of low-value feed noise');
   const artwork=Object.fromEntries(['company-energy-v2.webp','company-bank-v2.webp','company-hq-v2.webp'].map(name=>[name,fs.readFileSync(path.resolve(__dirname,`../WebApp/assets/images/${name}`)).toString('base64')]));
   await page.evaluate(images=>document.querySelectorAll('.official-news-thumb').forEach(img=>{const name=img.getAttribute('src').split('/').pop(),data=images[name];if(data)img.src=`data:image/webp;base64,${data}`;}),artwork);
   await page.screenshot({path:path.resolve(__dirname,'../verification/build365-official-news-landscape.png'),fullPage:false});

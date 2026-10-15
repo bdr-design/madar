@@ -261,6 +261,15 @@
     try{return allocateRouteSlots(groupSizes,Math.min(free,share),preferredLoad,maxLoad);}
     catch(error){if(error.code!=='route-load-capacity'||share>=free)throw error;return allocateRouteSlots(groupSizes,free,preferredLoad,maxLoad);}
   }
+  // Keep the existing complete allocation when it fits. Under genuine capacity pressure, admit only rows
+  // that fit actual free slots; never raise the hard route load or invent capacity by splitting a batch.
+  function allocateAvailableForBudget(budget,groupSizes,preferredLoad,maxLoad=LIMITS.fleetCapacity){
+    const sizes=(groupSizes||[]).map(n=>Math.max(0,Math.floor(Number(n)||0)));
+    try{return allocateForBudget(budget,sizes,preferredLoad,maxLoad).map((row,i)=>({...row,count:sizes[i]}));}
+    catch(error){if(!['route-mode-capacity','route-load-capacity'].includes(error.code))throw error;}
+    let free=Math.max(0,Math.floor(Number(budget?.free)||0));const max=Math.max(1,Math.floor(Number(maxLoad)||1));
+    return sizes.map(n=>{const routes=Math.min(free,Math.ceil(n/max)),count=Math.min(n,routes*max);free-=routes;return {routes,load:routes?Math.ceil(count/routes):0,count};});
+  }
   function execute(ctx,command,payload={}){
     const state=ensure(ctx.state||ctx);
     if(command==='create'||command==='create-with-cache'){
@@ -322,6 +331,6 @@
   // Build 359 (every command deep-copied the fleet routes, 2.4 MB): a route is added, replaced (capacity, geometry) or
   // removed here, never edited in place, so drafts and snapshots share the routes sealed (GH_TRANSACTION_CORE).
   (globalThis.GH_TRANSACTION_CORE?.registerSealedRoot||(name=>(globalThis.__GH_PENDING_SEALED_ROOTS__=globalThis.__GH_PENDING_SEALED_ROOTS__||[]).push(name)))('customRoutes');
-  const API=Object.freeze({VERSION,corridorIndex,bumpRoutesRevision,ROUTE_TYPES,LIMITS,MODE_ROUTE_QUOTA,modeRouteBudget,allocateRouteSlots,allocateForBudget,NEAR_DUPLICATE,ensure,validPoint,splitAtDateline,routeMode,routeOwnerCompanyId,validateRouteOwnership,validateRoute,canonicalRoute,signature,sample,corridorMetrics,conflict,referenceRequest,execute});
+  const API=Object.freeze({VERSION,corridorIndex,bumpRoutesRevision,ROUTE_TYPES,LIMITS,MODE_ROUTE_QUOTA,modeRouteBudget,allocateRouteSlots,allocateForBudget,allocateAvailableForBudget,NEAR_DUPLICATE,ensure,validPoint,splitAtDateline,routeMode,routeOwnerCompanyId,validateRouteOwnership,validateRoute,canonicalRoute,signature,sample,corridorMetrics,conflict,referenceRequest,execute});
   globalThis.GH_ROUTE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('routes',API);if(globalThis.window&&window!==globalThis)window.GH_ROUTE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

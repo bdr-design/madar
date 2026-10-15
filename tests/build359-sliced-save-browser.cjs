@@ -6,7 +6,7 @@
 // - persistence is locked from the copy to the commit (the simulation does not advance), and a save asked meanwhile
 //   (Save Now again, or an ordinary save) runs once more after it;
 // - a player command asked during the save waits for it and commits after it, at the next revision;
-// - stopping the fault recorder from its panel saves once.
+// - stopping the fault recorder refreshes its panel without saving.
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
 
@@ -66,13 +66,13 @@ function installVault(){
       });
     });
 
-    await test('stopping the fault recorder from its panel saves once',async()=>{
+    await test('stopping the fault recorder refreshes its panel without saving',async()=>{
       return page.evaluate(async()=>{
         const a=__AUDIT__,v=window.__VAULT__;a.openDrawer('diagnostics');
         const start=document.querySelector('[data-gh-action="diagnostics-recorder-start"]');if(!start)throw new Error('the start button');start.click();await new Promise(r=>setTimeout(r,800));
         const before=v.commits.length,stop=document.querySelector('[data-gh-action="diagnostics-recorder-stop"]');if(!stop)throw new Error('the stop button');stop.click();
-        for(let i=0;i<200&&v.commits.length===before;i++)await new Promise(r=>setTimeout(r,25));await new Promise(r=>setTimeout(r,800));
-        if(v.commits.length-before!==1)throw new Error(`one save (${v.commits.length-before})`);return {saves:v.commits.length-before};
+        await new Promise(r=>setTimeout(r,800));if(GH_DIAGNOSTICS.recorderSnapshot(__GH_STATE__).active)throw new Error('recorder did not stop');
+        if(v.commits.length-before!==0)throw new Error(`refresh must not save (${v.commits.length-before})`);return {saves:v.commits.length-before};
       });
     });
     if(errors.length)results.push({name:'no page errors',ok:false,error:errors.slice(0,5).join(' | ')});

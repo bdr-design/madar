@@ -766,6 +766,7 @@
   let simulationPersistenceTask=null;
   const runtimeInstrumentation={lastCompaction:null,lastSavePreparation:null,pendingCompaction:null,proofAudit:null,diagnosticExport:null,durable:{last:null,samples:[]},render:{lastFrame:null,lastTargetUpdate:null,lastMarkerAnimation:null,lastStructuralRender:null,maxFrameMs:0,maxTargetUpdateMs:0,maxMarkerAnimationMs:0,maxStructuralRenderMs:0,frameCounter:0,animationCounter:0,samples:[]},simRender:{last:null,max:{},count:0},maintenance:{last:{},max:{},runs:0,lastTask:'',pending:[]}};
   const appMetricClock=()=>globalThis.performance?.now?.()??Date.now();
+  function traceMainThreadWork(stage,work){if(window.GH_DIAGNOSTICS?.recorderIsActive?.(state)!==true)return work();const started=appMetricClock();try{return work();}finally{window.GH_DIAGNOSTICS.recordMainThreadWork(state,stage,started,appMetricClock());}}
   function recordRenderMetric(kind,durationMs,detail={}){const render=runtimeInstrumentation.render,row={kind,durationMs:Math.max(0,Number(durationMs)||0),recordedAtMs:Date.now(),...detail};if(kind==='frame'){render.lastFrame=row;render.maxFrameMs=Math.max(render.maxFrameMs,row.durationMs);}else if(kind==='target-update'){render.lastTargetUpdate=row;render.maxTargetUpdateMs=Math.max(render.maxTargetUpdateMs,row.durationMs);}else if(kind==='marker-animation'){render.lastMarkerAnimation=row;render.maxMarkerAnimationMs=Math.max(render.maxMarkerAnimationMs,row.durationMs);}else if(kind==='structural-render'){render.lastStructuralRender=row;render.maxStructuralRenderMs=Math.max(render.maxStructuralRenderMs,row.durationMs);}render.samples.push(row);if(render.samples.length>120)render.samples.shift();return row;}
   function departurePerformanceSnapshot(startedAtMs,commandName){const endedAtMs=Date.now(),render=runtimeInstrumentation.render,samples=(render.samples||[]).filter(row=>Number(row.recordedAtMs)>=startedAtMs&&Number(row.recordedAtMs)<=endedAtMs),maxFor=kind=>Math.max(0,...samples.filter(row=>row.kind===kind).map(row=>Number(row.durationMs)||0)),frameSamples=samples.filter(row=>row.kind==='frame'),durable=runtimeInstrumentation.durable.last,matched=durable?.name===commandName?durable:null,faultRecorder=window.GH_DIAGNOSTICS?.recorderSnapshot?.(state)||null;return {startedAtMs,endedAtMs,wallMs:Math.max(0,endedAtMs-startedAtMs),renderWindow:{sampleCount:samples.length,frameCallbacks:frameSamples.length,slowFrameCallbacks:frameSamples.filter(row=>Number(row.durationMs)>=34).length,maxFrameCallbackMs:maxFor('frame'),maxTargetUpdateMs:maxFor('target-update'),maxMarkerAnimationMs:maxFor('marker-animation'),maxStructuralRenderMs:maxFor('structural-render'),ringCapacity:120,mayBeTruncated:samples.length===120||Boolean(render.samples?.[0]&&Number(render.samples[0].recordedAtMs)>startedAtMs)},faultRecorder:{active:faultRecorder?.active===true,frameSummary:faultRecorder?.frameSummary||null,frameTrace:Array.isArray(faultRecorder?.frameTrace)?faultRecorder.frameTrace.slice(-12):[]},durable:matched?{cloneMs:matched.cloneMs,prepareMs:matched.prepareMs,baselineIntegrityMs:matched.baselineIntegrityMs,applyMs:matched.applyMs,validateMs:matched.validateMs,integrityMs:matched.integrityMs,persistMs:matched.persistMs,publishMs:matched.publishMs,totalMs:matched.totalMs,committed:matched.committed}:null};}
   window.__GH_APP_RUNTIME_INSTRUMENTATION__=runtimeInstrumentation;
@@ -864,7 +865,7 @@
     const metric={kind:'save-preparation',simSeconds:Number(state.simSeconds)||0,saveRevisionBefore:Number(state.saveRevision)||0,compactionMs:Number(pending?.durationMs)||0,baselineIntegrityMs:0,prepareMs:0,finalIntegrityMs:0,persistenceSyncMs:0,totalMs:0,ok:false};
     if(runtimeMetrics)runtimeMetrics.pendingCompaction=null;const totalStart=metricClock();
     try{
-      let stageStart=metricClock();const priorCriticalIds=new Set(((window.GH_INTEGRITY_CORE.check(state)?.issues)||[]).filter(x=>x.severity==='critical').map(x=>String(x.id||x.code||x.title)));metric.baselineIntegrityMs=Math.max(0,metricClock()-stageStart);
+      let stageStart=metricClock();const priorCriticalIds=new Set(((traceMainThreadWork('command.baseline-integrity',()=>window.GH_INTEGRITY_CORE.check(state))?.issues)||[]).filter(x=>x.severity==='critical').map(x=>String(x.id||x.code||x.title)));metric.baselineIntegrityMs=Math.max(0,metricClock()-stageStart);
       stageStart=metricClock();pruneRouteCache();reconcileConsolidatedCash();metric.prepareMs=Math.max(0,metricClock()-stageStart);
       stageStart=metricClock();const integrity=window.GH_INTEGRITY_CORE.check(state);metric.finalIntegrityMs=Math.max(0,metricClock()-stageStart);
       const introducedByThisSave=(integrity?.critical||(integrity?.issues||[]).filter(x=>x.severity==='critical')).filter(x=>!priorCriticalIds.has(String(x.id||x.code||x.title)));
@@ -885,7 +886,7 @@
   // checksum worker. Background saves await sliced/lifecycle work before taking a new snapshot; small and reference
   // synchronous APIs keep their contracts. The sealed containers keep their cost flat as the documents grow.
   function prepareSlicedSave(){
-    const priorCriticalIds=new Set(((window.GH_INTEGRITY_CORE.check(state)?.issues)||[]).filter(x=>x.severity==='critical').map(x=>String(x.id||x.code||x.title)));
+    const priorCriticalIds=new Set(((traceMainThreadWork('command.baseline-integrity',()=>window.GH_INTEGRITY_CORE.check(state))?.issues)||[]).filter(x=>x.severity==='critical').map(x=>String(x.id||x.code||x.title)));
     pruneRouteCache();reconcileConsolidatedCash();
     const integrity=window.GH_INTEGRITY_CORE.check(state),introduced=(integrity?.critical||(integrity?.issues||[]).filter(x=>x.severity==='critical')).filter(x=>!priorCriticalIds.has(String(x.id||x.code||x.title)));
     return introduced.length?{ok:false,reason:`Critical integrity failed: ${introduced.map(x=>x.code||x.title).join(',')}`}:{ok:true};
@@ -922,12 +923,14 @@
     return runtime;
   }
   function replaceLiveState(snapshot){
+    const traceStarted=appMetricClock();try{
     window.GH_TRANSACTION_CORE?.abortStaged?.(state,'live-state-replaced');
     cancelSimulationPersistence();
     (window.GH_TRANSACTION_CORE.publishObject||window.GH_TRANSACTION_CORE.restoreObject)(state,snapshot);
     window.GH_REALISM?.reconcilePendingDeliveryCount?.(state,true);
     const runtime=routeRuntimeForState(state);for(const id of Object.keys(routeTemplates))delete routeTemplates[id];Object.assign(routeTemplates,runtime);
     window.__GH_STATE__=state;
+    }finally{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.publish',traceStarted,appMetricClock());}
   }
   let durableCommandSettlement=Promise.resolve({committed:false,saveRevision:Number(state.saveRevision)||0});
   // Build 358 (lighter commands): a command's draft is validated section by section (GH_SAVE_SCHEMA.validationSteps) and
@@ -1065,11 +1068,16 @@
         if(required&&!fleetMutationSession)throw new Error(`fleet-mutation-session-unavailable:${fleetMutationClient?.stats?.().lastReason||'replica-not-ready'}`);
       }
       rootSessions=transactionCore?.beginJournaledRoots?.(state)||[];
-      draft=transactionCore?.deepClone?transactionCore.deepClone(state,{shareJournaledRoots:true}):clone(state);lap('cloneMs');const livePreferences=captureLivePreferences();
-      window.GH_SAVE_SCHEMA?.inheritVerified?.(state,draft);const runtime=routeRuntimeForState(draft),previousRevision=Math.max(0,Math.floor(Number(state.saveRevision)||0));lap('prepareMs');
+      const livePreferences=captureLivePreferences();
+      window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft:null};
+      timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;
+      const onCloneSlice=(started,ended)=>{const busy=Math.max(0,ended-started);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.clone',started,ended);};
+      if(transactionCore?.deepCloneInSlices)draft=await transactionCore.deepCloneInSlices(state,{shareJournaledRoots:true,yieldToHost:async()=>{timing.cloneYields++;await yieldForInteractivePaint(document.hidden?0:80);},onSlice:onCloneSlice});
+      else{const started=clockNow();try{draft=transactionCore?.deepClone?transactionCore.deepClone(state,{shareJournaledRoots:true}):clone(state);}finally{onCloneSlice(started,clockNow());}}lap('cloneMs');
+      traceMainThreadWork('command.inherit',()=>window.GH_SAVE_SCHEMA?.inheritVerified?.(state,draft));const runtime=traceMainThreadWork('command.routes',()=>routeRuntimeForState(draft)),previousRevision=Math.max(0,Math.floor(Number(state.saveRevision)||0));lap('prepareMs');
       const fleetMutationContext=fleetMutationSession?Object.freeze({client:fleetMutationClient,session:fleetMutationSession,store:draft.fleet,flush(){return fleetMutationClient.flushMutation(fleetMutationSession,draft.fleet);},finish(){return fleetMutationClient.finishMutation(fleetMutationSession,draft.fleet);}}):null;
       window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft,fleetMutation:fleetMutationContext,afterPublish(fn){if(typeof fn==='function')afterPublishTasks.push(fn);}};
-      const priorCriticalIds=new Set(((window.GH_INTEGRITY_CORE.check(state)?.issues)||[]).filter(row=>row.severity==='critical').map(row=>String(row.id||row.code||row.title)));lap('baselineIntegrityMs');
+      const priorCriticalIds=new Set(((traceMainThreadWork('command.baseline-integrity',()=>window.GH_INTEGRITY_CORE.check(state))?.issues)||[]).filter(row=>row.severity==='critical').map(row=>String(row.id||row.code||row.title)));lap('baselineIntegrityMs');
       const value=await apply({state:draft,routes:runtime,fleetMutation:fleetMutationContext});lap('applyMs');if(value===false)throw new Error(`${name}-rejected`);
       if(window.__GH_DURABLE_COMMAND_CONTEXT__?.poisoned===true)throw new Error(`${name}-draft-poisoned`);
       draft.saveRevision=previousRevision+1;
@@ -1080,7 +1088,7 @@
       // verified now. The proof audit of maintenance verifies every proof afresh over time, and loads always verify in full.
       mark=clockNow();const schema=await validateDraftInSlices(draft);lap('validateMs');if(!schema.ok)throw new Error(`invalid-draft:${schema.errors.join(',')}`);
       if(shouldYieldForValidation)await yieldForInteractivePaint();
-      mark=clockNow();const integrity=window.GH_INTEGRITY_CORE.check(draft),critical=(integrity?.critical||(integrity?.issues||[]).filter(row=>row.severity==='critical'));lap('integrityMs');
+      mark=clockNow();const integrity=traceMainThreadWork('command.integrity',()=>window.GH_INTEGRITY_CORE.check(draft)),critical=(integrity?.critical||(integrity?.issues||[]).filter(row=>row.severity==='critical'));lap('integrityMs');
       const introduced=critical.filter(row=>!priorCriticalIds.has(String(row.id||row.code||row.title)));
       if(introduced.length)throw new Error(`critical-integrity:${introduced.map(row=>row.code||row.id||row.title).join(',')}`);
       if(shouldYieldForValidation)await yieldForInteractivePaint();
@@ -1094,7 +1102,7 @@
     finally{
       lap('afterMs');timing.committed=committed;timing.totalMs=Math.max(0,clockNow()-durableStart);for(const key of Object.keys(timing))if(typeof timing[key]==='number')timing[key]=Math.round(timing[key]*10)/10;const durableSink=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.durable;if(durableSink){durableSink.last=timing;durableSink.samples.push(timing);if(durableSink.samples.length>16)durableSink.samples.shift();}
       if(!committed&&rootSessions.length)try{window.GH_TRANSACTION_CORE?.rollbackJournaledRoots?.(rootSessions);rootSessions=[];}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-rollback-failed');console.error('Durable command fleet rollback failed',rollbackError);}if(fleetMutationSession&&!fleetMutationSettled){try{fleetMutationClient?.settleMutation?.(fleetMutationSession,'rollback');fleetMutationSettled=true;}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-replica-rollback-failed');console.error('Durable command fleet replica rollback failed',rollbackError);}}
-      const context=window.__GH_DURABLE_COMMAND_CONTEXT__?.draft===draft?window.__GH_DURABLE_COMMAND_CONTEXT__:null;
+      const context=window.__GH_DURABLE_COMMAND_CONTEXT__?.liveState===state&&window.__GH_DURABLE_COMMAND_CONTEXT__?.draft===draft?window.__GH_DURABLE_COMMAND_CONTEXT__:null;
       if(context)delete window.__GH_DURABLE_COMMAND_CONTEXT__;durableCommandInProgress=false;
       // Build 372: the rows a command wrote reach the engine thread's replica now, at the end of the command (a fleet bought
       // in back-to-back commands, before any slice, used to reach it as one whole copy when play started; a later task found
@@ -1174,7 +1182,8 @@
     durableCommandInProgress=true;let committed=false,settle=null;durableCommandSettlement=new Promise(resolve=>{settle=resolve;});
     try{
       await fleetStepSettled();
-      const result=await window.GH_DOMAIN_COMMANDS.dispatchDurable({...(options.context||{}),state},envelope,{transactionId:options.transactionId,persistence:{storageKey,appVersion:APP_VERSION,...(largeNativeSave()?{yieldToFrame:()=>yieldForInteractivePaint(document.hidden?0:80)}:{})},publish:(_live,draft)=>replaceLiveState(draft),afterCommit:options.afterCommit});committed=true;diag('AUTHORIZED_COMMAND_COMMITTED',{domain,name,transactionId:result.transactionId,authorizationProofId:result.value?.authorizationProofId});return result.value;
+      const livePreferences=captureLivePreferences();
+      const result=await window.GH_DOMAIN_COMMANDS.dispatchDurable({...(options.context||{}),state},envelope,{transactionId:options.transactionId,yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),persistence:{storageKey,appVersion:APP_VERSION,...(largeNativeSave()?{yieldToFrame:()=>yieldForInteractivePaint(document.hidden?0:80)}:{})},validate:draft=>{carryLivePreferences(draft,livePreferences);return true;},publish:(_live,draft)=>{carryLivePreferences(draft,livePreferences);replaceLiveState(draft);},afterCommit:options.afterCommit});committed=true;try{syncTopNews();}catch(error){console.warn('News refresh after committed command failed',error);}diag('AUTHORIZED_COMMAND_COMMITTED',{domain,name,transactionId:result.transactionId,authorizationProofId:result.value?.authorizationProofId});return result.value;
     }catch(error){
       if(error?.durableCommitted===true){
         committed=true;state.speed=0;simulationEngine.cancelAdvance?.('durable-publication-failed-after-ack',{immediate:true});
@@ -2109,16 +2118,25 @@
       const originRows=[...originsById.values()],originRoutes=await cooperativeFleetMap(originRows,origin=>({originId:origin.id,routeIds:registeredRoutes.filter(route=>sameUnderlyingFacilityFor(draft,origin.id,route.fromFacility)||sameUnderlyingFacilityFor(draft,origin.id,route.toFacility)).map(route=>route.id)}),source.metrics),plannerRoutes=await cooperativeFleetMap(registeredRoutes,route=>({id:String(route.id),fromFacility:String(route.fromFacility||''),toFacility:String(route.toFacility||''),legKm:Number(route.maxLegKm)||routeLongestLeg(route.route)}),source.metrics);
       const plannerInput={targetLoad,routeCapacity:capacity,assets:plannerAssets,routes:plannerRoutes,originRoutes,initialLoads:Object.fromEntries(initialLoads)};
       const routePlanStarted=performance.now();let routePlan=await routeWorker?.plan(plannerInput);if(!routePlan)routePlan=await planAirSeaNetworkCooperatively(plannerInput,source.metrics);if(!await validateAirSeaPlanCooperatively(plannerInput,routePlan,source.metrics))throw new Error('رفض مخطط شبكة الطيران والبحرية قبل الاعتماد');source.metrics.routePlanMs=performance.now()-routePlanStarted;
-      const eligible=await cooperativeFleetMap(routePlan.sortedAssetIds,id=>{const asset=eligibleById.get(id);if(!asset)throw new Error('تعذر ربط مخطط الشبكة بأصوله الحالية');return asset;},source.metrics);
+      // Retry planning only under route pressure: reuse compatible existing routes up to the unchanged hard cap.
+      // Both plans still run on the route worker (or its cooperative fallback), and are fully validated before writes.
+      const routeBudget=window.GH_ROUTE_CORE.modeRouteBudget(draft,type);let groupSlots;
+      try{groupSlots=window.GH_ROUTE_CORE.allocateForBudget(routeBudget,routePlan.waitingGroups.map(g=>g.assetIds.length),targetLoad,window.GH_ROUTE_CORE.LIMITS.fleetCapacity).map((row,i)=>({...row,count:routePlan.waitingGroups[i].assetIds.length}));}
+      catch(error){
+        if(!['route-mode-capacity','route-load-capacity'].includes(error.code))throw error;
+        const pressureInput={...plannerInput,targetLoad:window.GH_ROUTE_CORE.LIMITS.fleetCapacity,routeCapacity:window.GH_ROUTE_CORE.LIMITS.fleetCapacity};
+        routePlan=await routeWorker?.plan(pressureInput);if(!routePlan)routePlan=await planAirSeaNetworkCooperatively(pressureInput,source.metrics);
+        if(!await validateAirSeaPlanCooperatively(pressureInput,routePlan,source.metrics))throw new Error('رفض مخطط سعة شبكة الطيران والبحرية قبل الاعتماد');
+        groupSlots=window.GH_ROUTE_CORE.allocateAvailableForBudget(routeBudget,routePlan.waitingGroups.map(g=>g.assetIds.length),targetLoad,window.GH_ROUTE_CORE.LIMITS.fleetCapacity);
+        source.metrics.capacityPressure=true;source.metrics.routePlanMs=performance.now()-routePlanStarted;
+      }
+      const plannedCount=routePlan.assignments.length+groupSlots.reduce((sum,row)=>sum+row.count,0),capacityRemaining=eligibleUnsorted.length-plannedCount;remaining+=capacityRemaining;
+      if(!plannedCount){const error=new Error(`لا توجد سعة مسارات ${routeLabel} مناسبة متاحة الآن؛ بقيت ${capacityRemaining} دون مغادرة`);error.code='route-mode-capacity';throw error;}
       const registeredRouteById=new Map(registeredRoutes.map(route=>[route.id,route])),assignments=[],createdRoutes=[],diversity=newRouteDiversityLedger(),diversityRoutes=new Set(),routeLoads=new Map(initialLoads);let sharedBatches=0;const routeSelectionStarted=performance.now();
       await cooperativeFleetLoop(routePlan.assignments.length,index=>{const row=routePlan.assignments[index],asset=eligibleById.get(row.assetId),route=registeredRouteById.get(row.routeId),origin=originByAssetId.get(row.assetId);if(!asset||!route||!origin)throw new Error('فقد أصل أو مسار قائم أثناء تخطيط الشبكة');assignments.push({asset,route});routeLoads.set(route.id,(routeLoads.get(route.id)||0)+1);if(!diversityRoutes.has(route.id)){const fromOrigin=sameUnderlyingFacilityFor(draft,origin.id,route.fromFacility),destinationId=fromOrigin?route.toFacility:route.fromFacility,endpoint=routeFacilityFor(draft,destinationId),point=fromOrigin?route.route.at(-1):route.route[0];recordRouteDiversity(diversity,endpoint?.sourceKey||route.id,point,haversine(origin.coords,point));diversityRoutes.add(route.id);}},source.metrics);
-      // New routes for the assets still waiting at each origin share the mode's free slots: the target load while the
-      // slots allow it, else a higher load per route (a new base never fails for want of registry slots).
-      let groupSlots;try{groupSlots=window.GH_ROUTE_CORE.allocateForBudget(window.GH_ROUTE_CORE.modeRouteBudget(draft,type),routePlan.waitingGroups.map(group=>group.assetIds.length),targetLoad,window.GH_ROUTE_CORE.LIMITS.fleetCapacity);}
-      catch(error){if(error.code==='route-mode-capacity')throw new Error(`حصة المسارات ${routeLabel} ممتلئة: ${error.needed} نقطة انطلاق تحتاج مسارًا جديدًا والمتاح ${error.free}؛ احذف مسارات ${routeLabel} غير مستخدمة`);throw error;}
       for(const [groupIndex,plannedGroup] of routePlan.waitingGroups.entries()){
-        const group={origin:originsById.get(plannedGroup.originId),assets:null};let previousAsset=null;
-        group.assets=await cooperativeFleetMap(plannedGroup.assetIds,id=>{const asset=eligibleById.get(id);if(!asset)throw new Error('فقد أصل أو نقطة انطلاق أثناء تخطيط الشبكة');if(previousAsset&&(assetRangeKm(previousAsset)>assetRangeKm(asset)||assetRangeKm(previousAsset)===assetRangeKm(asset)&&String(previousAsset.id).localeCompare(String(asset.id))>0))throw new Error('ترتيب أصول مخطط الشبكة غير صالح');previousAsset=asset;return asset;},source.metrics);if(!group.origin)throw new Error('فقد أصل أو نقطة انطلاق أثناء تخطيط الشبكة');
+        if(!groupSlots[groupIndex].count)continue;const group={origin:originsById.get(plannedGroup.originId),assets:null};let previousAsset=null;
+        group.assets=await cooperativeFleetMap(plannedGroup.assetIds.slice(0,groupSlots[groupIndex].count),id=>{const asset=eligibleById.get(id);if(!asset)throw new Error('فقد أصل أو نقطة انطلاق أثناء تخطيط الشبكة');if(previousAsset&&(assetRangeKm(previousAsset)>assetRangeKm(asset)||assetRangeKm(previousAsset)===assetRangeKm(asset)&&String(previousAsset.id).localeCompare(String(asset.id))>0))throw new Error('ترتيب أصول مخطط الشبكة غير صالح');previousAsset=asset;return asset;},source.metrics);if(!group.origin)throw new Error('فقد أصل أو نقطة انطلاق أثناء تخطيط الشبكة');
         const groupLoad=Math.max(1,groupSlots[groupIndex].load||targetLoad),groupCapacity=Math.max(capacity,groupLoad);
         // Build 371 (iPhone diagnostic GH AIR 3181): when the origin has no distinct destination left within a batch's range,
         // the batch joins the least-loaded route from this origin that fits all its members (opened by this dispatch or
@@ -2142,7 +2160,7 @@
           await yieldFleetPlanning();
         }
       }
-      if(assignments.length!==eligible.length)throw new Error(`لم يكتمل توزيع جميع ${label} على شبكة التشغيل`);
+      if(assignments.length!==plannedCount)throw new Error(`لم يكتمل توزيع جميع ${label} على شبكة التشغيل`);
       // Routes (existing, or opened here and joined by a shared batch) that now carry more than their capacity take the
       // dispatch's capacity or their load (recorded on the route).
       {const loads=new Map(initialLoads),createdIds=new Set(createdRoutes.map(route=>route.id));await cooperativeFleetLoop(assignments.length,index=>{const route=assignments[index].route;loads.set(route.id,(loads.get(route.id)||0)+1);},source.metrics);
@@ -2154,11 +2172,11 @@
       const batch=await cooperativeFleetMap(assignments,({asset,route})=>({id:asset.id,routeId:route.id,baseFacility:asset.baseFacility,phase:'turnaround',routeRef:routeRefOf(route.id,asset.baseFacility)}),source.metrics);
       const dispatchPlan=await applyFleetDispatchWorkerPlan({draft,dispatch,companyId,mode:type,assignments:batch,routeTable}),{summary}=dispatchPlan,{routeIds,moving,scheduled}=summary;
       source.metrics.dispatchWorkerMs=dispatchPlan.workerMs;source.metrics.dispatchDigestMs=dispatchPlan.digestMs;source.metrics.dispatchReplayMs=dispatchPlan.applyMs;source.metrics.projectionYields=(Number(source.metrics.projectionYields)||0)+dispatchPlan.projectionYields;source.metrics.projectionMaxSliceMs=Math.max(Number(source.metrics.projectionMaxSliceMs)||0,dispatchPlan.projectionMaxSliceMs);
-      if(summary.count!==eligible.length)throw new Error(`رفض محرك الأسطول جدولة مغادرة ${label}`);
+      if(summary.count!==plannedCount)throw new Error(`رفض محرك الأسطول جدولة مغادرة ${label}`);
       if(previousRouteIds.size){const inUse=new Set(summary.inUseRouteIds),registered=new Map((draft.customRoutes||[]).map(route=>[route.id,route])),retired=[...previousRouteIds];await cooperativeFleetLoop(retired.length,index=>{const routeId=retired[index];if(!inUse.has(routeId)&&registered.has(routeId)){window.GH_ROUTE_CORE.execute({state:draft},'delete',{id:routeId});delete routes[routeId];}},source.metrics);}
       source.metrics.routesUsed=routeIds.length;source.metrics.dispatchTotalMs=performance.now()-dispatchStarted;
-      window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`وُزعت ${eligible.length} ${type==='air'?'طائرة':'سفينة'} ذريًا على ${routeIds.length} مسارًا ${routeLabel} مشتركًا؛ ${moving} غادرت و${scheduled} مجدولة بفتحات زمنية، وأُنشئ ${createdRoutes.length} مسار جديد فقط.${sharedBatches?` نفدت الوجهات المميزة ضمن المدى لبعض نقاط الانطلاق، فانضمت ${sharedBatches} دفعة إلى مسارات قائمة منها.`:''}`,type:'dispatch'});
-      return {departed:eligible.length,routeIds,moving,scheduled,createdRoutes:createdRoutes.length,sharedBatches,targetLoad,routeCapacity:capacity,remaining,planner:source.snapshot()};
+      window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`وُزعت ${plannedCount} ${type==='air'?'طائرة':'سفينة'} ذريًا على ${routeIds.length} مسارًا ${routeLabel} مشتركًا؛ ${moving} غادرت و${scheduled} مجدولة بفتحات زمنية، وأُنشئ ${createdRoutes.length} مسار جديد فقط.${capacityRemaining?` بقيت ${capacityRemaining} دون مغادرة لعدم توافر سعة مسارات مناسبة؛ لم تتغير حالتها.`:''}${sharedBatches?` نفدت الوجهات المميزة ضمن المدى لبعض نقاط الانطلاق، فانضمت ${sharedBatches} دفعة إلى مسارات قائمة منها.`:''}`,type:'dispatch'});
+      return {departed:plannedCount,routeIds,moving,scheduled,createdRoutes:createdRoutes.length,sharedBatches,targetLoad,routeCapacity:capacity,remaining,capacityLimited:capacityRemaining>0,planner:source.snapshot()};
       }catch(error){error.assetDepartureTrace={...(error.assetDepartureTrace||{}),mode:type,attempts:source.metrics.assetsPlanned||0,blocked:source.metrics.assetsPlanned||0,planner:{...(error.assetDepartureTrace?.planner||{}),source:source.snapshot()}};throw error;}finally{routeWorker?.close();}
     },{afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();openDrawer('routes',companyId);}});
   }
@@ -2167,7 +2185,7 @@
     if(!companyId||!mode){notice('اختر شركة جوية أو بحرية واحدة؛ لا يسمح بأمر مختلط بين شركتين.');return false;}
     // A fleet above one dispatch's planner limit departs in successive committed dispatches.
     let result=await dispatchSharedInternationalNetwork(companyId);
-    while(result&&result.remaining>0&&result.departed>0)result=await dispatchSharedInternationalNetwork(companyId);
+    while(result&&result.remaining>0&&result.departed>0&&!result.capacityLimited)result=await dispatchSharedInternationalNetwork(companyId);
     return result;
   }
   let roadPlanning=null;
@@ -2821,8 +2839,8 @@
   let lastTopNewsAt=0,lastTopNewsSignature='';
   let lastRenderedNewsSignature='',lastObservedNewsSourceSignature='';
   function syncTopNews(){
-    const button=$('topNewsTicker');if(!button)return;const rawEvents=state.businessWorld?.events||[],latestRaw=rawEvents[0],signature=`${rawEvents.length}|${latestRaw?.id||''}|${latestRaw?.reference||''}`,stamp=Date.now();if(signature===lastTopNewsSignature&&stamp-lastTopNewsAt<5000)return;lastTopNewsAt=stamp;lastTopNewsSignature=signature;const summary=window.GH_ADVANCED?.newsSummary?.(state);
-    const headline=summary?.latest?.text||'بانتظار حدث مؤسسي موثق';$('topNewsHeadline').textContent=headline;$('topNewsStatus').textContent=summary?.count?`${Math.min(99,summary.count)} موثق`:'موثق';button.title=headline;
+    const button=$('topNewsTicker');if(!button)return;const rawEvents=state.businessWorld?.events||[],latestRaw=rawEvents[0],signature=`${Number(state.businessWorld?.sequence)||0}|${rawEvents.length}|${latestRaw?.id||''}|${latestRaw?.reference||''}`,stamp=Date.now();if(signature===lastTopNewsSignature&&stamp-lastTopNewsAt<5000)return;lastTopNewsAt=stamp;lastTopNewsSignature=signature;const summary=window.GH_ADVANCED?.newsSummary?.(state);
+    const headline=summary?.latest?.text||'بانتظار حدث مؤسسي موثق',count=Math.min(99,summary?.count||0);setNodeText('topNewsHeadline',headline);setNodeText('topNewsStatus',count?`${count} موثق`:'موثق');setNodeText('alertCount',count);if(button.title!==headline)button.title=headline;const shortcut=$('alertsBtn'),label=`أخبار المجموعة · ${count} خبر متاح`;if(shortcut&&shortcut.getAttribute('aria-label')!==label)shortcut.setAttribute('aria-label',label);
   }
   let lastKpiIdentitySignature='',lastKpiProfitSign=null;
   const setNodeText=(id,value)=>{const node=$(id),text=String(value);if(node&&node.textContent!==text)node.textContent=text;return node;};
@@ -2832,16 +2850,15 @@
     setNodeText('cashKpi',state.godMoney&&state.infiniteMoney?'∞':fmtMoney(state.cash));
     setNodeText('profitKpi',`${state.todayProfit>=0?'+':''}${fmtMoney(state.todayProfit)}`);
     const profitPositive=state.todayProfit>=0;if(profitPositive!==lastKpiProfitSign){lastKpiProfitSign=profitPositive;$('profitKpi').classList.toggle('positive',profitPositive);$('profitKpi').classList.toggle('negative',!profitPositive);}
-    setNodeText('alertCount',Math.min(99,state.alerts.length));
     setNodeText('simDate',formatSimDateCompact());
     setNodeText('simDay',`اليوم ${Math.floor(Math.max(0,Number(state.simSeconds)||0)/86400)+1}`);
     syncTopNews();
     if(activeDrawerPanel==='news'){
-      const events=state.businessWorld?.events||[],latest=events[0],sourceSignature=`${events.length}|${latest?.id||''}|${latest?.reference||''}`;
+      const events=state.businessWorld?.events||[],latest=events[0],sourceSignature=`${Number(state.businessWorld?.sequence)||0}|${events.length}|${latest?.id||''}|${latest?.reference||''}`;
       if(sourceSignature!==lastObservedNewsSourceSignature){
         lastObservedNewsSourceSignature=sourceSignature;
-        const summary=window.GH_ADVANCED?.newsSummary?.(state),signature=`${summary?.count||0}|${summary?.latest?.id||''}|${summary?.latest?.reference||''}`;
-        if(signature!==lastRenderedNewsSignature){lastRenderedNewsSignature=signature;openDrawer('news',activeDrawerArg);}
+        const summary=window.GH_ADVANCED?.newsSummary?.(state),signature=`${summary?.revision||0}|${summary?.count||0}|${summary?.latest?.id||''}|${summary?.latest?.reference||''}`;
+        if(signature!==lastRenderedNewsSignature){lastRenderedNewsSignature=signature;const scrollTop=$('drawerBody')?.scrollTop||0;openDrawer('news',activeDrawerArg);if($('drawerBody'))$('drawerBody').scrollTop=scrollTop;}
       }
     }
     updateDayStepControl();
@@ -3182,7 +3199,7 @@
       if(payrollDueToday)for(const companyId of companyIds)closedSectorProfit[companyId]-=Number(payrollPlan[companyId]?.amount)||0;
       const companyDaily={};for(const companyId of companyIds){const tripGross=Math.max(0,Number(tripRevenue[companyId])||0),operatingGross=Math.max(0,Number(operatingRevenue[companyId])||0),companyNet=Number(closedSectorProfit[companyId])||0;companyDaily[companyId]={tripRevenue:tripGross,operatingRevenue:operatingGross,grossRevenue:tripGross+operatingGross,expenses:Math.max(0,tripGross+operatingGross-companyNet),net:companyNet,tripCount:Math.max(0,Number(tripCount[companyId])||0)};}
       const overhead=42500+window.GH_FLEET_DATA.size(state)*80;let realismCost=0;
-      if(window.GH_REALISM&&typeof window.GH_REALISM.onDayStages==='function'){const realismDay=window.GH_REALISM.onDayStages(state,state.lastFinancialDay);for(;;){let stage='';const step=phase(()=>`simulation.finance-day.realism-close${stage?`:${stage}`:''}`,()=>{const out=realismDay.next();stage=out.done?'final':String(out.value||'');return out;});if(step.done){realismCost=step.value;break;}yield 'finance-day.realism-close';}}
+      if(window.GH_REALISM&&typeof window.GH_REALISM.onDayStages==='function'){const realismDay=window.GH_REALISM.onDayStages(state,state.lastFinancialDay);for(;;){let stage='';const step=phase(()=>`simulation.finance-day.realism-close${stage?`:${stage}`:''}`,()=>{const out=realismDay.next();stage=out.done?'final':String(out.value||'');return out;});if(step.done){realismCost=step.value;break;}yield stage.endsWith('-wait')?stage:'finance-day.realism-close';}}
       else realismCost=phase('simulation.finance-day.realism-close',()=>window.GH_REALISM?window.GH_REALISM.onDay(state,state.lastFinancialDay):0);
       yield 'finance-day.realism-close';
       const groupCost=overhead+advancedCost+realismCost,groupPayrollExpense=payrollDueToday?payrollPlan.group.amount:0;
@@ -3392,7 +3409,7 @@
   // content-checked native chunk that is decoded only for an explicit historical lookup/export.
   const AUDIT_RETENTION_SECONDS=90*86400,AUDIT_DETAIL_LIMIT=5000,AUDIT_SEAL_ROUND=100,AUDIT_SEAL_VERIFY_MS=6,AUDIT_SEAL_ROLLBACK=Object.freeze({documentProofs:Object.freeze({level:'containers'}),finance:Object.freeze({level:'containers'}),coldArchive:Object.freeze({level:'containers'})});
   const auditRowAt=row=>Math.max(0,Number(row?.at??row?.issuedAt??row?.closedAt??row?.createdAt)||0);
-  const AUDIT_LIVE_BUCKETS=Object.freeze(['invoices','cheques','transfers','payables','receivables','periods','taxSettlements','debtRecords','debtSettlements','payrollReports']),AUDIT_LINK_FIELDS=Object.freeze(['invoiceNumber','documentNumber','number','reference','sourceRef','chequeNumber','chequeId','replacedBy']);
+  const AUDIT_LIVE_BUCKETS=Object.freeze(['invoices','cheques','transfers','payables','receivables','periods','taxSettlements','debtRecords','debtSettlements','payrollReports']),AUDIT_LINK_FIELDS=Object.freeze(['invoiceNumber','documentNumber','number','reference','sourceRef','chequeNumber','chequeId','replacedBy','settlementReference','transferReference','cancelledChequeIds']);
   // Build 359: whether anything is due is answered from each sealed collection's size and oldest row, kept per version of
   // it (a collection is replaced by its writers), before any row is listed.
   const AUDIT_OLDEST=new WeakMap();
@@ -3403,7 +3420,7 @@
     const rows=[];for(const [kind,list] of Object.entries(records))if(Array.isArray(list))for(const row of list)rows.push({kind,row,at:auditRowAt(row)});
     const cutoff=(Number(state.simSeconds)||0)-AUDIT_RETENTION_SECONDS,excess=Math.max(0,rows.length-AUDIT_DETAIL_LIMIT);
     if(!excess&&!rows.some(entry=>entry.at<cutoff))return [];
-    const links=new Set();for(const bucket of AUDIT_LIVE_BUCKETS)for(const row of Array.isArray(state.finance?.[bucket])?state.finance[bucket]:[])for(const field of AUDIT_LINK_FIELDS){const value=row?.[field];if(value!=null&&value!=='')links.add(String(value));}
+    const links=new Set();for(const bucket of AUDIT_LIVE_BUCKETS)for(const row of Array.isArray(state.finance?.[bucket])?state.finance[bucket]:[])for(const field of AUDIT_LINK_FIELDS){const value=row?.[field];if(Array.isArray(value)){for(const id of value)if(id!=null&&id!=='')links.add(String(id));}else if(value!=null&&value!=='')links.add(String(value));}
     const linked=row=>[row?.number,row?.id,row?.reference,row?.chequeNumber].some(value=>value!=null&&value!==''&&links.has(String(value)));
     rows.sort((a,b)=>a.at-b.at);const out=[];
     for(let index=0;index<rows.length;index++){const entry=rows[index];if(entry.at>=cutoff&&index>=excess)break;if(!linked(entry.row))out.push(entry);}
@@ -3697,6 +3714,7 @@
   function fleetEngineThread(){
     if(globalThis.__GH_FLEET_ENGINE_THREAD__===false||typeof Worker!=='function'||!window.GH_FLEET_ENGINE_THREAD?.create)return null;
     if(!fleetEngineThreadClient)fleetEngineThreadClient=window.GH_FLEET_ENGINE_THREAD.create({
+      onMainThreadWork:(stage,start,end)=>window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,stage,start,end),
       workerFactory:()=>typeof globalThis.__GH_FLEET_ENGINE_WORKER_FACTORY__==='function'?globalThis.__GH_FLEET_ENGINE_WORKER_FACTORY__():new Worker('fleet-engine-worker.js'),resolveRoute:fleetResolveRoute,routesRevision:()=>Math.max(0,Math.floor(Number(state.routesRevision)||0)),
       catalogSpecs:()=>{const out={};for(const [type,group] of Object.entries(assetCatalog||{})){const rows={};for(const item of [...(group?.new||[]),...(group?.used||[])])if(item?.id&&!(item.id in rows))rows[item.id]=item.specs||null;out[type]=rows;}return out;}
     });
@@ -4015,7 +4033,14 @@
       runtimeInstrumentation.realtimeHealth={...(runtimeInstrumentation.realtimeHealth||{}),applied:false,reason:'large-fleet-worker-evidence-required',rows:fleetRowsForHealth()};return false;
     }
     const healthStarted=performance.now();
-    try{window.GH_DIAGNOSTICS.runHealthCheck(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:simulationEngine.snapshot(),...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{})},{recordEvent:false,trackTransitions:true});lastRealtimeHealthCostMs=performance.now()-healthStarted;if(activeDrawerPanel==='diagnostics')openDrawer('diagnostics');return true;}
+    try{
+      const integrity=window.GH_INTEGRITY_CORE.check(state),health=window.GH_DIAGNOSTICS.runHealthCheck(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:simulationEngine.snapshot(),integrity,...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{})},{recordEvent:false,trackTransitions:true});
+      lastRealtimeHealthCostMs=performance.now()-healthStarted;
+      // The last panel name survives closing. Refresh only a visible health page, using this synchronous pass's
+      // integrity result for presentation; no retained cache may conceal a later state change.
+      if(activeDrawerPanel==='diagnostics'&&$('drawer').classList.contains('open'))openDrawer('diagnostics',activeDrawerArg,{state,health,integrity});
+      return true;
+    }
     catch(error){console.warn('تعذر تحديث صحة النظام الدوري',error);return false;}
   }
   const REALTIME_HEALTH_MS=10000;
@@ -4037,7 +4062,12 @@
   async function diagnosticLifecycleSettled(){
     for(;;){
       await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
-      const pending=[];if(durableCommandInProgress)pending.push(durableCommandSettlement);if(hardResetInProgress)pending.push(hardResetSettlement);if(!pending.length){if(!stagedStateBusy())return;continue;}await Promise.all(pending);
+      const pending=[];if(durableCommandInProgress)pending.push(durableCommandSettlement);if(hardResetInProgress)pending.push(hardResetSettlement);if(!pending.length){
+        // Native ACK handlers publish control events before their ordinary save promise settles.
+        // Drain them before capturing evidence; a completed NACK must still permit exporting recovery evidence.
+        try{await window.GH_PERSISTENCE.drain?.();}catch(error){if(window.GH_PERSISTENCE.telemetry?.().recoveryRequired!==true)throw error;}
+        if(!stagedStateBusy()&&!durableCommandInProgress&&!hardResetInProgress&&!window.GH_PERSISTENCE.slicedActive?.())return;continue;
+      }await Promise.all(pending);
     }
   }
   async function settleGovernorDiagnostics(reason){await diagnosticLifecycleSettled();return governorEventCoalescer.flush(String(reason||'diagnostic-export'));}
@@ -4638,7 +4668,7 @@
   };
 
   const drawerScrollMemory={};
-  function openDrawer(panel, arg){
+  function openDrawer(panel, arg, diagnosticEvidence){
     const redirected=window.GH_MADAR?.redirect?.(panel,arg);if(redirected)[panel,arg]=redirected;
     const drawerWasOpen=$('drawer').classList.contains('open');cancelDrawerSearch();window.GH_INTERFACE.navigate(panel,arg);
     const previousPanel=activeDrawerPanel,previousScroll=$('drawerBody').scrollTop,previousArg=activeDrawerArg;
@@ -4648,8 +4678,8 @@
     $('drawer').dataset.panel=String(panel||'');
     state.lastPanel=panel;state.lastPanelArg=arg??null;
     const metaEntry=panelMeta[panel],[eyebrow,title]=window.GH_MADAR?.meta?.(state,panel,arg)||window.GH_ADVANCED?.meta(panel,arg)||(typeof metaEntry==='function'?metaEntry(arg):metaEntry)||['الإدارة','لوحة'];
-    $('drawerEyebrow').textContent=eyebrow; $('drawerTitle').textContent=title; $('drawerBody').innerHTML=renderPanel(panel,arg); window.GH_INTERFACE.prepare($('drawerBody'),activeDrawerPanel,activeDrawerArg,advancedContext());bindDrawerActions();
-    if(panel==='news'){const summary=window.GH_ADVANCED?.newsSummary?.(state),events=state.businessWorld?.events||[],latest=events[0];lastRenderedNewsSignature=`${summary?.count||0}|${summary?.latest?.id||''}|${summary?.latest?.reference||''}`;lastObservedNewsSourceSignature=`${events.length}|${latest?.id||''}|${latest?.reference||''}`;}
+    $('drawerEyebrow').textContent=eyebrow; $('drawerTitle').textContent=title; $('drawerBody').innerHTML=renderPanel(panel,arg,diagnosticEvidence); window.GH_INTERFACE.prepare($('drawerBody'),activeDrawerPanel,activeDrawerArg,advancedContext());bindDrawerActions();
+    if(panel==='news'){const summary=window.GH_ADVANCED?.newsSummary?.(state),events=state.businessWorld?.events||[],latest=events[0];lastRenderedNewsSignature=`${summary?.revision||0}|${summary?.count||0}|${summary?.latest?.id||''}|${summary?.latest?.reference||''}`;lastObservedNewsSourceSignature=`${Number(state.businessWorld?.sequence)||0}|${events.length}|${latest?.id||''}|${latest?.reference||''}`;}
     $('drawerBody').scrollTop=previousPanel===panel&&JSON.stringify(previousArg)===JSON.stringify(arg)?previousScroll:['companyFacilities','network'].includes(panel)?0:(drawerScrollMemory[panel]||0);
     if(panel==='assets')installOwnedVirtualizer();
     if(drawerUsesBackdrop()) $('backdrop').classList.remove('hidden'); else $('backdrop').classList.add('hidden');
@@ -4669,10 +4699,12 @@
   function closeDrawer(){ window.GH_INTERFACE.resetHistory(); cancelDrawerSearch(); clearFleetListSearchRequest(); delete $('drawer').dataset.panel; $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('backdrop').classList.add('hidden'); setActiveNav('map'); state.lastPanel=null;state.lastPanelArg=null;  }
   $('workspaceBack').addEventListener('click',()=>window.GH_INTERFACE.back(openDrawer));
   const ADVANCED_OWNED_PANELS=new Set(['realism','companies','leadershipHub','peopleHub','actionCenter','compliance','facilityManage','companyManage','groupManagement','treasury','procurement','energy','bank','insurance','realestate','research','esg','news','businessWorld','labor','settings','investorMode','updates','diagnostics','controlPlane','conference']);
-  function renderPanel(panel,arg){
-    const madar=window.GH_MADAR?.render?.(panel,arg,advancedContext());
+  function renderPanel(panel,arg,diagnosticEvidence){
+    const context=advancedContext();
+    if(panel==='diagnostics'&&diagnosticEvidence?.state===state&&diagnosticEvidence.health===state.diagnostics?.lastHealth&&diagnosticEvidence.integrity)context.businessIntegrity=()=>diagnosticEvidence.integrity;
+    const madar=window.GH_MADAR?.render?.(panel,arg,context);
     if(madar!==null&&madar!==undefined)return madar;
-    const advanced=window.GH_ADVANCED?.render(panel,arg,advancedContext());
+    const advanced=window.GH_ADVANCED?.render(panel,arg,context);
     if(advanced!==null&&advanced!==undefined)return advanced;
     // Advanced-owned panels deliberately fail closed. Keeping a second renderer here caused
     // stale UI/logic to survive upgrades and made two implementations compete for ownership.
@@ -5641,7 +5673,7 @@ ${page}</div>`;
       let done=false,timer=null;
       const finish=()=>{if(done)return;done=true;if(timer!==null)clearTimeout(timer);resolve();};
       timer=setTimeout(finish,Math.max(0,Number(timeoutMs)||0));
-      try{if(typeof requestAnimationFrame==='function')requestAnimationFrame(finish);else finish();}catch(_error){finish();}
+      try{if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(done)return;if(timer!==null)clearTimeout(timer);timer=setTimeout(finish,0);});else finish();}catch(_error){finish();}
     });
   }
   function bindDrawerActions(){

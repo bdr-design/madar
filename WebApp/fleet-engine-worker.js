@@ -124,6 +124,10 @@ self.addEventListener('message',event=>{
           if(!view||view.length!==Math.min(chunkBytes,byteLength-start))throw new Error('fleet-seed-chunk-invalid');
           if(start<bytes)rows.set(view.subarray(0,Math.min(view.length,bytes-start)),start);
         }
+        if(message.streamMetadata===true){
+          const valuesLength=Number(meta.valuesLength);if(!Number.isSafeInteger(valuesLength)||valuesLength<1||!Number.isSafeInteger(message.importId))throw new Error('fleet-seed-values-invalid');
+          store=null;replicaAssembly={importId:message.importId,meta:{length,live:meta.live,structure:meta.structure,revision:meta.revision},rows:rows.buffer,rowAt:length,values:new Array(valuesLength),valueAt:0,extras:{}};return;
+        }
         store=STORE.importReplica({length:meta.length,live:meta.live,structure:meta.structure,revision:meta.revision,values:message.values,extras:message.extras,rows:rows.buffer});STORE.disableReplicaLog(store);
         imported(message.importId);
         return;

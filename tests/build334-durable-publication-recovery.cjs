@@ -8,6 +8,7 @@ function environment({failPublish=false,failPersist=false}={}){
  const persistence=e.s.GH_PERSISTENCE;
  Object.assign(e.s,{state:e.state,hardResetInProgress:false,durableCommandInProgress:false,storageKey:key,APP_VERSION:'3.0.0',clone:structuredClone,routeRuntimeForState:()=>({}),replaceLiveState:draft=>{if(failPublish)throw new Error('audit-publication-failure');e.s.GH_TRANSACTION_CORE.restoreObject(e.state,draft);},diag:(type,detail)=>events.push({type,detail}),notice:()=>{},yieldForInteractivePaint:()=>Promise.resolve(),fleetStepSettled:()=>Promise.resolve(),simulationEngine:{cancelAdvance:()=>{}},console:{...console,warn:()=>{},error:()=>{}}});
  if(failPersist)e.s.GH_PERSISTENCE={...persistence,commitDurableState:async()=>{throw new Error('audit-persist-rejected');}};
+ const traceStart=app.indexOf('  const appMetricClock='),traceEnd=app.indexOf('  function recordRenderMetric(',traceStart);assert(traceStart>=0&&traceEnd>traceStart);vm.runInContext(app.slice(traceStart,traceEnd),e.s);
  vm.runInContext(app.slice(stagedStart,stagedEnd),e.s);vm.runInContext(app.slice(start,end),e.s);return {...e,key,events,persistence};
 }
 (async()=>{

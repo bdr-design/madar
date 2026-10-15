@@ -1,7 +1,18 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const fixture=require('./fixtures/fleet-business-boundary.json'),root=path.resolve(__dirname,'..');
-for(const [file,expected] of Object.entries(fixture.files))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),expected,`fleet customer/price boundary changed: ${file}`);
+const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
+for(const [file,expected] of Object.entries(fixture.files)){
+ let source=fs.readFileSync(path.join(root,file),'utf8');
+ if(file==='WebApp/route-core.js'){
+  const addition=fixture.approved_route_capacity_extension,start=source.indexOf(addition.begin),end=source.indexOf(addition.end,start);
+  assert.ok(start>=0&&end>start,'the reviewed capacity helper must have one exact source boundary');
+  assert.equal(hash(source.slice(start,end)),addition.sha256,'capacity extension changed: review its safety tests before approval');
+  assert.equal((source.match(/,allocateAvailableForBudget,NEAR_DUPLICATE/g)||[]).length,1,'only the reviewed helper export may be added');
+  source=(source.slice(0,start)+source.slice(end)).replace(',allocateAvailableForBudget,NEAR_DUPLICATE',',NEAR_DUPLICATE');
+ }
+ assert.equal(hash(source),expected,`fleet customer/price boundary changed: ${file}`);
+}
 const {harness}=require('./helpers/core-harness'),{s}=harness(['operating-acquisition-core','business-options-ui']);
 // The authorised dealer accounting/stock fix changes this assetless owner, while its economic constants stay pinned.
 const local=harness([]);local.s.GH_AUTHORIZATION={registerCommandTargetResolver(){}};local.load('customer-companies-core');

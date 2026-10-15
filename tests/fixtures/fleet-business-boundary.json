@@ -17,5 +17,11 @@
   "economic_constants": {
     "OEMS": "3c0c42e1082eff4336592a3d37cfdf407c95fbf66b7a3454a6e8710febc7ef04",
     "PLANS": "c1144df9b438f1082a8621543416f24766a116f250527885d013478e85aa0036"
+  },
+  "approved_route_capacity_extension": {
+    "reason": "Authorised capacity admission fix only; the original route/customer/pricing source hash remains enforced after removing this exact reviewed addition.",
+    "begin": "  // Keep the existing complete allocation when it fits.",
+    "end": "  function execute(ctx,command,payload={}){",
+    "sha256": "01d9b8ebc131155c65708f33581236b87058c53dd4319fed0ad8eee2dc4799c3"
   }
 }

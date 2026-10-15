@@ -222,6 +222,63 @@
     if(!out)out=jsonClone(value);
     return globalThis.GH_STATE_CODEC?.inheritColdArchive?.(value,out)||out;
   }
+  // Cooperative durable-draft copy. The caller owns the live-state lock throughout; the journaled fleet and sealed
+  // records follow the same sharing rules as deepClone. Each yield is outside a measured synchronous slice.
+  async function deepCloneInSlices(value,{shareJournaledRoots=false,shareSealed=shareJournaledRoots,yieldToHost,budgetMs=4,onSlice=null}={}){
+    if(typeof yieldToHost!=='function')return deepClone(value,{shareJournaledRoots,shareSealed});
+    const initialStarted=runtimeClock(),seen=new Map(),keys=Object.keys(value),source={},targets=new Map(),roots=new Map();
+    for(const key of keys){
+      if(JOURNALED_ROOTS.has(key))continue;const root=value[key],collections=shareSealed&&SEALED_COLLECTIONS.get(key);
+      if(shareSealed&&SEALED_ROOTS.has(key)&&Array.isArray(root)){roots.set(key,root);continue;}
+      if(collections&&root&&typeof root==='object'&&!Array.isArray(root)&&plainData(root)){
+        const rows=collections.flatMap(name=>sealedTargets(root,name).map(target=>({...target,options:collectionOptions(key,name)})));
+        if(rows.length){targets.set(key,rows);source[key]=withoutTargets(root,rows);continue;}
+      }
+      source[key]=root;
+    }
+    function* copy(node,copySeen=seen){
+      const stack=[];let units=0;
+      const allocate=source=>{
+        if(typeof source==='function'||typeof source==='symbol')throw new TypeError('durable-draft-non-data-value');if(!source||typeof source!=='object')return source;if(copySeen.has(source))return copySeen.get(source);
+        const tag=Object.prototype.toString.call(source);let out;
+        if(tag==='[object ArrayBuffer]'){out=new ArrayBuffer(source.byteLength);stack.push({binary:true,source:new Uint8Array(source),out:new Uint8Array(out),at:0});}
+        else if(ArrayBuffer.isView(source)){const buffer=allocate(source.buffer);out=tag==='[object DataView]'?new DataView(buffer,source.byteOffset,source.byteLength):new source.constructor(buffer,source.byteOffset,source.length);}
+        else if(plainData(source)){out=Array.isArray(source)?new Array(source.length):{};stack.push({source,out,keys:Object.keys(source),at:0});}
+        else out=deepClone(source);
+        copySeen.set(source,out);return out;
+      };
+      const result=allocate(node);
+      while(stack.length){
+        const frame=stack[stack.length-1];
+        if(frame.binary){if(frame.at<frame.source.length){const end=Math.min(frame.source.length,frame.at+262144);frame.out.set(frame.source.subarray(frame.at,end),frame.at);frame.at=end;yield;continue;}stack.pop();continue;}
+        if(frame.at===frame.keys.length){stack.pop();continue;}
+        const key=frame.keys[frame.at++],next=allocate(frame.source[key]);
+        if(key==='__proto__')Object.defineProperty(frame.out,key,{value:next,writable:true,enumerable:true,configurable:true});else frame.out[key]=next;
+        if(++units%128===0)yield;
+      }
+      return result;
+    }
+    function* collectionCopy(collection,options=NO_OPTIONS){
+      if(SEALED.has(collection))return collection;
+      const out=Array.isArray(collection)?new Array(collection.length):{};let all=true;
+      for(const key of Object.keys(collection)){
+        const member=collection[key];let next=member;
+        if(member&&typeof member==='object'&&!sealMember(member,options.filter)){next=yield* copy(member,new Map());all=false;}
+        if(key==='__proto__')Object.defineProperty(out,key,{value:next,writable:true,enumerable:true,configurable:true});else out[key]=next;yield;
+      }
+      return options.container&&all&&sealContainer(collection)?collection:out;
+    }
+    function* work(){
+      const cloned=yield* copy(source);
+      for(const [key,rows] of targets)for(const {path,collection,options} of rows){let node=cloned[key];for(let i=0;i<path.length-1;i++)node=node[path[i]];node[path[path.length-1]]=yield* collectionCopy(collection,options);}
+      const out={};for(const key of keys){if(JOURNALED_ROOTS.has(key)){if(shareJournaledRoots)out[key]=value[key];}else out[key]=roots.has(key)?yield* collectionCopy(roots.get(key)):cloned[key];yield;}
+      return globalThis.GH_STATE_CODEC?.inheritColdArchive?.(value,out)||out;
+    }
+    const iterator=work(),limit=Math.max(.5,Math.min(8,Number(budgetMs)||4));let started=initialStarted,measuring=true;
+    const note=()=>{if(!measuring)return;measuring=false;const ended=runtimeClock();try{onSlice?.(started,ended);}catch(_error){} };
+    try{for(;;){const next=iterator.next();if(next.done){note();return next.value;}if(runtimeClock()-started>=limit){note();await yieldToHost();started=runtimeClock();measuring=true;}}}
+    catch(error){note();throw error;}
+  }
   function registerJournaledRoot(name,hooks={}){
     name=String(name||'').trim();if(!/^[A-Za-z_$][\w$]*$/.test(name))throw new TypeError('transaction-journaled-root-name-invalid');
     const normalized={begin:typeof hooks.begin==='function'?hooks.begin:null,commit:typeof hooks.commit==='function'?hooks.commit:null,rollback:typeof hooks.rollback==='function'?hooks.rollback:null,revision:typeof hooks.revision==='function'?hooks.revision:null};
@@ -721,16 +778,16 @@
       const runCriticalTask=function*(task,staged){
         const row={key:task.key||null,owner:task.owner||null,priority:task.priority,durationMs:0,ok:false,irreversible:task.irreversible===true};let active=0,at=runtimeClock();
         try{
-          const out=task.fn();active+=runtimeClock()-at;
+          let out;try{out=task.fn();}finally{active+=runtimeClock()-at;}
           if(isStepIterator(out))for(;;){at=runtimeClock();let section;try{section=out.next();}finally{active+=runtimeClock()-at;}if(section.done)break;if(staged)yield typeof section.value==='string'&&section.value?`post-commit:${section.value.slice(0,40)}`:'post-commit';}
           row.ok=true;
         }finally{row.durationMs=Math.max(0,active);timing.postCommitCriticalTasks.push(row);}
       };
       const runCritical=tasks=>{for(const task of tasks)drainSteps(runCriticalTask(task,false));};
-      let criticalActiveMs=0,criticalStart=runtimeClock();try{
+      let criticalActiveMs=0,criticalStart=runtimeClock(),stagedCriticalFinished=!stageToken;try{
         // Staged: one reversible critical task per step, and one section per step of a task that returns sections (no
         // transaction is active during post-commit either way).
-        if(stageToken){for(let i=0;i<reversibleCritical.length;i++){const task=runCriticalTask(reversibleCritical[i],true);for(;;){const at=runtimeClock();let section;try{section=task.next();}finally{criticalActiveMs+=runtimeClock()-at;}if(section.done)break;yield section.value;}if(i<reversibleCritical.length-1)yield 'post-commit';}criticalStart=runtimeClock();}
+        if(stageToken){for(let i=0;i<reversibleCritical.length;i++){const task=runCriticalTask(reversibleCritical[i],true);for(;;){const at=runtimeClock();let section;try{section=task.next();}finally{criticalActiveMs+=runtimeClock()-at;}if(section.done)break;yield section.value;}if(i<reversibleCritical.length-1)yield 'post-commit';}criticalStart=runtimeClock();stagedCriticalFinished=true;}
         else runCritical(reversibleCritical);
         if(context.rollbackStorage==='journal'){
           const postCritical=validateJournalPostState(target,context.journal);if(!postCritical.ok){const error=new Error(`transaction-journal-contract-violation:${postCritical.reason}`);error.code='TRANSACTION_JOURNAL_CONTRACT_VIOLATION';throw error;}
@@ -741,7 +798,7 @@
           if(options.enforceWriteRoots===true&&undeclared.length){const error=new Error(`transaction-write-set-violation:${undeclared.join(',')}`);error.code='TRANSACTION_WRITE_SET_VIOLATION';error.undeclaredRoots=undeclared;throw error;}
         }
         phase='post-commit-irreversible';runCritical(irreversibleCritical);
-      }finally{timing.postCommitCriticalMs=Math.max(0,criticalActiveMs+runtimeClock()-criticalStart);}
+      }finally{timing.postCommitCriticalMs=Math.max(0,criticalActiveMs+(stagedCriticalFinished?runtimeClock()-criticalStart:0));}
       releaseUndos();
       const nonCriticalStart=runtimeClock();for(const task of context.postCommit.filter(x=>!x.critical)){const taskStart=runtimeClock(),row={key:task.key||null,owner:task.owner||null,priority:task.priority,durationMs:0,ok:false};try{task.fn();row.ok=true;}catch(error){row.error=String(error?.message||error).slice(0,240);globalThis.console?.warn?.(`${label}: non-critical post-commit side effect failed`,error);}finally{row.durationMs=Math.max(0,runtimeClock()-taskStart);timing.postCommitNonCriticalTasks.push(row);}}timing.postCommitNonCriticalMs=Math.max(0,runtimeClock()-nonCriticalStart);
       advanceRevision(target);timing.committed=true;timing.stage='committed';timing.totalMs=Math.max(0,runtimeClock()-totalStart);publishRuntimeMetric(timing);
@@ -774,21 +831,25 @@
     // Build 358: phase timings of every durable command (diagnostics: telemetry().lastDurable / durableSamples).
     const durableStart=runtimeClock(),durableTiming={label,cloneMs:0,inheritMs:0,baselineIntegrityMs:0,applyMs:0,validateMs:0,integrityMs:0,persistMs:0,publishMs:0,afterMs:0,totalMs:0,committed:false};let mark=durableStart;const lap=key=>{const now=runtimeClock();durableTiming[key]+=Math.max(0,now-mark);mark=now;};
     MONEY_GUARD.verify(liveState);
-    const transactionId=String(options.transactionId||`DTX-${String(++durableSequence).padStart(9,'0')}`),rootSessions=beginJournaledRoots(liveState);let draft;
-    try{draft=deepClone(liveState,{shareJournaledRoots:true});}catch(error){rollbackJournaledRoots(rootSessions);throw error;}
-    lap('cloneMs');
-    // Build 358: the draft's trusted validation below must not re-verify every proof the live state already verified.
-    try{globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(liveState,draft);}catch(_error){/* trust is an optimisation */}
-    lap('inheritMs');
-    const priorCritical=criticalIds(globalThis.GH_INTEGRITY_CORE?.check?.(liveState)),afterPublishTasks=[];lap('baselineIntegrityMs');
-    const context={schema:'gh-durable-transaction-v1',transactionId,label,liveState,draft,expectedRevision,startedAtSim:Number(liveState.simSeconds)||0,afterPublish(fn){if(typeof fn==='function')afterPublishTasks.push(fn);},call(domain,name,payload={},commandOptions={}){const commands=globalThis.GH_DOMAIN_COMMANDS;if(!commands?.dispatch)throw new Error('domain-command-owner-unavailable');return commands.dispatch({state:draft},domain,name,payload,commandOptions);},callSystem(domain,name,payload={},commandOptions={}){const commands=globalThis.GH_DOMAIN_COMMANDS;if(!commands?.dispatchSystem)throw new Error('system-domain-command-owner-unavailable');return commands.dispatchSystem({state:draft},domain,name,payload,commandOptions);}};
-    durableTargets.add(liveState);globalThis.__GH_DURABLE_COMMAND_CONTEXT__=context;let phase='apply',durableCommitted=false;
+    const transactionId=String(options.transactionId||`DTX-${String(++durableSequence).padStart(9,'0')}`),afterPublishTasks=[];
+    let rootSessions=[],draft,priorCritical,phase='prepare',durableCommitted=false;
+    const context={schema:'gh-durable-transaction-v1',transactionId,label,liveState,draft:null,expectedRevision,startedAtSim:Number(liveState.simSeconds)||0,afterPublish(fn){if(typeof fn==='function')afterPublishTasks.push(fn);},call(domain,name,payload={},commandOptions={}){const commands=globalThis.GH_DOMAIN_COMMANDS;if(!commands?.dispatch)throw new Error('domain-command-owner-unavailable');return commands.dispatch({state:draft},domain,name,payload,commandOptions);},callSystem(domain,name,payload={},commandOptions={}){const commands=globalThis.GH_DOMAIN_COMMANDS;if(!commands?.dispatchSystem)throw new Error('system-domain-command-owner-unavailable');return commands.dispatchSystem({state:draft},domain,name,payload,commandOptions);}};
+    durableTargets.add(liveState);globalThis.__GH_DURABLE_COMMAND_CONTEXT__=context;
     try{
+      rootSessions=beginJournaledRoots(liveState);
+      const yieldToHost=options.yieldToHost||options.persistence?.yieldToFrame;
+      durableTiming.cloneBusyMs=0;durableTiming.cloneMaxSliceMs=0;durableTiming.cloneYields=0;
+      const onSlice=(started,ended)=>{const busy=Math.max(0,ended-started);durableTiming.cloneBusyMs+=busy;durableTiming.cloneMaxSliceMs=Math.max(durableTiming.cloneMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.clone',started,ended);};
+      if(typeof yieldToHost==='function')draft=await deepCloneInSlices(liveState,{shareJournaledRoots:true,yieldToHost:async()=>{durableTiming.cloneYields++;await yieldToHost();},onSlice});
+      else{const started=runtimeClock();try{draft=deepClone(liveState,{shareJournaledRoots:true});}finally{onSlice(started,runtimeClock());}}
+      context.draft=draft;lap('cloneMs');
+      try{globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(liveState,draft);}catch(_error){/* trust is an optimisation */}
+      lap('inheritMs');priorCritical=criticalIds(globalThis.GH_INTEGRITY_CORE?.check?.(liveState));lap('baselineIntegrityMs');phase='apply';
       mark=runtimeClock();const value=await options.apply(draft,context);lap('applyMs');if(value===false)throw rejection(`${label}-rejected`,label,phase);
       if(context.poisoned)throw rejection(context.poisonReason||'durable-command-poisoned',label,phase);
       if(Number(draft.saveRevision||0)!==expectedRevision)throw rejection('draft-save-revision-mutated',label,phase);
       draft.saveRevision=expectedRevision+1;phase='validate';
-      mark=runtimeClock();const schema=globalThis.GH_SAVE_SCHEMA?.validate?.(draft,{trustVerified:true});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
+      mark=runtimeClock();let schema;try{schema=globalThis.GH_SAVE_SCHEMA?.validate?.(draft,{trustVerified:true});}finally{globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',mark,runtimeClock());}lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
       if(options.integrity!==false&&globalThis.GH_INTEGRITY_CORE?.check){const integrity=globalThis.GH_INTEGRITY_CORE.check(draft),introduced=(((integrity?.critical)||((integrity?.issues)||[]).filter(row=>row.severity==='critical'))||[]).filter(row=>!priorCritical.has(String(row.id||row.code||row.title)));if(introduced.length)throw rejection(`critical-integrity:${introduced.map(row=>row.id||row.code||row.title).join(',')}`,label,phase);}
       if(typeof options.validate==='function'){const validation=await options.validate(draft,context);if(validation===false||validation?.ok===false)throw rejection(validation?.reason||'validation-rejected',label,phase);}
       lap('integrityMs');
@@ -808,5 +869,5 @@
       throw error;
     }finally{if(!durableCommitted&&rootSessions.length)try{rollbackJournaledRoots(rootSessions);}catch{}if(globalThis.__GH_DURABLE_COMMAND_CONTEXT__===context)delete globalThis.__GH_DURABLE_COMMAND_CONTEXT__;durableTargets.delete(liveState);}
   }
-  const API=Object.freeze({VERSION,moneyGuard:MONEY_GUARD,deepClone,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,moneyGuard:MONEY_GUARD,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

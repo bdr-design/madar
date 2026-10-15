@@ -34,6 +34,7 @@ async function scenario({label,version='R3',action='diagnostics-run',native='val
  const stagedStart=app.indexOf('  function stagedStateBusy('),stagedEnd=app.indexOf('  function scheduleSimulationPersistence(',stagedStart);assert(stagedStart>=0&&stagedEnd>stagedStart);
  vm.runInContext(app.slice(stagedStart,stagedEnd),s,{filename:'app-staged-guard.js'});
  const ownerStart=app.indexOf('  function persistStateNow('),ownerEnd=app.indexOf('  if(startupLoadMeta',ownerStart);assert(ownerStart>=0&&ownerEnd>ownerStart);
+ const traceStart=app.indexOf('  const appMetricClock='),traceEnd=app.indexOf('  function recordRenderMetric(',traceStart);assert(traceStart>=0&&traceEnd>traceStart);vm.runInContext(app.slice(traceStart,traceEnd),s,{filename:'app-work-trace.js'});
  vm.runInContext(app.slice(ownerStart,ownerEnd),s,{filename:'app-save-owner.js'});
  const listenerStart=app.indexOf('  let savePressureNoticeShown=false;'),listenerEnd=app.indexOf("  window.addEventListener('gh-native-recovery'",listenerStart);assert(listenerStart>=0&&listenerEnd>listenerStart);
  vm.runInContext(app.slice(listenerStart,listenerEnd),s,{filename:'app-reconciliation-listener.js'});
@@ -61,14 +62,14 @@ async function scenario({label,version='R3',action='diagnostics-run',native='val
 }
 (async()=>{
  const cases=[
- {label:'Single diagnostics saves once with valid ack',expectedSaves:1},
+ {label:'Read-only diagnostics refreshes without saving',expectedSaves:0},
  {label:'Central check saves exactly once, not twice',action:'control-run',expectedSaves:1},
- {label:'Queued earlier save retains both snapshot envelopes',priorSave:true,expectedSaves:2},
- {label:'Critical health alone does not force recovery',health:'critical',expectedSaves:1},
- {label:'Browser-only diagnostics does not enter native recovery',native:'none',expectedSaves:1},
- {label:'Native refusal displays bounded recovery with manual retry',native:'nack',expectScreen:true,expectedSaves:1},
- {label:'Lost ACK pauses and exposes manual recovery, without reload loop',native:'silent',expectScreen:true,expectedSaves:1},
- {label:'Wrong ACK rejected then protected recovery',native:'wrong-hash',expectScreen:true,expectedSaves:1}
+ {label:'Queued earlier save and central check retain both snapshot envelopes',action:'control-run',priorSave:true,expectedSaves:2},
+ {label:'Critical diagnostic health alone neither saves nor forces recovery',health:'critical',expectedSaves:0},
+ {label:'Browser-only diagnostics neither saves nor enters recovery',native:'none',expectedSaves:0},
+ {label:'Native refusal displays bounded recovery with manual retry',action:'control-run',native:'nack',expectScreen:true,expectedSaves:1},
+ {label:'Lost ACK pauses and exposes manual recovery, without reload loop',action:'control-run',native:'silent',expectScreen:true,expectedSaves:1},
+ {label:'Wrong ACK rejected then protected recovery',action:'control-run',native:'wrong-hash',expectScreen:true,expectedSaves:1}
  ];
  const results=[];for(const c of cases)try{results.push(await scenario(c));}catch(e){results.push({...c,passed:false,error:String(e.stack||e)});}
  const output={scope:'Controlled integration with explicit browser/native endpoint fixtures: real GH_ADVANCED.bind/handleAction, app save owner, GH_PERSISTENCE, app recovery listener. DOM/health/Native endpoint and timers are controlled. No iPhone, no production state or code modified.',node:process.version,hashes:{app:hash(app),originalPersistence:hash(original),R3Persistence:hash(current)},passed:results.filter(r=>r.passed).length,total:results.length,results};

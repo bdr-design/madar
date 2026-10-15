@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 364,
+  "minimum_acceptance_gates": 378,
   "required_commands": [
     [
       "node",
@@ -1456,6 +1456,62 @@
     [
       "node",
       "tests/native-save-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-cheque-payable-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-daily-worker-integration.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-critical-timing.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-diagnostic-lifecycle-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-route-capacity.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-route-capacity-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-save-slice-telemetry.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-frame-work-attribution.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-cooperative-draft.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-cooperative-draft-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-seed-metadata-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build377-health-status-browser.cjs"
     ]
   ]
 }

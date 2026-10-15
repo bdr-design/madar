@@ -29,12 +29,13 @@
   // a single sample can include a GC or scheduler pause unrelated to the exchange's own work.
   const SYNC_BUDGET_MS=4.5;
 
-  function create({workerFactory,resolveRoute,catalogSpecs,routesRevision=()=>0,clock=()=>performance.now(),timeoutMs=15000,replicaRowSlice=4096,replicaValueSlice=512,replicaExtraSlice=256,replicaBudgetMs=4}={}){
+  function create({workerFactory,resolveRoute,catalogSpecs,routesRevision=()=>0,clock=()=>performance.now(),timeoutMs=15000,replicaRowSlice=4096,replicaValueSlice=512,replicaExtraSlice=256,replicaBudgetMs=4,onMainThreadWork=null}={}){
     let worker=null,disabled=null,nextId=1,needsFull=true,synced=null,routeTable=new Map(),routesAt=null,pending=null,windowSession=null,mutationSession=null,lastBudgetTime=Infinity,importId=0,routesReady=true,replicaBuild=null;
-    const tickets=new Map(),waiters=[],inspections=new Map(),healthChecks=new Map(),classRequests=new Map(),queryRequests=new Map(),dispatchRequests=new Map(),stats={requests:0,applied:0,fallbacks:0,windowBegins:0,windowSteps:0,windowCommits:0,windowRollbacks:0,windowFallbacks:0,fullSyncs:0,seedSyncs:0,incrementalSyncs:0,columnSyncs:0,columnPlanSyncs:0,compactions:0,rowsSent:0,routeKeysAnswered:0,deferredRequests:0,windowDeferred:0,replicaPrimeSlices:0,replicaPrimeRestarts:0,replicaPrimeFailures:0,replicaPrimeRows:0,replicaPrimeValues:0,replicaPrimeExtras:0,lastReplicaPrimeSliceMs:0,maxReplicaPrimeSliceMs:0,lastWorkerMs:0,lastApplyMs:0,lastSyncMs:0,maxWorkerMs:0,maxApplyMs:0,maxSyncMs:0,maxFullSyncMs:0,maxSeedSyncMs:0,maxRouteAnswerMs:0,slowSyncs:0,lastReason:'',fullSyncReasons:{}};
+    const tickets=new Map(),waiters=[],inspections=new Map(),healthChecks=new Map(),classRequests=new Map(),queryRequests=new Map(),dispatchRequests=new Map(),stats={requests:0,applied:0,fallbacks:0,windowBegins:0,windowSteps:0,windowCommits:0,windowRollbacks:0,windowFallbacks:0,fullSyncs:0,seedSyncs:0,incrementalSyncs:0,columnSyncs:0,columnPlanSyncs:0,compactions:0,rowsSent:0,routeKeysAnswered:0,deferredRequests:0,windowDeferred:0,replicaPrimeSlices:0,replicaPrimeRestarts:0,replicaPrimeFailures:0,replicaPrimeRows:0,replicaPrimeValues:0,replicaPrimeExtras:0,seedMetadataSlices:0,lastReplicaPrimeSliceMs:0,maxReplicaPrimeSliceMs:0,lastWorkerMs:0,lastApplyMs:0,lastSyncMs:0,maxWorkerMs:0,maxApplyMs:0,maxSyncMs:0,maxFullSyncMs:0,maxSeedSyncMs:0,maxRouteAnswerMs:0,slowSyncs:0,lastReason:'',fullSyncReasons:{}};
     replicaRowSlice=Math.max(256,Math.floor(Number(replicaRowSlice)||4096));replicaValueSlice=Math.max(64,Math.floor(Number(replicaValueSlice)||512));replicaExtraSlice=Math.max(32,Math.floor(Number(replicaExtraSlice)||256));replicaBudgetMs=Math.max(1,Math.min(8,Number(replicaBudgetMs)||4));
     const scheduleReplica=fn=>typeof globalThis.requestAnimationFrame==='function'?{kind:'frame',id:globalThis.requestAnimationFrame(()=>fn())}:{kind:'timer',id:setTimeout(fn,0)};
     const cancelReplica=task=>{if(!task)return;if(task.kind==='frame'&&typeof globalThis.cancelAnimationFrame==='function')globalThis.cancelAnimationFrame(task.id);else clearTimeout(task.id);};
+    function measuredWork(stage,work){if(typeof onMainThreadWork!=='function')return work();const started=clock();try{return work();}finally{try{onMainThreadWork(stage,started,clock());}catch(_error){/* diagnostics cannot affect the replica */}}}
     const settleWaiters=()=>{if(pending||windowSession||mutationSession||dispatchRequests.size||replicaBuild)return;while(waiters.length)waiters.shift()();};
     function disable(reason){
       if(disabled)return;disabled=String(reason||'disabled');stats.lastReason=disabled;
@@ -65,7 +66,7 @@
     function post(message,transfer){worker.postMessage(message,transfer||[]);}
     function receive(message){
       if(message.type==='error'){disable(`worker:${message.error}`);return;}
-      if(message.type==='route-keys'){answerRouteKeys(message);return;}
+      if(message.type==='route-keys'){measuredWork('fleet.route-answers',()=>answerRouteKeys(message));return;}
       if(message.type==='health'){const entry=healthChecks.get(message.id);healthChecks.delete(message.id);if(entry){stats.lastHealthWorkerMs=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+stats.lastHealthWorkerMs;stats.maxHealthWorkerMs=Math.max(stats.maxHealthWorkerMs||0,stats.lastHealthWorkerMs);entry.resolve(message.unavailable||!Array.isArray(message.issues)?null:{...entry.tag,issues:message.issues});}return;}
       if(message.type==='classes'){const entry=classRequests.get(message.id);classRequests.delete(message.id);if(entry){stats.lastClassesWorkerMs=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+stats.lastClassesWorkerMs;stats.maxClassesWorkerMs=Math.max(stats.maxClassesWorkerMs||0,stats.lastClassesWorkerMs);entry.resolve(message.unavailable||!Array.isArray(message.rows)?null:{...entry.tag,rows:message.rows,ids:message.ids||null});}return;}
       if(message.type==='query'){const entry=queryRequests.get(message.id);queryRequests.delete(message.id);if(entry){const ms=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+ms;stats.maxQueryWorkerMs=Math.max(stats.maxQueryWorkerMs||0,ms);entry.resolve(message.unavailable||!message.result||message.result.legacy?null:{...entry.tag,result:message.result});}return;}
@@ -142,18 +143,20 @@
       if(restart&&build.attempt<2&&!disabled&&worker){stats.replicaPrimeRestarts++;startStagedReplica(build.store,build.reason,build.attempt+1);return;}
       stats.replicaPrimeFailures++;deferredPrimeFailed(reason);settleWaiters();
     }
+    const replicaBuildFresh=build=>build.seed?STORE.chunkStamp(build.store).runtime===build.runtime:STORE.replicaSnapshotFresh(build.store,build.snapshot);
     function completeReplicaBuild(build){
-      if(build!==replicaBuild||!STORE.replicaSnapshotFresh(build.store,build.snapshot))return abandonReplicaBuild(build,'replica-prime-stale',{restart:true});
+      if(build!==replicaBuild||!replicaBuildFresh(build))return abandonReplicaBuild(build,'replica-prime-stale',{restart:true});
       post({type:'replica-end',importId:build.id});
       replicaBuild=null;synced={store:build.store,runtime:build.runtime,valuesLength:build.valuesLength,length:build.length};needsFull=false;
-      stats.fullSyncs++;stats.lastSyncMs=build.workMs;stats.maxFullSyncMs=Math.max(stats.maxFullSyncMs,build.maxSliceMs);stats.maxSyncMs=Math.max(stats.maxSyncMs,build.maxSliceMs);stats.lastReplicaPrimeMs=clock()-build.started;stats.maxReplicaPrimeMs=Math.max(stats.maxReplicaPrimeMs||0,stats.lastReplicaPrimeMs);settleWaiters();
+      if(build.seed){stats.seedSyncs++;stats.maxSeedSyncMs=Math.max(stats.maxSeedSyncMs,build.maxSliceMs);}else{stats.fullSyncs++;stats.maxFullSyncMs=Math.max(stats.maxFullSyncMs,build.maxSliceMs);}stats.lastSyncMs=build.workMs;stats.maxSyncMs=Math.max(stats.maxSyncMs,build.maxSliceMs);stats.lastReplicaPrimeMs=clock()-build.started;stats.maxReplicaPrimeMs=Math.max(stats.maxReplicaPrimeMs||0,stats.lastReplicaPrimeMs);settleWaiters();
     }
-    function runReplicaBuild(build){
+    function runReplicaBuild(build){return measuredWork('fleet.replica-slice',()=>runReplicaBuildWork(build));}
+    function runReplicaBuildWork(build){
       if(build!==replicaBuild||disabled||!worker)return;
       build.task=null;const sliceStarted=clock();let pieces=0;
       try{
-        while(pieces<4&&clock()-sliceStarted<replicaBudgetMs){
-          if(!STORE.replicaSnapshotFresh(build.store,build.snapshot)){abandonReplicaBuild(build,'replica-prime-stale',{restart:true});return;}
+        while(pieces<(build.seed?16:4)&&clock()-sliceStarted<replicaBudgetMs){
+          if(!replicaBuildFresh(build)){abandonReplicaBuild(build,'replica-prime-stale',{restart:true});return;}
           if(build.rowAt<build.length){
             const from=build.rowAt,count=Math.min(replicaRowSlice,build.length-from),start=from*STORE.STRIDE,bytes=build.snapshot.rows.slice(start,start+count*STORE.STRIDE);build.rowAt+=count;
             post({type:'replica-chunk',importId:build.id,kind:'rows',from,count,bytes},[bytes]);stats.replicaPrimeRows+=count;
@@ -167,8 +170,8 @@
           pieces++;
         }
       }catch(error){disable(`replica-prime:${error?.message||error}`);return;}
-      const elapsed=clock()-sliceStarted;build.workMs+=elapsed;build.maxSliceMs=Math.max(build.maxSliceMs,elapsed);stats.replicaPrimeSlices++;stats.lastReplicaPrimeSliceMs=elapsed;stats.maxReplicaPrimeSliceMs=Math.max(stats.maxReplicaPrimeSliceMs,elapsed);
-      if(!STORE.replicaSnapshotFresh(build.store,build.snapshot)){abandonReplicaBuild(build,'replica-prime-stale',{restart:true});return;}
+      const elapsed=clock()-sliceStarted;build.workMs+=elapsed;build.maxSliceMs=Math.max(build.maxSliceMs,elapsed);stats.replicaPrimeSlices++;if(build.seed)stats.seedMetadataSlices++;stats.lastReplicaPrimeSliceMs=elapsed;stats.maxReplicaPrimeSliceMs=Math.max(stats.maxReplicaPrimeSliceMs,elapsed);
+      if(!replicaBuildFresh(build)){abandonReplicaBuild(build,'replica-prime-stale',{restart:true});return;}
       if(build.rowAt===build.length&&build.valueAt===build.valuesLength&&build.extrasDone){completeReplicaBuild(build);return;}
       build.task=scheduleReplica(()=>runReplicaBuild(build));
     }
@@ -179,6 +182,14 @@
       post({type:'replica-begin',importId:id,meta:{length:snapshot.length,live:snapshot.live,structure:snapshot.structure,revision:snapshot.revision,valuesLength:snapshot.values.length}});
       build.task=scheduleReplica(()=>runReplicaBuild(build));return false;
     }
+    // Vault row buffers still transfer without a main-thread copy. A large metadata table is streamed separately so
+    // postMessage cannot synchronously clone the whole value/extra tree in prime(). The immutable seed is a baseline;
+    // writes since it was captured stay in the Store's existing replica log and are sent before any query/step.
+    function startSeedReplica(store,seed,runtime,buffers){
+      const id=++importId,build={id,store,seed:true,reason:'seed-metadata',attempt:0,runtime,length:seed.length,valuesLength:seed.values.length,rowAt:seed.length,valueAt:0,snapshot:seed,extras:extraEntries(seed.extras),extrasDone:false,started:clock(),workMs:0,maxSliceMs:0,task:null};
+      post({type:'seed',importId:id,streamMetadata:true,meta:{length:seed.length,live:seed.live,structure:seed.structure,revision:seed.revision,chunkBytes:seed.chunkBytes,byteLength:seed.byteLength,valuesLength:seed.values.length},chunks:seed.chunks},buffers);
+      synced=null;needsFull=true;replicaBuild=build;build.task=scheduleReplica(()=>runReplicaBuild(build));return false;
+    }
     // A decoded store still moves its seed buffers directly. A small synthetic store keeps the simple synchronous path.
     // A larger store with no seed is streamed in bounded frame slices: no exportReplica, full value-table map, extras
     // enumeration or record-buffer copy runs in the initiating call. Freshness is proved after every yield and before
@@ -188,7 +199,9 @@
       const started=clock(),runtime=STORE.chunkStamp(store).runtime,seed=STORE.takeReplicaSeed(store);
       routeTable=new Map();routesAt=routesRevision();routesReady=false;
       if(seed){
-        const id=++importId,buffers=[...new Set(seed.chunks)];
+        const buffers=[...new Set(seed.chunks)];
+        if(seed.values.length>2048)return startSeedReplica(store,seed,runtime,buffers);
+        const id=++importId;
         post({type:'seed',importId:id,meta:{length:seed.length,live:seed.live,structure:seed.structure,revision:seed.revision,chunkBytes:seed.chunkBytes,byteLength:seed.byteLength},values:seed.values,extras:seed.extras,chunks:seed.chunks},buffers);
         synced={store,runtime,valuesLength:seed.values.length,length:seed.length};
         stats.seedSyncs++;stats.lastSyncMs=clock()-started;stats.maxSeedSyncMs=Math.max(stats.maxSeedSyncMs,stats.lastSyncMs);stats.maxSyncMs=Math.max(stats.maxSyncMs,stats.lastSyncMs);needsFull=false;return true;
@@ -208,7 +221,8 @@
     // Brings the replica up to this store. Returns false while the worker's route pairs are not answered (a step then
     // waits as a deferred ticket). `into` ({step}, {window}, or {mutation}: its id) sends the rows into that open journal
     // (syncIntoOpen); the worker refuses any other sync while one is open.
-    function sync(store,into=null){
+    function sync(store,into=null){return measuredWork('fleet.sync',()=>syncWork(store,into));}
+    function syncWork(store,into=null){
       const runtime=STORE.chunkStamp(store).runtime;
       const reason=needsFull?'stale':!synced?'first':synced.store!==store?'store-replaced':synced.runtime!==runtime?'store-runtime':'';
       if(reason&&!newReplica(store,reason))return false;

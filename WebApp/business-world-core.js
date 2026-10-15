@@ -11,7 +11,7 @@ const num=v=>Math.max(0,Number(v)||0),now=s=>Number(s.simSeconds)||0,day=s=>Math
 const norm=v=>String(v||'').trim().toLowerCase().replace(/[\s._,،/\\()-]+/g,' ');
 const unique=a=>[...new Set((a||[]).filter(Boolean).map(String))];
 const trim=(a,n)=>{if(Array.isArray(a)&&a.length>n)a.length=n;return a;};
-function retainBusinessEvents(events){if(!Array.isArray(events)||events.length<=240)return Array.isArray(events)?events:[];const official=events.filter(event=>event?.official===true).slice(0,160),others=events.filter(event=>event?.official!==true).slice(0,Math.max(0,240-official.length));return [...official,...others].sort((a,b)=>(Number(b.at)||0)-(Number(a.at)||0)).slice(0,240);}
+function retainBusinessEvents(events){if(!Array.isArray(events)||events.length<=240)return Array.isArray(events)?events:[];const official=events.filter(isOfficialNewsEvent).slice(0,160),others=events.filter(event=>!isOfficialNewsEvent(event)).slice(0,Math.max(0,240-official.length));return [...official,...others].sort((a,b)=>(Number(b.at)||0)-(Number(a.at)||0)).slice(0,240);}
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,Number(value)||0));
 const platform=()=>globalThis.GH_COMPANY_PLATFORM||null;
 function requireBusinessCompany(s,value,{operational=true}={}){
@@ -117,10 +117,115 @@ function touchRelationship(s,{partyId,company='group',role='customer',reference=
  r.roles=unique([...r.roles,role]);if(contractId)r.contractIds=unique([contractId,...r.contractIds]).slice(0,80);if(documentNumber)r.documentNumbers=unique([documentNumber,...r.documentNumbers]).slice(0,120);if(transferRef)r.transferRefs=unique([transferRef,...r.transferRefs]).slice(0,120);if(reference)r.lastReference=String(reference);r.lastInteractionAt=now(s);b.relationships[key]=r;return r;
 }
 function recordEvent(s,p={}){
- const b=ensure(s),ref=String(p.reference||'').trim(),kind=String(p.kind||'commercial'),company=ownerFromPayload(s,p);
- if(ref){const old=b.events.find(e=>e.reference===ref&&e.kind===kind);if(old)return old;}
+ const b=ensure(s),ref=String(p.reference||'').trim(),kind=String(p.kind||'commercial'),company=p.scope==='group'?requireBusinessCompany(s,p.ownerCompanyId||p.company,{operational:false}):ownerFromPayload(s,p);
+ if(ref){const old=b.events.find(e=>e.reference===ref&&e.kind===kind&&String(e.ownerCompanyId||e.company||'group')===company);if(old)return old;}
  const id=`BW-EVT-${String(++b.sequence).padStart(6,'0')}`,row={id,at:now(s),day:day(s),kind,category:p.category||'business',partyId:p.partyId||null,company,ownerCompanyId:company,title:String(p.title||'حدث تجاري'),detail:String(p.detail||''),amount:num(p.amount),reference:ref||id,severity:p.severity||'neutral',official:p.official===true,sourceDomain:p.official?String(p.sourceDomain||'business-world'):null,sourceRef:p.official?String(p.sourceRef||ref||id):null,documentRef:p.official?String(p.documentRef||''):null};
+ if(p.scope==='group'){row.scope='group';row.commandId=String(p.commandId||'');row.commandName=String(p.commandName||'');row.sourceView=String(p.sourceView||'');row.companyName=String(p.companyName||'').slice(0,120);row.destination=String(p.destination||'');row.destinationId=String(p.destinationId||'');row.count=Math.max(1,Math.floor(Number(p.count)||1));}
  b.events.unshift(row);b.events=retainBusinessEvents(b.events);return row;
+}
+// A bounded projection of completed group actions. No timers, fleet scans, customer/pricing writes or extra saves.
+const NEWS_COMMANDS=Object.freeze({
+ corporate:new Set(['found-group','open-company','rename-company','set-ipo','record-agm']),
+ facilities:new Set(['create','expand','close','open-regional-hq']),
+ procurement:new Set(['purchase-assets','award-construction','complete-construction']),
+ finance:new Set(['issue-cheque','settle-cheque','settle-payable','pay-taxes','collect-receivable','collect-receivables-by-cheque','record-payroll-report','close-vat-period','founder-investment','founder-withdrawal']),
+ hr:new Set(['appoint-official-manager','appoint-all-official-managers','dismiss-official-manager','hire','hire-executive'])
+});
+// Completed sector decisions, not recurring ticks, price refreshes, pending offers or simulation telemetry.
+const NEWS_SECTOR_ACTIONS=Object.freeze({
+ energy:{company:'power',panel:'energy',actions:{'acquire-operating':['procurement','الاستحواذ على تشغيل محطة'],'accept-ppa':['contract','اعتماد عقد بيع طاقة'],'sign-fuel-contract':['contract','اعتماد عقد توريد وقود'],'finance-project':['payment','تمويل مشروع طاقة'],'schedule-maintenance':['facility','جدولة صيانة محطة']}},
+ banking:{company:'bank',panel:'bank',actions:{'open-branch':['facility','افتتاح فرع مصرفي'],'acquire-operating':['procurement','الاستحواذ على أعمال مصرفية'],'decide-loan-request':['contract','إصدار قرار بشأن طلب تمويل'],'approve-loan-requests-batch':['contract','معالجة دفعة طلبات تمويل'],'draw-facility':['payment','تنفيذ سحب من تسهيل ائتماني'],'raise-wholesale-funding':['payment','اعتماد تمويل مصرفي'],'trade-instrument':['contract','إصدار مستند تمويل تجاري']}},
+ realestate:{company:'realestate',panel:'realestate',actions:{'start-project':['facility','بدء مشروع عقاري'],'acquire-operating':['procurement','الاستحواذ على تشغيل عقاري'],'finance-construction':['payment','تمويل إنشاء مشروع عقاري'],'lease-to-company':['contract','اعتماد عقد تأجير لشركة'],'sell-to-fund':['payment','تنفيذ بيع عقاري لصندوق'],'decide-request':['contract','إصدار قرار بشأن طلب عقاري'],'decide-requests-batch':['contract','معالجة دفعة طلبات عقارية']}},
+ governance:{company:'group',panel:'groupManagement',actions:{'research-fund':['company','اعتماد تمويل مرحلة بحثية','research'],'tick-research':['company','اكتمال مرحلة بحثية للمجموعة','research'],'esg-program':['company','اعتماد برنامج استدامة','esg'],'safety-audit':['company','تنفيذ مراجعة سلامة','compliance'],'cyber-drill':['company','تنفيذ تدريب للأمن السيبراني','compliance'],'sea-cii-plan':['company','اعتماد خطة كفاءة بحرية']}},
+ market:{company:'group',panel:'stocks',actions:{'trade-stock':['payment','تنفيذ صفقة أسهم'],'buy-stake':['procurement','شراء حصة استثمارية'],'sell-stake':['payment','بيع حصة استثمارية'],'hedge-fuel':['contract','اعتماد عقد تحوط وقود']}},
+ mobility:{company:'mobility',panel:'companyManage',actions:{'buy-fleet':['procurement','اعتماد شراء مركبات تنقل'],'sell-vehicle':['payment','بيع مركبة تنقل']}},
+ 'customer-companies':{company:'dealership',panel:'companyManage',actions:{'receive-stock':['procurement','استلام مخزون وكالة'],'retail-sale':['payment','تنفيذ بيع سيارة'],'telecom-upgrade-network':['facility','ترقية شبكة اتصالات'],'telecom-decide-request':['contract','إصدار قرار بشأن طلب اتصالات'],'telecom-decide-requests-batch':['contract','معالجة دفعة طلبات اتصالات']}}
+});
+const NEWS_KINDS=Object.freeze({contract:'العقود',payment:'المالية',billing:'الفوترة الشهرية',sponsorship:'الرعايات',company:'المجموعة والشركات',facility:'المنشآت',procurement:'المشتريات',workforce:'الموارد البشرية'});
+const newsViews=new WeakMap(),newsBatches=new WeakMap();
+const EMPTY_NEWS=Object.freeze([]);
+const newsWork={viewBuilds:0,cacheHits:0,visited:0,published:0,aggregated:0};
+function supportsCommandNews(domain,name){return Object.prototype.hasOwnProperty.call(NEWS_COMMANDS,domain)&&NEWS_COMMANDS[domain].has(name)||Object.prototype.hasOwnProperty.call(NEWS_SECTOR_ACTIONS,domain)&&Object.prototype.hasOwnProperty.call(NEWS_SECTOR_ACTIONS[domain].actions,name);}
+function prepareCommandNews(s,domain,name,p={}){
+ if(!supportsCommandNews(domain,name))return null;
+ const target=domain==='facilities'&&p.id?globalThis.GH_FACILITY_CORE?.find?.(s,p.id):null;
+ const company=String(p.ownerCompanyId||p.companyId||p.company||p.facility?.ownerCompanyId||p.facility?.company||target?.ownerCompanyId||target?.company||(domain==='corporate'&&name!=='found-group'?p.type:'')||'group');
+ return {company,priorPeriods:name==='close-vat-period'?new Set((s.finance?.periods||[]).map(row=>row.id)):null,existingDocument:name==='record-payroll-report'&&(s.finance?.payrollReports||[]).some(row=>row.id===p.report?.id),alreadyOpen:name==='open-company'&&(s.openedCompanies||[]).includes(company),oldName:s.companyRegistry?.[company]?.legalName,facilityName:target?.name||p.facility?.name||'',facilityId:target?.id||p.facility?.id||p.id||''};
+}
+function recordCommandNews(s,domain,name,p={},r,meta={},before){
+ if(!before||r===false||r?.idempotent===true||r?.reason==='already-settled'||before.alreadyOpen||before.existingDocument)return null;
+ let company=String(r?.ownerCompanyId||r?.companyId||r?.company||before.company),kind='',title='',detail='',amount=0,count=1,ref='',destination='',destinationId='';
+ const record=s.companyRegistry?.[company],companyName=record?.legalName||(company==='group'?s.profile?.name:'')||company;
+ if(platform()&&!platform().resolveCompany(s,company)?.known)return null;
+ if(domain==='corporate'){
+  kind='company';destination='companyManage';destinationId=company;
+  if(name==='found-group'){company='group';title=`تأسيس ${s.profile?.name||'المجموعة'}`;ref=p.registry?.formationContract;destination='formationContract';destinationId='group';}
+  if(name==='open-company'){title=`تأسيس ${companyName} ضمن المجموعة`;amount=num(r?.paidInCapital);ref=r?.formationContract||r?.commercialRegistration;destination='formationContract';}
+  if(name==='rename-company'){if(before.oldName===p.legalName)return null;title=`تحديث اسم ${before.oldName||companyName} إلى ${companyName}`;ref=record?.commercialRegistration;}
+  if(name==='set-ipo'){if(p.listed!==true)return null;title=`إدراج ${s.profile?.name||'المجموعة'} في السوق`;amount=num(p.proceeds);destination='stocks';destinationId='ipo';}
+  if(name==='record-agm'){title=`انعقاد الجمعية العمومية للمجموعة لعام ${p.year}`;destination='groupManagement';destinationId='';}
+ }else if(domain==='facilities'){
+  kind='facility';title=`${name==='close'?'إغلاق':name==='expand'?'توسعة':'افتتاح'} ${before.facilityName||'منشأة للمجموعة'}`;ref=r?.invoiceRef||before.facilityId||r?.id;destination=name==='close'?'companyFacilities':'facilityManage';destinationId=name==='close'?company:String(r?.facilityId||r?.id||before.facilityId);
+ }else if(domain==='procurement'){
+  kind='procurement';destination='procurement';destinationId='';
+  if(name==='purchase-assets'){count=Math.floor(num(r?.count));if(!count)return null;title=`اعتماد شراء أصول لصالح ${companyName}`;detail=`${count.toLocaleString('en-US')} أصل ضمن أمر شراء معتمد؛ التسليم بحسب حالة الأمر.`;amount=num(p.totalPrice)||num(p.item?.price)*count;ref=r?.orderId;}
+  if(name==='award-construction'){title=`ترسية مشروع ${p.siteName||'إنشاء جديد'} لصالح ${companyName}`;ref=r?.id||r?.contractId;amount=num(r?.amount||p.bid?.quote);}
+  if(name==='complete-construction'){title=`اكتمال مشروع ${r?.name||r?.siteName||'إنشاء'} لصالح ${companyName}`;ref=r?.id||p.id;}
+ }else if(domain==='hr'){
+  kind='workforce';destination='labor';destinationId='managers';
+  if(name==='appoint-all-official-managers'){count=num(r?.appointed?.length??r?.appointed??r?.count);if(!count)return null;company='group';title='تعيين مديري الشركات التابعة';}
+  else if(name==='appoint-official-manager')title=`تعيين المدير الرسمي لشركة ${companyName}`;
+  else if(name==='dismiss-official-manager'){if(r?.dismissed===false)return null;title=`إنهاء تكليف المدير الرسمي لشركة ${companyName}`;}
+  else{count=num(r?.total??r?.hired??r?.count);if(!count)return null;title=`اعتماد توظيف لصالح ${companyName}`;destinationId='contracts';}
+  ref=r?.appointment?.contractId||r?.contractId;
+ }else if(domain==='finance'){
+  kind='payment';destination='invoices';destinationId=company;amount=num(r?.amount??r?.amountPaid??r?.total??r?.report?.total);
+  ref=r?.reference||r?.ref||r?.id||r?.chequeId||r?.settlementId||p.number||p.id||p.report?.id;
+  if(name==='issue-cheque'||name==='settle-payable'&&r?.method==='cheque')title=`إصدار شيك لصالح التزامات ${companyName}`;
+  else if(name==='settle-cheque')title=r?.settled?`صرف شيك من حساب ${companyName}`:`ارتجاع شيك على ${companyName}`;
+  else if(name==='settle-payable')title=`سداد التزامات ${companyName} بتحويل بنكي`;
+  else if(name==='pay-taxes'){if(!num(r?.count))return null;title=`سداد الضريبة المستحقة على ${companyName}`;}
+  else if(name==='collect-receivable'||name==='collect-receivables-by-cheque'){count=num(r?.count)||1;if(!amount)return null;title=`تحصيل مستحقات ${companyName}`;}
+  else if(name==='record-payroll-report'){title='اعتماد مسير رواتب المجموعة';company='group';detail='يتضمن المبلغ إجمالي المسير؛ تعرض صفحة المصدر المصروف والمستحق.';destination='labor';destinationId='payroll';}
+  else if(name==='close-vat-period'){const periods=Array.isArray(r)?r.filter(row=>!before.priorPeriods?.has(row.id)):[];if(!periods.length)return null;company='group';count=periods.length;amount=periods.reduce((sum,row)=>sum+num(row.amount),0);title='إقفال الفترة الضريبية للمجموعة وشركاتها';detail=`${count} فترة شركة؛ المبلغ استحقاق ضريبي ولا يعني تنفيذه كدفعة.`;ref=periods[0].id;}
+  else if(name==='founder-investment'||name==='founder-withdrawal'){if(!amount)return null;title=name==='founder-investment'?`تمويل ${companyName} من المؤسس`:`سحب معتمد للمؤسس من ${companyName}`;destination='treasury';destinationId='';}
+ }
+ if(!title){
+  const sector=NEWS_SECTOR_ACTIONS[domain],action=sector?.actions[name];
+  if(action){if(name==='tick-research'&&!r?.completed?.length)return null;company=String(r?.ownerCompanyId||r?.companyId||r?.company||p.ownerCompanyId||p.companyId||p.company||(domain==='customer-companies'&&name.startsWith('telecom-')?'telecom':sector.company));kind=action[0];title=`${action[1]} · ${s.companyRegistry?.[company]?.legalName||s.profile?.name||company}`;destination=action[2]||sector.panel;destinationId=destination==='companyManage'?company:'';ref=r?.documentNumber||r?.invoiceNumber||r?.contractId||r?.id||p.id||meta.id;amount=num(r?.amount??r?.cost??r?.phase?.cost??p.amount);detail=String(r?.status||'');if(name==='tick-research'){count=r.completed.length;detail=`اكتمال ${count} مرحلة بحثية ضمن البرامج المعتمدة.`;}}
+ }
+ if(!title||!meta.id)return null;
+ const batch=globalThis.__GH_DURABLE_COMMAND_CONTEXT__,batchKey=`${domain}:${name}:${company}`;
+ let groups=batch?.draft===s?newsBatches.get(batch):null;
+ if(batch?.draft===s&&!groups){groups=new Map();newsBatches.set(batch,groups);}
+ const cached=groups?.get(batchKey),existing=cached?.event;
+ if(existing&&(cached.sequence===s.businessWorld?.sequence||s.businessWorld?.events?.includes(existing))){
+  existing.count+=count;existing.amount+=amount;existing.lastSourceRef=String(meta.id);existing.detail=`${existing.count.toLocaleString('en-US')} عنصر ضمن العملية المعتمدة نفسها.`;s.businessWorld.sequence++;cached.sequence=s.businessWorld.sequence;newsWork.aggregated++;return existing;
+ }
+ const event=recordEvent(s,{kind,company,scope:'group',commandId:meta.id,commandName:name,companyName:s.companyRegistry?.[company]?.legalName||s.profile?.name||company,title,detail,amount,count,reference:`GROUP-${meta.id}`,sourceView:domain==='finance'&&(name==='issue-cheque'||name==='settle-cheque'||r?.method==='cheque'||name==='pay-taxes')?'cheques':'',official:true,sourceDomain:domain,sourceRef:meta.id,documentRef:String(ref||meta.id),destination,destinationId});
+ groups?.set(batchKey,{event,sequence:s.businessWorld.sequence});newsWork.published++;return event;
+}
+function isOfficialNewsEvent(event){
+ if(!event?.id||!Object.prototype.hasOwnProperty.call(NEWS_KINDS,event.kind)||event.official!==true||!event.reference||!String(event.title||'').trim()||!Number.isFinite(Number(event.at))||!event.sourceDomain||!event.sourceRef||!event.documentRef)return false;
+ if(event.scope==='group')return !!NEWS_KINDS[event.kind]&&!!event.company&&String(event.ownerCompanyId||event.company)===String(event.company)&&supportsCommandNews(event.sourceDomain,event.commandName)&&event.commandId===event.sourceRef&&String(event.reference)===`GROUP-${event.commandId}`;
+ const prefix={contract:'CONTRACT-',payment:'PAY-',billing:'BILL-',sponsorship:'SPON-ACCEPT-'}[event.kind];return !!prefix&&String(event.reference).startsWith(prefix);
+}
+function newsView(s){
+ if(!s||typeof s!=='object')return [];
+ const source=s?.businessWorld,events=Array.isArray(source?.events)?source.events:EMPTY_NEWS,registry=s.companyRegistry,old=newsViews.get(s),sequence=Number(source?.sequence)||0;
+ if(old&&old.events===events&&old.registry===registry&&old.sequence===sequence&&old.length===events.length){newsWork.cacheHits++;return old.rows;}
+ const seen=new Set(),rows=[];
+ for(let i=0;i<Math.min(240,events.length);i++){const e=events[i];newsWork.visited++;if(!isOfficialNewsEvent(e))continue;const company=String(e.ownerCompanyId||e.company||'group');if(platform()&&!platform().resolveCompany(s,company)?.known)continue;const key=`${company}:${e.kind}:${e.reference}`;if(seen.has(key))continue;seen.add(key);rows.push({...e,type:'official',text:e.title,category:NEWS_KINDS[e.kind],sourceLabel:NEWS_KINDS[e.kind]});}
+ // Older saves already contain their incorporation records. Present those facts with their actual original date;
+ // never scan assets/ledgers, create a synthetic current event, mutate the save, or duplicate an existing story.
+ const covered=new Set(rows.filter(e=>e.kind==='company'&&e.destination==='formationContract').map(e=>`${e.company}:${e.documentRef}`));
+ let checked=0;for(const company of Object.keys(registry||{})){
+  if(++checked>160)break;const record=registry[company],doc=record?.formationDocument,ref=String(doc?.id||record?.formationContract||''),at=record?.incorporatedAt??doc?.signedAt;
+  if(!ref||typeof at!=='number'||!Number.isFinite(at)||at<0||covered.has(`${company}:${ref}`)||platform()&&!platform().resolveCompany(s,company)?.known)continue;
+  const title=`تأسيس ${doc?.name||record.legalName||company}${company==='group'?'':' ضمن المجموعة'}`;
+  rows.push({id:`NEWS-REGISTRY-${company}-${ref}`,at,kind:'company',scope:'registry',company,ownerCompanyId:company,companyName:record.legalName,title,text:title,official:true,category:NEWS_KINDS.company,sourceDomain:'corporate',sourceRef:ref,documentRef:ref,destination:'formationContract',destinationId:company,detail:'من سجل التأسيس الأصلي للمجموعة.',reference:`REGISTRY-${company}-${ref}`});
+ }
+ rows.sort((a,b)=>(Number(b.at)||0)-(Number(a.at)||0));const view=Object.freeze(rows.slice(0,80).map(Object.freeze));const fields=['id','title','detail','company','amount','count','at','sourceDomain','destination','destinationId','sourceView','lastSourceRef'],changed=!old||old.rows.length!==view.length||view.some((row,i)=>fields.some(key=>row[key]!==old.rows[i]?.[key]));newsViews.set(s,{events,registry,sequence,length:events.length,rows:view,revision:(old?.revision||0)+(changed?1:0)});newsWork.viewBuilds++;return view;
 }
 function seedSponsors(s){
  const b=s.businessWorld;if(!b||b.__seeding)return;b.__seeding=true;
@@ -216,6 +321,6 @@ function snapshot(s){
 function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);switch(cmd){
  case'ensure':return ensure(s);case'sync-world':return syncWorld(s,p);case'record-bid':return recordBid(s,p);case'record-contract':return recordContract(s,p);case'record-finance':return recordFinance(s,p);case'accept-sponsorship':return acceptSponsorship(s,p);case'reject-sponsorship':return rejectSponsorship(s,p);case'tick-day':return tickDay(s,p);default:throw new Error(`Unknown business-world command: ${cmd}`);
 }}
-const API={VERSION,SCHEMA,CUSTOMER_PROFILE_LIMIT,CUSTOMER_REVIEW_BATCH,ensure,upsertParty,partyIdForName,resolveParty,touchRelationship,touchCustomerLifecycle,recordEvent,syncWorld,competitorForSector,customerSnapshot,customerPortfolio,companyCustomerRating,customerRatings,snapshot,execute};
+const API={VERSION,SCHEMA,CUSTOMER_PROFILE_LIMIT,CUSTOMER_REVIEW_BATCH,ensure,upsertParty,partyIdForName,resolveParty,touchRelationship,touchCustomerLifecycle,recordEvent,supportsCommandNews,prepareCommandNews,recordCommandNews,isOfficialNewsEvent,newsView,newsRevision:s=>{newsView(s);return newsViews.get(s)?.revision||0;},newsMetrics:()=>({...newsWork}),NEWS_KINDS,syncWorld,competitorForSector,customerSnapshot,customerPortfolio,companyCustomerRating,customerRatings,snapshot,execute};
 globalThis.GH_BUSINESS_WORLD=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('business-world',API);if(globalThis.window&&window!==globalThis)window.GH_BUSINESS_WORLD=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();
