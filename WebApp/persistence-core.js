@@ -157,6 +157,7 @@
   function forgetVaultChunks(){vaultChunks.clear();}
   function chunkedNative(state){return !!bridgeFor('commitSave')&&typeof stateCodec()?.serializeChunked==='function'&&Object.prototype.toString.call(state?.fleet?.rows)==='[object ArrayBuffer]';}
   function copyChunkBytes(state,chunk){
+    if(stateCodec()?.isPreparedChunk?.(chunk))return chunk.data;
     if(typeof chunk.text==='string')return utf8(chunk.text);
     if(ArrayBuffer.isView(chunk.data))return new Uint8Array(chunk.data.buffer,chunk.data.byteOffset,chunk.data.byteLength).slice();
     return new Uint8Array(state.fleet.rows,chunk.byteOffset,chunk.byteLength).slice();
@@ -171,16 +172,52 @@
   // Build 358 (lighter commands): a durable command's save spread over frames. Serialization runs as codec steps and the
   // UTF-8 encoding in pieces; whenever a slice has run SLICE_MS the caller's frame scheduler (yieldToFrame) is awaited.
   // The command holds the lifecycle lock, so nothing writes the state meanwhile; if the fleet records changed anyway
-  // (their revision moved), the save is taken again in one go, so a save is always one consistent instant. The bytes
-  // are exactly those of serializeNative + utf8.
+  // (their revision moved), take one fresh snapshot in slices; a second change refuses the save. Large native fleets use a
+  // separate checksum worker; its immutable chunk snapshots are the uploads. The bytes match serializeNative + utf8.
   const SLICE_MS=10;
-  async function runSliced(steps,yieldToFrame,timing){let slice=clock(),step;for(;;){step=steps.next();if(step.done){timing.busyMs+=clock()-slice;return step.value;}if(clock()-slice>=SLICE_MS){timing.busyMs+=clock()-slice;timing.slices++;await yieldToFrame();slice=clock();}}}
+  async function runSliced(steps,yieldToFrame,timing,checksumSession=null){
+    let active=0,input,step,deferredAccounted=0;
+    const accountDeferred=()=>{if(!checksumSession)return;const stats=checksumSession.stats(),extra=stats.deferredSubmitMs-deferredAccounted;timing.busyMs+=extra;deferredAccounted=stats.deferredSubmitMs;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,stats.maxDeferredSubmitMs);};
+    for(;;){
+      accountDeferred();
+      const start=clock();step=steps.next(input);input=undefined;const busy=clock()-start;active+=busy;timing.busyMs+=busy;
+      timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,active);
+      if(step.done)return step.value;
+      if(step.value==='fleet-validation-wait'){timing.slices++;await yieldToFrame();active=0;continue;}
+      if(step.value?.kind==='fleet-chunk-checksum'){
+        if(typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER!=='function')throw new Error('save-checksum-worker-unavailable');
+        const submit=clock(),pending=checksumSession?checksumSession.take(step.value.bytes,step.value.nextBytes):globalThis.GH_SAVE_CHECKSUM_PROVIDER(step.value.bytes),submitMs=clock()-submit;
+        active+=submitMs;timing.busyMs+=submitMs;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,active);
+        input=await pending;accountDeferred();timing.checksumWorkerMs=(timing.checksumWorkerMs||0)+(Number(input?.workerMs)||0);timing.checksumRequests=(timing.checksumRequests||0)+1;
+        // A real worker reply already ended the preceding UI task. A ready prefetched answer does not: keep the
+        // budget in that case, so a chain of immediately resolved promises cannot monopolize the main thread.
+        if(input?.didYieldToWorker===true)active=0;
+      }
+      if(active>=SLICE_MS){timing.slices++;await yieldToFrame();active=0;}
+    }
+  }
   async function serializeNativeSliced(state,yieldToFrame,timing){
     const codec=stateCodec();if(!chunkedNative(state))return typeof codec?.serializeSteps==='function'?{json:await runSliced(codec.serializeSteps(state),yieldToFrame,timing),uploads:[],chunked:false}:serializeNative(state);
     if(typeof codec.serializeChunkedSteps!=='function')return serializeNative(state);
-    const revision=state.fleet?.revision,out=await runSliced(codec.serializeChunkedSteps(state),yieldToFrame,timing);
-    if(state.fleet?.revision!==revision){timing.retakes++;return serializeNative(state);}
-    const uploads=[];for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id))uploads.push({id:chunk.id,bytes:copyChunkBytes(state,chunk)});
+    const externalChecksums=typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER==='function'&&Number(state.fleet?.length)>FLEET_MAIN_THREAD_ROWS;let out;
+    for(let attempt=0;;attempt++){
+      const store=state.fleet,revision=store?.revision,buffer=store?.rows,session=externalChecksums&&typeof globalThis.GH_SAVE_CHECKSUM_THREAD?.createSession==='function'?globalThis.GH_SAVE_CHECKSUM_THREAD.createSession({current:()=>state.fleet===store&&store.revision===revision&&store.rows===buffer,submit:globalThis.GH_SAVE_CHECKSUM_PROVIDER}):null;
+      try{
+        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,knownChunkIds:vaultChunks}),yieldToFrame,timing,session);
+        if(state.fleet?.revision!==revision)throw new Error('state-codec-fleet-changed-during-save');
+        break;
+      }catch(error){
+        if(attempt!==0||error?.message!=='state-codec-fleet-changed-during-save')throw error;timing.retakes++;
+        // A fresh snapshot also needs fresh validation; the old proof described the rows before the write.
+        const schema=globalThis.GH_SAVE_SCHEMA,options={trustVerified:true,...fleetValidationOptions(state,{allowAsync:true})};
+        const check=typeof schema?.validationSteps==='function'?await runSliced(schema.validationSteps(state,options),yieldToFrame,timing):schema?.validate?.(state,options);
+        if(!check?.ok)throw new Error(`invalid-save:${(check?.errors||['save-schema-unavailable']).join(',')}`);
+      }finally{await session?.close();}
+    }
+    const uploads=[];for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id)){
+      if(externalChecksums&&Number.isInteger(chunk.byteOffset)&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
+      uploads.push({id:chunk.id,bytes:copyChunkBytes(state,chunk)});
+    }
     return {json:out.text,uploads,chunked:true,chunkIds:out.chunks.map(chunk=>chunk.id)};
   }
   // UTF-8 in pieces of up to 1M UTF-16 units, never splitting a surrogate pair: the bytes of TextEncoder.encode(text).
@@ -206,12 +243,14 @@
       if(!response.ok||detail.ok!==true||detail.id!==id){const error=new Error(detail.message||`native-chunk-http-${response.status}`);error.code='CHUNK_NACK';throw error;}
     },error=>{if(error?.code==='CHUNK_NACK')throw error;return uploadChunkMessage(id,bytes);});
   }
-  function uploadChunkMessage(id,bytes){
-    const bridge=bridgeFor('commitSave');if(!bridge)return Promise.reject(new Error('native-chunk-bridge-unavailable'));
+  async function uploadChunkMessage(id,bytes){
+    const bridge=bridgeFor('commitSave');if(!bridge)throw new Error('native-chunk-bridge-unavailable');
+    // Keep the legacy bridge byte-identical, with bounded fleet-chunk encoding away from the UI thread.
+    const base64=bytes.byteLength>=262144&&bytes.byteLength<=4194304&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER==='function'?await globalThis.GH_SAVE_ENCODING_PROVIDER(bytes):stateCodec().bytesToBase64(bytes);
     return new Promise((resolve,reject)=>{
       const requestId=`storeSaveChunk-${Date.now()}-${++chunkSequence}`,timer=setTimeout(()=>{chunkPending.delete(requestId);const error=new Error('native-chunk-ack-timeout');error.code='ACK_TIMEOUT';reject(error);},CHUNK_ACK_TIMEOUT_MS);
       chunkPending.set(requestId,{id,resolve,reject,timer});
-      try{bridge.postMessage({action:'storeSaveChunk',requestId,id,bytes:bytes.byteLength,base64:stateCodec().bytesToBase64(bytes)});}
+      try{bridge.postMessage({action:'storeSaveChunk',requestId,id,bytes:bytes.byteLength,base64});}
       catch(error){clearTimeout(timer);chunkPending.delete(requestId);reject(error);}
     });
   }

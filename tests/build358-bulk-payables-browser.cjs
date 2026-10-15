@@ -47,6 +47,49 @@ const COUNT=30;
     assert.deepEqual(mixed.issued,['QA-MIX-0','QA-MIX-1'],'the supplier payables get their cheques');
     assert.equal(mixed.payrollOpen,true,'the payroll payable stays open for a transfer');
     assert.match(mixed.alert,/رواتب تُصرف بتحويل فقط/,'the skipped payable and its reason are reported');
+
+    // The all-company action must keep paying solvent companies when another company's cheque exceeds its budget
+    // or cash. Neither skipped cheque may bounce, and both must remain payable on a later attempt.
+    const budgetErrors=[],{page:multi}=await boot({browser,errors:budgetErrors});multi.setDefaultTimeout(60000);
+    await multi.evaluate(()=>{__GH_STATE__.godMoney=true;__GH_STATE__.infiniteMoney=true;__AUDIT__.openDrawer('companies','subs');});
+    await multi.locator('.open-all-companies').click();
+    await multi.locator('dialog.ui-confirm [data-confirm="accept"]').click();
+    await multi.waitForFunction(()=>GH_COMPANY_PLATFORM.listInstances(__GH_STATE__,{includeGroup:false}).every(row=>row.operational));
+    await multi.evaluate(()=>__AUDIT__.openDrawer('network'));
+    await multi.locator('#worldBulkCount').selectOption('10');
+    assert.equal(Number(await multi.locator('.open-scope-facilities').getAttribute('data-count')),100,'the scale scenario opens 100 facilities');
+    await multi.locator('.open-scope-facilities').click();
+    await multi.locator('dialog.ui-confirm [data-confirm="accept"]').click();
+    await multi.waitForFunction(()=>__GH_STATE__.globalBases.length+__GH_STATE__.customHubs.length===100);
+    const ids=await multi.evaluate(async()=>{
+      const F=GH_FINANCE_CORE,s=__GH_STATE__;s.godMoney=false;s.infiniteMoney=false;
+      F.book(s,'sea').accounts[0].balance=500;F.reconcile(s);
+      await __AUDIT__.runAuthorizedDomainCommand('finance','set-budget',{company:'bank',limit:500},{silent:true});
+      const rows={};for(const company of ['air','bank','sea']){
+        const out=await __AUDIT__.runAuthorizedDomainCommand('finance','issue-cheque',{company,amount:1000,beneficiary:'QA Bulk Vendor LLC',note:`QA mixed ${company}`,requestRef:`QA-MIXED-${company}`},{silent:true});rows[company]=out.result.id;
+      }return rows;
+    });
+    const bulkSnapshot=()=>multi.evaluate(ids=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;return {statuses:Object.fromEntries(Object.entries(ids).map(([company,id])=>[company,s.finance.cheques.find(row=>row.id===id)?.status])),balances:Object.fromEntries(['air','bank','sea'].map(id=>[id,F.operating(s,id)])),revision:s.saveRevision,valid:GH_SAVE_SCHEMA.validate(s).ok,last:GH_APP_RUNTIME_METRICS.snapshot().durable.last,alerts:s.alerts||[]};},ids);
+    const beforeMixed=await bulkSnapshot();
+    await multi.evaluate(()=>__AUDIT__.openDrawer('invoices',{company:'all',tab:'documents',view:'cheques'}));
+    await multi.locator('.settle-all-cheques').first().click();
+    await multi.waitForFunction(()=>GH_APP_RUNTIME_METRICS.snapshot().durable.last?.name?.includes('settle-all-cheques'));
+    const afterMixed=await bulkSnapshot();
+    assert.deepEqual(afterMixed.statuses,{air:'مصروف',bank:'صادر',sea:'صادر'},'cash and budget blockers leave only their own cheques open');
+    assert.equal(afterMixed.revision,beforeMixed.revision+1,'mixed company cashing has one durable save');
+    assert.equal(afterMixed.balances.air,beforeMixed.balances.air-1000,'the solvent company pays');
+    assert.equal(afterMixed.balances.bank,beforeMixed.balances.bank,'budget-blocked bank pays nothing');
+    assert.equal(afterMixed.balances.sea,beforeMixed.balances.sea,'cash-short sea company pays nothing');
+    assert.equal(afterMixed.valid,true,'mixed company save validates');
+    await multi.evaluate(async()=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;F.book(s,'sea').accounts[0].balance=2000;F.reconcile(s);await __AUDIT__.runAuthorizedDomainCommand('finance','set-budget',{company:'bank',limit:2000},{silent:true});});
+    const beforeRetry=await bulkSnapshot();
+    await multi.evaluate(()=>__AUDIT__.openDrawer('invoices',{company:'all',tab:'documents',view:'cheques'}));
+    await multi.locator('.settle-all-cheques').first().click();
+    await multi.waitForFunction(revision=>__GH_STATE__.saveRevision>revision,beforeRetry.revision);
+    const afterRetry=await bulkSnapshot();
+    assert.deepEqual(afterRetry.statuses,{air:'مصروف',bank:'مصروف',sea:'مصروف'},'both skipped cheques clear after their blockers are removed');
+    assert.equal(afterRetry.valid,true,'retry save validates');
+    assert.deepEqual(budgetErrors,[]);await multi.close();
     assert.deepEqual(errors,[]);
     console.log(JSON.stringify({suite:'build358-bulk-payables-browser',documents:COUNT,issueMs,cashMs,transferMs,progressLabels:new Set(labels).size}));
     console.log('BUILD358_BULK_PAYABLES_PASS');

@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "22124c6a1a07cadae785a47b68ee62b6703d9e939e2240b272d7851d3a10fa78",
+  "source_tree_sha256": "ce2075f58fcab803db51afc9c9f563ca205b6def9d8f20e7f0a714c6e7e426f0",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -9,12 +9,12 @@
     "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
     "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
     "Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
-    "With a fully moving 1,000,000-asset fleet, saves (changed-chunk checksums and Save Schema class validation), command integrity checks and the periodic health check still rescan every chunk for classes that read engine fields: 100-280 ms tasks on desktop, unmeasured on iPhone. Incremental validation of engine fields is not implemented.",
+    "A fully moving fleet still requires a fresh complete validation in the existing fleet worker after writes. This batch coalesces only identical current validation and moves chunk checksums to a separate worker for large native sliced saves. Startup chunk-ID adoption, legacy synchronous APIs, manual slots/reset, large text chunks and full-device profiling remain separate work.",
     "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
-    "The full source acceptance suite passed 260/260 locally on Node 24.19.0. The macOS native/WKWebView/unsigned IPA workflow and physical iPhone profiling remain pending. Release remains closed.",
-    "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale."
+    "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale.",
+    "Current bounded-pipeline candidate awaits fresh 364/364 acceptance, macOS native/WKWebView including the actual checksum worker on gh://app, and a fresh unsigned iPhoneOS IPA. Physical iPhone remains unverified; production release closed."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -22,7 +22,7 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "NOT_RUN_FOR_FOLLOWUP; targeted local checks only; acceptance gate intentionally not run",
+    "full_source_acceptance": "PENDING_FRESH_FULL_364_GATE_RUN; previous 362 success is historical",
     "native_swift_tests": "DIRECT_CI_PASS",
     "physical_iphone_profile": "PENDING",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
@@ -44,7 +44,12 @@
     "build358_native_record_ceiling": "LOCAL_PASS; nativeFleetRecordLimit 1,000,000; physical iPhone profile pending",
     "build358_route_capacity": "LOCAL_PASS; routes carry route.fleetCapacity (up to 8,192) beyond the base 24/24/64 departure slots; bulk air/sea dispatch raises it when a fleet outgrows 240 routes; 12,000 aircraft dispatched through the native save path in 7.4 s and fly; 6,000-aircraft dispatch 82 s -> 5 s (id-index authorization, one route per batch, cached route geometry); road (240 x 64 trucks) unchanged",
     "build358_player_requests": "BUILD362_LOCAL_PASS; fleet request ceiling 1,000,000 and air/sea/logistics/depot facility capacity 1,000,000 after legacy migration; internal purchase command chunks remain capped at 3,000; mobility centers remain at 3,000; physical iPhone memory and thermal profile pending",
-    "build358_fleet_purchase_vat": "LOCAL_PASS; aircraft, ship and truck purchases are zero-rated (as Mobility vehicles and asset sales were), so trip VAT accrues and comes due at the month close; older saves have the fleet-purchase input VAT reversed once on load (open period, then carried credit, never more than held; cash unchanged)"
+    "build358_fleet_purchase_vat": "LOCAL_PASS; aircraft, ship and truck purchases are zero-rated (as Mobility vehicles and asset sales were), so trip VAT accrues and comes due at the month close; older saves have the fleet-purchase input VAT reversed once on load (open period, then carried credit, never more than held; cash unchanged)",
+    "business_options_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE; 18 phone viewport cases passed; physical iPhone pending",
+    "financial_fixes_local": "PASS; delivered direct/financed dealer sale P&L, technical stock safeguards, cent-precision VAT, registered tax IDs, branch-country/activity routing; Chromium/WebKit reload/duplicate and 13-company tax settlement checks",
+    "current_candidate_native": "PENDING_CI; mandatory exact-source gh://app WKWebView save-worker/pipeline gate, native vault tests and WKWebView origin checks before fresh IPA",
+    "performance_batch1_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE_AND_LINT; independent bounded checksum/base64 worker; exact validation reuse; one fresh validated sliced retry; repeated writes refused",
+    "performance_pipeline_local": "TARGETED_PASS_CHROMIUM_WEBKIT; bounded deferred lookahead, stale/failure refusal and retry, monthly tax save/reload; full acceptance pending"
   },
   "latest_direct_source_ci": {
     "run_id": 36956423617,
@@ -77,10 +82,227 @@
   },
   "source_tracking": {
     "mode": "direct_git_tracked_branch",
-    "branch": "codex/build361-device-archive-1gb",
+    "branch": "codex/financial-audit-20261014",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "22124c6a1a07cadae785a47b68ee62b6703d9e939e2240b272d7851d3a10fa78",
-    "working_tree_clean": null
+    "source_tree_sha256": "ce2075f58fcab803db51afc9c9f563ca205b6def9d8f20e7f0a714c6e7e426f0",
+    "working_tree_clean": false,
+    "note": "User authorized تثبيت الإصلاح الأخير وتحديث بوابة القبول والرفع وتسليم IPA on 2026-10-15. Current local 364 source gates and native CI must pass before the fresh unsigned development IPA. No production approval or physical iPhone claim."
   },
-  "point": "Build 362 follow-up candidate: customer-focused telecom and dealership companies, safe grouped customer finance and real-estate decisions, refreshed landscape conference theatre, and lifecycle fixes. Local full source acceptance passed 260/260; RELEASE_GATE stays closed pending macOS native/WKWebView/IPA results and physical iPhone validation."
+  "point": "Local performance batch 1 accepted by all 362 current mandatory local source gates and lint: exact-context validation reuse and independent bounded checksum/base64 worker for large native sliced saves, background saves and checkpoints; one fresh validated sliced retry preserves save behavior. Previous financial/UI changes preserved. Current macOS native/WKWebView (checksum worker via gh://app), IPA and physical iPhone pending. No push or IPA; release closed.",
+  "local_business_options_evidence": {
+    "validation_type": "targeted",
+    "passed": 21,
+    "total": 21,
+    "source_tree_sha256": "bbf0b395eb561fe7f53461b37e4821e89cebf5affecdee0e18c3bf777febd264",
+    "acceptance_contract_sha256": "3cfbd72a76bb2792ee581f9dc0c33051ccbd7e7f93d666087a6d6092fbe5b85d",
+    "runtime_unchanged": true,
+    "gates_unchanged": true,
+    "physical_iphone": "NOT_RUN",
+    "ipa": "NOT_BUILT"
+  },
+  "historical_local_source_evidence": [
+    {
+      "verified": true,
+      "passed": 359,
+      "total": 359,
+      "source_tree_sha256": "907decfd12b39bcfb8761c2d354b0fc76005bb4352e585e9dfcf870a477213d3",
+      "acceptance_contract_sha256": "efbef836f911f2baee3261174cbe8d14d141f959a3bf6d824e4b59b29b6ab03d",
+      "validation_type": "full",
+      "results": "/workspace/acceptance/financial-fixes-20261014-full/results.json",
+      "runtime_unchanged": true,
+      "gates_unchanged": true,
+      "lint": "PASS",
+      "physical_iphone": "NOT_RUN",
+      "current_native": "NOT_RUN",
+      "ipa": "NOT_BUILT",
+      "pushed": false
+    },
+    {
+      "verified": true,
+      "passed": 362,
+      "total": 362,
+      "source_tree_sha256": "49552da68b1f469906dd95833ae8c646ef1c0baee737c92c57a91bc92e63bc78",
+      "acceptance_contract_sha256": "d44c9831013be8c4052ba91124cd1a626b67b21ead2d07c54bdbfb06ca37e38f",
+      "validation_type": "full",
+      "results": "/workspace/acceptance/performance-20261015-full-r2/results.json",
+      "runtime_unchanged": true,
+      "gates_unchanged": true,
+      "lint": "PASS",
+      "physical_iphone": "NOT_RUN",
+      "current_native": "NOT_RUN",
+      "ipa": "NOT_BUILT",
+      "pushed": false
+    }
+  ],
+  "local_performance_batch1_evidence": {
+    "validation_type": "targeted_and_component_profile",
+    "validation_reuse": "PASS_CHROMIUM_WEBKIT",
+    "worker_save_and_failure_retry": "PASS_CHROMIUM_WEBKIT",
+    "main_checksum_calls_large_sliced_save": 0,
+    "main_base64_calls_large_bridge_chunk": 0,
+    "independent_checksum_worker": true,
+    "max_chunk_bytes": 4194304,
+    "max_pending_jobs": 2,
+    "reference_bytes_unchanged": true,
+    "million_row_profile": {
+      "dirty_save_max_main_step_median_ms": {
+        "before": 42.5,
+        "after": 2.4
+      },
+      "dirty_save_total_preparation_median_ms": {
+        "before": 83.1,
+        "after": 155.2
+      },
+      "six_identical_validation_ms": {
+        "before": 12012.3,
+        "after": 2023.9
+      },
+      "six_subsequent_validation_ms": {
+        "before": 11493.7,
+        "after": 0.2
+      },
+      "scope": "desktop Chromium; component save preparation and actual app validation; not whole-game or iPhone measurements"
+    },
+    "report": "docs/PERFORMANCE_BATCH1_REVIEW_AR.md",
+    "physical_iphone": "NOT_RUN",
+    "current_native": "NOT_RUN",
+    "ipa": "NOT_BUILT",
+    "pushed": false,
+    "initial_full_run": {
+      "accepted": false,
+      "result": "INTERRUPTED_AFTER_REGRESSION",
+      "failed_gate": "tests/build359-command-slices.cjs",
+      "fix": "One fresh validated snapshot in slices; a second write or worker failure refuses without a main-thread fallback. Existing gate retained and strengthened; complete suite rerun required.",
+      "results": "/workspace/acceptance/performance-20261015-full/results.json"
+    },
+    "repeat_profile": {
+      "dirty_save_max_main_step_median_ms": 4.1,
+      "dirty_save_total_preparation_median_ms": 187.2,
+      "peak_process_tree_pss_MiB": 570.5,
+      "worst_frame_ms": 16.8
+    },
+    "full_source_acceptance": {
+      "verified": true,
+      "passed": 362,
+      "total": 362,
+      "source_tree_sha256": "49552da68b1f469906dd95833ae8c646ef1c0baee737c92c57a91bc92e63bc78",
+      "acceptance_contract_sha256": "d44c9831013be8c4052ba91124cd1a626b67b21ead2d07c54bdbfb06ca37e38f"
+    },
+    "accepted_source_profile": {
+      "source_tree_sha256": "49552da68b1f469906dd95833ae8c646ef1c0baee737c92c57a91bc92e63bc78",
+      "save_profile": "/workspace/acceptance/performance-20261015/accepted-after-save.json",
+      "resources": "/workspace/acceptance/performance-20261015/accepted-after-save-resources.json",
+      "driver_sha256": "6f1f86178fb1ad983b6f6d08d1cfc4cd920a7ea1035695383a8ec1b8f7ac85e7",
+      "dirty_main_step_median_ms": 2.4,
+      "dirty_total_preparation_median_ms": 155.2,
+      "peak_process_tree_pss_MiB": 519.0,
+      "profile_scope": "isolated save preparation in desktop Chromium; no native disk or whole-game/device conclusion",
+      "observed_after_main_step_range_ms": [
+        2.4,
+        4.1
+      ]
+    }
+  },
+  "local_full_source_evidence": {
+    "verified": false,
+    "status": "PENDING_FRESH_FULL_364_GATE_RUN",
+    "results": "/workspace/acceptance/performance-pipeline-20261015-full/results.json"
+  },
+  "local_performance_pipeline_evidence": {
+    "validation_type": "targeted_and_component_profile",
+    "report": "docs/PERFORMANCE_PIPELINE_REVIEW_AR.md",
+    "profile": {
+      "scope": "Actual codec and checksum session; HTTP real worker; immutable upload snapshots; desktop engines; isolated component, not native storage or whole-game/iPhone profile",
+      "rows": 1000000,
+      "driver_sha256": "ae307db5ddd240b25582710d3f23d28ab46a46479f97aac7d1710ee02202e9a4",
+      "results": {
+        "chromium": {
+          "before": {
+            "rounds": 6,
+            "wallMs_median": 148.25,
+            "maxMainStepMs_median": 3.5,
+            "busyMs_median": 50.7,
+            "largest_main_step_ms": 5.4,
+            "worst_frame_ms": 16.8,
+            "frames_over50": 0,
+            "main_checksum_calls": 0,
+            "checks_per_round": [
+              31
+            ],
+            "all_bytes_match": true,
+            "process_tree_peak_pss_mib": [
+              567.9,
+              523.0
+            ]
+          },
+          "after": {
+            "rounds": 6,
+            "wallMs_median": 57.55,
+            "maxMainStepMs_median": 2.45,
+            "busyMs_median": 48.3,
+            "largest_main_step_ms": 4.4,
+            "worst_frame_ms": 16.8,
+            "frames_over50": 0,
+            "main_checksum_calls": 0,
+            "checks_per_round": [
+              31
+            ],
+            "all_bytes_match": true,
+            "process_tree_peak_pss_mib": [
+              576.4,
+              525.9
+            ]
+          }
+        },
+        "webkit": {
+          "before": {
+            "rounds": 6,
+            "wallMs_median": 172.5,
+            "maxMainStepMs_median": 4.0,
+            "busyMs_median": 56.0,
+            "largest_main_step_ms": 6,
+            "worst_frame_ms": 28,
+            "frames_over50": 0,
+            "main_checksum_calls": 0,
+            "checks_per_round": [
+              31
+            ],
+            "all_bytes_match": true,
+            "process_tree_peak_pss_mib": [
+              1418.6,
+              1292.1
+            ]
+          },
+          "after": {
+            "rounds": 6,
+            "wallMs_median": 84.0,
+            "maxMainStepMs_median": 3.0,
+            "busyMs_median": 51.0,
+            "largest_main_step_ms": 6,
+            "worst_frame_ms": 28,
+            "frames_over50": 0,
+            "main_checksum_calls": 0,
+            "checks_per_round": [
+              31
+            ],
+            "all_bytes_match": true,
+            "process_tree_peak_pss_mib": [
+              1380.4,
+              1392.3
+            ]
+          }
+        }
+      }
+    },
+    "max_session_jobs": 2,
+    "max_lookahead_chunks": 1,
+    "max_chunk_bytes": 4194304,
+    "main_checksum_calls_large_native_save": 0,
+    "monthly_save_and_tax_reload": "PASS_CHROMIUM_WEBKIT; VAT 150, one commit, failed worker leaves state/finance unchanged, retry preserves unique periods",
+    "monthly_autosave_added": false,
+    "current_native": "PENDING_CI",
+    "physical_iphone": "NOT_RUN",
+    "ipa": "PENDING_CI",
+    "publish_authorized": true
+  }
 }

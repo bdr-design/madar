@@ -65,12 +65,15 @@ const unitPrice=project=>Math.round(RE.TYPES[project.type].price*(Number(project
   const recognized=project.offPlan.recognized;project.completeDay+=30;re.lastProcessedDay=day;state.simSeconds=(day+1)*86400;
   const report=RE.tickDay(state,{day:day+1});assert.ok(report.offPlanRevenue>=0&&project.offPlan.recognized>=recognized,'a delayed completion keeps the recognised revenue');
 }
-// 4. A building sold to a property fund carries its cost into the close.
+// 4. A rented building sold to a property fund carries its net book cost, after depreciation already expensed.
 {
   const {state,re}=setup(),office=re.offices[0];
   re.projects.push({id:'RE-FUND-QA',officeId:office.id,city:office.city,country:office.country,type:'office',name:'مكاتب للصندوق',mode:'lease',units:80,unitCost:1416000,landCost:17280000,buildCost:96000000,priceLevel:1,startDay:0,completeDay:1,status:'مكتمل',milestonesPaid:3,sold:0,presold:0,leased:50,handedOver:0,salesRevenue:0,rentRevenue:0,cheques:[],leases:[]});
-  const sale=RE.execute({state},'sell-to-fund',{projectId:'RE-FUND-QA'});state.simSeconds=2*86400;re.lastProcessedDay=1;
-  const report=RE.tickDay(state,{day:2});assert.ok(report.sales>=sale.price);assert.ok(report.costOfSales>=80*1416000,'the building\'s cost is the sale\'s cost');
+  state.simSeconds=86400;const held=RE.tickDay(state,{day:1}),project=re.projects.find(row=>row.id==='RE-FUND-QA');
+  near(project.accumulatedDepreciation,held.depreciation,1e-6,'depreciation posted while rented is tracked on the building');
+  const carryingValue=80*1416000-project.accumulatedDepreciation;
+  state.simSeconds=2*86400;const sale=RE.execute({state},'sell-to-fund',{projectId:'RE-FUND-QA'});
+  const report=RE.tickDay(state,{day:2});assert.ok(report.sales>=sale.price);near(report.costOfSales,carryingValue,1e-6,'the building is sold at its carrying cost, not gross cost');
 }
 // 5. Construction risk (projects started from Build 378): some run late (learnt at mid-construction, 2-15% of the
 // duration) and some over cost (1-10% of the build cost on the last payment, which is then the units' cost, off-plan
@@ -106,7 +109,20 @@ let risk={late:0,over:0,projects:0};
 {
   const {state,re}=setup(),office=re.offices[0];
   re.projects.push({id:'RE-DEP-QA',officeId:office.id,city:office.city,country:office.country,type:'office',name:'مكاتب مؤجرة',mode:'lease',units:80,unitCost:1416000,landCost:17280000,buildCost:96000000,priceLevel:1,startDay:0,completeDay:1,status:'مكتمل',milestonesPaid:3,sold:0,presold:0,leased:40,handedOver:0,salesRevenue:0,rentRevenue:0,cheques:[],leases:[]});
-  state.simSeconds=2*86400;re.lastProcessedDay=1;const report=RE.tickDay(state,{day:2}),result=RE.dailyResult(state,2);
+  state.simSeconds=2*86400;re.lastProcessedDay=0;const report=RE.tickDay(state,{day:2}),result=RE.dailyResult(state,2);
   near(report.depreciation,96000000/(40*365),1e-6,'build cost over 40 years');near(result.expense-result.cashExpense,report.costOfSales+report.depreciation,1e-6,'not paid in cash');
+  const project=re.projects.find(row=>row.id==='RE-DEP-QA');near(project.accumulatedDepreciation,report.depreciation,1e-6,'legacy project begins tracking depreciation when a day is processed');
+  project.accumulatedDepreciation=project.buildCost-100;state.simSeconds=3*86400;
+  const final=RE.tickDay(state,{day:3});near(final.depreciation,100,1e-6,'depreciation stops at the building cost');near(project.accumulatedDepreciation,project.buildCost,1e-6,'the accumulated amount never exceeds the building cost');
+}
+// 8. A save that already expensed depreciation before this build recovers the exact fixed daily amount before a sale
+// or the next daily close. It must not expense those previous days a second time.
+for(const saleBeforeClose of [true,false]){
+  const {state,re}=setup(),office=re.offices[0],basis=96000000,gross=80*1416000,daily=basis/(40*365);
+  re.projects.push({id:'RE-LEGACY-DEP',officeId:office.id,city:office.city,country:office.country,type:'office',name:'مكاتب قديمة',mode:'lease',units:80,unitCost:1416000,landCost:17280000,buildCost:basis,priceLevel:1,startDay:0,completeDay:1,status:'مكتمل',milestonesPaid:3,sold:0,presold:0,leased:40,handedOver:0,salesRevenue:0,rentRevenue:0,cheques:[],leases:[]});
+  re.lastProcessedDay=100;re.ytd.depreciation=100*daily;state.simSeconds=101*86400;
+  if(!saleBeforeClose){const report=RE.tickDay(state,{day:101}),project=re.projects.find(row=>row.id==='RE-LEGACY-DEP');near(report.depreciation,daily,1e-6,'only the new day is expensed');near(project.accumulatedDepreciation,101*daily,1e-6,'prior depreciation restored from completed days');}
+  RE.execute({state},'sell-to-fund',{projectId:'RE-LEGACY-DEP'});
+  near(re.pendingFundSales[0].cost,gross-(saleBeforeClose?100:101)*daily,1e-6,'fund sale uses the recovered carrying value');
 }
 console.log(JSON.stringify({suite:'build378-realestate-off-plan',risk}));

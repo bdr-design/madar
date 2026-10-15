@@ -229,7 +229,7 @@
   function tickDay(state,p={}){const stages=tickDayStages(state,p);let step;while(!(step=stages.next()).done){}return step.value;}
   // Claim cash is transferred inside tickDay on its exact due date. cashExpense therefore carries only commission and
   // ceded premium for the generic daily close, so claim payments cannot be billed again on seven-day supplier terms.
-  function dailyResult(state,day){const ins=state.insurance;const row=(ins?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.revenue),expense:num(row.expense),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,expense:0,cashExpense:0};}
+  function dailyResult(state,day){const ins=state.insurance;const row=(ins?.dailyHistory||[]).find(item=>Number(item.day)===Number(day));return row?{revenue:num(row.revenue),expense:num(row.expense),cashTaxExemptRevenue:num(row.investmentIncome),cashExpense:num(row.cashExpense??row.expense)}:{revenue:0,expense:0,cashExpense:0};}
   function summary(state){
     const ins=ensure(state),totals={};for(const id of LINE_IDS)totals[id]=ins.offices.reduce((sum,row)=>sum+num(row.lines[id]?.policies),0);
     const policies=Object.values(totals).reduce((a,b)=>a+b,0),last=ins.dailyHistory[0]||null,window30=ins.dailyHistory.slice(0,30),premium30=window30.reduce((s,r)=>s+num(r.premium),0),claims30=window30.reduce((s,r)=>s+num(r.claims),0);
@@ -249,10 +249,10 @@
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx;
-    if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='set-pricing')return setPricing(state,p);if(cmd==='set-reinsurance')return setReinsurance(state,p);if(cmd==='set-pricing-all')return setPricingAll(state,p);
+    if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'insurance',p);if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='set-pricing')return setPricing(state,p);if(cmd==='set-reinsurance')return setReinsurance(state,p);if(cmd==='set-pricing-all')return setPricingAll(state,p);
     if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
     throw new Error(`Unknown insurance command: ${cmd}`);
   }
-  const API={CLAIMS_LAG_BY_LINE,VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,addPoliciesFromBank,BANCASSURANCE_SHARE,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
+  const API={SOLVENCY_MARGIN,COMMISSION,CEDING_COMMISSION,CLAIMS_LAG_BY_LINE,VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,addPoliciesFromBank,BANCASSURANCE_SHARE,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
   globalThis.GH_INSURANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('insurance',API);if(globalThis.window&&window!==globalThis)window.GH_INSURANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

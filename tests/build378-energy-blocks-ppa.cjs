@@ -43,11 +43,27 @@ state.simSeconds=50*86400;const energy=E.ensure(state),site=energy.sites.find(ro
 for(let i=0;i<40&&!won;i++){energy.tenders.push({id:`TENDER-QA-${i}`,siteId:site.id,siteName:site.name,buyer:'مركز بيانات · الرياض',capacityMW:40,referencePrice:95,termDays:3650,competitors:2,day:50,expiresDay:60,status:'مفتوحة'});const result=run('bid-tender',{id:`TENDER-QA-${i}`,level:'low'});assert.equal(result.ok,true,result.error);if(result.result.won)won=result.result.contract;}
 assert.ok(won,'a tender is won for a plant under construction');
 assert.equal(won.status,'بانتظار التشغيل');assert.equal(won.startDay,120,'planned to start on the construction contract\'s completion day');
+const signed=state.finance.commercialContracts.find(row=>row.id===won.legalDocumentId);
+assert.equal(signed.startDay,120);assert.equal(signed.status,'موقع بانتظار التشغيل','the original contract makes its pending condition explicit');
 assert.equal(at(80)['SOLAR-B'].ppaRevenue,0,'nothing is earned on the contract before the plant runs');
 assert.equal(at(80)['SOLAR-B'].contractedMW,40,'its capacity is no longer offered');
 const contract=state.energy.ppaContracts.find(row=>row.id===won.id);
+const legacyPending=structuredClone(state);
 state.constructionContracts.find(row=>row.id==='CC-SOLAR-B').commissioned=true;const facility=state.customHubs.find(row=>row.id==='SOLAR-B');facility.commissioned=true;
 state.simSeconds=126*86400;E.ensure(state);E.tickDay(state,{day:126});
 assert.equal(contract.status,'ساري');assert.equal(contract.startDay,126,'the contract starts on the day the plant runs');assert.equal(contract.endDay,126+3650,'and runs its full term');
+const commissioning=state.finance.commercialContracts.find(row=>row.id===contract.commissioningDocumentId);
+assert.ok(commissioning,'commissioning produces a protected addendum to the signed PPA');
+assert.equal(commissioning.startDay,126);assert.equal(commissioning.endDay,126+3650);
+assert.equal(commissioning.terms.originalContractId,signed.id);assert.equal(commissioning.terms.plannedStartDay,120);
+assert.equal(s.GH_DOCUMENT_PROOF.verifyDocument(state,commissioning).ok,true,'the actual dates have a valid document proof');
+assert.equal(signed.startDay,120,'the signed planned dates remain in the original proof');
+assert.equal(state.finance.commercialContracts.filter(row=>row.id===commissioning.id).length,1,'the addendum is not duplicated');
 assert.ok(at(127)['SOLAR-B'].ppaRevenue>0,'the contract earns once the plant runs');
+// A saved Build 378 game may already have activated a PPA while its original proof still shows the planned dates.
+legacyPending.simSeconds=126*86400;legacyPending.customHubs.find(row=>row.id==='SOLAR-B').commissioned=true;
+E.ensure(legacyPending);const legacyContract=legacyPending.energy.ppaContracts.find(row=>row.id===won.id);
+legacyContract.status='ساري';legacyContract.startDay=126;legacyContract.endDay=126+3650;
+E.tickDay(legacyPending,{day:126});const migrated=legacyPending.finance.commercialContracts.find(row=>row.id===legacyContract.commissioningDocumentId);
+assert.ok(migrated,'an already active PPA gets its missing commissioning addendum once');assert.equal(migrated.startDay,126);
 console.log(JSON.stringify({suite:'build378-energy-blocks-ppa',testPrice:+(test.spotRevenue/test.spotMWh).toFixed(2),blockMWh:Math.round(block.generationMWh),contract:{start:contract.startDay,end:contract.endDay}}));

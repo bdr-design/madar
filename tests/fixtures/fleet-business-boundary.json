@@ -1,0 +1,21 @@
+{
+  "reason": "Owner instruction 2026-10-14: fleet companies are excluded from customer and price changes.",
+  "files": {
+    "WebApp/catalog.js": "36c2642889595cd233e702b3de7faa61c0fccd15e406f88a2dd89e4cfed7ccb5",
+    "WebApp/governance-core.js": "33d58c5e284b4ccf8b8926bca6b9c9c16f91989a8bbe7f04af9df8f31f59dfa4",
+    "WebApp/procurement-core.js": "72f233e723044d978da586ea66ec9289aafe0d4ae9efb0459996a62d4b6efea4",
+    "WebApp/fleet-core.js": "50d4a4043a485e6909dd59ed596022cef9712f87e929df2a197a8e40b809b2cb",
+    "WebApp/simulation-asset-core.js": "4522dbd90f1bcebd73923cc41e8f317146194b1af55ff3062f40c6ce602dce40",
+    "WebApp/simulation-core.js": "f09cacfa6483cd02edf873d4fd63f8f8184f346feed2c476bf28b13571547e41",
+    "WebApp/route-core.js": "9111e731e3d61aec97c73a9c984e8508d0bf3cb18102b1409c073e901944d41c",
+    "WebApp/mobility-core.js": "cb5ba75c64b35291627e2baeaca89a6412f52890ca1545e2508f83e9447a505b",
+    "WebApp/realism-core.js": "d148c0475287fe375cdacb91f35ed6460e234974f4fb9ba7722608d773271fe9",
+    "WebApp/customer-base-core.js": "df39514ddc70cf4ecc7cd1ac5be61d188f84b9de9f4a8ca382234c88ef9145d1",
+    "WebApp/customer-companies-core.js": "28d060b65593a6df149a7350a610655ab921681f17c90a531b1a1feb13392fad",
+    "WebApp/company-definitions.js": "6b17f8123a5e5b1cb458f5e200e51a63090550673a7c67ffc102f10451fc21e7"
+  },
+  "economic_constants": {
+    "OEMS": "3c0c42e1082eff4336592a3d37cfdf407c95fbf66b7a3454a6e8710febc7ef04",
+    "PLANS": "c1144df9b438f1082a8621543416f24766a116f250527885d013478e85aa0036"
+  }
+}

@@ -39,20 +39,20 @@ function sectorEconomics(state,options={}){
   const bankCashRevenueToPost=bankClose?unpostedInterestIncome+securityIncome+feeIncome:bankRevenue,bankExpenseToPost=bankClose?depositExpense+wholesaleInterestExpense+expectedLoss+bankOpex-bankFacilityExpense:(depositExpense+wholesaleInterestExpense+expectedLoss+bankOpex-bankFacilityExpense)*bankFactor,bankExpense=bankExpenseToPost+bankFacilityExpense,bank=bankRevenue-bankExpense;
   // Build 358: companies whose engine reports its own day (insurance, real estate) hand the close their P&L and the
   // part of it paid in cash today (an insurer pays claims 30 days after they occur).
-  const companyRevenue={},companyExpense={},companyCashRevenue={},companyCashExpense={};
+  const companyRevenue={},companyExpense={},companyCashRevenue={},companyCashExpense={},companyCashTaxExemptRevenue={};
   // Build 374: the telecom market's network and acquisition costs and the dealer market's workshop cost (their revenue
   // arrives on invoices); a save whose company has no market yet reports nothing here, exactly as before.
   for(const [engine,companyId] of [[globalThis.GH_INSURANCE_CORE,'insurance'],[globalThis.GH_REALESTATE_CORE,'realestate'],[globalThis.GH_TELECOM_MARKET,'telecom'],[globalThis.GH_DEALER_MARKET,'dealership']]){
     if(typeof engine?.dailyResult!=='function'||!state.openedCompanies?.includes?.(companyId))continue;
     if((companyId==='telecom'||companyId==='dealership')&&!engine.read?.(state))continue;
-    const row=engine.dailyResult(state,requestedDay??Math.floor(num(state.simSeconds)/86400));companyRevenue[companyId]=num(row.revenue);companyCashRevenue[companyId]=num(row.cashRevenue??row.revenue);companyExpense[companyId]=num(row.expense);companyCashExpense[companyId]=num(row.cashExpense??row.expense);
+    const row=engine.dailyResult(state,requestedDay??Math.floor(num(state.simSeconds)/86400));companyCashTaxExemptRevenue[companyId]=Math.max(0,num(row.cashTaxExemptRevenue));companyRevenue[companyId]=num(row.revenue);companyCashRevenue[companyId]=num(row.cashRevenue??row.revenue);companyExpense[companyId]=num(row.expense);companyCashExpense[companyId]=num(row.cashExpense??row.expense);
     if(companyId==='realestate'){
       // Internal rent is already accrued in each tenant's P&L, and a monthly settlement has already moved cash and
       // created its paired finance documents. Exclude both from the generic close's cash postings to avoid paying twice.
       for(const item of row.internalRentRows||[]){companyExpense[item.companyId]=(Number(companyExpense[item.companyId])||0)+num(item.amount);companyCashExpense[item.companyId]=Number(companyCashExpense[item.companyId])||0;}
     }
   }
-  return {power,powerFreeCash,bank,detail:{companyRevenue,companyCashRevenue,companyExpense,companyCashExpense,generation,revenue,gasFuel,carbon,storageMargin,ppaRevenue:num(energyDetail?.ppaRevenue),spotRevenue:num(energyDetail?.spotRevenue),ppaMWh:num(energyDetail?.ppaMWh),interestIncome,securityIncome,depositExpense,wholesaleInterestExpense,expectedLoss,powerRevenue,powerExpense,powerDebtPrincipal,powerDebtInterest,powerDebtService,bankRevenue,bankCashRevenueToPost,bankExpense,bankExpenseToPost,bankFacilityExpense,powerExpenseToPost,powerFacilityExpense,takeOrPayAccrued:num(energyClose?.takeOrPayAccrued),bankOpex,feeIncome,transactionFeeIncome,reportedFeeIncome,liquidityCarry}};
+  return {power,powerFreeCash,bank,detail:{companyRevenue,companyCashRevenue,companyExpense,companyCashExpense,companyCashTaxExemptRevenue,generation,revenue,gasFuel,carbon,storageMargin,ppaRevenue:num(energyDetail?.ppaRevenue),spotRevenue:num(energyDetail?.spotRevenue),ppaMWh:num(energyDetail?.ppaMWh),interestIncome,securityIncome,depositExpense,wholesaleInterestExpense,expectedLoss,powerRevenue,powerExpense,powerDebtPrincipal,powerDebtInterest,powerDebtService,bankRevenue,bankCashRevenueToPost,bankExpense,bankExpenseToPost,bankFacilityExpense,powerExpenseToPost,powerFacilityExpense,takeOrPayAccrued:num(energyClose?.takeOrPayAccrued),bankOpex,feeIncome,transactionFeeIncome,reportedFeeIncome,liquidityCarry}};
 }
 const API=Object.freeze({VERSION,sectorEconomics});globalThis.GH_ECONOMICS_CORE=API;if(globalThis.window&&window!==globalThis)window.GH_ECONOMICS_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

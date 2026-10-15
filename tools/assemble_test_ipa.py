@@ -10,6 +10,7 @@ import argparse, hashlib, json, os, plistlib, shutil, stat, struct, tempfile
 import tarfile, zipfile
 from pathlib import Path, PurePosixPath
 from verify_current_source import verify, inventory, tree_digest, digest
+from acceptance_contract import verify_acceptance
 
 def safe(name: str) -> PurePosixPath:
     p = PurePosixPath(name)
@@ -60,6 +61,7 @@ def run(root: Path, artifact: Path, acceptance: Path, output: Path) -> dict:
     if authorization['source_tree_sha256'] != verified['source_tree_sha256']:
         raise ValueError('Authorization belongs to a different source')
     accepted = json.loads(acceptance.read_text())
+    verify_acceptance(root, accepted)
     if accepted.get('completed') is not True or accepted.get('all_tests_passed') is not True or accepted.get('runtime_unchanged') is not True:
         raise ValueError('All source tests must finish and pass')
     if accepted['runtime_source']['source_tree_sha256'] != verified['source_tree_sha256']:

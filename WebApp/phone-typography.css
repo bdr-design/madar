@@ -1,0 +1,37 @@
+/* Owner-approved text formatting only. Responsive dimensions live separately in phone-layout.css. Fixed line
+   heights keep the original heading/figure bands while the text fits phone panels.
+   No resize handler, DOM measurement or fleet work is added to the runtime. Official papers keep their own type. */
+@media (orientation:landscape) and (max-height:500px){
+  .sim-clock-copy strong{font-size:10.5px;line-height:1.35}
+  .sim-clock-copy small{font-size:8.5px;line-height:1.35}
+  .top-kpis strong{font-size:11.5px;line-height:14.4px;font-variant-numeric:tabular-nums;unicode-bidi:isolate}
+  .top-kpis span{line-height:10.2px}
+  .top-news-ticker strong{line-height:1.4;unicode-bidi:plaintext}
+  .drawer-head h2{font-size:14px;line-height:20.25px;unicode-bidi:plaintext}
+  .drawer-head .eyebrow{line-height:11.875px;unicode-bidi:plaintext}
+  .section-nav button,.map-modes button,.side-nav button{line-height:1.35}
+  #drawerBody .mc-kpi b:not(.is-text){font-size:11.5px;line-height:18.125px;font-variant-numeric:tabular-nums}
+  #drawerBody .mc-text b,#drawerBody .mc-text small{unicode-bidi:plaintext}
+  #drawerBody .metric-row b,#drawerBody .asset-grid b,#drawerBody .ownership-grid b,
+  #drawerBody .finance-card-metrics-v202 b,#drawerBody .finance-kpi-strip-v202 b{
+    font-size:13px;font-variant-numeric:tabular-nums;unicode-bidi:plaintext;overflow-wrap:anywhere
+  }
+  #drawerBody .pv-big{font-size:22px;line-height:27.6px}
+  #drawerBody .asset-hero-title h3{font-size:15px;line-height:21.25px;unicode-bidi:plaintext}
+  #drawerBody .asset-hero-title>b{font-size:15px;font-variant-numeric:tabular-nums;unicode-bidi:isolate}
+  #drawerBody .asset-price>b{font-size:17px;font-variant-numeric:tabular-nums;unicode-bidi:isolate}
+  #drawerBody .market-company b{font-size:11.5px;line-height:1.35}
+  #drawerBody .market-company small{font-size:9px;line-height:1.35}
+  #drawerBody .market-buyer b{font-size:11px;line-height:1.4}
+  #drawerBody .market-buyer small{font-size:9px;line-height:1.4}
+  #drawerBody .market-condition button,#drawerBody .market-chips button{font-size:10.5px;line-height:1.4}
+  #drawerBody .asset-blurb,#drawerBody .section-mini,#drawerBody .list-item-head p,
+  #drawerBody .pv-row small,#drawerBody .mc-decision-copy small{
+    overflow-wrap:anywhere;unicode-bidi:plaintext
+  }
+}
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  .sim-clock-copy strong{font-size:9.5px}
+  .top-kpis strong{font-size:10px}
+  .drawer-head h2{font-size:12px}
+}

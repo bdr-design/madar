@@ -1,7 +1,7 @@
 'use strict';
 // Build 378 (Basel III capital conservation): the group's bank may not pay cash out to the group below CET1 of 7% (4.5%
-// minimum + 2.5% buffer). An internal transfer beyond the CET1 capital above 7% of RWA is refused; a cash pool sweep
-// takes at most that; a credit facility drawdown (a loan, not a payout) is not a distribution.
+// minimum + 2.5% buffer), or below the 3% leverage floor. A cash pool sweep observes the same limit; only the bank's
+// actual credit facility command may disburse a loan without treating it as a distribution.
 process.env.GH_TEST_SOURCE_DIR=require('path').resolve(__dirname,'..');
 const assert=require('node:assert/strict');
 const {harness,minimal}=require('./helpers/core-harness');
@@ -21,7 +21,8 @@ function setup(){
   assert.ok(Number.isFinite(limit)&&limit>0&&limit<F.book(state,'bank').accounts[0].balance,'the capital above 7% is less than the bank\'s cash');
   assert.throws(()=>F.execute({state},'transfer',{from:'bank',to:'road',amount:Math.round(limit)+1000,note:'QA'}),/bank-distribution-restricted/);
   F.execute({state},'transfer',{from:'bank',to:'road',amount:Math.floor(limit)-1000,note:'QA'});
-  B.reconcilePrudential(state);assert.ok(B.distributableCash(state)<1001,'the bank sits on the 7% floor');assert.ok(Math.abs(state.bank.cet1-7)<.5,`CET1 ${state.bank.cet1}`);
+  B.reconcilePrudential(state);assert.ok(B.distributableCash(state)<1001,'the bank sits on the binding regulatory floor');assert.ok(state.bank.cet1>=7-.01,`CET1 ${state.bank.cet1}`);assert.ok(state.bank.leverageRatio>=3-.01,`leverage ${state.bank.leverageRatio}`);
+  assert.ok(state.bank.cet1<7.5||state.bank.leverageRatio<3.5,'at least one distribution floor is binding');
   assert.throws(()=>F.execute({state},'transfer',{from:'bank',to:'road',amount:5000,note:'QA'}),/bank-distribution-restricted/);
   F.execute({state},'transfer',{from:'road',to:'bank',amount:5000,note:'QA'});
 }
@@ -31,9 +32,17 @@ function setup(){
   const sweep=F.execute({state},'cash-pool-sweep',{companies:['bank']}),row=sweep.rows.find(item=>item.company==='bank');
   assert.ok(row&&Math.abs(row.amount-limit)<1,'the sweep stops at the floor');
 }
-// 3. A credit facility drawdown is a loan, not a payout.
+// 3. A caller cannot label an ordinary transfer as lending to evade either floor.
 {
   const state=setup(),limit=B.distributableCash(state);
-  F.execute({state},'transfer',{from:'bank',to:'road',amount:Math.round(limit)+1000,bankLending:true,note:'سحب تسهيل'});
+  assert.throws(()=>F.execute({state},'transfer',{from:'bank',to:'road',amount:Math.round(limit)+1000,bankLending:true,note:'سحب تسهيل'}),/bank-distribution-restricted/);
+}
+// 4. A genuine bank credit command still disburses principal, charges one fee and creates a facility record.
+{
+  const state=setup(),bankCash=F.operating(state,'bank'),borrowerCash=F.operating(state,'road');
+  assert.equal(B.execute({state},'draw-facility',{company:'road',amount:1000000}),1000000);
+  assert.equal(F.operating(state,'bank'),bankCash-1000000+25000);
+  assert.equal(F.operating(state,'road'),borrowerCash+1000000-25000);
+  assert.equal(state.bank.corporateFacilities.length,1);
 }
 console.log(JSON.stringify({suite:'build378-bank-capital-conservation',ok:true}));

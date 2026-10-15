@@ -86,12 +86,16 @@ function carDemand(country){const value=Number(base().incomeFactor?.(country,'ca
 const walkInFactor=showroom=>clamp(carDemand(showroom.country),.1,1.5);
 // Build 377: the country's rival dealer (customer-base-core rivalPrice): a rival 6% cheaper takes 18% of the walk-ins.
 const rivalDemand=(showroom,day)=>{const B=globalThis.GH_CUSTOMER_BASE,rival=typeof B?.rivalPrice==='function'?B.rivalPrice(showroom.country,'dealership',day):1;return clamp(1+(rival-1)*3,.8,1.2);};
-function yearlyCapacity(m,showroom){const people=base().market(showroom.country,showroom.marketPopulation).population;return Math.max(200,Math.round(people*YEARLY_CARS_PER_PERSON*carDemand(showroom.country)*MAX_MARKET_SHARE/peersIn(m,showroom.country)));}
+function yearlyCapacity(m,showroom,peers){const people=base().market(showroom.country,showroom.marketPopulation).population;return Math.max(200,Math.round(people*YEARLY_CARS_PER_PERSON*carDemand(showroom.country)*MAX_MARKET_SHARE/(peers||peersIn(m,showroom.country))));}
 function campaignCost(m,showroom){return Math.round(clamp(yearlyCapacity(m,showroom)*20,150000,3000000));}
 const demandFactor=level=>DEMAND_BY_PRICE[String(level)]||1;
 // The buyers a showroom expects in a day at today's choices (no draw): what the weekly reorder plans for.
 const SERVICE_NORMAL=85,service=value=>typeof globalThis.GH_CUSTOMER_BASE?.serviceEffects==='function'?globalThis.GH_CUSTOMER_BASE.serviceEffects(value):{churn:1,demand:1},satisfy=(value,quality)=>typeof globalThis.GH_CUSTOMER_BASE?.satisfactionStep==='function'?globalThis.GH_CUSTOMER_BASE.satisfactionStep(value,quality):value;
-function expectedBuyers(m,showroom,day){if(!showroom.active)return 0;return (BUYERS[0]+BUYERS[1])/2*walkInFactor(showroom)*demandFactor(m.priceLevel)*(Number(showroom.campaignUntil)>day?CAMPAIGN_GROWTH:1);}
+function expectedBuyers(state,m,showroom,day,peers,economy){
+ if(!showroom.active)return 0;
+ const room=clamp(1-num(showroom.annualRate)/yearlyCapacity(m,showroom,peers),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,base().affinity(state,showroom.country,'dealership','households')*AFFINITY_WEIGHT);
+ return (BUYERS[0]+BUYERS[1])/2*walkInFactor(showroom)*economy*demandFactor(m.priceLevel)*rivalDemand(showroom,day)*boost*service(showroom.satisfaction).demand*(Number(showroom.campaignUntil)>day?CAMPAIGN_GROWTH:1)*room;
+}
 function marketParty(state,showroom){
   const W=globalThis.GH_BUSINESS_WORLD;if(!W?.upsertParty)throw new Error('business-world-customer-owner-unavailable');
   const id=`AUTO-MARKET-${asciiKey(showroom.country)}`,existing=W.resolveParty?.(state,id);if(existing)return existing;
@@ -136,8 +140,8 @@ function showroomCampaign(state,p={}){
 
 // The reorder, every two weeks: each model is brought back to the chosen cover of expected sales when below half of it,
 // in one purchase order per maker (one invoice and one cheque per maker, at most six a round).
-function restock(state,m,day,inventory,shares){
-  const ops=companies().dealerOps,expected=m.showrooms.reduce((sum,row)=>sum+expectedBuyers(m,row,day),0),orders=[];if(!expected)return orders;
+function restock(state,m,day,inventory,shares,peers,economy){
+  const ops=companies().dealerOps,expected=m.showrooms.reduce((sum,row)=>sum+expectedBuyers(state,m,row,day,peers.get(row.country),economy),0),orders=[];if(!expected)return orders;
   const F=finance(),unlimited=state.godMoney&&state.infiniteMoney;let cash=unlimited?Infinity:num(F.operating?.(state,'dealership'));
   const byMaker=new Map();
   for(const model of shares){
@@ -200,8 +204,8 @@ function* dayStages(state,p={}){
   const m=ensure(state),day=Math.max(0,Math.floor(Number(p.day??today(state))));if(m.lastProcessedDay>=day)return m.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
   const C=companies(),ops=C.dealerOps,data=state.customerCompanies.companies.dealership,B=base(),economy=typeof B.demandFactor==='function'?B.demandFactor(state,'cars'):1;
   if(m.showrooms.some(row=>row.active))ops.ensureSupplyAgreements(state);
-  const inventory=data.inventory,shares=modelShares(catalogue());
-  let orders=[];if(m.showrooms.some(row=>row.active)&&(m.lastRestockDay<0||day-m.lastRestockDay>=RESTOCK_EVERY)){orders=restock(state,m,day,inventory,shares);m.lastRestockDay=day;}
+  const inventory=data.inventory,shares=modelShares(catalogue()),activeByCountry=new Map();for(const row of m.showrooms)if(row.active)activeByCountry.set(row.country,(activeByCountry.get(row.country)||0)+1);
+  let orders=[];if(m.showrooms.some(row=>row.active)&&(m.lastRestockDay<0||day-m.lastRestockDay>=RESTOCK_EVERY)){orders=restock(state,m,day,inventory,shares,activeByCountry,economy);m.lastRestockDay=day;}
   yield 'dealer-market:restock';
   const tier=SERVICE_TIERS[m.serviceTier],period=finance().calendarMonthForDay(day),oemBonus=settleOemQuarter(m,quarterOf(period)),oemTally=m.oemQuarter;
   // The maker's cost of each car sold is its cost of sales (no cash: the stock was paid when it was bought, as capital
@@ -216,7 +220,7 @@ function* dayStages(state,p={}){
   for(const showroom of m.showrooms){
     let sold=0,lost=0,revenue=0,cost=0;
     if(showroom.active){
-      const room=clamp(1-num(showroom.annualRate)/yearlyCapacity(m,showroom),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,B.affinity(state,showroom.country,'dealership','households')*AFFINITY_WEIGHT);
+      const room=clamp(1-num(showroom.annualRate)/yearlyCapacity(m,showroom,activeByCountry.get(showroom.country)),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,B.affinity(state,showroom.country,'dealership','households')*AFFINITY_WEIGHT);
       const buyers=Math.round(deterministic(`${showroom.id}:${day}:buyers`,BUYERS[0],BUYERS[1])*walkInFactor(showroom)*economy*demandFactor(m.priceLevel)*rivalDemand(showroom,day)*boost*service(showroom.satisfaction).demand*(Number(showroom.campaignUntil)>day?CAMPAIGN_GROWTH:1)*room);
       for(let index=0;index<buyers;index++){
         const pick=deterministic(`${showroom.id}:${day}:pick:${index}`,0,1);let acc=0,model=shares[shares.length-1];for(const row of shares){acc+=row.share;if(pick<acc){model=row;break;}}
@@ -261,7 +265,7 @@ function summary(state){
   const stock=inventory.reduce((sum,row)=>sum+Math.max(0,num(row.quantity)-num(row.reserved)),0);
   if(!m)return {unbilledSales:0,salesInvoices:0,showrooms:0,activeShowrooms:0,priceLevel:1,coverDays:45,serviceTier:'standard',carsSold:0,servicePlans:0,stock,last:null,ytd:null};
   const showrooms=Array.isArray(m.showrooms)?m.showrooms:[];
-  return {unbilledSales:showrooms.reduce((sum,row)=>sum+num(row.unbilledSales)+num(row.dueSales),0),salesInvoices:showrooms.reduce((sum,row)=>sum+num(row.salesInvoices),0),showrooms:showrooms.length,activeShowrooms:showrooms.filter(row=>row.active).length,priceLevel:m.priceLevel,coverDays:m.coverDays,serviceTier:m.serviceTier,carsSold:showrooms.reduce((sum,row)=>sum+num(row.buyers),0),servicePlans:showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),stock,last:(m.dailyHistory||[])[0]||null,ytd:m.ytd?{...m.ytd}:null};
+  return {unbilledSales:showrooms.reduce((sum,row)=>sum+num(row.unbilledSales)+num(row.dueSales),0),salesInvoices:showrooms.reduce((sum,row)=>sum+num(row.salesInvoices),0),showrooms:showrooms.length,activeShowrooms:showrooms.filter(row=>row.active).length,priceLevel:m.priceLevel,coverDays:m.coverDays,serviceTier:m.serviceTier,carsSold:showrooms.reduce((sum,row)=>sum+num(row.buyers),0)+num(m.ytd?.namedUnits),servicePlans:showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),stock,last:(m.dailyHistory||[])[0]||null,ytd:m.ytd?{...m.ytd}:null};
 }
 function execute(ctx,cmd,p={}){const state=ctx.state||ctx;switch(cmd){case'set-price':return setPrice(state,p);case'set-cover':return setCover(state,p);case'set-floor-plan':return setFloorPlan(state,p);case'set-service-tier':return setServiceTier(state,p);case'showroom-campaign':return showroomCampaign(state,p);case'tick-day':return tickDay(state,p);default:throw new Error(`Unknown dealer market command: ${cmd}`);}}
 

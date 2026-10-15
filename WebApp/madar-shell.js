@@ -90,7 +90,11 @@ const KINDS=Object.freeze({
     {key:'showrooms',title:'المعارض والفروع',sub:'فتح فرع من دليل المدن',img:'auto-delivery',icon:'showroom',to:id=>['companyFacilities',id]},
     {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}],sub:'المدير التنفيذي والتوظيف'},FINANCE,BUDGET])})
 });
-function tilesFor(state,id){const kind=KINDS[kindOf(state,id)];if(!kind)return [];return kind.tiles.filter(tile=>!tile.fuel||fuelled(state,id));}
+function tilesFor(state,id){const kindId=kindOf(state,id),kind=KINDS[kindId];if(!kind)return [];const rows=kind.tiles.filter(tile=>!tile.fuel||fuelled(state,id));
+  const ui=globalThis.GH_BUSINESS_UI;if(ui?.labels[id])rows.push({key:'market',title:'السوق والمنافسون',sub:'الأسعار المحلية وأرقام التشغيل',img:ui.photos[kindId],icon:'markets',to:()=>['companyMarket',id]});
+  if(globalThis.GH_OPERATING_ACQUISITIONS?.COMPANIES.includes(id))rows.push({key:'buy-working',title:{realestate:'شراء مبنى عامل',power:'شراء محطة عاملة',insurance:'شراء محفظة قائمة',bank:'شراء أعمال فرع'}[kindId],sub:'مراجعة الأرصدة والالتزامات ثم الشراء',img:ui.photos[kindId],icon:{realestate:'house',power:'solar',insurance:'umbrella',bank:'atm'}[kindId],to:()=>['operatingAssetMarket',id]});
+  return rows;
+}
 
 // ---- Group sections ------------------------------------------------------------------------------------------------
 const SECTIONS=Object.freeze({
@@ -109,7 +113,7 @@ const SECTION_OF=Object.freeze({groupHub:'group',companies:'group',groupManageme
 const HUBS=Object.freeze({groupHub:'group',financeHub:'finance',peopleHub:'people',leadershipHub:'leadership',systemHub:'system'});
 const HUB_TITLES=Object.freeze({groupHub:'لوحة المجموعة',financeHub:'لوحة المال',peopleHub:'لوحة الأفراد',leadershipHub:'لوحة الإدارة',systemHub:'لوحة النظام'});
 // Pages that only exist inside one company: they follow the company that opened them.
-const COMPANY_PAGES=new Set(['company','assets','assetMarket','routes','globalRoute','companyFacilities','facilityManage','assetManage','mobilityAsset','contracts','maintenance','procurement','companyManage','energy','bank','insurance','realestate']);
+const COMPANY_PAGES=new Set(['company','companyMarket','operatingAssetMarket','assets','assetMarket','routes','globalRoute','companyFacilities','facilityManage','assetManage','mobilityAsset','contracts','maintenance','procurement','companyManage','energy','bank','insurance','realestate']);
 const DEEP_KIND=Object.freeze({energy:'power',bank:'bank',insurance:'insurance',realestate:'realestate'});
 // Retired pages open their new home, so every old link, alert and task still lands somewhere real.
 const REDIRECTS=Object.freeze({control:['groupHub',null],governanceHub:['compliance',null],cyber:['compliance',null],safety:['compliance',null]});
@@ -117,6 +121,7 @@ const REDIRECTS=Object.freeze({control:['groupHub',null],governanceHub:['complia
 let installed=null,stickyCompany=null;
 function argCompany(state,panel,arg){
   if(panel==='company')return String(arg||'');
+  if(['companyMarket','operatingAssetMarket'].includes(panel))return String(typeof arg==='string'?arg:arg?.company||'');
   if(DEEP_KIND[panel])return companyOfKind(state,DEEP_KIND[panel]);
   if(panel==='companyManage')return String((arg&&typeof arg==='object'?arg.type:String(arg||'').split(':')[0])||'');
   if(panel==='invoices')return arg&&typeof arg==='object'?String(arg.company||''):String(arg||'');
@@ -134,6 +139,7 @@ const DEV_PAGES=new Set(['updates','diagnostics','controlPlane']),isRelease=()=>
 function redirect(panel,arg){if(!shown(panel))return ['settings',undefined];const target=REDIRECTS[panel];return target?[target[0],target[1]===null?undefined:target[1]]:null;}
 function rail(state,panel,arg){const place=locate(state,panel,arg);if(place.section==='company')return '';return SECTIONS[place.section]?.nav||'map';}
 function meta(state,panel,arg){
+  if(panel==='companyMarket'||panel==='operatingAssetMarket')return [shortName(state,argCompany(state,panel,arg)),panel==='companyMarket'?'السوق والمنافسون':'شراء أعمال قائمة'];
   if(panel==='company'){const id=String(arg||''),kind=KINDS[kindOf(state,id)];return [kind?.sector||'الشركة',shortName(state,id)];}
   if(panel==='procurement')return ['العمليات','الطلبات قيد التسليم'];
   if(HUBS[panel])return [SECTIONS[HUBS[panel]].label,HUB_TITLES[panel]];
@@ -325,6 +331,7 @@ function stripFor(state,panel,arg,place){
   const section=SECTIONS[place.section];return section?section.pages.filter(([p])=>shown(p)).map(([p,a,label,ic])=>({panel:p,arg:a===null?undefined:a,label,icon:ic})):[];
 }
 function sameTarget(panel,arg,row){
+  if(row.panel===panel&&['companyMarket','operatingAssetMarket'].includes(panel))return String(typeof arg==='string'?arg:arg?.company||'')===String(row.arg);
   if(row.panel!==panel)return false;if(row.arg===undefined||row.arg===null)return arg===undefined||arg===null||arg===''||typeof arg==='object'&&!arg.tab&&!arg.view;
   if(typeof row.arg==='object'&&row.arg){const tab=arg&&typeof arg==='object'?arg.tab:undefined;return row.arg.tab===undefined||row.arg.tab===(tab||'overview');}
   if(panel==='labor')return String(arg||'dashboard').split(':')[0]===String(row.arg).split(':')[0];

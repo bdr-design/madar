@@ -7,7 +7,7 @@
 //   every step pass it: one yield per step), and records its busy time and slice count;
 // - the UTF-8 pieces never split a surrogate pair (one straddles a piece boundary here; the posted hash is the SHA-256
 //   of the text's UTF-8 bytes);
-// - if the fleet records change while the slices run, the save is retaken in one go (one consistent instant);
+// - if the fleet records change while the slices run, a fresh consistent snapshot is taken in slices too;
 // - serializeSteps run to the end is serialize().
 const assert=require('node:assert/strict'),path=require('node:path'),crypto=require('node:crypto');
 const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
@@ -62,11 +62,11 @@ assert.ok(pad<2,'a surrogate pair straddles a piece boundary');
     const root=JSON.parse(sliced.json),listed=[...root.fleet.rows.chunks,...(root.stateCodec?.chunks||[])];assert.ok(listed.every(id=>vault.chunks.has(id)),'every listed chunk was uploaded');
     return {yields,slices:timing.slices,busyMs:Math.round(timing.totalSyncMs),wallMs:Math.round(timing.wallMs),bytes:timing.utf8Bytes};
   });
-  await test('a fleet write during the slices retakes the save in one go',async()=>{
+  await test('a fleet write during the slices retakes a consistent save in slices',async()=>{
     const id=FLEET.list(state)[0].id,realPerformance=s.performance;let fake=0,wrote=false;s.performance={now:()=>(fake+=11)};
     const yieldToFrame=()=>{if(!wrote){wrote=true;TX.execute(state,{label:'slices-write',scope:['fleet'],apply:()=>FLEET.update(state,id,{condition:77.5})});}return new Promise(resolve=>setTimeout(resolve,0));};
     try{await P.commitDurableState(state,{storageKey:'slices',yieldToFrame});}finally{s.performance=realPerformance;}const saved=vault.saves.at(-1),timing=P.telemetry().timings.samples.filter(row=>row.kind==='durable-save').at(-1);
-    assert.equal(wrote,true);assert.equal(timing.retakes,1,'the save was retaken');assert.equal(saved.json,CODEC.serializeChunked(state).text,'and holds the state after the write');assert.equal(saved.hash,sha(saved.json));
+    assert.equal(wrote,true);assert.equal(timing.retakes,1,'the save was retaken');assert.ok(timing.slices>2,'the retry continues yielding, without a whole synchronous fallback');assert.equal(saved.json,CODEC.serializeChunked(state).text,'and holds the state after the write');assert.equal(saved.hash,sha(saved.json));
     const rows=JSON.parse(saved.json).fleet.rows.chunks;assert.ok(rows.every(id=>vault.chunks.has(id)),'with its chunks');
     return {retakes:timing.retakes};
   });

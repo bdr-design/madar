@@ -792,6 +792,7 @@
   }
   function stagedStateSettled(){return stagedStateBusy()?new Promise(resolve=>afterStagedState(resolve)):Promise.resolve();}
   let stagedSaveQueued=false;
+  function largeNativeSave(){return Boolean(window.webkit?.messageHandlers?.saveBridge)&&Number(window.GH_FLEET_DATA?.size?.(state))>(window.GH_FLEET_MAIN_THREAD_POLICY?.DEFAULT_ROW_LIMIT??2048);}
   function scheduleSimulationPersistence(){
     if(stagedStateBusy()){if(!stagedSaveQueued){stagedSaveQueued=true;afterStagedState(()=>{stagedSaveQueued=false;scheduleSimulationPersistence();});}return true;}
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__||window.GH_PERSISTENCE.isLocked())return false;
@@ -806,7 +807,8 @@
       try{
         const metricClock=()=>globalThis.performance?.now?.()??Date.now(),compactionStart=metricClock();compactSimulationState(false);
         const pending={durationMs:Math.max(0,metricClock()-compactionStart),simSeconds:Number(state.simSeconds)||0,saveRevision:Number(state.saveRevision)||0},sink=window.__GH_APP_RUNTIME_INSTRUMENTATION__;
-        if(sink){sink.pendingCompaction=pending;sink.lastCompaction={...pending};}save();
+        if(sink){sink.pendingCompaction=pending;sink.lastCompaction={...pending};}
+        if(largeNativeSave())persistStateSliced().catch(error=>console.warn('تعذر حفظ المحاكاة',error));else save();
       }catch(error){const sink=window.__GH_APP_RUNTIME_INSTRUMENTATION__;if(sink)sink.pendingCompaction=null;console.warn('تعذر حفظ المحاكاة',error);}
     };
     try{task.handle=task.idle?window.requestIdleCallback(run,{timeout:1500}):setTimeout(run,0);}
@@ -879,9 +881,9 @@
   // Build 359 (the ordinary save was one block of 80-200 ms: schema, serialization and encoding at once): Save Now saves
   // a copy of the state in slices across frames (GH_PERSISTENCE.commitStateSliced, which holds the persistence lock from
   // the copy to the commit). The same checks as an ordinary save run first: no critical integrity issue may be
-  // introduced. A transaction's save, the background save and the real-time cap checkpoint stay whole and synchronous
-  // (save()): a checkpoint in slices raced the background save when the app was hidden mid-way (an extra control plane
-  // event on the restored state). The sealed containers keep their cost flat as the documents grow.
+  // introduced. Large Native background saves and real-time checkpoints use this same locked path and independent
+  // checksum worker. Background saves await sliced/lifecycle work before taking a new snapshot; small and reference
+  // synchronous APIs keep their contracts. The sealed containers keep their cost flat as the documents grow.
   function prepareSlicedSave(){
     const priorCriticalIds=new Set(((window.GH_INTEGRITY_CORE.check(state)?.issues)||[]).filter(x=>x.severity==='critical').map(x=>String(x.id||x.code||x.title)));
     pruneRouteCache();reconcileConsolidatedCash();
@@ -891,7 +893,7 @@
   async function persistStateSliced(){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__)return false;
     if(stagedStateBusy())return persistStateNow();
-    const out=await window.GH_PERSISTENCE.commitStateSliced(state,{storageKey,appVersion:APP_VERSION,prepare:prepareSlicedSave,yieldToFrame:()=>yieldForInteractivePaint()});
+    const out=await window.GH_PERSISTENCE.commitStateSliced(state,{storageKey,appVersion:APP_VERSION,prepare:prepareSlicedSave,yieldToFrame:()=>yieldForInteractivePaint(document.hidden?0:80)});
     if(out?.ok)diag('SAVE_OK',{bytes:out.utf8Bytes??null,saveRevision:state.saveRevision,sliced:true});else{diag('SAVE_FAILED',{message:String(out?.reason||'sliced-save-failed'),sliced:true});console.warn('تعذر حفظ اللعبة',out?.reason);}
     return out?.ok===true;
   }
@@ -953,17 +955,23 @@
   // check with more than 2,048 assets failed with fleet-validation-unavailable and stopped the engine at 00:59. The worker
   // runs fleet-query-core saveValidation on a replica that is exactly this store; the result is used only while current()
   // holds. A synchronous caller cannot wait for the worker and keeps its fail-closed answer.
-  // Build 375 (iPhone diagnostic, 300,000 assets: the ordinary save failed with fleet-validation-unavailable): the
-  // background save of a hidden app and the real-time cap checkpoint are synchronous, so they could never use the worker.
-  // The last answer is kept (one reference, no copy) and a synchronous caller gets it; Save Schema still accepts it only
+  // Build 375 (iPhone diagnostic, 300,000 assets: the ordinary save failed with fleet-validation-unavailable): synchronous
+  // callers cannot wait for worker validation. The last answer is kept (one reference, no copy); Save Schema accepts it only
   // while current() holds (the same store at the same revision) and the context token matches, else it fails closed.
-  let lastFleetValidation=null;
+  let lastFleetValidation=null,pendingFleetValidation=null;
   globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false}={})=>{
     const client=fleetEngineThreadClient;if(!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
-    const store=s.fleet;
-    if(syncOnly){const last=lastFleetValidation;return last&&last.store===store?{result:last.found.result,current:()=>client.current(last.found,store)}:null;}
+    const store=s.fleet,contextToken=window.GH_FLEET_SAVE_VALIDATION?.contextToken?.(params||{}),wrap=found=>({result:found.result,current:()=>client.current(found,store)}),last=lastFleetValidation;
+    // Reuse only the exact store revision and validation context. Repeated validators of an unchanged fleet do not
+    // queue identical million-row passes ahead of simulation work; callers still perform all non-fleet validation.
+    if(typeof contextToken==='string'&&last?.client===client&&last.store===store&&last.found.result?.contextToken===contextToken&&client.current(last.found,store))return syncOnly?wrap(last.found):Promise.resolve(wrap(last.found));
+    if(syncOnly)return null;
+    const pending=pendingFleetValidation;
+    if(typeof contextToken==='string'&&pending?.client===client&&pending.store===store&&pending.contextToken===contextToken&&client.current(pending.tag,store))return pending.promise;
     const asked=client.query(store,{name:'saveValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
-    return asked.then(found=>{if(!found)return null;lastFleetValidation={store,found};return {result:found.result,current:()=>client.current(found,store)};});
+    const entry={client,store,contextToken,tag:{store,runtime:window.GH_FLEET_STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length},promise:null};
+    entry.promise=asked.then(found=>{if(!found)return null;if(pendingFleetValidation===entry&&client.current(found,store)&&found.result?.contextToken===contextToken)lastFleetValidation={client,store,found};return wrap(found);}).finally(()=>{if(pendingFleetValidation===entry)pendingFleetValidation=null;});
+    pendingFleetValidation=entry;return entry.promise;
   };
   // Build 372: a fleet-query-core pass found by the fleet engine's worker for a staged stage that waits for it (realism-core:
   // the daily close's insured condition total). A promise of {result, current()} or null when the worker cannot vouch for
@@ -1166,7 +1174,7 @@
     durableCommandInProgress=true;let committed=false,settle=null;durableCommandSettlement=new Promise(resolve=>{settle=resolve;});
     try{
       await fleetStepSettled();
-      const result=await window.GH_DOMAIN_COMMANDS.dispatchDurable({...(options.context||{}),state},envelope,{transactionId:options.transactionId,persistence:{storageKey,appVersion:APP_VERSION},publish:(_live,draft)=>replaceLiveState(draft),afterCommit:options.afterCommit});committed=true;diag('AUTHORIZED_COMMAND_COMMITTED',{domain,name,transactionId:result.transactionId,authorizationProofId:result.value?.authorizationProofId});return result.value;
+      const result=await window.GH_DOMAIN_COMMANDS.dispatchDurable({...(options.context||{}),state},envelope,{transactionId:options.transactionId,persistence:{storageKey,appVersion:APP_VERSION,...(largeNativeSave()?{yieldToFrame:()=>yieldForInteractivePaint(document.hidden?0:80)}:{})},publish:(_live,draft)=>replaceLiveState(draft),afterCommit:options.afterCommit});committed=true;diag('AUTHORIZED_COMMAND_COMMITTED',{domain,name,transactionId:result.transactionId,authorizationProofId:result.value?.authorizationProofId});return result.value;
     }catch(error){
       if(error?.durableCommitted===true){
         committed=true;state.speed=0;simulationEngine.cancelAdvance?.('durable-publication-failed-after-ack',{immediate:true});
@@ -3165,7 +3173,7 @@
         // 100+ ms frame, while the surrounding staged transaction still commits the whole financial day atomically.
         for(const row of contractRows)if(row.revenue>0){phase('simulation.finance-day.operating-revenue-contract',()=>dispatchSystemCommand({state},'finance','credit',{company:companyId,amount:row.revenue,note:`إيراد عقد يومي · ${row.name}`,taxable,...terms,reference:`CONTRACT-COLLECT-${row.id}-${state.lastFinancialDay}`,counterparty:row.client,sourceRefs:[row.id,`CONTRACT-DAY-${row.id}-${state.lastFinancialDay}`]},{actor:'financial-close'}));contractRevenue+=Math.max(0,Number(row.revenue)||0);yield 'finance-day.operating-revenue-contract';}
         phase('simulation.finance-day.operating-revenue-payments',()=>{
-        const residualRevenue=Math.max(0,revenue-contractRevenue);if(residualRevenue>0)dispatchSystemCommand({state},'finance','credit',{company:companyId,amount:residualRevenue,note:`إيراد يومي ${typeName(companyId)} · منشآت/تشغيل غير تعاقدي`,taxable,...terms,reference:`OPER-COLLECT-${companyId}-${state.lastFinancialDay}`,periodDay:state.lastFinancialDay,sourceRefs:[`OPER-${companyId}-${state.lastFinancialDay}`]},{actor:'financial-close'});
+        const residualRevenue=Math.max(0,revenue-contractRevenue);if(residualRevenue>0)dispatchSystemCommand({state},'finance','credit',{company:companyId,amount:residualRevenue,note:`إيراد يومي ${typeName(companyId)} · منشآت/تشغيل غير تعاقدي`,taxable,...(companyId===bankCompany?{taxComponents:[{description:'دخل فوائد وعوائد مالية',amount:Math.max(0,residualRevenue-Math.min(residualRevenue,Math.max(0,Number(ed.feeIncome)||0))),taxCode:'financial-interest'},{description:'رسوم خدمات مصرفية',amount:Math.min(residualRevenue,Math.max(0,Number(ed.feeIncome)||0)),taxCode:'standard'}]}:Number(ed.companyCashTaxExemptRevenue?.[companyId])>0?{taxComponents:[{description:companyId==='realestate'?'إيجار سكني':'عوائد مالية',amount:Math.min(residualRevenue,Number(ed.companyCashTaxExemptRevenue[companyId])),taxable:false,taxCode:companyId==='realestate'?'residential-rent':'financial-interest'},{description:'إيراد تشغيلي خاضع للضريبة',amount:Math.max(0,residualRevenue-Number(ed.companyCashTaxExemptRevenue[companyId])),taxCode:'standard'}]}:{}),...terms,reference:`OPER-COLLECT-${companyId}-${state.lastFinancialDay}`,periodDay:state.lastFinancialDay,sourceRefs:[`OPER-${companyId}-${state.lastFinancialDay}`]},{actor:'financial-close'});
         const billed=expense>0&&companyId!==bankCompany&&postAccruedExpense(companyId,expense,`مصروف يومي ${typeName(companyId)} · فاتورة مورد آجلة (عقود/منشآت/إيجارات)`,'فاتورة مورد آجلة',state.lastFinancialDay+PAYMENT_TERMS_DAYS,`${companyId.toUpperCase()}-AP-${state.lastFinancialDay}`,'مصروف تشغيلي',{taxable,paymentTerms:PAYMENT_TERMS_DAYS,counterparty:`موردو ${typeName(companyId)} المعتمدون`});
         if(expense>0&&!billed){const available=companyOperatingBalance(companyId),paid=Math.min(available,expense);if(paid>0)spendCompanySystem(companyId,paid,`مصروف يومي ${typeName(companyId)} · عقود/منشآت/إيجارات`,'قيد تشغيلي يومي',taxable);if(paid<expense){const due=expense-paid,number=`${companyId.toUpperCase()}-ACC-${state.lastFinancialDay}`;postAccruedExpense(companyId,due,'مصروف تشغيلي مستحق مرحّل من الإقفال اليومي','قيد مستحق',state.lastFinancialDay+7,number,'مصروف تشغيلي');}}
         });yield 'finance-day.operating-revenue-payments';
@@ -4608,7 +4616,9 @@
         await window.GH_PERSISTENCE.drain();diag('BACKGROUND_SAVE_COALESCED',{saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0});
         return {saveRevision:Number(state.saveRevision)||0,simSeconds:Number(state.simSeconds)||0,resetEpoch:Number(state.resetEpoch)||0,coalesced:true};
       }
-      if(!persistStateNow({throwOnError:true}))throw new Error('background-save-rejected');
+      if(largeNativeSave()){
+        await stagedStateSettled();if(!await persistStateSliced())throw new Error('background-save-rejected');
+      }else if(!persistStateNow({throwOnError:true}))throw new Error('background-save-rejected');
       await window.GH_PERSISTENCE.drain();diag('BACKGROUND_SAVE_OK',{saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0});
       return {saveRevision:Number(state.saveRevision)||0,simSeconds:Number(state.simSeconds)||0,resetEpoch:Number(state.resetEpoch)||0,coalesced:false};
     },
@@ -5469,9 +5479,9 @@ ${page}</div>`;
   function invoiceArt(d){
     const company=documentCompanyKey(d),i=financeDocumentIdentity(company),own=COMPANY_PLATFORM.resolveIdentity?.(state,company),income=d.kind==='دخل',counterparty=formalFinanceParty(d.counterparty,company,income?'customer':'supplier'),party=legalPartyRecord(counterparty);
     const place=window.GH_GAME_LIFECYCLE?.locationFor?.(state.profile)||{city:'الرياض',country:'السعودية'},record=company==='group'?state.companyRegistry?.group||{}:state.companyRegistry?.[company]||{};
-    const us={name:own?.legalName||i.name,vat:vatNumberOf(`company|${company}`),cr:record.commercialRegistration||'—',address:`${place.city}، ${place.country}`,logo:companyLogoMarkup(company,'small')};
-    const them={name:counterparty,vat:party?.taxId&&/^\d{15}$/.test(party.taxId)?party.taxId:vatNumberOf(`party|${counterparty}`),cr:party?.registrationNo||'—',address:party?.city?`${party.city}${party.country?`، ${party.country}`:''}`:'—',logo:`<div class="company-logo-badge small bd-initial"><span>${esc([...counterparty.replace(/^(شركة|مؤسسة)\s+/,'')][0]||'•')}</span></div>`};
-    const seller=income?us:them,buyer=income?them:us,total=Number(d.total||0),tax=Number(d.tax||0),subtotal=Number(d.subtotal??Math.max(0,total-tax)),rate=subtotal>0?Math.round(tax/subtotal*100):0,stamp=simStamp(d.at);
+    const us={name:own?.legalName||i.name,vat:d.taxNumber??(d.issuerSnapshot?(d.issuerSnapshot.taxId||'غير مسجل'):window.GH_FINANCE_CORE.companyTaxNumber(state,company)),cr:record.commercialRegistration||'—',address:`${place.city}، ${place.country}`,logo:companyLogoMarkup(company,'small')};
+    const them={name:counterparty,vat:d.counterpartySnapshot?(d.counterpartySnapshot.taxId||'غير مسجل'):(party?.taxId||'غير مسجل'),cr:party?.registrationNo||'—',address:party?.city?`${party.city}${party.country?`، ${party.country}`:''}`:'—',logo:`<div class="company-logo-badge small bd-initial"><span>${esc([...counterparty.replace(/^(شركة|مؤسسة)\s+/,'')][0]||'•')}</span></div>`};
+    const seller=income?us:them,buyer=income?them:us,total=Number(d.total||0),tax=Number(d.tax||0),subtotal=Number(d.subtotal??Math.max(0,total-tax)),rate=d.taxCode==='mixed'?'حسب البند':`${Number(d.taxRate??(subtotal>0?tax/subtotal:0))*100}%`,stamp=simStamp(d.at);
     const lines=Array.isArray(d.lines)&&d.lines.length?d.lines:[{description:d.note||'خدمات',quantity:1,unitPrice:subtotal,taxable:subtotal,vat:tax,total}];
     const paid=['مسددة','محصلة','مدفوعة'].includes(d.status),bounced=d.status==='شيك مرتجع',bank=treasuryBank(),account=String(d.accountId||companyBook(company).accounts[0]?.id||i.account);
     const qr=tax>0?docQr(window.GH_QR?.zatcaPayload?.({seller:seller.name,vatNumber:seller.vat,timestamp:stamp.iso,total:total.toFixed(2),vat:tax.toFixed(2)})||d.number,'رمز الفاتورة الإلكترونية'):docQr(`GHV1|INV|${d.number}|${total.toFixed(2)}`,'رمز التحقق');
@@ -5481,7 +5491,7 @@ ${page}</div>`;
       <header class="iv-head"><div class="iv-issuer">${companyLogoMarkup(company,'small')}<b><bdi>${esc(us.name)}</bdi></b></div><div class="iv-title"><b>${tax>0?'فاتورة ضريبية':'فاتورة'}</b><small>${tax>0?'Tax Invoice':'Invoice'}${income?'':' · فاتورة مورد'}</small></div><div class="iv-no"><span>رقم الفاتورة</span>${mono(d.number)}</div></header>
       <div class="iv-meta"><div><span>تاريخ الإصدار · Issue date</span>${mono(`${stamp.date} ${stamp.time.slice(0,5)}`)}</div><div><span>تاريخ التوريد · Supply date</span>${mono(stamp.date)}</div><div><span>الحالة · Status</span><b class="bd-state ${paid?'':'pending'}">${esc(d.status||'مستحقة')}</b></div></div>
       <div class="iv-parties">${partyBlock('المورد','Seller',seller)}${partyBlock('المشتري','Buyer',buyer)}</div>
-      <div class="iv-table" role="table"><div class="iv-row iv-th" role="row"><span>الوصف<small>Description</small></span><span>الكمية<small>Qty</small></span><span>سعر الوحدة<small>Unit price</small></span><span>الضريبة ${rate}%<small>VAT</small></span><span>الإجمالي<small>Total</small></span></div>
+      <div class="iv-table" role="table"><div class="iv-row iv-th" role="row"><span>الوصف<small>Description</small></span><span>الكمية<small>Qty</small></span><span>سعر الوحدة<small>Unit price</small></span><span>الضريبة ${rate}<small>VAT</small></span><span>الإجمالي<small>Total</small></span></div>
         ${lines.map(line=>`<div class="iv-row" role="row"><span>${esc(truncateText(line.description||line.note||'',80))}</span><span>${mono(Number(line.quantity||1).toLocaleString('en-US'))}</span><span>${mono(Number(line.unitPrice??line.taxable??0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.vat||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.total||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span></div>`).join('')}</div>
       <footer class="iv-foot"><div class="iv-qr">${qr}</div><div class="iv-pay"><span>طريقة السداد</span><b>${esc(d.method||'تحويل بنكي')}</b><span>الحساب ${mono(bankIban(account))}</span><span>${esc(bank.name)}</span><div class="iv-sign">${companyStampMarkup(company)}${signatureVisual}</div></div>
         <div class="iv-tot"><div><span>الإجمالي قبل الضريبة</span>${mono(money(subtotal))}</div><div><span>ضريبة القيمة المضافة ${rate}%</span>${mono(money(tax))}</div><div class="invoice-total"><span>الإجمالي شامل الضريبة</span>${mono(money(total))}</div></div></footer>
@@ -5897,14 +5907,14 @@ ${page}</div>`;
     const ids=issuedChequesFor(filter).sort((a,b)=>(Number(a.dueDay)||0)-(Number(b.dueDay)||0)||String(a.id).localeCompare(String(b.id))).map(row=>row.id);if(!ids.length){notice('لا توجد شيكات صادرة بانتظار الصرف.');return null;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;
     const result=await runAuthorizedCompositeCommand('settle-all-cheques',async({state:draft,dispatch})=>{
-      const F=window.GH_FINANCE_CORE,free=draft.godMoney&&draft.infiniteMoney,slice=bulkSlicer(ids.length,progress);let count=0,amount=0,skipped=0,done=0;
-      for(const id of ids){await slice(done++);const cheque=(draft.finance.cheques||[]).find(row=>row.id===id);if(!cheque||cheque.status!=='صادر')continue;const due=Number(cheque.amount)||0;
-        if(!free&&F.operating(draft,F.requireCompany(draft,cheque.company||'group'))<due){skipped++;continue;}
+      const F=window.GH_FINANCE_CORE,chequesById=new Map((draft.finance.cheques||[]).map(row=>[row.id,row])),slice=bulkSlicer(ids.length,progress);let count=0,amount=0,skipped=0,done=0;const reasons={'insufficient-cash':0,'insufficient-budget':0};
+      for(const id of ids){await slice(done++);const cheque=chequesById.get(id);if(!cheque||cheque.status!=='صادر')continue;const due=Number(cheque.amount)||0;
+        const blocker=F.chequeFundingBlocker(draft,cheque);if(blocker){skipped++;reasons[blocker]++;continue;}
         const out=dispatch('finance','settle-cheque',{id}).result;if(out?.settled!==true)throw new Error(`تعذر صرف الشيك ${id}: ${out?.reason||'رفض الصرف'}`);count++;amount+=due;}
-      if(!count)throw new Error('لا يكفي رصيد الحساب الجاري لصرف أي شيك الآن');
-      return {count,amount,skipped};
+      if(!count)throw new Error(reasons['insufficient-budget']?'لا تسمح الميزانية بصرف الشيكات المتاحة، أو لا يكفي رصيد الحساب الجاري.':'لا يكفي رصيد الحساب الجاري لصرف أي شيك الآن');
+      return {count,amount,skipped,reasons};
     },{afterCommit:()=>{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}}});
-    if(result)pushAlert(`صُرف ${fmtNumber(result.count)} شيكًا بقيمة ${fmtMoney(result.amount)}${result.skipped?`؛ بقي ${fmtNumber(result.skipped)} شيكًا لعدم كفاية الرصيد`:''}.`);
+    if(result)pushAlert(`صُرف ${fmtNumber(result.count)} شيكًا بقيمة ${fmtMoney(result.amount)}${result.skipped?`؛ بقي ${fmtNumber(result.skipped)} شيكًا (${fmtNumber(result.reasons['insufficient-cash'])} لنقص الرصيد، ${fmtNumber(result.reasons['insufficient-budget'])} لسقف الميزانية)`:''}.`);
     return result;
   }
   async function settlePayable(number,method='transfer'){const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;try{const result=(await runAuthorizedDomainCommand('finance','settle-payable',{number,method})).result;if(method==='cheque')pushAlert(`صدر الشيك ${result.chequeId} بقيمة ${fmtMoney(result.amount)} لسداد الذمة ${number}. ستبقى الذمة مفتوحة حتى صرف الشيك.`);else pushAlert(`تم سداد ${fmtMoney(result.amount)} بتحويل بنكي من حساب ${companyFinanceName(result.company)}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}return result;}catch(error){notice(`تعذر سداد الذمة: ${error.message}`);return null;}}

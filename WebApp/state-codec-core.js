@@ -682,8 +682,8 @@
   // caller uploads the ones the vault has not acknowledged. A checksum per id is kept and one reused chunk is
   // re-checked per save in rotation; a mismatch (a write that bypassed the store) renames every chunk (new salt), so
   // stale bytes are never referenced. Everything except fleet.rows is exactly serialize()'s text.
-  const chunkIdCache=new WeakMap();let chunkSalt=0,chunkSequence=0,chunkCacheStats={reused:0,named:0,adopted:0,verified:0,mismatches:0};
-  function chunkChecksum(bytes){const words=new Uint32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength>>>2);let a=0x811c9dc5|0,b=0x01000193|0;const imul=Math.imul;for(let i=0;i<words.length;i++){a=imul(a^words[i],0x01000193);b=(b+a)|0;}for(let i=words.length*4;i<bytes.length;i++){a=imul(a^bytes[i],0x01000193);b=(b+a)|0;}return `${(a>>>0).toString(36)}.${(b>>>0).toString(36)}`;}
+  const chunkIdCache=new WeakMap();let chunkSalt=0,chunkSequence=0,chunkCacheStats={reused:0,named:0,adopted:0,verified:0,mismatches:0,checksumCalls:0,checksumBytes:0,base64Calls:0};
+  function chunkChecksum(bytes){chunkCacheStats.checksumCalls++;chunkCacheStats.checksumBytes+=bytes.byteLength;const words=new Uint32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength>>>2);let a=0x811c9dc5|0,b=0x01000193|0;const imul=Math.imul;for(let i=0;i<words.length;i++){a=imul(a^words[i],0x01000193);b=(b+a)|0;}for(let i=words.length*4;i<bytes.length;i++){a=imul(a^bytes[i],0x01000193);b=(b+a)|0;}return `${(a>>>0).toString(36)}.${(b>>>0).toString(36)}`;}
   function chunkGeometry(store){const STORE=globalThis.GH_FLEET_STORE;if(typeof STORE?.chunkStamp!=='function'||STORE.isStore?.(store)!==true)throw new Error('state-codec-chunks-need-store');const chunkBytes=STORE.CHUNK_ROWS*STORE.STRIDE,bytes=new Uint8Array(store.rows);return {STORE,chunkBytes,bytes,count:Math.ceil(bytes.length/chunkBytes)};}
   function chunkKey(stamp,index,length){return `${stamp.runtime}.${stamp.mass}.${stamp.versions[index]??0}.${length}`;}
   function adoptChunkIds(store,marker){
@@ -693,37 +693,67 @@
     for(let index=0;index<count;index++){const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start);entry.keys[index]=chunkKey(stamp,index,length);entry.ids[index]=marker.chunks[index];entry.sums[index]=chunkChecksum(bytes.subarray(start,start+length));}
     chunkIdCache.set(store,entry);chunkCacheStats.adopted+=count;return true;
   }
-  function chunkManifest(store){
+  const preparedChunkSnapshots=new WeakSet();
+  function* chunkManifestSteps(store,{externalChecksums=false,knownChunkIds=null}={}){
     const {STORE,chunkBytes,bytes,count}=chunkGeometry(store);
+    const revision=store.revision,buffer=store.rows;
+    const current=()=>{if(store.revision!==revision||store.rows!==buffer)throw new Error('state-codec-fleet-changed-during-save');};
     let entry=chunkIdCache.get(store);if(!entry){entry={keys:[],ids:[],sums:[],rotation:0};chunkIdCache.set(store,entry);}
-    const name=()=>{const stamp=STORE.chunkStamp(store),reused=[];
-      for(let index=0;index<count;index++){
-        const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),key=chunkKey(stamp,index,length);
-        if(entry.keys[index]===key&&entry.ids[index])reused.push(index);
-        else{entry.keys[index]=key;entry.ids[index]=`${NONCE}.${chunkSalt}.${(++chunkSequence).toString(36)}`;entry.sums[index]=chunkChecksum(bytes.subarray(start,start+length));chunkCacheStats.named++;}
+    const snapshots=new Map(),snapshotSums=new Map();let snapshotMismatch=false;
+    const nextChecksumBytes=(index,stamp)=>{
+      if(!externalChecksums)return null;
+      for(let next=index+1;next<count;next++){
+        if(snapshotSums.has(next))continue;
+        const start=next*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),key=chunkKey(stamp,next,length);
+        if(entry.keys[next]!==key||!entry.ids[next]||!knownChunkIds?.has?.(entry.ids[next]))return bytes.subarray(start,start+length);
       }
+      return null;
+    };
+    const checksum=function*(index,start,length,nextBytes=null){
+      if(!externalChecksums)return chunkChecksum(bytes.subarray(start,start+length));
+      if(snapshotSums.has(index))return snapshotSums.get(index);
+      const found=yield {kind:'fleet-chunk-checksum',bytes:bytes.subarray(start,start+length),nextBytes};current();
+      if(!found||typeof found.checksum!=='string'||!(found.bytes instanceof Uint8Array)||found.bytes.byteLength!==length)throw new Error('save-checksum-evidence-invalid');
+      snapshots.set(index,found.bytes);snapshotSums.set(index,found.checksum);return found.checksum;
+    };
+    const name=function*(){const stamp=STORE.chunkStamp(store),reused=[];
+      for(let index=0;index<count;index++){
+        current();
+        const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),key=chunkKey(stamp,index,length);
+        if(entry.keys[index]===key&&entry.ids[index]){
+          reused.push(index);
+          // After a vault miss or reload, a reused identity may still need uploading. Obtain its immutable bytes from
+          // the worker too; never rebuild a missing large snapshot with a whole-store copy on the presentation thread.
+          if(externalChecksums&&!knownChunkIds?.has?.(entry.ids[index])){const sum=yield* checksum(index,start,length,nextChecksumBytes(index,stamp));if(sum!==entry.sums[index])snapshotMismatch=true;}
+        }
+        else{const sum=yield* checksum(index,start,length,nextChecksumBytes(index,stamp));entry.keys[index]=key;entry.ids[index]=`${NONCE}.${chunkSalt}.${(++chunkSequence).toString(36)}`;entry.sums[index]=sum;chunkCacheStats.named++;yield;}
+      }
+      current();
       entry.keys.length=count;entry.ids.length=count;entry.sums.length=count;return reused;};
-    const reused=name();chunkCacheStats.reused+=reused.length;
+    const reused=yield* name();chunkCacheStats.reused+=reused.length;
     if(reused.length){
       const index=reused[entry.rotation++%reused.length],start=index*chunkBytes;chunkCacheStats.verified++;
-      if(chunkChecksum(bytes.subarray(start,Math.min(bytes.length,start+chunkBytes)))!==entry.sums[index]){
+      const sum=yield* checksum(index,start,Math.min(bytes.length-start,chunkBytes));yield;current();
+      if(snapshotMismatch||sum!==entry.sums[index]){
         chunkCacheStats.mismatches++;chunkSalt++;entry.keys=[];entry.ids=[];entry.sums=[];
         try{globalThis.console?.warn?.('state-codec: fleet chunk changed behind the store; renaming every chunk');}catch{}
-        name();
+        yield* name();
       }
     }
     const ids=entry.ids.slice();
-    return {marker:{$ghBinary:'chunks-v1',byteLength:bytes.length,chunkBytes,chunks:ids},chunks:ids.map((id,index)=>({id,index,byteOffset:index*chunkBytes,byteLength:Math.min(chunkBytes,bytes.length-index*chunkBytes)}))};
+    return {marker:{$ghBinary:'chunks-v1',byteLength:bytes.length,chunkBytes,chunks:ids},chunks:ids.map((id,index)=>{const chunk={id,index,byteOffset:index*chunkBytes,byteLength:Math.min(chunkBytes,bytes.length-index*chunkBytes)};if(snapshots.has(index)){chunk.data=snapshots.get(index);preparedChunkSnapshots.add(chunk);}return chunk;})};
   }
   // Text chunks follow the fleet chunks as {id,byteLength,text}; the caller uploads the UTF-8 bytes of text.
   function serializeChunked(state){const steps=serializeChunkedSteps(state);let step;while(!(step=steps.next()).done){}return step.value;}
-  function* serializeChunkedSteps(state){
+  function* serializeChunkedSteps(state,options={}){
     if(!isPlain(state)||!isArrayBuffer(state.fleet?.rows))return {text:yield* serializeSteps(state),chunks:[]};
-    const manifest=chunkManifest(state.fleet),textChunks=[],coldChunks=[],text=yield* serializeSteps(state,{rowsText:JSON.stringify(manifest.marker),textChunks,coldChunks});
+    // Each dirty 4 MiB chunk and the rotating reuse check get their own step. A sliced save can paint between them;
+    // the synchronous API drains these identical steps and retains the same IDs, checksums and corruption checks.
+    const manifest=yield* chunkManifestSteps(state.fleet,options),textChunks=[],coldChunks=[],text=yield* serializeSteps(state,{rowsText:JSON.stringify(manifest.marker),textChunks,coldChunks});
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 
-  const API=Object.freeze({VERSION,MIN_ROWS,encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes)),cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size}}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
+  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size}}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
   globalThis.GH_STATE_CODEC=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_STATE_CODEC=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;
