@@ -1,0 +1,81 @@
+{
+  "cases" : [
+    {
+      "name" : "4 MiB real worker reply matches reference and retains live buffer",
+      "ok" : true
+    },
+    {
+      "name" : "three chunk pipeline uses one bounded lookahead and no main checksum",
+      "ok" : true
+    },
+    {
+      "name" : "unchanged save performs only its rotating check",
+      "ok" : true
+    },
+    {
+      "name" : "sparse changes skip the known middle chunk and reload exactly",
+      "ok" : true
+    },
+    {
+      "name" : "forgotten vault gets all unchanged snapshot bytes once",
+      "ok" : true
+    },
+    {
+      "name" : "changed revision rejects old work and then retries cleanly",
+      "ok" : true
+    },
+    {
+      "name" : "immediate promises cannot claim a worker task boundary",
+      "ok" : true
+    },
+    {
+      "name" : "termination rejects pending work without leaving resources",
+      "ok" : true
+    }
+  ],
+  "failed" : 0,
+  "nativeGatePassed" : true,
+  "origin" : "gh:\/\/app",
+  "passed" : 8,
+  "physicalIPhone" : false,
+  "platform" : "macOS",
+  "probeSha256" : "4171ba5648decc0d690b1e9e5439bb9eb5371269218188e590edc120762891b4",
+  "realWKWebView" : true,
+  "requestedPaths" : [
+    "\/index.html",
+    "\/fleet-store-core.js",
+    "\/state-codec-core.js",
+    "\/save-checksum-thread.js",
+    "\/__qa_native_worker_probe__.js",
+    "\/save-checksum-worker.js",
+    "\/state-codec-core.js"
+  ],
+  "sourceSha256" : {
+    "fleet-store-core.js" : "6bd18623e21dfa754db02cfe58baf62e437192c59bc71f446ef5b0648da41dcc",
+    "index.html" : "31ce0879d2e03c2c7381fbe4f5317b47e7dfe3237834b17bdddc2eb0acd34edd",
+    "save-checksum-thread.js" : "2c7d9d614ee1673e0c48d863a5a98fb6010f708ca2bbd3dbe43adb306700c108",
+    "save-checksum-worker.js" : "ee3961a1d835627073790ca2387925b397a56071d50b9c4ffa2393dbb6e958c9",
+    "state-codec-core.js" : "c6549c5e49bf781b11fafc1399b538dc0aacc3fa99c318aeb8f7c15ea86f88fb"
+  },
+  "stats" : {
+    "activeChannels" : 0,
+    "activeSessions" : 0,
+    "completed" : 15,
+    "copyMs" : 12.999999999999886,
+    "deferredSubmitMs" : 3,
+    "encodes" : 0,
+    "failures" : 0,
+    "lookaheadRequests" : 6,
+    "maxCopyMs" : 4,
+    "maxDeferredSubmitMs" : 3,
+    "maxSessionJobs" : 2,
+    "maxWorkerMs" : 7,
+    "pending" : 0,
+    "requests" : 16,
+    "sessions" : 7,
+    "workerMs" : 34.000000000000057
+  },
+  "total" : 8,
+  "version" : "save-pipeline-native-v1",
+  "workerRequestObserved" : true
+}
