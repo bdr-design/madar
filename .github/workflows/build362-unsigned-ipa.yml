@@ -85,6 +85,15 @@ jobs:
           exit "$status"
 
 
+      - name: Type-check native performance diagnostics for iPhoneOS
+        shell: bash
+        run: |
+          set -euo pipefail
+          PERF_IPHONEOS_SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          xcrun swiftc -typecheck -swift-version 5 -sdk "$PERF_IPHONEOS_SDK" -target arm64-apple-ios17.0 \
+            "$SOURCE_DIR/iOS/GlobalHoldings/PerformanceDiagnostics.swift" \
+            "$SOURCE_DIR/iOS/GlobalHoldings/PerformanceReportVault.swift" 2>&1 | tee "$GITHUB_WORKSPACE/.ci-output/native-performance-typecheck.log"
+
       - name: Install pinned test dependencies and browser engines
         shell: bash
         run: |

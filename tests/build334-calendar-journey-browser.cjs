@@ -19,13 +19,49 @@ async function advance(page,selector,target,name){await calendar(page);const beg
   // Selecting a date is presentation only; the real confirm button owns advancement.
   await calendar(page);const unchanged=await page.evaluate(ledgerSnapshot);
   const selected=page.locator('.sim-cal-day:not(.is-today):not([disabled])').first();await selected.click();assert.deepEqual(await page.evaluate(ledgerSnapshot),unchanged);await page.locator('#simCalendarGo').click();await page.waitForFunction(()=>!GH_SIM_KERNEL.snapshot().manualAdvance,{timeout:30000});const picked=await page.evaluate(()=>__GH_STATE__.simSeconds);assert(picked>unchanged.time);results.push({name:'custom date selection read-only and actual confirm completes',time:picked});
-  // Full game: start the year request and cancel it through the same button, without tampering with the timer.
-  await calendar(page);await page.locator('[data-calendar-advance="year"]').click();await page.waitForFunction(t=>{const active=GH_SIM_KERNEL.snapshot().manualAdvance;if(__GH_STATE__.simSeconds>t&&active){window.qaYearTarget=active.target;return true;}return false;},picked);const target=await page.evaluate(()=>window.qaYearTarget);assert(target-picked>=365*86400-86400);const cancel=await page.evaluate(async()=>{const before={cancels:GH_SIM_KERNEL.snapshot().cancels,ticks:GH_SIM_KERNEL.snapshot().runtime.ticks},clickTime=__GH_STATE__.simSeconds,slicesAtClick=GH_SIM_KERNEL.snapshot().slices;const balances=()=>{const s=__GH_STATE__;return JSON.stringify({cash:s.cash,books:Object.fromEntries(Object.entries(s.companyFinance||{}).map(([type,book])=>[type,{cash:book?.cash,balance:book?.balance}])),bank:s.bank?.balanceSheet||null,energy:s.energy?.cash??null,journalSequence:s.finance?.journalSequence,paymentSequence:s.finance?.paymentSequence});};const balancesAtClick=balances();document.querySelector('#simNextDay').click();const atClick=GH_SIM_KERNEL.snapshot(),settleStarted=performance.now();
-  // Build 371: the cancel is published once the maintenance its last committed boundary queued has drained (as a
-  // completed request is); until then the request reads as cancelling and no slice runs. The books are compared from
-  // the publish on: nothing may change them after it.
-  for(let frame=0;GH_SIM_KERNEL.snapshot().manualAdvance;frame++){if(!GH_SIM_KERNEL.snapshot().manualAdvance.cancelling||frame>3000||performance.now()-settleStarted>60000)throw new Error('calendar cancel did not settle: '+JSON.stringify(GH_SIM_KERNEL.snapshot().manualAdvance));await new Promise(resolve=>requestAnimationFrame(resolve));}
-  const s=__GH_STATE__,cancelled=JSON.parse(JSON.stringify({time:s.simSeconds,day:s.lastFinancialDay,hour:s.lastMarketHour,cash:s.cash,finance:s.finance,books:s.companyFinance,bank:s.bank,energy:s.energy,assets:s.assets,mobility:s.mobility,owners:s.openedCompanies,registry:s.companyRegistry,crew:s.crew}));return {before,clickTime,slicesAtClick,balancesAtClick,balancesAtPublish:balances(),jobActiveAtClick:atClick.jobActive,cancelled,kernel:GH_SIM_KERNEL.snapshot(),speed:s.speed};});assert.equal(cancel.jobActiveAtClick,false,'the slice in flight is cancelled at the click');assert.equal(cancel.balancesAtPublish,cancel.balancesAtClick,'settling the cancel moves no money and posts no entry');assert.equal(cancel.cancelled.time,cancel.clickTime,'no simulated time after the click');assert.equal(cancel.kernel.slices,cancel.slicesAtClick,'no slice after the click');assert.equal(cancel.speed,0);assert.equal(cancel.kernel.manualAdvance,null);assert.equal(cancel.kernel.jobActive,false);await page.waitForFunction(({tick})=>{const k=GH_SIM_KERNEL.snapshot(),m=GH_APP_RUNTIME_METRICS.snapshot().maintenance;return k.runtime.ticks>=tick+2&&!k.runtime.inTick&&!k.manualAdvance&&!k.jobActive&&!GH_TRANSACTION_CORE.isActive()&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__)&&!__GH_STATE__.timeRecovery?.active&&!m.pending.length;},{tick:cancel.before.ticks},{timeout:30000});const afterCancel=await page.evaluate(ledgerSnapshot);assert.deepEqual(afterCancel,cancel.cancelled);results.push({name:'year request advances and cancels safely in full game',requested:target,committed:cancel.cancelled.time,cancelledAfterRuntimeTicks:cancel.kernel.runtime.ticks,cancelCountDelta:cancel.kernel.cancels-cancel.before.cancels});
+  // Capture the actual transaction baseline and force one iterator step per task in this fixture only.
+  // A pending window exposes tentative child-hour time; cancellation must restore its whole committed baseline.
+  await page.evaluate(source=>{
+    const read=eval('('+source+')'),tx=GH_TRANSACTION_CORE;window.qaReadCalendar=read;
+    window.GH_TRANSACTION_CORE={...tx,beginStaged(state,options){
+      const simulation=/^simulation(?:-window)?:/.test(options.label||'');
+      if(simulation)window.qaCalendarBaseline={label:options.label,state:read()};
+      const handle=tx.beginStaged(state,options);
+      if(!String(options.label||'').startsWith('simulation-window:'))return handle;
+      return new Proxy(handle,{get(target,key){return key==='step'?()=>target.step(-Infinity):Reflect.get(target,key,target);}});
+    }};
+  },ledgerSnapshot.toString());
+  await calendar(page);await page.locator('[data-calendar-advance="year"]').click();
+  const cancel=await page.evaluate(async picked=>{
+    const started=performance.now();let k;
+    for(;;){
+      k=GH_SIM_KERNEL.snapshot();
+      if(k.manualAdvance&&k.lastProgressSim>picked&&GH_TRANSACTION_CORE.isStaged(__GH_STATE__)&&__GH_STATE__.simSeconds>k.lastProgressSim&&window.qaCalendarBaseline?.label.startsWith('simulation-window:'))break;
+      if(performance.now()-started>60000)throw new Error('No staged calendar window after a committed advance: '+JSON.stringify(k));
+      await new Promise(resolve=>requestAnimationFrame(resolve));
+    }
+    const expected=qaCalendarBaseline.state,target=k.manualAdvance.target,before={cancels:k.cancels,ticks:k.runtime.ticks},clickTime=expected.time,candidateTimeAtClick=__GH_STATE__.simSeconds,slicesAtClick=k.slices;
+    if(clickTime!==k.lastProgressSim)throw new Error('Transaction baseline differs from committed engine time');
+    const balances=(s=__GH_STATE__)=>JSON.stringify({cash:s.cash,books:Object.fromEntries(Object.entries(s.companyFinance||s.books||{}).map(([type,book])=>[type,{cash:book?.cash,balance:book?.balance,accounts:(book?.accounts||[]).map(account=>({id:account.id,balance:account.balance}))}])),bank:s.bank?.balanceSheet||null,energy:s.energy?.cash??null,journalSequence:s.finance?.journalSequence,paymentSequence:s.finance?.paymentSequence});
+    const balancesAtClick=balances(expected);document.querySelector('#simNextDay').click();
+    const atClick=GH_SIM_KERNEL.snapshot(),immediate=qaReadCalendar(),settleStarted=performance.now();
+    // Maintenance may compact histories before cancellation publishes, but cannot advance time or post money.
+    for(let frame=0;GH_SIM_KERNEL.snapshot().manualAdvance;frame++){
+      if(!GH_SIM_KERNEL.snapshot().manualAdvance.cancelling||frame>3000||performance.now()-settleStarted>60000)throw new Error('calendar cancel did not settle: '+JSON.stringify(GH_SIM_KERNEL.snapshot().manualAdvance));
+      await new Promise(resolve=>requestAnimationFrame(resolve));
+    }
+    return {before,target,clickTime,candidateTimeAtClick,slicesAtClick,expected,immediate,balancesAtClick,balancesAtPublish:balances(),jobActiveAtClick:atClick.jobActive,cancelled:qaReadCalendar(),kernel:GH_SIM_KERNEL.snapshot(),speed:__GH_STATE__.speed};
+  },picked);
+  const target=cancel.target;assert(target-picked>=365*86400-86400);
+  assert(cancel.candidateTimeAtClick>cancel.clickTime,'cancel deliberately lands in tentative child-hour work');
+  assert.deepEqual(cancel.immediate,cancel.expected,'cancel restores every selected business field to the pre-window committed state');
+  assert.equal(cancel.jobActiveAtClick,false,'the slice in flight is cancelled at the click');
+  assert.equal(cancel.balancesAtPublish,cancel.balancesAtClick,'settling the cancel moves no money and posts no entry');
+  assert.equal(cancel.cancelled.time,cancel.clickTime,'no committed simulated time after the click');
+  assert.equal(cancel.kernel.slices,cancel.slicesAtClick,'no slice after the click');assert.equal(cancel.speed,0);assert.equal(cancel.kernel.manualAdvance,null);assert.equal(cancel.kernel.jobActive,false);
+  await page.waitForFunction(({tick})=>{const k=GH_SIM_KERNEL.snapshot(),m=GH_APP_RUNTIME_METRICS.snapshot().maintenance;return k.runtime.ticks>=tick+2&&!k.runtime.inTick&&!k.manualAdvance&&!k.jobActive&&!GH_TRANSACTION_CORE.isActive()&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__)&&!__GH_STATE__.timeRecovery?.active&&!m.pending.length;},{tick:cancel.before.ticks},{timeout:30000});
+  const afterCancel=await page.evaluate(ledgerSnapshot);assert.deepEqual(afterCancel,cancel.cancelled);
+  results.push({name:'year request advances and cancels safely in full game',requested:target,committed:cancel.cancelled.time,tentativeAtClick:cancel.candidateTimeAtClick,cancelledAfterRuntimeTicks:cancel.kernel.runtime.ticks,cancelCountDelta:cancel.kernel.cancels-cancel.before.cancels});
   assert(await page.evaluate(()=>qaContext.save()));const saved=await page.evaluate(ledgerSnapshot);await page.reload();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);assert.deepEqual(await page.evaluate(ledgerSnapshot),saved);assert.equal(await page.locator('#signatureDialog').isVisible(),false);results.push({name:'cancelled advance exact business save/reload',time:saved.time});await page.close();
   const active=await boot();
   await active.evaluate(async()=>{for(const type of ['air','sea','road','power','bank','mobility']){const d=GH_COMPANY_PLATFORM.definitionFor(__GH_STATE__,type);await qaContext.runAuthorizedDomainCommand('corporate','open-company',{type,companyId:type,capital:Math.max(50000000,d.founding.minimumCapital),legalName:`Calendar ${type}`,formationContract:`QA-CALENDAR-${type}`});}});

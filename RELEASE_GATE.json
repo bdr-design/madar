@@ -14,7 +14,7 @@
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
     "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale.",
-    "The integrated candidate passed all 394 local mandatory source gates. Fresh macOS native report-vault, save-worker/vault, WKWebView and unsigned iPhoneOS build validation are pending. Physical iPhone frame/thermal/battery profiling and general 99% accuracy remain unverified. Production approval stays closed."
+    "Same game runtime passed the previous 394 local gates. Revised host-independent test fixtures and mandatory early iPhoneOS diagnostics type-check require fresh full current-contract local/macOS/native/IPA acceptance. First macOS run passed 392/394 and produced no approved IPA. Physical iPhone profiling and general 99% accuracy remain unverified; production approval stays closed."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -86,7 +86,7 @@
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
     "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
     "working_tree_clean": false,
-    "note": "Integrated paid construction acceleration and manual performance-trace candidate passed all 394 mandatory local source gates and lint. A fresh unsigned test IPA requires the mandatory exact-source macOS native, report-vault, WKWebView and iPhoneOS build gates. Physical iPhone profiling and production approval remain pending; general 99% accuracy is not verified.",
+    "note": "Acceptance follow-up on unchanged game runtime. Previous local full suite passed 394/394; first macOS CI passed 392/394, failing two host/timing-dependent test fixtures. Corrected the missing document host and made cancellation assert the complete committed transaction baseline; added a mandatory early iPhoneOS API type-check. Six focused suites pass. Current complete local and macOS reruns remain mandatory before IPA; physical iPhone/production approval remains pending.",
     "news_work": {
       "local_targeted_checks": {
         "passed": 14,
@@ -144,9 +144,27 @@
       "ipa_built": false,
       "physical_iphone_tested": false,
       "production_approved": false
+    },
+    "delivery_382_followup": {
+      "source_runtime_unchanged": true,
+      "first_ci": {
+        "run_id": 38779193555,
+        "run_url": "https://github.com/bdr-design/madar/actions/runs/38779193555",
+        "passed": 392,
+        "total": 394,
+        "certified": false,
+        "failures": [
+          "tests/build334-durable-publication-recovery.cjs",
+          "tests/build334-calendar-journey-browser.cjs"
+        ]
+      },
+      "corrected_fixture_suites_passed": 6,
+      "mandatory_early_native_typecheck": true,
+      "full_current_contract_acceptance": "PENDING",
+      "production_approved": false
     }
   },
-  "point": "Integrated paid construction acceleration and manual performance-trace candidate passed all 394 mandatory local source gates and lint. A fresh unsigned test IPA requires the mandatory exact-source macOS native, report-vault, WKWebView and iPhoneOS build gates. Physical iPhone profiling and production approval remain pending; general 99% accuracy is not verified.",
+  "point": "Acceptance follow-up on unchanged game runtime. Previous local full suite passed 394/394; first macOS CI passed 392/394, failing two host/timing-dependent test fixtures. Corrected the missing document host and made cancellation assert the complete committed transaction baseline; added a mandatory early iPhoneOS API type-check. Six focused suites pass. Current complete local and macOS reruns remain mandatory before IPA; physical iPhone/production approval remains pending.",
   "local_business_options_evidence": {
     "validation_type": "targeted",
     "passed": 21,
@@ -200,6 +218,23 @@
       "validation_type": "full",
       "status": "PASS_CURRENT_378_OF_378",
       "results": "/workspace/acceptance/delivery-377-20261015/full-after-health/results.json",
+      "physical_iphone": "NOT_RUN",
+      "current_native": "PENDING_FRESH_CI",
+      "ipa": "PENDING_FRESH_CI"
+    },
+    {
+      "verified": true,
+      "passed": 394,
+      "total": 394,
+      "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+      "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311",
+      "validation_type": "full",
+      "status": "PASS_PREVIOUS_TEST_CONTRACT_SAME_GAME_RUNTIME",
+      "results": "/workspace/release-382-20261015/acceptance-03/results.json",
+      "results_sha256": "791b535416928cd89002ba19670ea9edafb8af5121a6e2ece90b157c0c5afd60",
+      "runtime_unchanged": true,
+      "gates_unchanged": true,
+      "lint": "PASS",
       "physical_iphone": "NOT_RUN",
       "current_native": "PENDING_FRESH_CI",
       "ipa": "PENDING_FRESH_CI"
@@ -275,21 +310,20 @@
     }
   },
   "local_full_source_evidence": {
-    "verified": true,
-    "passed": 394,
-    "total": 394,
+    "verified": false,
+    "status": "PENDING_CURRENT_TEST_CONTRACT_FULL_RERUN",
     "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
-    "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311",
-    "validation_type": "full",
-    "status": "PASS_CURRENT_394_OF_394",
-    "results": "/workspace/release-382-20261015/acceptance-03/results.json",
-    "results_sha256": "791b535416928cd89002ba19670ea9edafb8af5121a6e2ece90b157c0c5afd60",
-    "runtime_unchanged": true,
-    "gates_unchanged": true,
-    "lint": "PASS",
+    "minimum_gates": 394,
+    "results": "/workspace/release-382-20261015/acceptance-04/results.json",
+    "previous_full_pass": {
+      "passed": 394,
+      "total": 394,
+      "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+      "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311"
+    },
     "physical_iphone": "NOT_RUN",
     "current_native": "PENDING_FRESH_CI",
-    "ipa": "PENDING_FRESH_CI"
+    "ipa": "NOT_BUILT"
   },
   "local_performance_pipeline_evidence": {
     "validation_type": "targeted_and_component_profile",
@@ -389,13 +423,13 @@
     "publish_authorized": true
   },
   "gates": {
-    "build380_construction_acceleration": "PASS_IN_CURRENT_FULL_394_SOURCE_GATE_SUITE: paid energy/real-estate acceleration, company debit/VAT/proofs, invoice/P&L, stale/replay/cash/late-failure/native-NACK rollback, fleet boundary and no-fleet quote checks. Native/iPhone verification pending.",
+    "build380_construction_acceleration": "PASS_PREVIOUS_LOCAL_394_SUITE_SAME_RUNTIME; current test-contract reruns and native/device verification pending.",
     "build381_manual_performance_trace": {
-      "status": "full-local-source-pass-native-and-device-pending",
+      "status": "previous-local-source-pass-current-contract-reruns-native-device-pending",
       "scope": "Manual bounded performance evidence, independent report retention, native sensor and vault source; no generative model or network",
       "new_source_gates": 5,
       "native_macos_gate": "performance-report-vault.swift mandatory before IPA in both workflows",
-      "full_source_acceptance_run": true,
+      "full_source_acceptance_run": false,
       "ios_native_compiled": false,
       "physical_iphone_profiled": false,
       "targeted_suites_passed": 20,
@@ -411,13 +445,14 @@
       ],
       "native_hardware_tested": false,
       "source_gate_floor": 394,
-      "full_source_acceptance": {
+      "previous_full_source_acceptance": {
         "verified": true,
         "passed": 394,
         "total": 394,
         "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
         "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311"
-      }
+      },
+      "early_iphoneos_api_typecheck": "mandatory-before-full-source-suite-in-both-workflows"
     }
   }
 }
