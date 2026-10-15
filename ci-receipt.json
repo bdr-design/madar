@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "repository": "bdr-design/madar",
+  "source_commit": "248168e539162061f66d7b4455a176fe00e88144",
+  "run_id": 38779193555,
+  "attempt": 1,
+  "job_status": "failure",
+  "run_url": "https://github.com/bdr-design/madar/actions/runs/38779193555",
+  "certified": false,
+  "ipa_artifact_url": "",
+  "ipa_single_file_url": "",
+  "physical_iphone_tested": false,
+  "receipt_ref": "refs/heads/ci-receipts/build362/248168e539162061f66d7b4455a176fe00e88144/38779193555-1",
+  "files": {
+    "failed-066-build334-durable-publication-recovery.log": {
+      "bytes": 344,
+      "sha256": "f0c41d8208ced7db878c368a9a741c9aa0681b3ddfd9d84c08652958fb2471ec"
+    },
+    "failed-115-build334-calendar-journey-browser.log": {
+      "bytes": 453,
+      "sha256": "69ea746b1946c2f74145226d664138b224552198bf7e820e4411096c393783a4"
+    },
+    "native-save-worker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-worker.json": {
+      "bytes": 2392,
+      "sha256": "f3a580e584d13fbaaae5730df119af555bad9a7d090f0e730d1ea024f2e9997d"
+    },
+    "native-save-worker.log": {
+      "bytes": 24,
+      "sha256": "dd525051f0f38965b26a9cc154e88f84063d2a5699f52deaae78c7f045b0fcf3"
+    },
+    "source-acceptance-results.json": {
+      "bytes": 87165,
+      "sha256": "e8dbc37b346f43040070ce8b892dd747d9794e1dcf04f0a3d99439b66cec32ca"
+    },
+    "source-acceptance.log": {
+      "bytes": 19915,
+      "sha256": "ce12fb3de0804c26ce1b6c5a528380890efa69420e28ce272006b01c77540aa2"
+    },
+    "source-mode.txt": {
+      "bytes": 82,
+      "sha256": "29200d82620dc05c02a47c3b0135c91d75d385084d2530606b838e26402d9f78"
+    },
+    "source-package-integrity.log": {
+      "bytes": 64511,
+      "sha256": "82d17e2650fdf4410e4522dfb201f739629dfb95c7592076aaf4cdd485735920"
+    },
+    "source-verification.json": {
+      "bytes": 2918,
+      "sha256": "aa4202e50ccd661261ebfeba9af0428eed323cc8d077af955b5840de11146b2a"
+    }
+  }
+}

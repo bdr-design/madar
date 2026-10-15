@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: the operation committed durably; it must not be reported rolled back
+
+false !== true
+
+    at /Users/runner/work/madar/madar/tests/build334-durable-publication-recovery.cjs:17:9 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

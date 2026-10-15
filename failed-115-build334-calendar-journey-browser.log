@@ -1,0 +1,16 @@
+PASS no subsidiaries: seven days 604800
+PASS no subsidiaries: thirty more days across payroll and month end 3196800
+AssertionError [ERR_ASSERTION]: no simulated time after the click
++ actual - expected
+
++ 3304800
+- 3322800
+
+    at /Users/runner/work/madar/madar/tests/build334-calendar-journey-browser.cjs:28:704 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 3304800,
+  expected: 3322800,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
