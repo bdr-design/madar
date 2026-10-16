@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
       "tests/build334-procurement-pressure.cjs"
     ],
     [

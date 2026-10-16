@@ -11,8 +11,8 @@ for(const [file,expected] of Object.entries(fixture.files)){
   assert.equal((source.match(/,allocateAvailableForBudget,NEAR_DUPLICATE/g)||[]).length,1,'only the reviewed helper export may be added');
   source=(source.slice(0,start)+source.slice(end)).replace(',allocateAvailableForBudget,NEAR_DUPLICATE',',NEAR_DUPLICATE');
  }
- // Strip exact reviewed recovery/validation and non-fleet construction schedule edits; fleet economics stay pinned.
- for(const edit of [...(fixture.approved_nonfleet_integration_edits?.[file]||[]),...(fixture.approved_recovery_validation_edits?.[file]||[]),...(fixture.approved_construction_progress_edits?.[file]||[])]){
+ // Restore the exact reviewed performance edits before the earlier integration edits; retain the original economic hash.
+ for(const edit of [...(fixture.approved_runtime_performance_edits?.[file]||[]),...(fixture.approved_nonfleet_integration_edits?.[file]||[]),...(fixture.approved_recovery_validation_edits?.[file]||[]),...(fixture.approved_construction_progress_edits?.[file]||[])]){
   assert.equal(hash(edit.after),edit.sha256,'reviewed non-economic edit changed');
   assert.equal(source.split(edit.after).length,2,'the reviewed edit must have one exact source boundary');
   source=source.replace(edit.after,edit.before);
