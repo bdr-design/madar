@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "8ebefc8a6c25b83ccd5dfceed9ee78ffc2d40737d615b9b97a81c5fb016f54c0",
+  "source_tree_sha256": "14c9b58e586c1804ab36c7189b5cfb4aee177f4c8b0e44f7490fc7a95a00f97a",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -14,7 +14,7 @@
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
     "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
-    "This candidate declares 434 source acceptance gates. 346 local commands passed across bounded batches, including the 30-gate preflight and the additional daily-worker integration gate now included in the 31-gate preflight. Lint and source integrity passed. Full source acceptance, fresh native CI, iPhoneOS compilation, IPA verification and physical iPhone performance remain unverified before the owner-authorized workflow dispatch."
+    "This candidate declares 434 source acceptance gates and 32 early preflight commands. All 32 canonical local preflight commands passed on this source. Canonical full source/native acceptance, IPA verification and physical iPhone performance remain pending."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -22,13 +22,13 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "NOT_RUN_CURRENT_SOURCE; targeted local checks only; 434 gates declared",
+    "full_source_acceptance": "IN_PROGRESS_CANONICAL_LOCAL; 32 early gates passed; 434 full gates required before IPA assembly",
     "native_swift_tests": "PENDING_FRESH_MACOS_CI_CURRENT_SOURCE",
     "physical_iphone_profile": "PENDING",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
     "manual_advance_frame_budget": "SLICE_LIMIT_IMPLEMENTED; 1,500-event window estimate; target-device frame timing pending",
     "release_approval": "CLOSED",
-    "browser_and_lint": "LOCAL_BATCHED_CHECKS_346_PASS_AND_LINT; 31 declared preflight gates; remaining local browsers and canonical full CI pending",
+    "browser_and_lint": "CURRENT_SOURCE_PREFLIGHT_32_PASS; lint rerun before commit; canonical full local/native CI pending",
     "native_bridge_extracted_js": "DIRECT_CI_PASS; native storage and WKWebView checks pass",
     "build358_air_sea_dispatch": "LOCAL_PASS; store-mode air and sea bulk dispatch assigns every asset (browser test)",
     "build358_row_level_slice_snapshots": "LOCAL_PASS; steady/hour slices snapshot only written roots, enforced write sets over 288 slices, exact rollback of failed steady/hour/day slices",
@@ -50,7 +50,7 @@
     "current_candidate_native": "NOT_RUN_CURRENT_SOURCE; awaiting owner instruction",
     "performance_batch1_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE_AND_LINT; independent bounded checksum/base64 worker; exact validation reuse; one fresh validated sliced retry; repeated writes refused",
     "performance_pipeline_local": "TARGETED_PASS_CHROMIUM_WEBKIT; bounded deferred lookahead, stale/failure refusal and retry, monthly tax save/reload; full acceptance pending",
-    "worker_daily_close": "TARGETED_LOCAL_PASS_27_CHECKS; Chromium only; full source/native/device approval pending"
+    "worker_daily_close": "CURRENT_SOURCE_PREFLIGHT_PASS; worker read-model and full-app cancellation gates passed; canonical full acceptance pending"
   },
   "latest_direct_source_ci": {
     "run_id": 36956423617,
@@ -86,7 +86,7 @@
     "mode": "direct_git_tracked_branch",
     "branch": "codex/financial-audit-20261014",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "8ebefc8a6c25b83ccd5dfceed9ee78ffc2d40737d615b9b97a81c5fb016f54c0",
+    "source_tree_sha256": "14c9b58e586c1804ab36c7189b5cfb4aee177f4c8b0e44f7490fc7a95a00f97a",
     "working_tree_clean": false,
     "note": "Integrated business, memory/navigation, map display, non-fleet accounting, confirmation, save deduplication, differential persistence, cooperative snapshot and linked hospitality fixes. Owner authorised full current-source acceptance, repository push and a fresh test IPA on 2026-10-16. Production and physical iPhone validation remain unapproved/unverified.",
     "news_work": {
@@ -1365,6 +1365,29 @@
       "runtime_source_sha256": "8ebefc8a6c25b83ccd5dfceed9ee78ffc2d40737d615b9b97a81c5fb016f54c0",
       "acceptance_contract_sha256": "4a931030c508ad38527546f54e062c12680f6023410d9d247cf5964d3ad4b586",
       "full_source_ci_pending": true
+    }
+  },
+  "empty_mobility_save_roundtrip_followup_20261016": {
+    "cancelled_run_id": 38980455525,
+    "previous_runtime_source_sha256": "8ebefc8a6c25b83ccd5dfceed9ee78ffc2d40737d615b9b97a81c5fb016f54c0",
+    "problem": "An empty newly created Mobility state lacked driverLedgerVersion until reload, violating exact save/load equality.",
+    "fix": "Initialize driverLedgerVersion=1 only in the existing new-state object literal; retain one-time migration of actual legacy ledgers. No gameplay loop or timer added.",
+    "tests": {
+      "new_empty_company_regression": "fails before the fix and passes after",
+      "legacy_driver_contract_batching": "PASS; reset synthetic legacy fixture marker to represent the original old save",
+      "real_calendar_save_reload": "PASS; landscape-only calendar journey, cancellation, midnight failure/retry, all-company save/reload"
+    },
+    "declared_source_gates": 434,
+    "declared_preflight_commands": 32,
+    "physical_iphone_tested": false,
+    "production_approved": false,
+    "current_source_preflight": {
+      "scope": "canonical local acceptance preflight; full suite still running",
+      "source_tree_sha256": "14c9b58e586c1804ab36c7189b5cfb4aee177f4c8b0e44f7490fc7a95a00f97a",
+      "acceptance_contract_sha256": "e0da29c64a58acd82d90597eae4b129c45cb028da8be691181079165e1846be1",
+      "passed": 32,
+      "total": 32,
+      "elapsed_seconds": 308.849
     }
   }
 }

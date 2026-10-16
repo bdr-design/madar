@@ -59,6 +59,10 @@
     ],
     [
       "node",
+      "tests/build334-calendar-journey-browser.cjs"
+    ],
+    [
+      "node",
       "tests/phone-layout-browser.cjs"
     ],
     [

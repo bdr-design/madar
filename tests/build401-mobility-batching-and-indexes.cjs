@@ -45,6 +45,7 @@ function tripLifecycleReads(kind,total=12000){
 }
 function legacyLedgerScenario(){
   const env=openedMobility('Mobility legacy ledger probe'),{state,M,HR}=env,hr=HR.ensure(state);
+  delete state.mobility.driverLedgerVersion; // Old saves predate the grouped-ledger format marker.
   const hub={id:'MOB-CENTER-RUH',ownerCompanyId:'mobility',kind:'mobility-center',owned:true,capitalId:'RUH',city:'الرياض',country:'السعودية',coords:[24.7,46.7],bays:120};
   state.customHubs.push(hub);
   state.mobility.capitalCenters=[{id:hub.id,facilityId:hub.id,ownerCompanyId:'mobility',capitalId:'RUH',city:hub.city,country:hub.country,coords:hub.coords}];
@@ -102,6 +103,11 @@ assert.ok(tenCenterReads<1500*5,`request-list passes must remain bounded: ${tenC
 }
 
 // Loading an old save can compact its ledger without buying/selling; subsequent calls must do no fleet/HR scan.
+{
+  const {state,M}=openedMobility();delete state.mobility;
+  const created=M.ensure(state);assert.equal(created.driverLedgerVersion,1,'a newly created empty company already has the current ledger format');
+  const before=JSON.stringify(state);assert.equal(M.migrateLegacyDriverContracts(state).changed,false);assert.equal(JSON.stringify(state),before,'reloading a newly saved empty company changes no saved field');
+}
 {
   const {state,M,F}=legacyLedgerScenario(),cash=F.operating(state,'mobility'),finance=JSON.stringify(state.finance),drivers=JSON.stringify(state.mobility.drivers);
   assert.equal(M.migrateLegacyDriverContracts(state).changed,true);

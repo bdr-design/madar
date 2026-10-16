@@ -59,6 +59,7 @@ expected_preflight=[
     ['node','tests/build404-worker-close-read-models.cjs'],
     ['node','tests/build405-worker-close-browser.cjs'],
     ['node','tests/build374-daily-worker-integration.cjs'],
+    ['node','tests/build334-calendar-journey-browser.cjs'],
     ['node','tests/phone-layout-browser.cjs'],
     ['node','tests/build360-cold-archive.cjs'],
     ['node','tests/build358-fleet-chunk-manifest.cjs'],

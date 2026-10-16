@@ -76,7 +76,7 @@ async function advance(page,selector,target,name){await calendar(page);const beg
   await active.evaluate(()=>{window.GH_TRANSACTION_CORE=window.qaCalendarTx;});
   await advance(active,'#simNextDay',2*86400,'retry failed day succeeds without duplicate postings');
   const retried=await active.evaluate(()=>({days:__GH_STATE__.finance.dailyCompanyReports.map(r=>r.day).sort((a,b)=>a-b),bank:__GH_STATE__.bank.dailyHistory.map(r=>r.day).sort((a,b)=>a-b),energy:__GH_STATE__.energy.dailyHistory.map(r=>r.day).sort((a,b)=>a-b)}));for(const rows of Object.values(retried))assert.deepEqual(rows,[1,2]);results.push({name:'exactly-once reports after failure/retry',...retried});
-  await active.setViewportSize({width:390,height:844});await advance(active,'#simNextDay',3*86400,'portrait full game day');await active.screenshot({path:path.join(out,'334-calendar-fixed-portrait.png')});
+  await active.setViewportSize({width:667,height:375});await advance(active,'#simNextDay',3*86400,'landscape 667x375 full game day');await active.screenshot({path:path.join(out,'334-calendar-fixed-landscape.png')});
   assert(await active.evaluate(()=>qaContext.save()));const activeSaved=await active.evaluate(ledgerSnapshot);await active.reload();await active.waitForFunction(()=>__GH_STATE__?.onboardingComplete);assert.deepEqual(await active.evaluate(ledgerSnapshot),activeSaved);results.push({name:'all company books/day counters exact save/reload',time:activeSaved.time});await active.close();
   assert.deepEqual(errors,[]);passed=true;
  }finally{fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'334-calendar-journey-results.json'),JSON.stringify({passed,results,errors,physicalDeviceTested:false},null,2));await browser.close();await server.close();}
