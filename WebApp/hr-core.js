@@ -105,7 +105,9 @@
   }
   function facilityGaps(state,ctx,company='all'){
     const facilities=(ctx?.getDynamicFacilities?.()||[...(state.globalBases||[]),...(state.customHubs||[])]).filter(f=>f&&f.owned===true),rows=[];state.advanced=state.advanced||{};state.advanced.facilities=state.advanced.facilities||{};
-    for(const f of facilities){const owner=companyOfFacility(f);if(company!=='all'&&owner!==company)continue;const needed=facilityNeed(f,state),have=Math.max(0,Number(state.advanced.facilities?.[f.id]?.staff)||0),missing=Math.max(0,needed-have);rows.push({kind:'facility',company:owner,facilityId:f.id,name:f.name||f.id,needed,have,missing});}
+    // A facility still under construction (a hotel or resort before completion) has no operating team to staff yet: HR
+    // listed its full team as a gap from the first day of building, and hiring it paid salaries for the whole build.
+    for(const f of facilities){const owner=companyOfFacility(f);if(company!=='all'&&owner!==company)continue;if(f.constructionStatus==='قيد الإنشاء')continue;const needed=facilityNeed(f,state),have=Math.max(0,Number(state.advanced.facilities?.[f.id]?.staff)||0),missing=Math.max(0,needed-have);rows.push({kind:'facility',company:owner,facilityId:f.id,name:f.name||f.id,needed,have,missing});}
     return rows;
   }
   function snapshot(state,ctx={},company='all'){
