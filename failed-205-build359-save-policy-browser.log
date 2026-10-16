@@ -1,0 +1,10 @@
+page.evaluate: TypeError: Failed to construct 'URL': Invalid URL
+    at ready (eval at evaluate (:291:30), <anonymous>:10:139)
+    at request (eval at evaluate (:291:30), <anonymous>:26:29)
+    at base64 (eval at evaluate (:291:30), <anonymous>:30:138)
+    at uploadChunkMessage (eval at evaluate (:291:30), <anonymous>:275:144)
+    at uploadChunk (eval at evaluate (:291:30), <anonymous>:263:91)
+    at uploadChunks (eval at evaluate (:291:30), <anonymous>:285:138)
+    at eval (eval at evaluate (:291:30), <anonymous>:388:115)
+    at settle (/Users/runner/work/madar/madar/tests/build359-save-policy-browser.cjs:57:27)
+    at /Users/runner/work/madar/madar/tests/build359-save-policy-browser.cjs:76:135

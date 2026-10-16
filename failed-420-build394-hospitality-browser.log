@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 43470
+
+    at /Users/runner/work/madar/madar/tests/build394-hospitality-browser.cjs:38:220 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 43470,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

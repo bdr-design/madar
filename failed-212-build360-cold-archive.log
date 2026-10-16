@@ -1,0 +1,40 @@
+{
+  "suite": "build360-cold-archive",
+  "passed": 3,
+  "total": 5,
+  "results": [
+    {
+      "name": "self-contained save round-trips every historical field without mutating the live marker",
+      "ok": true,
+      "detail": {
+        "rows": 137,
+        "inlineBytes": 28800
+      }
+    },
+    {
+      "name": "durable drafts and rollback clones inherit cold bytes without materializing rows",
+      "ok": true,
+      "detail": {
+        "draftRows": 137
+      }
+    },
+    {
+      "name": "diagnostics attribute cold bytes outside the hot JSON object graph",
+      "ok": true,
+      "detail": {
+        "hotBytes": 1393,
+        "coldBytes": 21599
+      }
+    },
+    {
+      "name": "native save keeps cold detail out of JSON and preserves its chunk id after reload",
+      "ok": false,
+      "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(tree.stateCodec.chunks.includes(cold.id))\n\n    at /Users/runner/work/madar/madar/tests/build360-cold-archive.cjs:54:3\n    at test (/Users/runner/work/madar/madar/tests/build360-cold-archive.cjs:13:62)\n    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/build360-cold-archive.cjs:51:1)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47"
+    },
+    {
+      "name": "cold page manifests reject substitution, omission, duplication and stray ids",
+      "ok": false,
+      "error": "AssertionError [ERR_ASSERTION]: Missing expected exception.\n    at attempt (/Users/runner/work/madar/madar/tests/build360-cold-archive.cjs:65:112)\n    at /Users/runner/work/madar/madar/tests/build360-cold-archive.cjs:66:3\n    at test (/Users/runner/work/madar/madar/tests/build360-cold-archive.cjs:13:62)\n    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/build360-cold-archive.cjs:63:1)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)"
+    }
+  ]
+}
