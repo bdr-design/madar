@@ -35,7 +35,8 @@
     const legacyOwners=object(params.legacyAssetOwners)?params.legacyAssetOwners:{};
     return {routeIds,routes,registryCompanies,companyReferenceCompanies,definitionCompanies,legacyOwners,contextToken:contextToken(params)};
   }
-  function summarize(state,fleet,params={}){
+  // The one-pass reference: every check on every row. summarize() below returns exactly its result.
+  function summarizeReference(state,fleet,params={}){
     if(!fleet||typeof fleet.scan!=='function'||typeof fleet.idCollisions!=='function')throw new Error('fleet-save-validation-access-missing');
     const context=normalizedParams(params),errors=new Set(),routeUsersAll=new Map(),companyErrors=[],companyErrorSet=new Set();let companyErrorsOverflow=false,logicalRows=0;
     const addCompanyError=error=>{if(companyErrorSet.has(error))return;if(companyErrors.length>=COMPANY_ERROR_LIMIT){companyErrorsOverflow=true;return;}companyErrorSet.add(error);companyErrors.push(error);};
@@ -71,6 +72,91 @@
     const routeUsers=[];for(const routeId of context.routeIds){const row=routeUsersAll.get(routeId);if(row)routeUsers.push([routeId,row.users,row.stable,row.firstIndex,row.firstMode]);}
     return {schema:SCHEMA,version:VERSION,contextToken:context.contextToken,logicalRows,assetFieldVisits:logicalRows,errors:[...errors],ids:{duplicate:!!ids.duplicate,missing:!!ids.missing},routeUsers,companyPlatform:{schema:COMPANY_SCHEMA,version:VERSION,errors:companyErrors,overflow:companyErrorsOverflow,logicalRows,assetFieldVisits:logicalRows}};
   }
+  // Build 362 follow-up (iPhone diagnostic DX-1792142505027, 980,000 assets): each player decision waited ~2.0 s for this
+  // pass on the fleet worker. About four fifths of it are checks of fields an operating fleet does not rewrite (names,
+  // text, numbers, images, ids, owners, classes). Those checks are kept per store chunk and reused while the chunk's
+  // identityVersions, the store's epoch/mass/values stamp, the validation context and the text inspector are unchanged:
+  // the keys GH_FLEET_STORE's own class tables trust (every write other than an in-place engine or route field moves
+  // identityVersions; mass writes and value replacements move the stamp). The time-derived and route checks (base, phase,
+  // progress, fuel, condition, route) still run over every row on every call. The result, including the order of its
+  // errors and company errors, is exactly summarizeReference's: a code's place is its first row, then its place in a row.
+  const LIVE_ONLY=Object.freeze(['baseFacility','phase','progress','fuel','condition','routeId','releaseExclusiveRouteOnArrival']);
+  const LIVE_FIELDS=Object.freeze(['assetMode','type','ownerCompanyId','companyId',...LIVE_ONLY]);
+  const STATIC_FIELDS=Object.freeze(FIELDS.filter(field=>!LIVE_ONLY.includes(field)));
+  const ROW_ORDER=new Map([...ENTITY_TEXT_FIELDS.map(([key])=>`display-text-assets-${key}`),...ENTITY_NUMBER_FIELDS.map(key=>`display-number-assets-${key}`),'display-attribute-assets-id','display-attribute-assets-name','display-image-assets-photo','display-coords-assets','asset-shape','asset-phase','asset-progress','asset-fuel','asset-condition','asset-route-reference','asset-route-required','asset-route-company'].map((code,at)=>[code,at]));
+  const staticCache=new WeakMap();let staticStats={chunksChecked:0,chunksReused:0,lastChecked:0,lastReused:0,cacheable:null};
+  function knownModeOf(context,asset,mode,owner){return ROUTE_TYPES.has(mode)||Boolean(context.legacyOwners[mode])||(dataId(mode)&&owner&&context.registryCompanies.has(owner));}
+  function staticChunk(state,fleet,context,from,to){
+    const codes=new Map(),company=[],companySet=new Set();let overflow=false;
+    const note=(code,index)=>{if(!codes.has(code))codes.set(code,index);};
+    const addCompanyError=error=>{if(companySet.has(error))return;if(company.length>=COMPANY_ERROR_LIMIT){overflow=true;return;}companySet.add(error);company.push(error);};
+    const validReference=companyId=>dataId(companyId)&&(context.companyReferenceCompanies.has(companyId)||context.definitionCompanies.has(companyId));
+    fleet.scan(state,STATIC_FIELDS,(asset,index)=>{
+      for(const [key,maximum] of ENTITY_TEXT_FIELDS)if(asset[key]!=null&&!safeText(asset[key],maximum))note(`display-text-assets-${key}`,index);
+      for(const key of ENTITY_NUMBER_FIELDS)if(asset[key]!=null&&!finite(asset[key]))note(`display-number-assets-${key}`,index);
+      if(asset.id!=null&&!safeAttribute(asset.id,180))note('display-attribute-assets-id',index);
+      if(asset.name!=null&&!safeAttribute(asset.name,180,{allowEmpty:true}))note('display-attribute-assets-name',index);
+      if(asset.photo!=null&&asset.photo!==''&&!safeImage(asset.photo))note('display-image-assets-photo',index);
+      if(asset.coords!=null&&!validPoint(asset.coords))note('display-coords-assets',index);
+      const mode=modeOf(asset),explicitOwner=ownerOf(asset),owner=explicitOwner||String(context.legacyOwners[mode]||'')||mode;
+      if(!object(asset)||!String(asset.id||'').trim()||!knownModeOf(context,asset,mode,owner)||!dataId(owner))note('asset-shape',index);
+      const platformOwner=String(explicitOwner||context.legacyOwners[mode]||'');
+      if(!validReference(platformOwner))addCompanyError(`asset-company-reference:${asset.id||'unknown'}`);
+      if(asset.assetClass!==undefined&&!companyDataId(asset.assetClass))addCompanyError(`asset-class:${asset.id||'unknown'}`);
+    },{from,to});
+    return {codes,company,overflow};
+  }
+  function staticTables(state,fleet,context){
+    const STORE=globalThis.GH_FLEET_STORE,store=typeof fleet.storeOf==='function'?fleet.storeOf(state):null;
+    const cacheable=!!store&&typeof STORE?.staticSnapshot==='function'&&typeof STORE.chunkStamp==='function'&&typeof STORE.epoch==='function'&&typeof STORE.valuesGeneration==='function'&&Number.isSafeInteger(STORE.CHUNK_ROWS)&&STORE.CHUNK_ROWS>0&&Array.isArray(STORE.IDENTITY_TIER_EXEMPT)&&!STATIC_FIELDS.some(field=>STORE.IDENTITY_TIER_EXEMPT.includes(field));
+    staticStats.cacheable=cacheable;
+    if(!cacheable){staticStats.chunksChecked++;staticStats.lastChecked=1;staticStats.lastReused=0;return [staticChunk(state,fleet,context,0,Infinity)];}
+    const rows=STORE.CHUNK_ROWS,count=Math.ceil(store.length/rows),versions=STORE.staticSnapshot(store).identity,inspector=globalThis.GH_IDENTITY?.inspectPlainText||null;
+    const stamp=`${STORE.epoch(store)}:${STORE.chunkStamp(store).mass}:${STORE.valuesGeneration(store)}`;
+    let cache=staticCache.get(store);
+    if(!cache||cache.stamp!==stamp||cache.contextToken!==context.contextToken||cache.inspector!==inspector){cache={stamp,contextToken:context.contextToken,inspector,chunks:[]};staticCache.set(store,cache);}
+    if(cache.chunks.length>count)cache.chunks.length=count;
+    const tables=[];let checked=0,reused=0;
+    for(let chunk=0;chunk<count;chunk++){
+      const from=chunk*rows,to=Math.min(store.length,from+rows);let entry=cache.chunks[chunk];
+      if(entry&&entry.version===versions[chunk]&&entry.from===from&&entry.to===to)reused++;
+      else{entry={version:versions[chunk],from,to,...staticChunk(state,fleet,context,from,to)};cache.chunks[chunk]=entry;checked++;}
+      tables.push(entry);
+    }
+    staticStats.chunksChecked+=checked;staticStats.chunksReused+=reused;staticStats.lastChecked=checked;staticStats.lastReused=reused;
+    return tables;
+  }
+  function summarize(state,fleet,params={}){
+    if(!fleet||typeof fleet.scan!=='function'||typeof fleet.idCollisions!=='function')throw new Error('fleet-save-validation-access-missing');
+    const context=normalizedParams(params),first=new Map(),routeUsersAll=new Map();let logicalRows=0;
+    const note=(code,index)=>{const prior=first.get(code);if(prior===undefined||index<prior)first.set(code,index);};
+    fleet.scan(state,LIVE_FIELDS,(asset,index)=>{
+      logicalRows++;
+      const mode=modeOf(asset),explicitOwner=ownerOf(asset),owner=explicitOwner||String(context.legacyOwners[mode]||'')||mode;
+      if(!String(asset.baseFacility||'').trim())note('asset-shape',index);
+      if(!ASSET_PHASES.has(asset.phase))note('asset-phase',index);
+      if(!finite(asset.progress)||Number(asset.progress)<0||Number(asset.progress)>1)note('asset-progress',index);
+      if(!finite(asset.fuel)||Number(asset.fuel)<0||Number(asset.fuel)>100)note('asset-fuel',index);
+      if(!finite(asset.condition)||Number(asset.condition)<0||Number(asset.condition)>100)note('asset-condition',index);
+      if(asset.routeId!=null&&(!String(asset.routeId).trim()||!context.routeIds.has(asset.routeId)))note('asset-route-reference',index);
+      if((asset.phase==='moving'||asset.phase==='turnaround')&&!asset.routeId)note('asset-route-required',index);
+      if(asset.routeId){
+        let users=routeUsersAll.get(asset.routeId);if(!users){users={users:0,stable:0,firstIndex:index,firstMode:mode};routeUsersAll.set(asset.routeId,users);}users.users++;if(!(asset.phase==='moving'&&asset.releaseExclusiveRouteOnArrival===true))users.stable++;
+        const route=context.routes.get(asset.routeId);if(route&&(route.mode!==mode||route.owner!==owner))note('asset-route-company',index);
+      }
+    });
+    const companyErrors=[],companyErrorSet=new Set();let companyErrorsOverflow=false;
+    for(const table of staticTables(state,fleet,context)){
+      for(const [code,index] of table.codes)note(code,index);
+      if(table.overflow)companyErrorsOverflow=true;
+      for(const error of table.company){if(companyErrorSet.has(error))continue;if(companyErrors.length>=COMPANY_ERROR_LIMIT){companyErrorsOverflow=true;continue;}companyErrorSet.add(error);companyErrors.push(error);}
+    }
+    const errors=new Set([...first].sort((a,b)=>a[1]-b[1]||ROW_ORDER.get(a[0])-ROW_ORDER.get(b[0])).map(([code])=>code));
+    for(const [routeId,users] of routeUsersAll){const route=context.routes.get(routeId),capacity=route?.capacity??ROUTE_FLEET_CAPACITY[route?.mode||users.firstMode]??1;if(users.stable>capacity)errors.add('asset-route-capacity');}
+    const ids=fleet.idCollisions(state)||{};if(ids.duplicate||ids.missing)errors.add('asset-id');
+    const routeUsers=[];for(const routeId of context.routeIds){const row=routeUsersAll.get(routeId);if(row)routeUsers.push([routeId,row.users,row.stable,row.firstIndex,row.firstMode]);}
+    return {schema:SCHEMA,version:VERSION,contextToken:context.contextToken,logicalRows,assetFieldVisits:logicalRows,errors:[...errors],ids:{duplicate:!!ids.duplicate,missing:!!ids.missing},routeUsers,companyPlatform:{schema:COMPANY_SCHEMA,version:VERSION,errors:companyErrors,overflow:companyErrorsOverflow,logicalRows,assetFieldVisits:logicalRows}};
+  }
   function accepts(summary,{rows=null,routeIds=null,contextToken:expectedContextToken=null}={}){
     if(!object(summary)||summary.schema!==SCHEMA||summary.version!==VERSION||typeof summary.contextToken!=='string'||summary.contextToken.length>1024*1024||expectedContextToken!==null&&summary.contextToken!==expectedContextToken||!Number.isSafeInteger(summary.logicalRows)||summary.logicalRows<0||rows!==null&&summary.logicalRows!==rows||!Array.isArray(summary.errors)||summary.errors.some(error=>!ERROR_SET.has(error))||!object(summary.ids)||typeof summary.ids.duplicate!=='boolean'||typeof summary.ids.missing!=='boolean'||!Array.isArray(summary.routeUsers))return false;
     const allowed=routeIds&&typeof routeIds.has==='function'&&Number.isSafeInteger(routeIds.size)?routeIds:new Set(Array.isArray(routeIds)?routeIds:[]),seen=new Set();if(summary.routeUsers.length>allowed.size)return false;
@@ -78,6 +164,6 @@
     const company=summary.companyPlatform;if(!object(company)||company.schema!==COMPANY_SCHEMA||company.version!==VERSION||!Array.isArray(company.errors)||company.errors.length>COMPANY_ERROR_LIMIT||company.errors.some(error=>typeof error!=='string'||error.length>400||!/^asset-(?:company-reference|class):/.test(error))||typeof company.overflow!=='boolean'||company.logicalRows!==summary.logicalRows||company.assetFieldVisits!==summary.logicalRows)return false;
     return true;
   }
-  const API=Object.freeze({VERSION,SCHEMA,COMPANY_SCHEMA,FIELDS,ERROR_CODES,COMPANY_ERROR_LIMIT,contextToken,summarize,accepts});
+  const API=Object.freeze({VERSION,SCHEMA,COMPANY_SCHEMA,FIELDS,STATIC_FIELDS,LIVE_FIELDS,ERROR_CODES,COMPANY_ERROR_LIMIT,contextToken,summarize,summarizeReference,staticStats:()=>({...staticStats}),accepts});
   globalThis.GH_FLEET_SAVE_VALIDATION=API;if(globalThis.window&&window!==globalThis)window.GH_FLEET_SAVE_VALIDATION=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

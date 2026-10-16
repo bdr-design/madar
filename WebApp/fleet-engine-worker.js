@@ -239,7 +239,9 @@ self.addEventListener('message',event=>{
         try{
           const result=self.GH_FLEET_QUERY.run(String(message.name),{fleet:store,simSeconds:Number(message.simSeconds)||0},self.GH_FLEET_DATA,message.params||{});
           const transfers=[];for(const view of [result?.columns?.indices,result?.columns?.values])if(ArrayBuffer.isView(view)&&view.buffer instanceof ArrayBuffer&&view.buffer.byteLength&&!transfers.includes(view.buffer))transfers.push(view.buffer);
-          self.postMessage({type:'query',version:VERSION,id:message.id,result,ms:performance.now()-started},transfers);
+          // Build 362 follow-up: how much of a save validation reused its per-chunk static checks (diagnostics evidence).
+          const validation=String(message.name)==='saveValidation'&&typeof self.GH_FLEET_SAVE_VALIDATION?.staticStats==='function'?self.GH_FLEET_SAVE_VALIDATION.staticStats():null;
+          self.postMessage({type:'query',version:VERSION,id:message.id,result,ms:performance.now()-started,...(validation?{validation}:{})},transfers);
         }catch(error){
           // A read-only auxiliary pass may fail closed without destroying the event worker and forcing every later
           // simulation step back onto the UI thread. The caller keeps its exact main-thread fallback.
