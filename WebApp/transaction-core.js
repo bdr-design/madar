@@ -107,6 +107,7 @@
   }
   function publishDurableMetric(row){const metric={...row,recordedAtMs:Date.now()};for(const key of Object.keys(metric))if(typeof metric[key]==='number')metric[key]=Math.round(metric[key]*10)/10;runtimeTelemetry.lastDurable=metric;runtimeTelemetry.durableSamples.push(metric);if(runtimeTelemetry.durableSamples.length>16)runtimeTelemetry.durableSamples.shift();return metric;}
   const runtimeClock=()=>globalThis.performance?.now?.()??Date.now();
+  const PHASE_TOTAL_LIMIT=64;
   function publishRuntimeMetric(row){
     const metric={...row,recordedAtMs:Date.now()};
     runtimeTelemetry.last=metric;
@@ -719,15 +720,24 @@
     let fallbackReason=journalAdmissionReason(options,scope,writerContracts),rollbackStorage='legacy-scoped',snapshot=null,journal=null;
     const rowPolicies=scope&&options.rowRoots&&typeof options.rowRoots==='object'&&!Array.isArray(options.rowRoots)?options.rowRoots:null;
     let phaseDepth=0;
+    // Build 362 follow-up (the iPhone day close took 4.5-5.7 s but its last 64 phases explained ~90 ms): per phase name, the
+    // calls, the work, the longest call, and the span from its first start to its last end (waits between calls included),
+    // in order of first start. Bounded by PHASE_TOTAL_LIMIT names, then one '(other phases)' row. Recorded only when profiled.
+    const phaseTotals=profiled?[]:null,phaseTotalIndex=profiled?new Map():null;
+    const totalPhase=(phase,started,ended,durationMs)=>{
+      let row=phaseTotalIndex.get(phase);
+      if(!row){const key=phaseTotalIndex.size<PHASE_TOTAL_LIMIT?phase:'(other phases)';row=phaseTotalIndex.get(key);if(!row){row={name:key,calls:0,busyMs:0,maxMs:0,startMs:Math.max(0,started-totalStart),spanMs:0};phaseTotalIndex.set(key,row);let at=phaseTotals.length;while(at>0&&phaseTotals[at-1].startMs>row.startMs)at--;phaseTotals.splice(at,0,row);}if(key!==phase)phaseTotalIndex.set(phase,row);}
+      row.calls++;row.busyMs+=durationMs;if(durationMs>row.maxMs)row.maxMs=durationMs;row.spanMs=Math.max(row.spanMs,ended-totalStart-row.startMs);
+    };
     const measure=(name,work)=>{
       if(typeof work!=='function')throw new TypeError('Profile phase callback is required');
       if(!profiled)return work();
       const depth=phaseDepth++,started=runtimeClock();let ok=false;
       try{const value=work();ok=true;return value;}
-      finally{phaseBreakdown.push({name:String((typeof name==='function'?name():name)||'unnamed').slice(0,100),durationMs:Math.max(0,runtimeClock()-started),depth,ok});if(phaseBreakdown.length>64)phaseBreakdown.shift();phaseDepth--;}
+      finally{const ended=runtimeClock(),phase=String((typeof name==='function'?name():name)||'unnamed').slice(0,100),durationMs=Math.max(0,ended-started);phaseBreakdown.push({name:phase,durationMs,depth,ok});if(phaseBreakdown.length>64)phaseBreakdown.shift();totalPhase(phase,started,ended,durationMs);phaseDepth--;}
     };
     const derivedProfileContext=profiled?{kind:label.startsWith('simulation:')?'simulation-slice':label.startsWith('boundary-recovery:')?'boundary-recovery':'state-transaction',assetCount:globalThis.GH_FLEET_DATA?.size?.(target)??(Array.isArray(target.assets)?target.assets.length:null),invoiceCount:Array.isArray(target.finance?.invoices)?target.finance.invoices.length:null,receivableCount:Array.isArray(target.finance?.receivables)?target.finance.receivables.length:null,payableCount:Array.isArray(target.finance?.payables)?target.finance.payables.length:null}:null;
-    const timing={label,profiled,profileContext:profiled?compactProfileContext(options.profileContext||derivedProfileContext):null,phaseBreakdown,scopeSize:scope?scope.length:null,fullSnapshot:false,fullSnapshotFallback:false,fallbackReason:null,rollbackStorage:null,journalRecords:0,snapshotMs:0,validateMs:0,applyMs:0,postCommitCriticalMs:0,postCommitNonCriticalMs:0,postCommitCriticalTasks:[],postCommitNonCriticalTasks:[],writeAudit:auditWrites?{enabled:true,declaredRoots:declaredWriteRoots?[...declaredWriteRoots]:null,mutatedRoots:[],undeclaredRoots:[],declaredButUnchanged:[],stage:'pending'}:null,error:null,rollbackFailures:[],rollbackMs:0,totalMs:0,committed:false,stage:'snapshot'};
+    const timing={label,profiled,profileContext:profiled?compactProfileContext(options.profileContext||derivedProfileContext):null,phaseBreakdown,phaseTotals,scopeSize:scope?scope.length:null,fullSnapshot:false,fullSnapshotFallback:false,fallbackReason:null,rollbackStorage:null,journalRecords:0,snapshotMs:0,validateMs:0,applyMs:0,postCommitCriticalMs:0,postCommitNonCriticalMs:0,postCommitCriticalTasks:[],postCommitNonCriticalTasks:[],writeAudit:auditWrites?{enabled:true,declaredRoots:declaredWriteRoots?[...declaredWriteRoots]:null,mutatedRoots:[],undeclaredRoots:[],declaredButUnchanged:[],stage:'pending'}:null,error:null,rollbackFailures:[],rollbackMs:0,totalMs:0,committed:false,stage:'snapshot'};
     // A durable command runs on a private deep-cloned draft that is discarded whole when anything
     // fails; live state is only replaced after schema/integrity/storage succeed. A second full-state
     // snapshot of that draft therefore protects nothing. This is honored ONLY when the target is
