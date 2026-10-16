@@ -55,6 +55,10 @@
     ],
     [
       "node",
+      "tests/build374-daily-worker-integration.cjs"
+    ],
+    [
+      "node",
       "tests/phone-layout-browser.cjs"
     ],
     [

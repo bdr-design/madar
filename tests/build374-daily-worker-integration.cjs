@@ -12,9 +12,11 @@ const expected=(()=>{const {s,state,day}=setup();state.lastFinancialDay=day;s.GH
 async function run(kind){
   const {s,state,day,F}=setup();state.lastFinancialDay=day;
   let pending=[],calls=0,waits=0,maxWaitsPerCall=0,accepted=0;const names=[],phases=[];
-  if(kind!=='absent')s.GH_FLEET_QUERY_PROVIDER=(target,name,params)=>{
-    names.push(name);const result=s.GH_FLEET_QUERY.run(name,target,F,params),revision=target.fleet.revision;
-    return new Promise(resolve=>pending.push({at:calls+3,resolve:()=>resolve(kind==='null'?null:{result,current:()=>{accepted++;return kind!=='stale'&&target.fleet.revision===revision;}})}));
+  if(kind!=='day-absent')s.GH_FLEET_QUERY_PROVIDER=(target,name,params)=>{
+    names.push(name);const fault=name==='identityIntegrity'&&['stale','null','absent'].includes(kind)?kind:name==='fleetDay'&&kind.startsWith('day-')?kind.slice(4):null;
+    if(fault==='absent')return undefined;
+    const result=s.GH_FLEET_QUERY.run(name,target,F,params),revision=target.fleet.revision;
+    return new Promise(resolve=>pending.push({at:calls+3,resolve:()=>resolve(fault==='null'?null:{result,current:()=>{accepted++;return fault!=='stale'&&target.fleet.revision===revision;}})}));
   };
   s.state=state;s.probePhase=(_name,work)=>{const out=work();if(typeof out?.value==='string'&&out.value.endsWith('-wait'))waits++;return out;};
   vm.runInContext('function* appDay(){let realismCost;const phase=probePhase;'+wrapper+'\nreturn realismCost;}',s);
@@ -30,8 +32,10 @@ async function run(kind){
   if(kind==='abort'){
     assert.equal(h.error.code,'TRANSACTION_STAGED_ABORTED');assert.deepEqual(snapshot(s,state),before);
     for(const p of pending)p.resolve();await new Promise(resolve=>setImmediate(resolve));assert.deepEqual(snapshot(s,state),before);
-  }else if(['null','stale','absent'].includes(kind)){
-    assert.match(h.error?.message||'',/realism-identity-worker-unavailable/);const after=snapshot(s,state);assert.ok(after.revision>=before.revision&&after.structure>=before.structure,'rollback invalidates stale fleet tokens');assert.deepEqual({...after,revision:before.revision,structure:before.structure},before,'missing current large-fleet identity evidence rolls back the complete close');
+  }else if(['null','stale','absent','day-null','day-stale','day-absent'].includes(kind)){
+    assert.equal(h.error?.message,kind.startsWith('day-')?'fleet-day-worker-unavailable':'realism-identity-worker-unavailable');
+    assert.equal(names.includes('identityIntegrity'),!kind.startsWith('day-'),'day evidence must pass before the independent identity failure');
+    const after=snapshot(s,state);assert.ok(after.revision>=before.revision&&after.structure>=before.structure,'rollback invalidates stale fleet tokens');assert.deepEqual({...after,revision:before.revision,structure:before.structure},before,'missing current worker evidence rolls back the complete close');
   }else{
     assert.equal(h.error,null,String(h.error?.stack||h.error));assert.equal(h.result.committed,true);
     assert.deepEqual(snapshot(s,state),expected,'financial results and fleet bytes exactly equal the original close');
@@ -39,4 +43,4 @@ async function run(kind){
   }
   return {kind,calls,waits,maxWaitsPerCall,names,accepted};
 }
-(async()=>{const results=[];for(const kind of ['success','stale','null','absent','abort'])results.push(await run(kind));console.log(JSON.stringify({ok:true,results}));})().catch(e=>{console.error(e);process.exitCode=1;});
+(async()=>{const results=[];for(const kind of ['success','stale','null','absent','day-stale','day-null','day-absent','abort'])results.push(await run(kind));console.log(JSON.stringify({ok:true,results}));})().catch(e=>{console.error(e);process.exitCode=1;});
