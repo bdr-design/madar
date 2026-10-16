@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 424,
+  "minimum_acceptance_gates": 425,
   "required_commands": [
     [
       "node",
@@ -1696,6 +1696,10 @@
     [
       "node",
       "tests/build362-hospitality-ledger-parties.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-company-dock-browser.cjs"
     ]
   ]
 }

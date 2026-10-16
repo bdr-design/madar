@@ -124,14 +124,12 @@ async function durableCommit(target){const previous=Number(target.saveRevision)|
     }finally{s.GH_FLEET_VALIDATION_PROVIDER=provider;vault.holdChunkAcks=null;}
   });
 
-  await test('the periodic sliced save stages its copy too and its commit uploads none of the staged chunks',async()=>{
-    touchBothChunks(81);resetLog();const expected=new Uint8Array(state.fleet.rows.slice(0));
+  await test('the periodic sliced save does not stage: a write during its validation takes the retake',async()=>{
+    touchBothChunks(81);resetLog();const started=Date.now();
     const out=await P.commitStateSliced(state,{storageKey:key,yieldToFrame});assert.equal(out.ok,true,out.reason);
-    const timings=P.telemetry().timings.samples,staging=timings.filter(row=>row.kind==='durable-prestage').at(-1),save=timings.filter(row=>row.kind==='durable-save').at(-1),sliced=timings.filter(row=>row.kind==='sliced-save').at(-1);
-    assert.equal(staging.ok,true,staging.reason);assert(staging.uploads>=2,'the changed chunks were staged');assert.equal(save.chunkUploads,0,'the commit uploaded nothing staging had uploaded');
-    assert.equal(sliced.prestageUploads,staging.uploads);assert.equal(commits().length,1);
-    const loaded=CODEC.deserialize(vault.saves.at(-1),{resolveChunk:id=>vault.chunks.get(id)});assert.deepEqual(new Uint8Array(loaded.fleet.rows),expected,'the vault rebuilds exactly the saved rows');
-    return {staged:staging.uploads,commitUploads:save.chunkUploads};
+    const rows=P.telemetry().timings.samples.filter(row=>row.recordedAtMs>=started);
+    assert.equal(rows.filter(row=>row.kind==='durable-prestage').length,0,'no staging ran');assert.equal('prestageWaitMs' in rows.find(row=>row.kind==='sliced-save'),false);
+    return {commits:commits().length};
   });
 
   await test('staging is skipped where it cannot help and never throws',async()=>{

@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "a39f8d45bf80693b98cd90d2691491d7ffbf14bdfebb50f4c0e9db7d9d70828d",
-  "webapp_tree_sha256": "2194a7230d20eb71b8c28c8dbb762692f08a68a48e82d9ca4221b56e6dcdf311",
+  "source_tree_sha256": "e7cf6ba1f0f2d371bf5095cc8668a5fbe25d0598bd2b451c5be584c9fc4cf778",
+  "webapp_tree_sha256": "2bbfdc687cc8cd8014fdda1c70e0602030128fd142a1dc36c0a0f79e63e7bd6d",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 363925,
@@ -3695,8 +3695,8 @@
       "sha256": "74cf05550e92d6958fe8ccff36104e0eae0593a85fdc32d341cd0b3ae5267b10"
     },
     "WebApp/interface-layout.css": {
-      "bytes": 13302,
-      "sha256": "22d6248f354d42f824b178ae8f30953ac42a79d4a2ecbef69fc2beae66e4073f"
+      "bytes": 13396,
+      "sha256": "3fbee7b58006f5dd057f0cbf2780527fc2b9cd559770be08cc9b2c78624580a6"
     },
     "WebApp/lifecycle-core.js": {
       "bytes": 1576,
@@ -3715,8 +3715,8 @@
       "sha256": "03c1e9d11aad5ef221e129319881e261a7318b061e888d7519d3b6f91fff066a"
     },
     "WebApp/madar-shell.js": {
-      "bytes": 56224,
-      "sha256": "6f33b69287b78d1e6bf1d77088e02c61f9a6bbdad99ab8c39215ad12932bff96"
+      "bytes": 56314,
+      "sha256": "c18106af44a10b31d2a1e652144697d6980c6146f4d67705ff3f3fdaec8141b4"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 7759,
@@ -3795,8 +3795,8 @@
       "sha256": "b456a744f67a407c3ff66fa47b41a87fa5b7e5046898100f056db750c9190dcb"
     },
     "WebApp/persistence-core.js": {
-      "bytes": 62691,
-      "sha256": "b218a6fb982a373a1f84bb3bde0b0cd92c7a175b8680bcfca69d9c984aa3aa9a"
+      "bytes": 62430,
+      "sha256": "80763d9570ac32ced75d358cb6cfb9ec492166bcaff4c9e894d5debc20016d58"
     },
     "WebApp/phone-layout.css": {
       "bytes": 1359,
@@ -4012,7 +4012,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "ed677b0857411d1115b90a532ecfe9daff159ad975d7d8e9322e390bca072be0"
+      "sha256": "80f398b57816ad7b840f7c2da9854284f87b74bb0f8f38235bc872412ee24d31"
     },
     "BUILD": {
       "bytes": 4,

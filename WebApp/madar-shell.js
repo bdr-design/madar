@@ -380,13 +380,14 @@ function syncDock(state,activeCompany=null,refresh=false){
   const key=(state.openedCompanies||[]).join(',');
   if(key!==dockKey||refresh||!dock.childElementCount){
     dockKey=key;dockActive=undefined;
-    dock.innerHTML=openedCompanies(state).map(row=>{const name=shortName(state,row.id);return `<button type="button" ${go('company',row.id)} aria-label="لوحة ${esc(name)}" title="${esc(name)}">${logoImg(state,row.id)||`<b>${esc(name.slice(0,3))}</b>`}</button>`;}).join('')+`<button type="button" class="dock-add" ${go('companies','subs')} aria-label="فتح شركة جديدة" title="فتح شركة جديدة">${glyph('add')}</button>`;
+    dock.innerHTML='<div class="dock-strip">'+openedCompanies(state).map(row=>{const name=shortName(state,row.id);return `<button type="button" ${go('company',row.id)} aria-label="لوحة ${esc(name)}" title="${esc(name)}">${logoImg(state,row.id)||`<b>${esc(name.slice(0,3))}</b>`}</button>`;}).join('')+'</div>'+`<button type="button" class="dock-add" ${go('companies','subs')} aria-label="فتح شركة جديدة" title="فتح شركة جديدة">${glyph('add')}</button>`;
     dock.hidden=false;
   }
   if(activeCompany===dockActive)return;dockActive=activeCompany;
   const wanted=activeCompany?JSON.stringify(activeCompany):null;let active=null;
   for(const button of dock.querySelectorAll('button[data-go="company"]')){const on=button.dataset.goArg===wanted;button.classList.toggle('on',on);if(on){button.setAttribute('aria-current','page');active=button;}else button.removeAttribute('aria-current');}
-  if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),d=dock.getBoundingClientRect();if(a.left<d.left+36||a.right>d.right)dock.scrollLeft+=(a.left+a.width/2)-(d.left+d.width/2);});
+  const strip=dock.querySelector('.dock-strip')||dock;
+  if(active)requestAnimationFrame(()=>{const a=active.getBoundingClientRect(),d=strip.getBoundingClientRect();if(a.left<d.left||a.right>d.right)strip.scrollLeft+=(a.left+a.width/2)-(d.left+d.width/2);});
 }
 function sync(state,panel,arg,open){
   const settings=document.getElementById('settingsBtn'),place=open&&panel?locate(state,panel,arg):{section:'map',company:null};

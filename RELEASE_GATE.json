@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "a39f8d45bf80693b98cd90d2691491d7ffbf14bdfebb50f4c0e9db7d9d70828d",
+  "source_tree_sha256": "e7cf6ba1f0f2d371bf5095cc8668a5fbe25d0598bd2b451c5be584c9fc4cf778",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -85,7 +85,7 @@
     "mode": "direct_git_tracked_branch",
     "branch": "codex/financial-audit-20261014",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "a39f8d45bf80693b98cd90d2691491d7ffbf14bdfebb50f4c0e9db7d9d70828d",
+    "source_tree_sha256": "e7cf6ba1f0f2d371bf5095cc8668a5fbe25d0598bd2b451c5be584c9fc4cf778",
     "working_tree_clean": false,
     "note": "Integrated business, memory/navigation, map display, non-fleet accounting, confirmation, save deduplication, differential persistence, cooperative snapshot and linked hospitality fixes. Owner authorised full current-source acceptance, repository push and a fresh test IPA on 2026-10-16. Production and physical iPhone validation remain unapproved/unverified.",
     "news_work": {

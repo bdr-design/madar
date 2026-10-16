@@ -90,11 +90,11 @@
 .map-strip{position:absolute;z-index:610;left:var(--edge-left);bottom:var(--edge-bottom);right:calc(var(--panel-right) + var(--gap));display:flex;align-items:flex-end;gap:var(--gap);direction:ltr;pointer-events:none}
 .app-shell:has(.drawer.open,#simCalendarPanel:not(.hidden),#filterPopover:not(.hidden),#assetCard:not(.hidden)) .map-strip{right:calc(var(--panel-right) + var(--panel) + var(--gap))}
 .app-shell.panel-expanded:has(.drawer.open) .map-strip{display:none}
-.company-dock{pointer-events:auto;flex:0 1 auto;min-width:0;display:flex;gap:3px;padding:3px;border-radius:13px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:none}
-.company-dock::-webkit-scrollbar{display:none}
+.company-dock{pointer-events:auto;flex:0 1 auto;min-width:0;display:flex;gap:3px;padding:3px;border-radius:13px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl;overflow:hidden}
+/* Only the logos scroll; "+" is outside the strip, so no logo can slide beneath it when a page opens. */
+.company-dock .dock-strip{display:flex;gap:3px;min-width:0;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:none;direction:rtl;padding-bottom:4px;margin-bottom:-4px}
+.company-dock .dock-strip::-webkit-scrollbar{display:none}
 .company-dock button{flex:0 0 auto}
-/* When the panel narrows the strip, the logos scroll and "+" stays pinned at the far end. */
-.company-dock .dock-add{position:sticky;left:0;z-index:1}
 .company-dock button{position:relative;width:32px;height:32px;padding:0;border-radius:10px;border:1px solid var(--line-soft);background:#FFFFFF;display:grid;place-items:center;color:#0D3B57;cursor:pointer}
 .company-dock button img{width:22px;height:17px;object-fit:contain}
 .company-dock button b{font:700 9px var(--font)}

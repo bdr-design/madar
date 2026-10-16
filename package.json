@@ -59,7 +59,7 @@
     "test:build389": "node tests/build389-differential-collections.cjs && node tests/build389-differential-browser.cjs",
     "test:build390": "node tests/build390-cooperative-snapshot.cjs && node tests/build390-snapshot-browser.cjs",
     "test:hospitality": "node tests/build391-hospitality-core.cjs && node tests/build392-hospitality-links.cjs && node tests/build393-hospitality-financial-safety.cjs && node tests/build394-hospitality-browser.cjs && node tests/build395-hospitality-edge-cases.cjs && node tests/build396-hospitality-budgets.cjs",
-    "test:build362-followup": "node tests/build362-durable-prestage.cjs && node tests/build362-save-validation-chunks.cjs && node tests/build362-phase-totals.cjs && node tests/build362-hospitality-staffing.cjs && node tests/build362-hospitality-ledger-parties.cjs"
+    "test:build362-followup": "node tests/build362-durable-prestage.cjs && node tests/build362-save-validation-chunks.cjs && node tests/build362-phase-totals.cjs && node tests/build362-hospitality-staffing.cjs && node tests/build362-hospitality-ledger-parties.cjs && node tests/build362-company-dock-browser.cjs"
   },
   "devDependencies": {
     "three": "0.180.0",
