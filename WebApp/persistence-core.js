@@ -441,21 +441,24 @@
   let slicedSave=null,slicedLocked=false;const SLICED_COMMIT=Symbol('sliced-commit');
   async function sliceOnce(state,{storageKey,appVersion,yieldToFrame,prepare}){
     if(locked||durableLocked)return {ok:false,reason:'lifecycle-locked'};if(recoveryRequired)return {ok:false,reason:'memory-recovery-required'};
-    const timing={kind:'sliced-save',cloneMs:0,validateMs:0,totalMs:0,ok:false},started=clock();slicedLocked=true;
+    const timing={kind:'sliced-save',cloneMs:0,validateMs:0,totalMs:0,ok:false},started=clock();slicedLocked=true;let staging=null;
     try{
       const ready=typeof prepare==='function'?prepare(state):null;if(ready&&ready.ok===false)return {ok:false,reason:ready.reason||'prepare-refused'};
       const changeToken=captureSaveChanges(state);let stage=clock();const previous=Math.max(0,Math.floor(Number(state.saveRevision)||0)),tx=globalThis.GH_TRANSACTION_CORE;timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;const onSlice=(start,end)=>{const busy=Math.max(0,end-start);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'save.clone',start,end);},copy=tx.deepCloneInSlices?await tx.deepCloneInSlices(state,{shareJournaledRoots:true,yieldToHost:async()=>{timing.cloneYields++;await yieldToFrame();},onSlice}):tx.deepClone(state,{shareJournaledRoots:true});copy.saveRevision=previous+1;globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(state,copy);timing.cloneMs=clock()-stage;
       await yieldToFrame();stage=clock();
+      // The copy's chunks upload while it is validated (prestageDurableChunks); the commit below decides what it lists.
+      staging=prestageDurableChunks(copy,{yieldToFrame});
       const schema=globalThis.GH_SAVE_SCHEMA;let check;
       const validationOptions={trustVerified:true,...fleetValidationOptions(copy,{allowAsync:true})};
       if(typeof schema?.validationSteps==='function'){const steps=schema.validationSteps(copy,validationOptions);let slice=clock(),step;while(!(step=steps.next()).done){if(step.value==='fleet-validation-wait'){await yieldToFrame();slice=clock();}else if(clock()-slice>=SLICE_MS){await yieldToFrame();slice=clock();}}check=step.value;}
       else check=schema?.validate?.(copy,validationOptions)||{ok:true};
       timing.validateMs=clock()-stage;if(check&&check.ok===false)return {ok:false,reason:`invalid-state:${(check.errors||[]).join(',')}`};
+      if(staging){stage=clock();const staged=await staging.settled;timing.prestageWaitMs=clock()-stage;timing.prestageUploads=staged.uploads;timing.prestageOk=staged.ok;}
       const out=await commitDurableState(copy,{storageKey,appVersion,prevalidated:true,expectedPreviousRevision:previous,yieldToFrame,[SLICED_COMMIT]:true});
       if(Number(state.saveRevision)===previous){state.saveRevision=copy.saveRevision;acknowledgeSaveChanges(state,changeToken);}
       timing.ok=true;return {...out,ok:true,saveRevision:copy.saveRevision,timing};
     }catch(error){return {ok:false,reason:String(error?.message||error),critical:!!error?.critical,timing};}
-    finally{slicedLocked=false;timing.totalMs=clock()-started;rememberTiming(timing);}
+    finally{staging?.release();slicedLocked=false;timing.totalMs=clock()-started;rememberTiming(timing);}
   }
   function commitStateSliced(state,{storageKey='global-holdings-world-v3.0.0',appVersion=VERSION,yieldToFrame=()=>new Promise(resolve=>setTimeout(resolve,0)),prepare=null}={}){
     if(slicedSave){slicedSave.again=true;return slicedSave.done;}
