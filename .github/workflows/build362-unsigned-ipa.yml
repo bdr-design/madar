@@ -111,7 +111,7 @@ jobs:
           set -euo pipefail
           ACCEPTANCE_DIR="$RUNNER_TEMP/build362-source-acceptance"
           status=0
-          python3 "$SOURCE_DIR/tools/run_acceptance.py" --output "$ACCEPTANCE_DIR" --timeout 300 | tee "$GITHUB_WORKSPACE/.ci-output/source-acceptance.log" || status=$?
+          python3 "$SOURCE_DIR/tools/run_acceptance.py" --output "$ACCEPTANCE_DIR" --timeout 300 --preflight --fail-fast | tee "$GITHUB_WORKSPACE/.ci-output/source-acceptance.log" || status=$?
           if [[ -f "$ACCEPTANCE_DIR/results.json" ]]; then cp "$ACCEPTANCE_DIR/results.json" "$GITHUB_WORKSPACE/.ci-output/source-acceptance-results.json"; fi
           python3 - "$ACCEPTANCE_DIR" "$GITHUB_WORKSPACE/.ci-output" <<'PY_FAILED'
           import json,shutil,sys

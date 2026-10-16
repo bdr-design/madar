@@ -1,11 +1,11 @@
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),{chromium,webkit}=require('playwright'),{boot}=require('./helpers/local-dom-app');
+const assert=require('node:assert/strict'),fs=require('node:fs'),{chromium,webkit}=require('playwright');
 const results=[];
-const {installVault}=require('./helpers/differential-vault-fixture.cjs');
+const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs');
 (async()=>{for(const engine of [chromium,webkit]){
- const browser=await engine.launch({headless:true}),errors=[];let page;
+ const browser=await engine.launch({headless:true}),errors=[];let page,closeOrigin=null;
  try{
-  ({page}=await boot({browser,errors}));page.setDefaultTimeout(30000);
+  const started=await bootAtOrigin({browser,errors});page=started.page;closeOrigin=started.closeOrigin;page.setDefaultTimeout(30000);
   await page.evaluate(()=>{__GH_STATE__.qaMutableRows=Array.from({length:5000},(_,i)=>({id:'QA-OPEN-'+i,amount:i,detail:{note:('سجل '+i+' ').repeat(20)}}));});
   await page.evaluate(installVault);
   await page.evaluate(()=>{
@@ -37,11 +37,11 @@ const {installVault}=require('./helpers/differential-vault-fixture.cjs');
   out=await page.evaluate(()=>{const q=__DIFF_VAULT__,ids=new Set(q.history.slice(-2).flatMap(json=>{const root=JSON.parse(json);return [...(root.fleet?.rows?.chunks||[]),...(root.stateCodec?.chunks||[])];}));return {known:GH_PERSISTENCE.vaultChunkCount(),retainedByTwoHeads:ids.size,oldManifestStillDecodes:GH_STATE_CODEC.deserialize(q.history[0],{resolveChunk:id=>q.chunks.get(id)}).qaMutableRows.length===5000};});
   assert.ok(out.known<=out.retainedByTwoHeads);assert.equal(out.oldManifestStillDecodes,true);results.push({engine:engine.name(),name:'upload knowledge follows the last two manifests without deleting vault files',...out});
   const seed=await page.evaluate(()=>{const q=__DIFF_VAULT__;return {json:q.head,chunks:[...q.chunks].map(([id,bytes])=>[id,GH_STATE_CODEC.bytesToBase64(bytes)]),books:JSON.stringify(__GH_STATE__.companyFinance),rows:JSON.stringify(__GH_STATE__.qaMutableRows)};});
-  await page.close();({page}=await boot({browser,errors,beforeScripts:{fn:seed=>{window.GH_NATIVE_BUILD=362;window.__GH_NATIVE_SAVE_JSON__=seed.json;window.__GH_NATIVE_SAVE_CHUNKS__=new Map(seed.chunks.map(([id,b64])=>[id,Uint8Array.from(atob(b64),c=>c.charCodeAt(0)).buffer]));},arg:seed}}));
+  await page.close();await closeOrigin?.();closeOrigin=null;const rebooted=await bootAtOrigin({browser,errors,beforeScripts:{fn:seed=>{window.GH_NATIVE_BUILD=362;window.__GH_NATIVE_SAVE_JSON__=seed.json;window.__GH_NATIVE_SAVE_CHUNKS__=new Map(seed.chunks.map(([id,b64])=>[id,Uint8Array.from(atob(b64),c=>c.charCodeAt(0)).buffer]));},arg:seed}});page=rebooted.page;closeOrigin=rebooted.closeOrigin;
   out=await page.evaluate(()=>({books:JSON.stringify(__GH_STATE__.companyFinance),rows:JSON.stringify(__GH_STATE__.qaMutableRows),schema:GH_SAVE_SCHEMA.validate(__GH_STATE__).ok}));assert.equal(out.books,seed.books);assert.equal(out.rows,seed.rows);assert.equal(out.schema,true);
   await page.evaluate(installVault,seed);out=await credit('QA-DIFF-REBOOT');assert.equal(out.rejected,false);assert.equal(out.openUploads,0);assert.equal(out.balanceDelta,100);assert.equal(out.savedRowsMatch,true);results.push({engine:engine.name(),name:'native bootstrap restores books and mutable parts and adopts their identities',...out});
   assert.deepEqual(errors,[]);
- }finally{await browser.close();}
+ }finally{await browser.close();await closeOrigin?.();}
 }
 if(process.env.GH_DIFFERENTIAL_RESULTS)fs.writeFileSync(process.env.GH_DIFFERENTIAL_RESULTS,JSON.stringify(results,null,2)+'\n');
 console.log(JSON.stringify({suite:'build389-differential-browser',ok:true,results}));

@@ -49,19 +49,19 @@ test('diagnostics attribute cold bytes outside the hot JSON object graph',()=>{
 });
 
 test('native save keeps cold detail out of JSON and preserves its chunk id after reload',()=>{
-  const state=coldState(),out=CODEC.serializeChunked(state),tree=JSON.parse(out.text),cold=out.chunks.find(chunk=>chunk.data instanceof Uint8Array),vault=new Map(out.chunks.map(chunk=>[chunk.id,bytesOf(state,chunk)]));
+  const state=coldState(),out=CODEC.serializeChunked(state),tree=JSON.parse(out.text),cold=out.chunks.find(chunk=>chunk.id===state.coldArchive.pages[0].id),vault=new Map(out.chunks.map(chunk=>[chunk.id,bytesOf(state,chunk)]));
   assert(cold,'a native cold chunk is returned to persistence');
   assert(tree.stateCodec.chunks.includes(cold.id));assert.equal(tree.coldArchive.pages[0].inline,undefined);
   assert.equal(out.text.includes('historical-row-136'),false,'old detail is absent from hot save JSON');
   const loaded=CODEC.decodeState(tree,{resolveChunk:id=>vault.get(id)});
   assert.deepEqual(CODEC.coldArchiveRows(loaded.coldArchive.pages[0]),rows);
-  const again=CODEC.serializeChunked(loaded),againCold=again.chunks.find(chunk=>chunk.data instanceof Uint8Array);
+  const again=CODEC.serializeChunked(loaded),againCold=again.chunks.find(chunk=>chunk.id===cold.id);
   assert.equal(againCold.id,cold.id,'an unchanged cold page is referenced, not rewritten');
   return {chunks:out.chunks.length,coldBytes:cold.byteLength,jsonBytes:out.text.length};
 });
 
 test('cold page manifests reject substitution, omission, duplication and stray ids',()=>{
-  const state=coldState(),out=CODEC.serializeChunked(state),original=JSON.parse(out.text),cold=out.chunks.find(chunk=>chunk.data instanceof Uint8Array),vault=new Map(out.chunks.map(chunk=>[chunk.id,bytesOf(state,chunk)]));
+  const state=coldState(),out=CODEC.serializeChunked(state),original=JSON.parse(out.text),cold=out.chunks.find(chunk=>chunk.id===state.coldArchive.pages[0].id),vault=new Map(out.chunks.map(chunk=>[chunk.id,bytesOf(state,chunk)]));
   const attempt=(mutate,resolver=id=>vault.get(id))=>{const tree=structuredClone(original);mutate(tree);assert.throws(()=>CODEC.decodeState(tree,{resolveChunk:resolver}),error=>error?.code==='STATE_CODEC_CORRUPT');};
   attempt(()=>{},id=>{const bytes=vault.get(id);if(id!==cold.id)return bytes;const changed=bytes.slice();changed[changed.length>>1]^=1;return changed;});
   attempt(tree=>{tree.stateCodec.chunks=tree.stateCodec.chunks.filter(id=>id!==cold.id);});

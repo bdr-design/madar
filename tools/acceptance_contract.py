@@ -26,6 +26,9 @@ def contract(root:Path)->dict:
     if len(commands)<policy['minimum_acceptance_gates']:raise ValueError('Acceptance floor was reduced')
     missing=[row for row in policy['required_commands'] if row not in commands]
     if missing:raise ValueError(f'Required acceptance gates were removed: {missing}')
+    preflight=policy.get('preflight_commands',[])
+    if not isinstance(preflight,list) or len(preflight)!=len(set(tuple(row) for row in preflight)) or any(row not in commands for row in preflight):
+        raise ValueError('Preflight commands must be unique declared acceptance gates')
     for argv in commands:
         path=(root/argv[1]).resolve()
         if root.resolve() not in path.parents or not path.is_file():raise ValueError(f'Invalid acceptance script: {argv[1]}')
@@ -38,7 +41,7 @@ def contract(root:Path)->dict:
                 names.add(path.relative_to(root).as_posix())
     hashes={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in sorted(names)}
     sha=hashlib.sha256(json.dumps(hashes,sort_keys=True,separators=(',',':')).encode()).hexdigest()
-    return {'sha256':sha,'commands':commands,'minimum':policy['minimum_acceptance_gates']}
+    return {'sha256':sha,'commands':commands,'preflight_commands':preflight,'minimum':policy['minimum_acceptance_gates']}
 
 def validate_evidence(result:dict,runtime_sha:str,current:dict)->dict:
     for flag in ('completed','all_tests_passed','runtime_unchanged','gates_unchanged'):

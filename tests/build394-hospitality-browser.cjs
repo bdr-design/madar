@@ -1,11 +1,11 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{chromium,webkit}=require('playwright');
-const {boot}=require('./helpers/local-dom-app'),{installVault}=require('./helpers/differential-vault-fixture.cjs');
+const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs');
 const results=[];
 (async()=>{for(const engine of [chromium,webkit]){
- const browser=await engine.launch({headless:true}),errors=[];let page;
+ const browser=await engine.launch({headless:true}),errors=[];let page,closeOrigin=null;
  try{
-  ({page}=await boot({browser,errors}));page.setDefaultTimeout(30000);
+  const started=await bootAtOrigin({browser,errors});page=started.page;closeOrigin=started.closeOrigin;page.setDefaultTimeout(30000);
   const nativeDialogs=[];page.on('dialog',async dialog=>{nativeDialogs.push(dialog.message());await dialog.dismiss();});
   await page.evaluate(async()=>{await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type:'hospitality',capital:120000000},{silent:true});await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type:'bank',capital:100000000},{silent:true});__AUDIT__.openDrawer('hospitality',{company:'hospitality',tab:'properties'});});
   await page.evaluate(installVault);
@@ -47,10 +47,10 @@ const results=[];
   await page.evaluate(()=>{const root=GH_HOSPITALITY_CORE.read(__GH_STATE__),base=root.properties[0];root.properties=Array.from({length:500},(_,i)=>({...structuredClone(base),id:'HOSP-UI-'+i,facilityId:'HOSP-UI-'+i,name:'منشأة عرض '+i,...(i===0?{status:'closed',repairClaims:[{id:'ui-pending',coverageServiceId:'ui-policy'}]}:{})}));__AUDIT__.openDrawer('hospitality',{company:'hospitality',tab:'properties'});});
   assert.equal(await page.locator('.hospitality-property').count(),12);assert.equal(await page.locator('[data-gh-action="hospitality-claim"][data-repair="ui-pending"]').count(),1,'closed properties retain a visible claim action');const firstCard=await page.locator('.hospitality-property h4').first().textContent();await page.locator('.hospitality-actions button').filter({hasText:'التالي'}).last().click();assert.equal(await page.locator('.hospitality-property').count(),12);assert.notEqual(await page.locator('.hospitality-property h4').first().textContent(),firstCard);assert.equal(await page.evaluate(()=>__DIFF_VAULT__.attempts.length),commitsBeforeDensity);
   results.push({engine:engine.name(),case:'500 synthetic properties render twelve cards per page and pagination requests no save'});
-  await page.close();({page}=await boot({browser,errors,beforeScripts:{fn:seed=>{GH_NATIVE_BUILD=362;window.__GH_NATIVE_SAVE_JSON__=seed.json;window.__GH_NATIVE_SAVE_CHUNKS__=new Map(seed.chunks.map(([id,b64])=>[id,Uint8Array.from(atob(b64),c=>c.charCodeAt(0)).buffer]));},arg:saved}}));
+  await page.close();await closeOrigin?.();closeOrigin=null;const rebooted=await bootAtOrigin({browser,errors,beforeScripts:{fn:seed=>{GH_NATIVE_BUILD=362;window.__GH_NATIVE_SAVE_JSON__=seed.json;window.__GH_NATIVE_SAVE_CHUNKS__=new Map(seed.chunks.map(([id,b64])=>[id,Uint8Array.from(atob(b64),c=>c.charCodeAt(0)).buffer]));},arg:saved}});page=rebooted.page;closeOrigin=rebooted.closeOrigin;
   const loaded=await page.evaluate(()=>({hospitality:JSON.stringify(__GH_STATE__.hospitality),books:JSON.stringify(__GH_STATE__.companyFinance),schema:GH_SAVE_SCHEMA.validate(__GH_STATE__),critical:GH_INTEGRITY_CORE.check(__GH_STATE__).counts.critical}));assert.equal(loaded.hospitality,saved.hospitality);assert.equal(loaded.books,saved.books);assert(loaded.schema.ok,JSON.stringify(loaded.schema));assert.equal(loaded.critical,0);assert.deepEqual(errors,[]);assert.deepEqual(nativeDialogs,[]);
   results.push({engine:engine.name(),case:'real native bootstrap restores hospitality, tax and books with no blocking dialogs'});
- }finally{await browser.close();}
+ }finally{await browser.close();await closeOrigin?.();}
 }
 if(process.env.GH_HOSPITALITY_BROWSER_RESULTS)fs.writeFileSync(process.env.GH_HOSPITALITY_BROWSER_RESULTS,JSON.stringify(results,null,2)+'\n');
 console.log(JSON.stringify({suite:'build394-hospitality-browser',passed:results.length,results}));

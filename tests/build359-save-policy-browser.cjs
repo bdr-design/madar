@@ -11,7 +11,7 @@
 //    - Settings: the card, the cap choice (saved with the next save), Save Now;
 //    - hiding the app saves.
 const assert=require('node:assert/strict'),path=require('node:path');
-const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
+const {chromium}=require('playwright'),{bootAtOrigin}=require('./helpers/differential-vault-fixture.cjs');
 const POLICY=require(path.join(process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..'),'WebApp/save-policy-core.js'));
 
 // 1. Pure rules.
@@ -45,9 +45,9 @@ function installVault(){
 }
 
 (async()=>{
-  const browser=await chromium.launch({headless:true}),errors=[];
+  const browser=await chromium.launch({headless:true}),errors=[];let closeOrigin=null;
   try{
-    const {page}=await boot({browser,errors});page.setDefaultTimeout(200000);
+    const started=await bootAtOrigin({browser,errors});closeOrigin=started.closeOrigin;const {page}=started;page.setDefaultTimeout(200000);
     await page.evaluate(installVault);
     // The policy reads the last save's time from GH_PERSISTENCE.saveCadence: __AGE__(ms) makes the save that exists now
     // look that much older (a save made after it is reported as it is).
@@ -100,5 +100,5 @@ function installVault(){
     assert.deepEqual(errors,[]);
     console.log(JSON.stringify({suite:'build359-save-policy-browser',live,across:{day:across.day,saves:across.saves.length},overdue:overdue.saves.length,capRun,forced,off,hidden},null,1));
     console.log('BUILD359_SAVE_POLICY_PASS');
-  }finally{await browser.close();}
+  }finally{await browser.close();await closeOrigin?.();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

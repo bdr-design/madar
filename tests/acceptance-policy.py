@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Adversarial evidence checks and mandatory-gate wiring for every current IPA entry point."""
-import copy,json,sys,tempfile
+import copy,json,subprocess,sys,tempfile
 from pathlib import Path
 root=Path(__file__).resolve().parents[1];sys.path.insert(0,str(root/'tools'))
 from acceptance_contract import contract,validate_evidence
@@ -44,6 +44,37 @@ with tempfile.TemporaryDirectory(prefix='madar-acceptance-contract-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
+expected_preflight=[
+    ['node','tests/build334-procurement-pressure.cjs'],
+    ['python3','tests/acceptance-policy.py'],
+    ['node','tests/build360-cold-archive.cjs'],
+    ['node','tests/build358-fleet-chunk-manifest.cjs'],
+    ['node','tests/build358-native-chunked-save.cjs'],
+    ['node','tests/build372-native-migration-chunk-adoption.cjs'],
+    ['node','tests/fleet-save-slicing.cjs'],
+    ['node','tests/fleet-validation-reuse-browser.cjs'],
+    ['node','tests/save-checksum-worker-browser.cjs'],
+    ['node','tests/save-pipeline-browser.cjs'],
+    ['node','tests/native-save-worker-browser.cjs'],
+    ['node','tests/build359-save-policy-browser.cjs'],
+    ['node','tests/build380-construction-acceleration-browser.cjs'],
+    ['node','tests/build389-differential-browser.cjs'],
+    ['node','tests/build394-hospitality-browser.cjs'],
+    ['node','tests/build397-management-flow-layout-browser.cjs'],
+    ['node','tests/build398-asset-market-metrics-layout-browser.cjs'],
+    ['node','tests/build399-bank-prudential-summary-layout-browser.cjs'],
+]
+assert declared['preflight_commands']==expected_preflight,'preserve the targeted save, failure-rollback, finance, and layout preflight set'
+with tempfile.TemporaryDirectory(prefix='madar-acceptance-early-stop-') as tmp:
+    base=Path(tmp);fake=base/'node';output=base/'evidence'
+    fake.write_text("#!/usr/bin/env python3\nimport sys\nif sys.argv[1:]==['--version']:\n print('v24.0.0')\nelse:\n print('EARLY_STOP_SENTINEL '+ ' '.join(sys.argv[1:]))\n sys.exit(7)\n")
+    fake.chmod(0o755)
+    run=subprocess.run(['python3',str(root/'tools/run_acceptance.py'),'--output',str(output),'--node',str(fake),'--timeout','5','--preflight','--fail-fast'],capture_output=True,text=True)
+    assert run.returncode==1 and 'EARLY_FAILURE' in run.stdout,run.stdout+'\n'+run.stderr
+    evidence=json.loads((output/'results.json').read_text())
+    assert evidence['completed'] is False and evidence['all_tests_passed'] is False
+    assert evidence['failed_early']==expected_preflight[0][1] and len(evidence['tests'])==1
+    assert evidence['tests'][0]['exit_code']==7
 for command in [['node','tests/save-pipeline-browser.cjs'],['node','tests/native-save-worker-browser.cjs']]:assert command in declared['commands']
 for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
     text=(root/'.github/workflows'/name).read_text()
@@ -51,6 +82,7 @@ for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
     source_step='Run all declared Build 362 source acceptance gates' if name=='build362-unsigned-ipa.yml' else 'Run the full source acceptance gate'
     start=text.index('      - name: '+source_step);end=text.index('\n      - name:',start+1);step=text[start:end]
     assert 'run_acceptance.py' in step and 'verify_acceptance.py' in step
+    if name=='build362-unsigned-ipa.yml':assert '--preflight --fail-fast' in step,'run focused failure checks first and stop at the first failed acceptance gate'
     assert '\n        if:' not in step and 'continue-on-error' not in step
     build=text.index('xcodebuild ');assemble=text.index('      - name: Assemble')
     assert text.count('verify_acceptance.py',0,build)>=2,'verify again immediately before native compilation'

@@ -1,11 +1,11 @@
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{chromium,webkit}=require('playwright'),{boot}=require('./helpers/local-dom-app');
-const {installVault}=require('./helpers/differential-vault-fixture.cjs');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{chromium,webkit}=require('playwright');
+const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs');
 const out=process.env.GH_CONSTRUCTION_ARTIFACTS||null,results=[];
 (async()=>{for(const engine of [chromium,webkit]){
- const browser=await engine.launch({headless:true}),errors=[],dialogs=[];
+ const browser=await engine.launch({headless:true}),errors=[],dialogs=[];let closeOrigin=null;
  try{
-  const {page}=await boot({browser:{newPage:options=>browser.newPage({...options,hasTouch:true})},errors,viewport:{width:956,height:440}});page.setDefaultTimeout(60000);
+  const started=await bootAtOrigin({browser:{newPage:options=>browser.newPage({...options,hasTouch:true})},errors,viewport:{width:956,height:440}});closeOrigin=started.closeOrigin;const {page}=started;page.setDefaultTimeout(60000);
   page.on('dialog',async d=>{dialogs.push(d.message());await d.dismiss();});
   const fixture=await page.evaluate(async()=>{
    const a=__AUDIT__,get=()=>__GH_STATE__;get().godMoney=true;get().infiniteMoney=true;
@@ -62,5 +62,5 @@ const out=process.env.GH_CONSTRUCTION_ARTIFACTS||null,results=[];
    results.push({engine:engine.name(),panel:target.panel,nativeRefusalRollback:true,commitAttempts:rejected.nacks});
   }
   assert.deepEqual(errors,[]);await page.close();
- }finally{await browser.close();}
+ }finally{await browser.close();await closeOrigin?.();}
 }console.log(JSON.stringify({suite:'build380-construction-acceleration-browser',ok:true,engines:2,results}));})().catch(e=>{console.error(e);process.exitCode=1;});
