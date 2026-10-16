@@ -20,13 +20,14 @@
     worker.onmessageerror=()=>{stats.failures++;stop('save-checksum-message-error');};
     return worker;
   }
-  function request(kind,bytes){
+  function request(kind,bytes,transform=null,expectedBytes=bytes?.byteLength){
     if(!(bytes instanceof Uint8Array)||bytes.byteLength<1||bytes.byteLength>MAX_BYTES||pending.size>=2)return Promise.reject(new Error('save-checksum-input-or-backpressure'));
+    if(!Number.isSafeInteger(expectedBytes)||expectedBytes<1||expectedBytes>MAX_BYTES||transform!==null&&kind!=='checksum')return Promise.reject(new Error('save-checksum-transform-invalid'));
     let w,copy,copyMs;try{w=ready();const start=clock();copy=bytes.slice();copyMs=clock()-start;stats.copyMs+=copyMs;stats.maxCopyMs=Math.max(stats.maxCopyMs,copyMs);}catch(error){return Promise.reject(error);}
     const id=++sequence;stats.requests++;
-    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{stats.failures++;stop('save-checksum-worker-timeout');},60000);pending.set(id,{resolve,reject,timer,bytes:copy.byteLength,copyMs,kind});try{w.postMessage({type:kind,version:VERSION,id,buffer:copy.buffer},[copy.buffer]);}catch(error){clearTimeout(timer);pending.delete(id);stats.failures++;reject(error);}});
+    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{stats.failures++;stop('save-checksum-worker-timeout');},60000);pending.set(id,{resolve,reject,timer,bytes:expectedBytes,copyMs,kind});try{w.postMessage({type:kind,version:VERSION,id,buffer:copy.buffer,transform,expectedBytes},[copy.buffer]);}catch(error){clearTimeout(timer);pending.delete(id);stats.failures++;reject(error);}});
   }
-  const checksum=bytes=>request('checksum',bytes),base64=bytes=>request('base64',bytes);
+  const checksum=(bytes,transform=null,expectedBytes=bytes?.byteLength)=>request('checksum',bytes,transform,expectedBytes),base64=bytes=>request('base64',bytes);
   // One save owns a bounded lookahead. The next immutable chunk is copied in another host task while the same
   // worker hashes this chunk. No extra worker, persistent timer, or whole-store copy is introduced.
   function createSession({current=()=>true,submit=checksum}={}){
@@ -38,18 +39,19 @@
     function start(job){
       if(job.started||job.done)return;
       try{
-        assertCurrent();job.started=true;const at=clock(),work=submit(job.bytes),ms=clock()-at;job.bytes=null;
+        assertCurrent();job.started=true;const at=clock(),work=submit(job.bytes,job.transform,job.outputBytes),ms=clock()-at;job.bytes=null;
         sessionStats.requests++;if(job.deferred){sessionStats.lookaheadRequests++;stats.lookaheadRequests++;sessionStats.deferredSubmitMs+=ms;sessionStats.maxDeferredSubmitMs=Math.max(sessionStats.maxDeferredSubmitMs,ms);stats.deferredSubmitMs+=ms;stats.maxDeferredSubmitMs=Math.max(stats.maxDeferredSubmitMs,ms);}
         Promise.resolve(work).then(value=>finish(job,{value}),error=>finish(job,{error}));
       }catch(error){job.bytes=null;finish(job,{error});}
     }
-    function reserve(bytes,deferred=false){
+    function reserve(bytes,transform=null,outputBytes=bytes?.byteLength,deferred=false){
       assertCurrent();
       if(!(bytes instanceof Uint8Array)||!bytes.byteLength||bytes.byteLength>MAX_BYTES)throw new Error('save-checksum-input-or-backpressure');
+      if(!Number.isSafeInteger(outputBytes)||outputBytes<1||outputBytes>MAX_BYTES)throw new Error('save-checksum-output-invalid');
       if(sourceBuffer&&sourceBuffer!==bytes.buffer)throw new Error('state-codec-fleet-changed-during-save');sourceBuffer=bytes.buffer;
-      const key=bytes.byteOffset+':'+bytes.byteLength,prior=jobs.get(key);if(prior)return prior;
+      const transformKey=transform===null?'raw':JSON.stringify(transform),key=`${transformKey}:${outputBytes}:${bytes.byteOffset}:${bytes.byteLength}`,prior=jobs.get(key);if(prior)return prior;
       if(jobs.size>=2)throw new Error('save-checksum-input-or-backpressure');
-      let resolve;const job={key,bytes,deferred,started:false,done:false,promise:new Promise(r=>{resolve=r;}),resolve:null};job.resolve=resolve;jobs.set(key,job);
+      let resolve;const job={key,bytes,transform,outputBytes,deferred,started:false,done:false,promise:new Promise(r=>{resolve=r;}),resolve:null};job.resolve=resolve;jobs.set(key,job);
       sessionStats.peakJobs=Math.max(sessionStats.peakJobs,jobs.size);stats.maxSessionJobs=Math.max(stats.maxSessionJobs,jobs.size);
       if(deferred){
         if(!channel){channel=new MessageChannel();stats.activeChannels++;channel.port1.onmessage=()=>{const next=queue.shift();if(next)start(next);};}
@@ -57,10 +59,10 @@
       }else start(job);
       return job;
     }
-    async function take(bytes,nextBytes=null){
-      const job=reserve(bytes);if(job.deferred)sessionStats.prefetchHits++;
+    async function take(bytes,nextBytes=null,transform=null,outputBytes=bytes?.byteLength,nextTransform=null,nextOutputBytes=nextBytes?.byteLength){
+      const job=reserve(bytes,transform,outputBytes);if(job.deferred)sessionStats.prefetchHits++;
       try{
-        if(nextBytes&&typeof MessageChannel==='function')reserve(nextBytes,true);
+        if(nextBytes&&typeof MessageChannel==='function')reserve(nextBytes,nextTransform,nextOutputBytes,true);
         const waiting=!job.done,outcome=await job.promise;assertCurrent();if(outcome.error)throw outcome.error;
         return {...outcome.value,didYieldToWorker:waiting&&workerResults.has(outcome.value)};
       }finally{if(!job.done)await job.promise;jobs.delete(job.key);}

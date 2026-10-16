@@ -8,7 +8,7 @@ const devices=[[568,320,0,0],[667,375,0,0],[736,414,0,0],[812,375,50,21],[844,39
 const fixture=require('./fixtures/phone-design-contract.json');
 for(const [name,hash] of Object.entries(fixture.design_files))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex'),hash,`existing design changed: ${name}`);
 const typography=new Set(['font-size','font-weight','font-variant-numeric','line-height','text-align','text-overflow','white-space','overflow-wrap','word-break','unicode-bidi','direction','letter-spacing','hyphens']);
-const layout=new Set(['--panel','--gap','--rail','min-width','width','height','padding-inline','padding','padding-left','padding-right','padding-top','padding-bottom','padding-inline-start','padding-inline-end','gap','row-gap','column-gap','min-height']);
+const layout=new Set(['--panel','--gap','--rail','min-width','width','height','padding-inline','padding','padding-left','padding-right','padding-top','padding-bottom','padding-inline-start','padding-inline-end','gap','row-gap','column-gap','min-height','grid-template-columns']);
 
 async function snapshot(page){return page.evaluate(()=>{
   const buttons=[...document.querySelectorAll('.app-shell button')].map(e=>({text:e.textContent.trim(),attributes:[...e.attributes].filter(a=>!['style'].includes(a.name)).map(a=>[a.name,a.value])}));

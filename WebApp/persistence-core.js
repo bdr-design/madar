@@ -175,7 +175,7 @@
   }
   function serializeNative(state){
     if(!chunkedNative(state))return {json:serializeState(state),uploads:[],chunked:false};
-    const out=stateCodec().serializeChunked(state),uploads=[];
+    const out=stateCodec().serializeChunked(state,{knownChunkIds:vaultChunks}),uploads=[];
     // Fleet chunks copy their bytes now (rows keep changing); a text chunk (a sealed collection's JSON) is immutable.
     for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id))uploads.push({id:chunk.id,bytes:copyChunkBytes(state,chunk)});
     return {json:out.text,uploads,chunked:true,chunkIds:out.chunks.map(chunk=>chunk.id)};
@@ -197,7 +197,7 @@
       if(step.value==='fleet-validation-wait'){timing.slices++;await yieldToFrame();active=0;continue;}
       if(step.value?.kind==='fleet-chunk-checksum'){
         if(typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER!=='function')throw new Error('save-checksum-worker-unavailable');
-        const submit=clock(),pending=checksumSession?checksumSession.take(step.value.bytes,step.value.nextBytes):globalThis.GH_SAVE_CHECKSUM_PROVIDER(step.value.bytes),submitMs=clock()-submit;
+        const submit=clock(),pending=checksumSession?checksumSession.take(step.value.bytes,step.value.nextBytes,step.value.transform,step.value.outputByteLength,step.value.nextTransform,step.value.nextOutputByteLength):globalThis.GH_SAVE_CHECKSUM_PROVIDER(step.value.bytes,step.value.transform,step.value.outputByteLength),submitMs=clock()-submit;
         active+=submitMs;timing.busyMs+=submitMs;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,active);
         input=await pending;accountDeferred();timing.checksumWorkerMs=(timing.checksumWorkerMs||0)+(Number(input?.workerMs)||0);timing.checksumRequests=(timing.checksumRequests||0)+1;
         // A real worker reply already ended the preceding UI task. A ready prefetched answer does not: keep the
@@ -231,7 +231,7 @@
       }finally{await session?.close();}
     }
     const uploads=[];for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id)){
-      if(externalChecksums&&Number.isInteger(chunk.byteOffset)&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
+      if(externalChecksums&&(chunk.kind==='base'||chunk.kind==='overlay')&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
       const bytes=typeof chunk.text==='string'?await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing):copyChunkBytes(state,chunk);
       uploads.push({id:chunk.id,bytes});
     }
@@ -270,7 +270,9 @@
   async function uploadChunkMessage(id,bytes){
     const bridge=bridgeFor('commitSave');if(!bridge)throw new Error('native-chunk-bridge-unavailable');
     // Keep the legacy bridge byte-identical, with bounded fleet-chunk encoding away from the UI thread.
-    const base64=bytes.byteLength>=262144&&bytes.byteLength<=4194304&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER==='function'?await globalThis.GH_SAVE_ENCODING_PROVIDER(bytes):stateCodec().bytesToBase64(bytes);
+    // Compact fleet overlay pages can be smaller than the old 256 KiB worker threshold while still being emitted in
+    // bulk at day close; keep those conversions off the presentation thread too.
+    const base64=bytes.byteLength>=32768&&bytes.byteLength<=4194304&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER==='function'?await globalThis.GH_SAVE_ENCODING_PROVIDER(bytes):stateCodec().bytesToBase64(bytes);
     return new Promise((resolve,reject)=>{
       const requestId=`storeSaveChunk-${Date.now()}-${++chunkSequence}`,timer=setTimeout(()=>{chunkPending.delete(requestId);const error=new Error('native-chunk-ack-timeout');error.code='ACK_TIMEOUT';reject(error);},CHUNK_ACK_TIMEOUT_MS);
       chunkPending.set(requestId,{id,resolve,reject,timer});

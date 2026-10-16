@@ -117,12 +117,26 @@ self.addEventListener('message',event=>{
         const meta=message.meta||{},byteLength=Number(meta.byteLength),chunkBytes=Number(meta.chunkBytes),chunks=Array.isArray(message.chunks)?message.chunks:[];
         const length=Number(meta.length),bytes=length*STORE.STRIDE;
         if(!Number.isSafeInteger(byteLength)||!Number.isSafeInteger(bytes)||bytes<0||bytes>byteLength||!(chunkBytes>0)||chunks.length!==Math.ceil(byteLength/chunkBytes))throw new Error('fleet-seed-invalid');
+        const overlay=meta.overlay,pages=message.overlays;
+        if(overlay===null||overlay===undefined){if(pages!==undefined&&pages!==null)throw new Error('fleet-seed-overlay-invalid');}
+        else if(overlay.version!==1||overlay.presenceMask!==((STORE.HOT_BIT.flightHours|STORE.HOT_BIT.flightCycles|STORE.HOT_BIT.nextCheckHours)>>>0)||!Array.isArray(pages)||pages.length!==chunks.length||chunkBytes%STORE.STRIDE!==0)throw new Error('fleet-seed-overlay-invalid');
         // The chunks are the record buffer as saved (its capacity); the replica keeps the store's rows.
         const rows=new Uint8Array(bytes);
+        const rowView=new DataView(rows.buffer);
         for(let index=0;index<chunks.length;index++){
           const chunk=chunks[index],view=chunk instanceof ArrayBuffer?new Uint8Array(chunk):null,start=index*chunkBytes;
           if(!view||view.length!==Math.min(chunkBytes,byteLength-start))throw new Error('fleet-seed-chunk-invalid');
           if(start<bytes)rows.set(view.subarray(0,Math.min(view.length,bytes-start)),start);
+          if(overlay){
+            const pageBuffer=pages[index],page=pageBuffer instanceof ArrayBuffer?new Uint8Array(pageBuffer):null,pageRows=view.length/STORE.STRIDE,expected=pageRows*13,liveRows=Math.max(0,Math.min(pageRows,length-start/STORE.STRIDE));
+            if(!page||page.length!==expected)throw new Error('fleet-seed-overlay-chunk-invalid');
+            const pageView=new DataView(page.buffer,page.byteOffset,page.byteLength);
+            for(let row=0;row<liveRows;row++){
+              const rowAt=start+row*STORE.STRIDE,pageAt=row*13;
+              for(const [field,name] of ['flightHours','flightCycles','nextCheckHours'].entries()){const at=pageAt+field*4,target=rowAt+STORE.O[name]*4;rowView.setUint32(target,pageView.getUint32(at,true),true);}
+              const packed=page[pageAt+12];if(packed>7)throw new Error('fleet-seed-overlay-presence-invalid');const presentAt=rowAt+STORE.O.present*4,prior=rowView.getUint32(presentAt,true),bits=(packed<<18)&overlay.presenceMask;rowView.setUint32(presentAt,(prior&~overlay.presenceMask)|bits,true);
+            }
+          }
         }
         if(message.streamMetadata===true){
           const valuesLength=Number(meta.valuesLength);if(!Number.isSafeInteger(valuesLength)||valuesLength<1||!Number.isSafeInteger(message.importId))throw new Error('fleet-seed-values-invalid');

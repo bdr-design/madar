@@ -187,7 +187,7 @@
     // writes since it was captured stay in the Store's existing replica log and are sent before any query/step.
     function startSeedReplica(store,seed,runtime,buffers){
       const id=++importId,build={id,store,seed:true,reason:'seed-metadata',attempt:0,runtime,length:seed.length,valuesLength:seed.values.length,rowAt:seed.length,valueAt:0,snapshot:seed,extras:extraEntries(seed.extras),extrasDone:false,started:clock(),workMs:0,maxSliceMs:0,task:null};
-      post({type:'seed',importId:id,streamMetadata:true,meta:{length:seed.length,live:seed.live,structure:seed.structure,revision:seed.revision,chunkBytes:seed.chunkBytes,byteLength:seed.byteLength,valuesLength:seed.values.length},chunks:seed.chunks},buffers);
+      post({type:'seed',importId:id,streamMetadata:true,meta:{length:seed.length,live:seed.live,structure:seed.structure,revision:seed.revision,chunkBytes:seed.chunkBytes,byteLength:seed.byteLength,valuesLength:seed.values.length,overlay:seed.overlays?{version:1,presenceMask:seed.presenceMask}:null},chunks:seed.chunks,overlays:seed.overlays},buffers);
       synced=null;needsFull=true;replicaBuild=build;build.task=scheduleReplica(()=>runReplicaBuild(build));return false;
     }
     // A decoded store still moves its seed buffers directly. A small synthetic store keeps the simple synchronous path.
@@ -199,10 +199,10 @@
       const started=clock(),runtime=STORE.chunkStamp(store).runtime,seed=STORE.takeReplicaSeed(store);
       routeTable=new Map();routesAt=routesRevision();routesReady=false;
       if(seed){
-        const buffers=[...new Set(seed.chunks)];
+        const buffers=[...new Set([...seed.chunks,...(seed.overlays||[])])];
         if(seed.values.length>2048)return startSeedReplica(store,seed,runtime,buffers);
         const id=++importId;
-        post({type:'seed',importId:id,meta:{length:seed.length,live:seed.live,structure:seed.structure,revision:seed.revision,chunkBytes:seed.chunkBytes,byteLength:seed.byteLength},values:seed.values,extras:seed.extras,chunks:seed.chunks},buffers);
+        post({type:'seed',importId:id,meta:{length:seed.length,live:seed.live,structure:seed.structure,revision:seed.revision,chunkBytes:seed.chunkBytes,byteLength:seed.byteLength,overlay:seed.overlays?{version:1,presenceMask:seed.presenceMask}:null},values:seed.values,extras:seed.extras,chunks:seed.chunks,overlays:seed.overlays},buffers);
         synced={store,runtime,valuesLength:seed.values.length,length:seed.length};
         stats.seedSyncs++;stats.lastSyncMs=clock()-started;stats.maxSeedSyncMs=Math.max(stats.maxSeedSyncMs,stats.lastSyncMs);stats.maxSyncMs=Math.max(stats.maxSyncMs,stats.lastSyncMs);needsFull=false;return true;
       }

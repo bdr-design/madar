@@ -101,7 +101,10 @@
     // thread's first replica (moved to its worker, so the store is not copied again when the thread first runs).
     if(chunkManifest&&nativeChunks&&globalThis.GH_FLEET_STORE?.isStore?.(saved?.fleet)===true){
       try{adoptedFleetChunks=globalThis.GH_STATE_CODEC?.adoptChunkIds?.(saved.fleet,chunkManifest)===true;}catch{}
-      if(typeof globalThis.GH_FLEET_STORE.setReplicaSeed==='function')try{globalThis.GH_FLEET_STORE.setReplicaSeed(saved.fleet,{chunks:chunkManifest.chunks.map(id=>nativeChunks.get(id)),chunkBytes:chunkManifest.chunkBytes,byteLength:chunkManifest.byteLength});}catch{}
+      if(typeof globalThis.GH_FLEET_STORE.setReplicaSeed==='function')try{
+        const overlay=chunkManifest.overlay?.version===1?chunkManifest.overlay:null,baseIds=overlay?chunkManifest.baseChunks:chunkManifest.chunks;
+        globalThis.GH_FLEET_STORE.setReplicaSeed(saved.fleet,{chunks:baseIds.map(id=>nativeChunks.get(id)),chunkBytes:chunkManifest.chunkBytes,byteLength:chunkManifest.byteLength,...(overlay?{overlays:overlay.chunks.map(id=>nativeChunks.get(id)),presenceMask:overlay.presentMask}:{})});
+      }catch{}
     }
     if(nativeRaw)try{delete globalThis.__GH_NATIVE_SAVE_JSON__;}catch{globalThis.__GH_NATIVE_SAVE_JSON__=null;}
     if(nativeChunks)try{delete globalThis.__GH_NATIVE_SAVE_CHUNKS__;}catch{globalThis.__GH_NATIVE_SAVE_CHUNKS__=null;}

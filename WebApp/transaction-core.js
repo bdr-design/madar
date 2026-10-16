@@ -263,11 +263,21 @@
   // snapshots. Durable drafts may explicitly share them while their owner
   // keeps a journal open until the save is committed.
   const SNAPSHOT_OPTIONS=Object.freeze({shareSealed:true});
+  function preserveFleetChunkCache(source,target){
+    const store=globalThis.GH_FLEET_STORE;
+    if(source!==target&&store?.isStore?.(source)&&store?.isStore?.(target))globalThis.GH_STATE_CODEC?.inheritFleetChunkCache?.(source,target);
+  }
+  function inheritCloneRuntimeMetadata(source,target){
+    const codec=globalThis.GH_STATE_CODEC;
+    codec?.inheritColdArchive?.(source,target);
+    preserveFleetChunkCache(source?.fleet,target?.fleet);
+    return target;
+  }
   function deepClone(value,options={}){
     let out=cloneWithoutJournaledRoots(value,options);
     if(!out&&typeof globalThis.structuredClone==='function')try{out=globalThis.structuredClone(value);}catch(_error){}
     if(!out)out=jsonClone(value);
-    return globalThis.GH_STATE_CODEC?.inheritColdArchive?.(value,out)||out;
+    return inheritCloneRuntimeMetadata(value,out);
   }
   // Cooperative durable-draft copy. The caller owns the live-state lock throughout; the journaled fleet and sealed
   // records follow the same sharing rules as deepClone. Each yield is outside a measured synchronous slice.
@@ -319,7 +329,7 @@
       const cloned=yield* copy(source);
       for(const [key,rows] of targets)for(const {path,collection,options} of rows){let node=cloned[key];for(let i=0;i<path.length-1;i++)node=node[path[i]];node[path[path.length-1]]=yield* collectionCopy(collection,options);}
       const out={};for(const key of keys){if(JOURNALED_ROOTS.has(key)){if(shareJournaledRoots)out[key]=value[key];}else out[key]=roots.has(key)?yield* collectionCopy(roots.get(key)):cloned[key];yield;}
-      return globalThis.GH_STATE_CODEC?.inheritColdArchive?.(value,out)||out;
+      return inheritCloneRuntimeMetadata(value,out);
     }
     const iterator=work(),limit=Math.max(.5,Math.min(8,Number(budgetMs)||4));let started=initialStarted,measuring=true;
     const note=()=>{if(!measuring)return;measuring=false;const ended=runtimeClock();try{onSlice?.(started,ended);}catch(_error){} };
@@ -396,11 +406,13 @@
           if(sv&&typeof sv==='object'){const next=restoreValue(tv,sv,rollback,rollback?(path?`${path}.${key}`:key):'');if(next!==tv)target[key]=next;}
           else if(tv!==sv||(sv!==sv))target[key]=sv;
         }
+        preserveFleetChunkCache(snapshot,target);
         return target;
       }
       const existing=new Map(targetKeys.map(key=>[key,target[key]]));
       for(const key of targetKeys)delete target[key];
       for(const [key,sv] of Object.entries(snapshot)){const tv=existing.get(key);target[key]=sv&&typeof sv==='object'?restoreValue(tv,sv,rollback,rollback?(path?`${path}.${key}`:key):''):sv;}
+      preserveFleetChunkCache(snapshot,target);
       return target;
     }
     return snapshot;

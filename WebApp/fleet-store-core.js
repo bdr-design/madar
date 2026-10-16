@@ -29,6 +29,7 @@
   'use strict';
   const VERSION='4.2.0',SCHEMA='gh-fleet-store-v3';
   const CHUNK_SHIFT=15,CHUNK_ROWS=1<<CHUNK_SHIFT,DIRTY_LOG_LIMIT=1<<16;
+  const SAVE_OVERLAY_FIELDS=new Set(['flightHours','flightCycles','nextCheckHours']);
   const ALIVE=1,EXTRAS=2;
   const PROFILE_FIELDS=Object.freeze(['ownerCompanyId','assetMode','assetClass','operationProfileId','type','icon','model','year','catalogId','specs','ownership','monthlyLease','leaseTermMonths','leaseStartSeconds','purchasePrice','companyName','deliveryOrderId','requestRef','paymentRef','deliveryStatus','deliveredDay','deliveredAtSeconds','staffing']);
   const BINDING_FIELDS=Object.freeze(['routeSignature','from','to','distanceKm','tripSeconds','effectiveSpeedKmh','dwellHours','load']);
@@ -80,6 +81,8 @@
   // changes whenever rows may have moved (compaction, a restored snapshot);
   // caches compare it.
   const runtime=new WeakMap();
+  const chunkCacheRuntime=new WeakMap();
+  let chunkCacheRuntimeCounter=0;
   let epochCounter=0;
   function makeViews(buffer){return {buffer,f64:new Float64Array(buffer),u32:new Uint32Array(buffer),i32:new Int32Array(buffer),f32:new Float32Array(buffer),u8:new Uint8Array(buffer)};}
   // Intern-table free refs form an insertion-ordered stack. Chunked prev/next links make removal by ref O(1) while
@@ -105,10 +108,11 @@
   function rt(store){
     let r=runtime.get(store);
     if(!r||r.values!==store.values||r.views.buffer!==store.rows){
+      const inheritedChunkRuntime=chunkCacheRuntime.get(store),chunkRuntime=inheritedChunkRuntime??++chunkCacheRuntimeCounter;chunkCacheRuntime.delete(store);
       r={values:store.values,views:makeViews(store.rows),index:new Map(),indexedTo:0,free:newFreeStack(),ids:null,profileGroups:null,leaseGroups:null,payrollGroups:null,
         dirty:[],dirtyFrom:store.revision,dirtyLost:false,dirtyColumns:null,suppressDirtyLog:false,
         dirtyChunks:new Uint8Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),allDirty:true,journal:null,epoch:++epochCounter,valuesGeneration:++epochCounter,
-        uid:++epochCounter,valueRevision:++epochCounter,chunkVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),staticVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),identityVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),routedVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),massVersion:0,
+        uid:++epochCounter,chunkRuntime,valueRevision:++epochCounter,chunkVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),rawChunkVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),staticVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),identityVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),routedVersions:new Uint32Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS))),massVersion:0,chunkMassVersion:0,overlayVersion:0,
         replica:newReplicaLog(store.capacity),replicaSeed:null,replicaBaseline:false};
       runtime.set(store,r);
     }
@@ -175,6 +179,7 @@
     if(!r)return;const chunks=Math.max(1,Math.ceil(cap/CHUNK_ROWS));
     if(r.dirtyChunks.length<chunks){const next=new Uint8Array(chunks);next.set(r.dirtyChunks);r.dirtyChunks=next;}
     if(r.chunkVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.chunkVersions);r.chunkVersions=next;}
+    if(r.rawChunkVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.rawChunkVersions);r.rawChunkVersions=next;}
     if(r.staticVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.staticVersions);r.staticVersions=next;}
     if(r.identityVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.identityVersions);r.identityVersions=next;}
     if(r.routedVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.routedVersions);r.routedVersions=next;}
@@ -208,28 +213,38 @@
   }
   function trimCapacity(store){if(store.capacity!==store.length)resize(store,store.length);return store;}
   function isAlive(store,index){return index>=0&&index<store.length&&(views(store).u8[index*STRIDE+O.flags]&ALIVE)!==0;}
-  function markDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.staticVersions[chunk]++;r.identityVersions[chunk]++;r.routedVersions[chunk]++;}
+  function markDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.rawChunkVersions[chunk]++;r.staticVersions[chunk]++;r.identityVersions[chunk]++;r.routedVersions[chunk]++;}
+  function markOverlayDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.staticVersions[chunk]++;r.identityVersions[chunk]++;r.routedVersions[chunk]++;}
   // Build 372: the route fields (ROUTE_TIER: routeId, releaseExclusiveRouteOnArrival) written in place move
   // routedVersions, not identityVersions: an aircraft releasing its exclusive route on arrival (a million-asset fleet does
   // so in every chunk on every step) left every class table over owner, id, mode, type or class to be built again from
   // every row (the integrity check, 110-147 ms on the main thread). routedVersions move with every identityVersions move
   // too, so a table over a route field (or over any identity field with it) keys on routedVersions.
-  function markRouteDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.staticVersions[chunk]++;r.routedVersions[chunk]++;}
+  function markRouteDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.rawChunkVersions[chunk]++;r.staticVersions[chunk]++;r.routedVersions[chunk]++;}
   // Build 371: identityVersions move with every write except an in-place write of an ENGINE_FIELDS field (its column or
   // the binding group, no extras involved: set() decides), so class tables, distinct lists and the id check over fields
   // outside ENGINE_FIELDS (owner, company, mode, type, class, id, routeId) survive the arrivals and departures of a moving
   // fleet, which rewrite from/to/load and the engine fields of rows in every chunk (and so move staticVersions).
-  function markVolatileDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.staticVersions[chunk]++;}
+  function markVolatileDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.rawChunkVersions[chunk]++;r.staticVersions[chunk]++;}
   // The event engine's fast path (toucher) writes only ENGINE_FIELDS (and `at`): it leaves staticVersions alone, so
   // class tables over other fields stay valid while the fleet moves.
-  function markEngineDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;}
+  function markEngineDirty(r,index){const chunk=index>>>CHUNK_SHIFT;r.dirtyChunks[chunk]=1;r.chunkVersions[chunk]++;r.rawChunkVersions[chunk]++;}
   // Chunks with rows changed since the last persistence checkpoint.
   function dirtyChunks(store){const r=rt(store),chunks=Math.ceil(store.length/CHUNK_ROWS),out=[];for(let chunk=0;chunk<chunks;chunk++)if(r.allDirty||r.dirtyChunks[chunk])out.push(chunk);return out;}
   function clearDirtyChunks(store){const r=rt(store);r.dirtyChunks.fill(0);r.allDirty=false;}
   // Build 358: write versions per chunk for any number of independent consumers (dirtyChunks has one owner). A chunk's
-  // bytes are unchanged while (runtime, massVersion, its version) are unchanged; a new runtime (decoded or restored
-  // store, replaced values table) or a mass write (column write, column rollback, compaction) changes every chunk.
-  function chunkStamp(store){const r=rt(store);return {runtime:r.uid,mass:r.massVersion,versions:r.chunkVersions};}
+  // bytes are unchanged while (runtime, chunk mass version, its version) are unchanged. `massVersion` still invalidates
+  // read caches; save invalidation is separate so tracked sparse column writes need only hash the chunks they touched.
+  function chunkStamp(store){const r=rt(store);return {runtime:r.uid,chunkRuntime:r.chunkRuntime,mass:r.massVersion,chunkMass:r.chunkMassVersion,versions:r.chunkVersions,rawVersions:r.rawChunkVersions,overlayVersion:r.overlayVersion};}
+  // An exact transaction clone has the same persisted bytes, but a different runtime for indexes and replica ownership.
+  // Share only its save-cache generation, without constructing the target's large runtime indexes during clone.
+  function inheritChunkCacheRuntime(source,target){
+    if(!isStore(source)||!isStore(target))return null;
+    const from=runtime.get(source);if(!from)return null;
+    const targetRuntime=runtime.get(target);if(targetRuntime&&targetRuntime.values===target.values&&targetRuntime.views.buffer===target.rows)return null;
+    chunkCacheRuntime.set(target,from.chunkRuntime);
+    return {runtime:from.uid,chunkRuntime:from.chunkRuntime,mass:0,chunkMass:0,versions:[],rawVersions:[],overlayVersion:0};
+  }
 
   // --------------------------------------------------------------- journal ---
   // One journal per store per transaction (Transaction Core forbids nesting).
@@ -318,9 +333,11 @@
   }
   // First write to a row: journal its preimage (inside a transaction), bump the
   // revision, log it for incremental owners and mark its chunk dirty.
-  function remember(store,index,volatile=false){
+  function remember(store,index,volatile=false,overlayBytes=false,baseBytes=true){
     const journal=journalFor(store),r=rt(store);if(journal)logRow(journal,store,r,index);
-    store.revision++;if(journal)journal.high=store.revision;logDirty(r,index);(volatile==='route'?markRouteDirty:volatile?markVolatileDirty:markDirty)(r,index);
+    store.revision++;if(journal)journal.high=store.revision;logDirty(r,index);
+    if(overlayBytes){if(baseBytes)markDirty(r,index);else markOverlayDirty(r,index);r.overlayVersion++;}
+    else (volatile==='route'?markRouteDirty:volatile?markVolatileDirty:markDirty)(r,index);
   }
   // remember() for a hot loop: the journal is resolved once, on first use.
   function toucher(store){
@@ -337,11 +354,11 @@
   function gatherField(store,name){const [view,k]=SLOTS[name],per=PER_ROW[view],source=views(store)[view],copy=new source.constructor(store.length);for(let index=0;index<store.length;index++)copy[index]=source[index*per+k];return copy;}
   // quiet: the column change is not reported to the dirty-log owner (the event engine). Only for a write that cannot
   // change what that owner tracks (columnWriter setting presence bits of fields the engine never schedules on).
-  function rememberColumn(store,name,{quiet=false}={}){
+  function rememberColumn(store,name,{quiet=false,trackChunks=false,trackOverlay=false}={}){
     if(!own(SLOTS,name))throw new RangeError(`fleet-store-column:${name}`);
     const journal=journalFor(store),r=rt(store),effectiveQuiet=quiet||r.suppressDirtyLog,snapshot=journal?.fields.get(name);
     if(journal&&!snapshot){const prepared=journal.preparedFields?.get(name);if(prepared){journal.preparedFields.delete(name);prepared.quiet=effectiveQuiet;journal.fields.set(name,prepared);}else journal.fields.set(name,{copy:gatherField(store,name),logCount:journal.log.count,quiet:effectiveQuiet});}else if(snapshot&&!effectiveQuiet)snapshot.quiet=false;
-    r.allDirty=true;r.massVersion++;store.revision++;if(journal)journal.high=store.revision;logReplicaColumn(r,name,!effectiveQuiet);
+    r.allDirty=true;r.massVersion++;if(!trackChunks)r.chunkMassVersion++;if(trackOverlay)r.overlayVersion++;store.revision++;if(journal)journal.high=store.revision;logReplicaColumn(r,name,!effectiveQuiet);
     if(!effectiveQuiet){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(name);}
   }
   function bumpStructure(store){store.structure++;const r=runtime.get(store);if(r&&r.journal&&r.journal.active&&store.structure>r.journal.highStructure)r.journal.highStructure=store.structure;}
@@ -389,7 +406,8 @@
     // Counters only grow: a value seen during the transaction is never reused.
     if(structureChanged)store.structure++;
     store.revision++;
-    if(snaps.length){r.allDirty=true;r.massVersion++;for(const snap of snaps){const reported=!snap.quiet&&!r.suppressDirtyLog;logReplicaColumn(r,snap.name,reported);if(reported){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(snap.name);}}}
+    if(log.count)r.overlayVersion++;
+    if(snaps.length){r.allDirty=true;r.massVersion++;if(snaps.some(snap=>!SAVE_OVERLAY_FIELDS.has(snap.name)&&snap.name!=='present'))r.chunkMassVersion++;if(snaps.some(snap=>SAVE_OVERLAY_FIELDS.has(snap.name)||snap.name==='present'))r.overlayVersion++;for(const snap of snaps){const reported=!snap.quiet&&!r.suppressDirtyLog;logReplicaColumn(r,snap.name,reported);if(reported){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(snap.name);}}}
     if(idsKept){const rows=new Set();for(const [index] of journal.idOps)rows.add(index);for(const index of rows){if(isAlive(store,index)&&!idsMap(store,r,index,idAt(store,index))){r.ids=null;break;}}}
     if(valuesChanged){r.valueRevision++;r.valuesGeneration=++epochCounter;}
     endJournal(journal);
@@ -470,7 +488,10 @@
     // that moves into or out of extras, and every other field, moves them.
     const inPlace=!(extras&&own(extras,field))&&(hot?value===undefined||hotFits(hot,value):BINDING_SET.has(field));
     const volatile=IDENTITY_EXEMPT.has(field)&&inPlace?true:ROUTE_TIER.has(field)&&inPlace?'route':false;
-    remember(store,index,volatile);
+    const overlayField=SAVE_OVERLAY_FIELDS.has(field),overlayBaseBytes=overlayField&&((extras&&own(extras,field))||(hot&&value!==undefined&&!hotFits(hot,value)));
+    // Ordinary counter writes stay entirely in the compact overlay. A counter that enters or leaves extras also changes
+    // the base row's EXTRAS flag, so invalidate that base page as well.
+    remember(store,index,volatile,overlayField,!overlayField||overlayBaseBytes);
     const idBefore=field==='id'?idAt(store,index):undefined;
     if(extras&&own(extras,field))setExtra(store,index,field,undefined);
     if(hot){if(value===undefined)clearHot(store,index,field);else if(hotFits(hot,value))writeHot(store,index,field,hot,value);else{clearHot(store,index,field);setExtra(store,index,field,value);}}
@@ -489,17 +510,17 @@
   const ENGINE_SCHEDULE_FREE=new Set(['flightHours','flightCycles','nextCheckHours']);
   function columnWriter(store,fields){
     const kinds=new Map(),remembered=new Set();
-    for(const field of fields){const kind=HOT_KIND.get(field);if(kind!=='f64'&&kind!=='f32x'&&kind!=='i32')throw new RangeError(`fleet-store-column-writer:${field}`);kinds.set(field,kind);}
+    for(const field of fields){const kind=HOT_KIND.get(field);if(kind!=='f64'&&kind!=='f32x'&&kind!=='i32')throw new RangeError(`fleet-store-column-writer:${field}`);kinds.set(field,{kind,overlay:SAVE_OVERLAY_FIELDS.has(field)});}
     return (index,field,value)=>{
-      const kind=kinds.get(field);if(!kind)throw new RangeError(`fleet-store-column-writer:${field}`);
+      const meta=kinds.get(field);if(!meta)throw new RangeError(`fleet-store-column-writer:${field}`);const {kind,overlay:overlayField}=meta;
       // checkRow, extrasOf, isPresent and writeHot with the runtime resolved once (this runs for every row of a pass).
       const r=rt(store),v=r.views,flags=index>=0&&index<store.length?v.u8[index*STRIDE+O.flags]:0;if(!(flags&ALIVE))throw new RangeError(`fleet-store-row:${index}`);
       const extras=(flags&EXTRAS)&&own(store.extras,index)?store.extras[index]:null,word=index*WORDS_PER_ROW+O.present,bit=presentBit(field),present=(v.u32[word]&bit)!==0;
       if(!hotFits(kind,value)||(extras&&own(extras,field))||(!present&&!ENGINE_SCHEDULE_FREE.has(field))){set(store,index,field,value);return;}
-      if(!present&&!remembered.has('present')){rememberColumn(store,'present',{quiet:true});remembered.add('present');}
-      if(!remembered.has(field)){rememberColumn(store,field);remembered.add(field);}
+      if(!present&&!remembered.has('present')){rememberColumn(store,'present',{quiet:true,trackChunks:true,trackOverlay:overlayField});remembered.add('present');}
+      if(!remembered.has(field)){rememberColumn(store,field,{trackChunks:true,trackOverlay:overlayField});remembered.add(field);}
       if(!present)v.u32[word]|=bit;
-      const journal=journalFor(store);store.revision++;if(journal)journal.high=store.revision;markDirty(r,index);
+      const journal=journalFor(store);store.revision++;if(journal)journal.high=store.revision;if(overlayField)markOverlayDirty(r,index);else markDirty(r,index);
       if(kind==='f64')v.f64[index*F64_PER_ROW+O[field]]=value;else if(kind==='f32x')v.f32[index*WORDS_PER_ROW+O[field]]=value;else v.i32[index*WORDS_PER_ROW+O[field]]=value===null?I32_NULL:value;
     };
   }
@@ -654,13 +675,15 @@
   // of the whole store being copied when the thread first runs. The seed is the store as decoded (the replica log starts
   // empty here, so every later write is in it); values and extras are copied as of now. takeReplicaSeed hands it over
   // once, only to the runtime it was taken on.
-  function setReplicaSeed(store,{chunks,chunkBytes,byteLength}={}){
+  function setReplicaSeed(store,{chunks,chunkBytes,byteLength,overlays=null,presenceMask=null}={}){
     // The vault holds the record buffer as saved (its capacity, at least the store's rows); the replica takes its rows.
     if(!Array.isArray(chunks)||!Number.isSafeInteger(chunkBytes)||chunkBytes<=0||!Number.isSafeInteger(byteLength)||byteLength%STRIDE!==0||byteLength<store.length*STRIDE||chunks.length!==Math.ceil(byteLength/chunkBytes))return false;
     for(let index=0;index<chunks.length;index++){const chunk=chunks[index],size=Math.min(chunkBytes,byteLength-index*chunkBytes);if(!(chunk instanceof ArrayBuffer)||chunk.byteLength!==size)return false;}
+    const overlayMask=(HOT_BIT.flightHours|HOT_BIT.flightCycles|HOT_BIT.nextCheckHours)>>>0;
+    if(overlays!==null&&(!Array.isArray(overlays)||overlays.length!==chunks.length||presenceMask!==overlayMask||chunkBytes%STRIDE!==0||overlays.some((page,index)=>!(page instanceof ArrayBuffer)||page.byteLength!==Math.min(chunkBytes,byteLength-index*chunkBytes)/STRIDE*13)))return false;
     const r=rt(store);if(r.replicaBaseline||r.replicaSeed||r.replica.trackValues||r.replica.disabled||r.journal&&r.journal.active)return false;
     r.replica=newReplicaLog(store.capacity);r.replica.trackValues=true;r.replicaBaseline=true;
-    r.replicaSeed={runtime:r.uid,chunks,chunkBytes,byteLength,length:store.length,live:store.live,structure:store.structure,revision:store.revision,values:store.values.map(value=>value===undefined?null:value),extras:{...store.extras}};
+    r.replicaSeed={runtime:r.uid,chunks,chunkBytes,byteLength,overlays,presenceMask:overlays===null?null:presenceMask,length:store.length,live:store.live,structure:store.structure,revision:store.revision,values:store.values.map(value=>value===undefined?null:value),extras:{...store.extras}};
     return true;
   }
   function hasReplicaSeed(store){const r=runtime.get(store);return !!r&&!!r.replicaSeed&&r.replicaSeed.runtime===r.uid;}
@@ -695,13 +718,13 @@
       if(lo<list.length&&list[lo]===index)continue;extras[index-lo]=store.extras[key];
     }
     store.extras=extras;store.length=write;store.live=write;store.structure++;store.revision++;
-    const r=rt(store);r.allDirty=true;r.massVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);
+    const r=rt(store);r.allDirty=true;r.massVersion++;r.chunkMassVersion++;r.overlayVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);
   }
   // Replica side: rows appended inside a transaction the main thread rolled back leave, as rollbackJournal removes them.
   function truncateReplica(store,length){
     if(!(length>=0&&length<=store.length))throw new Error('fleet-replica-truncate-invalid');
     const u8=views(store).u8;for(let index=length;index<store.length;index++){delete store.extras[index];u8[index*STRIDE+O.flags]=0;}
-    store.length=length;bumpEpoch(store);
+    store.length=length;const r=rt(store);r.chunkMassVersion++;r.overlayVersion++;bumpEpoch(store);
   }
   // The owner of the dirty log runs `fn` writing rows it tracks itself (the
   // event engine). When the log was fully drained before, it stays in sync.
@@ -751,14 +774,14 @@
   }
   function add(store,asset,{at=0}={}){
     if(!isObject(asset))throw new TypeError('fleet-store-asset-object-required');
-    const index=store.length;ensureCapacity(store,index+1);remember(store,index);store.length=index+1;store.live++;bumpStructure(store);
+    const index=store.length;ensureCapacity(store,index+1);remember(store,index,false,true,true);store.length=index+1;store.live++;bumpStructure(store);
     ingestRow(store,index,asset,at);idsMove(store,index,undefined,idAt(store,index));return index;
   }
   // Replace one row with a whole asset object (every field rewritten, like
   // assigning a fresh object at the same position).
   function replace(store,index,asset,{at=0}={}){
     checkRow(store,index);if(!isObject(asset))throw new TypeError('fleet-store-asset-object-required');
-    const previousId=idAt(store,index);remember(store,index);ingestRow(store,index,asset,at);
+    const previousId=idAt(store,index);remember(store,index,false,true,true);ingestRow(store,index,asset,at);
     const nextId=idAt(store,index);if(nextId!==previousId){bumpStructure(store);idsMove(store,index,previousId,nextId);}return index;
   }
   // Removal marks rows dead (O(1) each, rows never move). Iteration skips dead
@@ -1146,7 +1169,7 @@
       }
     }
     log.columnPlan=null;log.compactions.push({dead:Int32Array.from(dead),length});log.rowsVersion++;log.any=true;
-    r.allDirty=true;r.massVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);return {removed,length:write};
+    r.allDirty=true;r.massVersion++;r.chunkMassVersion++;r.overlayVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);return {removed,length:write};
   }
   // Build a compacted record buffer in bounded read-only slices, then publish it in one constant-time swap. Until the
   // swap the live store, extras and replica log are untouched. Any row write or replica-log drain while the builder is
@@ -1184,7 +1207,7 @@
     if(write!==live||deadCount!==dead.length)throw new Error('fleet-store-compact-live-count');
     store.rows=targetBuffer;store.capacity=targetCapacity;store.extras=nextExtras;store.length=write;store.live=write;store.structure++;store.revision++;
     r.views=makeViews(targetBuffer);replica.bits=nextBits;replica.chunks=nextChunks;replica.columnPlan=null;replica.compactions.push({dead,length});replica.rowsVersion++;replica.any=true;
-    r.allDirty=true;r.massVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);
+    r.allDirty=true;r.massVersion++;r.chunkMassVersion++;r.overlayVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);
     return {stale:false,removed:dead.length,length:write};
   }
   // Reclaim interned values no live row references (mark and sweep) onto the
@@ -1344,7 +1367,7 @@
       if(source.length!==length)throw new Error('fleet-replica-columns-invalid');
       for(let index=0;index<length;index++)target[index*per+k]=source[index];
     }
-    const r=rt(store);r.allDirty=true;r.massVersion++;store.revision++;invalidateProfiles(store);
+    const r=rt(store);r.allDirty=true;r.massVersion++;r.chunkMassVersion++;if(columns.some(([name])=>SAVE_OVERLAY_FIELDS.has(name)||name==='present'))r.overlayVersion++;store.revision++;invalidateProfiles(store);
     const loud=new Set(reported),journal=r.journal&&r.journal.active?r.journal:null;for(const [name] of columns)if(loud.has(name)){const snapshot=journal?.fields.get(name);if(snapshot)snapshot.quiet=false;if(!r.suppressDirtyLog){if(!r.dirtyColumns)r.dirtyColumns=new Set();r.dirtyColumns.add(name);}}
   }
   // Copies of whole records and their extras, for the rows listed (to send to the other side).
@@ -1395,7 +1418,7 @@
 
   const API=Object.freeze({VERSION,SCHEMA,CHUNK_SHIFT,CHUNK_ROWS,ALIVE,EXTRAS,I32_NULL,PROFILE_FIELDS,BINDING_FIELDS,HOT_FIELDS,HOT_BIT,STRIDE,F64_PER_ROW,WORDS_PER_ROW,SLOTS,SLOT_NAMES,O,
     create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
-    views,slot,setSlot,columnWriter,columnPlanStages,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
+    views,slot,setSlot,columnWriter,columnPlanStages,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
     // Fields whose in-place writes leave identityVersions alone (engine, carried seconds, route tier): a per-chunk table
     // keyed on identityVersions must not read them (GH_FLEET_SAVE_VALIDATION's static checks verify this).
     IDENTITY_TIER_EXEMPT:Object.freeze([...IDENTITY_EXEMPT,...ROUTE_TIER])});

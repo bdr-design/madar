@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 425,
+  "minimum_acceptance_gates": 428,
   "required_commands": [
     [
       "node",
@@ -1700,6 +1700,18 @@
     [
       "node",
       "tests/build362-company-dock-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build397-management-flow-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build398-asset-market-metrics-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build399-bank-prudential-summary-layout-browser.cjs"
     ]
   ]
 }

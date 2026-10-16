@@ -59,7 +59,7 @@ const rowsOf=json=>JSON.parse(json).fleet.rows;
     resetLog();const out=P.commitState(state,{storageKey:key});assert.equal(out.ok,true,out.reason);await out.native;
     const order=vault.messages.map(m=>m.action),commitAt=order.indexOf('commitSave');
     assert(commitAt>0&&order.slice(0,commitAt).every(a=>a==='storeSaveChunk'),`uploads precede the commit: ${order.join(',')}`);
-    const json=vault.saves.at(-1),rows=rowsOf(json);assert.equal(rows.$ghBinary,'chunks-v1');assert.equal(rows.chunks.length,Math.ceil(state.fleet.rows.byteLength/(STORE.CHUNK_ROWS*STORE.STRIDE)));
+    const json=vault.saves.at(-1),rows=rowsOf(json);assert.equal(rows.$ghBinary,'chunks-v1');assert.equal(rows.chunks.length,2*Math.ceil(state.fleet.rows.byteLength/(STORE.CHUNK_ROWS*STORE.STRIDE)));
     assert(!json.includes('"base64"'),'no base64 rows in the native save');assert.equal(s.localStorage.getItem(key),null,'a chunked save is never mirrored');
     return {chunks:rows.chunks.length,saveBytes:json.length,uploaded:uploads().length};
   });
@@ -67,6 +67,62 @@ const rowsOf=json=>JSON.parse(json).fleet.rows;
     resetLog();await P.commitState(state,{storageKey:key}).native;assert.equal(uploads().length,0);
     resetLog();TX.execute(state,{label:'one-row',scope:['fleet'],apply:()=>STORE.set(state.fleet,STORE.CHUNK_ROWS+5,'fuel',33.5)});await P.commitState(state,{storageKey:key}).native;
     assert.equal(uploads().length,1);return {uploaded:uploads().length};
+  });
+  await test('durable fleet clones and publication reuse unchanged chunk identities',async()=>{
+    const beforeRevision=Number(state.saveRevision)||0,firstIds=rowsOf(vault.saves.at(-1)).chunks.slice(),checksumBytesBefore=CODEC.cacheStats().chunks.checksumBytes;
+    let draft=TX.deepClone(state);draft.saveRevision=beforeRevision+1;resetLog();
+    await P.commitDurableState(draft,{storageKey:key,expectedPreviousRevision:beforeRevision,prevalidated:true});
+    assert.equal(uploads().length,0,'an unchanged durable clone must not upload fleet bytes');
+    assert.deepEqual(rowsOf(vault.saves.at(-1)).chunks,firstIds,'an unchanged clone keeps every committed id');
+    const unchangedChecksumBytes=CODEC.cacheStats().chunks.checksumBytes-checksumBytesBefore;
+    assert(unchangedChecksumBytes<=STORE.CHUNK_ROWS*STORE.STRIDE+(STORE.CHUNK_ROWS*13),'an unchanged clone checks one base chunk and its compact overlay page');
+    TX.publishObject(state,draft);
+
+    const priorRevision=Number(state.saveRevision)||0,priorIds=rowsOf(vault.saves.at(-1)).chunks.slice();
+    draft=TX.deepClone(state);draft.saveRevision=priorRevision+1;
+    TX.execute(draft,{label:'durable-clone-one-row',scope:['fleet'],apply:()=>STORE.set(draft.fleet,STORE.CHUNK_ROWS+10,'fuel',12.5)});
+    resetLog();await P.commitDurableState(draft,{storageKey:key,expectedPreviousRevision:priorRevision,prevalidated:true});
+    const saved=vault.saves.at(-1),nextIds=rowsOf(saved).chunks,changed=nextIds.filter((id,index)=>id!==priorIds[index]);
+    assert.equal(changed.length,1,'one changed row replaces only its fleet chunk');
+    assert.deepEqual(uploads().map(row=>row.id),changed,'only the changed chunk is transferred');
+    const loaded=CODEC.deserialize(saved,{resolveChunk:id=>vault.chunks.get(id)});
+    assert.deepEqual(new Uint8Array(loaded.fleet.rows),new Uint8Array(draft.fleet.rows),'the committed snapshot rebuilds exactly');
+    TX.publishObject(state,draft);
+
+    const preCloneRevision=Number(state.saveRevision)||0,preCloneIds=rowsOf(vault.saves.at(-1)).chunks.slice();
+    TX.execute(state,{label:'dirty-before-durable-clone',scope:['fleet'],apply:()=>{const prior=Number(STORE.get(state.fleet,9,'fuel')||0);STORE.set(state.fleet,9,'fuel',prior===75?74:75);}});
+    draft=TX.deepClone(state);draft.saveRevision=preCloneRevision+1;resetLog();
+    await P.commitDurableState(draft,{storageKey:key,expectedPreviousRevision:preCloneRevision,prevalidated:true});
+    const preCloneSave=vault.saves.at(-1),preCloneNext=rowsOf(preCloneSave).chunks,preCloneChanged=preCloneNext.filter((id,index)=>id!==preCloneIds[index]);
+    assert.equal(preCloneChanged.length,1,'a dirty source page is rechecked when cloning a durable draft');
+    assert.deepEqual(uploads().map(row=>row.id),preCloneChanged,'the dirty source page uploads before its durable commit');
+    assert.deepEqual(new Uint8Array(CODEC.deserialize(preCloneSave,{resolveChunk:id=>vault.chunks.get(id)}).fleet.rows),new Uint8Array(draft.fleet.rows),'pre-clone writes are included byte-for-byte');
+    TX.publishObject(state,draft);
+
+    const publishedRevision=Number(state.saveRevision)||0,afterPublish=TX.deepClone(state);afterPublish.saveRevision=publishedRevision+1;resetLog();
+    await P.commitDurableState(afterPublish,{storageKey:key,expectedPreviousRevision:publishedRevision,prevalidated:true});
+    assert.equal(uploads().length,0,'publication carries the new chunk baseline into the live state');
+    return {chunks:nextIds.length,changed:changed.length,unchangedChecksumBytes,publishedUploads:uploads().length};
+  });
+  await test('a full day-close uploads only counter overlays and rollback cannot publish them',async()=>{
+    const prior=rowsOf(vault.saves.at(-1)),before=new Map(prior.baseChunks.map((id,index)=>[index,id])),write=STORE.columnWriter(state.fleet,['flightHours','flightCycles','nextCheckHours']);
+    TX.execute(state,{label:'native-day-close-overlay',scope:['fleet'],apply:()=>{
+      for(let row=0;row<state.fleet.length;row++){
+        write(row,'flightHours',Number(STORE.get(state.fleet,row,'flightHours')||0)+4);
+        write(row,'flightCycles',Number(STORE.get(state.fleet,row,'flightCycles')||0)+1);
+        write(row,'nextCheckHours',Number(STORE.get(state.fleet,row,'nextCheckHours')||600)+4);
+      }
+    }});
+    resetLog();await P.commitState(state,{storageKey:key}).native;
+    const saved=rowsOf(vault.saves.at(-1)),sent=uploads(),expectedBytes=state.fleet.rows.byteLength/STORE.STRIDE*13,pageIndexes=new Map(saved.overlay.chunks.map((id,index)=>[id,index]));
+    assert(sent.length>0&&sent.every(row=>{const index=pageIndexes.get(row.id);return Number.isInteger(index)&&row.bytes===Math.min(STORE.CHUNK_ROWS*13,expectedBytes-index*STORE.CHUNK_ROWS*13);}), 'only compact overlay pages cross the bridge');
+    assert.equal(sent.reduce((sum,row)=>sum+row.bytes,0),expectedBytes,'three day counters encode to 13 bytes per capacity row');
+    assert(saved.baseChunks.every((id,index)=>before.get(index)===id),'day close reuses all 4 MiB base chunk IDs');
+    const reopened=CODEC.deserialize(vault.saves.at(-1),{resolveChunk:id=>vault.chunks.get(id)});
+    assert.deepEqual(new Uint8Array(reopened.fleet.rows),new Uint8Array(state.fleet.rows),'overlay restore is byte-exact');
+    resetLog();assert.throws(()=>TX.execute(state,{label:'native-day-close-rollback',scope:['fleet'],apply:()=>{write(0,'flightHours',999);throw new Error('rollback');}}),/rollback/);
+    await P.commitState(state,{storageKey:key}).native;assert.equal(uploads().length,0,'rolled-back counters never create a durable upload');
+    return {rows:state.fleet.length,overlayBytes:expectedBytes,uploadedPages:sent.length};
   });
   await test('cold finance history uploads as immutable bytes and stays out of the save JSON',async()=>{
     const archived=[{id:'OLD-AUDIT-1',number:'INV-OLD-1',at:1,amount:125.5,note:'cold-native-audit-row'}],page=CODEC.createColdArchivePage('invoices',archived,{firstAt:1,lastAt:1,createdAtSim:state.simSeconds});

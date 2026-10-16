@@ -148,18 +148,49 @@
   // per 4 MiB store chunk; options.resolveChunk(id) returns that chunk's bytes (the native vault serves them), so the
   // decoded buffer is assembled from memory. Every length is checked; a missing or short chunk is a corrupt save.
   const CHUNK_ID=/^[A-Za-z0-9._-]{1,160}$/;
+  // Build 397: the daily flight counters change across the fleet at day close. Native saves keep their row chunks
+  // immutable and store the three f32 words plus their presence bits in one compact page per row chunk. Version 1 is
+  // deliberately tied to Fleet Store v3's fixed 128-byte records; older chunks-v1 saves remain valid as-is.
+  const FLEET_ROW_STRIDE=128,FLEET_OVERLAY_WORDS=Object.freeze([27,28,29]),FLEET_PRESENT_WORD=12,FLEET_OVERLAY_BYTES_PER_ROW=13;
+  const FLEET_OVERLAY_FIELDS=Object.freeze(['flightHours','flightCycles','nextCheckHours']);
+  const FLEET_OVERLAY_PRESENT_MASK=((1<<18)|(1<<19)|(1<<20))>>>0;
+  function fleetOverlayLayout(){
+    const STORE=globalThis.GH_FLEET_STORE;
+    if(STORE&&(STORE.STRIDE!==FLEET_ROW_STRIDE||FLEET_OVERLAY_FIELDS.some((name,index)=>STORE.O?.[name]!==FLEET_OVERLAY_WORDS[index])||STORE.O?.present!==FLEET_PRESENT_WORD||FLEET_OVERLAY_FIELDS.some(name=>STORE.HOT_BIT?.[name]===undefined)||FLEET_OVERLAY_FIELDS.reduce((mask,name)=>mask|STORE.HOT_BIT[name],0)!==FLEET_OVERLAY_PRESENT_MASK))throw new Error('state-codec-fleet-overlay-layout');
+    return {stride:FLEET_ROW_STRIDE,words:FLEET_OVERLAY_WORDS,presentWord:FLEET_PRESENT_WORD,presentMask:FLEET_OVERLAY_PRESENT_MASK};
+  }
+  function chunkBytesForId(id,options,meta,length,reason){
+    let data;try{data=options.resolveChunk(id,meta);}catch{throw corrupt(reason);}
+    const view=ArrayBuffer.isView(data)?new Uint8Array(data.buffer,data.byteOffset,data.byteLength):isArrayBuffer(data)?new Uint8Array(data):null;
+    if(!view)throw corrupt(reason);if(view.length!==length)throw corrupt('binary-chunk-length');return view;
+  }
   function chunkedBuffer(marker,options={}){
-    const {byteLength,chunkBytes,chunks}=marker;
-    if(!Number.isSafeInteger(byteLength)||byteLength<0||byteLength>536870912||!Number.isSafeInteger(chunkBytes)||chunkBytes<=0||!Array.isArray(chunks)||chunks.length!==Math.ceil(byteLength/chunkBytes)||chunks.some(id=>typeof id!=='string'||!CHUNK_ID.test(id)))throw corrupt('binary-chunks');
+    const {byteLength,chunkBytes,chunks}=marker,overlay=marker.overlay;
+    if(!Number.isSafeInteger(byteLength)||byteLength<0||byteLength>536870912||!Number.isSafeInteger(chunkBytes)||chunkBytes<=0||!Array.isArray(chunks))throw corrupt('binary-chunks');
     if(typeof options.resolveChunk!=='function')throw corrupt('binary-chunks-unresolved');
-    const buffer=new ArrayBuffer(byteLength),bytes=new Uint8Array(buffer);
-    for(let index=0;index<chunks.length;index++){
-      const start=index*chunkBytes,length=Math.min(chunkBytes,byteLength-start);let data;
-      try{data=options.resolveChunk(chunks[index],{index,byteOffset:start,byteLength:length});}catch{throw corrupt('binary-chunk-missing');}
-      // ArrayBuffer.isView / toString work across realms (a chunk may come from another context).
-      const view=ArrayBuffer.isView(data)?new Uint8Array(data.buffer,data.byteOffset,data.byteLength):isArrayBuffer(data)?new Uint8Array(data):null;
-      if(!view)throw corrupt('binary-chunk-missing');if(view.length!==length)throw corrupt('binary-chunk-length');
-      bytes.set(view,start);
+    const buffer=new ArrayBuffer(byteLength),bytes=new Uint8Array(buffer),count=Math.ceil(byteLength/chunkBytes);
+    if(overlay===undefined){
+      if(chunks.length!==count||chunks.some(id=>typeof id!=='string'||!CHUNK_ID.test(id)))throw corrupt('binary-chunks');
+      for(let index=0;index<count;index++){
+        const start=index*chunkBytes,length=Math.min(chunkBytes,byteLength-start),view=chunkBytesForId(chunks[index],options,{index,byteOffset:start,byteLength:length},length,'binary-chunk-missing');bytes.set(view,start);
+      }
+      return buffer;
+    }
+    const layout=fleetOverlayLayout(),baseChunks=marker.baseChunks,overlayChunks=overlay.chunks;
+    if(overlay.version!==1||byteLength%layout.stride!==0||chunkBytes%layout.stride!==0||!Array.isArray(baseChunks)||baseChunks.length!==count||!Array.isArray(overlayChunks)||overlayChunks.length!==count||!Array.isArray(marker.baseNormalized)||marker.baseNormalized.length!==count||marker.baseNormalized.some(value=>typeof value!=='boolean')||overlay.fields?.length!==FLEET_OVERLAY_FIELDS.length||FLEET_OVERLAY_FIELDS.some((name,index)=>overlay.fields[index]!==name)||overlay.presentMask!==layout.presentMask||chunks.length!==count*2)throw corrupt('binary-overlay');
+    const all=[...baseChunks,...overlayChunks];if(all.some(id=>typeof id!=='string'||!CHUNK_ID.test(id))||new Set(all).size!==all.length||chunks.some((id,index)=>id!==all[index]))throw corrupt('binary-overlay-chunks');
+    for(let index=0;index<count;index++){
+      const start=index*chunkBytes,length=Math.min(chunkBytes,byteLength-start),base=chunkBytesForId(baseChunks[index],options,{kind:'fleet-base-v1',index,byteOffset:start,byteLength:length},length,'binary-chunk-missing');bytes.set(base,start);
+    }
+    const rowView=new DataView(buffer);
+    for(let index=0;index<count;index++){
+      const start=index*chunkBytes,length=Math.min(chunkBytes,byteLength-start),rows=length/layout.stride,pageLength=rows*FLEET_OVERLAY_BYTES_PER_ROW,page=chunkBytesForId(overlayChunks[index],options,{kind:'fleet-overlay-v1',index,byteOffset:start,byteLength:pageLength},pageLength,'binary-chunk-missing');
+      const pageView=new DataView(page.buffer,page.byteOffset,page.byteLength);
+      for(let row=0;row<rows;row++){
+        const rowAt=start+row*layout.stride,pageAt=row*FLEET_OVERLAY_BYTES_PER_ROW;
+        for(let field=0;field<layout.words.length;field++)rowView.setUint32(rowAt+layout.words[field]*4,pageView.getUint32(pageAt+field*4,true),true);
+        const presentAt=rowAt+layout.presentWord*4,prior=rowView.getUint32(presentAt,true),packed=page[pageAt+12];if(packed>7)throw corrupt('binary-overlay-presence');const bits=(packed<<18)&layout.presentMask;rowView.setUint32(presentAt,(prior&~layout.presentMask)|bits,true);
+      }
     }
     return buffer;
   }
@@ -729,76 +760,154 @@
   }
   function deserialize(json,options={}){return decodeState(JSON.parse(json),options);}
   // Build 358 (million-asset save): the save text with the record buffer as a 'chunks-v1' manifest. A chunk keeps its
-  // id while its GH_FLEET_STORE.chunkStamp key (runtime, mass version, chunk version, length) is unchanged; a changed
-  // chunk gets a fresh id `${session nonce}.${salt}.${sequence}`, unique without hashing (the vault hashes on receipt).
-  // A store decoded from a chunked save adopts the ids it was read from (adoptChunkIds), so a fresh session uploads
-  // only what it changes. Returns {text, chunks:[{id,index,byteOffset,byteLength}]}: every chunk of this save; the
-  // caller uploads the ones the vault has not acknowledged. A checksum per id is kept and one reused chunk is
-  // re-checked per save in rotation; a mismatch (a write that bypassed the store) renames every chunk (new salt), so
-  // stale bytes are never referenced. Everything except fleet.rows is exactly serialize()'s text.
+  // id while its GH_FLEET_STORE.chunkStamp key (save generation, broad save version, chunk version, length) is unchanged.
+  // If a broad stamp changes, checksums retain ids for chunks whose bytes stayed equal and issue new ids only for changed
+  // bytes. A store decoded from a chunked save adopts its ids (adoptChunkIds), so a fresh session uploads only what
+  // changed. Returns
+  // {text, chunks:[{id,index,byteOffset,byteLength}]}: every chunk of this save; the caller uploads the ones the vault
+  // has not acknowledged. One reused chunk is re-checked per save in rotation; a mismatch (a write that bypassed the
+  // store) renames every chunk (new salt), so stale bytes are never referenced. Everything except fleet.rows is exactly
+  // serialize()'s text.
   const chunkIdCache=new WeakMap();let chunkSalt=0,chunkSequence=0,chunkCacheStats={reused:0,named:0,adopted:0,verified:0,mismatches:0,checksumCalls:0,checksumBytes:0,base64Calls:0};
   function chunkChecksum(bytes){chunkCacheStats.checksumCalls++;chunkCacheStats.checksumBytes+=bytes.byteLength;const words=new Uint32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength>>>2);let a=0x811c9dc5|0,b=0x01000193|0;const imul=Math.imul;for(let i=0;i<words.length;i++){a=imul(a^words[i],0x01000193);b=(b+a)|0;}for(let i=words.length*4;i<bytes.length;i++){a=imul(a^bytes[i],0x01000193);b=(b+a)|0;}return `${(a>>>0).toString(36)}.${(b>>>0).toString(36)}`;}
-  function chunkGeometry(store){const STORE=globalThis.GH_FLEET_STORE;if(typeof STORE?.chunkStamp!=='function'||STORE.isStore?.(store)!==true)throw new Error('state-codec-chunks-need-store');const chunkBytes=STORE.CHUNK_ROWS*STORE.STRIDE,bytes=new Uint8Array(store.rows);return {STORE,chunkBytes,bytes,count:Math.ceil(bytes.length/chunkBytes)};}
-  function chunkKey(stamp,index,length){return `${stamp.runtime}.${stamp.mass}.${stamp.versions[index]??0}.${length}`;}
+  function chunkGeometry(store){const STORE=globalThis.GH_FLEET_STORE;if(typeof STORE?.chunkStamp!=='function'||STORE.isStore?.(store)!==true)throw new Error('state-codec-chunks-need-store');const layout=fleetOverlayLayout(),chunkBytes=STORE.CHUNK_ROWS*STORE.STRIDE,bytes=new Uint8Array(store.rows);return {STORE,layout,chunkBytes,bytes,count:Math.ceil(bytes.length/chunkBytes)};}
+  function baseChunkKey(stamp,index,length){return `${stamp.chunkRuntime??stamp.runtime}.${stamp.chunkMass??stamp.mass}.${stamp.rawVersions?.[index]??stamp.versions[index]??0}.${length}`;}
+  function overlayChunkKey(stamp,index,length){return `${stamp.chunkRuntime??stamp.runtime}.${stamp.overlayVersion??0}.${length}`;}
+  function newChunkEntry(){return {baseKeys:[],baseIds:[],baseSums:[],baseNormalized:[],overlayKeys:[],overlayIds:[],overlaySums:[],rotation:0};}
+  function maskedBaseBytes(source,start,length,layout){
+    const out=source.subarray(start,start+length).slice(),words=new Uint32Array(out.buffer,out.byteOffset,out.byteLength>>>2),strideWords=layout.stride>>>2,mask=layout.presentMask;
+    for(let row=0;row<out.byteLength/layout.stride;row++){const at=row*strideWords;for(const word of layout.words)words[at+word]=0;words[at+layout.presentWord]&=~mask;}
+    return out;
+  }
+  // Cache adoption needs the same checksum as a normalized base page, but the page is already in the loaded row buffer.
+  // Hash it in place while treating only the three counter words and their presence bits as zero; do not allocate and
+  // copy the full 128 MiB fleet merely to initialize cache metadata at load.
+  function maskedBaseChecksum(source,start,length,layout){
+    chunkCacheStats.checksumCalls++;chunkCacheStats.checksumBytes+=length;
+    const words=new Uint32Array(source.buffer,source.byteOffset+start,length>>>2),strideWords=layout.stride>>>2,word0=layout.words[0],word1=layout.words[1],word2=layout.words[2],present=layout.presentWord,mask=layout.presentMask,imul=Math.imul;
+    let a=0x811c9dc5|0,b=0x01000193|0;
+    for(let index=0;index<words.length;index++){
+      const slot=index&(strideWords-1),word=slot===word0||slot===word1||slot===word2?0:slot===present?words[index]&~mask:words[index];
+      a=imul(a^word,0x01000193);b=(b+a)|0;
+    }
+    return `${(a>>>0).toString(36)}.${(b>>>0).toString(36)}`;
+  }
+  function overlayPageBytes(source,start,length,layout){
+    const rowCount=length/layout.stride,out=new Uint8Array(rowCount*FLEET_OVERLAY_BYTES_PER_ROW),outView=new DataView(out.buffer),srcView=new DataView(source.buffer,source.byteOffset+start,length);
+    for(let row=0;row<rowCount;row++){
+      const rowAt=row*layout.stride,pageAt=row*FLEET_OVERLAY_BYTES_PER_ROW;
+      for(let field=0;field<layout.words.length;field++)outView.setUint32(pageAt+field*4,srcView.getUint32(rowAt+layout.words[field]*4,true),true);
+      out[pageAt+12]=(srcView.getUint32(rowAt+layout.presentWord*4,true)&layout.presentMask)>>>18;
+    }
+    return out;
+  }
+  function overlayMarkerParts(marker,count){
+    const layout=fleetOverlayLayout();
+    if(!isPlain(marker)||marker.$ghBinary!=='chunks-v1'||!Array.isArray(marker.chunks))return null;
+    if(marker.overlay===undefined){if(marker.chunks.length!==count)return null;return {baseChunks:marker.chunks,overlayChunks:[],baseNormalized:new Array(count).fill(false)};}
+    const overlay=marker.overlay,baseChunks=marker.baseChunks,overlayChunks=overlay?.chunks,normalized=marker.baseNormalized;
+    if(overlay?.version!==1||marker.byteLength%layout.stride!==0||marker.chunkBytes%layout.stride!==0||!Array.isArray(baseChunks)||baseChunks.length!==count||!Array.isArray(overlayChunks)||overlayChunks.length!==count||!Array.isArray(normalized)||normalized.length!==count||normalized.some(value=>typeof value!=='boolean')||overlay.fields?.length!==FLEET_OVERLAY_FIELDS.length||FLEET_OVERLAY_FIELDS.some((name,index)=>overlay.fields[index]!==name)||overlay.presentMask!==layout.presentMask||marker.chunks.length!==count*2)return null;
+    const all=[...baseChunks,...overlayChunks];if(all.some(id=>typeof id!=='string'||!CHUNK_ID.test(id))||new Set(all).size!==all.length||marker.chunks.some((id,index)=>id!==all[index]))return null;
+    return {baseChunks,overlayChunks,baseNormalized:normalized};
+  }
+  // A loaded old row chunk may still contain historical counter values. They are normalized only when rewritten; the
+  // overlay always replaces these words on decode. This lets an old save migrate without re-uploading its 128 MiB base.
   function adoptChunkIds(store,marker){
     if(!isPlain(marker)||marker.$ghBinary!=='chunks-v1'||!Array.isArray(marker.chunks))return false;
-    const {STORE,chunkBytes,bytes,count}=chunkGeometry(store);if(marker.chunkBytes!==chunkBytes||marker.chunks.length!==count||marker.byteLength!==bytes.length)return false;
-    const stamp=STORE.chunkStamp(store),entry={keys:[],ids:[],sums:[],rotation:0};
-    for(let index=0;index<count;index++){const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start);entry.keys[index]=chunkKey(stamp,index,length);entry.ids[index]=marker.chunks[index];entry.sums[index]=chunkChecksum(bytes.subarray(start,start+length));}
-    chunkIdCache.set(store,entry);chunkCacheStats.adopted+=count;return true;
+    const {STORE,layout,chunkBytes,bytes,count}=chunkGeometry(store);if(marker.chunkBytes!==chunkBytes||marker.byteLength!==bytes.length)return false;
+    const parts=overlayMarkerParts(marker,count);if(!parts)return false;
+    const stamp=STORE.chunkStamp(store),entry=newChunkEntry();
+    for(let index=0;index<count;index++){
+      const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),page=overlayPageBytes(bytes,start,length,layout);
+      entry.baseKeys[index]=baseChunkKey(stamp,index,length);entry.baseIds[index]=parts.baseChunks[index];entry.baseSums[index]=maskedBaseChecksum(bytes,start,length,layout);entry.baseNormalized[index]=parts.baseNormalized[index];
+      entry.overlayKeys[index]=overlayChunkKey(stamp,index,page.byteLength);entry.overlayIds[index]=parts.overlayChunks[index]||null;entry.overlaySums[index]=parts.overlayChunks[index]?chunkChecksum(page):null;
+    }
+    entry.rotation=0;chunkIdCache.set(store,entry);chunkCacheStats.adopted+=parts.baseChunks.length+parts.overlayChunks.length;return true;
+  }
+  // Transaction drafts and publications copy the fleet record buffer but have new store runtimes. Carry both immutable
+  // page identities across that exact copy without initializing its large runtime indexes.
+  function inheritFleetChunkCache(source,target){
+    const STORE=globalThis.GH_FLEET_STORE;if(!STORE?.isStore?.(source)||!STORE?.isStore?.(target))return false;
+    const prior=chunkIdCache.get(source);if(!prior)return false;
+    const from=chunkGeometry(source),to=chunkGeometry(target);
+    if(from.chunkBytes!==to.chunkBytes||from.bytes.length!==to.bytes.length||from.count!==to.count||prior.baseIds.length!==to.count||prior.overlayIds.length!==to.count||prior.baseSums.length!==to.count||prior.overlaySums.length!==to.count)return false;
+    const sourceStamp=STORE.chunkStamp(source),stamp=STORE.inheritChunkCacheRuntime?.(source,target);if(!stamp)return false;
+    const entry=newChunkEntry();entry.baseIds=prior.baseIds.slice();entry.baseSums=prior.baseSums.slice();entry.baseNormalized=prior.baseNormalized.slice();entry.overlayIds=prior.overlayIds.slice();entry.overlaySums=prior.overlaySums.slice();entry.rotation=Number(prior.rotation)||0;
+    for(let index=0;index<to.count;index++){
+      const length=Math.min(to.chunkBytes,to.bytes.length-index*to.chunkBytes),pageLength=length/to.layout.stride*FLEET_OVERLAY_BYTES_PER_ROW;
+      if(typeof entry.baseIds[index]!=='string'||typeof entry.baseSums[index]!=='string'||typeof entry.baseNormalized[index]!=='boolean'||(entry.overlayIds[index]!==null&&typeof entry.overlayIds[index]!=='string'))return false;
+      // A transaction may clone a live fleet after it has changed since the last acknowledged save. Only carry a
+      // clean identity stamp when the source cache still describes those bytes; otherwise force a checksum of that page
+      // in the clone, preserving the ID only if the bytes really remained equal.
+      entry.baseKeys[index]=prior.baseKeys[index]===baseChunkKey(sourceStamp,index,length)?baseChunkKey(stamp,index,length):null;
+      entry.overlayKeys[index]=prior.overlayKeys[index]===overlayChunkKey(sourceStamp,index,pageLength)?overlayChunkKey(stamp,index,pageLength):null;
+    }
+    chunkIdCache.set(target,entry);return true;
   }
   const preparedChunkSnapshots=new WeakSet();
   function* chunkManifestSteps(store,{externalChecksums=false,knownChunkIds=null}={}){
-    const {STORE,chunkBytes,bytes,count}=chunkGeometry(store);
-    const revision=store.revision,buffer=store.rows;
+    const {STORE,layout,chunkBytes,bytes,count}=chunkGeometry(store),revision=store.revision,buffer=store.rows;
     const current=()=>{if(store.revision!==revision||store.rows!==buffer)throw new Error('state-codec-fleet-changed-during-save');};
-    let entry=chunkIdCache.get(store);if(!entry){entry={keys:[],ids:[],sums:[],rotation:0};chunkIdCache.set(store,entry);}
-    const snapshots=new Map(),snapshotSums=new Map();let snapshotMismatch=false;
-    const nextChecksumBytes=(index,stamp)=>{
+    let entry=chunkIdCache.get(store);if(!entry){entry=newChunkEntry();chunkIdCache.set(store,entry);}
+    const snapshots=new Map(),snapshotSums=new Map(),known=id=>knownChunkIds?.has?.(id)===true;
+    const partKey=(kind,index)=>`${kind}:${index}`;
+    const transform=kind=>({kind:`fleet-${kind}-v1`,stride:layout.stride,words:[...layout.words],presentWord:layout.presentWord,presentMask:layout.presentMask,presentShift:18,bytesPerRow:FLEET_OVERLAY_BYTES_PER_ROW});
+    const outputLength=(kind,length)=>kind==='overlay'?length/layout.stride*FLEET_OVERLAY_BYTES_PER_ROW:length;
+    const nextChecksum=function(kind,index,stamp){
       if(!externalChecksums)return null;
       for(let next=index+1;next<count;next++){
-        if(snapshotSums.has(next))continue;
-        const start=next*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),key=chunkKey(stamp,next,length);
-        if(entry.keys[next]!==key||!entry.ids[next]||!knownChunkIds?.has?.(entry.ids[next]))return bytes.subarray(start,start+length);
+        const start=next*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),pageLength=outputLength('overlay',length),key=kind==='base'?baseChunkKey(stamp,next,length):overlayChunkKey(stamp,next,pageLength),id=kind==='base'?entry.baseIds[next]:entry.overlayIds[next],cached=kind==='base'?entry.baseKeys[next]:entry.overlayKeys[next];
+        if(!snapshotSums.has(partKey(kind,next))&&(cached!==key||!id||!known(id)))return {bytes:bytes.subarray(start,start+length),transform:transform(kind),outputByteLength:outputLength(kind,length)};
       }
       return null;
     };
-    const checksum=function*(index,start,length,nextBytes=null){
-      if(!externalChecksums)return chunkChecksum(bytes.subarray(start,start+length));
-      if(snapshotSums.has(index))return snapshotSums.get(index);
-      const found=yield {kind:'fleet-chunk-checksum',bytes:bytes.subarray(start,start+length),nextBytes};current();
-      if(!found||typeof found.checksum!=='string'||!(found.bytes instanceof Uint8Array)||found.bytes.byteLength!==length)throw new Error('save-checksum-evidence-invalid');
-      snapshots.set(index,found.bytes);snapshotSums.set(index,found.checksum);return found.checksum;
+    const checksum=function*(kind,index,start,length,next=null){
+      const key=partKey(kind,index);if(snapshotSums.has(key))return snapshotSums.get(key);
+      let data,sum;
+      if(externalChecksums){
+        const nextRequest=nextChecksum(kind,index,STORE.chunkStamp(store));
+        const nextJob=next||nextRequest,found=yield {kind:'fleet-chunk-checksum',bytes:bytes.subarray(start,start+length),transform:transform(kind),outputByteLength:outputLength(kind,length),nextBytes:nextJob?.bytes||null,nextTransform:nextJob?.transform||null,nextOutputByteLength:nextJob?.outputByteLength||null};current();
+        if(!found||typeof found.checksum!=='string'||!(found.bytes instanceof Uint8Array)||found.bytes.byteLength!==outputLength(kind,length))throw new Error('save-checksum-evidence-invalid');data=found.bytes;sum=found.checksum;
+      }else{
+        data=kind==='base'?maskedBaseBytes(bytes,start,length,layout):overlayPageBytes(bytes,start,length,layout);sum=chunkChecksum(data);
+      }
+      snapshots.set(key,data);snapshotSums.set(key,sum);return sum;
     };
-    const name=function*(){const stamp=STORE.chunkStamp(store),reused=[];
-      for(let index=0;index<count;index++){
-        current();
-        const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),key=chunkKey(stamp,index,length);
-        if(entry.keys[index]===key&&entry.ids[index]){
-          reused.push(index);
-          // After a vault miss or reload, a reused identity may still need uploading. Obtain its immutable bytes from
-          // the worker too; never rebuild a missing large snapshot with a whole-store copy on the presentation thread.
-          if(externalChecksums&&!knownChunkIds?.has?.(entry.ids[index])){const sum=yield* checksum(index,start,length,nextChecksumBytes(index,stamp));if(sum!==entry.sums[index])snapshotMismatch=true;}
-        }
-        else{const sum=yield* checksum(index,start,length,nextChecksumBytes(index,stamp));entry.keys[index]=key;entry.ids[index]=`${NONCE}.${chunkSalt}.${(++chunkSequence).toString(36)}`;entry.sums[index]=sum;chunkCacheStats.named++;yield;}
-      }
-      current();
-      entry.keys.length=count;entry.ids.length=count;entry.sums.length=count;return reused;};
-    const reused=yield* name();chunkCacheStats.reused+=reused.length;
-    if(reused.length){
-      const index=reused[entry.rotation++%reused.length],start=index*chunkBytes;chunkCacheStats.verified++;
-      const sum=yield* checksum(index,start,Math.min(bytes.length-start,chunkBytes));yield;current();
-      if(snapshotMismatch||sum!==entry.sums[index]){
-        chunkCacheStats.mismatches++;chunkSalt++;entry.keys=[];entry.ids=[];entry.sums=[];
-        try{globalThis.console?.warn?.('state-codec: fleet chunk changed behind the store; renaming every chunk');}catch{}
-        yield* name();
-      }
+    const stamp=STORE.chunkStamp(store),reused=[];
+    for(let index=0;index<count;index++){
+      current();const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),key=baseChunkKey(stamp,index,length),priorId=entry.baseIds[index],priorSum=entry.baseSums[index],priorNormalized=entry.baseNormalized[index]===true,missing=!known(priorId),needsBytes=!priorId||entry.baseKeys[index]!==key||missing;
+      if(needsBytes){
+        const sum=yield* checksum('base',index,start,length,nextChecksum('base',index,stamp));
+        if(!priorId||priorSum!==sum||(missing&&!priorNormalized)){entry.baseIds[index]=`${NONCE}.${chunkSalt}.${(++chunkSequence).toString(36)}`;entry.baseNormalized[index]=true;chunkCacheStats.named++;}
+        entry.baseKeys[index]=key;entry.baseSums[index]=sum;
+        yield;
+      }else reused.push(index);
     }
-    const ids=entry.ids.slice();
-    return {marker:{$ghBinary:'chunks-v1',byteLength:bytes.length,chunkBytes,chunks:ids},chunks:ids.map((id,index)=>{const chunk={id,index,byteOffset:index*chunkBytes,byteLength:Math.min(chunkBytes,bytes.length-index*chunkBytes)};if(snapshots.has(index)){chunk.data=snapshots.get(index);preparedChunkSnapshots.add(chunk);}return chunk;})};
+    for(let index=0;index<count;index++){
+      current();const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),pageLength=outputLength('overlay',length),key=overlayChunkKey(stamp,index,pageLength),priorId=entry.overlayIds[index],priorSum=entry.overlaySums[index],missing=!known(priorId),needsBytes=!priorId||entry.overlayKeys[index]!==key||missing;
+      if(needsBytes){
+        const sum=yield* checksum('overlay',index,start,length,nextChecksum('overlay',index,stamp));
+        if(!priorId||priorSum!==sum){entry.overlayIds[index]=`${NONCE}.${chunkSalt}.${(++chunkSequence).toString(36)}`;chunkCacheStats.named++;}
+        entry.overlayKeys[index]=key;entry.overlaySums[index]=sum;
+        yield;
+      }else reused.push(index);
+    }
+    current();entry.baseKeys.length=count;entry.baseIds.length=count;entry.baseSums.length=count;entry.baseNormalized.length=count;entry.overlayKeys.length=count;entry.overlayIds.length=count;entry.overlaySums.length=count;chunkCacheStats.reused+=reused.length;
+    if(count&&reused.length){
+      const index=entry.rotation++%count,start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),pageLength=outputLength('overlay',length);chunkCacheStats.verified++;
+      const baseSum=yield* checksum('base',index,start,length),overlaySum=yield* checksum('overlay',index,start,length);yield;current();
+      if(baseSum!==entry.baseSums[index]){entry.baseIds[index]=`${NONCE}.${chunkSalt}.${(++chunkSequence).toString(36)}`;entry.baseSums[index]=baseSum;entry.baseKeys[index]=baseChunkKey(stamp,index,length);entry.baseNormalized[index]=true;chunkCacheStats.mismatches++;chunkCacheStats.named++;}
+      if(overlaySum!==entry.overlaySums[index]){entry.overlayIds[index]=`${NONCE}.${chunkSalt}.${(++chunkSequence).toString(36)}`;entry.overlaySums[index]=overlaySum;entry.overlayKeys[index]=overlayChunkKey(stamp,index,pageLength);chunkCacheStats.mismatches++;chunkCacheStats.named++;}
+    }
+    const baseIds=entry.baseIds.slice(),overlayIds=entry.overlayIds.slice(),allIds=[...baseIds,...overlayIds],baseNormalized=entry.baseNormalized.slice();
+    const makeChunk=(id,index,kind,start,length,key)=>{const chunk={id,index,kind,byteLength:length};if(kind==='base')chunk.byteOffset=start;if(snapshots.has(key)){chunk.data=snapshots.get(key);preparedChunkSnapshots.add(chunk);}return chunk;};
+    const chunks=[];
+    for(let index=0;index<count;index++){const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start);chunks.push(makeChunk(baseIds[index],index,'base',start,length,partKey('base',index)));}
+    for(let index=0;index<count;index++){const start=index*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),pageLength=outputLength('overlay',length);chunks.push(makeChunk(overlayIds[index],index,'overlay',start,pageLength,partKey('overlay',index)));}
+    return {marker:{$ghBinary:'chunks-v1',byteLength:bytes.length,chunkBytes,chunks:allIds,baseChunks:baseIds,baseNormalized,overlay:{version:1,fields:[...FLEET_OVERLAY_FIELDS],presentMask:layout.presentMask,chunks:overlayIds}},chunks};
   }
   // Text chunks follow the fleet chunks as {id,byteLength,text}; the caller uploads the UTF-8 bytes of text.
-  function serializeChunked(state){const steps=serializeChunkedSteps(state);let step;while(!(step=steps.next()).done){}return step.value;}
+  function serializeChunked(state,options={}){const steps=serializeChunkedSteps(state,{...options,knownChunkIds:options.knownChunkIds??new Set()});let step;while(!(step=steps.next()).done){}return step.value;}
   function* serializeChunkedSteps(state,options={}){
     if(!isPlain(state)||!isArrayBuffer(state.fleet?.rows))return {text:yield* serializeSteps(state),chunks:[]};
     // Each dirty 4 MiB chunk and the rotating reuse check get their own step. A sliced save can paint between them;
@@ -807,7 +916,7 @@
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 
-  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT}}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
+  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT}}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
   globalThis.GH_STATE_CODEC=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_STATE_CODEC=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

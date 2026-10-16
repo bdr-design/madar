@@ -16,10 +16,9 @@ const original={
 
 function fleetChunks(encoded,store){
   const tree=JSON.parse(encoded.text),marker=tree.fleet.rows,chunks=new Map();
-  for(let index=0;index<marker.chunks.length;index++){
-    const id=marker.chunks[index],part=encoded.chunks.find(row=>row.id===id&&row.index===index&&Number.isInteger(row.byteOffset));
-    assert(part,`missing fleet chunk descriptor ${index}`);
-    chunks.set(id,store.rows.slice(part.byteOffset,part.byteOffset+part.byteLength));
+  for(const part of encoded.chunks.filter(row=>row.kind==='base'||row.kind==='overlay')){
+    assert(part.data instanceof Uint8Array,`missing immutable fleet page ${part.kind}:${part.index}`);
+    const copy=part.data.slice();chunks.set(part.id,copy.buffer);
   }
   return {tree,marker,chunks};
 }
@@ -36,9 +35,21 @@ const saveSchema={
 const loaded=global.GH_MIGRATION_CORE.load({defaultState:{saveVersion:'3.0.0'},storageKey:'qa-native-migration-chunks',saveSchema});
 assert.equal(STORE.peek(loaded.state.fleet,0,'condition'),37,'load-time normalization changed the row');
 assert.deepEqual(noted,vault.marker.chunks,'the original ids are known to exist in the vault');
+assert.equal(STORE.hasReplicaSeed(loaded.state.fleet),true,'the loaded base pages and daily overlays seed the engine replica');
+const seed=STORE.takeReplicaSeed(loaded.state.fleet);
+assert.equal(seed.chunks.length,1);assert.equal(seed.overlays.length,1,'counter page is carried with the native row seed');
+const seeded=new Uint8Array(seed.byteLength),rowView=new DataView(seeded.buffer),base=new Uint8Array(seed.chunks[0]),overlay=new Uint8Array(seed.overlays[0]);seeded.set(base);
+for(let row=0;row<seeded.byteLength/STORE.STRIDE;row++){
+  const rowAt=row*STORE.STRIDE,pageAt=row*13;
+  for(const [field,name] of ['flightHours','flightCycles','nextCheckHours'].entries())seeded.set(overlay.subarray(pageAt+field*4,pageAt+field*4+4),rowAt+STORE.O[name]*4);
+  const at=rowAt+STORE.O.present*4,prior=rowView.getUint32(at,true);rowView.setUint32(at,(prior&~seed.presenceMask)|((overlay[pageAt+12]<<18)&seed.presenceMask),true);
+}
+assert.deepEqual(seeded,new Uint8Array(original.fleet.rows),'native seed pages reconstruct the persisted rows exactly');
+const changes=STORE.drainReplica(loaded.state.fleet);
+assert.deepEqual([...changes.rows],[0],'the load-time normalization is retained as a delta after the seed');
 
 const second=CODEC.serializeChunked(loaded.state),next=fleetChunks(second,loaded.state.fleet);
-assert.notEqual(next.marker.chunks[0],vault.marker.chunks[0],'a row changed after adoption receives a new chunk id');
+assert.notEqual(next.marker.baseChunks[0],vault.marker.baseChunks[0],'a row changed after adoption receives a new base id');
 
 const reopenedVault=new Map(vault.chunks);
 for(const [id,buffer] of next.chunks)if(!reopenedVault.has(id))reopenedVault.set(id,buffer);
