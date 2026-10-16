@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "repository": "bdr-design/madar",
+  "source_commit": "6f2777cf425a2cd678bb5f22cdb0e221bc74f9d3",
+  "run_id": 38886636610,
+  "attempt": 1,
+  "job_status": "failure",
+  "run_url": "https://github.com/bdr-design/madar/actions/runs/38886636610",
+  "certified": false,
+  "ipa_artifact_url": "",
+  "ipa_single_file_url": "",
+  "physical_iphone_tested": false,
+  "receipt_ref": "refs/heads/ci-receipts/build362/6f2777cf425a2cd678bb5f22cdb0e221bc74f9d3/38886636610-1",
+  "files": {
+    "failed-337-fleet-validation-reuse-browser.log": {
+      "bytes": 328,
+      "sha256": "22b58b551c23c5e3a18835a3a3867ddc1c6c0930fa470d33540419af837ea026"
+    },
+    "native-save-worker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-worker.json": {
+      "bytes": 2375,
+      "sha256": "550b1a64879f20499d520a9cd075711c841567307844f570d6aff191989718fa"
+    },
+    "native-save-worker.log": {
+      "bytes": 24,
+      "sha256": "dd525051f0f38965b26a9cc154e88f84063d2a5699f52deaae78c7f045b0fcf3"
+    },
+    "source-acceptance-results.json": {
+      "bytes": 93341,
+      "sha256": "d778da6bce63ba1b3c1d75793396a0cdb7ca60750419f820bba7857a5a4a1f85"
+    },
+    "source-acceptance.log": {
+      "bytes": 21379,
+      "sha256": "95600caa235bd79e1175db9b0a72cc948e2b97ba7af6fd8398c1999b1bb8e88e"
+    },
+    "source-mode.txt": {
+      "bytes": 82,
+      "sha256": "d6e9e8524306a859794300dbe8af0b49e6f574be4cea4748b7d5aa00c62ff4cb"
+    },
+    "source-package-integrity.log": {
+      "bytes": 66544,
+      "sha256": "f732fc6f60f144599f6e33b7061c64810f831610ea5104b24b16184de81dd1b8"
+    },
+    "source-verification.json": {
+      "bytes": 2826,
+      "sha256": "56b5f225759d7623db07e8e9717e0369b3c6e3c77e1d3abe1c5cfd619c6a780d"
+    }
+  }
+}

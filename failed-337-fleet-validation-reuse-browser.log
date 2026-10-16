@@ -1,0 +1,5 @@
+page.evaluate: Error: retry revalidates newly invalid rows instead of publishing old proof
+    at check (eval at evaluate (:291:30), <anonymous>:8:251)
+    at eval (eval at evaluate (:291:30), <anonymous>:55:4)
+    at async <anonymous>:317:30
+    at /Users/runner/work/madar/madar/tests/fleet-validation-reuse-browser.cjs:18:27
