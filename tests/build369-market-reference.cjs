@@ -39,7 +39,7 @@ assert.ok(!Object.hasOwn(attached,'sourceValue'),'contracts receive compact sour
 // A country reference is captured once when a new bank loan is originated and copied to its
 // customer contract. Unsupported countries retain the pre-existing simulation benchmark.
 const {harness,minimal}=require('./helpers/core-harness');
-const h=harness(['capability-registry-core','company-definitions','company-platform-core','identity-system','control-plane-core','authorization-core','document-proof-core','transaction-core','domain-command-core','save-schema','determinism-core','event-ledger-core','dependency-core','policy-core','lifecycle-core','delivery-monitor-core','market-reference-data','market-reference-core','realism-core','finance-core','hr-core','corporate-core','facility-core','banking-core','game-lifecycle-core']);
+const h=harness(['capability-registry-core','company-definitions','company-platform-core','identity-system','control-plane-core','authorization-core','document-proof-core','transaction-core','domain-command-core','save-schema','determinism-core','event-ledger-core','dependency-core','policy-core','lifecycle-core','delivery-monitor-core','market-reference-data','market-reference-core','realism-core','finance-core','hr-core','corporate-core','facility-core','business-world-core','banking-core','game-lifecycle-core']);
 const {s}=h,d={...minimal(),profile:{name:'Market Reference QA'},bank:{},operations:{},crew:[],branches:[],hired:[],unlockedSectors:[],ownedCompanies:[]};
 const state=s.GH_GAME_LIFECYCLE.pristine(d,1);
 s.GH_GAME_LIFECYCLE.foundGroup(state,{mode:'sandbox',name:'Market Reference Group',founder:'Founder',locationId:'RUH'},d,{nextId:()=> 'FOUND-MR',simYear:()=>2026});

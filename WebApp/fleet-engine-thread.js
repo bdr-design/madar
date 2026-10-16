@@ -531,6 +531,9 @@
         stats.queryRequests=(stats.queryRequests||0)+1;
         return new Promise(resolve=>{queryRequests.set(id,{tag,resolve});post({type:'query',id,name:String(name),params,simSeconds:Number(simSeconds)||0});});
       },
+      // Send a completed day-column plan while its original buffers are still retained, before incidents/maintenance
+      // write individual rows and invalidate it. The worker's existing open journal still owns commit and rollback.
+      flushOpen(store){return syncIntoOpen(store)==='';},
       // Computes a bulk dispatch against an exact, idle replica. Its binary plan is only a candidate: fleet-dispatch-core
       // validates the fleet, route, catalogue, ownership and request context again before its first main-thread write.
       // One plan at a time also prevents a long speculative pass from queueing event work behind another such pass.

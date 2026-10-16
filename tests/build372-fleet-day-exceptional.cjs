@@ -76,16 +76,19 @@ function plannedValues(plan,index){
   assert.equal(plan.indices.buffer,plan.exceptional.indices.buffer,'index streams share the transferred buffer');assert.equal(plan.values.buffer,plan.exceptional.values.buffer,'numeric streams share the transferred buffer');
   assert.deepEqual(snapshot(workerEnv.s,workerEnv.state),plain,'exceptional worker close is byte-for-byte equal to the local close');assert.equal(workerEnv.ownerCountScans(),0,'worker daily close does not count owners again');assert.equal(worker.stages.includes('realism.fleet-day'),false,'exceptions do not trigger a main-thread fleet scan');assert.ok(worker.stages.includes('realism.fleet-day-apply'));
 
-  const staleEnv=setup(),stale=await runStaged(staleEnv,{stale:true});assert.equal(stale.handle.error,null);assert.deepEqual(snapshot(staleEnv.s,staleEnv.state),plain,'a stale answer falls back before writes and stays exact');assert.ok(stale.stages.includes('realism.fleet-day'));assert.equal(staleEnv.ownerCountScans(),0);
-
-  const currentErrorEnv=setup(),currentError=await runStaged(currentErrorEnv,{throwCurrent:true});assert.equal(currentError.handle.error,null);assert.deepEqual(snapshot(currentErrorEnv.s,currentErrorEnv.state),plain,'a faulty current() guard declines only this worker result and preserves the daily close');assert.ok(currentError.stages.includes('realism.fleet-day'));
-
-  const barrierEnv=setup(),barrier=await runStaged(barrierEnv,{staleAfterValidation:true});assert.equal(barrier.handle.error,null);assert.deepEqual(snapshot(barrierEnv.s,barrierEnv.state),plain,'an answer that becomes stale at the validation barrier falls back before snapshots or writes');assert.ok(barrier.stages.filter(stage=>stage==='realism.fleet-day-apply').length>=Math.ceil(barrier.fleetDayResult.columns.totalCount/1024));assert.ok(barrier.stages.includes('realism.fleet-day'));
-
-  const contextPlainEnv=setup();contextPlainEnv.state.realism.economy.airDemand=NaN;contextPlainEnv.s.GH_FLEET_QUERY_PROVIDER=null;contextPlainEnv.s.GH_REALISM.onDay(contextPlainEnv.state,contextPlainEnv.day);const contextPlain=snapshot(contextPlainEnv.s,contextPlainEnv.state);
-  const contextEnv=setup();contextEnv.state.realism.economy.airDemand=Infinity;const context=await runStaged(contextEnv,{contextAfterValidation:NaN});assert.equal(context.handle.error,null);assert.deepEqual(snapshot(contextEnv.s,contextEnv.state),contextPlain,'tagged Infinity-to-NaN context change at the barrier rejects the old worker answer');assert.ok(context.stages.includes('realism.fleet-day'));
-
-  const corruptEnv=setup(),corrupt=await runStaged(corruptEnv,{corrupt:true});assert.equal(corrupt.handle.error,null);assert.deepEqual(snapshot(corruptEnv.s,corruptEnv.state),plain,'a late NaN is rejected after full sliced validation and before the first worker-plan write');assert.ok(corrupt.stages.filter(stage=>stage==='realism.fleet-day-apply').length>=2);assert.ok(corrupt.stages.includes('realism.fleet-day'));assert.equal(corruptEnv.ownerCountScans(),0);
+  // A stale, corrupt, or context-mismatched large answer must roll back instead of falling back to a full UI-thread pass.
+  for(const [name,options] of [
+    ['stale',{stale:true}],['current-throws',{throwCurrent:true}],['stale-at-barrier',{staleAfterValidation:true}],
+    ['context-at-barrier',{contextAfterValidation:NaN}],['corrupt-late-value',{corrupt:true}]
+  ]){
+    const env=setup();if(name==='context-at-barrier')env.state.realism.economy.airDemand=Infinity;
+    const before=snapshot(env.s,env.state),declined=await runStaged(env,options),after=snapshot(env.s,env.state);
+    assert.match(String(declined.handle.error?.message),/fleet-day-worker-unavailable/,name);
+    for(const key of ['root','rows','values','extras','length','live','marketOrder'])assert.deepEqual(after[key],before[key],`${name}: rollback ${key}`);
+    assert.ok(after.revision>=before.revision,`${name}: revision cannot move backward`);
+    assert.equal(declined.stages.includes('realism.fleet-day'),false,`${name}: no main-thread fallback`);
+    assert.equal(env.ownerCountScans(),0);
+  }
 
   const rollbackEnv=setup(),beforeRollback=snapshot(rollbackEnv.s,rollbackEnv.state),rolled=await runStaged(rollbackEnv,{rollback:true});assert.match(String(rolled.handle.error?.message),/qa-fleet-day-rollback/);assertRolledBack(snapshot(rollbackEnv.s,rollbackEnv.state),beforeRollback);assert.equal(rollbackEnv.ownerCountScans(),0);
 

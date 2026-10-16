@@ -45,13 +45,15 @@ function applyPlain(store,plan){const write=STORE.columnWriter(store,plan.fields
   assert.equal(run.result.stale,false);assert.ok(store.capacity>=2000);assert.equal(STORE.chunkStamp(store).runtime,runtime);assert.deepEqual(finish(FLEET.reserveCapacityStages(state,0)),{stale:false,grown:false,capacity:store.capacity});
 }
 
-// The staged column plan is byte/counter/log identical to columnWriter for commit and rollback. Snapshot preparation is
-// read-only and abandoned preparation does not become a rollback column or replica payload.
+// Plans preserve columnWriter's byte/counter/log result. Ordinary undo columns copy together in one bounded batch,
+// with the original memory and rollback contract. Stale or abandoned validation arms nothing.
 for(const outcome of ['commit','rollback']){
   const [plain,staged]=stores(),plan=planFor(plain);STORE.drainReplica(plain);STORE.drainReplica(staged);
   const beforePlain=snapshot(plain),beforeStaged=snapshot(staged),jp=STORE.beginJournal(plain),js=STORE.beginJournal(staged);
   applyPlain(plain,plan);const run=drain(STORE.columnPlanStages(staged,plan,{rowSlice:256,label:'qa.column-plan',replicaTransfer:true}));
-  assert.ok(run.yields>=60,`column validation/snapshots/apply are sliced (${run.yields})`);assert.equal(run.result.count,plan.count);
+  const slices=Math.ceil(plan.count/256);assert.equal(run.yields,3*slices-1,'dense validation, batched undo and apply yield in bounded passes without another pass per column');assert.equal(run.result.count,plan.count);
+  const journal=STORE.journalFor(staged);for(const field of plan.fields){assert.equal(journal.fields.get(field)?.copy?.length,staged.length,`${field} uses ordinary column rollback without per-row metadata`);assert.equal(journal.fields.get(field)?.segments,undefined);}
+  assert.equal([...journal.fields.values()].reduce((sum,row)=>sum+row.copy.byteLength,0),staged.length*16,'dense undo has the original 12 bytes per row plus 4 only for added presence bits');
   if(outcome==='commit'){STORE.endJournal(jp);STORE.endJournal(js);}else{STORE.rollbackJournal(jp);STORE.rollbackJournal(js);assert.equal(snapshot(plain).rows,beforePlain.rows);assert.equal(snapshot(staged).rows,beforeStaged.rows);}
   assert.deepEqual(snapshot(staged),snapshot(plain),`${outcome}: staged column plan matches columnWriter exactly`);
   const lp=STORE.drainReplica(plain),ls=STORE.drainReplica(staged);
@@ -60,8 +62,87 @@ for(const outcome of ['commit','rollback']){
     assert.ok(ls.columnPlan,'the first committed mass write retains its sparse plan');assert.equal(ls.columnPlan.indices,plan.indices);assert.equal(ls.columnPlan.values,plan.values);assert.deepEqual(ls.columnPlan.columns,ls.columns);assert.deepEqual(ls.columnPlan.reportedColumns,ls.reportedColumns);
   }else assert.equal(ls.columnPlan,null,'rollback invalidates the forward plan and sends restored columns');
 }
-// A previous mass write has ordering that the sparse plan does not describe. It deliberately keeps the complete-column
-// fallback; likewise, any row write after a retained plan invalidates it because that final row must win.
+// Mostly dense plans include untouched holes (other companies or dead rows). Full-column rollback must remain
+// byte-identical, including when a column already has a snapshot.
+for(const outcome of ['commit','rollback']){
+  const [plain,staged]=stores(1200),beforePlain=snapshot(plain),beforeStaged=snapshot(staged),jp=STORE.beginJournal(plain),js=STORE.beginJournal(staged),all=planFor(plain);
+  for(const store of [plain,staged]){STORE.columnWriter(store,['flightHours'])(5,'flightHours',777);STORE.set(store,11,'condition',42);}
+  const rows=Array.from({length:1200},(_,index)=>index).filter(index=>index<300||index>=600),plan={fields:all.fields,indices:Int32Array.from(rows),values:Float32Array.from(rows.flatMap(index=>Array.from(all.values.subarray(index*3,index*3+3)))),count:rows.length};
+  applyPlain(plain,plan);const run=drain(STORE.columnPlanStages(staged,plan,{rowSlice:256,replicaTransfer:true}));
+  for(const field of plan.fields)assert.equal(STORE.journalFor(staged).fields.get(field)?.copy?.length,1200,'dense holes use ordinary full-column rollback');
+  assert.ok(run.yields>2*Math.ceil(plan.count/256)-1,'hole/presence preparation yields before applying the plan');
+  structuredClone(plan.indices,{transfer:[plan.indices.buffer]});structuredClone(plan.values,{transfer:[plan.values.buffer]});
+  if(outcome==='commit'){STORE.endJournal(jp);STORE.endJournal(js);}else{STORE.rollbackJournal(jp);STORE.rollbackJournal(js);assert.equal(snapshot(plain).rows,beforePlain.rows);assert.equal(snapshot(staged).rows,beforeStaged.rows);}
+  assert.deepEqual(snapshot(staged),snapshot(plain),`dense holes/${outcome} preserve planned, unplanned, previously written and transferred rows`);
+}
+// Exceptional Float64 rows can interleave with the compact Float32 stream. Undo merges their ordered ranges and
+// retains independent raw preimages even when the worker detaches its forward buffers.
+{
+  const store=STORE.fromAssets(Array.from({length:12},(_,index)=>asset(index)),{at:0}),before=snapshot(store),journal=STORE.beginJournal(store),fields=['flightHours','flightCycles','nextCheckHours'];
+  const indices=new Int32Array([0,2,4]),values=new Float32Array([10,20,600,12,22,602,14,24,604]),exceptionalIndices=new Int32Array([1,3]),exceptionalValues=new Float64Array([11,21,601,.1,23,603]);
+  const plan={fields,indices,values,count:3,exceptional:{indices:exceptionalIndices,values:exceptionalValues,count:2},totalCount:5,rejectNaN:true};
+  finish(STORE.columnPlanStages(store,plan,{rowSlice:256,replicaTransfer:true}));const undo=STORE.journalFor(store).fields.get('flightHours');
+  assert.equal(undo.copy.length,store.length);assert.notEqual(undo.copy.buffer,values.buffer);assert.notEqual(undo.copy.buffer,exceptionalValues.buffer,'undo is independent of both forward buffers');
+  STORE.rollbackJournal(journal);const after=snapshot(store);assert.equal(after.rows,before.rows);assert.equal(after.extras,before.extras);assert.equal(after.assets,before.assets,'interleaved exceptional rows restore exact store bytes and extras');
+}
+// Earlier and later row writes, plus an exceptional set()-path value, must still unwind to the transaction preimage.
+// The post-plan row log captures a value after the column pass; undo must preserve the original field/row ordering.
+{
+  const store=STORE.fromAssets(Array.from({length:12},(_,index)=>asset(index)),{at:0}),before=snapshot(store),journal=STORE.beginJournal(store);
+  STORE.set(store,0,'condition',42);STORE.set(store,0,'flightHours',777);
+  const fields=['flightHours','flightCycles','nextCheckHours'],indices=new Int32Array([0,1,2,3]),values=new Float64Array([
+    10,20,600,
+    11,21,601,
+    .1,22,602,
+    13,23,603
+  ]),plan={fields,indices,values,count:indices.length};
+  finish(STORE.columnPlanStages(store,plan,{rowSlice:256,replicaTransfer:true}));
+  STORE.set(store,1,'flightCycles',999);STORE.set(store,3,'condition',1);
+  const armed=STORE.journalFor(store);assert.equal(armed.fields.get('flightHours').copy.length,store.length);assert.ok([...armed.log.rows.subarray(0,armed.log.count)].includes(2),'the nonexact row retains the ordinary row journal for its f32 extra');
+  STORE.rollbackJournal(journal);const after=snapshot(store);
+  assert.equal(after.rows,before.rows,'field rollback restores every raw row byte');assert.equal(after.extras,before.extras,'exceptional values and extras return exactly');assert.equal(after.assets,before.assets,'earlier and later row mutations return to their transaction preimage');
+}
+// Several writers can share one transaction. Later plans may touch new rows, overlap older ones, reorder fields, and
+// follow an ordinary row mutation. Every path must restore the transaction's first preimage, including presence bits.
+for(const nextWriter of ['transferred-plan','ordinary-plan','column-writer'])for(const outcome of ['commit','rollback']){
+  const [plain,staged]=stores(15),beforePlain=snapshot(plain),beforeStaged=snapshot(staged),jp=STORE.beginJournal(plain),js=STORE.beginJournal(staged);
+  const first={fields:['flightHours','nextCheckHours'],indices:new Int32Array([0,7]),values:new Float32Array([101,601,107,607]),count:2};
+  applyPlain(plain,first);finish(STORE.columnPlanStages(staged,first,{replicaTransfer:true}));
+  for(const store of [plain,staged]){STORE.set(store,1,'flightHours',201);STORE.set(store,7,'condition',41);}
+  const second={fields:['nextCheckHours','flightHours','flightCycles'],indices:new Int32Array([0,1,2,7,9,14]),values:new Float32Array([701,301,31,702,302,32,703,303,33,707,307,37,709,309,39,714,314,34]),count:6};
+  applyPlain(plain,second);
+  if(nextWriter==='column-writer')applyPlain(staged,second);
+  else finish(STORE.columnPlanStages(staged,second,{replicaTransfer:nextWriter==='transferred-plan'}));
+  for(const store of [plain,staged]){STORE.set(store,2,'condition',22);STORE.set(store,0,'flightCycles',444);}
+  // Worker ownership may detach both forward plans before a later operation aborts the enclosing transaction.
+  structuredClone(first.indices,{transfer:[first.indices.buffer]});structuredClone(first.values,{transfer:[first.values.buffer]});
+  structuredClone(second.indices,{transfer:[second.indices.buffer]});structuredClone(second.values,{transfer:[second.values.buffer]});
+  if(outcome==='commit'){STORE.endJournal(jp);STORE.endJournal(js);}else{
+    STORE.rollbackJournal(jp);STORE.rollbackJournal(js);
+    assert.equal(snapshot(plain).rows,beforePlain.rows);assert.equal(snapshot(staged).rows,beforeStaged.rows,`${nextWriter}: rollback includes every later row and presence bit`);
+    assert.equal(snapshot(staged).extras,beforeStaged.extras);assert.equal(snapshot(staged).assets,beforeStaged.assets);
+  }
+  assert.deepEqual(snapshot(staged),snapshot(plain),`${nextWriter}/${outcome}: nested writes match the full-column reference`);
+}
+// A previous mass write has ordering that the transferred plan does not describe and keeps the replica-column fallback.
+// Likewise, any row write after a retained plan invalidates it because that final row must win.
+{
+  const [store]=stores(15),before=snapshot(store),journal=STORE.beginJournal(store),plan={fields:['flightHours','nextCheckHours'],indices:new Int32Array([0]),values:new Float32Array([777,600]),count:1};
+  finish(STORE.columnPlanStages(store,plan,{replicaTransfer:true}));
+  // Public raw-column consumers announce a complete column, then write slots without columnWriter's row protection.
+  for(const field of ['flightHours','nextCheckHours','present'])STORE.rememberColumn(store,field,{quiet:field==='present'});
+  STORE.setSlot(store,'flightHours',14,888);STORE.setSlot(store,'nextCheckHours',14,700);STORE.setSlot(store,'present',14,STORE.slot(store,'present',14)|STORE.HOT_BIT.nextCheckHours);
+  STORE.rollbackJournal(journal);const after=snapshot(store);assert.equal(after.rows,before.rows,'a raw column write after a partial plan restores rows outside that plan');assert.equal(after.assets,before.assets);
+}
+for(const count of [200,1200]){
+  const [plain,staged]=stores(1200),all=planFor(plain),plan={...all,indices:all.indices.slice(0,count),values:all.values.slice(0,count*3),count};
+  for(const store of [plain,staged]){STORE.drainDirty(store);STORE.drainReplica(store);}
+  const jp=STORE.beginJournal(plain),js=STORE.beginJournal(staged);
+  STORE.withoutDirtyLog(plain,()=>applyPlain(plain,plan));STORE.withoutDirtyLog(staged,()=>finish(STORE.columnPlanStages(staged,plan,{rowSlice:256,replicaTransfer:true})));
+  STORE.rollbackJournal(jp);STORE.rollbackJournal(js);assert.deepEqual(snapshot(staged),snapshot(plain));
+  assert.deepEqual(STORE.drainDirty(staged).columns,STORE.drainDirty(plain).columns,'quiet plan rollback preserves the original event-engine reporting');
+  assert.deepEqual(STORE.drainReplica(staged).reportedColumns,STORE.drainReplica(plain).reportedColumns);
+}
 {
   const [store]=stores(1200),write=STORE.columnWriter(store,['condition']);STORE.drainReplica(store);write(0,'condition',31);finish(STORE.columnPlanStages(store,planFor(store),{rowSlice:256,replicaTransfer:true}));
   const log=STORE.drainReplica(store);assert.equal(log.columnPlan,null,'a prior column write selects the complete-column fallback');assert.ok(log.columns.includes('condition'));assert.ok(log.columns.includes('flightHours'));
@@ -78,13 +159,13 @@ for(const outcome of ['commit','rollback']){
   assert.throws(()=>stages.next(),/fleet-store-column-plan-changed/);STORE.rollbackJournal(journal);assert.equal(STORE.drainReplica(store).columnPlan,null);
 }
 {
-  const [store]=stores(1200),before=snapshot(store);STORE.drainReplica(store);const journal=STORE.beginJournal(store),stages=STORE.columnPlanStages(store,planFor(store),{rowSlice:256});
+  const [store]=stores(1200),before=snapshot(store);STORE.drainReplica(store);const journal=STORE.beginJournal(store),stages=STORE.columnPlanStages(store,planFor(store),{rowSlice:256,replicaTransfer:true});
   assert.equal(stages.next().done,false);assert.deepEqual(STORE.journalStats(store).columns,[],'validation/preparation has not armed a rollback column');
-  STORE.rollbackJournal(journal);const log=STORE.drainReplica(store);assert.deepEqual(log.columns,[],'abandoned preparation reports no physical column');assert.deepEqual(log.reportedColumns,[]);assert.equal(snapshot(store).rows,before.rows);
+  STORE.rollbackJournal(journal);const log=STORE.drainReplica(store);assert.deepEqual(log.columns,[],'abandoned preparation reports no physical column');assert.deepEqual(log.reportedColumns,[]);assert.equal(snapshot(store).rows,before.rows);assert.throws(()=>finish(stages),/fleet-store-column-plan-changed/,'a cancelled preparation cannot resume against a completed journal');
 }
 for(const bad of [NaN]){
-  const [store]=stores(300),plan=planFor(store);plan.values=new Float64Array(plan.values);plan.values[17]=bad;plan.rejectNaN=true;const before=snapshot(store),journal=STORE.beginJournal(store),stages=STORE.columnPlanStages(store,plan,{rowSlice:256});
-  assert.throws(()=>finish(stages),/fleet-store-column-plan-value/);assert.equal(snapshot(store).rows,before.rows,'invalid values fail before the first write');STORE.rollbackJournal(journal);
+  const [store]=stores(300),plan=planFor(store);plan.values=new Float64Array(plan.values);plan.values[17]=bad;plan.rejectNaN=true;const before=snapshot(store),journal=STORE.beginJournal(store),stages=STORE.columnPlanStages(store,plan,{rowSlice:256,replicaTransfer:true});
+  assert.throws(()=>finish(stages),/fleet-store-column-plan-value/);assert.equal(snapshot(store).rows,before.rows,'invalid values fail before the first write');assert.deepEqual(STORE.journalStats(store).columns,[],'invalid preflight values never arm undo state');STORE.rollbackJournal(journal);
 }
 {
   const [plain,staged]=stores(20),fields=['condition'],indices=new Int32Array([0,1,2,3]),values=new Float64Array([Infinity,-Infinity,-0,NaN]),plan={fields,indices,values,count:4};STORE.drainReplica(plain);STORE.drainReplica(staged);applyPlain(plain,plan);finish(STORE.columnPlanStages(staged,plan,{rowSlice:256}));

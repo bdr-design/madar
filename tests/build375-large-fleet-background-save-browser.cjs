@@ -23,7 +23,7 @@ const QTY=3000;
       return {size:GH_FLEET_DATA.size(s()),limit:GH_FLEET_MAIN_THREAD_POLICY.DEFAULT_ROW_LIMIT};
     },QTY);
     assert.equal(fleet.size,QTY);assert.ok(fleet.size>fleet.limit,'the fleet is above the main-thread limit');
-    await page.evaluate(()=>__AUDIT__.setSpeed(4));
+    await page.evaluate(()=>__AUDIT__.setSpeed(3));
     await page.waitForFunction(()=>__GH_STATE__.simSeconds>7300,null,{timeout:240000});
     await page.evaluate(()=>__AUDIT__.setSpeed(0));
     await page.waitForFunction(()=>!GH_SIM_KERNEL.snapshot().jobActive&&!GH_PERSISTENCE.isLocked(),null,{timeout:60000});

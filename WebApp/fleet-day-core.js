@@ -12,7 +12,7 @@
   const VERSION='1.0.0',SCHEMA='gh-fleet-day-v1';
   const OWNER_TOTAL_FIELDS=Object.freeze(['ownerCompanyId','companyId','company','assetMode','type','purchasePrice','condition','ownership','monthlyLease','leaseTermMonths','leaseStartSeconds','deliveredAtSeconds','year','lastTrip','staffing']);
   const OPS_FIELDS=Object.freeze(['assetMode','type','specs','lastTrip','condition','purchasePrice','phase','flightHours','flightCycles','nextCheckHours']);
-  const FIELDS=Object.freeze([...new Set(['id',...OWNER_TOTAL_FIELDS,...OPS_FIELDS])]);
+  const FIELDS=Object.freeze([...new Set(['id',...OWNER_TOTAL_FIELDS,...OPS_FIELDS,'routeId','simulationFault'])]);
   const COLUMN_FIELDS=Object.freeze(['flightHours','flightCycles','nextCheckHours']);
 
   const USEFUL_YEARS=Object.freeze({air:20,sea:25,road:8,power:25,bank:12,group:20});
@@ -33,6 +33,14 @@
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
   const modeOf=row=>String(row?.assetMode||row?.type||'').trim();
   const ownerKeyOf=row=>`${row?.ownerCompanyId}\u0000${row?.companyId}\u0000${row?.company}\u0000${row?.assetMode}\u0000${row?.type}`;
+  function addDailyMetrics(metrics,row,compact){
+    metrics.rows++;if((compact?(row.phase||(!row.simulationFault?(row.routeId?'moving':'idle'):row.phase)):row.phase)==='moving')metrics.moving++;
+    const mix=metrics.mix,rawBand=row.specs?.co2Band||'C',rawType=row.type;
+    // Preserve the original string-key/split behavior even for malformed legacy values containing a separator.
+    const simpleBand=rawBand==='A'||rawBand==='B'||rawBand==='C'||rawBand==='D',simpleType=rawType==='road'||rawType==='air'||rawType==='sea';
+    const parts=simpleBand&&simpleType?null:`${rawBand}|${rawType}|${row.specs?.electric||row.specs?.hydrogen?1:0}`.split('|'),band=parts?parts[0]:rawBand,type=parts?parts[1]:rawType,electric=parts?parts[2]==='1':!!(row.specs?.electric||row.specs?.hydrogen);
+    mix.total++;if(band==='A'||band==='B')mix.lowEmission++;if(type==='road'){mix.road++;if(electric)mix.electricRoad++;}
+  }
 
   function valueMap(value){
     if(value instanceof Map)return value;
@@ -129,11 +137,13 @@
     const simSeconds=Math.max(0,Number(state?.simSeconds)||0),simYear=2026+Math.floor(simSeconds/(365*86400)),monthlyRate=Math.pow(1.07,1/12)-1;
     const economy=state?.realism?.economy||{},airDemand=own(options,'airDemand')?options.airDemand:economy.airDemand,bunkerValue=own(options,'bunker')?options.bunker:economy.bunker;
     const demand=clamp((airDemand||100)/100,.65,1.35),bunker=Math.max(1,bunkerValue);
-    let insured=0,readiness=0;
+    const compact=typeof fleet.mode==='function'&&fleet.mode(state)==='store';
+    let insured=0,readiness=0;const dailyMetrics={rows:0,moving:0,mix:{total:0,lowEmission:0,road:0,electricRoad:0}};
     let ask=0,rpk=0,rev=0,cost=0,fuel=0,movingAir=0,airCondition=0,maintReserve=0,maintExposure=0,airCount=0,maintenanceDue=0,aog=0;
     let seaDistance=0,seaFuelProxy=0,seaTransport=0,seaCo2=0,seaWork=0,seaRefWork=0,seaCondition=0,movingSea=0,seaCount=0,seaDryDock=0,roadCount=0,roadWeak=0,roadDamaged=0;
 
     fleet.scan(state,FIELDS,(row,index)=>{
+      addDailyMetrics(dailyMetrics,row,compact);
       const ownerKey=ownerKeyOf(row);let owner=owners.get(ownerKey);if(owner===undefined){owner=resolveOwner(row);owners.set(ownerKey,owner);}
 
       let total=ownerTotals.get(owner);if(!total){total={assetVal:0,depr:0,leaseLiab:0,rou:0,leaseInterest:0,owned:0,fuelCost:0,maintReserve:0,payroll:0};ownerTotals.set(owner,total);}
@@ -164,10 +174,10 @@
     });
 
     const ops={ask,rpk,rev,cost,fuel,movingAir,airCondition,maintReserve,maintExposure,airCount,maintenanceDue,aog,seaDistance,seaFuelProxy,seaTransport,seaCo2,seaWork,seaRefWork,seaCondition,movingSea,seaCount,seaDryDock,roadCount,roadWeak,roadDamaged};
-    return {schema:SCHEMA,version:VERSION,legacy:ownerFlag.legacy,ownerTotals:[...ownerTotals],ops,maintenance:[...maintenance],condition:{insured,readiness},columns:columns.finish()};
+    return {schema:SCHEMA,version:VERSION,legacy:ownerFlag.legacy,ownerTotals:[...ownerTotals],ops,maintenance:[...maintenance],condition:{insured,readiness},dailyMetrics,columns:columns.finish()};
   }
 
-  const API=Object.freeze({VERSION,SCHEMA,FIELDS,OWNER_TOTAL_FIELDS,OPS_FIELDS,COLUMN_FIELDS,compute,run:compute});
+  const API=Object.freeze({VERSION,SCHEMA,FIELDS,OWNER_TOTAL_FIELDS,OPS_FIELDS,COLUMN_FIELDS,addDailyMetrics,compute,run:compute});
   globalThis.GH_FLEET_DAY_CORE=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_FLEET_DAY_CORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

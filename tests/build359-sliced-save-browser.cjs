@@ -47,7 +47,7 @@ function installVault(){
 
     await test('the simulation waits, and a save asked meanwhile runs once more',async()=>{
       return page.evaluate(async()=>{
-        const s=__GH_STATE__,a=__AUDIT__,v=window.__VAULT__,before=v.commits.length;a.setSpeed(4);await new Promise(r=>setTimeout(r,300));
+        const s=__GH_STATE__,a=__AUDIT__,v=window.__VAULT__,before=v.commits.length;a.setSpeed(3);await new Promise(r=>setTimeout(r,300));
         const sim0=s.simSeconds,first=a.saveNow();const locked=GH_PERSISTENCE.isLocked();s.qaMarker='second';let advanced=false;const watch=setInterval(()=>{if(s.simSeconds!==sim0)advanced=true;},5);const ordinary=a.save();
         const x=await first;clearInterval(watch);a.setSpeed(0);
         if(x!==true||ordinary!==true)throw new Error('both saves succeed');if(!locked)throw new Error('persistence is locked from the copy');if(advanced)throw new Error('the simulation advanced during the save');

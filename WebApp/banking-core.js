@@ -55,6 +55,21 @@
     for(const contract of [...bank.customerLoanContracts])if(contract.status==='مسدد'&&num(contract.outstanding)<=.01)archiveCustomerContract(bank,contract);
     bank.customerCreditRepair=summary;bank.customerCreditSchema=3;
   }
+  // Build 400: restore the exact customer identity already recorded on an active loan contract when an older save
+  // retained the contract but lost its Business World party row. Reuse the contract's stable party id and stored name;
+  // never change the borrower, loan balance, receipt history, or signed finance documents.
+  function repairCustomerLoanParties(state,bank){
+    if(Number(bank.customerLoanPartySchema)>=1)return;
+    const W=globalThis.GH_BUSINESS_WORLD;if(typeof W?.resolveParty!=='function'||typeof W?.upsertParty!=='function')return;
+    let repaired=0,unresolved=0;
+    for(const contract of bank.customerLoanContracts){
+      const id=String(contract?.customerId||'').trim();if(!id||W.resolveParty(state,id))continue;
+      const name=String(contract?.customerName||'').trim();if(!name){unresolved++;continue;}
+      const party=W.upsertParty(state,{id,name,displayName:name,legalName:name,role:'customer',industry:'عميل مصرفي',country:String(contract?.country||'دولي'),sectors:['bank']});
+      if(party?.id===id&&W.resolveParty(state,id)?.id===id)repaired++;else unresolved++;
+    }
+    bank.customerLoanPartyRepair={schema:1,repaired,unresolved};bank.customerLoanPartySchema=1;
+  }
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,Number(value)||0));
   const companyPlatform=()=>globalThis.GH_COMPANY_PLATFORM||null;
   function canonicalOwnerCompanyId(row){return String(row?.ownerCompanyId||row?.companyId||'').trim();}
@@ -131,6 +146,7 @@
       bank.customerCreditSchema=2;
     }
     repairCustomerCredit(bank);
+    repairCustomerLoanParties(state,bank);
     for(const facility of bank.corporateFacilities){facility.ownerCompanyId=String(facility.ownerCompanyId||facility.company||'').trim();facility.originalAmount=num(facility.originalAmount||facility.amount);facility.outstanding=num(facility.outstanding);facility.principalArrears=num(facility.principalArrears);facility.interestArrears=num(facility.interestArrears);facility.termDays=Math.max(30,Math.floor(Number(facility.termDays)||365));facility.rate=clamp(facility.rate||.06,0,.30);facility.startDay=Math.max(0,Math.floor(Number(facility.startDay)||0));facility.lastProcessedDay=Math.max(facility.startDay,Math.floor(Number(facility.lastProcessedDay)||facility.startDay));facility.maturityDay=Math.max(facility.startDay+facility.termDays,Math.floor(Number(facility.maturityDay)||0));}
     // Runtime reads never fabricate branches. Legacy reconstruction is isolated
     // in migrateLegacyBranches() and is invoked once during save migration.
@@ -217,8 +233,16 @@
   function stableDigest(value){const text=typeof value==='string'?value:JSON.stringify(value);return `fnv1a:${hash(text).toString(16).padStart(8,'0')}`;}
   function batchReplay(rows,batchId,fingerprint){const prior=rows.find(row=>row.batchId===batchId);if(!prior)return null;if(prior.fingerprint!==fingerprint)throw new Error('bank-batch-reference-conflict');return clone(prior.result);}
   function rememberBatch(rows,batchId,fingerprint,result,state){rows.unshift({batchId,fingerprint,result:clone(result),at:now(state)});rows.splice(120);return result;}
+  function customerLoanPartyId(request){return String(request.customerId||`BANK-CUST-${stableDigest([request.id,request.branchId,request.borrower]).slice(7)}`);}
+  function ensureCustomerLoanParty(state,request){
+    const W=globalThis.GH_BUSINESS_WORLD;if(typeof W?.resolveParty!=='function'||typeof W?.upsertParty!=='function')throw new Error('bank-customer-party-not-found');
+    const id=customerLoanPartyId(request);let party=W.resolveParty(state,id);if(party)return id;
+    const name=String(request.borrower||'').trim();if(!name)throw new Error('bank-customer-party-not-found');
+    party=W.upsertParty(state,{id,name,displayName:name,legalName:name,role:'customer',industry:'عميل مصرفي',country:String(request.country||'دولي'),sectors:['bank']});
+    if(party?.id!==id||W.resolveParty(state,id)?.id!==id)throw new Error('bank-customer-party-not-found');return id;
+  }
   function makeCustomerLoanContract(state,request,portfolio){
-    const bank=ensure(state),startDay=Math.floor(now(state)/86400),termMonths=Math.max(1,Math.ceil(portfolio.termDays/30)),customerId=String(request.customerId||`BANK-CUST-${stableDigest([request.id,request.branchId,request.borrower]).slice(7)}`),contractId=`CUST-${portfolio.id}`;
+    const bank=ensure(state),startDay=Math.floor(now(state)/86400),termMonths=Math.max(1,Math.ceil(portfolio.termDays/30)),customerId=customerLoanPartyId(request),contractId=`CUST-${portfolio.id}`;
     if(bank.customerLoanContracts.some(row=>row.id===contractId))throw new Error('bank-customer-loan-contract-conflict');
     const stored=portfolioFor(bank,portfolio.id);if(!stored)throw new Error('bank-customer-portfolio-missing');
     stored.repaymentModel='monthly-customer-contract';stored.customerContractId=contractId;
@@ -226,8 +250,9 @@
     cacheContract(bank,contract);scheduleCustomerInstallment(bank,contract);return contract;
   }
   function approveLoanRequest(state,request,day,F){
+    const customerId=ensureCustomerLoanParty(state,request),customerRequest={...request,customerId};
     const portfolio=originateLoan(state,{product:request.product,amount:request.amount,branchId:request.branchId,sector:request.sector,riskGrade:request.riskGrade,collateralCoverage:request.collateralCoverage,termDays:request.termDays,borrowers:1,...(request.sourceCompanyId?{disbursementRecipient:'customer-sale',disbursementRecipientCompanyId:request.sourceCompanyId}:{})},F);
-    portfolio.borrower=request.borrower;const contract=makeCustomerLoanContract(state,request,portfolio);let disbursementReceipt=null;
+    portfolio.borrower=request.borrower;const contract=makeCustomerLoanContract(state,customerRequest,portfolio);let disbursementReceipt=null;
     if(request.sourceCompanyId){const bank=ensure(state),company=String(request.sourceCompanyId),F=globalThis.GH_FINANCE_CORE;if(!isOperationalFinanceCompany(state,company,F)||company==='bank')throw new Error('bank-customer-disbursement-recipient-invalid');const amount=num(portfolio.principal)-num(portfolio.originationFee),receiptId=`CUST-DISB-${contract.id}`;if(Math.abs(amount-num(request.disbursementAmount))>.01||Math.abs(amount-num(request.invoiceAmount))>.01)throw new Error('bank-customer-disbursement-amount-conflict');if(bank.customerDisbursements.some(row=>row.id===receiptId))throw new Error('bank-customer-disbursement-reference-conflict');const settlement=F.execute({state},'disburse-customer-loan-to-sale',{fromCompany:'bank',toCompany:company,contractId:contract.id,sourceSaleId:request.sourceSaleId,orderId:request.orderId,proFormaReference:request.proFormaReference,customerId:contract.customerId,customerName:contract.customerName,reference:receiptId,amount,invoiceAmount:num(request.invoiceAmount),downPayment:0,loanPrincipal:portfolio.principal,originationFee:portfolio.originationFee});disbursementReceipt={id:receiptId,reference:settlement?.reference||receiptId,loanId:portfolio.id,contractId:contract.id,customerId:contract.customerId,sourceCompanyId:company,fromCompany:'bank',toCompany:company,sourceSaleId:request.sourceSaleId||null,orderId:request.orderId||null,invoiceNumber:settlement?.invoiceNumber||request.invoiceNumber||null,proFormaReference:request.proFormaReference||null,invoiceAmount:num(request.invoiceAmount),downPayment:0,loanPrincipal:portfolio.principal,originationFee:portfolio.originationFee,amount,status:settlement?.status||'posted',financeReceiptId:settlement?.receiptId||null,payerSource:'bank-customer-financing',postedAt:now(state)};bank.customerDisbursements.unshift(disbursementReceipt);bank.customerDisbursements=bank.customerDisbursements.slice(0,400);contract.disbursementReference=receiptId;contract.sourceSaleId=disbursementReceipt.sourceSaleId;contract.orderId=disbursementReceipt.orderId;contract.invoiceNumber=disbursementReceipt.invoiceNumber;contract.invoiceAmount=disbursementReceipt.invoiceAmount;contract.downPayment=0;}
     closeLoanRequest(ensure(state),request,'موافق',{decidedDay:day,loanId:portfolio.id,customerContractId:contract.id,disbursementReference:disbursementReceipt?.reference||null});return {requestId:request.id,status:'موافق',loanId:portfolio.id,contractId:contract.id,customerId:contract.customerId,principal:portfolio.principal,...(disbursementReceipt?{disbursementReceipt:clone(disbursementReceipt)}:{})};
   }
@@ -243,6 +268,7 @@
   function submitCustomerLoanRequest(state,p){
     const bank=ensure(state),id=String(p.id||'').trim(),customerId=String(p.customerId||'').trim(),borrower=String(p.borrower||'').trim(),productId=String(p.product||'consumer'),product=PRODUCTS[productId],day=Math.floor(now(state)/86400);let amount=num(p.amount);
     if(!id||id.length>120||!customerId||customerId.length>120||!borrower||borrower.length>120)throw new Error('bank-customer-loan-identity-required');if(!product)throw new Error('bank-loan-product-invalid');if(amount<product.minimum)throw new Error('bank-loan-amount-invalid');
+    if(!globalThis.GH_BUSINESS_WORLD?.resolveParty?.(state,customerId))throw new Error('bank-customer-party-not-found');
     const branch=bank.branchNetwork.find(row=>(row.id===p.branchId||row.facilityId===p.branchId)&&row.servicesActive)||bank.branchNetwork.find(row=>row.servicesActive);if(!branch)throw new Error('bank-active-branch-required');
     const termDays=Math.max(30,Math.floor(Number(p.termDays)||product.termDays)),riskGrade=RISK_GRADES[p.riskGrade]?p.riskGrade:'BBB',downPaymentReference=p.downPaymentReference?String(p.downPaymentReference):null,sourceCompanyId=p.sourceCompanyId?String(p.sourceCompanyId):null,invoiceAmount=num(p.invoiceAmount),downPayment=num(p.downPayment);
     if(sourceCompanyId){if(sourceCompanyId!=='dealership')throw new Error('bank-customer-finance-recipient-unsupported');if(downPayment!==0||downPaymentReference)throw new Error('bank-customer-finance-down-payment-not-supported');const quote=customerFinancingQuote(state,{invoiceAmount,downPayment:0,product:productId,termDays});amount=num(p.amount)||quote.loanPrincipal;if(Math.abs(amount-quote.loanPrincipal)>.01||Math.abs(num(p.disbursementAmount)-quote.disbursementAmount)>.01||Math.abs(invoiceAmount-quote.disbursementAmount)>.01)throw new Error('bank-customer-finance-quote-mismatch');if(!p.orderId||!p.sourceSaleId)throw new Error('bank-customer-finance-order-reference-required');if(p.proFormaReference&&String(p.proFormaReference)!==`AUTO-ORDER-${String(p.sourceSaleId)}`)throw new Error('bank-customer-finance-proforma-reference-invalid');}
@@ -250,7 +276,7 @@
     const stableRequest={id,customerId,borrower,product:productId,amount,termDays,riskGrade,collateralCoverage:request.collateralCoverage,sector:request.sector,branchId:branch.id,sourceCompanyId,sourceSaleId:request.sourceSaleId,orderId:request.orderId,invoiceNumber:request.invoiceNumber,invoiceAmount,downPayment:request.downPayment,proFormaReference:request.proFormaReference,disbursementAmount:request.disbursementAmount},fingerprint=JSON.stringify(stableRequest),existing=bank.loanRequests.find(row=>row.id===id);if(existing){if(existing.requestFingerprint!==fingerprint)throw new Error('bank-loan-request-reference-conflict');return clone(existing);}
     if(bank.loanRequestHistory.some(row=>row.id===id))throw new Error('bank-loan-request-reference-conflict');if(bank.loanRequests.length>=MAX_OPEN_REQUESTS)throw new Error('bank-loan-request-capacity');request.requestFingerprint=fingerprint;bank.loanRequests.push(request);return clone(request);
   }
-  const BATCH_SKIP_CODES=new Set(['bank-loan-request-not-found','bank-loan-request-expired','bank-active-branch-required','bank-liquidity-buffer','bank-loan-deposit-limit','bank-projected-risk-limit','bank-borrower-sector-required']);
+  const BATCH_SKIP_CODES=new Set(['bank-loan-request-not-found','bank-loan-request-expired','bank-customer-party-not-found','bank-active-branch-required','bank-liquidity-buffer','bank-loan-deposit-limit','bank-projected-risk-limit','bank-borrower-sector-required']);
   function decideLoanRequestsBatch(state,p,F){
     const bank=ensure(state),day=Math.floor(now(state)/86400),batchId=String(p.batchId||'').trim(),periodId=String(p.periodId??Math.floor(day/30)),decisions=Array.isArray(p.decisions)?p.decisions:[];
     if(!batchId||batchId.length>120)throw new Error('bank-batch-id-required');if(!decisions.length||decisions.length>MAX_OPEN_REQUESTS)throw new Error('bank-loan-batch-size-invalid');
@@ -519,9 +545,10 @@
     // (customer-base-core affinityBoost, at most +15%).
     const groupReach=(country,pool)=>{const B=globalThis.GH_CUSTOMER_BASE;return typeof B?.affinityBoost==='function'?B.affinityBoost(state,country,'bank',pool):1;};
     const boostFor=country=>{const B=globalThis.GH_CUSTOMER_BASE,rival=typeof B?.rivalPrice==='function'?B.rivalPrice(country,'bank',day):1;return clamp((depositRates-marketRate*rival)*9,-.25,.35);};
-    const bankNewByCountry=new Map(),service=typeof globalThis.GH_CUSTOMER_BASE?.serviceEffects==='function'?globalThis.GH_CUSTOMER_BASE.serviceEffects(bank.satisfaction):{churn:1,demand:1};
-    for(const branch of bank.branchNetwork.filter(row=>row.servicesActive)){
-      if(Number(branch.lastProcessedDay)>=day)continue;const market=branchMarket(bank,branch),retailRoom=clamp(1-num(branch.retailCustomers)/market.retailCapacity,0,1),businessRoom=clamp(1-num(branch.businessCustomers)/market.businessCapacity,0,1);
+    const bankNewByCountry=new Map(),activeBranches=[],activeBranchPeers=new Map(),branchById=new Map(),service=typeof globalThis.GH_CUSTOMER_BASE?.serviceEffects==='function'?globalThis.GH_CUSTOMER_BASE.serviceEffects(bank.satisfaction):{churn:1,demand:1};
+    for(const branch of bank.branchNetwork){if(!branchById.has(branch.id))branchById.set(branch.id,branch);if(branch.servicesActive){activeBranches.push(branch);activeBranchPeers.set(branch.country,(activeBranchPeers.get(branch.country)||0)+1);}}
+    for(const branch of activeBranches){
+      if(Number(branch.lastProcessedDay)>=day)continue;const market=branchMarket(bank,branch,Math.max(1,activeBranchPeers.get(branch.country)||0)),retailRoom=clamp(1-num(branch.retailCustomers)/market.retailCapacity,0,1),businessRoom=clamp(1-num(branch.businessCustomers)/market.businessCapacity,0,1);
       const campaign=Number(branch.campaignUntil)>day,churnFactor=campaign?CAMPAIGN_CHURN:1,growthFactor=campaign?CAMPAIGN_GROWTH:1,pricingBoost=boostFor(branch.country);
       const retailChurn=clamp(BASE_RETAIL_CHURN*(1-pricingBoost),.03,.12)*churnFactor*service.churn/365,businessChurn=clamp(BASE_BUSINESS_CHURN*(1-pricingBoost*.6),.02,.08)*churnFactor*service.churn/365,lostRetail=Math.min(num(branch.retailCustomers),roundDraw(num(branch.retailCustomers)*retailChurn,`${branch.id}:${day}:retail-churn`)),lostBusiness=Math.min(num(branch.businessCustomers),roundDraw(num(branch.businessCustomers)*businessChurn,`${branch.id}:${day}:business-churn`)),weight=num(branch.retailCustomers)+num(branch.businessCustomers)*8,leavingShare=weight>0?(lostRetail+lostBusiness*8)/weight:0;
       if(lostRetail||lostBusiness){branch.retailCustomers-=lostRetail;branch.businessCustomers-=lostBusiness;lostRetailTotal+=lostRetail;lostBusinessTotal+=lostBusiness;const leaving=num(branch.deposits)*leavingShare;if(leaving>0)withdrawalRequests.push({branch,amount:leaving});}
@@ -540,7 +567,7 @@
       const portfolioInterest=num(portfolio.outstanding)*num(portfolio.rate)/365;interestIncome+=portfolioInterest;if(portfolio.repaymentModel==='monthly-customer-contract')customerContractInterestIncome+=portfolioInterest;const defaultRoll=deterministic(`${portfolio.id}:${day}:credit`,0,1),dailyPd=num(portfolio.pd||RISK_GRADES.BBB.pd)/365;
       if(defaultRoll<dailyPd&&portfolio.stage<3){portfolio.stage=portfolio.stage===1?2:3;portfolio.daysPastDue=portfolio.stage===2?30:90;portfolio.status=portfolio.stage===3?'متعثرة':'مراقبة';bank.delinquencyEvents.unshift({id:`DLQ-${portfolio.id}-${day}`,loanId:portfolio.id,day,stage:portfolio.stage,outstanding:num(portfolio.outstanding)});}
       const loss=num(portfolio.outstanding)*num(portfolio.pd||RISK_GRADES.BBB.pd)*num(portfolio.lgd||.35)/365*(portfolio.stage===3?3:portfolio.stage===2?1.8:1);creditLossExpense+=loss;if(portfolio.stage===3)continue;
-      if(portfolio.repaymentModel!=='monthly-customer-contract'){const due=Math.min(num(portfolio.outstanding),num(portfolio.principal)/Math.max(1,Number(portfolio.termDays)||1));if(due>0){portfolio.outstanding=Math.max(0,num(portfolio.outstanding)-due);portfolio.remainingDays=Math.max(0,Number(portfolio.remainingDays)-1);principalRepaid+=due;const branch=bank.branchNetwork.find(row=>row.id===portfolio.branchId);if(branch)branch.loans=Math.max(0,num(branch.loans)-due);if(portfolio.outstanding<=.01)portfolio.status='مسددة';}}
+      if(portfolio.repaymentModel!=='monthly-customer-contract'){const due=Math.min(num(portfolio.outstanding),num(portfolio.principal)/Math.max(1,Number(portfolio.termDays)||1));if(due>0){portfolio.outstanding=Math.max(0,num(portfolio.outstanding)-due);portfolio.remainingDays=Math.max(0,Number(portfolio.remainingDays)-1);principalRepaid+=due;const branch=branchById.get(portfolio.branchId);if(branch)branch.loans=Math.max(0,num(branch.loans)-due);if(portfolio.outstanding<=.01)portfolio.status='مسددة';}}
     }
     if(principalRepaid>0){const account=F.book(state,'bank').accounts[0];account.balance+=principalRepaid;F.journal(state,'bank',`تحصيل أصول قروض · يوم ${day}`,[{account:account.id,debit:principalRepaid},{account:'محفظة القروض',credit:principalRepaid}],`LOAN-PRINCIPAL-${day}`);bank.loans=Math.max(0,bank.loans-principalRepaid);}
     const customerBatch=yield* collectCustomerInstallmentStages(state,{throughDay:day,periodId:Math.floor(day/30),includeOverdue:true,batchId:`BANK-AUTO-COLLECT-${day}`});principalRepaid+=num(customerBatch.principalPaid);

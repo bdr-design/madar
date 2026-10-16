@@ -12,7 +12,9 @@ const server=http.createServer((request,response)=>{
   if(pathname==='/'){response.writeHead(200,{'content-type':'text/html'});response.end('<!doctype html><meta charset="utf-8">');return;}
   const file=path.join(WEB,pathname.replace(/^\//,''));
   if(!file.startsWith(WEB+path.sep)||!fs.existsSync(file)){response.writeHead(404);response.end('missing');return;}
-  response.writeHead(200,{'content-type':'text/javascript'});response.end(fs.readFileSync(file));
+  let source=fs.readFileSync(file,'utf8');
+  if(path.basename(file)==='fleet-query-core.js')source+='\n;if(typeof document===\'undefined\'){const original=GH_FLEET_QUERY;self.GH_FLEET_QUERY={...original,run(name,state,fleet,params){if(name===\'conditionSum\'&&params?.dailyMetrics===true&&!params.allowFullMetrics)throw new Error(\'unexpected-worker-full-metrics-scan\');return original.run(name,state,fleet,params);}};}';
+  response.writeHead(200,{'content-type':'text/javascript'});response.end(source);
 });
 
 (async()=>{
@@ -40,15 +42,29 @@ const server=http.createServer((request,response)=>{
       const expected=Q.run('fleetDay',state,DATA,params),actualPlan=found?.result?.columns,expectedPlan=expected.columns,exceptionValues=actualPlan?.exceptional?.values,expectedExceptionValues=expectedPlan.exceptional.values;
       const same=found&&JSON.stringify(found.result)===JSON.stringify(expected)&&exceptionValues.length===expectedExceptionValues.length&&Array.from(exceptionValues,(value,index)=>Object.is(value,expectedExceptionValues[index])).every(Boolean);
       const typed=actualPlan?.rejectNaN===true&&actualPlan?.indices instanceof Int32Array&&actualPlan?.values instanceof Float32Array&&actualPlan?.exceptional?.indices instanceof Int32Array&&exceptionValues instanceof Float64Array&&actualPlan.indices.buffer===actualPlan.exceptional.indices.buffer&&actualPlan.values.buffer===exceptionValues.buffer&&actualPlan.exceptional.count>0&&exceptionValues.some(value=>value===Infinity);
-      const lateAsked=client.query(store,{name:'fleetDay',params,simSeconds:state.simSeconds});STORE.set(store,10,'condition',91);const late=lateAsked&&await lateAsked,stale=!client.current(late,store);
+      const lateAsked=client.query(store,{name:'fleetDay',params,simSeconds:state.simSeconds});STORE.patch(store,10,{condition:91,phase:'idle',type:'road',specs:{co2Band:'B',electric:true}});const late=lateAsked&&await lateAsked,stale=!client.current(late,store);
       // A bad optional query is local to that request.  It must not terminate
       // the event engine or make later health/day queries fall back forever.
       const invalidAsked=client.query(store,{name:'does-not-exist',params:{},simSeconds:state.simSeconds}),invalid=invalidAsked&&await invalidAsked;
-      const recoveryAsked=client.query(store,{name:'conditionSum',params:{},simSeconds:state.simSeconds}),recovery=recoveryAsked&&await recoveryAsked;
-      const out={same,typed,current:client.current(found,store)===false,stale,invalid:invalid===null,recovered:!!recovery&&!client.disabled,disabled:client.disabled,stats:client.stats()};client.terminate('test-done');return out;
+      const recoveryAsked=client.query(store,{name:'conditionSum',params:{dailyMetrics:true},simSeconds:state.simSeconds}),recovery=recoveryAsked&&await recoveryAsked;
+      const incrementalMetrics=JSON.stringify(recovery?.result)===JSON.stringify(Q.run('conditionSum',state,DATA,{dailyMetrics:true}));
+      STORE.add(store,{id:'DAY-APPEND-1',ownerCompanyId:'road',type:'road',phase:'moving',routeId:null,condition:0,specs:{co2Band:'A|road|1'}});STORE.remove(store,2);
+      const append=await client.query(store,{name:'conditionSum',params:{dailyMetrics:true},simSeconds:state.simSeconds});
+      const membershipMetrics=JSON.stringify(append?.result)===JSON.stringify(Q.run('conditionSum',state,DATA,{dailyMetrics:true}));
+      STORE.rememberColumn(store,'phase');STORE.setSlot(store,'phase',0,STORE.intern(store,'idle'));
+      const column=await client.query(store,{name:'conditionSum',params:{dailyMetrics:true,allowFullMetrics:true},simSeconds:state.simSeconds});
+      const invalidatedColumn=JSON.stringify(column?.result)===JSON.stringify(Q.run('conditionSum',state,DATA,{dailyMetrics:true}));
+      const again=await client.query(store,{name:'fleetDay',params,simSeconds:state.simSeconds}),profileRef=STORE.slot(store,'profile',0),profile=structuredClone(STORE.value(store,profileRef));profile.type='road';profile.specs={co2Band:'B',hydrogen:true};
+      STORE.applyValueChanges(store,{length:store.values.length,changes:[[profileRef,profile]]});
+      const replacement=await client.query(store,{name:'conditionSum',params:{dailyMetrics:true,allowFullMetrics:true},simSeconds:state.simSeconds});
+      const invalidatedValue=JSON.stringify(replacement?.result)===JSON.stringify(Q.run('conditionSum',state,DATA,{dailyMetrics:true}));
+      const out={same,typed,current:client.current(found,store)===false,stale,invalid:invalid===null,recovered:!!recovery&&!client.disabled,incrementalMetrics,membershipMetrics,invalidatedColumn,invalidatedValue,disabled:client.disabled,stats:client.stats()};client.terminate('test-done');return out;
     });
     assert.deepEqual(errors,[]);assert.equal(result.same,true,'real worker daily result matches the shared main implementation');assert.equal(result.typed,true,'typed buffers survive the real worker boundary');
     assert.equal(result.current,true,'the first result becomes stale after the deliberate write');assert.equal(result.stale,true);assert.equal(result.invalid,true,'unknown optional query is declined');assert.equal(result.recovered,true,'worker serves a later query');assert.equal(result.disabled,null);
+    assert.equal(result.incrementalMetrics,true,'changed-row day metrics match a complete fresh worker pass');
+    assert.equal(result.membershipMetrics,true,'append, remove and legacy separator values update exact integer totals');
+    assert.equal(result.invalidatedColumn,true,'a mass phase write expires the day metrics');assert.equal(result.invalidatedValue,true,'an in-place reference replacement expires the day metrics');
     console.log(JSON.stringify({suite:'build372-fleet-day-worker-browser',same:result.same,typed:result.typed,stale:result.stale,queryRequests:result.stats.queryRequests,maxQueryWorkerMs:result.stats.maxQueryWorkerMs}));
     console.log('BUILD372_FLEET_DAY_WORKER_BROWSER_PASS');
   }finally{await browser.close();server.close();}

@@ -60,15 +60,15 @@ function installVault(){
     const first=await commits();assert.equal(first,1,'one baseline save');
 
     // Live play at the top speed with map changes: no save.
-    const live=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length;a.setSpeed(4);
+    const live=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length,from=__GH_STATE__.simSeconds;a.setSpeed(3);
       for(const mode of ['network','expansion','operations']){document.querySelector(`.map-modes [data-map-mode="${mode}"]`)?.click();await new Promise(r=>setTimeout(r,1200));}
-      document.querySelector('#layerMenu button')?.click();await new Promise(r=>setTimeout(r,4500));a.setSpeed(0);return {saves:__VAULT__.commits.length-before,sim:__GH_STATE__.simSeconds};});
+      document.querySelector('#layerMenu button')?.click();const deadline=performance.now()+25000;while(__GH_STATE__.simSeconds<=from+3600&&performance.now()<deadline)await new Promise(r=>setTimeout(r,50));a.setSpeed(0);return {saves:__VAULT__.commits.length-before,sim:__GH_STATE__.simSeconds,advanced:__GH_STATE__.simSeconds-from};});
     await settle();
-    assert.equal(live.saves,0,`live play with map changes does not save (${JSON.stringify(live)})`);assert.ok(live.sim>3600,'time moved');
+    assert.equal(live.saves,0,`live play with map changes does not save (${JSON.stringify(live)})`);assert.ok(live.advanced>3600,'time crosses an hour boundary at the supported maximum speed');
 
     // Calendar: an advance across April 1 saves nothing, during it or after it; nor does an overdue cap while it runs.
     const advance=days=>page.evaluate(async d=>{const a=__AUDIT__,s=__GH_STATE__,target=(Math.floor(s.simSeconds/86400)+d)*86400,before=__VAULT__.commits.length;
-      for(let attempt=0;attempt<20&&s.simSeconds<target-1;attempt++){a.simulationEngine.advanceTo(target,{speed:600,batchSeconds:3600,reason:'qa-save-policy',maxSeconds:400*86400});
+      for(let attempt=0;attempt<20&&s.simSeconds<target-1;attempt++){a.simulationEngine.advanceTo(target,{speed:300,batchSeconds:3600,reason:'qa-save-policy',maxSeconds:400*86400});
         while(a.simulationEngine.snapshot().manualAdvance||GH_TRANSACTION_CORE.isStaged(s))await new Promise(r=>setTimeout(r,25));}
       await new Promise(r=>setTimeout(r,2500));return {reached:s.simSeconds>=target-1,day:Math.floor(s.simSeconds/86400),saves:__VAULT__.commits.slice(before)};},days);
     const across=await advance(95-await page.evaluate(()=>Math.floor(__GH_STATE__.simSeconds/86400)));await settle();

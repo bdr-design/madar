@@ -71,12 +71,12 @@ const workerSource=require('./helpers/fleet-engine-worker').fleetEngineWorkerSou
     await page.evaluate(()=>{
       const a=__AUDIT__,s=__GH_STATE__,TX=GH_TRANSACTION_CORE,TIME=GH_SIMULATION_TIME_CORE;
       window.__ADVANCE__=async(hours,batchSeconds)=>{
-        const target=s.simSeconds+hours*3600,r=a.simulationEngine.advanceTo(target,{speed:600,batchSeconds,reason:'qa-thread',maxSeconds:400*86400});
+        const target=s.simSeconds+hours*3600,r=a.simulationEngine.advanceTo(target,{speed:300,batchSeconds,reason:'qa-thread',maxSeconds:400*86400});
         for(let i=0;i<20000&&(a.simulationEngine.snapshot().manualAdvance||TX.isStaged(s));i++)await new Promise(r=>setTimeout(r,20));
         const snap=a.simulationEngine.snapshot();
         return {accepted:r?.accepted!==false,reached:Math.abs(s.simSeconds-target)<1e-6,...(Math.abs(s.simSeconds-target)<1e-6?{}:{sim:s.simSeconds,target,failure:snap.lastAdvanceFailure,manualFailures:snap.manualFailures,lastCommitReason:snap.lastCommitReason,lastCancelReason:snap.lastCancelReason,staged:TX.isStaged(s)})};
       };
-      window.__LIVE__=async ms=>{a.setSpeed(4);await new Promise(r=>setTimeout(r,ms));a.setSpeed(0);for(let i=0;i<500&&(a.simulationEngine.snapshot().jobActive||TX.isStaged(s));i++)await new Promise(r=>setTimeout(r,20));return {sim:s.simSeconds};};
+      window.__LIVE__=async ms=>{a.setSpeed(3);await new Promise(r=>setTimeout(r,ms));a.setSpeed(0);for(let i=0;i<500&&(a.simulationEngine.snapshot().jobActive||TX.isStaged(s));i++)await new Promise(r=>setTimeout(r,20));return {sim:s.simSeconds};};
       window.__RUN_SLICE__=async({seconds=300,fail=false,cancel=false}={})=>{
         let from=s.simSeconds;if(TIME.boundaryAt(from+seconds).day!=null||Math.floor(from/86400)!==Math.floor((from+seconds)/86400))throw new Error('slice would reach a day boundary');
         const to=from+seconds,b=TIME.boundaryAt(to),originalTime=window.GH_SIMULATION_TIME_CORE;

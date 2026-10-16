@@ -35,6 +35,18 @@
     const legacyOwners=object(params.legacyAssetOwners)?params.legacyAssetOwners:{};
     return {routeIds,routes,registryCompanies,companyReferenceCompanies,definitionCompanies,legacyOwners,contextToken:contextToken(params)};
   }
+  // The company platform's fleet predicates, on the worker's existing identity class tables. No row strings or class
+  // tables cross the worker boundary. A malformed large fleet fails closed with bounded error evidence.
+  function summarizeCompany(state,fleet,params={}){
+    const context=normalizedParams(params),errors=[],seen=new Set();let overflow=false,logicalRows=0;
+    const add=error=>{if(seen.has(error))return;if(errors.length>=COMPANY_ERROR_LIMIT){overflow=true;return;}seen.add(error);errors.push(error);};
+    const check=row=>{const mode=String(row?.assetMode||row?.type||''),owner=String(row?.ownerCompanyId||row?.companyId||context.legacyOwners[mode]||'');if(!dataId(owner)||!context.companyReferenceCompanies.has(owner)&&!context.definitionCompanies.has(owner))add(`asset-company-reference:${row?.id||'unknown'}`);if(row?.assetClass!==undefined&&!companyDataId(row.assetClass))add(`asset-class:${row?.id||'unknown'}`);};
+    fleet.forEachFieldClasses(state,['id','ownerCompanyId','companyId','assetMode','type','assetClass'],(row,count,info)=>{
+      logicalRows+=count;const before=errors.length;check(row);
+      if(errors.length!==before&&info.members>1){errors.length=before;seen.clear();for(const error of errors)seen.add(error);info.forEachMember(check);}
+    });
+    return {schema:COMPANY_SCHEMA,version:VERSION,errors,overflow,logicalRows,assetFieldVisits:logicalRows};
+  }
   // The one-pass reference: every check on every row. summarize() below returns exactly its result.
   function summarizeReference(state,fleet,params={}){
     if(!fleet||typeof fleet.scan!=='function'||typeof fleet.idCollisions!=='function')throw new Error('fleet-save-validation-access-missing');
@@ -164,6 +176,6 @@
     const company=summary.companyPlatform;if(!object(company)||company.schema!==COMPANY_SCHEMA||company.version!==VERSION||!Array.isArray(company.errors)||company.errors.length>COMPANY_ERROR_LIMIT||company.errors.some(error=>typeof error!=='string'||error.length>400||!/^asset-(?:company-reference|class):/.test(error))||typeof company.overflow!=='boolean'||company.logicalRows!==summary.logicalRows||company.assetFieldVisits!==summary.logicalRows)return false;
     return true;
   }
-  const API=Object.freeze({VERSION,SCHEMA,COMPANY_SCHEMA,FIELDS,STATIC_FIELDS,LIVE_FIELDS,ERROR_CODES,COMPANY_ERROR_LIMIT,contextToken,summarize,summarizeReference,staticStats:()=>({...staticStats}),accepts});
+  const API=Object.freeze({VERSION,SCHEMA,COMPANY_SCHEMA,FIELDS,STATIC_FIELDS,LIVE_FIELDS,ERROR_CODES,COMPANY_ERROR_LIMIT,contextToken,summarize,summarizeReference,summarizeCompany,staticStats:()=>({...staticStats}),accepts});
   globalThis.GH_FLEET_SAVE_VALIDATION=API;if(globalThis.window&&window!==globalThis)window.GH_FLEET_SAVE_VALIDATION=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

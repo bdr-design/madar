@@ -62,7 +62,8 @@ fs.mkdirSync(out,{recursive:true});
    }
    const after=await page.evaluate(()=>JSON.stringify(Object.fromEntries(['cash','companyFinance','assets','globalBases','customRoutes','hired','crew','openedCompanies','profile'].map(k=>[k,__GH_STATE__[k]]))));
    assert.equal(after,before,'navigation must not mutate ownership, money, staff or custom identity');
-   assert.equal(await page.locator('#speedMenu [data-speed]').count(),4);
+   assert.equal(await page.locator('#speedMenu [data-speed]').count(),3);
+   assert.equal(await page.locator('#speedMenu').innerText(),'30×\n120×\n300×','the supported speed cap is visible and excludes 600×');
    const map=await page.locator('#map').boundingBox();assert(map&&map.width>0&&map.height>0,'map must remain present');
    await context.close();
   }

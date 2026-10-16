@@ -15,6 +15,33 @@ importScripts('fleet-store-core.js','simulation-asset-core.js','route-core.js','
 
 const STORE=self.GH_FLEET_STORE,EVENTS=self.GH_FLEET_EVENTS,VERSION='GH-FLEET-ENGINE-WORKER-372.2.0';
 let store=null,routes=new Map(),specs={},open=null,replicaAssembly=null;
+// Daily integer counts are produced by the existing fleetDay pass. During that open day transaction, sync already
+// names every edited row: adjust only those rows instead of scanning the million again after maintenance. The cache
+// ends with the transaction; it adds no per-asset work to ordinary simulation events.
+let dayMetricsCache=null;
+const dayMetricsMessages=new Set(['sync','columns','column-plan','query','classes','health','routes','inspect','specs']);
+const newDayMetrics=()=>({rows:0,moving:0,mix:{total:0,lowEmission:0,road:0,electricRoad:0}});
+function currentDayMetrics(){const entry=dayMetricsCache;if(entry&&entry.store===store&&entry.revision===store.revision&&entry.length===store.length&&entry.structure===store.structure)return entry;dayMetricsCache=null;return null;}
+function changedDayMetrics(indices){
+  const totals=newDayMetrics();let previous=-1;
+  for(const index of indices){if(!Number.isSafeInteger(index)||index<=previous)return null;previous=index;if(index<store.length&&STORE.isAlive(store,index))self.GH_FLEET_DAY_CORE.addDailyMetrics(totals,{phase:STORE.peek(store,index,'phase'),routeId:STORE.peek(store,index,'routeId'),simulationFault:STORE.peek(store,index,'simulationFault'),type:STORE.peek(store,index,'type'),specs:STORE.peek(store,index,'specs')},true);}
+  return totals;
+}
+function beforeDayMetricsSync(message){
+  const entry=currentDayMetrics(),indices=message.rows?.indices||[];
+  if(!entry)return null;
+  // A broad/unusual rewrite keeps the ordinary worker refresh. Bound temporary work and never infer that an in-place
+  // replacement of a live interned value affects only the explicitly named rows.
+  if(message.length<store.length||indices.length>12000||(message.values?.changes||[]).some(([ref])=>ref<store.values.length&&store.values[ref]!=null)){dayMetricsCache=null;return null;}
+  const before=changedDayMetrics(indices);if(!before){dayMetricsCache=null;return null;}return {entry,before};
+}
+function afterDayMetricsSync(held,message){
+  if(!held||held.entry!==dayMetricsCache)return;
+  const after=changedDayMetrics(message.rows?.indices||[]);if(!after){dayMetricsCache=null;return;}
+  const value=held.entry.value,before=held.before;value.rows+=after.rows-before.rows;value.moving+=after.moving-before.moving;
+  for(const key of ['total','lowEmission','road','electricRoad'])value.mix[key]+=after.mix[key]-before.mix[key];
+  Object.assign(held.entry,{revision:store.revision,length:store.length,structure:store.structure});
+}
 
 const routeKey=(routeId,base)=>String(routeId||'')+'\u0000'+String(base||'');
 class MissingRoute extends Error{}
@@ -103,6 +130,7 @@ function advanceWindow(message){
 
 self.addEventListener('message',event=>{
   const message=event?.data||{};
+  if(dayMetricsCache&&!dayMetricsMessages.has(message.type))dayMetricsCache=null;
   try{
     switch(message.type){
       case 'replica':
@@ -192,6 +220,7 @@ self.addEventListener('message',event=>{
         const into=addressedToOpen(message);
         if(!store||(open&&!into)){self.postMessage({type:'error',version:VERSION,id:message.id,error:open?'sync-while-step-open':'replica-missing'});return;}
         if(into&&message.length<store.length){self.postMessage({type:'error',version:VERSION,id:message.id,error:'sync-into-step-shorter'});return;}
+        const metrics=beforeDayMetricsSync(message);
         // Rows appended on the main thread (purchases) arrive with their records. Build 372: a shorter store is a rollback
         // of rows appended inside a transaction (compactions arrive before, as 'compact'): those rows go, as there.
         if(message.length<store.length)STORE.truncateReplica(store,message.length);
@@ -199,6 +228,7 @@ self.addEventListener('message',event=>{
         if(message.values)STORE.applyValueChanges(store,message.values);
         if(message.rows&&message.rows.indices.length)STORE.writeRows(store,message.rows.indices,message.rows.bytes,message.rows.extras,{staticRows:true,trackIds:true});
         store.live=message.live;store.structure=message.structure;
+        afterDayMetricsSync(metrics,message);
         return;
       }
       // Build 359: columns the main thread rewrote wholesale (after the rows of the same exchange).
@@ -207,8 +237,10 @@ self.addEventListener('message',event=>{
       case 'columns':{
         const into=addressedToOpen(message);
         if(!store||(open&&!into)){self.postMessage({type:'error',version:VERSION,id:message.id,error:open?'columns-while-step-open':'replica-missing'});return;}
+        const metrics=currentDayMetrics();if((message.payload?.columns||[]).some(([name])=>['flags','present','phase','routeId','profile'].includes(name)))dayMetricsCache=null;
         const reported=new Set(message.reported||[]);if(into)for(const [name] of message.payload?.columns||[])STORE.rememberColumn(store,name,{quiet:!reported.has(name)});
         STORE.writeColumns(store,message.payload,{reported:message.reported||[]});
+        if(metrics&&dayMetricsCache===metrics)metrics.revision=store.revision;
         return;
       }
       // A sparse, already validated main-side mass write can return the exact typed plan that produced it. Applying the
@@ -217,7 +249,9 @@ self.addEventListener('message',event=>{
       case 'column-plan':{
         const into=addressedToOpen(message);
         if(!store||(open&&!into)){self.postMessage({type:'error',version:VERSION,id:message.id,error:open?'column-plan-while-step-open':'replica-missing'});return;}
+        const metrics=currentDayMetrics();
         const stages=STORE.columnPlanStages(store,message.plan,{rowSlice:4096,label:'worker.column-plan'});while(!stages.next().done){}
+        if(metrics)metrics.revision=store.revision;
         return;
       }
       case 'routes':
@@ -251,7 +285,10 @@ self.addEventListener('message',event=>{
         if(!store||!self.GH_FLEET_QUERY||!self.GH_FLEET_DATA){self.postMessage({type:'query',version:VERSION,id:message.id,unavailable:!store?'replica-missing':'query-core-missing'});return;}
         const started=performance.now();
         try{
-          const result=self.GH_FLEET_QUERY.run(String(message.name),{fleet:store,simSeconds:Number(message.simSeconds)||0},self.GH_FLEET_DATA,message.params||{});
+          const cached=message.name==='conditionSum'&&message.params?.dailyMetrics===true?currentDayMetrics():null,params=cached?{...message.params,dailyMetrics:false}:message.params||{};
+          const result=self.GH_FLEET_QUERY.run(String(message.name),{fleet:store,simSeconds:Number(message.simSeconds)||0},self.GH_FLEET_DATA,params);
+          if(cached)result.dailyMetrics=cached.value;
+          if(message.name==='fleetDay'&&result?.dailyMetrics)dayMetricsCache={store,revision:store.revision,length:store.length,structure:store.structure,value:result.dailyMetrics};
           const transfers=[];for(const view of [result?.columns?.indices,result?.columns?.values])if(ArrayBuffer.isView(view)&&view.buffer instanceof ArrayBuffer&&view.buffer.byteLength&&!transfers.includes(view.buffer))transfers.push(view.buffer);
           // Build 362 follow-up: how much of a save validation reused its per-chunk static checks (diagnostics evidence).
           const validation=String(message.name)==='saveValidation'&&typeof self.GH_FLEET_SAVE_VALIDATION?.staticStats==='function'?self.GH_FLEET_SAVE_VALIDATION.staticStats():null;

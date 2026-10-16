@@ -542,15 +542,16 @@
     const message=document.createElement('p');message.textContent='احتفظنا بالملف الحالي دون تغييره. صدّر نسخة لاستعادتها أو مراجعتها قبل متابعة اللعب.';box.appendChild(message);
     const button=document.createElement('button');button.textContent='تصدير الحفظ للمراجعة';button.onclick=()=>{const raw=window.__GH_NATIVE_SAVE_JSON__||localStorage.getItem(storageKey)||legacyStorageKeys.map(k=>localStorage.getItem(k)).find(Boolean)||'';const url=URL.createObjectURL(new Blob([raw],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='Ventora_Recovery.ghsave';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};box.appendChild(button);document.body.appendChild(box);console.error('SAVE_LOAD_BLOCKED',error);return;
   }
-  // One source of truth: pause plus the four user-visible simulation levels.
+  // One source of truth: pause plus the three user-visible simulation levels.
   // Keep the persisted level IDs stable (Save Schema 3.0.0) while using
   // conservative live rates that remain practical with large active fleets.
-  const SAFE_SPEED_VALUES=[0,1,2,3,4];
-  const SIMULATION_RATE_BY_LEVEL=Object.freeze({0:0,1:30,2:120,3:300,4:600});
-  const SPEED_LABEL_BY_LEVEL=Object.freeze({0:'متوقف',1:'عادي · 30×',2:'سريع · 120×',3:'متسارع · 300×',4:'فائق · 600×'});
+  const SAFE_SPEED_VALUES=[0,1,2,3];
+  const SIMULATION_RATE_BY_LEVEL=Object.freeze({0:0,1:30,2:120,3:300});
+  const SPEED_LABEL_BY_LEVEL=Object.freeze({0:'متوقف',1:'عادي · 30×',2:'سريع · 120×',3:'متسارع · 300×'});
   const effectiveSimulationRate=level=>SIMULATION_RATE_BY_LEVEL[SAFE_SPEED_VALUES.includes(Number(level))?Number(level):1];
   const simulationLevelForRate=rate=>SAFE_SPEED_VALUES.find(level=>SIMULATION_RATE_BY_LEVEL[level]===Number(rate))??1;
-  if(Number(state.speed)===5||!SAFE_SPEED_VALUES.includes(Number(state.speed)))state.speed=1;
+  if(Number(state.speed)===4)state.speed=3;
+  else if(Number(state.speed)===5||!SAFE_SPEED_VALUES.includes(Number(state.speed)))state.speed=1;
   if(!window.GH_SAVE_SCHEMA?.normalize)throw new Error('Save Schema Core failed to load before app.js');
   state=window.GH_SAVE_SCHEMA.normalize(state,defaultState);
   state=window.GH_MIGRATION_CORE.structural(state,defaultState);
@@ -605,6 +606,7 @@
   const nonCritical=(stage,error)=>{diag('NONCRITICAL_ERROR',{stage,message:String(error?.message||error)});console.warn(`[${stage}]`,error);};
   window.GH_MIGRATION_CORE.completeBusinessState(state,{defaultState,initialStocks,crewRolesSeed});
   const legacyBankMigration=window.GH_BANKING_CORE?.migrateLegacyBranches?.(state)||{changed:false,added:0};
+  const legacyMobilityMigration=window.GH_MOBILITY_CORE?.migrateLegacyDriverContracts?.(state)||{changed:false};
   // Company collections are live projections of the platform registry.  Never
   // cache these lists: a newly formed instance must enter UI, finance and map
   // consumers in the same session without a reload.
@@ -733,7 +735,7 @@
   if (state.saveVersion !== SAVE_SCHEMA_VERSION) state.saveVersion = SAVE_SCHEMA_VERSION;
   state.customRoutes.forEach(route=>{if(route?.id&&Array.isArray(route.route)){routeTemplates[route.id]=prepareRoute(clone(route));}});
   const legacyRouteExclusivity=normalizeLegacyRouteAssignments();
-  if(dedupeCustomRoutes()||legacyBankMigration.changed||legacyRouteExclusivity.changed) save();
+  if(dedupeCustomRoutes()||legacyBankMigration.changed||legacyMobilityMigration.changed||legacyRouteExclusivity.changed) save();
   // ترحيل المسارات البحرية القديمة التي كانت خطوطًا عامة إلى شبكة الممرات البحرية الحالية.
   let maritimeMigrationChanged=false;
   // Routes with a moving asset, counted once per class of rows (phase as views present it), only when a sea route
@@ -959,6 +961,31 @@
   // callers cannot wait for worker validation. The last answer is kept (one reference, no copy); Save Schema accepts it only
   // while current() holds (the same store at the same revision) and the context token matches, else it fails closed.
   let lastFleetValidation=null,pendingFleetValidation=null;
+  const companyFleetEvidence=new WeakMap(),companyEvidenceNoRoutes=new Set();
+  const companyEvidenceParams=s=>window.GH_SAVE_SCHEMA.fleetValidationParams(s,[],companyEvidenceNoRoutes);
+  const companyEvidenceToken=params=>JSON.stringify([params.companyReferenceCompanies||params.registryCompanies||[],params.definitionCompanies||[],params.legacyAssetOwners||{}]);
+  function rememberCompanyFleetEvidence(s,result,params){const core=window.GH_FLEET_STORE;companyFleetEvidence.set(s,{result,token:companyEvidenceToken(params),snapshot:core.identitySnapshot(s.fleet)});}
+  // A synchronous integrity reader only consumes an already verified worker result. Preparing a missing answer is
+  // explicit staged work; neither a busy worker nor an expired answer can start a whole-fleet pass on the UI thread.
+  globalThis.GH_COMPANY_FLEET_VALIDATION_PROVIDER=(s,{syncOnly=false}={})=>{
+    const store=s?.fleet,core=window.GH_FLEET_STORE,client=fleetEngineThreadClient;if(!core?.isStore?.(store)||!client||client.disabled)return null;
+    const params=companyEvidenceParams(s),token=companyEvidenceToken(params);
+    const current=entry=>core.isStore(s.fleet)&&entry.token===token&&core.identityCurrent(s.fleet,entry.snapshot);
+    const wrap=entry=>({result:entry.result,current:()=>current(entry)&&companyEvidenceToken(companyEvidenceParams(s))===entry.token});
+    let entry=companyFleetEvidence.get(s);if(entry&&current(entry))return syncOnly?wrap(entry):Promise.resolve(wrap(entry));
+    const bootEvidence=COMPANY_PLATFORM.fleetEvidence?.(s);if(bootEvidence?.current?.()===true)return syncOnly?bootEvidence:Promise.resolve(bootEvidence);
+    const last=lastFleetValidation;if(last?.client===client&&last.store===store&&last.companyToken===token&&client.current(last.found,store)){rememberCompanyFleetEvidence(s,last.found.result.companyPlatform,params);entry=companyFleetEvidence.get(s);return syncOnly?wrap(entry):Promise.resolve(wrap(entry));}
+    if(syncOnly)return null;
+    const asked=client.query(store,{name:'companyValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
+    return asked.then(found=>{if(!found||s.fleet!==store||!client.current(found,store)||companyEvidenceToken(companyEvidenceParams(s))!==token)return null;rememberCompanyFleetEvidence(s,found.result,params);return wrap(companyFleetEvidence.get(s));});
+  };
+  function* prepareCompanyFleetEvidenceStages(){
+    if(window.GH_FLEET_DATA.size(state)<=2048)return;
+    const provider=globalThis.GH_COMPANY_FLEET_VALIDATION_PROVIDER,ready=provider(state,{syncOnly:true});if(ready?.current?.()===true)return;
+    const asked=provider(state),box={done:false,value:null};if(!asked?.then)throw new Error('company-fleet-worker-unavailable');asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});
+    for(let waits=0;!box.done&&waits<600;waits++)yield 'company-fleet-validation-wait';
+    if(!box.done||box.value?.current?.()!==true)throw new Error('company-fleet-worker-unavailable');
+  }
   globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false}={})=>{
     const client=fleetEngineThreadClient;if(!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
     const store=s.fleet,contextToken=window.GH_FLEET_SAVE_VALIDATION?.contextToken?.(params||{}),wrap=found=>({result:found.result,current:()=>client.current(found,store)}),last=lastFleetValidation;
@@ -970,7 +997,7 @@
     if(typeof contextToken==='string'&&pending?.client===client&&pending.store===store&&pending.contextToken===contextToken&&client.current(pending.tag,store))return pending.promise;
     const asked=client.query(store,{name:'saveValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
     const entry={client,store,contextToken,tag:{store,runtime:window.GH_FLEET_STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length},promise:null};
-    entry.promise=asked.then(found=>{if(!found)return null;if(pendingFleetValidation===entry&&client.current(found,store)&&found.result?.contextToken===contextToken)lastFleetValidation={client,store,found};return wrap(found);}).finally(()=>{if(pendingFleetValidation===entry)pendingFleetValidation=null;});
+    entry.promise=asked.then(found=>{if(!found)return null;if(pendingFleetValidation===entry&&client.current(found,store)&&found.result?.contextToken===contextToken)lastFleetValidation={client,store,found,companyToken:companyEvidenceToken(params)};return wrap(found);}).finally(()=>{if(pendingFleetValidation===entry)pendingFleetValidation=null;});
     pendingFleetValidation=entry;return entry.promise;
   };
   // Build 372: a fleet-query-core pass found by the fleet engine's worker for a staged stage that waits for it (realism-core:
@@ -981,6 +1008,7 @@
     const store=s.fleet,asked=client.query(store,{name,params,simSeconds:s.simSeconds});if(!asked)return null;
     return asked.then(found=>found?{result:found.result,current:()=>client.current(found,store)}:null);
   };
+  globalThis.GH_FLEET_FLUSH_PROVIDER=s=>fleetEngineThreadClient?.flushOpen?.(s.fleet)===true;
   // A single worker aggregate supplies every fleet total used by interactive drawers.  Reads never fall back to a
   // whole-fleet pass on this thread: a missing/busy/stale worker leaves an explicit loading value and retries after an
   // idle prime.  `dynamic` consumers additionally pin simulation time because presentedPhase is part of their result.
@@ -2828,7 +2856,7 @@
     // Calendar advance is a bounded cooperative workload independent from the player's live-speed selection.
     // The simulation core keeps the current atomic slice alive under device pressure instead of restarting it.
     // the simulation core still commits every hour/day boundary atomically.
-    const request=simulationEngine.advanceTo(next,{speed:SIMULATION_RATE_BY_LEVEL[4],batchSeconds:3600,reason,maxSeconds:366*86400});
+    const request=simulationEngine.advanceTo(next,{speed:SIMULATION_RATE_BY_LEVEL[3],batchSeconds:3600,reason,maxSeconds:366*86400});
     if(!request.accepted){notice('تعذر تقديم التاريخ الآن؛ لم يُكتب أي وقت مباشرة.');return false;}
     simulationRuntime.wake();
     pushAlert(`بدأ تقديم التقويم ${label||''} عبر محرك المحاكاة الآمن.`);updateDayStepControl();renderSimulationCalendar();return true;
@@ -3288,7 +3316,8 @@
   }
 
   function runOperationsCycle(net,conditionTotal=null){
-    const fleetSize=window.GH_FLEET_DATA.size(state),moving=window.GH_FLEET_DATA.countByPhase(state).get('moving')||0,readiness=fleetSize?(conditionTotal??window.GH_FLEET_DATA.sum(state,a=>a.condition))/fleetSize:100;
+    const fleetSize=window.GH_FLEET_DATA.size(state),metrics=window.GH_REALISM?.fleetDailyMetrics?.(state);if(fleetSize>2048&&!metrics)throw new Error('operations-fleet-worker-unavailable');
+    const moving=metrics?metrics.moving:window.GH_FLEET_DATA.countByPhase(state).get('moving')||0,readiness=fleetSize?(conditionTotal??window.GH_FLEET_DATA.sum(state,a=>a.condition))/fleetSize:100;
     const brief=dispatchSystemCommand({state},'operations','daily-brief',{day:state.lastFinancialDay,net,moving,readiness,debt:state.debt,groupValue:state.groupValue},{actor:'simulation'}).result;
     if(brief.risk>=55)pushAlert(`مؤشر التشغيل: مخاطر تشغيلية مرتفعة (${brief.risk}/100). افحص الصيانة والسيولة قبل فتح التزامات جديدة.`);
     else if(state.lastFinancialDay%7===0)pushAlert(`مؤشر التشغيل الأسبوعي: ${moving} أصلًا متحركًا، جاهزية الأسطول ${Math.round(readiness)}%، صافي اليوم ${fmtMoney(net)}.`);
@@ -3845,6 +3874,7 @@
           if(legOut.effects?.saleIds?.length||legOut.effects?.retiredRouteIds?.length)throw fallbackError('calendar-window-post-commit-effects');
           state.simSeconds=legComplete;const legJournal=makeSimulationEffects();mergeSimulationEffects(legJournal,legOut.effects);mergeSimulationEffects(journal,legOut.effects);
           yield 'window.fleet-apply';
+          if(window.GH_FLEET_DATA.size(state)>2048)yield* prepareCompanyFleetEvidenceStages();
           for(const companyId of Object.keys(legJournal.tripCount))window.GH_CORPORATE_CORE?.model?.(state,companyId);
           window.GH_FINANCE_CORE.execute({state},'apply-simulation-journal',{journal:legJournal});
           window.GH_CORPORATE_CORE.execute({state},'adjust-group-value',{delta:Number(legJournal.groupValue)||0});
@@ -3864,6 +3894,7 @@
           legFrom=completeTo;legTo=Math.min(to,legFrom+TIME.clampSliceToBoundary(legFrom,to-legFrom));
           if(!emptyFleet){fleetTicket=null;requestContext=null;requestContextKey='';awaitingFleet=true;yield 'window.await-fleet';}
         }
+        if(window.GH_FLEET_DATA.size(state)>2048)yield* prepareCompanyFleetEvidenceStages();
         return true;
       };
       return {label:'simulation-window:'+from+'->'+to,scope:SIMULATION_HOUR_TRANSACTION_SCOPE,writeRoots:SIMULATION_HOUR_TRANSACTION_SCOPE,rowRoots:simulationRowRoots('hour'),scopedJoin:true,stagedScope:true,
@@ -3973,6 +4004,7 @@
             state.simSeconds=completeTo;
             mergeSimulationEffects(journal,out.effects);
             yield 'slice.fleet-apply';
+            if(window.GH_FLEET_DATA.size(state)>2048)yield* prepareCompanyFleetEvidenceStages();
             for(const companyId of Object.keys(journal.tripCount))window.GH_CORPORATE_CORE?.model?.(state,companyId);
             if(journal.retiredRouteIds.length)TX.extendScope(state,SIMULATION_TRANSACTION_SCOPE);
             if(journal.retiredRouteIds.length){const activeRouteIds=window.GH_FLEET_DATA.distinctRefs(state,'routeId');for(const routeId of new Set(journal.retiredRouteIds))if(!activeRouteIds.has(routeId)&&(state.customRoutes||[]).some(route=>route.id===routeId))window.GH_ROUTE_CORE.execute({state},'delete',{id:routeId});}
@@ -4008,6 +4040,7 @@
             }
             state.simulationKernel=state.simulationKernel||{};
             state.simulationKernel.lastAtomicCommit={from,to:completeTo,requestedTo:to,events:out.events,day:boundary.day,hour:boundary.hour,at:completeTo,core:EVENTS.VERSION,order};
+            if(window.GH_FLEET_DATA.size(state)>2048)yield* prepareCompanyFleetEvidenceStages();
             return true;
         };
         return {label:'simulation:'+from+'->'+to,scope,writeRoots:scope,rowRoots:simulationRowRoots(steady?'steady':hourOnly?'hour':'full'),scopedJoin:hourOnly,stagedScope:!dayBoundary,stagedFullScope:dayBoundary,
@@ -4218,7 +4251,7 @@
     onWarning:({stage,error})=>{diag('SIM_WARNING',{stage,message:String(error?.message||error)});console.warn(`Simulation Core warning [${stage}]`,error);},
     onThrottle:({took,reason,stage})=>{diag('SIM_THROTTLE',{took,reason,stage});console.warn(`Simulation watchdog throttled after ${Math.round(took)}ms ${stage||'work'} stage`);},
     onGovernor:({level,avgChunkMs,avgWorkMs,stage,took,speed})=>{runtimeGovernor={level,avgChunkMs,avgWorkMs,stage,took,speed};governorEventCoalescer.observe(runtimeGovernor);}
-  },{minRealSliceSeconds:1,allowedSpeeds:[0,30,120,300,600],fallbackSpeed:30,frameBudgetMs:4,manualFrameBudgetMs:10,chunkItems:32,manualChunkItems:64,renderEveryNormalMs:260,renderEveryFastMs:650,maintenanceEveryHours:12,manualBatchSeconds:3600,manualMinBatchSeconds:300,manualRetryLimit:3});
+  },{minRealSliceSeconds:1,allowedSpeeds:[0,30,120,300],fallbackSpeed:30,frameBudgetMs:4,manualFrameBudgetMs:10,chunkItems:32,manualChunkItems:64,renderEveryNormalMs:260,renderEveryFastMs:650,maintenanceEveryHours:12,manualBatchSeconds:3600,manualMinBatchSeconds:300,manualRetryLimit:3});
   const simulationRuntime=window.GH_SIMULATION_RUNTIME_CORE.create({
     engine:simulationEngine,getSpeed:()=>effectiveSimulationRate(state.speed),isHidden:()=>document.hidden,
     hasDeferredWork:()=>maintenanceQueue.length>0,

@@ -25,5 +25,8 @@ const integrity=s.GH_INTEGRITY_CORE.check(state),party=(integrity.issues||[]).fi
 assert.equal(JSON.stringify(party.map(row=>row.id)),'[]','no ledger row without parties');
 // The documents themselves carry no parties: only their ledger projections do.
 assert(state.finance.hospitalityDocuments.every(row=>row.from===undefined&&row.to===undefined),'signed documents are unchanged');
+const legacyAccrual={...accrual,id:'HOSP-ACCRUAL-hospitality-31',reference:'HOSP-ACCRUAL-hospitality-31',cashMovement:false};delete legacyAccrual.from;delete legacyAccrual.to;state.treasury.ledger.unshift(legacyAccrual);
+let staleReport=s.GH_INTEGRITY_CORE.check(state);assert(!staleReport.issues.some(row=>row.id==='FINANCE_LEDGER_PARTY_HOSP-ACCRUAL-hospitality-31'),'a historical non-cash accrual does not need cash counterparties');
+state.treasury.ledger.unshift({id:'QA-CASH-MISSING-PARTIES',amount:10,cashMovement:true});staleReport=s.GH_INTEGRITY_CORE.check(state);assert(staleReport.issues.some(row=>row.id==='FINANCE_LEDGER_PARTY_QA-CASH-MISSING-PARTIES'),'real cash movement still requires both parties');
 assert(H.validateState(state).ok);
 console.log(JSON.stringify({suite:'build362-hospitality-ledger-parties',ok:true,rows:rows.length,documentKinds:[...kinds].sort()}));

@@ -129,6 +129,10 @@
   // Changes whenever an interned ref may now hold a different value (a reclaimed
   // slot, a rolled-back table); owners caching per-ref data compare it.
   function valuesGeneration(store){return rt(store).valuesGeneration;}
+  // Company/identity readers may keep a worker answer across pure movement. This is the exact same conservative
+  // invalidation tier used by classScan: mass writes, reclaimed refs, rollback, membership and identity writes expire it.
+  function identitySnapshot(store){const r=rt(store);return {runtime:r.uid,epoch:r.epoch,mass:r.massVersion,generation:r.valuesGeneration,length:store.length,structure:store.structure,versions:r.identityVersions.slice(0,Math.ceil(store.length/CHUNK_ROWS))};}
+  function identityCurrent(store,snapshot){const r=rt(store);if(!snapshot||snapshot.runtime!==r.uid||snapshot.epoch!==r.epoch||snapshot.mass!==r.massVersion||snapshot.generation!==r.valuesGeneration||snapshot.length!==store.length||snapshot.structure!==store.structure)return false;for(let i=0;i<snapshot.versions.length;i++)if(snapshot.versions[i]!==r.identityVersions[i])return false;return true;}
   function bumpEpoch(store){const r=rt(store);r.epoch=++epochCounter;r.ids=null;return r.epoch;}
   function invalidateProfiles(store){const r=runtime.get(store);if(r){r.profileGroups=null;r.leaseGroups=null;r.payrollGroups=null;}}
   // Generic slot access (owners on hot paths use views() with O offsets).
@@ -598,8 +602,18 @@
     }
     if(dual&&(fastAt!==count||dualExceptionalAt!==exceptionalCount)||exceptionalPositions&&exceptionalAt!==exceptionalPositions.length)throw new Error('fleet-store-column-plan-exceptions');
     if(!fresh())throw new Error('fleet-store-column-plan-changed');
-    if(needPresent)yield* prepareColumnSnapshotStages(store,'present',{rowSlice,label});
-    for(const field of fields)if(fastFields.has(field))yield* prepareColumnSnapshotStages(store,field,{rowSlice,label});
+    if(replicaTransfer===true&&journal){
+      // Capture the ordinary undo columns together in bounded slices of the same raw buffer. This keeps the proven
+      // full-column rollback contract and its memory use, while avoiding a separate full-store sweep per column.
+      const names=[...(needPresent?['present']:[]),...fields.filter(field=>fastFields.has(field))],logCount=journal.log.count;
+      const copies=names.filter(name=>!journal.fields.has(name)&&!journal.preparedFields.has(name)).map(name=>{const [view,slot]=SLOTS[name],source=v[view];return {name,source,slot,per:PER_ROW[view],copy:new source.constructor(length)};});
+      if(copies.length)for(let from=0;from<length;from+=rowSlice){if(!fresh())throw new Error('fleet-store-column-plan-changed');const to=Math.min(length,from+rowSlice);for(const entry of copies)for(let index=from;index<to;index++)entry.copy[index]=entry.source[index*entry.per+entry.slot];yield label;}
+      if(!fresh())throw new Error('fleet-store-column-plan-changed');
+      for(const entry of copies)if(!journal.fields.has(entry.name)&&!journal.preparedFields.has(entry.name))journal.preparedFields.set(entry.name,{copy:entry.copy,logCount,quiet:false});
+    }else{
+      if(needPresent)yield* prepareColumnSnapshotStages(store,'present',{rowSlice,label});
+      for(const field of fields)if(fastFields.has(field))yield* prepareColumnSnapshotStages(store,field,{rowSlice,label});
+    }
     if(!fresh())throw new Error('fleet-store-column-plan-changed');
     const write=columnWriter(store,fields);let appliedRevision=store.revision;fastAt=0;dualExceptionalAt=0;
     for(let from=0;from<totalCount;from+=rowSlice){
@@ -1418,7 +1432,7 @@
 
   const API=Object.freeze({VERSION,SCHEMA,CHUNK_SHIFT,CHUNK_ROWS,ALIVE,EXTRAS,I32_NULL,PROFILE_FIELDS,BINDING_FIELDS,HOT_FIELDS,HOT_BIT,STRIDE,F64_PER_ROW,WORDS_PER_ROW,SLOTS,SLOT_NAMES,O,
     create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
-    views,slot,setSlot,columnWriter,columnPlanStages,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
+    views,slot,setSlot,columnWriter,columnPlanStages,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
     // Fields whose in-place writes leave identityVersions alone (engine, carried seconds, route tier): a per-chunk table
     // keyed on identityVersions must not read them (GH_FLEET_SAVE_VALIDATION's static checks verify this).
     IDENTITY_TIER_EXEMPT:Object.freeze([...IDENTITY_EXEMPT,...ROUTE_TIER])});

@@ -79,7 +79,7 @@
   // Every owned insurance facility is an office (the generic company facility flow opens it from the world directory).
   function syncOffices(state,ins){
     const facilities=[...(state.customHubs||[]),...(state.globalBases||[])].filter(row=>row?.owned===true&&row.kind==='insurance'&&String(row.ownerCompanyId||row.companyId||row.company||'')==='insurance');
-    for(const facility of facilities)if(!ins.offices.some(row=>row.facilityId===facility.id))ins.offices.push(officeTemplate({id:`INS-OFF-${++ins.sequence}`,facilityId:facility.id,city:facility.city,country:facility.country,openedAt:now(state)}));
+    const knownFacilities=new Set(ins.offices.map(row=>row.facilityId));for(const facility of facilities)if(!knownFacilities.has(facility.id)){ins.offices.push(officeTemplate({id:`INS-OFF-${++ins.sequence}`,facilityId:facility.id,city:facility.city,country:facility.country,openedAt:now(state)}));knownFacilities.add(facility.id);}
     const owned=new Set(facilities.map(row=>row.id));for(const office of ins.offices)if(!owned.has(office.facilityId))office.active=false;
     return ins.offices;
   }
@@ -188,9 +188,9 @@
     const premium30=ins.dailyHistory.slice(0,30).reduce((sum,row)=>sum+num(row.premium),0),solvencyRequired=premium30*365/Math.max(1,Math.min(30,ins.dailyHistory.length))*SOLVENCY_MARGIN,capitalHeld=state.godMoney&&state.infiniteMoney?Infinity:num(globalThis.GH_FINANCE_CORE?.operating?.(state,'insurance')),writing=!(solvencyRequired>0)||capitalHeld>=solvencyRequired;
     ins.solvency={required:Math.round(solvencyRequired),held:Number.isFinite(capitalHeld)?Math.round(capitalHeld):null,ratio:solvencyRequired>0&&Number.isFinite(capitalHeld)?Math.round(capitalHeld/solvencyRequired*1000)/10:null,writing};
     const conditions=economy(state),catastrophe=deterministic(`${day}:ins-cat`,0,1)<.004?ins.offices.filter(row=>row.active).map(row=>row.country)[Math.floor(deterministic(`${day}:ins-cat-country`,0,Math.max(1,ins.offices.length)))]||null:null;
-    const service=typeof globalThis.GH_CUSTOMER_BASE?.serviceEffects==='function'?globalThis.GH_CUSTOMER_BASE.serviceEffects(ins.satisfaction):{churn:1,demand:1};
+    const service=typeof globalThis.GH_CUSTOMER_BASE?.serviceEffects==='function'?globalThis.GH_CUSTOMER_BASE.serviceEffects(ins.satisfaction):{churn:1,demand:1},activeOfficePeers=new Map();for(const office of ins.offices)if(office.active)activeOfficePeers.set(office.country,(activeOfficePeers.get(office.country)||0)+1);
     for(const office of ins.offices){
-      const market=officeMarket(ins,office),campaign=office.campaignUntil>day,today={day,newPolicies:0,lapsed:0,claims:0,premium:0},local=incomeFactor(office.country,'insurancePrice')*conditions.prices,reach=groupReach(state,office.country),rivalLevel=(typeof globalThis.GH_CUSTOMER_BASE?.rivalPrice==='function'?globalThis.GH_CUSTOMER_BASE.rivalPrice(office.country,'insurance',day):1);
+      const market=officeMarket(ins,office,Math.max(1,activeOfficePeers.get(office.country)||0)),campaign=office.campaignUntil>day,today={day,newPolicies:0,lapsed:0,claims:0,premium:0},local=incomeFactor(office.country,'insurancePrice')*conditions.prices,reach=groupReach(state,office.country),rivalLevel=(typeof globalThis.GH_CUSTOMER_BASE?.rivalPrice==='function'?globalThis.GH_CUSTOMER_BASE.rivalPrice(office.country,'insurance',day):1);
       for(const id of LINE_IDS){
         // Build 377: buyers and lapses follow the price against the country's rival insurer (customer-base-core rivalPrice).
         const row=LINES[id],line=office.lines[id],level=num(ins.pricing[id]||1),relative=level/rivalLevel,q={...quote(state,id),lapse:clamp(row.lapse*(1+(relative-1)*2.5),.02,.4),growthFactor:clamp(1+(1-relative)*2,.4,1.6)},capacity=capacityFor(market,id),room=clamp(1-line.policies/Math.max(1,capacity),0,1);

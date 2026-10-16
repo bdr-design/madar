@@ -17,7 +17,8 @@
   if(!capabilityRegistry?.validate)throw new Error('capability-registry-missing');
 
   const definitionsById=new Map(),definitionsByDefinitionId=new Map(),aliases=new Map(),sectorAliases=new Map(),origins=new Map();
-  let sealed=false;
+  let sealed=false,definitionEpoch=0;
+  const verifiedFleetEvidence=new WeakMap();
   const object=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   const clone=value=>{
     if(value===undefined)return undefined;
@@ -113,7 +114,7 @@
     const candidateAliases=unique(definition.legacy?.companyAliases),candidateSectorAliases=unique(definition.legacy?.sectorAliases);
     for(const alias of candidateAliases)if(aliases.has(alias)||definitionsById.has(alias)||definitionsByDefinitionId.has(alias))throw new Error(`company-alias-duplicate:${alias}`);
     for(const alias of candidateSectorAliases){const owner=sectorAliases.get(alias);if(owner&&owner!==definition.classification.primarySectorId)throw new Error(`sector-alias-duplicate:${alias}`);}
-    const frozen=deepFreeze(definition);definitionsById.set(frozen.id,frozen);definitionsByDefinitionId.set(frozen.definitionId,frozen);origins.set(frozen.id,String(options.source||'extension'));
+    const frozen=deepFreeze(definition);definitionsById.set(frozen.id,frozen);definitionsByDefinitionId.set(frozen.definitionId,frozen);origins.set(frozen.id,String(options.source||'extension'));definitionEpoch++;
     for(const alias of candidateAliases)aliases.set(alias,frozen.id);
     for(const alias of candidateSectorAliases)sectorAliases.set(alias,frozen.classification.primarySectorId);
     return frozen;
@@ -325,6 +326,10 @@
     state.companyPlatform={...previous,schema:STATE_SCHEMA,schemaVersion:STATE_SCHEMA_VERSION,components:{...components,registry:1,ownership:1,modules:1},definitionVersions,features};if(dynamic||separated)state.companyPlatform.minimumReaderBuild=Math.max(MINIMUM_DYNAMIC_COMPANY_BUILD,Number(previous.minimumReaderBuild)||0);
     const validation=validateState(state);return {state,changed:inPlace||original!==JSON.stringify(state),errors:validation.errors,warnings:validation.warnings};
   }
+  const fleetEvidenceContext=state=>JSON.stringify([definitionEpoch,Object.entries(object(state?.companyRegistry)?state.companyRegistry:{}).filter(([,record])=>Boolean(record)).map(([id])=>id)]);
+  // Reuse the fleet part of an actual startup row/class validation. Consuming supplied evidence never certifies it
+  // for future calls. This hands the existing boot check to the worker-backed runtime without adding a duplicate pass.
+  function fleetEvidence(state){const core=globalThis.GH_FLEET_STORE,entry=verifiedFleetEvidence.get(state);if(!entry||!core?.isStore?.(state?.fleet))return null;const current=()=>core.identityCurrent(state.fleet,entry.snapshot)&&fleetEvidenceContext(state)===entry.context;return current()?{result:entry.result,current}:null;}
   function validateState(state,options={}){
     const errors=[],warnings=[],measure=options?.measureWork===true,work=measure?{stateChecks:1,registryRows:0,openedNormalizationRows:0,openedRows:0,assetEvidenceChecks:0,assetFieldVisits:0,assetFallbackRows:0,deliveryRows:0,deliveryProjectionRows:0,deliveryAssetRows:0,routeRows:0,facilityRows:0,companyFinanceRows:0}:null;let logicalRows=0;
     const answer=()=>{const out={ok:errors.length===0,errors:[...new Set(errors)],warnings:[...new Set(warnings)]};if(measure){out.work=work;out.logicalRows=logicalRows;}return out;};
@@ -353,10 +358,12 @@
     // Save Schema can pass the worker's compact, revision-checked fleet evidence. The remaining delivery, route,
     // facility and finance checks stay local and bounded. An unavailable required answer fails closed without walking
     // the fleet on the main thread; ordinary callers retain the original class/row validation behavior.
+    const fleetErrorStart=errors.length;
     if(evidenceValid){if(work)work.assetEvidenceChecks++;logicalRows=evidence.logicalRows;errors.push(...evidence.errors);if(evidence.overflow)errors.push('asset-validation-overflow');}
     else if(options?.requireFleetAssetValidation===true){if(work)work.assetEvidenceChecks++;errors.push('asset-validation-unavailable');}
     else if(options?.assetScan==='rows'||typeof fleetData().forEachFieldClasses!=='function')fleetData().forEachFields(state,assetFields,asset=>{if(work)work.assetFieldVisits++;logicalRows++;validateAsset(asset);},{raw:true});
     else fleetData().forEachFieldClasses(state,assetFields,(asset,count,info)=>{if(work)work.assetFieldVisits++;if(count>0)logicalRows+=count;const before=errors.length;validateAsset(asset);if(errors.length===before||info.members<=1)return;errors.length=before;info.forEachMember(member=>{if(work)work.assetFallbackRows++;validateAsset(member);});});
+    const core=globalThis.GH_FLEET_STORE;if(!evidenceValid&&options?.requireFleetAssetValidation!==true&&fleetData().size(state)>2048&&core?.isStore?.(state.fleet)&&typeof core.identitySnapshot==='function')verifiedFleetEvidence.set(state,{snapshot:core.identitySnapshot(state.fleet),context:fleetEvidenceContext(state),result:{schema:'gh-company-platform-fleet-validation/v1',version:'GH-FLEET-SAVE-VALIDATION-1.0.0',logicalRows,assetFieldVisits:logicalRows,errors:errors.slice(fleetErrorStart,fleetErrorStart+1024),overflow:errors.length-fleetErrorStart>1024}});
     for(const delivery of Array.isArray(state.realism?.procurement?.deliveries)?state.realism.procurement.deliveries:[]){if(work)work.deliveryRows++;let assets;if(fleetData().isCompactReceipt(delivery)){assets=[];for(const row of fleetData().receiptDistinctFields(delivery,['ownerCompanyId','companyId','assetMode','type','assetClass'])){if(work)work.deliveryProjectionRows++;assets.push({...row,id:delivery.id});}}else assets=Array.isArray(delivery?.assets)?delivery.assets:delivery?.asset?[delivery.asset]:[];for(const asset of assets){if(work)work.deliveryAssetRows++;validateAsset(asset,'delivery-asset');}}
     for(const route of Array.isArray(state.customRoutes)?state.customRoutes:[]){if(work)work.routeRows++;const companyId=String(route?.ownerCompanyId||route?.companyId||route?.company||ownerForLegacyRouteMode(route?.routeMode||route?.type)||''),routeMode=String(route?.routeMode||route?.type||'');if(!validReference(companyId))errors.push(`route-company-reference:${route?.id||'unknown'}`);if(!validDataId(routeMode))errors.push(`route-mode:${route?.id||'unknown'}`);}
     for(const bucket of ['globalBases','customHubs','branches'])for(const facility of Array.isArray(state[bucket])?state[bucket]:[]){if(work)work.facilityRows++;const companyId=String(facility?.ownerCompanyId||facility?.companyId||facility?.company||'').trim();if(companyId&&!validReference(companyId))errors.push(`facility-company-reference:${facility?.id||'unknown'}`);}
@@ -377,7 +384,7 @@
   function snapshot(){return Object.freeze({version:VERSION,stateSchema:STATE_SCHEMA,stateSchemaVersion:STATE_SCHEMA_VERSION,sealed,definitions:definitionsById.size,companyIds:Object.freeze(companyIds()),origins:Object.freeze(Object.fromEntries(origins))});}
 
   installDefinitions(source.list(),{source:'builtin'});
-  const API=Object.freeze({VERSION,STATE_SCHEMA,STATE_SCHEMA_VERSION,MINIMUM_DYNAMIC_COMPANY_BUILD,installDefinition,installDefinitions,listDefinitions,getDefinition,normalizeSectorId,getInstancePolicy,companyIds,listByCapability,isKnownCompany,isKnownSector,isKnownRouteMode,isKnownAssetClass,definitionFor,resolveCompany,requireCompany,listInstances,hasCapability,getSectorIds,getOperationProfile,getAssetClasses,getRouteModes,resolveIdentity,resolveDocumentProfile,brandedIdentity,followsGroup,syncBrandedNames,ownerForLegacyAssetMode,ownerForLegacyRouteMode,assetClassForLegacyMode,operationProfileForLegacyMode,adapterFor,instanceMetadata,planInstance,migrateState,validateState,validateDefinition,validateRegistry,seal,isSealed,snapshot});
+  const API=Object.freeze({VERSION,STATE_SCHEMA,STATE_SCHEMA_VERSION,MINIMUM_DYNAMIC_COMPANY_BUILD,installDefinition,installDefinitions,listDefinitions,getDefinition,normalizeSectorId,getInstancePolicy,companyIds,listByCapability,isKnownCompany,isKnownSector,isKnownRouteMode,isKnownAssetClass,definitionFor,resolveCompany,requireCompany,listInstances,hasCapability,getSectorIds,getOperationProfile,getAssetClasses,getRouteModes,resolveIdentity,resolveDocumentProfile,brandedIdentity,followsGroup,syncBrandedNames,ownerForLegacyAssetMode,ownerForLegacyRouteMode,assetClassForLegacyMode,operationProfileForLegacyMode,adapterFor,instanceMetadata,planInstance,migrateState,validateState,fleetEvidence,validateDefinition,validateRegistry,seal,isSealed,snapshot});
   globalThis.GH_COMPANY_PLATFORM=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_COMPANY_PLATFORM=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

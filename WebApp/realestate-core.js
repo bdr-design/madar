@@ -75,13 +75,13 @@
   }
   function syncOffices(state,re){
     const facilities=[...(state.customHubs||[]),...(state.globalBases||[])].filter(row=>row?.owned===true&&row.kind==='realestate'&&String(row.ownerCompanyId||row.companyId||row.company||'')==='realestate');
-    for(const facility of facilities)if(!re.offices.some(row=>row.facilityId===facility.id))re.offices.push(officeTemplate({id:`RE-OFF-${++re.sequence}`,facilityId:facility.id,city:facility.city,country:facility.country,openedAt:now(state)}));
+    const knownFacilities=new Set(re.offices.map(row=>row.facilityId));for(const facility of facilities)if(!knownFacilities.has(facility.id)){re.offices.push(officeTemplate({id:`RE-OFF-${++re.sequence}`,facilityId:facility.id,city:facility.city,country:facility.country,openedAt:now(state)}));knownFacilities.add(facility.id);}
     const owned=new Set(facilities.map(row=>row.id));for(const office of re.offices)if(!owned.has(office.facilityId))office.active=false;return re.offices;
   }
   // A country's yearly movers and businesses; the group's offices there share them.
-  function officeMarket(re,office){
+  function officeMarket(re,office,peerCount=null){
     if(!(Number(office.marketPopulation)>0))office.marketPopulation=countryPopulation(office.country);
-    const peers=Math.max(1,re.offices.filter(row=>row.active&&row.country===office.country).length),households=num(office.marketPopulation)/HOUSEHOLD_SIZE;
+    const peers=peerCount??Math.max(1,re.offices.filter(row=>row.active&&row.country===office.country).length),households=num(office.marketPopulation)/HOUSEHOLD_SIZE;
     return {population:num(office.marketPopulation),households:Math.round(households),moversPerDay:households*MOVE_RATE/365/peers,businesses:Math.round(num(office.marketPopulation)/BUSINESS_PER_PEOPLE/peers)};
   }
   const priceFactor=level=>clamp(Math.pow(1/Math.max(.5,level),3),.3,2.2);
@@ -90,8 +90,8 @@
   // level and by how full the project already is.
   // Build 377: demand is today's market for the project's mode (customer-base-core demandFactor: a dearer mortgage
   // means fewer buyers and a few more tenants; activity moves both).
-  function arrivals(re,project,office,demand=1){
-    const market=officeMarket(re,office),type=TYPES[project.type],base=type.buyers==='household'?.012*Math.sqrt(market.moversPerDay):.0004*Math.sqrt(market.businesses);
+  function arrivals(re,project,office,demand=1,peerCount=null){
+    const market=officeMarket(re,office,peerCount),type=TYPES[project.type],base=type.buyers==='household'?.012*Math.sqrt(market.moversPerDay):.0004*Math.sqrt(market.businesses);
     const free=Math.max(0,project.units-project.sold-project.presold-project.leased),room=project.units?free/project.units:0;
     return base*priceFactor(project.priceLevel)*clamp(room*1.4,0,1)*(Number(demand)>0?Number(demand):1);
   }
@@ -317,8 +317,9 @@
     let sales=0,rent=0,cashTaxExemptRevenue=0,internalRentRevenue=0,externalRentRevenue=0,costOfSales=0,opex=0,commission=0,capex=0,newBuyers=0,newTenants=0,vacated=0,offPlanRevenue=0,offPlanCash=0,depreciation=0;const completed=[],internalRentByCompany=new Map(),rentInvoices=[];
     // Build 374: buildings sold to a property fund since the last close are that close's sales.
     const fundSales=Array.isArray(re.pendingFundSales)?re.pendingFundSales:[];for(const row of fundSales){sales+=num(row.amount);costOfSales+=num(row.cost);commission+=num(row.amount)*SALES_COMMISSION;}re.pendingFundSales=[];
+    const activeOfficePeers=new Map(),officeById=new Map();for(const office of re.offices){if(!officeById.has(office.id))officeById.set(office.id,office);if(office.active)activeOfficePeers.set(office.country,(activeOfficePeers.get(office.country)||0)+1);}
     for(const project of re.projects){
-      const office=re.offices.find(row=>row.id===project.officeId),type=TYPES[project.type],today={day,sold:0,leased:0,vacated:0,rent:0,sales:0};
+      const office=officeById.get(project.officeId),type=TYPES[project.type],today={day,sold:0,leased:0,vacated:0,rent:0,sales:0};
       const acceleration=project.constructionAcceleration;if(acceleration&&acceleration.reportedDay==null){capex+=num(acceleration.fee);acceleration.reportedDay=day;}
       const offPlan=project.mode==='sale'&&project.status==='قيد الإنشاء'?offPlanOf(project,type):null;if(offPlan)commission+=offPlan.commission;
       // Construction milestones and completion.
@@ -330,7 +331,7 @@
           if(offPlan){const plan=offPlan.plan,revenue=cents(plan.value-plan.recognized),cost=cents(plan.cost-plan.recognizedCost),cash=Math.max(0,cents(plan.value-plan.collected));sales+=revenue;costOfSales+=cost;offPlanRevenue+=revenue;offPlanCash+=cash;project.salesRevenue+=revenue;today.sales+=revenue;financeHomes(project,project.presold,plan.value);project.sold+=project.presold;project.handedOver+=project.presold;manage(project,project.presold);project.presold=0;project.offPlan=null;}}
       }
       if(office&&office.active){
-        const arriving=roundDraw(arrivals(re,project,office,(project.mode==='sale'?saleDemand:leaseDemand)*rivalDemand(office.country)*groupReach(office.country,TYPES[project.type]?.buyers==='business'?'businesses':'households')),`${project.id}:${day}:arrivals`),free=Math.max(0,project.units-project.sold-project.presold-project.leased),take=Math.min(free,arriving);
+        const arriving=roundDraw(arrivals(re,project,office,(project.mode==='sale'?saleDemand:leaseDemand)*rivalDemand(office.country)*groupReach(office.country,TYPES[project.type]?.buyers==='business'?'businesses':'households'),Math.max(1,activeOfficePeers.get(office.country)||0)),`${project.id}:${day}:arrivals`),free=Math.max(0,project.units-project.sold-project.presold-project.leased),take=Math.min(free,arriving);
         if(take>0&&project.mode==='sale'){
           if(project.status==='مكتمل'){const revenue=take*Math.round(type.price*local(project)*marketMove(project,valueToday)*project.priceLevel);sales+=revenue;costOfSales+=take*num(project.unitCost);commission+=revenue*SALES_COMMISSION;project.salesRevenue+=revenue;financeHomes(project,take,revenue);project.sold+=take;project.handedOver+=take;manage(project,take);today.sales+=revenue;}
           else{const plan=offPlan.plan,value=take*offPlanUnitPrice(type,project);project.presold+=take;plan.units+=take;plan.value+=value;plan.cost+=take*num(project.unitCost);commission+=value*SALES_COMMISSION;}

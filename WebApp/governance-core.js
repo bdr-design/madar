@@ -59,7 +59,8 @@ function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);
    const day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(s)/86400))),su=s.sustainability,programs=su.programs||{};
    // Build 359: the fleet's emission mix, once a day here (the ESG panel used to build every asset and write the electric
    // road share into the state while it rendered). The share of electric/hydrogen trucks is a floor for the road share.
-   const mix={total:0,lowEmission:0,road:0,electricRoad:0,day};for(const [key,count] of fleetData().countByFields(s,['type','specs'],a=>`${a.specs?.co2Band||'C'}|${a.type}|${a.specs?.electric||a.specs?.hydrogen?1:0}`)){const [band,type,electric]=key.split('|');mix.total+=count;if(band==='A'||band==='B')mix.lowEmission+=count;if(type==='road'){mix.road+=count;if(electric==='1')mix.electricRoad+=count;}}
+   const metrics=globalThis.GH_REALISM?.fleetDailyMetrics?.(s);if(fleetData().size(s)>2048&&globalThis.GH_TRANSACTION_CORE?.isStaged?.(s)===true&&!metrics)throw new Error('sustainability-fleet-worker-unavailable');
+   const mix=metrics?{...metrics.mix,day}:{total:0,lowEmission:0,road:0,electricRoad:0,day};if(!metrics)for(const [key,count] of fleetData().countByFields(s,['type','specs'],a=>`${a.specs?.co2Band||'C'}|${a.type}|${a.specs?.electric||a.specs?.hydrogen?1:0}`)){const [band,type,electric]=key.split('|');mix.total+=count;if(band==='A'||band==='B')mix.lowEmission+=count;if(type==='road'){mix.road+=count;if(electric==='1')mix.electricRoad+=count;}}
    su.fleetMix=mix;su.electricRoadShare=Math.max(num(su.electricRoadShare),mix.road?Math.round(mix.electricRoad/mix.road*100):0);
    for(const [id,program] of Object.entries(programs)){
      if(!program)continue;const started=Math.max(0,Number(program.at)||0),elapsedDays=Math.max(0,Math.floor((now(s)-started)/86400)),steps=Math.max(0,elapsedDays-(Number(program.lastMaturityDay)||0));

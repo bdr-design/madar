@@ -51,7 +51,7 @@ const QTY=120;
       const write=localStorage.setItem;localStorage.setItem=function(key,value){writes.push({t:performance.now(),staged:TX.isStaged(s()),day:(()=>{try{return JSON.parse(value).lastFinancialDay;}catch{return null;}})()});return write.call(this,key,value);};
       const observer=new PerformanceObserver(list=>{for(const entry of list.getEntries())long.push({start:entry.startTime,duration:entry.duration});});observer.observe({entryTypes:['longtask']});
       let save=null,command=null,commandSettledAt=null,commandError=null,prev=performance.now();
-      __AUDIT__.setSpeed(4);
+      __AUDIT__.setSpeed(3);
       await new Promise(resolve=>{const tick=now=>{const staged=TX.isStaged(s());frames.push({t:now,gap:now-prev,staged});prev=now;
         if(staged&&!command){
           save={result:__AUDIT__.save(),t:now};
@@ -90,7 +90,7 @@ const QTY=120;
         const TX=GH_TRANSACTION_CORE,s=()=>__GH_STATE__,encode=()=>GH_STATE_CODEC.serialize(s()),before=encode(),revision=s().saveRevision,day=s().lastFinancialDay,sim=s().simSeconds;
         const setHidden=hidden=>{for(const [key,value] of [['hidden',hidden],['visibilityState',hidden?'hidden':'visible']]){if(hidden)Object.defineProperty(document,key,{configurable:true,get:()=>value});else delete document[key];}document.dispatchEvent(new Event('visibilitychange'));};
         let seen=false,frames=0;
-        __AUDIT__.setSpeed(4);
+        __AUDIT__.setSpeed(3);
         await new Promise(resolve=>{const tick=()=>{frames++;
           if(TX.isStaged(s())){seen=true;if(how==='pause')__AUDIT__.setSpeed(0);else setHidden(true);return resolve();}
           if(frames>600)return resolve();requestAnimationFrame(tick);};requestAnimationFrame(tick);});

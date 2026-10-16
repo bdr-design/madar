@@ -57,7 +57,14 @@
   }
   // Both consumers' condition totals in one row-order pass: insurance treats zero/missing as 100, while the operations
   // readiness brief treats them as zero. Returning both prevents a repeated million-row pass on the main thread.
-  function conditionSum(state,fleet){let sum=0,readiness=0;fleet.scan(state,['condition'],row=>{const condition=Number(row.condition);sum+=condition||100;readiness+=condition||0;});return {legacy:false,sum,readiness};}
+  function conditionSum(state,fleet,params={}){
+    const compact=typeof fleet.mode==='function'&&fleet.mode(state)==='store';
+    let sum=0,readiness=0;const metrics=params.dailyMetrics===true?{rows:0,moving:0,mix:{total:0,lowEmission:0,road:0,electricRoad:0}}:null;
+    const collect=metrics?queryModule('GH_FLEET_DAY_CORE','addDailyMetrics'):null;
+    fleet.scan(state,metrics?['condition','phase','routeId','simulationFault','type','specs']:['condition'],row=>{const condition=Number(row.condition);sum+=condition||100;readiness+=condition||0;if(metrics)collect(metrics,row,compact);});
+    return {legacy:false,sum,readiness,...(metrics?{dailyMetrics:metrics}:{})};
+  }
+  function companyValidation(state,fleet,params={}){return queryModule('GH_FLEET_SAVE_VALIDATION','summarizeCompany')(state,fleet,params);}
   // Same identity predicates as Realism's daily integrity pass; only the bounded count crosses the worker boundary.
   function identityIntegrity(state,fleet){
     const collisions=fleet.idCollisions(state);let sound=!collisions.duplicate&&!collisions.missing;
@@ -148,7 +155,7 @@
   function salePlan(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_SALE_PLAN')(state,fleet,params||{}));}
   function manualDeparturePlan(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_MANUAL_DEPARTURE_PLAN')(state,fleet,params||{}));}
   function referenceUsage(state,fleet,params){const result=queryModule('GH_FLEET_REFERENCE_QUERY')(state,fleet,params||{});return result?.legacy?result:{...result,columns:{indices:result.routeCounts,values:result.baseCounts}};}
-  const QUERIES=Object.freeze({dispatchEligible,routeCards,conditionSum,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
+  const QUERIES=Object.freeze({dispatchEligible,routeCards,conditionSum,companyValidation,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
   function run(name,state,fleet,params){const query=QUERIES[name];if(!query)throw new Error(`fleet-query-unknown:${name}`);return query(state,fleet,params||{});}
   const API=Object.freeze({VERSION,DISPATCH_FIELDS,CARD_FIELDS,ROUTE_CENTER_FIELDS,ROUTE_CENTER_RESULT_FIELDS,dispatchEligible,routeCards,conditionSum,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage,run,names:Object.freeze(Object.keys(QUERIES))});
   globalThis.GH_FLEET_QUERY=API;

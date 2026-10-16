@@ -6,7 +6,7 @@ const {boot}=require('./helpers/local-dom-app');
   try{
     const before=await page.evaluate(()=>({time:__GH_STATE__.simSeconds,fleet:GH_FLEET_DATA.size(__GH_STATE__),vehicles:(__GH_STATE__.mobility?.vehicles||[]).length}));
     assert.equal(before.fleet,0);assert.equal(before.vehicles,0);
-    const result=await page.evaluate(()=>{const target=(Math.floor(__GH_STATE__.simSeconds/86400)+1)*86400;const request=__AUDIT__.simulationEngine.advanceTo(target,{speed:600,batchSeconds:3600,reason:'qa-empty-aggregate',maxSeconds:86400});__AUDIT__.simulationRuntime.wake();return {request,target};});
+    const result=await page.evaluate(()=>{const target=(Math.floor(__GH_STATE__.simSeconds/86400)+1)*86400;const request=__AUDIT__.simulationEngine.advanceTo(target,{speed:300,batchSeconds:3600,reason:'qa-empty-aggregate',maxSeconds:86400});__AUDIT__.simulationRuntime.wake();return {request,target};});
     assert.equal(result.request.accepted,true);
     await page.waitForFunction(target=>__GH_STATE__.simSeconds>=target&&!__AUDIT__.simulationEngine.snapshot().manualAdvance,result.target,{timeout:30000});
     const after=await page.evaluate(()=>({time:__GH_STATE__.simSeconds,day:__GH_STATE__.lastFinancialDay,hour:__GH_STATE__.lastMarketHour,health:__AUDIT__.simulationEngine.snapshot(),runtime:__AUDIT__.simulationRuntime.snapshot()}));

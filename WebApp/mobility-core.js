@@ -255,9 +255,33 @@
     if(m.ownerCompanyId&&String(m.ownerCompanyId)!==ownerCompanyId)throw new Error('mobility-state-owner-conflict');m.ownerCompanyId=ownerCompanyId;
     m.schema='gh-mobility-v4';m.version=VERSION;
     for(const key of ['vehicles','drivers','rideRequests','activeTrips','tripArchive','events','capitalCenters'])m[key]=Array.isArray(m[key])?m[key]:[];
-    // Archived trips and events are immutable once written (ROLLBACK_POLICY): a legacy row is replaced, not edited.
-    const wasCanonicalRouteSchema=m.routeSchemaVersion===3,buildSimulationIndexes=options?.simulationIndexes===true,validatedIndexes=buildSimulationIndexes?{vehiclesByCenter:new Map(),driversByCenter:new Map(),fleetCounts:new Map(),dedicatedDriverIds:new Set()}:null;
-    for(const key of ['vehicles','drivers','rideRequests','activeTrips','tripArchive','events','capitalCenters']){const rows=m[key];for(let index=0;index<rows.length;index++){let row=rows[index];if(!row){rows.splice(index--,1);continue;}if(row.ownerCompanyId&&String(row.ownerCompanyId)!==ownerCompanyId)throw new Error(`mobility-row-owner-conflict:${key}:${row.id||'unknown'}`);const strip=key==='tripArchive'&&Object.prototype.hasOwnProperty.call(row,'route');if(row.ownerCompanyId!==ownerCompanyId||strip){if(IMMUTABLE_ROWS.has(key)){const {route,...rest}=row;void route;row=rows[index]={...(strip?rest:row),ownerCompanyId};}else row.ownerCompanyId=ownerCompanyId;}if(validatedIndexes&&key==='vehicles'){const centerId=row.centerId||'RUH',group=validatedIndexes.vehiclesByCenter.get(centerId)||[];group.push(row);validatedIndexes.vehiclesByCenter.set(centerId,group);validatedIndexes.fleetCounts.set(centerId,(validatedIndexes.fleetCounts.get(centerId)||0)+1);if(row.driverId)validatedIndexes.dedicatedDriverIds.add(row.driverId);}else if(validatedIndexes&&key==='drivers'){const centerId=row.centerId||'RUH',group=validatedIndexes.driversByCenter.get(centerId)||[];group.push(row);validatedIndexes.driversByCenter.set(centerId,group);}}}
+    // Archived rows are immutable. Reuse validation for center indexes and only the identities active trips need;
+    // indexing every idle vehicle/driver here adds two fleet-sized maps and allocations on every simulation boundary.
+    const wasCanonicalRouteSchema=m.routeSchemaVersion===3,buildSimulationIndexes=options?.simulationIndexes===true,lookupIds=buildSimulationIndexes?activeTripIds(m):null,validatedIndexes=buildSimulationIndexes?{vehiclesByCenter:new Map(),driversByCenter:new Map(),vehiclesById:new Map(),driversById:new Map(),fleetCounts:new Map(),dedicatedDriverIds:new Set()}:null;
+    for(const key of ['vehicles','drivers','rideRequests','activeTrips','tripArchive','events','capitalCenters']){
+      const rows=m[key];
+      for(let index=0;index<rows.length;index++){
+        let row=rows[index];
+        if(!row){rows.splice(index--,1);continue;}
+        if(row.ownerCompanyId&&String(row.ownerCompanyId)!==ownerCompanyId)throw new Error(`mobility-row-owner-conflict:${key}:${row.id||'unknown'}`);
+        const strip=key==='tripArchive'&&Object.prototype.hasOwnProperty.call(row,'route');
+        if(row.ownerCompanyId!==ownerCompanyId||strip){
+          if(IMMUTABLE_ROWS.has(key)){const {route,...rest}=row;void route;row=rows[index]={...(strip?rest:row),ownerCompanyId};}
+          else row.ownerCompanyId=ownerCompanyId;
+        }
+        if(validatedIndexes&&key==='vehicles'){
+          const centerId=row.centerId||'RUH',group=validatedIndexes.vehiclesByCenter.get(centerId)||[];
+          group.push(row);validatedIndexes.vehiclesByCenter.set(centerId,group);
+          if(lookupIds?.vehicles.has(row.id))rememberTripRow(validatedIndexes.vehiclesById,row);
+          validatedIndexes.fleetCounts.set(centerId,(validatedIndexes.fleetCounts.get(centerId)||0)+1);
+          if(row.driverId)validatedIndexes.dedicatedDriverIds.add(row.driverId);
+        }else if(validatedIndexes&&key==='drivers'){
+          const centerId=row.centerId||'RUH',group=validatedIndexes.driversByCenter.get(centerId)||[];
+          group.push(row);validatedIndexes.driversByCenter.set(centerId,group);
+          if(lookupIds?.drivers.has(row.id))rememberTripRow(validatedIndexes.driversById,row);
+        }
+      }
+    }
     m.status=m.vehicles.length?'active':'not-launched';
     m.zones=clone(ZONES);m.sequence=Math.max(0,Number(m.sequence)||0);
     m.lastDemandAtByCenter=m.lastDemandAtByCenter&&typeof m.lastDemandAtByCenter==='object'?m.lastDemandAtByCenter:{};
@@ -317,7 +341,72 @@
   function id(m,prefix){m.sequence++;return `${prefix}-${String(m.sequence).padStart(7,'0')}`;}
   function classCounts(total,classId=null){const exact=classId&&CLASSES.find(spec=>spec.id===classId);if(exact)return [{spec:exact,count:total}];const denominator=CLASSES.reduce((sum,spec)=>sum+spec.count,0),rows=CLASSES.map(spec=>({spec,count:Math.floor(total*spec.count/denominator)}));let left=total-rows.reduce((sum,row)=>sum+row.count,0);for(let i=0;left>0;i++,left--)rows[i%rows.length].count++;return rows;}
   function vehicleBatch(m,total,centerId,cityLabel,zones,classId=null){let serial=m.vehicles.length;const created=[];for(const {spec,count} of classCounts(total,classId))for(let i=0;i<count;i++){const model=spec.models[serial%spec.models.length];serial++;const vehicle={id:id(m,'MOB-V'),ownerCompanyId:m.ownerCompanyId,assetClass:spec.id,platformAssetClass:'mobility-vehicle',name:`${spec.name} · ${model} ${String(serial).padStart(4,'0')}`,manufacturer:spec.manufacturer,model,realModel:model,icon:spec.icon,capacity:spec.capacity,purchasePrice:spec.cost,ownership:'owned',condition:100,battery:100,status:'available',centerId,zoneId:zones[(serial-1)%zones.length].id,baseLocation:cityLabel,tripId:null,totalTrips:0,totalKm:0,routeLocked:true,routeVersion:3,routeSource:'OSRM · شبكة الشوارع الفعلية',commissionedAt:m.lastPurchaseAt||0};m.vehicles.push(vehicle);created.push(vehicle);}return created;}
-  function driverBatch(state,m,vehicles,source='شراء يدوي',centerId,cityLabel,zones){const company=m.ownerCompanyId,first=m.drivers.length,created=[],hr=globalThis.GH_HR_CORE?.ensure?.(state);if(!hr)throw new Error('hr-core-missing');hr.hiringLog=Array.isArray(hr.hiringLog)?hr.hiringLog:[];for(let i=0;i<vehicles.length;i++){const vehicle=vehicles[i],driver={id:id(m,'DRV'),ownerCompanyId:company,name:`سائق ${String(first+i+1).padStart(4,'0')}`,status:'online',rating:Number(random(`driver:${first+i}`,4.72,4.99).toFixed(2)),centerId,zoneId:zones[(first+i)%zones.length].id,tripId:null,totalTrips:0,earnings:0,monthlySalary:6000,assetId:vehicle.id,automaticAssetStaffing:true};vehicle.driverId=driver.id;vehicle.staffing={mode:'automatic-fixed',ready:true,roles:[{id:'mobility-driver',name:'سائق تنقل حضري',count:1,monthlyPayroll:6000}],total:1,monthlyPayroll:6000,driverId:driver.id};m.drivers.push(driver);created.push(driver);hr.employmentContracts.unshift({id:id(m,'EMP-MOB'),assetId:vehicle.id,company,ownerCompanyId:company,name:`سائق ثابت · ${vehicle.name}`,role:'سائق تنقل حضري',count:1,center:`شبكة ${cityLabel} الحضرية`,salary:6000,startDay:Math.floor(now(state)/86400),termMonths:1200,status:'ساري',source,automaticAssetStaffing:true,permanent:true});}if(created.length){hr.hiringLog.unshift({id:id(m,'HR-MOB'),at:now(state),company,ownerCompanyId:company,source,total:created.length,monthlyPayroll:created.length*6000,centerId,coverageBefore:100,coverageAfter:100});hr.hiringLog=hr.hiringLog.slice(0,200);}return created;}
+  const MOBILITY_DRIVER_ROLE='سائق تنقل حضري';
+  function isMobilityDriverContract(row,owner){return row?.automaticAssetStaffing===true&&String(row.ownerCompanyId||row.company||'')===owner&&row.role===MOBILITY_DRIVER_ROLE;}
+  function compactLegacyDriverContracts(state,m,hr){
+    if(m.driverLedgerVersion===1)return;
+    const owner=m.ownerCompanyId||'mobility',vehiclesById=new Map();
+    for(const vehicle of m.vehicles)if(vehicle?.id)vehiclesById.set(vehicle.id,vehicle);
+    const activeGroups=new Map(),endedGroups=new Map(),removed=new Set();
+    for(const row of hr.employmentContracts){
+      if(row?.mobilityDriverCohort===true||!isMobilityDriverContract(row,owner))continue;
+      const vehicle=vehiclesById.get(row.assetId);
+      if(row.status==='ساري'&&vehicle){
+        const count=Number(row.count),salary=Number(row.salary);if(!Number.isSafeInteger(count)||count<=0||!Number.isFinite(salary)||salary<0)continue;
+        const centerId=String(vehicle.centerId||row.centerId||'RUH'),permanent=row.permanent===true,termMonths=Math.max(1,Number(row.termMonths)||1200),key=JSON.stringify([centerId,salary,permanent,termMonths]);
+        let group=activeGroups.get(key);
+        if(!group){group={row,centerId,salary,permanent,termMonths,count:0,vehicles:[]};activeGroups.set(key,group);}
+        group.count+=count;group.vehicles.push(vehicle);
+        if(group.row!==row)removed.add(row);
+      }else if(row.status==='منتهي'){
+        const centerId=String(row.centerId||vehicle?.centerId||row.center||'—');let group=endedGroups.get(centerId);
+        if(!group){group={row,centerId,count:0,endedDay:0};endedGroups.set(centerId,group);}
+        group.count+=Math.max(1,Math.floor(Number(row.mobilityFormerDriverCount)||1));group.endedDay=Math.max(group.endedDay,Math.max(0,Number(row.endedDay)||0));
+        if(group.row!==row)removed.add(row);
+      }
+    }
+    for(const group of activeGroups.values()){
+      const row=group.row,city=group.vehicles[0]?.baseLocation||centerMeta(state,group.centerId)?.city||group.centerId;
+      row.mobilityDriverCohort=true;row.centerId=group.centerId;row.name=`فريق سائقي GH Mobility · ${city}`;row.role=MOBILITY_DRIVER_ROLE;row.count=group.count;row.salary=group.salary;row.center=`شبكة ${city} الحضرية`;row.source='تجهيز آلي مجمع';row.permanent=group.permanent;row.termMonths=group.termMonths;delete row.assetId;
+      for(const vehicle of group.vehicles)vehicle.staffing={...(vehicle.staffing||{}),employmentContractId:row.id};
+    }
+    for(const group of endedGroups.values()){
+      const row=group.row,city=row.center||group.centerId;
+      row.mobilityDriverCohort=true;row.mobilityFormerDriverCount=group.count;row.centerId=group.centerId;row.name=`سجل مجمع للسائقين السابقين · ${city}`;row.role=MOBILITY_DRIVER_ROLE;row.count=0;row.salary=0;row.endedDay=group.endedDay;delete row.assetId;
+    }
+    if(removed.size)hr.employmentContracts=hr.employmentContracts.filter(row=>!removed.has(row));
+    m.driverLedgerVersion=1;
+  }
+  // Called once by startup migration. Keep the marker check before ensure() so an already migrated save does not
+  // rescan the fleet or HR ledger, and old saves receive batching without requiring another purchase or sale.
+  function migrateLegacyDriverContracts(state){
+    if(!state?.mobility||state.mobility.driverLedgerVersion===1)return {changed:false};
+    const P=platform(),owner=String(state.mobility.ownerCompanyId||'mobility');
+    if(P?.resolveCompany?.(state,owner)?.status==='compatibility-hold')return {changed:false};
+    const m=ensure(state),hr=globalThis.GH_HR_CORE?.ensure?.(state);if(!hr)throw new Error('hr-core-missing');
+    compactLegacyDriverContracts(state,m,hr);return {changed:true};
+  }
+  function mobilityDriverCohort(state,m,hr,centerId,cityLabel,contractId){
+    const owner=m.ownerCompanyId||'mobility',row={id:contractId,company:owner,ownerCompanyId:owner,name:`فريق سائقي GH Mobility · ${cityLabel}`,role:MOBILITY_DRIVER_ROLE,count:0,centerId,center:`شبكة ${cityLabel} الحضرية`,salary:6000,startDay:Math.floor(now(state)/86400),termMonths:1200,status:'ساري',source:'تجهيز آلي مجمع',automaticAssetStaffing:true,permanent:true,mobilityDriverCohort:true};
+    hr.employmentContracts.unshift(row);return row;
+  }
+  function driverBatch(state,m,vehicles,source='شراء يدوي',centerId,cityLabel,zones){
+    const company=m.ownerCompanyId,first=m.drivers.length,created=[],hr=globalThis.GH_HR_CORE?.ensure?.(state);
+    if(!hr)throw new Error('hr-core-missing');
+    hr.hiringLog=Array.isArray(hr.hiringLog)?hr.hiringLog:[];
+    compactLegacyDriverContracts(state,m,hr);
+    let cohort=hr.employmentContracts.find(row=>row?.mobilityDriverCohort===true&&row.status==='ساري'&&isMobilityDriverContract(row,company)&&row.centerId===centerId&&Number(row.salary)===6000&&row.permanent===true&&Number(row.termMonths)===1200)||null;
+    for(let i=0;i<vehicles.length;i++){
+      // Keep the old interleaved id sequence so deterministic demand and vehicle/driver IDs do not shift.
+      const driverId=id(m,'DRV'),contractId=id(m,'EMP-MOB'),vehicle=vehicles[i],driver={id:driverId,ownerCompanyId:company,name:`سائق ${String(first+i+1).padStart(4,'0')}`,status:'online',rating:Number(random(`driver:${first+i}`,4.72,4.99).toFixed(2)),centerId,zoneId:zones[(first+i)%zones.length].id,tripId:null,totalTrips:0,earnings:0,monthlySalary:6000,assetId:vehicle.id,automaticAssetStaffing:true};
+      if(!cohort)cohort=mobilityDriverCohort(state,m,hr,centerId,cityLabel,contractId);
+      vehicle.driverId=driver.id;vehicle.staffing={mode:'automatic-fixed',ready:true,roles:[{id:'mobility-driver',name:MOBILITY_DRIVER_ROLE,count:1,monthlyPayroll:6000}],total:1,monthlyPayroll:6000,driverId:driver.id,employmentContractId:cohort.id};
+      m.drivers.push(driver);created.push(driver);
+    }
+    if(cohort)cohort.count+=created.length;
+    if(created.length){hr.hiringLog.unshift({id:id(m,'HR-MOB'),at:now(state),company,ownerCompanyId:company,source,total:created.length,monthlyPayroll:created.length*6000,centerId,coverageBefore:100,coverageAfter:100});hr.hiringLog=hr.hiringLog.slice(0,200);}
+    return created;
+  }
   const acquisitionCost=(total,classId=null)=>classCounts(total,classId).reduce((sum,row)=>sum+row.spec.cost*row.count,0);
   function recordFleetPurchase(state,m,total,note,centerId,cityLabel,zones,classId=null){const company=m.ownerCompanyId,center=(state.customHubs||[]).find(f=>f.owned===true&&facilityOwnerCompanyId(f)===company&&f.kind==='mobility-center'&&f.capitalId===centerId);if(!center)throw new Error('mobility-center-not-open');const occupied=m.vehicles.filter(v=>v.centerId===centerId).length,capacity=Math.max(1,Number(center.bays)||Number(globalThis.GH_FACILITY_CORE?.DEFAULT_ASSET_CAPACITY?.['mobility-center'])||3000);if(occupied+total>capacity)throw new Error(`mobility-center-capacity:${Math.max(0,capacity-occupied)}/${capacity}`);const capex=acquisitionCost(total,classId);if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');const payment=globalThis.GH_FINANCE_CORE.execute({state},'pay-by-cheque',{company,amount:capex,note,beneficiary:'مورّدو أسطول GH Mobility',taxable:false,line:'capex',requestRef:id(m,`MOBILITY-${centerId}`)});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('mobility-cheque-not-cleared');m.lastPurchaseAt=now(state);const vehicles=vehicleBatch(m,total,centerId,cityLabel,zones,classId),drivers=driverBatch(state,m,vehicles,'تجهيز آلي ثابت مرتبط بشراء المركبات',centerId,cityLabel,zones);m.events.unshift({id:id(m,'MOB-EV'),ownerCompanyId:company,at:now(state),type:'MANUAL_FLEET_PURCHASE',centerId,vehiclesAdded:vehicles.length,driversAdded:drivers.length,capex,classId:classId||'mixed',chequeId:payment.cheque.id,invoiceNumber:payment.invoice.number});return {ownerCompanyId:company,capex,vehicles,drivers,chequeId:payment.cheque.id,invoiceNumber:payment.invoice.number};}
   function streetRouteKey(centerId,fromZone,toZone){return `${centerId||'RUH'}:${fromZone||''}:${toZone||''}`;}
@@ -327,11 +416,52 @@
   function urbanPath(from,to){const a=from?.coords,b=to?.coords;if(!Array.isArray(a)||!Array.isArray(b))return [[0,0],[0,0]];const latDelta=b[0]-a[0],lonDelta=b[1]-a[1],laneLon=a[1]+lonDelta*.46,laneLat=a[0]+latDelta*.58;return [[...a],[a[0],laneLon],[laneLat,laneLon],[laneLat,b[1]],[...b]];}
   function routePosition(route,progress){if(!Array.isArray(route)||route.length<2)return route?.[0]||[0,0];let total=0;const lengths=route.slice(0,-1).map((point,i)=>{const d=distance(point,route[i+1]);total+=d;return d;});let target=Math.max(0,Math.min(1,Number(progress)||0))*total;for(let i=0;i<lengths.length;i++){const d=lengths[i];if(target<=d){const t=d?target/d:0;return [route[i][0]+(route[i+1][0]-route[i][0])*t,route[i][1]+(route[i+1][1]-route[i][1])*t];}target-=d;}return [...route[route.length-1]];}
   function zone(zones,index){return zones[((index%zones.length)+zones.length)%zones.length];}
-  function generate(m,zones,at,centerId){const seq=m.sequence+1,from=zone(zones,hash(`from:${centerId}:${seq}:${Math.floor(at/45)}`)),to=zone(zones,zones.indexOf(from)+1+Math.floor(random(`to:${centerId}:${seq}`,0,zones.length-1))),km=Math.max(2.2,distance(from.coords,to.coords)*1.22),pick=random(`class:${centerId}:${seq}`),service=pick>.94?CLASSES[2]:pick>.82?CLASSES[3]:pick>.56?CLASSES[1]:CLASSES[0],surge=Number((1+Math.max(0,random(`surge:${centerId}:${Math.floor(at/900)}`,-.08,.55))).toFixed(2)),fare=Number((service.base+km*service.rate*surge).toFixed(2));m.rideRequests.push({id:id(m,'RIDE'),ownerCompanyId:m.ownerCompanyId,requestedAt:at,status:'queued',centerId,fromZone:from.id,toZone:to.id,distanceKm:Number(km.toFixed(2)),service:service.id,surge,fare});m.kpis.requests++;}
-  function simulationIndexes(m){let cached=simulationIndexCache.get(m);if(!cached||cached.vehicles!==m.vehicles||cached.vehicleLength!==m.vehicles.length||cached.drivers!==m.drivers||cached.driverLength!==m.drivers.length){const vehiclesByCenter=new Map(),driversByCenter=new Map(),fleetCounts=new Map(),dedicatedDriverIds=new Set();for(const vehicle of m.vehicles){const centerId=vehicle.centerId||'RUH',rows=vehiclesByCenter.get(centerId)||[];rows.push(vehicle);vehiclesByCenter.set(centerId,rows);fleetCounts.set(centerId,(fleetCounts.get(centerId)||0)+1);if(vehicle.driverId)dedicatedDriverIds.add(vehicle.driverId);}for(const driver of m.drivers){const centerId=driver.centerId||'RUH',rows=driversByCenter.get(centerId)||[];rows.push(driver);driversByCenter.set(centerId,rows);}cached={vehicles:m.vehicles,vehicleLength:m.vehicles.length,drivers:m.drivers,driverLength:m.drivers.length,indexes:{vehiclesByCenter,driversByCenter,fleetCounts,dedicatedDriverIds}};simulationIndexCache.set(m,cached);}const activeRouteKeys=new Set();for(const trip of m.activeTrips)activeRouteKeys.add(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));return {...cached.indexes,activeRouteKeys};}
-  function dispatch(m,at,centerId,zones,indexes){
+  function generate(m,zones,at,centerId){const seq=m.sequence+1,from=zone(zones,hash(`from:${centerId}:${seq}:${Math.floor(at/45)}`)),to=zone(zones,zones.indexOf(from)+1+Math.floor(random(`to:${centerId}:${seq}`,0,zones.length-1))),km=Math.max(2.2,distance(from.coords,to.coords)*1.22),pick=random(`class:${centerId}:${seq}`),service=pick>.94?CLASSES[2]:pick>.82?CLASSES[3]:pick>.56?CLASSES[1]:CLASSES[0],surge=Number((1+Math.max(0,random(`surge:${centerId}:${Math.floor(at/900)}`,-.08,.55))).toFixed(2)),fare=Number((service.base+km*service.rate*surge).toFixed(2)),request={id:id(m,'RIDE'),ownerCompanyId:m.ownerCompanyId,requestedAt:at,status:'queued',centerId,fromZone:from.id,toZone:to.id,distanceKm:Number(km.toFixed(2)),service:service.id,surge,fare};m.rideRequests.push(request);m.kpis.requests++;return request;}
+  function activeTripIds(m){
+    if(!m.activeTrips.length)return null;
+    const vehicles=new Set(),drivers=new Set();for(const trip of m.activeTrips)if(trip){vehicles.add(trip.vehicleId);drivers.add(trip.driverId);}
+    return {vehicles,drivers};
+  }
+  function rememberTripRow(byId,row){const rows=byId.get(row.id);if(rows)rows.push(row);else byId.set(row.id,[row]);}
+  function resolveTripRows(indexes,key,rows,trips){
+    const byId=indexes[key],missing=new Set();for(const id of trips.keys())if(!byId.has(id))missing.add(id);
+    // A wider advance may dispatch and finish a trip after its outer validation. Resolve those new identities once
+    // when they actually finish; preserve all matching rows, including malformed legacy duplicate IDs.
+    if(missing.size){for(const row of rows)if(missing.has(row.id))rememberTripRow(byId,row);for(const id of missing)if(!byId.has(id))byId.set(id,[]);}
+    return byId;
+  }
+  function simulationIndexes(m){
+    let cached=simulationIndexCache.get(m);
+    if(!cached||cached.vehicles!==m.vehicles||cached.vehicleLength!==m.vehicles.length||cached.drivers!==m.drivers||cached.driverLength!==m.drivers.length){
+      const vehiclesByCenter=new Map(),driversByCenter=new Map(),vehiclesById=new Map(),driversById=new Map(),fleetCounts=new Map(),dedicatedDriverIds=new Set(),lookupIds=activeTripIds(m);
+      for(const vehicle of m.vehicles){
+        const centerId=vehicle.centerId||'RUH',rows=vehiclesByCenter.get(centerId)||[];
+        rows.push(vehicle);vehiclesByCenter.set(centerId,rows);if(lookupIds?.vehicles.has(vehicle.id))rememberTripRow(vehiclesById,vehicle);
+        fleetCounts.set(centerId,(fleetCounts.get(centerId)||0)+1);
+        if(vehicle.driverId)dedicatedDriverIds.add(vehicle.driverId);
+      }
+      for(const driver of m.drivers){
+        const centerId=driver.centerId||'RUH',rows=driversByCenter.get(centerId)||[];
+        rows.push(driver);driversByCenter.set(centerId,rows);if(lookupIds?.drivers.has(driver.id))rememberTripRow(driversById,driver);
+      }
+      cached={vehicles:m.vehicles,vehicleLength:m.vehicles.length,drivers:m.drivers,driverLength:m.drivers.length,indexes:{vehiclesByCenter,driversByCenter,vehiclesById,driversById,fleetCounts,dedicatedDriverIds}};
+      simulationIndexCache.set(m,cached);
+    }
+    const activeRouteKeys=new Set();
+    for(const trip of m.activeTrips)activeRouteKeys.add(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));
+    return {...cached.indexes,activeRouteKeys};
+  }
+  function requestsByCenter(m){
+    const rowsByCenter=new Map();
+    for(const request of m.rideRequests){
+      if(request.status!=='queued')continue;
+      const rows=rowsByCenter.get(request.centerId)||[];rows.push(request);rowsByCenter.set(request.centerId,rows);
+    }
+    return rowsByCenter;
+  }
+  function dispatch(m,at,centerId,zones,indexes,queued){
     let assigned=0;
-    const queued=m.rideRequests.filter(request=>request.status==='queued'&&request.centerId===centerId);if(!queued.length)return 0;
+    if(!queued.length)return 0;
     const available=(indexes.vehiclesByCenter.get(centerId)||[]).filter(v=>v.status==='available'),onlineDrivers=(indexes.driversByCenter.get(centerId)||[]).filter(d=>d.status==='online'),driverById=new Map(onlineDrivers.map(driver=>[driver.id,driver])),driverByAsset=new Map(onlineDrivers.filter(driver=>driver.assetId).map(driver=>[driver.assetId,driver])),legacyDrivers=onlineDrivers.filter(driver=>!driver.assetId&&!indexes.dedicatedDriverIds.has(driver.id)),byClass=new Map(),claimedVehicles=new Set(),claimedDrivers=new Set();
     for(const vehicle of available){const queue=byClass.get(vehicle.assetClass)||[];queue.push(vehicle);byClass.set(vehicle.assetClass,queue);}
     const driverFor=vehicle=>{const fixed=driverById.get(vehicle.driverId)||driverByAsset.get(vehicle.id);if(fixed&&!claimedDrivers.has(fixed.id))return fixed;while(legacyDrivers.length){const fallback=legacyDrivers.pop();if(!claimedDrivers.has(fallback.id))return fallback;}return null;};
@@ -353,8 +483,10 @@
     const doneIds=new Set(done.map(trip=>trip.id)),open=m.activeTrips.filter(trip=>!doneIds.has(trip.id));
     let gross=0,payout=0;const perCenter={},requestIndex=new Map(m.rideRequests.map(row=>[row.id,row])),vehicleTrips=new Map(done.map(trip=>[trip.vehicleId,trip])),driverTrips=new Map(done.map(trip=>[trip.driverId,trip]));
     for(const trip of done){if(trip.ownerCompanyId!==company)throw new Error(`mobility-trip-owner-conflict:${trip.id}`);const request=requestIndex.get(trip.requestId),driverPay=trip.fare*.10,platform=trip.fare-driverPay,cid=trip.centerId||'RUH';if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));if(request){request.status='completed';request.completedAt=trip.dueAt;}gross+=trip.fare;payout+=driverPay;const pc=perCenter[cid]||(perCenter[cid]={completed:0,gross:0,payout:0});pc.completed++;pc.gross+=trip.fare;pc.payout+=driverPay;m.tripArchive.unshift(archivedTrip(trip,{status:'completed',completedAt:trip.dueAt,driverPayout:driverPay,platformRevenue:platform}));}
-    for(const vehicle of m.vehicles){const trip=vehicleTrips.get(vehicle.id);if(!trip)continue;vehicle.status='available';vehicle.zoneId=trip.toZone;vehicle.tripId=null;vehicle.totalTrips++;vehicle.totalKm+=trip.distanceKm;vehicle.battery=Math.max(18,vehicle.battery-trip.distanceKm*.42);if(vehicle.battery<30)vehicle.battery=100;}
-    for(const driver of m.drivers){const trip=driverTrips.get(driver.id);if(!trip)continue;const driverPay=trip.fare*.10;driver.status='online';driver.zoneId=trip.toZone;driver.tripId=null;driver.totalTrips++;driver.earnings+=driverPay;}
+    indexes=indexes||simulationIndexes(m);
+    const vehiclesById=resolveTripRows(indexes,'vehiclesById',m.vehicles,vehicleTrips),driversById=resolveTripRows(indexes,'driversById',m.drivers,driverTrips);
+    for(const [vehicleId,trip] of vehicleTrips)for(const vehicle of vehiclesById.get(vehicleId)||[]){vehicle.status='available';vehicle.zoneId=trip.toZone;vehicle.tripId=null;vehicle.totalTrips++;vehicle.totalKm+=trip.distanceKm;vehicle.battery=Math.max(18,vehicle.battery-trip.distanceKm*.42);if(vehicle.battery<30)vehicle.battery=100;}
+    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){const driverPay=trip.fare*.10;driver.status='online';driver.zoneId=trip.toZone;driver.tripId=null;driver.totalTrips++;driver.earnings+=driverPay;}
     m.activeTrips=open;m.tripArchive=m.tripArchive.slice(0,1200);m.rideRequests=m.rideRequests.filter(request=>request.status!=='completed'||at-Number(request.completedAt||0)<86400).slice(-1600);
     const operatingCost=payout+gross*.16,profit=gross-operatingCost,money={[company]:profit},revenue={[company]:gross},costs={[company]:operatingCost},count={[company]:done.length};m.kpis.completed+=done.length;m.kpis.grossBookings+=gross;m.kpis.driverPayouts+=payout;m.kpis.platformRevenue+=profit;
     for(const cid of Object.keys(perCenter)){const pc=perCenter[cid],centerOpCost=pc.payout+pc.gross*.16,centerProfit=pc.gross-centerOpCost,ck=centerKpis(m,cid);ck.completed+=pc.completed;ck.grossBookings+=pc.gross;ck.driverPayouts+=pc.payout;ck.platformRevenue+=centerProfit;}
@@ -364,7 +496,11 @@
     const expired=m.activeTrips.filter(trip=>trip.routeVerified!==true&&at>=Math.max(Number(trip.routingDeadlineAt)||0,(Number(trip.acceptedAt)||0)+ROUTE_WAIT_TIMEOUT_SECONDS));if(!expired.length)return 0;
     const ids=new Set(expired.map(trip=>trip.id)),requests=new Map(m.rideRequests.map(row=>[row.id,row])),vehicleTrips=new Map(expired.map(trip=>[trip.vehicleId,trip])),driverTrips=new Map(expired.map(trip=>[trip.driverId,trip]));
     for(const trip of expired){if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));const request=requests.get(trip.requestId),reason='تعذر تثبيت مسار شارع خلال 15 دقيقة';if(request){request.status='cancelled';request.cancelledAt=at;request.cancelReason=reason;}m.kpis.cancelled++;m.tripArchive.unshift(archivedTrip(trip,{status:'cancelled',cancelledAt:at,cancelReason:reason}));m.events.unshift({id:id(m,'MOB-EV'),at,type:'ROUTE_TIMEOUT_RELEASED',ownerCompanyId:m.ownerCompanyId||'mobility',tripId:trip.id,vehicleId:trip.vehicleId,driverId:trip.driverId,centerId:trip.centerId});}
-    for(const vehicle of m.vehicles){const trip=vehicleTrips.get(vehicle.id);if(!trip)continue;vehicle.status='available';vehicle.zoneId=trip.fromZone||vehicle.zoneId;vehicle.tripId=null;}for(const driver of m.drivers){const trip=driverTrips.get(driver.id);if(!trip)continue;driver.status='online';driver.zoneId=trip.fromZone||driver.zoneId;driver.tripId=null;}m.activeTrips=m.activeTrips.filter(trip=>!ids.has(trip.id));m.tripArchive=m.tripArchive.slice(0,1200);m.events=m.events.slice(0,600);noteMapStructureChange();return expired.length;
+    indexes=indexes||simulationIndexes(m);
+    const vehiclesById=resolveTripRows(indexes,'vehiclesById',m.vehicles,vehicleTrips),driversById=resolveTripRows(indexes,'driversById',m.drivers,driverTrips);
+    for(const [vehicleId,trip] of vehicleTrips)for(const vehicle of vehiclesById.get(vehicleId)||[]){vehicle.status='available';vehicle.zoneId=trip.fromZone||vehicle.zoneId;vehicle.tripId=null;}
+    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){driver.status='online';driver.zoneId=trip.fromZone||driver.zoneId;driver.tripId=null;}
+    m.activeTrips=m.activeTrips.filter(trip=>!ids.has(trip.id));m.tripArchive=m.tripArchive.slice(0,1200);m.events=m.events.slice(0,600);noteMapStructureChange();return expired.length;
   }
   function advanceMobilityState(state,m,target,indexes=null){
     const at=Math.max(now(state),Number(target)||0);
@@ -373,14 +509,15 @@
     indexes=indexes||simulationIndexes(m);
     releaseRoutingTimeouts(m,at,indexes);
     complete(state,m,at,indexes);
+    const queuedByCenter=requestsByCenter(m);
     for(const center of activeCenters(state,m)){
       const cid=center.capitalId,zones=center.zones;
       if(!(cid in m.lastDemandAtByCenter))m.lastDemandAtByCenter[cid]=at;
-      const fleetCount=indexes.fleetCounts.get(cid)||0,queueCap=Math.max(8,Math.min(80,fleetCount*2)),demandInterval=Math.max(30,Math.round(105-Math.min(60,fleetCount*1.5)));let generated=0,next=m.lastDemandAtByCenter[cid]+demandInterval,queuedCount=m.rideRequests.reduce((count,request)=>count+(request.centerId===cid&&request.status==='queued'?1:0),0);
-      while(next<=at&&generated<240&&queuedCount<queueCap){generate(m,zones,next,cid);generated++;queuedCount++;next+=demandInterval;}
+      const queued=queuedByCenter.get(cid)||[],fleetCount=indexes.fleetCounts.get(cid)||0,queueCap=Math.max(8,Math.min(80,fleetCount*2)),demandInterval=Math.max(30,Math.round(105-Math.min(60,fleetCount*1.5)));let generated=0,next=m.lastDemandAtByCenter[cid]+demandInterval,queuedCount=queued.length;
+      while(next<=at&&generated<240&&queuedCount<queueCap){queued.push(generate(m,zones,next,cid));generated++;queuedCount++;next+=demandInterval;}
       m.lastDemandAtByCenter[cid]=next<=at?at:Math.max(m.lastDemandAtByCenter[cid],next-demandInterval);
-      dispatch(m,at,cid,zones,indexes);
-      for(const request of m.rideRequests.filter(row=>row.centerId===cid&&row.status==='queued'&&at-row.requestedAt>600)){request.status='cancelled';request.cancelledAt=at;request.cancelReason='لم تتوفر مركبة خلال 10 دقائق';m.kpis.cancelled++;}
+      dispatch(m,at,cid,zones,indexes,queued);
+      for(const request of queued)if(request.status==='queued'&&at-request.requestedAt>600){request.status='cancelled';request.cancelledAt=at;request.cancelReason='لم تتوفر مركبة خلال 10 دقائق';m.kpis.cancelled++;}
     }
     for(const t of m.activeTrips)t.progress=t.routeVerified===true?Math.max(0,Math.min(1,(at-t.startedAt)/Math.max(1,t.duration))):0;
     m.kpis.acceptanceRate=m.kpis.requests?Math.round(m.kpis.accepted/m.kpis.requests*1000)/10:100;
@@ -437,7 +574,40 @@
   function cacheStreetRoute(ctx,p={}){const state=ctx.state||ctx,m=ensure(state),route=clone(p.route);if(!validStreetRoute(route))throw new Error('mobility-street-route-invalid');const key=streetRouteKey(p.centerId,p.fromZone,p.toZone),row={key,centerId:p.centerId||'RUH',fromZone:String(p.fromZone||''),toZone:String(p.toZone||''),route,distanceKm:Math.max(0,Number(p.distanceKm)||0),durationSeconds:Math.max(1,Number(p.durationSeconds)||1),cachedAtSim:now(state),source:'OSRM'};m.streetRoutes[key]=row;for(const trip of m.activeTrips.filter(item=>streetRouteKey(item.centerId,item.fromZone,item.toZone)===key)){const readyAt=now(state),pickup=Math.min(195,Math.max(45,Number(trip.pickupSeconds)||90));trip.route=clone(route);trip.routeVerified=true;trip.routeVersion=3;trip.routeSource='OSRM · شبكة الشوارع الفعلية';trip.routingReadyAt=readyAt;trip.startedAt=readyAt;trip.distanceKm=row.distanceKm||trip.distanceKm;trip.duration=pickup+row.durationSeconds;trip.dueAt=readyAt+trip.duration;trip.progress=0;}const keys=Object.keys(m.streetRoutes);if(keys.length>1600)keys.sort((a,b)=>Number(m.streetRoutes[a]?.cachedAtSim)-Number(m.streetRoutes[b]?.cachedAtSim)).slice(0,keys.length-1600).forEach(old=>delete m.streetRoutes[old]);return row;}
   function findVehicle(state,vehicleId){return ensure(state).vehicles.find(vehicle=>vehicle.id===vehicleId)||null;}
   function serviceVehicle(ctx,{id:vehicleId}={}){const state=ctx.state||ctx,m=ensure(state),company=mobilityOwnerCompanyId(state,m.ownerCompanyId,{operational:true}),vehicle=findVehicle(state,vehicleId);if(!vehicle)throw new Error('mobility-vehicle-not-found');if(vehicle.ownerCompanyId!==company)throw new Error('mobility-vehicle-owner-conflict');if(vehicle.status==='moving')throw new Error('mobility-vehicle-moving');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');const transaction=globalThis.GH_TRANSACTION_CORE;if(!transaction?.execute)throw new Error('transaction-core-missing');const runner=transaction.isActive()?transaction.join:transaction.execute,out=runner(state,{label:'mobility-vehicle-service',apply:()=>{const payment=globalThis.GH_FINANCE_CORE.execute({state},'pay-by-cheque',{company,amount:850,note:`صيانة ${vehicle.name}`,beneficiary:'GH Mobility Service Network',line:'maintenance',requestRef:`MOB-MAINT-${vehicle.id}-${Math.floor(now(state))}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('mobility-maintenance-cheque-not-cleared');vehicle.condition=100;vehicle.battery=100;vehicle.lastServiceAt=now(state);vehicle.lastServiceCheque=payment.cheque.id;vehicle.lastServiceInvoice=payment.invoice.number;m.events.unshift({id:id(m,'MOB-EV'),ownerCompanyId:company,at:now(state),type:'VEHICLE_SERVICED',vehicleId,chequeId:payment.cheque.id,invoiceNumber:payment.invoice.number});return vehicle;}});return out.value;}
-  function sellVehicle(ctx,{id:vehicleId}={}){const state=ctx.state||ctx,m=ensure(state),company=mobilityOwnerCompanyId(state,m.ownerCompanyId,{operational:true}),vehicle=findVehicle(state,vehicleId);if(!vehicle)throw new Error('mobility-vehicle-not-found');if(vehicle.ownerCompanyId!==company)throw new Error('mobility-vehicle-owner-conflict');if(vehicle.status==='moving')throw new Error('mobility-vehicle-moving');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');const hrApi=globalThis.GH_HR_CORE,hr=hrApi?.ensure?.(state);if(!hr)throw new Error('hr-core-missing');const transaction=globalThis.GH_TRANSACTION_CORE;if(!transaction?.execute)throw new Error('transaction-core-missing');const runner=transaction.isActive()?transaction.join:transaction.execute,out=runner(state,{label:'mobility-vehicle-sale',apply:()=>{const proceeds=Math.round((Number(vehicle.purchasePrice)||0)*.6);globalThis.GH_FINANCE_CORE.execute({state},'credit',{company,amount:proceeds,note:`بيع ${vehicle.name}`,method:'تحويل مشتري',taxable:false,counterparty:'سوق المركبات المعتمدة'});m.vehicles=m.vehicles.filter(row=>row.id!==vehicleId);noteMapStructureChange();const driver=m.drivers.find(row=>row.id===vehicle.driverId||row.assetId===vehicleId);if(driver)m.drivers=m.drivers.filter(row=>row.id!==driver.id);const contracts=hr.employmentContracts;const exact=contracts.find(row=>row.assetId===vehicleId&&row.automaticAssetStaffing&&row.status==='ساري'),legacy=contracts.find(row=>(row.ownerCompanyId||row.company)===company&&row.automaticAssetStaffing&&row.status==='ساري'&&String(row.center||'').includes(vehicle.baseLocation)),contract=exact||legacy;if(contract){contract.count=Math.max(0,(Number(contract.count)||0)-1);contract.salary=Math.max(0,(Number(contract.salary)||0)-6000);if(!contract.count){contract.status='منتهي';contract.endedDay=Math.floor(now(state)/86400);}}const facility=(state.customHubs||[]).find(row=>row?.owned===true&&row.kind==='mobility-center'&&facilityOwnerCompanyId(row)===company&&row.capitalId===vehicle.centerId);if(facility)hrApi.reconcileFacilityStaffing?.(state,{facilityId:facility.id,reason:'مواءمة فريق مركز التنقل بعد تقليص الأسطول'});m.status=m.vehicles.length?'active':'not-launched';m.events.unshift({id:id(m,'MOB-EV'),ownerCompanyId:company,at:now(state),type:'VEHICLE_SOLD',vehicleId,proceeds});return {vehicle,proceeds,ownerCompanyId:company};}});return out.value;}
+  function sellVehicle(ctx,{id:vehicleId}={}){
+    const state=ctx.state||ctx,m=ensure(state),company=mobilityOwnerCompanyId(state,m.ownerCompanyId,{operational:true}),vehicle=findVehicle(state,vehicleId);
+    if(!vehicle)throw new Error('mobility-vehicle-not-found');
+    if(vehicle.ownerCompanyId!==company)throw new Error('mobility-vehicle-owner-conflict');
+    if(vehicle.status==='moving')throw new Error('mobility-vehicle-moving');
+    if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');
+    const hrApi=globalThis.GH_HR_CORE,hr=hrApi?.ensure?.(state);
+    if(!hr)throw new Error('hr-core-missing');
+    const transaction=globalThis.GH_TRANSACTION_CORE;
+    if(!transaction?.execute)throw new Error('transaction-core-missing');
+    const runner=transaction.isActive()?transaction.join:transaction.execute;
+    const out=runner(state,{label:'mobility-vehicle-sale',apply:()=>{
+      compactLegacyDriverContracts(state,m,hr);
+      const proceeds=Math.round((Number(vehicle.purchasePrice)||0)*.6);
+      globalThis.GH_FINANCE_CORE.execute({state},'credit',{company,amount:proceeds,note:`بيع ${vehicle.name}`,method:'تحويل مشتري',taxable:false,counterparty:'سوق المركبات المعتمدة'});
+      m.vehicles=m.vehicles.filter(row=>row.id!==vehicleId);noteMapStructureChange();
+      const driver=m.drivers.find(row=>row.id===vehicle.driverId||row.assetId===vehicleId);
+      if(driver)m.drivers=m.drivers.filter(row=>row.id!==driver.id);
+      const contracts=hr.employmentContracts,exact=contracts.find(row=>row.assetId===vehicleId&&isMobilityDriverContract(row,company)&&row.status==='ساري');let cohort=contracts.find(row=>row.id===vehicle.staffing?.employmentContractId&&row.mobilityDriverCohort===true&&row.status==='ساري'&&isMobilityDriverContract(row,company)&&row.centerId===vehicle.centerId);
+      if(!cohort&&!exact){const salary=Number.isFinite(Number(driver?.monthlySalary))?Math.max(0,Number(driver.monthlySalary)):6000,candidates=contracts.filter(row=>row.mobilityDriverCohort===true&&row.status==='ساري'&&isMobilityDriverContract(row,company)&&row.centerId===vehicle.centerId&&Number(row.salary)===salary&&Number(row.count)>0);if(candidates.length>1)throw new Error('mobility-driver-contract-ambiguous');cohort=candidates[0]||null;}
+      if(cohort){
+        const count=Number(cohort.count);if(!Number.isSafeInteger(count)||count<1)throw new Error('mobility-driver-contract-count-invalid');cohort.count=count-1;
+        if(!cohort.count){cohort.status='منتهي';cohort.endedDay=Math.floor(now(state)/86400);}
+      }else{
+        const contract=exact;
+        if(contract){contract.count=Math.max(0,(Number(contract.count)||0)-1);if(!contract.count){contract.status='منتهي';contract.endedDay=Math.floor(now(state)/86400);}}
+      }
+      const facility=(state.customHubs||[]).find(row=>row?.owned===true&&row.kind==='mobility-center'&&facilityOwnerCompanyId(row)===company&&row.capitalId===vehicle.centerId);
+      if(facility)hrApi.reconcileFacilityStaffing?.(state,{facilityId:facility.id,reason:'مواءمة فريق مركز التنقل بعد تقليص الأسطول'});
+      m.status=m.vehicles.length?'active':'not-launched';m.events.unshift({id:id(m,'MOB-EV'),ownerCompanyId:company,at:now(state),type:'VEHICLE_SOLD',vehicleId,proceeds});
+      return {vehicle,proceeds,ownerCompanyId:company};
+    }});
+    return out.value;
+  }
   function renderFleet(ctx){const m=ensure(ctx.state),s=managementSnapshot(ctx.state),money=ctx.fmtMoney||String,groups=new Map(),byCenter=new Map(),centerNames=new Map(),specById=new Map(CLASSES.map(spec=>[spec.id,spec]));for(const center of m.capitalCenters)if(center?.capitalId)centerNames.set(center.capitalId,center.city||center.capitalId);for(const hub of (ctx.state.customHubs||[]))if(hub?.owned===true&&hub.kind==='mobility-center'&&facilityOwnerCompanyId(hub)===m.ownerCompanyId&&hub.capitalId&&!centerNames.has(hub.capitalId))centerNames.set(hub.capitalId,hub.city||hub.capitalId);for(const vehicle of m.vehicles){const spec=specById.get(vehicle.assetClass);if(!spec)continue;const key=`${spec.id}:${vehicle.model}`,group=groups.get(key)||{spec,model:vehicle.model,count:0,value:0};group.count++;group.value+=Number(vehicle.purchasePrice)||0;groups.set(key,group);const centerId=vehicle.centerId||'RUH',center=byCenter.get(centerId)||{city:centerNames.get(centerId)||vehicle.baseLocation||'—',count:0};center.count++;byCenter.set(centerId,center);}return `<article class="list-item"><div class="list-item-head"><div><h3>ملخص أسطول GH Mobility</h3><p>كل سيارة أصل مملوك مستقل ويمكن فتحه من سجل الأصول الموحد.</p></div><span class="tag positive">${s.vehicles} أصل</span></div>${byCenter.size?`<div class="metric-row">${[...byCenter.values()].map(c=>`<div><span>${ctx.esc?ctx.esc(c.city):c.city}</span><b>${c.count}</b></div>`).join('')}</div>`:''}${[...groups.values()].slice(0,8).map(x=>`<div class="spec-row"><span>${globalThis.GH_ICONS?.inline(x.spec.icon,'mobility')||''}${x.model}</span><b>${x.count} · ${money(x.value)}</b></div>`).join('')||'<div class="empty">لا توجد سيارات مملوكة بعد.</div>'}<div class="action-row"><button class="primary-btn" data-open="assets" data-arg="mobility">فتح الأصول المملوكة</button><button class="secondary-btn" data-open="assetMarket" data-arg="mobility">شراء سيارات</button></div></article>`;}
   function render(ctx){
     const state=ctx.state,s=managementSnapshot(state),money=ctx.fmtMoney||String,number=ctx.fmtNumber||String,perf=ctx.companyPerformance?.('mobility',30)||null;
@@ -453,5 +623,5 @@
   function execute(ctx,cmd,p={}){if(cmd==='buy-fleet')return buyFleet(ctx,p);if(cmd==='service-vehicle')return serviceVehicle(ctx,p);if(cmd==='sell-vehicle')return sellVehicle(ctx,p);if(cmd==='cache-street-route')return cacheStreetRoute(ctx,p);if(cmd==='launch')return launch(ctx);throw new Error(`Unknown Mobility command: ${cmd}`);}
   // System commands that only write state.mobility (Domain Command Core snapshots this scope, not the whole game).
   function transactionScope(name){return name==='cache-street-route'?{scope:['mobility'],rowRoots:{mobility:ROLLBACK_POLICY}}:null;}
-  const API={VERSION,MAX_FLEET_PURCHASE_QUANTITY,ROLLBACK_POLICY,transactionScope,purchaseCatalogs,ROUTE_WAIT_TIMEOUT_SECONDS,ZONES,CLASSES,CAPITALS,mobilityOwnerCompanyId,mapStructureRevision:()=>mapStructureVersion,ensure,launch,buyFleet,onSimulationTime,advanceThrough,simulationSliceLimit,snapshot,managementSnapshot,centerSnapshot,centerClusters,liveVehicles,vehiclePosition,pendingStreetRoutes,cacheStreetRoute,routePosition,urbanPath,zonesFor,capitalMeta,centerMeta,findVehicle,serviceVehicle,sellVehicle,render,renderFleet,execute};globalThis.GH_MOBILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('mobility',API);if(globalThis.window&&window!==globalThis)window.GH_MOBILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API={VERSION,MAX_FLEET_PURCHASE_QUANTITY,ROLLBACK_POLICY,transactionScope,purchaseCatalogs,ROUTE_WAIT_TIMEOUT_SECONDS,ZONES,CLASSES,CAPITALS,mobilityOwnerCompanyId,mapStructureRevision:()=>mapStructureVersion,ensure,migrateLegacyDriverContracts,launch,buyFleet,onSimulationTime,advanceThrough,simulationSliceLimit,snapshot,managementSnapshot,centerSnapshot,centerClusters,liveVehicles,vehiclePosition,pendingStreetRoutes,cacheStreetRoute,routePosition,urbanPath,zonesFor,capitalMeta,centerMeta,findVehicle,serviceVehicle,sellVehicle,render,renderFleet,execute};globalThis.GH_MOBILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('mobility',API);if(globalThis.window&&window!==globalThis)window.GH_MOBILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

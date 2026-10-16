@@ -31,6 +31,26 @@ const results={};
  const cash=F.operating(state,'bank'),receipts=JSON.stringify(state.finance.customerLoanPaymentReceipts);B.ensure(state);assert.equal(portfolio.repaymentModel,'monthly-customer-contract');assert.equal(contract.outstanding,800000);assert.equal(contract.lastAccruedDay,30,'do not waive historical interest without per-contract cash evidence');assert.equal(contract.legacyPrincipalPaid,100000);assert.equal(F.operating(state,'bank'),cash);assert.equal(JSON.stringify(state.finance.customerLoanPaymentReceipts),receipts);assert.equal(state.bank.customerCreditSchema,3);assert.equal(state.bank.customerCreditRepair.historicalInterestReview,1);
  B.ensure(state);assert.equal(contract.legacyPrincipalPaid,100000,'legacy reconciliation happens once');results.legacyRepair=true;
 }
+// Recover a lost Business World party from the stable id and exact name retained on an active loan contract.
+{
+ const e=customerCreditFixture(),{state,B,F,s}=e,{contract}=e.approve('PARTY-REPAIR');const id=contract.customerId,name=contract.customerName,partiesBefore=Object.keys(state.businessWorld.parties).length,cash=F.operating(state,'bank'),financeBefore=JSON.stringify(state.finance);
+ delete state.businessWorld.parties[id];delete state.bank.customerLoanPartySchema;delete state.bank.customerLoanPartyRepair;B.ensure(state);
+ assert.equal(s.GH_BUSINESS_WORLD.resolveParty(state,id).displayName,name,'the original customer id and display name are restored');assert.equal(Object.keys(state.businessWorld.parties).length,partiesBefore,'repair does not create a second party');assert.equal(F.operating(state,'bank'),cash,'party repair does not post money');assert.equal(JSON.stringify(state.finance),financeBefore,'party repair leaves receipts and finance documents untouched');assert.equal(JSON.stringify(state.bank.customerLoanPartyRepair),JSON.stringify({schema:1,repaired:1,unresolved:0}));
+ B.ensure(state);assert.equal(JSON.stringify(state.bank.customerLoanPartyRepair),JSON.stringify({schema:1,repaired:1,unresolved:0}),'party repair is one-time');
+ state.simSeconds=30*86400;const due=B.execute({state},'collect-customer-installments',{throughDay:30,periodId:1,batchId:'PARTY-REPAIR-DUE'});assert.equal(due.paid,1,'the next installment closes successfully');assert.equal(state.finance.customerLoanPaymentReceipts[0].customerId,id);results.customerPartyRepair={repaired:1,collectionAfterRepair:due.paid};
+}
+// Reject a new orphan request before it can approve or post a loan.
+{
+ const e=customerCreditFixture(),{state,B}=e,before=state.bank.loanRequests.length,portfolios=state.bank.loanPortfolios.length;
+ assert.throws(()=>B.execute({state},'submit-customer-loan-request',{id:'ORPHAN-CUSTOMER-QA',customerId:'MISSING-PARTY-QA',borrower:'Missing party',amount:1000000,product:'consumer',termDays:360,riskGrade:'AAA',sector:'retail'}),/bank-customer-party-not-found/);
+ assert.equal(state.bank.loanRequests.length,before);assert.equal(state.bank.loanPortfolios.length,portfolios);results.orphanRequestRejected=true;
+}
+// Generated customer requests have no external customer id; approval registers the stable id the contract records.
+{
+ const e=customerCreditFixture(),{state,B,s}=e;state.bank.loanRequests.push({id:'GENERATED-CUSTOMER-QA',borrower:'Generated Buyer',sector:'retail',product:'consumer',amount:1000000,termDays:360,riskGrade:'AAA',collateralCoverage:0,branchId:'BR-CREDIT-QA',expiresDay:7,status:'بانتظار القرار'});
+ const result=B.execute({state},'decide-loan-request',{id:'GENERATED-CUSTOMER-QA',decision:'approve'}),contract=state.bank.customerLoanContracts.find(row=>row.id===result.contractId),party=s.GH_BUSINESS_WORLD.resolveParty(state,contract.customerId);
+ assert.equal(party.id,contract.customerId);assert.equal(party.displayName,'Generated Buyer');results.generatedCustomerParty=true;
+}
 {
  const e=customerCreditFixture(),{state,B,F}=e,{contract,portfolio}=e.approve('MISSING-PORTFOLIO');state.bank.loanPortfolios=state.bank.loanPortfolios.filter(row=>row.id!==portfolio.id);state.bank.customerCreditSchema=2;state.bank.lastProcessedDay=35;const cash=F.operating(state,'bank'),owed=contract.outstanding;B.ensure(state);assert.equal(contract.outstanding,owed);assert.equal(F.operating(state,'bank'),cash);assert.equal(state.bank.customerCreditRepair.unresolved,1,'missing evidence is retained for review, never guessed');state.simSeconds=30*86400;const missed=B.execute({state},'collect-customer-installments',{throughDay:30,periodId:1,batchId:'MISSING-EVIDENCE'});assert.equal(missed.paid,0,'a stale lookup cannot resurrect a missing portfolio');assert.equal(F.operating(state,'bank'),cash);results.unresolvedLegacyPreserved=true;
 }

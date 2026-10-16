@@ -24,7 +24,7 @@ const QTY=3000;
       return {orderId,fleet:GH_FLEET_DATA.size(s()),limit:GH_FLEET_MAIN_THREAD_POLICY.DEFAULT_ROW_LIMIT,provider:typeof globalThis.GH_FLEET_VALIDATION_PROVIDER};
     },QTY);
     assert.ok(setup.orderId,'purchase');assert.equal(setup.fleet,QTY);assert.ok(setup.fleet>setup.limit,'the fleet is above the main-thread limit');assert.equal(setup.provider,'function','the app supplies the worker fleet validation');
-    await page.evaluate(()=>__AUDIT__.setSpeed(4));
+    await page.evaluate(()=>__AUDIT__.setSpeed(3));
     const target=7260,started=Date.now();let last=null;
     while(Date.now()-started<240000){
       last=await page.evaluate(()=>{const s=__GH_STATE__;return {sim:s.simSeconds,speed:s.speed,incidents:(s.controlPlane?.incidents||[]).filter(row=>row.status==='open').map(row=>`${row.code}: ${String(row.detail||'').slice(0,160)}`),queries:__AUDIT__.fleetEngineThreadClient()?.stats?.()?.queryRequests||0};});

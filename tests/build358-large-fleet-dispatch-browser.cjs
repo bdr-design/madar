@@ -74,7 +74,7 @@ function installVault(){
     assert.ok(state.saves>0,'the native vault holds the committed save');
 
     const flown=await page.evaluate(async()=>{
-      const s=__GH_STATE__,F=GH_FLEET_DATA,target=s.simSeconds+3*3600;__AUDIT__.simulationEngine.advanceTo(target,{speed:600,batchSeconds:3600,reason:'qa-large-fleet',maxSeconds:86400});
+      const s=__GH_STATE__,F=GH_FLEET_DATA,target=s.simSeconds+3*3600;__AUDIT__.simulationEngine.advanceTo(target,{speed:300,batchSeconds:3600,reason:'qa-large-fleet',maxSeconds:86400});
       for(let i=0;i<2400&&s.simSeconds<target-1;i++)await new Promise(r=>setTimeout(r,50));
       let moving=0,faults=0,trips=0;F.scan(s,['phase','simulationFault','lastTrip'],r=>{if(r.phase==='moving')moving++;if(r.simulationFault)faults++;if(r.lastTrip)trips++;});
       return {sim:s.simSeconds,target,moving,faults,trips,valid:GH_SAVE_SCHEMA.validate(s).ok};

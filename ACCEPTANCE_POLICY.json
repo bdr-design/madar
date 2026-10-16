@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 428,
+  "minimum_acceptance_gates": 434,
   "preflight_commands": [
     [
       "node",
@@ -8,6 +8,50 @@
     [
       "python3",
       "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-time-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-store-maintenance-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build385-bank-credit-accounting.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-energy-health-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build400-telecom-peer-index.cjs"
+    ],
+    [
+      "node",
+      "tests/build401-mobility-batching-and-indexes.cjs"
+    ],
+    [
+      "node",
+      "tests/build402-company-daily-indexes.cjs"
+    ],
+    [
+      "node",
+      "tests/build403-legacy-runtime-migration-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build404-worker-close-read-models.cjs"
+    ],
+    [
+      "node",
+      "tests/build405-worker-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/phone-layout-browser.cjs"
     ],
     [
       "node",
@@ -1333,6 +1377,10 @@
     ],
     [
       "node",
+      "tests/build400-telecom-peer-index.cjs"
+    ],
+    [
+      "node",
       "tests/build374-dealer-market.cjs"
     ],
     [
@@ -1458,6 +1506,10 @@
     [
       "node",
       "tests/build366-mobility-no-repeat-scans.cjs"
+    ],
+    [
+      "node",
+      "tests/build401-mobility-batching-and-indexes.cjs"
     ],
     [
       "node",
@@ -1786,6 +1838,22 @@
     [
       "node",
       "tests/build399-bank-prudential-summary-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build402-company-daily-indexes.cjs"
+    ],
+    [
+      "node",
+      "tests/build403-legacy-runtime-migration-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build404-worker-close-read-models.cjs"
+    ],
+    [
+      "node",
+      "tests/build405-worker-close-browser.cjs"
     ]
   ]
 }

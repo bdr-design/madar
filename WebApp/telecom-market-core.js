@@ -11,6 +11,7 @@
 (()=>{'use strict';
 const VERSION='GH-TELECOM-MARKET-1.0.0',DAY=86400;
 const PLAN_IDS=Object.freeze(['mobile','home','family','business']);
+const activePeerCounts=new WeakMap();
 const PRICE_LEVELS=Object.freeze([.9,1,1.1]);
 const PRICE_LABELS=Object.freeze({'0.9':'أقل من السوق بـ10%','1':'سعر السوق','1.1':'أعلى من السوق بـ10%'});
 // pool: the part of the country the plan sells to; penetration: the share of that pool that buys such a plan at all.
@@ -41,26 +42,28 @@ const blankPlans=()=>Object.fromEntries(PLAN_IDS.map(id=>[id,{subscribers:0,newT
 
 // Read-only view of the market (presentation, the customer base, the revenue chain): never normalises the state.
 function read(state){return state?.customerCompanies?.companies?.telecom?.market||null;}
-function ensure(state){
+function ensure(state,options={}){
+  const collectPeerCounts=options?.collectPeerCounts===true;
   companies().ensure(state);const data=state.customerCompanies.companies.telecom;
   const m=data.market=data.market&&typeof data.market==='object'&&!Array.isArray(data.market)?data.market:{};
   m.version=VERSION;m.pricing=m.pricing&&typeof m.pricing==='object'?m.pricing:{};for(const id of PLAN_IDS)m.pricing[id]=PRICE_LEVELS.includes(Number(m.pricing[id]))?Number(m.pricing[id]):1;
   for(const key of ['branches','contracts','requests','requestHistory','dailyHistory','decisionBatches'])m[key]=Array.isArray(m[key])?m[key].filter(Boolean):[];
   m.sequence=Math.max(0,Math.floor(Number(m.sequence)||0));m.lastProcessedDay=Number.isFinite(Number(m.lastProcessedDay))?Math.floor(Number(m.lastProcessedDay)):-1;
   m.ytd=m.ytd&&typeof m.ytd==='object'?m.ytd:{};for(const key of ['networkCost','acquisitionCost','campaignCost','newSubscribers','lostSubscribers','networkCapex','depreciation'])m.ytd[key]=num(m.ytd[key]);
-  syncBranches(state,m);return m;
+  syncBranches(state,m,collectPeerCounts);return m;
 }
 // Every owned telecom branch is a market branch (the generic facility flow opens it from the world directory).
 function ownedBranches(state){return (Array.isArray(state.customHubs)?state.customHubs:[]).filter(row=>row?.owned===true&&row.kind==='telecom-branch'&&String(row.ownerCompanyId||row.company||'')==='telecom');}
-function syncBranches(state,m){
+function syncBranches(state,m,collectPeerCounts=false){
   const owned=ownedBranches(state),byFacility=new Map(m.branches.map(row=>[row.facilityId,row]));
   for(const facility of owned){
     let row=byFacility.get(facility.id);
     if(!row){const country=String(facility.country||'غير محدد'),city=String(facility.city||'');row={id:`MKT-${asciiKey(facility.id)}`,facilityId:String(facility.id),branchId:String(facility.id),branchName:String(facility.name||`فرع ${city}`).slice(0,120),branchCity:city.slice(0,80),branchCountry:country.slice(0,80),city,country,marketPopulation:base().population(country),openedDay:today(state),active:true,plans:blankPlans(),campaignUntil:0,campaigns:0,campaignSpend:0,partyId:null,contractId:null,planName:'مشتركو السوق',status:'idle',activeCustomers:0,monthlyPrice:0,nextBillingMonth:'',lastBilledMonth:'',invoiceCount:0,billed:0,collected:0,outstanding:0};m.branches.push(row);byFacility.set(facility.id,row);}
     row.active=true;row.plans=row.plans&&typeof row.plans==='object'?row.plans:blankPlans();for(const id of PLAN_IDS)row.plans[id]=row.plans[id]&&typeof row.plans[id]==='object'?row.plans[id]:{subscribers:0,newToday:0,lostToday:0};
   }
-  const open=new Set(owned.map(row=>String(row.id)));for(const row of m.branches)if(!open.has(row.facilityId))row.active=false;
-  return m.branches;
+  const open=new Set(owned.map(row=>String(row.id))),peerCounts=collectPeerCounts?new Map():null;
+  for(const row of m.branches){if(!open.has(row.facilityId))row.active=false;if(peerCounts&&row.active)peerCounts.set(row.country,(peerCounts.get(row.country)||0)+1);}
+  if(peerCounts)activePeerCounts.set(m,peerCounts);return m.branches;
 }
 function peersIn(m,country){return Math.max(1,m.branches.filter(row=>row.active&&row.country===country).length);}
 // Build 377: a branch's country prices its plans, network and acquisition costs at its income (telecomPrice, Riyadh = 1),
@@ -186,7 +189,10 @@ function accrueRow(row,day,monthly){
 }
 // The day: each branch's plans gain and lose subscribers; costs are the day's operating expense.
 function* dayStages(state,p={}){
-  const m=ensure(state),day=Math.max(0,Math.floor(Number(p.day??today(state))));if(m.lastProcessedDay>=day)return m.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
+  const day=Math.max(0,Math.floor(Number(p.day??today(state)))),priorDay=Number(state?.customerCompanies?.companies?.telecom?.market?.lastProcessedDay),collectPeerCounts=!(Number.isFinite(priorDay)&&priorDay>=day),m=ensure(state,{collectPeerCounts});if(m.lastProcessedDay>=day)return m.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
+  // Capacity depends on same-country active branches. ensure() counts peers while it already reconciles row activity;
+  // this avoids four full branch-list filters per branch without adding another scan or a saved cache.
+  const peersByCountry=activePeerCounts.get(m)||new Map();
   const B=base();m.priceIndex=typeof B.priceIndex==='function'?B.priceIndex(state):1;const demand=typeof B.demandFactor==='function'?B.demandFactor(state,'telecom'):1,byPlan=Object.fromEntries(PLAN_IDS.map(id=>[id,{subscribers:0,newSubscribers:0,lostSubscribers:0}]));
   let depreciation=0,networkCost=0,acquisitionCost=0,newSubscribers=0,lostSubscribers=0,subscribers=0,recurring=0,accrued=0;
   for(const branch of m.branches){
@@ -195,7 +201,7 @@ function* dayStages(state,p={}){
       // Build 377: joining and leaving follow the plan's price against the country's rival operator (rivalPrice).
       const q=PLAN_MARKET[id],row=branch.plans[id],level=num(m.pricing[id]||1)/rivalLevel,held=num(row.subscribers),seed=`${branch.id}:${day}:${id}`;
       const churn=q.churn*churnFactor(level)*(1-NETWORK_CHURN_CUT*network)*(campaign?CAMPAIGN_CHURN:1)*(branch.active?1:CLOSED_CHURN)/30,lost=Math.min(held,roundDraw(held*churn,`${seed}:lost`));
-      const room=clamp(1-held/capacity(m,branch,id),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,affinity[q.pool==='businesses'?'businesses':'households']*AFFINITY_WEIGHT);
+      const room=clamp(1-held/capacity(m,branch,id,Math.max(1,peersByCountry.get(branch.country)||0)),0,1),boost=1+Math.min(MAX_AFFINITY_BOOST,affinity[q.pool==='businesses'?'businesses':'households']*AFFINITY_WEIGHT);
       const joined=branch.active?Math.round(deterministic(`${seed}:new`,q.growth[0],q.growth[1])*growthFactor(level)*(1+NETWORK_GROWTH*network)*boost*demand*(campaign?CAMPAIGN_GROWTH:1)*room):0;
       row.subscribers=Math.max(0,held-lost+joined);row.newToday=joined;row.lostToday=lost;
       networkCost+=row.subscribers*q.networkCost*local*(1-NETWORK_COST_CUT*network)/30;acquisitionCost+=joined*q.acquisition*local;newSubscribers+=joined;lostSubscribers+=lost;

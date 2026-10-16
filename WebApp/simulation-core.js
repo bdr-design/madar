@@ -7,7 +7,7 @@
   if(!TIME)throw new Error('Simulation Time Core must load before Simulation Core');
   if(!PACING)throw new Error('Simulation Pacing Core must load before Simulation Core');
   const DEFAULTS=Object.freeze({
-    allowedSpeeds:Object.freeze([0,30,120,300,600]),
+    allowedSpeeds:Object.freeze([0,30,120,300]),
     fallbackSpeed:30,
     quantumRealSeconds:1,
     maxRealDelta:3,

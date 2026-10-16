@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "4e8af7dbed4e7dfcbab7b9bb771731c11648b1102c20e10ee327db77aac4bc08",
+  "source_tree_sha256": "8ebefc8a6c25b83ccd5dfceed9ee78ffc2d40737d615b9b97a81c5fb016f54c0",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -8,13 +8,13 @@
     "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
     "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
     "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
-    "Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
-    "A fully moving fleet still requires a fresh complete validation in the existing fleet worker after writes. This batch coalesces only identical current validation and moves chunk checksums to a separate worker for large native sliced saves. Startup chunk-ID adoption, legacy synchronous APIs, manual slots/reset, large text chunks and full-device profiling remain separate work.",
+    "Historical desktop measurements from an earlier 600x source: Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+    "A fully moving fleet still needs fresh complete validation after writes. Coalesced validation and chunk-checksum workers have targeted desktop coverage; iPhone profiling of ordinary saves, background saves, startup, manual slots, reset and large text chunks remains unverified for this candidate.",
     "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
-    "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale.",
-    "Current integrated source passed all 419 source gates with unchanged runtime and gate fingerprints. Fresh native CI, iPhoneOS compilation and IPA verification remain pending; physical iPhone performance is unverified."
+    "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
+    "This candidate declares 434 source acceptance gates. All 29 declared local preflight gates, lint and source integrity passed on the current source. Full source acceptance, fresh native CI, iPhoneOS compilation, IPA verification and physical iPhone performance remain unverified before the owner-authorized workflow dispatch."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -22,13 +22,13 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "PASS_419_OF_419_CURRENT_SOURCE",
+    "full_source_acceptance": "NOT_RUN_CURRENT_SOURCE; targeted local checks only; 434 gates declared",
     "native_swift_tests": "PENDING_FRESH_MACOS_CI_CURRENT_SOURCE",
     "physical_iphone_profile": "PENDING",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
     "manual_advance_frame_budget": "SLICE_LIMIT_IMPLEMENTED; 1,500-event window estimate; target-device frame timing pending",
     "release_approval": "CLOSED",
-    "browser_and_lint": "PASS_CURRENT_419_GATE_CONTRACT_CHROMIUM_WEBKIT_AND_LINT",
+    "browser_and_lint": "LOCAL_PREFLIGHT_PASS_29_AND_LINT; pinned Chromium/WebKit tests where declared; full suite/native/device approval pending",
     "native_bridge_extracted_js": "DIRECT_CI_PASS; native storage and WKWebView checks pass",
     "build358_air_sea_dispatch": "LOCAL_PASS; store-mode air and sea bulk dispatch assigns every asset (browser test)",
     "build358_row_level_slice_snapshots": "LOCAL_PASS; steady/hour slices snapshot only written roots, enforced write sets over 288 slices, exact rollback of failed steady/hour/day slices",
@@ -49,7 +49,8 @@
     "financial_fixes_local": "PASS; delivered direct/financed dealer sale P&L, technical stock safeguards, cent-precision VAT, registered tax IDs, branch-country/activity routing; Chromium/WebKit reload/duplicate and 13-company tax settlement checks",
     "current_candidate_native": "NOT_RUN_CURRENT_SOURCE; awaiting owner instruction",
     "performance_batch1_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE_AND_LINT; independent bounded checksum/base64 worker; exact validation reuse; one fresh validated sliced retry; repeated writes refused",
-    "performance_pipeline_local": "TARGETED_PASS_CHROMIUM_WEBKIT; bounded deferred lookahead, stale/failure refusal and retry, monthly tax save/reload; full acceptance pending"
+    "performance_pipeline_local": "TARGETED_PASS_CHROMIUM_WEBKIT; bounded deferred lookahead, stale/failure refusal and retry, monthly tax save/reload; full acceptance pending",
+    "worker_daily_close": "TARGETED_LOCAL_PASS_27_CHECKS; Chromium only; full source/native/device approval pending"
   },
   "latest_direct_source_ci": {
     "run_id": 36956423617,
@@ -85,7 +86,7 @@
     "mode": "direct_git_tracked_branch",
     "branch": "codex/financial-audit-20261014",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "4e8af7dbed4e7dfcbab7b9bb771731c11648b1102c20e10ee327db77aac4bc08",
+    "source_tree_sha256": "8ebefc8a6c25b83ccd5dfceed9ee78ffc2d40737d615b9b97a81c5fb016f54c0",
     "working_tree_clean": false,
     "note": "Integrated business, memory/navigation, map display, non-fleet accounting, confirmation, save deduplication, differential persistence, cooperative snapshot and linked hospitality fixes. Owner authorised full current-source acceptance, repository push and a fresh test IPA on 2026-10-16. Production and physical iPhone validation remain unapproved/unverified.",
     "news_work": {
@@ -1165,5 +1166,167 @@
       "ipa_built": false,
       "production_approved": false
     }
+  },
+  "worker_daily_close_review_20261016": {
+    "source_checks_passed": 27,
+    "full_suite_run": false,
+    "declared_gates": 434,
+    "preflight_definitions": 29,
+    "million_asset_desktop_stress": {
+      "window_seconds": 30,
+      "companies_with_revenue": 11,
+      "main_targeted_full_scans": 0,
+      "before_janky_raf_intervals": 4,
+      "after_janky_raf_intervals": 0,
+      "before_long_tasks": 4,
+      "after_long_tasks": 0,
+      "after_max_raf_gap_ms": 16.8,
+      "company_daily_results_unchanged": true,
+      "synthetic_fixture": true
+    },
+    "physical_iphone_tested": false,
+    "sustained_300x_verified": false,
+    "native_compiled": false,
+    "ipa_built": false,
+    "production_approved": false
+  },
+  "release_request_preflight_20261016": {
+    "recorded_at_utc": "2026-10-16T23:03:13.368192+00:00",
+    "scope": "all declared preflight gates, lint and source integrity before owner-authorized test IPA dispatch",
+    "source_tree_sha256": "8ebefc8a6c25b83ccd5dfceed9ee78ffc2d40737d615b9b97a81c5fb016f54c0",
+    "acceptance_contract_sha256": "7d0e8ce3e8724eecbc48df685011d2c6cb8eafdbe6349a3ebdc6ce8e96452d2b",
+    "passed": 29,
+    "total": 29,
+    "commands": [
+      [
+        "node",
+        "tests/build334-procurement-pressure.cjs"
+      ],
+      [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      [
+        "node",
+        "tests/build334-simulation-time-contract.cjs"
+      ],
+      [
+        "node",
+        "tests/build372-store-maintenance-stages.cjs"
+      ],
+      [
+        "node",
+        "tests/build385-bank-credit-accounting.cjs"
+      ],
+      [
+        "node",
+        "tests/build363-energy-health-contract.cjs"
+      ],
+      [
+        "node",
+        "tests/build400-telecom-peer-index.cjs"
+      ],
+      [
+        "node",
+        "tests/build401-mobility-batching-and-indexes.cjs"
+      ],
+      [
+        "node",
+        "tests/build402-company-daily-indexes.cjs"
+      ],
+      [
+        "node",
+        "tests/build403-legacy-runtime-migration-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build404-worker-close-read-models.cjs"
+      ],
+      [
+        "node",
+        "tests/build405-worker-close-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build360-cold-archive.cjs"
+      ],
+      [
+        "node",
+        "tests/build358-fleet-chunk-manifest.cjs"
+      ],
+      [
+        "node",
+        "tests/build358-native-chunked-save.cjs"
+      ],
+      [
+        "node",
+        "tests/build372-native-migration-chunk-adoption.cjs"
+      ],
+      [
+        "node",
+        "tests/fleet-save-slicing.cjs"
+      ],
+      [
+        "node",
+        "tests/fleet-validation-reuse-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/save-checksum-worker-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/save-pipeline-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/native-save-worker-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build359-save-policy-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build380-construction-acceleration-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build389-differential-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build394-hospitality-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build397-management-flow-layout-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build398-asset-market-metrics-layout-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build399-bank-prudential-summary-layout-browser.cjs"
+      ]
+    ],
+    "elapsed_seconds": 293.966,
+    "playwright_version": "1.55.1",
+    "platform": "Linux desktop",
+    "browser_engines_available": [
+      "chromium",
+      "webkit"
+    ],
+    "local_browser_dependency_setup": "Debian shared libraries extracted into the temporary test environment; skipped only the host ldconfig dependency discovery check; actual browser gates ran unchanged",
+    "full_source_suite_run": false,
+    "native_ci_pending": true,
+    "ipa_pending": true,
+    "physical_iphone_tested": false,
+    "production_approved": false
   }
 }
