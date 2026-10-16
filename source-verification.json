@@ -1,0 +1,21 @@
+{
+  "verified": true,
+  "files": 1004,
+  "source_tree_sha256": "4e8af7dbed4e7dfcbab7b9bb771731c11648b1102c20e10ee327db77aac4bc08",
+  "version": "3.0.0",
+  "build": 362,
+  "save_schema": "3.0.0",
+  "release_approved": false,
+  "blocking_issues": [
+    "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
+    "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
+    "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
+    "Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+    "A fully moving fleet still requires a fresh complete validation in the existing fleet worker after writes. This batch coalesces only identical current validation and moves chunk checksums to a separate worker for large native sliced saves. Startup chunk-ID adoption, legacy synchronous APIs, manual slots/reset, large text chunks and full-device profiling remain separate work.",
+    "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
+    "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
+    "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
+    "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale.",
+    "Current integrated source passed all 419 source gates with unchanged runtime and gate fingerprints. Fresh native CI, iPhoneOS compilation and IPA verification remain pending; physical iPhone performance is unverified."
+  ]
+}
