@@ -900,10 +900,10 @@
     if(!Number.isSafeInteger(expectedRevision)||expectedRevision<0)throw rejection('invalid-expected-save-revision',label,'admission');
     if(actualRevision!==expectedRevision)throw rejection(`state-revision-conflict:${expectedRevision}:${actualRevision}`,label,'admission');
     // Build 358: phase timings of every durable command (diagnostics: telemetry().lastDurable / durableSamples).
-    const durableStart=runtimeClock(),durableTiming={label,cloneMs:0,inheritMs:0,baselineIntegrityMs:0,applyMs:0,validateMs:0,integrityMs:0,persistMs:0,publishMs:0,afterMs:0,totalMs:0,committed:false};let mark=durableStart;const lap=key=>{const now=runtimeClock();durableTiming[key]+=Math.max(0,now-mark);mark=now;};
+    const durableStart=runtimeClock(),durableTiming={label,cloneMs:0,inheritMs:0,baselineIntegrityMs:0,applyMs:0,validateMs:0,integrityMs:0,prestageWaitMs:0,persistMs:0,publishMs:0,afterMs:0,totalMs:0,committed:false};let mark=durableStart;const lap=key=>{const now=runtimeClock();durableTiming[key]+=Math.max(0,now-mark);mark=now;};
     MONEY_GUARD.verify(liveState);
     const transactionId=String(options.transactionId||`DTX-${String(++durableSequence).padStart(9,'0')}`),afterPublishTasks=[];
-    let rootSessions=[],draft,priorCritical,phase='prepare',durableCommitted=false;
+    let rootSessions=[],draft,priorCritical,phase='prepare',durableCommitted=false,staging=null;
     const context={schema:'gh-durable-transaction-v1',transactionId,label,liveState,draft:null,expectedRevision,startedAtSim:Number(liveState.simSeconds)||0,afterPublish(fn){if(typeof fn==='function')afterPublishTasks.push(fn);},call(domain,name,payload={},commandOptions={}){const commands=globalThis.GH_DOMAIN_COMMANDS;if(!commands?.dispatch)throw new Error('domain-command-owner-unavailable');return commands.dispatch({state:draft},domain,name,payload,commandOptions);},callSystem(domain,name,payload={},commandOptions={}){const commands=globalThis.GH_DOMAIN_COMMANDS;if(!commands?.dispatchSystem)throw new Error('system-domain-command-owner-unavailable');return commands.dispatchSystem({state:draft},domain,name,payload,commandOptions);}};
     durableTargets.add(liveState);globalThis.__GH_DURABLE_COMMAND_CONTEXT__=context;
     try{
@@ -920,20 +920,24 @@
       if(context.poisoned)throw rejection(context.poisonReason||'durable-command-poisoned',label,phase);
       if(Number(draft.saveRevision||0)!==expectedRevision)throw rejection('draft-save-revision-mutated',label,phase);
       draft.saveRevision=expectedRevision+1;phase='validate';
+      // The draft's save chunks may upload while it is validated (options.prestage, e.g. GH_PERSISTENCE.prestageDurableChunks).
+      // Only an optimisation: persist still serializes and uploads what is missing, and nothing commits before every check.
+      if(typeof options.prestage==='function')try{staging=options.prestage(draft,context)||null;}catch(_error){staging=null;}
       mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
       if(options.integrity!==false&&globalThis.GH_INTEGRITY_CORE?.check){const integrity=globalThis.GH_INTEGRITY_CORE.check(draft),introduced=(((integrity?.critical)||((integrity?.issues)||[]).filter(row=>row.severity==='critical'))||[]).filter(row=>!priorCritical.has(String(row.id||row.code||row.title)));if(introduced.length)throw rejection(`critical-integrity:${introduced.map(row=>row.id||row.code||row.title).join(',')}`,label,phase);}
       if(typeof options.validate==='function'){const validation=await options.validate(draft,context);if(validation===false||validation?.ok===false)throw rejection(validation?.reason||'validation-rejected',label,phase);}
       lap('integrityMs');
+      if(staging?.settled){const staged=await staging.settled.catch(()=>null);durableTiming.prestageOk=staged?.ok===true;durableTiming.prestageUploads=Number(staged?.uploads)||0;durableTiming.prestageBytes=Number(staged?.bytes)||0;durableTiming.prestageWallMs=Number(staged?.wallMs)||0;lap('prestageWaitMs');}
       if(Number(liveState.saveRevision||0)!==expectedRevision)throw rejection(`state-revision-conflict:${expectedRevision}:${Number(liveState.saveRevision)||0}`,label,'pre-persist');
       phase='durable-commit';const persist=options.persist||((state,meta)=>{const owner=globalThis.GH_PERSISTENCE;if(!owner?.commitDurableState)throw new Error('durable-persistence-owner-unavailable');return owner.commitDurableState(state,meta);}),persisted=await persist(draft,{...(options.persistence||{}),expectedPreviousRevision:expectedRevision,transactionId,idempotencyKey:options.idempotencyKey||null,prevalidated:true});if(persisted===false||persisted?.ok===false)throw rejection(persisted?.reason||'durable-persistence-rejected',label,phase);durableCommitted=true;commitJournaledRoots(rootSessions);
-      lap('persistMs');
+      lap('persistMs');staging?.release?.();
       phase='publish';if(typeof options.publish==='function')await options.publish(liveState,draft,context);else publishObject(liveState,draft);MONEY_GUARD.seal(liveState);lap('publishMs');
       for(const task of afterPublishTasks)try{await task(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-publish side effect failed`,error);}
       if(typeof options.afterCommit==='function')try{await options.afterCommit(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-commit side effect failed`,error);}
       lap('afterMs');durableTiming.committed=true;durableTiming.totalMs=Math.max(0,runtimeClock()-durableStart);publishDurableMetric(durableTiming);
       advanceRevision(liveState);MONEY_GUARD.seal(liveState);return {committed:true,durable:true,transactionId,label,saveRevision:Number(liveState.saveRevision)||0,value,persistence:persisted};
     }catch(error){
-      durableTiming.totalMs=Math.max(0,runtimeClock()-durableStart);durableTiming.stage=phase;publishDurableMetric(durableTiming);
+      staging?.release?.();durableTiming.totalMs=Math.max(0,runtimeClock()-durableStart);durableTiming.stage=phase;publishDurableMetric(durableTiming);
       error.transactionLabel=error.transactionLabel||label;error.transactionStage=error.transactionStage||phase;error.transactionId=error.transactionId||transactionId;error.durableCommitted=durableCommitted;
       if(!durableCommitted)try{rollbackJournaledRoots(rootSessions);}catch(rollbackError){error.rollbackError=rollbackError;error.critical=true;globalThis.GH_PERSISTENCE?.markRecoveryRequired?.('durable-journaled-root-rollback-failed');}
       if(durableCommitted){error.critical=true;error.postCommitCode='DURABLE_PUBLISH_FAILED_AFTER_ACK';globalThis.GH_PERSISTENCE?.markRecoveryRequired?.('durable-publish-failed-after-ack',{durableCommitted:true,saveRevision:Number(liveState.saveRevision)||Number(draft?.saveRevision)||0,transactionId});}

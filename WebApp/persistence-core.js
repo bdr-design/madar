@@ -155,10 +155,10 @@
   // the upload runs, and a save must be one consistent instant), and uploadChunks sends them before the commit that
   // lists them. The vault refuses a commit whose chunks are missing; vaultChunks is cleared after any reset and any
   // such refusal, so the next save uploads again (an upload of a chunk the vault holds is checked and accepted).
-  const vaultChunks=new Set(),chunkPending=new Map();let chunkSequence=0,lastCommittedChunkIds=null;
+  const vaultChunks=new Set(),chunkPending=new Map();let chunkSequence=0,lastCommittedChunkIds=null,vaultEpoch=0;
   const CHUNK_ACK_TIMEOUT_MS=60000;
   function noteVaultChunks(ids){for(const id of Array.isArray(ids)?ids:[])if(typeof id==='string'&&id)vaultChunks.add(id);}
-  function forgetVaultChunks(){vaultChunks.clear();lastCommittedChunkIds=null;}
+  function forgetVaultChunks(){vaultChunks.clear();lastCommittedChunkIds=null;vaultEpoch++;}
   // Keep upload knowledge for the current and previous committed manifests, not every historic upload. Forgetting
   // an id never deletes a vault file: a manual slot/older world can safely reupload it if needed.
   function acknowledgeVaultChunks(save){
@@ -207,7 +207,7 @@
       if(active>=SLICE_MS){timing.slices++;await yieldToFrame();active=0;}
     }
   }
-  async function serializeNativeSliced(state,yieldToFrame,timing){
+  async function serializeNativeSliced(state,yieldToFrame,timing,{retake=true}={}){
     const codec=stateCodec();if(!chunkedNative(state))return typeof codec?.serializeSteps==='function'?{json:await runSliced(codec.serializeSteps(state),yieldToFrame,timing),uploads:[],chunked:false}:serializeNative(state);
     if(typeof codec.serializeChunkedSteps!=='function')return serializeNative(state);
     const externalChecksums=typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER==='function'&&Number(state.fleet?.length)>FLEET_MAIN_THREAD_ROWS;let out;
@@ -218,7 +218,7 @@
         if(state.fleet?.revision!==revision)throw new Error('state-codec-fleet-changed-during-save');
         break;
       }catch(error){
-        if(attempt!==0||error?.message!=='state-codec-fleet-changed-during-save')throw error;timing.retakes++;
+        if(!retake||attempt!==0||error?.message!=='state-codec-fleet-changed-during-save')throw error;timing.retakes++;
         // A fresh snapshot also needs fresh validation; the old proof described the rows before the write.
         const schema=globalThis.GH_SAVE_SCHEMA,options={trustVerified:true,...fleetValidationOptions(state,{allowAsync:true})};
         const check=typeof schema?.validationSteps==='function'?await runSliced(schema.validationSteps(state,options),yieldToFrame,timing):schema?.validate?.(state,options);
@@ -280,6 +280,42 @@
   }
   // A commit refused for a missing chunk means vaultChunks was stale: forget it so the next save uploads its chunks.
   function noteNativeRefusal(error){if(/Missing save chunk/i.test(String(error?.message||'')))forgetVaultChunks();return error;}
+  // Build 362 follow-up (iPhone diagnostic DX-1792142505027, 980,000 assets): a player decision held the calendar ~3.9 s,
+  // ~2.0 s waiting for the fleet worker's save validation and then ~1.4 s uploading ~127 MB of fleet chunks. A durable
+  // command may upload its draft's chunks while that validation runs. Nothing is committed here: the vault stores a chunk
+  // by id and keeps an unreferenced upload for 10 minutes (GlobalSaveVault.chunkGracePeriod); commitDurableState still
+  // serializes the draft itself, lists what it lists, uploads whatever is missing, and the vault refuses a commit whose
+  // chunks are absent. release() forgets the ids this staging uploaded that no committed manifest lists, so a later save
+  // uploads them again rather than trusting a file the vault may have collected. Failures only lose the head start.
+  function prestageDurableChunks(state,{yieldToFrame=null}={}){
+    const staged=new Set(),epoch=vaultEpoch,started=clock(),timing={kind:'durable-prestage',ok:false,uploads:0,bytes:0,busyMs:0,slices:0,retakes:0,wallMs:0,reason:null};let stopped=false;
+    // A released staging stops at its next yield or upload: the command has ended and may have rolled the fleet back.
+    const stopIfReleased=()=>{if(stopped)throw new Error('prestage-released');if(recoveryRequired||vaultEpoch!==epoch)throw new Error('prestage-vault-changed');};
+    const applicable=typeof yieldToFrame==='function'&&!locked&&!durableLocked&&!recoveryRequired&&chunkedNative(state)&&Number(state?.fleet?.length)>FLEET_MAIN_THREAD_ROWS;
+    if(!applicable)return null;
+    const settled=(async()=>{
+      try{
+        // No retake: the command holds the lifecycle lock, so a fleet change here means the staging is stale; persist decides.
+        const save=await serializeNativeSliced(state,async()=>{await yieldToFrame();stopIfReleased();},timing,{retake:false});
+        for(const upload of save.uploads){
+          if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}
+          stopIfReleased();
+          const size=upload.bytes.byteLength;await uploadChunk(upload.id,upload.bytes);upload.bytes=null;
+          if(vaultEpoch!==epoch)throw new Error('prestage-vault-changed');
+          vaultChunks.add(upload.id);staged.add(upload.id);timing.uploads++;timing.bytes+=size;
+        }
+        timing.ok=true;
+      }catch(error){timing.reason=String(error?.message||error).slice(0,160);}
+      finally{timing.wallMs=Math.max(0,clock()-started);rememberTiming(timing);}
+      return {ok:timing.ok,uploads:timing.uploads,bytes:timing.bytes,wallMs:timing.wallMs,reason:timing.reason};
+    })();
+    let released=null;
+    return Object.freeze({settled,release(){
+      stopped=true;
+      if(!released)released=settled.then(()=>{if(vaultEpoch===epoch)for(const id of staged)if(!lastCommittedChunkIds?.has(id))vaultChunks.delete(id);staged.clear();});
+      return released;
+    }});
+  }
   globalThis.addEventListener?.('gh-native-chunk-ack',e=>receiveChunkAck(e.detail));
   globalThis.addEventListener?.('gh-native-save-ack',e=>receiveAck(e.detail));
   globalThis.addEventListener?.('gh-native-reset-ack',e=>receiveAck(e.detail));
@@ -521,7 +557,7 @@
     try{assertState(state);const day=Math.floor((Number(state.simSeconds)||0)/86400)+1,pack={format:EXPORT_FORMAT,version:appVersion,saveSchemaVersion:SAVE_SCHEMA_VERSION,saveRevision:Number(state.saveRevision)||0,simSeconds:Number(state.simSeconds)||0,day,state:stateCodec()?stateCodec().encodeState(state):clone(state)};const blob=new Blob([JSON.stringify(pack,null,2)],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=`Ventora_Save_v${appVersion}_D${day}.ghsave`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return {ok:true,filename:a.download};}catch(e){return {ok:false,reason:'export-failed',error:String(e.message||e)};}
   }
   function migrateMetadata(state){state.advanced=state.advanced||{};state.advanced.saveSlots=Array.isArray(state.advanced.saveSlots)?state.advanced.saveSlots:[null,null,null];for(let i=0;i<3;i++){const s=slotStatus(i);state.advanced.saveSlots[i]=s.exists?{date:s.meta?.label||`اليوم ${s.meta?.day||'—'}`,version:s.meta?.appVersion||'legacy',simSeconds:Number(s.meta?.simSeconds)||0}:null;}return state.advanced.saveSlots;}
-  const API=Object.freeze({VERSION,requireFullValidation,fullValidationRequired:()=>fullValidationReason,noteVaultChunks,forgetVaultChunks,vaultChunkCount:()=>vaultChunks.size,SLOT_FORMAT,LIMITS:PERSISTENCE_LIMITS,fleetRecordLimit,slotStatus,saveSlot,loadSlot,clearSlot,exportSave,migrateMetadata,parseSlot,inspectJSON,inspectNativeJSON,writeJSON,writeState,commitState,commitDurableState,recoverBrowserState,acknowledgeRecovery,markRecoveryRequired,requestNative,receiveAck,receiveSlotAck,drain,replaceState,isLocked:()=>locked||durableLocked||slicedLocked||recoveryRequired,commitStateSliced,slicedSettled,slicedActive:()=>!!slicedSave,
+  const API=Object.freeze({VERSION,requireFullValidation,fullValidationRequired:()=>fullValidationReason,noteVaultChunks,forgetVaultChunks,prestageDurableChunks,vaultChunkCount:()=>vaultChunks.size,SLOT_FORMAT,LIMITS:PERSISTENCE_LIMITS,fleetRecordLimit,slotStatus,saveSlot,loadSlot,clearSlot,exportSave,migrateMetadata,parseSlot,inspectJSON,inspectNativeJSON,writeJSON,writeState,commitState,commitDurableState,recoverBrowserState,acknowledgeRecovery,markRecoveryRequired,requestNative,receiveAck,receiveSlotAck,drain,replaceState,isLocked:()=>locked||durableLocked||slicedLocked||recoveryRequired,commitStateSliced,slicedSettled,slicedActive:()=>!!slicedSave,
     // Cheap read for the save policy (GH_SAVE_POLICY): when the last save of any kind ran.
     saveCadence:()=>({lastSaveAtMs}),telemetry:()=>({generation,pending:pending.size,slotPending:slotPending.size,ordinaryInFlight:!!ordinaryInFlight,ordinaryDirty,recoveryRequired,samples:clone(samples),timings:{lastSaveBreakdown:clone(lastSaveBreakdown),lastNativeAck:clone(lastNativeAck),samples:clone(timingSamples)}})});
   globalThis.GH_PERSISTENCE=API;if(globalThis.window&&window!==globalThis)window.GH_PERSISTENCE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
