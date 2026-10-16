@@ -207,13 +207,18 @@
       if(active>=SLICE_MS){timing.slices++;await yieldToFrame();active=0;}
     }
   }
-  async function serializeNativeSliced(state,yieldToFrame,timing,{retake=true}={}){
+  // validatedFleetRevision: the fleet revision the caller's validation saw. A write since (direct store writes are not
+  // blocked by the lifecycle lock, and a chunk staging may overlap the validation) takes the same fresh, validated retake
+  // as a write during serialization, so a save never lists rows newer than its proof.
+  async function serializeNativeSliced(state,yieldToFrame,timing,{retake=true,validatedFleetRevision=null}={}){
     const codec=stateCodec();if(!chunkedNative(state))return typeof codec?.serializeSteps==='function'?{json:await runSliced(codec.serializeSteps(state),yieldToFrame,timing),uploads:[],chunked:false}:serializeNative(state);
     if(typeof codec.serializeChunkedSteps!=='function')return serializeNative(state);
     const externalChecksums=typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER==='function'&&Number(state.fleet?.length)>FLEET_MAIN_THREAD_ROWS;let out;
     for(let attempt=0;;attempt++){
+      const staleProof=attempt===0&&validatedFleetRevision!=null&&state.fleet?.revision!==validatedFleetRevision;
       const store=state.fleet,revision=store?.revision,buffer=store?.rows,session=externalChecksums&&typeof globalThis.GH_SAVE_CHECKSUM_THREAD?.createSession==='function'?globalThis.GH_SAVE_CHECKSUM_THREAD.createSession({current:()=>state.fleet===store&&store.revision===revision&&store.rows===buffer,submit:globalThis.GH_SAVE_CHECKSUM_PROVIDER}):null;
       try{
+        if(staleProof)throw new Error('state-codec-fleet-changed-during-save');
         out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,knownChunkIds:vaultChunks}),yieldToFrame,timing,session);
         if(state.fleet?.revision!==revision)throw new Error('state-codec-fleet-changed-during-save');
         break;
@@ -417,7 +422,7 @@
     try{
       await waitOrdinaryIdle({supersedeDirty:true});
       const durableTiming={kind:'durable-save',saveRevision:Number(state?.saveRevision)||0,schemaMs:0,stringifyMs:0,measurementMs:0,totalSyncMs:0,utf8Bytes:null,ok:false};let stageStart=clock();const syncStart=stageStart;
-      assertRecurringState(state,{prevalidated:options.prevalidated===true});durableTiming.schemaMs=Math.max(0,clock()-stageStart);stageStart=clock();const changeToken=captureSaveChanges(state),nativeBridge=!!bridgeFor('commitSave'),sliced=nativeBridge&&typeof yieldToFrame==='function'?{busyMs:0,slices:0,retakes:0}:null,nativeSave=nativeBridge?(sliced?await serializeNativeSliced(state,yieldToFrame,sliced):serializeNative(state)):null,json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
+      assertRecurringState(state,{prevalidated:options.prevalidated===true});durableTiming.schemaMs=Math.max(0,clock()-stageStart);stageStart=clock();const changeToken=captureSaveChanges(state),nativeBridge=!!bridgeFor('commitSave'),sliced=nativeBridge&&typeof yieldToFrame==='function'?{busyMs:0,slices:0,retakes:0}:null,nativeSave=nativeBridge?(sliced?await serializeNativeSliced(state,yieldToFrame,sliced,{validatedFleetRevision:Number.isSafeInteger(options.validatedFleetRevision)?options.validatedFleetRevision:null}):serializeNative(state)):null,json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
       if(nativeBridge){
         stageStart=clock();const encodeBusy=sliced?sliced.busyMs:0,encoded=sliced?await runSliced(utf8Steps(json),yieldToFrame,sliced):utf8(json),measurement=inspectNativeJSON(json,encoded);durableTiming.measurementMs=sliced?sliced.busyMs-encodeBusy:Math.max(0,clock()-stageStart);durableTiming.utf8Bytes=measurement.utf8Bytes;durableTiming.totalSyncMs=sliced?durableTiming.schemaMs+sliced.busyMs:Math.max(0,clock()-syncStart);if(sliced){durableTiming.slices=sliced.slices;durableTiming.maxBusySliceMs=sliced.maxBusySliceMs||0;durableTiming.checksumRequests=sliced.checksumRequests||0;durableTiming.checksumWorkerMs=sliced.checksumWorkerMs||0;durableTiming.retakes=sliced.retakes;durableTiming.wallMs=Math.max(0,clock()-syncStart);}durableTiming.ok=true;rememberTiming(durableTiming);let ack;try{await uploadChunks(nativeSave?.uploads);ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state),encoded});}catch(error){throw noteNativeRefusal(error);}ordinaryError=null;
         const cache=nativeSave?.chunked?{ok:false,reason:'chunked-native-save',previous:null,bypassed:true}:(measurement.utf8Bytes>PERSISTENCE_LIMITS.hardBytes||measurement.storageBytes>PERSISTENCE_LIMITS.hardBytes)?{ok:false,reason:'browser-cache-size-bypass',previous:null,bypassed:true}:writeJSON(storageKey,json,{...options,mirror:true},encoded);
@@ -447,14 +452,14 @@
       const changeToken=captureSaveChanges(state);let stage=clock();const previous=Math.max(0,Math.floor(Number(state.saveRevision)||0)),tx=globalThis.GH_TRANSACTION_CORE;timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;const onSlice=(start,end)=>{const busy=Math.max(0,end-start);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'save.clone',start,end);},copy=tx.deepCloneInSlices?await tx.deepCloneInSlices(state,{shareJournaledRoots:true,yieldToHost:async()=>{timing.cloneYields++;await yieldToFrame();},onSlice}):tx.deepClone(state,{shareJournaledRoots:true});copy.saveRevision=previous+1;globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(state,copy);timing.cloneMs=clock()-stage;
       await yieldToFrame();stage=clock();
       // The copy's chunks upload while it is validated (prestageDurableChunks); the commit below decides what it lists.
-      staging=prestageDurableChunks(copy,{yieldToFrame});
+      const validatedFleetRevision=copy.fleet?.revision;staging=prestageDurableChunks(copy,{yieldToFrame});
       const schema=globalThis.GH_SAVE_SCHEMA;let check;
       const validationOptions={trustVerified:true,...fleetValidationOptions(copy,{allowAsync:true})};
       if(typeof schema?.validationSteps==='function'){const steps=schema.validationSteps(copy,validationOptions);let slice=clock(),step;while(!(step=steps.next()).done){if(step.value==='fleet-validation-wait'){await yieldToFrame();slice=clock();}else if(clock()-slice>=SLICE_MS){await yieldToFrame();slice=clock();}}check=step.value;}
       else check=schema?.validate?.(copy,validationOptions)||{ok:true};
       timing.validateMs=clock()-stage;if(check&&check.ok===false)return {ok:false,reason:`invalid-state:${(check.errors||[]).join(',')}`};
       if(staging){stage=clock();const staged=await staging.settled;timing.prestageWaitMs=clock()-stage;timing.prestageUploads=staged.uploads;timing.prestageOk=staged.ok;}
-      const out=await commitDurableState(copy,{storageKey,appVersion,prevalidated:true,expectedPreviousRevision:previous,yieldToFrame,[SLICED_COMMIT]:true});
+      const out=await commitDurableState(copy,{storageKey,appVersion,prevalidated:true,expectedPreviousRevision:previous,yieldToFrame,validatedFleetRevision,[SLICED_COMMIT]:true});
       if(Number(state.saveRevision)===previous){state.saveRevision=copy.saveRevision;acknowledgeSaveChanges(state,changeToken);}
       timing.ok=true;return {...out,ok:true,saveRevision:copy.saveRevision,timing};
     }catch(error){return {ok:false,reason:String(error?.message||error),critical:!!error?.critical,timing};}

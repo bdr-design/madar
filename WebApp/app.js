@@ -1086,6 +1086,7 @@
       if(shouldYieldForValidation)await yieldForInteractivePaint();
       // The draft inherited the verified-once ledger above: proofs already verified are trusted, new or changed ones are
       // verified now. The proof audit of maintenance verifies every proof afresh over time, and loads always verify in full.
+      const validatedFleetRevision=Number.isSafeInteger(draft.fleet?.revision)?draft.fleet.revision:null;
       mark=clockNow();const schema=await validateDraftInSlices(draft);lap('validateMs');if(!schema.ok)throw new Error(`invalid-draft:${schema.errors.join(',')}`);
       if(shouldYieldForValidation)await yieldForInteractivePaint();
       mark=clockNow();const integrity=traceMainThreadWork('command.integrity',()=>window.GH_INTEGRITY_CORE.check(draft)),critical=(integrity?.critical||(integrity?.issues||[]).filter(row=>row.severity==='critical'));lap('integrityMs');
@@ -1093,7 +1094,7 @@
       if(introduced.length)throw new Error(`critical-integrity:${introduced.map(row=>row.code||row.id||row.title).join(',')}`);
       if(shouldYieldForValidation)await yieldForInteractivePaint();
       if(staging?.settled){mark=clockNow();const staged=await staging.settled.catch(()=>null);timing.prestageOk=staged?.ok===true;timing.prestageUploads=Number(staged?.uploads)||0;timing.prestageBytes=Number(staged?.bytes)||0;timing.prestageWallMs=Number(staged?.wallMs)||0;lap('prestageWaitMs');}
-      mark=clockNow();await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,yieldToFrame:()=>yieldForInteractivePaint()});lap('persistMs');
+      mark=clockNow();await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,validatedFleetRevision,yieldToFrame:()=>yieldForInteractivePaint()});lap('persistMs');
       // Storage has already committed. A publication failure is a recovery
       // condition, never a successful rollback and never safe to retry blindly.
       committed=true;transactionCore?.commitJournaledRoots?.(rootSessions);rootSessions=[];if(fleetMutationSession){if(fleetMutationClient.settleMutation(fleetMutationSession,'commit')!==true)throw new Error('fleet-mutation-commit-rejected');fleetMutationSettled=true;}{const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-publish',fields:carried});}replaceLiveState(draft);for(const task of afterPublishTasks)try{await task(value,window.__GH_DURABLE_COMMAND_CONTEXT__);}catch(error){console.warn(`Durable command after-publish hook failed [${name}]`,error);}lap('publishMs');diag('DURABLE_COMMAND_COMMITTED',{name,saveRevision:state.saveRevision});
