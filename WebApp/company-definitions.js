@@ -32,7 +32,7 @@
     insurance:{ar:'للتأمين',en:'Insurance',short:'INSURANCE',glyph:GLYPH.insurance},realestate:{ar:'للتطوير العقاري',en:'Real Estate',short:'REAL ESTATE',glyph:GLYPH.realestate},
     // Build 375: telecom and the car dealership follow the group's name too («العساف للاتصالات»); no glyph, so their approved
     // logos stay.
-    telecom:{ar:'للاتصالات',en:'Telecom',short:'TEL',glyph:null},dealership:{ar:'لوكالات السيارات',en:'Auto',short:'AUTO',glyph:null}});
+    telecom:{ar:'للاتصالات',en:'Telecom',short:'TEL',glyph:null},dealership:{ar:'لوكالات السيارات',en:'Auto',short:'AUTO',glyph:null},hospitality:{ar:'للفنادق والمنتجعات',en:'Hotels & Resorts',short:'HOTELS',glyph:null}});
   const subsidiary=(data)=>({
     ...data,identity:{...data.identity,brand:BRAND[data.id]||null},schema:FORMAT,definitionVersion:1,kind:'subsidiary',lifecycle:'active',
     instancePolicy:{mode:'multi',stateScope:'company',...(data.instancePolicy||{})},
@@ -203,6 +203,19 @@
       facilities:{directoryProviderIds:['world-capitals'],allowedKinds:['dealership-branch'],primaryKind:'dealership-branch',siteTemplate:{label:'وكالة سيارات',facilityKind:'dealership-branch',cost:8500000,dailyCost:6800,capacity:'عرض السيارات والمبيعات وخدمة ما بعد البيع وتمويل العملاء',deliveryCapacity:0,photo:'assets/images/company-system-v2.webp',iconKey:'dealership',groupValueFactor:.72}},
       ui:{extensions:['automotive-retail-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'dealership'},
       conference:{providerId:'generic-company-v1'},adapters:{operations:'dealership-retail-v1',conference:'generic-company-v1'},
+      legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}
+    })
+    ,subsidiary({
+      id:'hospitality',definitionId:'gh-hospitality-v1',order:110,
+      identity:identity('شركة الفنادق والمنتجعات','Hotels and Resorts Company','الفنادق والمنتجعات','Hotels & Resorts','HOTELS','assets/identity/approved/hospitality-symbol.webp','#176b70','#16344b','#bd985b','assets/identity/approved/hospitality-symbol.webp',[],'assets/identity/approved/hospitality-symbol.webp'),
+      classification:{primarySectorId:'hospitality',sectorIds:['hospitality'],operationProfileId:'hospitality-stays-v1',assetClasses:[],routeModes:[]},
+      capabilities:['operations.hospitality','facility.hospitality'],
+      founding:{defaultCapital:80000000,minimumCapital:80000000,documentPrefix:'HOTEL'},
+      finance:{accountPrefix:'HOTEL',documentPrefix:'HOTEL',collectionProfileId:'hospitality-revenue-v1'},
+      hr:{managerRoleProfileId:'ceo-hospitality-v1',staffingProfileId:'hospitality-services-v1',facilityMonthlySalary:1800},
+      facilities:{directoryProviderIds:['world-hospitality'],allowedKinds:['hotel','resort'],primaryKind:'hotel',siteTemplate:{label:'فندق مدينة',facilityKind:'hotel',cost:25000000,dailyCost:2400,capacity:'100 غرفة · تشغيل وحجوزات مجمعة',deliveryCapacity:0,photo:'assets/identity/approved/hospitality-symbol.webp',iconKey:'house',groupValueFactor:.72}},
+      ui:{extensions:['hospitality-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'hospitality'},
+      conference:{providerId:'hospitality-company-v1'},adapters:{operations:'hospitality-stays-v1',facilities:'hospitality-facilities-v1',map:'company-map-v1',conference:'hospitality-company-v1'},
       legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}
     })
   ]);

@@ -57,10 +57,11 @@ const COUNT=30;
     await multi.waitForFunction(()=>GH_COMPANY_PLATFORM.listInstances(__GH_STATE__,{includeGroup:false}).every(row=>row.operational));
     await multi.evaluate(()=>__AUDIT__.openDrawer('network'));
     await multi.locator('#worldBulkCount').selectOption('10');
-    assert.equal(Number(await multi.locator('.open-scope-facilities').getAttribute('data-count')),100,'the scale scenario opens 100 facilities');
+    assert.equal(Number(await multi.locator('.open-scope-facilities').getAttribute('data-count')),110,'the scale scenario opens ten facilities for each of eleven sectors');
     await multi.locator('.open-scope-facilities').click();
     await multi.locator('dialog.ui-confirm [data-confirm="accept"]').click();
-    await multi.waitForFunction(()=>__GH_STATE__.globalBases.length+__GH_STATE__.customHubs.length===100);
+    await multi.waitForFunction(()=>__GH_STATE__.globalBases.length+__GH_STATE__.customHubs.length===110);
+    assert.equal(await multi.evaluate(()=>GH_HOSPITALITY_CORE.read(__GH_STATE__,'hospitality').properties.filter(p=>p.status==='construction').length),10,'ten hotel properties are real paid construction before financial settlement');
     const ids=await multi.evaluate(async()=>{
       const F=GH_FINANCE_CORE,s=__GH_STATE__;s.godMoney=false;s.infiniteMoney=false;
       F.book(s,'sea').accounts[0].balance=500;F.reconcile(s);

@@ -59,7 +59,7 @@ const KINDS=['air','telecom','dealership','mobility'];
     await open(facilities.dealership,'operations');assert.equal(await page.locator('#drawerBody .pv-opt').count(),4,'price, stock cover, service plan and stock finance (Build 378)');assert.equal(await page.locator('#drawerBody [data-current="1"]').count(),4,'one current choice per row');
     // Build 378: stock finance from the group's bank, and the telecom branch's network upgrade.
     await page.locator('#drawerBody [data-gh-action="dealership-set-floor-plan"][data-mode="bank"]').click();await page.waitForFunction(()=>__GH_STATE__.customerCompanies.companies.dealership.market.floorPlan===true);
-    await open(facilities.telecom,'operations');await page.locator('#drawerBody [data-gh-action="telecom-upgrade-network"]').click();await page.waitForFunction(()=>__GH_STATE__.customerCompanies.companies.telecom.market.branches[0].networkLevel===1);
+    await open(facilities.telecom,'operations');await page.locator('#drawerBody [data-gh-action="telecom-upgrade-network"]').click();await page.locator('.ui-confirm [data-confirm="accept"]').click();await page.waitForFunction(()=>__GH_STATE__.customerCompanies.companies.telecom.market.branches[0].networkLevel===1);
     await open(facilities.telecom,'operations');assert.match(await page.locator('#drawerBody').textContent(),/المستوى 1 من 3/);
     assert.equal(await typed(),0,'nothing is typed');assert.deepEqual(errors,[]);
     console.log('BUILD375_COMPACT_DESKS_BROWSER_PASS');

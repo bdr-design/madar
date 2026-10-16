@@ -93,9 +93,9 @@
   // (customer-base-core affinityBoost, at most +15%), households for household lines and businesses for commercial.
   function groupReach(state,country){const B=globalThis.GH_CUSTOMER_BASE;if(typeof B?.affinityBoost!=='function')return {households:1,businesses:1};return {households:B.affinityBoost(state,country,'insurance','households'),businesses:B.affinityBoost(state,country,'insurance','businesses')};}
   function economy(state){const B=globalThis.GH_CUSTOMER_BASE;return {prices:typeof B?.priceIndex==='function'?B.priceIndex(state):1,demand:typeof B?.demandFactor==='function'?B.demandFactor(state,'insurance'):1};}
-  function officeMarket(ins,office){
+  function officeMarket(ins,office,peerCount=null){
     if(!(Number(office.marketPopulation)>0))office.marketPopulation=countryPopulation(office.country);
-    const peers=Math.max(1,ins.offices.filter(row=>row.active&&row.country===office.country).length),households=Math.round(clamp(num(office.marketPopulation)*Math.min(.9,INSURABLE_SHARE*incomeFactor(office.country,'insuranceReach'))*MAX_MARKET_SHARE/peers,300,200000));
+    const peers=(peerCount??Math.max(1,ins.offices.filter(row=>row.active&&row.country===office.country).length)),households=Math.round(clamp(num(office.marketPopulation)*Math.min(.9,INSURABLE_SHARE*incomeFactor(office.country,'insuranceReach'))*MAX_MARKET_SHARE/peers,300,200000));
     return {population:num(office.marketPopulation),households,businesses:Math.max(30,Math.round(households/BUSINESS_PER_PEOPLE))};
   }
   const capacityFor=(market,line)=>LINES[line].buyers==='business'?market.businesses:market.households;
@@ -167,7 +167,10 @@
   }
   function setPricingAll(state,p){const ins=ensure(state),level=Number(p.level);if(!PRICE_LEVELS.includes(level))throw new Error('insurance-price-invalid');for(const id of LINE_IDS)ins.pricing[id]=level;return {level,lines:LINE_IDS.length};}
   function setReinsurance(state,p){const ins=ensure(state),share=Number(p.share);if(!REINSURANCE_LEVELS.includes(share))throw new Error('insurance-reinsurance-invalid');ins.reinsurance=share;return {share};}
-  function campaignCost(ins,office){return Math.round(clamp(officeMarket(ins,{...office}).households*2,150000,3000000));}
+  function campaignCost(ins,office,peers=null){return Math.round(clamp(officeMarket(ins,{...office},peers).households*2,150000,3000000));}
+  const campaignRows=ins=>globalThis.GH_BRANCH_CAMPAIGN.rows(ins.offices,row=>row.active===true,(row,peers)=>campaignCost(ins,row,peers));
+  function campaignQuote(state){const ins=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.quote(state,'insurance',campaignRows(ins),CAMPAIGN_DAYS);}
+  function officeCampaigns(state,p){const ins=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.launch(state,'insurance',ins,campaignRows(ins),p,CAMPAIGN_DAYS);}
   function officeCampaign(state,p){
     const ins=ensure(state),office=ins.offices.find(row=>row.id===p.officeId||row.facilityId===p.officeId);if(!office)throw new Error('insurance-office-not-found');if(!office.active)throw new Error('insurance-office-inactive');
     const day=Math.floor(now(state)/86400);if(office.campaignUntil>day)throw new Error('insurance-campaign-running');
@@ -250,9 +253,9 @@
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx;
     if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'insurance',p);if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='set-pricing')return setPricing(state,p);if(cmd==='set-reinsurance')return setReinsurance(state,p);if(cmd==='set-pricing-all')return setPricingAll(state,p);
-    if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
+    if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='office-campaigns')return officeCampaigns(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
     throw new Error(`Unknown insurance command: ${cmd}`);
   }
-  const API={SOLVENCY_MARGIN,COMMISSION,CEDING_COMMISSION,CLAIMS_LAG_BY_LINE,VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,addPoliciesFromBank,BANCASSURANCE_SHARE,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
+  const API={SOLVENCY_MARGIN,COMMISSION,CEDING_COMMISSION,CLAIMS_LAG_BY_LINE,VERSION,DAILY_FINANCIAL_ORDER:300,addMotorPoliciesFromSales,addPoliciesFromBank,BANCASSURANCE_SHARE,LINES,LINE_IDS,PRICE_LEVELS,REINSURANCE_LEVELS,RISK_SHARES,MAX_OPEN_RISKS,CAMPAIGN_DAYS,decideRisksBatch,ensure,officeMarket,countryPopulation,quote,linePrice,campaignCost,campaignQuote,tickDay,tickDayStages,dailyResult,summary,onFinancialDay,onFinancialDayStages,execute};
   globalThis.GH_INSURANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('insurance',API);if(globalThis.window&&window!==globalThis)window.GH_INSURANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

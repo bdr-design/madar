@@ -47,13 +47,14 @@ const collectionResult=s.GH_DOMAIN_COMMANDS.dispatchSystem({state},'banking','co
 const cashAfterInstallment=F.operating(state,'bank');assert.ok(Math.abs((cashAfterInstallment-cashBeforeInstallment)-collection.totalCollected)<.0001);const replay=s.GH_DOMAIN_COMMANDS.dispatchSystem({state},'banking','collect-customer-installments',paymentBatch,{actor:'simulation-scheduler',idempotencyKey:paymentBatch.batchId});assert.equal(replay.ok,true,replay.error);assert.equal(JSON.stringify(replay.result),JSON.stringify(collection),'installment batch is idempotent');assert.equal(F.operating(state,'bank'),cashAfterInstallment);
 
 state.insurance={riskRequests:[{id:'RISK-FB',day:0,expiresDay:7,subject:'Test plant',officeId:'INS-OFF-FB',grade:'A',sumInsured:1000000,premium:10000,expectedLoss:5000,status:'بانتظار القرار'}]};
+const decideRisks=payload=>s.GH_TRANSACTION_CORE.execute(state,{label:'financial-batches-insurance',apply:()=>s.GH_INSURANCE_CORE.execute({state},'decide-risks-batch',payload)}).value;
 const risks={batchId:'INS-BATCH-FB-1',periodId:'0',decisions:[{id:'RISK-FB',decision:'decline'}]};
-const riskResult=s.GH_INSURANCE_CORE.execute({state},'decide-risks-batch',risks);
+const riskResult=decideRisks(risks);
 assert.equal(riskResult.declined,1);assert.equal(riskResult.items[0].status,'معتذر عنه');
-assert.equal(JSON.stringify(s.GH_INSURANCE_CORE.execute({state},'decide-risks-batch',risks)),JSON.stringify(riskResult),'insurance decision batch replays exactly');
+assert.equal(JSON.stringify(decideRisks(risks)),JSON.stringify(riskResult),'insurance decision batch replays exactly');
 s.GH_DOMAIN_COMMANDS.dispatch({state},'corporate','open-company',{type:'insurance',capital:60000000,legalName:'Batch Insurance'});
 state.insurance.riskRequests.push({id:'RISK-FB-ACCEPT',day:0,expiresDay:7,subject:'Wind farm',officeId:'INS-OFF-FB',grade:'A',sumInsured:20000000,premium:40000,expectedLoss:20000,status:'بانتظار القرار'});
-const acceptedRisks=s.GH_INSURANCE_CORE.execute({state},'decide-risks-batch',{batchId:'INS-BATCH-FB-2',periodId:'0',decisions:[{id:'RISK-FB-ACCEPT',decision:'accept'}]});
+const acceptedRisks=decideRisks({batchId:'INS-BATCH-FB-2',periodId:'0',decisions:[{id:'RISK-FB-ACCEPT',decision:'accept'}]});
 assert.equal(acceptedRisks.accepted,1);assert.equal(acceptedRisks.totalPremium,40000);assert.equal(state.insurance.largeRisks.length,1);
 
 state.customHubs=[{id:'POWER-FB',kind:'power',ownerCompanyId:'power',owned:true,energyKind:'solar',capacityAmount:100,capacity:'100 MW',commissioned:true}];

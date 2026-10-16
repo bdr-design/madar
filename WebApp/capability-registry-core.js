@@ -26,6 +26,7 @@
     'operations.realestate':Object.freeze({id:'operations.realestate',domain:'operations',description:'التطوير العقاري والبيع والتأجير'}),
     'operations.telecom':Object.freeze({id:'operations.telecom',domain:'operations',description:'اشتراكات الاتصالات وخدمة العملاء والفوترة الشهرية'}),
     'operations.dealer':Object.freeze({id:'operations.dealer',domain:'operations',description:'وكالات السيارات والعملاء والمخزون وخدمات ما بعد البيع'}),
+    'operations.hospitality':Object.freeze({id:'operations.hospitality',domain:'operations',description:'تشغيل الفنادق والمنتجعات والحجوزات والتسويات المجمعة'}),
     'asset.aircraft':Object.freeze({id:'asset.aircraft',domain:'assets',description:'امتلاك وتشغيل الطائرات'}),
     'asset.vessel':Object.freeze({id:'asset.vessel',domain:'assets',description:'امتلاك وتشغيل السفن'}),
     'asset.truck':Object.freeze({id:'asset.truck',domain:'assets',description:'امتلاك وتشغيل الشاحنات'}),
@@ -42,7 +43,8 @@
     'facility.insurance':Object.freeze({id:'facility.insurance',domain:'facilities',description:'مكاتب تأمين ومراكز مطالبات'}),
     'facility.realestate':Object.freeze({id:'facility.realestate',domain:'facilities',description:'مكاتب بيع وتأجير عقاري'}),
     'facility.telecom':Object.freeze({id:'facility.telecom',domain:'facilities',description:'فروع اتصالات وخدمة مشتركين'}),
-    'facility.dealership':Object.freeze({id:'facility.dealership',domain:'facilities',description:'وكالات سيارات ومبيعات وخدمة عملاء'})
+    'facility.dealership':Object.freeze({id:'facility.dealership',domain:'facilities',description:'وكالات سيارات ومبيعات وخدمة عملاء'}),
+    'facility.hospitality':Object.freeze({id:'facility.hospitality',domain:'facilities',description:'فنادق ومنتجعات ذات سعة إقامة'})
   });
   const BUILTIN_CAPABILITIES=Object.freeze(Object.values(BUILTIN_DEFINITIONS_RAW).map(row=>Object.freeze({schema:CAPABILITY_SCHEMA,...row})));
   const definitions=new Map(BUILTIN_CAPABILITIES.map(row=>[row.id,row]));

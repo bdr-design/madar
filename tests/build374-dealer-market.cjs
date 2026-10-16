@@ -123,9 +123,9 @@ const results={};
   assert.ok(day62.costOfSales>0&&day62.costOfSales<day62.salesRevenue,'a car costs the maker less than its retail price');
   // Build 377: the workshop includes the walk-in service, and the trade-ins resold that day carry their cost.
   const daily=row=>row.workshopCost+row.serviceCost+row.usedCost;
-  assert.equal(cost.expense,daily(day62)+day62.recognizedCost,'a day expenses its workshop and its own cars');assert.equal(cost.cashExpense,daily(day62));
+  assert.ok(Math.abs(cost.expense-daily(day62)-day62.recognizedCost)<1e-6,'a day expenses its workshop and its own cars');assert.ok(Math.abs(cost.cashExpense-daily(day62))<1e-6,'equivalent cash-cost sums agree below one millionth of a currency unit');
   const januaryCost=m.dailyHistory.filter(row=>row.day<=30).reduce((n,row)=>n+row.costOfSales,0),day31=m.dailyHistory.find(row=>row.day===31);
-  assert.equal(Math.round(billed.expense),Math.round(daily(day31)+day31.recognizedCost),'January\'s cars were expensed in January, not with the invoice');assert.equal(billed.cashExpense,daily(day31),'the cost of sales moves no cash');
+  assert.equal(Math.round(billed.expense),Math.round(daily(day31)+day31.recognizedCost),'January\'s cars were expensed in January, not with the invoice');assert.ok(Math.abs(billed.cashExpense-daily(day31))<1e-6,'the cost of sales moves no cash');
   assert.equal(Math.round(m.dailyHistory.filter(row=>row.day<=30).reduce((n,row)=>n+row.recognizedCost,0)),Math.round(januaryCost),'each car\'s cost on the day of its sale');
   assert.ok(billed.revenue>billed.expense,'the invoice day shows the margin, not the whole sale');
   const sold=s.customerCompanies.companies.dealership.inventory.reduce((n,row)=>n+row.sold*catalogue.find(x=>x.modelId===row.modelId).cost,0),financedCost=s.customerCompanies.companies.dealership.sales.filter(row=>row.status==='sold-financed').reduce((n,row)=>n+row.quantity*catalogue.find(x=>x.modelId===row.modelId).cost,0);

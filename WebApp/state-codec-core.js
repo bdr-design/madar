@@ -188,8 +188,10 @@
   }
 
   // Pure structural encoding (no pooling yet): primitives, [-1,...items], or [shapeId,...cells].
+  const COOPERATIVE_PARTS=new WeakSet();
   function createEncoder(){
     const rowShapeIds=new Map(),nestedShapeIds=new Map(),shapes=[];
+    let largeString=false;
     const sameKeys=(a,b)=>{if(a.length!==b.length)return false;for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;return true;};
     const recent=new Map();                                    // registry -> last shape id (homogeneous rows hit this)
     const shapeFor=(registry,keys)=>{
@@ -210,7 +212,8 @@
     function encodeValue(value,depth){
       if(depth>MAX_DEPTH)throw new RangeError('state-codec-depth');
       switch(typeof value){
-        case 'string':case 'boolean':return value;
+        case 'string':largeString ||= value.length>STRING_PIECE;return value;
+        case 'boolean':return value;
         case 'number':return Number.isFinite(value)?value:null;
         case 'undefined':case 'function':case 'symbol':return undefined;
         case 'bigint':throw new TypeError('state-codec-bigint');
@@ -226,7 +229,7 @@
       }
       return encodeObject(value,depth,nestedShapeIds);
     }
-    return {shapes,row:value=>encodeObject(value,0,rowShapeIds)};
+    return {shapes,row:value=>encodeObject(value,0,rowShapeIds),largeString:()=>largeString};
   }
 
   // Pooling pass. The first occurrence stays inline; the second identical occurrence creates the pool entry and later
@@ -349,7 +352,7 @@
       for(let position=0;position<source.length-1;position++){if(found&&found.has(position))continue;row.push(pooler.tree(source[position+1]));}
       rows[i]=row;
     }
-    return isArray?{$gh:1,s:shapes,p:pooler.pool,r:rows}:{$gh:2,k:keys,s:shapes,p:pooler.pool,r:rows};
+    const part=isArray?{$gh:1,s:shapes,p:pooler.pool,r:rows}:{$gh:2,k:keys,s:shapes,p:pooler.pool,r:rows};if(encoder.largeString())COOPERATIVE_PARTS.add(part);return part;
   }
   function memberIdentity(member){
     if(!member||typeof member!=='object')return null;const id=member.id??member.number;
@@ -543,19 +546,47 @@
     if(!view)throw corrupt('text-chunk-missing');if(view.length!==bytes)throw corrupt('text-chunk-length');
     let text,node;try{text=new TextDecoder('utf-8',{fatal:true}).decode(view);node=JSON.parse(text);}catch{throw corrupt('text-chunk-json');}
     if(!isPlain(node)||(node.$gh!==1&&node.$gh!==2))throw corrupt('text-chunk-collection');
-    ADOPTED_TEXT.set(partKey,{id,sum:textChecksum(text)});
+    if(id.includes('.o.'))rememberOpenText(`@${id}`,text,{id,bytes});
+    ADOPTED_TEXT.set(partKey,{id,sum:id.includes('.o.')?null:textChecksum(text)});
     return node;
   }
-  function utf8Length(text){let n=0;for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);if(c<128)n++;else if(c<2048)n+=2;else if(c>=0xD800&&c<=0xDBFF&&i+1<text.length){const d=text.charCodeAt(i+1);if(d>=0xDC00&&d<=0xDFFF){n+=4;i++;}else n+=3;}else n+=3;}return n;}
+  function* utf8LengthSteps(text){
+    let n=0,at=0;
+    while(at<text.length){let end=Math.min(text.length,at+16384);if(end<text.length){const a=text.charCodeAt(end-1),b=text.charCodeAt(end);if(a>=0xD800&&a<=0xDBFF&&b>=0xDC00&&b<=0xDFFF)end--;}
+      for(let i=at;i<end;i++){const c=text.charCodeAt(i);if(c<128)n++;else if(c<2048)n+=2;else if(c>=0xD800&&c<=0xDBFF&&i+1<end){const d=text.charCodeAt(i+1);if(d>=0xDC00&&d<=0xDFFF){n+=4;i++;}else n+=3;}else n+=3;}at=end;yield;
+    }return n;
+  }
+  function* textChecksumSteps(text){let a=0x811c9dc5|0,b=0x01000193|0;for(let at=0;at<text.length;at+=16384){const end=Math.min(text.length,at+16384);for(let i=at;i<end;i++){a=Math.imul(a^text.charCodeAt(i),0x01000193);b=(b+a)|0;}yield;}return `${text.length}.${(a>>>0).toString(36)}.${(b>>>0).toString(36)}`;}
   let textChunkSequence=0,textChunkStats={named:0,adopted:0,referenced:0};
+  // Mutable parts are always encoded afresh: reference identity/write stamps cannot certify legacy nested writes.
+  // Exact text equality alone reuses their immutable vault id. Retain at most 4M UTF-16 code units, with bounded
+  // entries. Parts outside that budget stay inline, so a large collection cannot churn the cache and reupload every
+  // part on each save. The existing manifest commits every part atomically.
+  const OPEN_TEXT=new Map(),OPEN_TEXT_LIMIT=4*1024*1024,OPEN_ENTRY_LIMIT=512*1024;
+  const openChunkStats={hits:0,misses:0,adopted:0,declined:0,chars:0};
+  function forgetOpenText(key){const old=OPEN_TEXT.get(key);if(old){openChunkStats.chars-=old.text.length;OPEN_TEXT.delete(key);}}
+  function rememberOpenText(key,text,chunk){
+    forgetOpenText(key);if(text.length>OPEN_ENTRY_LIMIT||openChunkStats.chars+text.length>OPEN_TEXT_LIMIT){openChunkStats.declined++;return false;}
+    OPEN_TEXT.set(key,{text,chunk});openChunkStats.chars+=text.length;return true;
+  }
+  function* openTextChunkOf(text,key){
+    const prior=OPEN_TEXT.get(key),adopted=ADOPTED_TEXT.get(key),loaded=adopted?OPEN_TEXT.get(`@${adopted.id}`):null;ADOPTED_TEXT.delete(key);
+    if(text.length>OPEN_ENTRY_LIMIT||openChunkStats.chars-(prior?.text.length||0)-(loaded?.text.length||0)+text.length>OPEN_TEXT_LIMIT){forgetOpenText(key);if(adopted)forgetOpenText(`@${adopted.id}`);openChunkStats.declined++;return null;}
+    let chunk;
+    if(prior?.text===text){chunk=prior.chunk;openChunkStats.hits++;}
+    else if(loaded?.text===text){chunk=loaded.chunk;openChunkStats.adopted++;}
+    else{chunk={id:`${NONCE}.o.${(++textChunkSequence).toString(36)}`,bytes:yield* utf8LengthSteps(text)};openChunkStats.misses++;}
+    if(adopted)forgetOpenText(`@${adopted.id}`);return rememberOpenText(key,text,chunk)?chunk:null;
+  }
   // The chunk of a cached collection text: an id that never changes while the text does not (the entry is replaced when
   // its members change), the vault's id when the loaded save held the same text at the same place.
-  function textChunkOf(entry,partKey){
+  function* textChunkOf(entry,partKey){
     if(!entry.chunk){
       const adopted=ADOPTED_TEXT.get(partKey);ADOPTED_TEXT.delete(partKey);
-      const id=adopted&&adopted.sum===textChecksum(entry.text)?adopted.id:`${NONCE}.t.${(++textChunkSequence).toString(36)}`;
+      const matches=adopted&&(adopted.id.includes('.o.')?OPEN_TEXT.get(`@${adopted.id}`)?.text===entry.text:adopted.sum===(yield* textChecksumSteps(entry.text)));
+      const id=matches?adopted.id:`${NONCE}.t.${(++textChunkSequence).toString(36)}`;if(adopted)forgetOpenText(`@${adopted.id}`);
       if(adopted&&id===adopted.id)textChunkStats.adopted++;else textChunkStats.named++;
-      entry.chunk={id,bytes:utf8Length(entry.text)};
+      entry.chunk={id,bytes:yield* utf8LengthSteps(entry.text)};
     }
     textChunkStats.referenced++;return entry.chunk;
   }
@@ -615,31 +646,49 @@
   // written member by member exactly as JSON.stringify writes a plain object.
   function serialize(state,options){const steps=serializeSteps(state,options);let step;while(!(step=steps.next()).done){}return step.value;}
   // Build 359 (the ordinary save's largest step was one root serialized at once, 40 ms on the desktop): a plain object or
-  // array is serialized member by member, with a step every STRINGIFY_STEP members and one level deeper for large
-  // members; the text is exactly JSON.stringify(value)'s (members whose value is undefined, a function or a symbol are
+  // array is serialized member by member at each JSON depth, with a step every STRINGIFY_STEP members. Long strings
+  // yield between bounded pieces without splitting a surrogate pair; the text is exactly JSON.stringify(value)'s
+  // (members whose value is undefined, a function or a symbol are
   // left out of objects and written null in arrays; a value with toJSON is serialized whole).
-  const STRINGIFY_STEP=256;
+  const STRINGIFY_STEP=256,STRING_PIECE=16384;
   function* stringifySteps(value,depth=0){
-    if(!value||typeof value!=='object'||depth>1||typeof value.toJSON==='function')return JSON.stringify(value);
+    if(typeof value==='string'&&value.length>STRING_PIECE){
+      const parts=[];let at=0;
+      while(at<value.length){let end=Math.min(value.length,at+STRING_PIECE);if(end<value.length){const high=value.charCodeAt(end-1),low=value.charCodeAt(end);if(high>=0xD800&&high<=0xDBFF&&low>=0xDC00&&low<=0xDFFF)end--;}const part=JSON.stringify(value.slice(at,end));parts.push(part.slice(1,-1));at=end;yield;}
+      return `"${parts.join('')}"`;
+    }
+    if(!value||typeof value!=='object'||depth>MAX_DEPTH||typeof value.toJSON==='function')return JSON.stringify(value);
     if(Array.isArray(value)){
+      if(value.length>=STRINGIFY_STEP){
+        const parts=[];
+        for(let at=0;at<value.length;at+=STRINGIFY_STEP){
+          const block=value.slice(at,at+STRINGIFY_STEP);
+          // Native JSON handles bounded primitive batches faster than one JS call per cell. A short-string bound
+          // keeps a batch below 64K code units before escaping; objects and long strings keep cooperative descent.
+          if(block.every(item=>item===null||typeof item==='number'||typeof item==='boolean'||typeof item==='string'&&item.length<=256))parts.push(JSON.stringify(block).slice(1,-1));
+          else for(const item of block){const json=item&&typeof item==='object'||typeof item==='string'&&item.length>STRING_PIECE?yield* stringifySteps(item,depth+1):JSON.stringify(item);parts.push(json===undefined?'null':json);}
+          yield;
+        }
+        return `[${parts.join(',')}]`;
+      }
       const parts=new Array(value.length);
-      for(let index=0;index<value.length;index++){const item=value[index],json=item&&typeof item==='object'?yield* stringifySteps(item,depth+1):JSON.stringify(item);parts[index]=json===undefined?'null':json;if(index%STRINGIFY_STEP===STRINGIFY_STEP-1)yield;}
+      for(let index=0;index<value.length;index++){const item=value[index],json=item&&typeof item==='object'||typeof item==='string'&&item.length>STRING_PIECE?yield* stringifySteps(item,depth+1):JSON.stringify(item);parts[index]=json===undefined?'null':json;if(index%STRINGIFY_STEP===STRINGIFY_STEP-1)yield;}
       return `[${parts.join(',')}]`;
     }
     if(!isPlain(value))return JSON.stringify(value);
     const parts=[];let count=0;
-    for(const key of Object.keys(value)){const item=value[key],json=item&&typeof item==='object'?yield* stringifySteps(item,depth+1):JSON.stringify(item);if(json!==undefined)parts.push(`${JSON.stringify(key)}:${json}`);if(++count%STRINGIFY_STEP===0)yield;}
+    for(const key of Object.keys(value)){const item=value[key],json=item&&typeof item==='object'||typeof item==='string'&&item.length>STRING_PIECE?yield* stringifySteps(item,depth+1):JSON.stringify(item);if(json!==undefined)parts.push(`${JSON.stringify(key)}:${json}`);if(++count%STRINGIFY_STEP===0)yield;}
     return `{${parts.join(',')}}`;
   }
   function* serializeSteps(state,{rowsText=null,textChunks=null,coldChunks=null}={}){
     if(!isPlain(state))return JSON.stringify(encodeState(state));
-    const binaryPaths=[],fragments=[],live=new Set(),cold=prepareColdArchive(state,coldChunks);let out=cold.root;
+    const binaryPaths=[],fragments=[],live=new Set(),liveOpen=new Set(),cold=prepareColdArchive(state,coldChunks);let out=cold.root;
     if(isArrayBuffer(state.fleet?.rows)){
       const path=['fleet','rows'],token=`\u0000gh-codec:${NONCE}:${fragments.length}\u0000`;
       fragments.push({token:JSON.stringify(token),text:rowsText===null?rowsMarkerText(state.fleet):rowsText});out=writePathCopy(out,path,token);binaryPaths.push(path);
     }
     const scan=scanPaths(out),paths=scan.paths;
-    if(!paths.length&&!binaryPaths.length&&!scan.runs.length&&!cold.ids.length&&!cold.hasPages)return JSON.stringify(out);
+    if(!paths.length&&!binaryPaths.length&&!scan.runs.length&&!cold.ids.length&&!cold.hasPages)return yield* stringifySteps(out);
     let segments=false;const livePaths=new Set();
     for(const path of paths){
       const value=readPath(out,path),key=JSON.stringify(path),shape=collectionLayout(key,value),split=shape.split;if(split)segments=true;livePaths.add(key);
@@ -649,11 +698,17 @@
         let current=shape.sealed[index];if(!current){current=sealedMembers(parts[index]);if(current)shape.sealed[index]=current;}
         // Build 359: a segment with a member that is not sealed (an open finance document) is encoded afresh, inline;
         // the sealed segments beside it keep their cached text (the text is the same as encodeCollection's).
-        if(!current){if(!split){cached=false;break;}texts.push(JSON.stringify(encodeRows(parts[index])));collectionCacheStats.open++;continue;}
+        if(!current){
+          if(!split&&!textChunks){cached=false;break;}
+          const encoded=encodeRows(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);collectionCacheStats.open++;
+          const chunk=textChunks&&text.length>=TEXT_CHUNK_MIN?(yield* openTextChunkOf(text,partKey)):null;
+          if(chunk){liveOpen.add(partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
+          else texts.push(text);yield;continue;
+        }
         live.add(partKey);let entry=COLLECTION_TEXT.get(partKey);
         if(entry&&(entry.members===current.members&&entry.keys===current.keys||sameMembers(entry,current)))collectionCacheStats.hits++;
-        else{entry={keys:current.keys,members:current.members,text:JSON.stringify(encodeRows(parts[index]))};COLLECTION_TEXT.set(partKey,entry);collectionCacheStats.misses++;}
-        if(textChunks&&entry.text.length>=TEXT_CHUNK_MIN){const chunk=textChunkOf(entry,partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text:entry.text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
+        else{const encoded=encodeRows(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);entry={keys:current.keys,members:current.members,text};COLLECTION_TEXT.set(partKey,entry);collectionCacheStats.misses++;}
+        if(textChunks&&entry.text.length>=TEXT_CHUNK_MIN){const chunk=yield* textChunkOf(entry,partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text:entry.text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
         else texts.push(entry.text);
       }
       if(!cached){out=writePathCopy(out,path,encodeCollection(value));yield;continue;}
@@ -661,17 +716,16 @@
       const token=`\u0000gh-codec:${NONCE}:${fragments.length}\u0000`;fragments.push({token:JSON.stringify(token),text});out=writePathCopy(out,path,token);yield;
     }
     for(const key of [...COLLECTION_TEXT.keys()])if(!live.has(key))COLLECTION_TEXT.delete(key);
+    if(textChunks)for(const key of [...OPEN_TEXT.keys()])if(!liveOpen.has(key))forgetOpenText(key);
     for(const key of [...PATH_LAYOUT.keys()])if(!livePaths.has(key))PATH_LAYOUT.delete(key);
     for(const {path,run} of scan.runs)out=writePathCopy(out,path,run);
     out.stateCodec=codecMeta(paths,binaryPaths,scan.runs,segments,[...(textChunks?textChunks.map(chunk=>chunk.id):[]),...cold.ids]);
-    const members=[];for(const key of Object.keys(out)){const json=yield* stringifySteps(out[key]);if(json!==undefined)members.push(`${JSON.stringify(key)}:${json}`);yield;}
-    const text=`{${members.join(',')}}`;if(!fragments.length)return text;
-    // Build 359 (each fragment searched the whole text twice, O(fragments x text)): one pass replaces every token; each
-    // must appear exactly once, as before.
+    // Resolve fragments inside each root before the final join. Never scan/copy the complete save a second time.
     const found=new Array(fragments.length).fill(0);
-    const result=text.replace(FRAGMENT_TOKEN,(match,index)=>{const at=Number(index),fragment=fragments[at];if(!fragment||fragment.token!==match)throw new Error('state-codec-fragment-token');found[at]++;return fragment.text;});
+    const replace=(match,index)=>{const at=Number(index),fragment=fragments[at];if(!fragment||fragment.token!==match)throw new Error('state-codec-fragment-token');found[at]++;return fragment.text;};
+    const members=[];for(const key of Object.keys(out)){let json=yield* stringifySteps(out[key]);if(json!==undefined){if(fragments.length)json=json.replace(FRAGMENT_TOKEN,replace);members.push(`${JSON.stringify(key)}:${json}`);}yield;}
     if(found.some(count=>count!==1))throw new Error('state-codec-fragment-token');
-    return result;
+    return `{${members.join(',')}}`;
   }
   function deserialize(json,options={}){return decodeState(JSON.parse(json),options);}
   // Build 358 (million-asset save): the save text with the record buffer as a 'chunks-v1' manifest. A chunk keeps its
@@ -753,7 +807,7 @@
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 
-  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size}}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
+  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT}}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
   globalThis.GH_STATE_CODEC=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_STATE_CODEC=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

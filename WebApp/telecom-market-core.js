@@ -67,7 +67,7 @@ function peersIn(m,country){return Math.max(1,m.branches.filter(row=>row.active&
 // and fixed broadband (home and family plans) reaches fewer households where incomes are low (broadbandReach).
 function localPrice(country){const value=Number(base().incomeFactor?.(country,'telecomPrice'));return Number.isFinite(value)&&value>0?value:1;}
 function reach(country,id){if(id!=='home'&&id!=='family')return 1;const value=Number(base().incomeFactor?.(country,'broadbandReach'));return Number.isFinite(value)&&value>0?value:1;}
-function capacity(m,branch,id){const market=base().market(branch.country,branch.marketPopulation),q=PLAN_MARKET[id];return Math.max(100,Math.round(num(market[q.pool])*Math.min(.95,q.penetration*reach(branch.country,id))*MAX_MARKET_SHARE/peersIn(m,branch.country)));}
+function capacity(m,branch,id,peerCount=null){const market=base().market(branch.country,branch.marketPopulation),q=PLAN_MARKET[id];return Math.max(100,Math.round(num(market[q.pool])*Math.min(.95,q.penetration*reach(branch.country,id))*MAX_MARKET_SHARE/(peerCount??peersIn(m,branch.country))));}
 const growthFactor=level=>clamp(1+(1-level)*3,.6,1.4),churnFactor=level=>clamp(1+(level-1)*4,.5,1.6);
 // The monthly recurring revenue of a branch at today's prices: what its next invoice bills.
 // The price level (customer-base-core priceIndex) is kept on the market by the day's run (one number), so every reader
@@ -75,7 +75,7 @@ const growthFactor=level=>clamp(1+(1-level)*3,.6,1.4),churnFactor=level=>clamp(1
 const marketPrices=m=>Number(m?.priceIndex)>0?Number(m.priceIndex):1;
 function branchRecurring(m,branch){let total=0;for(const id of PLAN_IDS)total+=num(branch.plans?.[id]?.subscribers)*planPrice(id)*num(m.pricing[id]||1);return total*localPrice(branch.country)*marketPrices(m);}
 function branchSubscribers(branch){let total=0;for(const id of PLAN_IDS)total+=num(branch.plans?.[id]?.subscribers);return total;}
-function campaignCost(m,branch){return Math.round(clamp(capacity(m,branch,'mobile')*.4,200000,4000000));}
+function campaignCost(m,branch,peers=null){return Math.round(clamp(capacity(m,branch,'mobile',peers)*.4,200000,4000000));}
 
 // The country's subscribers as one billed customer (one aggregate party per country, as the market cohorts use).
 function marketParty(state,branch){
@@ -152,6 +152,9 @@ function upgradeNetwork(state,p={}){
   branch.networkLevel=level+1;branch.networkAssets=[...(Array.isArray(branch.networkAssets)?branch.networkAssets:[]),{level:level+1,cost,day}];m.ytd.networkCapex+=cost;
   return {branchId:branch.id,level:branch.networkLevel,cost,chequeId:payment.cheque.id};
 }
+const campaignRows=m=>globalThis.GH_BRANCH_CAMPAIGN.rows(m.branches,row=>row.active===true,(row,peers)=>campaignCost(m,row,peers));
+function campaignQuote(state){const m=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.quote(state,'telecom',campaignRows(m),CAMPAIGN_DAYS);}
+function companyCampaign(state,p){const m=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.launch(state,'telecom',m,campaignRows(m),p,CAMPAIGN_DAYS,cost=>{m.ytd.campaignCost+=cost;});}
 function branchCampaign(state,p={}){
   const m=ensure(state),branch=m.branches.find(row=>row.id===p.branchId||row.facilityId===p.branchId);if(!branch)throw new Error('telecom-branch-not-found');if(!branch.active)throw new Error('telecom-branch-inactive');
   const day=today(state);if(Number(branch.campaignUntil)>day)throw new Error('telecom-campaign-running');
@@ -224,8 +227,8 @@ function summary(state){
   const contracts=(Array.isArray(m.contracts)?m.contracts:[]).filter(row=>row.status==='active');
   return {branches:branches.length,activeBranches:branches.filter(row=>row.active).length,subscribers:Object.values(byPlan).reduce((a,b)=>a+b,0),monthlyRecurring:branches.reduce((sum,row)=>sum+num(row.activeCustomers)*num(row.monthlyPrice),0)+contracts.reduce((sum,row)=>sum+num(row.activeCustomers)*num(row.monthlyPrice),0),byPlan,pricing:{...(m.pricing||{})},openRequests:(m.requests||[]).length,activeContracts:contracts.length,contractLines:contracts.reduce((sum,row)=>sum+num(row.activeCustomers),0),last:(m.dailyHistory||[])[0]||null};
 }
-function execute(ctx,cmd,p={}){const state=ctx.state||ctx;switch(cmd){case'set-plan-price':return setPlanPrice(state,p);case'branch-campaign':return branchCampaign(state,p);case'upgrade-network':return upgradeNetwork(state,p);case'decide-request':return decideRequest(state,p);case'decide-requests-batch':return decideRequestsBatch(state,p);case'tick-day':return tickDay(state,p);default:throw new Error(`Unknown telecom market command: ${cmd}`);}}
+function execute(ctx,cmd,p={}){const state=ctx.state||ctx;switch(cmd){case'set-plan-price':return setPlanPrice(state,p);case'branch-campaign':return branchCampaign(state,p);case'branch-campaigns':return companyCampaign(state,p);case'upgrade-network':return upgradeNetwork(state,p);case'decide-request':return decideRequest(state,p);case'decide-requests-batch':return decideRequestsBatch(state,p);case'tick-day':return tickDay(state,p);default:throw new Error(`Unknown telecom market command: ${cmd}`);}}
 
-const API=Object.freeze({NETWORK_MAX_LEVEL,networkCapex,networkLevel,VERSION,PLAN_IDS,PRICE_LEVELS,PRICE_LABELS,PLAN_MARKET,MAX_MARKET_SHARE,CAMPAIGN_DAYS,MAX_OPEN_REQUESTS,REQUEST_DAYS,read,ensure,capacity,campaignCost,planPrice,planLabel,branchRecurring,localPrice,dayStages,tickDay,dailyResult,summary,execute});
+const API=Object.freeze({NETWORK_MAX_LEVEL,networkCapex,networkLevel,VERSION,PLAN_IDS,PRICE_LEVELS,PRICE_LABELS,PLAN_MARKET,MAX_MARKET_SHARE,CAMPAIGN_DAYS,MAX_OPEN_REQUESTS,REQUEST_DAYS,read,ensure,capacity,campaignCost,campaignQuote,planPrice,planLabel,branchRecurring,localPrice,dayStages,tickDay,dailyResult,summary,execute});
 globalThis.GH_TELECOM_MARKET=API;if(globalThis.window&&window!==globalThis)window.GH_TELECOM_MARKET=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

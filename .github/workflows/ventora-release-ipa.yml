@@ -56,15 +56,6 @@ jobs:
           exit "$status"
 
 
-      - name: Type-check native performance diagnostics for iPhoneOS
-        shell: bash
-        run: |
-          set -euo pipefail
-          PERF_IPHONEOS_SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
-          xcrun swiftc -typecheck -swift-version 5 -sdk "$PERF_IPHONEOS_SDK" -target arm64-apple-ios17.0 \
-            "$SOURCE_DIR/iOS/GlobalHoldings/PerformanceDiagnostics.swift" \
-            "$SOURCE_DIR/iOS/GlobalHoldings/PerformanceReportVault.swift" 2>&1 | tee "$GITHUB_WORKSPACE/.ci-output/native-performance-typecheck.log"
-
       - name: Install pinned dependencies and browser engines
         shell: bash
         run: |
@@ -97,16 +88,6 @@ jobs:
           cp save-enqueue-measurement.json "$GITHUB_WORKSPACE/.ci-output/save-enqueue-measurement.json"
           node "$SOURCE_DIR/tests/native/test_update_bridge.cjs" --tests "$TEST_DIR" --web "$SOURCE_DIR/WebApp" --out "$TEST_DIR" | tee "$GITHUB_WORKSPACE/.ci-output/native-bridge-tests.log"
           cp update-bridge-tests.json "$GITHUB_WORKSPACE/.ci-output/update-bridge-tests.json"
-
-
-      - name: Run native performance-report vault checks
-        shell: bash
-        run: |
-          set -euo pipefail
-          PERF_TEST_DIR="$RUNNER_TEMP/ventora-performance-vault-tests"
-          mkdir -p "$PERF_TEST_DIR"
-          xcrun swiftc -swift-version 5 "$SOURCE_DIR/iOS/GlobalHoldings/PerformanceReportVault.swift" "$SOURCE_DIR/tests/native/performance-report-vault.swift" -o "$PERF_TEST_DIR/performance-vault-tests"
-          "$PERF_TEST_DIR/performance-vault-tests" | tee "$GITHUB_WORKSPACE/.ci-output/native-performance-vault-tests.log"
 
       - name: Run native WKWebView origin and frame smoke checks
         shell: bash

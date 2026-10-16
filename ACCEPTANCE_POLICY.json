@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 394,
+  "minimum_acceptance_gates": 419,
   "required_commands": [
     [
       "node",
@@ -1559,23 +1559,123 @@
     ],
     [
       "node",
-      "tests/build381-performance-trace.cjs"
+      "tests/build382-campaign-decisions-browser.cjs"
     ],
     [
       "node",
-      "tests/build381-performance-store.cjs"
+      "tests/build382-cheque-index.cjs"
     ],
     [
       "node",
-      "tests/build381-performance-browser.cjs"
+      "tests/build382-company-campaigns.cjs"
     ],
     [
       "node",
-      "tests/build381-performance-budget-browser.cjs"
+      "tests/build382-nonfleet-tax-browser.cjs"
     ],
     [
       "node",
-      "tests/build381-performance-native-contract.cjs"
+      "tests/build382-route-validation-cache.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-runtime-removal.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-navigation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-navigation-interaction.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-save-encoding.cjs"
+    ],
+    [
+      "node",
+      "tests/build384-map-company-cap.cjs"
+    ],
+    [
+      "node",
+      "tests/build384-map-company-cap-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build385-bank-credit-accounting.cjs"
+    ],
+    [
+      "node",
+      "tests/build385-bank-installment-backlog.cjs"
+    ],
+    [
+      "node",
+      "tests/build385-dealer-first-stock.cjs"
+    ],
+    [
+      "node",
+      "tests/build385-bank-credit-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build386-confirmation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-actions.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-once-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build388-change-tracking.cjs"
+    ],
+    [
+      "node",
+      "tests/build388-change-tracking-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build389-differential-collections.cjs"
+    ],
+    [
+      "node",
+      "tests/build389-differential-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build390-cooperative-snapshot.cjs"
+    ],
+    [
+      "node",
+      "tests/build390-snapshot-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build391-hospitality-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build392-hospitality-links.cjs"
+    ],
+    [
+      "node",
+      "tests/build393-hospitality-financial-safety.cjs"
+    ],
+    [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build395-hospitality-edge-cases.cjs"
+    ],
+    [
+      "node",
+      "tests/build396-hospitality-budgets.cjs"
     ]
   ]
 }

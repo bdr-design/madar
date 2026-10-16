@@ -34,6 +34,27 @@
   function cacheContract(bank,row){let map=contractLookup.get(bank);if(!map){map=new Map(bank.customerLoanContracts.map(item=>[String(item.id),item]));contractLookup.set(bank,map);contractPositionLookup.set(bank,new Map(bank.customerLoanContracts.map((item,index)=>[String(item.id),index])));}map.set(String(row.id),row);const positions=contractPositionLookup.get(bank);if(!positions.has(String(row.id))){positions.set(String(row.id),bank.customerLoanContracts.length);bank.customerLoanContracts.push(row);}}
   function archiveCustomerContract(bank,contract){let positions=contractPositionLookup.get(bank),map=contractLookup.get(bank);if(!positions){contractFor(bank,contract.id);positions=contractPositionLookup.get(bank);map=contractLookup.get(bank);}const index=positions.get(String(contract.id));if(index===undefined)return;const last=bank.customerLoanContracts.pop();if(index<bank.customerLoanContracts.length){bank.customerLoanContracts[index]=last;positions.set(String(last.id),index);}positions.delete(String(contract.id));map?.delete(String(contract.id));bank.customerLoanContractArchive.unshift(clone(contract));bank.customerLoanContractArchive=bank.customerLoanContractArchive.slice(0,120);}
   function scheduleCustomerInstallment(bank,contract){const key=String(Math.max(0,Math.floor(Number(contract.nextDueDay)||0))),schedule=bank.customerInstallmentSchedule;const ids=schedule[key]=Array.isArray(schedule[key])?schedule[key]:[];if(!ids.includes(contract.id))ids.push(contract.id);}
+  // One-time repair of the clone-only repayment flag in older customer contracts. The portfolio already contains the
+  // principal actually returned to cash, so reduce the contract to that evidenced balance; never mint/refund cash or
+  // rewrite receipts. Old interest balances and accrual dates are preserved: the aggregate history cannot prove which
+  // contract received an old daily cash credit. Flag that history for reconciliation rather than invent a refund/waiver.
+  function repairCustomerCredit(bank){
+    if(Number(bank.customerCreditSchema)>=3)return;
+    const portfolios=new Map(bank.loanPortfolios.map(row=>[String(row.id),row])),summary={schema:3,throughDay:Math.max(0,Math.floor(Number(bank.lastProcessedDay)||0)),linked:0,principalAligned:0,unresolved:0,historicalInterestReview:0};
+    portfolioLookup.set(bank,portfolios);contractLookup.delete(bank);contractPositionLookup.delete(bank);
+    for(const contract of [...bank.customerLoanContracts,...bank.customerLoanContractArchive]){
+      const portfolio=portfolios.get(String(contract.portfolioId));
+      if(!portfolio||Math.abs(num(portfolio.principal)-num(contract.originalPrincipal||contract.principal))>.01){summary.unresolved++;continue;}
+      const legacy=portfolio.repaymentModel!=='monthly-customer-contract';portfolio.repaymentModel='monthly-customer-contract';portfolio.customerContractId=contract.id;summary.linked++;
+      if(!legacy||contract.status==='مسدد')continue;
+      const balance=Number(portfolio.outstanding),owed=num(contract.outstanding);
+      if(Number.isFinite(balance)&&balance>=0&&balance<owed){const paid=owed-balance;contract.outstanding=balance;contract.principalArrears=Math.min(num(contract.principalArrears),balance);contract.legacyPrincipalPaid=num(contract.legacyPrincipalPaid)+paid;summary.principalAligned+=paid;}
+      if(summary.throughDay>num(contract.startDay))summary.historicalInterestReview++;
+      if(contract.outstanding<=.01)contract.status='مسدد';
+    }
+    for(const contract of [...bank.customerLoanContracts])if(contract.status==='مسدد'&&num(contract.outstanding)<=.01)archiveCustomerContract(bank,contract);
+    bank.customerCreditRepair=summary;bank.customerCreditSchema=3;
+  }
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,Number(value)||0));
   const companyPlatform=()=>globalThis.GH_COMPANY_PLATFORM||null;
   function canonicalOwnerCompanyId(row){return String(row?.ownerCompanyId||row?.companyId||'').trim();}
@@ -109,6 +130,7 @@
       for(const contract of bank.customerLoanContracts){contract.outstanding=num(contract.outstanding);contract.originalPrincipal=num(contract.originalPrincipal||contract.principal);contract.principalArrears=num(contract.principalArrears);contract.accruedInterest=num(contract.accruedInterest);contract.interestArrears=num(contract.interestArrears);contract.rate=clamp(contract.rate,0,.30);contract.termMonths=Math.max(1,Math.floor(Number(contract.termMonths)||1));contract.installmentNumber=Math.max(0,Math.floor(Number(contract.installmentNumber)||0));contract.nextDueDay=Math.max(0,Math.floor(Number(contract.nextDueDay)||0));contract.lastAccruedDay=Math.max(0,Math.floor(Number(contract.lastAccruedDay)||contract.startDay||0));if(contract.status!=='مسدد')scheduleCustomerInstallment(bank,contract);else archiveCustomerContract(bank,contract);}
       bank.customerCreditSchema=2;
     }
+    repairCustomerCredit(bank);
     for(const facility of bank.corporateFacilities){facility.ownerCompanyId=String(facility.ownerCompanyId||facility.company||'').trim();facility.originalAmount=num(facility.originalAmount||facility.amount);facility.outstanding=num(facility.outstanding);facility.principalArrears=num(facility.principalArrears);facility.interestArrears=num(facility.interestArrears);facility.termDays=Math.max(30,Math.floor(Number(facility.termDays)||365));facility.rate=clamp(facility.rate||.06,0,.30);facility.startDay=Math.max(0,Math.floor(Number(facility.startDay)||0));facility.lastProcessedDay=Math.max(facility.startDay,Math.floor(Number(facility.lastProcessedDay)||facility.startDay));facility.maturityDay=Math.max(facility.startDay+facility.termDays,Math.floor(Number(facility.maturityDay)||0));}
     // Runtime reads never fabricate branches. Legacy reconstruction is isolated
     // in migrateLegacyBranches() and is invoked once during save migration.
@@ -134,16 +156,19 @@
     const row=(Array.isArray(globalThis.GH_MAP_LABELS)?globalThis.GH_MAP_LABELS:[]).find(item=>item?.name===name);
     return Number(row?.population)>0?Number(row.population):DEFAULT_POPULATION;
   }
-  function branchMarket(bank,branch){
+  function branchMarket(bank,branch,peerCount=null){
     // Resolved once and kept on the branch so a save simulates the same everywhere (the labels are a UI data file).
     if(!(Number(branch.marketPopulation)>0))branch.marketPopulation=countryPopulation(branch.country);
-    const peers=Math.max(1,bank.branchNetwork.filter(row=>row.servicesActive&&row.country===branch.country).length),retailCapacity=Math.round(clamp(num(branch.marketPopulation)*BANKED_SHARE*MAX_MARKET_SHARE/peers,500,250000));
+    const peers=(peerCount??Math.max(1,bank.branchNetwork.filter(row=>row.servicesActive&&row.country===branch.country).length)),retailCapacity=Math.round(clamp(num(branch.marketPopulation)*BANKED_SHARE*MAX_MARKET_SHARE/peers,500,250000));
     return {population:num(branch.marketPopulation),retailCapacity,businessCapacity:Math.max(50,Math.round(retailCapacity/BUSINESS_PER_PEOPLE))};
   }
   // A branch campaign (a branch decision): for 30 days new customers come 60% faster and 20% fewer leave. It costs
   // three dollars per customer the branch can reach (250,000 to 5,000,000), paid by the bank through Finance Core.
   const CAMPAIGN_DAYS=30,CAMPAIGN_GROWTH=1.6,CAMPAIGN_CHURN=.8;
-  function campaignCost(bank,branch){return Math.round(clamp(branchMarket(bank,{...branch}).retailCapacity*3,250000,5000000));}
+  function campaignCost(bank,branch,peers=null){return Math.round(clamp(branchMarket(bank,{...branch},peers).retailCapacity*3,250000,5000000));}
+  const campaignRows=bank=>globalThis.GH_BRANCH_CAMPAIGN.rows(bank.branchNetwork,row=>row.servicesActive===true,(row,peers)=>campaignCost(bank,row,peers));
+  function campaignQuote(state){const bank=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.quote(state,'bank',campaignRows(bank),CAMPAIGN_DAYS);}
+  function branchCampaigns(state,p){const bank=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.launch(state,'bank',bank,campaignRows(bank),p,CAMPAIGN_DAYS);}
   function branchCampaign(state,p,F){
     const bank=ensure(state),branch=bank.branchNetwork.find(row=>row.id===p.branchId||row.facilityId===p.branchId);if(!branch)throw new Error('bank-branch-not-found');if(!branch.servicesActive)throw new Error('bank-active-branch-required');
     const day=Math.floor(now(state)/86400);if(Number(branch.campaignUntil)>day)throw new Error('bank-campaign-running');
@@ -195,7 +220,8 @@
   function makeCustomerLoanContract(state,request,portfolio){
     const bank=ensure(state),startDay=Math.floor(now(state)/86400),termMonths=Math.max(1,Math.ceil(portfolio.termDays/30)),customerId=String(request.customerId||`BANK-CUST-${stableDigest([request.id,request.branchId,request.borrower]).slice(7)}`),contractId=`CUST-${portfolio.id}`;
     if(bank.customerLoanContracts.some(row=>row.id===contractId))throw new Error('bank-customer-loan-contract-conflict');
-    portfolio.repaymentModel='monthly-customer-contract';portfolio.customerContractId=contractId;
+    const stored=portfolioFor(bank,portfolio.id);if(!stored)throw new Error('bank-customer-portfolio-missing');
+    stored.repaymentModel='monthly-customer-contract';stored.customerContractId=contractId;
     const contract={id:contractId,portfolioId:portfolio.id,customerId,customerName:String(request.borrower||'عميل مصرفي'),customerType:request.product==='corporate'?'business':'individual',sourceCompanyId:request.sourceCompanyId?String(request.sourceCompanyId):null,sourceSaleId:request.sourceSaleId?String(request.sourceSaleId):null,orderId:request.orderId?String(request.orderId):null,invoiceNumber:request.invoiceNumber?String(request.invoiceNumber):null,product:portfolio.product,branchId:portfolio.branchId,sector:portfolio.sector,originalPrincipal:portfolio.principal,outstanding:portfolio.outstanding,principal:portfolio.principal,rate:portfolio.rate,rateReferenceId:portfolio.rateReference?.referenceId||null,rateComponents:portfolio.rateComponents||null,termMonths,monthlyPrincipal:portfolio.principal/termMonths,startDay,firstDueDay:startDay+30,nextDueDay:startDay+30,lastAccruedDay:startDay,installmentNumber:0,principalArrears:0,accruedInterest:0,interestArrears:0,status:'نشط'};
     cacheContract(bank,contract);scheduleCustomerInstallment(bank,contract);return contract;
   }
@@ -239,17 +265,20 @@
     }
     const result={batchId,periodId,approved,rejected,skipped,totalPrincipal,totalDisbursed,items};return rememberBatch(bank.loanApprovalBatches,batchId,fingerprint,result,state);
   }
-  function collectCustomerInstallments(state,p={}){
-    const bank=ensure(state),day=Math.max(0,Math.floor(Number(p.throughDay??Math.floor(now(state)/86400)))),periodNumber=Math.max(0,Math.floor(Number(p.periodId??Math.floor(day/30)))),periodId=String(periodNumber),batchId=String(p.batchId||`BANK-COLLECT-${periodId}-${day}`),fingerprint=JSON.stringify({periodId,throughDay:day});
+  function* collectCustomerInstallmentStages(state,p={}){
+    const bank=ensure(state),day=Math.max(0,Math.floor(Number(p.throughDay??Math.floor(now(state)/86400)))),periodNumber=Math.max(0,Math.floor(Number(p.periodId??Math.floor(day/30)))),periodId=String(periodNumber),includeOverdue=p.includeOverdue===true,batchId=String(p.batchId||`BANK-COLLECT-${periodId}-${day}`),fingerprint=JSON.stringify({periodId,throughDay:day,...(includeOverdue?{includeOverdue:true}:{})});
     const cached=batchReplay(bank.customerInstallmentBatches,batchId,fingerprint);if(cached)return cached;
-    let paid=0,missed=0,principalPaid=0,interestPaid=0,totalDue=0;const items=[],dueIds=[],maxRows=25,startDay=p.periodId===undefined?day:periodNumber*30,endDay=Math.min(day,p.periodId===undefined?day:periodNumber*30+29),schedule=bank.customerInstallmentSchedule;
-    for(let dueDay=startDay;dueDay<=endDay&&dueIds.length<maxRows;dueDay++){const ids=Array.isArray(schedule[String(dueDay)])?schedule[String(dueDay)]:[];while(ids.length&&dueIds.length<maxRows){const id=ids.shift();if(id)dueIds.push(id);}if(!ids.length)delete schedule[String(dueDay)];}
+    let paid=0,missed=0,principalPaid=0,interestPaid=0,totalDue=0;const items=[],dueIds=[],maxRows=25,startDay=includeOverdue?0:p.periodId===undefined?day:periodNumber*30,endDay=includeOverdue?day:Math.min(day,p.periodId===undefined?day:periodNumber*30+29),schedule=bank.customerInstallmentSchedule;
+    // Walk only existing date buckets, oldest first. Keep the same 25-contract work cap; the next daily close resumes
+    // any older bucket across period boundaries. Explicit player period queries keep their original scope.
+    const eligible=key=>Number.isSafeInteger(Number(key))&&Number(key)>=startDay&&Number(key)<=endDay&&Array.isArray(schedule[key])&&schedule[key].length>0;
+    for(const key of Object.keys(schedule).filter(eligible).sort((a,b)=>Number(a)-Number(b))){const ids=schedule[key];while(ids.length&&dueIds.length<maxRows){const id=ids.shift();if(id)dueIds.push(id);}if(!ids.length)delete schedule[key];if(dueIds.length>=maxRows)break;}
     for(const id of dueIds){const contract=contractFor(bank,id);if(!contract||contract.status==='مسدد')continue;const portfolio=portfolioFor(bank,contract.portfolioId),installmentNumber=contract.installmentNumber+1,installmentId=`${contract.id}:${installmentNumber}`;
       const elapsed=Math.max(0,day-Math.max(Number(contract.lastAccruedDay)||contract.startDay,Number(contract.nextDueDay)-30)),newInterest=num(contract.outstanding)*num(contract.rate)*elapsed/365;contract.accruedInterest+=newInterest;contract.lastAccruedDay=day;
       const scheduledPrincipal=Math.min(contract.outstanding,installmentNumber>=contract.termMonths?contract.outstanding:contract.monthlyPrincipal),duePrincipal=Math.min(contract.outstanding,scheduledPrincipal+contract.principalArrears),dueInterest=contract.accruedInterest+contract.interestArrears,amount=duePrincipal+dueInterest;totalDue+=amount;
       const externalSettlementReference=`BANK-CUST-PAY-${installmentId}`,row={installmentId,contractId:contract.id,customerId:contract.customerId,dueDay:contract.nextDueDay,periodId:String(Math.floor(contract.nextDueDay/30)),principalDue:duePrincipal,interestDue:dueInterest,amount,status:'مستحقة',payerSource:'customer',externalSettlementReference};
       if(!portfolio||portfolio.stage>=3||portfolio.status==='متعثرة'){
-        contract.principalArrears=duePrincipal;contract.interestArrears=dueInterest;contract.status='متأخر';row.status='متأخرة';missed++;bank.customerInstallmentSettlements.unshift(row);
+        contract.principalArrears=duePrincipal;contract.interestArrears=dueInterest;contract.accruedInterest=0;contract.status='متأخر';row.status='متأخرة';missed++;
       }else{
         // Finance Core owns the external receipt, cash posting, and balanced loan/interest journal legs.
         const principal=Math.min(duePrincipal,contract.outstanding),interest=dueInterest,settlement=globalThis.GH_FINANCE_CORE.execute({state},'receive-customer-loan-payment',{company:'bank',reference:`BANK-CUST-PAY-${installmentId}`,contractId:contract.id,customerId:contract.customerId,customerName:contract.customerName,principalAmount:principal,interestAmount:interest,payerSource:'customer'});if(settlement?.status!=='posted'||settlement?.contractId!==contract.id||settlement?.customerId!==contract.customerId||Math.abs(num(settlement.amount)-amount)>.01)throw new Error('bank-customer-installment-settlement-unconfirmed');
@@ -257,9 +286,12 @@
       bank.loans=Math.max(0,bank.loans-principal);const branch=bank.branchNetwork.find(row=>row.id===contract.branchId);if(branch)branch.loans=Math.max(0,num(branch.loans)-principal);principalPaid+=principal;interestPaid+=interest;row.status='مدفوعة';row.principalPaid=principal;row.interestPaid=interest;row.receiptId=settlement.receiptId;row.paidAt=now(state);paid++;
       }
       contract.installmentNumber=installmentNumber;contract.nextDueDay=Math.max(0,Math.floor(Number(contract.nextDueDay)||0))+30;items.push(row);bank.customerInstallmentSettlements.unshift(row);if(contract.status!=='مسدد')scheduleCustomerInstallment(bank,contract);else archiveCustomerContract(bank,contract);
+      yield `customer-installment:${id}`;
     }
-    bank.customerInstallmentSettlements=bank.customerInstallmentSettlements.slice(0,800);const result={batchId,periodId,throughDay:day,due:items.length,paid,missed,totalDue,principalPaid,interestPaid,totalCollected:principalPaid+interestPaid,remaining:dueIds.length>=maxRows,items};return rememberBatch(bank.customerInstallmentBatches,batchId,fingerprint,result,state);
+    bank.customerInstallmentSettlements=bank.customerInstallmentSettlements.slice(0,800);const result={batchId,periodId,throughDay:day,due:items.length,paid,missed,totalDue,principalPaid,interestPaid,totalCollected:principalPaid+interestPaid,remaining:Object.keys(schedule).some(eligible),items};return rememberBatch(bank.customerInstallmentBatches,batchId,fingerprint,result,state);
   }
+  function drainBankStages(stages){let step;while(!(step=stages.next()).done){}return step.value;}
+  function collectCustomerInstallments(state,p={}){return drainBankStages(collectCustomerInstallmentStages(state,p));}
   function F_BOOK(state,company){const F=globalThis.GH_FINANCE_CORE;if(!F?.book)throw new Error('finance-core-missing');return F.book(state,company);}
   function F_JOURNAL(state,company,note,lines,ref){const F=globalThis.GH_FINANCE_CORE;if(!F?.journal)throw new Error('finance-core-missing');return F.journal(state,company,note,lines,ref);}
   function dormant(bank){return num(bank.branches)===0&&num(bank.deposits)===0&&num(bank.loans)===0&&num(bank.wholesaleFunding)===0;}
@@ -476,9 +508,9 @@
     const costs=core.dailyOperatingCosts(state),serviceOpex=bank.branchNetwork.filter(row=>row.servicesActive).length*BRANCH_SERVICE_OPEX,facilityOpex=num(costs.byCompany.bank);
     return {serviceOpex,facilityOpex,opex:serviceOpex+facilityOpex,byFacility:costs.byFacility};
   }
-  function tickDay(state,p,F){
+  function* tickDayStages(state,p,F=globalThis.GH_FINANCE_CORE){
     const bank=ensure(state),day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(state)/86400)));if(bank.lastProcessedDay===day)return bank.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
-    let newDeposits=0,newRetail=0,newBusiness=0,serviceFees=0,principalRepaid=0,corporatePrincipalRepaid=0,corporateInterestIncome=0,corporateOverdue=0,securitiesMatured=0,wholesalePrincipalRepaid=0,wholesaleOverdue=0,expired=0,interestIncome=0,depositInterestExpense=0,creditLossExpense=0,securityIncome=0,reserveIncome=0,wholesaleInterestExpense=0,revenueBreakdown={accounts:0,payments:0,cards:0,merchant:0,cashManagement:0,fx:0,tradeFinance:0,retailFinance:0,businessFinance:0,projectFinance:0};
+    let newDeposits=0,newRetail=0,newBusiness=0,serviceFees=0,principalRepaid=0,corporatePrincipalRepaid=0,corporateInterestIncome=0,corporateOverdue=0,securitiesMatured=0,wholesalePrincipalRepaid=0,wholesaleOverdue=0,expired=0,interestIncome=0,customerContractInterestIncome=0,depositInterestExpense=0,creditLossExpense=0,securityIncome=0,reserveIncome=0,wholesaleInterestExpense=0,revenueBreakdown={accounts:0,payments:0,cards:0,merchant:0,cashManagement:0,fx:0,tradeFinance:0,retailFinance:0,businessFinance:0,projectFinance:0};
     let lostRetailTotal=0,lostBusinessTotal=0,withdrawn=0;const withdrawalRequests=[];
     const prices=typeof globalThis.GH_CUSTOMER_BASE?.priceIndex==='function'?globalThis.GH_CUSTOMER_BASE.priceIndex(state):1,marketRate=marketBaseRate(state)*.7,depositRates=num(pricing(state,bank).savings)+num(pricing(state,bank).term)*.65,pricingBoost=clamp((depositRates-marketRate)*9,-.25,.35);
     // Build 377: a branch's savers compare the bank's deposit rates with their country's rival bank (customer-base-core
@@ -505,13 +537,13 @@
     // Build 377: the deposit insurance scheme's premium (0.1% of deposits a year) is a cost of the deposits.
     const depositInsurance=num(bank.deposits)*DEPOSIT_INSURANCE_PREMIUM/365;depositInterestExpense+=depositInsurance;bank.depositInsuranceYTD=num(bank.depositInsuranceYTD)+depositInsurance;
     for(const portfolio of bank.loanPortfolios.filter(row=>row.status==='نشطة'||row.status==='مراقبة'||row.status==='متعثرة')){
-      interestIncome+=num(portfolio.outstanding)*num(portfolio.rate)/365;const defaultRoll=deterministic(`${portfolio.id}:${day}:credit`,0,1),dailyPd=num(portfolio.pd||RISK_GRADES.BBB.pd)/365;
+      const portfolioInterest=num(portfolio.outstanding)*num(portfolio.rate)/365;interestIncome+=portfolioInterest;if(portfolio.repaymentModel==='monthly-customer-contract')customerContractInterestIncome+=portfolioInterest;const defaultRoll=deterministic(`${portfolio.id}:${day}:credit`,0,1),dailyPd=num(portfolio.pd||RISK_GRADES.BBB.pd)/365;
       if(defaultRoll<dailyPd&&portfolio.stage<3){portfolio.stage=portfolio.stage===1?2:3;portfolio.daysPastDue=portfolio.stage===2?30:90;portfolio.status=portfolio.stage===3?'متعثرة':'مراقبة';bank.delinquencyEvents.unshift({id:`DLQ-${portfolio.id}-${day}`,loanId:portfolio.id,day,stage:portfolio.stage,outstanding:num(portfolio.outstanding)});}
       const loss=num(portfolio.outstanding)*num(portfolio.pd||RISK_GRADES.BBB.pd)*num(portfolio.lgd||.35)/365*(portfolio.stage===3?3:portfolio.stage===2?1.8:1);creditLossExpense+=loss;if(portfolio.stage===3)continue;
       if(portfolio.repaymentModel!=='monthly-customer-contract'){const due=Math.min(num(portfolio.outstanding),num(portfolio.principal)/Math.max(1,Number(portfolio.termDays)||1));if(due>0){portfolio.outstanding=Math.max(0,num(portfolio.outstanding)-due);portfolio.remainingDays=Math.max(0,Number(portfolio.remainingDays)-1);principalRepaid+=due;const branch=bank.branchNetwork.find(row=>row.id===portfolio.branchId);if(branch)branch.loans=Math.max(0,num(branch.loans)-due);if(portfolio.outstanding<=.01)portfolio.status='مسددة';}}
     }
     if(principalRepaid>0){const account=F.book(state,'bank').accounts[0];account.balance+=principalRepaid;F.journal(state,'bank',`تحصيل أصول قروض · يوم ${day}`,[{account:account.id,debit:principalRepaid},{account:'محفظة القروض',credit:principalRepaid}],`LOAN-PRINCIPAL-${day}`);bank.loans=Math.max(0,bank.loans-principalRepaid);}
-    const customerBatch=collectCustomerInstallments(state,{throughDay:day,periodId:Math.floor(day/30),batchId:`BANK-AUTO-COLLECT-${day}`});principalRepaid+=num(customerBatch.principalPaid);
+    const customerBatch=yield* collectCustomerInstallmentStages(state,{throughDay:day,periodId:Math.floor(day/30),includeOverdue:true,batchId:`BANK-AUTO-COLLECT-${day}`});principalRepaid+=num(customerBatch.principalPaid);
     for(const facility of bank.corporateFacilities.filter(row=>row.status==='ساري'||row.status==='متأخر')){
       if(Number(facility.lastProcessedDay)>=day)continue;const company=String(facility.ownerCompanyId||facility.company||'').trim();if(!isOperationalFinanceCompany(state,company,F))throw new Error(`bank-facility-company-invalid:${company||'missing'}`);const client=bank.corporateClients[company],outstanding=num(facility.outstanding);if(!client)throw new Error(`bank-client-not-synced:${company}`);if(outstanding<=.01){facility.outstanding=0;facility.status='مسدد';continue;}
       const dailyInterest=outstanding*num(facility.rate)/365,principalDue=Math.min(outstanding,num(facility.originalAmount)/Math.max(1,Number(facility.termDays)||1)+num(facility.principalArrears)),interestDue=dailyInterest+num(facility.interestArrears),totalDue=principalDue+interestDue,borrowerCash=F.operating(state,company);
@@ -547,12 +579,13 @@
     const newRequest=generateLoanRequest(state,bank,day);
     const nplAmount=bank.loanPortfolios.filter(row=>row.stage===3&&row.status!=='مسددة').reduce((sum,row)=>sum+num(row.outstanding),0);bank.npl=bank.loans?nplAmount/bank.loans*100:0;const costSnapshot=operatingCosts(state,bank),serviceOpex=costSnapshot.serviceOpex,facilityOpex=costSnapshot.facilityOpex,opex=costSnapshot.opex,feeIncome=serviceFees,transactionFeeIncome=num(bank.transactionFeeByDay?.[String(day)]),reportedFeeIncome=feeIncome+transactionFeeIncome,netBankingIncome=interestIncome+securityIncome+reportedFeeIncome-depositInterestExpense-wholesaleInterestExpense-creditLossExpense-opex;bank.netBankingIncomeYTD+=netBankingIncome;
     for(const branch of bank.branchNetwork){const loanShare=bank.loans?num(branch.loans)/bank.loans:1/Math.max(1,bank.branchNetwork.length),depositShare=bank.deposits?num(branch.deposits)/bank.deposits:1/Math.max(1,bank.branchNetwork.length),branchInterest=interestIncome*loanShare,branchFees=feeIncome*(num(branch.retailCustomers)+num(branch.businessCustomers)*8)/Math.max(1,bank.retailCustomers+bank.businessCustomers*8),branchExpense=depositInterestExpense*depositShare,branchLoss=creditLossExpense*loanShare,branchServiceOpex=branch.servicesActive?BRANCH_SERVICE_OPEX:0,facilityCost=costSnapshot.byFacility[branch.facilityId],branchFacilityOpex=facilityCost?.ownerCompanyId==='bank'?num(facilityCost.amount):0,branchOpex=branchServiceOpex+branchFacilityOpex;const ownBreakdown=branch._dailyFeeBreakdown||branchServiceRevenue(branch,prices),ownFees=Object.values(ownBreakdown).reduce((a,v)=>a+num(v),0);branch.incomeStatement={interestIncome:branchInterest,feeIncome:ownFees,feeBreakdown:{...ownBreakdown},interestExpense:branchExpense,creditLossExpense:branchLoss,opex:branchOpex,serviceOpex:branchServiceOpex,facilityOpex:branchFacilityOpex,net:branchInterest+ownFees-branchExpense-branchLoss-branchOpex};delete branch._dailyFeeBreakdown;}
-    const customerInterestPaid=num(customerBatch.interestPaid),cashPostedInterestIncome=corporateInterestIncome+customerInterestPaid,unpostedInterestIncome=Math.max(0,interestIncome-cashPostedInterestIncome);
+    const customerInterestPaid=num(customerBatch.interestPaid),cashPostedInterestIncome=corporateInterestIncome+customerInterestPaid,unpostedInterestIncome=Math.max(0,interestIncome-corporateInterestIncome-customerContractInterestIncome);
     F.reconcile(state);reconcilePrudential(state);
     // Build 378: the day's new customers are offered the group insurer's cover at the counter (insurance-core addPoliciesFromBank).
     let groupInsured=0;const insurer=globalThis.GH_INSURANCE_CORE;if(typeof insurer?.addPoliciesFromBank==='function')for(const [country,row] of bankNewByCountry){const joined=insurer.addPoliciesFromBank(state,{country,day,households:row.households,businesses:row.businesses});groupInsured+=num(joined.property)+num(joined.commercial);}
-    const report={day,autoTreasury,groupInsured,newLoanRequest:newRequest?.id||null,newDeposits,newRetail,newBusiness,lostRetail:lostRetailTotal,lostBusiness:lostBusinessTotal,depositWithdrawals:withdrawn,serviceFees,feeIncome,transactionFeeIncome,reportedFeeIncome,revenueBreakdown:{...revenueBreakdown},principalRepaid,corporatePrincipalRepaid,customerInstallmentsDue:customerBatch.due,customerInstallmentsPaid:customerBatch.paid,customerInstallmentsMissed:customerBatch.missed,customerInstallmentPrincipalPaid:customerBatch.principalPaid,customerInstallmentInterestPaid:customerInterestPaid,corporateInterestIncome,cashPostedInterestIncome,unpostedInterestIncome,corporateOverdue,securitiesMatured,wholesalePrincipalRepaid,wholesaleOverdue,expired,customers:bank.retailCustomers+bank.businessCustomers,interestIncome,securityIncome,reserveIncome,depositInterestExpense,wholesaleInterestExpense,creditLossExpense,opex,serviceOpex,facilityOpex,netBankingIncome,lcr:bank.lcr,nsfr:bank.nsfr,cet1:bank.cet1,npl:bank.npl};bank.dailyHistory.unshift(report);bank.dailyHistory=bank.dailyHistory.slice(0,400);return clone(report);
+    const report={day,autoTreasury,groupInsured,newLoanRequest:newRequest?.id||null,newDeposits,newRetail,newBusiness,lostRetail:lostRetailTotal,lostBusiness:lostBusinessTotal,depositWithdrawals:withdrawn,serviceFees,feeIncome,transactionFeeIncome,reportedFeeIncome,revenueBreakdown:{...revenueBreakdown},principalRepaid,corporatePrincipalRepaid,customerInstallmentsDue:customerBatch.due,customerInstallmentsPaid:customerBatch.paid,customerInstallmentsMissed:customerBatch.missed,customerInstallmentPrincipalPaid:customerBatch.principalPaid,customerInstallmentInterestPaid:customerInterestPaid,corporateInterestIncome,customerContractInterestIncome,cashPostedInterestIncome,unpostedInterestIncome,corporateOverdue,securitiesMatured,wholesalePrincipalRepaid,wholesaleOverdue,expired,customers:bank.retailCustomers+bank.businessCustomers,interestIncome,securityIncome,reserveIncome,depositInterestExpense,wholesaleInterestExpense,creditLossExpense,opex,serviceOpex,facilityOpex,netBankingIncome,lcr:bank.lcr,nsfr:bank.nsfr,cet1:bank.cet1,npl:bank.npl};bank.dailyHistory.unshift(report);bank.dailyHistory=bank.dailyHistory.slice(0,400);return clone(report);
   }
+  function tickDay(state,p,F){return drainBankStages(tickDayStages(state,p,F));}
   // Called only through the existing company operations provider. Keep the
   // domain command inside the caller's atomic time/day boundary transaction.
   function onFinancialDay(ctx,p={}){
@@ -560,6 +593,18 @@
     if(!platform?.requireCompany||!commands?.dispatchSystem)throw new Error('company-daily-owner-unavailable');
     const company=platform.requireCompany(ctx.state,ctx.companyId,{registered:true,operational:true,capability:'operations.bank'});
     return commands.dispatchSystem({state:ctx.state},'banking','tick-day',{...p,ownerCompanyId:company.id},{actor:'simulation-scheduler'}).result;
+  }
+  function* onFinancialDayStages(ctx,p={}){
+    const platform=companyPlatform(),commands=globalThis.GH_DOMAIN_COMMANDS;if(!platform?.requireCompany||!commands?.dispatchSystem)throw new Error('company-daily-owner-unavailable');
+    const company=platform.requireCompany(ctx.state,ctx.companyId,{registered:true,operational:true,capability:'operations.bank'});
+    if(!globalThis.GH_TRANSACTION_CORE?.isActive?.())return onFinancialDay(ctx,p);
+    if(typeof commands.dispatchSystemStages!=='function')throw new Error('company-daily-staged-owner-unavailable');
+    const result=yield* commands.dispatchSystemStages({state:ctx.state},'banking','tick-day',{...p,ownerCompanyId:company.id},{actor:'simulation-scheduler'});return result.result;
+  }
+  function* executeStages(ctx,cmd,p={}){
+    if(cmd!=='tick-day')throw new Error('bank-staged-command-invalid');const state=ctx.state||ctx;
+    companyPlatform().requireCompany(state,String(p.ownerCompanyId||'bank'),{registered:true,operational:true,capability:'operations.bank'});
+    return yield* tickDayStages(state,p);
   }
   function statementAdjustments(state,companyId){
     const bank=ensure(state),id=String(companyId||'');
@@ -598,8 +643,9 @@
     if(cmd==='approve-loan-requests-batch')return decideLoanRequestsBatch(state,p,F);
     if(cmd==='collect-customer-installments')return collectCustomerInstallments(state,p);
     if(cmd==='branch-campaign')return branchCampaign(state,p,F);
+    if(cmd==='branch-campaigns')return branchCampaigns(state,p);
     if(cmd==='tick-day')return tickDay(state,p,F);
     throw new Error(`Unknown banking command: ${cmd}`);
   }
-  const API={operatingAcquisitionPreview,CET1_DISTRIBUTION_FLOOR,distributableCash,originateMarketMortgage,RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API={operatingAcquisitionPreview,CET1_DISTRIBUTION_FLOOR,distributableCash,originateMarketMortgage,RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,campaignQuote,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,onFinancialDayStages,executeStages,tickDayStages,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

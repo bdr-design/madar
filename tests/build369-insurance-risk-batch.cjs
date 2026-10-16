@@ -35,7 +35,7 @@ function transactionState(){return {...minimal(),simSeconds:5*86400,openedCompan
   const buttons=['accept','decline'].map(decision=>({tagName:'BUTTON',dataset:{ghAction:'insurance-decide-risks-batch',ghActionOrigin:origin,decision},disabled:true,addEventListener(name,fn){if(name==='click')this.onClick=fn;}}));
   const countNode={textContent:''};
   s.document={querySelectorAll:selector=>selector==='[data-insurance-risk-select]:checked'?selections.filter(row=>row.checked):[],getElementById:()=>null};
-  s.GH_WORKFLOW={confirm:()=>true};s.GH_AUTHORIZATION={digest:value=>`digest-${value.periodId}-${value.decisions.map(row=>row.id+row.decision).join('-')}`};
+  s.GH_INTERFACE={confirm:()=>true};s.GH_AUTHORIZATION={digest:value=>`digest-${value.periodId}-${value.decisions.map(row=>row.id+row.decision).join('-')}`};
   const clickCtx={...uiCtx,runAuthorizedDomainCommand:async request=>(dispatched.push(plain(request)),{ok:true,result:{accepted:2,declined:0,skipped:0,totalPremium:30000,totalInsured:3000000}}),save(){},updateKpis(){},openDrawer:(...args)=>opened.push(args),pushAlert:value=>alerts.push(value)};
   const root={querySelectorAll(selector){if(selector==='[data-gh-action]')return buttons;if(selector==='[data-gh-action="insurance-decide-risks-batch"]')return buttons;if(selector==='[data-insurance-risk-select]')return selections;return [];},querySelector(selector){return selector==='#insBatchSelectedCount'?countNode:null;}};
   Advanced.bind(root,clickCtx);

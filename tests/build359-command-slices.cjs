@@ -32,8 +32,8 @@ const base=state.globalBases.find(row=>row.id==='B1');base.deliveryCapacity=1e7;
 assert.equal(TX.execute(state,{label:'slices-fleet',apply:()=>s.GH_PROCUREMENT_CORE.withPurchaseBatch(state,()=>{const r=e.command('procurement','purchase-assets',{type:'air',ownerCompanyId:'air',tab:'new',item,base,supplier:{id:'S1',name:'Supplier',legalName:'Supplier LLC'},mode:'cash',qty:2000,manual:true,requestRef:'SL-1',upfront:item.price*2000,totalPrice:item.price*2000,paymentMethod:'cash',documentLeadDays:1,leadSeconds:0,immediateDelivery:true});s.GH_REALISM.onSimulationTime(state,state.simSeconds);return r;})}).committed,true);
 if(FLEET.mode(state)!=='store')s.GH_MIGRATION_CORE.migrateFleet(state);
 assert.ok(FLEET.size(state)>=2000&&FLEET.mode(state)==='store','a fleet store of 2,000 assets');
-// Pick a padding so that a surrogate pair straddles a 1M-unit piece boundary of the save text.
-const PIECE=1<<20;let pad=0;
+// Pick a padding so that a surrogate pair straddles a 64K-unit piece boundary of the save text.
+const PIECE=1<<16;let pad=0;
 for(;pad<2;pad++){state.qaNotes=`${'ع'.repeat(pad)}${'😀'.repeat(1200000)}`;const text=CODEC.serializeChunked(state).text;let straddle=false;for(let at=PIECE-1;at<text.length;at+=PIECE){const c=text.charCodeAt(at);if(c>=0xD800&&c<=0xDBFF){straddle=true;break;}}if(straddle)break;}
 assert.ok(pad<2,'a surrogate pair straddles a piece boundary');
 
@@ -42,12 +42,12 @@ assert.ok(pad<2,'a surrogate pair straddles a piece boundary');
   await test('serializeSteps run to the end is serialize()',()=>{const steps=CODEC.serializeChunkedSteps(state);let n=0,step;while(!(step=steps.next()).done)n++;assert.equal(step.value.text,CODEC.serializeChunked(state).text);assert.ok(n>2);codecSteps=n;return {steps:n};});
   // Build 359 (the yield check depended on one step passing 10 ms, so a fast machine could see none): with a clock that
   // moves 11 ms on every read, every step passes the slice budget, so the save must yield after each serialization step
-  // and each UTF-8 piece: exactly that many yields, whatever the machine.
+  // each UTF-8 encoding piece and each bounded assembly piece: exactly that many yields, whatever the machine.
   await test('the save yields after every step that passes the slice budget',async()=>{
     const realPerformance=s.performance;let fake=0,yields=0;s.performance={now:()=>(fake+=11)};
     try{await P.commitDurableState(state,{storageKey:'slices',yieldToFrame:()=>{yields++;return new Promise(resolve=>setTimeout(resolve,0));}});}finally{s.performance=realPerformance;}
-    const saved=vault.saves.at(-1),timing=P.telemetry().timings.samples.filter(row=>row.kind==='durable-save').at(-1),pieces=Math.ceil(saved.json.length/(1<<20));
-    assert.ok(yields>=codecSteps+pieces-1&&yields<=codecSteps+pieces+1,`one yield per step: ${yields} yields for ${codecSteps} codec steps and ${pieces} UTF-8 pieces`);
+    const saved=vault.saves.at(-1),timing=P.telemetry().timings.samples.filter(row=>row.kind==='durable-save').at(-1),pieces=Math.ceil(saved.json.length/(1<<16));
+    assert.ok(yields>=codecSteps+pieces*2-2&&yields<=codecSteps+pieces*2+2,`one yield per step: ${yields} yields for ${codecSteps} codec steps and ${pieces} UTF-8 encoding and assembly pieces`);
     assert.equal(timing.slices,yields,'every yield is a recorded slice');assert.equal(saved.json,CODEC.serializeChunked(state).text,'and the same text');assert.equal(saved.hash,sha(saved.json));
     return {yields,codecSteps,pieces};
   });

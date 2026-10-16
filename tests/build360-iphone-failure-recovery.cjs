@@ -11,7 +11,7 @@ let postAckProof=Promise.resolve();
   const migrated=s.GH_COMPANY_PLATFORM.migrateState({simSeconds:86400,onboardingComplete:true,openedCompanies:['bank'],companyRegistry:{},companyFinance:{},advanced:{cyber:{coverage:90},safety:{score:90},procurement:{savings:0}}}),state=migrated.state,phases=[];
   s.GH_DOMAIN_COMMANDS={dispatchSystem(_ctx,domain){if(domain==='banking')throw Object.assign(new Error('bank-day-injected'),{code:'BANK_DAY'});return {result:{}};}};
   let caught=null;try{s.GH_ADVANCED.onFinancialDay(state,1,(name,work)=>{phases.push(name);return work();});}catch(error){caught=error;}
-  assert(caught);assert.equal(caught.code,'FINANCIAL_DAY_OWNER_FAILED');assert.match(caught.owner,/bank:banking-services-v1/);assert.equal(caught.cause.code,'BANK_DAY');assert(phases.includes('simulation.finance-day.owner.bank'));
+  assert(caught);assert.equal(caught.code,'FINANCIAL_DAY_OWNER_FAILED');assert.match(caught.owner,/bank:banking-services-v1/);assert.equal(caught.cause.code,'BANK_DAY');assert(phases.includes('simulation.finance-day.owner.bank.start'));
 }
 
 // A staged company owner returns control to the frame scheduler between its internal units of work.

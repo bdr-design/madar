@@ -25,10 +25,11 @@
       const reason=disabledReason(btn);feedback(btn,reason,'disabled');record('BUTTON_DISABLED',{...info,reason},'info',meta.state);
       globalThis.GH_INTERACTION_NOTICE?.(reason,'disabled');return {ok:false,disabled:true,reason};
     }
-    locks.add(btn);const oldDisabled=btn.disabled,beforeIntegrity=meta.state&&globalThis.GH_INTEGRITY_CORE?.check?.(meta.state);btn.disabled=true;btn.classList?.add('is-busy');btn.setAttribute?.('aria-busy','true');record('BUTTON_ACTION_BEGIN',info,'info',meta.state);
+    locks.add(btn);const oldDisabled=btn.disabled,navigation=meta.navigation===true;btn.disabled=true;btn.classList?.add('is-busy');btn.setAttribute?.('aria-busy','true');record('BUTTON_ACTION_BEGIN',info,'info',meta.state);
     try{
+      const beforeIntegrity=!navigation&&meta.state&&globalThis.GH_INTEGRITY_CORE?.check?.(meta.state);
       const value=await handler();
-      const integrity=globalThis.GH_WORKFLOW?.postCheck?.(meta.state,{action:info.action,panel:info.panel,beforeIssues:beforeIntegrity?.issues||[]});record('BUTTON_ACTION_OK',{...info,integrity:integrity?.status||'unavailable'},'info',meta.state);feedback(btn,integrity?.ok===false?'تم التنفيذ مع ملاحظة سلامة؛ راجع HLT.':'تم تنفيذ الإجراء.',integrity?.ok===false?'warning':'success');return {ok:true,value,integrity};
+      const integrity=navigation?{ok:true,status:'navigation'}:globalThis.GH_WORKFLOW?.postCheck?.(meta.state,{action:info.action,panel:info.panel,beforeIssues:beforeIntegrity?.issues||[]});record('BUTTON_ACTION_OK',{...info,integrity:integrity?.status||'unavailable'},'info',meta.state);feedback(btn,integrity?.ok===false?'تم التنفيذ مع ملاحظة سلامة؛ راجع HLT.':'تم تنفيذ الإجراء.',integrity?.ok===false?'warning':'success');return {ok:true,value,integrity};
     }catch(error){record('BUTTON_ACTION_FAILED',{...info,error:{name:error?.name||'Error',message:error?.message||String(error),stack:String(error?.stack||'').split('\n').slice(0,8).join('\n')}},'warning',meta.state);feedback(btn,`تعذر التنفيذ: ${error?.message||error}`,'error');globalThis.GH_INTERACTION_NOTICE?.(`تعذر تنفيذ ${info.label}: ${error?.message||error}`,'error');throw error;
     }finally{locks.delete(btn);btn.classList?.remove('is-busy');btn.removeAttribute?.('aria-busy');btn.disabled=oldDisabled;}
   }

@@ -51,7 +51,7 @@ const COMPANIES=['realestate','power','insurance','bank','telecom','dealership']
     const quote=await page.evaluate(([c,t,v])=>GH_OPERATING_ACQUISITIONS.quote(__GH_STATE__,c,t,v),[c,key,variant]);
     const cash=await page.evaluate(c=>GH_FINANCE_CORE.operating(__GH_STATE__,c),c);
     await review.tap();assert.equal(await page.locator('[data-gh-action="operating-buy"]').count(),1);assert.deepEqual(await page.locator('.asset-hero-title').evaluate(e=>[...e.children].map(n=>n.tagName)),['DIV','B'],'same airline image title structure');
-    await capture(page,engine,c);await page.locator('[data-gh-action="operating-buy"]').tap();
+    await capture(page,engine,c);await page.locator('[data-gh-action="operating-buy"]').tap();await page.locator('.ui-confirm [data-confirm="accept"]').click();
     await page.waitForFunction(id=>Boolean(__GH_STATE__.finance.operatingAcquisitions?.[id]),quote.id);
     await page.waitForFunction(()=>GH_PERSISTENCE?.isLocked?.()!==true);
     const actual=await page.evaluate(([c,id])=>{const s=__GH_STATE__,r=s.finance.operatingAcquisitions[id],cheque=s.finance.cheques.find(row=>row.id===r.chequeId);return {cash:GH_FINANCE_CORE.operating(s,c),receipt:r,status:cheque?.status,valid:GH_SAVE_SCHEMA.validate(s).ok,integrity:GH_INTEGRITY_CORE.check(s).issues.filter(x=>x.severity==='critical')};},[c,quote.id]);

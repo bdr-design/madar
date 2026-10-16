@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{harness,minimal}=require('./helpers/core-harness');
+const h=harness(['transaction-core']);if(process.env.FINANCE_BENCH_SOURCE)vm.runInContext(fs.readFileSync(process.env.FINANCE_BENCH_SOURCE,'utf8'),h.s);else h.load('finance-core');
+const F=h.s.GH_FINANCE_CORE,T=h.s.GH_TRANSACTION_CORE,state={...minimal(),profile:{name:'QA Cheques',founder:'Founder'}},history=2048,payments=32;F.ensure(state);F.book(state,'group').accounts[0].balance=1e9;F.reconcile(state);
+let reads=0;state.finance.cheques=Array.from({length:history},(_,i)=>{const row={company:'group',amount:10,beneficiary:'Historic supplier'};for(const [key,value] of Object.entries({id:'OLD-'+i,requestRef:'OLD-REF-'+i,invoiceNumber:'OLD-INV-'+i,status:'مصروف'}))Object.defineProperty(row,key,{enumerable:true,get(){reads++;return value;}});return row;});
+const before=F.operating(state,'group');let lookupReads=0,busyMs=0;
+T.execute(state,{apply(){reads=0;assert.equal(F.execute({state},'settle-cheque',{id:'OLD-2047'}).reason,'already-settled');assert.ok(reads<=history+6,'a single lookup must not build all field indexes');}});
+T.execute(state,{label:'QA-cheque-index',apply(){reads=0;const started=performance.now();for(let i=0;i<payments;i++){const p={company:'group',amount:1150,beneficiary:'Supplier',note:'QA supplier '+i,requestRef:'NEW-'+i};const a=F.execute({state},'pay-by-cheque',p);assert.equal(a.cheque.status,'مصروف');assert.equal(F.execute({state},'pay-by-cheque',p).idempotent,true);}lookupReads=reads;busyMs=performance.now()-started;}});
+assert.equal(before-F.operating(state,'group'),payments*1150);assert.equal(state.finance.cheques.length,history+payments);assert.equal(state.finance.payables.length,0);
+if(!process.env.FINANCE_BENCH_SOURCE)assert.ok(lookupReads<history*12,`history is indexed once in the transaction: ${lookupReads}`);
+// Later transactions and reloads rebuild their own evidence; no global stale document cache.
+const reloaded=JSON.parse(JSON.stringify(state)),stable=F.operating(reloaded,'group');T.execute(reloaded,{apply:()=>assert.equal(F.execute({state:reloaded},'pay-by-cheque',{company:'group',amount:1150,beneficiary:'Supplier',note:'QA supplier 0',requestRef:'NEW-0'}).idempotent,true)});assert.equal(F.operating(reloaded,'group'),stable);
+const snapshot=JSON.stringify(reloaded);assert.throws(()=>T.execute(reloaded,{apply(){F.execute({state:reloaded},'pay-by-cheque',{company:'group',amount:1150,beneficiary:'Supplier',requestRef:'ROLLBACK'});throw Error('injected-cheque-fault');}}),/injected-cheque-fault/);assert.equal(JSON.stringify(reloaded),snapshot);
+console.log(JSON.stringify({suite:'build382-cheque-index',ok:true,history,payments,lookupReads,busyMs:+busyMs.toFixed(3),reloadReplayAndRollback:true,environment:'Node synthetic transaction, not an iPhone measurement'}));

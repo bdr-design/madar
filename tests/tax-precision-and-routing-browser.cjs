@@ -16,12 +16,12 @@ async function advance(page,day){await settled(page);assert.equal(await page.eva
   let page=await boot(browser,errors);await page.evaluate(()=>{__GH_STATE__.godMoney=true;__GH_STATE__.infiniteMoney=true;__TAX_FIX__.openDrawer('companies','subs');});
   await page.locator('.open-all-companies').click();await page.locator('dialog.ui-confirm [data-confirm="accept"]').click();await page.waitForFunction(()=>GH_COMPANY_PLATFORM.listInstances(__GH_STATE__,{includeGroup:false}).every(c=>c.operational));
   await page.evaluate(async()=>{for(const [companyId,base,taxId] of [['tax-air-extra','air','300000000000013'],['tax-sea-extra','sea','300000000000023']]){const d=GH_COMPANY_PLATFORM.definitionFor(__GH_STATE__,base);await __TAX_FIX__.runAuthorizedDomainCommand({domain:'corporate',name:'open-company',payload:{companyId,type:companyId,definitionId:d.definitionId,capital:d.founding.defaultCapital,legalName:'QA '+companyId,taxId,formationContract:'INC-'+companyId},silent:true});}__GH_STATE__.godMoney=false;__GH_STATE__.infiniteMoney=false;});
-  const ids=await page.evaluate(()=>GH_FINANCE_CORE.companyIds(__GH_STATE__,{openedOnly:true}));assert.equal(ids.length,13);
+  const ids=await page.evaluate(()=>GH_FINANCE_CORE.companyIds(__GH_STATE__,{openedOnly:true}));assert.equal(ids.length,14);
   for(const company of ids){await call(page,'credit',{company,amount:1150,taxable:true,reference:'TAX-FIX-SALE-'+company,note:'QA taxable sale'});await call(page,'spend',{company,amount:230,taxable:true,note:'QA taxable expense'});}
   await call(page,'close-vat-period',{day:30});
   const before=await page.evaluate(()=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;return F.companyIds(s,{openedOnly:true}).map(c=>{const invoice=s.finance.invoices.find(r=>r.sourceRef==='TAX-FIX-SALE-'+c);return {company:c,cash:F.operating(s,c),number:F.companyTaxNumber(s,c),invoiceTaxNumber:invoice.taxNumber,rendered:__TAX_FIX__.invoiceArt(invoice),due:F.book(s,c).taxPayable};});});
   for(const r of before){assert.equal(r.due,120);assert.equal(r.invoiceTaxNumber,r.number);assert.ok(r.rendered.includes(r.number));}
-  await page.evaluate(()=>__TAX_FIX__.openDrawer('invoices',{company:'all',tab:'obligations',view:'taxes'}));assert.equal(await page.locator('.tax-company-live-row').count(),13);
+  await page.evaluate(()=>__TAX_FIX__.openDrawer('invoices',{company:'all',tab:'obligations',view:'taxes'}));assert.equal(await page.locator('.tax-company-live-row').count(),14);
   const revision=await page.evaluate(()=>__GH_STATE__.saveRevision);await page.locator('.pay-all-taxes').tap();await page.waitForFunction(r=>__GH_STATE__.saveRevision>r,revision);
   const paid=await page.evaluate(()=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;return {valid:GH_SAVE_SCHEMA.validate(s).ok,proofs:GH_DOCUMENT_PROOF.forensicInspectStateProofs(s).ok,revision:s.saveRevision,rows:F.companyIds(s,{openedOnly:true}).map(c=>{const t=s.finance.taxSettlements.find(r=>r.company===c),q=s.finance.cheques.find(r=>r.id===t.chequeId);return {company:c,cash:F.operating(s,c),number:t.taxNumber,amount:t.amountPaid,status:q.status,proof:GH_DOCUMENT_PROOF.verifyDocument(s,q).ok};})};});
   assert.equal(paid.revision,revision+1);assert.equal(paid.valid,true);assert.equal(paid.proofs,true);
@@ -50,7 +50,7 @@ async function advance(page,day){await settled(page);assert.equal(await page.eva
   for(const invoice of actual.walkIn)assert.equal(invoice.lines.find(r=>r.taxCode==='residential-rent').vat,0);
   assert.ok(actual.reserveReturns.some(r=>r.lines.some(l=>l.taxCode==='financial-interest'&&l.total>0)),'real reserve interest reaches its exempt invoice component');
   for(const invoice of actual.reserveReturns)assert.equal(invoice.lines.find(r=>r.taxCode==='financial-interest').vat,0);
-  assert.deepEqual(errors,[]);results.push({engine:engine.name(),companies:13,cents:true,closedReplay:true,reload:true,bankMixed:true,residentialExempt:true,walkInExempt:true,reserveReturnsExempt:true,officeTaxed:true,indiaJurisdiction:'IN',indiaRate:.15,proofs:true});console.log('TAX_PRECISION_ROUTING_BROWSER_PASS',engine.name());
+  assert.deepEqual(errors,[]);results.push({engine:engine.name(),companies:14,cents:true,closedReplay:true,reload:true,bankMixed:true,residentialExempt:true,walkInExempt:true,reserveReturnsExempt:true,officeTaxed:true,indiaJurisdiction:'IN',indiaRate:.15,proofs:true});console.log('TAX_PRECISION_ROUTING_BROWSER_PASS',engine.name());
  }finally{await browser.close();}}
  const dir=path.join(ROOT,'verification');fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(path.join(dir,'tax-precision-and-routing-browser.json'),JSON.stringify(results,null,2));
  }finally{await server.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,0 +1,7177 @@
+{
+  "actions": [
+    {
+      "action": "bank-branch-campaign",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-branch-toggle",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-originate-loan",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-deposit-pricing",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-risk-policy",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-risk-preset",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-auto-liquidity",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-resolve-npl",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-invest-liquidity",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-wholesale-funding",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-credit-review",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-draw-facility",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-issue-lc",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-issue-guarantee",
+      "section": "البنك"
+    },
+    {
+      "action": "bank-cash-sweep",
+      "section": "البنك"
+    },
+    {
+      "action": "energy-bid-tender",
+      "section": "الطاقة"
+    },
+    {
+      "action": "energy-accept-ppa",
+      "section": "الطاقة"
+    },
+    {
+      "action": "energy-set-dispatch",
+      "section": "الطاقة"
+    },
+    {
+      "action": "energy-schedule-maintenance",
+      "section": "الطاقة"
+    },
+    {
+      "action": "energy-sign-fuel",
+      "section": "الطاقة"
+    },
+    {
+      "action": "energy-auto-maintenance",
+      "section": "الطاقة"
+    },
+    {
+      "action": "energy-finance-project",
+      "section": "الطاقة"
+    },
+    {
+      "action": "insurance-set-pricing",
+      "section": "التأمين"
+    },
+    {
+      "action": "insurance-set-pricing-all",
+      "section": "التأمين"
+    },
+    {
+      "action": "insurance-set-reinsurance",
+      "section": "التأمين"
+    },
+    {
+      "action": "insurance-office-campaign",
+      "section": "التأمين"
+    },
+    {
+      "action": "insurance-office-toggle",
+      "section": "التأمين"
+    },
+    {
+      "action": "realestate-finance-construction",
+      "section": "العقار"
+    },
+    {
+      "action": "realestate-sell-to-fund",
+      "section": "العقار"
+    },
+    {
+      "action": "realestate-internal-lease",
+      "section": "العقار"
+    },
+    {
+      "action": "realestate-set-price",
+      "section": "العقار"
+    },
+    {
+      "action": "realestate-start-project",
+      "section": "العقار"
+    },
+    {
+      "action": "telecom-set-price",
+      "section": "الاتصالات"
+    },
+    {
+      "action": "telecom-upgrade-network",
+      "section": "الاتصالات"
+    },
+    {
+      "action": "telecom-campaign",
+      "section": "الاتصالات"
+    },
+    {
+      "action": "telecom-create-subscription",
+      "section": "الاتصالات"
+    },
+    {
+      "action": "telecom-set-cohort",
+      "section": "الاتصالات"
+    },
+    {
+      "action": "dealership-ensure",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-set-floor-plan",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-set-price",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-set-cover",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-set-service",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-campaign",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-receive-stock",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-retail-sale",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-create-service-plan",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "dealership-settle-financed-sale",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "bank-customer-finance-batch",
+      "section": "وكالة السيارات"
+    },
+    {
+      "action": "hr-hire-all",
+      "section": "الموارد البشرية"
+    },
+    {
+      "action": "hr-hire-company",
+      "section": "الموارد البشرية"
+    },
+    {
+      "action": "facility-expand",
+      "section": "إدارة المنشآت"
+    },
+    {
+      "action": "facility-hire",
+      "section": "إدارة المنشآت"
+    },
+    {
+      "action": "company-service",
+      "section": "إدارة الشركات"
+    },
+    {
+      "action": "company-automation",
+      "section": "إدارة الشركات"
+    },
+    {
+      "action": "treasury-policy-save",
+      "section": "الخزينة"
+    },
+    {
+      "action": "treasury-pool-sweep",
+      "section": "الخزينة"
+    },
+    {
+      "action": "treasury-loan-issue",
+      "section": "الخزينة"
+    },
+    {
+      "action": "treasury-loan-repay",
+      "section": "الخزينة"
+    },
+    {
+      "action": "treasury-buffer",
+      "section": "الخزينة"
+    },
+    {
+      "action": "treasury-release",
+      "section": "الخزينة"
+    },
+    {
+      "action": "esg-program",
+      "section": "الحوكمة والسلامة"
+    },
+    {
+      "action": "cyber-drill",
+      "section": "الحوكمة والسلامة"
+    },
+    {
+      "action": "sea-cii-adopt",
+      "section": "الحوكمة والسلامة"
+    },
+    {
+      "action": "sea-cii-cancel",
+      "section": "الحوكمة والسلامة"
+    },
+    {
+      "action": "safety-audit",
+      "section": "الحوكمة والسلامة"
+    },
+    {
+      "action": "business-accept-sponsorship",
+      "section": "العلاقات والرعايات"
+    },
+    {
+      "action": "business-reject-sponsorship",
+      "section": "العلاقات والرعايات"
+    }
+  ],
+  "baseline": [
+    {
+      "action": "bank-branch-campaign",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "branch-campaign",
+          "payload": {
+            "branchId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُطلقت حملة فرع QA City بتكلفة $100.00 حتى اليوم 30.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "branches"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-branch-campaign",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "branch-campaign",
+          "payload": {
+            "branchId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر إطلاق الحملة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "branches"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-branch-campaign",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "branch-campaign",
+          "payload": {
+            "branchId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُطلقت حملة فرع QA City بتكلفة $100.00 حتى اليوم 30.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "branches"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-branch-toggle",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-branch-services",
+          "payload": {
+            "branchId": "QA",
+            "servicesActive": true
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُعيد تشغيل فرع QA City.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "branches"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-branch-toggle",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-branch-services",
+          "payload": {
+            "branchId": "QA",
+            "servicesActive": true
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تغيير حالة الفرع: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "branches"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-branch-toggle",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-branch-services",
+          "payload": {
+            "branchId": "QA",
+            "servicesActive": true
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُعيد تشغيل فرع QA City.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "branches"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-originate-loan",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "originate-loan",
+          "payload": {
+            "amount": 0,
+            "collateralCoverage": 0
+          },
+          "context": null,
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "مُنحت محفظة QA Result بقيمة $100.00 وتصنيف BBB وExpected Loss $10.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "credit"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-originate-loan",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "originate-loan",
+          "payload": {
+            "amount": 0,
+            "collateralCoverage": 0
+          },
+          "context": null,
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر منح التمويل: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-originate-loan",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "originate-loan",
+          "payload": {
+            "amount": 0,
+            "collateralCoverage": 0
+          },
+          "context": null,
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "مُنحت محفظة QA Result بقيمة $100.00 وتصنيف BBB وExpected Loss $10.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "credit"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-deposit-pricing",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-deposit-pricing",
+          "payload": {},
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمد تسعير الودائع: جاري 1.00%، ادخار 2.00%، لأجل 3.00%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-deposit-pricing",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-deposit-pricing",
+          "payload": {},
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تسعير الودائع: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-deposit-pricing",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-deposit-pricing",
+          "payload": {},
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمد تسعير الودائع: جاري 1.00%، ادخار 2.00%، لأجل 3.00%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-risk-policy",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-risk-policy",
+          "payload": {
+            "maxLdr": null,
+            "minLcr": null,
+            "minCet1": null,
+            "sectorConcentration": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت شهية المخاطر: LDR 80%، LCR 110%، CET1 12%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-risk-policy",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-risk-policy",
+          "payload": {
+            "maxLdr": null,
+            "minLcr": null,
+            "minCet1": null,
+            "sectorConcentration": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد المخاطر: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-risk-policy",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-risk-policy",
+          "payload": {
+            "maxLdr": null,
+            "minLcr": null,
+            "minCet1": null,
+            "sectorConcentration": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت شهية المخاطر: LDR 80%، LCR 110%، CET1 12%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-risk-preset",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-risk-preset",
+          "payload": {
+            "preset": "balanced"
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت شهية المخاطر: LDR 80%، LCR 110%، CET1 12%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-risk-preset",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-risk-preset",
+          "payload": {
+            "preset": "balanced"
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد المخاطر: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-risk-preset",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-risk-preset",
+          "payload": {
+            "preset": "balanced"
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت شهية المخاطر: LDR 80%، LCR 110%، CET1 12%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-auto-liquidity",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-auto-liquidity",
+          "payload": {
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "الخزينة التلقائية تعمل من الإقفال اليومي القادم.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-auto-liquidity",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-auto-liquidity",
+          "payload": {
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تغيير الخزينة التلقائية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-auto-liquidity",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "set-auto-liquidity",
+          "payload": {
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "الخزينة التلقائية تعمل من الإقفال اليومي القادم.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-resolve-npl",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "resolve-npl",
+          "payload": {
+            "loanId": "QA",
+            "action": "write-off"
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "شُطب القرض QA: استُرد $100.00 وخسارة $10.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "credit"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-resolve-npl",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "resolve-npl",
+          "payload": {
+            "loanId": "QA",
+            "action": "write-off"
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ القرار: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-resolve-npl",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-invest-liquidity",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "invest-liquidity",
+          "payload": {
+            "amount": null,
+            "kind": "",
+            "termDays": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "استثمرت الخزينة $100.00 في QA-RESULT.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-invest-liquidity",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "invest-liquidity",
+          "payload": {
+            "amount": null,
+            "kind": "",
+            "termDays": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر استثمار السيولة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-invest-liquidity",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "invest-liquidity",
+          "payload": {
+            "amount": null,
+            "kind": "",
+            "termDays": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "استثمرت الخزينة $100.00 في QA-RESULT.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-wholesale-funding",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "raise-wholesale-funding",
+          "payload": {
+            "amount": null,
+            "termDays": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُغلق تمويل الجملة QA-RESULT بقيمة $100.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-wholesale-funding",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "raise-wholesale-funding",
+          "payload": {
+            "amount": null,
+            "termDays": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تمويل الجملة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-wholesale-funding",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "raise-wholesale-funding",
+          "payload": {
+            "amount": null,
+            "termDays": null
+          },
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُغلق تمويل الجملة QA-RESULT بقيمة $100.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-credit-review",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "review-limits",
+          "payload": {},
+          "context": {
+            "fleetSummary": {
+              "result": {},
+              "lookup": {}
+            },
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "راجع بنك المجموعة حدود الائتمان والتصنيفات لكل شركة حسب السيولة والأصول والدين.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": "QA"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-credit-review",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "review-limits",
+          "payload": {},
+          "context": {
+            "fleetSummary": {
+              "result": {},
+              "lookup": {}
+            },
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر حفظ المراجعة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": "QA"
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-credit-review",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "review-limits",
+          "payload": {},
+          "context": {
+            "fleetSummary": {
+              "result": {},
+              "lookup": {}
+            },
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "راجع بنك المجموعة حدود الائتمان والتصنيفات لكل شركة حسب السيولة والأصول والدين.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": "QA"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-draw-facility",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "draw-facility",
+          "payload": {
+            "company": "air",
+            "amount": 10000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "مول بنك المجموعة air بمبلغ $100.00 وسجل الدين على الشركة المستفيدة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-draw-facility",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "draw-facility",
+          "payload": {
+            "company": "air",
+            "amount": 10000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر سحب التسهيل: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-draw-facility",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "draw-facility",
+          "payload": {
+            "company": "air",
+            "amount": 10000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "مول بنك المجموعة air بمبلغ $100.00 وسجل الدين على الشركة المستفيدة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-issue-lc",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "trade-instrument",
+          "payload": {
+            "kind": "lc",
+            "company": "air",
+            "amount": 5000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أصدر بنك المجموعة اعتمادًا مستنديًا QA-RESULT باسم air.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-issue-lc",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "trade-instrument",
+          "payload": {
+            "kind": "lc",
+            "company": "air",
+            "amount": 5000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر إصدار المستند: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-issue-lc",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "trade-instrument",
+          "payload": {
+            "kind": "lc",
+            "company": "air",
+            "amount": 5000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أصدر بنك المجموعة اعتمادًا مستنديًا QA-RESULT باسم air.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-issue-guarantee",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "trade-instrument",
+          "payload": {
+            "kind": "guarantee",
+            "company": "air",
+            "amount": 5000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أصدر بنك المجموعة ضمانًا مصرفيًا QA-RESULT باسم air.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-issue-guarantee",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "trade-instrument",
+          "payload": {
+            "kind": "guarantee",
+            "company": "air",
+            "amount": 5000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر إصدار المستند: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-issue-guarantee",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "trade-instrument",
+          "payload": {
+            "kind": "guarantee",
+            "company": "air",
+            "amount": 5000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أصدر بنك المجموعة ضمانًا مصرفيًا QA-RESULT باسم air.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-cash-sweep",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "cash-sweep",
+          "payload": {},
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "نفذت إدارة النقد Sweep بقيمة $100.00 مع بقاء السيولة موحدة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": "QA"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-cash-sweep",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "cash-sweep",
+          "payload": {},
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ Cash Sweep: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": "QA"
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-cash-sweep",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "cash-sweep",
+          "payload": {},
+          "context": {
+            "subjectId": "bank"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "نفذت إدارة النقد Sweep بقيمة $100.00 مع بقاء السيولة موحدة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "bank",
+          "arg": "QA"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-bid-tender",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "bid-tender",
+          "payload": {
+            "id": "QA",
+            "level": "1.1"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "فزنا بالمناقصة: عقد QA-CONTRACT لـ 10 MW بسعر 100$ لكل ميغاواط ساعة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "overview"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-bid-tender",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "bid-tender",
+          "payload": {
+            "id": "QA",
+            "level": "1.1"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تقديم العرض: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "overview"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-bid-tender",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "bid-tender",
+          "payload": {
+            "id": "QA",
+            "level": "1.1"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "فزنا بالمناقصة: عقد QA-CONTRACT لـ 10 MW بسعر 100$ لكل ميغاواط ساعة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "overview"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-accept-ppa",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "accept-ppa",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "قُبل عقد QA-RESULT مع QA Buyer بقدرة 10 MW وتعرفة $100.00/MWh.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "revenue"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-accept-ppa",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "accept-ppa",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر قبول عقد الطاقة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-accept-ppa",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "accept-ppa",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "قُبل عقد QA-RESULT مع QA Buyer بقدرة 10 MW وتعرفة $100.00/MWh.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "revenue"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-set-dispatch",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "set-dispatch-policy",
+          "payload": {
+            "reserveMargin": 0
+          },
+          "context": null,
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت سياسة balanced لمحطة QA Result باحتياطي 10%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-set-dispatch",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "set-dispatch-policy",
+          "payload": {
+            "reserveMargin": 0
+          },
+          "context": null,
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد التشغيل: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-set-dispatch",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "set-dispatch-policy",
+          "payload": {
+            "reserveMargin": 0
+          },
+          "context": null,
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت سياسة balanced لمحطة QA Result باحتياطي 10%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-schedule-maintenance",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "schedule-maintenance",
+          "payload": {
+            "siteId": "QA",
+            "startDay": 7
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "جُدولت صيانة QA Site 3 أيام من اليوم 7 وسُدد عقدها بالشيك QA-CHEQUE.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-schedule-maintenance",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "schedule-maintenance",
+          "payload": {
+            "siteId": "QA",
+            "startDay": 7
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر جدولة الصيانة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-schedule-maintenance",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "schedule-maintenance",
+          "payload": {
+            "siteId": "QA",
+            "startDay": 7
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "جُدولت صيانة QA Site 3 أيام من اليوم 7 وسُدد عقدها بالشيك QA-CHEQUE.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-sign-fuel",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "sign-fuel-contract",
+          "payload": {
+            "siteId": "QA",
+            "termDays": 365
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "وُقع عقد الوقود QA-RESULT بسعر $100.00/MWh لمدة 1 سنة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-sign-fuel",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "sign-fuel-contract",
+          "payload": {
+            "siteId": "QA",
+            "termDays": 365
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر توقيع عقد الوقود: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-sign-fuel",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "sign-fuel-contract",
+          "payload": {
+            "siteId": "QA",
+            "termDays": 365
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "وُقع عقد الوقود QA-RESULT بسعر $100.00/MWh لمدة 1 سنة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-auto-maintenance",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "set-auto-maintenance",
+          "payload": {
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "power"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "الصيانة التلقائية تعمل من الإقفال اليومي القادم.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-auto-maintenance",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "set-auto-maintenance",
+          "payload": {
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "power"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تغيير الصيانة التلقائية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-auto-maintenance",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "set-auto-maintenance",
+          "payload": {
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "power"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "الصيانة التلقائية تعمل من الإقفال اليومي القادم.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-finance-project",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "finance-project",
+          "payload": {
+            "siteId": "QA",
+            "amount": 200000
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُغلق تمويل المشروع QA-RESULT بقيمة $100.00 بفائدة 7.00%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-finance-project",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "finance-project",
+          "payload": {
+            "siteId": "QA",
+            "amount": 200000
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر إغلاق تمويل المشروع: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "energy-finance-project",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "energy",
+          "name": "finance-project",
+          "payload": {
+            "siteId": "QA",
+            "amount": 200000
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُغلق تمويل المشروع QA-RESULT بقيمة $100.00 بفائدة 7.00%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "energy",
+          "arg": {
+            "tab": "control"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-pricing",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-pricing",
+          "payload": {
+            "line": "QA",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد سعر QA: قسط سنوي $100.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-pricing",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-pricing",
+          "payload": {
+            "line": "QA",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد السعر: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-pricing",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-pricing",
+          "payload": {
+            "line": "QA",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد سعر QA: قسط سنوي $100.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-pricing-all",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-pricing-all",
+          "payload": {
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "insurance"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد مستوى سعر واحد لكل المنتجات: 110% من السوق.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-pricing-all",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-pricing-all",
+          "payload": {
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "insurance"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد السعر: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-pricing-all",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-pricing-all",
+          "payload": {
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "insurance"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد مستوى سعر واحد لكل المنتجات: 110% من السوق.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-reinsurance",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-reinsurance",
+          "payload": {
+            "share": 0.4
+          },
+          "context": {
+            "subjectId": "insurance"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمدت حصة إعادة التأمين 40%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-reinsurance",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-reinsurance",
+          "payload": {
+            "share": 0.4
+          },
+          "context": {
+            "subjectId": "insurance"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد إعادة التأمين: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-set-reinsurance",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-reinsurance",
+          "payload": {
+            "share": 0.4
+          },
+          "context": {
+            "subjectId": "insurance"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمدت حصة إعادة التأمين 40%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "lines"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-office-campaign",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "office-campaign",
+          "payload": {
+            "officeId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُطلقت حملة مكتب QA City بتكلفة $100.00 حتى اليوم 30.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "offices"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-office-campaign",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "office-campaign",
+          "payload": {
+            "officeId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر إطلاق الحملة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "offices"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-office-campaign",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "office-campaign",
+          "payload": {
+            "officeId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُطلقت حملة مكتب QA City بتكلفة $100.00 حتى اليوم 30.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "offices"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-office-toggle",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-office-active",
+          "payload": {
+            "officeId": "QA",
+            "active": true
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُعيد تشغيل مكتب QA City.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "offices"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-office-toggle",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-office-active",
+          "payload": {
+            "officeId": "QA",
+            "active": true
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تغيير حالة المكتب: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "offices"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "insurance-office-toggle",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "set-office-active",
+          "payload": {
+            "officeId": "QA",
+            "active": true
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُعيد تشغيل مكتب QA City.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "insurance",
+          "arg": {
+            "tab": "offices"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-finance-construction",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "finance-construction",
+          "payload": {
+            "projectId": "QA",
+            "share": 0.2
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "مُوّل المشروع بقرض إنشاء $100.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-finance-construction",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "finance-construction",
+          "payload": {
+            "projectId": "QA",
+            "share": 0.2
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تمويل الإنشاء: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-finance-construction",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-sell-to-fund",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "sell-to-fund",
+          "payload": {
+            "projectId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "بيع المبنى لصندوق بقيمة $100.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-sell-to-fund",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "sell-to-fund",
+          "payload": {
+            "projectId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر البيع: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-sell-to-fund",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-internal-lease",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "lease-to-company",
+          "payload": {
+            "projectId": "QA",
+            "companyId": "air",
+            "leaseId": "QA",
+            "units": 2,
+            "rentLevel": 1,
+            "years": 1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "realestate:internal-lease:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "وُقع عقد الإيجار الداخلي QA-RESULT: 2 وحدة بإيجار سنوي $100.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-internal-lease",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "lease-to-company",
+          "payload": {
+            "projectId": "QA",
+            "companyId": "air",
+            "leaseId": "QA",
+            "units": 2,
+            "rentLevel": 1,
+            "years": 1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "realestate:internal-lease:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر توقيع الإيجار الداخلي: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-internal-lease",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-set-price",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "set-project-price",
+          "payload": {
+            "projectId": "QA",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد سعر QA Result: 110% من السوق.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-set-price",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "set-project-price",
+          "payload": {
+            "projectId": "QA",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد السعر: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-set-price",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "set-project-price",
+          "payload": {
+            "projectId": "QA",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد سعر QA Result: 110% من السوق.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-start-project",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "start-project",
+          "payload": {
+            "officeId": "QA",
+            "type": "residential",
+            "size": 1,
+            "mode": "sale",
+            "priceLevel": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "بدأ مشروع QA Result: 2 وحدة، التسليم في اليوم 30.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-start-project",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "start-project",
+          "payload": {
+            "officeId": "QA",
+            "type": "residential",
+            "size": 1,
+            "mode": "sale",
+            "priceLevel": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر بدء المشروع: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "realestate-start-project",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "realestate",
+          "name": "start-project",
+          "payload": {
+            "officeId": "QA",
+            "type": "residential",
+            "size": 1,
+            "mode": "sale",
+            "priceLevel": 1.1
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "بدأ مشروع QA Result: 2 وحدة، التسليم في اليوم 30.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "realestate",
+          "arg": {
+            "tab": "projects"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-set-price",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-set-plan-price",
+          "payload": {
+            "company": "telecom",
+            "planId": "mobile",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "telecom"
+          },
+          "idempotencyKey": "telecom:price:TEL-PRICE-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "سعر الباقة الآن $100.00 شهريًا.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-set-price",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-set-plan-price",
+          "payload": {
+            "company": "telecom",
+            "planId": "mobile",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "telecom"
+          },
+          "idempotencyKey": "telecom:price:TEL-PRICE-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-set-price",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-set-plan-price",
+          "payload": {
+            "company": "telecom",
+            "planId": "mobile",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "telecom"
+          },
+          "idempotencyKey": "telecom:price:TEL-PRICE-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "سعر الباقة الآن $100.00 شهريًا.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-upgrade-network",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-upgrade-network",
+          "payload": {
+            "company": "telecom",
+            "branchId": "QA"
+          },
+          "context": {
+            "subjectId": "telecom"
+          },
+          "idempotencyKey": "telecom:network:QA:1"
+        }
+      ],
+      "messages": [
+        {
+          "text": "الشبكة الآن في المستوى 2 بتكلفة $100.00.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-upgrade-network",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-upgrade-network",
+          "payload": {
+            "company": "telecom",
+            "branchId": "QA"
+          },
+          "context": {
+            "subjectId": "telecom"
+          },
+          "idempotencyKey": "telecom:network:QA:1"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-upgrade-network",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-campaign",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-branch-campaign",
+          "payload": {
+            "company": "telecom",
+            "branchId": "QA"
+          },
+          "context": {
+            "subjectId": "telecom"
+          },
+          "idempotencyKey": "telecom:campaign:QA:0"
+        }
+      ],
+      "messages": [
+        {
+          "text": "بدأت حملة فرع QA City بتكلفة $100.00.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-campaign",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-branch-campaign",
+          "payload": {
+            "company": "telecom",
+            "branchId": "QA"
+          },
+          "context": {
+            "subjectId": "telecom"
+          },
+          "idempotencyKey": "telecom:campaign:QA:0"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-campaign",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-create-subscription",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "create-subscription",
+          "payload": {
+            "company": "telecom",
+            "id": "TEL-SUB-1700000000000-i",
+            "customerName": "QA Customer",
+            "planId": "mobile",
+            "branchId": "",
+            "country": "السعودية",
+            "segment": "consumer"
+          },
+          "context": {
+            "subjectId": "TEL-SUB-1700000000000-i"
+          },
+          "idempotencyKey": "telecom:subscription:TEL-SUB-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم إنشاء اشتراك QA-RESULT وربطه بدورة العميل الشهرية.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-create-subscription",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "create-subscription",
+          "payload": {
+            "company": "telecom",
+            "id": "TEL-SUB-1700000000000-i",
+            "customerName": "QA Customer",
+            "planId": "mobile",
+            "branchId": "",
+            "country": "السعودية",
+            "segment": "consumer"
+          },
+          "context": {
+            "subjectId": "TEL-SUB-1700000000000-i"
+          },
+          "idempotencyKey": "telecom:subscription:TEL-SUB-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-create-subscription",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "create-subscription",
+          "payload": {
+            "company": "telecom",
+            "id": "TEL-SUB-1700000000000-i",
+            "customerName": "QA Customer",
+            "planId": "mobile",
+            "branchId": "",
+            "country": "السعودية",
+            "segment": "consumer"
+          },
+          "context": {
+            "subjectId": "TEL-SUB-1700000000000-i"
+          },
+          "idempotencyKey": "telecom:subscription:TEL-SUB-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم إنشاء اشتراك QA-RESULT وربطه بدورة العميل الشهرية.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-set-cohort",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "set-market-cohort",
+          "payload": {
+            "company": "telecom",
+            "id": "QA",
+            "branchId": "",
+            "activeCustomers": 10,
+            "monthlyPrice": 100,
+            "country": "",
+            "segment": "consumer",
+            "status": "active"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "telecom:cohort:QA:10:100::consumer:active"
+        }
+      ],
+      "messages": [
+        {
+          "text": "حُفظت الشريحة QA-RESULT · 10 عميل.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-set-cohort",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "set-market-cohort",
+          "payload": {
+            "company": "telecom",
+            "id": "QA",
+            "branchId": "",
+            "activeCustomers": 10,
+            "monthlyPrice": 100,
+            "country": "",
+            "segment": "consumer",
+            "status": "active"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "telecom:cohort:QA:10:100::consumer:active"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "telecom-set-cohort",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "set-market-cohort",
+          "payload": {
+            "company": "telecom",
+            "id": "QA",
+            "branchId": "",
+            "activeCustomers": 10,
+            "monthlyPrice": 100,
+            "country": "",
+            "segment": "consumer",
+            "status": "active"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "telecom:cohort:QA:10:100::consumer:active"
+        }
+      ],
+      "messages": [
+        {
+          "text": "حُفظت الشريحة QA-RESULT · 10 عميل.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "telecom",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-ensure",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "ensure",
+          "payload": {
+            "company": "dealership"
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "customer-companies:dealership:ensure:v1"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم تهيئة 3 اتفاقيات توريد ومزامنة المصنعين مع دليل العملاء.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-ensure",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "ensure",
+          "payload": {
+            "company": "dealership"
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "customer-companies:dealership:ensure:v1"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-ensure",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "ensure",
+          "payload": {
+            "company": "dealership"
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "customer-companies:dealership:ensure:v1"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم تهيئة 3 اتفاقيات توريد ومزامنة المصنعين مع دليل العملاء.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-floor-plan",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-floor-plan",
+          "payload": {
+            "company": "dealership",
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:floor-plan:AUTO-FLOOR-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "إعادة الطلب التي لا يغطيها النقد تُموَّل من بنك المجموعة (تسهيل 180 يومًا).",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-floor-plan",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-floor-plan",
+          "payload": {
+            "company": "dealership",
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:floor-plan:AUTO-FLOOR-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-floor-plan",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-floor-plan",
+          "payload": {
+            "company": "dealership",
+            "enabled": true
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:floor-plan:AUTO-FLOOR-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "إعادة الطلب التي لا يغطيها النقد تُموَّل من بنك المجموعة (تسهيل 180 يومًا).",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-price",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-price",
+          "payload": {
+            "company": "dealership",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد الاختيار ويسري من الإقفال اليومي القادم.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-price",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-price",
+          "payload": {
+            "company": "dealership",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-price",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-price",
+          "payload": {
+            "company": "dealership",
+            "level": 1.1
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد الاختيار ويسري من الإقفال اليومي القادم.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-cover",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-cover",
+          "payload": {
+            "company": "dealership",
+            "days": 30
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد الاختيار ويسري من الإقفال اليومي القادم.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-cover",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-cover",
+          "payload": {
+            "company": "dealership",
+            "days": 30
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-cover",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-cover",
+          "payload": {
+            "company": "dealership",
+            "days": 30
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد الاختيار ويسري من الإقفال اليومي القادم.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-service",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-service-tier",
+          "payload": {
+            "company": "dealership",
+            "tier": "premium"
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد الاختيار ويسري من الإقفال اليومي القادم.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-service",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-service-tier",
+          "payload": {
+            "company": "dealership",
+            "tier": "premium"
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-set-service",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-set-service-tier",
+          "payload": {
+            "company": "dealership",
+            "tier": "premium"
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:policy:AUTO-POLICY-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمد الاختيار ويسري من الإقفال اليومي القادم.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-campaign",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-showroom-campaign",
+          "payload": {
+            "company": "dealership",
+            "showroomId": ""
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:campaign::0"
+        }
+      ],
+      "messages": [
+        {
+          "text": "بدأت حملة معرض QA City بتكلفة $100.00.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-campaign",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "dealership-showroom-campaign",
+          "payload": {
+            "company": "dealership",
+            "showroomId": ""
+          },
+          "context": {
+            "subjectId": "dealership"
+          },
+          "idempotencyKey": "dealership:campaign::0"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-campaign",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-receive-stock",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "receive-stock",
+          "payload": {
+            "company": "dealership",
+            "modelId": "QA",
+            "quantity": 2,
+            "reference": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "dealership:stock:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "استُلم المخزون: 2 مركبة. فاتورة QA-INVOICE · شيك QA-CHEQUE.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-receive-stock",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "receive-stock",
+          "payload": {
+            "company": "dealership",
+            "modelId": "QA",
+            "quantity": 2,
+            "reference": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "dealership:stock:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-receive-stock",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-retail-sale",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "retail-sale",
+          "payload": {
+            "company": "dealership",
+            "saleId": "AUTO-SALE-1700000000000-i",
+            "customerName": "QA",
+            "branchId": "",
+            "modelId": "QA",
+            "quantity": 1,
+            "termsDays": 0,
+            "financeRequested": false,
+            "downPayment": 0,
+            "unitPrice": 100
+          },
+          "context": {
+            "subjectId": "AUTO-SALE-1700000000000-i"
+          },
+          "idempotencyKey": "dealership:sale:AUTO-SALE-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "سُجل البيع AUTO-SALE-1700000000000-i للعميل.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-retail-sale",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "retail-sale",
+          "payload": {
+            "company": "dealership",
+            "saleId": "AUTO-SALE-1700000000000-i",
+            "customerName": "QA",
+            "branchId": "",
+            "modelId": "QA",
+            "quantity": 1,
+            "termsDays": 0,
+            "financeRequested": false,
+            "downPayment": 0,
+            "unitPrice": 100
+          },
+          "context": {
+            "subjectId": "AUTO-SALE-1700000000000-i"
+          },
+          "idempotencyKey": "dealership:sale:AUTO-SALE-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-retail-sale",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-create-service-plan",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "create-service-plan",
+          "payload": {
+            "company": "dealership",
+            "id": "QA",
+            "branchId": "",
+            "customerName": "QA",
+            "monthlyPrice": 100,
+            "vehicleReference": ""
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "dealership:service:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت خطة الصيانة QA-RESULT بقسط $100.00 شهريًا.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-create-service-plan",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "create-service-plan",
+          "payload": {
+            "company": "dealership",
+            "id": "QA",
+            "branchId": "",
+            "customerName": "QA",
+            "monthlyPrice": 100,
+            "vehicleReference": ""
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "dealership:service:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-create-service-plan",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "create-service-plan",
+          "payload": {
+            "company": "dealership",
+            "id": "QA",
+            "branchId": "",
+            "customerName": "QA",
+            "monthlyPrice": 100,
+            "vehicleReference": ""
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "dealership:service:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمدت خطة الصيانة QA-RESULT بقسط $100.00 شهريًا.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-settle-financed-sale",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "settle-financed-sale",
+          "payload": {
+            "company": "dealership",
+            "saleId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "سُوّي البيع QA بإيصال QA-TRANSFER وفاتورة QA-INVOICE.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-settle-financed-sale",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "settle-financed-sale",
+          "payload": {
+            "company": "dealership",
+            "saleId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-settle-financed-sale",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-customer-finance-batch",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "DEALER-FIN-0-1u26dew",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA",
+                "decision": "approve",
+                "customerId": "QA",
+                "sourceCompanyId": "dealership",
+                "sourceSaleId": "QA"
+              }
+            ]
+          },
+          "context": {
+            "subjectId": "dealership-customer-finance"
+          },
+          "idempotencyKey": "bank:dealer-finance:DEALER-FIN-0-1u26dew"
+        }
+      ],
+      "messages": [
+        {
+          "text": "اكتملت مراجعة التمويلات: 1 موافق، 0 مرفوض، 0 مؤجل. إجمالي أصل القروض $100.00.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-customer-finance-batch",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "DEALER-FIN-0-1u26dew",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA",
+                "decision": "approve",
+                "customerId": "QA",
+                "sourceCompanyId": "dealership",
+                "sourceSaleId": "QA"
+              }
+            ]
+          },
+          "context": {
+            "subjectId": "dealership-customer-finance"
+          },
+          "idempotencyKey": "bank:dealer-finance:DEALER-FIN-0-1u26dew"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ العملية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "bank-customer-finance-batch",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-all",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "hr",
+          "name": "hire",
+          "payload": {
+            "company": "all",
+            "source": "توظيف يدوي فوري · لوحة HR"
+          },
+          "context": {
+            "subjectId": "all"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم توظيف 3 وحفظ العملية. التغطية أصبحت 100%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-all",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "hr",
+          "name": "hire",
+          "payload": {
+            "company": "all",
+            "source": "توظيف يدوي فوري · لوحة HR"
+          },
+          "context": {
+            "subjectId": "all"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر إكمال التوظيف: qa-rejected",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-all",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "hr",
+          "name": "hire",
+          "payload": {
+            "company": "all",
+            "source": "توظيف يدوي فوري · لوحة HR"
+          },
+          "context": {
+            "subjectId": "all"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم توظيف 3 وحفظ العملية. التغطية أصبحت 100%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-company",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "hr",
+          "name": "hire",
+          "payload": {
+            "company": "air",
+            "source": "توظيف يدوي فوري · air"
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم توظيف 3 وحفظ العملية. التغطية أصبحت 100%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-company",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "hr",
+          "name": "hire",
+          "payload": {
+            "company": "air",
+            "source": "توظيف يدوي فوري · air"
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر إكمال التوظيف: qa-rejected",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-company",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "hr",
+          "name": "hire",
+          "payload": {
+            "company": "air",
+            "source": "توظيف يدوي فوري · air"
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم توظيف 3 وحفظ العملية. التغطية أصبحت 100%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "facility-expand",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "facilities",
+          "name": "expand",
+          "payload": {
+            "id": "QA",
+            "company": "air"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "QA Facility: [object Object]",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "facility-expand",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "facilities",
+          "name": "expand",
+          "payload": {
+            "id": "QA",
+            "company": "air"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ قرار المنشأة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "facility-expand",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "facilities",
+          "name": "expand",
+          "payload": {
+            "id": "QA",
+            "company": "air"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "QA Facility: [object Object]",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "facility-hire",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "facilities",
+          "name": "hire",
+          "payload": {
+            "id": "QA",
+            "company": "air",
+            "cost": 500000
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "QA Facility: [object Object]",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "facility-hire",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "facilities",
+          "name": "hire",
+          "payload": {
+            "id": "QA",
+            "company": "air",
+            "cost": 500000
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ قرار المنشأة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "facility-hire",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "facilities",
+          "name": "hire",
+          "payload": {
+            "id": "QA",
+            "company": "air",
+            "cost": 500000
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "QA Facility: [object Object]",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "company-service",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "corporate",
+          "name": "decision",
+          "payload": {
+            "type": "air",
+            "action": "company-service",
+            "cost": 1500000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم اعتماد قرار إداري في air وحفظه دائمًا.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "air",
+            "tab": "overview"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "company-service",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "corporate",
+          "name": "decision",
+          "payload": {
+            "type": "air",
+            "action": "company-service",
+            "cost": 1500000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر القرار: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "company-service",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "corporate",
+          "name": "decision",
+          "payload": {
+            "type": "air",
+            "action": "company-service",
+            "cost": 1500000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم اعتماد قرار إداري في air وحفظه دائمًا.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "air",
+            "tab": "overview"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "company-automation",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "corporate",
+          "name": "decision",
+          "payload": {
+            "type": "air",
+            "action": "company-automation",
+            "cost": 3000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم اعتماد قرار إداري في air وحفظه دائمًا.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "air",
+            "tab": "overview"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "company-automation",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "corporate",
+          "name": "decision",
+          "payload": {
+            "type": "air",
+            "action": "company-automation",
+            "cost": 3000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر القرار: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "company-automation",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "corporate",
+          "name": "decision",
+          "payload": {
+            "type": "air",
+            "action": "company-automation",
+            "cost": 3000000
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم اعتماد قرار إداري في air وحفظه دائمًا.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "air",
+            "tab": "overview"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-policy-save",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "set-central-treasury-policy",
+          "payload": {
+            "minOperatingCash": {
+              "air": 0,
+              "sea": 0,
+              "road": 0,
+              "power": 0,
+              "bank": 0,
+              "insurance": 0,
+              "realestate": 0,
+              "telecom": 0,
+              "dealership": 0
+            }
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "حُفظت حدود النقد التشغيلي بعد اعتماد التوقيع.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-policy-save",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "set-central-treasury-policy",
+          "payload": {
+            "minOperatingCash": {
+              "air": 0,
+              "sea": 0,
+              "road": 0,
+              "power": 0,
+              "bank": 0,
+              "insurance": 0,
+              "realestate": 0,
+              "telecom": 0,
+              "dealership": 0
+            }
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر حفظ سياسة Cash Pool: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-policy-save",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "set-central-treasury-policy",
+          "payload": {
+            "minOperatingCash": {
+              "air": 0,
+              "sea": 0,
+              "road": 0,
+              "power": 0,
+              "bank": 0,
+              "insurance": 0,
+              "realestate": 0,
+              "telecom": 0,
+              "dealership": 0
+            }
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "حُفظت حدود النقد التشغيلي بعد اعتماد التوقيع.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-pool-sweep",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "cash-pool-sweep",
+          "payload": {
+            "companies": [
+              "air",
+              "sea",
+              "road",
+              "power",
+              "bank",
+              "insurance",
+              "realestate",
+              "telecom",
+              "dealership"
+            ]
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم تجميع $3.00 من فوائض 1 شركات دون تغيير السيولة الموحدة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-pool-sweep",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "cash-pool-sweep",
+          "payload": {
+            "companies": [
+              "air",
+              "sea",
+              "road",
+              "power",
+              "bank",
+              "insurance",
+              "realestate",
+              "telecom",
+              "dealership"
+            ]
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ Cash Pool: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-pool-sweep",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-loan-issue",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "issue-intercompany-loan",
+          "payload": {
+            "lender": "group",
+            "borrower": "air",
+            "amount": 100,
+            "annualRate": 0.07,
+            "termDays": 365
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم إنشاء التمويل الداخلي QA-RESULT وتسجيله بعد اعتماد التوقيع.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-loan-issue",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "issue-intercompany-loan",
+          "payload": {
+            "lender": "group",
+            "borrower": "air",
+            "amount": 100,
+            "annualRate": 0.07,
+            "termDays": 365
+          },
+          "context": {
+            "subjectId": "air"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ التمويل الداخلي: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-loan-issue",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-loan-repay",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "repay-intercompany-loan",
+          "payload": {
+            "id": "QA",
+            "amount": 100
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "سُجل سداد $100.00 للتمويل QA: أصل $100.00 وفائدة $10.00.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-loan-repay",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "repay-intercompany-loan",
+          "payload": {
+            "id": "QA",
+            "amount": 100
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر سداد التمويل الداخلي: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-loan-repay",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-buffer",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "transfer-reserve",
+          "payload": {
+            "company": "group",
+            "amount": 100,
+            "toReserve": true,
+            "note": "تحويل داخلي إلى احتياطي السيولة"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم تحويل $100.00 إلى الاحتياطي دون تغيير السيولة الموحدة أو إنشاء مصروف.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-buffer",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "transfer-reserve",
+          "payload": {
+            "company": "group",
+            "amount": 100,
+            "toReserve": true,
+            "note": "تحويل داخلي إلى احتياطي السيولة"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ حركة الاحتياطي: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-buffer",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "transfer-reserve",
+          "payload": {
+            "company": "group",
+            "amount": 100,
+            "toReserve": true,
+            "note": "تحويل داخلي إلى احتياطي السيولة"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم تحويل $100.00 إلى الاحتياطي دون تغيير السيولة الموحدة أو إنشاء مصروف.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-release",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "transfer-reserve",
+          "payload": {
+            "company": "group",
+            "amount": 100,
+            "toReserve": false,
+            "note": "إعادة داخلية من احتياطي السيولة"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تمت إعادة $100.00 إلى الحساب الجاري دون تغيير السيولة الموحدة أو إنشاء مصروف.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-release",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "transfer-reserve",
+          "payload": {
+            "company": "group",
+            "amount": 100,
+            "toReserve": false,
+            "note": "إعادة داخلية من احتياطي السيولة"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ حركة الاحتياطي: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "treasury-release",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "finance",
+          "name": "transfer-reserve",
+          "payload": {
+            "company": "group",
+            "amount": 100,
+            "toReserve": false,
+            "note": "إعادة داخلية من احتياطي السيولة"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تمت إعادة $100.00 إلى الحساب الجاري دون تغيير السيولة الموحدة أو إنشاء مصروف.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "esg-program",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "esg-program",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمد برنامج الاستدامة QA. الأثر سيظهر تدريجيًا مع النضج التشغيلي.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "esg",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "esg-program",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "esg-program",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر اعتماد البرنامج: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "esg",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "esg-program",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "esg-program",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتمد برنامج الاستدامة QA. الأثر سيظهر تدريجيًا مع النضج التشغيلي.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "esg",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "cyber-drill",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "cyber-drill",
+          "payload": {},
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اكتمل تمرين الاستجابة: التغطية 1% وزمن الاسترداد 2 ساعة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "cyber",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "cyber-drill",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "cyber-drill",
+          "payload": {},
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر التمرين: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "cyber-drill",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "cyber-drill",
+          "payload": {},
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اكتمل تمرين الاستجابة: التغطية 1% وزمن الاسترداد 2 ساعة.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "cyber",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "sea-cii-adopt",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "sea-cii-plan",
+          "payload": {
+            "action": "adopt"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمدت خطة تصحيح CII لـ 3 سفينة بتكلفة $100.00: الرحلات البحرية أبطأ 10% وأقل وقودًا 15% من الرحلة التالية.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "compliance",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": [
+        "routes"
+      ]
+    },
+    {
+      "action": "sea-cii-adopt",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "sea-cii-plan",
+          "payload": {
+            "action": "adopt"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ خطة تصحيح CII: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "sea-cii-adopt",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "sea-cii-plan",
+          "payload": {
+            "action": "adopt"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اعتُمدت خطة تصحيح CII لـ 3 سفينة بتكلفة $100.00: الرحلات البحرية أبطأ 10% وأقل وقودًا 15% من الرحلة التالية.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "compliance",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": [
+        "routes"
+      ]
+    },
+    {
+      "action": "sea-cii-cancel",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "sea-cii-plan",
+          "payload": {
+            "action": "cancel"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُلغيت خطة تصحيح CII: تعود سرعة السفن ووقودها من الرحلة التالية.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "compliance",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": [
+        "routes"
+      ]
+    },
+    {
+      "action": "sea-cii-cancel",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "sea-cii-plan",
+          "payload": {
+            "action": "cancel"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تنفيذ خطة تصحيح CII: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "sea-cii-cancel",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "sea-cii-plan",
+          "payload": {
+            "action": "cancel"
+          },
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُلغيت خطة تصحيح CII: تعود سرعة السفن ووقودها من الرحلة التالية.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "compliance",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": [
+        "routes"
+      ]
+    },
+    {
+      "action": "safety-audit",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "safety-audit",
+          "payload": {},
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اكتمل تدقيق HSE: خطة تصحيح حتى يوم 31، تخفض احتمال الحوادث 15% وغرامات التفتيش 50%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "safety",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "safety-audit",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "safety-audit",
+          "payload": {},
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر تدقيق السلامة: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "safety-audit",
+      "attempt": "cancel",
+      "calls": [
+        {
+          "domain": "governance",
+          "name": "safety-audit",
+          "payload": {},
+          "context": {
+            "subjectId": "group"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "اكتمل تدقيق HSE: خطة تصحيح حتى يوم 31، تخفض احتمال الحوادث 15% وغرامات التفتيش 50%.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "safety",
+          "arg": null
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "business-accept-sponsorship",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "business-world",
+          "name": "accept-sponsorship",
+          "payload": {
+            "id": "QA",
+            "company": "air"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "sponsorship:accept:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم توقيع الرعاية وحفظها بعد اعتماد التوقيع المرئي.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "business-accept-sponsorship",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "business-world",
+          "name": "accept-sponsorship",
+          "payload": {
+            "id": "QA",
+            "company": "air"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": "sponsorship:accept:QA"
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر قبول الرعاية: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "business-accept-sponsorship",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "business-reject-sponsorship",
+      "attempt": "success",
+      "calls": [
+        {
+          "domain": "business-world",
+          "name": "reject-sponsorship",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تم رفض عرض الرعاية بقرار معتمد ومحفوظ.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "business-reject-sponsorship",
+      "attempt": "failure",
+      "calls": [
+        {
+          "domain": "business-world",
+          "name": "reject-sponsorship",
+          "payload": {
+            "id": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "تعذر رفض العرض: qa-rejected",
+          "kind": "info"
+        }
+      ],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "business-reject-sponsorship",
+      "attempt": "cancel",
+      "calls": [],
+      "messages": [],
+      "views": [],
+      "saves": 0,
+      "commits": 0,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-all",
+      "attempt": "no-work",
+      "calls": [],
+      "messages": [
+        {
+          "text": "لا يوجد عجز وظيفي حقيقي حاليًا.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "hr-hire-company",
+      "attempt": "no-work",
+      "calls": [],
+      "messages": [
+        {
+          "text": "لا يوجد عجز وظيفي حقيقي حاليًا.",
+          "kind": null
+        }
+      ],
+      "views": [
+        {
+          "panel": "labor",
+          "arg": "dashboard"
+        }
+      ],
+      "saves": 1,
+      "commits": 0,
+      "confirmations": 0,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-retail-sale",
+      "attempt": "finance",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "retail-sale",
+          "payload": {
+            "company": "dealership",
+            "saleId": "AUTO-SALE-1700000000000-i",
+            "customerName": "QA",
+            "branchId": "",
+            "modelId": "QA",
+            "quantity": 1,
+            "termsDays": 0,
+            "financeRequested": true,
+            "downPayment": 0,
+            "unitPrice": 100,
+            "product": "consumer",
+            "termDays": 1825
+          },
+          "context": {
+            "subjectId": "AUTO-SALE-1700000000000-i"
+          },
+          "idempotencyKey": "dealership:sale:AUTO-SALE-1700000000000-i"
+        }
+      ],
+      "messages": [
+        {
+          "text": "أُرسل البيع AUTO-SALE-1700000000000-i لمراجعة بنك المجموعة. طلب التمويل QA-APP.",
+          "kind": "success"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    },
+    {
+      "action": "dealership-settle-financed-sale",
+      "attempt": "pending",
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "settle-financed-sale",
+          "payload": {
+            "company": "dealership",
+            "saleId": "QA"
+          },
+          "context": {
+            "subjectId": "QA"
+          },
+          "idempotencyKey": null
+        }
+      ],
+      "messages": [
+        {
+          "text": "لم يكتمل البيع بعد؛ الحالة الحالية financing-pending.",
+          "kind": "info"
+        }
+      ],
+      "views": [
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "dealership",
+            "tab": "operations"
+          }
+        }
+      ],
+      "saves": 1,
+      "commits": 1,
+      "confirmations": 1,
+      "noticeBeforeCommit": false,
+      "sideEffects": []
+    }
+  ]
+}

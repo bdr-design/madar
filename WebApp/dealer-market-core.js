@@ -87,7 +87,7 @@ const walkInFactor=showroom=>clamp(carDemand(showroom.country),.1,1.5);
 // Build 377: the country's rival dealer (customer-base-core rivalPrice): a rival 6% cheaper takes 18% of the walk-ins.
 const rivalDemand=(showroom,day)=>{const B=globalThis.GH_CUSTOMER_BASE,rival=typeof B?.rivalPrice==='function'?B.rivalPrice(showroom.country,'dealership',day):1;return clamp(1+(rival-1)*3,.8,1.2);};
 function yearlyCapacity(m,showroom,peers){const people=base().market(showroom.country,showroom.marketPopulation).population;return Math.max(200,Math.round(people*YEARLY_CARS_PER_PERSON*carDemand(showroom.country)*MAX_MARKET_SHARE/(peers||peersIn(m,showroom.country))));}
-function campaignCost(m,showroom){return Math.round(clamp(yearlyCapacity(m,showroom)*20,150000,3000000));}
+function campaignCost(m,showroom,peers=null){return Math.round(clamp(yearlyCapacity(m,showroom,peers)*20,150000,3000000));}
 const demandFactor=level=>DEMAND_BY_PRICE[String(level)]||1;
 // The buyers a showroom expects in a day at today's choices (no draw): what the weekly reorder plans for.
 const SERVICE_NORMAL=85,service=value=>typeof globalThis.GH_CUSTOMER_BASE?.serviceEffects==='function'?globalThis.GH_CUSTOMER_BASE.serviceEffects(value):{churn:1,demand:1},satisfy=(value,quality)=>typeof globalThis.GH_CUSTOMER_BASE?.satisfactionStep==='function'?globalThis.GH_CUSTOMER_BASE.satisfactionStep(value,quality):value;
@@ -128,6 +128,9 @@ function drawFloorPlan(state,m,shortfall,day){
 }
 function setCover(state,p={}){const m=ensure(state),days=Number(p.days);if(!COVER_DAYS.includes(days))throw new Error('dealership-cover-days-invalid');m.coverDays=days;return {days};}
 function setServiceTier(state,p={}){const m=ensure(state),tier=SERVICE_TIERS[String(p.tier||'')];if(!tier)throw new Error('dealership-service-tier-invalid');m.serviceTier=tier.id;for(const row of m.showrooms)row.monthlyPrice=row.servicePlans?tier.monthlyPrice:0;return {tier:tier.id,monthlyPrice:tier.monthlyPrice};}
+const campaignRows=m=>globalThis.GH_BRANCH_CAMPAIGN.rows(m.showrooms,row=>row.active===true,(row,peers)=>campaignCost(m,row,peers));
+function campaignQuote(state){const m=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.quote(state,'dealership',campaignRows(m),CAMPAIGN_DAYS);}
+function companyCampaign(state,p){const m=ensure(state);return globalThis.GH_BRANCH_CAMPAIGN.launch(state,'dealership',m,campaignRows(m),p,CAMPAIGN_DAYS,cost=>{m.ytd.campaignCost+=cost;});}
 function showroomCampaign(state,p={}){
   const m=ensure(state),showroom=m.showrooms.find(row=>row.id===p.showroomId||row.facilityId===p.showroomId);if(!showroom)throw new Error('dealership-showroom-not-found');if(!showroom.active)throw new Error('dealership-showroom-inactive');
   const day=today(state);if(Number(showroom.campaignUntil)>day)throw new Error('dealership-campaign-running');
@@ -204,8 +207,11 @@ function* dayStages(state,p={}){
   const m=ensure(state),day=Math.max(0,Math.floor(Number(p.day??today(state))));if(m.lastProcessedDay>=day)return m.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
   const C=companies(),ops=C.dealerOps,data=state.customerCompanies.companies.dealership,B=base(),economy=typeof B.demandFactor==='function'?B.demandFactor(state,'cars'):1;
   if(m.showrooms.some(row=>row.active))ops.ensureSupplyAgreements(state);
-  const inventory=data.inventory,shares=modelShares(catalogue()),activeByCountry=new Map();for(const row of m.showrooms)if(row.active)activeByCountry.set(row.country,(activeByCountry.get(row.country)||0)+1);
+  let inventory=data.inventory;const shares=modelShares(catalogue()),activeByCountry=new Map();for(const row of m.showrooms)if(row.active)activeByCountry.set(row.country,(activeByCountry.get(row.country)||0)+1);
   let orders=[];if(m.showrooms.some(row=>row.active)&&(m.lastRestockDay<0||day-m.lastRestockDay>=RESTOCK_EVERY)){orders=restock(state,m,day,inventory,shares,activeByCountry,economy);m.lastRestockDay=day;}
+  // The inventory owner normalises/replaces its array while receiving a new SKU. Read that current array after buying,
+  // so the first delivery participates in today's sales and financing as well as in the stock display.
+  inventory=data.inventory;
   yield 'dealer-market:restock';
   const tier=SERVICE_TIERS[m.serviceTier],period=finance().calendarMonthForDay(day),oemBonus=settleOemQuarter(m,quarterOf(period)),oemTally=m.oemQuarter;
   // The maker's cost of each car sold is its cost of sales (no cash: the stock was paid when it was bought, as capital
@@ -267,8 +273,8 @@ function summary(state){
   const showrooms=Array.isArray(m.showrooms)?m.showrooms:[];
   return {unbilledSales:showrooms.reduce((sum,row)=>sum+num(row.unbilledSales)+num(row.dueSales),0),salesInvoices:showrooms.reduce((sum,row)=>sum+num(row.salesInvoices),0),showrooms:showrooms.length,activeShowrooms:showrooms.filter(row=>row.active).length,priceLevel:m.priceLevel,coverDays:m.coverDays,serviceTier:m.serviceTier,carsSold:showrooms.reduce((sum,row)=>sum+num(row.buyers),0)+num(m.ytd?.namedUnits),servicePlans:showrooms.reduce((sum,row)=>sum+num(row.servicePlans),0),stock,last:(m.dailyHistory||[])[0]||null,ytd:m.ytd?{...m.ytd}:null};
 }
-function execute(ctx,cmd,p={}){const state=ctx.state||ctx;switch(cmd){case'set-price':return setPrice(state,p);case'set-cover':return setCover(state,p);case'set-floor-plan':return setFloorPlan(state,p);case'set-service-tier':return setServiceTier(state,p);case'showroom-campaign':return showroomCampaign(state,p);case'tick-day':return tickDay(state,p);default:throw new Error(`Unknown dealer market command: ${cmd}`);}}
+function execute(ctx,cmd,p={}){const state=ctx.state||ctx;switch(cmd){case'set-price':return setPrice(state,p);case'set-cover':return setCover(state,p);case'set-floor-plan':return setFloorPlan(state,p);case'set-service-tier':return setServiceTier(state,p);case'showroom-campaign':return showroomCampaign(state,p);case'showroom-campaigns':return companyCampaign(state,p);case'tick-day':return tickDay(state,p);default:throw new Error(`Unknown dealer market command: ${cmd}`);}}
 
-const API=Object.freeze({VERSION,PRICE_LEVELS,PRICE_LABELS,COVER_DAYS,SERVICE_TIERS,SERVICE_IDS,BUYERS,MAX_MARKET_SHARE,CAMPAIGN_DAYS,read,ensure,yearlyCapacity,campaignCost,catalogue,dayStages,tickDay,dailyResult,summary,execute});
+const API=Object.freeze({VERSION,PRICE_LEVELS,PRICE_LABELS,COVER_DAYS,SERVICE_TIERS,SERVICE_IDS,BUYERS,MAX_MARKET_SHARE,CAMPAIGN_DAYS,read,ensure,yearlyCapacity,campaignCost,campaignQuote,catalogue,dayStages,tickDay,dailyResult,summary,execute});
 globalThis.GH_DEALER_MARKET=API;if(globalThis.window&&window!==globalThis)window.GH_DEALER_MARKET=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

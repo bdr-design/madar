@@ -91,7 +91,7 @@ if(s.GH_FLEET_DATA.mode(state)!=='store')s.GH_MIGRATION_CORE.migrateFleet(state)
     return {victim};
   });
   await test('a commit whose text chunk the vault lost is refused, and the retry uploads it',async()=>{
-    const json=vault.saves.at(-1),victim=JSON.parse(json).stateCodec.chunks[0];vault.chunks.delete(victim);
+    const json=vault.saves.at(-1),victim=JSON.parse(json).stateCodec.chunks.find(id=>/\.t\./.test(id));assert(victim,'a sealed proof chunk is required');vault.chunks.delete(victim);
     state.saveRevision=(Number(state.saveRevision)||0)+1;
     await assert.rejects(()=>P.commitDurableState(state,{storageKey:key,prevalidated:true}),/Missing save chunk/);
     resetLog();const out=await P.commitDurableState(state,{storageKey:key,prevalidated:true});assert.equal(out.ok,true);

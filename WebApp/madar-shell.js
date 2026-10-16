@@ -14,7 +14,7 @@ const num=value=>Number.isFinite(Number(value))?Number(value).toLocaleString('en
 const go=(panel,arg)=>`data-go="${esc(panel)}"${arg===undefined||arg===null?'':` data-go-arg="${esc(JSON.stringify(arg))}"`}`;
 
 // ---- Companies ----------------------------------------------------------------------------------------------------
-const KIND_BY_CAPABILITY=Object.freeze([['asset.aircraft','air'],['asset.vessel','sea'],['asset.truck','road'],['operations.mobility','mobility'],['operations.energy','power'],['operations.bank','bank'],['operations.insurance','insurance'],['operations.realestate','realestate'],['operations.telecom','telecom'],['operations.dealer','dealership']]);
+const KIND_BY_CAPABILITY=Object.freeze([['asset.aircraft','air'],['asset.vessel','sea'],['asset.truck','road'],['operations.mobility','mobility'],['operations.energy','power'],['operations.bank','bank'],['operations.insurance','insurance'],['operations.realestate','realestate'],['operations.telecom','telecom'],['operations.dealer','dealership'],['operations.hospitality','hospitality']]);
 function kindOf(state,id){let caps=[];try{caps=platform()?.definitionFor?.(state,id)?.capabilities||[];}catch(_error){}for(const [capability,kind] of KIND_BY_CAPABILITY)if(caps.includes(capability))return kind;return null;}
 function openedCompanies(state){let rows=[];try{rows=platform()?.listInstances?.(state,{includeGroup:false,openedOnly:true})||[];}catch(_error){}return rows.filter(row=>row?.operational&&kindOf(state,row.id));}
 function shortName(state,id){return globalThis.GH_IDENTITY?.shortName?.(state,id)||platform()?.resolveIdentity?.(state,id)?.shortName||String(id||'').toUpperCase();}
@@ -85,6 +85,11 @@ const KINDS=Object.freeze({
     {key:'network',title:'الشبكة والفروع',sub:'فتح الفروع من دليل المدن',img:'telecom-fiber',icon:'antenna',to:id=>['companyFacilities',id]},
     {key:'datacenter',title:'نظرة الشركة',sub:'التشغيل والإيراد والعملاء',img:'telecom-datacenter',icon:'datacenter',to:id=>['companyManage',{type:id,tab:'overview'}]},
     {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}],sub:'المدير التنفيذي والتوظيف'},FINANCE,BUDGET])}),
+  hospitality:Object.freeze({sector:'الفنادق والمنتجعات',hero:{key:'operations',title:'تشغيل الفنادق والمنتجعات',img:'realestate-hero',icon:'house',to:id=>['hospitality',{company:id,tab:'overview'}]},tiles:Object.freeze([
+    {key:'properties',title:'الفنادق والمنتجعات',sub:'المواقع والإنشاء والتشغيل',img:'realestate-villas',icon:'facilities',to:id=>['hospitality',{company:id,tab:'properties'}]},
+    {key:'reservations',title:'حجوزات المجموعات',sub:'الغرف والليالي والعقود',img:'realestate-mall',icon:'documents',to:id=>['hospitality',{company:id,tab:'reservations'}]},
+    {key:'settlements',title:'الإيرادات والتسويات',sub:'إقامة فعلية وتسويات يوم 15',img:'finance-budget',icon:'revenue',to:id=>['hospitality',{company:id,tab:'finance'}]},
+    {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}]},FINANCE,BUDGET])}),
   dealership:Object.freeze({sector:'وكالة السيارات',hero:{key:'operations',title:'المخزون والمبيعات',img:'auto-hero',icon:'car-sales',to:id=>['companyManage',{type:id,tab:'operations'}]},tiles:Object.freeze([
     {key:'service',title:'خطط الخدمة والتمويل',sub:'خطط الصيانة وتسوية البيع الممول',img:'auto-service',icon:'car-service',to:id=>['companyManage',{type:id,tab:'operations'}]},
     {key:'showrooms',title:'المعارض والفروع',sub:'فتح فرع من دليل المدن',img:'auto-delivery',icon:'showroom',to:id=>['companyFacilities',id]},
@@ -113,13 +118,14 @@ const SECTION_OF=Object.freeze({groupHub:'group',companies:'group',groupManageme
 const HUBS=Object.freeze({groupHub:'group',financeHub:'finance',peopleHub:'people',leadershipHub:'leadership',systemHub:'system'});
 const HUB_TITLES=Object.freeze({groupHub:'لوحة المجموعة',financeHub:'لوحة المال',peopleHub:'لوحة الأفراد',leadershipHub:'لوحة الإدارة',systemHub:'لوحة النظام'});
 // Pages that only exist inside one company: they follow the company that opened them.
-const COMPANY_PAGES=new Set(['company','companyMarket','operatingAssetMarket','assets','assetMarket','routes','globalRoute','companyFacilities','facilityManage','assetManage','mobilityAsset','contracts','maintenance','procurement','companyManage','energy','bank','insurance','realestate']);
+const COMPANY_PAGES=new Set(['hospitality','company','companyMarket','operatingAssetMarket','assets','assetMarket','routes','globalRoute','companyFacilities','facilityManage','assetManage','mobilityAsset','contracts','maintenance','procurement','companyManage','energy','bank','insurance','realestate']);
 const DEEP_KIND=Object.freeze({energy:'power',bank:'bank',insurance:'insurance',realestate:'realestate'});
 // Retired pages open their new home, so every old link, alert and task still lands somewhere real.
 const REDIRECTS=Object.freeze({control:['groupHub',null],governanceHub:['compliance',null],cyber:['compliance',null],safety:['compliance',null]});
 
 let installed=null,stickyCompany=null;
 function argCompany(state,panel,arg){
+  if(panel==='hospitality')return String(typeof arg==='string'?arg:arg?.company||'');
   if(panel==='company')return String(arg||'');
   if(['companyMarket','operatingAssetMarket'].includes(panel))return String(typeof arg==='string'?arg:arg?.company||'');
   if(DEEP_KIND[panel])return companyOfKind(state,DEEP_KIND[panel]);
@@ -139,6 +145,7 @@ const DEV_PAGES=new Set(['updates','diagnostics','controlPlane']),isRelease=()=>
 function redirect(panel,arg){if(!shown(panel))return ['settings',undefined];const target=REDIRECTS[panel];return target?[target[0],target[1]===null?undefined:target[1]]:null;}
 function rail(state,panel,arg){const place=locate(state,panel,arg);if(place.section==='company')return '';return SECTIONS[place.section]?.nav||'map';}
 function meta(state,panel,arg){
+  if(panel==='hospitality')return ['الفنادق والمنتجعات',shortName(state,argCompany(state,panel,arg))];
   if(panel==='companyMarket'||panel==='operatingAssetMarket')return [shortName(state,argCompany(state,panel,arg)),panel==='companyMarket'?'السوق والمنافسون':'شراء أعمال قائمة'];
   if(panel==='company'){const id=String(arg||''),kind=KINDS[kindOf(state,id)];return [kind?.sector||'الشركة',shortName(state,id)];}
   if(panel==='procurement')return ['العمليات','الطلبات قيد التسليم'];

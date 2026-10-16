@@ -7,7 +7,7 @@ const PANEL_ICONS=Object.freeze({
  map:'map',company:'dashboard',groupHub:'group',financeHub:'finance',systemHub:'settings',companies:'office',companyManage:'manage',groupManagement:'performance',formationContract:'charter',
  network:'directory',expansion:'facilities',companyFacilities:'facilities',facilityManage:'facilities',ports:'port',routes:'routes',globalRoute:'routes',
  assets:'fleet-all',assetMarket:'market',assetManage:'asset',mobilityAsset:'fleet-car',procurement:'deliveries',maintenance:'maintenance',contracts:'contracts',
- energy:'energy-dash',bank:'bank',insurance:'umbrella',realestate:'house',
+ energy:'energy-dash',bank:'bank',insurance:'umbrella',realestate:'house',hospitality:'house',
  finance:'finance',monthlyFinance:'monthly-income',treasury:'treasury',budgets:'budget',invoices:'documents',market:'markets',stocks:'stocks',
  leadershipHub:'leadership',actionCenter:'tasks',peopleHub:'people',labor:'people-dash',crews:'crews',compliance:'safety',conference:'conference',research:'research',esg:'esg',businessWorld:'relations',realism:'economy',news:'news',
  settings:'settings',investorMode:'treasury',updates:'updates',diagnostics:'diagnostics',controlPlane:'control-plane'

@@ -24,6 +24,7 @@
       'real-estate-v1':['GH_REALESTATE_CORE'],
       'telecom-customer-v1':['GH_CUSTOMER_COMPANIES_CORE'],
       'dealership-retail-v1':['GH_CUSTOMER_COMPANIES_CORE']
+      ,'hospitality-stays-v1':['GH_HOSPITALITY_CORE']
     }),
     finance:Object.freeze({
       'group-treasury-v1':['GH_FINANCE_CORE'],
@@ -44,6 +45,7 @@
       'mobility-network-v1':['GH_FACILITY_CORE','GH_MOBILITY_CORE'],
       'insurance-network-v1':['GH_FACILITY_CORE','GH_INSURANCE_CORE'],
       'realestate-network-v1':['GH_FACILITY_CORE','GH_REALESTATE_CORE']
+      ,'hospitality-facilities-v1':['GH_HOSPITALITY_CORE','GH_FACILITY_CORE']
     }),
     map:Object.freeze({
       'company-map-v1':['GH_MAP_FEATURE_CORE','GH_MAP_LAYER_REGISTRY'],
@@ -57,6 +59,7 @@
       'energy-company-v1':['GH_CONFERENCE','GH_CONF_MODEL'],
       'bank-company-v1':['GH_CONFERENCE','GH_CONF_MODEL'],
       'mobility-company-v1':['GH_CONFERENCE','GH_CONF_MODEL']
+      ,'hospitality-company-v1':['GH_HOSPITALITY_CORE']
     }),
     documents:Object.freeze({
       'legal-documents-v1':['GH_DOCUMENT_PROOF','GH_AUTHORIZATION']

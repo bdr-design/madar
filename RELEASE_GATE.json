@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+  "source_tree_sha256": "80592f601ffcbc496fac7f34bd2a36bd822dc153ed91a154133d31ca4fbf3a64",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -14,7 +14,7 @@
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
     "Mobility centers deliberately retain the 3,000-vehicle cap: each vehicle synchronously creates driver and HR records, and this separate engine has not been redesigned or profiled at million scale.",
-    "Same game runtime passed the previous 394 local gates. Revised host-independent test fixtures and mandatory early iPhoneOS diagnostics type-check require fresh full current-contract local/macOS/native/IPA acceptance. First macOS run passed 392/394 and produced no approved IPA. Physical iPhone profiling and general 99% accuracy remain unverified; production approval stays closed."
+    "Current integrated source passed all 419 source gates with unchanged runtime and gate fingerprints. Fresh native CI, iPhoneOS compilation and IPA verification remain pending; physical iPhone performance is unverified."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -22,13 +22,13 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "PASS_LOCAL_CURRENT_378_OF_378; fresh Apple validation pending",
-    "native_swift_tests": "DIRECT_CI_PASS",
+    "full_source_acceptance": "PASS_419_OF_419_CURRENT_SOURCE",
+    "native_swift_tests": "PENDING_FRESH_MACOS_CI_CURRENT_SOURCE",
     "physical_iphone_profile": "PENDING",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
     "manual_advance_frame_budget": "SLICE_LIMIT_IMPLEMENTED; 1,500-event window estimate; target-device frame timing pending",
     "release_approval": "CLOSED",
-    "browser_and_lint": "DIRECT_CI_CHROMIUM_WEBKIT_AND_ESLINT_PASS",
+    "browser_and_lint": "PASS_CURRENT_419_GATE_CONTRACT_CHROMIUM_WEBKIT_AND_LINT",
     "native_bridge_extracted_js": "DIRECT_CI_PASS; native storage and WKWebView checks pass",
     "build358_air_sea_dispatch": "LOCAL_PASS; store-mode air and sea bulk dispatch assigns every asset (browser test)",
     "build358_row_level_slice_snapshots": "LOCAL_PASS; steady/hour slices snapshot only written roots, enforced write sets over 288 slices, exact rollback of failed steady/hour/day slices",
@@ -47,7 +47,7 @@
     "build358_fleet_purchase_vat": "LOCAL_PASS; aircraft, ship and truck purchases are zero-rated (as Mobility vehicles and asset sales were), so trip VAT accrues and comes due at the month close; older saves have the fleet-purchase input VAT reversed once on load (open period, then carried credit, never more than held; cash unchanged)",
     "business_options_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE; 18 phone viewport cases passed; physical iPhone pending",
     "financial_fixes_local": "PASS; delivered direct/financed dealer sale P&L, technical stock safeguards, cent-precision VAT, registered tax IDs, branch-country/activity routing; Chromium/WebKit reload/duplicate and 13-company tax settlement checks",
-    "current_candidate_native": "PENDING_CI; mandatory exact-source gh://app WKWebView save-worker/pipeline gate, native vault tests and WKWebView origin checks before fresh IPA",
+    "current_candidate_native": "NOT_RUN_CURRENT_SOURCE; awaiting owner instruction",
     "performance_batch1_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE_AND_LINT; independent bounded checksum/base64 worker; exact validation reuse; one fresh validated sliced retry; repeated writes refused",
     "performance_pipeline_local": "TARGETED_PASS_CHROMIUM_WEBKIT; bounded deferred lookahead, stale/failure refusal and retry, monthly tax save/reload; full acceptance pending"
   },
@@ -78,15 +78,16 @@
       "archive_bytes": 13328190,
       "expires_at": "2026-11-01T02:41:51Z"
     },
-    "physical_iphone_tested": false
+    "physical_iphone_tested": false,
+    "applies_to_current_source": false
   },
   "source_tracking": {
     "mode": "direct_git_tracked_branch",
     "branch": "codex/financial-audit-20261014",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
+    "source_tree_sha256": "80592f601ffcbc496fac7f34bd2a36bd822dc153ed91a154133d31ca4fbf3a64",
     "working_tree_clean": false,
-    "note": "Acceptance follow-up on unchanged game runtime. Previous local full suite passed 394/394; first macOS CI passed 392/394, failing two host/timing-dependent test fixtures. Corrected the missing document host and made cancellation assert the complete committed transaction baseline; added a mandatory early iPhoneOS API type-check. Six focused suites pass. Current complete local and macOS reruns remain mandatory before IPA; physical iPhone/production approval remains pending.",
+    "note": "Integrated business, memory/navigation, map display, non-fleet accounting, confirmation, save deduplication, differential persistence, cooperative snapshot and linked hospitality fixes. Owner authorised full current-source acceptance, repository push and a fresh test IPA on 2026-10-16. Production and physical iPhone validation remain unapproved/unverified.",
     "news_work": {
       "local_targeted_checks": {
         "passed": 14,
@@ -127,7 +128,8 @@
         "total": 378,
         "source_tree_sha256": "478acc5121a2bf6c232b81766c855c80cd2d13f8f1ec56498d4e748c47a5a962",
         "acceptance_contract_sha256": "5dd57562744ce11ec73b15e1aa3f21d9a62cf6225ebe6a4eb6f7fdb8c8ee7092"
-      }
+      },
+      "historical_not_current_acceptance": true
     },
     "delivery_382": {
       "authorised": true,
@@ -143,7 +145,8 @@
       "native_validation": "PENDING_FRESH_CI",
       "ipa_built": false,
       "physical_iphone_tested": false,
-      "production_approved": false
+      "production_approved": false,
+      "historical_not_current_acceptance": true
     },
     "delivery_382_followup": {
       "source_runtime_unchanged": true,
@@ -161,10 +164,395 @@
       "corrected_fixture_suites_passed": 6,
       "mandatory_early_native_typecheck": true,
       "full_current_contract_acceptance": "PENDING",
+      "production_approved": false,
+      "historical_not_current_acceptance": true
+    },
+    "business_fixes_20261015": {
+      "status": "LOCAL_FOCUSED_CHECKS_PASS",
+      "report": "docs/BUSINESS_FIXES_20261015_AR.md",
+      "full_acceptance": "NOT_RUN_WAITING_OWNER",
+      "mandatory_gates": 395,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "pushed": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "historical_not_full_current_acceptance": true
+    },
+    "memory_navigation_20261015": {
+      "status": "LOCAL_FOCUSED_CHECKS_PASS",
+      "report": "docs/MEMORY_NAVIGATION_FIXES_20261015_AR.md",
+      "mandatory_gates": 398,
+      "focused_suites_passed": 8,
+      "full_acceptance": "NOT_RUN_WAITING_OWNER",
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "pushed": false,
+      "ci_started": false,
+      "ipa_built": false
+    },
+    "map_company_limit_20261015": {
+      "status": "LOCAL_FOCUSED_CHECKS_PASS",
+      "report": "docs/MAP_COMPANY_DISPLAY_LIMIT_20261015_AR.md",
+      "per_company_display_limit": 50,
+      "existing_shared_adaptive_limit_preserved": true,
+      "selected_counts_inside_company_limit": true,
+      "mandatory_gates": 400,
+      "focused_suites_passed": 5,
+      "full_acceptance": "NOT_RUN_WAITING_OWNER",
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "pushed": false,
+      "ci_started": false,
+      "ipa_built": false
+    },
+    "nonfleet_revenue_fixes_20261015": {
+      "status": "LOCAL_FOCUSED_CHECKS_PASS",
+      "report": "docs/NONFLEET_REVENUE_FIXES_20261015_AR.md",
+      "mandatory_gates": 404,
+      "focused_suites_passed": 12,
+      "full_acceptance": "NOT_RUN_WAITING_OWNER",
+      "per_day_installment_cap": 25,
+      "cooperative_receipt_steps": true,
+      "daily_close_stays_atomic": true,
+      "historical_cash_not_guessed_or_reversed": true,
+      "historical_interest_reconciliation": "PENDING_CURRENT_SAVE_EVIDENCE",
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "pushed": false,
+      "ci_started": false,
+      "ipa_built": false
+    },
+    "construction_acceleration_save_fix_20261015": {
+      "status": "LOCAL_FOCUSED_CHECKS_PASS",
+      "report": "docs/CONSTRUCTION_ACCELERATION_SAVE_FIX_20261015_AR.md",
+      "mandatory_gates": 404,
+      "focused_suites_passed": 2,
+      "success_save_revision_delta_before": 2,
+      "success_save_revision_delta_after": 1,
+      "native_refusal_attempts_per_action": 1,
+      "companies": [
+        "power",
+        "realestate"
+      ],
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "remaining_duration_halved": true,
+      "fee_policy_unchanged": true,
+      "full_acceptance": "NOT_RUN_WAITING_OWNER",
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "pushed": false,
+      "ci_started": false,
+      "ipa_built": false
+    },
+    "confirmation_batch1_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/CONFIRMATION_FIX_BATCH1_20261015_AR.md",
+      "required_source_gates": 405,
+      "new_regression_tests": 1,
+      "primary_browser_results": 60,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "related_suites_passed": 3,
+      "production_files": [
+        "WebApp/app.js",
+        "WebApp/advanced-core.js",
+        "WebApp/conference-core.js"
+      ],
+      "native_ack_is_test_double": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_phases": [
+        "additional-save-requests",
+        "change-tracking",
+        "differential-persistence",
+        "snapshot-policy"
+      ]
+    },
+    "save_dedup_batch2_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/SAVE_DEDUP_BATCH2_20261015_AR.md",
+      "required_source_gates": 407,
+      "new_regression_tests": 2,
+      "audited_action_ids": 67,
+      "functional_groups": 12,
+      "isolated_handler_results": 205,
+      "primary_browser_results": 80,
+      "real_domain_action_types": 15,
+      "real_domain_success_results": 30,
+      "real_domain_native_refusal_results": 30,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "related_suites_passed": 3,
+      "production_files": [
+        "WebApp/app.js",
+        "WebApp/advanced-core.js",
+        "WebApp/domain-command-core.js"
+      ],
+      "notice_recorded_in_original_draft_before_validation_and_persistence": true,
+      "success_commit_attempts_per_tested_action": 1,
+      "success_save_revision_delta_per_tested_action": 1,
+      "manual_slot_world_writes": 1,
+      "manual_slot_package_writes": 1,
+      "pending_interaction_notice_limit": 16,
+      "pending_interaction_notices_flushed_as_one": true,
+      "native_ack_is_test_double": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "device_fps_improvement_measured": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_phases": [
+        "change-tracking",
+        "differential-persistence",
+        "snapshot-policy"
+      ]
+    },
+    "change_tracking_batch3_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/CHANGE_TRACKING_BATCH3_20261015_AR.md",
+      "required_source_gates": 409,
+      "new_regression_tests": 2,
+      "focused_suites_passed": 9,
+      "new_core_cases": 16,
+      "new_browser_results": 16,
+      "save_dedup_companion_results": 80,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "production_files": [
+        "WebApp/transaction-core.js",
+        "WebApp/persistence-core.js"
+      ],
+      "tested_source_hashes": {
+        "WebApp/transaction-core.js": "56e1b14ad5dd39f4347dd2e1d0a8f9b94a082337abc4c28afd5720b2838392e1",
+        "WebApp/persistence-core.js": "b85daa4bd1a7fbfee254705158b9d065fe997e03b38c412b9944f59a7e351563",
+        "tests/build388-change-tracking.cjs": "3333479d13d55c5a9a5d548dd1028628170752aad9c66fe3efd782045106dd52",
+        "tests/build388-change-tracking-browser.cjs": "3273eac7709b044f4e4efac5eebdbb1cfc4b7fc25957744674f0022a88d5af86"
+      },
+      "source_unchanged_during_tests": true,
+      "runtime_only_metadata": true,
+      "maximum_tracked_roots": 256,
+      "maximum_root_name_length": 128,
+      "coverage": "transaction-boundaries",
+      "root_semantics": "possible-write-roots",
+      "all_legacy_writers_certified": false,
+      "incremental_ready": false,
+      "full_snapshot_required": true,
+      "financial_save_policy_unchanged": true,
+      "per_frame_monitor_added": false,
+      "background_timer_added": false,
+      "synthetic_scoped_transaction_cost": {
+        "environment": "Node VM in cloud Linux; scoped synthetic transaction; no iPhone/FPS claim",
+        "node": "v24.19.0",
+        "measuredAt": "2026-10-15T23:17:36.701Z",
+        "rounds": 15,
+        "transactionsPerRound": 1000,
+        "beforeMedianMs": 0.013071461,
+        "afterMedianMs": 0.013869788,
+        "addedMedianMs": 0.0007983269999999997
+      },
+      "native_ack_is_test_double": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "device_fps_improvement_measured": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_phases": [
+        "differential-persistence",
+        "snapshot-policy"
+      ]
+    },
+    "differential_save_batches4_5_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/DIFFERENTIAL_SAVE_BATCHES4_5_20261015_AR.md",
+      "required_source_gates": 413,
+      "new_regression_tests": 4,
+      "updated_existing_tests": 1,
+      "focused_suites_passed": 12,
+      "new_differential_core_cases": 8,
+      "new_differential_browser_results": 20,
+      "new_cooperative_core_cases": 5,
+      "new_snapshot_browser_results": 12,
+      "save_dedup_companion_results": 80,
+      "change_tracking_companion_results": 16,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "production_files": [
+        "WebApp/state-codec-core.js",
+        "WebApp/persistence-core.js"
+      ],
+      "tested_source_hashes": {
+        "WebApp/state-codec-core.js": "9b3046960155e72170443dca85e2adc43f3c2f2d3aa1e99b41250e3a15544afc",
+        "WebApp/persistence-core.js": "fd729db922d49b6f89a4ed7e43cb8fbb2627e1512932a5e307f5fedf27cbd0b8",
+        "tests/build358-proof-chunks.cjs": "5ad96bb6857fc876066d6b9463469222386241e1ae37dd83e2c361bc4f3a4bb2",
+        "tests/build389-differential-collections.cjs": "709afa32ff60a157403ec1a736755dde9b09d64bd8333f415b5a6f2b16f96740",
+        "tests/build389-differential-browser.cjs": "64f80cdda03835aaded643e0e60eefe6d5772302478c7f064170c062a421b4e9",
+        "tests/build390-cooperative-snapshot.cjs": "d7122fb25e973621bdc0ec6b6d8bdc019525ed9367eed80daffca7da3985c33d",
+        "tests/build390-snapshot-browser.cjs": "8385bbe0f8a1953664bb778159bbd8cc04bb78899c21beddafb9290c72038ed0",
+        "tests/helpers/differential-vault-fixture.cjs": "1b018785757cb85053ecd644a2805adeb853f1bb6a2f5c0abeeb26807daa73c0"
+      },
+      "source_unchanged_during_tests": true,
+      "logical_snapshot": "complete_atomic_manifest",
+      "mutable_part_reuse_rule": "exact_serialized_text_equality",
+      "native_codec_version": "gh-shape-4",
+      "legacy_write_scopes_assumed_complete": false,
+      "global_change_tracking_incremental_ready": false,
+      "private_isolation_clone_retained": true,
+      "full_clone_shifted_outside_lock": false,
+      "open_text_cache_limit_utf16_units": 4194304,
+      "open_text_entry_limit_utf16_units": 524288,
+      "cache_over_budget_policy": "inline_complete_data_no_identity_churn",
+      "upload_knowledge_after_ack": "current_and_previous_committed_manifests",
+      "vault_files_deleted_by_this_change": false,
+      "json_string_piece_utf16_units": 16384,
+      "uploaded_text_utf8_input_piece_utf16_units": 65536,
+      "financial_save_policy_unchanged": true,
+      "player_checkpoint_cap_policy_unchanged": true,
+      "per_frame_monitor_added": false,
+      "background_timer_added": false,
+      "benchmark": {
+        "scope": "isolated desktop browser codec; five warm single-row edits; no disk/Swift/bridge/FPS claim; generators drained synchronously to measure individual step sizes",
+        "measured_at": "2026-10-15T23:47:59.103Z",
+        "source_hashes": {
+          "before": "c6549c5e49bf781b11fafc1399b538dc0aacc3fa99c318aeb8f7c15ea86f88fb",
+          "after": "9b3046960155e72170443dca85e2adc43f3c2f2d3aa1e99b41250e3a15544afc"
+        },
+        "summary": [
+          {
+            "engine": "chromium",
+            "phase": "before",
+            "measuredRounds": 5,
+            "codecWallMs": 10.700000017881393,
+            "maxGeneratorStepMs": 9.200000017881393,
+            "mainJSONBytes": 1717661,
+            "uploadedChunks": 0,
+            "uploadedChunkBytes": 0,
+            "totalTransportBytes": 1717661,
+            "steps": 9
+          },
+          {
+            "engine": "chromium",
+            "phase": "after",
+            "measuredRounds": 5,
+            "codecWallMs": 7.200000017881393,
+            "maxGeneratorStepMs": 1.4000000059604645,
+            "mainJSONBytes": 2027,
+            "uploadedChunks": 1,
+            "uploadedChunkBytes": 111475,
+            "totalTransportBytes": 113502,
+            "steps": 31
+          },
+          {
+            "engine": "webkit",
+            "phase": "before",
+            "measuredRounds": 5,
+            "codecWallMs": 9,
+            "maxGeneratorStepMs": 5.000000000000028,
+            "mainJSONBytes": 1717661,
+            "uploadedChunks": 0,
+            "uploadedChunkBytes": 0,
+            "totalTransportBytes": 1717661,
+            "steps": 9
+          },
+          {
+            "engine": "webkit",
+            "phase": "after",
+            "measuredRounds": 5,
+            "codecWallMs": 7,
+            "maxGeneratorStepMs": 1,
+            "mainJSONBytes": 2027,
+            "uploadedChunks": 1,
+            "uploadedChunkBytes": 111475,
+            "totalTransportBytes": 113502,
+            "steps": 31
+          }
+        ],
+        "device_fps_or_bridge_or_disk_measured": false
+      },
+      "native_ack_is_test_double": true,
+      "real_encoding_worker_tested": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_validation": [
+        "full_source_acceptance_when_authorized",
+        "native_build_and_native_vault_validation_when_authorized",
+        "physical_iPhone_profile"
+      ],
+      "remaining_performance_limitations": [
+        "uncertified_legacy_writers_require_complete_isolation_clone",
+        "synchronous_compatibility_manual_paths_remain"
+      ]
+    },
+    "hospitality_20261016": {
+      "status": "LOCAL_FULL_ACCEPTANCE_PASS_NATIVE_CI_PENDING",
+      "report": "docs/HOSPITALITY_IMPLEMENTATION_20261016_AR.md",
+      "required_source_gates": 419,
+      "new_required_commands": 6,
+      "authorization": {
+        "scope": "Merge all existing fixes, update and execute full gates, push the integrated source, build and deliver test IPA",
+        "requested_by_owner": "2026-10-16"
+      },
+      "settlement_day": 15,
+      "earned_revenue_and_vat": "actual_calendar_service_day",
+      "financial_books": "existing_one_per_legal_company",
+      "fleet_prices_and_customers_changed": false,
+      "continuous_monitor_added": false,
+      "background_timers_added": false,
+      "physical_iphone_tested": false,
+      "full_source_acceptance": {
+        "verified": true,
+        "passed": 419,
+        "total": 419,
+        "source_tree_sha256": "80592f601ffcbc496fac7f34bd2a36bd822dc153ed91a154133d31ca4fbf3a64",
+        "acceptance_contract_sha256": "0a1db88187201b912d16fa6d42ea6f0c8dd9dbc3cb311c9dbaf161f9ec451ff9"
+      },
+      "native_ci": "pending",
+      "push": "pending",
+      "ipa": "pending"
+    },
+    "integrated_delivery_20261016": {
+      "status": "LOCAL_FULL_ACCEPTANCE_PASS_NATIVE_CI_PENDING",
+      "authorised": true,
+      "scope": "All local business, memory/navigation, map, non-fleet accounting, construction, confirmation, save-deduplication, change-tracking, differential-storage and cooperative-snapshot fixes plus linked hospitality",
+      "local_source_evidence": {
+        "verified": true,
+        "passed": 419,
+        "total": 419,
+        "source_tree_sha256": "80592f601ffcbc496fac7f34bd2a36bd822dc153ed91a154133d31ca4fbf3a64",
+        "acceptance_contract_sha256": "0a1db88187201b912d16fa6d42ea6f0c8dd9dbc3cb311c9dbaf161f9ec451ff9"
+      },
+      "report": "docs/INTEGRATED_RELEASE_20261016_AR.md",
+      "native_validation": "PENDING_FRESH_CI",
+      "pushed": false,
+      "ipa_built": false,
+      "physical_iphone_tested": false,
       "production_approved": false
     }
   },
-  "point": "Acceptance follow-up on unchanged game runtime. Previous local full suite passed 394/394; first macOS CI passed 392/394, failing two host/timing-dependent test fixtures. Corrected the missing document host and made cancellation assert the complete committed transaction baseline; added a mandatory early iPhoneOS API type-check. Six focused suites pass. Current complete local and macOS reruns remain mandatory before IPA; physical iPhone/production approval remains pending.",
+  "point": "LOCAL_NONFLEET_CREDIT_AND_STOCK_FIXES_20261015_AWAITING_OWNER_FULL_VALIDATION",
   "local_business_options_evidence": {
     "validation_type": "targeted",
     "passed": 21,
@@ -310,11 +698,17 @@
     }
   },
   "local_full_source_evidence": {
-    "verified": false,
-    "status": "PENDING_CURRENT_TEST_CONTRACT_FULL_RERUN",
-    "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
-    "minimum_gates": 394,
-    "results": "/workspace/release-382-20261015/acceptance-04/results.json",
+    "verified": true,
+    "passed": 419,
+    "total": 419,
+    "source_tree_sha256": "80592f601ffcbc496fac7f34bd2a36bd822dc153ed91a154133d31ca4fbf3a64",
+    "acceptance_contract_sha256": "0a1db88187201b912d16fa6d42ea6f0c8dd9dbc3cb311c9dbaf161f9ec451ff9",
+    "status": "PASS_CURRENT_SOURCE",
+    "minimum_gates": 419,
+    "results": "/workspace/acceptance/hospitality-integrated-20261016-07/results.json",
+    "runtime_unchanged": true,
+    "gates_unchanged": true,
+    "node": "v24.19.0",
     "previous_full_pass": {
       "passed": 394,
       "total": 394,
@@ -323,7 +717,7 @@
     },
     "physical_iphone": "NOT_RUN",
     "current_native": "PENDING_FRESH_CI",
-    "ipa": "NOT_BUILT"
+    "ipa": "PENDING_BUILD"
   },
   "local_performance_pipeline_evidence": {
     "validation_type": "targeted_and_component_profile",
@@ -423,36 +817,353 @@
     "publish_authorized": true
   },
   "gates": {
-    "build380_construction_acceleration": "PASS_PREVIOUS_LOCAL_394_SUITE_SAME_RUNTIME; current test-contract reruns and native/device verification pending.",
+    "build380_construction_acceleration": "FOCUSED_LOCAL_PASS_CURRENT_SOURCE; core five checks and Chromium/WebKit real buttons, one commit, completion/revenue, both-company native-NACK rollback. Full/native-device acceptance not run.",
     "build381_manual_performance_trace": {
-      "status": "previous-local-source-pass-current-contract-reruns-native-device-pending",
-      "scope": "Manual bounded performance evidence, independent report retention, native sensor and vault source; no generative model or network",
-      "new_source_gates": 5,
-      "native_macos_gate": "performance-report-vault.swift mandatory before IPA in both workflows",
-      "full_source_acceptance_run": false,
-      "ios_native_compiled": false,
-      "physical_iphone_profiled": false,
-      "targeted_suites_passed": 20,
-      "targeted_suites_total": 20,
-      "synthetic_positive_scenarios": 1024,
-      "synthetic_clean_scenarios": 1024,
-      "synthetic_detected": 1024,
-      "synthetic_stage_correct": 1024,
-      "general_accuracy_99_verified": false,
+      "status": "REMOVED_AT_OWNER_REQUEST",
+      "historical_not_current_acceptance": true,
+      "runtime_and_ui_and_native_sources_removed": true,
+      "obsolete_tests_removed": 5,
+      "replacement_regression_tests": 6,
+      "general_accuracy_99_verified": false
+    },
+    "business_fixes_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "required_source_gates": 395,
+      "new_regression_tests": 6,
+      "full_suite_run": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "owner_permission_required_for_full_validation_and_delivery": true,
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "memory_navigation_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "required_source_gates": 398,
+      "new_regression_tests": 3,
+      "full_suite_run": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "map_company_limit_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "required_source_gates": 400,
+      "new_regression_tests": 2,
+      "full_suite_run": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "nonfleet_revenue_fixes_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "required_source_gates": 404,
+      "new_regression_tests": 4,
+      "full_suite_run": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "construction_acceleration_save_fix_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "required_source_gates": 404,
+      "updated_existing_regression_tests": 1,
+      "new_regression_tests": 0,
+      "full_suite_run": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "confirmation_batch1_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/CONFIRMATION_FIX_BATCH1_20261015_AR.md",
+      "required_source_gates": 405,
+      "new_regression_tests": 1,
+      "primary_browser_results": 60,
       "browser_engines": [
         "Chromium",
         "WebKit"
       ],
-      "native_hardware_tested": false,
-      "source_gate_floor": 394,
-      "previous_full_source_acceptance": {
-        "verified": true,
-        "passed": 394,
-        "total": 394,
-        "source_tree_sha256": "0452b65b103843eab4a28de0376489f4c24b7671f38c84103a0bc7b1cb42b1b8",
-        "acceptance_contract_sha256": "e8c94ddc3ee7747879088c57676a87dae0736a6154995353357af4c5b8465311"
+      "related_suites_passed": 3,
+      "production_files": [
+        "WebApp/app.js",
+        "WebApp/advanced-core.js",
+        "WebApp/conference-core.js"
+      ],
+      "native_ack_is_test_double": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_phases": [
+        "additional-save-requests",
+        "change-tracking",
+        "differential-persistence",
+        "snapshot-policy"
+      ],
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "save_dedup_batch2_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/SAVE_DEDUP_BATCH2_20261015_AR.md",
+      "required_source_gates": 407,
+      "new_regression_tests": 2,
+      "audited_action_ids": 67,
+      "functional_groups": 12,
+      "isolated_handler_results": 205,
+      "primary_browser_results": 80,
+      "real_domain_action_types": 15,
+      "real_domain_success_results": 30,
+      "real_domain_native_refusal_results": 30,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "related_suites_passed": 3,
+      "production_files": [
+        "WebApp/app.js",
+        "WebApp/advanced-core.js",
+        "WebApp/domain-command-core.js"
+      ],
+      "notice_recorded_in_original_draft_before_validation_and_persistence": true,
+      "success_commit_attempts_per_tested_action": 1,
+      "success_save_revision_delta_per_tested_action": 1,
+      "manual_slot_world_writes": 1,
+      "manual_slot_package_writes": 1,
+      "pending_interaction_notice_limit": 16,
+      "pending_interaction_notices_flushed_as_one": true,
+      "native_ack_is_test_double": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "device_fps_improvement_measured": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_phases": [
+        "change-tracking",
+        "differential-persistence",
+        "snapshot-policy"
+      ],
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "change_tracking_batch3_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/CHANGE_TRACKING_BATCH3_20261015_AR.md",
+      "required_source_gates": 409,
+      "new_regression_tests": 2,
+      "focused_suites_passed": 9,
+      "new_core_cases": 16,
+      "new_browser_results": 16,
+      "save_dedup_companion_results": 80,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "production_files": [
+        "WebApp/transaction-core.js",
+        "WebApp/persistence-core.js"
+      ],
+      "tested_source_hashes": {
+        "WebApp/transaction-core.js": "56e1b14ad5dd39f4347dd2e1d0a8f9b94a082337abc4c28afd5720b2838392e1",
+        "WebApp/persistence-core.js": "b85daa4bd1a7fbfee254705158b9d065fe997e03b38c412b9944f59a7e351563",
+        "tests/build388-change-tracking.cjs": "3333479d13d55c5a9a5d548dd1028628170752aad9c66fe3efd782045106dd52",
+        "tests/build388-change-tracking-browser.cjs": "3273eac7709b044f4e4efac5eebdbb1cfc4b7fc25957744674f0022a88d5af86"
       },
-      "early_iphoneos_api_typecheck": "mandatory-before-full-source-suite-in-both-workflows"
+      "source_unchanged_during_tests": true,
+      "runtime_only_metadata": true,
+      "maximum_tracked_roots": 256,
+      "maximum_root_name_length": 128,
+      "coverage": "transaction-boundaries",
+      "root_semantics": "possible-write-roots",
+      "all_legacy_writers_certified": false,
+      "incremental_ready": false,
+      "full_snapshot_required": true,
+      "financial_save_policy_unchanged": true,
+      "per_frame_monitor_added": false,
+      "background_timer_added": false,
+      "synthetic_scoped_transaction_cost": {
+        "environment": "Node VM in cloud Linux; scoped synthetic transaction; no iPhone/FPS claim",
+        "node": "v24.19.0",
+        "measuredAt": "2026-10-15T23:17:36.701Z",
+        "rounds": 15,
+        "transactionsPerRound": 1000,
+        "beforeMedianMs": 0.013071461,
+        "afterMedianMs": 0.013869788,
+        "addedMedianMs": 0.0007983269999999997
+      },
+      "native_ack_is_test_double": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "device_fps_improvement_measured": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_phases": [
+        "differential-persistence",
+        "snapshot-policy"
+      ],
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "differential_save_batches4_5_20261015": {
+      "status": "FOCUSED_LOCAL_PASS_FULL_SUITE_NOT_RUN",
+      "report": "docs/DIFFERENTIAL_SAVE_BATCHES4_5_20261015_AR.md",
+      "required_source_gates": 413,
+      "new_regression_tests": 4,
+      "updated_existing_tests": 1,
+      "focused_suites_passed": 12,
+      "new_differential_core_cases": 8,
+      "new_differential_browser_results": 20,
+      "new_cooperative_core_cases": 5,
+      "new_snapshot_browser_results": 12,
+      "save_dedup_companion_results": 80,
+      "change_tracking_companion_results": 16,
+      "browser_engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "production_files": [
+        "WebApp/state-codec-core.js",
+        "WebApp/persistence-core.js"
+      ],
+      "tested_source_hashes": {
+        "WebApp/state-codec-core.js": "9b3046960155e72170443dca85e2adc43f3c2f2d3aa1e99b41250e3a15544afc",
+        "WebApp/persistence-core.js": "fd729db922d49b6f89a4ed7e43cb8fbb2627e1512932a5e307f5fedf27cbd0b8",
+        "tests/build358-proof-chunks.cjs": "5ad96bb6857fc876066d6b9463469222386241e1ae37dd83e2c361bc4f3a4bb2",
+        "tests/build389-differential-collections.cjs": "709afa32ff60a157403ec1a736755dde9b09d64bd8333f415b5a6f2b16f96740",
+        "tests/build389-differential-browser.cjs": "64f80cdda03835aaded643e0e60eefe6d5772302478c7f064170c062a421b4e9",
+        "tests/build390-cooperative-snapshot.cjs": "d7122fb25e973621bdc0ec6b6d8bdc019525ed9367eed80daffca7da3985c33d",
+        "tests/build390-snapshot-browser.cjs": "8385bbe0f8a1953664bb778159bbd8cc04bb78899c21beddafb9290c72038ed0",
+        "tests/helpers/differential-vault-fixture.cjs": "1b018785757cb85053ecd644a2805adeb853f1bb6a2f5c0abeeb26807daa73c0"
+      },
+      "source_unchanged_during_tests": true,
+      "logical_snapshot": "complete_atomic_manifest",
+      "mutable_part_reuse_rule": "exact_serialized_text_equality",
+      "native_codec_version": "gh-shape-4",
+      "legacy_write_scopes_assumed_complete": false,
+      "global_change_tracking_incremental_ready": false,
+      "private_isolation_clone_retained": true,
+      "full_clone_shifted_outside_lock": false,
+      "open_text_cache_limit_utf16_units": 4194304,
+      "open_text_entry_limit_utf16_units": 524288,
+      "cache_over_budget_policy": "inline_complete_data_no_identity_churn",
+      "upload_knowledge_after_ack": "current_and_previous_committed_manifests",
+      "vault_files_deleted_by_this_change": false,
+      "json_string_piece_utf16_units": 16384,
+      "uploaded_text_utf8_input_piece_utf16_units": 65536,
+      "financial_save_policy_unchanged": true,
+      "player_checkpoint_cap_policy_unchanged": true,
+      "per_frame_monitor_added": false,
+      "background_timer_added": false,
+      "benchmark": {
+        "scope": "isolated desktop browser codec; five warm single-row edits; no disk/Swift/bridge/FPS claim; generators drained synchronously to measure individual step sizes",
+        "measured_at": "2026-10-15T23:47:59.103Z",
+        "source_hashes": {
+          "before": "c6549c5e49bf781b11fafc1399b538dc0aacc3fa99c318aeb8f7c15ea86f88fb",
+          "after": "9b3046960155e72170443dca85e2adc43f3c2f2d3aa1e99b41250e3a15544afc"
+        },
+        "summary": [
+          {
+            "engine": "chromium",
+            "phase": "before",
+            "measuredRounds": 5,
+            "codecWallMs": 10.700000017881393,
+            "maxGeneratorStepMs": 9.200000017881393,
+            "mainJSONBytes": 1717661,
+            "uploadedChunks": 0,
+            "uploadedChunkBytes": 0,
+            "totalTransportBytes": 1717661,
+            "steps": 9
+          },
+          {
+            "engine": "chromium",
+            "phase": "after",
+            "measuredRounds": 5,
+            "codecWallMs": 7.200000017881393,
+            "maxGeneratorStepMs": 1.4000000059604645,
+            "mainJSONBytes": 2027,
+            "uploadedChunks": 1,
+            "uploadedChunkBytes": 111475,
+            "totalTransportBytes": 113502,
+            "steps": 31
+          },
+          {
+            "engine": "webkit",
+            "phase": "before",
+            "measuredRounds": 5,
+            "codecWallMs": 9,
+            "maxGeneratorStepMs": 5.000000000000028,
+            "mainJSONBytes": 1717661,
+            "uploadedChunks": 0,
+            "uploadedChunkBytes": 0,
+            "totalTransportBytes": 1717661,
+            "steps": 9
+          },
+          {
+            "engine": "webkit",
+            "phase": "after",
+            "measuredRounds": 5,
+            "codecWallMs": 7,
+            "maxGeneratorStepMs": 1,
+            "mainJSONBytes": 2027,
+            "uploadedChunks": 1,
+            "uploadedChunkBytes": 111475,
+            "totalTransportBytes": 113502,
+            "steps": 31
+          }
+        ],
+        "device_fps_or_bridge_or_disk_measured": false
+      },
+      "native_ack_is_test_double": true,
+      "real_encoding_worker_tested": true,
+      "full_suite_run": false,
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "push": false,
+      "ci_started": false,
+      "ipa_built": false,
+      "remaining_validation": [
+        "full_source_acceptance_when_authorized",
+        "native_build_and_native_vault_validation_when_authorized",
+        "physical_iPhone_profile"
+      ],
+      "remaining_performance_limitations": [
+        "uncertified_legacy_writers_require_complete_isolation_clone",
+        "synchronous_compatibility_manual_paths_remain"
+      ],
+      "historical_snapshot": true,
+      "covered_by_current_source_acceptance": "integrated_delivery_20261016"
+    },
+    "integrated_delivery_20261016": {
+      "status": "SOURCE_PASS_NATIVE_PENDING",
+      "required_source_gates": 419,
+      "full_suite_run": true,
+      "local_source_evidence": {
+        "verified": true,
+        "passed": 419,
+        "total": 419,
+        "source_tree_sha256": "80592f601ffcbc496fac7f34bd2a36bd822dc153ed91a154133d31ca4fbf3a64",
+        "acceptance_contract_sha256": "0a1db88187201b912d16fa6d42ea6f0c8dd9dbc3cb311c9dbaf161f9ec451ff9"
+      },
+      "native_compiled": false,
+      "physical_iphone_tested": false,
+      "ipa_built": false,
+      "production_approved": false
     }
   }
 }

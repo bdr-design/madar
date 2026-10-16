@@ -141,6 +141,16 @@
   function knownRouteMode(mode,state,owner=''){return ROUTE_TYPES.has(mode)||globalThis.GH_COMPANY_PLATFORM?.isKnownRouteMode?.(mode)||(dataId(mode)&&owner&&object(state?.companyRegistry?.[owner]));}
   function knownAssetMode(mode,state,owner=''){return ROUTE_TYPES.has(mode)||globalThis.GH_COMPANY_PLATFORM?.ownerForLegacyAssetMode?.(mode)||(dataId(mode)&&owner&&object(state?.companyRegistry?.[owner]));}
   function routeSignature(route){const points=(Array.isArray(route?.route)?route.route:[]).filter(validPoint).map(point=>`${point[0].toFixed(5)},${point[1].toFixed(5)}`);if(points.length<2)return'';const a=points.join(';'),b=[...points].reverse().join(';');return `${routeOwner(route)||routeMode(route)}:${routeMode(route)}:${a<b?a:b}`;}
+  // Only transaction-owned, deeply sealed routes may reuse geometric evidence. Their company/shape checks still
+  // run on every validation. Mutable and merely shallow-frozen data is always read again. Weak keys retain no history.
+  const ROUTE_GEOMETRY_EVIDENCE=new WeakMap();
+  function routeGeometryEvidence(route,work){
+    const sealed=object(route)&&globalThis.GH_TRANSACTION_CORE?.isSealed?.(route)===true,cached=sealed?ROUTE_GEOMETRY_EVIDENCE.get(route):null;
+    if(cached){work.geometryCacheHits++;return cached;}
+    work.geometryChecks++;const points=Array.isArray(route?.route)?route.route:null;work.geometryPoints+=points?.length||0;
+    const valid=!!points&&points.length>=2&&points.length<=STATE_LIMITS.routePoints&&!points.some(point=>!validPoint(point))&&routeWithinBytes(route,STATE_LIMITS.routeBytes),evidence={valid,signature:routeSignature(route)};
+    if(sealed)ROUTE_GEOMETRY_EVIDENCE.set(route,evidence);return evidence;
+  }
   function retiredFeatureKey(){return String.fromCharCode(97,105);}
   function retiredPanelName(){return String.fromCharCode(105,110,116,101,108,108,105,103,101,110,99,101);}
   // Build 358: the catalogue is real models. An owned asset whose catalogue line was replaced takes the real model that
@@ -618,6 +628,7 @@
     const verificationCache={authorization:{proofs:new Map(),sealDigests:new Map(),mandateDigests:new Map()},documents:{records:new Map(),signedContentStable:new Map()}};verificationCache.documents.authorization=verificationCache.authorization;
     const legacyV2=String(s?.saveVersion||'')==='2.0.0'&&Array.isArray(s?.assets);const errors=[];if(!object(s))errors.push('root-not-object');if(String(s?.saveVersion||'')!==SAVE_SCHEMA_VERSION&&!legacyV2)errors.push('save-version');if(s?.saveRevision!==undefined&&(!finite(s.saveRevision)||Number(s.saveRevision)<0||!Number.isSafeInteger(Number(s.saveRevision))))errors.push('save-revision');if(s?.resetEpoch!==undefined&&(!finite(s.resetEpoch)||!Number.isSafeInteger(Number(s.resetEpoch))||Number(s.resetEpoch)<0))errors.push('reset-epoch');if(!finite(s?.simSeconds)||Number(s.simSeconds)<0)errors.push('sim-seconds');
     const fleetWork=metric.fleetWork={rootChecks:1,identityValidationCalls:1,conferenceValidationCalls:1,presentationValidationCalls:1,routeIdRows:0,routeRows:0,assetFieldVisits:0,idCollisionChecks:0,routeUserGroups:0,routeSignatureGroups:0,routeSignatureRows:0};
+    if(s.hospitality!==undefined){const owner=globalThis.GH_HOSPITALITY_CORE;if(!owner?.validationSteps)errors.push('hospitality-validator-missing');else{const steps=owner.validationSteps(s);for(;;){const step=steps.next();if(step.done){errors.push(...step.value.errors);break;}yield* pause('hospitality',{sections:1});}}}
     validateIdentityState(s,errors);validateConferenceLogoState(s,errors);const validateAssetPresentation=validatePresentationTextState(s,errors,false);
     const fleetMode=fleetData().mode(s);if(legacyV2?fleetMode==='none':(fleetMode!=='store'||Object.prototype.hasOwnProperty.call(s,'assets')))errors.push('fleet-store');if(!Array.isArray(s?.market))errors.push('market');if(!object(s?.finance)||!Array.isArray(s.finance.invoices)||!Array.isArray(s.finance.cheques)||!Array.isArray(s.finance.payables)||!Array.isArray(s.finance.receivables)||!Array.isArray(s.finance.periods))errors.push('finance');if(!object(s?.companyFinance))errors.push('company-finance');if(!object(s?.advanced))errors.push('advanced');
     // The fleet record ceiling is an admission rule (procurement refuses a purchase that would cross it). It is not a
@@ -626,12 +637,14 @@
     if(s?.speed!==undefined&&![0,1,2,3,4].includes(Number(s.speed)))errors.push('speed');
     const routes=Array.isArray(s?.customRoutes)?s.customRoutes:[],routeIds=new Set(BUILTIN_ROUTES),routeById=new Map(),routeSignatureGroups=new Map();
     if(routes.length>STATE_LIMITS.customRoutes)errors.push('route-capacity');
+    const routeWork=metric.routeWork={geometryChecks:0,geometryCacheHits:0,geometryPoints:0,yields:0};let routeSliceStarted=metricClock();
     for(const route of routes){
       fleetWork.routeRows++;
       const mode=routeMode(route),owner=routeOwner(route);if(!object(route)||!route.id||!knownRouteMode(mode,s,owner)||!dataId(owner)||!route.fromFacility||!route.toFacility||route.fromFacility===route.toFacility)errors.push('route-shape');if(object(route)&&route.fleetCapacity!==undefined&&!(Number.isSafeInteger(route.fleetCapacity)&&route.fleetCapacity>=1&&route.fleetCapacity<=8192))errors.push('route-shape');
-      if(!Array.isArray(route?.route)||route.route.length<2||route.route.length>STATE_LIMITS.routePoints||route.route.some(point=>!validPoint(point))||!routeWithinBytes(route,STATE_LIMITS.routeBytes))errors.push('route-geometry');
-      const signature=routeSignature(route);if(!signature)errors.push('route-geometry');else{const rows=routeSignatureGroups.get(signature)||[];rows.push(route);routeSignatureGroups.set(signature,rows);}
+      const geometry=routeGeometryEvidence(route,routeWork);if(!geometry.valid)errors.push('route-geometry');
+      const signature=geometry.signature;if(!signature)errors.push('route-geometry');else{const rows=routeSignatureGroups.get(signature)||[];rows.push(route);routeSignatureGroups.set(signature,rows);}
       if(route?.id){routeIds.add(route.id);if(!routeById.has(route.id))routeById.set(route.id,route);}
+      if(metricClock()-routeSliceStarted>=4){const pausedAt=metricClock();routeWork.yields++;yield 'fleet-route-geometry';const resumed=metricClock(),wait=Math.max(0,resumed-pausedAt);pausedMs+=wait;sectionStarted+=wait;routeSliceStarted=resumed;}
     }
     // routeUsers: routeId -> {users, stable (users that are not transitional), first: index and mode of the first user}.
     const routeUsers=new Map();let fleetLogicalRows=0,companyFleetValidation=null;

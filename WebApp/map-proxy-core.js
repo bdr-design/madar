@@ -161,16 +161,17 @@
     }
     return target;
   }
-  function selectRows(groups,limit,selected,radius,representatives){
+  function selectRows(groups,limit,selected,radius,representatives,perCompanyLimit){
     const selectedRegion=selected?.regionKey||null,target=apportion(groups,Math.min(limit,groups.reduce((sum,group)=>sum+group.rows.length,0)),selectedRegion,representatives),
-      keptByRegion=new Map(groups.map(group=>[group.key,0])),used=new Set(),result=[],
+      keptByRegion=new Map(groups.map(group=>[group.key,0])),keptByCompany=new Map(),used=new Set(),result=[],
       size=Math.max(1,radius),radius2=radius*radius,cells=new Map(),key=(x,y)=>`${x}:${y}`;
     const collides=point=>{const cx=Math.floor(point.x/size),cy=Math.floor(point.y/size);for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const list=cells.get(key(cx+dx,cy+dy));if(!list)continue;for(const other of list){const x=point.x-other.x,y=point.y-other.y;if(x*x+y*y<radius2)return true;}}return false;};
     const add=point=>{const k=key(Math.floor(point.x/size),Math.floor(point.y/size));let list=cells.get(k);if(!list){list=[];cells.set(k,list);}list.push(point);};
     const accept=row=>{
       if(!row||used.has(row))return false;used.add(row);
+      if((keptByCompany.get(row.owner)||0)>=perCompanyLimit)return false;
       if(radius>0&&row.screen&&collides(row.screen))return false;
-      if(radius>0&&row.screen)add(row.screen);result.push(row.value);keptByRegion.set(row.regionKey,(keptByRegion.get(row.regionKey)||0)+1);return true;
+      if(radius>0&&row.screen)add(row.screen);result.push(row.value);keptByCompany.set(row.owner,(keptByCompany.get(row.owner)||0)+1);keptByRegion.set(row.regionKey,(keptByRegion.get(row.regionKey)||0)+1);return true;
     };
     if(selected)accept(selected);
     const takeAccepted=group=>{
@@ -207,7 +208,8 @@
     const groups=[...regions.keys()].sort(compareText).map(key=>{const regionRows=regions.get(key);return {key,rows:regionRows,sequence:sequenceForRegion(regionRows)};}),
       radius=Math.max(0,Number(options.declutterRadius??options.radius)||0),zoom=number(options.zoom),globalZoom=number(options.globalZoom)??4,
       representatives=options.world===true||options.global===true||(options.world!==false&&options.global!==false&&(zoom==null||zoom<=globalZoom));
-    return selectRows(groups,limit,selected,radius,representatives);
+    const perCompanyLimit=options.perCompanyLimit==null||!Number.isFinite(Number(options.perCompanyLimit))?Infinity:Math.max(0,Math.floor(Number(options.perCompanyLimit)));
+    return selectRows(groups,limit,selected,radius,representatives,perCompanyLimit);
   }
   return Object.freeze({VERSION,allocate});
 });

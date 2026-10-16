@@ -114,12 +114,14 @@
     const decoders=Object.freeze({
       'world-airports':row=>({sourceKey:`air:${row[0]}`,name:row[2],city:row[3]||row[4]||'',code:row[1]||row[0],rawCountry:row[5],extra:[row[0],row[1],row[4]],details:{coords:[row[6],row[7]],icao:row[0],iata:row[1],countryCode:row[5],elevationFt:row[8],commercial:!!row[1]}}),
       'world-ports':row=>({sourceKey:`port:${row[0]}:${row[3]}:${row[4]}`,name:row[1],city:row[1],code:row[0],rawCountry:row[2],extra:[],details:{coords:[row[3],row[4]],terminal:!!row[5]}}),
-      'world-capitals':capital=>({sourceKey:`capital:${capital.id}`,capitalId:capital.id,name:capital.city,city:capital.city,code:capital.id,rawCountry:capital.country,extra:[],details:{coords:[...capital.coords]}})
+      'world-capitals':capital=>({sourceKey:`capital:${capital.id}`,capitalId:capital.id,name:capital.city,city:capital.city,code:capital.id,rawCountry:capital.country,extra:[],details:{coords:[...capital.coords]}}),
+      'world-hospitality':site=>({sourceKey:`hospitality:${site.id}`,capitalId:site.id,name:site.city,city:site.city,code:site.id,rawCountry:site.country,extra:[],details:{coords:[...site.coords]}})
     });
     const metadata=Object.freeze({
       'world-airports':row=>({sourceKey:`air:${row[0]}`,rawCountry:row[5]}),
       'world-ports':row=>({sourceKey:`port:${row[0]}:${row[3]}:${row[4]}`,rawCountry:row[2]}),
-      'world-capitals':capital=>({sourceKey:`capital:${capital.id}`,rawCountry:capital.country})
+      'world-capitals':capital=>({sourceKey:`capital:${capital.id}`,rawCountry:capital.country}),
+      'world-hospitality':site=>({sourceKey:`hospitality:${site.id}`,rawCountry:site.country})
     });
     function buildModel(provider,rows){
       const decode=decoders[provider],readMeta=metadata[provider],countryBuckets=new Map(),countryRows=new Map(),countryIds=new Set(),indexCountryIds=new Array(rows.length),cache={cityIds:null},seenKeys=new Set();
@@ -134,7 +136,7 @@
       const countryOptions=Object.freeze([...countryBuckets].map(([id,bucket])=>Object.freeze({id,label:countryRows.get(id)?.label||id,count:bucket.length,region:countryRegions.get(id)})).sort((a,b)=>compareLabels(a.label,b.label)||a.id.localeCompare(b.id)));
       return Object.freeze({provider,rows,decode,indexCountryIds,countryBuckets,countryOptions,countryRegions,countryIds:Object.freeze([...countryIds]),countryRows,cache});
     }
-    const sources=new Map([['world-airports',airports],['world-ports',ports],['world-capitals',capitals]]),models=new Map();
+    const sources=new Map([['world-airports',airports],['world-ports',ports],['world-capitals',capitals],['world-hospitality',globalThis.GH_HOSPITALITY_CORE?.destinations?.(capitals)||capitals]]),models=new Map();
     function modelFor(provider){if(models.has(provider))return models.get(provider);const rows=sources.get(provider);if(!rows)return null;const model=buildModel(provider,rows);models.set(provider,model);return model;}
     const definitionFor=(state,companyId)=>state?platform()?.definitionFor?.(state,companyId):platform()?.getDefinition?.(companyId);
     function companyIds(state){
@@ -151,7 +153,7 @@
       const base=model.decode(model.rows[index]),countryId=model.indexCountryIds[index],country=model.countryRows.get(countryId)||countries.resolve(base.rawCountry),city=String(base.city||'مدينة غير محددة'),cityId=`${countryId}:${normalize(city)}`;
       return {sourceKey:base.sourceKey,...(base.capitalId?{capitalId:base.capitalId}:{}),name:base.name,city,code:base.code,provider:model.provider,countryId,country:country.label,cityId,...(base.details||{}),searchText:`${normalize([base.sourceKey,base.name,city,base.code,...base.extra].join(' '))} ${countryTexts.get(countryId)||''}`};
     }
-    function project(row,companyId,definition){const key=row.provider==='world-capitals'?`site:${companyId}:${row.capitalId}`:row.sourceKey;return Object.freeze({...row,key,sourceKey:key,sourceProviderKey:row.sourceKey,company:companyId,companyId,ownerCompanyId:companyId,facilityKind:definition.facilities?.primaryKind||null});}
+    function project(row,companyId,definition){const key=['world-capitals','world-hospitality'].includes(row.provider)?`site:${companyId}:${row.capitalId}`:row.sourceKey;return Object.freeze({...row,key,sourceKey:key,sourceProviderKey:row.sourceKey,company:companyId,companyId,ownerCompanyId:companyId,facilityKind:definition.facilities?.primaryKind||null});}
     function segmentsFor(state,explicit){
       const out=[],ids=explicit==='all'?companyIds(state):[explicit];
       for(const companyId of ids){let required;try{required=requireDirectoryCompany(state,companyId);}catch(error){if(explicit!=='all')throw error;continue;}for(const provider of required.providers){const model=modelFor(provider);if(model)out.push({companyId,definition:required.definition,model});}}

@@ -20,6 +20,10 @@
   function serializeState(state){const codec=stateCodec();return codec?codec.serialize(state):JSON.stringify(state);}
   function decodeTree(tree){const codec=stateCodec();return codec?codec.decodeState(tree):tree;}
   function parseState(json){return decodeTree(JSON.parse(json));}
+  // Full saves remain full. Stamp the start of the serialized snapshot, then acknowledge only that stamp after the
+  // actual storage success. A later tracked write stays pending; failure/old acknowledgements cannot clear it.
+  function captureSaveChanges(state){const changes=globalThis.GH_TRANSACTION_CORE?.changeTracking;if(!changes)return null;changes.touch(state);return changes.capture(state);}
+  function acknowledgeSaveChanges(state,token){if(token)globalThis.GH_TRANSACTION_CORE?.changeTracking?.acknowledgeSnapshot(state,token);}
   const clock=()=>globalThis.performance?.now?.()??Date.now();
   const FLEET_MAIN_THREAD_ROWS=2048;
   // A recurring save may use a current compact worker answer. A synchronous caller asks the provider for cache only;
@@ -151,10 +155,17 @@
   // the upload runs, and a save must be one consistent instant), and uploadChunks sends them before the commit that
   // lists them. The vault refuses a commit whose chunks are missing; vaultChunks is cleared after any reset and any
   // such refusal, so the next save uploads again (an upload of a chunk the vault holds is checked and accepted).
-  const vaultChunks=new Set(),chunkPending=new Map();let chunkSequence=0;
+  const vaultChunks=new Set(),chunkPending=new Map();let chunkSequence=0,lastCommittedChunkIds=null;
   const CHUNK_ACK_TIMEOUT_MS=60000;
   function noteVaultChunks(ids){for(const id of Array.isArray(ids)?ids:[])if(typeof id==='string'&&id)vaultChunks.add(id);}
-  function forgetVaultChunks(){vaultChunks.clear();}
+  function forgetVaultChunks(){vaultChunks.clear();lastCommittedChunkIds=null;}
+  // Keep upload knowledge for the current and previous committed manifests, not every historic upload. Forgetting
+  // an id never deletes a vault file: a manual slot/older world can safely reupload it if needed.
+  function acknowledgeVaultChunks(save){
+    if(!save?.chunked)return;const current=new Set(save.chunkIds),prior=lastCommittedChunkIds;
+    for(const id of vaultChunks)if(!current.has(id)&&!prior?.has(id))vaultChunks.delete(id);
+    lastCommittedChunkIds=current;
+  }
   function chunkedNative(state){return !!bridgeFor('commitSave')&&typeof stateCodec()?.serializeChunked==='function'&&Object.prototype.toString.call(state?.fleet?.rows)==='[object ArrayBuffer]';}
   function copyChunkBytes(state,chunk){
     if(stateCodec()?.isPreparedChunk?.(chunk))return chunk.data;
@@ -216,15 +227,23 @@
     }
     const uploads=[];for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id)){
       if(externalChecksums&&Number.isInteger(chunk.byteOffset)&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
-      uploads.push({id:chunk.id,bytes:copyChunkBytes(state,chunk)});
+      const bytes=typeof chunk.text==='string'?await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing):copyChunkBytes(state,chunk);
+      uploads.push({id:chunk.id,bytes});
     }
     return {json:out.text,uploads,chunked:true,chunkIds:out.chunks.map(chunk=>chunk.id)};
   }
-  // UTF-8 in pieces of up to 1M UTF-16 units, never splitting a surrogate pair: the bytes of TextEncoder.encode(text).
-  function* utf8Steps(text){
-    if(typeof TextEncoder==='undefined')return null;const encoder=new TextEncoder(),out=new Uint8Array(text.length*3),PIECE=1<<20;let read=0,written=0;
-    while(read<text.length){let end=Math.min(text.length,read+PIECE);if(end<text.length){const code=text.charCodeAt(end-1);if(code>=0xD800&&code<=0xDBFF)end--;}const r=encoder.encodeInto(text.slice(read,end),out.subarray(written));if(r.read!==end-read)throw new Error('utf8-encode-incomplete');read=end;written+=r.written;yield;}
-    return out.slice(0,written);
+  // Encode once in bounded pieces, then join into one exact-size buffer. Never split a surrogate pair.
+  // The previous 3 * UTF-16-length buffer plus a full final slice could retain far more bytes than the save itself.
+  function* utf8Steps(text,{chunk=false}={}){
+    if(typeof TextEncoder==='undefined')return null;const encoder=new TextEncoder(),PIECE=1<<16;
+    if(text.length<=PIECE)return encoder.encode(text);
+    const parts=[];let read=0,total=0;
+    while(read<text.length){let end=Math.min(text.length,read+PIECE);if(end<text.length){const code=text.charCodeAt(end-1);if(code>=0xD800&&code<=0xDBFF)end--;}const part=encoder.encode(text.slice(read,end));parts.push(part);total+=part.byteLength;read=end;yield;}
+    // Envelope and chunk limits are distinct in the existing vault protocol (30 MiB / 64 MiB).
+    if(chunk){if(total>64*1024*1024)throw new Error('save-chunk-too-large');}else inspectNativeJSON(text,{byteLength:total});
+    const out=new Uint8Array(total);let written=0;
+    for(let at=0;at<parts.length;at++){const part=parts[at];out.set(part,written);written+=part.byteLength;parts[at]=null;yield;}
+    return out;
   }
   function receiveChunkAck(detail={}){
     const row=chunkPending.get(detail.requestId);if(!row)return false;
@@ -256,7 +275,7 @@
   }
   async function uploadChunks(uploads){
     const started=clock();let bytes=0;
-    for(const upload of uploads||[]){if(vaultChunks.has(upload.id))continue;await uploadChunk(upload.id,upload.bytes);vaultChunks.add(upload.id);bytes+=upload.bytes.byteLength;}
+    for(const upload of uploads||[]){if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}const size=upload.bytes.byteLength;await uploadChunk(upload.id,upload.bytes);vaultChunks.add(upload.id);bytes+=size;upload.bytes=null;}
     if(uploads?.length)rememberTiming({kind:'chunk-upload',chunks:uploads.length,bytes,ms:Math.max(0,clock()-started)});
   }
   // A commit refused for a missing chunk means vaultChunks was stale: forget it so the next save uploads its chunks.
@@ -302,12 +321,12 @@
     if(recoveryRequired)return {ok:false,reason:'memory-recovery-required'};
     const nativeBridge=!!bridgeFor('commitSave'),previousRevision=Math.max(0,Math.floor(Number(state?.saveRevision)||0)),nextRevision=previousRevision+1,syncStart=clock();
     const timing={kind:'ordinary-save',saveRevision:nextRevision,nativeBridge,schemaMs:0,stringifyMs:0,measurementMs:0,browserCacheMs:0,totalSyncMs:0,utf8Bytes:null,cacheReason:null,ok:false};
-    let json,measurement,resetEpoch,cache=null,encoded=null,nativeSave=null;
+    let json,measurement,resetEpoch,cache=null,encoded=null,nativeSave=null,changeToken=null;
     try{
       if(!state||typeof state!=='object')throw new Error('state-required');
       state.saveRevision=nextRevision;
       let stageStart=clock();assertRecurringState(state);timing.schemaMs=Math.max(0,clock()-stageStart);
-      stageStart=clock();nativeSave=nativeBridge?serializeNative(state):null;json=nativeSave?nativeSave.json:serializeState(state);timing.stringifyMs=Math.max(0,clock()-stageStart);timing.chunkUploads=nativeSave?.uploads.length||0;resetEpoch=Number(state.resetEpoch)||0;
+      stageStart=clock();changeToken=captureSaveChanges(state);nativeSave=nativeBridge?serializeNative(state):null;json=nativeSave?nativeSave.json:serializeState(state);timing.stringifyMs=Math.max(0,clock()-stageStart);timing.chunkUploads=nativeSave?.uploads.length||0;resetEpoch=Number(state.resetEpoch)||0;
       stageStart=clock();encoded=nativeBridge?utf8(json):null;measurement=nativeBridge?inspectNativeJSON(json,encoded):inspectJSON(json,storageKey,options);timing.measurementMs=Math.max(0,clock()-stageStart);timing.utf8Bytes=measurement.utf8Bytes;
       stageStart=clock();
       if(nativeBridge){
@@ -321,10 +340,10 @@
       timing.browserCacheMs=Math.max(0,clock()-stageStart);timing.cacheReason=cache?.ok===false?cache.reason:null;timing.ok=true;timing.totalSyncMs=Math.max(0,clock()-syncStart);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'save.prepare',syncStart,clock());lastSaveBreakdown=rememberTiming(timing);lastSaveAtMs=clock();
     }catch(error){state.saveRevision=previousRevision;timing.totalSyncMs=Math.max(0,clock()-syncStart);timing.error=String(error.message||error);lastSaveBreakdown=rememberTiming(timing);return {ok:false,reason:`serialization-or-schema:${error.message||error}`,...error.measurement};}
     const out={ok:true,json,...measurement,browserCache:cache?.ok!==false,cacheReason:cache?.ok===false?cache.reason:null,previous:cache?.previous??null,saveRevision:nextRevision};
-    if(!nativeBridge){ordinaryError=null;return out;}
+    if(!nativeBridge){ordinaryError=null;acknowledgeSaveChanges(state,changeToken);return out;}
     const nativeMetadata={appVersion,...options,saveRevision:nextRevision,resetEpoch,saveSchemaVersion:saveSchemaVersion(state)};
     const work=Promise.resolve().then(()=>{if(recoveryRequired)throw new Error('native-recovery-required');return uploadChunks(nativeSave?.uploads);}).then(()=>requestNative('commitSave',json,{...nativeMetadata,encoded})).catch(error=>{throw noteNativeRefusal(error);});
-    ordinaryInFlight=work.then(ack=>{ordinaryError=null;return ack;},error=>{
+    ordinaryInFlight=work.then(ack=>{ordinaryError=null;acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);return ack;},error=>{
       ordinaryError=error;
       if(cache?.ok)try{if(localStorage.getItem(storageKey)===json)restoreRaw(storageKey,cache.previous);}catch(e){error.rollbackError=String(e.message||e);}
       const uncertainNative=error.code==='ACK_TIMEOUT';recoveryRequired=true;status({ok:false,reason:error.message,critical:!!error.rollbackError,requiresMemoryRollback:false,requiresNativeReconciliation:true,storageKey});return {ok:false,reason:error.message,uncertainNative};
@@ -362,16 +381,16 @@
     try{
       await waitOrdinaryIdle({supersedeDirty:true});
       const durableTiming={kind:'durable-save',saveRevision:Number(state?.saveRevision)||0,schemaMs:0,stringifyMs:0,measurementMs:0,totalSyncMs:0,utf8Bytes:null,ok:false};let stageStart=clock();const syncStart=stageStart;
-      assertRecurringState(state,{prevalidated:options.prevalidated===true});durableTiming.schemaMs=Math.max(0,clock()-stageStart);stageStart=clock();const nativeBridge=!!bridgeFor('commitSave'),sliced=nativeBridge&&typeof yieldToFrame==='function'?{busyMs:0,slices:0,retakes:0}:null,nativeSave=nativeBridge?(sliced?await serializeNativeSliced(state,yieldToFrame,sliced):serializeNative(state)):null,json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
+      assertRecurringState(state,{prevalidated:options.prevalidated===true});durableTiming.schemaMs=Math.max(0,clock()-stageStart);stageStart=clock();const changeToken=captureSaveChanges(state),nativeBridge=!!bridgeFor('commitSave'),sliced=nativeBridge&&typeof yieldToFrame==='function'?{busyMs:0,slices:0,retakes:0}:null,nativeSave=nativeBridge?(sliced?await serializeNativeSliced(state,yieldToFrame,sliced):serializeNative(state)):null,json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
       if(nativeBridge){
         stageStart=clock();const encodeBusy=sliced?sliced.busyMs:0,encoded=sliced?await runSliced(utf8Steps(json),yieldToFrame,sliced):utf8(json),measurement=inspectNativeJSON(json,encoded);durableTiming.measurementMs=sliced?sliced.busyMs-encodeBusy:Math.max(0,clock()-stageStart);durableTiming.utf8Bytes=measurement.utf8Bytes;durableTiming.totalSyncMs=sliced?durableTiming.schemaMs+sliced.busyMs:Math.max(0,clock()-syncStart);if(sliced){durableTiming.slices=sliced.slices;durableTiming.maxBusySliceMs=sliced.maxBusySliceMs||0;durableTiming.checksumRequests=sliced.checksumRequests||0;durableTiming.checksumWorkerMs=sliced.checksumWorkerMs||0;durableTiming.retakes=sliced.retakes;durableTiming.wallMs=Math.max(0,clock()-syncStart);}durableTiming.ok=true;rememberTiming(durableTiming);let ack;try{await uploadChunks(nativeSave?.uploads);ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state),encoded});}catch(error){throw noteNativeRefusal(error);}ordinaryError=null;
         const cache=nativeSave?.chunked?{ok:false,reason:'chunked-native-save',previous:null,bypassed:true}:(measurement.utf8Bytes>PERSISTENCE_LIMITS.hardBytes||measurement.storageBytes>PERSISTENCE_LIMITS.hardBytes)?{ok:false,reason:'browser-cache-size-bypass',previous:null,bypassed:true}:writeJSON(storageKey,json,{...options,mirror:true},encoded);
         if(!cache.ok&&!nativeSave?.chunked)status({ok:true,warning:true,reason:'browser-cache-skipped',cacheReason:cache.reason,durable:true,utf8Bytes:measurement.utf8Bytes,mirror:true});
-        telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:0});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason};
+        acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:0});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason};
       }
       written=writeJSON(storageKey,json,options);if(!written.ok)throw new Error(written.reason);
       const ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state)});ordinaryError=null;
-      telemetry({operation:'durable-commit',ok:true,utf8Bytes:written.utf8Bytes,native:false,durationMs:0});status({ok:true,validated:true,durable:true,native:false,saveRevision:Number(state.saveRevision)||0});return {...written,ack,durable:true};
+      acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:written.utf8Bytes,native:false,durationMs:0});status({ok:true,validated:true,durable:true,native:false,saveRevision:Number(state.saveRevision)||0});return {...written,ack,durable:true};
     }catch(error){
       if(written?.ok)try{if(localStorage.getItem(storageKey)===written.json)restoreRaw(storageKey,written.previous);}catch(rollbackError){error.rollbackError=String(rollbackError.message||rollbackError);}
       const uncertainNative=error.code==='ACK_TIMEOUT';if(error.rollbackError||uncertainNative){recoveryRequired=true;error.critical=true;}status({ok:false,reason:String(error.message||error),critical:!!error.critical,durable:true,requiresNativeReconciliation:uncertainNative,storageKey});throw error;
@@ -389,7 +408,7 @@
     const timing={kind:'sliced-save',cloneMs:0,validateMs:0,totalMs:0,ok:false},started=clock();slicedLocked=true;
     try{
       const ready=typeof prepare==='function'?prepare(state):null;if(ready&&ready.ok===false)return {ok:false,reason:ready.reason||'prepare-refused'};
-      let stage=clock();const previous=Math.max(0,Math.floor(Number(state.saveRevision)||0)),tx=globalThis.GH_TRANSACTION_CORE;timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;const onSlice=(start,end)=>{const busy=Math.max(0,end-start);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'save.clone',start,end);},copy=tx.deepCloneInSlices?await tx.deepCloneInSlices(state,{shareJournaledRoots:true,yieldToHost:async()=>{timing.cloneYields++;await yieldToFrame();},onSlice}):tx.deepClone(state,{shareJournaledRoots:true});copy.saveRevision=previous+1;globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(state,copy);timing.cloneMs=clock()-stage;
+      const changeToken=captureSaveChanges(state);let stage=clock();const previous=Math.max(0,Math.floor(Number(state.saveRevision)||0)),tx=globalThis.GH_TRANSACTION_CORE;timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;const onSlice=(start,end)=>{const busy=Math.max(0,end-start);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'save.clone',start,end);},copy=tx.deepCloneInSlices?await tx.deepCloneInSlices(state,{shareJournaledRoots:true,yieldToHost:async()=>{timing.cloneYields++;await yieldToFrame();},onSlice}):tx.deepClone(state,{shareJournaledRoots:true});copy.saveRevision=previous+1;globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(state,copy);timing.cloneMs=clock()-stage;
       await yieldToFrame();stage=clock();
       const schema=globalThis.GH_SAVE_SCHEMA;let check;
       const validationOptions={trustVerified:true,...fleetValidationOptions(copy,{allowAsync:true})};
@@ -397,7 +416,7 @@
       else check=schema?.validate?.(copy,validationOptions)||{ok:true};
       timing.validateMs=clock()-stage;if(check&&check.ok===false)return {ok:false,reason:`invalid-state:${(check.errors||[]).join(',')}`};
       const out=await commitDurableState(copy,{storageKey,appVersion,prevalidated:true,expectedPreviousRevision:previous,yieldToFrame,[SLICED_COMMIT]:true});
-      if(Number(state.saveRevision)===previous)state.saveRevision=copy.saveRevision;
+      if(Number(state.saveRevision)===previous){state.saveRevision=copy.saveRevision;acknowledgeSaveChanges(state,changeToken);}
       timing.ok=true;return {...out,ok:true,saveRevision:copy.saveRevision,timing};
     }catch(error){return {ok:false,reason:String(error?.message||error),critical:!!error?.critical,timing};}
     finally{slicedLocked=false;timing.totalMs=clock()-started;rememberTiming(timing);}

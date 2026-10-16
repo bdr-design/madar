@@ -514,7 +514,7 @@
   function documentId(document,options={}){return clean(options.documentId||document.documentId||document.chequeNumber||document.settlementNumber||document.number||document.id||document.reference,180);}
   function documentType(document,options={}){return clean(options.type||document.documentType||document.type||document.kind||'financial-document',80);}
   function profileFor(type){const id=clean(type,80),profile=DOCUMENT_TYPES[id];if(!profile)throw new Error(`document-type-profile-unsupported:${id||'empty'}`);return profile;}
-  const financeBuckets=['invoices','cheques','periods','taxSettlements','debtRecords','debtSettlements','transfers','payrollReports','commercialContracts','customerLoanPaymentReceipts','customerFinancingReceipts','customerSalePaymentReceipts','customerSaleCreditNotes'];
+  const financeBuckets=['invoices','cheques','periods','taxSettlements','debtRecords','debtSettlements','transfers','payrollReports','commercialContracts','customerLoanPaymentReceipts','customerFinancingReceipts','customerSalePaymentReceipts','customerSaleCreditNotes','hospitalityDocuments'];
   function* walkDocumentEntries(state){
     // One path-aware owner for every object that the schema treats as a legal
     // document. Ledger projections are intentionally not legal documents; legacy

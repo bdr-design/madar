@@ -4,7 +4,7 @@ const {serve}=require('./helpers/web-server.js');
 
 (async()=>{
  const root=path.resolve(__dirname,'../WebApp'),out=path.resolve(__dirname,'../verification');fs.mkdirSync(out,{recursive:true});
- const brands=[['group','group'],['air','air'],['sea','sea'],['road','road'],['power','power'],['bank','bank'],['mobility','mobility'],['insurance','insurance'],['realestate','realestate'],['telecom','telecom'],['dealership','dealership']];
+ const brands=[['group','group'],['air','air'],['sea','sea'],['road','road'],['power','power'],['bank','bank'],['mobility','mobility'],['insurance','insurance'],['realestate','realestate'],['telecom','telecom'],['dealership','dealership'],['hospitality','hospitality']];
  const server=await serve(root),browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1356,height:1000},deviceScaleFactor:1,locale:'ar-SA'});
  try{
   await page.goto(server.baseURL+'/index.html');await page.waitForFunction(()=>window.GH_IDENTITY&&window.GH_COMPANY_PLATFORM&&window.GH_CONFERENCE);
@@ -12,7 +12,7 @@ const {serve}=require('./helpers/web-server.js');
   const rendered=[];
   for(const row of resolved){
    assert.equal(row.symbol,`assets/identity/approved/${row.key}-symbol.webp`,`${row.id}: compact use selects the approved symbol`);
-   assert.equal(row.horizontal,`assets/identity/approved/${row.key}-horizontal.webp`,`${row.id}: wide use selects the approved lockup`);
+   assert.equal(row.horizontal,`assets/identity/approved/${row.key}-${row.id==='hospitality'?'symbol':'horizontal'}.webp`,`${row.id}: wide use selects the approved lockup`);
    assert.equal(row.custom,false,`${row.id}: default identity is not marked custom`);
    for(const src of [row.symbol,row.horizontal]){const response=await page.request.get(`${server.baseURL}/${src}`);assert.equal(response.status(),200,`${row.id}: ${src} is shipped`);assert.match(response.headers()['content-type']||'',/image\/webp/,`${row.id}: image is served as WebP`);}
    rendered.push(`<article class="brand ${row.id==='group'?'group':''}"><img src="${row.horizontal}" alt="${row.id}"></article>`);
@@ -39,9 +39,9 @@ const {serve}=require('./helpers/web-server.js');
    root.remove();return output;
   });
   for(const row of signage){assert.equal(row.screen,`assets/identity/approved/${row.type}-horizontal.webp`,`${row.type}: main conference display uses full lockup`);assert.equal(row.mark,`assets/identity/approved/${row.type}-symbol.webp`,`${row.type}: main display carries its compact mark separately`);assert.deepEqual(row.sides,[row.mark,row.mark],`${row.type}: stage side panels use only the compact mark`);}
-  await page.setContent(`<html lang="ar" dir="ltr"><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;background:#f8faf4;color:#0b2455;font-family:Arial,sans-serif;padding:34px}main{width:100%;height:100%;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:150px repeat(5,154px);gap:0 42px;align-items:center}article{height:154px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #d6d9d2;padding:10px}article.group{grid-column:1 / -1;justify-self:center;width:560px;height:150px;border-bottom:0;border-top:0}img{width:100%;height:100%;object-fit:contain}.group img{max-width:550px}article.group+article{grid-column:1}</style><main>${rendered.join('')}</main></html>`,{waitUntil:'load'});
+  await page.setContent(`<html lang="ar" dir="ltr"><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;background:#f8faf4;color:#0b2455;font-family:Arial,sans-serif;padding:34px}main{width:100%;height:100%;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:150px repeat(6,154px);gap:0 42px;align-items:center}article{height:154px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #d6d9d2;padding:10px}article.group{grid-column:1 / -1;justify-self:center;width:560px;height:150px;border-bottom:0;border-top:0}img{width:100%;height:100%;object-fit:contain}.group img{max-width:550px}article.group+article{grid-column:1}</style><main>${rendered.join('')}</main></html>`,{waitUntil:'load'});
   const dimensions=await page.locator('img').evaluateAll(images=>images.map(image=>({src:image.getAttribute('src'),width:image.naturalWidth,height:image.naturalHeight,complete:image.complete})));
-  assert.equal(dimensions.length,brands.length,'preview includes all eleven brand lockups');
+  assert.equal(dimensions.length,brands.length,'preview includes all approved brand lockups');
   for(const row of dimensions)assert(row.complete&&row.width>0&&row.height>0,`preview decodes ${row.src}`);
   await page.screenshot({path:path.join(out,'build368-approved-company-lockups.png')});
   console.log(JSON.stringify({ok:true,brands:resolved.length,customLogoOverride:custom,conferenceLogos,signage,preview:'verification/build368-approved-company-lockups.png'},null,2));

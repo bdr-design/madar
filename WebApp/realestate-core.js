@@ -40,7 +40,9 @@
     villas:{name:'مجمع فلل',units:60,unitCost:420000,price:600000,rent:36000,days:420,buyers:'household',modes:['sale','lease']},
     office:{name:'برج مكاتب',units:80,unitCost:1200000,price:1800000,rent:140000,days:720,buyers:'business',modes:['lease','sale']},
     retail:{name:'مركز تجاري',units:120,unitCost:600000,price:900000,rent:70000,days:720,buyers:'business',modes:['lease']},
-    logistics:{name:'مستودعات لوجستية',units:40,unitCost:900000,price:1300000,rent:85000,days:365,buyers:'business',modes:['lease','sale']}
+    logistics:{name:'مستودعات لوجستية',units:40,unitCost:900000,price:1300000,rent:85000,days:365,buyers:'business',modes:['lease','sale']},
+    hotel:{name:'مبنى فندقي',units:1,unitCost:25000000,price:32000000,rent:1500000,days:540,buyers:'business',modes:['lease']},
+    resort:{name:'مبنى منتجع',units:1,unitCost:55000000,price:70000000,rent:3300000,days:720,buyers:'business',modes:['lease']}
   });
   const TYPE_IDS=Object.freeze(Object.keys(TYPES));
   const LAND_SHARE=.18,MILESTONES=Object.freeze([.4,.3,.3]),OFF_PLAN_DISCOUNT=.95,SALES_COMMISSION=.02,PROPERTY_OPEX=.012;
