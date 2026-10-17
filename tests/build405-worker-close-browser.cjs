@@ -35,7 +35,13 @@ const QTY=2305;
     try{for(;;){const step=stages.next();if(step.done)return step.value;
      // Force the real map reader between partial apply slices. A HUD refresh must never drain the replica log or
      // transfer half a column plan; this interleaving formerly stopped day close depending on frame timing.
-     if(state.fleet.revision!==revision){watch.interleaved=(watch.interleaved||0)+1;__AUDIT__.mapFleetClassRows();}
+     if(state.fleet.revision!==revision){
+      watch.interleaved=(watch.interleaved||0)+1;__AUDIT__.mapFleetClassRows();
+      // The map may already have a request in flight and correctly reuse it. Independently reach the same production
+      // reader boundary on every partial apply, so refusal coverage never depends on that cache's completion timing.
+      const asked=__AUDIT__.fleetEngineThreadClient().fieldClasses(state.fleet,{fields:['id','phase']});
+      if(asked!==null)throw new Error('partial-column-reader-was-admitted');watch.barrierProbes=(watch.barrierProbes||0)+1;
+     }
      yield step.value;
     }}finally{stages.return();}
    },countByPhase:deny,countByFields:deny,forEachFieldClasses(state,fields,...rest){if(state===__GH_STATE__&&signatures.has(JSON.stringify(fields)))return deny();return F.forEachFieldClasses(state,fields,...rest);}};
@@ -44,10 +50,11 @@ const QTY=2305;
   });
   await page.waitForFunction(()=>__GH_STATE__.lastFinancialDay===1&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__)||!!__AUDIT__.simulationEngine.snapshot().lastError,null,{timeout:60000});
   const commit=await page.evaluate(()=>{
-   __AUDIT__.setSpeed(0);const watch=__WORKER_CLOSE_WATCH__,out={interleaved:watch.interleaved||0,fullWalks:watch.fullWalks,injected:watch.injected,after:__AUDIT__.fleetEngineThreadClient().stats(),day:__GH_STATE__.lastFinancialDay,error:__AUDIT__.simulationEngine.snapshot().lastError,metrics:GH_REALISM.fleetDailyMetrics(__GH_STATE__)};__WORKER_CLOSE_RESTORE__();return out;
+   __AUDIT__.setSpeed(0);const watch=__WORKER_CLOSE_WATCH__,out={barrierProbes:watch.barrierProbes||0,interleaved:watch.interleaved||0,fullWalks:watch.fullWalks,injected:watch.injected,after:__AUDIT__.fleetEngineThreadClient().stats(),day:__GH_STATE__.lastFinancialDay,error:__AUDIT__.simulationEngine.snapshot().lastError,metrics:GH_REALISM.fleetDailyMetrics(__GH_STATE__)};__WORKER_CLOSE_RESTORE__();return out;
   });
   assert.equal(commit.day,1,commit.error);assert.equal(commit.error,'');assert.equal(commit.fullWalks,0);assert.equal(commit.injected,true);
   assert.ok(commit.interleaved>0,'the map read actually ran between partial column writes');
+  assert.equal(commit.barrierProbes,commit.interleaved,'every partial apply explicitly probed the production reader barrier');
   assert.ok(commit.after.replicaRefusals['column-plan-applying']>0,'readers defer until the whole typed plan is ready');
   assert.ok(commit.after.columnPlanSyncs>before.columnPlanSyncs,'the typed plan travelled before the later condition row write');
   assert.equal(commit.after.columnSyncs,before.columnSyncs,'no whole-column gather was needed');

@@ -22,7 +22,7 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "PREVIOUS_LOCAL_UNIFIED_438_PASS; CURRENT_TARGETED_CHROMIUM_WEBKIT_PASS; fresh current CI certificate pending",
+    "full_source_acceptance": "CURRENT_TARGETED_AND_PREVIOUS_UNIFIED_438_PASS; fresh full CI required after deterministic reader probe fixture",
     "native_swift_tests": "CURRENT_LOCAL_EXTRACTED_SWIFT_DECODER_24_AND_QUEUE_METHODS_3_PASS; full native vault/WKWebView/iOS build not run",
     "physical_iphone_profile": "DX-1792218041146 measured shipped 8e5f6c5; this local candidate still needs a fresh device capture",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
@@ -88,7 +88,7 @@
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
     "source_tree_sha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
     "working_tree_clean": false,
-    "note": "Current runtime passed the unified 438-command local suite. The macOS CI business-page fixture failed its immediate mouse-click assertion; the updated test now uses one trusted mobile tap, waits for the actual destination, preserves all financial assertions, and passes locally on Chromium/WebKit. It is the second preflight gate. See docs/RELEASE_20261017_WEBKIT_FOLLOWUP.json; full new CI required. Product runtime, money, design and source runtime hash are unchanged by this follow-up.",
+    "note": "Runtime source is unchanged at 37af9841. Unified local 438 gates passed before fixture follow-ups. Mobile business navigation now passed on actual macOS WebKit CI. The worker-close fixture now explicitly asks the production reader during partial applies, preserving all refusal/rollback assertions without depending on map-cache timing; 3 fixed passes and old-code red proof recorded. Fresh current full CI required before IPA delivery.",
     "news_work": {
       "local_targeted_checks": {
         "passed": 14,
@@ -1504,8 +1504,8 @@
     "scope": "Full source gates, push to existing handover branch, dispatch and verify unsigned test IPA",
     "source_gate_count": 438,
     "preflight_count": 40,
-    "local_acceptance": "438/438 unified local PASS on previous contract; updated business touch fixture PASS on Chromium/WebKit; exact current CI contract pending",
-    "ci": "39015504750 failed on the macOS WebKit business tile test; corrected single-touch fixture is locally green; fresh full CI required",
+    "local_acceptance": "Previous unified 438/438 PASS; current business touch gate PASS on Linux Chromium/WebKit and macOS WebKit CI; deterministic worker-close gate PASS 3/3 and fails against old Store/Worker code; current full CI certificate pending",
+    "ci": "39075456541 passed native gates and macOS WebKit business navigation; cancelled proactively to make worker-close fixture probe independent of map cache timing; fresh CI required",
     "production_approved": false,
     "physical_iphone_tested": false,
     "preflight_evidence": "docs/RELEASE_20261017_PREFLIGHT.json",

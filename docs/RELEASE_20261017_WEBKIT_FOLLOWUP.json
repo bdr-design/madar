@@ -35,5 +35,34 @@
     "native_before_source_suite": true
   },
   "physical_iphone_tested": false,
-  "production_approved": false
+  "production_approved": false,
+  "macos_mobile_navigation": {
+    "run_id": 39075456541,
+    "commit": "c5182134bf798eebe9763b892a9ccf1008faca1c",
+    "preflight_position": 2,
+    "result": "PASS",
+    "proof_log_sha256": "4261d6ac2a54f63c7b3d82ae2e0b8ce2920ab3f09e68efeec1cabd1a698fcf3d",
+    "receipt_ref": "ci-receipts/build362/c5182134bf798eebe9763b892a9ccf1008faca1c/39075456541-1",
+    "run_result": "cancelled proactively after the local reader-barrier assertion exposed cache-dependent fixture coverage; no IPA"
+  },
+  "worker_close_fixture": {
+    "gate": "tests/build405-worker-close-browser.cjs",
+    "issue": "A map summary may legitimately already be in flight. Calling its accessor does not guarantee a new worker request, so the refusal counter alone was timing-dependent.",
+    "fix": "Keep the real map accessor call and explicitly probe the same production fieldClasses boundary during every partial apply; require null admission, exact probe count, the exact refusal reason, successful day commit, zero full walks, one typed-plan sync, zero whole-column sync and exact cancellation rollback.",
+    "runtime_changed": false,
+    "fixed_runs": 3,
+    "fixed_run_exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "old_store_and_worker_code": "8e5f6c59013a4c187ef8b266963317d545a6ee37",
+    "old_code_result": "FAIL: partial-column-reader-was-admitted",
+    "old_code_log_sha256": "2353cc16d7a228877eb69c3f217067119a8757beac152c3299cc37485391df04",
+    "new_log_sha256": [
+      "6591c4e94750063802b3b3667ec3bd61f842c1aeab79e652d1c26874905b778d",
+      "6591c4e94750063802b3b3667ec3bd61f842c1aeab79e652d1c26874905b778d",
+      "6591c4e94750063802b3b3667ec3bd61f842c1aeab79e652d1c26874905b778d"
+    ]
+  }
 }
