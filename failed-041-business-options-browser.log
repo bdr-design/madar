@@ -1,0 +1,16 @@
+BUSINESS_OPTIONS_BROWSER_PASS chromium
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'company'
+- 'companyMarket'
+          ^
+
+    at /Users/runner/work/madar/madar/tests/business-options-browser.cjs:30:63 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'company',
+  expected: 'companyMarket',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
