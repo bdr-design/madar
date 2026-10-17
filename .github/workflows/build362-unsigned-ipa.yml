@@ -85,6 +85,43 @@ jobs:
           exit "$status"
 
 
+      - name: Run native save-vault regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          TEST_DIR="$RUNNER_TEMP/build362-native-storage-tests"
+          mkdir -p "$TEST_DIR"
+          python3 "$SOURCE_DIR/tests/native/prepare_native_tests.py" --source "$SOURCE_DIR" --output "$TEST_DIR"
+          xcrun swiftc "$TEST_DIR/main.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalGameStorage.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalSaveVault.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraPack.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraReleaseKey.swift" -o "$TEST_DIR/native-tests"
+          cd "$TEST_DIR"
+          GH_NATIVE_AUDIT_EPHEMERAL=1 ./native-tests | tee "$GITHUB_WORKSPACE/.ci-output/native-storage-tests.log"
+          cp native-tests.json "$GITHUB_WORKSPACE/.ci-output/native-tests.json"
+          cp save-enqueue-measurement.json "$GITHUB_WORKSPACE/.ci-output/save-enqueue-measurement.json"
+          node "$SOURCE_DIR/tests/native/test_update_bridge.cjs" --tests "$TEST_DIR" --web "$SOURCE_DIR/WebApp" --out "$TEST_DIR" | tee "$GITHUB_WORKSPACE/.ci-output/native-bridge-tests.log"
+          cp update-bridge-tests.json "$GITHUB_WORKSPACE/.ci-output/update-bridge-tests.json"
+
+      - name: Run native WKWebView origin and frame smoke checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          TEST_DIR="$RUNNER_TEMP/build362-webkit-smoke"
+          mkdir -p "$TEST_DIR"
+          WEBKIT_HELPER="$RUNNER_TEMP/prepare_webkit_smoke.py"
+          python3 - "$SOURCE_DIR/tests/native/prepare_webkit_smoke.py" "$WEBKIT_HELPER" <<'PY'
+          import sys
+          from pathlib import Path
+          source=Path(sys.argv[1]).read_text()
+          old="assert gate in text"
+          new="assert gate.replace('guard ', '', 1) in text"
+          if source.count(old)!=1: raise SystemExit('Expected one WKWebView frame/origin guard anchor')
+          Path(sys.argv[2]).write_text(source.replace(old,new,1))
+          PY
+          python3 "$WEBKIT_HELPER" "$SOURCE_DIR" "$TEST_DIR"
+          xcrun swiftc -framework AppKit -framework WebKit "$TEST_DIR/main.swift" -o "$TEST_DIR/webkit-smoke"
+          cd "$TEST_DIR"
+          ./webkit-smoke | tee "$GITHUB_WORKSPACE/.ci-output/webkit-smoke.log"
+          cp webkit-smoke.json "$GITHUB_WORKSPACE/.ci-output/webkit-smoke.json"
+
       - name: Install pinned test dependencies and browser engines
         shell: bash
         run: |
@@ -123,43 +160,6 @@ jobs:
           PY_FAILED
           if [[ "$status" -ne 0 ]]; then exit "$status"; fi
           python3 "$SOURCE_DIR/tools/verify_acceptance.py" --root "$SOURCE_DIR" --results "$ACCEPTANCE_DIR/results.json"
-
-      - name: Run native save-vault regression tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          TEST_DIR="$RUNNER_TEMP/build362-native-storage-tests"
-          mkdir -p "$TEST_DIR"
-          python3 "$SOURCE_DIR/tests/native/prepare_native_tests.py" --source "$SOURCE_DIR" --output "$TEST_DIR"
-          xcrun swiftc "$TEST_DIR/main.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalGameStorage.swift" "$SOURCE_DIR/iOS/GlobalHoldings/GlobalSaveVault.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraPack.swift" "$SOURCE_DIR/iOS/GlobalHoldings/VentoraReleaseKey.swift" -o "$TEST_DIR/native-tests"
-          cd "$TEST_DIR"
-          GH_NATIVE_AUDIT_EPHEMERAL=1 ./native-tests | tee "$GITHUB_WORKSPACE/.ci-output/native-storage-tests.log"
-          cp native-tests.json "$GITHUB_WORKSPACE/.ci-output/native-tests.json"
-          cp save-enqueue-measurement.json "$GITHUB_WORKSPACE/.ci-output/save-enqueue-measurement.json"
-          node "$SOURCE_DIR/tests/native/test_update_bridge.cjs" --tests "$TEST_DIR" --web "$SOURCE_DIR/WebApp" --out "$TEST_DIR" | tee "$GITHUB_WORKSPACE/.ci-output/native-bridge-tests.log"
-          cp update-bridge-tests.json "$GITHUB_WORKSPACE/.ci-output/update-bridge-tests.json"
-
-      - name: Run native WKWebView origin and frame smoke checks
-        shell: bash
-        run: |
-          set -euo pipefail
-          TEST_DIR="$RUNNER_TEMP/build362-webkit-smoke"
-          mkdir -p "$TEST_DIR"
-          WEBKIT_HELPER="$RUNNER_TEMP/prepare_webkit_smoke.py"
-          python3 - "$SOURCE_DIR/tests/native/prepare_webkit_smoke.py" "$WEBKIT_HELPER" <<'PY'
-          import sys
-          from pathlib import Path
-          source=Path(sys.argv[1]).read_text()
-          old="assert gate in text"
-          new="assert gate.replace('guard ', '', 1) in text"
-          if source.count(old)!=1: raise SystemExit('Expected one WKWebView frame/origin guard anchor')
-          Path(sys.argv[2]).write_text(source.replace(old,new,1))
-          PY
-          python3 "$WEBKIT_HELPER" "$SOURCE_DIR" "$TEST_DIR"
-          xcrun swiftc -framework AppKit -framework WebKit "$TEST_DIR/main.swift" -o "$TEST_DIR/webkit-smoke"
-          cd "$TEST_DIR"
-          ./webkit-smoke | tee "$GITHUB_WORKSPACE/.ci-output/webkit-smoke.log"
-          cp webkit-smoke.json "$GITHUB_WORKSPACE/.ci-output/webkit-smoke.json"
 
       - name: Probe WKWebView binary transfer for the chunked save vault (evidence only)
         continue-on-error: true

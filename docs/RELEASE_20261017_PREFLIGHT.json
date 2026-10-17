@@ -6,9 +6,9 @@
   "production_approved": false,
   "physical_iphone_tested": false,
   "based_on_commit": "8e5f6c59013a4c187ef8b266963317d545a6ee37",
-  "source_tree_sha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
+  "source_tree_sha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
   "gate_definitions": 438,
-  "preflight_definitions": 36,
+  "preflight_definitions": 39,
   "early_failure": {
     "gate": "tests/build405-worker-close-browser.cjs",
     "observed_in_first_local_preflight": true,
@@ -20,7 +20,7 @@
     "typed_plan_syncs": 1
   },
   "desktop_transport": {
-    "runtimeSourceSha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
+    "runtimeSourceSha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
     "sourceFiles": {
       "fleet-store-core.js": "10b190ea450fd1f14a98ef6e169e3a780cc6f3585afcbe8e6078fff73586ece4",
       "state-codec-core.js": "0edaba40ce3dabf8508fdc693f50de25bfcbb2d49c70f634f8134b4284a36bcf",
@@ -39,385 +39,385 @@
     "rawBytes": 141000000,
     "wireBytes": 37293971,
     "reductionPct": 73.55037517730496,
-    "workerMs": 680.0944219999956,
-    "maxWorkerMs": 49.594004999999925,
-    "wallMsIncludingIndependentSHA256AndDecode": 1332.2090829999997,
+    "workerMs": 695.3203630000044,
+    "maxWorkerMs": 44.282382000001235,
+    "wallMsIncludingIndependentSHA256AndDecode": 1329.5698579999998,
     "compressedPages": 62,
     "pages": 62,
     "liveStateUnchanged": true,
-    "mainWorkerCopyMs": 0.09224199999698612,
+    "mainWorkerCopyMs": 0.13825600000109262,
     "sizes": [
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073434,
-        "workerMs": 49.594004999999925
+        "workerMs": 33.00404199999957
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 23.115082000000257
+        "workerMs": 25.038996000000225
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 16.672495999999228
+        "workerMs": 19.435903999999937
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 17.8608490000006
+        "workerMs": 18.434979999999996
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 19.282592000000477
+        "workerMs": 20.6727690000007
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 18.098523999999998
+        "workerMs": 20.2366090000005
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073436,
-        "workerMs": 18.07662199999959
+        "workerMs": 18.514640000000327
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 18.643788000000313
+        "workerMs": 18.586616999999933
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073436,
-        "workerMs": 21.31101000000035
+        "workerMs": 20.55999200000042
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073434,
-        "workerMs": 19.28427400000055
+        "workerMs": 19.804753999999775
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 20.04990700000053
+        "workerMs": 18.558313999999882
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073434,
-        "workerMs": 18.155749999999898
+        "workerMs": 17.230842999999368
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 17.389445999999225
+        "workerMs": 17.316471000000092
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 19.38746799999899
+        "workerMs": 17.214959999999337
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 18.113295999999536
+        "workerMs": 18.471204999999827
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 17.054344999998648
+        "workerMs": 19.45252900000014
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 17.410287000000608
+        "workerMs": 19.573370000000068
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073435,
-        "workerMs": 18.561384999999063
+        "workerMs": 20.364591000001383
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 30.06476500000099
+        "workerMs": 26.975585000000137
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073434,
-        "workerMs": 19.28624800000034
+        "workerMs": 18.352767999998832
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 17.687270000000353
+        "workerMs": 18.452186000000438
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 19.61678000000029
+        "workerMs": 18.248622000000978
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073434,
-        "workerMs": 17.372491000000082
+        "workerMs": 17.790407999998934
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 17.441714000000502
+        "workerMs": 18.53367799999978
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 17.82511599999998
+        "workerMs": 17.12382399999842
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 18.206324999999197
+        "workerMs": 25.133146000000124
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073428,
-        "workerMs": 18.691027999999278
+        "workerMs": 27.08484800000042
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 24.903621999999814
+        "workerMs": 44.282382000001235
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073430,
-        "workerMs": 18.40918799999963
+        "workerMs": 18.12269500000002
       },
       {
         "kind": "base",
         "rawBytes": 4194304,
         "wireBytes": 1073432,
-        "workerMs": 23.704893000000084
+        "workerMs": 16.88979400000062
       },
       {
         "kind": "base",
         "rawBytes": 2170880,
         "wireBytes": 555707,
-        "workerMs": 9.556359000000157
+        "workerMs": 8.81530500000008
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148610,
-        "workerMs": 2.356095999999525
+        "workerMs": 1.8381329999992886
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148615,
-        "workerMs": 1.971112000001085
+        "workerMs": 2.003219000000172
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148611,
-        "workerMs": 1.8362210000013874
+        "workerMs": 1.9999340000013035
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148615,
-        "workerMs": 2.1977399999996123
+        "workerMs": 1.7991149999998015
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148615,
-        "workerMs": 2.2488160000011703
+        "workerMs": 1.807758000000831
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148607,
-        "workerMs": 2.767385999999533
+        "workerMs": 1.8081189999993512
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148612,
-        "workerMs": 2.243297999999413
+        "workerMs": 1.8159099999993487
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148617,
-        "workerMs": 1.7757309999997233
+        "workerMs": 1.8577120000009018
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148612,
-        "workerMs": 1.7411679999986518
+        "workerMs": 1.8798050000004878
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148612,
-        "workerMs": 1.751814999999624
+        "workerMs": 1.9430600000014238
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148612,
-        "workerMs": 1.7514539999992849
+        "workerMs": 1.8969710000001214
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148610,
-        "workerMs": 1.7458860000006098
+        "workerMs": 1.84425199999896
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148615,
-        "workerMs": 1.782019999998738
+        "workerMs": 1.838874000000942
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148616,
-        "workerMs": 2.0882669999991776
+        "workerMs": 1.8564299999998184
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148610,
-        "workerMs": 2.212011999999959
+        "workerMs": 1.8725450000001729
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148610,
-        "workerMs": 1.9080079999985173
+        "workerMs": 1.8997650000001158
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148614,
-        "workerMs": 2.2784110000011424
+        "workerMs": 1.8880969999991066
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148612,
-        "workerMs": 2.158300999999483
+        "workerMs": 1.9162599999999657
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148615,
-        "workerMs": 1.809411000000182
+        "workerMs": 1.847286999998687
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148615,
-        "workerMs": 1.787028000000646
+        "workerMs": 1.946845000000394
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148606,
-        "workerMs": 1.815470000001369
+        "workerMs": 1.8382029999993392
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148613,
-        "workerMs": 1.9178629999987606
+        "workerMs": 1.856580000001486
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148617,
-        "workerMs": 1.814648000001398
+        "workerMs": 1.853796000001239
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148611,
-        "workerMs": 1.8134369999988849
+        "workerMs": 1.8674269999992248
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148613,
-        "workerMs": 1.7862659999991592
+        "workerMs": 1.8529749999997875
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148612,
-        "workerMs": 1.767518000000564
+        "workerMs": 1.8573510000005626
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148610,
-        "workerMs": 1.751605000001291
+        "workerMs": 1.8691090000011172
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148614,
-        "workerMs": 1.7383839999984048
+        "workerMs": 1.8570419999996375
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148617,
-        "workerMs": 1.753978000000643
+        "workerMs": 1.8363009999993665
       },
       {
         "kind": "overlay",
         "rawBytes": 425984,
         "wireBytes": 148610,
-        "workerMs": 1.746186000000307
+        "workerMs": 1.8378929999998945
       },
       {
         "kind": "overlay",
         "rawBytes": 220480,
         "wireBytes": 76939,
-        "workerMs": 0.9519609999988461
+        "workerMs": 0.9567680000000109
       }
     ]
   },
@@ -440,8 +440,11 @@
     "No physical iPhone performance claim. Compression adds worker CPU at save time; wire-byte reduction is not a measured end-to-end iPhone save latency.",
     "Full native vault, WKWebView and iPhoneOS compilation require the new macOS CI run."
   ],
-  "recorded_at_utc": "2026-10-17T07:32:29.978091+00:00",
-  "local_preflight": {
+  "recorded_at_utc": "2026-10-17T07:56:00.853404+00:00",
+  "full_local_acceptance": "Fresh unified 438-command run requested; scoped 438-command coverage is not its certificate.",
+  "native_ci": "New full native and source CI requested. Native vault and WKWebView gates moved before browser installation/full source acceptance, without skipping gates.",
+  "webapp_tree_sha256": "cf1da89123e604e44309a89c3ffabeeb9f2ceb04bbc43c9b545bf7c20f3846c5",
+  "earlier_canonical_preflight": {
     "passed": 36,
     "total": 36,
     "runtime_source_sha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
@@ -771,8 +774,192 @@
         "elapsed_seconds": 3.882,
         "log": "036-build399-bank-prudential-summary-layout-browser.log"
       }
+    ],
+    "scope": "Historical 36-command prefix on 837a779c source; superseded by current 39-command preflight definition"
+  },
+  "current_scoped_coverage": {
+    "runtime_source_sha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
+    "current_acceptance_contract_sha256": "d76675466c89e40d16d7bcc81aa6dab1dc9e7d692f66a5138c0f24e4fd52f534",
+    "successful_unique_commands": 438,
+    "declared_commands": 438,
+    "scope": "All commands succeeded across limited runs; not a canonical combined acceptance certificate. Updated policy and map/upload fixtures also rerun individually. Fresh unified 438-command receipt and independent CI required.",
+    "canonical_combined_receipt": false,
+    "preflight_definitions": [
+      [
+        "node",
+        "tests/build334-security-contract.cjs"
+      ],
+      [
+        "node",
+        "tests/build406-save-chunk-transport.cjs"
+      ],
+      [
+        "node",
+        "tests/build407-diagnostic-lifecycle.cjs"
+      ],
+      [
+        "node",
+        "tests/build408-diagnostic-map-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build358-map-controls-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build409-compressed-persistence.cjs"
+      ],
+      [
+        "node",
+        "tests/build383-save-encoding.cjs"
+      ],
+      [
+        "node",
+        "tests/fleet-business-boundary.cjs"
+      ],
+      [
+        "node",
+        "tests/build334-procurement-pressure.cjs"
+      ],
+      [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      [
+        "node",
+        "tests/build334-simulation-time-contract.cjs"
+      ],
+      [
+        "node",
+        "tests/build372-store-maintenance-stages.cjs"
+      ],
+      [
+        "node",
+        "tests/build385-bank-credit-accounting.cjs"
+      ],
+      [
+        "node",
+        "tests/build363-energy-health-contract.cjs"
+      ],
+      [
+        "node",
+        "tests/build400-telecom-peer-index.cjs"
+      ],
+      [
+        "node",
+        "tests/build401-mobility-batching-and-indexes.cjs"
+      ],
+      [
+        "node",
+        "tests/build402-company-daily-indexes.cjs"
+      ],
+      [
+        "node",
+        "tests/build403-legacy-runtime-migration-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build404-worker-close-read-models.cjs"
+      ],
+      [
+        "node",
+        "tests/build405-worker-close-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build374-daily-worker-integration.cjs"
+      ],
+      [
+        "node",
+        "tests/build334-calendar-journey-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build360-cold-archive.cjs"
+      ],
+      [
+        "node",
+        "tests/build358-fleet-chunk-manifest.cjs"
+      ],
+      [
+        "node",
+        "tests/build358-native-chunked-save.cjs"
+      ],
+      [
+        "node",
+        "tests/build372-native-migration-chunk-adoption.cjs"
+      ],
+      [
+        "node",
+        "tests/fleet-save-slicing.cjs"
+      ],
+      [
+        "node",
+        "tests/fleet-validation-reuse-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/save-checksum-worker-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/save-pipeline-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/native-save-worker-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build359-save-policy-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build380-construction-acceleration-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build389-differential-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build394-hospitality-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build397-management-flow-layout-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build398-asset-market-metrics-layout-browser.cjs"
+      ],
+      [
+        "node",
+        "tests/build399-bank-prudential-summary-layout-browser.cjs"
+      ]
     ]
   },
-  "full_local_acceptance": "in_progress; not yet certified",
-  "native_ci": "not yet dispatched"
+  "followup_fixes": [
+    {
+      "file": "WebApp/runtime-required.json",
+      "issue": "Worker-only save-chunk-codec.js omitted from the exact bundle inventory",
+      "fix": "Register the existing worker-only file; exact inventory moved to first preflight gate",
+      "old_ci_run": 39014037409,
+      "old_run": "cancelled proactively before source suite; no IPA"
+    },
+    {
+      "file": "tests/build358-map-controls-browser.cjs",
+      "issue": "Resize may produce no Leaflet event when dimensions already settled",
+      "fix": "Observe the actual app map through a test-only closure getter; retain touch, bounds, layout and reload assertions"
+    },
+    {
+      "file": "tests/build383-save-encoding.cjs",
+      "issue": "Upload test double returned void after the production upload API started returning transfer accounting",
+      "fix": "Return the same accounting shape, assert raw/wire totals and retain all NACK, cancellation and exact-byte assertions"
+    }
+  ]
 }

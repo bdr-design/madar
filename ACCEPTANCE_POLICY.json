@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build334-security-contract.cjs"
+    ],
+    [
+      "node",
       "tests/build406-save-chunk-transport.cjs"
     ],
     [
@@ -15,7 +19,15 @@
     ],
     [
       "node",
+      "tests/build358-map-controls-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build409-compressed-persistence.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-save-encoding.cjs"
     ],
     [
       "node",

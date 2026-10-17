@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
+  "source_tree_sha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -14,7 +14,7 @@
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
     "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
-    "Current diagnostic follow-up declares 438 source gates and 36 fail-fast preflight definitions. Owner authorized full acceptance, push and a new unsigned test IPA on 2026-10-17; current release evidence is recorded separately below. Physical iPhone performance and production approval remain pending."
+    "Current owner-authorized test IPA candidate declares 438 source gates and 39 preflight commands. Runtime inventory, map controls and save upload accounting run early; native Swift/vault/WKWebView gates precede the long source suite. Full acceptance and native CI must match the final source. Physical iPhone performance and production approval remain pending."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -22,13 +22,13 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "IN_PROGRESS_CURRENT_SOURCE; canonical local preflight 36/36 PASS; full 438 gates required before IPA assembly",
+    "full_source_acceptance": "IN_PROGRESS_UNIFIED_LOCAL; all 438 unique commands passed scoped prechecks; unified local/CI receipts pending",
     "native_swift_tests": "CURRENT_LOCAL_EXTRACTED_SWIFT_DECODER_24_AND_QUEUE_METHODS_3_PASS; full native vault/WKWebView/iOS build not run",
     "physical_iphone_profile": "DX-1792218041146 measured shipped 8e5f6c5; this local candidate still needs a fresh device capture",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
     "manual_advance_frame_budget": "SLICE_LIMIT_IMPLEMENTED; 1,500-event window estimate; target-device frame timing pending",
     "release_approval": "CLOSED",
-    "browser_and_lint": "CURRENT_SOURCE_PREFLIGHT_36_PASS; Chromium/WebKit and full runtime lint passed; full local/native CI pending",
+    "browser_and_lint": "CURRENT_SCOPED_CHROMIUM_WEBKIT_AND_RUNTIME_LINT_PASS; unified full receipt pending",
     "native_bridge_extracted_js": "DIRECT_CI_PASS; native storage and WKWebView checks pass",
     "build358_air_sea_dispatch": "LOCAL_PASS; store-mode air and sea bulk dispatch assigns every asset (browser test)",
     "build358_row_level_slice_snapshots": "LOCAL_PASS; steady/hour slices snapshot only written roots, enforced write sets over 288 slices, exact rollback of failed steady/hour/day slices",
@@ -47,7 +47,7 @@
     "build358_fleet_purchase_vat": "LOCAL_PASS; aircraft, ship and truck purchases are zero-rated (as Mobility vehicles and asset sales were), so trip VAT accrues and comes due at the month close; older saves have the fleet-purchase input VAT reversed once on load (open period, then carried credit, never more than held; cash unchanged)",
     "business_options_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE; 18 phone viewport cases passed; physical iPhone pending",
     "financial_fixes_local": "PASS; delivered direct/financed dealer sale P&L, technical stock safeguards, cent-precision VAT, registered tax IDs, branch-country/activity routing; Chromium/WebKit reload/duplicate and 13-company tax settlement checks",
-    "current_candidate_native": "REQUESTED_CURRENT_SOURCE; native vault, WKWebView and unsigned iPhoneOS build pending",
+    "current_candidate_native": "REQUESTED_CURRENT_SOURCE; native worker/vault/WKWebView now fail early before browser suite",
     "performance_batch1_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE_AND_LINT; independent bounded checksum/base64 worker; exact validation reuse; one fresh validated sliced retry; repeated writes refused",
     "performance_pipeline_local": "TARGETED_PASS_CHROMIUM_WEBKIT; bounded deferred lookahead, stale/failure refusal and retry, monthly tax save/reload; full acceptance pending",
     "worker_daily_close": "CURRENT_SOURCE_PREFLIGHT_PASS; worker read-model and full-app cancellation gates passed; canonical full acceptance pending"
@@ -86,9 +86,9 @@
     "mode": "direct_git_tracked_branch",
     "branch": "claude/madar-ventora-handover-3.0.0-stg723",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
+    "source_tree_sha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
     "working_tree_clean": false,
-    "note": "Owner authorized full acceptance, push and unsigned test IPA on 2026-10-17. Preflight caught and prevented a partial day-column/map-read race before upload; forced interleaving regression now passes. Save transport, map DOM reuse and diagnostic lifecycle fixes retained. See docs/RELEASE_20261017_PREFLIGHT.json and the new CI receipt for exact evidence. Production approval and physical iPhone performance remain pending.",
+    "note": "Owner authorized full acceptance, push and unsigned test IPA. Current source includes complete bundle registration, bounded save transport and day-plan read barrier; strict fixture follow-ups preserve all assertions. All 438 commands succeeded across scoped prechecks; a fresh unified local run and independent current-source CI are required before delivering the IPA. See docs/RELEASE_20261017_PREFLIGHT.json and the new CI receipt. Physical iPhone performance and production approval remain pending.",
     "news_work": {
       "local_targeted_checks": {
         "passed": 14,
@@ -1503,12 +1503,13 @@
     "owner_authorized": true,
     "scope": "Full source gates, push to existing handover branch, dispatch and verify unsigned test IPA",
     "source_gate_count": 438,
-    "preflight_count": 36,
-    "local_acceptance": "36/36 canonical preflight PASS; full 438-gate suite in progress",
-    "ci": "not_dispatched",
+    "preflight_count": 39,
+    "local_acceptance": "438 unique scoped command successes; fresh unified 438-command receipt in progress",
+    "ci": "Fresh final-source dispatch requested; 39014037409 was cancelled proactively",
     "production_approved": false,
     "physical_iphone_tested": false,
     "preflight_evidence": "docs/RELEASE_20261017_PREFLIGHT.json",
-    "current_source_tree_sha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe"
+    "current_source_tree_sha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
+    "early_native_gates": true
   }
 }

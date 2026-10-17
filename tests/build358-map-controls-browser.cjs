@@ -6,7 +6,7 @@
 // - God Mode is a Settings switch again; it survives a reload and the top bar shows ∞.
 // - The rail keeps the full landscape inset only on the side of the camera housing.
 const {chromium}=require('playwright');
-const assert=require('node:assert/strict'),path=require('node:path');
+const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
 const {serve}=require('./helpers/web-server');
 const {drawFounderSignature}=require('./helpers/signature-input');
 (async()=>{
@@ -14,6 +14,8 @@ const {drawFounderSignature}=require('./helpers/signature-input');
   try{
     const page=await browser.newPage({viewport:{width:932,height:430},deviceScaleFactor:1,isMobile:true,hasTouch:true,locale:'ar-SA'});page.setDefaultTimeout(15000);
     page.on('pageerror',error=>errors.push(error.message));page.on('dialog',dialog=>dialog.accept());
+    // Observe the actual app map without depending on an unrelated resize/tile event firing after onboarding.
+    await page.route('**/app.js',route=>{const source=fs.readFileSync(path.join(__dirname,'../WebApp/app.js'),'utf8'),i=source.lastIndexOf('})();');assert.ok(i>=0);return route.fulfill({contentType:'application/javascript',body:source.slice(0,i)+'\nwindow.__QA_MAP_READER__=()=>map;\n'+source.slice(i)});});
     await page.route(/https:\/\/(tile\.openstreetmap\.org|server\.arcgisonline\.com)\//,route=>route.abort());
     await page.goto(server.baseURL);await page.click('#founderReview');await drawFounderSignature(page);
     await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
@@ -25,9 +27,9 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     const both=await frame();
     assert.equal(both.top,38,'the top bar band ends at 38px');
     assert.equal(both.rail,59+6,'the rail clears the full inset');assert.equal(both.left,59+6,'and so does the far side');assert.equal(both.notch,'','no side is favoured');
-    // Build 378: the map stops at the tiles' edge north and south (no empty sea past the poles). The map is reached
-    // through its first event (Leaflet keeps no list of maps).
-    await page.evaluate(async()=>{let found=null;const fire=L.Map.prototype.fire;L.Map.prototype.fire=function(...args){found=found||this;return fire.apply(this,args);};window.dispatchEvent(new Event('resize'));await new Promise(resolve=>setTimeout(resolve,300));L.Map.prototype.fire=fire;window.__QA_MAP__=found;});
+    // Build 378: the map stops at the tiles' edge north and south (no empty sea past the poles).
+    await page.waitForFunction(()=>window.__QA_MAP_READER__?.());
+    await page.evaluate(()=>{window.__QA_MAP__=window.__QA_MAP_READER__();delete window.__QA_MAP_READER__;});
     const view=await page.evaluate(()=>({center:window.__QA_MAP__.getCenter(),zoom:window.__QA_MAP__.getZoom()}));
     const box=await page.locator('#map').boundingBox(),cx=box.x+box.width/2;
     for(let i=0;i<4;i++){await page.mouse.move(cx,box.y+40);await page.mouse.down();await page.mouse.move(cx,box.y+box.height-20,{steps:8});await page.mouse.up();}

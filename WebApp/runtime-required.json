@@ -965,6 +965,7 @@
     "runtime-required.json",
     "save-checksum-thread.js",
     "save-checksum-worker.js",
+    "save-chunk-codec.js",
     "save-policy-core.js",
     "save-schema.js",
     "section-identities.css",

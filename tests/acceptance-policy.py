@@ -45,10 +45,13 @@ with tempfile.TemporaryDirectory(prefix='madar-acceptance-contract-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 expected_preflight=[
+    ['node','tests/build334-security-contract.cjs'],
     ['node','tests/build406-save-chunk-transport.cjs'],
     ['node','tests/build407-diagnostic-lifecycle.cjs'],
     ['node','tests/build408-diagnostic-map-browser.cjs'],
+    ['node','tests/build358-map-controls-browser.cjs'],
     ['node','tests/build409-compressed-persistence.cjs'],
+    ['node','tests/build383-save-encoding.cjs'],
     ['node','tests/fleet-business-boundary.cjs'],
     ['node','tests/build334-procurement-pressure.cjs'],
     ['python3','tests/acceptance-policy.py'],
@@ -106,6 +109,11 @@ for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
     assert text.count('verify_acceptance.py',0,build)>=2,'verify again immediately before native compilation'
     assert 'verify_acceptance.py' in text[assemble:],'verify again before IPA assembly'
     assert 'Run native save-vault regression tests' in text and 'Run native WKWebView origin and frame smoke checks' in text,'full native gates are mandatory in both IPA editions'
+    if name=='build362-unsigned-ipa.yml':
+        for early_native in ['Run native save-vault regression tests','Run native WKWebView origin and frame smoke checks']:
+            native_start=text.index('      - name: '+early_native);native_end=text.index('\n      - name:',native_start+1)
+            assert native_start<start,'compile and exercise changed Swift/vault code before the long browser suite'
+            assert '\n        if:' not in text[native_start:native_end] and 'continue-on-error' not in text[native_start:native_end],'early native gates remain mandatory'
     worker=text.index('      - name: Run native save-worker and pipeline checks')
     worker_end=text.index('\n      - name:',worker+1);worker_step=text[worker:worker_end]
     assert worker<build and 'save-worker-smoke.swift' in worker_step and 'native-save-worker.json' in worker_step
