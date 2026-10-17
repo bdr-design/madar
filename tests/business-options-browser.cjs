@@ -9,6 +9,16 @@ async function boot({browser,errors}){
  await page.goto(server.baseURL);await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.tap('#speedToggle');await page.evaluate(()=>document.fonts.ready);return {page};
 }
 async function reboot(page){await page.reload();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);return {page};}
+async function settled(page){await page.waitForFunction(()=>{const k=GH_SIM_KERNEL.snapshot();return !k.manualAdvance&&!k.jobActive&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__)&&!GH_PERSISTENCE.isLocked()&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.__GH_APP_RUNTIME_INSTRUMENTATION__?.maintenance.pending?.length;});}
+async function tapTile(page,key,panel){
+ await settled(page);
+ const before=await page.evaluate(()=>window.__QA_TILE_TOUCH__?.sequence||0);
+ await page.locator(`[data-tile="${key}"]`).tap();
+ try{await page.waitForFunction(expected=>__AUDIT__.currentPanel()===expected,panel,{timeout:15000});}
+ catch(error){console.error('BUSINESS_TILE_NAVIGATION',JSON.stringify(await page.evaluate(()=>({event:window.__QA_TILE_TOUCH__,panel:__AUDIT__.currentPanel(),drawer:document.getElementById('drawer')?.dataset.panel,kernel:GH_SIM_KERNEL.snapshot(),maintenance:window.__GH_APP_RUNTIME_INSTRUMENTATION__?.maintenance}))));throw error;}
+ const found=await page.evaluate(()=>({event:window.__QA_TILE_TOUCH__,panel:__AUDIT__.currentPanel(),drawer:document.getElementById('drawer').dataset.panel}));
+ assert.equal(found.event.sequence,before+1,'one real touch click; no navigation retry');assert.equal(found.event.trusted,true);assert.equal(found.event.key,key);assert.equal(found.event.to,panel);assert.equal(found.panel,panel);assert.equal(found.drawer,panel);
+}
 async function capture(page,engine,c){if(!process.env.MADAR_REVIEW_IMAGES)return;fs.mkdirSync(process.env.MADAR_REVIEW_IMAGES,{recursive:true});await page.locator('#drawerBody .asset-hero img').evaluateAll(imgs=>imgs.forEach(i=>i.loading='eager'));await page.waitForFunction(()=>[...document.querySelectorAll('#drawerBody .asset-hero img')].every(i=>i.complete&&i.naturalWidth>0));await page.locator('#drawerBody').evaluate(body=>{const card=body.querySelector('.asset-market-card');body.scrollTop+=card.getBoundingClientRect().top-body.getBoundingClientRect().top;});await page.screenshot({path:path.join(process.env.MADAR_REVIEW_IMAGES,`${engine.name()}-${c}-review.png`)});}
 
 const COMPANIES=['realestate','power','insurance','bank','telecom','dealership'];
@@ -18,6 +28,8 @@ const COMPANIES=['realestate','power','insurance','bank','telecom','dealership']
   const browser=await engine.launch({headless:true}),errors=[];
   try{
    let {page}=await boot({browser,errors});page.setDefaultTimeout(60000);page.on('dialog',d=>d.accept());
+   // Test-only event evidence distinguishes a lost input from a delayed/wrong destination on mobile WebKit.
+   await page.evaluate(()=>{document.addEventListener('click',event=>{const b=event.target.closest?.('[data-tile]');if(!b)return;window.__QA_TILE_TOUCH__={sequence:(window.__QA_TILE_TOUCH__?.sequence||0)+1,key:b.dataset.tile,to:b.dataset.go,trusted:event.isTrusted};},true);});
    await page.setViewportSize({width:932,height:430});
    assert.equal(await page.evaluate(()=>['GH Kufi Arabic','GH Plex Arabic'].every(name=>[...document.fonts].some(f=>f.family.replace(/["']/g,'')===name&&f.status==='loaded'))),true,'bundled fonts load');
    await page.evaluate(async companies=>{const s=__GH_STATE__;s.godMoney=true;s.infiniteMoney=true;for(const c of companies)await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type:c,companyId:c,capital:2000000000,legalName:`QA ${c}`,formationContract:`QA-ACQUISITION-${c}`},{silent:true});},COMPANIES);
@@ -25,9 +37,9 @@ const COMPANIES=['realestate','power','insurance','bank','telecom','dealership']
    await page.evaluate(()=>__AUDIT__.closeDrawer());await page.click('#simCalendarToggle');const beforeDay=await page.evaluate(()=>__GH_STATE__.simSeconds);await page.click('#simNextDay');await page.waitForFunction(t=>__GH_STATE__.simSeconds>=t+86400&&!GH_SIM_KERNEL.snapshot().manualAdvance,beforeDay);await page.click('#simCalendarToggle');
    // Markets are read-only, use real country prices and retain every old company destination.
    for(const c of COMPANIES){
-    await page.evaluate(c=>__AUDIT__.openDrawer('company',c),c);
+    await settled(page);await page.evaluate(c=>__AUDIT__.openDrawer('company',c),c);
     const count=await page.locator('[data-tile="market"]').count();assert.equal(count,1,c);
-    await page.locator('[data-tile="market"]').click();assert.equal(await page.evaluate(()=>__AUDIT__.currentPanel()),'companyMarket');
+    await tapTile(page,'market','companyMarket');
     assert.match(await page.locator('#drawerBody').textContent(),/السوق والمنافسون/);
     const stateBefore=await page.evaluate(()=>JSON.stringify([__GH_STATE__.companyFinance,__GH_STATE__.finance]));
     await page.selectOption('[data-business-country]', 'الهند');
@@ -44,7 +56,7 @@ const COMPANIES=['realestate','power','insurance','bank','telecom','dealership']
    // Actual review/confirmation/touch -> signed command -> durable save for each business, with no infinite funding.
    await page.evaluate(()=>{__GH_STATE__.godMoney=false;__GH_STATE__.infiniteMoney=false;});
    for(const c of ['realestate','power','insurance','bank']){
-    await page.evaluate(c=>__AUDIT__.openDrawer('company',c),c);await page.locator('[data-tile="buy-working"]').click();
+    await settled(page);await page.evaluate(c=>__AUDIT__.openDrawer('company',c),c);await tapTile(page,'buy-working','operatingAssetMarket');
     assert.equal(await page.evaluate(()=>__AUDIT__.currentPanel()),'operatingAssetMarket');
     const review=page.locator('[data-gh-action="operating-review"]').first();assert.equal(await review.count(),1,c);
     const key=await review.getAttribute('data-target'),variant=await review.getAttribute('data-variant');

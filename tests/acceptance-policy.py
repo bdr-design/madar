@@ -46,6 +46,7 @@ declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 expected_preflight=[
     ['node','tests/build334-security-contract.cjs'],
+    ['node','tests/business-options-browser.cjs'],
     ['node','tests/build406-save-chunk-transport.cjs'],
     ['node','tests/build407-diagnostic-lifecycle.cjs'],
     ['node','tests/build408-diagnostic-map-browser.cjs'],

@@ -1,0 +1,39 @@
+{
+  "recorded_at_utc": "2026-10-17T22:31:35.168252+00:00",
+  "runtime_source_sha256": "37af98411daa5ae48749431526647e185637ec4c203ac2f9e2e99ad431cd46ca",
+  "runtime_changed": false,
+  "ci_failure": {
+    "run_id": 39015504750,
+    "commit": "21c5a335f20089a568a9132942137a1baacee403",
+    "engine": "macOS WebKit",
+    "gate": "tests/business-options-browser.cjs",
+    "expected_panel": "companyMarket",
+    "observed_panel": "company",
+    "runtime_error_proven": false
+  },
+  "fixture_followup": {
+    "input": "Single trusted mobile tap per company tile, no retries",
+    "setup": "Wait for the fixture calendar job, transaction, persistence and maintenance to settle",
+    "destination": "Bounded wait for exact current panel; assert actual drawer panel and exactly one trusted click with the intended data-go target",
+    "failure_evidence": "Export event/panel/kernel/maintenance state to the failed gate log",
+    "money_assertions": "All pricing, cheque, document, NACK, durable reload, next-day revenue and ownership assertions retained",
+    "product_runtime_work_added": false
+  },
+  "scoped_local": "PASS Chromium and WebKit",
+  "scoped_log_sha256": "88b1d500ed8af6a89657777050b6ba296614057e81eeb6bcec6a53b1e5556b5b",
+  "previous_full_local": {
+    "passed": 438,
+    "total": 438,
+    "source_runtime_unchanged": true,
+    "contract_sha256": "d76675466c89e40d16d7bcc81aa6dab1dc9e7d692f66a5138c0f24e4fd52f534",
+    "scope": "Full local certificate on the previous test contract; a new independent CI certificate is required after this fixture change."
+  },
+  "required_current_ci": {
+    "source_gates": 438,
+    "preflight_commands": 40,
+    "business_gate_position": 2,
+    "native_before_source_suite": true
+  },
+  "physical_iphone_tested": false,
+  "production_approved": false
+}
