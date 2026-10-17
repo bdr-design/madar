@@ -1,0 +1,2 @@
+source_mode=direct_git_tree
+checkout_sha=8e5f6c59013a4c187ef8b266963317d545a6ee37
