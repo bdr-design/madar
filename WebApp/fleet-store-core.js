@@ -551,7 +551,15 @@
   // writes themselves are sliced. Validation uses raw store slots (no view/proxy/materialization per row) and completes
   // before the first write. Generic plans preserve columnWriter's IEEE/extras behavior for every number; a domain plan
   // may set rejectNaN to reject NaN during this preflight without leaving a partial write.
-  function* columnPlanStages(store,plan,{rowSlice=4096,label='fleet.column-plan',replicaTransfer=false}={}){
+  // Replica readers must wait across every yield of this one-shot plan, including validation and undo preparation.
+  // Otherwise a HUD query can drain/transfer a partial mass write and invalidate the next apply slice. The existing
+  // freshness checks still reject any actual write or an unauthorized direct drain. Cancellation always releases it.
+  function columnPlanActive(store){return (runtime.get(store)?.columnPlans||0)>0;}
+  function* columnPlanStages(store,plan,options={}){
+    const r=rt(store);r.columnPlans=(r.columnPlans||0)+1;
+    try{return yield* applyColumnPlanStages(store,plan,options);}finally{r.columnPlans--;}
+  }
+  function* applyColumnPlanStages(store,plan,{rowSlice=4096,label='fleet.column-plan',replicaTransfer=false}={}){
     const fields=Array.isArray(plan?.fields)?[...plan.fields]:[],indices=plan?.indices,values=plan?.values,count=Number(plan?.count),width=fields.length,dual=plan?.exceptional!=null,exceptional=dual?plan.exceptional:null,rejectNaN=plan?.rejectNaN===true;
     const exceptionalCount=dual?Number(exceptional?.count):0,exceptionalIndices=dual?exceptional?.indices:null,exceptionalValues=dual?exceptional?.values:null,totalCount=dual?Number(plan?.totalCount):count,exceptionalPositions=dual?null:(plan?.exceptionalPositions==null?null:plan.exceptionalPositions);
     if(!Number.isSafeInteger(count)||count<0||!width)throw new Error('fleet-store-column-plan-invalid');
@@ -1432,7 +1440,7 @@
 
   const API=Object.freeze({VERSION,SCHEMA,CHUNK_SHIFT,CHUNK_ROWS,ALIVE,EXTRAS,I32_NULL,PROFILE_FIELDS,BINDING_FIELDS,HOT_FIELDS,HOT_BIT,STRIDE,F64_PER_ROW,WORDS_PER_ROW,SLOTS,SLOT_NAMES,O,
     create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
-    views,slot,setSlot,columnWriter,columnPlanStages,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
+    views,slot,setSlot,columnWriter,columnPlanStages,columnPlanActive,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
     // Fields whose in-place writes leave identityVersions alone (engine, carried seconds, route tier): a per-chunk table
     // keyed on identityVersions must not read them (GH_FLEET_SAVE_VALIDATION's static checks verify this).
     IDENTITY_TIER_EXEMPT:Object.freeze([...IDENTITY_EXEMPT,...ROUTE_TIER])});

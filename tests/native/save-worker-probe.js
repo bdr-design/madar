@@ -15,6 +15,7 @@
     check(S&&C&&W&&typeof W.createSession==='function','runtime modules available');const bytes=new Uint8Array(4194304);for(let i=0;i<bytes.length;i++)bytes[i]=(i*19+7)&255;
     const expected=C.chunkChecksum(bytes),found=await W.checksum(bytes);check(found.checksum===expected&&bytes.byteLength===4194304&&found.bytes.byteLength===bytes.byteLength,'checksum and buffers');
     for(let i=0;i<bytes.length;i++)if(bytes[i]!==found.bytes[i])throw new Error('worker byte mismatch');
+    const raw=new Uint8Array(4*1024*1024),packed=await W.encodeChunk(raw,128);check(packed.encoding==='gh-packbits-v1'&&packed.rawBytes===raw.length&&packed.bytes.length<raw.length/10,'native-origin worker compresses repeated record bytes');
   });
   await test('three chunk pipeline uses one bounded lookahead and no main checksum',async()=>{
     const count=S.CHUNK_ROWS*2+3,store=S.create(count);for(let i=0;i<count;i++)S.add(store,{id:'NATIVE-PIPE-'+i,name:'Aircraft '+i,assetMode:'air',ownerCompanyId:'air',baseFacility:'B1',phase:'idle',progress:0,fuel:100,condition:90});state={fleet:store};

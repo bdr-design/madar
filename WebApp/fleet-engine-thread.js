@@ -270,6 +270,7 @@
     // route plans, a replica due for a new copy or a window that is not open keep the refusal (the caller then reads
     // the store itself, as before). Returns '' once sent, else the refusal's reason.
     function syncIntoOpen(store){
+      if(STORE.columnPlanActive(store))return 'column-plan-applying';
       const step=pending&&pending.applied&&!pending.settled&&!windowSession&&pending.store===store?pending:null;
       const session=!pending&&windowSession&&windowSession.status==='open'&&!windowSession.settled&&windowSession.store===store?windowSession:null;
       if(!step&&!session)return 'written-since-step';
@@ -289,6 +290,7 @@
     function replicaIsStore(store,{validation=false}={}){
       const refuse=reason=>{const r=stats.replicaRefusals||(stats.replicaRefusals={});r[reason]=(r[reason]||0)+1;return null;};
       if(disabled||!worker||!STORE.isStore(store)||!synced||synced.store!==store)return refuse('no-replica');
+      if(STORE.columnPlanActive(store))return refuse('column-plan-applying');
       if(mutationSession){
         // Read-only save validation is allowed after the final bounded flush, before durable ACK. The worker's
         // mutation journal stays open: rejection/NACK still restores both replicas, and no gameplay query is admitted.
@@ -305,7 +307,7 @@
     // Keeps the replica current between steps (after load, after commands): a later step then sends only its own
     // changes. Does nothing while a step or window is in flight.
     function prime(store){
-      if(pending||windowSession||mutationSession||dispatchRequests.size||!STORE.isStore(store)||!ensureWorker())return false;
+      if(pending||windowSession||mutationSession||dispatchRequests.size||!STORE.isStore(store)||STORE.columnPlanActive(store)||!ensureWorker())return false;
       try{sync(store);}catch(error){disable(`sync:${error?.message||error}`);return false;}
       return !replicaBuild;
     }

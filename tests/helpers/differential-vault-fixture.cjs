@@ -20,7 +20,7 @@ function installVault(seed){
 // own loopback origin, matching the native same-origin worker contract without changing the application's CSP.
 async function bootAtOrigin(options){
  const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),{boot}=require('./local-dom-app'),browser=options.browser,root=options.root||path.resolve(__dirname,'../..');
- const worker=fs.readFileSync(path.join(root,'WebApp/state-codec-core.js'),'utf8')+'\n;\n'+fs.readFileSync(path.join(root,'WebApp/save-checksum-worker.js'),'utf8').replace(/^importScripts\([^)]*\);$/m,'');
+ const worker=fs.readFileSync(path.join(root,'WebApp/state-codec-core.js'),'utf8')+'\n;\n'+fs.readFileSync(path.join(root,'WebApp/save-chunk-codec.js'),'utf8')+'\n;\n'+fs.readFileSync(path.join(root,'WebApp/save-checksum-worker.js'),'utf8').replace(/^importScripts\([^)]*\);$/m,'');
  const server=http.createServer((req,res)=>{const script=req.url==='/__qa_save_worker.js';res.writeHead(script||req.url==='/'?200:404,{'Content-Type':script?'application/javascript':'text/html'});res.end(script?worker:'<!doctype html><title>Local snapshot test</title>');});
  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
  const closeOrigin=()=>new Promise(resolve=>{server.close(resolve);server.closeAllConnections();});

@@ -1,5 +1,5 @@
 'use strict';
-importScripts('state-codec-core.js');
+importScripts('state-codec-core.js','save-chunk-codec.js');
 const VERSION='save-checksum-v1',MAX_BYTES=4*1024*1024;
 const FLEET_STRIDE=128,FLEET_WORDS=[27,28,29],FLEET_PRESENT_WORD=12,FLEET_PRESENT_MASK=((1<<18)|(1<<19)|(1<<20))>>>0,FLEET_PAGE_BYTES=13;
 function transformFleet(bytes,transform,expectedBytes){
@@ -23,9 +23,10 @@ function transformFleet(bytes,transform,expectedBytes){
 self.addEventListener('message',event=>{
   const m=event.data||{},started=performance.now();
   try{
-    if(!['checksum','base64'].includes(m.type)||m.version!==VERSION||!Number.isSafeInteger(m.id)||!(m.buffer instanceof ArrayBuffer)||m.buffer.byteLength<1||m.buffer.byteLength>MAX_BYTES||m.transform!=null&&m.type!=='checksum')throw new Error('save-checksum-request-invalid');
+    if(!['checksum','base64','chunk-encode'].includes(m.type)||m.version!==VERSION||!Number.isSafeInteger(m.id)||!(m.buffer instanceof ArrayBuffer)||m.buffer.byteLength<1||m.buffer.byteLength>MAX_BYTES||m.transform!=null&&m.type!=='checksum')throw new Error('save-checksum-request-invalid');
     const bytes=new Uint8Array(m.buffer);
-    if(m.type==='base64')self.postMessage({type:'base64-result',version:VERSION,id:m.id,text:self.GH_STATE_CODEC.bytesToBase64(bytes),workerMs:performance.now()-started});
+    if(m.type==='chunk-encode'){const packed=self.GH_SAVE_CHUNK_CODEC.pack(bytes,m.stride);self.postMessage({type:'chunk-encode-result',version:VERSION,id:m.id,encoding:packed.encoding,rawBytes:bytes.byteLength,buffer:packed.bytes.buffer,workerMs:performance.now()-started},[packed.bytes.buffer]);}
+    else if(m.type==='base64')self.postMessage({type:'base64-result',version:VERSION,id:m.id,text:self.GH_STATE_CODEC.bytesToBase64(bytes),workerMs:performance.now()-started});
     else{const expected=Number.isSafeInteger(m.expectedBytes)?m.expectedBytes:bytes.byteLength,output=m.transform?transformFleet(bytes,m.transform,expected):bytes;if(output.byteLength!==expected||output.byteLength>MAX_BYTES)throw new Error('save-checksum-output-invalid');const checksum=self.GH_STATE_CODEC.chunkChecksum(output);self.postMessage({type:'checksum-result',version:VERSION,id:m.id,checksum,buffer:output.buffer,workerMs:performance.now()-started},[output.buffer]);}
   }catch(error){self.postMessage({type:'checksum-error',version:VERSION,id:m.id,error:String(error?.message||error).slice(0,200)});}
 });

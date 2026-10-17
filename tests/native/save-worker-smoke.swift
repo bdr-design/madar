@@ -68,7 +68,7 @@ report["realWKWebView"] = true; report["origin"] = "gh://app"; report["platform"
 report["workerRequestObserved"] = requestedPaths.contains("/save-checksum-worker.js"); report["requestedPaths"] = requestedPaths
 report["nativeGatePassed"] = valid
 var hashes: [String: String] = [:]
-for file in ["index.html", "fleet-store-core.js", "state-codec-core.js", "save-checksum-thread.js", "save-checksum-worker.js"] {
+for file in ["index.html", "fleet-store-core.js", "state-codec-core.js", "save-chunk-codec.js", "save-checksum-thread.js", "save-checksum-worker.js"] {
     hashes[file] = SHA256.hash(data: try Data(contentsOf: webRoot.appendingPathComponent(file))).map { String(format: "%02x", $0) }.joined()
 }
 report["sourceSha256"] = hashes

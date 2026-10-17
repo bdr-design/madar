@@ -209,6 +209,44 @@ test("chunk store round-trips bytes, compressed and SHA-256 checked") {
     let size=((try fm.attributesOfItem(atPath:chunkFolder.appendingPathComponent("s1.a.1.chunk").path))[.size] as? NSNumber)?.intValue ?? Int.max
     try check(size<chunkA.count,"Chunk file is not compressed: \\(size)")
 }
+// Golden PackBits byte-plane wire vector: 65,536 zero bytes, CRC-32/ISO-HDLC 0xd7978eeb.
+let transportRaw=Data(repeating:0,count:65_536)
+var transportWire=Data([71,72,67,80,82,76,69,49,0,0,1,0,128,0,0,0,235,142,151,215])
+for _ in 0..<512 { transportWire.append(contentsOf:[129,0]) }
+test("compressed transport restores the exact original chunk before immutable storage") {
+    // Three literal bytes followed by 509 repeated bytes in every plane; exercises both packet kinds.
+    var mixedRaw=Data(repeating:0,count:65_536)
+    var mixedWire=Data([71,72,67,80,82,76,69,49,0,0,1,0,128,0,0,0,126,253,207,232])
+    for plane in 0..<128 {
+        let byte=UInt8(plane);mixedRaw[plane]=byte;mixedRaw[plane+128]=byte^0x5a;mixedRaw[plane+256]=byte^0xa5
+        mixedWire.append(contentsOf:[2,byte,byte^0x5a,byte^0xa5,129,0,129,0,129,0,132,0])
+    }
+    try check(try VentoraChunkTransport.decode(mixedWire,encoding:"gh-packbits-v1",rawBytes:mixedRaw.count)==mixedRaw,"Literal/repeat interleaving changed bytes")
+    let digest=try vault.storeChunk(id:"s1.packed",data:transportWire,encoding:"gh-packbits-v1",rawBytes:transportRaw.count)
+    try check(digest==hex(transportRaw),"Transport changed original SHA-256")
+    try check(try vault.chunkData(id:"s1.packed")==transportRaw,"Wire bytes leaked into stored chunk")
+    _=try vault.storeChunk(id:"s1.packed",data:transportRaw)
+}
+test("corrupt transport is refused before any chunk is written") {
+    for at in [0,8,12,14,16,20,transportWire.count-1] {
+        var corrupt=transportWire;corrupt[at]^=1
+        var refused=false;do{_=try vault.storeChunk(id:"s1.badwire",data:corrupt,encoding:"gh-packbits-v1",rawBytes:transportRaw.count)}catch{refused=true}
+        try check(refused,"Corrupt transport accepted")
+    }
+    try check(!fm.fileExists(atPath:chunkFolder.appendingPathComponent("s1.badwire.chunk").path),"Corrupt transport wrote a chunk")
+}
+test("binary and bridge transport decode on the real vault queue") {
+    let binary:String=try wait { completion in vault.storeChunkAsync(id:"s1.packed.async",data:transportWire,encoding:"gh-packbits-v1",rawBytes:transportRaw.count,completion:completion) }
+    let bridge:String=try wait { completion in vault.storeChunkBase64Async(id:"s1.packed.bridge",text:transportWire.base64EncodedString(),encoding:"gh-packbits-v1",rawBytes:transportRaw.count,completion:completion) }
+    try check(binary==hex(transportRaw) && bridge==binary,"Transport route digests differ")
+    try check(try vault.chunkData(id:"s1.packed.async")==transportRaw,"Binary route changed bytes")
+    try check(try vault.chunkData(id:"s1.packed.bridge")==transportRaw,"Bridge route changed bytes")
+    for encoding in ["unknown","gh-packbits-v1"] {
+        var refused=false;do{_=try vault.storeChunk(id:"s1.badwire",data:transportWire,encoding:encoding,rawBytes:1)}catch{refused=true}
+        try check(refused,"Unknown encoding or wrong raw size accepted")
+    }
+    for id in ["s1.packed","s1.packed.async","s1.packed.bridge"] { try fm.removeItem(at:chunkFolder.appendingPathComponent(id+".chunk")) }
+}
 test("re-uploading the same bytes is accepted; other bytes under the id are refused") {
     _=try vault.storeChunk(id:"s1.a.1",data:chunkA)
     var refused=false;do{_=try vault.storeChunk(id:"s1.a.1",data:chunkB)}catch{refused=true}

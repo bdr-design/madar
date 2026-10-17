@@ -672,7 +672,7 @@ final class GlobalSaveVault {
         dispatchPrecondition(condition: .onQueue(queue))
         let nativeBuild = Int(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0") ?? 0
         let sourceSnapshot = String((Bundle.main.object(forInfoDictionaryKey: "GHSourceSnapshotSHA256") as? String ?? "").filter { $0.isHexDigit }.prefix(64))
-        let compatibility = "window.GH_NATIVE_BUILD=\(nativeBuild);window.GH_NATIVE_SOURCE_SNAPSHOT='\(sourceSnapshot)';"
+        let compatibility = "window.GH_NATIVE_BUILD=\(nativeBuild);window.GH_NATIVE_SOURCE_SNAPSHOT='\(sourceSnapshot)';window.GH_NATIVE_CHUNK_ENCODINGS=['gh-packbits-v1'];"
         if fm.fileExists(atPath: resetCheckpointURL.path) { return compatibility + "window.GH_NATIVE_RECOVERY_BLOCKED=true;" }
         guard let envelope = bestEnvelope(), let data = envelope.payload.data(using: .utf8) else { return compatibility + (["A", "B"].contains(where: { fm.fileExists(atPath: url($0).path) }) ? "window.GH_NATIVE_RECOVERY_BLOCKED=true;" : "") }
         let b64 = data.base64EncodedString()
@@ -879,15 +879,26 @@ final class GlobalSaveVault {
     }
     private func chunkURL(_ id: String) -> URL { chunkFolder.appendingPathComponent(id + ".chunk", isDirectory: false) }
 
-    func storeChunkAsync(id: String, data: Data, completion: ((Result<String, Error>) -> Void)? = nil) {
+    func storeChunkAsync(id: String, data: Data, encoding: String = "identity", rawBytes: Int? = nil, completion: ((Result<String, Error>) -> Void)? = nil) {
         queue.async {
-            let result = Result<String, Error> { try self.storeChunkLocked(id: id, data: data) }
+            let result = Result<String, Error> { try self.storeChunkLocked(id: id, data: VentoraChunkTransport.decode(data, encoding: encoding, rawBytes: rawBytes)) }
             if let completion { DispatchQueue.main.async { completion(result) } }
         }
     }
 
+    // The fallback bridge's base64 conversion also belongs to the vault queue, not the game's presentation thread.
+    func storeChunkBase64Async(id: String, text: String, encoding: String = "identity", rawBytes: Int? = nil, completion: @escaping (Result<String, Error>) -> Void) {
+        queue.async {
+            let result = Result<String, Error> {
+                guard text.utf8.count <= 96 * 1024 * 1024, let wire = Data(base64Encoded: text) else { throw VaultError.message("Invalid save chunk upload.") }
+                return try self.storeChunkLocked(id: id, data: VentoraChunkTransport.decode(wire, encoding: encoding, rawBytes: rawBytes))
+            }
+            DispatchQueue.main.async { completion(result) }
+        }
+    }
+
     @discardableResult
-    func storeChunk(id: String, data: Data) throws -> String { try queue.sync { try storeChunkLocked(id: id, data: data) } }
+    func storeChunk(id: String, data: Data, encoding: String = "identity", rawBytes: Int? = nil) throws -> String { try queue.sync { try storeChunkLocked(id: id, data: VentoraChunkTransport.decode(data, encoding: encoding, rawBytes: rawBytes)) } }
 
     private func storeChunkLocked(id: String, data: Data) throws -> String {
         guard isValidChunkId(id) else { throw VaultError.message("Invalid save chunk id.") }
@@ -1393,5 +1404,59 @@ final class GlobalSaveVault {
     private enum VaultError: LocalizedError {
         case message(String)
         var errorDescription: String? { switch self { case .message(let value): value } }
+    }
+}
+
+// Wire-only PackBits byte planes. Runs on GlobalSaveVault.queue before the existing SHA-256, immutable ID check,
+// atomic write and read-back verification. Stored chunk files and old save manifests are byte-for-byte unchanged.
+enum VentoraChunkTransport {
+    private enum Failure: LocalizedError {
+        case corrupt
+        var errorDescription: String? { "Invalid compressed save chunk." }
+    }
+    private static let crcTable: [UInt32] = (0..<256).map { index in
+        var value = UInt32(index)
+        for _ in 0..<8 { value = value & 1 != 0 ? 0xedb88320 ^ (value >> 1) : value >> 1 }
+        return value
+    }
+    static func decode(_ data: Data, encoding: String, rawBytes: Int?) throws -> Data {
+        if encoding == "identity" {
+            guard !data.isEmpty, data.count <= 64 * 1024 * 1024, rawBytes == nil || rawBytes == data.count else { throw Failure.corrupt }
+            return data
+        }
+        guard encoding == "gh-packbits-v1", data.count >= 20, data.count <= 4 * 1024 * 1024 else { throw Failure.corrupt }
+        let input = [UInt8](data)
+        guard Array(input.prefix(8)) == Array("GHCPRLE1".utf8) else { throw Failure.corrupt }
+        func word(_ at: Int) -> UInt32 { UInt32(input[at]) | UInt32(input[at + 1]) << 8 | UInt32(input[at + 2]) << 16 | UInt32(input[at + 3]) << 24 }
+        let length = Int(word(8)), stride = Int(input[12]) | Int(input[13]) << 8
+        guard length > 0, length <= 4 * 1024 * 1024, rawBytes == length, data.count < length,
+              [1, 13, 128].contains(stride), input[14] == 0, input[15] == 0 else { throw Failure.corrupt }
+        var output = [UInt8](repeating: 0, count: length), read = 20
+        for plane in 0..<min(stride, length) {
+            let count = (length - 1 - plane) / stride + 1
+            var at = 0
+            while at < count {
+                guard read < input.count else { throw Failure.corrupt }
+                let control = Int(input[read]); read += 1
+                guard control != 128 else { throw Failure.corrupt }
+                let run = control < 128 ? control + 1 : 257 - control
+                guard run <= count - at else { throw Failure.corrupt }
+                if control < 128 {
+                    guard run <= input.count - read else { throw Failure.corrupt }
+                    for index in 0..<run { output[plane + (at + index) * stride] = input[read + index] }
+                    read += run
+                } else {
+                    guard read < input.count else { throw Failure.corrupt }
+                    let value = input[read]; read += 1
+                    for index in 0..<run { output[plane + (at + index) * stride] = value }
+                }
+                at += run
+            }
+        }
+        guard read == input.count else { throw Failure.corrupt }
+        var crc: UInt32 = 0xffffffff
+        for byte in output { crc = crcTable[Int((crc ^ UInt32(byte)) & 255)] ^ (crc >> 8) }
+        guard crc ^ 0xffffffff == word(16) else { throw Failure.corrupt }
+        return Data(output)
     }
 }

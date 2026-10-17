@@ -28,8 +28,8 @@ def main():
             native=read('native-save-worker.json')
             if native.get('nativeGatePassed') is not True or native.get('realWKWebView') is not True or native.get('workerRequestObserved') is not True or native.get('origin')!='gh://app' or native.get('passed')!=8 or native.get('total')!=8 or native.get('failed')!=0:raise ValueError('Native save-worker gate missing or failed')
             for name,digest in native['sourceSha256'].items():
-                if name not in ['index.html','fleet-store-core.js','state-codec-core.js','save-checksum-thread.js','save-checksum-worker.js'] or hashlib.sha256((root/'WebApp'/name).read_bytes()).hexdigest()!=digest:raise ValueError('Native worker tested other bytes')
-            if len(native['sourceSha256'])!=5 or native.get('probeSha256')!=hashlib.sha256((root/'tests/native/save-worker-probe.js').read_bytes()).hexdigest():raise ValueError('Native worker provenance mismatch')
+                if name not in ['index.html','fleet-store-core.js','state-codec-core.js','save-chunk-codec.js','save-checksum-thread.js','save-checksum-worker.js'] or hashlib.sha256((root/'WebApp'/name).read_bytes()).hexdigest()!=digest:raise ValueError('Native worker tested other bytes')
+            if len(native['sourceSha256'])!=6 or native.get('probeSha256')!=hashlib.sha256((root/'tests/native/save-worker-probe.js').read_bytes()).hexdigest():raise ValueError('Native worker provenance mismatch')
             ipa=read('test-ipa-verification.json');file=out/'GlobalHoldings_BUILD362_unsigned_TEST.ipa'
             if ipa.get('ipa_created') is not True or ipa.get('arm64_iphoneos') is not True or ipa.get('workflow_commit')!=commit or ipa.get('workflow_run_id')!=run_id or ipa.get('source_tree_sha256')!=accepted['source_tree_sha256'] or ipa.get('ipa_sha256')!=hashlib.sha256(file.read_bytes()).hexdigest() or ipa.get('ipa_bytes')!=file.stat().st_size:raise ValueError('IPA/source/compilation evidence mismatch')
             if not valid_artifact_url(artifact,repository,run_id):raise ValueError('Missing artifact download URL')

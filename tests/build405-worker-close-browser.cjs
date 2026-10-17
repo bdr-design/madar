@@ -30,15 +30,25 @@ const QTY=2305;
    const signatures=new Set([JSON.stringify(['type','specs']),JSON.stringify(['phase','routeId','simulationFault']),JSON.stringify(['id','ownerCompanyId','companyId','assetMode','type','assetClass'])]);
    const deny=()=>{watch.fullWalks++;throw new Error('forbidden-main-fleet-walk');};
    window.__WORKER_CLOSE_RESTORE__=()=>{window.GH_FLEET_DATA=F;window.GH_REALISM.onDayStages=oldDay;};
-   window.GH_FLEET_DATA={...F,countByPhase:deny,countByFields:deny,forEachFieldClasses(state,fields,...rest){if(state===__GH_STATE__&&signatures.has(JSON.stringify(fields)))return deny();return F.forEachFieldClasses(state,fields,...rest);}};
+   window.GH_FLEET_DATA={...F,*columnPlanStages(state,plan,options){
+    const stages=F.columnPlanStages(state,plan,options),revision=state.fleet.revision;
+    try{for(;;){const step=stages.next();if(step.done)return step.value;
+     // Force the real map reader between partial apply slices. A HUD refresh must never drain the replica log or
+     // transfer half a column plan; this interleaving formerly stopped day close depending on frame timing.
+     if(state.fleet.revision!==revision){watch.interleaved=(watch.interleaved||0)+1;__AUDIT__.mapFleetClassRows();}
+     yield step.value;
+    }}finally{stages.return();}
+   },countByPhase:deny,countByFields:deny,forEachFieldClasses(state,fields,...rest){if(state===__GH_STATE__&&signatures.has(JSON.stringify(fields)))return deny();return F.forEachFieldClasses(state,fields,...rest);}};
    GH_REALISM.onDayStages=function*(state,day){const steps=oldDay(state,day);for(;;){const step=steps.next();if(step.done)return step.value;if(!watch.injected&&step.value==='realism.budgets'){watch.injected=true;GH_FLEET_STORE.set(state.fleet,0,'condition',64);}yield step.value;}};
    __AUDIT__.setSpeed(3);return watch.before;
   });
   await page.waitForFunction(()=>__GH_STATE__.lastFinancialDay===1&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__)||!!__AUDIT__.simulationEngine.snapshot().lastError,null,{timeout:60000});
   const commit=await page.evaluate(()=>{
-   __AUDIT__.setSpeed(0);const watch=__WORKER_CLOSE_WATCH__,out={fullWalks:watch.fullWalks,injected:watch.injected,after:__AUDIT__.fleetEngineThreadClient().stats(),day:__GH_STATE__.lastFinancialDay,error:__AUDIT__.simulationEngine.snapshot().lastError,metrics:GH_REALISM.fleetDailyMetrics(__GH_STATE__)};__WORKER_CLOSE_RESTORE__();return out;
+   __AUDIT__.setSpeed(0);const watch=__WORKER_CLOSE_WATCH__,out={interleaved:watch.interleaved||0,fullWalks:watch.fullWalks,injected:watch.injected,after:__AUDIT__.fleetEngineThreadClient().stats(),day:__GH_STATE__.lastFinancialDay,error:__AUDIT__.simulationEngine.snapshot().lastError,metrics:GH_REALISM.fleetDailyMetrics(__GH_STATE__)};__WORKER_CLOSE_RESTORE__();return out;
   });
-  assert.equal(commit.day,1);assert.equal(commit.error,'');assert.equal(commit.fullWalks,0);assert.equal(commit.injected,true);
+  assert.equal(commit.day,1,commit.error);assert.equal(commit.error,'');assert.equal(commit.fullWalks,0);assert.equal(commit.injected,true);
+  assert.ok(commit.interleaved>0,'the map read actually ran between partial column writes');
+  assert.ok(commit.after.replicaRefusals['column-plan-applying']>0,'readers defer until the whole typed plan is ready');
   assert.ok(commit.after.columnPlanSyncs>before.columnPlanSyncs,'the typed plan travelled before the later condition row write');
   assert.equal(commit.after.columnSyncs,before.columnSyncs,'no whole-column gather was needed');
   assert.equal(commit.metrics.rows,QTY);
@@ -65,6 +75,6 @@ const QTY=2305;
   const digest=value=>crypto.createHash('sha256').update(String(value)).digest('hex');
   for(const key of Object.keys(cancelled.before)){assert.equal(digest(cancelled.after[key]),digest(cancelled.before[key]),`pause restores ${key}`);assert.equal(digest(cancelled.afterLate[key]),digest(cancelled.before[key]),`late resolution cannot alter ${key}`);}
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({suite:'build405-worker-close-browser',rows:QTY,mainFullWalks:commit.fullWalks,columnPlanSyncs:commit.after.columnPlanSyncs-before.columnPlanSyncs,wholeColumnSyncs:commit.after.columnSyncs-before.columnSyncs,cancelRollback:true,lateAnswerRejected:true}));
+  console.log(JSON.stringify({suite:'build405-worker-close-browser',rows:QTY,mainFullWalks:commit.fullWalks,columnPlanSyncs:commit.after.columnPlanSyncs-before.columnPlanSyncs,wholeColumnSyncs:commit.after.columnSyncs-before.columnSyncs,interleavedMapReads:commit.interleaved,cancelRollback:true,lateAnswerRejected:true}));
  }finally{await browser.close();await started?.closeOrigin();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

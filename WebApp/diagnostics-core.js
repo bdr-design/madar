@@ -186,6 +186,10 @@
     // Build 359: the asset signal is taken once per rate window (and on start and stop); samples in between carry the
     // last one.
     const atMs=recorderNow(meta),simSeconds=Number(state.simSeconds)||0,requestedRate=Number(simulation.manualAdvance?.speed??simulation.speed)||0,assetDue=meta.forceSample===true||!r.lastAssetSignal||atMs-Number(r.rateWindow?.atMs??atMs)>=RECORDER_RATE_WINDOW_MS,asset=assetDue?recorderAssetSignal(state,meta.fleetPhaseHint,r.lastAssetSignal):r.lastAssetSignal,revenue=recorderRevenueSignal(state),engine={frames:Number(simulation.frames)||0,slices:Number(simulation.slices)||0,cancels:Number(simulation.cancels)||0,hardTasks:Number(simulation.hardTasks)||0,backlogClamps:Number(simulation.backlogClamps)||0,manualFailures:Number(simulation.manualFailures)||0};
+    // Visibility can stop RAF/timers for seconds. Anchor both windows on hide and the first resume sample so that a
+    // background save or OS suspension is never reported as a visible simulation stall or a zero-throughput interval.
+    const hidden=simulation.hidden===true||globalThis.document?.hidden===true;
+    if(hidden||r.visibilityPaused===true){r.lastProgressAtMs=atMs;r.lastProgressSim=simSeconds;r.flags.simStall=false;r.rateWindow={atMs,simSeconds,asset,revenue,requestedRate};r.lastExpectedPause={atMs,simSeconds,reason:hidden?'hidden':'visibility-resume'};}r.visibilityPaused=hidden;
     const prevEngine=r.lastEngine||{};
     if(engine.cancels>Number(prevEngine.cancels||0))recorderEvent(state,'SIM_SLICE_CANCELLED',{delta:engine.cancels-Number(prevEngine.cancels||0),reason:simulation.lastCancelReason||'',jobActive:!!simulation.jobActive,jobReadyToFinish:!!simulation.jobReadyToFinish},'warning',{nowMs:atMs});
     if(engine.hardTasks>Number(prevEngine.hardTasks||0))recorderEvent(state,'SIM_STAGE_HARD_TASK',{delta:engine.hardTasks-Number(prevEngine.hardTasks||0),stage:simulation.lastWorkStage||'',lastCreateMs:Number(simulation.lastCreateMs)||0,lastChunkMs:Number(simulation.lastChunkMs)||0,lastFinishMs:Number(simulation.lastFinishMs)||0,maxCycleMs:Number(simulation.maxCycleMs)||0,governor:simulation.governor||''},'warning',{nowMs:atMs});
@@ -221,6 +225,7 @@
   }
   function recorderStop(state,simulation={},meta={}){
     ensure(state);const r=recorderFor(state);if(!r)return null;
+    if(!r.active&&r.summary)return cleanDetail(r.summary);
     if(r.active)recorderSample(state,simulation,{...meta,forceSample:true});
     const atMs=recorderNow(meta);r.active=false;r.endedAtMs=atMs;r.endedAt=new Date(atMs).toISOString();
     const events=Array.isArray(r.events)?r.events:[],counts={...(r.counts||{})},priority=['FRAME_DROP','LONG_TASK_TRACE','CALENDAR_ADVANCE_FAILED','SIM_PROGRESS_STALLED','ASSET_REVENUE_PROGRESS_STALLED','LIVE_BACKLOG_CLAMP','LIVE_SPEED_UNDERRUN','SIM_SLICE_CANCELLED','SIM_STAGE_HARD_TASK'];

@@ -2,7 +2,7 @@
   'use strict';
   const VERSION='save-checksum-v1',MAX_BYTES=4*1024*1024,pending=new Map(),workerResults=new WeakSet();
   let worker=null,sequence=0;
-  const stats={requests:0,completed:0,encodes:0,failures:0,copyMs:0,maxCopyMs:0,workerMs:0,maxWorkerMs:0,sessions:0,activeSessions:0,activeChannels:0,maxSessionJobs:0,lookaheadRequests:0,deferredSubmitMs:0,maxDeferredSubmitMs:0};
+  const stats={requests:0,completed:0,encodes:0,chunkEncodes:0,rawChunkBytes:0,wireChunkBytes:0,failures:0,copyMs:0,maxCopyMs:0,workerMs:0,maxWorkerMs:0,sessions:0,activeSessions:0,activeChannels:0,maxSessionJobs:0,lookaheadRequests:0,deferredSubmitMs:0,maxDeferredSubmitMs:0};
   const clock=()=>globalThis.performance?.now?.()??Date.now();
   function stop(reason){worker?.terminate();worker=null;for(const p of pending.values()){clearTimeout(p.timer);p.reject(new Error(reason));}pending.clear();}
   function ready(){
@@ -11,23 +11,26 @@
     worker.onmessage=event=>{
       const m=event.data||{},p=pending.get(m.id);if(!p)return;
       pending.delete(m.id);clearTimeout(p.timer);
-      const valid=p.kind==='checksum'?typeof m.checksum==='string'&&/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/.test(m.checksum)&&m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===p.bytes:typeof m.text==='string'&&m.text.length===4*Math.ceil(p.bytes/3);
+      const valid=p.kind==='checksum'?typeof m.checksum==='string'&&/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/.test(m.checksum)&&m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===p.bytes:p.kind==='chunk-encode'?m.rawBytes===p.bytes&&m.buffer instanceof ArrayBuffer&&(m.encoding==='identity'&&m.buffer.byteLength===p.bytes||m.encoding==='gh-packbits-v1'&&m.buffer.byteLength>=20&&m.buffer.byteLength<=Math.floor(p.bytes*.875)):typeof m.text==='string'&&m.text.length===4*Math.ceil(p.bytes/3);
       if(m.type!==p.kind+'-result'||m.version!==VERSION||!valid){stats.failures++;p.reject(new Error('save-checksum-result-invalid'));return;}
       stats.completed++;stats.workerMs+=Number(m.workerMs)||0;stats.maxWorkerMs=Math.max(stats.maxWorkerMs,Number(m.workerMs)||0);
-      if(p.kind==='base64'){stats.encodes++;p.resolve(m.text);}else{const result={checksum:m.checksum,bytes:new Uint8Array(m.buffer),copyMs:p.copyMs,workerMs:Number(m.workerMs)||0};workerResults.add(result);p.resolve(result);}
+      if(p.kind==='base64'){stats.encodes++;p.resolve(m.text);}else if(p.kind==='chunk-encode'){stats.chunkEncodes++;stats.rawChunkBytes+=p.bytes;stats.wireChunkBytes+=m.buffer.byteLength;p.resolve({encoding:m.encoding,bytes:new Uint8Array(m.buffer),rawBytes:m.rawBytes,workerMs:Number(m.workerMs)||0});}else{const result={checksum:m.checksum,bytes:new Uint8Array(m.buffer),copyMs:p.copyMs,workerMs:Number(m.workerMs)||0};workerResults.add(result);p.resolve(result);}
     };
     worker.onerror=()=>{stats.failures++;stop('save-checksum-worker-error');};
     worker.onmessageerror=()=>{stats.failures++;stop('save-checksum-message-error');};
     return worker;
   }
-  function request(kind,bytes,transform=null,expectedBytes=bytes?.byteLength){
+  function request(kind,bytes,transform=null,expectedBytes=bytes?.byteLength,stride=null,takeOwnership=false){
     if(!(bytes instanceof Uint8Array)||bytes.byteLength<1||bytes.byteLength>MAX_BYTES||pending.size>=2)return Promise.reject(new Error('save-checksum-input-or-backpressure'));
-    if(!Number.isSafeInteger(expectedBytes)||expectedBytes<1||expectedBytes>MAX_BYTES||transform!==null&&kind!=='checksum')return Promise.reject(new Error('save-checksum-transform-invalid'));
-    let w,copy,copyMs;try{w=ready();const start=clock();copy=bytes.slice();copyMs=clock()-start;stats.copyMs+=copyMs;stats.maxCopyMs=Math.max(stats.maxCopyMs,copyMs);}catch(error){return Promise.reject(error);}
+    if(!Number.isSafeInteger(expectedBytes)||expectedBytes<1||expectedBytes>MAX_BYTES||transform!==null&&kind!=='checksum'||kind==='chunk-encode'&&![1,13,128].includes(stride))return Promise.reject(new Error('save-checksum-transform-invalid'));
+    let w,copy,copyMs;try{w=ready();const start=clock();copy=takeOwnership&&bytes.byteOffset===0&&bytes.byteLength===bytes.buffer.byteLength?bytes:bytes.slice();copyMs=clock()-start;stats.copyMs+=copyMs;stats.maxCopyMs=Math.max(stats.maxCopyMs,copyMs);}catch(error){return Promise.reject(error);}
     const id=++sequence;stats.requests++;
-    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{stats.failures++;stop('save-checksum-worker-timeout');},60000);pending.set(id,{resolve,reject,timer,bytes:expectedBytes,copyMs,kind});try{w.postMessage({type:kind,version:VERSION,id,buffer:copy.buffer,transform,expectedBytes},[copy.buffer]);}catch(error){clearTimeout(timer);pending.delete(id);stats.failures++;reject(error);}});
+    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{stats.failures++;stop('save-checksum-worker-timeout');},60000);pending.set(id,{resolve,reject,timer,bytes:expectedBytes,copyMs,kind});try{w.postMessage({type:kind,version:VERSION,id,buffer:copy.buffer,transform,expectedBytes,stride},[copy.buffer]);}catch(error){clearTimeout(timer);pending.delete(id);stats.failures++;reject(error);}});
   }
   const checksum=(bytes,transform=null,expectedBytes=bytes?.byteLength)=>request('checksum',bytes,transform,expectedBytes),base64=bytes=>request('base64',bytes);
+  // Persistence owns its immutable upload snapshots and may transfer them instead of copying 4 MiB on this thread.
+  // Ordinary callers retain their input by default, including partial views into a live fleet buffer.
+  const encodeChunk=(bytes,stride=128,options={})=>request('chunk-encode',bytes,null,bytes?.byteLength,stride,options.transferOwnership===true);
   // One save owns a bounded lookahead. The next immutable chunk is copied in another host task while the same
   // worker hashes this chunk. No extra worker, persistent timer, or whole-store copy is introduced.
   function createSession({current=()=>true,submit=checksum}={}){
@@ -81,5 +84,6 @@
   }
   globalThis.GH_SAVE_CHECKSUM_PROVIDER=checksum;
   globalThis.GH_SAVE_ENCODING_PROVIDER=base64;
-  globalThis.GH_SAVE_CHECKSUM_THREAD=Object.freeze({VERSION,checksum,base64,createSession,stats:()=>({...stats,pending:pending.size}),terminate:()=>stop('save-checksum-worker-terminated')});
+  globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER=encodeChunk;
+  globalThis.GH_SAVE_CHECKSUM_THREAD=Object.freeze({VERSION,checksum,base64,encodeChunk,createSession,stats:()=>({...stats,pending:pending.size}),terminate:()=>stop('save-checksum-worker-terminated')});
 })();

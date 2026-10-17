@@ -737,8 +737,11 @@
     // in order of first start. Bounded by PHASE_TOTAL_LIMIT names, then one '(other phases)' row. Recorded only when profiled.
     const phaseTotals=profiled?[]:null,phaseTotalIndex=profiled?new Map():null;
     const totalPhase=(phase,started,ended,durationMs)=>{
+      // Per-market/customer/office IDs must not consume the bounded name budget before fleet-day and worker waits.
+      // Keep exact recent call names in phaseBreakdown, and summarize these entity steps under their owning stage.
+      phase=phase.replace(/^(simulation\.finance-day\.owner\.[^:]+):.*$/,'$1');
       let row=phaseTotalIndex.get(phase);
-      if(!row){const key=phaseTotalIndex.size<PHASE_TOTAL_LIMIT?phase:'(other phases)';row=phaseTotalIndex.get(key);if(!row){row={name:key,calls:0,busyMs:0,maxMs:0,startMs:Math.max(0,started-totalStart),spanMs:0};phaseTotalIndex.set(key,row);let at=phaseTotals.length;while(at>0&&phaseTotals[at-1].startMs>row.startMs)at--;phaseTotals.splice(at,0,row);}if(key!==phase)phaseTotalIndex.set(phase,row);}
+      if(!row){const key=phaseTotalIndex.size<PHASE_TOTAL_LIMIT?phase:'(other phases)';row=phaseTotalIndex.get(key);if(!row){row={name:key,calls:0,busyMs:0,maxMs:0,startMs:Math.max(0,started-totalStart),spanMs:0};phaseTotalIndex.set(key,row);let at=phaseTotals.length;while(at>0&&phaseTotals[at-1].startMs>row.startMs)at--;phaseTotals.splice(at,0,row);}}
       row.calls++;row.busyMs+=durationMs;if(durationMs>row.maxMs)row.maxMs=durationMs;row.spanMs=Math.max(row.spanMs,ended-totalStart-row.startMs);
     };
     const measure=(name,work)=>{

@@ -642,12 +642,13 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                 // Build 358 (million-asset save): one 4 MiB fleet record chunk, uploaded before the commit that lists it.
                 guard let requestId = payload["requestId"] as? String, !requestId.isEmpty, requestId.count <= 200,
                       let id = payload["id"] as? String, GlobalSaveVault.shared.isValidChunkId(id),
-                      let text = payload["base64"] as? String, text.utf8.count <= 96 * 1024 * 1024,
-                      let data = Data(base64Encoded: text) else {
+                      let text = payload["base64"] as? String else {
                     reportBridgeEvent("gh-native-chunk-ack", detail: ["requestId": payload["requestId"] as? String ?? "", "id": payload["id"] as? String ?? "", "success": false, "message": "Invalid save chunk upload."])
                     return
                 }
-                GlobalSaveVault.shared.storeChunkAsync(id: id, data: data) { [weak self] result in
+                let encoding = payload["encoding"] as? String ?? "identity"
+                let rawBytes = payloadInteger(payload["bytes"])
+                GlobalSaveVault.shared.storeChunkBase64Async(id: id, text: text, encoding: encoding, rawBytes: rawBytes) { [weak self] result in
                     guard self?.isCurrentDocument(requestDocument) == true else { return }
                     switch result {
                     case .success(let digest):
@@ -1213,7 +1214,9 @@ private final class GlobalGameSchemeHandler: NSObject, WKURLSchemeHandler {
             reply(400, ["ok": false, "id": id, "message": "Empty save chunk upload."])
             return
         }
-        GlobalSaveVault.shared.storeChunkAsync(id: id, data: data) { result in
+        let encoding = task.request.value(forHTTPHeaderField: "X-GH-Chunk-Encoding") ?? "identity"
+        let rawBytes = task.request.value(forHTTPHeaderField: "X-GH-Chunk-Raw-Bytes").flatMap(Int.init)
+        GlobalSaveVault.shared.storeChunkAsync(id: id, data: data, encoding: encoding, rawBytes: rawBytes) { result in
             switch result {
             case .success(let digest): reply(200, ["ok": true, "id": id, "sha256": digest])
             case .failure(let error): reply(409, ["ok": false, "id": id, "message": error.localizedDescription])

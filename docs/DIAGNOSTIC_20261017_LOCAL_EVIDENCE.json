@@ -1,0 +1,573 @@
+{
+  "kind": "Ventora scoped diagnostic repair evidence",
+  "based_on_commit": "8e5f6c59013a4c187ef8b266963317d545a6ee37",
+  "source_tree_sha256": "48ae8321fbced56e669ce8142a98ee491f74a56800f6329538d5218c61d81786",
+  "webapp_tree_sha256": "91c4b59855205a76b3fe0cb321f9daeb9a7261992d5fc69c47ec19c6736adc3f",
+  "version": "3.0.0",
+  "build": 362,
+  "save_schema": "3.0.0",
+  "physical_diagnostic": "DX-1792218041146-9-270-2997475.20130551",
+  "scoped_local_checks": {
+    "scope": "targeted local checks only, not full acceptance",
+    "source_tree_sha256": "48ae8321fbced56e669ce8142a98ee491f74a56800f6329538d5218c61d81786",
+    "commands": [
+      {
+        "argv": [
+          "npm",
+          "run",
+          "test:diagnostic-lag"
+        ],
+        "exit_code": 0,
+        "seconds": 4.75
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build362-phase-totals.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.029
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build376-frame-work-attribution.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.043
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build340-map-structure-revision.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.024
+      },
+      {
+        "argv": [
+          "node",
+          "tests/fleet-business-boundary.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.034
+      },
+      {
+        "argv": [
+          "python3",
+          "tests/acceptance-policy.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.261
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build358-native-chunked-save.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 3.898
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build362-durable-prestage.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 2.368
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build405-worker-close-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 6.65
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build374-diagnostic-lifecycle-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 1.652
+      }
+    ],
+    "completed": true,
+    "all_passed": true,
+    "runtime_manifest_unchanged": true
+  },
+  "new_tests": 4,
+  "individual_test_scripts_run": 13,
+  "runtime_lint": "PASS for the seven changed JavaScript runtime files",
+  "desktop_transport_pressure": {
+    "runtimeSourceSha256": "48ae8321fbced56e669ce8142a98ee491f74a56800f6329538d5218c61d81786",
+    "sourceFiles": {
+      "fleet-store-core.js": "a7b577cfbd62c091c5cda7df55741b50fed5ebbf2ffb5de7d45f0b5827cb296c",
+      "state-codec-core.js": "0edaba40ce3dabf8508fdc693f50de25bfcbb2d49c70f634f8134b4284a36bcf",
+      "save-chunk-codec.js": "d5f57ae917b813275ac60f23e936f25d714f8ec3923b6429d83c7b706fc0a2b0",
+      "save-checksum-thread.js": "32d840c6afbdcbffb1083ec4ade3c3633703695ffe1cf7c2fb2c7d6af08f5a33",
+      "save-checksum-worker.js": "de4f9056e1551d716f5b7842f5ea0e7055edeb101896915de0a7d45590a7d0a2"
+    },
+    "rows": 1000000,
+    "modes": [
+      "air",
+      "sea",
+      "road"
+    ],
+    "fixture": "real store and save pages; deterministic varied progress, fuel, condition and daily counters",
+    "scope": "desktop transport pressure only; no company revenue simulation, no physical iPhone timing",
+    "rawBytes": 141000000,
+    "wireBytes": 37293971,
+    "reductionPct": 73.55037517730496,
+    "workerMs": 647.7935099999959,
+    "maxWorkerMs": 39.82518899999923,
+    "wallMsIncludingIndependentSHA256AndDecode": 1206.9462749999993,
+    "compressedPages": 62,
+    "pages": 62,
+    "liveStateUnchanged": true,
+    "mainWorkerCopyMs": 0.07319800000368559,
+    "sizes": [
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 34.49321500000042
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 23.983076999999867
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.456895999999688
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.706790000000183
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.602955000000293
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 19.537953000000016
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073436,
+        "workerMs": 17.638216999999713
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.913276999999653
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073436,
+        "workerMs": 19.597251000000142
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 17.84091999999964
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.41983100000016
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 17.716464000000087
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.317337999998927
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.52827199999956
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.879476000000068
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.996101999999155
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 18.120938000000024
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073435,
+        "workerMs": 18.19640099999924
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 24.999093999998877
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 18.038274000000456
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.519979999999123
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.877223999999842
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 18.011023999999452
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 18.069140999999945
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 18.00361300000077
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.61549400000149
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.43437499999891
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 39.82518899999923
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073430,
+        "workerMs": 16.40823300000011
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 16.42779200000041
+      },
+      {
+        "kind": "base",
+        "rawBytes": 2170880,
+        "wireBytes": 555707,
+        "workerMs": 8.452487000000474
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.7532679999985703
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.7448139999996783
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148611,
+        "workerMs": 1.7688500000003842
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.7271479999999428
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.7421100000010483
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148607,
+        "workerMs": 1.7501019999999698
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.7442940000000817
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148617,
+        "workerMs": 1.727668999999878
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.7308030000003782
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.732296000000133
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.7385450000001583
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.7625410000000556
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.7303830000000744
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148616,
+        "workerMs": 1.7307139999993524
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.7299220000004425
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.718365000000631
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148614,
+        "workerMs": 1.8130470000014611
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.7563609999997425
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.7349789999989298
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.7331469999990077
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148606,
+        "workerMs": 1.7438430000001972
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148613,
+        "workerMs": 1.7211690000003728
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148617,
+        "workerMs": 1.761899999999514
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148611,
+        "workerMs": 1.7482490000002144
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148613,
+        "workerMs": 1.7304129999993165
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.7367119999998977
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.7321050000009564
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148614,
+        "workerMs": 1.7407980000007228
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148617,
+        "workerMs": 1.7328560000005382
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.7502929999991466
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 220480,
+        "wireBytes": 76939,
+        "workerMs": 0.8985209999991639
+      }
+    ]
+  },
+  "swift": {
+    "version": "6.1.3",
+    "platform": "Linux",
+    "exact_source_decoder_vectors": 24,
+    "exact_source_queue_method_cases": 3,
+    "source_enum_sha256": "6a95c768d8e94a185bd8a6bf0552bc3da65ced3b791182fdf90da2a2545d3a3c",
+    "scope": "Extracted unmodified production decoder and queue methods compiled/executed; full vault file IO, UIKit and WKWebView not tested locally."
+  },
+  "before_after": {
+    "unchanged_facility_20_renders": {
+      "old_new_markers": 80,
+      "old_new_icons": 80,
+      "new_new_markers": 0,
+      "new_new_icons": 0,
+      "visible_facilities": 4
+    },
+    "regressions_fail_on_old_code": [
+      "compressed persistence provider never called",
+      "actual recorder stop button failed during staged simulation",
+      "map recreated unchanged facility marker DOM",
+      "repeated recorder stop changed the captured interval"
+    ]
+  },
+  "atomicity_checks": [
+    "CRC refusal and native NACK never commit a new manifest",
+    "previous save retained; clean retry restores exact rows and finance",
+    "native capability absent sends original raw bytes",
+    "binary route, bridge route and unsupported-route/network fallback restore identical bytes",
+    "prestage commits nothing and final commit avoids duplicate uploads",
+    "unchanged save uploads nothing",
+    "worker pending requests, sessions and channels zero after completion",
+    "real staged day close commit/cancellation and stale worker answer refusal retain existing behavior"
+  ],
+  "acceptance": {
+    "mandatory_definitions": 438,
+    "preflight_definitions": 36,
+    "full_suite_run": false,
+    "canonical_preflight_run": false,
+    "release_approved": false
+  },
+  "publication": {
+    "pushed": false,
+    "ci_started": false,
+    "ipa_built": false
+  },
+  "limits": [
+    "One-million-row pressure measures three fleet modes and transport only, not live company revenue simulation.",
+    "Compression uses additional worker CPU at save time; latest run measured about 648 ms for one million rows. No zero-cost claim.",
+    "No physical iPhone latency/frame measurement for these new bytes. Remaining day-close wait and serializer slice timings need a new capture.",
+    "No claim of zero jank or a completely resolved performance problem."
+  ],
+  "log_sha256": {
+    "swift-probe.log": "42dbb1cf0fb5f9a252d77cda5466e232f706ee1e7fc48c96f942c89f037e12dd",
+    "swift-queue-probe.log": "ca9e4d6b23e6c075391ba3597512d996cd43b31d2cc4d60456b690836ba1c4d1",
+    "browser-old.log": "8a501ca077094e566524c2f625c33b861ca209362deae63713256bb30a6e5333",
+    "map-old.log": "98e6b10796f5c07b861857da4991933d23ac81ad07a84a780e741c508fdc426a",
+    "persistence-old.log": "ffba6f9eb8607e3d45d84cf37613c97bdbd458b787db4b5c662462bc92ac3fd0",
+    "final-0.log": "afa5ef3ad009d00d4c28d4ca3a62b0711bd2ddac82ca07f9b42ce1ea2daf34de",
+    "final-1.log": "ab333fb1d88b65737a0fd76a9089f6502a3d1220308bc4a91315c46d2da5919e",
+    "final-2.log": "efc6df5b8f8221dc9504f97afbd5ef00e1923cad68b51a99bf970f6733300481",
+    "final-3.log": "d0f0a74074cebbdb0773139806000828ad2627c29ca5eca209e2df2a883957dd",
+    "final-4.log": "8a516edb77a2480070d82c1251fb7fdac6090dff2cbe8a70818aa41691dad5c9",
+    "final-5.log": "777b34832267a96d7a12a2488b6a59655bf1670e9d36aff7cfc069fe899225f0",
+    "final-6.log": "f97ee81e9f04db719119904430a86ee081c04600245c815005437fed2ecb8209",
+    "final-7.log": "97e3ae5946ae004cec309914b1056b63960a410b33016d0798c981e193a48fbc",
+    "final-8.log": "aa917c51edbaa23d4d43dfb796bea8b18d45e992a3a7f0fa1acaf79115572fb0",
+    "final-9.log": "e8f73d54bfde8b0aac69064370268b60d73e079b4382e49d1c2061eaa4d0497b"
+  }
+}

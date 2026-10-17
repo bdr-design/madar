@@ -1250,7 +1250,17 @@
     try{return (tx.isActive()?tx.join:tx.execute)(state,{label:name,apply:()=>{const value=apply();if(value===false)throw new Error(name+'-rejected');return value;}}).value;}
     catch(error){console.warn('Business operation rolled back',name,error);if(!tx.isActive())notice('تعذر إكمال العملية؛ تم التراجع عن أثرها: '+String(error.message||error));return false;}
   }
+  const deferredStagedAlerts=new Set();let deferredStagedAlertFlush=false;
   function pushAlert(text){
+    // A UI notification is a domain write too. Queue one bounded flush through the existing staged lifecycle;
+    // never enter a second transaction while a simulation slice owns the live state.
+    const stagedTx=window.GH_TRANSACTION_CORE;
+    if(stagedTx?.isStaged?.(state)===true&&stagedTx.isActive?.()!==true){
+      const message=String(text||'');if(deferredStagedAlerts.size>=16&&!deferredStagedAlerts.has(message))return false;
+      deferredStagedAlerts.add(message);
+      if(!deferredStagedAlertFlush){deferredStagedAlertFlush=true;const epoch=Number(state.resetEpoch)||0;afterStagedState(()=>{const messages=[...deferredStagedAlerts];deferredStagedAlerts.clear();deferredStagedAlertFlush=false;if((Number(state.resetEpoch)||0)===epoch&&messages.length)window.GH_INTERACTION_NOTICE(messages.join(' • '));});}
+      return true;
+    }
     const result=dispatchSystemCommand({state},'operations','record-alert',{id:nextId('EV'),text,type:'operation'},{actor:'system-ui-notification'});
     if(!result?.ok)throw new Error('Operations alert owner unavailable');
     const tx=window.GH_TRANSACTION_CORE;if(tx?.isActive?.())tx.afterCommit(()=>updateKpis());else updateKpis();
@@ -2583,19 +2593,34 @@
     });
   }
   // compact: a base drawn as a small dot in its company's colour (operations, far out), not an icon tile.
+  let facilityPresentationGeneration=0;
+  const facilityPresentation=new WeakMap();
+  function syncFacilityMarker(key,coords,iconOptions,zIndexOffset,tooltip,onClick){
+    let marker=facilityMarkers.get(key),prior=marker&&facilityPresentation.get(marker);
+    if(!prior){
+      marker=L.marker(coords,{icon:L.divIcon(iconOptions),zIndexOffset,keyboard:true,riseOnHover:true}).addTo(map);
+      prior={};facilityPresentation.set(marker,prior);facilityMarkers.set(key,marker);
+      marker.bindTooltip(tooltip,{direction:'top',permanent:false,opacity:.9});marker.on('click',()=>prior.onClick?.());
+    }else{
+      const old=prior.icon;
+      if(old.className!==iconOptions.className||old.html!==iconOptions.html||old.iconSize[0]!==iconOptions.iconSize[0]||old.iconSize[1]!==iconOptions.iconSize[1]||old.iconAnchor[0]!==iconOptions.iconAnchor[0]||old.iconAnchor[1]!==iconOptions.iconAnchor[1])marker.setIcon(L.divIcon(iconOptions));
+      if(prior.lat!==coords[0]||prior.lng!==coords[1])marker.setLatLng(coords);
+      if(prior.zIndexOffset!==zIndexOffset)marker.setZIndexOffset(zIndexOffset);
+      if(prior.tooltip!==tooltip)marker.setTooltipContent(tooltip);
+    }
+    prior.generation=facilityPresentationGeneration;prior.icon=iconOptions;prior.lat=coords[0];prior.lng=coords[1];prior.zIndexOffset=zIndexOffset;prior.tooltip=tooltip;prior.onClick=onClick;
+    return marker;
+  }
   function addFacilityMarker(f,parked,{compact=false}={}){
-    const cls=`${f.owned?'owned':f.public?'public':''}${selectedFacilityId===f.id?' selected':''}${f.id==='HQ-GROUP'?' hq':''}`,owner=facilityOwnerCompanyId(f),icon=compact&&selectedFacilityId!==f.id?L.divIcon({className:`map-base-dot ${cls}`,html:`<span style="--dot:${identityRouteColor(owner,owner)}"></span>`,iconSize:[14,14],iconAnchor:[7,7]}):L.divIcon({className:`facility-marker ${cls}`,html:facilityMarkerHtml(f),iconSize:[44,44],iconAnchor:[22,22]}),marker=L.marker(f.coords,{icon,zIndexOffset:selectedFacilityId===f.id?650:compact?380:400,keyboard:true,riseOnHover:true}).addTo(map);
-    marker.bindTooltip(`${esc(f.name||f.id)}${parked?` · ${MAP_VIEW.countLabel(parked)} أصل رابض`:''}`,{direction:'top',permanent:false,opacity:.9});
-    marker.on('click',()=>{selectedFacilityId=f.id;openFacility(f.id);});facilityMarkers.set(f.id,marker);
+    const cls=`${f.owned?'owned':f.public?'public':''}${selectedFacilityId===f.id?' selected':''}${f.id==='HQ-GROUP'?' hq':''}`,owner=facilityOwnerCompanyId(f),icon=compact&&selectedFacilityId!==f.id?{className:`map-base-dot ${cls}`,html:`<span style="--dot:${identityRouteColor(owner,owner)}"></span>`,iconSize:[14,14],iconAnchor:[7,7]}:{className:`facility-marker ${cls}`,html:facilityMarkerHtml(f),iconSize:[44,44],iconAnchor:[22,22]},tooltip=`${esc(f.name||f.id)}${parked?` · ${MAP_VIEW.countLabel(parked)} أصل رابض`:''}`;
+    syncFacilityMarker(f.id,f.coords,icon,selectedFacilityId===f.id?650:compact?380:400,tooltip,()=>{selectedFacilityId=f.id;openFacility(f.id);});
   }
   // compact (operations): the group is a quiet dot in its company's colour, sized by how many places it holds, with the
   // count in its tooltip. Number bubbles belong to the network and expansion modes; in operations they covered the
   // map under the vehicles (owner screenshot, Build 358).
   function addFacilityGroupMarker(group,level,zoom,{compact=false}={}){
-    const anchor=group.members.slice().sort((a,b)=>(b.weight-a.weight)||String(a.facility.id).localeCompare(String(b.facility.id)))[0],coords=anchor.facility.coords,count=group.members.length,attribute=level==='country'?`data-country-id="${esc(group.key)}"`:`data-city-id="${esc(group.key)}"`,tier=count>=20?'l':count>=5?'m':'s',dotSize=tier==='l'?22:tier==='m'?18:14,icon=compact?L.divIcon({className:`map-hub-dot owned-${level} tier-${tier}`,html:`<span ${attribute} style="--dot:${identityRouteColor(facilityOwnerCompanyId(anchor.facility),facilityOwnerCompanyId(anchor.facility))}"></span>`,iconSize:[dotSize,dotSize],iconAnchor:[dotSize/2,dotSize/2]}):L.divIcon({className:`map-place-marker owned-${level}`,html:`<div class="map-place-bubble owned ${level}" ${attribute}><b dir="ltr">${MAP_VIEW.countLabel(count)}</b></div>`,iconSize:[38,38],iconAnchor:[19,19]});
-    const marker=L.marker(coords,{icon,zIndexOffset:430,keyboard:true,riseOnHover:true}).addTo(map),label=anchor[level==='country'?'countryLabel':'cityLabel']||group.key;
-    marker.bindTooltip(`${esc(label)} · ${MAP_VIEW.countLabel(count)} منشأة · كبّر للتفاصيل`,{direction:'top',permanent:false,opacity:.9});
-    marker.on('click',()=>{const target=level==='country'?6:8,points=group.members.map(member=>member.facility.coords);if(points.length>1)map.fitBounds(L.latLngBounds(points),{padding:[28,28],maxZoom:target});else map.setView(coords,Math.max(target,zoom+2));});facilityMarkers.set(`${level}:${group.key}`,marker);
+    const anchor=group.members.slice().sort((a,b)=>(b.weight-a.weight)||String(a.facility.id).localeCompare(String(b.facility.id)))[0],coords=anchor.facility.coords,count=group.members.length,attribute=level==='country'?`data-country-id="${esc(group.key)}"`:`data-city-id="${esc(group.key)}"`,tier=count>=20?'l':count>=5?'m':'s',dotSize=tier==='l'?22:tier==='m'?18:14,icon=compact?{className:`map-hub-dot owned-${level} tier-${tier}`,html:`<span ${attribute} style="--dot:${identityRouteColor(facilityOwnerCompanyId(anchor.facility),facilityOwnerCompanyId(anchor.facility))}"></span>`,iconSize:[dotSize,dotSize],iconAnchor:[dotSize/2,dotSize/2]}:{className:`map-place-marker owned-${level}`,html:`<div class="map-place-bubble owned ${level}" ${attribute}><b dir="ltr">${MAP_VIEW.countLabel(count)}</b></div>`,iconSize:[38,38],iconAnchor:[19,19]},label=anchor[level==='country'?'countryLabel':'cityLabel']||group.key;
+    syncFacilityMarker(`${level}:${group.key}`,coords,icon,430,`${esc(label)} · ${MAP_VIEW.countLabel(count)} منشأة · كبّر للتفاصيل`,()=>{const target=level==='country'?6:8,points=group.members.map(member=>member.facility.coords);if(points.length>1)map.fitBounds(L.latLngBounds(points),{padding:[28,28],maxZoom:target});else map.setView(coords,Math.max(target,zoom+2));});
   }
   // Facilities have their own hierarchy and never consume the shared vehicle cap: country at world scale, city at
   // regional scale, then individual facilities.  HQ and the selected facility stay individually pinned.
@@ -2618,7 +2643,7 @@
     routeLayers.forEach(layer=>{try{map.removeLayer(layer)}catch(error){nonCritical('map-route-remove',error);}}); routeLayers=[];
     mapVehicleCanvas?.clear?.();mapVehicleHitTargets.clear();
     ownMarkers.forEach(removePresentationMarker); ownMarkers.clear();
-    facilityMarkers.forEach(marker=>{try{map.removeLayer(marker)}catch(error){nonCritical('map-layer-remove',error);}}); facilityMarkers.clear();
+    facilityPresentationGeneration++;
     competitorMarkers.forEach(removePresentationMarker); competitorMarkers.clear();
     renderedAssetIds=new Set();renderedMobilityIds=new Set();
     const presentation=showFleet?collectFleetPresentation(filterState,visibleAssets):null,geography=mapFacilityPresentationContext();
@@ -2649,6 +2674,7 @@
         competitorMarkers.set(`HQ-${c.id}`,marker);shownHq++;
       });
     }
+    for(const [key,marker] of facilityMarkers)if(facilityPresentation.get(marker)?.generation!==facilityPresentationGeneration){try{map.removeLayer(marker);}catch(error){nonCritical('map-layer-remove',error);}facilityMarkers.delete(key);}
     updateMapStatus();renderWorldInfrastructureMarkers();lastMapStructureSignature=mapStructureSignature();updateMarkerPositions(true);mapVehicleCanvas?.draw?.();
   }
 
@@ -4712,9 +4738,10 @@
   }
   function finishSimulationFaultRecorder(){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true)return null;
+    const wasActive=window.GH_DIAGNOSTICS.recorderIsActive?.(state)===true;
     const summary=window.GH_DIAGNOSTICS.recorderStop?.(state,simulationEngine.snapshot(),{nowMs:Date.now(),context:{appVersion:APP_VERSION,build:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION}})||null;
     // The panel action that stops the recorder saves once (its refresh); the stop itself does not save again.
-    if(summary)diag('SIM_FAULT_RECORDER_FINISHED',{status:summary.status,events:summary.events,samples:summary.samples,simDelta:summary.simDelta});
+    if(summary&&wasActive)diag('SIM_FAULT_RECORDER_FINISHED',{status:summary.status,events:summary.events,samples:summary.samples,simDelta:summary.simDelta});
     return summary;
   }
   function simulationFaultRecorder(){return window.GH_DIAGNOSTICS.recorderSnapshot?.(state)||null;}

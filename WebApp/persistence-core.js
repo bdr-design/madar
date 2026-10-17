@@ -177,7 +177,7 @@
     if(!chunkedNative(state))return {json:serializeState(state),uploads:[],chunked:false};
     const out=stateCodec().serializeChunked(state,{knownChunkIds:vaultChunks}),uploads=[];
     // Fleet chunks copy their bytes now (rows keep changing); a text chunk (a sealed collection's JSON) is immutable.
-    for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id))uploads.push({id:chunk.id,bytes:copyChunkBytes(state,chunk)});
+    for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id))uploads.push({id:chunk.id,kind:chunk.kind,bytes:copyChunkBytes(state,chunk)});
     return {json:out.text,uploads,chunked:true,chunkIds:out.chunks.map(chunk=>chunk.id)};
   }
   // Build 358 (lighter commands): a durable command's save spread over frames. Serialization runs as codec steps and the
@@ -233,7 +233,7 @@
     const uploads=[];for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id)){
       if(externalChecksums&&(chunk.kind==='base'||chunk.kind==='overlay')&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
       const bytes=typeof chunk.text==='string'?await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing):copyChunkBytes(state,chunk);
-      uploads.push({id:chunk.id,bytes});
+      uploads.push({id:chunk.id,kind:chunk.kind,bytes});
     }
     return {json:out.text,uploads,chunked:true,chunkIds:out.chunks.map(chunk=>chunk.id)};
   }
@@ -259,15 +259,26 @@
   // Chunks travel as the raw bytes of a fetch POST to the game's own gh://app scheme (measured on CI WebKit: a 4 MiB
   // body arrives intact in ~34 ms, no base64 string). A runtime without that route answers 404 or rejects the request;
   // the chunk then goes as base64 over saveBridge ('storeSaveChunk'), which every native build understands.
-  function uploadChunk(id,bytes){
-    if(typeof globalThis.fetch!=='function'||globalThis.location?.protocol!=='gh:')return uploadChunkMessage(id,bytes);
-    return globalThis.fetch(`gh://app/save-chunk/${encodeURIComponent(id)}`,{method:'POST',body:bytes,cache:'no-store'}).then(async response=>{
-      if(response.status===404||response.status===405)return uploadChunkMessage(id,bytes);
+  async function uploadChunk(id,bytes,kind=null){
+    const rawBytes=bytes.byteLength;let wire=bytes,encoding='identity',workerMs=0;
+    // Only a native host advertising the decoder receives compressed data. Existing IPAs keep the exact old route.
+    // The existing worker owns the extra computation, on demand during a save; no gameplay scan or new worker/timer.
+    if((kind==='base'||kind==='overlay')&&rawBytes>=32768&&rawBytes<=4194304&&globalThis.GH_NATIVE_CHUNK_ENCODINGS?.includes?.('gh-packbits-v1')&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function'){
+      const packed=await globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER(bytes,kind==='base'?128:13,{transferOwnership:true});
+      if(!packed||packed.rawBytes!==rawBytes||!ArrayBuffer.isView(packed.bytes)||packed.bytes.BYTES_PER_ELEMENT!==1||!(packed.encoding==='identity'&&packed.bytes.byteLength===rawBytes||packed.encoding==='gh-packbits-v1'&&packed.bytes.byteLength>=20&&packed.bytes.byteLength<=Math.floor(rawBytes*.875)))throw new Error('save-chunk-encoding-evidence-invalid');
+      wire=packed.bytes;encoding=packed.encoding;workerMs=Number(packed.workerMs)||0;
+    }
+    const result={bytes:rawBytes,wireBytes:wire.byteLength,encoding,workerMs};
+    if(typeof globalThis.fetch!=='function'||globalThis.location?.protocol!=='gh:'){await uploadChunkMessage(id,wire,{encoding,rawBytes});return result;}
+    const headers=encoding==='identity'?undefined:{'X-GH-Chunk-Encoding':encoding,'X-GH-Chunk-Raw-Bytes':String(rawBytes)};
+    await globalThis.fetch(`gh://app/save-chunk/${encodeURIComponent(id)}`,{method:'POST',body:wire,headers,cache:'no-store'}).then(async response=>{
+      if(response.status===404||response.status===405)return uploadChunkMessage(id,wire,{encoding,rawBytes});
       let detail={};try{detail=await response.json();}catch{}
       if(!response.ok||detail.ok!==true||detail.id!==id){const error=new Error(detail.message||`native-chunk-http-${response.status}`);error.code='CHUNK_NACK';throw error;}
-    },error=>{if(error?.code==='CHUNK_NACK')throw error;return uploadChunkMessage(id,bytes);});
+    },error=>{if(error?.code==='CHUNK_NACK')throw error;return uploadChunkMessage(id,wire,{encoding,rawBytes});});
+    return result;
   }
-  async function uploadChunkMessage(id,bytes){
+  async function uploadChunkMessage(id,bytes,{encoding='identity',rawBytes=bytes.byteLength}={}){
     const bridge=bridgeFor('commitSave');if(!bridge)throw new Error('native-chunk-bridge-unavailable');
     // Keep the legacy bridge byte-identical, with bounded fleet-chunk encoding away from the UI thread.
     // Compact fleet overlay pages can be smaller than the old 256 KiB worker threshold while still being emitted in
@@ -276,14 +287,14 @@
     return new Promise((resolve,reject)=>{
       const requestId=`storeSaveChunk-${Date.now()}-${++chunkSequence}`,timer=setTimeout(()=>{chunkPending.delete(requestId);const error=new Error('native-chunk-ack-timeout');error.code='ACK_TIMEOUT';reject(error);},CHUNK_ACK_TIMEOUT_MS);
       chunkPending.set(requestId,{id,resolve,reject,timer});
-      try{bridge.postMessage({action:'storeSaveChunk',requestId,id,bytes:bytes.byteLength,base64});}
+      try{bridge.postMessage({action:'storeSaveChunk',requestId,id,bytes:rawBytes,base64,...(encoding==='identity'?{}:{encoding})});}
       catch(error){clearTimeout(timer);chunkPending.delete(requestId);reject(error);}
     });
   }
   async function uploadChunks(uploads){
-    const started=clock();let bytes=0;
-    for(const upload of uploads||[]){if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}const size=upload.bytes.byteLength;await uploadChunk(upload.id,upload.bytes);vaultChunks.add(upload.id);bytes+=size;upload.bytes=null;}
-    if(uploads?.length)rememberTiming({kind:'chunk-upload',chunks:uploads.length,bytes,ms:Math.max(0,clock()-started)});
+    const started=clock();let bytes=0,wireBytes=0,encodingWorkerMs=0,compressedChunks=0;
+    for(const upload of uploads||[]){if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}const sent=await uploadChunk(upload.id,upload.bytes,upload.kind);vaultChunks.add(upload.id);bytes+=sent.bytes;wireBytes+=sent.wireBytes;encodingWorkerMs+=sent.workerMs;if(sent.encoding!=='identity')compressedChunks++;upload.bytes=null;}
+    if(uploads?.length)rememberTiming({kind:'chunk-upload',chunks:uploads.length,bytes,wireBytes,encodingWorkerMs,compressedChunks,ms:Math.max(0,clock()-started)});
   }
   // A commit refused for a missing chunk means vaultChunks was stale: forget it so the next save uploads its chunks.
   function noteNativeRefusal(error){if(/Missing save chunk/i.test(String(error?.message||'')))forgetVaultChunks();return error;}
@@ -295,7 +306,7 @@
   // chunks are absent. release() forgets the ids this staging uploaded that no committed manifest lists, so a later save
   // uploads them again rather than trusting a file the vault may have collected. Failures only lose the head start.
   function prestageDurableChunks(state,{yieldToFrame=null}={}){
-    const staged=new Set(),epoch=vaultEpoch,started=clock(),timing={kind:'durable-prestage',ok:false,uploads:0,bytes:0,busyMs:0,slices:0,retakes:0,wallMs:0,reason:null};let stopped=false;
+    const staged=new Set(),epoch=vaultEpoch,started=clock(),timing={kind:'durable-prestage',ok:false,uploads:0,bytes:0,wireBytes:0,encodingWorkerMs:0,compressedChunks:0,busyMs:0,slices:0,retakes:0,wallMs:0,reason:null};let stopped=false;
     // A released staging stops at its next yield or upload: the command has ended and may have rolled the fleet back.
     const stopIfReleased=()=>{if(stopped)throw new Error('prestage-released');if(recoveryRequired||vaultEpoch!==epoch)throw new Error('prestage-vault-changed');};
     const applicable=typeof yieldToFrame==='function'&&!locked&&!durableLocked&&!recoveryRequired&&chunkedNative(state)&&Number(state?.fleet?.length)>FLEET_MAIN_THREAD_ROWS;
@@ -307,9 +318,9 @@
         for(const upload of save.uploads){
           if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}
           stopIfReleased();
-          const size=upload.bytes.byteLength;await uploadChunk(upload.id,upload.bytes);upload.bytes=null;
+          const sent=await uploadChunk(upload.id,upload.bytes,upload.kind);upload.bytes=null;
           if(vaultEpoch!==epoch)throw new Error('prestage-vault-changed');
-          vaultChunks.add(upload.id);staged.add(upload.id);timing.uploads++;timing.bytes+=size;
+          vaultChunks.add(upload.id);staged.add(upload.id);timing.uploads++;timing.bytes+=sent.bytes;timing.wireBytes+=sent.wireBytes;timing.encodingWorkerMs+=sent.workerMs;if(sent.encoding!=='identity')timing.compressedChunks++;
         }
         timing.ok=true;
       }catch(error){timing.reason=String(error?.message||error).slice(0,160);}

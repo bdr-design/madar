@@ -1,6 +1,22 @@
 {
-  "minimum_acceptance_gates": 434,
+  "minimum_acceptance_gates": 438,
   "preflight_commands": [
+    [
+      "node",
+      "tests/build406-save-chunk-transport.cjs"
+    ],
+    [
+      "node",
+      "tests/build407-diagnostic-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/build408-diagnostic-map-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build409-compressed-persistence.cjs"
+    ],
     [
       "node",
       "tests/fleet-business-boundary.cjs"
@@ -1866,6 +1882,22 @@
     [
       "node",
       "tests/build405-worker-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build406-save-chunk-transport.cjs"
+    ],
+    [
+      "node",
+      "tests/build407-diagnostic-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/build408-diagnostic-map-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build409-compressed-persistence.cjs"
     ]
   ]
 }

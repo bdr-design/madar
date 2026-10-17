@@ -1,0 +1,778 @@
+{
+  "kind": "Owner-authorized test IPA preflight, 2026-10-17",
+  "version": "3.0.0",
+  "build": 362,
+  "save_schema": "3.0.0",
+  "production_approved": false,
+  "physical_iphone_tested": false,
+  "based_on_commit": "8e5f6c59013a4c187ef8b266963317d545a6ee37",
+  "source_tree_sha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
+  "gate_definitions": 438,
+  "preflight_definitions": 36,
+  "early_failure": {
+    "gate": "tests/build405-worker-close-browser.cjs",
+    "observed_in_first_local_preflight": true,
+    "deterministic_root_cause": "A map worker read drained the replica log between partial day-column apply slices; the next freshness check correctly refused the interrupted plan.",
+    "fix": "A per-store O(1) read barrier covers the generator lifetime. Worker replica reads, priming and open flushes defer until completion. finally releases on success, cancellation and failure. No extra fleet scans, tasks or timers.",
+    "proof": "Forced real map reads between apply slices: old source fails; fixed source passes three independent runs. Complete/cancel-before-write/cancel-after-write/error restore byte and barrier invariants in the existing mandatory maintenance gate.",
+    "main_full_fleet_walks": 0,
+    "whole_column_syncs": 0,
+    "typed_plan_syncs": 1
+  },
+  "desktop_transport": {
+    "runtimeSourceSha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
+    "sourceFiles": {
+      "fleet-store-core.js": "10b190ea450fd1f14a98ef6e169e3a780cc6f3585afcbe8e6078fff73586ece4",
+      "state-codec-core.js": "0edaba40ce3dabf8508fdc693f50de25bfcbb2d49c70f634f8134b4284a36bcf",
+      "save-chunk-codec.js": "d5f57ae917b813275ac60f23e936f25d714f8ec3923b6429d83c7b706fc0a2b0",
+      "save-checksum-thread.js": "32d840c6afbdcbffb1083ec4ade3c3633703695ffe1cf7c2fb2c7d6af08f5a33",
+      "save-checksum-worker.js": "de4f9056e1551d716f5b7842f5ea0e7055edeb101896915de0a7d45590a7d0a2"
+    },
+    "rows": 1000000,
+    "modes": [
+      "air",
+      "sea",
+      "road"
+    ],
+    "fixture": "real store and save pages; deterministic varied progress, fuel, condition and daily counters",
+    "scope": "desktop transport pressure only; no company revenue simulation, no physical iPhone timing",
+    "rawBytes": 141000000,
+    "wireBytes": 37293971,
+    "reductionPct": 73.55037517730496,
+    "workerMs": 680.0944219999956,
+    "maxWorkerMs": 49.594004999999925,
+    "wallMsIncludingIndependentSHA256AndDecode": 1332.2090829999997,
+    "compressedPages": 62,
+    "pages": 62,
+    "liveStateUnchanged": true,
+    "mainWorkerCopyMs": 0.09224199999698612,
+    "sizes": [
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 49.594004999999925
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 23.115082000000257
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 16.672495999999228
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.8608490000006
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 19.282592000000477
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 18.098523999999998
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073436,
+        "workerMs": 18.07662199999959
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 18.643788000000313
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073436,
+        "workerMs": 21.31101000000035
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 19.28427400000055
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 20.04990700000053
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 18.155749999999898
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.389445999999225
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 19.38746799999899
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 18.113295999999536
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.054344999998648
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.410287000000608
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073435,
+        "workerMs": 18.561384999999063
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 30.06476500000099
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 19.28624800000034
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.687270000000353
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 19.61678000000029
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073434,
+        "workerMs": 17.372491000000082
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 17.441714000000502
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 17.82511599999998
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 18.206324999999197
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073428,
+        "workerMs": 18.691027999999278
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 24.903621999999814
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073430,
+        "workerMs": 18.40918799999963
+      },
+      {
+        "kind": "base",
+        "rawBytes": 4194304,
+        "wireBytes": 1073432,
+        "workerMs": 23.704893000000084
+      },
+      {
+        "kind": "base",
+        "rawBytes": 2170880,
+        "wireBytes": 555707,
+        "workerMs": 9.556359000000157
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 2.356095999999525
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.971112000001085
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148611,
+        "workerMs": 1.8362210000013874
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 2.1977399999996123
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 2.2488160000011703
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148607,
+        "workerMs": 2.767385999999533
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 2.243297999999413
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148617,
+        "workerMs": 1.7757309999997233
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.7411679999986518
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.751814999999624
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.7514539999992849
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.7458860000006098
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.782019999998738
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148616,
+        "workerMs": 2.0882669999991776
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 2.212011999999959
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.9080079999985173
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148614,
+        "workerMs": 2.2784110000011424
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 2.158300999999483
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.809411000000182
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148615,
+        "workerMs": 1.787028000000646
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148606,
+        "workerMs": 1.815470000001369
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148613,
+        "workerMs": 1.9178629999987606
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148617,
+        "workerMs": 1.814648000001398
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148611,
+        "workerMs": 1.8134369999988849
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148613,
+        "workerMs": 1.7862659999991592
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148612,
+        "workerMs": 1.767518000000564
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.751605000001291
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148614,
+        "workerMs": 1.7383839999984048
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148617,
+        "workerMs": 1.753978000000643
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 425984,
+        "wireBytes": 148610,
+        "workerMs": 1.746186000000307
+      },
+      {
+        "kind": "overlay",
+        "rawBytes": 220480,
+        "wireBytes": 76939,
+        "workerMs": 0.9519609999988461
+      }
+    ]
+  },
+  "local_browser_environment": {
+    "playwright": "1.55.1",
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "webkit_dependencies": "Debian shared libraries extracted outside repository and linked into browser bundle; host discovery skipped, actual WebKit tests executed."
+  },
+  "evidence_logs": {
+    "interleaved-column-plan-old.log": "c49c184db5fe4a8f0be44cae9128e67b707cb2dd904c66775770515ee1c33da3",
+    "interleaved-column-plan-fixed-0.log": "6591c4e94750063802b3b3667ec3bd61f842c1aeab79e652d1c26874905b778d",
+    "interleaved-column-plan-fixed-1.log": "6591c4e94750063802b3b3667ec3bd61f842c1aeab79e652d1c26874905b778d",
+    "interleaved-column-plan-fixed-2.log": "6591c4e94750063802b3b3667ec3bd61f842c1aeab79e652d1c26874905b778d",
+    "million-transport.json": "0c1b62b1ab9eb76d3589821efd4ea50b6dfc9a479433a49fd55acaa94db7d5e0"
+  },
+  "limitations": [
+    "No physical iPhone performance claim. Compression adds worker CPU at save time; wire-byte reduction is not a measured end-to-end iPhone save latency.",
+    "Full native vault, WKWebView and iPhoneOS compilation require the new macOS CI run."
+  ],
+  "recorded_at_utc": "2026-10-17T07:32:29.978091+00:00",
+  "local_preflight": {
+    "passed": 36,
+    "total": 36,
+    "runtime_source_sha256": "837a779cdd190a7567aa6e9927f1d0f7936389c2bba8b9703076e2fff5778dfe",
+    "acceptance_contract_sha256": "673f21895df47a69199019cdd0a4419f31ff013e53f70a5e7b87453349f6adaf",
+    "tests": [
+      {
+        "argv": [
+          "node",
+          "tests/build406-save-chunk-transport.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.266,
+        "log": "001-build406-save-chunk-transport.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build407-diagnostic-lifecycle.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.064,
+        "log": "002-build407-diagnostic-lifecycle.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build408-diagnostic-map-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.531,
+        "log": "003-build408-diagnostic-map-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build409-compressed-persistence.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.278,
+        "log": "004-build409-compressed-persistence.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/fleet-business-boundary.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.066,
+        "log": "005-fleet-business-boundary.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-procurement-pressure.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.265,
+        "log": "006-build334-procurement-pressure.log"
+      },
+      {
+        "argv": [
+          "python3",
+          "tests/acceptance-policy.py"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.264,
+        "log": "007-acceptance-policy.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-simulation-time-contract.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.064,
+        "log": "008-build334-simulation-time-contract.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build372-store-maintenance-stages.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.715,
+        "log": "009-build372-store-maintenance-stages.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build385-bank-credit-accounting.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.465,
+        "log": "010-build385-bank-credit-accounting.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build363-energy-health-contract.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.064,
+        "log": "011-build363-energy-health-contract.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build400-telecom-peer-index.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.366,
+        "log": "012-build400-telecom-peer-index.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build401-mobility-batching-and-indexes.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.665,
+        "log": "013-build401-mobility-batching-and-indexes.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build402-company-daily-indexes.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.114,
+        "log": "014-build402-company-daily-indexes.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build403-legacy-runtime-migration-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 7.09,
+        "log": "015-build403-legacy-runtime-migration-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build404-worker-close-read-models.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.565,
+        "log": "016-build404-worker-close-read-models.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build405-worker-close-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 6.783,
+        "log": "017-build405-worker-close-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build374-daily-worker-integration.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.274,
+        "log": "018-build374-daily-worker-integration.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-calendar-journey-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.359,
+        "log": "019-build334-calendar-journey-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/phone-layout-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 88.409,
+        "log": "020-phone-layout-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build360-cold-archive.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.114,
+        "log": "021-build360-cold-archive.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build358-fleet-chunk-manifest.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 5.436,
+        "log": "022-build358-fleet-chunk-manifest.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build358-native-chunked-save.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 3.776,
+        "log": "023-build358-native-chunked-save.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build372-native-migration-chunk-adoption.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.032,
+        "log": "024-build372-native-migration-chunk-adoption.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/fleet-save-slicing.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.365,
+        "log": "025-fleet-save-slicing.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/fleet-validation-reuse-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 4.736,
+        "log": "026-fleet-validation-reuse-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/save-checksum-worker-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.92,
+        "log": "027-save-checksum-worker-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/save-pipeline-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.474,
+        "log": "028-save-pipeline-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/native-save-worker-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.218,
+        "log": "029-native-save-worker-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-save-policy-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 64.998,
+        "log": "030-build359-save-policy-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build380-construction-acceleration-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 9.02,
+        "log": "031-build380-construction-acceleration-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build389-differential-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 7.054,
+        "log": "032-build389-differential-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build394-hospitality-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 21.113,
+        "log": "033-build394-hospitality-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build397-management-flow-layout-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 4.226,
+        "log": "034-build397-management-flow-layout-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build398-asset-market-metrics-layout-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 3.828,
+        "log": "035-build398-asset-market-metrics-layout-browser.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build399-bank-prudential-summary-layout-browser.cjs"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 3.882,
+        "log": "036-build399-bank-prudential-summary-layout-browser.log"
+      }
+    ]
+  },
+  "full_local_acceptance": "in_progress; not yet certified",
+  "native_ci": "not yet dispatched"
+}

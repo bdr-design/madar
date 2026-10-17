@@ -158,6 +158,16 @@ for(const count of [200,1200]){
   let step;while(store.revision===revision&&!(step=stages.next()).done){}assert.ok(store.revision>revision,'guard setup reached the sliced apply');STORE.drainReplica(store);
   assert.throws(()=>stages.next(),/fleet-store-column-plan-changed/);STORE.rollbackJournal(journal);assert.equal(STORE.drainReplica(store).columnPlan,null);
 }
+// The read barrier is O(1), covers preparation and partial writes, and releases on completion, cancellation and error.
+for(const outcome of ['complete','cancel-validation','cancel-apply','error']){
+  const [store]=stores(1200),before=snapshot(store);STORE.drainReplica(store);const journal=STORE.beginJournal(store),plan=planFor(store),stages=STORE.columnPlanStages(store,plan,{rowSlice:256,replicaTransfer:true});
+  assert.equal(STORE.columnPlanActive(store),false);assert.equal(stages.next().done,false);assert.equal(STORE.columnPlanActive(store),true);
+  if(outcome==='complete'){finish(stages);STORE.endJournal(journal);}
+  else if(outcome==='error'){STORE.set(store,0,'condition',42);assert.throws(()=>stages.next(),/fleet-store-column-plan-changed/);STORE.rollbackJournal(journal);}
+  else{if(outcome==='cancel-apply'){const revision=store.revision;while(store.revision===revision)assert.equal(stages.next().done,false);}stages.return();STORE.rollbackJournal(journal);}
+  assert.equal(STORE.columnPlanActive(store),false,outcome);
+  if(outcome!=='complete')assert.equal(snapshot(store).rows,before.rows,`${outcome} restores exact bytes`);
+}
 {
   const [store]=stores(1200),before=snapshot(store);STORE.drainReplica(store);const journal=STORE.beginJournal(store),stages=STORE.columnPlanStages(store,planFor(store),{rowSlice:256,replicaTransfer:true});
   assert.equal(stages.next().done,false);assert.deepEqual(STORE.journalStats(store).columns,[],'validation/preparation has not armed a rollback column');
