@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "repository": "bdr-design/madar",
+  "source_commit": "4ae920e97a8223f57288a6d4f7172b201a6901f3",
+  "run_id": 39014037409,
+  "attempt": 1,
+  "job_status": "cancelled",
+  "run_url": "https://github.com/bdr-design/madar/actions/runs/39014037409",
+  "certified": false,
+  "ipa_artifact_url": "",
+  "ipa_single_file_url": "",
+  "physical_iphone_tested": false,
+  "receipt_ref": "refs/heads/ci-receipts/build362/4ae920e97a8223f57288a6d4f7172b201a6901f3/39014037409-1",
+  "files": {
+    "native-save-worker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-worker.json": {
+      "bytes": 2592,
+      "sha256": "24da08ff3ae0b2e915f19276efcd728898d3deb16851d00d29f94e27625d0cca"
+    },
+    "native-save-worker.log": {
+      "bytes": 24,
+      "sha256": "dd525051f0f38965b26a9cc154e88f84063d2a5699f52deaae78c7f045b0fcf3"
+    },
+    "source-mode.txt": {
+      "bytes": 82,
+      "sha256": "58fd14f697a51ca7086dcbacb8541bbfc407fa10919cfb4b27aa39394de96680"
+    },
+    "source-package-integrity.log": {
+      "bytes": 67438,
+      "sha256": "efbff166bac289fcb6c0fc9a334adeea686b72b9f879445ce1a59fec2cf93cb5"
+    },
+    "source-verification.json": {
+      "bytes": 2964,
+      "sha256": "717d7cc5c17b2438193bc088dcda0b5b50a089e9384f5a75a7c81afe8d0a8d52"
+    }
+  }
+}
