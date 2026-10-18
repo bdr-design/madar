@@ -42,12 +42,27 @@ with tempfile.TemporaryDirectory(prefix='madar-acceptance-contract-') as tmp:
     except ValueError:pass
     else:raise AssertionError('Removed gate escaped policy')
 
+# The isolated VM interpreter still executes every original assertion and forwards failures.
+host_source=(root/'tests/build395-hospitality-edge-cases.cjs').read_text();marker='// VM_HOST_INTERPRETER_END\n'
+assert host_source.count(marker)==1
+bootstrap,original=host_source.split(marker)
+assert hashlib.sha256(original.encode()).hexdigest()==json.loads((root/'tests/fixtures/build395-vm-body.json').read_text())['sha256'],'retain all original hospitality financial assertions'
+with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
+    file=Path(tmp)/'probe.cjs'
+    for body,expected in [("require('node:assert/strict').equal(1,1);console.log('VM_FIXTURE_'+process.execArgv.includes('--jitless'));",0),("require('node:assert/strict').fail('QA_EXPECTED_VM_ASSERTION');",1),("process.exit(7);",7)]:
+        file.write_text(bootstrap+marker+body)
+        run=subprocess.run(['node',str(file)],capture_output=True,text=True,timeout=5)
+        assert run.returncode==expected,'VM bootstrap must preserve assertion and explicit failure statuses'
+        if expected==0:assert 'VM_FIXTURE_true' in run.stdout
+        if expected==1:assert 'QA_EXPECTED_VM_ASSERTION' in run.stderr
+
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 expected_preflight=[
     ['node', 'tests/build334-security-contract.cjs'],
     ['python3', 'tests/acceptance-policy.py'],
     ['node', 'tests/build498-native-save-export-contract.cjs'],
+    ['node', 'tests/build395-hospitality-edge-cases.cjs'],
     ['node', 'tests/build497-route-preview-reuse.cjs'],
     ['node', 'tests/build492-manual-slot-slices-browser.cjs'],
     ['node', 'tests/build493-backup-export-browser.cjs'],

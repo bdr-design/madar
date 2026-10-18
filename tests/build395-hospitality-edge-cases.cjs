@@ -1,4 +1,16 @@
 'use strict';
+// VM_HOST_INTERPRETER_BEGIN
+// Node 24 on the macOS runner crashed inside this cross-realm VM test (SIGSEGV).
+// Run these unchanged functional assertions once in V8's interpreter; production browser JIT stays enabled.
+if(!process.execArgv.includes('--jitless')){
+ const child=require('node:child_process').spawnSync(process.execPath,['--jitless',__filename,...process.argv.slice(2)],{stdio:'inherit',timeout:60000});
+ if(child.error)console.error(child.error);
+ if(child.signal)console.error('HOSPITALITY_VM_HOST_SIGNAL',child.signal);
+ process.exit(Number.isInteger(child.status)?child.status:1);
+}
+console.log('HOSPITALITY_VM_HOST_MODE jitless');
+// VM_HOST_INTERPRETER_END
+'use strict';
 const assert=require('node:assert/strict'),{hospitalityFixture}=require('./helpers/hospitality-fixture.cjs');
 const results=[];function test(name,fn){fn();results.push(name);}
 function reserve(q,p,startDay,endDay){const terms={propertyId:p.id,startDay,endDay,rooms:2,roomClass:0},quote=q.H.bookingQuote(q.state,'hospitality',terms);return q.command('reserve-group',{...terms,customerName:'عميل الحالات الطرفية',expectedGross:quote.gross});}

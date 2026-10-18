@@ -8,7 +8,7 @@ for mode,flags in [('default',[]),('jitless',['--jitless'])]:
     for trial in range(5):
         log=out/f'hospitality-vm-{mode}-{trial}.log'
         with log.open('w') as stream:
-            result=subprocess.run(['node',*flags,str(root/'tests/build395-hospitality-edge-cases.cjs')],cwd=root,stdout=stream,stderr=subprocess.STDOUT,timeout=60)
+            result=subprocess.run(['node',*flags,'-e',"const fs=require('node:fs'),M=require('node:module'),p=process.argv[1],s=fs.readFileSync(p,'utf8').split('// VM_HOST_INTERPRETER_END\\n').pop(),m=new M(p,module);m.filename=p;m.paths=M._nodeModulePaths(require('node:path').dirname(p));m._compile(s,p);",str(root/'tests/build395-hospitality-edge-cases.cjs')],cwd=root,stdout=stream,stderr=subprocess.STDOUT,timeout=60)
         row={'mode':mode,'trial':trial,'exit_code':result.returncode,'log':log.name};rows.append(row);print(json.dumps(row),flush=True)
 (out/'hospitality-vm-host.json').write_text(json.dumps(rows,indent=2)+'\n')
 crashes=Path.home()/'Library/Logs/DiagnosticReports'
