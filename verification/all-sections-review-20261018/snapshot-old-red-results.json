@@ -1,0 +1,27 @@
+[
+  {
+    "test": "build492-manual-slot-slices-browser.cjs",
+    "old_exit": 1,
+    "tail": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\npage.evaluate: SyntaxError: \"undefined\" is not valid JSON\n    at JSON.parse (<anonymous>)\n    at Object.deserialize (eval at evaluate (:291:30), <anonymous>:872:65)\n    at eval (eval at evaluate (:291:30), <anonymous>:1:306)\n    at async <anonymous>:317:30\n    at /workspace/madar/tests/build492-manual-slot-slices-browser.cjs:6:22\n"
+  },
+  {
+    "test": "build493-backup-export-browser.cjs",
+    "old_exit": 1,
+    "tail": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'export-failed'\n- 'qa-export-prepare-refused'\n\n    at /workspace/madar/tests/build493-backup-export-browser.cjs:7:186 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'export-failed',\n  expected: 'qa-export-prepare-refused',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n"
+  },
+  {
+    "test": "build494-export-worker-protocol.cjs",
+    "old_exit": 1,
+    "tail": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'undefined'\n- 'function'\n\n    at /workspace/madar/tests/build494-export-worker-protocol.cjs:5:9\n    at Object.<anonymous> (/workspace/madar/tests/build494-export-worker-protocol.cjs:15:3)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'undefined',\n  expected: 'function',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n"
+  },
+  {
+    "test": "build495-large-reset-browser.cjs",
+    "old_exit": 1,
+    "tail": "Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.\n{\"stage\":\"reset-refusal\",\"engine\":\"chromium\",\"ok\":false,\"booksSame\":true,\"rowsSame\":true,\"size\":4400,\"attempts\":0,\"manual\":1,\"unlocked\":true}\nAssertionError [ERR_ASSERTION]: a failed native reset retains its compensating checkpoint\n\n0 !== 2\n\n    at /workspace/madar/tests/build495-large-reset-browser.cjs:6:669 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 0,\n  expected: 2,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n"
+  },
+  {
+    "test": "build496-world-query-reset.cjs",
+    "old_exit": 1,
+    "tail": "node:assert:152\n  throw new AssertionError(obj);\n  ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'undefined'\n- 'function'\n\n    at Object.<anonymous> (/workspace/madar/tests/build496-world-query-reset.cjs:5:326)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'undefined',\n  expected: 'function',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n"
+  }
+]

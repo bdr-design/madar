@@ -41,6 +41,10 @@
       if(disabled||worker)return worker;
       try{if(typeof workerFactory!=='function')throw new Error('finance-report-worker-unavailable');worker=workerFactory();if(!worker||typeof worker.postMessage!=='function')throw new Error('finance-report-worker-invalid');worker.onmessage=handleMessage;worker.onerror=event=>disable(event?.error||new Error(event?.message||'finance-report-worker-error'));worker.onmessageerror=()=>disable(new Error('finance-report-message-error'));return worker;}catch(error){disable(error);return null;}
     }
+    function reset(){
+      clear();cache=null;generation++;disabled=false;
+      if(worker){worker.onmessage=null;worker.onerror=null;worker.onmessageerror=null;try{worker.terminate?.();}catch{}}worker=null;return true;
+    }
     function request(input={}){
       let active=ensureWorker();const key=String(input.key||'');if(!active)return {ready:false,worker:false,reason:'worker-disabled'};
       if(!key||!input.snapshot||!Array.isArray(input.snapshot.reports))return {ready:false,worker:false,reason:'snapshot-invalid'};
@@ -51,7 +55,7 @@
       try{active.postMessage({type:'aggregate',requestId,generation,key,snapshot:input.snapshot});}catch(error){disable(error);return {ready:false,worker:false,reason:'post-failed'};}
       return {ready:false,worker:true,pending:true,generation};
     }
-    return Object.freeze({request,isDisabled:()=>disabled,disable:()=>disable(new Error('finance-report-worker-disabled')),version:VERSION});
+    return Object.freeze({request,reset,isDisabled:()=>disabled,disable:()=>disable(new Error('finance-report-worker-disabled')),version:VERSION});
   }
   return Object.freeze({VERSION,buildMonthlyStatement,create});
 });

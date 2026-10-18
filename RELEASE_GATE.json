@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "d16fef5a3caebd4fffa297c716a4c817c7d83aab897d3d0eebdfa1e45efca868",
+  "source_tree_sha256": "6e0bac96379215aedeea7976e8e9cf58e29cdd9ac7d1b7508ccc44abc2d32ad1",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -17,7 +17,7 @@
     "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
     "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
     "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
-    "Current stored-container candidate: 521 mandatory gates / 124 preflight definitions. Twelve desktop moving-million / all-11-revenue decision samples use 2.22–3.32 MB per command; Chromium median protocol ACK 915 ms, WebKit 878 ms. Longest named main spans were 27/37 ms in these samples. Both 20 ms targets and physical iPhone IO remain unverified; full acceptance and IPA pending."
+    "Current all-sections candidate: 527 mandatory gates / 130 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -104,7 +104,7 @@
     "mode": "direct_git_tracked_branch",
     "branch": "claude/madar-ventora-handover-3.0.0-stg723",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "d16fef5a3caebd4fffa297c716a4c817c7d83aab897d3d0eebdfa1e45efca868",
+    "source_tree_sha256": "6e0bac96379215aedeea7976e8e9cf58e29cdd9ac7d1b7508ccc44abc2d32ad1",
     "working_tree_clean": false,
     "note": "Unpublished local fixes relative to 2ad7e16: bounded packed fleet lane storage, static validation dependencies, value-aware worker evidence, day formula memo, worker value collection, governor deadline-overrun signal, unused service-panel fleet query removal, durable decision notices and synchronous ready validation reuse, and conditional durable preparation only during actual worker waits (ordinary and composite commands). Targeted desktop checks only; physical-device and full-source acceptance are pending. Latest cleanup reviews all 16 pending runtime files, removes duplicate packed-page hashing and per-row temporary allocations, preserves old-save readers, and refuses mismatched patch adoption or incomplete lane hashes. Latest game scan parses 132 runtime scripts and refines only app summary/document consumers and legacy bank branch migration; 22 related checks and 10 detected mutations, no new device/full-command timing claim. Latest section review removes repeated HR facility/vehicle work, bounds labor/facility/task/loan cards, uses current worker aggregates for capacity and CII previews, and defers and time-slices the existing fleet-list index. Read-only desktop and targeted integrity evidence; no physical-iPhone or full-command ACK guarantee. Rendering review removes no-op Canvas paints and stable HUD writes, skips hidden/detached navigation geometry, bounds catalog cards and patches market summary fields without rebuilding forms. 24 related scripts passed; cold worker CPU contention and the global 20ms target remain pending. The owner subsequently authorized an exhaustive section audit followed by full gates, push and IPA delivery.",
     "news_work": {

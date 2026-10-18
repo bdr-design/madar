@@ -78,6 +78,11 @@
     return {capital,profile,registry,planId:isPlan?input.planId:null};
     }});return outcome.value;
   }
-  async function reset(state,defaultState,options={}){const next=pristine(defaultState,options.resetEpoch||Date.now());if(options.prepare)options.prepare(next);return globalThis.GH_PERSISTENCE.replaceState(next,options.checkpoint||state,{...options,apply:()=>globalThis.GH_TRANSACTION_CORE.restoreObject(state,next)});}
+  async function reset(state,defaultState,options={}){const next=pristine(defaultState,options.resetEpoch||Date.now());if(options.prepare)options.prepare(next);return globalThis.GH_PERSISTENCE.replaceState(next,options.checkpoint||state,{...options,apply:()=>{
+      // A new world replaces the fleet root; transaction rollback deliberately preserves that root.
+      const fleet=state.fleet,hadFleet=Object.prototype.hasOwnProperty.call(state,'fleet');
+      if(Object.prototype.hasOwnProperty.call(next,'fleet'))state.fleet=next.fleet;else delete state.fleet;
+      try{return (globalThis.GH_TRANSACTION_CORE.publishObject||globalThis.GH_TRANSACTION_CORE.restoreObject)(state,next);}catch(error){if(hadFleet)state.fleet=fleet;else delete state.fleet;throw error;}
+    }});}
   window.GH_GAME_LIFECYCLE={VERSION,FOUNDING_LOCATIONS,FOUNDING_CAPITALS,FOUNDING_ARTICLES,openingArticles,locationFor,prepareFounding,prepareFormationPlan,pristine,foundGroup,reset};
 })();

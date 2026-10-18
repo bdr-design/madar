@@ -1,0 +1,4 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build492-manual-slot-slices-browser","engine":"chromium","snapshotAtRequest":true,"chunkNack":true,"slotNack":true,"heldAck":true,"ordinaryFollowupOnce":true,"realButton":true,"noSynchronousWriter":true}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build492-manual-slot-slices-browser","engine":"webkit","snapshotAtRequest":true,"chunkNack":true,"slotNack":true,"heldAck":true,"ordinaryFollowupOnce":true,"realButton":true,"noSynchronousWriter":true}

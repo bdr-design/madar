@@ -1,0 +1,390 @@
+{
+  "sourceFiles": {
+    "app.js": "e7a58776d2d8f86bdd14532381f7581c4543c6844602a0591599f7ca57619213",
+    "persistence-core.js": "2eff14a705e654147d8005c45afbbebcd1b2c85a5c551873c98c3a7939760001",
+    "save-checksum-thread.js": "d35e1e22ba84d6f2fe58d356db0743740785a2b02f1871d058e3c59c96b52f94",
+    "save-checksum-worker.js": "cce4ee326cd0771f665acbd09976f86ce0858fd219e4ca1f2fc57ec1b7610a40",
+    "state-codec-core.js": "ee2b8e3edc39fae990af2d7dee48ba9b69cae2d85a60d77d26c1161a91f38fce"
+  },
+  "scope": "Actual settings buttons, million operating assets and positive daily revenue for all 11 companies. JS vault protocol ACK, not physical iPhone IO. Finite action measurements; named work spans are not exhaustive browser task timings.",
+  "results": [
+    {
+      "engine": "chromium",
+      "kind": "manual-slot",
+      "world": {
+        "rows": 1000000,
+        "simSeconds": 345600,
+        "revenues": {
+          "air": 152471407862.64612,
+          "sea": 920907744.1264334,
+          "road": 12083505.275589246,
+          "power": 16141.552097238817,
+          "bank": 46070.78649700096,
+          "mobility": 62209.49999999999,
+          "insurance": 4299.413102310908,
+          "realestate": 12655.202310287148,
+          "telecom": 7393.89,
+          "dealership": 210331.70652421084,
+          "hospitality": 14550
+        }
+      },
+      "ok": true,
+      "toResultMs": 176.39999999850988,
+      "rafMaxMs": 16.700000000000728,
+      "frameCount": 10,
+      "spans": {},
+      "timing": [
+        {
+          "kind": "bridge-dispatch",
+          "requestId": "commitSave-1792348386740-3",
+          "action": "commitSave",
+          "saveRevision": 100,
+          "bridgeDispatchMs": 8.700000002980232,
+          "recordedAtMs": 1792348386749
+        },
+        {
+          "kind": "native-ack",
+          "requestId": "commitSave-1792348386740-3",
+          "action": "commitSave",
+          "saveRevision": 100,
+          "generation": 13,
+          "success": true,
+          "bridgeDispatchMs": 8.700000002980232,
+          "nativeAckLatencyMs": 8.800000004470348,
+          "nativeVaultCommitMs": null,
+          "nativeVaultStages": null,
+          "recordedAtMs": 1792348386749
+        },
+        {
+          "kind": "sliced-save",
+          "cloneMs": 34.899999998509884,
+          "validateMs": 18,
+          "totalMs": 171.5,
+          "ok": true,
+          "cloneBusyMs": 15.799999997019768,
+          "cloneMaxSliceMs": 4,
+          "cloneYields": 3,
+          "recordedAtMs": 1792348386749
+        }
+      ],
+      "bitExact": true,
+      "booksExact": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "portable-export",
+      "world": {
+        "rows": 1000000,
+        "simSeconds": 345600,
+        "revenues": {
+          "air": 152471407862.64612,
+          "sea": 920907744.1264334,
+          "road": 12083505.275589246,
+          "power": 16141.552097238817,
+          "bank": 46070.78649700096,
+          "mobility": 62209.49999999999,
+          "insurance": 4299.413102310908,
+          "realestate": 12655.202310287148,
+          "telecom": 7393.89,
+          "dealership": 210331.70652421084,
+          "hospitality": 14550
+        }
+      },
+      "ok": true,
+      "toResultMs": 3314.2000000029802,
+      "rafMaxMs": 16.80000000000109,
+      "frameCount": 199,
+      "spans": {
+        "ui.kpis": {
+          "count": 6,
+          "totalMs": 1.3999999985098839,
+          "maxMs": 0.30000000447034836
+        }
+      },
+      "timing": [
+        {
+          "kind": "native-ack",
+          "requestId": "commitSave-1792348386740-3",
+          "action": "commitSave",
+          "saveRevision": 100,
+          "generation": 13,
+          "success": true,
+          "bridgeDispatchMs": 8.700000002980232,
+          "nativeAckLatencyMs": 8.800000004470348,
+          "nativeVaultCommitMs": null,
+          "nativeVaultStages": null,
+          "recordedAtMs": 1792348386749
+        },
+        {
+          "kind": "sliced-save",
+          "cloneMs": 34.899999998509884,
+          "validateMs": 18,
+          "totalMs": 171.5,
+          "ok": true,
+          "cloneBusyMs": 15.799999997019768,
+          "cloneMaxSliceMs": 4,
+          "cloneYields": 3,
+          "recordedAtMs": 1792348386749
+        },
+        {
+          "kind": "backup-export-snapshot",
+          "ok": true,
+          "busyMs": 207.3000000193715,
+          "slices": 6,
+          "retakes": 0,
+          "cloneBusyMs": 19.5,
+          "cloneMaxSliceMs": 4,
+          "cloneYields": 4,
+          "cloneMs": 64,
+          "maxBusySliceMs": 29.80000000447035,
+          "validateMs": 33.399999998509884,
+          "checksumWorkerMs": 130.30000001192093,
+          "checksumRequests": 42,
+          "containerWorkerMs": 618.2999999895692,
+          "containerRequests": 42,
+          "fileBytes": 241612040,
+          "fileWorkerMs": 2275.7000000029802,
+          "totalMs": 3312.6999999955297,
+          "recordedAtMs": 1792348391544
+        }
+      ],
+      "fileBytes": 241612040,
+      "bitExact": true,
+      "booksExact": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "new-group",
+      "world": {
+        "rows": 1000000,
+        "simSeconds": 345600,
+        "revenues": {
+          "air": 152471407862.64612,
+          "sea": 920907744.1264334,
+          "road": 12083505.275589246,
+          "power": 16141.552097238817,
+          "bank": 46070.78649700096,
+          "mobility": 62209.49999999999,
+          "insurance": 4299.413102310908,
+          "realestate": 12655.202310287148,
+          "telecom": 7393.89,
+          "dealership": 210331.70652421084,
+          "hospitality": 14550
+        }
+      },
+      "ok": true,
+      "toResultMs": 226.30000000447035,
+      "rows": 0,
+      "oldCacheReferences": 0,
+      "workerRetained": false,
+      "manualSlots": 0,
+      "timing": [
+        {
+          "kind": "native-ack",
+          "requestId": "resetGameSave-1792348393000-4",
+          "action": "resetGameSave",
+          "saveRevision": 1,
+          "generation": 14,
+          "success": true,
+          "bridgeDispatchMs": 0.4000000059604645,
+          "nativeAckLatencyMs": 0.6000000014901161,
+          "nativeVaultCommitMs": null,
+          "nativeVaultStages": null,
+          "recordedAtMs": 1792348393000
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "kind": "manual-slot",
+      "world": {
+        "rows": 1000000,
+        "simSeconds": 345600,
+        "revenues": {
+          "air": 152471407862.64612,
+          "sea": 920907744.1264334,
+          "road": 12083505.275589246,
+          "power": 16141.552097238817,
+          "bank": 46070.78649700096,
+          "mobility": 62209.49999999999,
+          "insurance": 4299.413102310908,
+          "realestate": 12655.202310287148,
+          "telecom": 7393.89,
+          "dealership": 210331.70652421084,
+          "hospitality": 14550
+        }
+      },
+      "ok": true,
+      "toResultMs": 323,
+      "rafMaxMs": 22,
+      "frameCount": 20,
+      "spans": {
+        "ui.kpis": {
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        }
+      },
+      "timing": [
+        {
+          "kind": "bridge-dispatch",
+          "requestId": "commitSave-1792348408906-3",
+          "action": "commitSave",
+          "saveRevision": 100,
+          "bridgeDispatchMs": 16,
+          "recordedAtMs": 1792348408923
+        },
+        {
+          "kind": "native-ack",
+          "requestId": "commitSave-1792348408906-3",
+          "action": "commitSave",
+          "saveRevision": 100,
+          "generation": 13,
+          "success": true,
+          "bridgeDispatchMs": 16,
+          "nativeAckLatencyMs": 16,
+          "nativeVaultCommitMs": null,
+          "nativeVaultStages": null,
+          "recordedAtMs": 1792348408923
+        },
+        {
+          "kind": "sliced-save",
+          "cloneMs": 139,
+          "validateMs": 21,
+          "totalMs": 307.0000000000018,
+          "ok": true,
+          "cloneBusyMs": 25.00000000000182,
+          "cloneMaxSliceMs": 4.000000000001819,
+          "cloneYields": 6,
+          "recordedAtMs": 1792348408923
+        }
+      ],
+      "bitExact": true,
+      "booksExact": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "portable-export",
+      "world": {
+        "rows": 1000000,
+        "simSeconds": 345600,
+        "revenues": {
+          "air": 152471407862.64612,
+          "sea": 920907744.1264334,
+          "road": 12083505.275589246,
+          "power": 16141.552097238817,
+          "bank": 46070.78649700096,
+          "mobility": 62209.49999999999,
+          "insurance": 4299.413102310908,
+          "realestate": 12655.202310287148,
+          "telecom": 7393.89,
+          "dealership": 210331.70652421084,
+          "hospitality": 14550
+        }
+      },
+      "ok": true,
+      "toResultMs": 2007,
+      "rafMaxMs": 62,
+      "frameCount": 122,
+      "spans": {
+        "ui.kpis": {
+          "count": 3,
+          "totalMs": 1.000000000003638,
+          "maxMs": 1.000000000003638
+        }
+      },
+      "timing": [
+        {
+          "kind": "native-ack",
+          "requestId": "commitSave-1792348408906-3",
+          "action": "commitSave",
+          "saveRevision": 100,
+          "generation": 13,
+          "success": true,
+          "bridgeDispatchMs": 16,
+          "nativeAckLatencyMs": 16,
+          "nativeVaultCommitMs": null,
+          "nativeVaultStages": null,
+          "recordedAtMs": 1792348408923
+        },
+        {
+          "kind": "sliced-save",
+          "cloneMs": 139,
+          "validateMs": 21,
+          "totalMs": 307.0000000000018,
+          "ok": true,
+          "cloneBusyMs": 25.00000000000182,
+          "cloneMaxSliceMs": 4.000000000001819,
+          "cloneYields": 6,
+          "recordedAtMs": 1792348408923
+        },
+        {
+          "kind": "backup-export-snapshot",
+          "ok": true,
+          "busyMs": 211,
+          "slices": 11,
+          "retakes": 0,
+          "cloneBusyMs": 33.000000000007276,
+          "cloneMaxSliceMs": 8,
+          "cloneYields": 7,
+          "cloneMs": 102,
+          "maxBusySliceMs": 24,
+          "validateMs": 45,
+          "checksumWorkerMs": 89.00000000000136,
+          "checksumRequests": 42,
+          "containerWorkerMs": 357.9999999999968,
+          "containerRequests": 42,
+          "fileBytes": 241613338,
+          "fileWorkerMs": 1098.000000000001,
+          "totalMs": 2004,
+          "recordedAtMs": 1792348412083
+        }
+      ],
+      "fileBytes": 241613338,
+      "bitExact": true,
+      "booksExact": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "new-group",
+      "world": {
+        "rows": 1000000,
+        "simSeconds": 345600,
+        "revenues": {
+          "air": 152471407862.64612,
+          "sea": 920907744.1264334,
+          "road": 12083505.275589246,
+          "power": 16141.552097238817,
+          "bank": 46070.78649700096,
+          "mobility": 62209.49999999999,
+          "insurance": 4299.413102310908,
+          "realestate": 12655.202310287148,
+          "telecom": 7393.89,
+          "dealership": 210331.70652421084,
+          "hospitality": 14550
+        }
+      },
+      "ok": true,
+      "toResultMs": 359,
+      "rows": 0,
+      "oldCacheReferences": 0,
+      "workerRetained": false,
+      "manualSlots": 0,
+      "timing": [
+        {
+          "kind": "native-ack",
+          "requestId": "resetGameSave-1792348413794-4",
+          "action": "resetGameSave",
+          "saveRevision": 1,
+          "generation": 14,
+          "success": true,
+          "bridgeDispatchMs": 0,
+          "nativeAckLatencyMs": 0,
+          "nativeVaultCommitMs": null,
+          "nativeVaultStages": null,
+          "recordedAtMs": 1792348413795
+        }
+      ]
+    }
+  ]
+}

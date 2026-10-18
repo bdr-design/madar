@@ -1,0 +1,162 @@
+[
+  {
+    "test": "tests/build492-manual-slot-slices-browser.cjs",
+    "exit_code": 0,
+    "seconds": 5.94
+  },
+  {
+    "test": "tests/build493-backup-export-browser.cjs",
+    "exit_code": 0,
+    "seconds": 8.55
+  },
+  {
+    "test": "tests/build494-export-worker-protocol.cjs",
+    "exit_code": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build495-large-reset-browser.cjs",
+    "exit_code": 0,
+    "seconds": 5.8
+  },
+  {
+    "test": "tests/build496-world-query-reset.cjs",
+    "exit_code": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build489-stored-lane-containers.cjs",
+    "exit_code": 0,
+    "seconds": 3.22
+  },
+  {
+    "test": "tests/build490-container-compression.cjs",
+    "exit_code": 0,
+    "seconds": 0.82
+  },
+  {
+    "test": "tests/build491-stored-containers-browser.cjs",
+    "exit_code": 0,
+    "seconds": 8.66
+  },
+  {
+    "test": "tests/build359-sliced-save-browser.cjs",
+    "exit_code": 0,
+    "seconds": 3.32
+  },
+  {
+    "test": "tests/build359-command-slices.cjs",
+    "exit_code": 0,
+    "seconds": 1.42
+  },
+  {
+    "test": "tests/build375-large-fleet-background-save-browser.cjs",
+    "exit_code": 0,
+    "seconds": 26.77
+  },
+  {
+    "test": "tests/build386-confirmation-browser.cjs",
+    "exit_code": 0,
+    "seconds": 11.72
+  },
+  {
+    "test": "tests/build387-save-once-browser.cjs",
+    "exit_code": 0,
+    "seconds": 18.92
+  },
+  {
+    "test": "tests/build389-differential-browser.cjs",
+    "exit_code": 0,
+    "seconds": 6.91
+  },
+  {
+    "test": "tests/build390-cooperative-snapshot.cjs",
+    "exit_code": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build390-snapshot-browser.cjs",
+    "exit_code": 0,
+    "seconds": 4.0
+  },
+  {
+    "test": "tests/build379-recovery-browser.cjs",
+    "exit_code": 0,
+    "seconds": 8.61
+  },
+  {
+    "test": "tests/build379-command-validation-browser.cjs",
+    "exit_code": 0,
+    "seconds": 4.54
+  },
+  {
+    "test": "tests/build334-deferred-save-lifecycle.cjs",
+    "exit_code": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-native-snapshot-queue.cjs",
+    "exit_code": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build362-simulation-lifecycle.cjs",
+    "exit_code": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/save-checksum-worker-browser.cjs",
+    "exit_code": 0,
+    "seconds": 1.03
+  },
+  {
+    "test": "tests/save-pipeline-browser.cjs",
+    "exit_code": 0,
+    "seconds": 1.57
+  },
+  {
+    "test": "tests/native-save-worker-browser.cjs",
+    "exit_code": 0,
+    "seconds": 2.26
+  },
+  {
+    "test": "tests/build464-summary-projection-boundary.cjs",
+    "exit_code": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build485-cold-validation-query.cjs",
+    "exit_code": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build424-dense-fleet-pages.cjs",
+    "exit_code": 0,
+    "seconds": 3.92
+  },
+  {
+    "test": "tests/build430-legacy-fleet-pages.cjs",
+    "exit_code": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build376-money-guard.cjs",
+    "exit_code": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/persistence-regressions.cjs",
+    "exit_code": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/persistence-pressure-and-native-build251-test.js",
+    "exit_code": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build360-iphone-failure-recovery.cjs",
+    "exit_code": 0,
+    "seconds": 0.22
+  }
+]

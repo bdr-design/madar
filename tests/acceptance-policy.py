@@ -45,6 +45,12 @@ with tempfile.TemporaryDirectory(prefix='madar-acceptance-contract-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 expected_preflight=[
+    ['node', 'tests/build497-route-preview-reuse.cjs'],
+    ['node', 'tests/build492-manual-slot-slices-browser.cjs'],
+    ['node', 'tests/build493-backup-export-browser.cjs'],
+    ['node', 'tests/build494-export-worker-protocol.cjs'],
+    ['node', 'tests/build495-large-reset-browser.cjs'],
+    ['node', 'tests/build496-world-query-reset.cjs'],
     ['node', 'tests/build489-stored-lane-containers.cjs'],
     ['node', 'tests/build490-container-compression.cjs'],
     ['node', 'tests/build491-stored-containers-browser.cjs'],

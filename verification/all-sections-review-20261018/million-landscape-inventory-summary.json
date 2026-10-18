@@ -1,0 +1,1321 @@
+{
+  "scope": "Finite navigation inventory with per-file source hashes; read-only controls enumerated, not every action branch executed. Prior to snapshot/reset and final route payload laziness changes. See individual source hashes.",
+  "inventories": [
+    {
+      "file": "inventory-956.json",
+      "sourceFiles": {
+        "app.js": "3b9a781089578cf1b42fa9ee8d788e61bef77eb1fbffcd9cbf0e6397c9f00122",
+        "advanced-core.js": "a2a9431973fe73451168da881ec091e1883b97e1f9d8af88f490b88cc9c5b347",
+        "madar-shell.js": "1a9062a5c8d6076fbaf971804b628853a44943f0e981b9247d8d39ccc7a0d5a4",
+        "fleet-ui-summary-core.js": "0705f8863c0a1d2de472b436a240a6a80f2392883dc759c5ce1c98f50942ba58",
+        "business-options-ui.js": "1b84d14765856e5c63a96a6d92a066ceeda1a78bd16f0525c3b565344c3a2c63",
+        "hospitality-ui.js": "22a920ae3b07620c2d9f30ec5261a73c660a0ccd1f5c44f37c9c54f06bf9121e",
+        "directory-core.js": "2b50ef992b277a7ac990f351f7d1e8b7fd23b08983b7ecd84c75ee2c0611fbcb"
+      },
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "engine": "chromium",
+      "views": 525,
+      "controls": 5086,
+      "pending": [],
+      "errors": [],
+      "operatingWorld": {
+        "restoredSetupSeed": true,
+        "day": 4,
+        "companies": {
+          "air": {
+            "grossRevenue": 152471407862.64612,
+            "expenses": 84473011412.1463,
+            "net": 67998396450.49982,
+            "tripRevenue": 152471407862.64612,
+            "operatingRevenue": 0,
+            "tripCount": 3757662
+          },
+          "sea": {
+            "grossRevenue": 920907744.1264334,
+            "expenses": 974468192.6219784,
+            "net": -53560448.49554506,
+            "tripRevenue": 920907744.1264334,
+            "operatingRevenue": 0,
+            "tripCount": 645
+          },
+          "road": {
+            "grossRevenue": 12083505.275589246,
+            "expenses": 4787411.560245976,
+            "net": 7296093.71534327,
+            "tripRevenue": 12083505.275589246,
+            "operatingRevenue": 0,
+            "tripCount": 44482
+          },
+          "power": {
+            "grossRevenue": 16141.552097238817,
+            "expenses": 665.4020046623555,
+            "net": 15476.150092576461,
+            "tripRevenue": 0,
+            "operatingRevenue": 16141.552097238817,
+            "tripCount": 0
+          },
+          "bank": {
+            "grossRevenue": 46070.78649700096,
+            "expenses": 7175.582054774204,
+            "net": 38895.20444222676,
+            "tripRevenue": 0,
+            "operatingRevenue": 46070.78649700096,
+            "tripCount": 0
+          },
+          "mobility": {
+            "grossRevenue": 62209.49999999999,
+            "expenses": 18252.239999999983,
+            "net": 43957.26000000001,
+            "tripRevenue": 62209.49999999999,
+            "operatingRevenue": 0,
+            "tripCount": 1387
+          },
+          "insurance": {
+            "grossRevenue": 4299.413102310908,
+            "expenses": 1308.5480369095894,
+            "net": 2990.865065401318,
+            "tripRevenue": 0,
+            "operatingRevenue": 4299.413102310908,
+            "tripCount": 0
+          },
+          "realestate": {
+            "grossRevenue": 12655.202310287148,
+            "expenses": 18515.62064855661,
+            "net": -5860.418338269463,
+            "tripRevenue": 0,
+            "operatingRevenue": 12655.202310287148,
+            "tripCount": 0
+          },
+          "telecom": {
+            "grossRevenue": 7393.89,
+            "expenses": 5816.346362133333,
+            "net": 1577.5436378666673,
+            "tripRevenue": 0,
+            "operatingRevenue": 7393.89,
+            "tripCount": 0
+          },
+          "dealership": {
+            "grossRevenue": 210331.70652421084,
+            "expenses": 189119.29858831596,
+            "net": 21212.40793589488,
+            "tripRevenue": 0,
+            "operatingRevenue": 210331.70652421084,
+            "tripCount": 0
+          },
+          "hospitality": {
+            "grossRevenue": 14550,
+            "expenses": 7748.33,
+            "net": 6801.67,
+            "tripRevenue": 0,
+            "operatingRevenue": 14550,
+            "tripCount": 0
+          }
+        },
+        "fleetByMode": {
+          "air": {
+            "total": 980000,
+            "routed": 980000,
+            "moving": 691603
+          },
+          "sea": {
+            "total": 10000,
+            "routed": 10000,
+            "moving": 9749
+          },
+          "road": {
+            "total": 10000,
+            "routed": 10000,
+            "moving": 5701
+          }
+        },
+        "mobilityTrips": 5407,
+        "kernel": {
+          "version": "3.0.0",
+          "frames": 4044,
+          "slices": 401,
+          "chunks": 3911,
+          "hours": 48,
+          "days": 2,
+          "conflicts": 0,
+          "cancels": 0,
+          "maxChunkMs": 71.19999999552965,
+          "lastChunkMs": 1.3000000044703484,
+          "longTasks": 4,
+          "hardTasks": 0,
+          "droppedRealSeconds": 0,
+          "backlogClamps": 0,
+          "maxCreateMs": 0.10000000149011612,
+          "lastCreateMs": 0,
+          "maxFinishMs": 0.6999999955296516,
+          "lastFinishMs": 0.10000000149011612,
+          "maxCycleMs": 634.6000000089407,
+          "lastCycleMs": 634.6000000089407,
+          "maxMaintenanceMs": 45.70000000298023,
+          "lastMaintenanceMs": 0.8000000044703484,
+          "maxRenderMs": 24.899999998509884,
+          "lastRenderMs": 4.800000004470348,
+          "lastFrame": {
+            "createMs": 0,
+            "chunkMs": 0,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 4.800000004470348,
+            "totalMs": 4.800000004470348
+          },
+          "maxFrame": {
+            "createMs": 0,
+            "chunkMs": 71.19999999552965,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 0,
+            "totalMs": 71.19999999552965
+          },
+          "cooldownFrames": 7,
+          "deferredRuns": 117,
+          "lastError": "",
+          "fatalError": null,
+          "lastBoundary": "hour:96",
+          "lastSliceSeconds": 386.66762936720625,
+          "lastMaintenanceHour": 85,
+          "lastCancelReason": "",
+          "lastCommitReason": "committed",
+          "lastWorkStage": "finish",
+          "governor": "GREEN",
+          "avgChunkMs": 0.4633333335320155,
+          "avgWorkMs": 0.6025000000372529,
+          "manualFailures": 0,
+          "manualThrottleYields": 0,
+          "lastAdvanceFailure": null,
+          "lastProgressSim": 345600,
+          "lastProgressAt": 61907.30000000447,
+          "activeFrameBudgetMs": 9.99839035302697,
+          "frameCadencePressure": 0,
+          "lastFrameIntervalMs": 16.7,
+          "aggregateSlices": 0,
+          "aggregateWindows": 0,
+          "aggregateSubSlices": 0,
+          "lastAggregateHours": 0,
+          "aggregateFallbacks": 0,
+          "jobCleanups": 401,
+          "cleanupErrors": 0,
+          "simSeconds": 345600,
+          "speed": 0,
+          "backlog": 0,
+          "jobActive": false,
+          "jobReadyToFinish": false,
+          "jobSlice": 0,
+          "jobSpeed": 0,
+          "hidden": false,
+          "manualAdvance": null,
+          "pacing": {
+            "version": "3.0.0",
+            "lastReal": 62800,
+            "backlog": 0,
+            "hidden": false,
+            "lastRender": 62800,
+            "droppedRealSeconds": 0,
+            "backlogClamps": 0,
+            "stallGaps": 0,
+            "config": {
+              "maxRealDelta": 3,
+              "maxBacklogNormal": 12,
+              "maxBacklogFast": 96,
+              "frameBudgetMs": 4,
+              "manualFrameBudgetMs": 10,
+              "renderEveryNormalMs": 260,
+              "renderEveryFastMs": 650
+            }
+          },
+          "config": {
+            "allowedSpeeds": [
+              0,
+              30,
+              120,
+              300
+            ],
+            "fallbackSpeed": 30,
+            "quantumRealSeconds": 1,
+            "maxRealDelta": 3,
+            "maxBacklogNormal": 12,
+            "maxBacklogFast": 96,
+            "frameBudgetMs": 4,
+            "manualFrameBudgetMs": 10,
+            "adaptiveFrameBudgetMinMs": 1.5,
+            "chunkItems": 32,
+            "manualChunkItems": 64,
+            "renderEveryNormalMs": 260,
+            "renderEveryFastMs": 650,
+            "minRealSliceSeconds": 1,
+            "maintenanceEveryHours": 12,
+            "manualBatchSeconds": 3600,
+            "manualMinBatchSeconds": 300,
+            "manualRetryLimit": 3,
+            "longTaskWarnMs": 28,
+            "hardTaskMs": 120,
+            "hardTaskLimit": 3,
+            "conflictLimit": 3,
+            "cooldownAfterMs": 24,
+            "manualAggregateMaxSeconds": 86400
+          },
+          "runtime": {
+            "version": "1.0.0",
+            "ticks": 4044,
+            "wakes": 2,
+            "cancelledWakes": 2,
+            "errors": 0,
+            "longTicks": 3,
+            "maxTickMs": 71.19999999552965,
+            "lastTickMs": 4.800000004470348,
+            "lastDelayMs": 250,
+            "pending": true,
+            "running": true,
+            "inTick": false,
+            "intervals": {
+              "manual": 8,
+              "live": 16,
+              "deferred": 50,
+              "paused": 250,
+              "hidden": 1000
+            }
+          }
+        },
+        "externalRoadProvider": "deterministic test response",
+        "physicalIphone": false
+      },
+      "slow": [
+        {
+          "panel": "network",
+          "arg": null,
+          "syncMs": 21.099999994039536,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 18.399999998509884,
+              "maxMs": 18.399999998509884
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 1.0999999940395355,
+              "maxMs": 1.0999999940395355
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 1.1999999955296516,
+              "maxMs": 1.1999999955296516
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 21.099999994039536,
+              "maxMs": 21.099999994039536
+            }
+          }
+        },
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "air",
+            "tab": "overview"
+          },
+          "syncMs": 32.29999999701977,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 3.899999998509884,
+              "maxMs": 3.899999998509884
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.19999999552965164,
+              "maxMs": 0.19999999552965164
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 26.299999997019768,
+              "maxMs": 26.299999997019768
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 32.29999999701977,
+              "maxMs": 32.29999999701977
+            }
+          }
+        },
+        {
+          "panel": "companyManage",
+          "arg": {
+            "type": "sea",
+            "tab": "overview"
+          },
+          "syncMs": 26.700000002980232,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 14.200000002980232,
+              "maxMs": 14.200000002980232
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.29999999701976776,
+              "maxMs": 0.29999999701976776
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.7000000029802322,
+              "maxMs": 0.7000000029802322
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 26.700000002980232,
+              "maxMs": 26.700000002980232
+            }
+          }
+        },
+        {
+          "panel": "conference",
+          "arg": "live:0",
+          "syncMs": 22.299999997019768,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 21.100000001490116,
+              "maxMs": 21.100000001490116
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.30000000447034836,
+              "maxMs": 0.30000000447034836
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.6000000014901161,
+              "maxMs": 0.6000000014901161
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 22.299999997019768,
+              "maxMs": 22.299999997019768
+            }
+          }
+        },
+        {
+          "panel": "routes",
+          "arg": {
+            "companyId": "road",
+            "page": 1,
+            "query": ""
+          },
+          "syncMs": 34.19999999552965,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 32.79999999701977,
+              "maxMs": 32.79999999701977
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.29999999701976776,
+              "maxMs": 0.29999999701976776
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.7999999970197678,
+              "maxMs": 0.7999999970197678
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 34.19999999552965,
+              "maxMs": 34.19999999552965
+            }
+          }
+        },
+        {
+          "panel": "routes",
+          "arg": {
+            "companyId": "air",
+            "page": 10,
+            "query": ""
+          },
+          "syncMs": 33.80000000447035,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 32.100000001490116,
+              "maxMs": 32.100000001490116
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.29999999701976776,
+              "maxMs": 0.29999999701976776
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.8000000044703484,
+              "maxMs": 0.8000000044703484
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 33.80000000447035,
+              "maxMs": 33.80000000447035
+            },
+            "ui.kpis": {
+              "count": 1,
+              "totalMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224
+            }
+          }
+        },
+        {
+          "panel": "routes",
+          "arg": {
+            "companyId": "air",
+            "page": 11,
+            "query": ""
+          },
+          "syncMs": 29.899999998509884,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 28.599999994039536,
+              "maxMs": 28.599999994039536
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.7000000029802322,
+              "maxMs": 0.7000000029802322
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 29.899999998509884,
+              "maxMs": 29.899999998509884
+            }
+          }
+        },
+        {
+          "panel": "routes",
+          "arg": {
+            "companyId": "air",
+            "page": 14,
+            "query": ""
+          },
+          "syncMs": 27.700000002980232,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 25.700000002980232,
+              "maxMs": 25.700000002980232
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.5,
+              "maxMs": 0.5
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 1,
+              "maxMs": 1
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 27.700000002980232,
+              "maxMs": 27.700000002980232
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "inventory-844.json",
+      "sourceFiles": {
+        "app.js": "3b9a781089578cf1b42fa9ee8d788e61bef77eb1fbffcd9cbf0e6397c9f00122",
+        "advanced-core.js": "a2a9431973fe73451168da881ec091e1883b97e1f9d8af88f490b88cc9c5b347",
+        "madar-shell.js": "1a9062a5c8d6076fbaf971804b628853a44943f0e981b9247d8d39ccc7a0d5a4",
+        "fleet-ui-summary-core.js": "0705f8863c0a1d2de472b436a240a6a80f2392883dc759c5ce1c98f50942ba58",
+        "business-options-ui.js": "1b84d14765856e5c63a96a6d92a066ceeda1a78bd16f0525c3b565344c3a2c63",
+        "hospitality-ui.js": "22a920ae3b07620c2d9f30ec5261a73c660a0ccd1f5c44f37c9c54f06bf9121e",
+        "directory-core.js": "2b50ef992b277a7ac990f351f7d1e8b7fd23b08983b7ecd84c75ee2c0611fbcb"
+      },
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "engine": "chromium",
+      "views": 524,
+      "controls": 5085,
+      "pending": [],
+      "errors": [],
+      "operatingWorld": {
+        "restoredSetupSeed": true,
+        "day": 4,
+        "companies": {
+          "air": {
+            "grossRevenue": 152471407862.64612,
+            "expenses": 84473011412.1463,
+            "net": 67998396450.49982,
+            "tripRevenue": 152471407862.64612,
+            "operatingRevenue": 0,
+            "tripCount": 3757662
+          },
+          "sea": {
+            "grossRevenue": 920907744.1264334,
+            "expenses": 974468192.6219784,
+            "net": -53560448.49554506,
+            "tripRevenue": 920907744.1264334,
+            "operatingRevenue": 0,
+            "tripCount": 645
+          },
+          "road": {
+            "grossRevenue": 12083505.275589246,
+            "expenses": 4787411.560245976,
+            "net": 7296093.71534327,
+            "tripRevenue": 12083505.275589246,
+            "operatingRevenue": 0,
+            "tripCount": 44482
+          },
+          "power": {
+            "grossRevenue": 16141.552097238817,
+            "expenses": 665.4020046623555,
+            "net": 15476.150092576461,
+            "tripRevenue": 0,
+            "operatingRevenue": 16141.552097238817,
+            "tripCount": 0
+          },
+          "bank": {
+            "grossRevenue": 46070.78649700096,
+            "expenses": 7175.582054774204,
+            "net": 38895.20444222676,
+            "tripRevenue": 0,
+            "operatingRevenue": 46070.78649700096,
+            "tripCount": 0
+          },
+          "mobility": {
+            "grossRevenue": 62209.49999999999,
+            "expenses": 18252.239999999983,
+            "net": 43957.26000000001,
+            "tripRevenue": 62209.49999999999,
+            "operatingRevenue": 0,
+            "tripCount": 1387
+          },
+          "insurance": {
+            "grossRevenue": 4299.413102310908,
+            "expenses": 1308.5480369095894,
+            "net": 2990.865065401318,
+            "tripRevenue": 0,
+            "operatingRevenue": 4299.413102310908,
+            "tripCount": 0
+          },
+          "realestate": {
+            "grossRevenue": 12655.202310287148,
+            "expenses": 18515.62064855661,
+            "net": -5860.418338269463,
+            "tripRevenue": 0,
+            "operatingRevenue": 12655.202310287148,
+            "tripCount": 0
+          },
+          "telecom": {
+            "grossRevenue": 7393.89,
+            "expenses": 5816.346362133333,
+            "net": 1577.5436378666673,
+            "tripRevenue": 0,
+            "operatingRevenue": 7393.89,
+            "tripCount": 0
+          },
+          "dealership": {
+            "grossRevenue": 210331.70652421084,
+            "expenses": 189119.29858831596,
+            "net": 21212.40793589488,
+            "tripRevenue": 0,
+            "operatingRevenue": 210331.70652421084,
+            "tripCount": 0
+          },
+          "hospitality": {
+            "grossRevenue": 14550,
+            "expenses": 7748.33,
+            "net": 6801.67,
+            "tripRevenue": 0,
+            "operatingRevenue": 14550,
+            "tripCount": 0
+          }
+        },
+        "fleetByMode": {
+          "air": {
+            "total": 980000,
+            "routed": 980000,
+            "moving": 691603
+          },
+          "sea": {
+            "total": 10000,
+            "routed": 10000,
+            "moving": 9749
+          },
+          "road": {
+            "total": 10000,
+            "routed": 10000,
+            "moving": 5701
+          }
+        },
+        "mobilityTrips": 5407,
+        "kernel": {
+          "version": "3.0.0",
+          "frames": 18,
+          "slices": 0,
+          "chunks": 0,
+          "hours": 0,
+          "days": 0,
+          "conflicts": 0,
+          "cancels": 0,
+          "maxChunkMs": 0,
+          "lastChunkMs": 0,
+          "longTasks": 0,
+          "hardTasks": 0,
+          "droppedRealSeconds": 0,
+          "backlogClamps": 0,
+          "maxCreateMs": 0,
+          "lastCreateMs": 0,
+          "maxFinishMs": 0,
+          "lastFinishMs": 0,
+          "maxCycleMs": 0,
+          "lastCycleMs": 0,
+          "maxMaintenanceMs": 0,
+          "lastMaintenanceMs": 0,
+          "maxRenderMs": 5.199999995529652,
+          "lastRenderMs": 0.6999999955296516,
+          "lastFrame": {
+            "createMs": 0,
+            "chunkMs": 0,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 0,
+            "totalMs": 0.30000000447034836
+          },
+          "maxFrame": {
+            "createMs": 0,
+            "chunkMs": 0,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 5.199999995529652,
+            "totalMs": 5.5
+          },
+          "cooldownFrames": 0,
+          "deferredRuns": 0,
+          "lastError": "",
+          "fatalError": null,
+          "lastBoundary": "",
+          "lastSliceSeconds": 0,
+          "lastMaintenanceHour": -1,
+          "lastCancelReason": "",
+          "lastCommitReason": "",
+          "lastWorkStage": "",
+          "governor": "GREEN",
+          "avgChunkMs": 0,
+          "avgWorkMs": 0,
+          "manualFailures": 0,
+          "manualThrottleYields": 0,
+          "lastAdvanceFailure": null,
+          "lastProgressSim": 345600,
+          "lastProgressAt": 9202.60000000149,
+          "activeFrameBudgetMs": 4,
+          "frameCadencePressure": 0,
+          "lastFrameIntervalMs": 16.7,
+          "aggregateSlices": 0,
+          "aggregateWindows": 0,
+          "aggregateSubSlices": 0,
+          "lastAggregateHours": 0,
+          "aggregateFallbacks": 0,
+          "jobCleanups": 0,
+          "cleanupErrors": 0,
+          "simSeconds": 345600,
+          "speed": 0,
+          "backlog": 0,
+          "jobActive": false,
+          "jobReadyToFinish": false,
+          "jobSlice": 0,
+          "jobSpeed": 0,
+          "hidden": false,
+          "manualAdvance": null,
+          "pacing": {
+            "version": "3.0.0",
+            "lastReal": 13642.39999999851,
+            "backlog": 0,
+            "hidden": false,
+            "lastRender": 13543.20000000298,
+            "droppedRealSeconds": 0,
+            "backlogClamps": 0,
+            "stallGaps": 0,
+            "config": {
+              "maxRealDelta": 3,
+              "maxBacklogNormal": 12,
+              "maxBacklogFast": 96,
+              "frameBudgetMs": 4,
+              "manualFrameBudgetMs": 10,
+              "renderEveryNormalMs": 260,
+              "renderEveryFastMs": 650
+            }
+          },
+          "config": {
+            "allowedSpeeds": [
+              0,
+              30,
+              120,
+              300
+            ],
+            "fallbackSpeed": 30,
+            "quantumRealSeconds": 1,
+            "maxRealDelta": 3,
+            "maxBacklogNormal": 12,
+            "maxBacklogFast": 96,
+            "frameBudgetMs": 4,
+            "manualFrameBudgetMs": 10,
+            "adaptiveFrameBudgetMinMs": 1.5,
+            "chunkItems": 32,
+            "manualChunkItems": 64,
+            "renderEveryNormalMs": 260,
+            "renderEveryFastMs": 650,
+            "minRealSliceSeconds": 1,
+            "maintenanceEveryHours": 12,
+            "manualBatchSeconds": 3600,
+            "manualMinBatchSeconds": 300,
+            "manualRetryLimit": 3,
+            "longTaskWarnMs": 28,
+            "hardTaskMs": 120,
+            "hardTaskLimit": 3,
+            "conflictLimit": 3,
+            "cooldownAfterMs": 24,
+            "manualAggregateMaxSeconds": 86400
+          },
+          "runtime": {
+            "version": "1.0.0",
+            "ticks": 18,
+            "wakes": 2,
+            "cancelledWakes": 2,
+            "errors": 0,
+            "longTicks": 0,
+            "maxTickMs": 5.5,
+            "lastTickMs": 0.30000000447034836,
+            "lastDelayMs": 250,
+            "pending": true,
+            "running": true,
+            "inTick": false,
+            "intervals": {
+              "manual": 8,
+              "live": 16,
+              "deferred": 50,
+              "paused": 250,
+              "hidden": 1000
+            }
+          }
+        },
+        "externalRoadProvider": "deterministic test response",
+        "physicalIphone": false
+      },
+      "slow": [
+        {
+          "panel": "network",
+          "arg": null,
+          "syncMs": 23.899999998509884,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 20.69999999552965,
+              "maxMs": 20.69999999552965
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 1.5,
+              "maxMs": 1.5
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 1.1999999955296516,
+              "maxMs": 1.1999999955296516
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 23.899999998509884,
+              "maxMs": 23.899999998509884
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "inventory-667.json",
+      "sourceFiles": {
+        "app.js": "3b9a781089578cf1b42fa9ee8d788e61bef77eb1fbffcd9cbf0e6397c9f00122",
+        "advanced-core.js": "a2a9431973fe73451168da881ec091e1883b97e1f9d8af88f490b88cc9c5b347",
+        "madar-shell.js": "1a9062a5c8d6076fbaf971804b628853a44943f0e981b9247d8d39ccc7a0d5a4",
+        "fleet-ui-summary-core.js": "0705f8863c0a1d2de472b436a240a6a80f2392883dc759c5ce1c98f50942ba58",
+        "business-options-ui.js": "1b84d14765856e5c63a96a6d92a066ceeda1a78bd16f0525c3b565344c3a2c63",
+        "hospitality-ui.js": "22a920ae3b07620c2d9f30ec5261a73c660a0ccd1f5c44f37c9c54f06bf9121e",
+        "directory-core.js": "2b50ef992b277a7ac990f351f7d1e8b7fd23b08983b7ecd84c75ee2c0611fbcb"
+      },
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "engine": "chromium",
+      "views": 524,
+      "controls": 5085,
+      "pending": [],
+      "errors": [],
+      "operatingWorld": {
+        "restoredSetupSeed": true,
+        "day": 4,
+        "companies": {
+          "air": {
+            "grossRevenue": 152471407862.64612,
+            "expenses": 84473011412.1463,
+            "net": 67998396450.49982,
+            "tripRevenue": 152471407862.64612,
+            "operatingRevenue": 0,
+            "tripCount": 3757662
+          },
+          "sea": {
+            "grossRevenue": 920907744.1264334,
+            "expenses": 974468192.6219784,
+            "net": -53560448.49554506,
+            "tripRevenue": 920907744.1264334,
+            "operatingRevenue": 0,
+            "tripCount": 645
+          },
+          "road": {
+            "grossRevenue": 12083505.275589246,
+            "expenses": 4787411.560245976,
+            "net": 7296093.71534327,
+            "tripRevenue": 12083505.275589246,
+            "operatingRevenue": 0,
+            "tripCount": 44482
+          },
+          "power": {
+            "grossRevenue": 16141.552097238817,
+            "expenses": 665.4020046623555,
+            "net": 15476.150092576461,
+            "tripRevenue": 0,
+            "operatingRevenue": 16141.552097238817,
+            "tripCount": 0
+          },
+          "bank": {
+            "grossRevenue": 46070.78649700096,
+            "expenses": 7175.582054774204,
+            "net": 38895.20444222676,
+            "tripRevenue": 0,
+            "operatingRevenue": 46070.78649700096,
+            "tripCount": 0
+          },
+          "mobility": {
+            "grossRevenue": 62209.49999999999,
+            "expenses": 18252.239999999983,
+            "net": 43957.26000000001,
+            "tripRevenue": 62209.49999999999,
+            "operatingRevenue": 0,
+            "tripCount": 1387
+          },
+          "insurance": {
+            "grossRevenue": 4299.413102310908,
+            "expenses": 1308.5480369095894,
+            "net": 2990.865065401318,
+            "tripRevenue": 0,
+            "operatingRevenue": 4299.413102310908,
+            "tripCount": 0
+          },
+          "realestate": {
+            "grossRevenue": 12655.202310287148,
+            "expenses": 18515.62064855661,
+            "net": -5860.418338269463,
+            "tripRevenue": 0,
+            "operatingRevenue": 12655.202310287148,
+            "tripCount": 0
+          },
+          "telecom": {
+            "grossRevenue": 7393.89,
+            "expenses": 5816.346362133333,
+            "net": 1577.5436378666673,
+            "tripRevenue": 0,
+            "operatingRevenue": 7393.89,
+            "tripCount": 0
+          },
+          "dealership": {
+            "grossRevenue": 210331.70652421084,
+            "expenses": 189119.29858831596,
+            "net": 21212.40793589488,
+            "tripRevenue": 0,
+            "operatingRevenue": 210331.70652421084,
+            "tripCount": 0
+          },
+          "hospitality": {
+            "grossRevenue": 14550,
+            "expenses": 7748.33,
+            "net": 6801.67,
+            "tripRevenue": 0,
+            "operatingRevenue": 14550,
+            "tripCount": 0
+          }
+        },
+        "fleetByMode": {
+          "air": {
+            "total": 980000,
+            "routed": 980000,
+            "moving": 691603
+          },
+          "sea": {
+            "total": 10000,
+            "routed": 10000,
+            "moving": 9749
+          },
+          "road": {
+            "total": 10000,
+            "routed": 10000,
+            "moving": 5701
+          }
+        },
+        "mobilityTrips": 5407,
+        "kernel": {
+          "version": "3.0.0",
+          "frames": 17,
+          "slices": 0,
+          "chunks": 0,
+          "hours": 0,
+          "days": 0,
+          "conflicts": 0,
+          "cancels": 0,
+          "maxChunkMs": 0,
+          "lastChunkMs": 0,
+          "longTasks": 0,
+          "hardTasks": 0,
+          "droppedRealSeconds": 0,
+          "backlogClamps": 0,
+          "maxCreateMs": 0,
+          "lastCreateMs": 0,
+          "maxFinishMs": 0,
+          "lastFinishMs": 0,
+          "maxCycleMs": 0,
+          "lastCycleMs": 0,
+          "maxMaintenanceMs": 0,
+          "lastMaintenanceMs": 0,
+          "maxRenderMs": 5.5,
+          "lastRenderMs": 4.4000000059604645,
+          "lastFrame": {
+            "createMs": 0,
+            "chunkMs": 0,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 4.4000000059604645,
+            "totalMs": 4.5
+          },
+          "maxFrame": {
+            "createMs": 0,
+            "chunkMs": 0,
+            "finishMs": 0,
+            "maintenanceMs": 0,
+            "renderMs": 5.5,
+            "totalMs": 5.5999999940395355
+          },
+          "cooldownFrames": 0,
+          "deferredRuns": 0,
+          "lastError": "",
+          "fatalError": null,
+          "lastBoundary": "",
+          "lastSliceSeconds": 0,
+          "lastMaintenanceHour": -1,
+          "lastCancelReason": "",
+          "lastCommitReason": "",
+          "lastWorkStage": "",
+          "governor": "GREEN",
+          "avgChunkMs": 0,
+          "avgWorkMs": 0,
+          "manualFailures": 0,
+          "manualThrottleYields": 0,
+          "lastAdvanceFailure": null,
+          "lastProgressSim": 345600,
+          "lastProgressAt": 8999,
+          "activeFrameBudgetMs": 4,
+          "frameCadencePressure": 0,
+          "lastFrameIntervalMs": 16.7,
+          "aggregateSlices": 0,
+          "aggregateWindows": 0,
+          "aggregateSubSlices": 0,
+          "lastAggregateHours": 0,
+          "aggregateFallbacks": 0,
+          "jobCleanups": 0,
+          "cleanupErrors": 0,
+          "simSeconds": 345600,
+          "speed": 0,
+          "backlog": 0,
+          "jobActive": false,
+          "jobReadyToFinish": false,
+          "jobSlice": 0,
+          "jobSpeed": 0,
+          "hidden": false,
+          "manualAdvance": null,
+          "pacing": {
+            "version": "3.0.0",
+            "lastReal": 13291.10000000149,
+            "backlog": 0,
+            "hidden": false,
+            "lastRender": 13291.10000000149,
+            "droppedRealSeconds": 0,
+            "backlogClamps": 0,
+            "stallGaps": 0,
+            "config": {
+              "maxRealDelta": 3,
+              "maxBacklogNormal": 12,
+              "maxBacklogFast": 96,
+              "frameBudgetMs": 4,
+              "manualFrameBudgetMs": 10,
+              "renderEveryNormalMs": 260,
+              "renderEveryFastMs": 650
+            }
+          },
+          "config": {
+            "allowedSpeeds": [
+              0,
+              30,
+              120,
+              300
+            ],
+            "fallbackSpeed": 30,
+            "quantumRealSeconds": 1,
+            "maxRealDelta": 3,
+            "maxBacklogNormal": 12,
+            "maxBacklogFast": 96,
+            "frameBudgetMs": 4,
+            "manualFrameBudgetMs": 10,
+            "adaptiveFrameBudgetMinMs": 1.5,
+            "chunkItems": 32,
+            "manualChunkItems": 64,
+            "renderEveryNormalMs": 260,
+            "renderEveryFastMs": 650,
+            "minRealSliceSeconds": 1,
+            "maintenanceEveryHours": 12,
+            "manualBatchSeconds": 3600,
+            "manualMinBatchSeconds": 300,
+            "manualRetryLimit": 3,
+            "longTaskWarnMs": 28,
+            "hardTaskMs": 120,
+            "hardTaskLimit": 3,
+            "conflictLimit": 3,
+            "cooldownAfterMs": 24,
+            "manualAggregateMaxSeconds": 86400
+          },
+          "runtime": {
+            "version": "1.0.0",
+            "ticks": 17,
+            "wakes": 2,
+            "cancelledWakes": 2,
+            "errors": 0,
+            "longTicks": 0,
+            "maxTickMs": 5.699999995529652,
+            "lastTickMs": 4.5,
+            "lastDelayMs": 250,
+            "pending": true,
+            "running": true,
+            "inTick": false,
+            "intervals": {
+              "manual": 8,
+              "live": 16,
+              "deferred": 50,
+              "paused": 250,
+              "hidden": 1000
+            }
+          }
+        },
+        "externalRoadProvider": "deterministic test response",
+        "physicalIphone": false
+      },
+      "slow": [
+        {
+          "panel": "network",
+          "arg": null,
+          "syncMs": 21.600000001490116,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 18.799999997019768,
+              "maxMs": 18.799999997019768
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 1.1000000014901161,
+              "maxMs": 1.1000000014901161
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 1.3000000044703484,
+              "maxMs": 1.3000000044703484
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 21.600000001490116,
+              "maxMs": 21.600000001490116
+            }
+          }
+        },
+        {
+          "panel": "routes",
+          "arg": {
+            "companyId": "road",
+            "page": 1,
+            "query": ""
+          },
+          "syncMs": 26.400000005960464,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 22.399999998509884,
+              "maxMs": 22.399999998509884
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.30000000447034836,
+              "maxMs": 0.30000000447034836
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.6000000014901161,
+              "maxMs": 0.6000000014901161
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 26.400000005960464,
+              "maxMs": 26.400000005960464
+            }
+          }
+        },
+        {
+          "panel": "routes",
+          "arg": {
+            "companyId": "air",
+            "page": 4,
+            "query": ""
+          },
+          "syncMs": 26.299999997019768,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 24.899999998509884,
+              "maxMs": 24.899999998509884
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.30000000447034836,
+              "maxMs": 0.30000000447034836
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.7000000029802322,
+              "maxMs": 0.7000000029802322
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 26.299999997019768,
+              "maxMs": 26.299999997019768
+            }
+          }
+        },
+        {
+          "panel": "routes",
+          "arg": {
+            "companyId": "air",
+            "page": 16,
+            "query": ""
+          },
+          "syncMs": 85.70000000298023,
+          "spans": {
+            "ui.readScroll": {
+              "count": 1,
+              "totalMs": 0,
+              "maxMs": 0
+            },
+            "ui.panel": {
+              "count": 1,
+              "totalMs": 84.20000000298023,
+              "maxMs": 84.20000000298023
+            },
+            "ui.insertHTML": {
+              "count": 1,
+              "totalMs": 0.3999999985098839,
+              "maxMs": 0.3999999985098839
+            },
+            "ui.bind": {
+              "count": 1,
+              "totalMs": 0.8999999985098839,
+              "maxMs": 0.8999999985098839
+            },
+            "ui.drawer": {
+              "count": 1,
+              "totalMs": 85.70000000298023,
+              "maxMs": 85.70000000298023
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -906,7 +906,7 @@
     try{rows=Number(fleet?.size?.(draft));if(!Number.isSafeInteger(rows)||rows<0)rows=Infinity;}catch{}
     const requireFleetValidation=policy?.decision?policy.decision(draft,fleet,{operation:'command-save-validation',limit:2048}).allowed===false:rows>2048;
     const provider=globalThis.GH_FLEET_VALIDATION_PROVIDER,options={trustVerified:true,requireFleetValidation};
-    if(typeof provider==='function')options.fleetValidation=(state,params)=>provider(state,params,{beforeAsync:onFleetValidationWait});
+    if(typeof provider==='function')options.fleetValidation=(state,params)=>provider(state,params,{beforeAsync:onFleetValidationWait,syncOnly:!requireFleetValidation});
     const steps=schema.validationSteps(draft,options),budget=Math.max(1,Number(budgetMs)||4);let start=runtimeClock(),reported=false;
     try{for(;;){
       const step=steps.next(),end=runtimeClock(),waiting=step.value==='fleet-validation-wait'||step.value==='fleet-classes-wait';

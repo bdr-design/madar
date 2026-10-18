@@ -896,6 +896,14 @@
     const integrity=window.GH_INTEGRITY_CORE.check(state),introduced=(integrity?.critical||(integrity?.issues||[]).filter(x=>x.severity==='critical')).filter(x=>!priorCriticalIds.has(String(x.id||x.code||x.title)));
     return introduced.length?{ok:false,reason:`Critical integrity failed: ${introduced.map(x=>x.code||x.title).join(',')}`}:{ok:true};
   }
+  async function runSnapshotAction(action){
+    if(hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__||window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__)return {ok:false,reason:'lifecycle-locked'};
+    if(stagedStateBusy())await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled();await fleetStepSettled();
+    if(hardResetInProgress||durableCommandInProgress||stagedStateBusy()||window.GH_PERSISTENCE.isLocked())return {ok:false,reason:'lifecycle-locked'};
+    return action(state,{prepare:prepareSlicedSave,yieldToFrame:()=>yieldForInteractivePaint(document.hidden?0:80)});
+  }
+  const saveManualSlot=(index,meta={})=>runSnapshotAction((current,options)=>window.GH_PERSISTENCE.saveSlot(index,current,{...meta,...options}));
+  const exportBackup=(meta={})=>runSnapshotAction((current,options)=>window.GH_PERSISTENCE.exportSave(current,{...meta,...options}));
   async function persistStateSliced(){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__)return false;
     if(stagedStateBusy()){await stagedStateSettled();return persistStateSliced();}
@@ -4727,22 +4735,42 @@
   }
   function drawerUsesBackdrop(){ return false; }
 
+  function releaseOldWorldReferences(){
+    fleetEngineThreadClient?.terminate?.('new-group');fleetEngineThreadClient=null;lastFleetThreadPrimeMs=-Infinity;window.GH_SAVE_CHECKSUM_THREAD?.terminate?.();
+    lastFleetValidation=null;pendingFleetValidation=null;companyFleetEvidence.delete(state);
+    fleetUiSummaryCache.clear();fleetUiSummaryCacheStore=null;fleetUiSummaryProjectSource=null;
+    if(fleetUiSummaryRefreshTimer!==null)clearTimeout(fleetUiSummaryRefreshTimer);fleetUiSummaryRefreshTimer=null;
+    if(fleetUiSummaryPrimeTask!==null){if(typeof window.requestIdleCallback==='function')window.cancelIdleCallback?.(fleetUiSummaryPrimeTask);else clearTimeout(fleetUiSummaryPrimeTask);}fleetUiSummaryPrimeTask=null;
+    Object.assign(mapFleetSummary,{store:null,runtime:null,epoch:null,revision:-1,rows:null,asking:false,received:0});
+    mapFleetRowsSource=null;mapFleetRowsMembership='';mapFleetRows=[];presentationAssetIndex.clear();presentationAssetIndexSource=null;presentationAssetIndexRevision=-1;presentationAssetIndexLength=-1;mapAssetQueryRequest=null;mapAssetQueryEngine?.reset?.();
+    clearFleetListSearchRequest();fleetListQueryEngine?.invalidate?.(state);fleetListQueryWarm=null;fleetListQueryWarmState=null;fleetListQueryWarmSource=null;fleetListQueryWarmMembership='';fleetListSearchFacilityNames.clear();
+    financeReportEngine?.reset?.();financeReportWorkerResult=null;financeReportSnapshotCache=null;financeReportFallbackCache=null;
+    fleetRouteCache.clear();routeCacheRevision=-1;Object.assign(globalRouteCandidateCache,{key:'',store:null,stamp:null,result:null,asking:null});
+    routeCenterFleetCache=null;routeCenterFacilitiesCache=null;routeCenterSummaryCache=null;Object.assign(routeCardsCache,{key:'',store:null,revision:-1,cards:null,asking:null});Object.assign(routeCenterDetailsCache,{key:'',store:null,revision:-1,result:null,asking:null});
+    if(routeCenterRefreshTimer!==null)clearTimeout(routeCenterRefreshTimer);if(routeCenterRetryTimer!==null)clearTimeout(routeCenterRetryTimer);routeCenterRefreshTimer=null;routeCenterRetryTimer=null;
+    maintenanceQueue.length=0;runtimeInstrumentation.maintenance.pending=[];globalThis.__GH_HOURLY_SCHEMA_DUE__=false;
+    mapStatusCache={assetKey:'',ownerKey:'',moving:0,idle:0,turn:0,routed:0,ownedFacilities:0,countedAt:0,countedRevision:null,countedAssets:null,pendingRecount:false};
+    if(mapRenderTimer!==null)clearTimeout(mapRenderTimer);mapRenderTimer=null;
+    $('drawerBody')?.replaceChildren();$('assetCard')?.replaceChildren();
+  }
   async function hardResetGame(){
     await window.GH_PERSISTENCE.slicedSettled?.();
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل بدء لعبة جديدة.');return false;}
     if(hardResetInProgress)return false;
     if(durableCommandInProgress||window.GH_PERSISTENCE.isLocked()){notice('هناك عملية حفظ أو معاملة جارية. انتظر اكتمالها ثم أعد المحاولة.');return false;}
-    // JSON cloning turns the fleet store's ArrayBuffer into {}, so the reset's rollback checkpoint
-    // fails save-schema validation before it can be committed. Preserve the journaled fleet root.
-    const previousState=window.GH_TRANSACTION_CORE.deepClone(state,{shareJournaledRoots:true});hardResetInProgress=true;state.speed=0;
+    // The persistence owner takes the immutable compensating checkpoint in slices under its lock.
+    // Before ACK this path only pauses the current world; after a committed destructive reset, failures reload Native.
+    const previousSpeed=state.speed;hardResetInProgress=true;state.speed=0;
     let settleHardReset=null,resetDurabilityEstablished=false;
     hardResetSettlement=new Promise(resolve=>{settleHardReset=resolve;});
     try{
+      cancelSimulationPersistence();simulationEngine.cancelAdvance?.('new-group-prepare',{immediate:true});simulationEngine.reset(performance.now(),'new-group-prepare');await stagedStateSettled();await fleetStepSettled();await window.GH_PERSISTENCE.drain();
+      const previousState={...state,speed:previousSpeed};
       const cleanupKeys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith('global-holdings-'))cleanupKeys.push(k);}
       await window.GH_GAME_LIFECYCLE.reset(state,defaultState,{storageKey,resetMarkerKey,appVersion:APP_VERSION,checkpoint:previousState,cleanupKeys,clearManualSlots:true,prepare:next=>{
         window.GH_ADVANCED.migrate(next);window.GH_REALISM.migrate(next);window.GH_EVENT_LEDGER.ensure(next);window.GH_DEPENDENCY_CORE.ensure(next);window.GH_DELIVERY_MONITOR.ensure(next);window.GH_FINANCE_CORE.ensure(next);window.GH_DIAGNOSTICS.ensure(next);window.GH_CONTROL_PLANE.bootstrap(next,controlPlaneEngineMetadata());next.advanced.saveSlots=[null,null,null];
       }});
-      resetDurabilityEstablished=true;
+      resetDurabilityEstablished=true;releaseOldWorldReferences();
       selectedAssetId=null;
       Object.keys(routeTemplates).forEach(id=>{if(!BASE_ROUTE_IDS.has(id))delete routeTemplates[id];});
       closeDrawer();closeMapPopovers();$('assetCard')?.classList.add('hidden');
@@ -4756,7 +4784,7 @@
         location.reload();
         return false;
       }
-      window.GH_TRANSACTION_CORE.restoreObject(state,previousState);
+      state.speed=error.critical||window.GH_PERSISTENCE.isLocked()?0:previousSpeed;
       if(error.critical){state.speed=0;window.GH_CONTROL_PLANE.incident(state,{fingerprint:'RESET_COMPENSATION_FAILED',code:'RESET_COMPENSATION_FAILED',severity:'critical',domain:'save',title:'فشل استرداد الحفظ',detail:String(error.compensationError||error.rollbackError)});}
       notice(error.critical?'تعذر تأكيد استرداد الحفظ. أوقفت المحاكاة لحماية التقدم؛ صدّر تقرير الدعم.':'تعذر إكمال إعادة اللعبة؛ تم الاحتفاظ بالحالة السابقة.');return false;
     }finally{
@@ -4827,7 +4855,7 @@
   function simulationFaultRecorder(){return window.GH_DIAGNOSTICS.recorderSnapshot?.(state)||null;}
 
   function advancedContext(){
-    return {state,getState:()=>state,fleetUiSummary:currentFleetUiSummary,requireFleetUiSummary,fmtMoney,fmtNumber,formatDuration,esc,typeName,facilityKind,findFacility,competitors,assetCatalog,WORLD,storageKey,
+    return {state,getState:()=>state,saveManualSlot,exportBackup,fleetUiSummary:currentFleetUiSummary,requireFleetUiSummary,fmtMoney,fmtNumber,formatDuration,esc,typeName,facilityKind,findFacility,competitors,assetCatalog,WORLD,storageKey,
     getDynamicFacilities,strategicPartners,supplierFor,awardConstruction,payNamedSupplier,canSpend,spend,canCompanySpend,spendCompany,companyOperatingBalance,companyTotalBalance,companyBudget,companyBudgetRemaining,transferBetweenCompanies,bulkTransferFromGroup,transferWithinCompany,creditCompany,companyPerformance:(type,days=30)=>window.GH_FINANCE_CORE.performance(state,type,days),companyFleetStats:id=>{const summary=fleetUiSummary([],{dynamic:true}),owned=summary?.lookup.owner(id);return owned?{total:Number(owned.total)||0,moving:Number(owned.moving)||0,service:Number(owned.needsService)||0}:null;},pushAlert,save,savePolicyStatus,refreshRouteRuntime,runDurableStateCommand,runAuthorizedDomainCommand,dispatchAuthorizedDomain:runAuthorizedDomainCommand,dispatchSystemCommand,authorizationSignatureMarkup,openSignatureDialog,activeAuthorization:()=>clone(founderAuthorization(state)),signatureStatus:()=>{const authority=founderAuthorization(state);return {principalId:FOUNDER_PRINCIPAL_ID,ready:Boolean(authority.signature&&authority.mandate),signatureId:authority.signature?.id||null,signatureVersion:authority.signature?.version||null,mandateId:authority.mandate?.id||null,mandateVersion:authority.mandate?.version||null};},updateKpis,renderMap,panMapTo,openDrawer,openWorldDirectory,buyAsset,routeRuntimeSnapshot:()=>clone(routeTemplates),restoreRouteRuntime:snapshot=>{for(const key of Object.keys(routeTemplates))delete routeTemplates[key];Object.assign(routeTemplates,clone(snapshot||{}));state.routesRevision=(Math.max(0,Math.floor(Number(state.routesRevision)||0))+1);},assignRoute,ensureFacilityWorkforce,bankCorporateClientView,bankLiquidityMetrics,bankReviewCorporateLimits,bankDrawCorporateFacility,bankIssueTradeInstrument,bankCashSweep,hardResetGame,worldEntityByKey,appVersion:APP_VERSION,runtimeBuild:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION,runDiagnostics:runFullDiagnostics,exportDiagnostics:exportDiagnosticsFile,startFaultRecorder:startSimulationFaultRecorder,finishFaultRecorder:finishSimulationFaultRecorder,faultRecorder:simulationFaultRecorder,exportControlPlane:exportControlPlaneFile,controlPlane:()=>window.GH_CONTROL_PLANE?.ensure?.(state),controlHealth:()=>window.GH_CONTROL_PLANE?.check?.(state,{evidence:captureDiagnosticEvidence()}),controlTrace:id=>window.GH_CONTROL_PLANE?.trace?.(state,id),clearDiagnostics:clearDiagnosticsState,diagnostics:()=>state.diagnostics,businessIntegrity:()=>window.GH_INTEGRITY_CORE.check(state),businessLedger:()=>window.GH_EVENT_LEDGER.summary(state),deliveryClosure:()=>window.GH_DELIVERY_MONITOR.reconcile(state),dependencyGraph:()=>state.dependencyGraph,getSimulationSpeed:()=>state.speed,setSimulationSpeed:value=>setSpeed(value),currentPanel:activeDrawerPanel,currentArg:activeDrawerArg};
   }
 
@@ -5540,9 +5568,6 @@
     if(facilitiesCache)for(const id of matchingFacilityIds)facilityAliases[id]=facilitiesCache.byId.get(id);
     const assignableRoutes=cards.map(card=>({id:card.r.id,fromAliases:card.routeConflict?[]:routeCenterFacilityAliases(state,card.r.fromFacility,fleetIndex.facilityAliasCache,facilitiesCache?.byId),toAliases:card.routeConflict?[]:routeCenterFacilityAliases(state,card.r.toFacility,fleetIndex.facilityAliasCache,facilitiesCache?.byId),capacity:card.capacity,conflict:!!card.routeConflict,legKm:card.r.type==='road'?(card.r.roadNetworkDistanceKm||card.r.distanceKm||routeDistance(card.r.route)):(card.r.maxLegKm||routeLongestLeg(card.r.route)),limit}));
     const routeIds=cards.map(card=>card.r.id),params={companyId,routeIds,manualNeedle:needle,manualLimit,idleLimit:60,assignableRoutes,facilityAliases,legacyOwner:routeCenterLegacyOwnerMap()},key=JSON.stringify([fleetIndex.key,companyId,needle,routeIds,assignableRoutes,params.legacyOwner]),cacheRevision=window.GH_FLEET_DATA.revision(state);
-    if(!fleetMainThreadGate('route-conflict-preview').allowed){
-      params.conflictPreview={routes:cards.map(card=>routeConflictPreviewRoute(card.r)),routeOwners:cards.map(card=>({id:card.r.id,...window.GH_FLEET_CORE.requireFleetRoute(state,card.r)})),customRoutes:(state.customRoutes||[]).filter(route=>route&&routeModeOf(route)==='air').map(routeConflictPreviewRoute)};
-    }
     if(cache.key!==key||cache.store!==store||cache.revision!==cacheRevision){cache.key=key;cache.store=store;cache.revision=cacheRevision;cache.result=null;cache.asking=null;}
     const apply=(result,revision)=>{
       if(cache.key!==key||cache.store!==store||cache.revision!==revision||revision!==window.GH_FLEET_DATA.revision(state)||fleetIndex.key!==routeCenterSnapshotKey())return;
@@ -5553,6 +5578,9 @@
       if(activeDrawerPanel==='routes')scheduleRouteCenterRefresh();
     };
     if(!cache.result&&!cache.asking){
+      if(!fleetMainThreadGate('route-conflict-preview').allowed){
+        params.conflictPreview={routes:cards.map(card=>routeConflictPreviewRoute(card.r)),routeOwners:cards.map(card=>({id:card.r.id,...window.GH_FLEET_CORE.requireFleetRoute(state,card.r)})),customRoutes:(state.customRoutes||[]).filter(route=>route&&routeModeOf(route)==='air').map(routeConflictPreviewRoute)};
+      }
       if(client&&!client.disabled&&typeof client.query==='function'&&window.GH_FLEET_STORE?.isStore?.(queryStore)){
         const asked=client.query(queryStore,{name:'routeCenter',params,simSeconds:state.simSeconds});
         if(asked){const token=cache.asking={};asked.then(found=>{

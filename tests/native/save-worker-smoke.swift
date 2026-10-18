@@ -63,7 +63,7 @@ view.load(URLRequest(url: URL(string: "gh://app/index.html")!))
 let deadline = Date().addingTimeInterval(90)
 while probe.report == nil && Date() < deadline { RunLoop.current.run(until: Date().addingTimeInterval(0.01)) }
 var report = probe.report ?? ["failed": 1, "error": "Native save-worker probe timed out", "progress": probe.progress ?? [:]]
-let valid = report["version"] as? String == "save-pipeline-native-v1" && report["passed"] as? Int == 8 && report["total"] as? Int == 8 && report["failed"] as? Int == 0 && requestedPaths.contains("/save-checksum-worker.js")
+let valid = report["version"] as? String == "save-pipeline-native-v1" && report["passed"] as? Int == 9 && report["total"] as? Int == 9 && report["failed"] as? Int == 0 && requestedPaths.contains("/save-checksum-worker.js")
 report["realWKWebView"] = true; report["origin"] = "gh://app"; report["platform"] = "macOS"; report["physicalIPhone"] = false
 report["workerRequestObserved"] = requestedPaths.contains("/save-checksum-worker.js"); report["requestedPaths"] = requestedPaths
 report["nativeGatePassed"] = valid

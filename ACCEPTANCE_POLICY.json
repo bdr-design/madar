@@ -1,6 +1,30 @@
 {
-  "minimum_acceptance_gates": 521,
+  "minimum_acceptance_gates": 527,
   "preflight_commands": [
+    [
+      "node",
+      "tests/build497-route-preview-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build493-backup-export-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build494-export-worker-protocol.cjs"
+    ],
+    [
+      "node",
+      "tests/build495-large-reset-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build496-world-query-reset.cjs"
+    ],
     [
       "node",
       "tests/build489-stored-lane-containers.cjs"
@@ -2582,6 +2606,30 @@
     [
       "node",
       "tests/build491-stored-containers-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build493-backup-export-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build494-export-worker-protocol.cjs"
+    ],
+    [
+      "node",
+      "tests/build495-large-reset-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build496-world-query-reset.cjs"
+    ],
+    [
+      "node",
+      "tests/build497-route-preview-reuse.cjs"
     ]
   ]
 }

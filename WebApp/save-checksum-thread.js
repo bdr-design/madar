@@ -4,7 +4,7 @@
   const CHECKSUM=/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/,validChecksum=value=>typeof value==='string'&&CHECKSUM.test(value);
   function validLaneSums(sums){if(!Array.isArray(sums)||sums.length!==16)return false;for(let lane=0;lane<16;lane++)if(!validChecksum(sums[lane]))return false;return true;}
   let worker=null,sequence=0;
-  const stats={requests:0,completed:0,encodes:0,chunkEncodes:0,rawChunkBytes:0,wireChunkBytes:0,failures:0,copyMs:0,maxCopyMs:0,workerMs:0,maxWorkerMs:0,sessions:0,activeSessions:0,activeChannels:0,maxSessionJobs:0,lookaheadRequests:0,deferredSubmitMs:0,maxDeferredSubmitMs:0};
+  const stats={requests:0,completed:0,encodes:0,chunkEncodes:0,rawChunkBytes:0,wireChunkBytes:0,failures:0,copyMs:0,maxCopyMs:0,workerMs:0,maxWorkerMs:0,fileStarts:0,fileChunks:0,fileFinishes:0,fileAborts:0,sessions:0,activeSessions:0,activeChannels:0,maxSessionJobs:0,lookaheadRequests:0,deferredSubmitMs:0,maxDeferredSubmitMs:0};
   const clock=()=>globalThis.performance?.now?.()??Date.now();
   function stop(reason){worker?.terminate();worker=null;for(const p of pending.values()){clearTimeout(p.timer);p.reject(new Error(reason));}pending.clear();}
   function ready(){
@@ -13,6 +13,12 @@
     worker.onmessage=event=>{
       const m=event.data||{},p=pending.get(m.id);if(!p)return;
       pending.delete(m.id);clearTimeout(p.timer);
+      if(p.kind.startsWith('export-')){
+        const valid=m.type===p.kind+'-result'&&m.version===VERSION&&m.session===p.session&&m.ok===true&&(p.kind!=='export-finish'||typeof Blob==='function'&&m.blob instanceof Blob&&m.blob.size>0&&m.blob.size<=1073741824&&m.remainingFiles===0&&m.codecCacheEntries===0);
+        if(!valid){stats.failures++;p.reject(new Error(String(m.error||'save-export-result-invalid')));return;}
+        stats.completed++;stats.workerMs+=Number(m.workerMs)||0;stats.maxWorkerMs=Math.max(stats.maxWorkerMs,Number(m.workerMs)||0);stats[p.kind==='export-start'?'fileStarts':p.kind==='export-chunk'?'fileChunks':p.kind==='export-finish'?'fileFinishes':'fileAborts']++;
+        p.resolve(p.kind==='export-finish'?{blob:m.blob,workerMs:Number(m.workerMs)||0}:m);return;
+      }
       const valid=p.kind==='checksum'?m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===p.bytes&&(p.lanes?validLaneSums(m.laneSums):validChecksum(m.checksum)):p.kind==='chunk-encode'?m.rawBytes===p.bytes&&m.buffer instanceof ArrayBuffer&&(m.encoding==='identity'&&m.buffer.byteLength===p.bytes||m.encoding===(p.stride===8?'gh-lz4-block-v1':'gh-packbits-v1')&&m.buffer.byteLength>=20&&m.buffer.byteLength<=Math.floor(p.bytes*.875)):typeof m.text==='string'&&m.text.length===4*Math.ceil(p.bytes/3);
       if(m.type!==p.kind+'-result'||m.version!==VERSION||!valid){stats.failures++;p.reject(new Error('save-checksum-result-invalid'));return;}
       stats.completed++;stats.workerMs+=Number(m.workerMs)||0;stats.maxWorkerMs=Math.max(stats.maxWorkerMs,Number(m.workerMs)||0);
@@ -33,6 +39,21 @@
   // Persistence owns its immutable upload snapshots and may transfer them instead of copying 4 MiB on this thread.
   // Ordinary callers retain their input by default, including partial views into a live fleet buffer.
   const encodeChunk=(bytes,stride=128,options={})=>request('chunk-encode',bytes,null,bytes?.byteLength,stride,options.transferOwnership===true);
+  let fileSequence=0;
+  function requestExport(kind,session,fields={},transfer=[]){
+    if(kind==='export-abort'&&!worker)return Promise.resolve({ok:true,session});
+    if(typeof session!=='string'||!/^[a-z0-9._-]{1,80}$/.test(session)||kind!=='export-abort'&&pending.size>=2)return Promise.reject(new Error('save-export-input-or-backpressure'));
+    let w;try{w=ready();}catch(error){return Promise.reject(error);}const id=++sequence;stats.requests++;
+    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{stats.failures++;stop('save-export-worker-timeout');},60000);pending.set(id,{resolve,reject,timer,kind,session});try{w.postMessage({type:kind,version:VERSION,id,session,...fields},transfer);}catch(error){clearTimeout(timer);pending.delete(id);reject(error);}});
+  }
+  const exportStart=async(json,meta)=>{const session='file-'+Date.now().toString(36)+'-'+(++fileSequence).toString(36);await requestExport('export-start',session,{json,meta});return session;};
+  const exportChunk=(session,chunkId,byteLength,offset,bytes)=>{
+    if(!(bytes instanceof Uint8Array)||bytes.length<1||bytes.length>MAX_BYTES)return Promise.reject(new Error('save-export-chunk-input'));
+    // The caller owns this immutable upload buffer. Partial views get a bounded copy before transfer.
+    const owned=bytes.byteOffset===0&&bytes.length===bytes.buffer.byteLength?bytes:bytes.slice();return requestExport('export-chunk',session,{chunkId,byteLength,offset,buffer:owned.buffer},[owned.buffer]);
+  };
+  const exportFinish=session=>requestExport('export-finish',session),exportAbort=session=>requestExport('export-abort',session);
+
   // One save owns a bounded lookahead. The next immutable chunk is copied in another host task while the same
   // worker hashes this chunk. No extra worker, persistent timer, or whole-store copy is introduced.
   function createSession({current=()=>true,submit=checksum}={}){
@@ -87,5 +108,5 @@
   globalThis.GH_SAVE_CHECKSUM_PROVIDER=checksum;
   globalThis.GH_SAVE_ENCODING_PROVIDER=base64;
   globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER=encodeChunk;
-  globalThis.GH_SAVE_CHECKSUM_THREAD=Object.freeze({VERSION,checksum,base64,encodeChunk,createSession,stats:()=>({...stats,pending:pending.size}),terminate:()=>stop('save-checksum-worker-terminated')});
+  globalThis.GH_SAVE_CHECKSUM_THREAD=Object.freeze({VERSION,checksum,base64,encodeChunk,exportStart,exportChunk,exportFinish,exportAbort,createSession,stats:()=>({...stats,pending:pending.size}),terminate:()=>stop('save-checksum-worker-terminated')});
 })();

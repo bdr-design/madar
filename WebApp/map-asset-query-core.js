@@ -71,6 +71,10 @@
         return worker;
       }catch(error){disable(error);return null;}
     }
+    function reset(){
+      clearPending();cache=null;source=null;generation++;disabled=false;
+      if(worker){worker.onmessage=null;worker.onerror=null;worker.onmessageerror=null;try{worker.terminate?.();}catch{}}worker=null;return true;
+    }
     function request(input={}){
       const assets=input.assets,revision=Number(input.revision)||0,filter=normalizeFilter(input.filter),key=filterKey(filter);
       if(!Array.isArray(assets))return {indices:null,ready:false,worker:false,reason:'assets-invalid'};
@@ -81,6 +85,7 @@
         catch(error){disable(error);return {indices:null,ready:false,worker:false,reason:'snapshot-invalid'};}
         source={assets,revision,length:assets.length,generation,snapshot,fallbacks:new Map(),workerIndexed:false};
       }
+      if(source.length===0){clearPending();return {indices:null,allVisible:true,ready:true,worker:!!worker,generation};}
       let active=ensureWorker();
       if(active&&!source.workerIndexed){try{const ownerCodes=source.snapshot.ownerCodes.slice(),knownCodes=source.snapshot.knownCodes.slice();active.postMessage({type:'index',generation,ownerCodes,companyIds:source.snapshot.companyIds,knownCodes},[ownerCodes.buffer,knownCodes.buffer]);source.workerIndexed=true;}catch(error){disable(error);active=null;}}
       const allVisible=source.snapshot.allKnown&&filter.mode==='all'&&!filter.included.length&&!filter.excluded.length;
@@ -96,7 +101,7 @@
       catch(error){disable(error);return {indices:fallbackIndices,ready:true,worker:false,reason:'query-post-failed',generation};}
       return {indices:fallbackIndices,ready:false,worker:true,pending:true,generation};
     }
-    return Object.freeze({request,disable:()=>disable(new Error('map-worker-disabled')),isDisabled:()=>disabled,version:VERSION});
+    return Object.freeze({request,reset,disable:()=>disable(new Error('map-worker-disabled')),isDisabled:()=>disabled,version:VERSION});
   }
   return Object.freeze({VERSION,normalizeFilter,filterKey,buildOwnershipIndex,filterVisibleIndices,create});
 });
