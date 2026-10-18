@@ -1,0 +1,8 @@
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/SaveExportDownloadOwner.swift:54:52: error: value of optional type 'URLRequest?' must be unwrapped to refer to member 'url' of wrapped base type 'URLRequest'
+ 52 |     func adopt(_ download: WKDownload) {
+ 53 |         if active === download { return }
+ 54 |         guard !isBusy, let authorizedURL, download.originalRequest.url?.absoluteString == authorizedURL else {
+    |                                                    |- error: value of optional type 'URLRequest?' must be unwrapped to refer to member 'url' of wrapped base type 'URLRequest'
+    |                                                    `- note: chain the optional using '?' to access member 'url' only for non-'nil' base values
+ 55 |             download.cancel { _ in }
+ 56 |             return
