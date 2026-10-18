@@ -23,6 +23,10 @@
     ],
     [
       "node",
+      "tests/build460-render-idle-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build497-route-preview-reuse.cjs"
     ],
     [
@@ -172,10 +176,6 @@
     [
       "node",
       "tests/build459-navigation-scroll-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build460-render-idle-browser.cjs"
     ],
     [
       "node",

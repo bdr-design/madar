@@ -1,0 +1,136 @@
+{
+  "failedShippingRun": 39165438084,
+  "gate": "tests/build460-render-idle-browser.cjs",
+  "runtimeUnchanged": true,
+  "wallDeadlineMsUnchanged": 8000,
+  "naturalMacDiagnosticRun": 39166446300,
+  "naturalMacArtifactId": 12151191438,
+  "naturalMacArtifactSha256": "dbb217a6c413719bc68d433cf5dd45e91aa2ea56b18b18362a90e39128a62f08",
+  "naturalSamples": [
+    {
+      "sample": "render-0-1",
+      "exitCode": 0,
+      "browsers": [
+        {
+          "engine": "chromium",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        },
+        {
+          "engine": "webkit",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        }
+      ]
+    },
+    {
+      "sample": "render-0-2",
+      "exitCode": 0,
+      "browsers": [
+        {
+          "engine": "chromium",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        },
+        {
+          "engine": "webkit",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        }
+      ]
+    },
+    {
+      "sample": "render-1-1",
+      "exitCode": 0,
+      "browsers": [
+        {
+          "engine": "chromium",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        },
+        {
+          "engine": "webkit",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        }
+      ]
+    },
+    {
+      "sample": "render-1-2",
+      "exitCode": 0,
+      "browsers": [
+        {
+          "engine": "chromium",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        },
+        {
+          "engine": "webkit",
+          "committedSlices": 1,
+          "beforePauseSim": 300,
+          "afterPauseSim": 300,
+          "simProgress": 300
+        }
+      ]
+    }
+  ],
+  "naturalReproductionObserved": false,
+  "controlledGapMs": 1200,
+  "gapOnlyInTemporaryTestOverlay": true,
+  "oldReadinessControlledResult": [
+    {
+      "suite": "build460-live-movement",
+      "engine": "chromium",
+      "live": {
+        "committedSlices": 0,
+        "committedSeconds": 0,
+        "simProgress": 0,
+        "positionsChanged": true,
+        "painted": true,
+        "changed": true
+      }
+    }
+  ],
+  "committedReadinessControlledResults": [
+    {
+      "suite": "build460-live-movement",
+      "engine": "chromium",
+      "live": {
+        "committedSlices": 1,
+        "committedSeconds": 300,
+        "simProgress": 300,
+        "positionsChanged": true,
+        "painted": true,
+        "changed": true
+      }
+    },
+    {
+      "suite": "build460-live-movement",
+      "engine": "webkit",
+      "live": {
+        "committedSlices": 1,
+        "committedSeconds": 300,
+        "simProgress": 300,
+        "positionsChanged": true,
+        "painted": true,
+        "changed": true
+      }
+    }
+  ],
+  "originalPixelMovementAndPausedAssertionsRetained": true,
+  "scope": "The old condition can observe staged live time before commit. Pausing correctly rolls back that incomplete slice. The test now awaits an accepted engine slice inside the same 8s limit, then checks retained progress and real pixels. No simulation product source changed."
+}
