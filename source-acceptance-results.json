@@ -1,0 +1,100 @@
+{
+  "completed": false,
+  "all_tests_passed": false,
+  "runtime_unchanged": true,
+  "gates_unchanged": true,
+  "verification_error": null,
+  "gates_verification_error": null,
+  "acceptance_contract_sha256": "f488d03f4df469ce788012b93dd2c69a3083fa88ed353e60bb5c3700fd3b5835",
+  "runtime_source": {
+    "verified": true,
+    "files": 1005,
+    "source_tree_sha256": "78b1af28c86b82e41bf2bbc75050359ab4cd03460c318199d596f9c2fb1abd1d",
+    "version": "3.0.0",
+    "build": 362,
+    "save_schema": "3.0.0",
+    "release_approved": false,
+    "blocking_issues": [
+      "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
+      "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
+      "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
+      "Historical desktop measurements from an earlier 600x source: Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+      "A fully moving fleet still needs fresh complete validation after writes. Coalesced validation and chunk-checksum workers have targeted desktop coverage; iPhone profiling of ordinary saves, background saves, startup, manual slots, reset and large text chunks remains unverified for this candidate.",
+      "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
+      "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
+      "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
+      "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
+      "Current candidate declares 451 source gates and 53 preflight commands, including command/save work and conference ACK/rollback/retry coverage. Full source acceptance and native CI are pending. Both requested 20 ms budgets have NOT been achieved. No physical iPhone measurements exist for this candidate; approval stays closed."
+    ]
+  },
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/build422-conference-content-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.357,
+      "log": "001-build422-conference-content-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build419-document-drawer-work-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.012,
+      "log": "002-build419-document-drawer-work-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build420-conference-durable-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.481,
+      "log": "003-build420-conference-durable-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build421-conference-recovery-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.353,
+      "log": "004-build421-conference-recovery-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build416-canonical-preparation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.139,
+      "log": "005-build416-canonical-preparation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build417-document-amendment-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.318,
+      "log": "006-build417-document-amendment-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build418-command-phase-trace-browser.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 4.002,
+      "log": "007-build418-command-phase-trace-browser.log"
+    }
+  ],
+  "total": 451,
+  "passed": 6,
+  "ipa_built": false,
+  "device_tested": false,
+  "failed_early": "tests/build418-command-phase-trace-browser.cjs"
+}

@@ -1,0 +1,10 @@
+chromium: fixture ready
+AssertionError [ERR_ASSERTION]: issue button repeated material work: 131
+    at /Users/runner/work/madar/madar/tests/build418-command-phase-trace-browser.cjs:27:715 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
