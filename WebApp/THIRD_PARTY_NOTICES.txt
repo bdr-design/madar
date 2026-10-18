@@ -1,0 +1,15 @@
+# Third party source notices
+
+## lz4js 0.2.0 block compressor
+
+`WebApp/save-chunk-codec.js` includes the block compressor and `readU32` / `hashU32` helpers from [Benzinga/lz4js](https://github.com/Benzinga/lz4js), npm `lz4js@0.2.0`, licensed ISC. The local wrapper bounds input/output, shuffles exact bytes, adds CRC-32, and uses a separate checked decoder. The upstream frame reader and its unbounded allocation path are not included.
+
+Package integrity: `sha512-gY2Ia9Lm7Ep8qMiuGRhvUq0Q7qUereeldZPP1PMEJxPtEWHJLqw9pgX68oHajBH0nzJK4MaZEA/YNV3jT8u8Bg==`.
+
+Copyright John Chadwick and contributors.
+
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+Format reference: [LZ4 block format](https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md). Independent decoder vectors: Python `lz4` 4.4.4, test fixture `tests/fixtures/build490-lz4-blocks.json`.

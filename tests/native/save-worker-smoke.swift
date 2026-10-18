@@ -13,7 +13,7 @@ let index = try String(contentsOf: webRoot.appendingPathComponent("index.html"),
 let cspRegex = try NSRegularExpression(pattern: "<meta\\b[^>]*http-equiv=\"Content-Security-Policy\"[^>]*>", options: .caseInsensitive)
 guard let match = cspRegex.firstMatch(in: index, range: NSRange(index.startIndex..., in: index)), let cspRange = Range(match.range, in: index) else { fatalError("Application CSP missing") }
 let csp = String(index[cspRange])
-let scripts = ["fleet-store-core.js", "state-codec-core.js", "save-checksum-thread.js", "__qa_native_worker_probe__.js"]
+let scripts = ["fleet-store-core.js", "save-chunk-codec.js", "state-codec-core.js", "save-checksum-thread.js", "__qa_native_worker_probe__.js"]
 let html = "<!doctype html><meta charset=\"utf-8\">" + csp + scripts.map { "<script src=\"/\($0)\"></script>" }.joined()
 var requestedPaths: [String] = []
 

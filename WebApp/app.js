@@ -1053,7 +1053,7 @@
     }
     // Tiny development/new-game fleets stay responsive without requiring Worker support.  The threshold is the same
     // one used to decide whether keeping the simulation replica is worthwhile; million-scale states never enter it.
-    if(window.GH_FLEET_DATA.size(state)<FLEET_THREAD_EARLY_ROWS&&!client){const result=core.compute(state,window.GH_FLEET_DATA,options);return result.legacy?null:{result,lookup:core.lookup(result)};}
+    if(window.GH_FLEET_DATA.size(state)<FLEET_THREAD_EARLY_ROWS&&(!client||client.disabled)){const result=core.compute(state,window.GH_FLEET_DATA,options);return result.legacy?null:{result,lookup:core.lookup(result)};}
     if(!entry.asking&&client&&!client.disabled&&typeof client.query==='function'){
       const asked=client.query(store,{name:'uiSummary',params:options,simSeconds:state.simSeconds});
       if(asked){const token=entry.asking={promise:null};token.promise=asked.then(found=>{if(entry.asking!==token)return null;entry.asking=null;if(fleetUiSummaryCache.get(key)!==entry||state.fleet!==store)return null;if(!found||!client.current(found,store)||found.result?.requestKey!==key||found.result?.legacy){scheduleFleetUiSummaryPrime();return null;}entry.found=found;entry.result=found.result;entry.revision=found.revision;fleetUiSummaryProjectSource={store,revision:found.revision,found,result:found.result,options};scheduleFleetUiSummaryRefresh();return found;},()=>{if(entry.asking===token){entry.asking=null;if(fleetUiSummaryCache.get(key)===entry&&state.fleet===store)scheduleFleetUiSummaryPrime();}return null;});}else scheduleFleetUiSummaryPrime();
@@ -4678,7 +4678,7 @@
     const stamp=core.capture(state,window.GH_FLEET_DATA,{type,limit,requestToken}),request=core.serializableCapture(stamp),key=JSON.stringify(request),cache=globalRouteCandidateCache;
     if(cache.key===key&&cache.store===store&&cache.result&&client?.current?.(cache.result.found,store)&&core.current(cache.stamp,state,window.GH_FLEET_DATA,{type,limit,requestToken,result:cache.result.plan}))return cache.result;
     if(cache.key!==key||cache.store!==store){cache.key=key;cache.store=store;cache.stamp=stamp;cache.result=null;cache.asking=null;}
-    if(window.GH_FLEET_DATA.size(state)<FLEET_THREAD_EARLY_ROWS&&!client){const plan=core.plan(state,window.GH_FLEET_DATA,{type,limit,request});return core.current(stamp,state,window.GH_FLEET_DATA,{type,limit,requestToken,result:plan})?{found:null,plan}:null;}
+    if(window.GH_FLEET_DATA.size(state)<FLEET_THREAD_EARLY_ROWS&&(!client||client.disabled)){const plan=core.plan(state,window.GH_FLEET_DATA,{type,limit,request});return core.current(stamp,state,window.GH_FLEET_DATA,{type,limit,requestToken,result:plan})?{found:null,plan}:null;}
     if(!cache.asking&&client&&!client.disabled&&typeof client.query==='function'){
       const asked=client.query(store,{name:'globalRouteCandidates',params:{type,limit,request},simSeconds:state.simSeconds});
       if(asked){const token=cache.asking={};asked.then(found=>{if(cache.asking!==token)return;cache.asking=null;if(!found||!client.current(found,store)||!core.current(stamp,state,window.GH_FLEET_DATA,{type,limit,requestToken,result:found.result})){scheduleFleetUiSummaryPrime();return;}cache.result={found,plan:found.result};if(activeDrawerPanel==='globalRoute')scheduleFleetUiSummaryRefresh();},()=>{if(cache.asking===token){cache.asking=null;scheduleFleetUiSummaryPrime();}});}else scheduleFleetUiSummaryPrime();

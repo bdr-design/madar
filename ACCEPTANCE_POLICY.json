@@ -1,6 +1,18 @@
 {
-  "minimum_acceptance_gates": 518,
+  "minimum_acceptance_gates": 521,
   "preflight_commands": [
+    [
+      "node",
+      "tests/build489-stored-lane-containers.cjs"
+    ],
+    [
+      "node",
+      "tests/build490-container-compression.cjs"
+    ],
+    [
+      "node",
+      "tests/build491-stored-containers-browser.cjs"
+    ],
     [
       "node",
       "tests/build488-route-preview-payload.cjs"
@@ -2558,6 +2570,18 @@
     [
       "node",
       "tests/build488-route-preview-payload.cjs"
+    ],
+    [
+      "node",
+      "tests/build489-stored-lane-containers.cjs"
+    ],
+    [
+      "node",
+      "tests/build490-container-compression.cjs"
+    ],
+    [
+      "node",
+      "tests/build491-stored-containers-browser.cjs"
     ]
   ]
 }

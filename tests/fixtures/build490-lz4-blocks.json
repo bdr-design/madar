@@ -1,0 +1,37 @@
+{
+  "generator": "python-lz4 4.4.4 / LZ4 block + byte shuffle",
+  "cases": [
+    {
+      "name": "zeros",
+      "rawBytes": 4096,
+      "sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+      "stored": "R0hDTFo0QjEAEAAACAAAABEAHMcfAAEA////////////////////9lAAAAAAAA==",
+      "producerStoredSha256": "8214e8316d82a868557e8be8f3fc0a183372fafa9fe76aa27beae6edb990ddce",
+      "producerIndependentlyDecodedBy": "python-lz4 4.4.4"
+    },
+    {
+      "name": "word-period",
+      "rawBytes": 8192,
+      "sha256": "1e3bcdc2feafc1214631e7d327efb182f8e4dff92078bd3d3700c8e0496bd2d4",
+      "stored": "R0hDTFo0QjEAIAAACAAAAMwXWQMfAAEA////////////////////////////////BB/AAQD////vHz8BAP///+pQPz8/Pz8=",
+      "producerStoredSha256": "67347af59eea7f2a222dc8e8d45d946ccdb896a63b1acb35d968c147d67460dd",
+      "producerIndependentlyDecodedBy": "python-lz4 4.4.4"
+    },
+    {
+      "name": "ramp",
+      "rawBytes": 65536,
+      "sha256": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2",
+      "stored": "R0hDTFo0QjEAAAEACAAAAKHmHbH/EQAIEBggKDA4QEhQWGBocHiAiJCYoKiwuMDI0Njg6PD4IAD/////////////////////////////////////////7P8RAQkRGSEpMTlBSVFZYWlxeYGJkZmhqbG5wcnR2eHp8fkgAP/////////////////////////////////////////s/xECChIaIioyOkJKUlpianJ6goqSmqKqsrrCytLa4ury+iAA/////////////////////////////////////////+z/EQMLExsjKzM7Q0tTW2Nrc3uDi5Obo6uzu8PL09vj6/P7IAD/////////////////////////////////////////7P8RBAwUHCQsNDxETFRcZGx0fISMlJykrLS8xMzU3OTs9PwgAP/////////////////////////////////////////s/xEFDRUdJS01PUVNVV1lbXV9hY2VnaWttb3FzdXd5e31/SAA/////////////////////////////////////////+z/EQYOFh4mLjY+Rk5WXmZudn6Gjpaepq62vsbO1t7m7vb+IAD/////////////////////////////////////////7P8RBw8XHycvNz9HT1dfZ293f4ePl5+nr7e/x8/X3+fv9/8gAP/////////////////////////////////////////nUN/n7/f/",
+      "producerStoredSha256": "dc5620162683b9b60ce425eb2bd45544546ffeeb47a1e611dfa703e98601847b",
+      "producerIndependentlyDecodedBy": "python-lz4 4.4.4"
+    },
+    {
+      "name": "short-tail",
+      "rawBytes": 1607,
+      "sha256": "6b16cb01d9c10c8f71b2b18556bde44441e578c5f3fe8d25d31aa8a33a826477",
+      "stored": "R0hDTFo0QjFHBgAAAQAAAOoaIL1PYWJjZAQA////////MVBjZDEyMw==",
+      "producerStoredSha256": "015d9cbe34e0d1fbf7a68786be858a783ed66d66fbf0797407a7b09a46071f78",
+      "producerIndependentlyDecodedBy": "python-lz4 4.4.4"
+    }
+  ]
+}

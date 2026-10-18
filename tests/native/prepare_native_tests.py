@@ -209,6 +209,15 @@ test("chunk store round-trips bytes, compressed and SHA-256 checked") {
     let size=((try fm.attributesOfItem(atPath:chunkFolder.appendingPathComponent("s1.a.1.chunk").path))[.size] as? NSNumber)?.intValue ?? Int.max
     try check(size<chunkA.count,"Chunk file is not compressed: \\(size)")
 }
+test("stored LZ4 containers remain opaque, hash checked and immutable in the native vault") {
+    let stored=Data(base64Encoded:"__STORED_CONTAINER_VECTOR__")!
+    let digest=try vault.storeChunk(id:"s1.lz4.stored",data:stored)
+    try check(digest==hex(stored),"Stored container hash changed")
+    try check(try vault.chunkData(id:"s1.lz4.stored")==stored,"Native storage must preserve the encoded container exactly")
+    var changed=stored;changed[changed.count-1]^=1
+    var refused=false;do {_=try vault.storeChunk(id:"s1.lz4.stored",data:changed)}catch {refused=true}
+    try check(refused,"Encoded container ids must remain immutable")
+}
 // Golden PackBits byte-plane wire vector: 65,536 zero bytes, CRC-32/ISO-HDLC 0xd7978eeb.
 let transportRaw=Data(repeating:0,count:65_536)
 var transportWire=Data([71,72,67,80,82,76,69,49,0,0,1,0,128,0,0,0,235,142,151,215])
@@ -552,5 +561,7 @@ print("NATIVE_TESTS \\(rows.count-failed)/\\(rows.count)")
 exit(failed==0 ? 0:1)
 '''
     code=code.replace('__PROBES__',probes).replace('__COMMIT__',commit).replace('__SAVE__',save).replace('__RESET__',reset).replace('__RAWARG__',rawarg)
+    vector=json.loads((a.source/'tests/fixtures/build490-lz4-blocks.json').read_text())['cases'][0]['stored']
+    code=code.replace('__STORED_CONTAINER_VECTOR__',vector)
     (a.output/'main.swift').write_text(code)
 if __name__=='__main__': main()

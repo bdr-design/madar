@@ -901,20 +901,41 @@
   const decodedLaneCaches=new WeakMap(),LANES=16,LANE_BYTES=8,LANE_PATCH_MAGIC=[71,72,70,82,79,87,80,50],LANE_SUM=/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/;
   function validLaneSums(sums){if(!Array.isArray(sums)||sums.length!==LANES)return false;for(let lane=0;lane<LANES;lane++)if(typeof sums[lane]!=='string'||!LANE_SUM.test(sums[lane]))return false;return true;}
   const pageKey=(stamp,index,length)=>`${baseChunkKey(stamp,index,length)}.${stamp.overlayVersion??0}`;
+  function laneRawLength(part){
+    if(part.encoding===undefined&&part.rawByteLength===undefined)return part.byteLength;
+    if(part.encoding==='identity'&&Number.isSafeInteger(part.rawByteLength)&&part.rawByteLength>=1&&part.rawByteLength<=4194304&&part.byteLength===part.rawByteLength)return part.rawByteLength;
+    if(part.encoding!=='gh-lz4-block-v1'||!Number.isSafeInteger(part.rawByteLength)||part.rawByteLength<1||part.rawByteLength>4194304||!Number.isSafeInteger(part.byteLength)||part.byteLength<20||part.byteLength>Math.floor(part.rawByteLength*.875))throw corrupt('binary-lane-storage');
+    return part.rawByteLength;
+  }
+  function storedLaneBytes(part,options){
+    const data=chunkBytesForId(part.id,options,{kind:'fleet-lane-container-v2',page:part.page,byteLength:part.byteLength},part.byteLength,'binary-chunk-missing');
+    if(part.encoding===undefined||part.encoding==='identity')return data;
+    const codec=globalThis.GH_SAVE_CHUNK_CODEC;if(!codec?.unpackContainer)throw corrupt('binary-lane-codec-unavailable');
+    try{return codec.unpackContainer(data,part.rawByteLength);}catch(_error){throw corrupt('binary-lane-storage-corrupt');}
+  }
+  function* prepareLaneStorage(data,externalEncoding){
+    const rawByteLength=data.length;
+    if(externalEncoding&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function'){
+      const packed=yield {kind:'fleet-container-encode',bytes:data,stride:8};
+      if(!(packed?.bytes instanceof Uint8Array)||packed.rawBytes!==rawByteLength||!(packed.encoding==='identity'&&packed.bytes.length===rawByteLength||packed.encoding==='gh-lz4-block-v1'&&packed.bytes.length>=20&&packed.bytes.length<=Math.floor(rawByteLength*.875)))throw new Error('save-container-encoding-invalid');
+      return {data:packed.bytes,kind:'lane-container',byteLength:packed.bytes.length,encoding:packed.encoding,rawByteLength};
+    }
+    return {data,kind:'lane',byteLength:rawByteLength};
+  }
   function laneParts(marker){
     const {byteLength,chunkBytes,chunks,lanes,rowPatches}=marker,count=Math.ceil(byteLength/chunkBytes);
-    if(!Number.isSafeInteger(byteLength)||byteLength<0||byteLength>536870912||byteLength%128||!Number.isSafeInteger(chunkBytes)||chunkBytes<128||chunkBytes>4194304||chunkBytes%128||!isPlain(marker.overlay)||marker.overlay.version!==2||marker.baseChunks!==undefined||!isPlain(lanes)||lanes.version!==1||lanes.laneBytes!==8||!Array.isArray(lanes.chunks)||lanes.chunks.length!==count*LANES||!Array.isArray(lanes.ranges)||lanes.ranges.length!==count*LANES||!Array.isArray(lanes.containers)||lanes.containers.length>count*LANES||!Array.isArray(chunks))throw corrupt('binary-lanes');
-    const containers=new Map(),occupied=new Set(),order=[],pageBytes=new Array(count).fill(0);
+    if(!Number.isSafeInteger(byteLength)||byteLength<0||byteLength>536870912||byteLength%128||!Number.isSafeInteger(chunkBytes)||chunkBytes<128||chunkBytes>4194304||chunkBytes%128||!isPlain(marker.overlay)||marker.overlay.version!==2||marker.baseChunks!==undefined||!isPlain(lanes)||![1,2].includes(lanes.version)||lanes.laneBytes!==8||!Array.isArray(lanes.chunks)||lanes.chunks.length!==count*LANES||!Array.isArray(lanes.ranges)||lanes.ranges.length!==count*LANES||!Array.isArray(lanes.containers)||lanes.containers.length>count*LANES||!Array.isArray(chunks))throw corrupt('binary-lanes');
+    const containers=new Map(),occupied=new Set(),order=[],pageBytes=new Array(count).fill(0),expandedBytes=new Array(count).fill(0);
     for(const part of lanes.containers){
       if(!isPlain(part)||typeof part.id!=='string'||!CHUNK_ID.test(part.id)||containers.has(part.id)||!Number.isSafeInteger(part.page)||part.page<0||part.page>=count)throw corrupt('binary-lane-container');
       const width=Math.min(chunkBytes,byteLength-part.page*chunkBytes)/LANES;
-      if(!Number.isSafeInteger(part.byteLength)||part.byteLength<width||part.byteLength>width*LANES||part.byteLength%width)throw corrupt('binary-lane-container');containers.set(part.id,part);pageBytes[part.page]+=part.byteLength;
-      if(pageBytes[part.page]>width*24)throw corrupt('binary-lane-container-budget');
+      const rawLength=laneRawLength(part);if(lanes.version===1&&part.encoding!==undefined||!Number.isSafeInteger(part.byteLength)||part.byteLength<1||!Number.isSafeInteger(rawLength)||rawLength<width||rawLength>width*LANES||rawLength%width)throw corrupt('binary-lane-container');containers.set(part.id,part);pageBytes[part.page]+=part.byteLength;expandedBytes[part.page]+=rawLength;
+      if(pageBytes[part.page]>width*24||expandedBytes[part.page]>width*32)throw corrupt('binary-lane-container-budget');
     }
     const used=new Set();
     for(let at=0;at<lanes.chunks.length;at++){
       const range=lanes.ranges[at],page=Math.floor(at/LANES),width=Math.min(chunkBytes,byteLength-page*chunkBytes)/LANES,part=containers.get(range?.id);
-      if(!isPlain(range)||!part||part.page!==page||!Number.isSafeInteger(range.offset)||range.offset<0||range.offset%width||range.offset+width>part.byteLength||lanes.chunks[at]!==`${range.id}.${range.offset.toString(36)}`||occupied.has(lanes.chunks[at]))throw corrupt('binary-lane-range');
+      if(!isPlain(range)||!part||part.page!==page||!Number.isSafeInteger(range.offset)||range.offset<0||range.offset%width||range.offset+width>laneRawLength(part)||lanes.chunks[at]!==`${range.id}.${range.offset.toString(36)}`||occupied.has(lanes.chunks[at]))throw corrupt('binary-lane-range');
       occupied.add(lanes.chunks[at]);if(!used.has(part.id)){used.add(part.id);order.push(part.id);}
     }
     if(order.length!==containers.size||lanes.containers.some((part,index)=>part.id!==order[index]))throw corrupt('binary-lane-container-order');
@@ -928,13 +949,14 @@
   }
   function laneBuffer(marker,options){
     const parts=laneParts(marker);if(typeof options.resolveChunk!=='function')throw corrupt('binary-chunks-unresolved');
-    const buffer=new ArrayBuffer(marker.byteLength),target=new Uint8Array(buffer),words=new Uint32Array(buffer),sums=[],containers=new Map();
-    for(const part of parts.containers)containers.set(part.id,chunkBytesForId(part.id,options,{kind:'fleet-lane-container-v1',page:part.page,byteLength:part.byteLength},part.byteLength,'binary-chunk-missing'));
-    for(let page=0;page<parts.count;page++){
-      const start=page*marker.chunkBytes,length=Math.min(marker.chunkBytes,marker.byteLength-start),rows=length/128;
-      for(let lane=0;lane<LANES;lane++){
-        const at=page*LANES+lane,range=parts.ranges[at],data=containers.get(range.id).subarray(range.offset,range.offset+rows*8);
-        const aligned=data.byteOffset%4?data.slice():data,source=new Uint32Array(aligned.buffer,aligned.byteOffset,aligned.length/4),base=start/4+lane*2;sums[at]=chunkChecksum(aligned);
+    const buffer=new ArrayBuffer(marker.byteLength),target=new Uint8Array(buffer),words=new Uint32Array(buffer),sums=[],live=new Map();
+    // Each immutable container is decoded once and released after its live lanes are copied.
+    // Native bootstrap retains stored bytes; expanded obsolete lanes never accumulate in a map.
+    for(let at=0;at<parts.ranges.length;at++){const id=parts.ranges[at].id;let list=live.get(id);if(!list){list=[];live.set(id,list);}list.push(at);}
+    for(const part of parts.containers){
+      const expanded=storedLaneBytes(part,options),start=part.page*marker.chunkBytes,length=Math.min(marker.chunkBytes,marker.byteLength-start),rows=length/128;
+      for(const at of live.get(part.id)||[]){
+        const lane=at%LANES,range=parts.ranges[at],data=expanded.subarray(range.offset,range.offset+rows*8),aligned=data.byteOffset%4?data.slice():data,source=new Uint32Array(aligned.buffer,aligned.byteOffset,aligned.length/4),base=start/4+lane*2;sums[at]=chunkChecksum(aligned);
         for(let row=0;row<rows;row++){words[base+row*32]=source[row*2];words[base+row*32+1]=source[row*2+1];}
       }
     }
@@ -951,7 +973,7 @@
     let parts;try{parts=laneParts(marker);}catch{return false;}
     const decoded=decodedLaneCaches.get(store.rows),origin=decoded?.origin,g=chunkGeometry(store);
     if(!decoded||origin?.store!==store||origin.revision!==store.revision||origin.length!==store.length||origin.structure!==store.structure||origin.epoch!==g.STORE.epoch(store)||g.chunkBytes!==marker.chunkBytes||g.bytes.length!==marker.byteLength||decoded.chunkBytes!==marker.chunkBytes||decoded.ids.length!==parts.ids.length||decoded.ids.some((id,i)=>id!==parts.ids[i]))return false;
-    if(decoded.containers.length!==parts.containers.length||decoded.containers.some((p,i)=>p.id!==parts.containers[i].id||p.page!==parts.containers[i].page||p.byteLength!==parts.containers[i].byteLength))return false;
+    if(decoded.containers.length!==parts.containers.length||decoded.containers.some((p,i)=>p.id!==parts.containers[i].id||p.page!==parts.containers[i].page||p.byteLength!==parts.containers[i].byteLength||p.encoding!==parts.containers[i].encoding||p.rawByteLength!==parts.containers[i].rawByteLength))return false;
     // The decoded bytes already include this exact ordered patch chain. Adopting a shorter or substituted chain would
     // label those bytes as a different checkpoint and could silently discard edits in the next otherwise unchanged save.
     if(decoded.patches.length!==parts.patches.length||decoded.patches.some((p,i)=>p.id!==parts.patches[i].id||p.rows!==parts.patches[i].rows||p.byteLength!==parts.patches[i].byteLength))return false;
@@ -969,7 +991,7 @@
     chunkIdCache.set(target,entry);return true;
   }
   const preparedChunkSnapshots=new WeakSet();
-  function* chunkManifestSteps(store,{externalChecksums=false,knownChunkIds=null,allowRowPatches=false}={}){
+  function* chunkManifestSteps(store,{externalChecksums=false,externalEncoding=false,knownChunkIds=null,allowRowPatches=false}={}){
     const {STORE,chunkBytes,bytes,count}=chunkGeometry(store),revision=store.revision,buffer=store.rows,stamp=STORE.chunkStamp(store);
     const current=()=>{if(store.revision!==revision||store.rows!==buffer)throw new Error('state-codec-fleet-changed-during-save');},known=id=>knownChunkIds?.has?.(id)===true;
     let prior=chunkIdCache.get(store);if(!prior)prior={ids:[],sums:[],ranges:[],containers:[],keys:[],rotation:0,overlayVersion:-1};
@@ -999,7 +1021,7 @@
       }
     }
     const transform={kind:'fleet-lanes-v1',stride:128,laneBytes:8};
-    const needsPage=page=>held?.layers.length||entry.keys[page]!==pageKey(stamp,page,Math.min(chunkBytes,bytes.length-page*chunkBytes))||entry.ids.length!==count*LANES||entry.ranges.slice(page*LANES,(page+1)*LANES).some(p=>!known(p.id))||page===entry.rotation%count;
+    const needsPage=page=>externalEncoding&&entry.ranges.slice(page*LANES,(page+1)*LANES).some(p=>containerById.get(p.id)?.encoding===undefined)||held?.layers.length||entry.keys[page]!==pageKey(stamp,page,Math.min(chunkBytes,bytes.length-page*chunkBytes))||entry.ids.length!==count*LANES||entry.ranges.slice(page*LANES,(page+1)*LANES).some(p=>!known(p.id))||page===entry.rotation%count;
     if(!patching)for(let page=0;page<count;page++){
       const start=page*chunkBytes,length=Math.min(chunkBytes,bytes.length-start),key=pageKey(stamp,page,length),needs=needsPage(page);
       if(needs){
@@ -1016,11 +1038,11 @@
         // vault cannot resurrect a request fanout from an older fragmented save.
         if(missing.size===1)for(const [id,lanes] of missing){const part=containerById.get(id);if(!part||lanes.length*laneLength!==part.byteLength||lanes.some(lane=>entry.sums[page*LANES+lane]!==found.laneSums[lane]))continue;
           const data=new Uint8Array(part.byteLength);for(const lane of lanes){data.set(found.bytes.subarray(lane*laneLength,(lane+1)*laneLength),entry.ranges[page*LANES+lane].offset);yield;current();}
-          const chunk={...part,kind:'lane',index:page,compacted:false,lanes:lanes.slice().sort((a,b)=>entry.ranges[page*LANES+a].offset-entry.ranges[page*LANES+b].offset),...(lanes.length===1?{lane:lanes[0]}:{}),data};preparedChunkSnapshots.add(chunk);chunks.push(chunk);preparedIds.add(id);
+          const chunk={...part,kind:part.encoding?'lane-container':'lane',index:page,compacted:false,lanes:lanes.slice().sort((a,b)=>entry.ranges[page*LANES+a].offset-entry.ranges[page*LANES+b].offset),...(lanes.length===1?{lane:lanes[0]}:{}),data};preparedChunkSnapshots.add(chunk);chunks.push(chunk);preparedIds.add(id);
         }
         for(let lane=0;lane<LANES;lane++){
           const at=page*LANES+lane,sum=found.laneSums[lane];
-          if(!entry.ids[at]||entry.sums[at]!==sum||!backed(entry.ranges[at]?.id)){if(entry.ids[at]&&entry.keys[page]===key&&entry.sums[at]!==sum)chunkCacheStats.mismatches++;changed.push(lane);}
+          if(externalEncoding&&containerById.get(entry.ranges[at]?.id)?.encoding===undefined||!entry.ids[at]||entry.sums[at]!==sum||!backed(entry.ranges[at]?.id)){if(entry.ids[at]&&entry.keys[page]===key&&entry.sums[at]!==sum)chunkCacheStats.mismatches++;changed.push(lane);}
           entry.sums[at]=sum;
           if(!changed.includes(lane))chunkCacheStats.reused++;
           yield;current();
@@ -1034,14 +1056,15 @@
           const selected=new Set(changed),originalChanged=changed.length;
           for(;;){
             const retained=new Map();for(let lane=0;lane<LANES;lane++)if(!selected.has(lane)){const range=entry.ranges[page*LANES+lane];if(range){let part=retained.get(range.id);if(!part){part={...containerById.get(range.id),live:[]};retained.set(range.id,part);}part.live.push(lane);}}
-            const total=[...retained.values()].reduce((sum,p)=>sum+p.byteLength,selected.size*laneLength);if(total<=length*1.5)break;
-            let best=null;for(const part of retained.values())if(!best||part.byteLength-part.live.length*laneLength>best.byteLength-best.live.length*laneLength)best=part;
+            const total=[...retained.values()].reduce((sum,p)=>sum+p.byteLength,selected.size*laneLength),expanded=[...retained.values()].reduce((sum,p)=>sum+laneRawLength(p),selected.size*laneLength);if(total<=length*1.5&&expanded<=length*2)break;
+            let best=null;for(const part of retained.values())if(!best||laneRawLength(part)-part.live.length*laneLength>laneRawLength(best)-best.live.length*laneLength)best=part;
             if(!best)throw new Error('save-lane-container-budget');for(const lane of best.live)selected.add(lane);
           }
           changed.length=0;changed.push(...selected);changed.sort((a,b)=>a-b);
-          const id=`${NONCE}.0.l.${(++chunkSequence).toString(36)}`,data=new Uint8Array(changed.length*laneLength),part={id,page,byteLength:data.length};
+          const id=`${NONCE}.0.l.${(++chunkSequence).toString(36)}`,data=new Uint8Array(changed.length*laneLength);
           for(let slot=0;slot<changed.length;slot++){const lane=changed[slot],at=page*LANES+lane,offset=slot*laneLength;data.set(found.bytes.subarray(lane*laneLength,(lane+1)*laneLength),offset);entry.ranges[at]={id,offset};entry.ids[at]=`${id}.${offset.toString(36)}`;chunkCacheStats.named++;yield;current();}
-          const chunk={...part,kind:'lane',index:page,lanes:changed.slice(),compacted:changed.length>originalChanged,...(changed.length===1?{lane:changed[0]}:{}),data};preparedChunkSnapshots.add(chunk);chunks.push(chunk);containerById.set(id,part);
+          const stored=yield* prepareLaneStorage(data,externalEncoding);current();const part={id,page,byteLength:stored.byteLength,...(stored.encoding?{encoding:stored.encoding,rawByteLength:stored.rawByteLength}:{})};
+          const chunk={...part,kind:stored.kind,index:page,lanes:changed.slice(),compacted:changed.length>originalChanged,...(changed.length===1?{lane:changed[0]}:{}),data:stored.data};preparedChunkSnapshots.add(chunk);chunks.push(chunk);containerById.set(id,part);
         }
         entry.keys[page]=key;
       }
@@ -1056,7 +1079,7 @@
     entry.rowPatch=freshRowPatch(store,entry,patches);chunkIdCache.set(store,entry);
     // The v2 fence makes an old row/overlay reader refuse this format instead
     // of mistaking a packed lane container for contiguous 128-byte rows.
-    return {marker:{$ghBinary:'chunks-v1',byteLength:bytes.length,chunkBytes,chunks:chunks.map(p=>p.id),overlay:{version:2},lanes:{version:1,laneBytes:LANE_BYTES,chunks:entry.ids.slice(),ranges:entry.ranges.map(p=>({...p})),containers:entry.containers.map(p=>({...p}))},...(patches.length?{rowPatches:{version:2,chunks:patches}}:{})},chunks};
+    return {marker:{$ghBinary:'chunks-v1',byteLength:bytes.length,chunkBytes,chunks:chunks.map(p=>p.id),overlay:{version:2},lanes:{version:entry.containers.some(p=>p.encoding)?2:1,laneBytes:LANE_BYTES,chunks:entry.ids.slice(),ranges:entry.ranges.map(p=>({...p})),containers:entry.containers.map(p=>({...p}))},...(patches.length?{rowPatches:{version:2,chunks:patches}}:{})},chunks};
   }
   // Text chunks follow the fleet chunks as {id,byteLength,text}; the caller uploads the UTF-8 bytes of text.
   function serializeChunked(state,options={}){const steps=serializeChunkedSteps(state,{...options,knownChunkIds:options.knownChunkIds??new Set()});let step;while(!(step=steps.next()).done){}return step.value;}

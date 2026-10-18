@@ -24,18 +24,15 @@ const workerSource=require('./helpers/fleet-engine-worker').fleetEngineWorkerSou
   try{
     // The worker comes from a blob here (the page has no URL to load it from); the app's policy allows workers from 'self'
     // only, which on the device is gh://app, so this page bypasses it.
-    const {page}=await boot({browser,errors,viewport:{width:844,height:390},bypassCSP:true});page.setDefaultTimeout(180000);
-    await page.evaluate(source=>{
+    const {page}=await boot({browser,errors,viewport:{width:844,height:390},fleetWorker:true,beforeApp:page=>page.evaluate(source=>{
       const url=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));window.__GH_FLEET_ENGINE_WORKER_FACTORY__=()=>new Worker(url);
       // Every step the thread runs is checked against the main-thread engine on an independent copy of the store.
       const API=window.GH_FLEET_ENGINE_THREAD,STORE=GH_FLEET_STORE,EVENTS=GH_FLEET_EVENTS,checks=window.__THREAD_CHECKS__={steps:0,mismatches:[],applied:0,client:null};
       window.GH_FLEET_ENGINE_THREAD={...API,create(options){
         const client=API.create(options),specs=options.catalogSpecs(),resolveRoute=options.resolveRoute,shadows=new Map();checks.client=client;
         const catalogSpecs=asset=>asset?.specs?null:(specs[asset?.type]?.[asset?.catalogId]||null);
-        return {...client,
-          request(store,params){const shadow=STORE.importReplica(structuredClone(STORE.exportReplica(store)));const ticket=client.request(store,params);if(ticket)shadows.set(ticket.id,{shadow,params});return ticket;},
-          apply(ticket,store,applyOptions){
-            const out=client.apply(ticket,store,applyOptions),entry=shadows.get(ticket?.id);shadows.delete(ticket?.id);
+        const verify=(out,ticket,store)=>{
+            const entry=shadows.get(ticket?.id);shadows.delete(ticket?.id);
             if(out&&entry){
               checks.applied++;
               const {shadow,params}=entry,expected=EVENTS.advance(shadow,{from:params.from,to:params.to,context:params.context,resolveRoute,catalogSpecs,tripAlertLimit:params.tripAlertLimit,order:params.order,...(Number.isFinite(params.maxEvents)?{maxEvents:params.maxEvents}:{})});
@@ -48,9 +45,14 @@ const workerSource=require('./helpers/fleet-engine-worker').fleetEngineWorkerSou
               checks.steps++;
             }
             return out;
-          }};
+        };
+        return {...client,
+          request(store,params){const shadow=STORE.importReplica(structuredClone(STORE.exportReplica(store)));const ticket=client.request(store,params);if(ticket)shadows.set(ticket.id,{shadow,params});return ticket;},
+          apply(ticket,store,applyOptions){return verify(client.apply(ticket,store,applyOptions),ticket,store);},
+          *applyStages(ticket,store,applyOptions){return verify(yield* client.applyStages(ticket,store,applyOptions),ticket,store);}
+        };
       }};
-    },workerSource);
+    },workerSource)});page.setDefaultTimeout(180000);
     const setup=await page.evaluate(async()=>{
       const a=__AUDIT__,s=()=>__GH_STATE__,W=GH_WORLD_DATA;s().godMoney=true;s().infiniteMoney=true;
       for(const type of ['air','sea']){const d=GH_COMPANY_PLATFORM.definitionFor(s(),type);await a.runAuthorizedDomainCommand('corporate','open-company',{type,companyId:type,capital:Math.max(900000000,d.founding.minimumCapital),legalName:`QA ${type}`,formationContract:`QA-THREAD-${type}`},{silent:true});}

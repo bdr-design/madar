@@ -5,8 +5,8 @@
   const S=globalThis.GH_FLEET_STORE,C=globalThis.GH_STATE_CODEC,W=globalThis.GH_SAVE_CHECKSUM_THREAD;
   let state=null,initial=null;const known=new Set(),vault=new Map();
   async function drive(submit=W.checksum){
-    const store=state.fleet,revision=store.revision,buffer=store.rows,session=W.createSession({current:()=>store.revision===revision&&store.rows===buffer,submit}),steps=C.serializeChunkedSteps(state,{externalChecksums:true,knownChunkIds:known});let input,step;
-    try{for(;;){step=steps.next(input);if(step.done)return {...step.value,session:session.stats()};input=step.value?.kind==='fleet-chunk-checksum'?await session.take(step.value.bytes,step.value.nextBytes,step.value.transform,step.value.outputByteLength,step.value.nextTransform,step.value.nextOutputByteLength):undefined;}}
+    const store=state.fleet,revision=store.revision,buffer=store.rows,session=W.createSession({current:()=>store.revision===revision&&store.rows===buffer,submit}),steps=C.serializeChunkedSteps(state,{externalChecksums:true,externalEncoding:true,knownChunkIds:known});let input,step;
+    try{for(;;){step=steps.next(input);if(step.done)return {...step.value,session:session.stats()};input=step.value?.kind==='fleet-container-encode'?await W.encodeChunk(step.value.bytes,step.value.stride,{transferOwnership:true}):step.value?.kind==='fleet-chunk-checksum'?await session.take(step.value.bytes,step.value.nextBytes,step.value.transform,step.value.outputByteLength,step.value.nextTransform,step.value.nextOutputByteLength):undefined;}}
     finally{await session.close();}
   }
   function retain(saved){for(const c of saved.chunks)if(!known.has(c.id)){check(C.isPreparedChunk(c),'immutable snapshot required');vault.set(c.id,c.data);known.add(c.id);}}
@@ -19,7 +19,7 @@
   });
   await test('three chunk pipeline uses one bounded lookahead and no main checksum',async()=>{
     const count=S.CHUNK_ROWS*2+3,store=S.create(count);for(let i=0;i<count;i++)S.add(store,{id:'NATIVE-PIPE-'+i,name:'Aircraft '+i,assetMode:'air',ownerCompanyId:'air',baseFacility:'B1',phase:'idle',progress:0,fuel:100,condition:90});state={fleet:store};
-    const before=C.cacheStats().chunks.checksumCalls;initial=await drive();check(C.cacheStats().chunks.checksumCalls===before,'no main checksum');check(initial.session.requests===3&&initial.session.lookaheadRequests===2&&initial.session.peakJobs===2,'one raw-page transform per page uses one bounded lookahead');exact(initial);
+    const before=C.cacheStats().chunks.checksumCalls;initial=await drive();check(C.cacheStats().chunks.checksumCalls===before,'no main checksum');check(initial.session.requests===3&&initial.session.lookaheadRequests===2&&initial.session.peakJobs===2,'one raw-page transform per page uses one bounded lookahead');check(JSON.parse(initial.text).fleet.rows.lanes.version===2,'new native pipeline stores compressed containers');exact(initial);
   });
   await test('unchanged save performs only its rotating check',async()=>{const saved=await drive();check(saved.session.requests===1&&saved.session.lookaheadRequests===0&&saved.chunks.every((c,i)=>c.id===initial.chunks[i].id),'unchanged identities and base/overlay integrity work');});
   await test('sparse changes skip the known middle base page and reload exactly',async()=>{S.set(state.fleet,0,'fuel',91);S.set(state.fleet,S.CHUNK_ROWS*2,'fuel',92);const jobs=[],saved=await drive((bytes,transform,expectedBytes)=>{jobs.push({offset:bytes.byteOffset,kind:transform.kind});return W.checksum(bytes,transform,expectedBytes);});check(jobs.length===2&&jobs.every(job=>job.kind==='fleet-lanes-v1')&&jobs.some(job=>job.offset===0)&&jobs.some(job=>job.offset===S.CHUNK_ROWS*S.STRIDE*2),'sparse lookahead and rotating overlay check');exact(saved);});

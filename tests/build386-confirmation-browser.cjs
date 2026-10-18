@@ -1,10 +1,10 @@
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),{chromium,webkit}=require('playwright'),{boot}=require('./helpers/local-dom-app');
+const assert=require('node:assert/strict'),fs=require('node:fs'),{chromium,webkit}=require('playwright'),{bootRenderApp}=require('./helpers/render-app.cjs');
 const results=[];
 (async()=>{for(const engine of [chromium,webkit]){
- const browser=await engine.launch({headless:true}),errors=[],native=[];
+ const browser=await engine.launch({headless:true}),errors=[],native=[];let env;
  try{
-  const {page}=await boot({browser,errors});page.setDefaultTimeout(15000);
+  env=await bootRenderApp({browser,errors});const {page}=env;page.setDefaultTimeout(15000);
   page.on('dialog',async d=>{native.push(d.message());await d.dismiss();});
   await page.evaluate(async()=>{
    const a=__AUDIT__,s=__GH_STATE__;s.godMoney=true;s.infiniteMoney=true;
@@ -27,7 +27,7 @@ const results=[];
    {name:'return-lease',panel:'assetManage',arg:'N-AIR-CONFIRM-3',selector:'.sell-asset'},
    {name:'sell-all-assets',panel:'assetMarket',arg:'air',selector:'.sell-all-assets[data-company="air"]'}
   ];
-  async function open(c){await page.evaluate(c=>__AUDIT__.openDrawer(c.panel,c.arg),c);const b=page.locator(c.selector).first();assert.equal(await b.count(),1,c.name+' real button');assert.equal(await b.isDisabled(),false,c.name+' available');return b;}
+  async function open(c){await page.evaluate(c=>__AUDIT__.openDrawer(c.panel,c.arg),c);const b=page.locator(c.selector).first();assert.equal(await b.count(),1,c.name+' real button');await page.waitForFunction(selector=>{const button=document.querySelector(selector);return button&&!button.disabled;},c.selector);assert.equal(await b.isDisabled(),false,c.name+' available');return b;}
   async function confirm(c){const b=await open(c);await b.click();await page.locator('.ui-confirm[open]').waitFor();return b;}
   for(const c of cases){
    const before=await snapshot(),button=await confirm(c);
@@ -79,6 +79,6 @@ const results=[];
   results.push({engine:engine.name(),action:'conference-prepare',cancelAndMissingConfirmationDeclined:true});
   const integrity=await page.evaluate(()=>({schema:GH_SAVE_SCHEMA.validate(__GH_STATE__),integrity:GH_INTEGRITY_CORE.check(__GH_STATE__).counts}));assert.equal(integrity.schema.ok,true,JSON.stringify(integrity.schema));assert.equal(integrity.integrity.critical,0,JSON.stringify(integrity));
   assert.deepEqual(native,[],'all six routes use DOM confirmation');assert.deepEqual(errors,[]);
- }finally{await browser.close();}
+ }finally{await browser.close();await env?.closeOrigin?.();}
  }if(process.env.GH_CONFIRMATION_RESULTS)fs.writeFileSync(process.env.GH_CONFIRMATION_RESULTS,JSON.stringify(results,null,2));console.log(JSON.stringify({suite:'build386-confirmation-browser',ok:true,engines:2,results}));
 })().catch(error=>{console.error(error);process.exitCode=1;});

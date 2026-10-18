@@ -9,6 +9,8 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
   const browser=await chromium.launch({headless:true}),errors=[];
   try{
     const {page}=await boot({browser,errors});page.setDefaultTimeout(60000);
+    // The actual large-route request now carries canonical company ownership. Open the fixture's owner through its domain command.
+    await page.evaluate(async()=>{const s=__GH_STATE__,d=GH_COMPANY_PLATFORM.definitionFor(s,'air');s.godMoney=true;s.infiniteMoney=true;await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type:'air',companyId:'air',capital:Math.max(900000000,d.founding.minimumCapital),legalName:'QA Guard Air',formationContract:'QA-GUARD-AIR'},{silent:true});});
     const result=await page.evaluate(async()=>{
       const a=__AUDIT__,s=__GH_STATE__,STORE=GH_FLEET_STORE,tick=()=>new Promise(resolve=>setTimeout(resolve,0)),asset=index=>({id:`QA-GUARD-${index}`,name:`Guard ${index}`,type:'air',assetMode:'air',ownerCompanyId:'air',companyId:'air',catalogId:'QA-GUARD-CAT',baseFacility:'QA-BASE',phase:'turnaround',progress:0,fuel:100,condition:90,routeId:null,departureScheduled:false,salePending:false,deliveryStatus:'delivered',specs:{rangeKm:8000}});
       const originalEvents=window.GH_FLEET_EVENTS,originalQuery=window.GH_FLEET_QUERY;let advanceCalls=0,routeScans=0;

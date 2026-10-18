@@ -202,6 +202,13 @@
         if(active>=SLICE_MS){timing.slices++;await yieldToFrame();active=0;}continue;
       }
       if(step.value==='fleet-validation-wait'){timing.slices++;await yieldToFrame();active=0;continue;}
+      if(step.value?.kind==='fleet-container-encode'){
+        const provider=globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER;if(typeof provider!=='function')throw new Error('save-container-worker-unavailable');
+        const submitted=clock(),pending=provider(step.value.bytes,step.value.stride,{transferOwnership:true}),submitMs=clock()-submitted;active+=submitMs;timing.busyMs+=submitMs;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,active);
+        input=await pending;accountDeferred();timing.containerWorkerMs=(timing.containerWorkerMs||0)+(Number(input?.workerMs)||0);timing.containerRequests=(timing.containerRequests||0)+1;
+        if(input?.didYieldToWorker===true)active=0;
+        if(active>=SLICE_MS){timing.slices++;await yieldToFrame();active=0;}continue;
+      }
       if(step.value?.kind==='fleet-chunk-checksum'){
         if(typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER!=='function')throw new Error('save-checksum-worker-unavailable');
         const submit=clock(),pending=checksumSession?checksumSession.take(step.value.bytes,step.value.nextBytes,step.value.transform,step.value.outputByteLength,step.value.nextTransform,step.value.nextOutputByteLength):globalThis.GH_SAVE_CHECKSUM_PROVIDER(step.value.bytes,step.value.transform,step.value.outputByteLength),submitMs=clock()-submit;
@@ -226,7 +233,7 @@
       const store=state.fleet,revision=store?.revision,buffer=store?.rows,session=externalChecksums&&typeof globalThis.GH_SAVE_CHECKSUM_THREAD?.createSession==='function'?globalThis.GH_SAVE_CHECKSUM_THREAD.createSession({current:()=>state.fleet===store&&store.revision===revision&&store.rows===buffer,submit:globalThis.GH_SAVE_CHECKSUM_PROVIDER}):null;
       try{
         if(staleProof)throw new Error('state-codec-fleet-changed-during-save');
-        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,knownChunkIds:vaultChunks,allowRowPatches:globalThis.GH_NATIVE_ROW_PATCHES===1&&typeof globalThis.GH_FLEET_QUERY_PROVIDER==='function'}),yieldToFrame,timing,session);
+        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,externalEncoding:externalChecksums&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function',knownChunkIds:vaultChunks,allowRowPatches:globalThis.GH_NATIVE_ROW_PATCHES===1&&typeof globalThis.GH_FLEET_QUERY_PROVIDER==='function'}),yieldToFrame,timing,session);
         if(state.fleet?.revision!==revision)throw new Error('state-codec-fleet-changed-during-save');
         break;
       }catch(error){
@@ -238,7 +245,7 @@
       }finally{await session?.close();}
     }
     const uploads=[];let uploadCopyStarted=clock();for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id)){
-      if(externalChecksums&&chunk.kind==='lane'&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
+      if(externalChecksums&&['lane','lane-container'].includes(chunk.kind)&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
       let bytes;
       if(typeof chunk.text==='string'){const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,busy);bytes=await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing);uploadCopyStarted=clock();}
       else bytes=copyChunkBytes(state,chunk);
