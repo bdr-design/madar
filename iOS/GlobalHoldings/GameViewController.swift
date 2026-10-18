@@ -63,6 +63,18 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     private var nativeBootstrapIntent: UInt = 0
     private var bootstrapForceOnNavigation = false
     private var bootstrapPauseOnNavigation = false
+    private lazy var saveExportDownloads = VentoraSaveExportDownloads { [weak self] result in
+        guard let self else { return }
+        switch result {
+        case .success(let url):
+            let share = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            share.completionWithItemsHandler = { [weak self] _, _, _, _ in self?.saveExportDownloads.releaseFile(url) }
+            if let popover = share.popoverPresentationController { popover.sourceView = self.view; popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 1, height: 1) }
+            (self.presentedViewController ?? self).present(share, animated: true)
+        case .failure(let error):
+            self.showMessage(title: "تعذر التصدير", message: error.localizedDescription)
+        }
+    }
 
     override func loadView() {
         let configuration = WKWebViewConfiguration()
@@ -950,6 +962,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        saveExportDownloads.cancelAll()
         recoveredWebProcess = true
         prepareNextNativeBootstrap(force: true, pause: true)
         loadGame(cacheBuster: "recovery-\(GlobalSaveVault.shared.currentGeneration())-\(UUID().uuidString)")
@@ -1073,6 +1086,10 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if navigationAction.request.url?.scheme?.lowercased() == "blob" {
+            decisionHandler(webView === self.webView && saveExportDownloads.authorize(navigationAction, document: webView.url) ? .download : .cancel)
+            return
+        }
         if let url = navigationAction.request.url, navigationAction.navigationType == .linkActivated, ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
             UIApplication.shared.open(url)
             decisionHandler(.cancel)
@@ -1094,6 +1111,11 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         guard webView === self.webView else { return }
         navigationPreparing = false
+    }
+
+    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
+        guard webView === self.webView else { download.cancel { _ in }; return }
+        saveExportDownloads.adopt(download)
     }
 
     private func showMessage(title: String, message: String, completion: (() -> Void)? = nil) {

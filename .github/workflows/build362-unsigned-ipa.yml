@@ -72,6 +72,22 @@ jobs:
           print('Build 362 / 3.0.0 / Save Schema 3.0.0; clean direct source; release approval stays closed: PASS')
           PY
 
+      - name: Run native save export download checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          TEST_DIR="$RUNNER_TEMP/build362-native-export"
+          mkdir -p "$TEST_DIR"
+          cp "$SOURCE_DIR/tests/native/save-export-download-smoke.swift" "$TEST_DIR/main.swift"
+          xcrun swiftc -parse "$SOURCE_DIR"/iOS/GlobalHoldings/*.swift
+          xcrun swiftc -framework AppKit -framework WebKit "$SOURCE_DIR/iOS/GlobalHoldings/SaveExportDownloadOwner.swift" "$TEST_DIR/main.swift" -o "$TEST_DIR/native-export" 2>&1 | tee "$GITHUB_WORKSPACE/.ci-output/native-save-export-compile.log"
+          cd "$TEST_DIR"
+          status=0
+          ./native-export "$SOURCE_DIR" > "$GITHUB_WORKSPACE/.ci-output/native-save-export.log" 2>&1 || status=$?
+          cat "$GITHUB_WORKSPACE/.ci-output/native-save-export.log"
+          if [[ -f native-save-export.json ]]; then cp native-save-export.json "$GITHUB_WORKSPACE/.ci-output/native-save-export.json"; fi
+          exit "$status"
+
       - name: Run native save-worker and pipeline checks
         shell: bash
         run: |
