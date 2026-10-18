@@ -1,0 +1,62 @@
+[
+  {
+    "mode": "default",
+    "trial": 0,
+    "exit_code": 0,
+    "log": "hospitality-vm-default-0.log"
+  },
+  {
+    "mode": "default",
+    "trial": 1,
+    "exit_code": -11,
+    "log": "hospitality-vm-default-1.log"
+  },
+  {
+    "mode": "default",
+    "trial": 2,
+    "exit_code": 0,
+    "log": "hospitality-vm-default-2.log"
+  },
+  {
+    "mode": "default",
+    "trial": 3,
+    "exit_code": 0,
+    "log": "hospitality-vm-default-3.log"
+  },
+  {
+    "mode": "default",
+    "trial": 4,
+    "exit_code": 0,
+    "log": "hospitality-vm-default-4.log"
+  },
+  {
+    "mode": "jitless",
+    "trial": 0,
+    "exit_code": 0,
+    "log": "hospitality-vm-jitless-0.log"
+  },
+  {
+    "mode": "jitless",
+    "trial": 1,
+    "exit_code": 0,
+    "log": "hospitality-vm-jitless-1.log"
+  },
+  {
+    "mode": "jitless",
+    "trial": 2,
+    "exit_code": 0,
+    "log": "hospitality-vm-jitless-2.log"
+  },
+  {
+    "mode": "jitless",
+    "trial": 3,
+    "exit_code": 0,
+    "log": "hospitality-vm-jitless-3.log"
+  },
+  {
+    "mode": "jitless",
+    "trial": 4,
+    "exit_code": 0,
+    "log": "hospitality-vm-jitless-4.log"
+  }
+]
