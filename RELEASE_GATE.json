@@ -25,7 +25,7 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "518 REQUIRED / 121 PREFLIGHT; first native CI passed, source gate 25 failed on WebKit canvas synchronization; corrected Chromium/WebKit test passed; full rerun pending",
+    "full_source_acceptance": "518 REQUIRED / 121 PREFLIGHT; first native checks passed; first CI failed incorrect raw-canvas pan assertion; second CI cancelled early for composed-position/hit-test assertion correction; corrected Chromium/WebKit cases pass; final CI pending",
     "native_swift_tests": "CURRENT_NATIVE_NOT_RUN; existing chunks-v1 envelope and gh-packbits-v1 stride128 wire decoder unchanged; HTTP protocol/worker fixtures covered locally",
     "physical_iphone_profile": "DX-1792300929142 profiles shipped source 2ad7e16. Current local lane/validation/day-maintenance candidate has no physical iPhone measurement.",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",

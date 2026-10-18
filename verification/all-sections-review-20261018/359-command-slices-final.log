@@ -1,0 +1,43 @@
+{
+ "suite": "build359-command-slices",
+ "pad": 1,
+ "passed": 4,
+ "total": 4,
+ "results": [
+  {
+   "name": "serializeSteps run to the end is serialize()",
+   "ok": true,
+   "detail": {
+    "steps": 251
+   }
+  },
+  {
+   "name": "the save yields after every step that passes the slice budget",
+   "ok": true,
+   "detail": {
+    "yields": 328,
+    "codecSteps": 251,
+    "pieces": 38
+   }
+  },
+  {
+   "name": "the sliced save posts the bytes, hash and chunks of the one-shot save",
+   "ok": true,
+   "detail": {
+    "yields": 1,
+    "slices": 1,
+    "busyMs": 21,
+    "wallMs": 22,
+    "bytes": 4854485
+   }
+  },
+  {
+   "name": "a fleet write during the slices retakes a consistent save in slices",
+   "ok": true,
+   "detail": {
+    "retakes": 1
+   }
+  }
+ ]
+}
+BUILD359_COMMAND_SLICES_PASS
