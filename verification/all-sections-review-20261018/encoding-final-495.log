@@ -1,0 +1,6 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"stage":"reset-refusal","engine":"chromium","ok":false,"booksSame":true,"rowsSame":true,"size":4400,"attempts":2,"manual":1,"unlocked":true}
+{"suite":"build495-large-reset-browser","engine":"chromium","rows":4400,"noSynchronousWriter":true,"nativeNackCompensated":true,"heldAck":true,"newWorldActuallyEmpty":true,"oldStoresReleased":true,"oldWorkerReleased":true,"destructivePostAckFailureRequiresReload":true}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"stage":"reset-refusal","engine":"webkit","ok":false,"booksSame":true,"rowsSame":true,"size":4400,"attempts":2,"manual":1,"unlocked":true}
+{"suite":"build495-large-reset-browser","engine":"webkit","rows":4400,"noSynchronousWriter":true,"nativeNackCompensated":true,"heldAck":true,"newWorldActuallyEmpty":true,"oldStoresReleased":true,"oldWorkerReleased":true,"destructivePostAckFailureRequiresReload":true}

@@ -1,0 +1,5656 @@
+{
+  "scope": "Finite one-day manual advance, actual million moving fleet and all 11 revenues, existing phase profiling enabled only for this experiment. Desktop protocol vault, not iPhone.",
+  "results": [
+    {
+      "engine": "chromium",
+      "from": 172800,
+      "to": 259200,
+      "wall": 20754.20000000298,
+      "sim": 259200,
+      "day": 3,
+      "wallMs": 21895,
+      "frames": 1308,
+      "maxGapMs": 66.70000000000073,
+      "staged": [
+        {
+          "label": "simulation:259078.19648713668->259200",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 259078.19648713668,
+            "to": 259200,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.7999999970197678,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 1.8999999985098839,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.8999999985098839,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.9000000059604645,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 17.399999998509884,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.8999999985098839,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 8.100000001490116,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.8999999985098839,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.8000000044703484,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 9.699999995529652,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.7999999970197678,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.8000000044703484,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.7999999970197678,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "durationMs": 0.7000000029802322,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.bank",
+              "durationMs": 27.599999994039536,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.market-share",
+              "durationMs": 0.20000000298023224,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.risk",
+              "durationMs": 0.19999999552965164,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.rating",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 12.800000004470348,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0.10000000149011612,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance",
+              "durationMs": 0.5,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.market-day",
+              "durationMs": 0.10000000149011612,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.tax-fx-dividends",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.programs",
+              "durationMs": 1.1000000014901161,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.reputation",
+              "durationMs": 0.20000000298023224,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.suppliers",
+              "durationMs": 0.09999999403953552,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.deliveries",
+              "durationMs": 0.10000000149011612,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.projects",
+              "durationMs": 0.20000000298023224,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.events",
+              "durationMs": 0.10000000149011612,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.board",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.succession",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.brief",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0.19999999552965164,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0.10000000149011612,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0.10000000149011612,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:final",
+              "durationMs": 0.20000000298023224,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.payroll-ar-settlement",
+              "durationMs": 0.30000000447034836,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.daily-close-postings",
+              "durationMs": 1.3000000044703484,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 0.10000000149011612,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0.19999999552965164,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 0.10000000149011612,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 0.20000000298023224,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 0.5,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.finance-day.trip-accruals",
+              "calls": 1,
+              "busyMs": 1.5999999940395355,
+              "maxMs": 1.5999999940395355,
+              "startMs": 49.30000000447035,
+              "spanMs": 1.5999999940395355
+            },
+            {
+              "name": "simulation.finance-day.trip-settlement",
+              "calls": 11,
+              "busyMs": 23.50000000745058,
+              "maxMs": 10.400000005960464,
+              "startMs": 50.899999998509884,
+              "spanMs": 39.600000001490116
+            },
+            {
+              "name": "simulation.finance-day.owner.strategy",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 91.10000000149012,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.finance-day.advanced-owner-staged-step",
+              "calls": 19,
+              "busyMs": 15.5,
+              "maxMs": 6,
+              "startMs": 91.10000000149012,
+              "spanMs": 23.600000001490116
+            },
+            {
+              "name": "simulation.finance-day.owner.hr",
+              "calls": 1,
+              "busyMs": 0.19999999552965164,
+              "maxMs": 0.19999999552965164,
+              "startMs": 91.20000000298023,
+              "spanMs": 0.19999999552965164
+            },
+            {
+              "name": "simulation.finance-day.owner.bank.start",
+              "calls": 1,
+              "busyMs": 3.5,
+              "maxMs": 3.5,
+              "startMs": 91.80000000447035,
+              "spanMs": 3.5
+            },
+            {
+              "name": "simulation.finance-day.owner.power",
+              "calls": 1,
+              "busyMs": 2.0999999940395355,
+              "maxMs": 2.0999999940395355,
+              "startMs": 95.30000000447035,
+              "spanMs": 2.0999999940395355
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.start",
+              "calls": 1,
+              "busyMs": 0.8000000044703484,
+              "maxMs": 0.8000000044703484,
+              "startMs": 105.5,
+              "spanMs": 0.8000000044703484
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.office",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 106.30000000447035,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.large-risks",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 106.30000000447035,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.claim-settlement",
+              "calls": 1,
+              "busyMs": 0.19999999552965164,
+              "maxMs": 0.19999999552965164,
+              "startMs": 106.30000000447035,
+              "spanMs": 0.19999999552965164
+            },
+            {
+              "name": "simulation.finance-day.owner.realestate",
+              "calls": 1,
+              "busyMs": 1.1000000014901161,
+              "maxMs": 1.1000000014901161,
+              "startMs": 106.5,
+              "spanMs": 1.1000000014901161
+            },
+            {
+              "name": "simulation.finance-day.owner.telecom.start",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 107.80000000447035,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.owner.telecom.telecom-market",
+              "calls": 2,
+              "busyMs": 0.19999999552965164,
+              "maxMs": 0.19999999552965164,
+              "startMs": 108.80000000447035,
+              "spanMs": 0.29999999701976776
+            },
+            {
+              "name": "simulation.finance-day.owner.telecom.telecom.monthly-billing",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 109.10000000149012,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.finance-day.owner.dealership.start",
+              "calls": 1,
+              "busyMs": 1.1000000014901161,
+              "maxMs": 1.1000000014901161,
+              "startMs": 109.20000000298023,
+              "spanMs": 1.1000000014901161
+            },
+            {
+              "name": "simulation.finance-day.owner.dealership.dealer-market",
+              "calls": 3,
+              "busyMs": 0.6999999955296516,
+              "maxMs": 0.29999999701976776,
+              "startMs": 110.30000000447035,
+              "spanMs": 0.6999999955296516
+            },
+            {
+              "name": "simulation.finance-day.owner.dealership.dealership.monthly-billing",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 111,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.owner.hospitality.start",
+              "calls": 1,
+              "busyMs": 0.6000000014901161,
+              "maxMs": 0.6000000014901161,
+              "startMs": 111,
+              "spanMs": 0.6000000014901161
+            },
+            {
+              "name": "simulation.finance-day.owner.hospitality.property",
+              "calls": 1,
+              "busyMs": 1.5,
+              "maxMs": 1.5,
+              "startMs": 111.60000000149012,
+              "spanMs": 1.5
+            },
+            {
+              "name": "simulation.finance-day.owner.hospitality.accrual",
+              "calls": 1,
+              "busyMs": 0.3999999985098839,
+              "maxMs": 0.3999999985098839,
+              "startMs": 113.10000000149012,
+              "spanMs": 0.3999999985098839
+            },
+            {
+              "name": "simulation.finance-day.owner.business-world",
+              "calls": 1,
+              "busyMs": 0.8999999985098839,
+              "maxMs": 0.8999999985098839,
+              "startMs": 113.5,
+              "spanMs": 0.8999999985098839
+            },
+            {
+              "name": "simulation.finance-day.owner.conference",
+              "calls": 1,
+              "busyMs": 0.30000000447034836,
+              "maxMs": 0.30000000447034836,
+              "startMs": 114.39999999850988,
+              "spanMs": 0.30000000447034836
+            },
+            {
+              "name": "simulation.finance-day.payroll-plan",
+              "calls": 1,
+              "busyMs": 11.5,
+              "maxMs": 11.5,
+              "startMs": 115.20000000298023,
+              "spanMs": 11.5
+            },
+            {
+              "name": "simulation.finance-day.facility-costs",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 127.10000000149012,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.finance-day.sector-economics",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 127.20000000298023,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.debt-interest",
+              "calls": 12,
+              "busyMs": 2.2000000029802322,
+              "maxMs": 0.30000000447034836,
+              "startMs": 136.39999999850988,
+              "spanMs": 2.2000000029802322
+            },
+            {
+              "name": "simulation.finance-day.holdings",
+              "calls": 6,
+              "busyMs": 0.19999999552965164,
+              "maxMs": 0.19999999552965164,
+              "startMs": 138.80000000447035,
+              "spanMs": 0.19999999552965164
+            },
+            {
+              "name": "simulation.finance-day.settle-due-terms",
+              "calls": 12,
+              "busyMs": 2.2999999970197678,
+              "maxMs": 0.5,
+              "startMs": 139,
+              "spanMs": 2.399999998509884
+            },
+            {
+              "name": "simulation.finance-day.operating-revenue-payments",
+              "calls": 11,
+              "busyMs": 59.8999999910593,
+              "maxMs": 34.399999998509884,
+              "startMs": 141.39999999850988,
+              "spanMs": 121.60000000149012
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.fleet-day-wait",
+              "calls": 191,
+              "busyMs": 1.0999999940395355,
+              "maxMs": 0.6999999955296516,
+              "startMs": 263.20000000298023,
+              "spanMs": 1558.6999999955297
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.fleet-day-apply",
+              "calls": 2892,
+              "busyMs": 260.20000000298023,
+              "maxMs": 1.8000000044703484,
+              "startMs": 1830,
+              "spanMs": 480.30000000447035
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.budgets",
+              "calls": 1,
+              "busyMs": 3.7999999970197678,
+              "maxMs": 3.7999999970197678,
+              "startMs": 2310.3000000044703,
+              "spanMs": 3.7999999970197678
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.operations",
+              "calls": 1,
+              "busyMs": 0.5,
+              "maxMs": 0.5,
+              "startMs": 2314.10000000149,
+              "spanMs": 0.5
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.incidents",
+              "calls": 3,
+              "busyMs": 48.80000000447035,
+              "maxMs": 34.30000000447035,
+              "startMs": 2314.60000000149,
+              "spanMs": 73.20000000298023
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "calls": 24,
+              "busyMs": 68,
+              "maxMs": 17.399999998509884,
+              "startMs": 2396,
+              "spanMs": 147.80000000447035
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.bank",
+              "calls": 1,
+              "busyMs": 27.599999994039536,
+              "maxMs": 27.599999994039536,
+              "startMs": 2543.8000000044703,
+              "spanMs": 27.599999994039536
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.market-share",
+              "calls": 1,
+              "busyMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224,
+              "startMs": 2587.60000000149,
+              "spanMs": 0.20000000298023224
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.risk",
+              "calls": 1,
+              "busyMs": 0.19999999552965164,
+              "maxMs": 0.19999999552965164,
+              "startMs": 2587.8000000044703,
+              "spanMs": 0.19999999552965164
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.rating",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2588,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "calls": 12,
+              "busyMs": 12.900000005960464,
+              "maxMs": 12.800000004470348,
+              "startMs": 2588,
+              "spanMs": 105.30000000447035
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance",
+              "calls": 1,
+              "busyMs": 0.5,
+              "maxMs": 0.5,
+              "startMs": 2701.39999999851,
+              "spanMs": 0.5
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.market-day",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 2701.89999999851,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.tax-fx-dividends",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2702,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.programs",
+              "calls": 1,
+              "busyMs": 1.1000000014901161,
+              "maxMs": 1.1000000014901161,
+              "startMs": 2702,
+              "spanMs": 1.1000000014901161
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.reputation",
+              "calls": 1,
+              "busyMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224,
+              "startMs": 2703.10000000149,
+              "spanMs": 0.20000000298023224
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.suppliers",
+              "calls": 1,
+              "busyMs": 0.09999999403953552,
+              "maxMs": 0.09999999403953552,
+              "startMs": 2703.3000000044703,
+              "spanMs": 0.09999999403953552
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.deliveries",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 2703.39999999851,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.projects",
+              "calls": 1,
+              "busyMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224,
+              "startMs": 2703.5,
+              "spanMs": 0.20000000298023224
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.events",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 2703.7000000029802,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.board",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2703.8000000044703,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.succession",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2703.8000000044703,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.brief",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2703.8000000044703,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "calls": 9,
+              "busyMs": 0.3999999985098839,
+              "maxMs": 0.19999999552965164,
+              "startMs": 2703.8000000044703,
+              "spanMs": 65.19999999552965
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2777.10000000149,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:final",
+              "calls": 1,
+              "busyMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224,
+              "startMs": 2777.10000000149,
+              "spanMs": 0.20000000298023224
+            },
+            {
+              "name": "simulation.finance-day.payroll-ar-settlement",
+              "calls": 1,
+              "busyMs": 0.30000000447034836,
+              "maxMs": 0.30000000447034836,
+              "startMs": 2780,
+              "spanMs": 0.30000000447034836
+            },
+            {
+              "name": "simulation.finance-day.daily-close-postings",
+              "calls": 1,
+              "busyMs": 1.3000000044703484,
+              "maxMs": 1.3000000044703484,
+              "startMs": 2780.39999999851,
+              "spanMs": 1.3000000044703484
+            },
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 2781.7000000029802,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 0.5,
+              "maxMs": 0.5,
+              "startMs": 2781.7000000029802,
+              "spanMs": 0.5
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0.19999999552965164,
+              "maxMs": 0.19999999552965164,
+              "startMs": 2781.8000000044703,
+              "spanMs": 0.19999999552965164
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224,
+              "startMs": 2782,
+              "spanMs": 0.20000000298023224
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 2782.10000000149,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2782.2000000029802,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 99,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 18.00000000745058,
+          "validateMs": 0,
+          "applyMs": 564.1000000312924,
+          "postCommitCriticalMs": 23.80000000447035,
+          "postCommitNonCriticalMs": 0.10000000149011612,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 22.899999998509884,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0.7000000029802322,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 0.10000000149011612,
+              "ok": true
+            },
+            {
+              "key": "hourly-schema-validated",
+              "owner": "simulation-market",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 3101.2000000029802,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "stagedFullScope": true,
+          "staged": true,
+          "stagedSteps": 3256,
+          "recordedAtMs": 1792349834673
+        },
+        {
+          "label": "simulation:172800->176400",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 172800,
+            "to": 176400,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 1.3999999985098839,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0.3999999985098839,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 0.10000000149011612,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0.09999999403953552,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 1,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 3.100000001490116,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 3.100000001490116,
+              "maxMs": 3.100000001490116,
+              "startMs": 206.89999999850988,
+              "spanMs": 3.100000001490116
+            },
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 1.3999999985098839,
+              "maxMs": 1.3999999985098839,
+              "startMs": 207,
+              "spanMs": 1.3999999985098839
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0.3999999985098839,
+              "maxMs": 0.3999999985098839,
+              "startMs": 208.5,
+              "spanMs": 0.3999999985098839
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 209,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 209.60000000149012,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0.09999999403953552,
+              "maxMs": 0.09999999403953552,
+              "startMs": 209.70000000298023,
+              "spanMs": 0.09999999403953552
+            }
+          ],
+          "scopeSize": 48,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 17,
+          "validateMs": 0,
+          "applyMs": 74.19999999552965,
+          "postCommitCriticalMs": 18.399999991059303,
+          "postCommitNonCriticalMs": 1.3999999985098839,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 17.19999998807907,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 1.1000000014901161,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 1.3999999985098839,
+              "ok": true
+            },
+            {
+              "key": "hourly-schema-validated",
+              "owner": "simulation-market",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 388.8999999985099,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury",
+            "domainRuntime",
+            "controlPlane",
+            "market",
+            "realism",
+            "advanced",
+            "customRoutes",
+            "routeEndpoints"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 682,
+          "recordedAtMs": 1792349813757
+        },
+        {
+          "label": "simulation:245266.9520373217->245701.00461360696",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 245266.9520373217,
+            "to": 245701.00461360696,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 48.5,
+          "validateMs": 0,
+          "applyMs": 22.200000002980232,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 135.10000000149012,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 86,
+          "recordedAtMs": 1792349828900
+        },
+        {
+          "label": "simulation:176400->176788.8765694901",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 176400,
+            "to": 176788.8765694901,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 10.699999995529652,
+          "validateMs": 0,
+          "applyMs": 24.100000001490116,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 118.69999999552965,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 94,
+          "recordedAtMs": 1792349814518
+        },
+        {
+          "label": "simulation:208643.03312443086->208800",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 208643.03312443086,
+            "to": 208800,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 1.1000000014901161,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0.09999999403953552,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 0.20000000298023224,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 17.5,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 18.69999999552965,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 1.1000000014901161,
+              "maxMs": 1.1000000014901161,
+              "startMs": 43.80000000447035,
+              "spanMs": 1.1000000014901161
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 18.69999999552965,
+              "maxMs": 18.69999999552965,
+              "startMs": 43.80000000447035,
+              "spanMs": 18.69999999552965
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0.09999999403953552,
+              "maxMs": 0.09999999403953552,
+              "startMs": 44.900000005960464,
+              "spanMs": 0.09999999403953552
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 17.5,
+              "maxMs": 17.5,
+              "startMs": 45,
+              "spanMs": 17.5
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 0.20000000298023224,
+              "maxMs": 0.20000000298023224,
+              "startMs": 62.100000001490116,
+              "spanMs": 0.20000000298023224
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 62.30000000447035,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 48,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 12.600000001490116,
+          "validateMs": 0,
+          "applyMs": 26.99999999254942,
+          "postCommitCriticalMs": 0.8000000044703484,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0.8000000044703484,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 83,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury",
+            "domainRuntime",
+            "controlPlane",
+            "market",
+            "realism",
+            "advanced",
+            "customRoutes",
+            "routeEndpoints"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 31,
+          "recordedAtMs": 1792349821251
+        },
+        {
+          "label": "simulation:187572.61566671453->187940.9034917343",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 187572.61566671453,
+            "to": 187940.9034917343,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 21.69999999552965,
+          "validateMs": 0,
+          "applyMs": 12.99999999254942,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 72.60000000149012,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 86,
+          "recordedAtMs": 1792349817455
+        },
+        {
+          "label": "simulation:258239.03073492306->258638.60487957613",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 258239.03073492306,
+            "to": 258638.60487957613,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 24.80000000447035,
+          "validateMs": 0,
+          "applyMs": 15.200000002980232,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 72.60000000149012,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 83,
+          "recordedAtMs": 1792349831458
+        },
+        {
+          "label": "simulation:257814.4056284448->258239.03073492306",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 257814.4056284448,
+            "to": 258239.03073492306,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 10.399999998509884,
+          "validateMs": 0,
+          "applyMs": 27.399999991059303,
+          "postCommitCriticalMs": 0.20000000298023224,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 70.60000000149012,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 83,
+          "recordedAtMs": 1792349831350
+        },
+        {
+          "label": "simulation:206212.23500367778->206733.67342763333",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 206212.23500367778,
+            "to": 206733.67342763333,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 16.00000000745058,
+          "validateMs": 0,
+          "applyMs": 12.900000005960464,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 68.5,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349820805
+        },
+        {
+          "label": "simulation:235964.3468866807->236514.6638304842",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 235964.3468866807,
+            "to": 236514.6638304842,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 18.100000001490116,
+          "validateMs": 0,
+          "applyMs": 17.5,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 68.5,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 83,
+          "recordedAtMs": 1792349827077
+        },
+        {
+          "label": "simulation:199527.56484705326->200043.87052043597",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 199527.56484705326,
+            "to": 200043.87052043597,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 15.700000002980232,
+          "validateMs": 0,
+          "applyMs": 13,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 67.89999999850988,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349819687
+        },
+        {
+          "label": "simulation:193053.6734276333->193591.2111983367",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 193053.6734276333,
+            "to": 193591.2111983367,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 16.80000000447035,
+          "validateMs": 0,
+          "applyMs": 12.600000008940697,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 67.10000000149012,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349818531
+        },
+        {
+          "label": "simulation:182754.4712999297->183115.72373646486",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 182754.4712999297,
+            "to": 183115.72373646486,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 17.600000001490116,
+          "validateMs": 0,
+          "applyMs": 13,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 65.79999999701977,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349816184
+        },
+        {
+          "label": "simulation:216869.34197992177->217271.42551376656",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 216869.34197992177,
+            "to": 217271.42551376656,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 16.700000002980232,
+          "validateMs": 0,
+          "applyMs": 14.299999997019768,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 65.30000000447035,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 85,
+          "recordedAtMs": 1792349823027
+        },
+        {
+          "label": "simulation:211919.6304116169->212397.07781646392",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 211919.6304116169,
+            "to": 212397.07781646392,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 18.299999997019768,
+          "validateMs": 0,
+          "applyMs": 12.600000001490116,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 64.20000000298023,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349821945
+        },
+        {
+          "label": "simulation:222121.58951835075->222532.01650351915",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 222121.58951835075,
+            "to": 222532.01650351915,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 16.899999998509884,
+          "validateMs": 0,
+          "applyMs": 13.400000013411045,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 63.70000000298023,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349824350
+        },
+        {
+          "label": "simulation:227268.00440124617->227687.1219732633",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 227268.00440124617,
+            "to": 227687.1219732633,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 16.299999997019768,
+          "validateMs": 0,
+          "applyMs": 12.100000001490116,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 61.5,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 86,
+          "recordedAtMs": 1792349825444
+        },
+        {
+          "label": "simulation:232705.70644798616->233158.32149214664",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 232705.70644798616,
+            "to": 233158.32149214664,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 15.700000002980232,
+          "validateMs": 0,
+          "applyMs": 11.699999988079071,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 61.399999998509884,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349826504
+        },
+        {
+          "label": "simulation:256461.5200884121->256941.60978501302",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 256461.5200884121,
+            "to": 256941.60978501302,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 18.100000001490116,
+          "validateMs": 0,
+          "applyMs": 12.300000004470348,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 59.69999999552965,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 85,
+          "recordedAtMs": 1792349831087
+        },
+        {
+          "label": "simulation:219385.27560260522->219600",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 219385.27560260522,
+            "to": 219600,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 1,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0.10000000149011612,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 0.10000000149011612,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 0.29999999701976776,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 1.3999999985098839,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 57.29999999701977,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 1.3999999985098839,
+              "maxMs": 1.3999999985098839,
+              "startMs": 57.29999999701977,
+              "spanMs": 1.3999999985098839
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 58.29999999701977,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 0.29999999701976776,
+              "maxMs": 0.29999999701976776,
+              "startMs": 58.399999998509884,
+              "spanMs": 0.29999999701976776
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 58.5,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 58.600000001490116,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 48,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 16.900000005960464,
+          "validateMs": 0,
+          "applyMs": 9.099999994039536,
+          "postCommitCriticalMs": 0.4000000059604645,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0.10000000149011612,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0.30000000447034836,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 59.19999999552965,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury",
+            "domainRuntime",
+            "controlPlane",
+            "market",
+            "realism",
+            "advanced",
+            "customRoutes",
+            "routeEndpoints"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 47,
+          "recordedAtMs": 1792349823580
+        },
+        {
+          "label": "simulation:178383.80049459898->178755.59659835717",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 178383.80049459898,
+            "to": 178755.59659835717,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 11.099999994039536,
+          "validateMs": 0,
+          "applyMs": 14.400000005960464,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 59,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349815082
+        },
+        {
+          "label": "simulation:201134.51837225637->201600",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 201134.51837225637,
+            "to": 201600,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 1.6000000014901161,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 0.10000000149011612,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 0.29999999701976776,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 1.8999999985098839,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 1.6000000014901161,
+              "maxMs": 1.6000000014901161,
+              "startMs": 56.20000000298023,
+              "spanMs": 1.6000000014901161
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 1.8999999985098839,
+              "maxMs": 1.8999999985098839,
+              "startMs": 56.20000000298023,
+              "spanMs": 1.8999999985098839
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 57.80000000447035,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 0.29999999701976776,
+              "maxMs": 0.29999999701976776,
+              "startMs": 57.80000000447035,
+              "spanMs": 0.29999999701976776
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 0.10000000149011612,
+              "maxMs": 0.10000000149011612,
+              "startMs": 57.899999998509884,
+              "spanMs": 0.10000000149011612
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 58,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 48,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 12.699999995529652,
+          "validateMs": 0,
+          "applyMs": 13.00000000745058,
+          "postCommitCriticalMs": 0.7000000029802322,
+          "postCommitNonCriticalMs": 0.09999999403953552,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0.10000000149011612,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0.6000000014901161,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 0.09999999403953552,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 58.899999998509884,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury",
+            "domainRuntime",
+            "controlPlane",
+            "market",
+            "realism",
+            "advanced",
+            "customRoutes",
+            "routeEndpoints"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 73,
+          "recordedAtMs": 1792349819960
+        },
+        {
+          "label": "simulation:177991.036463805->178383.80049459898",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 177991.036463805,
+            "to": 178383.80049459898,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 10.399999998509884,
+          "validateMs": 0,
+          "applyMs": 15.100000008940697,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 58.5,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349814978
+        },
+        {
+          "label": "simulation:181136.58399718266->181539.8724389151",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 181136.58399718266,
+            "to": 181539.8724389151,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 11.799999997019768,
+          "validateMs": 0,
+          "applyMs": 13.200000002980232,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 57.79999999701977,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349815801
+        }
+      ],
+      "kernel": {
+        "version": "3.0.0",
+        "frames": 1906,
+        "slices": 199,
+        "chunks": 2010,
+        "hours": 24,
+        "days": 1,
+        "conflicts": 0,
+        "cancels": 0,
+        "maxChunkMs": 48.600000001490116,
+        "lastChunkMs": 1.6000000014901161,
+        "longTasks": 4,
+        "hardTasks": 0,
+        "droppedRealSeconds": 0,
+        "backlogClamps": 0,
+        "maxCreateMs": 0.10000000149011612,
+        "lastCreateMs": 0,
+        "maxFinishMs": 0.6999999955296516,
+        "lastFinishMs": 0.19999999552965164,
+        "maxCycleMs": 610.3000000268221,
+        "lastCycleMs": 610.3000000268221,
+        "maxMaintenanceMs": 47.20000000298023,
+        "lastMaintenanceMs": 4.100000001490116,
+        "maxRenderMs": 13.299999997019768,
+        "lastRenderMs": 0.20000000298023224,
+        "lastFrame": {
+          "createMs": 0,
+          "chunkMs": 0,
+          "finishMs": 0,
+          "maintenanceMs": 4.100000001490116,
+          "renderMs": 0,
+          "totalMs": 4.9000000059604645
+        },
+        "maxFrame": {
+          "createMs": 0,
+          "chunkMs": 48.600000001490116,
+          "finishMs": 0,
+          "maintenanceMs": 0,
+          "renderMs": 0,
+          "totalMs": 48.70000000298023
+        },
+        "cooldownFrames": 7,
+        "deferredRuns": 63,
+        "lastError": "",
+        "fatalError": null,
+        "lastBoundary": "hour:72",
+        "lastSliceSeconds": 121.80351286332007,
+        "lastMaintenanceHour": 61,
+        "lastCancelReason": "",
+        "lastCommitReason": "committed",
+        "lastWorkStage": "finish",
+        "governor": "GREEN",
+        "avgChunkMs": 0.483333333581686,
+        "avgWorkMs": 0.7600000001490116,
+        "manualFailures": 0,
+        "manualThrottleYields": 0,
+        "lastAdvanceFailure": null,
+        "lastProgressSim": 259200,
+        "lastProgressAt": 42569.5,
+        "activeFrameBudgetMs": 10,
+        "frameCadencePressure": 0,
+        "lastFrameIntervalMs": 16.6,
+        "aggregateSlices": 0,
+        "aggregateWindows": 0,
+        "aggregateSubSlices": 0,
+        "lastAggregateHours": 0,
+        "aggregateFallbacks": 0,
+        "jobCleanups": 199,
+        "cleanupErrors": 0,
+        "simSeconds": 259200,
+        "speed": 0,
+        "backlog": 0,
+        "jobActive": false,
+        "jobReadyToFinish": false,
+        "jobSlice": 0,
+        "jobSpeed": 0,
+        "hidden": false,
+        "manualAdvance": null,
+        "pacing": {
+          "version": "3.0.0",
+          "lastReal": 42567.70000000298,
+          "backlog": 0,
+          "hidden": false,
+          "lastRender": 42245,
+          "droppedRealSeconds": 0,
+          "backlogClamps": 0,
+          "stallGaps": 0,
+          "config": {
+            "maxRealDelta": 3,
+            "maxBacklogNormal": 12,
+            "maxBacklogFast": 96,
+            "frameBudgetMs": 4,
+            "manualFrameBudgetMs": 10,
+            "renderEveryNormalMs": 260,
+            "renderEveryFastMs": 650
+          }
+        },
+        "config": {
+          "allowedSpeeds": [
+            0,
+            30,
+            120,
+            300
+          ],
+          "fallbackSpeed": 30,
+          "quantumRealSeconds": 1,
+          "maxRealDelta": 3,
+          "maxBacklogNormal": 12,
+          "maxBacklogFast": 96,
+          "frameBudgetMs": 4,
+          "manualFrameBudgetMs": 10,
+          "adaptiveFrameBudgetMinMs": 1.5,
+          "chunkItems": 32,
+          "manualChunkItems": 64,
+          "renderEveryNormalMs": 260,
+          "renderEveryFastMs": 650,
+          "minRealSliceSeconds": 1,
+          "maintenanceEveryHours": 12,
+          "manualBatchSeconds": 3600,
+          "manualMinBatchSeconds": 300,
+          "manualRetryLimit": 3,
+          "longTaskWarnMs": 28,
+          "hardTaskMs": 120,
+          "hardTaskLimit": 3,
+          "conflictLimit": 3,
+          "cooldownAfterMs": 24,
+          "manualAggregateMaxSeconds": 86400
+        },
+        "runtime": {
+          "version": "1.0.0",
+          "ticks": 1906,
+          "wakes": 4,
+          "cancelledWakes": 4,
+          "errors": 0,
+          "longTicks": 0,
+          "maxTickMs": 48.70000000298023,
+          "lastTickMs": 4.9000000059604645,
+          "lastDelayMs": 250,
+          "pending": true,
+          "running": true,
+          "inTick": false,
+          "intervals": {
+            "manual": 8,
+            "live": 16,
+            "deferred": 50,
+            "paused": 250,
+            "hidden": 1000
+          }
+        }
+      },
+      "revenues": {
+        "air": 190965588738.73593,
+        "sea": 368084304.3900428,
+        "road": 12387050.55900619,
+        "power": 15520.004848407776,
+        "bank": 46135.53580099061,
+        "mobility": 63664.94999999999,
+        "insurance": 4241.294147517148,
+        "realestate": 12273.972602739726,
+        "telecom": 7253.69,
+        "dealership": 155429.04938766448,
+        "hospitality": 14550
+      },
+      "alerts": [
+        "\u062a\u0645 \u062d\u0641\u0638 \u0627\u0644\u0644\u0639\u0628\u0629.",
+        "\u062c\u064f\u062f\u0648\u0644\u062a 10000 \u0634\u0627\u062d\u0646\u0629 \u0630\u0631\u064a\u064b\u0627 \u0639\u0644\u0649 209 \u0645\u0633\u0627\u0631 \u0623\u0633\u0637\u0648\u0644 \u0644\u0634\u0631\u0643\u0629 QA Decision road\u061b \u0623\u064f\u0646\u0634\u0626 208 \u0645\u0633\u0627\u0631\u064b\u0627 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
+        "\u0623\u064f\u0646\u0634\u0626 \u0645\u0633\u0627\u0631 \u0628\u0631\u064a \u0641\u0639\u0644\u064a \u0645\u0646 QA Operating road \u0625\u0644\u0649 QA Road AUH \u0628\u0637\u0648\u0644 974 \u0643\u0645.",
+        "\u0648\u064f\u0632\u0639\u062a 10000 \u0633\u0641\u064a\u0646\u0629 \u0630\u0631\u064a\u064b\u0627 \u0639\u0644\u0649 286 \u0645\u0633\u0627\u0631\u064b\u0627 \u0627\u0644\u0628\u062d\u0631\u064a\u0629 \u0645\u0634\u062a\u0631\u0643\u064b\u0627\u061b 572 \u063a\u0627\u062f\u0631\u062a \u06489428 \u0645\u062c\u062f\u0648\u0644\u0629 \u0628\u0641\u062a\u062d\u0627\u062a \u0632\u0645\u0646\u064a\u0629\u060c \u0648\u0623\u064f\u0646\u0634\u0626 286 \u0645\u0633\u0627\u0631 \u062c\u062f\u064a\u062f \u0641\u0642\u0637.",
+        "\u0648\u064f\u0632\u0639\u062a 20000 \u0637\u0627\u0626\u0631\u0629 \u0630\u0631\u064a\u064b\u0627 \u0639\u0644\u0649 7 \u0645\u0633\u0627\u0631\u064b\u0627 \u0627\u0644\u062c\u0648\u064a\u0629 \u0645\u0634\u062a\u0631\u0643\u064b\u0627\u061b 837 \u063a\u0627\u062f\u0631\u062a \u064819163 \u0645\u062c\u062f\u0648\u0644\u0629 \u0628\u0641\u062a\u062d\u0627\u062a \u0632\u0645\u0646\u064a\u0629\u060c \u0648\u0623\u064f\u0646\u0634\u0626 6 \u0645\u0633\u0627\u0631 \u062c\u062f\u064a\u062f \u0641\u0642\u0637."
+      ],
+      "incidents": []
+    },
+    {
+      "engine": "webkit",
+      "from": 172800,
+      "to": 259200,
+      "wall": 15571,
+      "sim": 259200,
+      "day": 3,
+      "wallMs": 24936,
+      "frames": 1431,
+      "maxGapMs": 179,
+      "staged": [
+        {
+          "label": "simulation:259078.19648713668->259200",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 259078.19648713668,
+            "to": 259200,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 9,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.market-day",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.tax-fx-dividends",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.programs",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.reputation",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.suppliers",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.deliveries",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.projects",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.events",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.board",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.succession",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.brief",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity",
+              "durationMs": 0,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.realism-close:final",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.payroll-ar-settlement",
+              "durationMs": 46.000000000007276,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.finance-day.daily-close-postings",
+              "durationMs": 4,
+              "depth": 0,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 0,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 1,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 1,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 1,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.finance-day.trip-accruals",
+              "calls": 1,
+              "busyMs": 2,
+              "maxMs": 2,
+              "startMs": 50,
+              "spanMs": 2
+            },
+            {
+              "name": "simulation.finance-day.trip-settlement",
+              "calls": 11,
+              "busyMs": 117.99999999999272,
+              "maxMs": 70,
+              "startMs": 52,
+              "spanMs": 168
+            },
+            {
+              "name": "simulation.finance-day.owner.strategy",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 221,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.advanced-owner-staged-step",
+              "calls": 19,
+              "busyMs": 34,
+              "maxMs": 11,
+              "startMs": 221,
+              "spanMs": 61
+            },
+            {
+              "name": "simulation.finance-day.owner.hr",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 221,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.owner.bank.start",
+              "calls": 1,
+              "busyMs": 7,
+              "maxMs": 7,
+              "startMs": 223,
+              "spanMs": 7
+            },
+            {
+              "name": "simulation.finance-day.owner.power",
+              "calls": 1,
+              "busyMs": 3,
+              "maxMs": 3,
+              "startMs": 230,
+              "spanMs": 3
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.start",
+              "calls": 1,
+              "busyMs": 2,
+              "maxMs": 2,
+              "startMs": 245,
+              "spanMs": 2
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.office",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 247,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.large-risks",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 247,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.owner.insurance.claim-settlement",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 247,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.owner.realestate",
+              "calls": 1,
+              "busyMs": 3,
+              "maxMs": 3,
+              "startMs": 248,
+              "spanMs": 3
+            },
+            {
+              "name": "simulation.finance-day.owner.telecom.start",
+              "calls": 1,
+              "busyMs": 3,
+              "maxMs": 3,
+              "startMs": 259,
+              "spanMs": 3
+            },
+            {
+              "name": "simulation.finance-day.owner.telecom.telecom-market",
+              "calls": 2,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 262,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.owner.telecom.telecom.monthly-billing",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 263,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.owner.dealership.start",
+              "calls": 1,
+              "busyMs": 2.000000000007276,
+              "maxMs": 2.000000000007276,
+              "startMs": 263,
+              "spanMs": 2.000000000007276
+            },
+            {
+              "name": "simulation.finance-day.owner.dealership.dealer-market",
+              "calls": 3,
+              "busyMs": 1.999999999992724,
+              "maxMs": 1,
+              "startMs": 265.0000000000073,
+              "spanMs": 1.999999999992724
+            },
+            {
+              "name": "simulation.finance-day.owner.dealership.dealership.monthly-billing",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 275,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.owner.hospitality.start",
+              "calls": 1,
+              "busyMs": 2.000000000007276,
+              "maxMs": 2.000000000007276,
+              "startMs": 275,
+              "spanMs": 2.000000000007276
+            },
+            {
+              "name": "simulation.finance-day.owner.hospitality.property",
+              "calls": 1,
+              "busyMs": 1.999999999992724,
+              "maxMs": 1.999999999992724,
+              "startMs": 277.0000000000073,
+              "spanMs": 1.999999999992724
+            },
+            {
+              "name": "simulation.finance-day.owner.hospitality.accrual",
+              "calls": 1,
+              "busyMs": 1.000000000007276,
+              "maxMs": 1.000000000007276,
+              "startMs": 279,
+              "spanMs": 1.000000000007276
+            },
+            {
+              "name": "simulation.finance-day.owner.business-world",
+              "calls": 1,
+              "busyMs": 1.999999999992724,
+              "maxMs": 1.999999999992724,
+              "startMs": 280.0000000000073,
+              "spanMs": 1.999999999992724
+            },
+            {
+              "name": "simulation.finance-day.owner.conference",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 282,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.payroll-plan",
+              "calls": 1,
+              "busyMs": 17,
+              "maxMs": 17,
+              "startMs": 323,
+              "spanMs": 17
+            },
+            {
+              "name": "simulation.finance-day.facility-costs",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 340,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.sector-economics",
+              "calls": 1,
+              "busyMs": 1.000000000007276,
+              "maxMs": 1.000000000007276,
+              "startMs": 340,
+              "spanMs": 1.000000000007276
+            },
+            {
+              "name": "simulation.finance-day.debt-interest",
+              "calls": 12,
+              "busyMs": 4,
+              "maxMs": 1,
+              "startMs": 350,
+              "spanMs": 4
+            },
+            {
+              "name": "simulation.finance-day.holdings",
+              "calls": 6,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 354,
+              "spanMs": 9
+            },
+            {
+              "name": "simulation.finance-day.settle-due-terms",
+              "calls": 12,
+              "busyMs": 4,
+              "maxMs": 1,
+              "startMs": 363,
+              "spanMs": 4
+            },
+            {
+              "name": "simulation.finance-day.operating-revenue-payments",
+              "calls": 11,
+              "busyMs": 43,
+              "maxMs": 6.999999999992724,
+              "startMs": 367,
+              "spanMs": 83
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.fleet-day-wait",
+              "calls": 181,
+              "busyMs": 3,
+              "maxMs": 3,
+              "startMs": 450,
+              "spanMs": 1464
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.fleet-day-apply",
+              "calls": 2892,
+              "busyMs": 207.99999999998545,
+              "maxMs": 6,
+              "startMs": 1922,
+              "spanMs": 447
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.budgets",
+              "calls": 1,
+              "busyMs": 6,
+              "maxMs": 6,
+              "startMs": 2369,
+              "spanMs": 6
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.operations",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2375,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.incidents",
+              "calls": 3,
+              "busyMs": 8,
+              "maxMs": 5,
+              "startMs": 2375,
+              "spanMs": 16
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.maintenance",
+              "calls": 24,
+              "busyMs": 61.000000000007276,
+              "maxMs": 27,
+              "startMs": 2391,
+              "spanMs": 103
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.bank",
+              "calls": 1,
+              "busyMs": 2,
+              "maxMs": 2,
+              "startMs": 2494,
+              "spanMs": 2
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.market-share",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2505,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.risk",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2505,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.rating",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2505,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance-wait",
+              "calls": 28,
+              "busyMs": 9,
+              "maxMs": 9,
+              "startMs": 2505,
+              "spanMs": 349
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.insurance",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 2862,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.market-day",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2863,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.tax-fx-dividends",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2863,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.programs",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 2863,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.reputation",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 2864,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.suppliers",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2865,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.deliveries",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2865,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.projects",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2865,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.events",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2865,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.board",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2865,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.succession",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 2865,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.brief",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2866,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity-wait",
+              "calls": 14,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2866,
+              "spanMs": 105
+            },
+            {
+              "name": "simulation.finance-day.realism-close:realism.identity",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 2979,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.finance-day.realism-close:final",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 2979,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.finance-day.payroll-ar-settlement",
+              "calls": 1,
+              "busyMs": 46.000000000007276,
+              "maxMs": 46.000000000007276,
+              "startMs": 2984,
+              "spanMs": 46.000000000007276
+            },
+            {
+              "name": "simulation.finance-day.daily-close-postings",
+              "calls": 1,
+              "busyMs": 4,
+              "maxMs": 4,
+              "startMs": 3047,
+              "spanMs": 4
+            },
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 3059,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 3059,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 3059,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 3059,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 3059,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 3060,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 99,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 17.000000000007276,
+          "validateMs": 0,
+          "applyMs": 628.9999999999854,
+          "postCommitCriticalMs": 47,
+          "postCommitNonCriticalMs": 1,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 46,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 1,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 1,
+              "ok": true
+            },
+            {
+              "key": "hourly-schema-validated",
+              "owner": "simulation-market",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 3571,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "stagedFullScope": true,
+          "staged": true,
+          "stagedSteps": 3268,
+          "recordedAtMs": 1792349875380
+        },
+        {
+          "label": "simulation:172800->176400",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 172800,
+            "to": 176400,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 2.000000000003638,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0.999999999996362,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 1.000000000001819,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 1.000000000001819,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 4.000000000001819,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 2.000000000003638,
+              "maxMs": 2.000000000003638,
+              "startMs": 372.99999999999636,
+              "spanMs": 2.000000000003638
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 4.000000000001819,
+              "maxMs": 4.000000000001819,
+              "startMs": 372.99999999999636,
+              "spanMs": 4.000000000001819
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0.999999999996362,
+              "maxMs": 0.999999999996362,
+              "startMs": 375,
+              "spanMs": 0.999999999996362
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 1.000000000001819,
+              "maxMs": 1.000000000001819,
+              "startMs": 375.99999999999636,
+              "spanMs": 1.000000000001819
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 1.000000000001819,
+              "maxMs": 1.000000000001819,
+              "startMs": 375.99999999999636,
+              "spanMs": 1.000000000001819
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 376.9999999999982,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 48,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 6,
+          "validateMs": 0,
+          "applyMs": 245.00000000000182,
+          "postCommitCriticalMs": 80.99999999999636,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 51.99999999999636,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 29,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            },
+            {
+              "key": "hourly-schema-validated",
+              "owner": "simulation-market",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 611.0000000000018,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury",
+            "domainRuntime",
+            "controlPlane",
+            "market",
+            "realism",
+            "advanced",
+            "customRoutes",
+            "routeEndpoints"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 681,
+          "recordedAtMs": 1792349851588
+        },
+        {
+          "label": "simulation:205712.5580097699->206212.23500367778",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 205712.5580097699,
+            "to": 206212.23500367778,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 93,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 137.00000000000364,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 86,
+          "recordedAtMs": 1792349859064
+        },
+        {
+          "label": "simulation:200581.8829462454->201134.51837225637",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 200581.8829462454,
+            "to": 201134.51837225637,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 14,
+          "validateMs": 0,
+          "applyMs": 46,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 114,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349858023
+        },
+        {
+          "label": "simulation:231730.7299964783->232163.69980689333",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 231730.7299964783,
+            "to": 232163.69980689333,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 45,
+          "validateMs": 0,
+          "applyMs": 14.000000000003638,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 107,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349865795
+        },
+        {
+          "label": "simulation:239096.19199607207->239604.78166548346",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 239096.19199607207,
+            "to": 239604.78166548346,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 71,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 107,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 83,
+          "recordedAtMs": 1792349867413
+        },
+        {
+          "label": "simulation:206212.23500367778->206733.67342763333",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 206212.23500367778,
+            "to": 206733.67342763333,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 49,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 94,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349859207
+        },
+        {
+          "label": "simulation:211919.6304116169->212397.07781646392",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 211919.6304116169,
+            "to": 212397.07781646392,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 40.99999999999636,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 84.99999999999636,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349860457
+        },
+        {
+          "label": "simulation:219385.27560260522->219600",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 219385.27560260522,
+            "to": 219600,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 1,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 0,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 0,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 2.000000000003638,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 81,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 2.000000000003638,
+              "maxMs": 2.000000000003638,
+              "startMs": 81,
+              "spanMs": 2.000000000003638
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 82,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 83.00000000000364,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 83.00000000000364,
+              "spanMs": 0
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 83.00000000000364,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 48,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 31.999999999996362,
+          "validateMs": 0,
+          "applyMs": 9.000000000003638,
+          "postCommitCriticalMs": 0.999999999996362,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0.999999999996362,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 84,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury",
+            "domainRuntime",
+            "controlPlane",
+            "market",
+            "realism",
+            "advanced",
+            "customRoutes",
+            "routeEndpoints"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 47,
+          "recordedAtMs": 1792349862251
+        },
+        {
+          "label": "simulation:230400->230812.28173493195",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 230400,
+            "to": 230812.28173493195,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 4.999999999996362,
+          "validateMs": 0,
+          "applyMs": 29,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 83,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 90,
+          "recordedAtMs": 1792349865229
+        },
+        {
+          "label": "simulation:244035.80783513517->244543.20583760814",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 244035.80783513517,
+            "to": 244543.20583760814,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 42,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 77,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 83,
+          "recordedAtMs": 1792349868421
+        },
+        {
+          "label": "simulation:230325.76958339315->230400",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 230325.76958339315,
+            "to": 230400,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [
+            {
+              "name": "simulation.market.price-tick",
+              "durationMs": 8,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "durationMs": 1,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "durationMs": 0.999999999996362,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "durationMs": 0,
+              "depth": 2,
+              "ok": true
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "durationMs": 2,
+              "depth": 1,
+              "ok": true
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "durationMs": 11,
+              "depth": 0,
+              "ok": true
+            }
+          ],
+          "phaseTotals": [
+            {
+              "name": "simulation.market.price-tick",
+              "calls": 1,
+              "busyMs": 8,
+              "maxMs": 8,
+              "startMs": 53.99999999999636,
+              "spanMs": 8
+            },
+            {
+              "name": "simulation.boundary.market-hour",
+              "calls": 1,
+              "busyMs": 11,
+              "maxMs": 11,
+              "startMs": 53.99999999999636,
+              "spanMs": 11
+            },
+            {
+              "name": "simulation.market.realism-hour",
+              "calls": 1,
+              "busyMs": 1,
+              "maxMs": 1,
+              "startMs": 61.99999999999636,
+              "spanMs": 1
+            },
+            {
+              "name": "simulation.market.control-plane",
+              "calls": 1,
+              "busyMs": 2,
+              "maxMs": 2,
+              "startMs": 62.99999999999636,
+              "spanMs": 2
+            },
+            {
+              "name": "simulation.market.advanced-hour",
+              "calls": 1,
+              "busyMs": 0.999999999996362,
+              "maxMs": 0.999999999996362,
+              "startMs": 64,
+              "spanMs": 0.999999999996362
+            },
+            {
+              "name": "simulation.market.delivery-reconcile",
+              "calls": 1,
+              "busyMs": 0,
+              "maxMs": 0,
+              "startMs": 64.99999999999636,
+              "spanMs": 0
+            }
+          ],
+          "scopeSize": 48,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 6,
+          "validateMs": 0,
+          "applyMs": 22.999999999996362,
+          "postCommitCriticalMs": 1,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final-schema",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            },
+            {
+              "key": "integrity-final",
+              "owner": "control-plane-integrity",
+              "priority": 0,
+              "durationMs": 1,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [
+            {
+              "key": "control-plane-outbox-dispatch",
+              "owner": "control-plane-outbox",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true
+            }
+          ],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 75.99999999999636,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury",
+            "domainRuntime",
+            "controlPlane",
+            "market",
+            "realism",
+            "advanced",
+            "customRoutes",
+            "routeEndpoints"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 18,
+          "recordedAtMs": 1792349864983
+        },
+        {
+          "label": "simulation:243537.2322938513->244035.80783513517",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 243537.2322938513,
+            "to": 244035.80783513517,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 37,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 73,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 83,
+          "recordedAtMs": 1792349868303
+        },
+        {
+          "label": "simulation:176400->176788.8765694901",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 176400,
+            "to": 176788.8765694901,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 4,
+          "validateMs": 0,
+          "applyMs": 19.000000000003638,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 71,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 92,
+          "recordedAtMs": 1792349852270
+        },
+        {
+          "label": "simulation:205200->205712.5580097699",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 205200,
+            "to": 205712.5580097699,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3.999999999996362,
+          "validateMs": 0,
+          "applyMs": 34,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 71,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 90,
+          "recordedAtMs": 1792349858877
+        },
+        {
+          "label": "simulation:245701.00461360696->246156.6774749022",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 245701.00461360696,
+            "to": 246156.6774749022,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 4,
+          "validateMs": 0,
+          "applyMs": 34,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 71,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 85,
+          "recordedAtMs": 1792349868799
+        },
+        {
+          "label": "simulation:230812.28173493195->231286.71343903992",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 230812.28173493195,
+            "to": 231286.71343903992,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 4,
+          "validateMs": 0,
+          "applyMs": 15.999999999996362,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 69.99999999999636,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 86,
+          "recordedAtMs": 1792349865358
+        },
+        {
+          "label": "simulation:180754.281658386->181136.58399718266",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 180754.281658386,
+            "to": 181136.58399718266,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 22,
+          "validateMs": 0,
+          "applyMs": 13.000000000003638,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 69.00000000000364,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 85,
+          "recordedAtMs": 1792349853468
+        },
+        {
+          "label": "simulation:207731.61952907813->208180.3344135311",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 207731.61952907813,
+            "to": 208180.3344135311,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 23,
+          "validateMs": 0,
+          "applyMs": 13,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 68,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349859527
+        },
+        {
+          "label": "simulation:195966.86447482387->196482.41898671284",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 195966.86447482387,
+            "to": 196482.41898671284,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 28.000000000003638,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 64,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349857046
+        },
+        {
+          "label": "simulation:187940.9034917343->188370.90063463015",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 187940.9034917343,
+            "to": 188370.90063463015,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 4,
+          "validateMs": 0,
+          "applyMs": 25,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 62,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 86,
+          "recordedAtMs": 1792349855322
+        },
+        {
+          "label": "simulation:213593.5066544754->214021.58951835075",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 213593.5066544754,
+            "to": 214021.58951835075,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 3,
+          "validateMs": 0,
+          "applyMs": 23.000000000003638,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 58.99999999999636,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 84,
+          "recordedAtMs": 1792349860896
+        },
+        {
+          "label": "simulation:245266.9520373217->245701.00461360696",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 245266.9520373217,
+            "to": 245701.00461360696,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 19.999999999992724,
+          "validateMs": 0,
+          "applyMs": 13,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 57,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 86,
+          "recordedAtMs": 1792349868687
+        },
+        {
+          "label": "simulation:246156.6774749022->246586.377389031",
+          "profiled": true,
+          "profileContext": {
+            "kind": "simulation-slice",
+            "from": 246156.6774749022,
+            "to": 246586.377389031,
+            "speed": 300,
+            "order": "sweep",
+            "aggregate": false,
+            "eventsBudget": null
+          },
+          "phaseBreakdown": [],
+          "phaseTotals": [],
+          "scopeSize": 22,
+          "fullSnapshot": false,
+          "fullSnapshotFallback": false,
+          "fallbackReason": null,
+          "rollbackStorage": "legacy-scoped",
+          "journalRecords": 0,
+          "snapshotMs": 10,
+          "validateMs": 0,
+          "applyMs": 12,
+          "postCommitCriticalMs": 0,
+          "postCommitNonCriticalMs": 0,
+          "postCommitCriticalTasks": [
+            {
+              "key": null,
+              "owner": "fleet-thread-replay",
+              "priority": 0,
+              "durationMs": 0,
+              "ok": true,
+              "irreversible": false
+            }
+          ],
+          "postCommitNonCriticalTasks": [],
+          "writeAudit": null,
+          "error": null,
+          "rollbackFailures": [],
+          "rollbackMs": 0,
+          "totalMs": 54,
+          "committed": true,
+          "stage": "committed",
+          "rowRoots": [
+            "mobility",
+            "finance",
+            "treasury"
+          ],
+          "rollbackFrozenPaths": [],
+          "stagedScope": true,
+          "staged": true,
+          "stagedSteps": 83,
+          "recordedAtMs": 1792349868976
+        }
+      ],
+      "kernel": {
+        "version": "3.0.0",
+        "frames": 2248,
+        "slices": 199,
+        "chunks": 2337,
+        "hours": 24,
+        "days": 1,
+        "conflicts": 0,
+        "cancels": 0,
+        "maxChunkMs": 172.00000000000182,
+        "lastChunkMs": 2,
+        "longTasks": 19,
+        "hardTasks": 1,
+        "droppedRealSeconds": 0,
+        "backlogClamps": 0,
+        "maxCreateMs": 1,
+        "lastCreateMs": 0,
+        "maxFinishMs": 1.000000000007276,
+        "lastFinishMs": 0,
+        "maxCycleMs": 699,
+        "lastCycleMs": 699,
+        "maxMaintenanceMs": 120,
+        "lastMaintenanceMs": 3,
+        "maxRenderMs": 47,
+        "lastRenderMs": 1,
+        "lastFrame": {
+          "createMs": 0,
+          "chunkMs": 0,
+          "finishMs": 0,
+          "maintenanceMs": 3,
+          "renderMs": 0,
+          "totalMs": 4
+        },
+        "maxFrame": {
+          "createMs": 0,
+          "chunkMs": 172.00000000000182,
+          "finishMs": 0,
+          "maintenanceMs": 0,
+          "renderMs": 0,
+          "totalMs": 172.00000000000182
+        },
+        "cooldownFrames": 22,
+        "deferredRuns": 57,
+        "lastError": "",
+        "fatalError": null,
+        "lastBoundary": "hour:72",
+        "lastSliceSeconds": 121.80351286332007,
+        "lastMaintenanceHour": 61,
+        "lastCancelReason": "",
+        "lastCommitReason": "committed",
+        "lastWorkStage": "finish",
+        "governor": "GREEN",
+        "avgChunkMs": 0.7666666666666667,
+        "avgWorkMs": 0.575,
+        "manualFailures": 0,
+        "manualThrottleYields": 1,
+        "lastAdvanceFailure": null,
+        "lastProgressSim": 259200,
+        "lastProgressAt": 40405,
+        "activeFrameBudgetMs": 7.01875,
+        "frameCadencePressure": 0.029,
+        "lastFrameIntervalMs": 13,
+        "aggregateSlices": 0,
+        "aggregateWindows": 0,
+        "aggregateSubSlices": 0,
+        "lastAggregateHours": 0,
+        "aggregateFallbacks": 0,
+        "jobCleanups": 199,
+        "cleanupErrors": 0,
+        "simSeconds": 259200,
+        "speed": 0,
+        "backlog": 0,
+        "jobActive": false,
+        "jobReadyToFinish": false,
+        "jobSlice": 0,
+        "jobSpeed": 0,
+        "hidden": false,
+        "manualAdvance": null,
+        "pacing": {
+          "version": "3.0.0",
+          "lastReal": 40403,
+          "backlog": 0,
+          "hidden": false,
+          "lastRender": 40333,
+          "droppedRealSeconds": 0,
+          "backlogClamps": 0,
+          "stallGaps": 0,
+          "config": {
+            "maxRealDelta": 3,
+            "maxBacklogNormal": 12,
+            "maxBacklogFast": 96,
+            "frameBudgetMs": 4,
+            "manualFrameBudgetMs": 10,
+            "renderEveryNormalMs": 260,
+            "renderEveryFastMs": 650
+          }
+        },
+        "config": {
+          "allowedSpeeds": [
+            0,
+            30,
+            120,
+            300
+          ],
+          "fallbackSpeed": 30,
+          "quantumRealSeconds": 1,
+          "maxRealDelta": 3,
+          "maxBacklogNormal": 12,
+          "maxBacklogFast": 96,
+          "frameBudgetMs": 4,
+          "manualFrameBudgetMs": 10,
+          "adaptiveFrameBudgetMinMs": 1.5,
+          "chunkItems": 32,
+          "manualChunkItems": 64,
+          "renderEveryNormalMs": 260,
+          "renderEveryFastMs": 650,
+          "minRealSliceSeconds": 1,
+          "maintenanceEveryHours": 12,
+          "manualBatchSeconds": 3600,
+          "manualMinBatchSeconds": 300,
+          "manualRetryLimit": 3,
+          "longTaskWarnMs": 28,
+          "hardTaskMs": 120,
+          "hardTaskLimit": 3,
+          "conflictLimit": 3,
+          "cooldownAfterMs": 24,
+          "manualAggregateMaxSeconds": 86400
+        },
+        "runtime": {
+          "version": "1.0.0",
+          "ticks": 2248,
+          "wakes": 4,
+          "cancelledWakes": 4,
+          "errors": 0,
+          "longTicks": 8,
+          "maxTickMs": 172.00000000000182,
+          "lastTickMs": 4,
+          "lastDelayMs": 250,
+          "pending": true,
+          "running": true,
+          "inTick": false,
+          "intervals": {
+            "manual": 8,
+            "live": 16,
+            "deferred": 50,
+            "paused": 250,
+            "hidden": 1000
+          }
+        }
+      },
+      "revenues": {
+        "air": 190965588738.73593,
+        "sea": 368084304.3900428,
+        "road": 12387050.55900619,
+        "power": 15520.004848407776,
+        "bank": 46135.53580099061,
+        "mobility": 63664.94999999999,
+        "insurance": 4241.294147517148,
+        "realestate": 12273.972602739726,
+        "telecom": 7253.69,
+        "dealership": 155429.04938766448,
+        "hospitality": 14550
+      },
+      "alerts": [
+        "\u062a\u0645 \u062d\u0641\u0638 \u0627\u0644\u0644\u0639\u0628\u0629.",
+        "\u062c\u064f\u062f\u0648\u0644\u062a 10000 \u0634\u0627\u062d\u0646\u0629 \u0630\u0631\u064a\u064b\u0627 \u0639\u0644\u0649 209 \u0645\u0633\u0627\u0631 \u0623\u0633\u0637\u0648\u0644 \u0644\u0634\u0631\u0643\u0629 QA Decision road\u061b \u0623\u064f\u0646\u0634\u0626 208 \u0645\u0633\u0627\u0631\u064b\u0627 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
+        "\u0623\u064f\u0646\u0634\u0626 \u0645\u0633\u0627\u0631 \u0628\u0631\u064a \u0641\u0639\u0644\u064a \u0645\u0646 QA Operating road \u0625\u0644\u0649 QA Road AUH \u0628\u0637\u0648\u0644 974 \u0643\u0645.",
+        "\u0648\u064f\u0632\u0639\u062a 10000 \u0633\u0641\u064a\u0646\u0629 \u0630\u0631\u064a\u064b\u0627 \u0639\u0644\u0649 286 \u0645\u0633\u0627\u0631\u064b\u0627 \u0627\u0644\u0628\u062d\u0631\u064a\u0629 \u0645\u0634\u062a\u0631\u0643\u064b\u0627\u061b 572 \u063a\u0627\u062f\u0631\u062a \u06489428 \u0645\u062c\u062f\u0648\u0644\u0629 \u0628\u0641\u062a\u062d\u0627\u062a \u0632\u0645\u0646\u064a\u0629\u060c \u0648\u0623\u064f\u0646\u0634\u0626 286 \u0645\u0633\u0627\u0631 \u062c\u062f\u064a\u062f \u0641\u0642\u0637.",
+        "\u0648\u064f\u0632\u0639\u062a 20000 \u0637\u0627\u0626\u0631\u0629 \u0630\u0631\u064a\u064b\u0627 \u0639\u0644\u0649 7 \u0645\u0633\u0627\u0631\u064b\u0627 \u0627\u0644\u062c\u0648\u064a\u0629 \u0645\u0634\u062a\u0631\u0643\u064b\u0627\u061b 837 \u063a\u0627\u062f\u0631\u062a \u064819163 \u0645\u062c\u062f\u0648\u0644\u0629 \u0628\u0641\u062a\u062d\u0627\u062a \u0632\u0645\u0646\u064a\u0629\u060c \u0648\u0623\u064f\u0646\u0634\u0626 6 \u0645\u0633\u0627\u0631 \u062c\u062f\u064a\u062f \u0641\u0642\u0637."
+      ],
+      "incidents": []
+    }
+  ],
+  "measured_executable_source_commit": "7575ec845e3b0b996b6b5de5c61ec0272e2ad20f",
+  "subsequent_change": "runtime-required.json inventory addition only; measured application/worker implementation unchanged"
+}

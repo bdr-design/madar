@@ -2,6 +2,7 @@
   "format": "gh-runtime-required-v1",
   "saveSchemaVersion": "3.0.0",
   "files": [
+    "THIRD_PARTY_NOTICES.txt",
     "advanced-core.js",
     "air-sea-network-core.js",
     "air-sea-network-worker.js",

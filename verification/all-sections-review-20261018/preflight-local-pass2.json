@@ -1,0 +1,209 @@
+[
+  {
+    "argv": [
+      "node",
+      "tests/build409-compressed-persistence.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 2.02,
+    "log": "098-build409-compressed-persistence.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build383-save-encoding.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "099-build383-save-encoding.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "100-fleet-business-boundary.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build334-procurement-pressure.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.26,
+    "log": "101-build334-procurement-pressure.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build334-simulation-time-contract.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "102-build334-simulation-time-contract.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build372-store-maintenance-stages.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.72,
+    "log": "103-build372-store-maintenance-stages.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build385-bank-credit-accounting.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.41,
+    "log": "104-build385-bank-credit-accounting.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build363-energy-health-contract.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "105-build363-energy-health-contract.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build400-telecom-peer-index.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 1.32,
+    "log": "106-build400-telecom-peer-index.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build401-mobility-batching-and-indexes.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.67,
+    "log": "107-build401-mobility-batching-and-indexes.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build402-company-daily-indexes.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "108-build402-company-daily-indexes.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build403-legacy-runtime-migration-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 6.76,
+    "log": "109-build403-legacy-runtime-migration-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build404-worker-close-read-models.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.57,
+    "log": "110-build404-worker-close-read-models.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build405-worker-close-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 6.88,
+    "log": "111-build405-worker-close-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build374-daily-worker-integration.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 1.38,
+    "log": "112-build374-daily-worker-integration.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build334-calendar-journey-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 20.16,
+    "log": "113-build334-calendar-journey-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/phone-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 86.55,
+    "log": "114-phone-layout-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build360-cold-archive.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "115-build360-cold-archive.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build358-fleet-chunk-manifest.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 5.08,
+    "log": "116-build358-fleet-chunk-manifest.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build358-native-chunked-save.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 4.33,
+    "log": "117-build358-native-chunked-save.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build372-native-migration-chunk-adoption.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "118-build372-native-migration-chunk-adoption.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/fleet-save-slicing.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.42,
+    "log": "119-fleet-save-slicing.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/fleet-validation-reuse-browser.cjs"
+    ],
+    "exit_code": 1,
+    "seconds": 2.07,
+    "log": "120-fleet-validation-reuse-browser.log"
+  }
+]

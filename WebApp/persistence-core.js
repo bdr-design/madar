@@ -289,21 +289,24 @@
       wire=packed.bytes;encoding=packed.encoding;workerMs=Number(packed.workerMs)||0;
     }
     const result={bytes:rawBytes,wireBytes:wire.byteLength,encoding,workerMs};
-    if(typeof globalThis.fetch!=='function'||globalThis.location?.protocol!=='gh:'){await uploadChunkMessage(id,wire,{encoding,rawBytes});return result;}
+    if(typeof globalThis.fetch!=='function'||globalThis.location?.protocol!=='gh:'){await uploadChunkMessage(id,wire,{encoding,rawBytes,kind});return result;}
     const headers=encoding==='identity'?undefined:{'X-GH-Chunk-Encoding':encoding,'X-GH-Chunk-Raw-Bytes':String(rawBytes)};
     await globalThis.fetch(`gh://app/save-chunk/${encodeURIComponent(id)}`,{method:'POST',body:wire,headers,cache:'no-store'}).then(async response=>{
-      if(response.status===404||response.status===405)return uploadChunkMessage(id,wire,{encoding,rawBytes});
+      if(response.status===404||response.status===405)return uploadChunkMessage(id,wire,{encoding,rawBytes,kind});
       let detail={};try{detail=await response.json();}catch{}
       if(!response.ok||detail.ok!==true||detail.id!==id){const error=new Error(detail.message||`native-chunk-http-${response.status}`);error.code='CHUNK_NACK';throw error;}
-    },error=>{if(error?.code==='CHUNK_NACK')throw error;return uploadChunkMessage(id,wire,{encoding,rawBytes});});
+    },error=>{if(error?.code==='CHUNK_NACK')throw error;return uploadChunkMessage(id,wire,{encoding,rawBytes,kind});});
     return result;
   }
-  async function uploadChunkMessage(id,bytes,{encoding='identity',rawBytes=bytes.byteLength}={}){
+  async function uploadChunkMessage(id,bytes,{encoding='identity',rawBytes=bytes.byteLength,kind=null}={}){
     const bridge=bridgeFor('commitSave');if(!bridge)throw new Error('native-chunk-bridge-unavailable');
     // Keep the legacy bridge byte-identical, with bounded fleet-chunk encoding away from the UI thread.
     // Compact fleet overlay pages can be smaller than the old 256 KiB worker threshold while still being emitted in
     // bulk at day close; keep those conversions off the presentation thread too.
-    const base64=bytes.byteLength>=32768&&bytes.byteLength<=4194304&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER==='function'?await globalThis.GH_SAVE_ENCODING_PROVIDER(bytes):stateCodec().bytesToBase64(bytes);
+    // Stored compression can shrink a fleet container below the old 32 KiB threshold.
+    // Its bridge fallback stays on the existing worker even when the compressed output is tiny.
+    if(kind==='lane-container'&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER!=='function')throw new Error('save-encoding-worker-unavailable');
+    const base64=(kind==='lane-container'||bytes.byteLength>=32768)&&bytes.byteLength<=4194304&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER==='function'?await globalThis.GH_SAVE_ENCODING_PROVIDER(bytes):stateCodec().bytesToBase64(bytes);
     return new Promise((resolve,reject)=>{
       const requestId=`storeSaveChunk-${Date.now()}-${++chunkSequence}`,timer=setTimeout(()=>{chunkPending.delete(requestId);const error=new Error('native-chunk-ack-timeout');error.code='ACK_TIMEOUT';reject(error);},CHUNK_ACK_TIMEOUT_MS);
       chunkPending.set(requestId,{id,resolve,reject,timer});

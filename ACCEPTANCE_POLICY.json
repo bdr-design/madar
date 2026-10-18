@@ -3,6 +3,14 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build334-security-contract.cjs"
+    ],
+    [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
       "tests/build497-route-preview-reuse.cjs"
     ],
     [
@@ -363,10 +371,6 @@
     ],
     [
       "node",
-      "tests/build334-security-contract.cjs"
-    ],
-    [
-      "node",
       "tests/business-options-browser.cjs"
     ],
     [
@@ -400,10 +404,6 @@
     [
       "node",
       "tests/build334-procurement-pressure.cjs"
-    ],
-    [
-      "python3",
-      "tests/acceptance-policy.py"
     ],
     [
       "node",

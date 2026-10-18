@@ -1,0 +1,884 @@
+[
+  {
+    "argv": [
+      "node",
+      "tests/build334-security-contract.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "001-build334-security-contract.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.36,
+    "log": "002-acceptance-policy.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build497-route-preview-reuse.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "003-build497-route-preview-reuse.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 6.15,
+    "log": "004-build492-manual-slot-slices-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build493-backup-export-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 8.27,
+    "log": "005-build493-backup-export-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build494-export-worker-protocol.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "006-build494-export-worker-protocol.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build495-large-reset-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 5.61,
+    "log": "007-build495-large-reset-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build496-world-query-reset.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "008-build496-world-query-reset.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build489-stored-lane-containers.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.13,
+    "log": "009-build489-stored-lane-containers.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build490-container-compression.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.82,
+    "log": "010-build490-container-compression.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build491-stored-containers-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 8.21,
+    "log": "011-build491-stored-containers-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build488-route-preview-payload.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "012-build488-route-preview-payload.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build485-cold-validation-query.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "013-build485-cold-validation-query.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build484-operating-vault-bootstrap-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 7.75,
+    "log": "014-build484-operating-vault-bootstrap-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build486-route-card-pages.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "015-build486-route-card-pages.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build487-route-pages-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 18.9,
+    "log": "016-build487-route-pages-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build463-ui-summary-projection.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "017-build463-ui-summary-projection.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build464-summary-projection-boundary.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "018-build464-summary-projection-boundary.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build465-directory-ranking-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "019-build465-directory-ranking-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build466-directory-round-robin.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "020-build466-directory-round-robin.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build467-directory-country-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "021-build467-directory-country-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build468-summary-projection-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 5.4,
+    "log": "022-build468-summary-projection-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build469-app-notice-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.27,
+    "log": "023-build469-app-notice-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build470-composite-notice-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "024-build470-composite-notice-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build471-company-notice-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "025-build471-company-notice-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build472-all-company-operating-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 46.75,
+    "log": "026-build472-all-company-operating-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build473-purchase-notice-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16,
+    "log": "027-build473-purchase-notice-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build474-event-trace-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.41,
+    "log": "028-build474-event-trace-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build475-replay-row-ranges.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "029-build475-replay-row-ranges.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build476-staged-worker-replay.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.27,
+    "log": "030-build476-staged-worker-replay.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build477-bank-read-sync-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "031-build477-bank-read-sync-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build478-directory-scope-stream.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.22,
+    "log": "032-build478-directory-scope-stream.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build479-facility-scope-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.27,
+    "log": "033-build479-facility-scope-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build480-journal-reserve-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "034-build480-journal-reserve-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build481-diagnostic-fleet-proof.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "035-build481-diagnostic-fleet-proof.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build482-worker-route-conflicts.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.51,
+    "log": "036-build482-worker-route-conflicts.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build483-large-panel-worker-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 21.11,
+    "log": "037-build483-large-panel-worker-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build457-canvas-idle-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "038-build457-canvas-idle-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build458-stable-ui-writes.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "039-build458-stable-ui-writes.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build459-navigation-scroll-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "040-build459-navigation-scroll-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build460-render-idle-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 37.78,
+    "log": "041-build460-render-idle-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build461-market-render-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "042-build461-market-render-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build462-market-summary-refresh.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "043-build462-market-summary-refresh.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build447-hr-facility-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "044-build447-hr-facility-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build448-labor-tab-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "045-build448-labor-tab-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build449-asset-capacity-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.22,
+    "log": "046-build449-asset-capacity-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build450-other-section-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "047-build450-other-section-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build451-hr-notice-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "048-build451-hr-notice-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build452-section-review-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 11.47,
+    "log": "049-build452-section-review-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build453-section-projections.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.17,
+    "log": "050-build453-section-projections.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build454-facility-pages.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.26,
+    "log": "051-build454-facility-pages.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build455-cii-preview-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.17,
+    "log": "052-build455-cii-preview-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build456-list-build-budget.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "053-build456-list-build-budget.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build442-fleet-review-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.31,
+    "log": "054-build442-fleet-review-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16,
+    "log": "055-build443-company-review-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build444-document-pages.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 4.12,
+    "log": "056-build444-document-pages.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build445-document-pages-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 16.1,
+    "log": "057-build445-document-pages-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build446-payroll-unused-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "058-build446-payroll-unused-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build439-summary-single-request.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "059-build439-summary-single-request.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build440-document-collection-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.46,
+    "log": "060-build440-document-collection-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build441-bank-migration-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "061-build441-bank-migration-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build436-save-work-removal.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "062-build436-save-work-removal.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build437-adoption-patch-lineage.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "063-build437-adoption-patch-lineage.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build438-day-scratch-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16,
+    "log": "064-build438-day-scratch-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build431-decision-notices.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "065-build431-decision-notices.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build432-ready-fleet-validation.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "066-build432-ready-fleet-validation.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build434-service-panel-fleet-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "067-build434-service-panel-fleet-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build435-conditional-prestage.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "068-build435-conditional-prestage.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build433-request-decisions-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 26.13,
+    "log": "069-build433-request-decisions-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build430-legacy-fleet-pages.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "070-build430-legacy-fleet-pages.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build425-validation-dependencies.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 1.32,
+    "log": "071-build425-validation-dependencies.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build428-worker-value-collection.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.62,
+    "log": "072-build428-worker-value-collection.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build426-governor-pressure.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "073-build426-governor-pressure.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/governor-overrun-signal.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "074-governor-overrun-signal.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build427-day-profile-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.62,
+    "log": "075-build427-day-profile-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build424-dense-fleet-pages.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.87,
+    "log": "076-build424-dense-fleet-pages.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build429-worker-value-collection-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 1.27,
+    "log": "077-build429-worker-value-collection-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build423-worker-sync-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "078-build423-worker-sync-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build372-asset-purchase-app-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 15.09,
+    "log": "079-build372-asset-purchase-app-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build422-conference-content-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.83,
+    "log": "080-build422-conference-content-layout-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build419-document-drawer-work-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 7.1,
+    "log": "081-build419-document-drawer-work-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build420-conference-durable-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 11.92,
+    "log": "082-build420-conference-durable-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build421-conference-recovery-contract.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.26,
+    "log": "083-build421-conference-recovery-contract.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build416-canonical-preparation.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "084-build416-canonical-preparation.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build417-document-amendment-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.26,
+    "log": "085-build417-document-amendment-work.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build418-command-phase-trace-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 7.35,
+    "log": "086-build418-command-phase-trace-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build412-live-validation-predicates.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.47,
+    "log": "087-build412-live-validation-predicates.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build413-fleet-value-chunks.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.67,
+    "log": "088-build413-fleet-value-chunks.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build414-command-preparation.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.62,
+    "log": "089-build414-command-preparation.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build415-route-publication-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.3,
+    "log": "090-build415-route-publication-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build410-fleet-save-row-patches.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.82,
+    "log": "091-build410-fleet-save-row-patches.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build411-command-row-patch-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 22.48,
+    "log": "092-build411-command-row-patch-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/business-options-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 12.92,
+    "log": "093-business-options-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build406-save-chunk-transport.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.21,
+    "log": "094-build406-save-chunk-transport.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build407-diagnostic-lifecycle.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06,
+    "log": "095-build407-diagnostic-lifecycle.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build408-diagnostic-map-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 2.17,
+    "log": "096-build408-diagnostic-map-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build358-map-controls-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.97,
+    "log": "097-build358-map-controls-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build409-compressed-persistence.cjs"
+    ],
+    "exit_code": 1,
+    "seconds": 1.62,
+    "log": "098-build409-compressed-persistence.log"
+  }
+]

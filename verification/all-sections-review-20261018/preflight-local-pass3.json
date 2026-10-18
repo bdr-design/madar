@@ -1,0 +1,101 @@
+[
+  {
+    "argv": [
+      "node",
+      "tests/fleet-validation-reuse-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 5.54,
+    "log": "120-fleet-validation-reuse-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/save-checksum-worker-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 1.02,
+    "log": "121-save-checksum-worker-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/save-pipeline-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 1.74,
+    "log": "122-save-pipeline-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/native-save-worker-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 1.95,
+    "log": "123-native-save-worker-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build359-save-policy-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 65.02,
+    "log": "124-build359-save-policy-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build380-construction-acceleration-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 8.19,
+    "log": "125-build380-construction-acceleration-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build389-differential-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 6.75,
+    "log": "126-build389-differential-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 20.5,
+    "log": "127-build394-hospitality-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build397-management-flow-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 4.14,
+    "log": "128-build397-management-flow-layout-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build398-asset-market-metrics-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.78,
+    "log": "129-build398-asset-market-metrics-layout-browser.log"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build399-bank-prudential-summary-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.82,
+    "log": "130-build399-bank-prudential-summary-layout-browser.log"
+  }
+]

@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "6e0bac96379215aedeea7976e8e9cf58e29cdd9ac7d1b7508ccc44abc2d32ad1",
+  "source_tree_sha256": "caaf2d147b82ebe102676a01a6185cc60f97a37fa6283c302de17250c37cdb2d",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -62,13 +62,14 @@
     "request_decisions": "TARGETED_PASS; unused service fleet queries and live alert transactions removed; ready evidence synchronous; conditional prestage on actual worker waits; ready/cold/NACK/restore paths on Chromium and WebKit. Desktop ACK and physical-device targets remain unapproved.",
     "cleanup_review": "TARGETED_PASS; all 16 pending runtime diffs reviewed, six files refined; unused aggregate hash, per-row allocation and obsolete setup removed; exact adoption chain and complete lane-evidence guards enforced",
     "game_scan": "TARGETED_PASS; shared summary request, historical-store reference release, branch-scoped document reads, one-pass payable projection and linear legacy branch migration; exact value/time proof guards",
-    "all_sections_review": "CURRENT_TARGETED_PASS; 389-view/3904-control inventory; 1,000,000 routed fleet assets, 3,000 Mobility cars and actual positive daily revenue for all 11 companies; native device unverified",
+    "all_sections_review": "TARGETED_DESKTOP_PASS; 524-525 visited views and 5085-5086 enumerated controls in the three owner landscape viewports; actual 1000000 operating fleet plus 3000 Mobility vehicles; all 11 companies earn; every action/input combination not executed; full CI and physical device pending",
     "large_panel_worker_queries": "CURRENT_TARGETED_PASS; no main fleet health/route-conflict scan in actual 1,000,000-asset panel test; exact stale proof refusal; Chromium/WebKit at 4,400 rows",
     "staged_fleet_replay": "CURRENT_TARGETED_PASS; bounded row/value replay and one upfront journal reservation; byte/revision/static parity and partial rollback; both global 20ms targets unproven",
     "cold_save_worker_readiness": "TARGETED_CHROMIUM_WEBKIT_PASS; cold save primes the existing worker in bounded slices and waits only for replica priming; ACK and compressed bootstrap exercised",
     "route_card_pages": "TARGETED_CHROMIUM_WEBKIT_PASS; four HTML cards, unchanged ranked first-80 set, all page controls and search reachable; page changes issue no new worker query",
     "bank_rejection_metadata": "TARGETED_PASS; preflight uses a small readonly projection; rejected projected-risk operations preserve state; successful draw and fee effects preserved",
-    "local_387_scripts": "PASS; isolated per-script local checks; real-estate mock normalized to the owner state contract; full 518-gate CI remains pending"
+    "local_387_scripts": "HISTORICAL_LOCAL_PASS on its recorded earlier source; current 527-gate acceptance must run independently",
+    "stored_container_snapshots": "TARGETED_CHROMIUM_WEBKIT_PASS; exact stored compression/legacy restore, manual slots, portable file, native NACK/retry, destructive reset ACK and old-world release; tiny-container bridge encoding on the existing worker; not a zero-lag or sub-20ms certificate"
   },
   "latest_direct_source_ci": {
     "run_id": 36956423617,
@@ -104,7 +105,7 @@
     "mode": "direct_git_tracked_branch",
     "branch": "claude/madar-ventora-handover-3.0.0-stg723",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "6e0bac96379215aedeea7976e8e9cf58e29cdd9ac7d1b7508ccc44abc2d32ad1",
+    "source_tree_sha256": "caaf2d147b82ebe102676a01a6185cc60f97a37fa6283c302de17250c37cdb2d",
     "working_tree_clean": false,
     "note": "Unpublished local fixes relative to 2ad7e16: bounded packed fleet lane storage, static validation dependencies, value-aware worker evidence, day formula memo, worker value collection, governor deadline-overrun signal, unused service-panel fleet query removal, durable decision notices and synchronous ready validation reuse, and conditional durable preparation only during actual worker waits (ordinary and composite commands). Targeted desktop checks only; physical-device and full-source acceptance are pending. Latest cleanup reviews all 16 pending runtime files, removes duplicate packed-page hashing and per-row temporary allocations, preserves old-save readers, and refuses mismatched patch adoption or incomplete lane hashes. Latest game scan parses 132 runtime scripts and refines only app summary/document consumers and legacy bank branch migration; 22 related checks and 10 detected mutations, no new device/full-command timing claim. Latest section review removes repeated HR facility/vehicle work, bounds labor/facility/task/loan cards, uses current worker aggregates for capacity and CII previews, and defers and time-slices the existing fleet-list index. Read-only desktop and targeted integrity evidence; no physical-iPhone or full-command ACK guarantee. Rendering review removes no-op Canvas paints and stable HUD writes, skips hidden/detached navigation geometry, bounds catalog cards and patches market summary fields without rebuilding forms. 24 related scripts passed; cold worker CPU contention and the global 20ms target remain pending. The owner subsequently authorized an exhaustive section audit followed by full gates, push and IPA delivery.",
     "news_work": {

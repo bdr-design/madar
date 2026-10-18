@@ -3,11 +3,15 @@ const assert=require('node:assert/strict'),crypto=require('node:crypto'),path=re
 const C=require('../WebApp/save-chunk-codec.js'),e=scenario(),s=e.s,state=e.state,TX=s.GH_TRANSACTION_CORE,S=s.GH_FLEET_STORE;
 for(const name of ['migration-core','state-codec-core','persistence-core','fleet-save-validation-core','fleet-query-core'])e.load(name);
 s.GH_FLEET_VALIDATION_PROVIDER=(target,params)=>s.GH_FLEET_QUERY.run('saveValidation',{fleet:target.fleet,simSeconds:Number(target.simSeconds)||0},s.GH_FLEET_DATA,params);
-const P=s.GH_PERSISTENCE,codec=s.GH_STATE_CODEC,results=[],vault={chunks:new Map(),saves:[],requests:[],generation:0},yieldToFrame=()=>new Promise(r=>setTimeout(r,0));let encodeCalls=0,route='bridge',corrupt=false,refuse=false;
+const P=s.GH_PERSISTENCE,codec=s.GH_STATE_CODEC,results=[],vault={chunks:new Map(),saves:[],requests:[],generation:0},yieldToFrame=()=>new Promise(r=>setTimeout(r,0));let encodeCalls=0,base64Calls=0,route='bridge',corrupt=false,refuse=false;
 const realWorker=require('./helpers/save-checksum-node-worker.cjs').install(process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..')),LocalBytes=vm.runInContext('Uint8Array',s),nodeView=bytes=>bytes?new Uint8Array(bytes.buffer,bytes.byteOffset,bytes.byteLength):null,localResult=result=>({...result,bytes:new LocalBytes(result.bytes.buffer,result.bytes.byteOffset,result.bytes.byteLength)});
-s.GH_SAVE_CHUNK_ENCODING_PROVIDER=async(bytes,stride,options)=>{encodeCalls++;return realWorker.encodeChunk(nodeView(bytes),stride,options);};
+s.GH_SAVE_CHUNK_ENCODING_PROVIDER=async(bytes,stride,options)=>{encodeCalls++;return realWorker.encodeChunk(nodeView(bytes),stride,options).then(localResult);};
 s.GH_SAVE_CHECKSUM_PROVIDER=(bytes,transform,length)=>realWorker.checksum(nodeView(bytes),transform,length).then(localResult);
+s.GH_SAVE_ENCODING_PROVIDER=bytes=>{base64Calls++;return realWorker.base64(nodeView(bytes));};
 s.GH_SAVE_CHECKSUM_THREAD={createSession(options){const inner=realWorker.createSession({...options,submit:realWorker.checksum});return {take:(bytes,next,transform,length,nextTransform,nextLength)=>inner.take(nodeView(bytes),nodeView(next),transform,length,nextTransform,nextLength).then(localResult),close:inner.close,stats:inner.stats};}};
+// Keep exercising the legacy wire format independently of stored-container compression.
+// New-format binary/fallback coverage follows the legacy corruption and NACK cases below.
+s.GH_STATE_CODEC={...codec,serializeChunkedSteps(target,options){return codec.serializeChunkedSteps(target,{...options,externalEncoding:false});}};
 const sha=text=>crypto.createHash('sha256').update(text).digest('hex');
 const deliver=(name,detail)=>setTimeout(()=>s.dispatchEvent(new s.CustomEvent(name,{detail})),0);
 function store(id,wire,encoding,rawBytes){
@@ -47,7 +51,16 @@ async function durable(){const previous=state.saveRevision;state.saveRevision++;
  change(89);const beforeRefuse=vault.saves.length;refuse=true;await assert.rejects(durable(),/injected-chunk-refusal/);assert.equal(vault.saves.length,beforeRefuse);refuse=false;await durable();exact();results.push({case:'native NACK preserves prior save; exact retry',ok:true});
  change(91);const beforeStage=vault.saves.length,staging=P.prestageDurableChunks(state,{yieldToFrame});assert(staging);assert((await staging.settled).ok);assert.equal(vault.saves.length,beforeStage);const uploadCount=vault.requests.length;await durable();assert.equal(vault.requests.length,uploadCount,'durable commit must reuse already staged original IDs');await staging.release();exact();results.push({case:'prestage waits for validation; no duplicate upload',ok:true});
  const beforeUnchanged=vault.requests.length;await ordinary();assert.equal(vault.requests.length,beforeUnchanged);assert.equal(JSON.stringify({cash:state.cash,finance:state.finance,treasury:state.treasury,companyFinance:state.companyFinance}),money,'transport never changes financial state');
- const metric=P.telemetry().timings.samples.find(x=>x.kind==='chunk-upload'&&x.compressedChunks>0);assert(metric&&metric.wireBytes<metric.bytes);assert.equal(P.telemetry().pending,0);assert.equal(P.telemetry().recoveryRequired,false);assert.equal(P.isLocked(),false);
+ const legacyMetric=P.telemetry().timings.samples.find(x=>x.kind==='chunk-upload'&&x.compressedChunks>0);assert(legacyMetric&&legacyMetric.wireBytes<legacyMetric.bytes);
+ s.GH_STATE_CODEC=codec;
+ for(const [i,value]of ['binary','404','network-error'].entries()){
+  chooseRoute(value);change(93+i);vault.requests=[];const beforeBase64=base64Calls;await durable();exact();const tree=JSON.parse(vault.saves.at(-1));
+  assert(value==='binary'?base64Calls===beforeBase64:base64Calls>beforeBase64,'binary uploads avoid unused encoding; both fallbacks use the worker');
+  assert.equal(tree.fleet.rows.lanes.version,2,'sliced saves must also exercise the actual stored-container format');assert(tree.fleet.rows.lanes.containers.some(c=>c.encoding==='gh-lz4-block-v1'),'a real worker must compress the stored bytes');assert(vault.requests.length>0);results.push({case:'stored-container '+value,ok:true});
+ }
+ chooseRoute('binary');change(97);const storedHead=vault.saves.at(-1),storedCount=vault.saves.length;refuse=true;await assert.rejects(durable(),/injected-chunk-refusal/);assert.equal(vault.saves.length,storedCount);assert.equal(vault.saves.at(-1),storedHead);refuse=false;await durable();exact();results.push({case:'stored-container native NACK and exact retry',ok:true});
+ assert.equal(JSON.stringify({cash:state.cash,finance:state.finance,treasury:state.treasury,companyFinance:state.companyFinance}),money,'stored containers never change financial state');
+ const metric=legacyMetric;assert(metric&&metric.wireBytes<metric.bytes);assert.equal(P.telemetry().pending,0);assert.equal(P.telemetry().recoveryRequired,false);assert.equal(P.isLocked(),false);
  assert(realWorker.stats().chunkEncodes>0);assert.equal(realWorker.stats().pending,0);assert.equal(realWorker.stats().activeSessions,0);assert.equal(realWorker.stats().activeChannels,0);
  console.log(JSON.stringify({suite:'build409-compressed-persistence',ok:true,results,unchangedUploads:0,financeUnchanged:true,realWorker:true,workerPending:0,workerSessions:0}));
 })().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>realWorker.terminate());
