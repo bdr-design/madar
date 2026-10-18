@@ -47,6 +47,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 expected_preflight=[
     ['node', 'tests/build334-security-contract.cjs'],
     ['python3', 'tests/acceptance-policy.py'],
+    ['node', 'tests/build498-native-save-export-contract.cjs'],
     ['node', 'tests/build497-route-preview-reuse.cjs'],
     ['node', 'tests/build492-manual-slot-slices-browser.cjs'],
     ['node', 'tests/build493-backup-export-browser.cjs'],
@@ -205,6 +206,10 @@ for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
             native_start=text.index('      - name: '+early_native);native_end=text.index('\n      - name:',native_start+1)
             assert native_start<start,'compile and exercise changed Swift/vault code before the long browser suite'
             assert '\n        if:' not in text[native_start:native_end] and 'continue-on-error' not in text[native_start:native_end],'early native gates remain mandatory'
+    export_start=text.index('      - name: Run native save export download checks')
+    export_end=text.index('\n      - name:',export_start+1);export_step=text[export_start:export_end]
+    assert export_start<start and '--native-export-only' in export_step,'exercise native Blob streaming and its exact receipt before the long suite'
+    assert '\n        if:' not in export_step and 'continue-on-error' not in export_step
     worker=text.index('      - name: Run native save-worker and pipeline checks')
     worker_end=text.index('\n      - name:',worker+1);worker_step=text[worker:worker_end]
     assert worker<build and 'save-worker-smoke.swift' in worker_step and 'native-save-worker.json' in worker_step
@@ -218,7 +223,7 @@ for name in ['build350-unsigned-ipa.yml','build362-ipa-only.yml']:
 assert 'workflow_call:' in (root/'.github/workflows/build362-unsigned-ipa.yml').read_text()
 release=(root/'.github/workflows/ventora-release-ipa.yml').read_text()
 assert 'cd "$RELEASE_SOURCE_DIR"' in release and 'rm -rf WebApp' not in release,'preserve the source accepted by the full suite'
-from publish_ci_receipt import valid_artifact_url,verify_native_worker,NATIVE_SAVE_WORKER_CASES
+from publish_ci_receipt import valid_artifact_url,verify_native_worker,NATIVE_SAVE_WORKER_CASES,verify_native_export,NATIVE_EXPORT_CASES
 assert NATIVE_SAVE_WORKER_CASES==9
 native_good={'nativeGatePassed':True,'realWKWebView':True,'workerRequestObserved':True,'origin':'gh://app','passed':9,'total':9,'failed':0,'sourceSha256':{name:hashlib.sha256((root/'WebApp'/name).read_bytes()).hexdigest() for name in ['index.html','fleet-store-core.js','state-codec-core.js','save-chunk-codec.js','save-checksum-thread.js','save-checksum-worker.js']},'probeSha256':hashlib.sha256((root/'tests/native/save-worker-probe.js').read_bytes()).hexdigest()}
 assert verify_native_worker(root,native_good)=={'passed':9,'total':9,'origin':'gh://app'}
@@ -235,6 +240,22 @@ with tempfile.TemporaryDirectory(prefix='madar-native-receipt-') as tmp:
     assert native_cli(native_good).returncode==0,'same validator must work before CI needs publication credentials'
     bad=copy.deepcopy(native_good);bad.update(passed=8,total=8)
     assert native_cli(bad).returncode!=0,'an older eight-case probe must fail before the full suite'
+assert NATIVE_EXPORT_CASES==8
+export_good={'realWKWebView':True,'origin':'gh://app','workerBlobExact':True,'passed':8,'total':8,'failed':0,'sourceSha256':{name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in ['iOS/GlobalHoldings/SaveExportDownloadOwner.swift','iOS/GlobalHoldings/GameViewController.swift','tests/native/save-export-download-smoke.swift']}}
+assert verify_native_export(root,export_good)['worker_blob_exact'] is True
+for change in [lambda v:v.update(passed=7,total=7),lambda v:v.update(failed=1),lambda v:v.update(workerBlobExact=False),lambda v:v.update(origin='http://localhost'),lambda v:v['sourceSha256'].__setitem__('iOS/GlobalHoldings/SaveExportDownloadOwner.swift','other-bytes')]:
+    bad=copy.deepcopy(export_good);change(bad)
+    try:verify_native_export(root,bad)
+    except ValueError:pass
+    else:raise AssertionError('Invalid native export proof was accepted')
+with tempfile.TemporaryDirectory(prefix='madar-export-receipt-') as tmp:
+    base=Path(tmp)
+    for name in ['iOS','tests']:(base/name).symlink_to(root/name,target_is_directory=True)
+    (base/'.ci-output').mkdir();file=base/'.ci-output/native-save-export.json';file.write_text(json.dumps(export_good))
+    cli=['python3',str(root/'tools/publish_ci_receipt.py'),'--source',str(base),'--native-export-only']
+    assert subprocess.run(cli,capture_output=True,text=True).returncode==0
+    bad=copy.deepcopy(export_good);bad['workerBlobExact']=False;file.write_text(json.dumps(bad))
+    assert subprocess.run(cli,capture_output=True,text=True).returncode!=0
 assert valid_artifact_url('https://github.com/bdr-design/madar/actions/runs/123/artifacts/456','bdr-design/madar',123)
 for url in ['http://github.com/bdr-design/madar/actions/runs/123/artifacts/456','https://github.com/other/repo/actions/runs/123/artifacts/456','https://github.com/bdr-design/madar/actions/runs/124/artifacts/456','https://github.com.evil.test/bdr-design/madar/actions/runs/123/artifacts/456','https://github.com/bdr-design/madar/actions/runs/123/artifacts/456?token=x']:
     assert not valid_artifact_url(url,'bdr-design/madar',123),'artifact links must belong to this exact repository/run'

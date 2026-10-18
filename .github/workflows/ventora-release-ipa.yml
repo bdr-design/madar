@@ -49,6 +49,7 @@ jobs:
           mkdir -p "$TEST_DIR"
           cp "$SOURCE_DIR/tests/native/save-export-download-smoke.swift" "$TEST_DIR/main.swift"
           xcrun swiftc -parse "$SOURCE_DIR"/iOS/GlobalHoldings/*.swift
+          xcrun --sdk iphoneos swiftc -swift-version 5 -typecheck -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios17.0 "$SOURCE_DIR"/iOS/GlobalHoldings/*.swift 2>&1 | tee "$GITHUB_WORKSPACE/.ci-output/native-ios-typecheck.log"
           xcrun swiftc -framework AppKit -framework WebKit "$SOURCE_DIR/iOS/GlobalHoldings/SaveExportDownloadOwner.swift" "$TEST_DIR/main.swift" -o "$TEST_DIR/native-export" 2>&1 | tee "$GITHUB_WORKSPACE/.ci-output/native-save-export-compile.log"
           cd "$TEST_DIR"
           status=0

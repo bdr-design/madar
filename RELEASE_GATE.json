@@ -17,7 +17,7 @@
     "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
     "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
     "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
-    "Current all-sections candidate: 527 mandatory gates / 130 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
+    "Current all-sections candidate: 528 mandatory gates / 131 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -69,7 +69,8 @@
     "route_card_pages": "TARGETED_CHROMIUM_WEBKIT_PASS; four HTML cards, unchanged ranked first-80 set, all page controls and search reachable; page changes issue no new worker query",
     "bank_rejection_metadata": "TARGETED_PASS; preflight uses a small readonly projection; rejected projected-risk operations preserve state; successful draw and fee effects preserved",
     "local_387_scripts": "HISTORICAL_LOCAL_PASS on its recorded earlier source; current 527-gate acceptance must run independently",
-    "stored_container_snapshots": "TARGETED_CHROMIUM_WEBKIT_PASS; exact stored compression/legacy restore, manual slots, portable file, native NACK/retry, destructive reset ACK and old-world release; tiny-container bridge encoding on the existing worker; not a zero-lag or sub-20ms certificate"
+    "stored_container_snapshots": "TARGETED_CHROMIUM_WEBKIT_PASS; exact stored compression/legacy restore, manual slots, portable file, native NACK/retry, destructive reset ACK and old-world release; tiny-container bridge encoding on the existing worker; not a zero-lag or sub-20ms certificate",
+    "native_export_download": "TARGETED_NATIVE_WK_PASS_8_OF_8; trusted main-frame Blob download, worker Blob exact file, cancel/retry/URL lease cleanup; physical iPhone and 241MB native IO pending"
   },
   "latest_direct_source_ci": {
     "run_id": 36956423617,

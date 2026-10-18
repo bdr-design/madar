@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 527,
+  "minimum_acceptance_gates": 528,
   "preflight_commands": [
     [
       "node",
@@ -8,6 +8,10 @@
     [
       "python3",
       "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
+      "tests/build498-native-save-export-contract.cjs"
     ],
     [
       "node",
@@ -2630,6 +2634,10 @@
     [
       "node",
       "tests/build497-route-preview-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build498-native-save-export-contract.cjs"
     ]
   ]
 }
