@@ -11,9 +11,25 @@ def valid_artifact_url(value:str,repository:str,run_id:int)->bool:
     prefix=f'/{repository}/actions/runs/{run_id}/artifacts/'
     return parsed.scheme=='https' and parsed.netloc=='github.com' and parsed.path.startswith(prefix) and parsed.path[len(prefix):].isdigit() and not parsed.query and not parsed.fragment
 
+NATIVE_SAVE_WORKER_CASES=9
+
+def verify_native_worker(root:Path,native:dict)->dict:
+    count=NATIVE_SAVE_WORKER_CASES
+    if native.get('nativeGatePassed') is not True or native.get('realWKWebView') is not True or native.get('workerRequestObserved') is not True or native.get('origin')!='gh://app' or native.get('passed')!=count or native.get('total')!=count or native.get('failed')!=0:
+        raise ValueError('Native save-worker gate missing, incomplete or failed')
+    files=['index.html','fleet-store-core.js','state-codec-core.js','save-chunk-codec.js','save-checksum-thread.js','save-checksum-worker.js']
+    hashes=native.get('sourceSha256')
+    if not isinstance(hashes,dict) or set(hashes)!=set(files):raise ValueError('Native worker provenance file set mismatch')
+    for name,digest in hashes.items():
+        if hashlib.sha256((root/'WebApp'/name).read_bytes()).hexdigest()!=digest:raise ValueError('Native worker tested other bytes')
+    if native.get('probeSha256')!=hashlib.sha256((root/'tests/native/save-worker-probe.js').read_bytes()).hexdigest():raise ValueError('Native worker probe provenance mismatch')
+    return {'passed':count,'total':count,'origin':'gh://app'}
+
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--native-worker-only',action='store_true');args=parser.parse_args()
     root=args.source.resolve();out=root/'.ci-output';out.mkdir(exist_ok=True)
+    if args.native_worker_only:
+        print(json.dumps(verify_native_worker(root,json.loads((out/'native-save-worker.json').read_text()))));return 0
     repository=os.environ['GITHUB_REPOSITORY'];commit=os.environ['GITHUB_SHA'];run_id=int(os.environ['GITHUB_RUN_ID']);attempt=int(os.environ['GITHUB_RUN_ATTEMPT'])
     if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',repository) or not re.fullmatch(r'[0-9a-f]{40}',commit):raise ValueError('Invalid CI repository/commit')
     status=os.environ['CI_JOB_STATUS'];artifact=os.environ.get('CI_IPA_ARTIFACT_URL','');single=os.environ.get('CI_IPA_SINGLE_URL','')
@@ -26,15 +42,12 @@ def main():
                 value=read(name)
                 if value.get('failed')!=0 or value.get('passed')!=value.get('total') or not value.get('total'):raise ValueError('Missing/failed native gate: '+name)
             native=read('native-save-worker.json')
-            if native.get('nativeGatePassed') is not True or native.get('realWKWebView') is not True or native.get('workerRequestObserved') is not True or native.get('origin')!='gh://app' or native.get('passed')!=8 or native.get('total')!=8 or native.get('failed')!=0:raise ValueError('Native save-worker gate missing or failed')
-            for name,digest in native['sourceSha256'].items():
-                if name not in ['index.html','fleet-store-core.js','state-codec-core.js','save-chunk-codec.js','save-checksum-thread.js','save-checksum-worker.js'] or hashlib.sha256((root/'WebApp'/name).read_bytes()).hexdigest()!=digest:raise ValueError('Native worker tested other bytes')
-            if len(native['sourceSha256'])!=6 or native.get('probeSha256')!=hashlib.sha256((root/'tests/native/save-worker-probe.js').read_bytes()).hexdigest():raise ValueError('Native worker provenance mismatch')
+            native_summary=verify_native_worker(root,native)
             ipa=read('test-ipa-verification.json');file=out/'GlobalHoldings_BUILD362_unsigned_TEST.ipa'
             if ipa.get('ipa_created') is not True or ipa.get('arm64_iphoneos') is not True or ipa.get('workflow_commit')!=commit or ipa.get('workflow_run_id')!=run_id or ipa.get('source_tree_sha256')!=accepted['source_tree_sha256'] or ipa.get('ipa_sha256')!=hashlib.sha256(file.read_bytes()).hexdigest() or ipa.get('ipa_bytes')!=file.stat().st_size:raise ValueError('IPA/source/compilation evidence mismatch')
             if not valid_artifact_url(artifact,repository,run_id):raise ValueError('Missing artifact download URL')
             if single and not valid_artifact_url(single,repository,run_id):raise ValueError('Single-file artifact URL belongs to another run')
-            receipt.update(certified=True,source_acceptance=accepted,native_save_worker={'passed':8,'total':8,'origin':'gh://app'},ipa=ipa)
+            receipt.update(certified=True,source_acceptance=accepted,native_save_worker=native_summary,ipa=ipa)
         except Exception as error:receipt['certification_error']=str(error)
     branch=f'ci-receipts/build362/{commit}/{run_id}-{attempt}';receipt['receipt_ref']='refs/heads/'+branch
     with tempfile.TemporaryDirectory(prefix='madar-ci-receipt-') as tmp:

@@ -53,7 +53,8 @@ jobs:
           ./save-worker-smoke "$SOURCE_DIR/WebApp" "$SOURCE_DIR/tests/native/save-worker-probe.js" > "$GITHUB_WORKSPACE/.ci-output/native-save-worker.log" 2>&1 || status=$?
           cat "$GITHUB_WORKSPACE/.ci-output/native-save-worker.log"
           if [[ -f native-save-worker.json ]]; then cp native-save-worker.json "$GITHUB_WORKSPACE/.ci-output/native-save-worker.json"; fi
-          exit "$status"
+          if [[ "$status" -ne 0 ]]; then exit "$status"; fi
+          python3 "$SOURCE_DIR/tools/publish_ci_receipt.py" --source "$SOURCE_DIR" --native-worker-only
 
 
       - name: Install pinned dependencies and browser engines

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Adversarial evidence checks and mandatory-gate wiring for every current IPA entry point."""
-import copy,json,subprocess,sys,tempfile
+import copy,hashlib,json,subprocess,sys,tempfile
 from pathlib import Path
 root=Path(__file__).resolve().parents[1];sys.path.insert(0,str(root/'tools'))
 from acceptance_contract import contract,validate_evidence
@@ -211,6 +211,8 @@ for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
     worker=text.index('      - name: Run native save-worker and pipeline checks')
     worker_end=text.index('\n      - name:',worker+1);worker_step=text[worker:worker_end]
     assert worker<build and 'save-worker-smoke.swift' in worker_step and 'native-save-worker.json' in worker_step
+    assert '--native-worker-only' in worker_step,'verify the receipt native contract before the long browser suite'
+    assert '\n          exit \"$status\"' not in worker_step,'the early receipt check must be reachable after a successful probe'
     assert '\n        if:' not in worker_step and 'continue-on-error' not in worker_step,'native worker gate cannot be optional'
 for name in ['build350-unsigned-ipa.yml','build362-ipa-only.yml']:
     text=(root/'.github/workflows'/name).read_text()
@@ -219,7 +221,23 @@ for name in ['build350-unsigned-ipa.yml','build362-ipa-only.yml']:
 assert 'workflow_call:' in (root/'.github/workflows/build362-unsigned-ipa.yml').read_text()
 release=(root/'.github/workflows/ventora-release-ipa.yml').read_text()
 assert 'cd "$RELEASE_SOURCE_DIR"' in release and 'rm -rf WebApp' not in release,'preserve the source accepted by the full suite'
-from publish_ci_receipt import valid_artifact_url
+from publish_ci_receipt import valid_artifact_url,verify_native_worker,NATIVE_SAVE_WORKER_CASES
+assert NATIVE_SAVE_WORKER_CASES==9
+native_good={'nativeGatePassed':True,'realWKWebView':True,'workerRequestObserved':True,'origin':'gh://app','passed':9,'total':9,'failed':0,'sourceSha256':{name:hashlib.sha256((root/'WebApp'/name).read_bytes()).hexdigest() for name in ['index.html','fleet-store-core.js','state-codec-core.js','save-chunk-codec.js','save-checksum-thread.js','save-checksum-worker.js']},'probeSha256':hashlib.sha256((root/'tests/native/save-worker-probe.js').read_bytes()).hexdigest()}
+assert verify_native_worker(root,native_good)=={'passed':9,'total':9,'origin':'gh://app'}
+for change in [lambda v:v.update(passed=8,total=8),lambda v:v.update(failed=1),lambda v:v.update(origin='http://localhost'),lambda v:v.update(workerRequestObserved=False),lambda v:v['sourceSha256'].__setitem__('save-checksum-worker.js','old-source'),lambda v:v.update(probeSha256='old-probe')]:
+    bad=copy.deepcopy(native_good);change(bad)
+    try:verify_native_worker(root,bad)
+    except ValueError:pass
+    else:raise AssertionError('Invalid native worker receipt was accepted')
+with tempfile.TemporaryDirectory(prefix='madar-native-receipt-') as tmp:
+    base=Path(tmp);(base/'WebApp').symlink_to(root/'WebApp',target_is_directory=True);(base/'tests').symlink_to(root/'tests',target_is_directory=True);(base/'.ci-output').mkdir()
+    def native_cli(value):
+        (base/'.ci-output/native-save-worker.json').write_text(json.dumps(value))
+        return subprocess.run(['python3',str(root/'tools/publish_ci_receipt.py'),'--source',str(base),'--native-worker-only'],capture_output=True,text=True)
+    assert native_cli(native_good).returncode==0,'same validator must work before CI needs publication credentials'
+    bad=copy.deepcopy(native_good);bad.update(passed=8,total=8)
+    assert native_cli(bad).returncode!=0,'an older eight-case probe must fail before the full suite'
 assert valid_artifact_url('https://github.com/bdr-design/madar/actions/runs/123/artifacts/456','bdr-design/madar',123)
 for url in ['http://github.com/bdr-design/madar/actions/runs/123/artifacts/456','https://github.com/other/repo/actions/runs/123/artifacts/456','https://github.com/bdr-design/madar/actions/runs/124/artifacts/456','https://github.com.evil.test/bdr-design/madar/actions/runs/123/artifacts/456','https://github.com/bdr-design/madar/actions/runs/123/artifacts/456?token=x']:
     assert not valid_artifact_url(url,'bdr-design/madar',123),'artifact links must belong to this exact repository/run'
