@@ -49,9 +49,9 @@ final class VentoraSaveExportDownloads: NSObject, WKDownloadDelegate {
         return true
     }
 
-    func adopt(_ download: WKDownload) {
+    func adopt(_ download: WKDownload, from action: WKNavigationAction) {
         if active === download { return }
-        guard !isBusy, let authorizedURL, download.originalRequest.url?.absoluteString == authorizedURL else {
+        guard !isBusy, let authorizedURL, action.request.url?.absoluteString == authorizedURL else {
             download.cancel { _ in }
             return
         }

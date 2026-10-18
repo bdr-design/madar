@@ -25,9 +25,23 @@ def verify_native_worker(root:Path,native:dict)->dict:
     if native.get('probeSha256')!=hashlib.sha256((root/'tests/native/save-worker-probe.js').read_bytes()).hexdigest():raise ValueError('Native worker probe provenance mismatch')
     return {'passed':count,'total':count,'origin':'gh://app'}
 
+NATIVE_EXPORT_CASES=8
+
+def verify_native_export(root:Path,report:dict)->dict:
+    if report.get('realWKWebView') is not True or report.get('origin')!='gh://app' or report.get('workerBlobExact') is not True or report.get('passed')!=NATIVE_EXPORT_CASES or report.get('total')!=NATIVE_EXPORT_CASES or report.get('failed')!=0:
+        raise ValueError('Native streaming export gate missing, incomplete or failed')
+    files=['iOS/GlobalHoldings/SaveExportDownloadOwner.swift','iOS/GlobalHoldings/GameViewController.swift','tests/native/save-export-download-smoke.swift']
+    hashes=report.get('sourceSha256')
+    if not isinstance(hashes,dict) or set(hashes)!=set(files):raise ValueError('Native export provenance file set mismatch')
+    for name,digest in hashes.items():
+        if hashlib.sha256((root/name).read_bytes()).hexdigest()!=digest:raise ValueError('Native export tested other bytes')
+    return {'passed':NATIVE_EXPORT_CASES,'total':NATIVE_EXPORT_CASES,'origin':'gh://app','worker_blob_exact':True}
+
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--native-worker-only',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--native-worker-only',action='store_true');parser.add_argument('--native-export-only',action='store_true');args=parser.parse_args()
     root=args.source.resolve();out=root/'.ci-output';out.mkdir(exist_ok=True)
+    if args.native_export_only:
+        print(json.dumps(verify_native_export(root,json.loads((out/'native-save-export.json').read_text()))));return 0
     if args.native_worker_only:
         print(json.dumps(verify_native_worker(root,json.loads((out/'native-save-worker.json').read_text()))));return 0
     repository=os.environ['GITHUB_REPOSITORY'];commit=os.environ['GITHUB_SHA'];run_id=int(os.environ['GITHUB_RUN_ID']);attempt=int(os.environ['GITHUB_RUN_ATTEMPT'])
@@ -43,11 +57,12 @@ def main():
                 if value.get('failed')!=0 or value.get('passed')!=value.get('total') or not value.get('total'):raise ValueError('Missing/failed native gate: '+name)
             native=read('native-save-worker.json')
             native_summary=verify_native_worker(root,native)
+            export_summary=verify_native_export(root,read('native-save-export.json'))
             ipa=read('test-ipa-verification.json');file=out/'GlobalHoldings_BUILD362_unsigned_TEST.ipa'
             if ipa.get('ipa_created') is not True or ipa.get('arm64_iphoneos') is not True or ipa.get('workflow_commit')!=commit or ipa.get('workflow_run_id')!=run_id or ipa.get('source_tree_sha256')!=accepted['source_tree_sha256'] or ipa.get('ipa_sha256')!=hashlib.sha256(file.read_bytes()).hexdigest() or ipa.get('ipa_bytes')!=file.stat().st_size:raise ValueError('IPA/source/compilation evidence mismatch')
             if not valid_artifact_url(artifact,repository,run_id):raise ValueError('Missing artifact download URL')
             if single and not valid_artifact_url(single,repository,run_id):raise ValueError('Single-file artifact URL belongs to another run')
-            receipt.update(certified=True,source_acceptance=accepted,native_save_worker=native_summary,ipa=ipa)
+            receipt.update(certified=True,source_acceptance=accepted,native_save_worker=native_summary,native_save_export=export_summary,ipa=ipa)
         except Exception as error:receipt['certification_error']=str(error)
     branch=f'ci-receipts/build362/{commit}/{run_id}-{attempt}';receipt['receipt_ref']='refs/heads/'+branch
     with tempfile.TemporaryDirectory(prefix='madar-ci-receipt-') as tmp:

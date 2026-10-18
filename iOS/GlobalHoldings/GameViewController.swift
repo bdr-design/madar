@@ -1115,7 +1115,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         guard webView === self.webView else { download.cancel { _ in }; return }
-        saveExportDownloads.adopt(download)
+        saveExportDownloads.adopt(download, from: navigationAction)
     }
 
     private func showMessage(title: String, message: String, completion: (() -> Void)? = nil) {

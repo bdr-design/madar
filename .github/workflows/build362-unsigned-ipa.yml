@@ -86,7 +86,8 @@ jobs:
           ./native-export "$SOURCE_DIR" > "$GITHUB_WORKSPACE/.ci-output/native-save-export.log" 2>&1 || status=$?
           cat "$GITHUB_WORKSPACE/.ci-output/native-save-export.log"
           if [[ -f native-save-export.json ]]; then cp native-save-export.json "$GITHUB_WORKSPACE/.ci-output/native-save-export.json"; fi
-          exit "$status"
+          if [[ "$status" -ne 0 ]]; then exit "$status"; fi
+          python3 "$SOURCE_DIR/tools/publish_ci_receipt.py" --source "$SOURCE_DIR" --native-export-only
 
       - name: Run native save-worker and pipeline checks
         shell: bash

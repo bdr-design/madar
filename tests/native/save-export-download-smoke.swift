@@ -59,7 +59,7 @@ final class Probe: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     }
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         adoptions += 1
-        owner.adopt(download)
+        owner.adopt(download, from: navigationAction)
         if cancelNext { cancelNext = false; owner.cancelAll(); cancelled = true }
     }
 }

@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "0e8aedad2b7475a4107553f2826e1fe2a4d43fc761f2ec4fc42cfa4e3f92024b",
+  "source_tree_sha256": "fac02a6eab4c39755880dc4c8c35bec73bdf05fb4a30946a74889360f5065d4b",
   "webapp_tree_sha256": "1e46336c494396bdb16dc0d4c70da8223aa3270f972d96ff7bc9ea02ba14fb3c",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
@@ -3995,8 +3995,8 @@
       "sha256": "fb1f39319701ee46535d728017504706109fa8d47a00b4a2a49cf81728f4eca9"
     },
     "iOS/GlobalHoldings/GameViewController.swift": {
-      "bytes": 72530,
-      "sha256": "5c7dc8b4f235be15098bbb61aafeedd63becd177159ab2c3428e6283c3995be1"
+      "bytes": 72554,
+      "sha256": "27939207f1dedc8224e1934c42dcef0721d7b99bd53f63379c1a502676c38078"
     },
     "iOS/GlobalHoldings/GlobalGameStorage.swift": {
       "bytes": 66640,
@@ -4011,8 +4011,8 @@
       "sha256": "633cd8e3539590a75b5038c8bcc2ab45b3d4fb21b2994e8261472b4c33b381e7"
     },
     "iOS/GlobalHoldings/SaveExportDownloadOwner.swift": {
-      "bytes": 6369,
-      "sha256": "4d5bc1e61b5f0e33cca8ff448e6130baf4d2bcbbc2f96931ddc880d9c2a036c8"
+      "bytes": 6392,
+      "sha256": "a3b7ce50beffd7b1ac94a9193b1e667fbbfca7c5f150e249be939a8c0a3b5769"
     },
     "iOS/GlobalHoldings/VentoraPack.swift": {
       "bytes": 3499,
