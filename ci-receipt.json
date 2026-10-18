@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "repository": "bdr-design/madar",
+  "source_commit": "4260335729deea6b2415f6c00444ea1355054290",
+  "run_id": 39145148984,
+  "attempt": 1,
+  "job_status": "cancelled",
+  "run_url": "https://github.com/bdr-design/madar/actions/runs/39145148984",
+  "certified": false,
+  "ipa_artifact_url": "",
+  "ipa_single_file_url": "",
+  "physical_iphone_tested": false,
+  "receipt_ref": "refs/heads/ci-receipts/build362/4260335729deea6b2415f6c00444ea1355054290/39145148984-1",
+  "files": {
+    "native-bridge-tests.log": {
+      "bytes": 36,
+      "sha256": "50dd0bcb2aebe2013e152f5b2b96571654d735dce56ba474420da83422e977d8"
+    },
+    "native-save-worker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-worker.json": {
+      "bytes": 2590,
+      "sha256": "dff06e1a31cae2b2006512a3e36e74bdcf295bb0e778d13b30b6def7fa9d22f0"
+    },
+    "native-save-worker.log": {
+      "bytes": 24,
+      "sha256": "dd525051f0f38965b26a9cc154e88f84063d2a5699f52deaae78c7f045b0fcf3"
+    },
+    "native-storage-tests.log": {
+      "bytes": 4556,
+      "sha256": "39f6f95e9e5280d90736fd8548f1f6e17966d57d14c8dd01757f0448615d0d03"
+    },
+    "native-tests.json": {
+      "bytes": 5920,
+      "sha256": "a808424cf4e458cb454ffda8a3b72bbb9f046da05dee649fc8ae54f5ef889216"
+    },
+    "save-enqueue-measurement.json": {
+      "bytes": 1841,
+      "sha256": "c22b88981b78218a767349a2d07abfab354a7e56433d45c2a879973608201394"
+    },
+    "source-mode.txt": {
+      "bytes": 82,
+      "sha256": "392c1e32dc5d0e644d21be133e46d451f3cb4919bab06523e91bfc4e2f8709b4"
+    },
+    "source-package-integrity.log": {
+      "bytes": 123259,
+      "sha256": "2cb38f0c0620be2934ec2ba571f61195bd224f273e698db7cceda1c96dd74589"
+    },
+    "source-verification.json": {
+      "bytes": 4019,
+      "sha256": "341b5491c160e5e21f45a8397c98486624b451fff819cb89999df3ec8a0ec089"
+    },
+    "update-bridge-tests.json": {
+      "bytes": 2850,
+      "sha256": "13331036e3842d41d2c9c80223b43e03b46aefabb6d619959f6fefabdb625c3c"
+    },
+    "webkit-smoke.json": {
+      "bytes": 1413,
+      "sha256": "1c58cfcceac1e5c6e25750a4cdf7f831d083493474d23b6e3be0fa2ac04b20f6"
+    },
+    "webkit-smoke.log": {
+      "bytes": 13,
+      "sha256": "e8e430dae0cde2e04ebf507648d40f5598df20df446b4fd73a3e1b3213c192dd"
+    }
+  }
+}
