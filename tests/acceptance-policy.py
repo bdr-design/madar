@@ -63,6 +63,7 @@ expected_preflight=[
     ['python3', 'tests/acceptance-policy.py'],
     ['node', 'tests/build498-native-save-export-contract.cjs'],
     ['node', 'tests/build395-hospitality-edge-cases.cjs'],
+    ['node', 'tests/build372-asset-purchase-app-browser.cjs'],
     ['node', 'tests/build497-route-preview-reuse.cjs'],
     ['node', 'tests/build492-manual-slot-slices-browser.cjs'],
     ['node', 'tests/build493-backup-export-browser.cjs'],
@@ -139,7 +140,6 @@ expected_preflight=[
     ['node', 'tests/build424-dense-fleet-pages.cjs'],
     ['node', 'tests/build429-worker-value-collection-browser.cjs'],
     ['node', 'tests/build423-worker-sync-work.cjs'],
-    ['node', 'tests/build372-asset-purchase-app-browser.cjs'],
     ['node', 'tests/build422-conference-content-layout-browser.cjs'],
     ['node', 'tests/build419-document-drawer-work-browser.cjs'],
     ['node', 'tests/build420-conference-durable-browser.cjs'],
@@ -191,6 +191,8 @@ expected_preflight=[
     ['node', 'tests/build397-management-flow-layout-browser.cjs'],
     ['node', 'tests/build398-asset-market-metrics-layout-browser.cjs'],
     ['node', 'tests/build399-bank-prudential-summary-layout-browser.cjs'],
+    ['node', 'tests/build499-purchase-append-views.cjs'],
+    ['node', 'tests/build500-sale-navigation.cjs'],
 ]
 assert declared['preflight_commands']==expected_preflight,'preserve the targeted save, failure-rollback, finance, and layout preflight set'
 with tempfile.TemporaryDirectory(prefix='madar-acceptance-early-stop-') as tmp:

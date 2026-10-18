@@ -17,6 +17,7 @@
   const object=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   const clone=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
   const own=(value,key)=>Object.prototype.hasOwnProperty.call(value,key);
+  const APPEND_ONLY=Object.freeze({returnView:false});
 
   function addCrew(counts,staffing,times){
     if(staffing?.mode!=='automatic-fixed'||staffing.ready!==true)return;
@@ -186,7 +187,7 @@
       return true;
     }
     function addAsset(asset){
-      if(!active)throw new Error('asset-purchase-apply-not-active');if((active.assetsApplied&511)===0)assertFleetLease();if(!active.idsVerified){telemetry.duplicateChecks++;if(fleet.has(state,asset.id))throw new Error(`duplicate-asset-id:${asset.id}`);}const added=fleet.add(state,asset);if(!added)throw new Error(`asset-purchase-add-failed:${asset.id}`);active.assetsApplied++;telemetry.assetsApplied++;
+      if(!active)throw new Error('asset-purchase-apply-not-active');if((active.assetsApplied&511)===0)assertFleetLease();if(!active.idsVerified){telemetry.duplicateChecks++;if(fleet.has(state,asset.id))throw new Error(`duplicate-asset-id:${asset.id}`);}const added=fleet.add(state,asset,APPEND_ONLY);if(!added)throw new Error(`asset-purchase-add-failed:${asset.id}`);active.assetsApplied++;telemetry.assetsApplied++;
       // synchronizeCrew deliberately preserves row-order IEEE additions when a
       // legacy fractional staffing count exists.  Fold each newly appended row
       // into that same running total while row materialization is already

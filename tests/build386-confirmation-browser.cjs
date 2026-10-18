@@ -4,7 +4,12 @@ const results=[];
 (async()=>{for(const engine of [chromium,webkit]){
  const browser=await engine.launch({headless:true}),errors=[],native=[];let env;
  try{
-  env=await bootRenderApp({browser,errors});const {page}=env;page.setDefaultTimeout(15000);
+  env=await bootRenderApp({browser,errors,beforeApp:async page=>page.evaluate(()=>{
+   // Native ACK releases the financial lock before an outer DOM handler has
+   // finished. Await that handler too before the next independent test action.
+   window.__CONFIRM_PENDING_CLICKS__=0;const add=EventTarget.prototype.addEventListener;
+   EventTarget.prototype.addEventListener=function(type,listener,options){if(type==='click'&&typeof listener==='function'){const original=listener;listener=function(...args){const result=original.apply(this,args);if(result&&typeof result.then==='function'){__CONFIRM_PENDING_CLICKS__++;return result.finally(()=>{__CONFIRM_PENDING_CLICKS__--;});}return result;};}return add.call(this,type,listener,options);};
+  })});const {page}=env;page.setDefaultTimeout(15000);
   page.on('dialog',async d=>{native.push(d.message());await d.dismiss();});
   await page.evaluate(async()=>{
    const a=__AUDIT__,s=__GH_STATE__;s.godMoney=true;s.infiniteMoney=true;
@@ -27,7 +32,7 @@ const results=[];
    {name:'return-lease',panel:'assetManage',arg:'N-AIR-CONFIRM-3',selector:'.sell-asset'},
    {name:'sell-all-assets',panel:'assetMarket',arg:'air',selector:'.sell-all-assets[data-company="air"]'}
   ];
-  async function open(c){await page.evaluate(c=>__AUDIT__.openDrawer(c.panel,c.arg),c);const b=page.locator(c.selector).first();assert.equal(await b.count(),1,c.name+' real button');await page.waitForFunction(selector=>{const button=document.querySelector(selector);return button&&!button.disabled;},c.selector);assert.equal(await b.isDisabled(),false,c.name+' available');return b;}
+  async function open(c){await page.evaluate(c=>__AUDIT__.openDrawer(c.panel,c.arg),c);const b=page.locator(c.selector).first();assert.equal(await b.count(),1,c.name+' real button '+JSON.stringify(await page.evaluate(()=>({panel:__AUDIT__.currentPanel(),arg:__AUDIT__.currentArg(),assets:GH_FLEET_DATA.filter(__GH_STATE__,()=>true).map(r=>r.id),pending:__CONFIRM_PENDING_CLICKS__,html:document.querySelector('#drawerBody').innerText.slice(0,350)}))));await page.waitForFunction(selector=>{const button=document.querySelector(selector);return button&&!button.disabled;},c.selector);assert.equal(await b.isDisabled(),false,c.name+' available');return b;}
   async function confirm(c){const b=await open(c);await b.click();await page.locator('.ui-confirm[open]').waitFor();return b;}
   for(const c of cases){
    const before=await snapshot(),button=await confirm(c);
@@ -54,14 +59,14 @@ const results=[];
   await page.evaluate(()=>{window.GH_NATIVE_BUILD=362;window.webkit={messageHandlers:{saveBridge:{postMessage(m){if(m.action==='storeSaveChunk'){setTimeout(()=>dispatchEvent(new CustomEvent('gh-native-chunk-ack',{detail:{requestId:m.requestId,id:m.id,success:true}})),0);return;}if(m.action!=='commitSave')throw new Error('unexpected native action '+m.action);__CONFIRM_TEST__.commits.push({revision:m.saveRevision,id:m.requestId,mode:__CONFIRM_TEST__.mode});const success=__CONFIRM_TEST__.mode==='ok',generation=success?++__CONFIRM_TEST__.generation:0;setTimeout(()=>dispatchEvent(new CustomEvent('gh-native-save-ack',{detail:{requestId:m.requestId,action:m.action,saveRevision:m.saveRevision,resetEpoch:m.resetEpoch,saveSchemaVersion:m.saveSchemaVersion,saveHash:m.saveHash,success,generation,message:success?null:'qa-native-refusal'}})),50);}}}};});
   for(const c of cases.slice(1)){
    const before=await snapshot();await page.evaluate(()=>{__CONFIRM_TEST__.mode='refuse';__CONFIRM_TEST__.commits=[];});const button=await confirm(c);await page.locator('.ui-confirm [data-confirm=accept]').click();
-   await page.waitForFunction(()=>__CONFIRM_TEST__.commits.length>0&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked()).catch(async error=>{throw new Error(c.name+' refusal: '+JSON.stringify(await page.evaluate(()=>({commits:__CONFIRM_TEST__.commits,lock:GH_PERSISTENCE.isLocked(),durable:GH_TRANSACTION_CORE.telemetry().lastDurable,notices:__GH_STATE__.workflowControl?.history?.slice(0,3),alerts:__GH_STATE__.alerts.slice(0,3)})))+' '+error.message);});
+   await page.waitForFunction(()=>__CONFIRM_TEST__.commits.length>0&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked()&&__CONFIRM_PENDING_CLICKS__===0).catch(async error=>{throw new Error(c.name+' refusal: '+JSON.stringify(await page.evaluate(()=>({commits:__CONFIRM_TEST__.commits,lock:GH_PERSISTENCE.isLocked(),durable:GH_TRANSACTION_CORE.telemetry().lastDurable,notices:__GH_STATE__.workflowControl?.history?.slice(0,3),alerts:__GH_STATE__.alerts.slice(0,3)})))+' '+error.message);});
    assert.equal(await page.evaluate(()=>__CONFIRM_TEST__.commits.length),1,c.name+' one rejected commit attempt');assert.deepEqual(await snapshot(),before,c.name+' native refusal restores money, documents and ownership');
    assert.equal(await button.isDisabled(),false,c.name+' button recovers after refusal');assert.equal(await button.getAttribute('aria-busy'),null);
    results.push({engine:engine.name(),action:c.name,nativeRefusalRollback:true,commitAttempts:1});
   }
   for(const c of cases.slice(1)){
    const before=await snapshot();await page.evaluate(()=>{__CONFIRM_TEST__.mode='ok';__CONFIRM_TEST__.commits=[];});const button=await confirm(c);await page.locator('.ui-confirm [data-confirm=accept]').click();await button.dispatchEvent('click').catch(()=>{});
-   await page.waitForFunction(()=>__CONFIRM_TEST__.commits.length>0&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked());
+   await page.waitForFunction(()=>__CONFIRM_TEST__.commits.length>0&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked()&&__CONFIRM_PENDING_CLICKS__===0);
    const after=await snapshot();assert.equal(await page.evaluate(()=>__CONFIRM_TEST__.commits.length),1,c.name+' one commit despite repeated click');assert.equal(after.revision,before.revision+1);
    if(c.name==='launch-ipo'){assert.equal(after.listed,true);assert.ok(after.balances.group>before.balances.group);assert.equal(after.transfers,before.transfers+1);}
    if(c.name==='collect-all-receivables'){assert.equal(after.receivables.length,0);assert.equal(after.cheques,before.cheques+1);assert.equal(after.balances.group-before.balances.group,11500);}

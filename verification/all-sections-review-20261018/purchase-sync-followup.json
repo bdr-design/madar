@@ -1,0 +1,27 @@
+{
+  "baselineCommit": "b1813a3a3d7b80454c7d75b2f7d34ece04349931",
+  "baselineFailedCi": 39163345534,
+  "baselineFailedMaxSyncMs": 26.1,
+  "limitMs": 20,
+  "limitUnchanged": true,
+  "independentMacProfileRun": 39164541557,
+  "fixedIndependentSamples": 3,
+  "originalMacProfileMaxSyncMs": [
+    8.4,
+    1.6,
+    1.7
+  ],
+  "allOriginalProfileAssertionsPassed": true,
+  "profileArtifactId": 12150565341,
+  "profileArtifactSha256": "64608dff543074c5e7ecfdcd672e89610ddc0ef1c7620354c3b6bb06d9c7e06b",
+  "note": "Original code finite traces do not reproduce 26.1ms. They cannot establish its cause or guarantee it is eliminated. Fixed path removes discarded read-only proxy allocations without changing JSON normalization or stored bytes. Current full CI required.",
+  "allocationTest": "tests/build499-purchase-append-views.cjs",
+  "staleUiTest": "tests/build500-sale-navigation.cjs",
+  "staleUiCases": 34,
+  "staleUiRoot": "Worker callback checked assets panel before scheduling a frame; render wrote assets into a subsequently selected assetManage/assetMarket. Recheck at write boundary; closed-panel retry skips index work.",
+  "beforeLogs": [
+    "build499-before-bounded.log",
+    "build500-before.log"
+  ],
+  "physicalIphoneMeasured": false
+}

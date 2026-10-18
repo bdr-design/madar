@@ -761,11 +761,13 @@
     if(store){STORE.replace(store,index,value,{at:timeOf(state)});return viewAt(state,index);}
     const assets=arrayOf(state);invalidateArrayIndex(assets);assets[index]=value;return nested(value);
   }
-  function add(state,asset){
+  // Bulk writers consume only success. Do not allocate an unused read-only
+  // proxy (or a default options object) for every appended row.
+  function add(state,asset,options){
     if(!isObject(asset))throw new TypeError('fleet-add-asset-object-required');
     const store=storeOf(state),value=store?jsonCopy(asset):copyValue(asset);
-    if(store){const index=STORE.add(store,value,{at:timeOf(state)});return viewAt(state,index);}
-    ensure(state);const assets=arrayOf(state);invalidateArrayIndex(assets);assets.push(value);return nested(value);
+    if(store){const index=STORE.add(store,value,{at:timeOf(state)});return options?.returnView===false?true:viewAt(state,index);}
+    ensure(state);const assets=arrayOf(state);invalidateArrayIndex(assets);assets.push(value);return options?.returnView===false?true:nested(value);
   }
   function addMany(state,assets){return (Array.isArray(assets)?assets:[]).map(asset=>add(state,asset));}
   // Order-preserving removal of every target (ids or views); returns the count.

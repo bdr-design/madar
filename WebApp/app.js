@@ -1444,7 +1444,7 @@
     if(fleetListQueryWarm&&fleetListQueryWarmState===target&&fleetListQueryWarmSource===source&&fleetListQueryWarmMembership===String(membership))return fleetListQueryWarm;
     fleetListSearchFacilityNames=new Map(getDynamicFacilities().map(base=>[base.id,base.name||base.city||base.id]));fleetListQueryWarmState=target;fleetListQueryWarmSource=source;fleetListQueryWarmMembership=String(membership);
     const pending=fleetListQueryEngine.ensureAsync(target);fleetListQueryWarm=pending;
-    pending.then(()=>{if(fleetListQueryWarm===pending)fleetListQueryWarm=null;if(state===target){noteFleetListQueryFreshness();if(activeDrawerPanel==='assets')requestAnimationFrame(()=>renderOwnedAssetsInto(false));}}).catch(error=>{if(fleetListQueryWarm===pending)fleetListQueryWarm=null;const message=String(error?.message||error),stale=message.includes('membership-changed')||message.includes('superseded');if(!stale)nonCritical('fleet-list-query-index',error);else if(state===target&&activeDrawerPanel==='assets'&&$('drawer')?.classList.contains('open'))setTimeout(()=>{warmFleetListQueryIndex();renderOwnedAssetsInto(false);},40);});
+    pending.then(()=>{if(fleetListQueryWarm===pending)fleetListQueryWarm=null;if(state===target){noteFleetListQueryFreshness();if(activeDrawerPanel==='assets')requestAnimationFrame(()=>renderOwnedAssetsInto(false));}}).catch(error=>{if(fleetListQueryWarm===pending)fleetListQueryWarm=null;const message=String(error?.message||error),stale=message.includes('membership-changed')||message.includes('superseded');if(!stale)nonCritical('fleet-list-query-index',error);else if(state===target&&activeDrawerPanel==='assets'&&$('drawer')?.classList.contains('open'))setTimeout(()=>{if(state!==target||activeDrawerPanel!=='assets'||!$('drawer')?.classList.contains('open'))return;warmFleetListQueryIndex();renderOwnedAssetsInto(false);},40);});
     return pending;
   }
   let financeReportWorkerResult=null,financeReportSnapshotCache=null,financeReportFallbackCache=null;
@@ -4908,11 +4908,14 @@
 
   const drawerScrollMemory={};
   const drawerOpenBindings=new WeakSet();
+  let drawerNavigationRevision=0;
   function openDrawer(panel, arg, diagnosticEvidence, scrollOptions={}){
     const redirected=window.GH_MADAR?.redirect?.(panel,arg);if(redirected)[panel,arg]=redirected;
     const drawerWasOpen=$('drawer').classList.contains('open');cancelDrawerSearch();window.GH_INTERFACE.navigate(panel,arg);
     const previousPanel=activeDrawerPanel,previousScroll=$('drawerBody').scrollTop,previousArg=activeDrawerArg;
-    const targetScroll=Number.isFinite(scrollOptions?.scrollTop)?scrollOptions.scrollTop:previousPanel===panel&&JSON.stringify(previousArg)===JSON.stringify(arg)?previousScroll:['companyFacilities','network'].includes(panel)?0:(drawerScrollMemory[panel]||0);
+    const sameLocation=previousPanel===panel&&JSON.stringify(previousArg)===JSON.stringify(arg);
+    if(!drawerWasOpen||!sameLocation)drawerNavigationRevision++;
+    const targetScroll=Number.isFinite(scrollOptions?.scrollTop)?scrollOptions.scrollTop:sameLocation?previousScroll:['companyFacilities','network'].includes(panel)?0:(drawerScrollMemory[panel]||0);
     if(panel!=='assets')clearFleetListSearchRequest();else if(previousPanel!=='assets'||!drawerWasOpen)refreshFleetListSnapshotIfStale();
     if(previousPanel)drawerScrollMemory[previousPanel]=previousScroll;
     activeDrawerPanel=panel;activeDrawerArg=arg;
@@ -4930,6 +4933,7 @@
     closeMapPopovers(); $('assetCard').classList.add('hidden');
   }
   function openDrawerContent(eyebrow,title,html){
+    drawerNavigationRevision++;
     cancelDrawerSearch();clearFleetListSearchRequest();
     if(activeDrawerPanel)drawerScrollMemory[activeDrawerPanel]=$('drawerBody').scrollTop;
     activeDrawerPanel='content';activeDrawerArg=null;
@@ -4939,7 +4943,7 @@
     if(drawerUsesBackdrop()) $('backdrop').classList.remove('hidden'); else $('backdrop').classList.add('hidden');
     $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false'); closeMapPopovers(); setActiveNav('map');
   }
-  function closeDrawer(){ window.GH_INTERFACE.resetHistory(); cancelDrawerSearch(); clearFleetListSearchRequest(); delete $('drawer').dataset.panel; $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('backdrop').classList.add('hidden'); setActiveNav('map'); state.lastPanel=null;state.lastPanelArg=null;  }
+  function closeDrawer(){ drawerNavigationRevision++; window.GH_INTERFACE.resetHistory(); cancelDrawerSearch(); clearFleetListSearchRequest(); delete $('drawer').dataset.panel; $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('backdrop').classList.add('hidden'); setActiveNav('map'); state.lastPanel=null;state.lastPanelArg=null;  }
   $('workspaceBack').addEventListener('click',()=>window.GH_INTERFACE.back(openDrawer));
   const ADVANCED_OWNED_PANELS=new Set(['realism','companies','leadershipHub','peopleHub','actionCenter','compliance','facilityManage','companyManage','groupManagement','treasury','procurement','energy','bank','insurance','realestate','research','esg','news','businessWorld','labor','settings','investorMode','updates','diagnostics','controlPlane','conference']);
   function renderPanel(panel,arg,diagnosticEvidence){
@@ -6084,6 +6088,9 @@ ${page}</div>`;
     if(restoreFocus){const input=$('assetSearch');input?.focus();input?.setSelectionRange(input.value.length,input.value.length);}
   }
   function renderOwnedAssetsInto(restoreFocus=false){
+    // A worker answer can schedule this frame while Assets is open, then the
+    // player navigates before it runs. Recheck at the write boundary.
+    if(activeDrawerPanel!=='assets'||$('drawer').getAttribute('aria-hidden')==='true')return;
     $('drawerBody').innerHTML=renderOwnedAssets(ownedFilterType);window.GH_INTERFACE.prepare($('drawerBody'),activeDrawerPanel,activeDrawerArg,advancedContext());bindDrawerActions();installOwnedVirtualizer();
     if(restoreFocus){const input=document.getElementById('ownedAssetSearch');input?.focus();input?.setSelectionRange(input.value.length,input.value.length);}
   }
@@ -6295,7 +6302,7 @@ ${page}</div>`;
   function focusMobilityAsset(id){const vehicle=window.GH_MOBILITY_CORE?.findVehicle?.(state,id);if(!vehicle)return;selectedAssetId=null;selectedMobilityId=null;closeDrawer();openDrawer('mobilityAsset',id);}
   function focusFacility(id){const facility=findFacility(id);if(!facility?.coords)return;selectedAssetId=null;selectedMobilityId=null;selectedFacilityId=facility.id;setMapFilterSelection('facility');renderMap();panMapTo(facility.coords,9);closeDrawer();}
   async function serviceMobilityAsset(id){try{const result=(await runAuthorizedDomainCommand('mobility','service-vehicle',{id},{successNotice:result=>result?(`اكتملت صيانة وشحن ${result.name} وأصبحت الحالة والبطارية 100%.`):''})).result;if(!result)throw new Error('سيارة غير موجودة');updateKpis();openDrawer('mobilityAsset',id);return true;}catch(error){notice(`تعذر صيانة السيارة: ${error.message}`);return false;}}
-  async function sellMobilityAsset(id){const vehicle=window.GH_MOBILITY_CORE?.findVehicle?.(state,id);if(!vehicle)return false;if(!await ask(`بيع ${vehicle.name}؟\nلن يتم البيع أثناء الرحلة.`,'high','sell-mobility-asset'))return false;try{const result=(await runAuthorizedDomainCommand('mobility','sell-vehicle',{id},{successNotice:result=>result?.vehicle?(`تم بيع ${result.vehicle.name} بقيمة ${fmtMoney(result.proceeds)} وإنهاء وظيفة السائق المرتبطة بها.`):''})).result;if(!result?.vehicle)throw new Error('لم يرجع محرك Mobility إثبات البيع');if(selectedMobilityId===id)selectedMobilityId=null;updateKpis();renderMap();openDrawer('assets','mobility');return true;}catch(error){notice(`تعذر بيع السيارة: ${error.message}`);return false;}}
+  async function sellMobilityAsset(id){const navigationRevision=drawerNavigationRevision,vehicle=window.GH_MOBILITY_CORE?.findVehicle?.(state,id);if(!vehicle)return false;if(!await ask(`بيع ${vehicle.name}؟\nلن يتم البيع أثناء الرحلة.`,'high','sell-mobility-asset'))return false;try{const result=(await runAuthorizedDomainCommand('mobility','sell-vehicle',{id},{successNotice:result=>result?.vehicle?(`تم بيع ${result.vehicle.name} بقيمة ${fmtMoney(result.proceeds)} وإنهاء وظيفة السائق المرتبطة بها.`):''})).result;if(!result?.vehicle)throw new Error('لم يرجع محرك Mobility إثبات البيع');if(selectedMobilityId===id)selectedMobilityId=null;updateKpis();renderMap();if(drawerNavigationRevision===navigationRevision)openDrawer('assets','mobility');return true;}catch(error){notice(`تعذر بيع السيارة: ${error.message}`);return false;}}
   function assetPurchaseFacilitySnapshot(target,type,ownerCompanyId,assetClass){
     return compatibleBases(type,ownerCompanyId,target,assetClass).map(base=>({id:String(base.id),name:String(base.name||base.id),ownerCompanyId:facilityOwnerCompanyId(base),capacity:window.GH_FACILITY_CORE.assetCapacity(base),owned:base.owned===true,compatible:window.GH_FACILITY_CORE.isAssetFacilityCompatible({assetMode:type,ownerCompanyId,assetClass},base,target)===true}));
   }
@@ -6490,10 +6497,10 @@ ${page}</div>`;
     return value*(.7+.3*Math.max(0,Math.min(100,Number(a.condition??100)))/100);
   }
   async function disposeAsset(id,{automatic=false,bulk=false}={}){
-    const a=window.GH_FLEET_DATA.get(state,id);if(!a)return false;if(a.salePending&&!automatic)return true;
+    const navigationRevision=drawerNavigationRevision,a=window.GH_FLEET_DATA.get(state,id);if(!a)return false;if(a.salePending&&!automatic)return true;
     const proceeds=Math.max(0,saleEstimate(a)),fee=a.ownership==='lease'?Math.max(0,(Number(a.monthlyLease)||0)*2):0;
     if(!automatic&&!bulk&&!await ask(a.ownership==='lease'?`إنهاء عقد تأجير ${a.name}؟ رسوم الإنهاء ${fmtMoney(fee)}.`:`بيع ${a.name} بالقيمة التقديرية ${fmtMoney(proceeds)}؟ إذا كان متحركًا فسيكمل الرحلة ثم يعود إلى مركز مملوك.`,'high','sell-asset'))return false;
-    try{const current=window.GH_FLEET_DATA.get(state,id);if(!current)throw new Error('الأصل لم يعد موجودًا');const ownerCompanyId=assetOwnerCompanyId(current),payload={id,proceeds,fee,atOwnedCenter:Boolean(findFacility(current.baseFacility)?.owned),buyer:'مشتري أصل معتمد'},result=automatic?dispatchSystemCommand({state},'fleet','dispose',payload,{actor:'system-fleet-auto-disposal'}).result:(await runAuthorizedDomainCommand('fleet','dispose',payload)).result;if(!result)throw new Error('لم يرجع محرك الأسطول نتيجة البيع');if(result.status==='scheduled')pushAlert(`سُجل بيع ${current.name}: يكمل الرحلة الحالية أو يعود من المحطة العامة، ثم ينفذ البيع تلقائيًا في أول مركز مملوك.`);else if(result.status==='returned')pushAlert(`أعيد ${current.name} وأنهي عقد التأجير مقابل ${fmtMoney(result.fee)}.`);else pushAlert(`تم بيع ${current.name} وتحويل ${fmtMoney(result.proceeds)} إلى حساب ${companyFinanceName(ownerCompanyId)}.`);if(result.status!=='scheduled'&&selectedAssetId===id){selectedAssetId=null;$('assetCard').classList.add('hidden');}renderMap();updateKpis();if(!automatic&&!bulk)openDrawer(result.status==='scheduled'?'assetManage':'assets',result.status==='scheduled'?id:ownerCompanyId);return result.status;}catch(error){notice(`تعذر بيع الأصل: ${error.message}`);return false;}
+    try{const current=window.GH_FLEET_DATA.get(state,id);if(!current)throw new Error('الأصل لم يعد موجودًا');const ownerCompanyId=assetOwnerCompanyId(current),payload={id,proceeds,fee,atOwnedCenter:Boolean(findFacility(current.baseFacility)?.owned),buyer:'مشتري أصل معتمد'},result=automatic?dispatchSystemCommand({state},'fleet','dispose',payload,{actor:'system-fleet-auto-disposal'}).result:(await runAuthorizedDomainCommand('fleet','dispose',payload)).result;if(!result)throw new Error('لم يرجع محرك الأسطول نتيجة البيع');if(result.status==='scheduled')pushAlert(`سُجل بيع ${current.name}: يكمل الرحلة الحالية أو يعود من المحطة العامة، ثم ينفذ البيع تلقائيًا في أول مركز مملوك.`);else if(result.status==='returned')pushAlert(`أعيد ${current.name} وأنهي عقد التأجير مقابل ${fmtMoney(result.fee)}.`);else pushAlert(`تم بيع ${current.name} وتحويل ${fmtMoney(result.proceeds)} إلى حساب ${companyFinanceName(ownerCompanyId)}.`);if(result.status!=='scheduled'&&selectedAssetId===id){selectedAssetId=null;$('assetCard').classList.add('hidden');}renderMap();updateKpis();if(!automatic&&!bulk&&drawerNavigationRevision===navigationRevision)openDrawer(result.status==='scheduled'?'assetManage':'assets',result.status==='scheduled'?id:ownerCompanyId);return result.status;}catch(error){notice(`تعذر بيع الأصل: ${error.message}`);return false;}
   }
   function finalizeAssetSale(id,automatic=false){const a=window.GH_FLEET_DATA.get(state,id);if(!a||a.phase==='moving')return false;return disposeAsset(id,{automatic});}
   function requestAssetSale(id,bulk=false){return disposeAsset(id,{bulk});}

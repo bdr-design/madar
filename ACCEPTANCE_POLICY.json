@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 528,
+  "minimum_acceptance_gates": 530,
   "preflight_commands": [
     [
       "node",
@@ -16,6 +16,10 @@
     [
       "node",
       "tests/build395-hospitality-edge-cases.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-app-browser.cjs"
     ],
     [
       "node",
@@ -323,10 +327,6 @@
     ],
     [
       "node",
-      "tests/build372-asset-purchase-app-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build422-conference-content-layout-browser.cjs"
     ],
     [
@@ -528,6 +528,14 @@
     [
       "node",
       "tests/build399-bank-prudential-summary-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build499-purchase-append-views.cjs"
+    ],
+    [
+      "node",
+      "tests/build500-sale-navigation.cjs"
     ]
   ],
   "required_commands": [
@@ -2642,6 +2650,14 @@
     [
       "node",
       "tests/build498-native-save-export-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build499-purchase-append-views.cjs"
+    ],
+    [
+      "node",
+      "tests/build500-sale-navigation.cjs"
     ]
   ]
 }
