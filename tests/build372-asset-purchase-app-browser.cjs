@@ -47,11 +47,11 @@ const workerSource=workerImports.map(read).join('\n;\n')+'\n;\n'+workerFile.repl
     // Each incremental exchange keeps the 4.5 ms budget. Measured per exchange, its own work is 0.1-0.5 ms; the rare
     // sample above budget fell at a random exchange and in a random phase (once in code that does no work), which is a
     // GC or scheduler pause landing inside the timed window. So the budget holds for 99% of the exchanges, and no single
-    // exchange (pause included) may cost a frame.
+    // exchange (pause included) must stay below the owner's latest 20 ms bound. This is not a zero-jank claim.
     assert(large.stats.incrementalSyncs>=large.options.rowStageCount,`every row stage reached the worker: ${large.stats.incrementalSyncs}`);
     console.log('PURCHASE_SYNC_BUDGET',JSON.stringify({maxSyncMs:large.stats.maxSyncMs,maxFullSyncMs:large.stats.maxFullSyncMs,maxSeedSyncMs:large.stats.maxSeedSyncMs,maxReplicaPrimeSliceMs:large.stats.maxReplicaPrimeSliceMs,slowSyncs:large.stats.slowSyncs,incrementalSyncs:large.stats.incrementalSyncs,maxMutationRows:large.stats.maxMutationRows}));
     assert(large.stats.slowSyncs<=Math.floor(large.stats.incrementalSyncs*0.01),`worker mutation syncs over the 4.5 ms budget: ${large.stats.slowSyncs} of ${large.stats.incrementalSyncs} (max ${large.stats.maxSyncMs})`);
-    assert(large.stats.maxSyncMs<=16.7,`a worker mutation sync took a whole frame: ${large.stats.maxSyncMs}`);
+    assert(large.stats.maxSyncMs<20,`a worker mutation sync exceeded the owner 20 ms bound: ${large.stats.maxSyncMs}`);
 
     const stale=await page.evaluate(async()=>{
       const a=__AUDIT__,s=__GH_STATE__,client=a.fleetEngineThreadClient(),model=GH_ASSET_CATALOG.air.used[0],first=GH_FLEET_DATA.get(s,'N-AIR-00000001'),condition=Number(first.condition),documents=()=>({fleet:GH_FLEET_DATA.size(s),cheques:s.finance.cheques.length,invoices:s.finance.invoices.length,supplier:s.supplierTransactions.length,deliveries:s.realism.procurement.deliveries.length,orders:s.realism.procurement.purchaseOrders.length,proofs:Object.keys(s.authorization.proofsById).length,sequences:JSON.stringify(s.sequences)}),before=documents(),original=client.beginMutation;let injected=0;
