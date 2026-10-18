@@ -1,0 +1,5 @@
+page.evaluate: TypeError: Cannot read properties of null (reading 'stats')
+    at eval (eval at evaluate (:291:30), <anonymous>:2:138)
+    at UtilityScript.evaluate (<anonymous>:293:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at /Users/runner/work/madar/madar/tests/build358-fleet-engine-thread-browser.cjs:106:31

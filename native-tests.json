@@ -1,0 +1,254 @@
+{
+  "cases" : [
+    {
+      "name" : "real UTF8 save, hash, A\/B readback",
+      "ok" : true
+    },
+    {
+      "name" : "Save Schema 3 uses the current JSON vault path",
+      "ok" : true
+    },
+    {
+      "name" : "bad hash leaves disk unchanged",
+      "ok" : true
+    },
+    {
+      "name" : "revision mismatch leaves disk unchanged",
+      "ok" : true
+    },
+    {
+      "name" : "epoch mismatch leaves disk unchanged",
+      "ok" : true
+    },
+    {
+      "name" : "empty request id",
+      "ok" : true
+    },
+    {
+      "name" : "oversized request id",
+      "ok" : true
+    },
+    {
+      "name" : "wrong envelope schema",
+      "ok" : true
+    },
+    {
+      "name" : "payload schema must match JSON root",
+      "ok" : true
+    },
+    {
+      "name" : "raw envelope belongs to different JSON",
+      "ok" : true
+    },
+    {
+      "name" : "cross-action envelope rejected by commit owner",
+      "ok" : true
+    },
+    {
+      "name" : "boolean revision rejected",
+      "ok" : true
+    },
+    {
+      "name" : "fractional revision rejected",
+      "ok" : true
+    },
+    {
+      "name" : "malformed JSON rejected",
+      "ok" : true
+    },
+    {
+      "name" : "30 MiB byte limit enforced",
+      "ok" : true
+    },
+    {
+      "name" : "unsupported future save schema",
+      "ok" : true
+    },
+    {
+      "name" : "FIFO saves and main completion queue",
+      "ok" : true
+    },
+    {
+      "name" : "stale revision rejected",
+      "ok" : true
+    },
+    {
+      "name" : "manual save then load older revision with journal",
+      "ok" : true
+    },
+    {
+      "name" : "invalid manual-slot envelope preserves disk",
+      "ok" : true
+    },
+    {
+      "name" : "native pinned rollback survives A\/B rotations",
+      "ok" : true
+    },
+    {
+      "name" : "reset updates both slots, clears manual slots, no resurrection",
+      "ok" : true
+    },
+    {
+      "name" : "pre-reset epoch cannot resurrect",
+      "ok" : true
+    },
+    {
+      "name" : "corrupt newest A\/B slot falls back to verified peer",
+      "ok" : true
+    },
+    {
+      "name" : "slot integer",
+      "ok" : true
+    },
+    {
+      "name" : "slot fraction",
+      "ok" : true
+    },
+    {
+      "name" : "slot bool",
+      "ok" : true
+    },
+    {
+      "name" : "slot NaN",
+      "ok" : true
+    },
+    {
+      "name" : "slot over-safe-int",
+      "ok" : true
+    },
+    {
+      "name" : "legacy integer string",
+      "ok" : true
+    },
+    {
+      "name" : "document URL gh:\/\/app\/index.html",
+      "ok" : true
+    },
+    {
+      "name" : "document URL gh:\/\/app\/index.html?v=334",
+      "ok" : true
+    },
+    {
+      "name" : "document URL https:\/\/app\/index.html",
+      "ok" : true
+    },
+    {
+      "name" : "document URL gh:\/\/other\/index.html",
+      "ok" : true
+    },
+    {
+      "name" : "document URL gh:\/\/user@app\/index.html",
+      "ok" : true
+    },
+    {
+      "name" : "document URL gh:\/\/app:123\/index.html",
+      "ok" : true
+    },
+    {
+      "name" : "document URL file:\/\/\/index.html",
+      "ok" : true
+    },
+    {
+      "name" : "document URL about:blank",
+      "ok" : true
+    },
+    {
+      "name" : "AppliedUpdate preserves exact operationsJSON and no mirror",
+      "ok" : true
+    },
+    {
+      "name" : "chunk store round-trips bytes, compressed and SHA-256 checked",
+      "ok" : true
+    },
+    {
+      "name" : "compressed transport restores the exact original chunk before immutable storage",
+      "ok" : true
+    },
+    {
+      "name" : "corrupt transport is refused before any chunk is written",
+      "ok" : true
+    },
+    {
+      "name" : "binary and bridge transport decode on the real vault queue",
+      "ok" : true
+    },
+    {
+      "name" : "re-uploading the same bytes is accepted; other bytes under the id are refused",
+      "ok" : true
+    },
+    {
+      "name" : "unsafe chunk ids are refused",
+      "ok" : true
+    },
+    {
+      "name" : "a corrupt chunk file is detected on read",
+      "ok" : true
+    },
+    {
+      "name" : "a commit that lists a missing chunk is refused and leaves the disk unchanged",
+      "ok" : true
+    },
+    {
+      "name" : "collection keeps chunks only because a vault file lists them, and removes stale ones",
+      "ok" : true
+    },
+    {
+      "name" : "a chunk only a manual slot lists stays across commits and goes once the slot is cleared",
+      "ok" : true
+    },
+    {
+      "name" : "a commit reports its stage timings once",
+      "ok" : true
+    },
+    {
+      "name" : "a slot file changed on disk is verified again before the next commit",
+      "ok" : true
+    },
+    {
+      "name" : "a commit that lists a missing text chunk is refused; with it on disk it commits and the chunk is kept",
+      "ok" : true
+    },
+    {
+      "name" : "bootstrap of a chunked save installs the boot gate",
+      "ok" : true
+    },
+    {
+      "name" : "payload scan reads what JSONSerialization reads (fixed corpus)",
+      "ok" : true
+    },
+    {
+      "name" : "payload scan refuses what RFC 8259 refuses",
+      "ok" : true
+    },
+    {
+      "name" : "payload scan: deep nesting, lone surrogates and repeated keys",
+      "ok" : true
+    },
+    {
+      "name" : "payload scan reads what JSONSerialization reads (generated saves, cut short)",
+      "ok" : true
+    },
+    {
+      "name" : "the A\/B envelope keeps every payload byte",
+      "ok" : true
+    },
+    {
+      "name" : "bridge check refuses an envelope whose save is not JSON",
+      "ok" : true
+    },
+    {
+      "name" : "a second large commit succeeds and reports its stages",
+      "ok" : true
+    },
+    {
+      "name" : "a large Arabic save commits; text comparison is literal",
+      "ok" : true
+    }
+  ],
+  "device_test" : false,
+  "failed" : 0,
+  "native_foundation_real_file_io" : true,
+  "passed" : 61,
+  "scope" : "Vault compiled unmodified except candidate fixes. Controller pure helpers extracted; no live WKWebView.",
+  "total" : 61
+}
