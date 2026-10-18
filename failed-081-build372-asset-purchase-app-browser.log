@@ -1,0 +1,10 @@
+PURCHASE_SYNC_BUDGET {"maxSyncMs":26.099999999976717,"maxFullSyncMs":0.8000000000465661,"maxSeedSyncMs":0,"maxReplicaPrimeSliceMs":0,"slowSyncs":3,"incrementalSyncs":1434,"maxMutationRows":224}
+AssertionError [ERR_ASSERTION]: a worker mutation sync exceeded the owner 20 ms bound: 26.099999999976717
+    at /Users/runner/work/madar/madar/tests/build372-asset-purchase-app-browser.cjs:54:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
