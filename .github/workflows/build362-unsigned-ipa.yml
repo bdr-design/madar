@@ -72,6 +72,12 @@ jobs:
           print('Build 362 / 3.0.0 / Save Schema 3.0.0; clean direct source; release approval stays closed: PASS')
           PY
 
+      - name: Diagnose the hospitality Node VM host
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 "$SOURCE_DIR/tests/native/diagnose-hospitality-vm.py" "$SOURCE_DIR" "$GITHUB_WORKSPACE/.ci-output"
+
       - name: Run native save export download checks
         shell: bash
         run: |
