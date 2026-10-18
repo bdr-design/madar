@@ -24,8 +24,9 @@ jobs:
           mkdir -p .ci-output
           for proof in 0 1; do
             for sample in 1 2; do
-              GH_RENDER_COMMIT_PROOF="$proof" node tools/diagnose_render_commit.cjs > ".ci-output/render-$proof-$sample.log" 2>&1
-              printf '%s\n' "$?" > ".ci-output/render-$proof-$sample.exit"
+              status=0
+              GH_RENDER_COMMIT_PROOF="$proof" node tools/diagnose_render_commit.cjs > ".ci-output/render-$proof-$sample.log" 2>&1 || status=$?
+              printf '%s\n' "$status" > ".ci-output/render-$proof-$sample.exit"
               tail -n 14 ".ci-output/render-$proof-$sample.log"
             done
           done
