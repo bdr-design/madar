@@ -127,6 +127,7 @@ let renderedActionOrigin='';
   assert.equal((dealerDetail.match(/data-sale="SALE-/g)||[]).length,5,'settlement view renders a bounded list of pending sales');
   assert.equal((dealerDetail.match(/Customer \d+/g)||[]).length<=10,true,'the operation view never renders the full customer population');
   const requests=Array.from({length:5},(_,index)=>({id:`RE-REQ-${index+1}`,tenant:`Tenant ${index+1}`,units:2,projectName:'Office',years:3,rentLevel:1,annualRent:280000,expiresDay:70}));s.GH_REALESTATE_CORE={MAX_OPEN_REQUESTS:5,ensure:()=>({tenantRequests:requests,projects:[],offices:[],sequence:5}),summary:()=>({offices:1,projects:0,underConstruction:0,units:0,occupancy:0,unsoldUnits:0,presold:0,revenue30:0,net30:0,capex30:0,annualRentRoll:0,openRequests:5,internalRentAccounts:0,internalRentReceivable:0})};
+  ctx.state.realEstate=s.GH_REALESTATE_CORE.ensure(ctx.state); // normalized owner state, as the real summary provides
   const realEstateHtml=Advanced.render('realestate',{tab:'overview'},{...ctx,currentArg:{tab:'overview'}});renderedActionOrigin=(realEstateHtml.match(/data-gh-action-origin="([^"]+)"/)||[])[1]||'';assert.equal((realEstateHtml.match(/data-realestate-request-select=/g)||[]).length,5,'real-estate dashboard exposes five explicit request checkboxes');assert.equal((realEstateHtml.match(/data-gh-action="realestate-decide-requests-batch"/g)||[]).length,2,'real-estate dashboard exposes grouped accept and decline actions');assert.match(realEstateHtml,/realestate-decide-request/,'individual signed request actions remain available');
 }
 

@@ -67,7 +67,8 @@
     "staged_fleet_replay": "CURRENT_TARGETED_PASS; bounded row/value replay and one upfront journal reservation; byte/revision/static parity and partial rollback; both global 20ms targets unproven",
     "cold_save_worker_readiness": "TARGETED_CHROMIUM_WEBKIT_PASS; cold save primes the existing worker in bounded slices and waits only for replica priming; ACK and compressed bootstrap exercised",
     "route_card_pages": "TARGETED_CHROMIUM_WEBKIT_PASS; four HTML cards, unchanged ranked first-80 set, all page controls and search reachable; page changes issue no new worker query",
-    "bank_rejection_metadata": "TARGETED_PASS; preflight uses a small readonly projection; rejected projected-risk operations preserve state; successful draw and fee effects preserved"
+    "bank_rejection_metadata": "TARGETED_PASS; preflight uses a small readonly projection; rejected projected-risk operations preserve state; successful draw and fee effects preserved",
+    "local_387_scripts": "PASS; isolated per-script local checks; real-estate mock normalized to the owner state contract; full 518-gate CI remains pending"
   },
   "latest_direct_source_ci": {
     "run_id": 36956423617,

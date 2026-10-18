@@ -1,0 +1,1937 @@
+[
+  {
+    "test": "tests/fleet-business-boundary.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/operating-acquisitions.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build334-r4-proof-archive.cjs",
+    "exit": 0,
+    "seconds": 5.28
+  },
+  {
+    "test": "tests/build334-r4-recovery-integration.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build335-persistence-root-coalescing.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build335-compaction-v2-60day-pressure.cjs",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tests/build335-sea-facility-country-identity.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build336-proof-ledger-compaction-regression.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build336-real-proof-compaction-pressure.cjs",
+    "exit": 0,
+    "seconds": 1.17
+  },
+  {
+    "test": "tests/build336-diagnostics-transient.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build336-hour83-calendar-proof-regression.cjs",
+    "exit": 0,
+    "seconds": 0.32
+  },
+  {
+    "test": "tests/build336-state-byte-attribution-pressure.cjs",
+    "exit": 0,
+    "seconds": 0.32
+  },
+  {
+    "test": "tests/build336-intercompany-ledger-projection.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build337-instrumentation-baseline.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build338-idempotency-save-lag-root.cjs",
+    "exit": 0,
+    "seconds": 1.47
+  },
+  {
+    "test": "tests/build339-architecture-bootstrap.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build339-time-golden.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build339-phase1bb-pacing-separation.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build339-transaction-write-set-audit.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build339-simulation-write-set-contract.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build339-hour-boundary-write-map.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build339-day-boundary-write-map.cjs",
+    "exit": 0,
+    "seconds": 0.77
+  },
+  {
+    "test": "tests/build339-phase1c-adversarial-contract.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build339-phase1c-equivalence-gate.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build339-phase1cb-readiness.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build339-phase1cb-writer-contract-proof.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build339-diagnostic-frame-trace.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build339-accrued-obligation-cash-shortfall.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build340-map-asset-query.cjs",
+    "exit": 0,
+    "seconds": 3.12
+  },
+  {
+    "test": "tests/build340-map-structure-revision.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build340-map-status-cache.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build340-map-presentation.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build340-finance-report.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build340-payroll-settlement-index.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build340-route-planner-cooperative.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build340-route-planner-worker.cjs",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tests/build340-route-center-index.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build340-media-assets.cjs",
+    "exit": 0,
+    "seconds": 0.07
+  },
+  {
+    "test": "tests/build340-air-sea-network-plan.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build340-air-sea-network-worker.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build340-fleet-payroll-summary.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build340-procurement-batch.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build340-fleet-disposal-batch.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build340-finance-transaction-index.cjs",
+    "exit": 0,
+    "seconds": 3.47
+  },
+  {
+    "test": "tests/build340-simulation-asset-engine.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build340-simulation-worker-contract.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build340-simulation-worker-scheduler.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build340-simulation-transaction-worker.cjs",
+    "exit": 0,
+    "seconds": 0.46
+  },
+  {
+    "test": "tests/build340-hotpath-profiler.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-r3-calendar-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-r2-transaction-promotion.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-r2-snapshot-budget.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build334-r2-maintenance-atomic.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-r2-deferred-persistence.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-r2-delivery-lazy-index.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build334-archive-integrity-r2.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build334-transaction-promotion-r2.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-persistence-snapshot-consistency.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-delivery-atomic-reconciliation.cjs",
+    "exit": 0,
+    "seconds": 0.36
+  },
+  {
+    "test": "tests/build334-simulation-slice-atomic.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build334-durable-publication-recovery.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/lint.cjs",
+    "exit": 0,
+    "seconds": 4.34
+  },
+  {
+    "test": "tests/build334-scheduler-liveness.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-bank-energy-operating-costs.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-logistics-staged-contract.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build334-bank-projected-risk.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-bank-signed-income.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-bank-balance-sheet.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-bank-fee-reporting.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-energy-take-or-pay.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-procurement-pressure.cjs",
+    "exit": 0,
+    "seconds": 0.32
+  },
+  {
+    "test": "tests/build334-purchase-delivery-pressure.cjs",
+    "exit": 0,
+    "seconds": 0.46
+  },
+  {
+    "test": "tests/build334-long-session-pressure.cjs",
+    "exit": 0,
+    "seconds": 1.02
+  },
+  {
+    "test": "tests/build360-customer-contract-engine.cjs",
+    "exit": 0,
+    "seconds": 0.97
+  },
+  {
+    "test": "tests/build334-tabs-contract.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-identity-regressions.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/company-platform-regressions.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-company-platform-orphan-contract.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-company-adapters.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-dynamic-company-consumers.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build334-singleton-company-boundaries.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build334-dynamic-finance-company-ids.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-map-identity-registry.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-security-contract.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-xss-logo-security.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build334-document-proof-v3-security.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-signature-pad.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/formation-engine-core.cjs",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tests/conference-capability-core.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-simulation-time-contract.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-600-air-calendar-regression.cjs",
+    "exit": 0,
+    "seconds": 8.19
+  },
+  {
+    "test": "tests/build334-calendar-owner-cadence.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build334-asset-route-hr-contract.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-app-platform-authorization.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-finance-settlement-contract.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-finance-company-security-contract.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-durable-authorization-contract.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/core-regressions.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/fleet-regressions.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/persistence-regressions.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build315-procurement-idempotency-test.js",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/persistence-pressure-and-native-build251-test.js",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build317-finance-depth-test.js",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/review-regressions.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/tax-reload-regressions.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-calendar-safety-contract.cjs",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tests/build334-market-discovery-contract.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-accrual-cash-separation-contract.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-bank-sector-concentration.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-deferred-save-lifecycle.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-durable-postcommit-contract.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-iphone-thermal-contract.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-late-frame-liveness.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-map-pressure-contract.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build334-native-snapshot-queue.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-open-invoice-retention.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build334-presentation-work-contract.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build334-simulation-fault-isolation.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build334-archived-proof-retention-open.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build340-durable-draft-restore.cjs",
+    "exit": 0,
+    "seconds": 0.57
+  },
+  {
+    "test": "tests/build350-state-codec.cjs",
+    "exit": 0,
+    "seconds": 5.93
+  },
+  {
+    "test": "tests/build350-persistence-codec.cjs",
+    "exit": 0,
+    "seconds": 1.92
+  },
+  {
+    "test": "tests/build350-archive-route-diet.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build350-proof-ledger.cjs",
+    "exit": 0,
+    "seconds": 0.52
+  },
+  {
+    "test": "tests/build350-proof-ledger-persistence.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build351-mobility-stepping.cjs",
+    "exit": 0,
+    "seconds": 1.42
+  },
+  {
+    "test": "tests/build353-steady-slice-rollback.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build353-compaction-scope.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build353-persistence-pacing.cjs",
+    "exit": 0,
+    "seconds": 10.14
+  },
+  {
+    "test": "tests/build356-fleet-store.cjs",
+    "exit": 0,
+    "seconds": 7.23
+  },
+  {
+    "test": "tests/build356-fleet-events.cjs",
+    "exit": 0,
+    "seconds": 21.98
+  },
+  {
+    "test": "tests/build355-fleet-access.cjs",
+    "exit": 0,
+    "seconds": 1.02
+  },
+  {
+    "test": "tests/build357-fleet-journal.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build357-fleet-migration.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build357-fleet-list-virtualizer.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build357-route-revision.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build357-fleet-profile-aggregation.cjs",
+    "exit": 0,
+    "seconds": 0.46
+  },
+  {
+    "test": "tests/build358-fleet-save-cap.cjs",
+    "exit": 0,
+    "seconds": 1.22
+  },
+  {
+    "test": "tests/build358-transaction-row-snapshots.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build358-heaviness.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build358-fleet-row-codec-cache.cjs",
+    "exit": 0,
+    "seconds": 12.55
+  },
+  {
+    "test": "tests/build358-validation-classes.cjs",
+    "exit": 0,
+    "seconds": 3.87
+  },
+  {
+    "test": "tests/build358-fleet-chunk-manifest.cjs",
+    "exit": 0,
+    "seconds": 4.84
+  },
+  {
+    "test": "tests/build358-native-chunked-save.cjs",
+    "exit": 0,
+    "seconds": 3.78
+  },
+  {
+    "test": "tests/build358-codec-id-runs.cjs",
+    "exit": 0,
+    "seconds": 0.82
+  },
+  {
+    "test": "tests/build358-purchase-scale.cjs",
+    "exit": 0,
+    "seconds": 1.87
+  },
+  {
+    "test": "tests/build358-fleet-scan.cjs",
+    "exit": 0,
+    "seconds": 9.94
+  },
+  {
+    "test": "tests/build358-route-capacity.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build358-purchase-caps.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build358-fleet-purchase-vat.cjs",
+    "exit": 0,
+    "seconds": 0.27
+  },
+  {
+    "test": "tests/build358-calendar-staged-completion.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build358-staged-full-scope.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build358-delivery-due-slices.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build358-route-quotas.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build358-idempotency-archive.cjs",
+    "exit": 0,
+    "seconds": 6.38
+  },
+  {
+    "test": "tests/build358-schema-sections.cjs",
+    "exit": 0,
+    "seconds": 2.77
+  },
+  {
+    "test": "tests/build358-cold-fleet-receipts.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build358-fuel-hedge.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build358-debt-interest.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build358-energy-market.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build358-bank-market.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build358-stakes.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build358-maintenance.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build358-crews.cjs",
+    "exit": 0,
+    "seconds": 0.27
+  },
+  {
+    "test": "tests/build358-codec-segments.cjs",
+    "exit": 0,
+    "seconds": 0.27
+  },
+  {
+    "test": "tests/build358-asset-realism.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build358-proof-chunks.cjs",
+    "exit": 0,
+    "seconds": 1.17
+  },
+  {
+    "test": "tests/build359-cheque-archived-invoice.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build359-map-view-core.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build359-map-geographic-budget.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build359-map-canvas-layer.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build359-fleet-list-query.cjs",
+    "exit": 0,
+    "seconds": 1.42
+  },
+  {
+    "test": "tests/build359-conference-thermal.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build359-schema-byte-limits.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build359-proof-checkpoints.cjs",
+    "exit": 0,
+    "seconds": 1.57
+  },
+  {
+    "test": "tests/build359-archived-proofs.cjs",
+    "exit": 0,
+    "seconds": 1.97
+  },
+  {
+    "test": "tests/build359-command-slices.cjs",
+    "exit": 0,
+    "seconds": 1.47
+  },
+  {
+    "test": "tests/build359-sim-smoothness.cjs",
+    "exit": 0,
+    "seconds": 0.52
+  },
+  {
+    "test": "tests/build359-management-effects.cjs",
+    "exit": 0,
+    "seconds": 0.51
+  },
+  {
+    "test": "tests/build359-authorization-release.cjs",
+    "exit": 0,
+    "seconds": 1.17
+  },
+  {
+    "test": "tests/build359-archive-seal.cjs",
+    "exit": 0,
+    "seconds": 7.43
+  },
+  {
+    "test": "tests/build360-cold-archive.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build360-bulk-receivables-cheque.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build360-hr-one-click-managers.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build360-market-income-transfers.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build360-customer-ratings-conference.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build360-operational-settlements.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build360-iphone-failure-recovery.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build360-energy-debt-proof-recovery.cjs",
+    "exit": 0,
+    "seconds": 0.46
+  },
+  {
+    "test": "tests/build360-native-runtime-ready.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build359-durable-command-cost.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build359-corridor-index.cjs",
+    "exit": 0,
+    "seconds": 19.3
+  },
+  {
+    "test": "tests/build359-recorder-signal.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build359-sea-cii-plan.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build359-document-seal.cjs",
+    "exit": 0,
+    "seconds": 1.72
+  },
+  {
+    "test": "tests/build359-audit-walk.cjs",
+    "exit": 0,
+    "seconds": 1.52
+  },
+  {
+    "test": "tests/build359-sealed-flows.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build359-container-seal.cjs",
+    "exit": 0,
+    "seconds": 1.02
+  },
+  {
+    "test": "tests/build359-incremental-maintenance.cjs",
+    "exit": 0,
+    "seconds": 0.97
+  },
+  {
+    "test": "tests/build359-route-seal.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build359-compact-records.cjs",
+    "exit": 0,
+    "seconds": 3.37
+  },
+  {
+    "test": "tests/build334-proof-capacity-acceptance-r2.cjs",
+    "exit": 0,
+    "seconds": 0.62
+  },
+  {
+    "test": "tests/build363-company-economics-balance.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build364-realestate-internal-leases.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build362-simulation-runtime.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build362-simulation-lifecycle.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build362-empty-calendar-browser.cjs",
+    "exit": 0,
+    "seconds": 1.67
+  },
+  {
+    "test": "tests/build371-asset-departure-trace.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build371-destination-window.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build371-calendar-cancel-settle-core.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build371-route-holder-scan.cjs",
+    "exit": 0,
+    "seconds": 3.22
+  },
+  {
+    "test": "tests/build372-replica-value-log.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-store-maintenance-stages.cjs",
+    "exit": 0,
+    "seconds": 0.72
+  },
+  {
+    "test": "tests/build372-native-migration-chunk-adoption.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-journal-pool.cjs",
+    "exit": 0,
+    "seconds": 0.87
+  },
+  {
+    "test": "tests/build372-staged-wait.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-insurance-condition-worker.cjs",
+    "exit": 0,
+    "seconds": 0.36
+  },
+  {
+    "test": "tests/build372-fleet-day-slice-parity.cjs",
+    "exit": 0,
+    "seconds": 0.41
+  },
+  {
+    "test": "tests/build372-owner-totals-cache.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-route-tier.cjs",
+    "exit": 0,
+    "seconds": 4.99
+  },
+  {
+    "test": "tests/build372-asset-purchase-apply.cjs",
+    "exit": 0,
+    "seconds": 1.52
+  },
+  {
+    "test": "tests/build372-asset-purchase-intent.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-asset-purchase-order.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build372-asset-purchase-plan.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-depart-projection.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-finance-initial-allocation.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build372-fleet-day-core.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build372-fleet-day-exceptional.cjs",
+    "exit": 0,
+    "seconds": 1.32
+  },
+  {
+    "test": "tests/build372-fleet-day-worker.cjs",
+    "exit": 0,
+    "seconds": 0.42
+  },
+  {
+    "test": "tests/build372-fleet-dispatch-plan.cjs",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tests/build372-fleet-reference-query.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-fleet-sale-plan.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-fleet-ui-summary.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-global-route-candidates.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-interactive-summary-consumers.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-large-fleet-main-thread-policy.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-legacy-migration-single-pass.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build372-legacy-route-plan.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-legacy-route-repair-index.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-manual-departure-plan.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-proof-worker.cjs",
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "test": "tests/build372-route-normalization-plan.cjs",
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "test": "tests/build372-route-reference-proof.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-staffing-reconcile-plan.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-startup-normalization-plan.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build372-startup-staffing-classes.cjs",
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "test": "tests/build372-startup-staffing-worker-apply.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build372-compact-save-validation.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build373-revenue-chain-core.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build374-customer-base-telecom-market.cjs",
+    "exit": 0,
+    "seconds": 0.36
+  },
+  {
+    "test": "tests/build374-dealer-market.cjs",
+    "exit": 0,
+    "seconds": 0.36
+  },
+  {
+    "test": "tests/build378-realestate-off-plan.cjs",
+    "exit": 0,
+    "seconds": 0.41
+  },
+  {
+    "test": "tests/build378-energy-blocks-ppa.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build378-bancassurance.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build378-bank-capital-conservation.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build378-dealer-floor-plan.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build378-telecom-network.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build378-customer-satisfaction.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build375-group-brand-names.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build376-money-guard.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/dealer-ledger-and-stock.cjs",
+    "exit": 0,
+    "seconds": 0.42
+  },
+  {
+    "test": "tests/tax-precision-and-routing.cjs",
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "test": "tests/fleet-save-slicing.cjs",
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "test": "tests/build362-idempotency-byte-budget.cjs",
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "test": "tests/build363-energy-health-contract.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build363-staged-holdings-command.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build363-control-outbox-atomicity.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build363-runtime-diagnostics-contract.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build364-company-overview-summary.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build365-official-news.cjs",
+    "exit": 0,
+    "seconds": 1.62
+  },
+  {
+    "test": "tests/build370-official-news-pagination.cjs",
+    "exit": 0,
+    "seconds": 1.52
+  },
+  {
+    "test": "tests/build368-hr-payroll-parity.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build366-facility-close-hr-contracts.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build366-mobility-dashboard-lightweight.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build366-mobility-no-repeat-scans.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build369-insurance-risk-batch.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build369-stock-lifecycle-integrity.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build369-external-rent-monthly-ledger.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build369-market-reference.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build364-customer-companies-core.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build374-cheque-payable-lifecycle.cjs",
+    "exit": 0,
+    "seconds": 2.83
+  },
+  {
+    "test": "tests/build374-daily-worker-integration.cjs",
+    "exit": 0,
+    "seconds": 1.32
+  },
+  {
+    "test": "tests/build374-critical-timing.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build374-route-capacity.cjs",
+    "exit": 0,
+    "seconds": 1.22
+  },
+  {
+    "test": "tests/build374-save-slice-telemetry.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build375-group-news.cjs",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tests/build376-frame-work-attribution.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build376-cooperative-draft.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build379-financial-posting.cjs",
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "test": "tests/build379-realism-identity.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build379-simulation-recovery.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build379-validation-slices.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build380-construction-acceleration.cjs",
+    "exit": 0,
+    "seconds": 0.41
+  },
+  {
+    "test": "tests/build382-cheque-index.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build382-company-campaigns.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build382-route-validation-cache.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build382-runtime-removal.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build383-navigation-interaction.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build383-save-encoding.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build384-map-company-cap.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build385-bank-credit-accounting.cjs",
+    "exit": 0,
+    "seconds": 0.46
+  },
+  {
+    "test": "tests/build385-bank-installment-backlog.cjs",
+    "exit": 0,
+    "seconds": 0.36
+  },
+  {
+    "test": "tests/build385-dealer-first-stock.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build388-change-tracking.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build389-differential-collections.cjs",
+    "exit": 0,
+    "seconds": 1.47
+  },
+  {
+    "test": "tests/build390-cooperative-snapshot.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build391-hospitality-core.cjs",
+    "exit": 0,
+    "seconds": 0.46
+  },
+  {
+    "test": "tests/build392-hospitality-links.cjs",
+    "exit": 0,
+    "seconds": 0.41
+  },
+  {
+    "test": "tests/build393-hospitality-financial-safety.cjs",
+    "exit": 0,
+    "seconds": 0.51
+  },
+  {
+    "test": "tests/build395-hospitality-edge-cases.cjs",
+    "exit": 0,
+    "seconds": 1.07
+  },
+  {
+    "test": "tests/build396-hospitality-budgets.cjs",
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "test": "tests/build362-durable-prestage.cjs",
+    "exit": 0,
+    "seconds": 2.27
+  },
+  {
+    "test": "tests/build362-save-validation-chunks.cjs",
+    "exit": 0,
+    "seconds": 12.5
+  },
+  {
+    "test": "tests/build362-phase-totals.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build362-hospitality-staffing.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build362-hospitality-ledger-parties.cjs",
+    "exit": 0,
+    "seconds": 0.31
+  },
+  {
+    "test": "tests/build400-telecom-peer-index.cjs",
+    "exit": 0,
+    "seconds": 1.32
+  },
+  {
+    "test": "tests/build401-mobility-batching-and-indexes.cjs",
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "test": "tests/build402-company-daily-indexes.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build404-worker-close-read-models.cjs",
+    "exit": 0,
+    "seconds": 0.57
+  },
+  {
+    "test": "tests/build406-save-chunk-transport.cjs",
+    "exit": 0,
+    "seconds": 0.22
+  },
+  {
+    "test": "tests/build407-diagnostic-lifecycle.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build409-compressed-persistence.cjs",
+    "exit": 0,
+    "seconds": 1.87
+  },
+  {
+    "test": "tests/build410-fleet-save-row-patches.cjs",
+    "exit": 0,
+    "seconds": 0.77
+  },
+  {
+    "test": "tests/build412-live-validation-predicates.cjs",
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "test": "tests/build413-fleet-value-chunks.cjs",
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "test": "tests/build414-command-preparation.cjs",
+    "exit": 0,
+    "seconds": 0.62
+  },
+  {
+    "test": "tests/build416-canonical-preparation.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build417-document-amendment-work.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build421-conference-recovery-contract.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build423-worker-sync-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build424-dense-fleet-pages.cjs",
+    "exit": 0,
+    "seconds": 3.72
+  },
+  {
+    "test": "tests/build425-validation-dependencies.cjs",
+    "exit": 0,
+    "seconds": 1.37
+  },
+  {
+    "test": "tests/build426-governor-pressure.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build427-day-profile-work.cjs",
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "test": "tests/build428-worker-value-collection.cjs",
+    "exit": 0,
+    "seconds": 0.62
+  },
+  {
+    "test": "tests/build430-legacy-fleet-pages.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/governor-overrun-signal.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build431-decision-notices.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build432-ready-fleet-validation.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build434-service-panel-fleet-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build435-conditional-prestage.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build436-save-work-removal.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build437-adoption-patch-lineage.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build438-day-scratch-work.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build439-summary-single-request.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build440-document-collection-work.cjs",
+    "exit": 0,
+    "seconds": 0.46
+  },
+  {
+    "test": "tests/build441-bank-migration-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build442-fleet-review-work.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build443-company-review-work.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build444-document-pages.cjs",
+    "exit": 0,
+    "seconds": 4.28
+  },
+  {
+    "test": "tests/build446-payroll-unused-work.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build447-hr-facility-work.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build448-labor-tab-work.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build449-asset-capacity-work.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build450-other-section-work.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build451-hr-notice-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build453-section-projections.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build454-facility-pages.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build455-cii-preview-work.cjs",
+    "exit": 0,
+    "seconds": 0.17
+  },
+  {
+    "test": "tests/build456-list-build-budget.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build457-canvas-idle-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build458-stable-ui-writes.cjs",
+    "exit": 0,
+    "seconds": 0.22
+  },
+  {
+    "test": "tests/build459-navigation-scroll-work.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build461-market-render-work.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build462-market-summary-refresh.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build463-ui-summary-projection.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build464-summary-projection-boundary.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build465-directory-ranking-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build466-directory-round-robin.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build467-directory-country-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build469-app-notice-work.cjs",
+    "exit": 0,
+    "seconds": 0.21
+  },
+  {
+    "test": "tests/build470-composite-notice-work.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build471-company-notice-work.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build473-purchase-notice-work.cjs",
+    "exit": 0,
+    "seconds": 0.16
+  },
+  {
+    "test": "tests/build474-event-trace-work.cjs",
+    "exit": 0,
+    "seconds": 0.42
+  },
+  {
+    "test": "tests/build475-replay-row-ranges.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build476-staged-worker-replay.cjs",
+    "exit": 0,
+    "seconds": 0.26
+  },
+  {
+    "test": "tests/build477-bank-read-sync-work.cjs",
+    "exit": 0,
+    "seconds": 0.06
+  },
+  {
+    "test": "tests/build478-directory-scope-stream.cjs",
+    "exit": 0,
+    "seconds": 0.22
+  },
+  {
+    "test": "tests/build479-facility-scope-work.cjs",
+    "exit": 0,
+    "seconds": 0.27
+  },
+  {
+    "test": "tests/build480-journal-reserve-work.cjs",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "test": "tests/build481-diagnostic-fleet-proof.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build482-worker-route-conflicts.cjs",
+    "exit": 0,
+    "seconds": 0.52
+  },
+  {
+    "test": "tests/build485-cold-validation-query.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build486-route-card-pages.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "test": "tests/build488-route-preview-payload.cjs",
+    "exit": 0,
+    "seconds": 0.03
+  }
+]
