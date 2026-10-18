@@ -1,0 +1,436 @@
+{
+  "completed": false,
+  "all_tests_passed": false,
+  "runtime_unchanged": true,
+  "gates_unchanged": true,
+  "verification_error": null,
+  "gates_verification_error": null,
+  "acceptance_contract_sha256": "92781177a7c771c901c0c2669f1a3798a7897aa5252780d844323302a2f9c8c4",
+  "runtime_source": {
+    "verified": true,
+    "files": 1007,
+    "source_tree_sha256": "1c9ff0107e024749cd95ac57cf6b5535eabb083ed5c28d64bfb674d091007662",
+    "version": "3.0.0",
+    "build": 362,
+    "save_schema": "3.0.0",
+    "release_approved": false,
+    "blocking_issues": [
+      "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
+      "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
+      "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
+      "Historical desktop measurements from an earlier 600x source: Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+      "A fully moving fleet still needs fresh complete validation after writes. Coalesced validation and chunk-checksum workers have targeted desktop coverage; iPhone profiling of ordinary saves, background saves, startup, manual slots, reset and large text chunks remains unverified for this candidate.",
+      "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
+      "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
+      "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
+      "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
+      "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
+      "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
+      "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
+      "Current all-sections candidate: 530 mandatory gates / 134 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
+    ]
+  },
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/build334-security-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.327,
+      "log": "001-build334-security-contract.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.52,
+      "log": "002-acceptance-policy.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build498-native-save-export-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.105,
+      "log": "003-build498-native-save-export-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build395-hospitality-edge-cases.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.035,
+      "log": "004-build395-hospitality-edge-cases.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-app-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 51.189,
+      "log": "005-build372-asset-purchase-app-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build497-route-preview-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.095,
+      "log": "006-build497-route-preview-reuse.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build492-manual-slot-slices-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.027,
+      "log": "007-build492-manual-slot-slices-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build493-backup-export-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.58,
+      "log": "008-build493-backup-export-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build494-export-worker-protocol.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.569,
+      "log": "009-build494-export-worker-protocol.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build495-large-reset-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.362,
+      "log": "010-build495-large-reset-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build496-world-query-reset.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.115,
+      "log": "011-build496-world-query-reset.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build489-stored-lane-containers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.977,
+      "log": "012-build489-stored-lane-containers.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build490-container-compression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.611,
+      "log": "013-build490-container-compression.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build491-stored-containers-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.427,
+      "log": "014-build491-stored-containers-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build488-route-preview-payload.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.107,
+      "log": "015-build488-route-preview-payload.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build485-cold-validation-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.053,
+      "log": "016-build485-cold-validation-query.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build484-operating-vault-bootstrap-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.684,
+      "log": "017-build484-operating-vault-bootstrap-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build486-route-card-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.096,
+      "log": "018-build486-route-card-pages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build487-route-pages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 44.914,
+      "log": "019-build487-route-pages-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build463-ui-summary-projection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.259,
+      "log": "020-build463-ui-summary-projection.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build464-summary-projection-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.216,
+      "log": "021-build464-summary-projection-boundary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build465-directory-ranking-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.184,
+      "log": "022-build465-directory-ranking-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build466-directory-round-robin.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.739,
+      "log": "023-build466-directory-round-robin.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build467-directory-country-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.215,
+      "log": "024-build467-directory-country-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build468-summary-projection-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.629,
+      "log": "025-build468-summary-projection-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build469-app-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.531,
+      "log": "026-build469-app-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build470-composite-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.52,
+      "log": "027-build470-composite-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build471-company-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.188,
+      "log": "028-build471-company-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build472-all-company-operating-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 108.451,
+      "log": "029-build472-all-company-operating-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build473-purchase-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.482,
+      "log": "030-build473-purchase-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build474-event-trace-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.095,
+      "log": "031-build474-event-trace-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build475-replay-row-ranges.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.205,
+      "log": "032-build475-replay-row-ranges.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build476-staged-worker-replay.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.592,
+      "log": "033-build476-staged-worker-replay.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build477-bank-read-sync-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.153,
+      "log": "034-build477-bank-read-sync-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build478-directory-scope-stream.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.526,
+      "log": "035-build478-directory-scope-stream.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build479-facility-scope-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.649,
+      "log": "036-build479-facility-scope-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build480-journal-reserve-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.199,
+      "log": "037-build480-journal-reserve-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build481-diagnostic-fleet-proof.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.124,
+      "log": "038-build481-diagnostic-fleet-proof.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build482-worker-route-conflicts.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.334,
+      "log": "039-build482-worker-route-conflicts.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build483-large-panel-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 55.885,
+      "log": "040-build483-large-panel-worker-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build457-canvas-idle-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.296,
+      "log": "041-build457-canvas-idle-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build458-stable-ui-writes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.52,
+      "log": "042-build458-stable-ui-writes.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build459-navigation-scroll-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.098,
+      "log": "043-build459-navigation-scroll-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build460-render-idle-browser.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 66.671,
+      "log": "044-build460-render-idle-browser.log"
+    }
+  ],
+  "total": 530,
+  "passed": 43,
+  "ipa_built": false,
+  "device_tested": false,
+  "failed_early": "tests/build460-render-idle-browser.cjs"
+}
