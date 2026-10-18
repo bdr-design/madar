@@ -32,8 +32,12 @@
     // Build 359: after a cycle whose simulation work (render callback aside) reached this, the next cycle runs no
     // simulation work, so two heavy cycles never follow each other; live time accrues as backlog meanwhile. 0 disables.
     cooldownAfterMs:24,
+    // A governor level rises at once and falls only after this much real time without a stage at that level
+    // (see observeWork). 0 restores the previous rule: every stage sets the level by itself.
+    governorRecoveryMs:250,
     manualAggregateMaxSeconds:86400
   });
+  const GOVERNOR_RANK=Object.freeze({GREEN:0,YELLOW:1,ORANGE:2,RED:3});
 
   const systemNowMs=()=>globalThis.performance?.now?.() ?? Date.now();
   function errorDetail(error,depth=0,seen=new Set()){
@@ -53,6 +57,7 @@
     cfg.hardTaskLimit=Math.max(1,Math.floor(cfg.hardTaskLimit));
     cfg.conflictLimit=Math.max(1,Math.floor(cfg.conflictLimit));
     const cooldown=Number(cfg.cooldownAfterMs);cfg.cooldownAfterMs=Number.isFinite(cooldown)&&cooldown>0?cooldown:0;
+    const recovery=Number(cfg.governorRecoveryMs);cfg.governorRecoveryMs=Number.isFinite(recovery)&&recovery>=0?recovery:DEFAULTS.governorRecoveryMs;
     cfg.manualBatchSeconds=Math.max(1,Math.min(3600,Number(cfg.manualBatchSeconds)||DEFAULTS.manualBatchSeconds));
     cfg.manualMinBatchSeconds=Math.max(1,Math.min(cfg.manualBatchSeconds,Number(cfg.manualMinBatchSeconds)||DEFAULTS.manualMinBatchSeconds));
     cfg.manualRetryLimit=Math.max(1,Math.floor(Number(cfg.manualRetryLimit)||DEFAULTS.manualRetryLimit));
@@ -78,7 +83,7 @@
     // Build 359: where a simulation cycle spends its time (create, chunks, finish, maintenance and render callbacks),
     // so a slow cycle names its stage in diagnostics. Measurement only; no decision reads it.
     let frameStages=null,cooldownNext=false,frameCadencePressure=0;const addFrameStage=(key,ms)=>{if(frameStages)frameStages[key]+=Math.max(0,Number(ms)||0);};
-    let hardTaskStreak=0,conflictStreak=0,lastObservedSpeed=null,throttlePending=null;const durationSamples=[],workSamples=[];let lastGovernor='GREEN';
+    let hardTaskStreak=0,conflictStreak=0,lastObservedSpeed=null,throttlePending=null;const durationSamples=[],workSamples=[];let lastGovernor='GREEN',governorCalmSince=null,governorCalmPeak='GREEN';
     // boundaryAt treats a value within its relative epsilon as the boundary.
     // Use the same rule for cumulative health counters so a grouped window
     // reports every hour/day it actually crossed, rather than one counter tick
@@ -135,14 +140,26 @@
       took=Math.max(0,Number(took)||0);health.lastWorkStage=stage;addFrameStage(`${stage}Ms`,took);workSamples.push(took);if(workSamples.length>40)workSamples.shift();health.avgWorkMs=workSamples.reduce((a,b)=>a+b,0)/Math.max(1,workSamples.length);
       if(stage==='create'){health.lastCreateMs=took;health.maxCreateMs=Math.max(health.maxCreateMs,took);}else if(stage==='finish'){health.lastFinishMs=took;health.maxFinishMs=Math.max(health.maxFinishMs,took);}
       if(took>=cfg.longTaskWarnMs){health.longTasks++;hardTaskStreak++;}else hardTaskStreak=0;if(took>=cfg.hardTaskMs)health.hardTasks++;
-      const pressure=Math.max(health.avgWorkMs,took),governor=pressure>=cfg.hardTaskMs?'RED':pressure>=cfg.longTaskWarnMs?'ORANGE':pressure>=cfg.frameBudgetMs?'YELLOW':'GREEN';health.governor=governor;
+      // A slice alternates heavy chunks with near-zero create/finish stages, so taking the level from each stage alone
+      // flipped it, and the next frame's budget with it, on almost every slice (iPhone diagnostic DX-1792300927407:
+      // up to ~25 GREEN/YELLOW changes a second during a calendar jump). The level now rises at once and falls only
+      // after governorRecoveryMs of real time in which no stage reached it, to the highest level seen meanwhile.
+      const pressure=Math.max(health.avgWorkMs,took),observed=pressure>=cfg.hardTaskMs?'RED':pressure>=cfg.longTaskWarnMs?'ORANGE':pressure>=cfg.frameBudgetMs?'YELLOW':'GREEN';
+      let governor=health.governor;
+      if(GOVERNOR_RANK[observed]>=GOVERNOR_RANK[governor]){governor=observed;governorCalmSince=null;}
+      else{
+        const at=clock();if(governorCalmSince===null){governorCalmSince=at;governorCalmPeak=observed;}else if(GOVERNOR_RANK[observed]>GOVERNOR_RANK[governorCalmPeak])governorCalmPeak=observed;
+        if(at-governorCalmSince>=cfg.governorRecoveryMs){governor=governorCalmPeak;governorCalmSince=null;}
+      }
+      health.governor=governor;
       if(governor!==lastGovernor){lastGovernor=governor;try{adapter.onGovernor?.({level:governor,avgChunkMs:health.avgChunkMs,avgWorkMs:health.avgWorkMs,stage,took,speed});}catch(error){report('governor',error,false);}}
       // Work-pressure throttling is cooperative. Lowering a live multiplier does
       // not make fixed snapshot/commit work cheaper and only makes the game feel
       // slower. Calendar work yields without restarting its atomic slice; live
       // speed remains the player's choice. Repeated transaction conflicts retain
       // their separate fail-safe in finishJob().
-      if(manualAdvance&&(governor==='RED'||hardTaskStreak>=cfg.hardTaskLimit))throttlePending={stage,took,reason:governor==='RED'?'governor-red':'watchdog'};
+      // The calendar throttle answers this stage's own pressure, not a level held for recovery.
+      if(manualAdvance&&(observed==='RED'||hardTaskStreak>=cfg.hardTaskLimit))throttlePending={stage,took,reason:observed==='RED'?'governor-red':'watchdog'};
       return governor;
     }
 
