@@ -63,7 +63,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     private var nativeBootstrapIntent: UInt = 0
     private var bootstrapForceOnNavigation = false
     private var bootstrapPauseOnNavigation = false
-    private lazy var saveExportDownloads = VentoraSaveExportDownloads { [weak self] result in
+    private lazy var saveExportDownloads: VentoraSaveExportDownloads = VentoraSaveExportDownloads { [weak self] result in
         guard let self else { return }
         switch result {
         case .success(let url):

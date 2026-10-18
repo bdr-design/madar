@@ -39,13 +39,14 @@ final class Scheme: NSObject, WKURLSchemeHandler {
     }
     func webView(_ webView: WKWebView, stop task: WKURLSchemeTask) {}
 }
-final class Probe: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+final class Probe: NSObject, WKNavigationDelegate, WKScriptMessageHandler, WKDownloadDelegate {
     var ready = false
     var errors: [String] = []
     var outcomes: [Result<URL, Error>] = []
     var adoptions = 0
     var cancelled = false
     var cancelNext = false
+    var delayDestination = true
     lazy var owner = VentoraSaveExportDownloads(directory: testDirectory) { [weak self] result in self?.outcomes.append(result) }
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
         let value = message.body as? [String: Any] ?? [:]
@@ -60,7 +61,21 @@ final class Probe: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         adoptions += 1
         owner.adopt(download, from: navigationAction)
+        download.delegate = self
         if cancelNext { cancelNext = false; owner.cancelAll(); cancelled = true }
+    }
+    func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
+        let delayed = delayDestination
+        delayDestination = false
+        owner.download(download, decideDestinationUsing: response, suggestedFilename: suggestedFilename) { url in
+            // Test only: the page revokes its Blob URL after one second. A slow disk destination must remain exact.
+            if delayed { DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) { completionHandler(url) } }
+            else { completionHandler(url) }
+        }
+    }
+    func downloadDidFinish(_ download: WKDownload) { owner.downloadDidFinish(download) }
+    func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
+        owner.download(download, didFailWithError: error, resumeData: resumeData)
     }
 }
 let scheme = Scheme(), probe = Probe(), config = WKWebViewConfiguration()
