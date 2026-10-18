@@ -1,6 +1,14 @@
 {
-  "minimum_acceptance_gates": 451,
+  "minimum_acceptance_gates": 452,
   "preflight_commands": [
+    [
+      "node",
+      "tests/build423-worker-sync-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-app-browser.cjs"
+    ],
     [
       "node",
       "tests/build422-conference-content-layout-browser.cjs"
@@ -2018,6 +2026,10 @@
     [
       "node",
       "tests/build422-conference-content-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build423-worker-sync-work.cjs"
     ]
   ]
 }

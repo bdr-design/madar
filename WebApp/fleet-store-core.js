@@ -1396,6 +1396,12 @@
   // Copies of whole records and their extras, for the rows listed (to send to the other side).
   function readRows(store,indices){
     const bytes=new ArrayBuffer(indices.length*STRIDE),dst=new Uint32Array(bytes),src=views(store).u32,extras=new Array(indices.length);
+    // Appended purchase slices are contiguous records without extras. Copy their raw bytes in one native block.
+    // Any extra (including an accessor), sparse/duplicate indices, or an invalid range keeps the original read order.
+    if(indices instanceof Int32Array&&indices.length>=4&&indices[0]>=0&&indices[indices.length-1]<store.capacity&&indices[indices.length-1]-indices[0]===indices.length-1){
+      let dense=true;for(let k=0;k<indices.length;k++)if(indices[k]!==indices[0]+k||own(store.extras,indices[k])){dense=false;break;}
+      if(dense){dst.set(src.subarray(indices[0]*WORDS_PER_ROW,(indices[0]+indices.length)*WORDS_PER_ROW));extras.fill(undefined);return {bytes,extras};}
+    }
     for(let k=0;k<indices.length;k++){const index=indices[k];for(let w=0,from=index*WORDS_PER_ROW,to=k*WORDS_PER_ROW;w<WORDS_PER_ROW;w++)dst[to+w]=src[from+w];extras[k]=own(store.extras,index)?store.extras[index]:undefined;}
     return {bytes,extras};
   }

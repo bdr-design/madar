@@ -49,6 +49,7 @@ const workerSource=workerImports.map(read).join('\n;\n')+'\n;\n'+workerFile.repl
     // GC or scheduler pause landing inside the timed window. So the budget holds for 99% of the exchanges, and no single
     // exchange (pause included) may cost a frame.
     assert(large.stats.incrementalSyncs>=large.options.rowStageCount,`every row stage reached the worker: ${large.stats.incrementalSyncs}`);
+    console.log('PURCHASE_SYNC_BUDGET',JSON.stringify({maxSyncMs:large.stats.maxSyncMs,maxFullSyncMs:large.stats.maxFullSyncMs,maxSeedSyncMs:large.stats.maxSeedSyncMs,maxReplicaPrimeSliceMs:large.stats.maxReplicaPrimeSliceMs,slowSyncs:large.stats.slowSyncs,incrementalSyncs:large.stats.incrementalSyncs,maxMutationRows:large.stats.maxMutationRows}));
     assert(large.stats.slowSyncs<=Math.floor(large.stats.incrementalSyncs*0.01),`worker mutation syncs over the 4.5 ms budget: ${large.stats.slowSyncs} of ${large.stats.incrementalSyncs} (max ${large.stats.maxSyncMs})`);
     assert(large.stats.maxSyncMs<=16.7,`a worker mutation sync took a whole frame: ${large.stats.maxSyncMs}`);
 

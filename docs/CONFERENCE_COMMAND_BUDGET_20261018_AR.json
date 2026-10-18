@@ -125,8 +125,8 @@
     "421 original owner allows replacing an unfinished paid conference"
   ],
   "acceptance_definition": {
-    "gates": 451,
-    "preflight": 53,
+    "gates": 452,
+    "preflight": 55,
     "all_source_gates_executed": false,
     "native_tests_executed_locally": false,
     "physical_iphone_tested": false,
@@ -183,6 +183,17 @@
       "failed_gate": 7,
       "not_executed_remaining": 444,
       "reason": "ambient proof verification mixed with settlement-owner material work; reproduced 108 vs 132 total with same 60 owner calls"
+    },
+    {
+      "commit": "646fbd2755c91a61f22d1d3f02352bbff634065e",
+      "run": 39089001019,
+      "result": "failed_at_gate_350_after_349_passes",
+      "test": "tests/build372-asset-purchase-app-browser.cjs",
+      "max_sync_ms": 24.4,
+      "threshold_ms": 16.7,
+      "test_counter_scope_fix": "PASS",
+      "conference_and_native_gates": "PASS",
+      "remaining_gates_not_run": 101
     }
   ],
   "local_full_suite": {
@@ -221,5 +232,55 @@
     "old_source_red": true,
     "ack_rollback_retries_and_money_assertions_retained": true,
     "elapsed_time_measurement": "Unchanged; the whole-command benchmark still includes all work and the 20 ms limit is not achieved."
+  },
+  "worker_sync_followup": {
+    "test": "tests/build423-worker-sync-work.cjs",
+    "cause_evidence": "One macOS CI exchange measured 24.4ms. Two local before runs were 0.5ms; bounded phase tracing could not reproduce the CI outlier or attribute it to a specific substage. GC/scheduling is a possibility, not a proven cause.",
+    "fixes": [
+      "Skip the unchanged replica exchange only under the same exact freshness guard already used by the query path; changed rows, values, routes, columns and compaction still synchronize.",
+      "Contiguous Int32 row ranges without extras use one native typed-array block copy; sparse, invalid, duplicate or extra-bearing rows keep the original fallback and accessor read order.",
+      "Create column-plan validation helpers only when a column plan exists, and skip closing an empty route-key set."
+    ],
+    "new_runtime_monitors": false,
+    "byte_parity_vectors": 306,
+    "unchanged_exchanges_eliminated_in_fixture": 100,
+    "one_block_copy_instead_of_word_loop": true,
+    "isolated_1000_copies_512_rows_8_alternating_samples_ms": {
+      "before": [
+        19.699429,
+        16.861452,
+        15.244745,
+        15.827252,
+        17.915353,
+        14.381238,
+        16.889034,
+        15.320857
+      ],
+      "after": [
+        7.901339,
+        8.606728,
+        6.846797,
+        9.488431,
+        6.973556,
+        6.908439,
+        6.452781,
+        10.647753
+      ]
+    },
+    "whole_purchase_200k_local": {
+      "before_max_sync_ms": [
+        0.5,
+        0.5
+      ],
+      "after_max_sync_ms": 2.7,
+      "slow_syncs_after": 0,
+      "rows_per_mutation_max": 268,
+      "one_cheque_invoice_supplier_order": true,
+      "exact_rollback_and_replica_recovery": true,
+      "note": "Wall maxima vary; this does not prove the CI 24.4ms outlier or the iPhone frame budget has been eliminated."
+    },
+    "existing_4_5ms_p99_and_16_7ms_max_gates_unchanged": true,
+    "purchase_gate_moved_to_preflight_position": 2,
+    "macos_full_acceptance_pending": true
   }
 }

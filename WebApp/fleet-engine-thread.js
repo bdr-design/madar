@@ -226,26 +226,31 @@
       const runtime=STORE.chunkStamp(store).runtime;
       const reason=needsFull?'stale':!synced?'first':synced.store!==store?'store-replaced':synced.runtime!==runtime?'store-runtime':'';
       if(reason&&!newReplica(store,reason))return false;
+      // The same freshness predicate already guards queries. An unchanged replica has no log or packet to build.
+      if(!reason&&synced.length===store.length&&synced.valuesLength===store.values.length&&STORE.replicaClean(store)&&routesRevision()===routesAt){stats.lastSyncMs=0;return routesReady;}
       const started=clock(),log=STORE.drainReplica(store);
       // Columns rewritten wholesale travel exactly as logged. columnWriter logs `present` itself, once, when it first
       // exposes a previously absent field; adding it unconditionally copied another million-entry column on every close.
       const columnNames=log.columns.length?[...new Set(log.columns)]:null;
       if(columnNames&&!columnNames.every(name=>Object.prototype.hasOwnProperty.call(STORE.SLOTS,name))){newReplica(store,'column-writes');return sync(store);}
-      const plan=log.columnPlan,planColumns=Array.isArray(plan?.columns)?[...new Set(plan.columns)]:null,planReported=Array.isArray(plan?.reportedColumns)?[...new Set(plan.reportedColumns)]:null;
-      const sameNames=(left,right)=>!!left&&!!right&&left.length===right.length&&left.every(name=>right.includes(name));
-      const planExceptions=plan?.exceptionalPositions,dual=plan?.exceptional,planCount=Number(plan?.count),width=Array.isArray(plan?.fields)?plan.fields.length:0;
-      const ownedView=view=>ArrayBuffer.isView(view)&&view.buffer instanceof ArrayBuffer&&view.buffer.byteLength>0;
-      const primaryValid=Number.isSafeInteger(planCount)&&planCount>=0&&ownedView(plan?.indices)&&plan.indices.length===planCount&&ownedView(plan?.values)&&plan.values.length===planCount*width;
-      const dualCount=Number(dual?.count),totalCount=dual?Number(plan?.totalCount):planCount,dualValid=!dual||plan.indices instanceof Int32Array&&plan.values instanceof Float32Array&&Number.isSafeInteger(dualCount)&&dualCount>=0&&dual.indices instanceof Int32Array&&dual.indices.length===dualCount&&ownedView(dual.indices)&&dual.values instanceof Float64Array&&dual.values.length===dualCount*width&&ownedView(dual.values)&&Number.isSafeInteger(totalCount)&&totalCount===planCount+dualCount;
-      const markerValid=dual||planExceptions==null||planExceptions instanceof Int32Array&&planExceptions.buffer instanceof ArrayBuffer&&planExceptions.length<=planCount;
-      const columnPlan=columnNames&&plan&&width>0&&totalCount>0&&primaryValid&&dualValid&&markerValid&&sameNames(columnNames,planColumns)&&sameNames(log.reportedColumns,planReported)&&plan.fields.every(name=>Object.prototype.hasOwnProperty.call(STORE.SLOTS,name))?plan:null;
+      let columnPlan=null;
+      if(columnNames&&log.columnPlan){
+        const plan=log.columnPlan,planColumns=Array.isArray(plan?.columns)?[...new Set(plan.columns)]:null,planReported=Array.isArray(plan?.reportedColumns)?[...new Set(plan.reportedColumns)]:null;
+        const sameNames=(left,right)=>!!left&&!!right&&left.length===right.length&&left.every(name=>right.includes(name));
+        const planExceptions=plan?.exceptionalPositions,dual=plan?.exceptional,planCount=Number(plan?.count),width=Array.isArray(plan?.fields)?plan.fields.length:0;
+        const ownedView=view=>ArrayBuffer.isView(view)&&view.buffer instanceof ArrayBuffer&&view.buffer.byteLength>0;
+        const primaryValid=Number.isSafeInteger(planCount)&&planCount>=0&&ownedView(plan?.indices)&&plan.indices.length===planCount&&ownedView(plan?.values)&&plan.values.length===planCount*width;
+        const dualCount=Number(dual?.count),totalCount=dual?Number(plan?.totalCount):planCount,dualValid=!dual||plan.indices instanceof Int32Array&&plan.values instanceof Float32Array&&Number.isSafeInteger(dualCount)&&dualCount>=0&&dual.indices instanceof Int32Array&&dual.indices.length===dualCount&&ownedView(dual.indices)&&dual.values instanceof Float64Array&&dual.values.length===dualCount*width&&ownedView(dual.values)&&Number.isSafeInteger(totalCount)&&totalCount===planCount+dualCount;
+        const markerValid=dual||planExceptions==null||planExceptions instanceof Int32Array&&planExceptions.buffer instanceof ArrayBuffer&&planExceptions.length<=planCount;
+        columnPlan=columnNames&&plan&&width>0&&totalCount>0&&primaryValid&&dualValid&&markerValid&&sameNames(columnNames,planColumns)&&sameNames(log.reportedColumns,planReported)&&plan.fields.every(name=>Object.prototype.hasOwnProperty.call(STORE.SLOTS,name))?plan:null;
+      }
       for(const compaction of log.compactions){post({type:'compact',dead:compaction.dead,length:compaction.length},[compaction.dead.buffer]);stats.compactions++;}
       if(!log.valuesDirty&&store.values.length!==synced.valuesLength){newReplica(store,'value-log-missed');return sync(store);}
       const indices=log.rows,values=log.valuesDirty?STORE.replicaValueChanges(store,log.valueRefs):{length:store.values.length,changes:[]};
       if(routesRevision()!==routesAt){
         routesAt=routesRevision();const keys=new Set(routeTable.keys());routeTable=new Map();addRouteKeys(store,keys,indices);
         post({type:'routes',replace:true,plans:closeRouteKeys(keys)});
-      }else if(indices.length){const keys=new Set();addRouteKeys(store,keys,indices);const plans=closeRouteKeys(keys);if(plans.length)post({type:'routes',replace:false,plans});}
+      }else if(indices.length){const keys=new Set();addRouteKeys(store,keys,indices);const plans=keys.size?closeRouteKeys(keys):null;if(plans?.length)post({type:'routes',replace:false,plans});}
       if(indices.length||values.changes.length||values.length!==synced.valuesLength||store.length!==synced.length||log.compactions.length){
         const rows=STORE.readRows(store,indices),count=indices.length;
         post({type:'sync',...(into||{}),length:store.length,live:store.live,structure:store.structure,values,rows:{indices,bytes:rows.bytes,extras:rows.extras}},[rows.bytes,indices.buffer]);
