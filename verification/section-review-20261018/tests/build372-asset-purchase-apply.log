@@ -1,0 +1,112 @@
+{
+  "suite": "build372-asset-purchase-apply",
+  "scope": "Fleet Store journal adapter, one occupancy/crew baseline, differential multi-batch delivery, worker baseline and rollback",
+  "passed": 26,
+  "total": 26,
+  "results": [
+    {
+      "name": "two delivery batches match recordDeliveryBatch with one worker baseline query",
+      "ok": true
+    },
+    {
+      "name": "fractional legacy staffing preserves synchronizeCrew row-order arithmetic exactly",
+      "ok": true
+    },
+    {
+      "name": "large integer staffing preserves Fleet Core staffing-only class rounding exactly",
+      "ok": true
+    },
+    {
+      "name": "an exact provided baseline performs no main-thread fleet scan",
+      "ok": true
+    },
+    {
+      "name": "a stale worker baseline is rejected before the first mutation",
+      "ok": true
+    },
+    {
+      "name": "a worker baseline requires exact revision, current token, and collision proof",
+      "ok": true
+    },
+    {
+      "name": "worker baseline aggregate shape is fail-closed before the first mutation",
+      "ok": true
+    },
+    {
+      "name": "revision lease rejects an ID collision or row update inserted between slices and rolls back",
+      "ok": true
+    },
+    {
+      "name": "a fleet mutation during preparation is rejected as stale without rolling back the external write",
+      "ok": true
+    },
+    {
+      "name": "final revision lease rejects a fleet write by a late hook",
+      "ok": true
+    },
+    {
+      "name": "Fleet Store journal rolls back a failure in the middle of the second batch",
+      "ok": true
+    },
+    {
+      "name": "an unreserved Store growth is refused before mutation",
+      "ok": true
+    },
+    {
+      "name": "staged capacity reservation grows physical storage before apply and stays logically rollback-safe",
+      "ok": true
+    },
+    {
+      "name": "a stale staged capacity reservation fails before plan mutation",
+      "ok": true
+    },
+    {
+      "name": "a later outer-transaction failure still rolls back an already committed apply",
+      "ok": true
+    },
+    {
+      "name": "a caught failed apply poisons commit of its borrowed journal and rolls back all outer writes",
+      "ok": true
+    },
+    {
+      "name": "transaction ownership is target-specific and rejects state B before any root mutation",
+      "ok": true
+    },
+    {
+      "name": "a durable context rejects its live state and leaves fleet labor and receipts untouched",
+      "ok": true
+    },
+    {
+      "name": "critical guard registration failure occurs before fleet or business roots are changed",
+      "ok": true
+    },
+    {
+      "name": "one adapter can commit two plans without carrying its revision lease across sessions",
+      "ok": true
+    },
+    {
+      "name": "non-overlapping ranges remain valid when groups with one prefix arrive in reverse order",
+      "ok": true
+    },
+    {
+      "name": "the local baseline scans planned IDs and does not trust a stale has index",
+      "ok": true
+    },
+    {
+      "name": "an ID guard bound before payment remains exact when the final cheque changes plan metadata",
+      "ok": true
+    },
+    {
+      "name": "integral crew additions preserve staffing-class order at the safe-integer boundary",
+      "ok": true
+    },
+    {
+      "name": "large group validation and labor publication stay staged and preserve existing ledger rows",
+      "ok": true
+    },
+    {
+      "name": "a large receipt ledger is indexed and reordered in bounded stages",
+      "ok": true
+    }
+  ]
+}

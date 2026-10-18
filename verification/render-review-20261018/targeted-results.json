@@ -1,0 +1,221 @@
+{
+  "scope": "24 related scripts, not the complete acceptance suite",
+  "results": [
+    {
+      "argv": [
+        "node",
+        "tests/build457-canvas-idle-work.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 39
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build458-stable-ui-writes.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 194
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build459-navigation-scroll-work.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 21
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build461-market-render-work.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 186
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build462-market-summary-refresh.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 194
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-canvas-layer.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 30
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-presentation.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 187
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-presentation-work-contract.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 43
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-iphone-thermal-contract.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 22
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-status-cache.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 54
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-structure-revision.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 22
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-map-identity-registry.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 89
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build439-summary-single-request.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 46
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build449-asset-capacity-work.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 199
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build460-render-idle-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 39483
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-modes-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 5232
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build384-map-company-cap-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 3377
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build366-mobility-map-policy-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1379
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-company-dock-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 16045
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build398-asset-market-metrics-layout-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 3918
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-bulk-asset-purchase-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 2123
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-advance-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1745
+    },
+    {
+      "argv": [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 89230
+    },
+    {
+      "argv": [
+        "node",
+        "tests/lint.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 4373
+    }
+  ]
+}

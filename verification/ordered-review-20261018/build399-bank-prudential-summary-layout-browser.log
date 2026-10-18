@@ -1,0 +1,2 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build399-bank-prudential-summary-layout-browser","passed":3,"results":[{"viewport":{"width":956,"height":440},"columns":2,"cellWidth":161,"metrics":["LDR","LCR","CET1","تركيز القطاع"]},{"viewport":{"width":844,"height":390},"columns":2,"cellWidth":154.8,"metrics":["LDR","LCR","CET1","تركيز القطاع"]},{"viewport":{"width":667,"height":375},"columns":2,"cellWidth":112.4,"metrics":["LDR","LCR","CET1","تركيز القطاع"]}]}

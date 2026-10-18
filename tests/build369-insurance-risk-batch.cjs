@@ -36,7 +36,8 @@ function transactionState(){return {...minimal(),simSeconds:5*86400,openedCompan
   const countNode={textContent:''};
   s.document={querySelectorAll:selector=>selector==='[data-insurance-risk-select]:checked'?selections.filter(row=>row.checked):[],getElementById:()=>null};
   s.GH_INTERFACE={confirm:()=>true};s.GH_AUTHORIZATION={digest:value=>`digest-${value.periodId}-${value.decisions.map(row=>row.id+row.decision).join('-')}`};
-  const clickCtx={...uiCtx,runAuthorizedDomainCommand:async request=>(dispatched.push(plain(request)),{ok:true,result:{accepted:2,declined:0,skipped:0,totalPremium:30000,totalInsured:3000000}}),save(){},updateKpis(){},openDrawer:(...args)=>opened.push(args),pushAlert:value=>alerts.push(value)};
+  const savedNotices=[],noticeKeys=new Set(),batchResult={accepted:2,declined:0,skipped:0,totalPremium:30000,totalInsured:3000000};
+  const clickCtx={...uiCtx,runAuthorizedDomainCommand:async request=>{dispatched.push(plain(request));if(!noticeKeys.has(request.idempotencyKey)){noticeKeys.add(request.idempotencyKey);assert.equal(typeof request.successNotice,'function');savedNotices.push(request.successNotice(batchResult));}return {ok:true,result:batchResult};},save(){},updateKpis(){},openDrawer:(...args)=>opened.push(args),pushAlert:value=>alerts.push(value)};
   const root={querySelectorAll(selector){if(selector==='[data-gh-action]')return buttons;if(selector==='[data-gh-action="insurance-decide-risks-batch"]')return buttons;if(selector==='[data-insurance-risk-select]')return selections;return [];},querySelector(selector){return selector==='#insBatchSelectedCount'?countNode:null;}};
   Advanced.bind(root,clickCtx);
   for(const input of selections){input.checked=true;input.onchange?.();}
@@ -50,7 +51,7 @@ function transactionState(){return {...minimal(),simSeconds:5*86400,openedCompan
   assert.equal(dispatched[1].idempotencyKey,dispatched[0].idempotencyKey,'retry retains stable idempotency key');
   assert.deepEqual(dispatched[1].payload,dispatched[0].payload,'retry retains exact signed payload');
   assert.equal(dispatched[0].context.subjectId,'insurance');
-  assert.equal(alerts.length,2);assert.equal(opened.length,2);
+  assert.equal(alerts.length,0,'a saved decision must not start another live alert transaction');assert.equal(savedNotices.length,1,'the idempotent receipt keeps its original saved notice');assert.match(savedNotices[0],/2 مقبول/);assert.equal(opened.length,2);
 
   const rollbackState=transactionState();let contractCalls=0;
   s.GH_FINANCE_CORE={execute({state},command,payload){assert.equal(command,'register-commercial-contract');contractCalls++;state.finance.contracts=state.finance.contracts||[];state.finance.contracts.push({id:payload.id});if(contractCalls===2)throw new Error('injected-document-failure');return {id:payload.id,documentProofId:`PROOF-${contractCalls}`,contentDigest:`DIGEST-${contractCalls}`};}};

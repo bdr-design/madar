@@ -1,0 +1,401 @@
+{
+  "source_tree_sha256": "a2d4029f606e63ca516d62bf35b56c6be8552a85b26902f750c8610661d5ad5f",
+  "scope": "Related local scripts only; not complete acceptance, native CI or iPhone performance.",
+  "declared_gates": 468,
+  "preflight_definitions": 71,
+  "passed": 39,
+  "total": 39,
+  "completed": true,
+  "results": [
+    {
+      "argv": [
+        "node",
+        "tests/build436-save-work-removal.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.076,
+      "log": "build436-save-work-removal.log",
+      "script_sha256": "2f78d5ba4a6f10033b44d697017b79d63822ef205ee04046649de1eabe728e26"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build437-adoption-patch-lineage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06,
+      "log": "build437-adoption-patch-lineage.log",
+      "script_sha256": "7f3183a7e65585db7e635934f67c2ecc13b68ac12f0e8567a8e515dc531b1a6e"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build438-day-scratch-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.163,
+      "log": "build438-day-scratch-work.log",
+      "script_sha256": "ffa6140ec59d4fbc0811e8c05c4bbcd890e776475516af6e91ee48a56dd970a8"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build424-dense-fleet-pages.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.122,
+      "log": "build424-dense-fleet-pages.log",
+      "script_sha256": "84c86076da69d5f271974f7d9cbd6d52ac950bd6af0da4da196b8f303bf81b34"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build425-validation-dependencies.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.308,
+      "log": "build425-validation-dependencies.log",
+      "script_sha256": "3643ece73419ef2f22196a4204ce9a2589e3aeba909d296fcaa8c403281343f2"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build427-day-profile-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.614,
+      "log": "build427-day-profile-work.log",
+      "script_sha256": "a8a4082465b9cf32e67aa93a3e0f075d9b813e299c332b2a6a3a06ef8b72f693"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build428-worker-value-collection.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.57,
+      "log": "build428-worker-value-collection.log",
+      "script_sha256": "3cd4a497a7798b539feb15a418731d62e35220ae3d573a8a80448c30a726e72b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build429-worker-value-collection-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.204,
+      "log": "build429-worker-value-collection-browser.log",
+      "script_sha256": "d19cf979700919fc39ecd2944561611cb9992ff39257504ac72bcfdd08d4c272"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build430-legacy-fleet-pages.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.032,
+      "log": "build430-legacy-fleet-pages.log",
+      "script_sha256": "41158120422dbaa30e58aa3f87be1af7a6060317950cb69310af2a6cca8910a0"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build431-decision-notices.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.035,
+      "log": "build431-decision-notices.log",
+      "script_sha256": "79b0d0bec9e591a9387d4a6d0a7edc333f250eb3d4d99864d88b03728035457d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build432-ready-fleet-validation.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.032,
+      "log": "build432-ready-fleet-validation.log",
+      "script_sha256": "de7a5662b15ec0b52792ec076611ab2854d1efae73a36235010ce6aaa0e0f427"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build433-request-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 25.861,
+      "log": "build433-request-decisions-browser.log",
+      "script_sha256": "f99a697c764f695634ee7196991de0cc72f9dbd1bf2bb98bf131bf10c664e808"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build434-service-panel-fleet-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.043,
+      "log": "build434-service-panel-fleet-work.log",
+      "script_sha256": "89c05fac36b1ca04f60866cc03b212ddfb33b71fee2ba7f995347ca1483d83d1"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build435-conditional-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.068,
+      "log": "build435-conditional-prestage.log",
+      "script_sha256": "a6575764e128f8b5f3a97b8b7b8b3a89ce57548a8de95541f72f89840b2b899a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build356-fleet-store.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 7.172,
+      "log": "build356-fleet-store.log",
+      "script_sha256": "636f6f837c54b14485f865cb6f3085d944785ac772134ea8cfa7df26f373437f"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-chunk-manifest.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 5.589,
+      "log": "build358-fleet-chunk-manifest.log",
+      "script_sha256": "6a5ae76ef6fb4b0316d99077a910418c6142a2a677951419989593347162576f"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-native-chunked-save.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 3.699,
+      "log": "build358-native-chunked-save.log",
+      "script_sha256": "11c0ac4156c8898a6e071f499392341fdcf2009aadc8d0896d43141b90c82383"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-native-migration-chunk-adoption.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.031,
+      "log": "build372-native-migration-chunk-adoption.log",
+      "script_sha256": "113e129ab0d93f085a598b9ad8041de32a42e2aad8e5be8b8c0ad4574b5916c0"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build409-compressed-persistence.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.798,
+      "log": "build409-compressed-persistence.log",
+      "script_sha256": "af1faed57b6f91ab7ae00f833c0693c1681118c1962feae220204abc3d6ffb2c"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build410-fleet-save-row-patches.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.759,
+      "log": "build410-fleet-save-row-patches.log",
+      "script_sha256": "b0486aa31caaaac76bdd2db5442b50e980c324cc0f03abda363151200eab2a4c"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build411-command-row-patch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 33.24,
+      "log": "build411-command-row-patch-browser.log",
+      "script_sha256": "5c4d1fae811f8b49daa0ef3c23ba64b953e4ba9bca18fe921bae4ffefa9abb1d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/save-checksum-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.921,
+      "log": "save-checksum-worker-browser.log",
+      "script_sha256": "a6d94198ec7499d9f4b96425a60989ffd2411873be4a68de6947b84f0e488501"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/save-pipeline-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.751,
+      "log": "save-pipeline-browser.log",
+      "script_sha256": "1f986d7de2762c1efabc2473485284482dfbb92a54a897772c354f1c7a20f02d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-save-slicing.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.368,
+      "log": "fleet-save-slicing.log",
+      "script_sha256": "cb1503b050a139fa82402e5957b706b77e1a5239bc4b51fe9a5c7c550b1381ac"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-validation-reuse-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 5.371,
+      "log": "fleet-validation-reuse-browser.log",
+      "script_sha256": "f8dc80fcd99a04bca994917cb9b2d329c6739f576b071de0cc3f1224727d8819"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-durable-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 2.219,
+      "log": "build362-durable-prestage.log",
+      "script_sha256": "7f76d99f519de104aa76f5fbc820d84f008dd3e0f40f9c4b6277269bbe166ab3"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-save-validation-chunks.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 12.271,
+      "log": "build362-save-validation-chunks.log",
+      "script_sha256": "901ac3e823e1c7b45e09c2278274ab4f0f1e15a4a6cea320e91da102648af9ce"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build412-live-validation-predicates.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.465,
+      "log": "build412-live-validation-predicates.log",
+      "script_sha256": "48cc355656338d3f08754bece6e9e22576328280c49b5c5dedb73a25fb422b3c"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-core.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.122,
+      "log": "build372-fleet-day-core.log",
+      "script_sha256": "ec1f37359a9c24355a7fcb727d6ab2ffa3ed888ad3ba7f43576c890cfa84a679"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-exceptional.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.405,
+      "log": "build372-fleet-day-exceptional.log",
+      "script_sha256": "6833c96fd2b03ba1ce4adb120e564070d453d52025efa4a6339e738bb37fbd73"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-slice-parity.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.408,
+      "log": "build372-fleet-day-slice-parity.log",
+      "script_sha256": "6061923cba8007b22d9a8a6979d7763ebde5e0d0ca306ab8b683f7148805f3b1"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-worker.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.391,
+      "log": "build372-fleet-day-worker.log",
+      "script_sha256": "f5aa6b824b7e21083abec3290d048a6868a547c92a3ffbee5267d91e30581df5"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build423-worker-sync-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.046,
+      "log": "build423-worker-sync-work.log",
+      "script_sha256": "142ad0289483c65d2103b3c8b52a976f672b67621a1dcb47e578a4f87ca23d79"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build426-governor-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.027,
+      "log": "build426-governor-pressure.log",
+      "script_sha256": "0318c892822e4ab3063ac91e5b3b0209be6464f3fed2cb709f36442aa471195a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/governor-overrun-signal.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.074,
+      "log": "governor-overrun-signal.log",
+      "script_sha256": "a4bb41607cdd0a00501ab456ac3b193bb04b88881de766d3b719a6d243fc5232"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-business-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.036,
+      "log": "fleet-business-boundary.log",
+      "script_sha256": "4eca5a4537653295bdaa99d22a6e5410844dcfed17194b2eb6cc176bf863b463"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/lint.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.312,
+      "log": "lint.log",
+      "script_sha256": "d0a98b0b20af1caf0039fe1e56f804982e66f1f5462ae21aacb230ce853bbb9a"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/build334-source-layout.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.05,
+      "log": "build334-source-layout.log",
+      "script_sha256": "e3b32246febbe86a47efa561e7d6752bcfa8e3f7d40faf8c996839860bdcc0a6"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.264,
+      "log": "acceptance-policy.log",
+      "script_sha256": "7a010acb35d8e2c1bd39931efc396bc72ea3ed0b4658aeb8b86aca61b9ecf721"
+    }
+  ]
+}

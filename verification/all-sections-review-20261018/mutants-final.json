@@ -1,0 +1,38 @@
+[
+  {
+    "mutant": "unbounded-replay",
+    "test": "build476-staged-worker-replay",
+    "exit": 1,
+    "assertion": true
+  },
+  {
+    "mutant": "partial-commit",
+    "test": "build476-staged-worker-replay",
+    "exit": 1,
+    "assertion": true
+  },
+  {
+    "mutant": "static-range",
+    "test": "build476-staged-worker-replay",
+    "exit": 1,
+    "assertion": true
+  },
+  {
+    "mutant": "appended-journal",
+    "test": "build480-journal-reserve-work",
+    "exit": 1,
+    "assertion": true
+  },
+  {
+    "mutant": "stale-health",
+    "test": "build481-diagnostic-fleet-proof",
+    "exit": 1,
+    "assertion": true
+  },
+  {
+    "mutant": "false-conflicts",
+    "test": "build482-worker-route-conflicts",
+    "exit": 1,
+    "assertion": true
+  }
+]

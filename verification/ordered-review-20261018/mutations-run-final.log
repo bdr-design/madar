@@ -1,0 +1,16 @@
+per-row-plan-validation True
+all-corridor-comparisons True
+copy-canonical-routed-rows True
+drop-near-corridor-check True
+repeat-mobility-validation True
+discard-internal-projection True
+duplicate-energy-economics True
+duplicate-bank-ensure True
+unused-company-summary True
+unused-branch-selector True
+unused-payable-search True
+eager-80-cards True
+repeat-first-page True
+drop-document-owner-filter True
+unbounded-invalid-page True
+unbound-navigation-buttons True

@@ -1,0 +1,24 @@
+node:internal/assert/utils:77
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: CII preview must not scan the large fleet
+    at Object.seaCiiPlanCost (/workspace/madar/tests/build455-cii-preview-work.cjs:3:418)
+    at Object.renderSeaCii (evalmachine.<anonymous>:3:16)
+    at render (/workspace/madar/tests/build455-cii-preview-work.cjs:3:833)
+    at Object.<anonymous> (/workspace/madar/tests/build455-cii-preview-work.cjs:4:14)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

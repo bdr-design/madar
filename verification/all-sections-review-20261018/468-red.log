@@ -1,0 +1,13 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+AssertionError [ERR_ASSERTION]: real worker must not receive another whole-fleet request for a subset
+
+2 !== 0
+
+    at /workspace/madar/tests/build468-summary-projection-browser.cjs:3:1282 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

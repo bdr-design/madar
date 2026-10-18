@@ -897,7 +897,7 @@
   function criticalIds(result){return new Set((((result?.critical)||((result?.issues)||[]).filter(row=>row.severity==='critical'))||[]).map(row=>String(row.id||row.code||row.title)));}
   // The transaction lock remains held while validation yields. Worker evidence must match this exact store/context;
   // a large fleet without current evidence is rejected rather than synchronously rescanned on the UI thread.
-  async function validateSchemaInSlices(draft,{yieldToHost,onSlice=()=>{},budgetMs=4}={}){
+  async function validateSchemaInSlices(draft,{yieldToHost,onSlice=()=>{},budgetMs=4,onFleetValidationWait}={}){
     const schema=globalThis.GH_SAVE_SCHEMA;if(!schema)return undefined;
     if(typeof yieldToHost!=='function'||typeof schema.validationSteps!=='function'){
       const start=runtimeClock();try{return schema.validate?.(draft,{trustVerified:true});}finally{onSlice(start,runtimeClock());}
@@ -906,7 +906,7 @@
     try{rows=Number(fleet?.size?.(draft));if(!Number.isSafeInteger(rows)||rows<0)rows=Infinity;}catch{}
     const requireFleetValidation=policy?.decision?policy.decision(draft,fleet,{operation:'command-save-validation',limit:2048}).allowed===false:rows>2048;
     const provider=globalThis.GH_FLEET_VALIDATION_PROVIDER,options={trustVerified:true,requireFleetValidation};
-    if(typeof provider==='function')options.fleetValidation=(state,params)=>provider(state,params);
+    if(typeof provider==='function')options.fleetValidation=(state,params)=>provider(state,params,{beforeAsync:onFleetValidationWait});
     const steps=schema.validationSteps(draft,options),budget=Math.max(1,Number(budgetMs)||4);let start=runtimeClock(),reported=false;
     try{for(;;){
       const step=steps.next(),end=runtimeClock(),waiting=step.value==='fleet-validation-wait'||step.value==='fleet-classes-wait';
@@ -948,11 +948,12 @@
       if(context.poisoned)throw rejection(context.poisonReason||'durable-command-poisoned',label,phase);
       if(Number(draft.saveRevision||0)!==expectedRevision)throw rejection('draft-save-revision-mutated',label,phase);
       draft.saveRevision=expectedRevision+1;phase='validate';
-      // The draft's save chunks may upload while it is validated (options.prestage, e.g. GH_PERSISTENCE.prestageDurableChunks).
-      // Only an optimisation: persist still serializes and uploads what is missing, and nothing commits before every check.
-      if(typeof options.prestage==='function')try{staging=options.prestage(draft,context)||null;}catch(_error){staging=null;}
+      // Prepare chunks only when fleet validation actually waits for the worker. Ready evidence goes straight to
+      // the single final serialization. On a miss, the provider starts this before queuing validation, preserving
+      // useful upload/validation overlap. Persist still uploads anything missing; this never authorizes a commit.
+      let stagingStarted=false;const onFleetValidationWait=typeof options.prestage==='function'?()=>{if(stagingStarted)return;stagingStarted=true;try{staging=options.prestage(draft,context)||null;}catch(_error){staging=null;}}:undefined;
       const validatedFleetRevision=Number.isSafeInteger(draft.fleet?.revision)?draft.fleet.revision:null;
-      mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
+      mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onFleetValidationWait,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
       if(options.integrity!==false&&globalThis.GH_INTEGRITY_CORE?.check){const integrity=globalThis.GH_INTEGRITY_CORE.check(draft),introduced=(((integrity?.critical)||((integrity?.issues)||[]).filter(row=>row.severity==='critical'))||[]).filter(row=>!priorCritical.has(String(row.id||row.code||row.title)));if(introduced.length)throw rejection(`critical-integrity:${introduced.map(row=>row.id||row.code||row.title).join(',')}`,label,phase);}
       if(typeof options.validate==='function'){const validation=await options.validate(draft,context);if(validation===false||validation?.ok===false)throw rejection(validation?.reason||'validation-rejected',label,phase);}
       lap('integrityMs');

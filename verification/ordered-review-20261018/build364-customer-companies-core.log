@@ -1,0 +1,18 @@
+✔ telecom cohorts bill once by calendar month without per-person profiles (8.629576ms)
+✔ conference customer summary reads only bounded customer-cycle counts, not finance or sales snapshots (3.139057ms)
+✔ named telecom profiles are bounded at 160 (32.794834ms)
+✔ financed vehicle order is idempotent and stays pending with only one reserved SKU row (3.011917ms)
+✔ a financed sale settles inventory only after a matching bank and Finance receipt (2.749638ms)
+✔ a rejected dealer loan releases reserved stock without issuing an invoice (2.977535ms)
+✔ OEM directory stays visible without creating parties on snapshot reads (1.706261ms)
+✔ authorization resolver maps only the fixed company commands (1.554715ms)
+✔ customer activity is attributed to a verified open branch and monthly invoice (4.016203ms)
+✔ invalid, foreign, and closed customer-company branches are rejected (1.900621ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66.954553

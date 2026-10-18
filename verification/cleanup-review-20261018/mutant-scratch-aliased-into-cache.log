@@ -1,0 +1,1028 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: mixed lease/owned profiles, cache overflow and revisited early profiles preserve all IEEE results and typed counters
++ actual - expected
+... Skipped lines
+
+  {
+    columns: {
++     count: 1667,
+-     count: 1689,
+      exceptional: {
+        count: 0,
+        indices: Int32Array(0) [],
+        values: Float64Array(0) []
+      },
+...
+      firstUnsupported: null,
++     indices: Int32Array(1667) [
+-     indices: Int32Array(1689) [
+        0,
+        3,
+        6,
+        9,
+        12,
+...
+        4998,
+-       5001,
+-       5004,
+-       5007,
+-       5010,
+-       5013,
+-       5016,
+-       5019,
+-       5022,
+-       5025,
+-       5028,
+-       5031,
+-       5034,
+-       5037,
+-       5040,
+-       5043,
+-       5046,
+-       5049,
+-       5052,
+-       5055,
+-       5058,
+-       5061,
+-       5064
+      ],
+      nonExactRows: 0,
+      preflight: {
+        complete: true,
+        extrasChecked: true,
+...
+      rejectNaN: true,
++     totalCount: 1667,
+-     totalCount: 1689,
+      unsupported: false,
+      unsupportedRows: 0,
++     values: Float32Array(5001) [
+-     values: Float32Array(5067) [
+        16,
+        3,
+        600,
+        16,
+        3,
+...
+        600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600,
+-       16,
+-       3,
+-       600
+      ]
+    },
+    condition: {
+      insured: 425287,
+      readiness: 425287
+...
+        {
++         conditionSum: 139989,
++         cost: 467363.16800000047,
++         count: 1667,
+-         conditionSum: 141816,
+-         cost: 474564.1280000004,
+-         count: 1689,
+          due: [
+            'SCRATCH-0',
+            'SCRATCH-3',
+            'SCRATCH-6',
+            'SCRATCH-9',
+...
+            'SCRATCH-4995',
+-           'SCRATCH-REPEAT-0',
+-           'SCRATCH-REPEAT-3',
+-           'SCRATCH-REPEAT-6',
+-           'SCRATCH-REPEAT-9',
+-           'SCRATCH-REPEAT-30',
+-           'SCRATCH-REPEAT-33',
+-           'SCRATCH-REPEAT-36',
+-           'SCRATCH-REPEAT-60',
+-           'SCRATCH-REPEAT-63'
+          ],
+          fine: 0,
++         licence: 41675000,
++         premium: 1181480.4155,
++         restored: 14715,
++         risk: 0.07334800000000198,
+-         licence: 42225000,
+-         premium: 1196882.841,
+-         restored: 14948,
+-         risk: 0.07431600000000203,
+          sample: [
+            {
+              id: 'SCRATCH-0',
+              price: 200000
+            },
+...
+          unsafe: 0,
++         value: 337565833
+-         value: 341966526
+        }
+      ],
+      [
+        'sea',
+        {
++         conditionSum: 140003,
++         cost: 349917.4079999998,
++         count: 1667,
+-         conditionSum: 141747,
+-         cost: 354718.10699999984,
+-         count: 1688,
+          due: [
+            'SCRATCH-1',
+            'SCRATCH-4',
+            'SCRATCH-7',
+            'SCRATCH-31',
+...
+            'SCRATCH-4996',
+-           'SCRATCH-REPEAT-1',
+-           'SCRATCH-REPEAT-4',
+-           'SCRATCH-REPEAT-7',
+-           'SCRATCH-REPEAT-31',
+-           'SCRATCH-REPEAT-34',
+-           'SCRATCH-REPEAT-37',
+-           'SCRATCH-REPEAT-58',
+-           'SCRATCH-REPEAT-61'
+          ],
+          fine: 0,
++         licence: 25005000,
++         premium: 2025404.9999999998,
++         restored: 14688,
++         risk: 0.12835899999999512,
+-         licence: 25320000,
+-         premium: 2050608.9059999995,
+-         restored: 14898,
+-         risk: 0.12997599999999498,
+          sample: [
+            {
+              id: 'SCRATCH-1',
+              price: 200001
+            },
+...
+          unsafe: 0,
++         value: 337567500
+-         value: 341768151
+        }
+      ],
+      [
+        'road',
+        {
++         conditionSum: 145295,
++         cost: 723858.1409999992,
++         count: 1731,
+-         conditionSum: 141724,
+-         cost: 711856.4819999995,
+-         count: 1688,
+          due: [
+            'SCRATCH-2',
+            'SCRATCH-5',
+            'SCRATCH-8',
+            'SCRATCH-29',
+...
+            'SCRATCH-4997',
++           'SCRATCH-REPEAT-0',
++           'SCRATCH-REPEAT-1',
+            'SCRATCH-REPEAT-2',
++           'SCRATCH-REPEAT-3',
++           'SCRATCH-REPEAT-4',
+            'SCRATCH-REPEAT-5',
++           'SCRATCH-REPEAT-6',
++           'SCRATCH-REPEAT-7',
+            'SCRATCH-REPEAT-8',
++           'SCRATCH-REPEAT-9',
+            'SCRATCH-REPEAT-29',
++           'SCRATCH-REPEAT-30',
++           'SCRATCH-REPEAT-31',
+            'SCRATCH-REPEAT-32',
++           'SCRATCH-REPEAT-33',
++           'SCRATCH-REPEAT-34',
+            'SCRATCH-REPEAT-35',
++           'SCRATCH-REPEAT-36',
++           'SCRATCH-REPEAT-37',
+            'SCRATCH-REPEAT-38',
++           'SCRATCH-REPEAT-58',
+            'SCRATCH-REPEAT-59',
++           'SCRATCH-REPEAT-60',
++           'SCRATCH-REPEAT-61',
+            'SCRATCH-REPEAT-62',
++           'SCRATCH-REPEAT-63'
+          ],
+          fine: 0,
++         licence: 2077200,
++         premium: 10520675.010000002,
++         restored: 15387,
++         risk: 0.6577800000000118,
+-         licence: 2025600,
+-         premium: 10253095.170000002,
+-         restored: 14944,
+-         risk: 0.6414400000000098,
+          sample: [
+            {
+              id: 'SCRATCH-2',
+              price: 200002
+            },
+...
+          unsafe: 0,
++         value: 350689167
+-         value: 341769839
+        }
+      ]
+    ],
+    ops: {
++     airCondition: 139989,
++     airCount: 1667,
+-     airCondition: 141816,
+-     airCount: 1689,
+      aog: 0,
++     ask: 300060,
+-     ask: 304020,
+      cost: 0,
+      fuel: 0,
++     maintExposure: 43271.385656,
+-     maintExposure: 43868.27157599999,
+      maintReserve: 0,
++     maintenanceDue: 116,
++     movingAir: 1667,
+-     maintenanceDue: 118,
+-     movingAir: 1689,
+      movingSea: 0,
+      rev: 0,
++     roadCount: 1731,
++     roadDamaged: 303,
+-     roadCount: 1688,
+-     roadDamaged: 293,
+      roadWeak: 0,
++     rpk: 205003.09440000015,
+-     rpk: 207697.08960000015,
+      seaCo2: 0,
++     seaCondition: 140003,
++     seaCount: 1667,
++     seaDistance: 1667,
+-     seaCondition: 141747,
+-     seaCount: 1688,
+-     seaDistance: 1688,
+      seaDryDock: 0,
+      seaFuelProxy: NaN,
+      seaRefWork: 0,
++     seaTransport: 300060,
+-     seaTransport: 303840,
+      seaWork: 0
+    },
+    ownerTotals: [
+      [
+        'air',
+        {
++         assetVal: 68309099.90088007,
++         depr: 3402655.496260721,
+-         assetVal: 69182318.45118007,
+-         depr: 3423111.8323595845,
+          fuelCost: 0,
++         leaseInterest: 544313.4962496945,
++         leaseLiab: 96268040.34119177,
+-         leaseInterest: 546451.1666837716,
+-         leaseLiab: 96646111.70080674,
+          maintReserve: 0,
++         owned: 141814503.71999997,
++         payroll: 12005733,
++         rou: 96007316.63551036
+-         owned: 143608777.62,
+-         payroll: 12164176,
+-         rou: 96384360.62799145
+        }
+      ],
+      [
+        'sea',
+        {
++         assetVal: 85088619.14597985,
++         depr: 3280922.737744632,
+-         assetVal: 86029552.76993987,
+-         depr: 3299026.5739741316,
+          fuelCost: 0,
++         leaseInterest: 515863.54994445684,
++         leaseLiab: 91236343.35501064,
+-         leaseInterest: 517868.40069350484,
+-         leaseLiab: 91590924.04080515,
+          maintReserve: 0,
++         owned: 141646647.24000013,
++         payroll: 12005735,
++         rou: 90988841.7202919
+-         owned: 143318906.52000016,
+-         payroll: 12156976,
+-         rou: 91342457.40377253
+        }
+      ],
+      [
+        'road',
+        {
++         assetVal: 29537851.548499994,
++         depr: 4514018.368121164,
+-         assetVal: 28768848.50135,
+-         depr: 4420548.9434686415,
+          fuelCost: 0,
++         leaseInterest: 573070.039880142,
++         leaseLiab: 101353962.55580315,
+-         leaseInterest: 575154.7554212747,
+-         leaseLiab: 101722668.23956159,
+          maintReserve: 0,
++         owned: 152725249.31999984,
++         payroll: 12466532,
++         rou: 101079918.38113824
+-         owned: 143684198.19999987,
+-         payroll: 12156974,
+-         rou: 101447624.6009308
+        }
+      ]
+    ],
+    schema: 'gh-fleet-day-v1',
+    version: '1.0.0'
+
+    at Object.<anonymous> (/workspace/madar/tests/build438-day-scratch-work.cjs:9:281)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    schema: 'gh-fleet-day-v1',
+    version: '1.0.0',
+    legacy: false,
+    ownerTotals: [
+      [
+        'air',
+        {
+          assetVal: 68309099.90088007,
+          depr: 3402655.496260721,
+          leaseLiab: 96268040.34119177,
+          rou: 96007316.63551036,
+          leaseInterest: 544313.4962496945,
+          owned: 141814503.71999997,
+          fuelCost: 0,
+          maintReserve: 0,
+          payroll: 12005733
+        }
+      ],
+      [
+        'sea',
+        {
+          assetVal: 85088619.14597985,
+          depr: 3280922.737744632,
+          leaseLiab: 91236343.35501064,
+          rou: 90988841.7202919,
+          leaseInterest: 515863.54994445684,
+          owned: 141646647.24000013,
+          fuelCost: 0,
+          maintReserve: 0,
+          payroll: 12005735
+        }
+      ],
+      [
+        'road',
+        {
+          assetVal: 29537851.548499994,
+          depr: 4514018.368121164,
+          leaseLiab: 101353962.55580315,
+          rou: 101079918.38113824,
+          leaseInterest: 573070.039880142,
+          owned: 152725249.31999984,
+          fuelCost: 0,
+          maintReserve: 0,
+          payroll: 12466532
+        }
+      ]
+    ],
+    ops: {
+      ask: 300060,
+      rpk: 205003.09440000015,
+      rev: 0,
+      cost: 0,
+      fuel: 0,
+      movingAir: 1667,
+      airCondition: 139989,
+      maintReserve: 0,
+      maintExposure: 43271.385656,
+      airCount: 1667,
+      maintenanceDue: 116,
+      aog: 0,
+      seaDistance: 1667,
+      seaFuelProxy: NaN,
+      seaTransport: 300060,
+      seaCo2: 0,
+      seaWork: 0,
+      seaRefWork: 0,
+      seaCondition: 140003,
+      movingSea: 0,
+      seaCount: 1667,
+      seaDryDock: 0,
+      roadCount: 1731,
+      roadWeak: 0,
+      roadDamaged: 303
+    },
+    maintenance: [
+      [
+        'air',
+        {
+          threshold: 80,
+          conditionSum: 139989,
+          restored: 14715,
+          count: 1667,
+          due: [
+            'SCRATCH-0',   'SCRATCH-3',   'SCRATCH-6',   'SCRATCH-9',
+            'SCRATCH-30',  'SCRATCH-33',  'SCRATCH-36',  'SCRATCH-60',
+            'SCRATCH-63',  'SCRATCH-66',  'SCRATCH-87',  'SCRATCH-90',
+            'SCRATCH-93',  'SCRATCH-96',  'SCRATCH-117', 'SCRATCH-120',
+            'SCRATCH-123', 'SCRATCH-147', 'SCRATCH-150', 'SCRATCH-153',
+            'SCRATCH-174', 'SCRATCH-177', 'SCRATCH-180', 'SCRATCH-183',
+            'SCRATCH-204', 'SCRATCH-207', 'SCRATCH-210', 'SCRATCH-234',
+            'SCRATCH-237', 'SCRATCH-240', 'SCRATCH-261', 'SCRATCH-264',
+            'SCRATCH-267', 'SCRATCH-270', 'SCRATCH-291', 'SCRATCH-294',
+            'SCRATCH-297', 'SCRATCH-321', 'SCRATCH-324', 'SCRATCH-327',
+            'SCRATCH-348', 'SCRATCH-351', 'SCRATCH-354', 'SCRATCH-357',
+            'SCRATCH-378', 'SCRATCH-381', 'SCRATCH-384', 'SCRATCH-408',
+            'SCRATCH-411', 'SCRATCH-414', 'SCRATCH-435', 'SCRATCH-438',
+            'SCRATCH-441', 'SCRATCH-444', 'SCRATCH-465', 'SCRATCH-468',
+            'SCRATCH-471', 'SCRATCH-495', 'SCRATCH-498', 'SCRATCH-501',
+            'SCRATCH-522', 'SCRATCH-525', 'SCRATCH-528', 'SCRATCH-531',
+            'SCRATCH-552', 'SCRATCH-555', 'SCRATCH-558', 'SCRATCH-582',
+            'SCRATCH-585', 'SCRATCH-588', 'SCRATCH-609', 'SCRATCH-612',
+            'SCRATCH-615', 'SCRATCH-618', 'SCRATCH-639', 'SCRATCH-642',
+            'SCRATCH-645', 'SCRATCH-669', 'SCRATCH-672', 'SCRATCH-675',
+            'SCRATCH-696', 'SCRATCH-699', 'SCRATCH-702', 'SCRATCH-705',
+            'SCRATCH-726', 'SCRATCH-729', 'SCRATCH-732', 'SCRATCH-756',
+            'SCRATCH-759', 'SCRATCH-762', 'SCRATCH-783', 'SCRATCH-786',
+            'SCRATCH-789', 'SCRATCH-792', 'SCRATCH-813', 'SCRATCH-816',
+            'SCRATCH-819', 'SCRATCH-843', 'SCRATCH-846', 'SCRATCH-849',
+            ... 477 more items
+          ],
+          cost: 467363.16800000047,
+          value: 337565833,
+          risk: 0.07334800000000198,
+          premium: 1181480.4155,
+          sample: [
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object]
+          ],
+          licence: 41675000,
+          fine: 0,
+          unsafe: 0
+        }
+      ],
+      [
+        'sea',
+        {
+          threshold: 80,
+          conditionSum: 140003,
+          restored: 14688,
+          count: 1667,
+          due: [
+            'SCRATCH-1',   'SCRATCH-4',   'SCRATCH-7',   'SCRATCH-31',
+            'SCRATCH-34',  'SCRATCH-37',  'SCRATCH-58',  'SCRATCH-61',
+            'SCRATCH-64',  'SCRATCH-67',  'SCRATCH-88',  'SCRATCH-91',
+            'SCRATCH-94',  'SCRATCH-118', 'SCRATCH-121', 'SCRATCH-124',
+            'SCRATCH-145', 'SCRATCH-148', 'SCRATCH-151', 'SCRATCH-154',
+            'SCRATCH-175', 'SCRATCH-178', 'SCRATCH-181', 'SCRATCH-205',
+            'SCRATCH-208', 'SCRATCH-211', 'SCRATCH-232', 'SCRATCH-235',
+            'SCRATCH-238', 'SCRATCH-241', 'SCRATCH-262', 'SCRATCH-265',
+            'SCRATCH-268', 'SCRATCH-292', 'SCRATCH-295', 'SCRATCH-298',
+            'SCRATCH-319', 'SCRATCH-322', 'SCRATCH-325', 'SCRATCH-328',
+            'SCRATCH-349', 'SCRATCH-352', 'SCRATCH-355', 'SCRATCH-379',
+            'SCRATCH-382', 'SCRATCH-385', 'SCRATCH-406', 'SCRATCH-409',
+            'SCRATCH-412', 'SCRATCH-415', 'SCRATCH-436', 'SCRATCH-439',
+            'SCRATCH-442', 'SCRATCH-466', 'SCRATCH-469', 'SCRATCH-472',
+            'SCRATCH-493', 'SCRATCH-496', 'SCRATCH-499', 'SCRATCH-502',
+            'SCRATCH-523', 'SCRATCH-526', 'SCRATCH-529', 'SCRATCH-553',
+            'SCRATCH-556', 'SCRATCH-559', 'SCRATCH-580', 'SCRATCH-583',
+            'SCRATCH-586', 'SCRATCH-589', 'SCRATCH-610', 'SCRATCH-613',
+            'SCRATCH-616', 'SCRATCH-640', 'SCRATCH-643', 'SCRATCH-646',
+            'SCRATCH-667', 'SCRATCH-670', 'SCRATCH-673', 'SCRATCH-676',
+            'SCRATCH-697', 'SCRATCH-700', 'SCRATCH-703', 'SCRATCH-727',
+            'SCRATCH-730', 'SCRATCH-733', 'SCRATCH-754', 'SCRATCH-757',
+            'SCRATCH-760', 'SCRATCH-763', 'SCRATCH-784', 'SCRATCH-787',
+            'SCRATCH-790', 'SCRATCH-814', 'SCRATCH-817', 'SCRATCH-820',
+            'SCRATCH-841', 'SCRATCH-844', 'SCRATCH-847', 'SCRATCH-850',
+            ... 476 more items
+          ],
+          cost: 349917.4079999998,
+          value: 337567500,
+          risk: 0.12835899999999512,
+          premium: 2025404.9999999998,
+          sample: [
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object]
+          ],
+          licence: 25005000,
+          fine: 0,
+          unsafe: 0
+        }
+      ],
+      [
+        'road',
+        {
+          threshold: 80,
+          conditionSum: 145295,
+          restored: 15387,
+          count: 1731,
+          due: [
+            'SCRATCH-2',   'SCRATCH-5',   'SCRATCH-8',   'SCRATCH-29',
+            'SCRATCH-32',  'SCRATCH-35',  'SCRATCH-38',  'SCRATCH-59',
+            'SCRATCH-62',  'SCRATCH-65',  'SCRATCH-89',  'SCRATCH-92',
+            'SCRATCH-95',  'SCRATCH-116', 'SCRATCH-119', 'SCRATCH-122',
+            'SCRATCH-125', 'SCRATCH-146', 'SCRATCH-149', 'SCRATCH-152',
+            'SCRATCH-176', 'SCRATCH-179', 'SCRATCH-182', 'SCRATCH-203',
+            'SCRATCH-206', 'SCRATCH-209', 'SCRATCH-212', 'SCRATCH-233',
+            'SCRATCH-236', 'SCRATCH-239', 'SCRATCH-263', 'SCRATCH-266',
+            'SCRATCH-269', 'SCRATCH-290', 'SCRATCH-293', 'SCRATCH-296',
+            'SCRATCH-299', 'SCRATCH-320', 'SCRATCH-323', 'SCRATCH-326',
+            'SCRATCH-350', 'SCRATCH-353', 'SCRATCH-356', 'SCRATCH-377',
+            'SCRATCH-380', 'SCRATCH-383', 'SCRATCH-386', 'SCRATCH-407',
+            'SCRATCH-410', 'SCRATCH-413', 'SCRATCH-437', 'SCRATCH-440',
+            'SCRATCH-443', 'SCRATCH-464', 'SCRATCH-467', 'SCRATCH-470',
+            'SCRATCH-473', 'SCRATCH-494', 'SCRATCH-497', 'SCRATCH-500',
+            'SCRATCH-524', 'SCRATCH-527', 'SCRATCH-530', 'SCRATCH-551',
+            'SCRATCH-554', 'SCRATCH-557', 'SCRATCH-560', 'SCRATCH-581',
+            'SCRATCH-584', 'SCRATCH-587', 'SCRATCH-611', 'SCRATCH-614',
+            'SCRATCH-617', 'SCRATCH-638', 'SCRATCH-641', 'SCRATCH-644',
+            'SCRATCH-647', 'SCRATCH-668', 'SCRATCH-671', 'SCRATCH-674',
+            'SCRATCH-698', 'SCRATCH-701', 'SCRATCH-704', 'SCRATCH-725',
+            'SCRATCH-728', 'SCRATCH-731', 'SCRATCH-734', 'SCRATCH-755',
+            'SCRATCH-758', 'SCRATCH-761', 'SCRATCH-785', 'SCRATCH-788',
+            'SCRATCH-791', 'SCRATCH-812', 'SCRATCH-815', 'SCRATCH-818',
+            'SCRATCH-821', 'SCRATCH-842', 'SCRATCH-845', 'SCRATCH-848',
+            ... 503 more items
+          ],
+          cost: 723858.1409999992,
+          value: 350689167,
+          risk: 0.6577800000000118,
+          premium: 10520675.010000002,
+          sample: [
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object]
+          ],
+          licence: 2077200,
+          fine: 0,
+          unsafe: 0
+        }
+      ]
+    ],
+    condition: { insured: 425287, readiness: 425287 },
+    dailyMetrics: {
+      rows: 5065,
+      moving: 1689,
+      mix: { total: 5065, lowEmission: 0, road: 1688, electricRoad: 0 }
+    },
+    columns: {
+      fields: [ 'flightHours', 'flightCycles', 'nextCheckHours' ],
+      indices: Int32Array(1667) [
+          0,   3,   6,   9,  12,  15,  18,  21,  24,  27,  30,  33,
+         36,  39,  42,  45,  48,  51,  54,  57,  60,  63,  66,  69,
+         72,  75,  78,  81,  84,  87,  90,  93,  96,  99, 102, 105,
+        108, 111, 114, 117, 120, 123, 126, 129, 132, 135, 138, 141,
+        144, 147, 150, 153, 156, 159, 162, 165, 168, 171, 174, 177,
+        180, 183, 186, 189, 192, 195, 198, 201, 204, 207, 210, 213,
+        216, 219, 222, 225, 228, 231, 234, 237, 240, 243, 246, 249,
+        252, 255, 258, 261, 264, 267, 270, 273, 276, 279, 282, 285,
+        288, 291, 294, 297,
+        ... 1567 more items
+      ],
+      values: Float32Array(5001) [
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16,
+        ... 4901 more items
+      ],
+      count: 1667,
+      exceptional: {
+        indices: Int32Array(0) [],
+        values: Float64Array(0) [],
+        count: 0
+      },
+      totalCount: 1667,
+      rejectNaN: true,
+      unsupported: false,
+      unsupportedRows: 0,
+      exceptionalRows: 0,
+      extrasRows: 0,
+      nonExactRows: 0,
+      firstUnsupported: null,
+      firstExceptional: null,
+      reasons: [],
+      preflight: { mode: 'store', complete: true, extrasChecked: true }
+    }
+  },
+  expected: {
+    schema: 'gh-fleet-day-v1',
+    version: '1.0.0',
+    legacy: false,
+    ownerTotals: [
+      [
+        'air',
+        {
+          assetVal: 69182318.45118007,
+          depr: 3423111.8323595845,
+          leaseLiab: 96646111.70080674,
+          rou: 96384360.62799145,
+          leaseInterest: 546451.1666837716,
+          owned: 143608777.62,
+          fuelCost: 0,
+          maintReserve: 0,
+          payroll: 12164176
+        }
+      ],
+      [
+        'sea',
+        {
+          assetVal: 86029552.76993987,
+          depr: 3299026.5739741316,
+          leaseLiab: 91590924.04080515,
+          rou: 91342457.40377253,
+          leaseInterest: 517868.40069350484,
+          owned: 143318906.52000016,
+          fuelCost: 0,
+          maintReserve: 0,
+          payroll: 12156976
+        }
+      ],
+      [
+        'road',
+        {
+          assetVal: 28768848.50135,
+          depr: 4420548.9434686415,
+          leaseLiab: 101722668.23956159,
+          rou: 101447624.6009308,
+          leaseInterest: 575154.7554212747,
+          owned: 143684198.19999987,
+          fuelCost: 0,
+          maintReserve: 0,
+          payroll: 12156974
+        }
+      ]
+    ],
+    ops: {
+      ask: 304020,
+      rpk: 207697.08960000015,
+      rev: 0,
+      cost: 0,
+      fuel: 0,
+      movingAir: 1689,
+      airCondition: 141816,
+      maintReserve: 0,
+      maintExposure: 43868.27157599999,
+      airCount: 1689,
+      maintenanceDue: 118,
+      aog: 0,
+      seaDistance: 1688,
+      seaFuelProxy: NaN,
+      seaTransport: 303840,
+      seaCo2: 0,
+      seaWork: 0,
+      seaRefWork: 0,
+      seaCondition: 141747,
+      movingSea: 0,
+      seaCount: 1688,
+      seaDryDock: 0,
+      roadCount: 1688,
+      roadWeak: 0,
+      roadDamaged: 293
+    },
+    maintenance: [
+      [
+        'air',
+        {
+          threshold: 80,
+          conditionSum: 141816,
+          restored: 14948,
+          count: 1689,
+          due: [
+            'SCRATCH-0',   'SCRATCH-3',   'SCRATCH-6',   'SCRATCH-9',
+            'SCRATCH-30',  'SCRATCH-33',  'SCRATCH-36',  'SCRATCH-60',
+            'SCRATCH-63',  'SCRATCH-66',  'SCRATCH-87',  'SCRATCH-90',
+            'SCRATCH-93',  'SCRATCH-96',  'SCRATCH-117', 'SCRATCH-120',
+            'SCRATCH-123', 'SCRATCH-147', 'SCRATCH-150', 'SCRATCH-153',
+            'SCRATCH-174', 'SCRATCH-177', 'SCRATCH-180', 'SCRATCH-183',
+            'SCRATCH-204', 'SCRATCH-207', 'SCRATCH-210', 'SCRATCH-234',
+            'SCRATCH-237', 'SCRATCH-240', 'SCRATCH-261', 'SCRATCH-264',
+            'SCRATCH-267', 'SCRATCH-270', 'SCRATCH-291', 'SCRATCH-294',
+            'SCRATCH-297', 'SCRATCH-321', 'SCRATCH-324', 'SCRATCH-327',
+            'SCRATCH-348', 'SCRATCH-351', 'SCRATCH-354', 'SCRATCH-357',
+            'SCRATCH-378', 'SCRATCH-381', 'SCRATCH-384', 'SCRATCH-408',
+            'SCRATCH-411', 'SCRATCH-414', 'SCRATCH-435', 'SCRATCH-438',
+            'SCRATCH-441', 'SCRATCH-444', 'SCRATCH-465', 'SCRATCH-468',
+            'SCRATCH-471', 'SCRATCH-495', 'SCRATCH-498', 'SCRATCH-501',
+            'SCRATCH-522', 'SCRATCH-525', 'SCRATCH-528', 'SCRATCH-531',
+            'SCRATCH-552', 'SCRATCH-555', 'SCRATCH-558', 'SCRATCH-582',
+            'SCRATCH-585', 'SCRATCH-588', 'SCRATCH-609', 'SCRATCH-612',
+            'SCRATCH-615', 'SCRATCH-618', 'SCRATCH-639', 'SCRATCH-642',
+            'SCRATCH-645', 'SCRATCH-669', 'SCRATCH-672', 'SCRATCH-675',
+            'SCRATCH-696', 'SCRATCH-699', 'SCRATCH-702', 'SCRATCH-705',
+            'SCRATCH-726', 'SCRATCH-729', 'SCRATCH-732', 'SCRATCH-756',
+            'SCRATCH-759', 'SCRATCH-762', 'SCRATCH-783', 'SCRATCH-786',
+            'SCRATCH-789', 'SCRATCH-792', 'SCRATCH-813', 'SCRATCH-816',
+            'SCRATCH-819', 'SCRATCH-843', 'SCRATCH-846', 'SCRATCH-849',
+            ... 486 more items
+          ],
+          cost: 474564.1280000004,
+          value: 341966526,
+          risk: 0.07431600000000203,
+          premium: 1196882.841,
+          sample: [
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object]
+          ],
+          licence: 42225000,
+          fine: 0,
+          unsafe: 0
+        }
+      ],
+      [
+        'sea',
+        {
+          threshold: 80,
+          conditionSum: 141747,
+          restored: 14898,
+          count: 1688,
+          due: [
+            'SCRATCH-1',   'SCRATCH-4',   'SCRATCH-7',   'SCRATCH-31',
+            'SCRATCH-34',  'SCRATCH-37',  'SCRATCH-58',  'SCRATCH-61',
+            'SCRATCH-64',  'SCRATCH-67',  'SCRATCH-88',  'SCRATCH-91',
+            'SCRATCH-94',  'SCRATCH-118', 'SCRATCH-121', 'SCRATCH-124',
+            'SCRATCH-145', 'SCRATCH-148', 'SCRATCH-151', 'SCRATCH-154',
+            'SCRATCH-175', 'SCRATCH-178', 'SCRATCH-181', 'SCRATCH-205',
+            'SCRATCH-208', 'SCRATCH-211', 'SCRATCH-232', 'SCRATCH-235',
+            'SCRATCH-238', 'SCRATCH-241', 'SCRATCH-262', 'SCRATCH-265',
+            'SCRATCH-268', 'SCRATCH-292', 'SCRATCH-295', 'SCRATCH-298',
+            'SCRATCH-319', 'SCRATCH-322', 'SCRATCH-325', 'SCRATCH-328',
+            'SCRATCH-349', 'SCRATCH-352', 'SCRATCH-355', 'SCRATCH-379',
+            'SCRATCH-382', 'SCRATCH-385', 'SCRATCH-406', 'SCRATCH-409',
+            'SCRATCH-412', 'SCRATCH-415', 'SCRATCH-436', 'SCRATCH-439',
+            'SCRATCH-442', 'SCRATCH-466', 'SCRATCH-469', 'SCRATCH-472',
+            'SCRATCH-493', 'SCRATCH-496', 'SCRATCH-499', 'SCRATCH-502',
+            'SCRATCH-523', 'SCRATCH-526', 'SCRATCH-529', 'SCRATCH-553',
+            'SCRATCH-556', 'SCRATCH-559', 'SCRATCH-580', 'SCRATCH-583',
+            'SCRATCH-586', 'SCRATCH-589', 'SCRATCH-610', 'SCRATCH-613',
+            'SCRATCH-616', 'SCRATCH-640', 'SCRATCH-643', 'SCRATCH-646',
+            'SCRATCH-667', 'SCRATCH-670', 'SCRATCH-673', 'SCRATCH-676',
+            'SCRATCH-697', 'SCRATCH-700', 'SCRATCH-703', 'SCRATCH-727',
+            'SCRATCH-730', 'SCRATCH-733', 'SCRATCH-754', 'SCRATCH-757',
+            'SCRATCH-760', 'SCRATCH-763', 'SCRATCH-784', 'SCRATCH-787',
+            'SCRATCH-790', 'SCRATCH-814', 'SCRATCH-817', 'SCRATCH-820',
+            'SCRATCH-841', 'SCRATCH-844', 'SCRATCH-847', 'SCRATCH-850',
+            ... 484 more items
+          ],
+          cost: 354718.10699999984,
+          value: 341768151,
+          risk: 0.12997599999999498,
+          premium: 2050608.9059999995,
+          sample: [
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object]
+          ],
+          licence: 25320000,
+          fine: 0,
+          unsafe: 0
+        }
+      ],
+      [
+        'road',
+        {
+          threshold: 80,
+          conditionSum: 141724,
+          restored: 14944,
+          count: 1688,
+          due: [
+            'SCRATCH-2',   'SCRATCH-5',   'SCRATCH-8',   'SCRATCH-29',
+            'SCRATCH-32',  'SCRATCH-35',  'SCRATCH-38',  'SCRATCH-59',
+            'SCRATCH-62',  'SCRATCH-65',  'SCRATCH-89',  'SCRATCH-92',
+            'SCRATCH-95',  'SCRATCH-116', 'SCRATCH-119', 'SCRATCH-122',
+            'SCRATCH-125', 'SCRATCH-146', 'SCRATCH-149', 'SCRATCH-152',
+            'SCRATCH-176', 'SCRATCH-179', 'SCRATCH-182', 'SCRATCH-203',
+            'SCRATCH-206', 'SCRATCH-209', 'SCRATCH-212', 'SCRATCH-233',
+            'SCRATCH-236', 'SCRATCH-239', 'SCRATCH-263', 'SCRATCH-266',
+            'SCRATCH-269', 'SCRATCH-290', 'SCRATCH-293', 'SCRATCH-296',
+            'SCRATCH-299', 'SCRATCH-320', 'SCRATCH-323', 'SCRATCH-326',
+            'SCRATCH-350', 'SCRATCH-353', 'SCRATCH-356', 'SCRATCH-377',
+            'SCRATCH-380', 'SCRATCH-383', 'SCRATCH-386', 'SCRATCH-407',
+            'SCRATCH-410', 'SCRATCH-413', 'SCRATCH-437', 'SCRATCH-440',
+            'SCRATCH-443', 'SCRATCH-464', 'SCRATCH-467', 'SCRATCH-470',
+            'SCRATCH-473', 'SCRATCH-494', 'SCRATCH-497', 'SCRATCH-500',
+            'SCRATCH-524', 'SCRATCH-527', 'SCRATCH-530', 'SCRATCH-551',
+            'SCRATCH-554', 'SCRATCH-557', 'SCRATCH-560', 'SCRATCH-581',
+            'SCRATCH-584', 'SCRATCH-587', 'SCRATCH-611', 'SCRATCH-614',
+            'SCRATCH-617', 'SCRATCH-638', 'SCRATCH-641', 'SCRATCH-644',
+            'SCRATCH-647', 'SCRATCH-668', 'SCRATCH-671', 'SCRATCH-674',
+            'SCRATCH-698', 'SCRATCH-701', 'SCRATCH-704', 'SCRATCH-725',
+            'SCRATCH-728', 'SCRATCH-731', 'SCRATCH-734', 'SCRATCH-755',
+            'SCRATCH-758', 'SCRATCH-761', 'SCRATCH-785', 'SCRATCH-788',
+            'SCRATCH-791', 'SCRATCH-812', 'SCRATCH-815', 'SCRATCH-818',
+            'SCRATCH-821', 'SCRATCH-842', 'SCRATCH-845', 'SCRATCH-848',
+            ... 486 more items
+          ],
+          cost: 711856.4819999995,
+          value: 341769839,
+          risk: 0.6414400000000098,
+          premium: 10253095.170000002,
+          sample: [
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object], [Object],
+            [Object], [Object], [Object], [Object]
+          ],
+          licence: 2025600,
+          fine: 0,
+          unsafe: 0
+        }
+      ]
+    ],
+    condition: { insured: 425287, readiness: 425287 },
+    dailyMetrics: {
+      rows: 5065,
+      moving: 1689,
+      mix: { total: 5065, lowEmission: 0, road: 1688, electricRoad: 0 }
+    },
+    columns: {
+      fields: [ 'flightHours', 'flightCycles', 'nextCheckHours' ],
+      indices: Int32Array(1689) [
+          0,   3,   6,   9,  12,  15,  18,  21,  24,  27,  30,  33,
+         36,  39,  42,  45,  48,  51,  54,  57,  60,  63,  66,  69,
+         72,  75,  78,  81,  84,  87,  90,  93,  96,  99, 102, 105,
+        108, 111, 114, 117, 120, 123, 126, 129, 132, 135, 138, 141,
+        144, 147, 150, 153, 156, 159, 162, 165, 168, 171, 174, 177,
+        180, 183, 186, 189, 192, 195, 198, 201, 204, 207, 210, 213,
+        216, 219, 222, 225, 228, 231, 234, 237, 240, 243, 246, 249,
+        252, 255, 258, 261, 264, 267, 270, 273, 276, 279, 282, 285,
+        288, 291, 294, 297,
+        ... 1589 more items
+      ],
+      values: Float32Array(5067) [
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16, 3, 600, 16, 3, 600, 16, 3, 600,
+        16, 3, 600, 16,
+        ... 4967 more items
+      ],
+      count: 1689,
+      exceptional: {
+        indices: Int32Array(0) [],
+        values: Float64Array(0) [],
+        count: 0
+      },
+      totalCount: 1689,
+      rejectNaN: true,
+      unsupported: false,
+      unsupportedRows: 0,
+      exceptionalRows: 0,
+      extrasRows: 0,
+      nonExactRows: 0,
+      firstUnsupported: null,
+      firstExceptional: null,
+      reasons: [],
+      preflight: { mode: 'store', complete: true, extrasChecked: true }
+    }
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

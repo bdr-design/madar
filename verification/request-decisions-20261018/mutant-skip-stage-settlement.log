@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: persist waits for staged uploads to settle
+
+true !== false
+
+    at /workspace/madar/tests/build435-conditional-prestage.cjs:19:244 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

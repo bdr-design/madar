@@ -1,0 +1,194 @@
+[
+  {
+    "mutation": "per-row-plan-validation",
+    "file": "app.js",
+    "test": [
+      "node",
+      "tests/build442-fleet-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "road apply must validate",
+    "seconds": 2.602
+  },
+  {
+    "mutation": "all-corridor-comparisons",
+    "file": "app.js",
+    "test": [
+      "node",
+      "tests/build442-fleet-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "unrelated aviation corridors",
+    "seconds": 1.127
+  },
+  {
+    "mutation": "copy-canonical-routed-rows",
+    "file": "fleet-legacy-route-plan-core.js",
+    "test": [
+      "node",
+      "tests/build442-fleet-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "canonical routed rows",
+    "seconds": 0.255
+  },
+  {
+    "mutation": "drop-near-corridor-check",
+    "file": "fleet-legacy-route-plan-core.js",
+    "test": [
+      "node",
+      "tests/build442-fleet-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "differential:",
+    "seconds": 0.24
+  },
+  {
+    "mutation": "repeat-mobility-validation",
+    "file": "mobility-core.js",
+    "test": [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "validate all mobility ownership once",
+    "seconds": 0.132
+  },
+  {
+    "mutation": "discard-internal-projection",
+    "file": "mobility-core.js",
+    "test": [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "private step must not build",
+    "seconds": 0.124
+  },
+  {
+    "mutation": "duplicate-energy-economics",
+    "file": "advanced-core.js",
+    "test": [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "reuse site economics",
+    "seconds": 0.128
+  },
+  {
+    "mutation": "duplicate-bank-ensure",
+    "file": "advanced-core.js",
+    "test": [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "prudential reconciliation",
+    "seconds": 0.121
+  },
+  {
+    "mutation": "unused-company-summary",
+    "file": "advanced-core.js",
+    "test": [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "prepare company operating summary",
+    "seconds": 0.122
+  },
+  {
+    "mutation": "unused-branch-selector",
+    "file": "advanced-core.js",
+    "test": [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "unused-branch-selector",
+    "seconds": 0.125
+  },
+  {
+    "mutation": "unused-payable-search",
+    "file": "finance-core.js",
+    "test": [
+      "node",
+      "tests/build446-payroll-unused-work.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "must not search the complete payable history",
+    "seconds": 0.1
+  },
+  {
+    "mutation": "eager-80-cards",
+    "file": "app.js",
+    "test": [
+      "node",
+      "tests/build444-document-pages.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "construct only the bounded",
+    "seconds": 0.333
+  },
+  {
+    "mutation": "repeat-first-page",
+    "file": "app.js",
+    "test": [
+      "node",
+      "tests/build444-document-pages.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "every document appears once",
+    "seconds": 1.088
+  },
+  {
+    "mutation": "drop-document-owner-filter",
+    "file": "app.js",
+    "test": [
+      "node",
+      "tests/build444-document-pages.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "every document appears once",
+    "seconds": 1.316
+  },
+  {
+    "mutation": "unbounded-invalid-page",
+    "file": "app.js",
+    "test": [
+      "node",
+      "tests/build444-document-pages.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "invalid page is bounded",
+    "seconds": 1.079
+  },
+  {
+    "mutation": "unbound-navigation-buttons",
+    "file": "app.js",
+    "test": [
+      "node",
+      "tests/build445-document-pages-browser.cjs"
+    ],
+    "exit_code": 1,
+    "detected": true,
+    "expected_assertion": "page navigation must terminate",
+    "seconds": 3.158
+  }
+]

@@ -1,0 +1,14 @@
+AssertionError [ERR_ASSERTION]: already verified evidence must be returned synchronously, without a fake worker wait
++ actual - expected
+
++ 'function'
+- 'undefined'
+
+    at /workspace/madar/tests/build432-ready-fleet-validation.cjs:13:42 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'function',
+  expected: 'undefined',
+  operator: 'strictEqual',
+  diff: 'simple'
+}

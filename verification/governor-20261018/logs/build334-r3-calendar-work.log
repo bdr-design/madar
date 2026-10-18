@@ -1,0 +1,105 @@
+{
+  "suite": "build334-r3-calendar-work",
+  "environment": "deterministic scheduler with injected stage costs; not wall-clock/device performance; one-hour calendar batching with bounded chunk fallback",
+  "passed": 13,
+  "total": 13,
+  "results": [
+    {
+      "name": "fixed create pressure preserves hourly calendar batching (0 to 86400)",
+      "ok": true,
+      "details": {
+        "commits": 24,
+        "referenceCommits": 24,
+        "throttles": 1,
+        "frames": 48
+      }
+    },
+    {
+      "name": "fixed create pressure preserves hourly calendar batching (3501.25 to 93637.5)",
+      "ok": true,
+      "details": {
+        "commits": 27,
+        "referenceCommits": 27,
+        "throttles": 1,
+        "frames": 54
+      }
+    },
+    {
+      "name": "fixed finish pressure preserves hourly calendar batching (0 to 86400)",
+      "ok": true,
+      "details": {
+        "commits": 24,
+        "referenceCommits": 24,
+        "throttles": 1,
+        "frames": 46
+      }
+    },
+    {
+      "name": "fixed finish pressure preserves hourly calendar batching (3501.25 to 93637.5)",
+      "ok": true,
+      "details": {
+        "commits": 27,
+        "referenceCommits": 27,
+        "throttles": 1,
+        "frames": 52
+      }
+    },
+    {
+      "name": "per-asset chunk pressure cooperatively yields without shrinking the atomic calendar interval",
+      "ok": true,
+      "details": {
+        "commits": 24,
+        "throttles": 1
+      }
+    },
+    {
+      "name": "chunk pressure after fixed-cost pressure preserves the same hourly transaction boundary",
+      "ok": true,
+      "details": {
+        "commits": 24,
+        "throttles": 1
+      }
+    },
+    {
+      "name": "calendar preserves the player-selected live speed",
+      "ok": true
+    },
+    {
+      "name": "one rejected interval is retried without duplicate time or boundary posting",
+      "ok": true
+    },
+    {
+      "name": "persistent rejected interval fails closed after bounded retries",
+      "ok": true,
+      "details": {
+        "rejections": 3,
+        "failure": {
+          "reason": "asset-conflict",
+          "stage": "commit",
+          "from": 0,
+          "to": 3600,
+          "at": 0,
+          "retries": 3,
+          "error": "",
+          "errorDetail": null
+        }
+      }
+    },
+    {
+      "name": "real-time performance pressure preserves the selected 30x speed and only yields work",
+      "ok": true
+    },
+    {
+      "name": "interrupted calendar cannot continue after cancel",
+      "ok": true
+    },
+    {
+      "name": "interrupted calendar cannot continue after hidden",
+      "ok": true
+    },
+    {
+      "name": "interrupted calendar cannot continue after reset",
+      "ok": true
+    }
+  ]
+}

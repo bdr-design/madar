@@ -11,16 +11,16 @@ const first=sliced();assert.ok(first.chunks.length>=3);assert.ok(first.steps>fir
 assert.equal(C.serializeChunked(state).text,first.text,'synchronous and sliced APIs preserve the same exact encoding');
 assert.deepEqual(C.serializeChunked(state).chunks,first.chunks,'unchanged chunks retain their identities');
 for(const i of [0,S.CHUNK_ROWS,count-1])S.set(store,i,'fuel',70);
-const changed=sliced(),firstByKey=new Map(first.chunks.map(c=>[`${c.kind}:${c.index}`,c.id]));
-assert.deepEqual(changed.chunks.filter(c=>c.kind==='base'&&c.id!==firstByKey.get(`base:${c.index}`)).map(c=>c.index),[0,1,2]);
-assert.ok(changed.chunks.filter(c=>c.kind==='overlay').every(c=>c.id===firstByKey.get(`overlay:${c.index}`)),'fuel writes preserve all overlay pages');roundtrip(changed);
+const changed=sliced(),firstLanes=JSON.parse(first.text).fleet.rows.lanes.chunks;
+assert.deepEqual(JSON.parse(changed.text).fleet.rows.lanes.chunks.map((id,i)=>id!==firstLanes[i]?i:-1).filter(i=>i>=0),[2,18,34]);
+assert.ok(JSON.parse(changed.text).fleet.rows.lanes.chunks.every((id,i)=>i%16===2||id===firstLanes[i]),'fuel writes preserve every other lane');roundtrip(changed);
 
 // The rotating corruption check still catches a write that bypassed Store and renames the affected page.
 const prior=C.cacheStats().chunks.mismatches;new Uint8Array(store.rows)[S.CHUNK_ROWS*S.STRIDE+100]^=1;
 let repaired;for(let attempt=0;attempt<changed.chunks.length*4&&C.cacheStats().chunks.mismatches===prior;attempt++)repaired=sliced();
-assert.equal(C.cacheStats().chunks.mismatches,prior+1);const changedIds=new Map(changed.chunks.map(c=>[`${c.kind}:${c.index}`,c.id]));
-assert.notEqual(repaired.chunks.find(c=>c.kind==='base'&&c.index===1).id,changedIds.get('base:1'));
-assert.ok(repaired.chunks.filter(c=>c.kind==='overlay').every(c=>c.id===changedIds.get(`overlay:${c.index}`)),'base corruption does not churn daily counter pages');roundtrip(repaired);
+assert.equal(C.cacheStats().chunks.mismatches,prior+1);const changedIds=JSON.parse(changed.text).fleet.rows.lanes.chunks;
+assert.notEqual(JSON.parse(repaired.text).fleet.rows.lanes.chunks[28],changedIds[28]);
+assert.ok(JSON.parse(repaired.text).fleet.rows.lanes.chunks.every((id,i)=>i===28||id===changedIds[i]),'corruption does not churn unrelated lane pages');roundtrip(repaired);
 
 // A write between slices cannot publish a manifest combining different revisions; a fresh retry remains valid.
 for(const i of [0,S.CHUNK_ROWS,count-1])S.set(store,i,'fuel',60);

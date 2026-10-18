@@ -1,0 +1,3 @@
+PURCHASE_SYNC_BUDGET {"maxSyncMs":1,"maxFullSyncMs":0.19999999552965164,"maxSeedSyncMs":0,"maxReplicaPrimeSliceMs":0,"slowSyncs":0,"incrementalSyncs":819,"maxMutationRows":268}
+{"suite":"build372-asset-purchase-app-browser","ok":true,"count":200000,"rowStages":391,"documents":{"cheques":1,"invoices":1,"supplierTransactions":1,"purchaseOrders":1},"maxMutationRows":268,"maxSyncMs":1,"slowSyncs":0,"incrementalSyncs":819,"staleRejected":true,"rollbackAfterRows":534,"workerReplicaCurrent":true}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.

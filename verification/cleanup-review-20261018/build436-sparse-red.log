@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: Missing expected rejection.
+    at async /workspace/madar/tests/build436-save-work-removal.cjs:18:358 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: /save-checksum-result-invalid/,
+  operator: 'rejects',
+  diff: 'simple'
+}

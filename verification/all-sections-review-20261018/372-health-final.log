@@ -1,0 +1,9 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"label":"healthy","calls":2,"fromWorker":1,"issues":0,"fleetIssues":[],"same":true}
+{"label":"condition","calls":2,"fromWorker":1,"issues":0,"fleetIssues":[],"same":true}
+{"label":"route","calls":2,"fromWorker":1,"issues":0,"fleetIssues":[],"same":true}
+{"label":"duplicate-id","calls":2,"fromWorker":1,"issues":1,"fleetIssues":["ASSET_DUPLICATE_IDS"],"same":true}
+{"label":"id-missing","calls":2,"fromWorker":1,"issues":1,"fleetIssues":["ASSET_ID_MISSING"],"same":true}
+{"label":"restored","calls":2,"fromWorker":1,"issues":0,"fleetIssues":[],"same":true}
+{"label":"stale","calls":2,"fromWorker":0,"issues":1,"fleetIssues":["ASSET_DUPLICATE_IDS"],"same":true}
+{"ok":true,"checks":7}

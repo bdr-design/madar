@@ -1,0 +1,1 @@
+{"suite":"build476-staged-worker-replay","results":[{"windowMode":false,"stages":16,"maxRows":256,"writes":16},{"windowMode":true,"stages":16,"maxRows":256,"writes":16}],"cancelExact":2,"incompleteIteratorCommitsRefused":2}

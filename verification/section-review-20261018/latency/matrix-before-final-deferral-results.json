@@ -1,0 +1,2149 @@
+{
+  "scope": "Chromium desktop, real one-million-asset purchases and 11 open companies; paused rendering benchmark. Synthetic 80-center/3000-vehicle HR fixture and 1000 history contracts added for read-only scaling. Not all-company revenue or iPhone/native IO measurement.",
+  "results": [
+    {
+      "label": "before",
+      "world": {
+        "rows": 1000000,
+        "companies": 11
+      },
+      "syntheticReadFixture": {
+        "mobilityCenters": 80,
+        "mobilityVehicles": 3000,
+        "employmentHistory": 1000
+      },
+      "windows": [
+        {
+          "panel": "labor",
+          "arg": "dashboard",
+          "round": 0,
+          "syncMs": 8.900000005960464,
+          "toPaintMs": 33.400000005960464,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 234,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "jobs",
+          "round": 0,
+          "syncMs": 8.899999998509884,
+          "toPaintMs": 33.29999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 1543,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "contracts",
+          "round": 0,
+          "syncMs": 48.5,
+          "toPaintMs": 283.79999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 18043,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "payroll",
+          "round": 0,
+          "syncMs": 6.800000004470348,
+          "toPaintMs": 21.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 25,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "managers:air",
+          "round": 0,
+          "syncMs": 6.199999995529652,
+          "toPaintMs": 33.29999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 62,
+          "overflow": 0
+        },
+        {
+          "panel": "assetMarket",
+          "arg": "air",
+          "round": 0,
+          "syncMs": 32.100000001490116,
+          "toPaintMs": 139.89999999850988,
+          "fleetClassReads": 6,
+          "hrSnapshots": 0,
+          "dom": 416,
+          "overflow": 0
+        },
+        {
+          "panel": "assets",
+          "arg": "air",
+          "round": 0,
+          "syncMs": 38.30000000447035,
+          "toPaintMs": 116.60000000149012,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 37,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "command"
+          },
+          "round": 0,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 42.20000000298023,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "operations"
+          },
+          "round": 0,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 28.600000001490116,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 13,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "finance"
+          },
+          "round": 0,
+          "syncMs": 1.5,
+          "toPaintMs": 32.600000001490116,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "air",
+          "round": 0,
+          "syncMs": 24.200000002980232,
+          "toPaintMs": 40.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 31,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "mobility",
+          "round": 0,
+          "syncMs": 2.6999999955296516,
+          "toPaintMs": 34,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 421,
+          "overflow": 0
+        },
+        {
+          "panel": "expansion",
+          "arg": {
+            "sector": "mobility"
+          },
+          "round": 0,
+          "syncMs": 4.800000004470348,
+          "toPaintMs": 33.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 1659,
+          "overflow": 0
+        },
+        {
+          "panel": "procurement",
+          "round": 0,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 32.29999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 20,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          },
+          "round": 0,
+          "syncMs": 2.899999998509884,
+          "toPaintMs": 32.79999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 30,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          },
+          "round": 0,
+          "syncMs": 3.2000000029802322,
+          "toPaintMs": 31.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 171,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          },
+          "round": 0,
+          "syncMs": 2.5,
+          "toPaintMs": 34.600000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 66,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "overview"
+          },
+          "round": 0,
+          "syncMs": 2.399999998509884,
+          "toPaintMs": 33.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 129,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "customers"
+          },
+          "round": 0,
+          "syncMs": 2.3000000044703484,
+          "toPaintMs": 33.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 251,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          },
+          "round": 0,
+          "syncMs": 2,
+          "toPaintMs": 31.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 110,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "competitors"
+          },
+          "round": 0,
+          "syncMs": 1.7000000029802322,
+          "toPaintMs": 34.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 170,
+          "overflow": 0
+        },
+        {
+          "panel": "actionCenter",
+          "round": 0,
+          "syncMs": 2.1999999955296516,
+          "toPaintMs": 26.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 120,
+          "overflow": 0
+        },
+        {
+          "panel": "compliance",
+          "round": 0,
+          "syncMs": 23.5,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 73,
+          "overflow": 0
+        },
+        {
+          "panel": "esg",
+          "round": 0,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 33.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 105,
+          "overflow": 0
+        },
+        {
+          "panel": "research",
+          "round": 0,
+          "syncMs": 1.7000000029802322,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 61,
+          "overflow": 0
+        },
+        {
+          "panel": "maintenance",
+          "round": 0,
+          "syncMs": 1.7000000029802322,
+          "toPaintMs": 33.29999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 102,
+          "overflow": 0
+        },
+        {
+          "panel": "news",
+          "round": 0,
+          "syncMs": 2.600000001490116,
+          "toPaintMs": 34.400000005960464,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 245,
+          "overflow": 0
+        },
+        {
+          "panel": "groupManagement",
+          "round": 0,
+          "syncMs": 3.100000001490116,
+          "toPaintMs": 36.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 247,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "dashboard",
+          "round": 1,
+          "syncMs": 5.5,
+          "toPaintMs": 32.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 234,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "jobs",
+          "round": 1,
+          "syncMs": 8.5,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 1543,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "contracts",
+          "round": 1,
+          "syncMs": 49.70000000298023,
+          "toPaintMs": 283.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 18043,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "payroll",
+          "round": 1,
+          "syncMs": 7.100000001490116,
+          "toPaintMs": 31.400000005960464,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 25,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "managers:air",
+          "round": 1,
+          "syncMs": 5.200000002980232,
+          "toPaintMs": 33.900000005960464,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 62,
+          "overflow": 0
+        },
+        {
+          "panel": "assetMarket",
+          "arg": "air",
+          "round": 1,
+          "syncMs": 5.399999998509884,
+          "toPaintMs": 54.600000001490116,
+          "fleetClassReads": 6,
+          "hrSnapshots": 0,
+          "dom": 416,
+          "overflow": 0
+        },
+        {
+          "panel": "assets",
+          "arg": "air",
+          "round": 1,
+          "syncMs": 2.5,
+          "toPaintMs": 36.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 37,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "command"
+          },
+          "round": 1,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 32.899999998509884,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "operations"
+          },
+          "round": 1,
+          "syncMs": 1.1999999955296516,
+          "toPaintMs": 37.19999999552965,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 13,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "finance"
+          },
+          "round": 1,
+          "syncMs": 1.3000000044703484,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "air",
+          "round": 1,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 31,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "mobility",
+          "round": 1,
+          "syncMs": 4.200000002980232,
+          "toPaintMs": 27.299999997019768,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 421,
+          "overflow": 0
+        },
+        {
+          "panel": "expansion",
+          "arg": {
+            "sector": "mobility"
+          },
+          "round": 1,
+          "syncMs": 4,
+          "toPaintMs": 34.400000005960464,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 1659,
+          "overflow": 0
+        },
+        {
+          "panel": "procurement",
+          "round": 1,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 38,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 20,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          },
+          "round": 1,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 30,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          },
+          "round": 1,
+          "syncMs": 2.8000000044703484,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 171,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          },
+          "round": 1,
+          "syncMs": 2.3000000044703484,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 66,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "overview"
+          },
+          "round": 1,
+          "syncMs": 2.4000000059604645,
+          "toPaintMs": 31.200000002980232,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 129,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "customers"
+          },
+          "round": 1,
+          "syncMs": 2,
+          "toPaintMs": 34.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 251,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          },
+          "round": 1,
+          "syncMs": 1.9000000059604645,
+          "toPaintMs": 32.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 110,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "competitors"
+          },
+          "round": 1,
+          "syncMs": 1.5999999940395355,
+          "toPaintMs": 33.099999994039536,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 170,
+          "overflow": 0
+        },
+        {
+          "panel": "actionCenter",
+          "round": 1,
+          "syncMs": 1.5,
+          "toPaintMs": 32.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 120,
+          "overflow": 0
+        },
+        {
+          "panel": "compliance",
+          "round": 1,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 73,
+          "overflow": 0
+        },
+        {
+          "panel": "esg",
+          "round": 1,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 37.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 105,
+          "overflow": 0
+        },
+        {
+          "panel": "research",
+          "round": 1,
+          "syncMs": 1.3000000044703484,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 61,
+          "overflow": 0
+        },
+        {
+          "panel": "maintenance",
+          "round": 1,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 102,
+          "overflow": 0
+        },
+        {
+          "panel": "news",
+          "round": 1,
+          "syncMs": 2.100000001490116,
+          "toPaintMs": 32.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 245,
+          "overflow": 0
+        },
+        {
+          "panel": "groupManagement",
+          "round": 1,
+          "syncMs": 2.399999998509884,
+          "toPaintMs": 33.399999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 247,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "dashboard",
+          "round": 2,
+          "syncMs": 5.699999995529652,
+          "toPaintMs": 31.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 234,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "jobs",
+          "round": 2,
+          "syncMs": 8.399999998509884,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 1543,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "contracts",
+          "round": 2,
+          "syncMs": 51,
+          "toPaintMs": 300.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 18043,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "payroll",
+          "round": 2,
+          "syncMs": 6.700000002980232,
+          "toPaintMs": 31.600000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 25,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "managers:air",
+          "round": 2,
+          "syncMs": 4.800000004470348,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 12,
+          "dom": 62,
+          "overflow": 0
+        },
+        {
+          "panel": "assetMarket",
+          "arg": "air",
+          "round": 2,
+          "syncMs": 9.900000005960464,
+          "toPaintMs": 49.5,
+          "fleetClassReads": 6,
+          "hrSnapshots": 0,
+          "dom": 416,
+          "overflow": 0
+        },
+        {
+          "panel": "assets",
+          "arg": "air",
+          "round": 2,
+          "syncMs": 2.1999999955296516,
+          "toPaintMs": 32.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 37,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "command"
+          },
+          "round": 2,
+          "syncMs": 1.2000000029802322,
+          "toPaintMs": 34.600000001490116,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "operations"
+          },
+          "round": 2,
+          "syncMs": 1.0999999940395355,
+          "toPaintMs": 34.29999999701977,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 13,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "finance"
+          },
+          "round": 2,
+          "syncMs": 1.1000000014901161,
+          "toPaintMs": 34.20000000298023,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "air",
+          "round": 2,
+          "syncMs": 1.5,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 31,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "mobility",
+          "round": 2,
+          "syncMs": 2.1999999955296516,
+          "toPaintMs": 34.79999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 421,
+          "overflow": 0
+        },
+        {
+          "panel": "expansion",
+          "arg": {
+            "sector": "mobility"
+          },
+          "round": 2,
+          "syncMs": 9.899999998509884,
+          "toPaintMs": 51.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 1659,
+          "overflow": 0
+        },
+        {
+          "panel": "procurement",
+          "round": 2,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 31.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 20,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          },
+          "round": 2,
+          "syncMs": 1.8999999985098839,
+          "toPaintMs": 33.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 30,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          },
+          "round": 2,
+          "syncMs": 2.600000001490116,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 171,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          },
+          "round": 2,
+          "syncMs": 2.399999998509884,
+          "toPaintMs": 32.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 66,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "overview"
+          },
+          "round": 2,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 32,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 129,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "customers"
+          },
+          "round": 2,
+          "syncMs": 1.8000000044703484,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 251,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          },
+          "round": 2,
+          "syncMs": 1.6999999955296516,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 110,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "competitors"
+          },
+          "round": 2,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 32.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 170,
+          "overflow": 0
+        },
+        {
+          "panel": "actionCenter",
+          "round": 2,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 31.799999997019768,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 120,
+          "overflow": 0
+        },
+        {
+          "panel": "compliance",
+          "round": 2,
+          "syncMs": 1.2999999970197678,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 1,
+          "hrSnapshots": 0,
+          "dom": 73,
+          "overflow": 0
+        },
+        {
+          "panel": "esg",
+          "round": 2,
+          "syncMs": 1.5,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 105,
+          "overflow": 0
+        },
+        {
+          "panel": "research",
+          "round": 2,
+          "syncMs": 1.2000000029802322,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 61,
+          "overflow": 0
+        },
+        {
+          "panel": "maintenance",
+          "round": 2,
+          "syncMs": 1.3000000044703484,
+          "toPaintMs": 32.80000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 102,
+          "overflow": 0
+        },
+        {
+          "panel": "news",
+          "round": 2,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 34.29999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 245,
+          "overflow": 0
+        },
+        {
+          "panel": "groupManagement",
+          "round": 2,
+          "syncMs": 2.3000000044703484,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 247,
+          "overflow": 0
+        }
+      ],
+      "shots": [
+        {
+          "viewport": {
+            "width": 956,
+            "height": 440
+          },
+          "panel": "labor",
+          "arg": "jobs",
+          "file": "before-labor-jobs-956.png"
+        },
+        {
+          "viewport": {
+            "width": 956,
+            "height": 440
+          },
+          "panel": "labor",
+          "arg": "contracts",
+          "file": "before-labor-contracts-956.png"
+        },
+        {
+          "viewport": {
+            "width": 956,
+            "height": 440
+          },
+          "panel": "assetMarket",
+          "arg": "air",
+          "file": "before-assetMarket-air-956.png"
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "panel": "labor",
+          "arg": "jobs",
+          "file": "before-labor-jobs-844.png"
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "panel": "labor",
+          "arg": "contracts",
+          "file": "before-labor-contracts-844.png"
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "panel": "assetMarket",
+          "arg": "air",
+          "file": "before-assetMarket-air-844.png"
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "panel": "labor",
+          "arg": "jobs",
+          "file": "before-labor-jobs-667.png"
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "panel": "labor",
+          "arg": "contracts",
+          "file": "before-labor-contracts-667.png"
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "panel": "assetMarket",
+          "arg": "air",
+          "file": "before-assetMarket-air-667.png"
+        }
+      ]
+    },
+    {
+      "label": "after",
+      "world": {
+        "rows": 1000000,
+        "companies": 11
+      },
+      "syntheticReadFixture": {
+        "mobilityCenters": 80,
+        "mobilityVehicles": 3000,
+        "employmentHistory": 1000
+      },
+      "windows": [
+        {
+          "panel": "labor",
+          "arg": "dashboard",
+          "round": 0,
+          "syncMs": 6.5,
+          "toPaintMs": 34.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 234,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "jobs",
+          "round": 0,
+          "syncMs": 2.2000000029802322,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 1,
+          "dom": 89,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "contracts",
+          "round": 0,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 83,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "payroll",
+          "round": 0,
+          "syncMs": 1.8000000044703484,
+          "toPaintMs": 33.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 1,
+          "dom": 25,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "managers:air",
+          "round": 0,
+          "syncMs": 2.2999999970197678,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 62,
+          "overflow": 0
+        },
+        {
+          "panel": "assetMarket",
+          "arg": "air",
+          "round": 0,
+          "syncMs": 20.299999997019768,
+          "toPaintMs": 100,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 416,
+          "overflow": 0
+        },
+        {
+          "panel": "assets",
+          "arg": "air",
+          "round": 0,
+          "syncMs": 48.69999999552965,
+          "toPaintMs": 109.59999999403954,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 37,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "command"
+          },
+          "round": 0,
+          "syncMs": 9.100000001490116,
+          "toPaintMs": 165.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "operations"
+          },
+          "round": 0,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 28.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 13,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "finance"
+          },
+          "round": 0,
+          "syncMs": 2.5,
+          "toPaintMs": 32.79999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "air",
+          "round": 0,
+          "syncMs": 7,
+          "toPaintMs": 31.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 31,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "mobility",
+          "round": 0,
+          "syncMs": 2.2000000029802322,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 45,
+          "overflow": 0
+        },
+        {
+          "panel": "expansion",
+          "arg": {
+            "sector": "mobility"
+          },
+          "round": 0,
+          "syncMs": 2.0999999940395355,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 143,
+          "overflow": 0
+        },
+        {
+          "panel": "procurement",
+          "round": 0,
+          "syncMs": 1.2000000029802322,
+          "toPaintMs": 31.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 20,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          },
+          "round": 0,
+          "syncMs": 2.399999998509884,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 30,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          },
+          "round": 0,
+          "syncMs": 2.899999998509884,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 171,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          },
+          "round": 0,
+          "syncMs": 2.4000000059604645,
+          "toPaintMs": 32.80000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 66,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "overview"
+          },
+          "round": 0,
+          "syncMs": 2.100000001490116,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 129,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "customers"
+          },
+          "round": 0,
+          "syncMs": 2.3000000044703484,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 251,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          },
+          "round": 0,
+          "syncMs": 1.8999999985098839,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 110,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "competitors"
+          },
+          "round": 0,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 170,
+          "overflow": 0
+        },
+        {
+          "panel": "actionCenter",
+          "round": 0,
+          "syncMs": 2.2999999970197678,
+          "toPaintMs": 34.69999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 120,
+          "overflow": 0
+        },
+        {
+          "panel": "compliance",
+          "round": 0,
+          "syncMs": 2,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 73,
+          "overflow": 0
+        },
+        {
+          "panel": "esg",
+          "round": 0,
+          "syncMs": 1.6999999955296516,
+          "toPaintMs": 32.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 105,
+          "overflow": 0
+        },
+        {
+          "panel": "research",
+          "round": 0,
+          "syncMs": 1.6999999955296516,
+          "toPaintMs": 32.69999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 61,
+          "overflow": 0
+        },
+        {
+          "panel": "maintenance",
+          "round": 0,
+          "syncMs": 1.8999999985098839,
+          "toPaintMs": 26.799999997019768,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 102,
+          "overflow": 0
+        },
+        {
+          "panel": "news",
+          "round": 0,
+          "syncMs": 2.5,
+          "toPaintMs": 33.600000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 245,
+          "overflow": 0
+        },
+        {
+          "panel": "groupManagement",
+          "round": 0,
+          "syncMs": 2.899999998509884,
+          "toPaintMs": 31.799999997019768,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 247,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "dashboard",
+          "round": 1,
+          "syncMs": 2.7000000029802322,
+          "toPaintMs": 31.700000002980232,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 234,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "jobs",
+          "round": 1,
+          "syncMs": 1.7000000029802322,
+          "toPaintMs": 33.80000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 1,
+          "dom": 89,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "contracts",
+          "round": 1,
+          "syncMs": 1.5,
+          "toPaintMs": 33.29999999701977,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 83,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "payroll",
+          "round": 1,
+          "syncMs": 1.5,
+          "toPaintMs": 26.700000002980232,
+          "fleetClassReads": 0,
+          "hrSnapshots": 1,
+          "dom": 25,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "managers:air",
+          "round": 1,
+          "syncMs": 2.7000000029802322,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 62,
+          "overflow": 0
+        },
+        {
+          "panel": "assetMarket",
+          "arg": "air",
+          "round": 1,
+          "syncMs": 6.9000000059604645,
+          "toPaintMs": 53.600000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 416,
+          "overflow": 0
+        },
+        {
+          "panel": "assets",
+          "arg": "air",
+          "round": 1,
+          "syncMs": 2.399999998509884,
+          "toPaintMs": 31.299999997019768,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 37,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "command"
+          },
+          "round": 1,
+          "syncMs": 1.5,
+          "toPaintMs": 50.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "operations"
+          },
+          "round": 1,
+          "syncMs": 1.3000000044703484,
+          "toPaintMs": 34.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 13,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "finance"
+          },
+          "round": 1,
+          "syncMs": 1.2999999970197678,
+          "toPaintMs": 26.700000002980232,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "air",
+          "round": 1,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 29.299999997019768,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 31,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "mobility",
+          "round": 1,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 33.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 45,
+          "overflow": 0
+        },
+        {
+          "panel": "expansion",
+          "arg": {
+            "sector": "mobility"
+          },
+          "round": 1,
+          "syncMs": 1.6999999955296516,
+          "toPaintMs": 27.299999997019768,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 143,
+          "overflow": 0
+        },
+        {
+          "panel": "procurement",
+          "round": 1,
+          "syncMs": 1.1000000014901161,
+          "toPaintMs": 33.600000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 20,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          },
+          "round": 1,
+          "syncMs": 1.7000000029802322,
+          "toPaintMs": 34.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 30,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          },
+          "round": 1,
+          "syncMs": 2.899999998509884,
+          "toPaintMs": 32.5,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 171,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          },
+          "round": 1,
+          "syncMs": 2.899999998509884,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 66,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "overview"
+          },
+          "round": 1,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 32.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 129,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "customers"
+          },
+          "round": 1,
+          "syncMs": 2.3000000044703484,
+          "toPaintMs": 32.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 251,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          },
+          "round": 1,
+          "syncMs": 2.0999999940395355,
+          "toPaintMs": 31.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 110,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "competitors"
+          },
+          "round": 1,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 170,
+          "overflow": 0
+        },
+        {
+          "panel": "actionCenter",
+          "round": 1,
+          "syncMs": 1.5999999940395355,
+          "toPaintMs": 33.099999994039536,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 120,
+          "overflow": 0
+        },
+        {
+          "panel": "compliance",
+          "round": 1,
+          "syncMs": 1.5,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 73,
+          "overflow": 0
+        },
+        {
+          "panel": "esg",
+          "round": 1,
+          "syncMs": 1.6999999955296516,
+          "toPaintMs": 32.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 105,
+          "overflow": 0
+        },
+        {
+          "panel": "research",
+          "round": 1,
+          "syncMs": 1.5,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 61,
+          "overflow": 0
+        },
+        {
+          "panel": "maintenance",
+          "round": 1,
+          "syncMs": 1.5,
+          "toPaintMs": 33.099999994039536,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 102,
+          "overflow": 0
+        },
+        {
+          "panel": "news",
+          "round": 1,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 34,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 245,
+          "overflow": 0
+        },
+        {
+          "panel": "groupManagement",
+          "round": 1,
+          "syncMs": 2.399999998509884,
+          "toPaintMs": 33.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 247,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "dashboard",
+          "round": 2,
+          "syncMs": 2.399999998509884,
+          "toPaintMs": 31.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 234,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "jobs",
+          "round": 2,
+          "syncMs": 1.5,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 1,
+          "dom": 89,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "contracts",
+          "round": 2,
+          "syncMs": 1.2999999970197678,
+          "toPaintMs": 33.20000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 83,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "payroll",
+          "round": 2,
+          "syncMs": 1.3000000044703484,
+          "toPaintMs": 31.399999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 1,
+          "dom": 25,
+          "overflow": 0
+        },
+        {
+          "panel": "labor",
+          "arg": "managers:air",
+          "round": 2,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 33.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 62,
+          "overflow": 0
+        },
+        {
+          "panel": "assetMarket",
+          "arg": "air",
+          "round": 2,
+          "syncMs": 3.5,
+          "toPaintMs": 33.69999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 416,
+          "overflow": 0
+        },
+        {
+          "panel": "assets",
+          "arg": "air",
+          "round": 2,
+          "syncMs": 2,
+          "toPaintMs": 33.399999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 37,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "command"
+          },
+          "round": 2,
+          "syncMs": 1.2999999970197678,
+          "toPaintMs": 32.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "operations"
+          },
+          "round": 2,
+          "syncMs": 1.1000000014901161,
+          "toPaintMs": 57.899999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 13,
+          "overflow": 0
+        },
+        {
+          "panel": "facilityManage",
+          "arg": {
+            "id": "QA-DEC-OMDB",
+            "tab": "finance"
+          },
+          "round": 2,
+          "syncMs": 1.1999999955296516,
+          "toPaintMs": 32.399999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 14,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "air",
+          "round": 2,
+          "syncMs": 1.5,
+          "toPaintMs": 37.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 31,
+          "overflow": 0
+        },
+        {
+          "panel": "companyFacilities",
+          "arg": "mobility",
+          "round": 2,
+          "syncMs": 17.600000001490116,
+          "toPaintMs": 46.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 45,
+          "overflow": 0
+        },
+        {
+          "panel": "expansion",
+          "arg": {
+            "sector": "mobility"
+          },
+          "round": 2,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 33.600000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 143,
+          "overflow": 0
+        },
+        {
+          "panel": "procurement",
+          "round": 2,
+          "syncMs": 1.2999999970197678,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 20,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "reserve"
+          },
+          "round": 2,
+          "syncMs": 1.8000000044703484,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 30,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "pool"
+          },
+          "round": 2,
+          "syncMs": 2.6999999955296516,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 171,
+          "overflow": 0
+        },
+        {
+          "panel": "treasury",
+          "arg": {
+            "tab": "loans"
+          },
+          "round": 2,
+          "syncMs": 2.1999999955296516,
+          "toPaintMs": 33.099999994039536,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 66,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "overview"
+          },
+          "round": 2,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 33,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 129,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "customers"
+          },
+          "round": 2,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 40.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 251,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "sponsorships"
+          },
+          "round": 2,
+          "syncMs": 1.7999999970197678,
+          "toPaintMs": 33.19999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 110,
+          "overflow": 0
+        },
+        {
+          "panel": "businessWorld",
+          "arg": {
+            "tab": "competitors"
+          },
+          "round": 2,
+          "syncMs": 1.5999999940395355,
+          "toPaintMs": 36.69999999552965,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 170,
+          "overflow": 0
+        },
+        {
+          "panel": "actionCenter",
+          "round": 2,
+          "syncMs": 1.7000000029802322,
+          "toPaintMs": 33.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 120,
+          "overflow": 0
+        },
+        {
+          "panel": "compliance",
+          "round": 2,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 33.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 73,
+          "overflow": 0
+        },
+        {
+          "panel": "esg",
+          "round": 2,
+          "syncMs": 1.6000000014901161,
+          "toPaintMs": 33.30000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 105,
+          "overflow": 0
+        },
+        {
+          "panel": "research",
+          "round": 2,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 34.100000001490116,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 61,
+          "overflow": 0
+        },
+        {
+          "panel": "maintenance",
+          "round": 2,
+          "syncMs": 1.3999999985098839,
+          "toPaintMs": 33.399999998509884,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 102,
+          "overflow": 0
+        },
+        {
+          "panel": "news",
+          "round": 2,
+          "syncMs": 5.899999998509884,
+          "toPaintMs": 33.70000000298023,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 245,
+          "overflow": 0
+        },
+        {
+          "panel": "groupManagement",
+          "round": 2,
+          "syncMs": 4.100000001490116,
+          "toPaintMs": 32.80000000447035,
+          "fleetClassReads": 0,
+          "hrSnapshots": 0,
+          "dom": 247,
+          "overflow": 0
+        }
+      ],
+      "shots": [
+        {
+          "viewport": {
+            "width": 956,
+            "height": 440
+          },
+          "panel": "labor",
+          "arg": "jobs",
+          "file": "after-labor-jobs-956.png"
+        },
+        {
+          "viewport": {
+            "width": 956,
+            "height": 440
+          },
+          "panel": "labor",
+          "arg": "contracts",
+          "file": "after-labor-contracts-956.png"
+        },
+        {
+          "viewport": {
+            "width": 956,
+            "height": 440
+          },
+          "panel": "assetMarket",
+          "arg": "air",
+          "file": "after-assetMarket-air-956.png"
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "panel": "labor",
+          "arg": "jobs",
+          "file": "after-labor-jobs-844.png"
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "panel": "labor",
+          "arg": "contracts",
+          "file": "after-labor-contracts-844.png"
+        },
+        {
+          "viewport": {
+            "width": 844,
+            "height": 390
+          },
+          "panel": "assetMarket",
+          "arg": "air",
+          "file": "after-assetMarket-air-844.png"
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "panel": "labor",
+          "arg": "jobs",
+          "file": "after-labor-jobs-667.png"
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "panel": "labor",
+          "arg": "contracts",
+          "file": "after-labor-contracts-667.png"
+        },
+        {
+          "viewport": {
+            "width": 667,
+            "height": 375
+          },
+          "panel": "assetMarket",
+          "arg": "air",
+          "file": "after-assetMarket-air-667.png"
+        }
+      ]
+    }
+  ]
+}

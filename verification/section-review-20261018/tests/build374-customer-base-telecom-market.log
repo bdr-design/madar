@@ -1,0 +1,2 @@
+{"suite":"build374-customer-base-telecom-market","affinity":0.0417,"twoBranches":{"subscribers":10918,"monthlyRecurring":777335,"januaryInvoices":2},"legacyAdvance":{"februaryAccrued":67103},"priceStance":{"under":11036,"over":5646},"contracts":{"requestsSeen":3,"firstLines":990,"bills":2},"year":{"subscribers":161608,"monthlyRecurring":7219536,"bytes":52638,"msPerDay":0.333}}
+BUILD374_CUSTOMER_BASE_TELECOM_MARKET_PASS

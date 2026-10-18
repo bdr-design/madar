@@ -145,10 +145,10 @@
   // user other than the asset being placed (a view made on demand), and each company's air routes in order of their
   // first user, exactly what the full lists gave.
   const ROUTE_USER_FIELDS=Object.freeze(['ownerCompanyId','companyId','assetMode','type','routeId']);
-  function routeConflictContext(state){
+  function routeConflictContext(state,{ownerAsset=assetOwnerCompanyId,ownerRoute=null}={}){
     const fleet=fleetData(),routeIndex=new Map((state.customRoutes||[]).filter(Boolean).map(row=>[row.id,row])),groups=new Map(),airRouteOrderByCompany=new Map(),signatureCache=new Map();
     fleet.forEachFieldClasses(state,ROUTE_USER_FIELDS,(row,count,info)=>{
-      if(!count||!row.routeId)return;const companyId=assetOwnerCompanyId(row),mode=assetMode(row);if(!companyId||!mode)return;
+      if(!count||!row.routeId)return;const companyId=ownerAsset(row),mode=assetMode(row);if(!companyId||!mode)return;
       const key=`${companyId}\u0000${mode}\u0000${row.routeId}`;let group=groups.get(key);
       if(!group){group={companyId,mode,routeId:row.routeId,count:0,first:info.index,users:null};groups.set(key,group);}group.count+=count;if(info.index<group.first)group.first=info.index;
     });
@@ -157,11 +157,11 @@
     // The group's first two users (views, row order): enough to skip the one asset being placed.
     const firstUsers=group=>{
       if(group.users)return group.users;const users=[];
-      fleet.scan(state,ROUTE_USER_FIELDS,(row,index)=>{if(row.routeId!==group.routeId||assetMode(row)!==group.mode||assetOwnerCompanyId(row)!==group.companyId)return;users.push(fleet.viewAt(state,index));if(users.length>=2)return fleet.STOP;},{from:group.first});
+      fleet.scan(state,ROUTE_USER_FIELDS,(row,index)=>{if(row.routeId!==group.routeId||assetMode(row)!==group.mode||ownerAsset(row)!==group.companyId)return;users.push(fleet.viewAt(state,index));if(users.length>=2)return fleet.STOP;},{from:group.first});
       group.users=users;return users;
     };
-    const firstUserOtherThan=(group,assetId)=>firstUsers(group).find(row=>row.id!==assetId)||null;
-    const memberOf=(group,assetId)=>{if(assetId===null||assetId===undefined)return false;const asset=fleet.get(state,assetId);return !!asset&&asset.routeId===group.routeId&&assetMode(asset)===group.mode&&assetOwnerCompanyId(asset)===group.companyId;};
+    const firstUserOtherThan=(group,assetId)=>assetId===null||assetId===undefined?fleet.viewAt(state,group.first):firstUsers(group).find(row=>row.id!==assetId)||null;
+    const memberOf=(group,assetId)=>{if(assetId===null||assetId===undefined)return false;const asset=fleet.get(state,assetId);return !!asset&&asset.routeId===group.routeId&&assetMode(asset)===group.mode&&ownerAsset(asset)===group.companyId;};
     // Build 359 (a million assets: the route centre checked every route against every other, 0.7 s for 3,000 aircraft):
     // the company's air routes that may duplicate `route`, in the order above: the registered ones the corridor index
     // names (an endpoint near its first point) and every unregistered one (compared by its users' signature).
@@ -171,10 +171,10 @@
       const ids=new Set(known.unregistered);for(const other of known.corridors.candidates(route))ids.add(other.id);
       return [...ids].filter(id=>known.position.has(id)).sort((a,b)=>known.position.get(a)-known.position.get(b));
     };
-    return {routeIndex,groups,airRouteOrderByCompany,airCandidates,signature,firstUserOtherThan,memberOf};
+    return {ownerRoute,routeIndex,groups,airRouteOrderByCompany,airCandidates,signature,firstUserOtherThan,memberOf};
   }
   function routeConflictWithContext(state,assetId,routeId,route,context){
-    const routeOwner=requireFleetRoute(state,route);if(!routeOwner.mode||!routeId)return null;const ctx=context||routeConflictContext(state),key=`${routeOwner.companyId}\u0000${routeOwner.mode}\u0000${routeId}`,same=ctx.groups.get(key);
+    const routeOwner=context?.ownerRoute?context.ownerRoute(route):requireFleetRoute(state,route);if(!routeOwner.mode||!routeId)return null;const ctx=context||routeConflictContext(state),key=`${routeOwner.companyId}\u0000${routeOwner.mode}\u0000${routeId}`,same=ctx.groups.get(key);
     // The former loop returned the first other user once the other users reached the route's capacity.
     if(same&&same.count-(ctx.memberOf(same,assetId)?1:0)>=routeCapacity(route))return ctx.firstUserOtherThan(same,assetId);
     if(routeOwner.mode!=='air')return null;const signature=ctx.signature(route),routeOrder=ctx.airCandidates(routeOwner.companyId,route);
@@ -185,6 +185,14 @@
   // a caller checking many assets against one unchanged state passes one context (routeConflictContext) to every check.
   function routeConflict(state,assetId,routeId,route,context=null){return routeConflictWithContext(state,assetId,routeId,route,context||routeConflictContext(state));}
   function routeConflicts(state,routes){const ctx=routeConflictContext(state),out=new Map();for(const route of routes||[]){if(!route?.id)continue;out.set(route.id,routeConflictWithContext(state,null,route.id,route,ctx));}return out;}
+  // Read-only preview in the existing fleet worker. Owners are resolved by the main company platform;
+  // actual assignments continue to use requireFleetRoute and their transaction's authoritative context.
+  function previewRouteConflicts(state,{routes=[],routeOwners=[],legacyOwner={}}={}){
+    const owners=new Map(routeOwners.map(row=>[row.id,row])),ownerAsset=row=>String(row?.ownerCompanyId||row?.companyId||legacyOwner[assetMode(row)]||'').trim();
+    const ownerRoute=route=>{const found=owners.get(route.id);if(!found?.companyId||!found?.mode)throw new Error('route-preview-owner-missing');return found;};
+    const context=routeConflictContext(state,{ownerAsset,ownerRoute});
+    return routes.filter(route=>route?.id).map(route=>[route.id,!!routeConflictWithContext(state,null,route.id,route,context)]);
+  }
   function applyRouteAssignment(asset,p,slot,signature=routeSignature(p.route)){
     asset.routeId=p.routeId||null;asset.routeSignature=signature;asset.releaseExclusiveRouteOnArrival=false;asset.baseFacility=p.baseFacility??asset.baseFacility;asset.phase=p.phase||'turnaround';asset.progress=0;asset.dwellRemaining=0;asset.crewBlocked=false;asset.routeSlot=slot;asset.departureScheduled=false;delete asset.departureScheduledAt;delete asset.simulationFault;
     const reverse=asset.baseFacility===p.route.toFacility;asset.reverse=reverse;asset.from=reverse?p.route.to:p.route.from;asset.to=reverse?p.route.from:p.route.to;return asset;
@@ -636,6 +644,6 @@
     if(cmd==='reconcile-staffing')return reconcileStaffing(state,p.facilityResolver);
     throw new Error(`Unknown fleet command: ${cmd}`);
   }
-  const API={VERSION,DISPATCH_INTENT_SCHEMA,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffingContractsStages,reconcileStaffingContracts,reconcileStaffingPlanStages,reconcileStaffingPlan,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch};
+  const API={VERSION,DISPATCH_INTENT_SCHEMA,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,previewRouteConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffingContractsStages,reconcileStaffingContracts,reconcileStaffingPlanStages,reconcileStaffingPlan,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch};
   globalThis.GH_FLEET_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('fleet',API);if(globalThis.window&&window!==globalThis)window.GH_FLEET_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

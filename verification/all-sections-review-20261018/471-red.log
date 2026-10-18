@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: operating-buy/bank
++ actual - expected
+
++ 'undefined'
+- 'function'
+
+    at run (/workspace/madar/tests/build471-company-notice-work.cjs:3:1595)
+    at async /workspace/madar/tests/build471-company-notice-work.cjs:4:260 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'undefined',
+  expected: 'function',
+  operator: 'strictEqual',
+  diff: 'simple'
+}

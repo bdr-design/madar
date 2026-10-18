@@ -9,7 +9,7 @@
 (()=>{
   'use strict';
 
-  const VERSION='1.0.0',SCHEMA='gh-fleet-day-v1';
+  const VERSION='1.0.0',SCHEMA='gh-fleet-day-v1',canonicalScan=globalThis.GH_FLEET_DATA?.scan;
   const OWNER_TOTAL_FIELDS=Object.freeze(['ownerCompanyId','companyId','company','assetMode','type','purchasePrice','condition','ownership','monthlyLease','leaseTermMonths','leaseStartSeconds','deliveredAtSeconds','year','lastTrip','staffing']);
   const OPS_FIELDS=Object.freeze(['assetMode','type','specs','lastTrip','condition','purchasePrice','phase','flightHours','flightCycles','nextCheckHours']);
   const FIELDS=Object.freeze([...new Set(['id',...OWNER_TOTAL_FIELDS,...OPS_FIELDS,'routeId','simulationFault'])]);
@@ -103,7 +103,9 @@
       if(next<required)next=required;
       const nextIndices=new Int32Array(next),nextValues=new Float64Array(next*COLUMN_FIELDS.length);nextIndices.set(exceptionalIndices);nextValues.set(exceptionalValues);exceptionalIndices=nextIndices;exceptionalValues=nextValues;exceptionalCapacity=next;
     };
-    const add=(index,row,rowValues)=>{
+    const rowValues=[0,0,0];
+    const add=(index,hours,cycles,next)=>{
+      rowValues[0]=hours;rowValues[1]=cycles;rowValues[2]=next;
       let extras=false,nonExact=false,detail=null;
       if(store&&canCheckExtras){const extra=storeApi.extrasOf(store,index);for(let k=0;k<COLUMN_FIELDS.length;k++)if(extra&&own(extra,COLUMN_FIELDS[k])){extras=true;detail=detail||{index,field:COLUMN_FIELDS[k],reason:'extras'};}}
       for(let k=0;k<COLUMN_FIELDS.length;k++)if(!Number.isFinite(rowValues[k])||!Object.is(Math.fround(rowValues[k]),rowValues[k])){nonExact=true;detail=detail||{index,field:COLUMN_FIELDS[k],reason:'non-hot-exact'};}
@@ -142,29 +144,44 @@
     let ask=0,rpk=0,rev=0,cost=0,fuel=0,movingAir=0,airCondition=0,maintReserve=0,maintExposure=0,airCount=0,maintenanceDue=0,aog=0;
     let seaDistance=0,seaFuelProxy=0,seaTransport=0,seaCo2=0,seaWork=0,seaRefWork=0,seaCondition=0,movingSea=0,seaCount=0,seaDryDock=0,roadCount=0,roadWeak=0,roadDamaged=0;
 
-    fleet.scan(state,FIELDS,(row,index)=>{
-      addDailyMetrics(dailyMetrics,row,compact);
-      const ownerKey=ownerKeyOf(row);let owner=owners.get(ownerKey);if(owner===undefined){owner=resolveOwner(row);owners.set(ownerKey,owner);}
-
-      let total=ownerTotals.get(owner);if(!total){total={assetVal:0,depr:0,leaseLiab:0,rou:0,leaseInterest:0,owned:0,fuelCost:0,maintReserve:0,payroll:0};ownerTotals.set(owner,total);}
-      const price=Math.max(0,Number(row.purchasePrice)||0),condition=clamp(Number(row.condition)||100,0,100);
+    const STORE=options.storeApi||globalThis.GH_FLEET_STORE,store=fleet.storeOf?.(state),views=STORE?.isStore?.(store)&&fleet.scan===canonicalScan?STORE.views(store):null,profileMemo=views?new Map():null;let scratch=null;
+    function fixed(row,out={}){
+      const ownerKey=ownerKeyOf(row),price=Math.max(0,Number(row.purchasePrice)||0),mode=modeOf(row),payroll=Number(row.staffing?.monthlyPayroll)||0;
+      out.ownerKey=ownerKey;out.price=price;out.mode=mode;out.payroll=payroll;
       if(row.ownership==='lease'){
         const monthly=Math.max(0,Number(row.monthlyLease)||0),term=Math.max(12,Number(row.leaseTermMonths)||60),start=Math.max(0,Number(row.leaseStartSeconds)||Number(row.deliveredAtSeconds)||simSeconds),elapsed=Math.min(term,Math.max(0,Math.floor((simSeconds-start)/(30*86400)))),remaining=Math.max(0,term-elapsed);
-        const pv=monthlyRate?monthly*(1-Math.pow(1+monthlyRate,-remaining))/monthlyRate:monthly*remaining;total.leaseLiab+=pv;const initialPv=monthlyRate?monthly*(1-Math.pow(1+monthlyRate,-term))/monthlyRate:monthly*term,carrying=initialPv*Math.max(0,1-elapsed/term);total.rou+=carrying;total.depr+=term?initialPv/term:0;total.leaseInterest+=pv*monthlyRate;
-      }else{
-        const mode=modeOf(row),life=USEFUL_YEARS[mode]||15,salvage=price*(SALVAGE_PCT[mode]||.08),modelYear=Math.min(simYear,Math.max(2000,Number(row.year)||simYear)),ageYears=Math.max(0,simYear-modelYear),annualDep=Math.max(0,(price-salvage)/life),accum=Math.min(price-salvage,annualDep*ageYears),book=Math.max(salvage,price-accum);total.assetVal+=book*(.75+.25*condition/100);total.depr+=annualDep/12;total.owned+=(Number(row.purchasePrice)||0)*clamp((Number(row.condition)||100)/100,.4,1);
+        const pv=monthlyRate?monthly*(1-Math.pow(1+monthlyRate,-remaining))/monthlyRate:monthly*remaining,initialPv=monthlyRate?monthly*(1-Math.pow(1+monthlyRate,-term))/monthlyRate:monthly*term;
+        out.lease=true;out.pv=pv;out.carrying=initialPv*Math.max(0,1-elapsed/term);out.depr=term?initialPv/term:0;out.interest=pv*monthlyRate;return out;
       }
-      total.fuelCost+=Number(row.lastTrip?.fuelCost)||0;total.maintReserve+=Number(row.lastTrip?.maintReserve)||0;total.payroll+=Number(row.staffing?.monthlyPayroll)||0;
+      const life=USEFUL_YEARS[mode]||15,salvage=price*(SALVAGE_PCT[mode]||.08),modelYear=Math.min(simYear,Math.max(2000,Number(row.year)||simYear)),ageYears=Math.max(0,simYear-modelYear),annualDep=Math.max(0,(price-salvage)/life),accum=Math.min(price-salvage,annualDep*ageYears),book=Math.max(salvage,price-accum);
+      out.lease=false;out.book=book;out.depr=annualDep/12;out.rawPrice=Number(row.purchasePrice)||0;return out;
+    }
+    // Request-local memo over the real scan's immutable profiles. Extras and alternate adapters keep the full formulas.
+    // Every per-row addition still executes in original row order; no multiplication replaces financial accumulation.
+    function fixedFor(row,index){
+      if(!views||views.u8[index*128+STORE.O.flags]&STORE.EXTRAS)return fixed(row,scratch||(scratch={}));
+      const ref=views.u32[index*STORE.WORDS_PER_ROW+STORE.O.profile];let cached=profileMemo.get(ref);
+      if(!cached){if(profileMemo.size<4096){cached=fixed(row);profileMemo.set(ref,cached);}else cached=fixed(row,scratch||(scratch={}));}return cached;
+    }
+    fleet.scan(state,FIELDS,(row,index)=>{
+      addDailyMetrics(dailyMetrics,row,compact);
+      const constants=fixedFor(row,index),ownerKey=constants.ownerKey;let owner=owners.get(ownerKey);if(owner===undefined){owner=resolveOwner(row);owners.set(ownerKey,owner);}
+
+      let total=ownerTotals.get(owner);if(!total){total={assetVal:0,depr:0,leaseLiab:0,rou:0,leaseInterest:0,owned:0,fuelCost:0,maintReserve:0,payroll:0};ownerTotals.set(owner,total);}
+      const price=constants.price,condition=clamp(Number(row.condition)||100,0,100);
+      if(constants.lease){total.leaseLiab+=constants.pv;total.rou+=constants.carrying;total.depr+=constants.depr;total.leaseInterest+=constants.interest;}
+      else{total.assetVal+=constants.book*(.75+.25*condition/100);total.depr+=constants.depr;total.owned+=constants.rawPrice*clamp((Number(row.condition)||100)/100,.4,1);}
+      total.fuelCost+=Number(row.lastTrip?.fuelCost)||0;total.maintReserve+=Number(row.lastTrip?.maintReserve)||0;total.payroll+=constants.payroll;
 
       let maint=maintenance.get(owner);if(!maint){const policy=policyOf(owner);maint={threshold:MAINTENANCE_POLICIES[own(MAINTENANCE_POLICIES,policy)?policy:'standard'],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};maintenance.set(owner,maint);}
-      const mode=modeOf(row);maint.conditionSum+=condition;maint.count++;maint.value+=price;maint.risk+=INCIDENT_RATE[mode]||INCIDENT_RATE.road;maint.premium+=price*(PREMIUM_RATE[mode]||PREMIUM_RATE.road);maint.licence+=LICENCE_FEE[mode]||LICENCE_FEE.road;if(condition<UNSAFE_CONDITION){maint.unsafe++;maint.fine+=INSPECTION_FINE[mode]||INSPECTION_FINE.road;}if(maint.sample.length<INCIDENT_SAMPLE)maint.sample.push({id:row.id,price});if(condition<maint.threshold&&maint.due.length<CHECKS_PER_DAY){maint.due.push(row.id);maint.restored+=100-condition;maint.cost+=Math.max(0,Number(row.purchasePrice)||0)*(CHECK_COST[modeOf(row)]||CHECK_COST.road);}
+      const mode=constants.mode;maint.conditionSum+=condition;maint.count++;maint.value+=price;maint.risk+=INCIDENT_RATE[mode]||INCIDENT_RATE.road;maint.premium+=price*(PREMIUM_RATE[mode]||PREMIUM_RATE.road);maint.licence+=LICENCE_FEE[mode]||LICENCE_FEE.road;if(condition<UNSAFE_CONDITION){maint.unsafe++;maint.fine+=INSPECTION_FINE[mode]||INSPECTION_FINE.road;}if(maint.sample.length<INCIDENT_SAMPLE)maint.sample.push({id:row.id,price});if(condition<maint.threshold&&maint.due.length<CHECKS_PER_DAY){maint.due.push(row.id);maint.restored+=100-condition;maint.cost+=Math.max(0,Number(row.purchasePrice)||0)*(CHECK_COST[modeOf(row)]||CHECK_COST.road);}
 
       if(mode==='air'){
         const cap=Math.max(0,Number(row.specs?.capacity)||0),distance=Math.max(0,Number(row.lastTrip?.distanceKm)||Number(row.lastTrip?.distance)||0),airCond=condition,conditionFactor=clamp(.82+(airCond-70)*.004,.70,1.06),loadFactor=clamp(.78*demand*conditionFactor,.52,.96);
         ask+=cap*Math.max(1,distance);rpk+=cap*loadFactor*Math.max(1,distance);rev+=Number(row.lastTrip?.revenue)||0;
         const fuelCost=Number(row.lastTrip?.fuelCost)||0,crewCost=Number(row.lastTrip?.crewCost)||0,reserve=Number(row.lastTrip?.maintReserve)||0;fuel+=fuelCost;maintReserve+=reserve;maintExposure+=Math.max(0,(100-airCond)/100)*(Number(row.purchasePrice)||0)*.0008;cost+=fuelCost+crewCost+reserve;
         if(row.phase==='moving')movingAir++;airCondition+=airCond;airCount++;
-        const flightHours=(Number(row.flightHours)||0)+(row.phase==='moving'?4:0),flightCycles=(Number(row.flightCycles)||0)+(row.phase==='turnaround'?1:0),nextCheckHours=Number(row.nextCheckHours)||600;columns.add(index,row,[flightHours,flightCycles,nextCheckHours]);
+        const flightHours=(Number(row.flightHours)||0)+(row.phase==='moving'?4:0),flightCycles=(Number(row.flightCycles)||0)+(row.phase==='turnaround'?1:0),nextCheckHours=Number(row.nextCheckHours)||600;columns.add(index,flightHours,flightCycles,nextCheckHours);
         if(flightHours>=nextCheckHours||Number(row.condition)<72)maintenanceDue++;if(Number(row.condition)<60)aog++;
       }else if(mode==='sea'){
         const distance=Math.max(1,Number(row.lastTrip?.distanceKm)||Number(row.lastTrip?.distance)||1),capacity=Math.max(1,Number(row.specs?.capacity)||Number(row.specs?.teu)||Number(row.specs?.dwt)||1),seaCond=condition;seaDistance+=distance;seaTransport+=distance*capacity;const fuelTonnes=Math.max(0,Number(row.lastTrip?.fuelCost)||0)/bunker;seaFuelProxy+=fuelTonnes;const dwt=ciiDeadweight(row.specs);if(dwt>0&&fuelTonnes>0){const work=dwt*distance/1.852;seaCo2+=fuelTonnes*CII_CO2_PER_TONNE*1e6;seaWork+=work;seaRefWork+=ciiReference(dwt)*work;}seaCondition+=seaCond;if(row.phase==='moving')movingSea++;seaCount++;if(Number(row.condition)<70)seaDryDock++;

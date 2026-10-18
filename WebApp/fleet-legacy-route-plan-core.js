@@ -28,20 +28,26 @@
   function plan(state,fleet,{routes={},request=null}={}){
     if(!fleet||typeof fleet.scan!=='function')throw new TypeError('fleet-legacy-route-scan-unavailable');const owners=dependencies(),runtime=routeMap(routes),routeDependencies=new Map(),sharedSlots=new Map(),signatures=new Map(),capacities=new Map(),ops=new Map(),original=new Map(),airRouteIds=new Set();let released=0,pending=0;
     const remember=(index,row)=>{if(!original.has(index)){const out={};for(const field of FIELDS)out[field]=copy(row?.[field]);out.__hasDepartureScheduledAt=own(row||{},'departureScheduledAt')||row?.departureScheduledAt!==undefined;original.set(index,out);}};
-    const operations=index=>{let list=ops.get(index);if(!list){list=[];ops.set(index,list);}return list;};
-    const clear=index=>{operations(index).push(['clear']);released++;};
-    const assign=(index,field,value)=>operations(index).push(['set',field,copy(value)]);
+    const operations=(index,row)=>{if(row)remember(index,row);let list=ops.get(index);if(!list){list=[];ops.set(index,list);}return list;};
+    const clear=(index,row)=>{operations(index,row).push(['clear']);released++;};
+    const assign=(index,field,value,row)=>operations(index,row).push(['set',field,copy(value)]);
     const current=(row,index)=>{const out={routeId:row.routeId,phase:row.phase,release:row.releaseExclusiveRouteOnArrival};for(const op of ops.get(index)||[]){if(op[0]==='clear'){out.routeId=null;out.phase='idle';out.release=false;}else if(op[1]==='releaseExclusiveRouteOnArrival')out.release=op[2];}return out;};
     fleet.scan(state,FIELDS,(row,index)=>{
-      if(!row?.routeId)return;remember(index,row);const routeId=String(row.routeId),route=runtime.get(routeId);if(!routeDependencies.has(routeId))routeDependencies.set(routeId,routeSnapshot(routeId,route));let signature;
+      if(!row?.routeId)return;const routeId=String(row.routeId),route=runtime.get(routeId);if(!routeDependencies.has(routeId))routeDependencies.set(routeId,routeSnapshot(routeId,route));let signature;
       if(route){signature=signatures.get(routeId);if(signature===undefined){signature=owners.route.signature(route);signatures.set(routeId,signature);}}else signature=String(row.routeSignature||row.routeId);
-      if(row.routeSignature!==signature)assign(index,'routeSignature',signature);
+      if(row.routeSignature!==signature)assign(index,'routeSignature',signature,row);
       let used=sharedSlots.get(routeId);if(!used){used=new Set();sharedSlots.set(routeId,used);}let slot=Number.isInteger(row.routeSlot)&&row.routeSlot>=0&&!used.has(row.routeSlot)?row.routeSlot:0;while(used.has(slot))slot++;
       const capacityKey=route?`route:${routeId}`:`type:${row.type}`;let capacity=capacities.get(capacityKey);if(capacity===undefined){capacity=owners.fleet.routeCapacity(route||row.type);capacities.set(capacityKey,capacity);}
-      if(slot>=capacity){if(row.phase==='moving'){if(row.releaseExclusiveRouteOnArrival!==true)assign(index,'releaseExclusiveRouteOnArrival',true);pending++;if(row.type==='air')airRouteIds.add(routeId);}else clear(index);return;}
-      used.add(slot);if(row.routeSlot!==slot)assign(index,'routeSlot',slot);if(row.releaseExclusiveRouteOnArrival===true)assign(index,'releaseExclusiveRouteOnArrival',false);if(row.type==='air')airRouteIds.add(routeId);
+      if(slot>=capacity){if(row.phase==='moving'){if(row.releaseExclusiveRouteOnArrival!==true)assign(index,'releaseExclusiveRouteOnArrival',true,row);pending++;if(row.type==='air')airRouteIds.add(routeId);}else clear(index,row);return;}
+      used.add(slot);if(row.routeSlot!==slot)assign(index,'routeSlot',slot,row);if(row.releaseExclusiveRouteOnArrival===true)assign(index,'releaseExclusiveRouteOnArrival',false,row);if(row.type==='air')airRouteIds.add(routeId);
     });
-    const groups=[];for(const routeId of airRouteIds){const route=runtime.get(routeId);if(!route)continue;const signature=owners.route.signature(route),group=groups.find(ids=>{const other=runtime.get(ids[0]);return other&&(owners.route.signature(other)===signature||owners.route.corridorMetrics(other,route).duplicate);});if(group)group.push(routeId);else groups.push([routeId]);}
+    const groups=[],corridors=owners.route.corridorIndex(),groupByRoute=new Map(),groupBySignature=new Map();
+    for(const routeId of airRouteIds){
+      const route=runtime.get(routeId);if(!route)continue;const signature=owners.route.signature(route),candidates=new Set(corridors.candidates(route).map(other=>groupByRoute.get(other)));
+      if(groupBySignature.has(signature))candidates.add(groupBySignature.get(signature));
+      const group=[...candidates].sort((a,b)=>a.order-b.order).find(entry=>{const other=entry.route;return owners.route.signature(other)===signature||owners.route.corridorMetrics(other,route).duplicate;});
+      if(group)group.ids.push(routeId);else{const ids=[routeId],entry={ids,route,order:groups.length};groups.push(ids);corridors.add(route);groupByRoute.set(route,entry);if(!groupBySignature.has(signature))groupBySignature.set(signature,entry);}
+    }
     const duplicates=groups.filter(ids=>ids.length>=2);
     if(duplicates.length){const groupOf=new Map(),users=duplicates.map(()=>[]);duplicates.forEach((ids,group)=>{for(const id of ids)groupOf.set(id,group);});fleet.scan(state,FIELDS,(row,index)=>{if(row?.type!=='air')return;const now=current(row,index),group=now.routeId?groupOf.get(String(now.routeId)):undefined;if(group!==undefined){remember(index,row);users[group].push({index,...now});}});duplicates.forEach((ids,group)=>{const rows=users[group],moving=rows.find(row=>row.phase==='moving'),canonicalId=moving?.routeId||ids[0];for(const row of rows){if(row.routeId===canonicalId){if(row.release===true)assign(row.index,'releaseExclusiveRouteOnArrival',false);continue;}if(row.phase==='moving'){if(row.release!==true)assign(row.index,'releaseExclusiveRouteOnArrival',true);pending++;}else clear(row.index);}});}
     const indices=new Uint32Builder(),refs=new Uint32Builder(),templates=[],templateByKey=new Map();

@@ -155,8 +155,11 @@
   }
   function migrateLegacyBranches(state){
     const legacyCount=Math.max(0,Math.floor(Number(state.bank?.branches)||0)),bank=ensure(state);let added=0;
-    const facilities=(state.customHubs||[]).filter(row=>row?.owned===true&&facilityOwnerCompanyId(row)==='bank'&&row.kind==='bank');
-    for(const facility of facilities)if(!bank.branchNetwork.some(row=>row.facilityId===facility.id)){bank.branchNetwork.push(branchTemplate(state,{branchId:`BR-${++bank.sequence}`,facilityId:facility.id,capitalId:facility.capitalId||null,city:facility.city,country:facility.country,openedAt:facility.openedAt,servicesActive:true,legacyMigrated:true}));added++;}
+    const facilities=(state.customHubs||[]).filter(row=>row?.owned===true&&facilityOwnerCompanyId(row)==='bank'&&row.kind==='bank'),knownFacilities=new Set(bank.branchNetwork.map(row=>row.facilityId));
+    for(const facility of facilities)if(!knownFacilities.has(facility.id)){
+      const branch=branchTemplate(state,{branchId:`BR-${++bank.sequence}`,facilityId:facility.id,capitalId:facility.capitalId||null,city:facility.city,country:facility.country,openedAt:facility.openedAt,servicesActive:true,legacyMigrated:true});
+      bank.branchNetwork.push(branch);knownFacilities.add(branch.facilityId);added++;
+    }
     while(bank.branchNetwork.length<legacyCount){bank.branchNetwork.push(branchTemplate(state,{branchId:`BR-${++bank.sequence}`,city:'فرع محفوظ',country:'سجل قديم',openedAt:0,servicesActive:true,legacyMigrated:true}));added++;}
     bank.branches=bank.branchNetwork.length;return {changed:added>0,added,branches:bank.branches};
   }
@@ -405,9 +408,27 @@
     const labels={leverageRatio:'نسبة الرافعة المالية',cash:'السيولة المتاحة',lcr:'تغطية السيولة',nsfr:'التمويل المستقر',cet1:'كفاية رأس المال',loanDepositRatio:'القروض إلى الودائع',sectorConcentration:'التركّز القطاعي'};
     const error=new Error(`رُفض التمويل: يتجاوز حدود سياسة البنك بعد التنفيذ (${preview.violations.map(row=>labels[row.metric]||row.metric).join('، ')})`);error.code='bank-projected-risk-limit';error.violations=preview.violations;throw error;
   }
+  function corporateClientRow(state,type,existing,p,book){
+    const baseValue=Math.max(5000000,num(state.groupValue)*(type==='group'?.04:.025));if(!book?.accounts?.[0])throw new Error(`bank-client-finance-book-missing:${type}`);const sector=String(companyPlatform()?.definitionFor?.(state,type)?.classification?.primarySectorId||existing.sector||'').trim()||null;
+    return {company:type,ownerCompanyId:type,name:p.names?.[type]||companyPlatform()?.resolveIdentity?.(state,type)?.legalName||state.companyRegistry?.[type]?.legalName||(type==='group'?state.profile?.name:type),accountId:book.accounts[0].id,depositBalance:num(existing.depositBalance),creditLimit:num(existing.creditLimit)||Math.round(baseValue),drawn:num(existing.drawn),rating:existing.rating||(type==='group'?state.profile?.creditRating:'BBB'),sector,kyc:existing.kyc||'مكتمل',lastReview:num(existing.lastReview)};
+  }
+  function corporateClientView(state,p={}){
+    if(corporateClientsCurrent(state,p))return state.bank.corporateClients;
+    const F=globalThis.GH_FINANCE_CORE,clients={...(state.bank?.corporateClients||{})};
+    for(const type of corporateCompanyIds(state,F))clients[type]=corporateClientRow(state,type,clients[type]||{creditLimit:5000000,rating:'BBB'},p,F.book(state,type));
+    return clients;
+  }
+  function corporateClientsCurrent(state,p={}){
+    const F=globalThis.GH_FINANCE_CORE,clients=state.bank?.corporateClients;if(!F||!clients||typeof clients!=='object'||Array.isArray(clients))return false;
+    for(const type of corporateCompanyIds(state,F)){
+      const current=clients[type],book=state.companyFinance?.[type];if(!current||typeof current!=='object'||Array.isArray(current)||!book?.accounts?.[0])return false;
+      const expected=corporateClientRow(state,type,current,p,book),keys=Object.keys(expected);if(Object.keys(current).length!==keys.length||keys.some(key=>!Object.prototype.hasOwnProperty.call(current,key)||!Object.is(current[key],expected[key])))return false;
+    }
+    return true;
+  }
   function syncCorporateClients(state,p,F){
     const bank=ensure(state),types=corporateCompanyIds(state,F);
-    for(const type of types){const book=F.book(state,type),existing=bank.corporateClients[type]||{},baseValue=Math.max(5000000,num(state.groupValue)*(type==='group'?.04:.025));if(!book?.accounts?.[0])throw new Error(`bank-client-finance-book-missing:${type}`);const sector=String(companyPlatform()?.definitionFor?.(state,type)?.classification?.primarySectorId||existing.sector||'').trim()||null;bank.corporateClients[type]={company:type,ownerCompanyId:type,name:p.names?.[type]||companyPlatform()?.resolveIdentity?.(state,type)?.legalName||state.companyRegistry?.[type]?.legalName||(type==='group'?state.profile?.name:type),accountId:book.accounts[0].id,depositBalance:num(existing.depositBalance),creditLimit:num(existing.creditLimit)||Math.round(baseValue),drawn:num(existing.drawn),rating:existing.rating||(type==='group'?state.profile?.creditRating:'BBB'),sector,kyc:existing.kyc||'مكتمل',lastReview:num(existing.lastReview)};}
+    for(const type of types){const book=F.book(state,type),existing=bank.corporateClients[type]||{};bank.corporateClients[type]=corporateClientRow(state,type,existing,p,book);}
     return bank.corporateClients;
   }
   function openBranch(state,p={}){
@@ -648,6 +669,7 @@
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx,F=globalThis.GH_FINANCE_CORE,bank=ensure(state);if(!F)throw new Error('finance-core-missing');
+    if((cmd==='review-limits'||cmd==='draw-facility'||cmd==='trade-instrument')&&!corporateClientsCurrent(state))syncCorporateClients(state,{},F);
     if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'bank',p);
     if(cmd==='sync-corporate-clients')return syncCorporateClients(state,p,F);
     if(cmd==='set-deposit-pricing')return setDepositPricing(state,p);
@@ -674,5 +696,5 @@
     if(cmd==='tick-day')return tickDay(state,p,F);
     throw new Error(`Unknown banking command: ${cmd}`);
   }
-  const API={operatingAcquisitionPreview,CET1_DISTRIBUTION_FLOOR,distributableCash,originateMarketMortgage,RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,campaignQuote,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,onFinancialDayStages,executeStages,tickDayStages,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API={corporateClientView,corporateClientsCurrent,operatingAcquisitionPreview,CET1_DISTRIBUTION_FLOOR,distributableCash,originateMarketMortgage,RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,campaignQuote,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,onFinancialDayStages,executeStages,tickDayStages,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

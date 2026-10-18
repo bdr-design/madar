@@ -1,0 +1,4 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build468-summary-projection-browser","engine":"chromium","rows":4400,"initialQueries":1,"subsetQueries":0,"subsetReady":true,"emptyReady":true,"sameTotal":true,"baseCount":2200,"fullBaseCount":2200}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build468-summary-projection-browser","engine":"webkit","rows":4400,"initialQueries":1,"subsetQueries":0,"subsetReady":true,"emptyReady":true,"sameTotal":true,"baseCount":2200,"fullBaseCount":2200}

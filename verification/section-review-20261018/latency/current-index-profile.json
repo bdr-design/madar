@@ -1,0 +1,546 @@
+{
+  "scope": "Desktop first-open synchronous attribution; same real 1M purchased fleet, 11 companies, synthetic HR read fixture; profiler wrappers exist only in source overlay.",
+  "rows": [
+    {
+      "panel": "labor",
+      "arg": "dashboard",
+      "repeat": 0,
+      "ms": 6.699999995529652,
+      "toPaintMs": 31.5,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0
+        },
+        {
+          "name": "ui.panel",
+          "ms": 3.5
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.09999999403953552
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.7000000029802322
+        },
+        {
+          "name": "ui.bind",
+          "ms": 1.6000000014901161
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 6.5999999940395355
+        }
+      ]
+    },
+    {
+      "panel": "assetMarket",
+      "arg": "air",
+      "repeat": 0,
+      "ms": 11,
+      "toPaintMs": 100.09999999403954,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0
+        },
+        {
+          "name": "ui.panel",
+          "ms": 7
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 1.6999999955296516
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 1
+        },
+        {
+          "name": "ui.bind",
+          "ms": 1.2000000029802322
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 11
+        }
+      ]
+    },
+    {
+      "panel": "assets",
+      "arg": "air",
+      "repeat": 0,
+      "ms": 2.8000000044703484,
+      "toPaintMs": 58.5,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.refresh",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.refresh",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "GH_MOBILITY_CORE.managementSnapshot",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.ensureAsync",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.warm",
+          "ms": 0.30000000447034836
+        },
+        {
+          "name": "owned.render",
+          "ms": 1
+        },
+        {
+          "name": "ui.panel",
+          "ms": 1.2000000029802322
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.29999999701976776
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.29999999701976776
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.5
+        },
+        {
+          "name": "owned.install",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 2.8000000044703484
+        }
+      ]
+    },
+    {
+      "panel": "compliance",
+      "repeat": 0,
+      "ms": 5.899999998509884,
+      "toPaintMs": 44.600000001490116,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0.09999999403953552
+        },
+        {
+          "name": "ui.panel",
+          "ms": 1.2000000029802322
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 3.7999999970197678
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.5
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 5.799999997019768
+        }
+      ]
+    },
+    {
+      "panel": "labor",
+      "arg": "dashboard",
+      "repeat": 1,
+      "ms": 18,
+      "toPaintMs": 89.79999999701977,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "ui.panel",
+          "ms": 2.5999999940395355
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 1.1000000014901161
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 13.300000004470348
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.7999999970197678
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 18
+        }
+      ]
+    },
+    {
+      "panel": "assetMarket",
+      "arg": "air",
+      "repeat": 1,
+      "ms": 14.199999995529652,
+      "toPaintMs": 53.79999999701977,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0.19999999552965164
+        },
+        {
+          "name": "ui.panel",
+          "ms": 6.899999998509884
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 1.9000000059604645
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.3999999985098839
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.7999999970197678
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 14.199999995529652
+        }
+      ]
+    },
+    {
+      "panel": "assets",
+      "arg": "air",
+      "repeat": 1,
+      "ms": 1.9000000059604645,
+      "toPaintMs": 33.30000000447035,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.stats",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.refresh",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.stats",
+          "ms": 0.09999999403953552
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.refresh",
+          "ms": 0.09999999403953552
+        },
+        {
+          "name": "GH_MOBILITY_CORE.managementSnapshot",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.warm",
+          "ms": 0
+        },
+        {
+          "name": "owned.render",
+          "ms": 0.5
+        },
+        {
+          "name": "ui.panel",
+          "ms": 0.5
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.19999999552965164
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.20000000298023224
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.6000000014901161
+        },
+        {
+          "name": "owned.install",
+          "ms": 0
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 1.9000000059604645
+        }
+      ]
+    },
+    {
+      "panel": "compliance",
+      "repeat": 1,
+      "ms": 1.5999999940395355,
+      "toPaintMs": 32.5,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0.09999999403953552
+        },
+        {
+          "name": "ui.panel",
+          "ms": 0.5
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.20000000298023224
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.5999999940395355
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 1.5999999940395355
+        }
+      ]
+    },
+    {
+      "panel": "labor",
+      "arg": "dashboard",
+      "repeat": 2,
+      "ms": 2.5,
+      "toPaintMs": 33.19999999552965,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0
+        },
+        {
+          "name": "ui.panel",
+          "ms": 1.1000000014901161
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.19999999552965164
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.20000000298023224
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.7000000029802322
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 2.5
+        }
+      ]
+    },
+    {
+      "panel": "assetMarket",
+      "arg": "air",
+      "repeat": 2,
+      "ms": 3.399999998509884,
+      "toPaintMs": 31.799999997019768,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0.19999999552965164
+        },
+        {
+          "name": "ui.panel",
+          "ms": 1.2000000029802322
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.7999999970197678
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.3999999985098839
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.8000000044703484
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 3.399999998509884
+        }
+      ]
+    },
+    {
+      "panel": "assets",
+      "arg": "air",
+      "repeat": 2,
+      "ms": 1.6999999955296516,
+      "toPaintMs": 33.29999999701977,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0.09999999403953552
+        },
+        {
+          "name": "index.stats",
+          "ms": 0.10000000149011612
+        },
+        {
+          "name": "index.refresh",
+          "ms": 0.19999999552965164
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.refresh",
+          "ms": 0
+        },
+        {
+          "name": "GH_MOBILITY_CORE.managementSnapshot",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.stats",
+          "ms": 0
+        },
+        {
+          "name": "index.warm",
+          "ms": 0
+        },
+        {
+          "name": "owned.render",
+          "ms": 0.3999999985098839
+        },
+        {
+          "name": "ui.panel",
+          "ms": 0.3999999985098839
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0.30000000447034836
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.19999999552965164
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.5
+        },
+        {
+          "name": "owned.install",
+          "ms": 0
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 1.6999999955296516
+        }
+      ]
+    },
+    {
+      "panel": "compliance",
+      "repeat": 2,
+      "ms": 1.5999999940395355,
+      "toPaintMs": 33.19999999552965,
+      "spans": [
+        {
+          "name": "ui.readScroll",
+          "ms": 0.19999999552965164
+        },
+        {
+          "name": "ui.panel",
+          "ms": 0.6000000014901161
+        },
+        {
+          "name": "ui.insertHTML",
+          "ms": 0
+        },
+        {
+          "name": "GH_INTERFACE.prepare",
+          "ms": 0.20000000298023224
+        },
+        {
+          "name": "ui.bind",
+          "ms": 0.5999999940395355
+        },
+        {
+          "name": "ui.drawer",
+          "ms": 1.5999999940395355
+        }
+      ]
+    }
+  ]
+}

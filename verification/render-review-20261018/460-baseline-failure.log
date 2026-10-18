@@ -1,0 +1,13 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+AssertionError [ERR_ASSERTION]: paused unchanged map must not repaint
+
+132 !== 0
+
+    at /workspace/madar/tests/build460-render-idle-browser.cjs:5:1217 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 132,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

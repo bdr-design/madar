@@ -15,6 +15,7 @@ const quote=B.customerFinancingQuote(state,{invoiceAmount:2000000,downPayment:0,
 assert.equal(quote.loanPrincipal-quote.originationFee,quote.disbursementAmount);
 assert.equal(quote.invoiceAmount-quote.downPayment,quote.disbursementAmount);
 const request={id:'AUTO-LOAN-SALE-FB',customerId:'CUSTOMER-FB',borrower:'Buyer FB',amount:quote.loanPrincipal,product:'consumer',termDays:quote.termDays,sector:'auto',sourceCompanyId:'dealership',sourceSaleId:'SALE-FB',orderId:'SALE-FB',proFormaReference:'AUTO-ORDER-SALE-FB',invoiceAmount:quote.invoiceAmount,downPayment:quote.downPayment,disbursementAmount:quote.disbursementAmount};
+s.GH_BUSINESS_WORLD.upsertParty(state,{id:request.customerId,name:request.borrower,displayName:request.borrower,role:'customer',industry:'automotive-retail',country:'Saudi Arabia',sectors:['automotive-retail']});
 assert.throws(()=>B.execute({state},'submit-customer-loan-request',{...request,id:'AUTO-LOAN-SALE-FB-DP',downPayment:1,downPaymentReference:'AUTO-DOWN-SALE-FB'}),/bank-customer-finance-down-payment-not-supported/);
 const submitted=s.GH_DOMAIN_COMMANDS.dispatchSystem({state},'banking','submit-customer-loan-request',request,{actor:'simulation-scheduler',idempotencyKey:'SUBMIT-FB'});
 assert.equal(submitted.ok,true,submitted.error);

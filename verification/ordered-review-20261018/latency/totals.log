@@ -1,0 +1,104 @@
+[
+  {
+    "label": "before",
+    "action": "payables",
+    "samples": 10,
+    "syncMedianMs": 4.850000001490116,
+    "toPaintMedianMs": 33.099999997764826,
+    "readyMedianMs": null,
+    "mainTaskMedianMs": 14.594000000000001,
+    "maxObservedMainTaskMs": 22.228,
+    "queryCounts": []
+  },
+  {
+    "label": "before",
+    "action": "cheques",
+    "samples": 10,
+    "syncMedianMs": 22.400000002235174,
+    "toPaintMedianMs": 116.69999999925494,
+    "readyMedianMs": null,
+    "mainTaskMedianMs": 100.40100000000001,
+    "maxObservedMainTaskMs": 116.526,
+    "queryCounts": []
+  },
+  {
+    "label": "before",
+    "action": "invoices",
+    "samples": 10,
+    "syncMedianMs": 98.54999999701977,
+    "toPaintMedianMs": 260.3499999977648,
+    "readyMedianMs": null,
+    "mainTaskMedianMs": 235.87,
+    "maxObservedMainTaskMs": 283.326,
+    "queryCounts": []
+  },
+  {
+    "label": "before",
+    "action": "cold-summary",
+    "samples": 6,
+    "syncMedianMs": null,
+    "toPaintMedianMs": 524.8999999947846,
+    "readyMedianMs": 503.8499999977648,
+    "mainTaskMedianMs": 6.68,
+    "maxObservedMainTaskMs": 25.129,
+    "queryCounts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "label": "after",
+    "action": "payables",
+    "samples": 10,
+    "syncMedianMs": 3.150000002235174,
+    "toPaintMedianMs": 33.19999999552965,
+    "readyMedianMs": null,
+    "mainTaskMedianMs": 12.764,
+    "maxObservedMainTaskMs": 14.536,
+    "queryCounts": []
+  },
+  {
+    "label": "after",
+    "action": "cheques",
+    "samples": 10,
+    "syncMedianMs": 4.050000000745058,
+    "toPaintMedianMs": 33.25,
+    "readyMedianMs": null,
+    "mainTaskMedianMs": 15.022,
+    "maxObservedMainTaskMs": 17.929,
+    "queryCounts": []
+  },
+  {
+    "label": "after",
+    "action": "invoices",
+    "samples": 10,
+    "syncMedianMs": 5.600000001490116,
+    "toPaintMedianMs": 33.19999999925494,
+    "readyMedianMs": null,
+    "mainTaskMedianMs": 15.657499999999999,
+    "maxObservedMainTaskMs": 19.573,
+    "queryCounts": []
+  },
+  {
+    "label": "after",
+    "action": "cold-summary",
+    "samples": 6,
+    "syncMedianMs": null,
+    "toPaintMedianMs": 524.8500000014901,
+    "readyMedianMs": 502.7500000037253,
+    "mainTaskMedianMs": 4.603999999999999,
+    "maxObservedMainTaskMs": 18.774,
+    "queryCounts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  }
+]

@@ -84,6 +84,17 @@ function isAssetFacilityCompatible(assetOrMode,f,state=null){
 // Build 358 (million-asset): delivered assets per base are counted per class of rows (one cached class scan per fleet
 // revision serves every base), not by visiting each asset.
 function assetOccupancy(state,f){if(!f?.id)return 0;const delivered=fleetData().countByFields(state,['baseFacility'],asset=>asset.baseFacility).get(f.id)||0,pending=(state.realism?.procurement?.deliveries||[]).reduce((count,row)=>count+(row?.status==='pending'&&row.baseId===f.id?Math.max(1,Array.isArray(row.assets)?row.assets.length:row.asset?1:Math.floor(Number(row.count)||0)):0),0);return delivered+pending;}
+// Read-only desks use the existing worker aggregate. A cold or stale large-fleet
+// answer is unknown, never a main-thread scan or permission to buy/close a base.
+// The authoritative purchase and closure commands retain their own checks.
+function readAssetOccupancies(state,facilities,summary){
+ const schema=globalThis.GH_FLEET_UI_SUMMARY?.SCHEMA,valid=typeof schema==='string'&&summary?.current?.(state)===true&&summary.result?.schema===schema&&summary.result?.legacy===false&&typeof summary.lookup?.base==='function';
+ const counts=new Map(),pending=new Map();let delivered=null;
+ if(!valid&&fleetData().size(state)<=2048)delivered=fleetData().countByFields(state,['baseFacility'],asset=>asset.baseFacility);
+ for(const f of facilities){const key=f?.id;counts.set(key,!key?0:valid?(summary.lookup.base(key)||0):delivered?(delivered.get(key)||0):null);}
+ if(valid||delivered){for(const row of state.realism?.procurement?.deliveries||[]){const key=row?.baseId;if(row?.status==='pending'&&key===key&&counts.has(key)&&key)pending.set(key,(pending.get(key)||0)+Math.max(1,Array.isArray(row.assets)?row.assets.length:row.asset?1:Math.floor(Number(row.count)||0)));}for(const [key,count] of counts)counts.set(key,count+(pending.get(key)||0));}
+ return counts;
+}
 const CLOSE_FLEET_FALLBACK_LIMIT=2048;
 function deliveredAssetsAtBase(ctx,state,id){
  const proof=ctx?.fleetSummary,core=globalThis.GH_FLEET_UI_SUMMARY,result=proof?.result;
@@ -193,5 +204,5 @@ function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);const f=p.id?fin
     if(cmd==='commission-energy'){const k=String(p.key||'capacityMW');s.energy[k]=num(s.energy[k])+num(p.amount);return {key:k,value:s.energy[k]};}
   throw new Error(`Unknown facility command: ${cmd}`);
 }
-const API={VERSION,dailyOperatingCosts,expansionCost,expandable,DEFAULT_ASSET_CAPACITY,ASSET_FACILITY_KINDS,migrateAssetCapacity,migrateOperatingCosts,ensure,all,find,model,ownerCompany,assetCapacity,isAssetFacilityCompatible,assetOccupancy,availableAssetCapacity,verifyDirectorySite,verifyGlobalSite,validate,execute};globalThis.GH_FACILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('facilities',API);if(globalThis.window&&window!==globalThis)window.GH_FACILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+const API={VERSION,dailyOperatingCosts,expansionCost,expandable,DEFAULT_ASSET_CAPACITY,ASSET_FACILITY_KINDS,migrateAssetCapacity,migrateOperatingCosts,ensure,all,find,model,ownerCompany,assetCapacity,isAssetFacilityCompatible,assetOccupancy,readAssetOccupancies,availableAssetCapacity,verifyDirectorySite,verifyGlobalSite,validate,execute};globalThis.GH_FACILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('facilities',API);if(globalThis.window&&window!==globalThis)window.GH_FACILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

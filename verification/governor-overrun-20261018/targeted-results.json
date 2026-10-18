@@ -1,0 +1,642 @@
+{
+  "status": "LOCAL_TARGETED_PASS_DEVICE_CADENCE_PENDING",
+  "runtime_source_sha256": "8e35b6f0f193472c5e751aa0e5c6c28d9a1fb65f5ea1bf79aef8854d807d006d",
+  "webapp_sha256": "87a247d0578754ae51be1c84d6a30fd9c9c88074a72f01cde1b0712982fd3192",
+  "simulation_core_sha256": "b1e2d027e598bca474453aa25a346ed4df97ef65dbb25edf77c561eb2006b0a2",
+  "base_commit": "2ad7e1698cc875b50d569a3408b646ebb00d037a",
+  "upstream_commit": "c2b16ccda10f80ac44f548f84384f9e6b7df8e53",
+  "upstream_files_sha256": {
+    "3-governor-engineering-note-AR.md": "c405e6de585f1c944841ba8855fa9a2b6a8061f8bb69d0112b17c210065fdd5d",
+    "2-governor-synthetic-compare.cjs": "0de083f2eac65a0ff191c4ff7347c073da586dff2048ef9ce7d01227b9de9a10",
+    "1-0001-Measure-governor-pressure-as-work-past-the-deadline.patch": "ca3ef033950017857c3888f71d7a8b39b8b42d0e34a1814c4c184141a63623c2"
+  },
+  "withdrawn_commit": "07a72238d7774f8f9575bac8677162dbb39de318",
+  "withdrawn_local_runtime_sha256": "a613d80a1b5398fb8ddd7b58265b4c9187b6cd2e1df93df44d5db2222c3a8815",
+  "baseline_backup": "/workspace/scratch/governor-overrun-20261018/before-integration.tar.gz",
+  "current_product_change": "WebApp/simulation-core.js only; other existing runtime changes preserved byte-for-byte",
+  "upstream_adjustment": "Reuse the captured chunkEnd clock value for duration and overrun instead of reading the clock again after duration bookkeeping.",
+  "replaced_test_gates": {
+    "tests/governor-recovery.cjs": "tests/governor-overrun-signal.cjs",
+    "tests/build426-governor-recovery.cjs": "tests/build426-governor-pressure.cjs"
+  },
+  "acceptance_contract_sha256": "a3f65bbf5763f26c1875ae13be53d527466c3e774be367a6e3a3d1f99562d155",
+  "declared_gates": 460,
+  "declared_preflight": 63,
+  "related_scripts_passed": 24,
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/governor-overrun-signal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.114,
+      "log": "verification/governor-overrun-20261018/logs/governor-overrun-signal.log",
+      "log_sha256": "ae89ec7a6f992d117b1436d2244d6430d924760ea6a09689a75638261ab2cb15"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build426-governor-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build426-governor-pressure.log",
+      "log_sha256": "e3e112b88f16b94d1f39259e20fed39857529ee71c05cf780b0c6771fc04e0b0"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-scheduler-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-overrun-20261018/logs/build334-scheduler-liveness.log",
+      "log_sha256": "006251066a2db0150b7b417e3f7bdcaeb060d0d78fcc933dabe39f30616845a5"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sim-smoothness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.465,
+      "log": "verification/governor-overrun-20261018/logs/build359-sim-smoothness.log",
+      "log_sha256": "4026353086e4876137d645ab4b1009606f5c4f3ad92b59d71f55df9a0ae72426"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-late-frame-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build334-late-frame-liveness.log",
+      "log_sha256": "c7056910564b2be0486df1b3d411785109059958f49d09c4986e594cf1385370"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1bb-pacing-separation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-overrun-20261018/logs/build339-phase1bb-pacing-separation.log",
+      "log_sha256": "c4706845bc2e47adc37deea34ae1a42fea8fd9155de54c7ad98727302238aee4"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-worker-scheduler.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build340-simulation-worker-scheduler.log",
+      "log_sha256": "6fdf4d2c2e744c8a0e7ce3b1419e7f9c3b071f818fec3ff6467ecff94df1c2e2"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-simulation-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build362-simulation-lifecycle.log",
+      "log_sha256": "fd17157ede32199ae80103bb28dcd2fad227b883c549a7501546ff63b2d4428e"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-simulation-runtime.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build362-simulation-runtime.log",
+      "log_sha256": "6aebf451728b482c20ac9a2fb4e281d7f8d3a31e3627e36e45d38dc963db3c5b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-simulation-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-overrun-20261018/logs/build379-simulation-recovery.log",
+      "log_sha256": "2ef3a4fd0f8803d61699b0fccb2c96505f43bc376706478cdc748e749933f0da"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-time-golden.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build339-time-golden.log",
+      "log_sha256": "af7178398a767e3fd0379d097c749a74fc6243d6ffbb848d989f98de93a93b16"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-time-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-overrun-20261018/logs/build334-simulation-time-contract.log",
+      "log_sha256": "5f8170bd33635626ab30076cf31a670f84a875ab226e2469a4d0b45d0b58ae7a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-safety-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.365,
+      "log": "verification/governor-overrun-20261018/logs/build334-calendar-safety-contract.log",
+      "log_sha256": "0db5cf82c0685082869f3c4ae4afe5d11c4fbbca716b560bb3f99a36f1894ef9"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-calendar-window-equivalence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.03,
+      "log": "verification/governor-overrun-20261018/logs/build362-calendar-window-equivalence.log",
+      "log_sha256": "e02237386e467873a197fd97bbb8413d07724551ae0d2fefd53fef0e37716ddc"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-calendar-staged-completion.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-overrun-20261018/logs/build358-calendar-staged-completion.log",
+      "log_sha256": "8c64152af5842ac559e8e8cdbd9801b5129abef1db007a4d77612114c1efbf35"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-calendar-cancel-settle-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build371-calendar-cancel-settle-core.log",
+      "log_sha256": "2d3e145e7c00e072b4d1e6d48c1b4ece315df6b2786d12de4b656b37f5efb052"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r3-calendar-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-overrun-20261018/logs/build334-r3-calendar-work.log",
+      "log_sha256": "7d582ce61e53edb07388bebefddba72a1a12318cfd62d8fb5956a36ec7b337dd"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-runtime-diagnostics-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.114,
+      "log": "verification/governor-overrun-20261018/logs/build363-runtime-diagnostics-contract.log",
+      "log_sha256": "9a7ba4022ed8f3bc93464eadb6d23d73c90c093078756e99b5d159a1efbb55cf"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-persistence-pacing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.133,
+      "log": "verification/governor-overrun-20261018/logs/build353-persistence-pacing.log",
+      "log_sha256": "e8fba30efd363f4c38c6267aee851451157e8967e4b666f7bd7c42d913ebcb56"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/lint.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.395,
+      "log": "verification/governor-overrun-20261018/logs/lint.log",
+      "log_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/build334-source-layout.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-overrun-20261018/logs/build334-source-layout.log",
+      "log_sha256": "b683d3e645a7d311d1ef5f3266af70e1ec37dbafcc4ea1a8cd04b2eba0285e31"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.315,
+      "log": "verification/governor-overrun-20261018/logs/acceptance-policy.log",
+      "log_sha256": "8cf875071efbe33aabfca543c8946b4ed2d9ddeff8a199f96ffc48d0c4afd4e4"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build405-worker-close-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.73,
+      "log": "verification/governor-overrun-20261018/logs/build405-worker-close-browser.log",
+      "log_sha256": "b1d47719bab7a0af6d0b8b1e5dc955eb02904219cafc0811b8da85985415b70b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build411-command-row-patch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.71,
+      "log": "verification/governor-overrun-20261018/logs/build411-command-row-patch-browser.log",
+      "log_sha256": "b71107aab267d018780813e672ecee6c48127733d1e5caf0814125c46cc12da2"
+    }
+  ],
+  "signal_cases": [
+    {
+      "name": "live, deadline-bounded work",
+      "levelChanges": 0,
+      "simSeconds": 8983
+    },
+    {
+      "name": "calendar, deadline-bounded work",
+      "levelChanges": 0,
+      "frames": 73
+    },
+    {
+      "name": "indivisible overrun",
+      "sequence": "YELLOW>GREEN"
+    },
+    {
+      "name": "indivisible finish",
+      "sequence": "ORANGE>YELLOW>GREEN"
+    },
+    {
+      "name": "calendar throttle",
+      "notifications": 1,
+      "yields": 24
+    }
+  ],
+  "safety_cases": [
+    {
+      "name": "ordinary calendar work",
+      "levelChanges": 0
+    },
+    {
+      "name": "absolute shared frame deadline",
+      "overrunMs": 4
+    },
+    {
+      "name": "small overrun",
+      "overrunMs": 2,
+      "levelChanges": 0
+    },
+    {
+      "name": "long task without deadline overrun",
+      "level": "ORANGE"
+    },
+    {
+      "name": "hard task without deadline overrun",
+      "level": "RED",
+      "yields": 1
+    },
+    {
+      "name": "indivisible create",
+      "level": "YELLOW"
+    },
+    {
+      "name": "indivisible finish",
+      "level": "YELLOW"
+    },
+    {
+      "name": "cadence pressure remains active",
+      "pressedBudgetMs": 4.5,
+      "recoveredBudgetMs": 9.999730191698061
+    },
+    {
+      "name": "bounded pressure history",
+      "finalLevel": "GREEN"
+    },
+    {
+      "name": "pending worker yields",
+      "levelChanges": 0
+    },
+    {
+      "name": "cancel hard pending slice",
+      "committedSeconds": 0,
+      "cancels": 1
+    },
+    {
+      "name": "failed chunk",
+      "committedSeconds": 0,
+      "cancels": 1
+    }
+  ],
+  "mutations": [
+    {
+      "mutation": "duration-feedback",
+      "test": "tests/governor-overrun-signal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: a chunk that stops at its deadline is not pressure (1687 level changes)"
+    },
+    {
+      "mutation": "ignore-overrun",
+      "test": "tests/governor-overrun-signal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: an indivisible step past the deadline is pressure (none)"
+    },
+    {
+      "mutation": "per-chunk-budget",
+      "test": "tests/build426-governor-pressure.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+    },
+    {
+      "mutation": "long-task-uses-overrun",
+      "test": "tests/build426-governor-pressure.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+    },
+    {
+      "mutation": "hard-task-uses-overrun",
+      "test": "tests/build426-governor-pressure.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+    },
+    {
+      "mutation": "ignore-create-finish",
+      "test": "tests/build426-governor-pressure.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:"
+    },
+    {
+      "mutation": "disable-cadence-factor",
+      "test": "tests/build426-governor-pressure.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+    },
+    {
+      "mutation": "disable-red-throttle",
+      "test": "tests/governor-overrun-signal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: a hard stage still throttles the calendar"
+    }
+  ],
+  "comparison_baselines": [
+    {
+      "framesToFinish": 491,
+      "governorChanges": 263,
+      "framesWithReducedBudget": "98%",
+      "maxFrameWorkMs": 10,
+      "source": "shipped",
+      "heavyEvery": 0,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8987,
+      "governorChanges": 1726,
+      "framesWithReducedBudget": "48%",
+      "maxFrameWorkMs": 4.1,
+      "source": "shipped",
+      "heavyEvery": 0,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 494,
+      "governorChanges": 1,
+      "framesWithReducedBudget": "100%",
+      "maxFrameWorkMs": 10,
+      "source": "held",
+      "heavyEvery": 0,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8541,
+      "governorChanges": 211,
+      "framesWithReducedBudget": "94%",
+      "maxFrameWorkMs": 4.1,
+      "source": "held",
+      "heavyEvery": 0,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 371,
+      "governorChanges": 0,
+      "framesWithReducedBudget": "0%",
+      "maxFrameWorkMs": 10.2,
+      "source": "overrun",
+      "heavyEvery": 0,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 9003,
+      "governorChanges": 0,
+      "framesWithReducedBudget": "0%",
+      "maxFrameWorkMs": 4.2,
+      "source": "overrun",
+      "heavyEvery": 0,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 525,
+      "governorChanges": 263,
+      "framesWithReducedBudget": "100%",
+      "maxFrameWorkMs": 14,
+      "source": "shipped",
+      "heavyEvery": 400,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8812,
+      "governorChanges": 1099,
+      "framesWithReducedBudget": "37%",
+      "maxFrameWorkMs": 13,
+      "source": "shipped",
+      "heavyEvery": 400,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 526,
+      "governorChanges": 1,
+      "framesWithReducedBudget": "100%",
+      "maxFrameWorkMs": 12.7,
+      "source": "held",
+      "heavyEvery": 400,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8406,
+      "governorChanges": 137,
+      "framesWithReducedBudget": "96%",
+      "maxFrameWorkMs": 11.9,
+      "source": "held",
+      "heavyEvery": 400,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 407,
+      "governorChanges": 42,
+      "framesWithReducedBudget": "5%",
+      "maxFrameWorkMs": 16.6,
+      "source": "overrun",
+      "heavyEvery": 400,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 9003,
+      "governorChanges": 84,
+      "framesWithReducedBudget": "2%",
+      "maxFrameWorkMs": 13,
+      "source": "overrun",
+      "heavyEvery": 400,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 582,
+      "governorChanges": 203,
+      "framesWithReducedBudget": "100%",
+      "maxFrameWorkMs": 14.9,
+      "source": "shipped",
+      "heavyEvery": 50,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8386,
+      "governorChanges": 1006,
+      "framesWithReducedBudget": "69%",
+      "maxFrameWorkMs": 11.9,
+      "source": "shipped",
+      "heavyEvery": 50,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 582,
+      "governorChanges": 1,
+      "framesWithReducedBudget": "100%",
+      "maxFrameWorkMs": 14.9,
+      "source": "held",
+      "heavyEvery": 50,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8386,
+      "governorChanges": 125,
+      "framesWithReducedBudget": "96%",
+      "maxFrameWorkMs": 11.9,
+      "source": "held",
+      "heavyEvery": 50,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 552,
+      "governorChanges": 13,
+      "framesWithReducedBudget": "83%",
+      "maxFrameWorkMs": 17.4,
+      "source": "overrun",
+      "heavyEvery": 50,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8396,
+      "governorChanges": 720,
+      "framesWithReducedBudget": "20%",
+      "maxFrameWorkMs": 11.9,
+      "source": "overrun",
+      "heavyEvery": 50,
+      "mode": "live"
+    }
+  ],
+  "comparison_current": [
+    {
+      "framesToFinish": 371,
+      "governorChanges": 0,
+      "framesWithReducedBudget": "0%",
+      "maxFrameWorkMs": 10.2,
+      "source": "current",
+      "heavyEvery": 0,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 9003,
+      "governorChanges": 0,
+      "framesWithReducedBudget": "0%",
+      "maxFrameWorkMs": 4.2,
+      "source": "current",
+      "heavyEvery": 0,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 407,
+      "governorChanges": 42,
+      "framesWithReducedBudget": "5%",
+      "maxFrameWorkMs": 16.6,
+      "source": "current",
+      "heavyEvery": 400,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 9003,
+      "governorChanges": 84,
+      "framesWithReducedBudget": "2%",
+      "maxFrameWorkMs": 13,
+      "source": "current",
+      "heavyEvery": 400,
+      "mode": "live"
+    },
+    {
+      "framesToFinish": 552,
+      "governorChanges": 13,
+      "framesWithReducedBudget": "83%",
+      "maxFrameWorkMs": 17.4,
+      "source": "current",
+      "heavyEvery": 50,
+      "mode": "calendar"
+    },
+    {
+      "simSecondsIn30s": 8396,
+      "governorChanges": 720,
+      "framesWithReducedBudget": "20%",
+      "maxFrameWorkMs": 11.9,
+      "source": "current",
+      "heavyEvery": 50,
+      "mode": "live"
+    }
+  ],
+  "cpu_median_ms_per_engine_frame_call": {
+    "shipped": 0.00016646282999999997,
+    "held": 0.00016787503999999998,
+    "overrun": 0.00022459867000000004
+  },
+  "cpu_scope": "Node injected-clock engine loop; one 1ms synthetic pending chunk per call; actual CPU timing outside clock; excludes all game data, rendering, native IO and real device; no regression threshold",
+  "browser_environment": "Actual Chromium and WebKit; local Debian libraries via LD_LIBRARY_PATH, Playwright static host-cache validation bypassed for WebKit; no game test assertion skipped.",
+  "prior_million_asset_measurements_rerun": false,
+  "all_company_revenue_with_million_assets_measured": false,
+  "full_acceptance_run": false,
+  "ci_run": false,
+  "pushed": false,
+  "new_ipa_built": false,
+  "physical_iphone_tested": false,
+  "both_20ms_targets_achieved": false,
+  "approval": false
+}

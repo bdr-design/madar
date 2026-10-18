@@ -1,0 +1,161 @@
+--- a/WebApp/fleet-access-core.js
++++ b/WebApp/fleet-access-core.js
+@@ -451,7 +451,7 @@
+         const same=()=>storeOf(state)===store&&store.rows===rows&&store.values===table&&store.revision===revision&&store.structure===structure&&store.length===length&&STORE.valueRevision(store)===valueRevision&&STORE.valuesGeneration(store)===generation&&STORE.epoch(store)===epoch;
+         const deferred=reason=>({deferred:true,stale:false,freed:0,reason});
+         let asked=null;if(waitForWorker)try{asked=globalThis.GH_FLEET_QUERY_PROVIDER?.(state,'valueCollection',{});}catch(_error){}
+-        if(!asked||!waitForWorker){values=deferred(asked?'worker-pending':'worker-unavailable');}
++        if(!asked){values=deferred('worker-unavailable');}
+         else{
+           const box={done:false,found:null};Promise.resolve(asked).then(found=>{box.found=found;box.done=true;},()=>{box.done=true;});
+           // A stalled worker must not hold the simulation's maintenance queue
+--- a/WebApp/fleet-day-core.js
++++ b/WebApp/fleet-day-core.js
+@@ -144,23 +144,24 @@
+     let ask=0,rpk=0,rev=0,cost=0,fuel=0,movingAir=0,airCondition=0,maintReserve=0,maintExposure=0,airCount=0,maintenanceDue=0,aog=0;
+     let seaDistance=0,seaFuelProxy=0,seaTransport=0,seaCo2=0,seaWork=0,seaRefWork=0,seaCondition=0,movingSea=0,seaCount=0,seaDryDock=0,roadCount=0,roadWeak=0,roadDamaged=0;
+ 
+-    const STORE=options.storeApi||globalThis.GH_FLEET_STORE,store=fleet.storeOf?.(state),views=STORE?.isStore?.(store)&&fleet.scan===canonicalScan?STORE.views(store):null,profileMemo=new Map();
+-    function fixed(row){
++    const STORE=options.storeApi||globalThis.GH_FLEET_STORE,store=fleet.storeOf?.(state),views=STORE?.isStore?.(store)&&fleet.scan===canonicalScan?STORE.views(store):null,profileMemo=views?new Map():null;let scratch=null;
++    function fixed(row,out={}){
+       const ownerKey=ownerKeyOf(row),price=Math.max(0,Number(row.purchasePrice)||0),mode=modeOf(row),payroll=Number(row.staffing?.monthlyPayroll)||0;
++      out.ownerKey=ownerKey;out.price=price;out.mode=mode;out.payroll=payroll;
+       if(row.ownership==='lease'){
+         const monthly=Math.max(0,Number(row.monthlyLease)||0),term=Math.max(12,Number(row.leaseTermMonths)||60),start=Math.max(0,Number(row.leaseStartSeconds)||Number(row.deliveredAtSeconds)||simSeconds),elapsed=Math.min(term,Math.max(0,Math.floor((simSeconds-start)/(30*86400)))),remaining=Math.max(0,term-elapsed);
+         const pv=monthlyRate?monthly*(1-Math.pow(1+monthlyRate,-remaining))/monthlyRate:monthly*remaining,initialPv=monthlyRate?monthly*(1-Math.pow(1+monthlyRate,-term))/monthlyRate:monthly*term;
+-        return {ownerKey,price,mode,payroll,lease:true,pv,carrying:initialPv*Math.max(0,1-elapsed/term),depr:term?initialPv/term:0,interest:pv*monthlyRate};
++        out.lease=true;out.pv=pv;out.carrying=initialPv*Math.max(0,1-elapsed/term);out.depr=term?initialPv/term:0;out.interest=pv*monthlyRate;return out;
+       }
+       const life=USEFUL_YEARS[mode]||15,salvage=price*(SALVAGE_PCT[mode]||.08),modelYear=Math.min(simYear,Math.max(2000,Number(row.year)||simYear)),ageYears=Math.max(0,simYear-modelYear),annualDep=Math.max(0,(price-salvage)/life),accum=Math.min(price-salvage,annualDep*ageYears),book=Math.max(salvage,price-accum);
+-      return {ownerKey,price,mode,payroll,lease:false,book,depr:annualDep/12,rawPrice:Number(row.purchasePrice)||0};
++      out.lease=false;out.book=book;out.depr=annualDep/12;out.rawPrice=Number(row.purchasePrice)||0;return out;
+     }
+     // Request-local memo over the real scan's immutable profiles. Extras and alternate adapters keep the full formulas.
+     // Every per-row addition still executes in original row order; no multiplication replaces financial accumulation.
+     function fixedFor(row,index){
+-      if(!views||views.u8[index*128+STORE.O.flags]&STORE.EXTRAS)return fixed(row);
++      if(!views||views.u8[index*128+STORE.O.flags]&STORE.EXTRAS)return fixed(row,scratch||(scratch={}));
+       const ref=views.u32[index*STORE.WORDS_PER_ROW+STORE.O.profile];let cached=profileMemo.get(ref);
+-      if(!cached){cached=fixed(row);if(profileMemo.size<4096)profileMemo.set(ref,cached);}return cached;
++      if(!cached){if(profileMemo.size<4096){cached=fixed(row);profileMemo.set(ref,cached);}else cached=fixed(row,scratch||(scratch={}));}return cached;
+     }
+     fleet.scan(state,FIELDS,(row,index)=>{
+       addDailyMetrics(dailyMetrics,row,compact);
+--- a/WebApp/fleet-save-validation-core.js
++++ b/WebApp/fleet-save-validation-core.js
+@@ -107,7 +107,12 @@
+     const addCompanyError=error=>{if(companySet.has(error))return;if(company.length>=COMPANY_ERROR_LIMIT){overflow=true;return;}companySet.add(error);company.push(error);};
+     const validReference=companyId=>dataId(companyId)&&(context.companyReferenceCompanies.has(companyId)||context.definitionCompanies.has(companyId));
+     fleet.scan(state,STATIC_FIELDS,(asset,index)=>{
+-      if(views&&refs.size<=4096){const w=index*STORE.WORDS_PER_ROW,present=views.u32[w+STORE.O.present];for(const ref of [views.u32[w+STORE.O.profile],present&STORE.HOT_BIT.id?views.u32[w+STORE.O.idPattern]:0,present&STORE.HOT_BIT.name?views.u32[w+STORE.O.namePattern]:0])if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}
++      if(views&&refs.size<=4096){
++        const w=index*STORE.WORDS_PER_ROW,present=views.u32[w+STORE.O.present];let ref=views.u32[w+STORE.O.profile];
++        if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);
++        if(present&STORE.HOT_BIT.id){ref=views.u32[w+STORE.O.idPattern];if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}
++        if(present&STORE.HOT_BIT.name){ref=views.u32[w+STORE.O.namePattern];if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}
++      }
+       for(const [key,maximum] of ENTITY_TEXT_FIELDS)if(asset[key]!=null&&!safeText(asset[key],maximum))note(`display-text-assets-${key}`,index);
+       for(const key of ENTITY_NUMBER_FIELDS)if(asset[key]!=null&&!finite(asset[key]))note(`display-number-assets-${key}`,index);
+       if(asset.id!=null&&!safeAttribute(asset.id,180))note('display-attribute-assets-id',index);
+--- a/WebApp/save-checksum-thread.js
++++ b/WebApp/save-checksum-thread.js
+@@ -1,6 +1,8 @@
+ (()=>{
+   'use strict';
+   const VERSION='save-checksum-v1',MAX_BYTES=4*1024*1024,pending=new Map(),workerResults=new WeakSet();
++  const CHECKSUM=/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/,validChecksum=value=>typeof value==='string'&&CHECKSUM.test(value);
++  function validLaneSums(sums){if(!Array.isArray(sums)||sums.length!==16)return false;for(let lane=0;lane<16;lane++)if(!validChecksum(sums[lane]))return false;return true;}
+   let worker=null,sequence=0;
+   const stats={requests:0,completed:0,encodes:0,chunkEncodes:0,rawChunkBytes:0,wireChunkBytes:0,failures:0,copyMs:0,maxCopyMs:0,workerMs:0,maxWorkerMs:0,sessions:0,activeSessions:0,activeChannels:0,maxSessionJobs:0,lookaheadRequests:0,deferredSubmitMs:0,maxDeferredSubmitMs:0};
+   const clock=()=>globalThis.performance?.now?.()??Date.now();
+@@ -11,11 +13,10 @@
+     worker.onmessage=event=>{
+       const m=event.data||{},p=pending.get(m.id);if(!p)return;
+       pending.delete(m.id);clearTimeout(p.timer);
+-      const valid=p.kind==='checksum'?typeof m.checksum==='string'&&/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/.test(m.checksum)&&m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===p.bytes:p.kind==='chunk-encode'?m.rawBytes===p.bytes&&m.buffer instanceof ArrayBuffer&&(m.encoding==='identity'&&m.buffer.byteLength===p.bytes||m.encoding==='gh-packbits-v1'&&m.buffer.byteLength>=20&&m.buffer.byteLength<=Math.floor(p.bytes*.875)):typeof m.text==='string'&&m.text.length===4*Math.ceil(p.bytes/3);
+-      const laneValid=!p.lanes||Array.isArray(m.laneSums)&&m.laneSums.length===16&&m.laneSums.every(sum=>typeof sum==='string'&&/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/.test(sum));
+-      if(m.type!==p.kind+'-result'||m.version!==VERSION||!valid||!laneValid){stats.failures++;p.reject(new Error('save-checksum-result-invalid'));return;}
++      const valid=p.kind==='checksum'?m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===p.bytes&&(p.lanes?validLaneSums(m.laneSums):validChecksum(m.checksum)):p.kind==='chunk-encode'?m.rawBytes===p.bytes&&m.buffer instanceof ArrayBuffer&&(m.encoding==='identity'&&m.buffer.byteLength===p.bytes||m.encoding==='gh-packbits-v1'&&m.buffer.byteLength>=20&&m.buffer.byteLength<=Math.floor(p.bytes*.875)):typeof m.text==='string'&&m.text.length===4*Math.ceil(p.bytes/3);
++      if(m.type!==p.kind+'-result'||m.version!==VERSION||!valid){stats.failures++;p.reject(new Error('save-checksum-result-invalid'));return;}
+       stats.completed++;stats.workerMs+=Number(m.workerMs)||0;stats.maxWorkerMs=Math.max(stats.maxWorkerMs,Number(m.workerMs)||0);
+-      if(p.kind==='base64'){stats.encodes++;p.resolve(m.text);}else if(p.kind==='chunk-encode'){stats.chunkEncodes++;stats.rawChunkBytes+=p.bytes;stats.wireChunkBytes+=m.buffer.byteLength;p.resolve({encoding:m.encoding,bytes:new Uint8Array(m.buffer),rawBytes:p.bytes,workerMs:Number(m.workerMs)||0});}else{const result={checksum:m.checksum,bytes:new Uint8Array(m.buffer),...(p.lanes?{laneSums:m.laneSums.slice()}:{}),copyMs:p.copyMs,workerMs:Number(m.workerMs)||0};workerResults.add(result);p.resolve(result);}
++      if(p.kind==='base64'){stats.encodes++;p.resolve(m.text);}else if(p.kind==='chunk-encode'){stats.chunkEncodes++;stats.rawChunkBytes+=p.bytes;stats.wireChunkBytes+=m.buffer.byteLength;p.resolve({encoding:m.encoding,bytes:new Uint8Array(m.buffer),rawBytes:p.bytes,workerMs:Number(m.workerMs)||0});}else{const result={bytes:new Uint8Array(m.buffer),...(p.lanes?{laneSums:m.laneSums.slice()}:{checksum:m.checksum}),copyMs:p.copyMs,workerMs:Number(m.workerMs)||0};workerResults.add(result);p.resolve(result);}
+     };
+     worker.onerror=()=>{stats.failures++;stop('save-checksum-worker-error');};
+     worker.onmessageerror=()=>{stats.failures++;stop('save-checksum-message-error');};
+--- a/WebApp/save-checksum-worker.js
++++ b/WebApp/save-checksum-worker.js
+@@ -16,6 +16,10 @@
+     const bytes=new Uint8Array(m.buffer);
+     if(m.type==='chunk-encode'){const packed=self.GH_SAVE_CHUNK_CODEC.pack(bytes,m.stride);self.postMessage({type:'chunk-encode-result',version:VERSION,id:m.id,encoding:packed.encoding,rawBytes:bytes.byteLength,buffer:packed.bytes.buffer,workerMs:performance.now()-started},[packed.bytes.buffer]);}
+     else if(m.type==='base64')self.postMessage({type:'base64-result',version:VERSION,id:m.id,text:self.GH_STATE_CODEC.bytesToBase64(bytes),workerMs:performance.now()-started});
+-    else{const expected=Number.isSafeInteger(m.expectedBytes)?m.expectedBytes:bytes.byteLength,output=m.transform?transformFleet(bytes,m.transform,expected):bytes;if(output.byteLength!==expected||output.byteLength>MAX_BYTES)throw new Error('save-checksum-output-invalid');const checksum=self.GH_STATE_CODEC.chunkChecksum(output),laneSums=m.transform?.kind==='fleet-lanes-v1'?Array.from({length:16},(_,i)=>self.GH_STATE_CODEC.chunkChecksum(output.subarray(i*output.length/16,(i+1)*output.length/16))):null;self.postMessage({type:'checksum-result',version:VERSION,id:m.id,checksum,...(laneSums?{laneSums}:{}),buffer:output.buffer,workerMs:performance.now()-started},[output.buffer]);}
++    else{const expected=Number.isSafeInteger(m.expectedBytes)?m.expectedBytes:bytes.byteLength,output=m.transform?transformFleet(bytes,m.transform,expected):bytes;if(output.byteLength!==expected||output.byteLength>MAX_BYTES)throw new Error('save-checksum-output-invalid');
++      // Lane consumers use all 16 independent hashes. A second whole-page hash is unused; raw replica proofs still
++      // require their original checksum over the complete row page.
++      const evidence=m.transform?.kind==='fleet-lanes-v1'?{laneSums:Array.from({length:16},(_,i)=>self.GH_STATE_CODEC.chunkChecksum(output.subarray(i*output.length/16,(i+1)*output.length/16)))}:{checksum:self.GH_STATE_CODEC.chunkChecksum(output)};
++      self.postMessage({type:'checksum-result',version:VERSION,id:m.id,...evidence,buffer:output.buffer,workerMs:performance.now()-started},[output.buffer]);}
+   }catch(error){self.postMessage({type:'checksum-error',version:VERSION,id:m.id,error:String(error?.message||error).slice(0,200)});}
+ });
+--- a/WebApp/state-codec-core.js
++++ b/WebApp/state-codec-core.js
+@@ -879,9 +879,9 @@
+   // has not acknowledged. One reused page is re-checked per save in rotation; a mismatch (a write that bypassed the
+   // store) replaces only the lanes whose bytes differ. Everything except fleet.rows is exactly
+   // serialize()'s text.
+-  const chunkIdCache=new WeakMap();let chunkSalt=0,chunkSequence=0,chunkCacheStats={reused:0,named:0,adopted:0,verified:0,mismatches:0,checksumCalls:0,checksumBytes:0,base64Calls:0};
++  const chunkIdCache=new WeakMap();let chunkSequence=0,chunkCacheStats={reused:0,named:0,adopted:0,verified:0,mismatches:0,checksumCalls:0,checksumBytes:0,base64Calls:0};
+   function chunkChecksum(bytes){chunkCacheStats.checksumCalls++;chunkCacheStats.checksumBytes+=bytes.byteLength;const words=new Uint32Array(bytes.buffer,bytes.byteOffset,bytes.byteLength>>>2);let a=0x811c9dc5|0,b=0x01000193|0;const imul=Math.imul;for(let i=0;i<words.length;i++){a=imul(a^words[i],0x01000193);b=(b+a)|0;}for(let i=words.length*4;i<bytes.length;i++){a=imul(a^bytes[i],0x01000193);b=(b+a)|0;}return `${(a>>>0).toString(36)}.${(b>>>0).toString(36)}`;}
+-  function chunkGeometry(store){const STORE=globalThis.GH_FLEET_STORE;if(typeof STORE?.chunkStamp!=='function'||STORE.isStore?.(store)!==true)throw new Error('state-codec-chunks-need-store');const layout=fleetOverlayLayout(),chunkBytes=STORE.CHUNK_ROWS*STORE.STRIDE,bytes=new Uint8Array(store.rows);return {STORE,layout,chunkBytes,bytes,count:Math.ceil(bytes.length/chunkBytes)};}
++  function chunkGeometry(store){const STORE=globalThis.GH_FLEET_STORE;if(typeof STORE?.chunkStamp!=='function'||STORE.isStore?.(store)!==true)throw new Error('state-codec-chunks-need-store');if(STORE.STRIDE!==FLEET_ROW_STRIDE)throw new Error('state-codec-fleet-row-layout');const chunkBytes=STORE.CHUNK_ROWS*STORE.STRIDE,bytes=new Uint8Array(store.rows);return {STORE,chunkBytes,bytes,count:Math.ceil(bytes.length/chunkBytes)};}
+   function baseChunkKey(stamp,index,length){return `${stamp.chunkRuntime??stamp.runtime}.${stamp.chunkMass??stamp.mass}.${stamp.rawVersions?.[index]??stamp.versions[index]??0}.${length}`;}
+   // A trimmed replica proves the exact raw row page plus its canonical zero
+   // capacity tail, without allocating a padded page or masking any counters.
+@@ -898,7 +898,8 @@
+   // Independently reusable 64-bit lanes, packed into one immutable container
+   // per changed raw page. All 128 bytes, padding and NaN payloads are retained.
+   // Unchanged lanes keep their old ranges; no per-lane native request fanout.
+-  const decodedLaneCaches=new WeakMap(),LANES=16,LANE_BYTES=8,LANE_PATCH_MAGIC=[71,72,70,82,79,87,80,50];
++  const decodedLaneCaches=new WeakMap(),LANES=16,LANE_BYTES=8,LANE_PATCH_MAGIC=[71,72,70,82,79,87,80,50],LANE_SUM=/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/;
++  function validLaneSums(sums){if(!Array.isArray(sums)||sums.length!==LANES)return false;for(let lane=0;lane<LANES;lane++)if(typeof sums[lane]!=='string'||!LANE_SUM.test(sums[lane]))return false;return true;}
+   const pageKey=(stamp,index,length)=>`${baseChunkKey(stamp,index,length)}.${stamp.overlayVersion??0}`;
+   function laneParts(marker){
+     const {byteLength,chunkBytes,chunks,lanes,rowPatches}=marker,count=Math.ceil(byteLength/chunkBytes);
+@@ -951,6 +952,9 @@
+     const decoded=decodedLaneCaches.get(store.rows),origin=decoded?.origin,g=chunkGeometry(store);
+     if(!decoded||origin?.store!==store||origin.revision!==store.revision||origin.length!==store.length||origin.structure!==store.structure||origin.epoch!==g.STORE.epoch(store)||g.chunkBytes!==marker.chunkBytes||g.bytes.length!==marker.byteLength||decoded.chunkBytes!==marker.chunkBytes||decoded.ids.length!==parts.ids.length||decoded.ids.some((id,i)=>id!==parts.ids[i]))return false;
+     if(decoded.containers.length!==parts.containers.length||decoded.containers.some((p,i)=>p.id!==parts.containers[i].id||p.page!==parts.containers[i].page||p.byteLength!==parts.containers[i].byteLength))return false;
++    // The decoded bytes already include this exact ordered patch chain. Adopting a shorter or substituted chain would
++    // label those bytes as a different checkpoint and could silently discard edits in the next otherwise unchanged save.
++    if(decoded.patches.length!==parts.patches.length||decoded.patches.some((p,i)=>p.id!==parts.patches[i].id||p.rows!==parts.patches[i].rows||p.byteLength!==parts.patches[i].byteLength))return false;
+     const entry={ids:decoded.ids.slice(),sums:decoded.sums.slice(),ranges:decoded.ranges.map(p=>({...p})),containers:decoded.containers.map(p=>({...p})),keys:[],rotation:0,overlayVersion:globalThis.GH_FLEET_STORE.chunkStamp(store).overlayVersion};
+     if(!parts.patches.length){const stamp=g.STORE.chunkStamp(store);for(let page=0;page<g.count;page++)entry.keys[page]=pageKey(stamp,page,Math.min(g.chunkBytes,g.bytes.length-page*g.chunkBytes));}
+     entry.rowPatch=freshRowPatch(store,entry,parts.patches);chunkIdCache.set(store,entry);decodedLaneCaches.delete(store.rows);chunkCacheStats.adopted+=parts.ids.length;return true;
+@@ -989,7 +993,7 @@
+         for(let at=0;at<distinct;at+=packetRows){
+           const rows=Math.min(packetRows,distinct-at),data=new Uint8Array(ROW_PATCH_HEADER+rows*ROW_PATCH_RECORD),view=new DataView(data.buffer);data.set(LANE_PATCH_MAGIC);view.setUint32(8,bytes.length,true);view.setUint32(12,128,true);view.setUint32(16,rows,true);
+           for(let i=0;i<rows;i++){const row=spare[at+i],to=ROW_PATCH_HEADER+i*ROW_PATCH_RECORD;view.setUint32(to,row,true);data.set(bytes.subarray(row*128,(row+1)*128),to+4);if((i+1)%512===0){yield;current();}}
+-          const part={id:`${NONCE}.${chunkSalt}.r.${(++chunkSequence).toString(36)}`,rows,byteLength:data.length};patches.push(part);fresh.push({...part,kind:'row-patch',data});yield;current();
++          const part={id:`${NONCE}.0.r.${(++chunkSequence).toString(36)}`,rows,byteLength:data.length};patches.push(part);fresh.push({...part,kind:'row-patch',data});yield;current();
+         }
+         chunkCacheStats.rowPatchSaves=(chunkCacheStats.rowPatchSaves||0)+1;chunkCacheStats.rowPatchRows=(chunkCacheStats.rowPatchRows||0)+distinct;
+       }
+@@ -1002,7 +1006,7 @@
+         let found;
+         if(externalChecksums){let next=page+1;while(next<count&&!needsPage(next))next++;const nextStart=next*chunkBytes,nextLength=Math.min(chunkBytes,bytes.length-nextStart);found=yield {kind:'fleet-chunk-checksum',bytes:bytes.subarray(start,start+length),transform,outputByteLength:length,nextBytes:next<count?bytes.subarray(nextStart,nextStart+nextLength):null,nextTransform:next<count?transform:null,nextOutputByteLength:next<count?nextLength:null};current();}
+         else{const data=new Uint8Array(length),rows=length/128,source=new Uint32Array(bytes.buffer,bytes.byteOffset+start,length/4),target=new Uint32Array(data.buffer);for(let lane=0;lane<16;lane++){const from=lane*2,to=lane*rows*2;for(let row=0;row<rows;row++){target[to+row*2]=source[row*32+from];target[to+row*2+1]=source[row*32+from+1];}yield;current();}found={bytes:data,laneSums:Array.from({length:16},(_,lane)=>chunkChecksum(data.subarray(lane*length/16,(lane+1)*length/16)))};}
+-        if(!(found?.bytes instanceof Uint8Array)||found.bytes.length!==length||!Array.isArray(found.laneSums)||found.laneSums.length!==16||found.laneSums.some(sum=>typeof sum!=='string'||!/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/.test(sum)))throw new Error('save-lane-checksum-evidence-invalid');
++        if(!(found?.bytes instanceof Uint8Array)||found.bytes.length!==length||!validLaneSums(found.laneSums))throw new Error('save-lane-checksum-evidence-invalid');
+         const changed=[],laneLength=length/LANES;
+         // A forgotten, fully live container can be reconstructed exactly and
+         // keep its immutable ID. A container with obsolete ranges cannot: its
+@@ -1035,7 +1039,7 @@
+             if(!best)throw new Error('save-lane-container-budget');for(const lane of best.live)selected.add(lane);
+           }
+           changed.length=0;changed.push(...selected);changed.sort((a,b)=>a-b);
+-          const id=`${NONCE}.${chunkSalt}.l.${(++chunkSequence).toString(36)}`,data=new Uint8Array(changed.length*laneLength),part={id,page,byteLength:data.length};
++          const id=`${NONCE}.0.l.${(++chunkSequence).toString(36)}`,data=new Uint8Array(changed.length*laneLength),part={id,page,byteLength:data.length};
+           for(let slot=0;slot<changed.length;slot++){const lane=changed[slot],at=page*LANES+lane,offset=slot*laneLength;data.set(found.bytes.subarray(lane*laneLength,(lane+1)*laneLength),offset);entry.ranges[at]={id,offset};entry.ids[at]=`${id}.${offset.toString(36)}`;chunkCacheStats.named++;yield;current();}
+           const chunk={...part,kind:'lane',index:page,lanes:changed.slice(),compacted:changed.length>originalChanged,...(changed.length===1?{lane:changed[0]}:{}),data};preparedChunkSnapshots.add(chunk);chunks.push(chunk);containerById.set(id,part);
+         }

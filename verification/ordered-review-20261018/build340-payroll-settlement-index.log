@@ -1,0 +1,2 @@
+{"suite":"build340-payroll-settlement-index","invoices":20000,"payables":20000,"eligible":20,"invoiceNumberReads":20000,"environment":"Node v24.19.0; isolated owner-function harness; not iPhone performance"}
+PASS payroll owner joins 20k invoices and 20k payables in linear scans and preserves due-date ordering

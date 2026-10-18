@@ -1,0 +1,61 @@
+{
+  "all_detected": true,
+  "count": 9,
+  "results": [
+    {
+      "name": "ready-promise",
+      "test": "tests/build432-ready-fleet-validation.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "stale-ready-revision",
+      "test": "tests/build432-ready-fleet-validation.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "changed-context",
+      "test": "tests/build432-ready-fleet-validation.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "stale-inflight",
+      "test": "tests/build432-ready-fleet-validation.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "unneeded-fleet-query",
+      "test": "tests/build434-service-panel-fleet-work.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "missing-notice",
+      "test": "tests/build431-decision-notices.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "unconditional-prestage",
+      "test": "tests/build435-conditional-prestage.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "missing-async-prestage-hook",
+      "test": "tests/build432-ready-fleet-validation.cjs",
+      "exit_code": 1,
+      "detected": true
+    },
+    {
+      "name": "skip-stage-settlement",
+      "test": "tests/build435-conditional-prestage.cjs",
+      "exit_code": 1,
+      "detected": true
+    }
+  ],
+  "source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155"
+}

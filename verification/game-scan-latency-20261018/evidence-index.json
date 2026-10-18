@@ -1,0 +1,66 @@
+{
+  "source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+  "baseline_source_tree_sha256": "a2d4029f606e63ca516d62bf35b56c6be8552a85b26902f750c8610661d5ad5f",
+  "acceptance_contract_sha256": "22780160b2b96514a3bd422aa178ead03a0fb6d8de4a43b52e75f8f89cfa9531",
+  "scope": "Desktop real app, 11 open companies, real fleet purchases, paused simulation. Finance history created via finance owner in a test transaction. Browser vault is a protocol double; no native iPhone IO. Source overlays only append test accessors. Trace adds overhead equally.",
+  "conditions": {
+    "fleet": 1000000,
+    "companiesOpened": 11,
+    "simulationPaused": true,
+    "allRevenueModelsActive": false,
+    "financialRecordsCreatedByOwner": true,
+    "nativeAckProtocolDouble": true,
+    "desktopChromiumOnly": true,
+    "reversedSourceOrder": true
+  },
+  "uiSamplesPerSource": 30,
+  "summarySamplesPerSource": 6,
+  "report": {
+    "file": "VENTORA_GAME_SCAN_LATENCY_20261018_AR.md",
+    "sha256": "653bd74d0adec2e48496f637a3b7d6b66009f70450e6c3d73f01fe3abeedf8a6"
+  },
+  "traces": {
+    "trace-chromium-before-before.json.gz": {
+      "sha256": "40c4bb17462b6ec034ef09236515b4d1b8892583f4dc1d7f90ea2c92c5e37f0e",
+      "uncompressed_sha256": "10f7d10ad08bf8e290a4f3635c0a49a4e1cf5239054130ffe8eef33b3522ebe9",
+      "bytes": 1126041,
+      "raw_bytes": 18609641
+    },
+    "trace-chromium-after-after.json.gz": {
+      "sha256": "c4d4513ac5f085ed481a2c6eb42395399205e4c035952e755d2c0e98bd00c94f",
+      "uncompressed_sha256": "0ed28bb65525a63a0d0d424668467c2fcf5e4196562f56f755d7d0af46bc03c4",
+      "bytes": 982252,
+      "raw_bytes": 16400349
+    },
+    "trace-chromium-before-after.json.gz": {
+      "sha256": "2ebaf48a8af119c4a806d9fac31d07affef40a91892aa508315d0f6bb7b1927d",
+      "uncompressed_sha256": "2e278877e7449c380298b804bfa9c3e8c6fd7583a83ddd0fdd7cdf9491203e78",
+      "bytes": 1065952,
+      "raw_bytes": 17387911
+    },
+    "trace-chromium-after-before.json.gz": {
+      "sha256": "7d06685678b325068ff07d1fd1797d5e057337e050e3d3e29eb447e497b09363",
+      "uncompressed_sha256": "3deabea63f63d83b357a3775b8dedf264083007f3b23e1fdabf4384cd591c7a2",
+      "bytes": 970038,
+      "raw_bytes": 16030427
+    }
+  },
+  "files": {
+    "analyze.cjs": "504789a4120d37ba0d87155d1f64f636cb0a995cf2d0ae8a40ed8b03781678ab",
+    "bank-latency.json": "7d63a64ff015b09adbc4cb35b9e840cc93e2ed1505c937fb59f5eb1d25145d83",
+    "bank-latency.log": "73ee9ff99773a3de4107eca9bae863c0338717f9ea0ed116d388b41c5fbfcf12",
+    "bank.cjs": "7a708e9f7634045d2c013c56cfe9b40ce12df39e68f0377dc991878a00135ba1",
+    "chromium-forward.log": "fee93df2ed4772f0a17c67401144814bb11cc742865d346a320ca7101ee7db40",
+    "chromium-reverse.log": "ae786e3ae3c66af01888ee6da2571ff1008db9040e4b08f4eddfb98314d02aad",
+    "environment.json": "8a860689d28fe186f201075082e5623b2bd9aaa127323da90ff3520ca2eef82a",
+    "measure.cjs": "d19e6729adf5bdbdc5eebfaad3ffaabb44c6b3fefb3e03afc58d540c9b1d813f",
+    "results-chromium-after.json": "c43ee8fe548a8dbc7bb540d45ef6841d7bb4a6d9b4c9816698229f148d16772d",
+    "results-chromium-before.json": "a830e6d89e63f70c62950b5f87465193b6ee8e91f5661f83a3a74b1826383325",
+    "source-verification.json": "50a12e571260305615338c4f8aa1b53a876a9919dedb47f648863aaacc3a946d",
+    "summary.json": "0728fbb562d6b18bc0a10978be835046e09c19730d310b469f71eacbbac9eaf3",
+    "trace-chromium-after-after.json.gz": "c4d4513ac5f085ed481a2c6eb42395399205e4c035952e755d2c0e98bd00c94f",
+    "trace-chromium-after-before.json.gz": "7d06685678b325068ff07d1fd1797d5e057337e050e3d3e29eb447e497b09363",
+    "trace-chromium-before-after.json.gz": "2ebaf48a8af119c4a806d9fac31d07affef40a91892aa508315d0f6bb7b1927d",
+    "trace-chromium-before-before.json.gz": "40c4bb17462b6ec034ef09236515b4d1b8892583f4dc1d7f90ea2c92c5e37f0e"
+  }
+}

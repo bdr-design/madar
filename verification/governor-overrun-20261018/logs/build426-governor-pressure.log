@@ -1,0 +1,60 @@
+{
+  "suite": "build426-governor-pressure",
+  "passed": 12,
+  "scope": "deadline pressure and existing safety; synthetic clock only",
+  "results": [
+    {
+      "name": "ordinary calendar work",
+      "levelChanges": 0
+    },
+    {
+      "name": "absolute shared frame deadline",
+      "overrunMs": 4
+    },
+    {
+      "name": "small overrun",
+      "overrunMs": 2,
+      "levelChanges": 0
+    },
+    {
+      "name": "long task without deadline overrun",
+      "level": "ORANGE"
+    },
+    {
+      "name": "hard task without deadline overrun",
+      "level": "RED",
+      "yields": 1
+    },
+    {
+      "name": "indivisible create",
+      "level": "YELLOW"
+    },
+    {
+      "name": "indivisible finish",
+      "level": "YELLOW"
+    },
+    {
+      "name": "cadence pressure remains active",
+      "pressedBudgetMs": 4.5,
+      "recoveredBudgetMs": 9.999730191698061
+    },
+    {
+      "name": "bounded pressure history",
+      "finalLevel": "GREEN"
+    },
+    {
+      "name": "pending worker yields",
+      "levelChanges": 0
+    },
+    {
+      "name": "cancel hard pending slice",
+      "committedSeconds": 0,
+      "cancels": 1
+    },
+    {
+      "name": "failed chunk",
+      "committedSeconds": 0,
+      "cancels": 1
+    }
+  ]
+}

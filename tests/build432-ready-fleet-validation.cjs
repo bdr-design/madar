@@ -1,0 +1,23 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..'),{harness}=require('./helpers/core-harness'),{s:g,load}=harness(['transaction-core']),S=g.GH_FLEET_STORE;
+const source=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8'),start=source.indexOf('  let lastFleetValidation=null,pendingFleetValidation=null;'),end=source.indexOf('  // Build 372: a fleet-query-core pass',start);assert(start>=0&&end>start);
+let queries=0,timers=0;const queued=[],store=S.create(1);S.add(store,{id:'READY-1',type:'air',fuel:90,condition:90});const state={fleet:store,simSeconds:0},params={contextToken:'alpha'};
+const tag=target=>({store:target,runtime:S.chunkStamp(target).runtime,revision:target.revision,structure:target.structure,length:target.length,valueRevision:S.valueRevision(target)});
+g.__QA_CLIENT={disabled:false,query(target,{params}){queries++;const t=tag(target);return new Promise(resolve=>queued.push(()=>resolve({...t,result:{contextToken:params.contextToken}})));},current(result,target){return result.store===target&&result.runtime===S.chunkStamp(target).runtime&&result.revision===target.revision&&result.structure===target.structure&&result.length===target.length&&result.valueRevision===S.valueRevision(target);}};
+g.GH_FLEET_SAVE_VALIDATION={contextToken:p=>p.contextToken};g.GH_SAVE_SCHEMA={fleetValidationParams:()=>params};g.setTimeout=(...args)=>{timers++;return setTimeout(...args);};
+vm.runInContext(`(()=>{let fleetEngineThreadClient=__QA_CLIENT;const COMPANY_PLATFORM={};${source.slice(start,end)}})()`,g);
+const provider=g.GH_FLEET_VALIDATION_PROVIDER;
+(async()=>{
+ let preparations=0;const prepare=()=>{preparations++;assert.equal(queries,0,'save preparation precedes the new validation query');};
+ const first=provider(state,params,{beforeAsync:prepare}),same=provider(state,params);assert.equal(preparations,1);assert.equal(first,same);assert.equal(queries,1,'pending requests coalesce');queued.shift()();const ready=await first;assert(ready.current());
+ const hit=provider(state,params,{beforeAsync:()=>{throw Error('ready evidence must not prepare a duplicate save');}});assert.equal(typeof hit?.then,'undefined','already verified evidence must be returned synchronously, without a fake worker wait');assert(hit.current());assert.equal(queries,1);
+ g.GH_SAVE_SCHEMA={...g.GH_SAVE_SCHEMA,*validationSteps(s,options){const value=options.fleetValidation(s,params);if(value?.then){const box={done:false,value:null};value.then(v=>{box.value=v;box.done=true;});while(!box.done)yield 'fleet-validation-wait';assert(box.value.current());}else assert(value.current());return {ok:true,errors:[]};}};
+ const validation=await g.GH_TRANSACTION_CORE.validateSchemaInSlices(state,{yieldToHost:async()=>{}});assert(validation.ok);assert.equal(timers,0,'ready evidence must not schedule the 4ms polling timer');
+ S.set(store,0,'fuel',80);assert.equal(provider(state,params,{syncOnly:true}),null,'a row write expires evidence');const changed=provider(state,params);assert.equal(queries,2);S.set(store,0,'fuel',70);
+ const fresh=provider(state,params);assert.notEqual(fresh,changed,'a changed revision must not join a stale in-flight request');assert.equal(queries,3);queued.shift()();assert.equal((await changed).current(),false,'a result that aged in flight cannot be trusted');assert.equal(provider(state,params,{syncOnly:true}),null);
+ queued.shift()();assert((await fresh).current());assert(provider(state,params).current());
+ assert.equal(provider(state,{contextToken:'beta'},{syncOnly:true}),null,'route/company context changes expire evidence');const other=provider(state,{contextToken:'beta'});assert.equal(queries,4);queued.shift()();assert((await other).current());
+ g.__QA_CLIENT.disabled=true;assert.equal(provider(state,params,{beforeAsync:()=>{throw Error('disabled validation must not stage');}}),null,'a disabled owner cannot provide cached evidence');
+ console.log(JSON.stringify({suite:'build432-ready-fleet-validation',queries,readyWaitTimers:timers,pendingCoalescing:true,rowChangesExpire:true,staleResultsRefused:true,contextChangesExpire:true,disabledOwnerRefused:true}));
+})().catch(e=>{console.error(e);process.exitCode=1;});

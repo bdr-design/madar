@@ -1,0 +1,18 @@
+{
+  "suite": "build339-phase1bb-pacing-separation",
+  "passed": true,
+  "rates": {
+    "30": 30,
+    "120": 120,
+    "300": 300,
+    "600": 600
+  },
+  "contracts": [
+    "runtime-pacing-owner",
+    "variable-slices",
+    "background-resume",
+    "manual-anchor",
+    "non-persistence",
+    "legacy-runtime-cleanup"
+  ]
+}

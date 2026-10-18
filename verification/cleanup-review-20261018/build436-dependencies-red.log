@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: dependency tracking must not allocate and iterate one temporary reference array per asset
+
+17 !== 0
+
+    at /workspace/madar/tests/build436-save-work-removal.cjs:28:360 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 17,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

@@ -1,0 +1,40 @@
+{
+  "suite": "build353-persistence-pacing",
+  "passed": 4,
+  "total": 4,
+  "results": [
+    {
+      "name": "a native ordinary save encodes its JSON once and hashes exactly those bytes",
+      "ok": true,
+      "detail": {
+        "utf8Bytes": 400427,
+        "encodes": 1
+      }
+    },
+    {
+      "name": "a native-mode mirror warning is flagged as mirror-only",
+      "ok": true,
+      "detail": {
+        "warnings": [
+          "save-size-soft-warning"
+        ]
+      }
+    },
+    {
+      "name": "the simulation engine never saves on a cadence: hiding the app is its only save request",
+      "ok": true,
+      "detail": {
+        "persisted": [
+          "hidden"
+        ]
+      }
+    },
+    {
+      "name": "interactive and derived-data paths never save on their own",
+      "ok": true,
+      "detail": {
+        "checked": 3
+      }
+    }
+  ]
+}

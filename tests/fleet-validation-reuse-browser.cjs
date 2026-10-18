@@ -13,7 +13,9 @@ const {serve}=require('./helpers/web-server');
    await a.runAuthorizedDomainCommand('corporate','open-company',{type:'air',companyId:'air',capital:900000000,legalName:'QA Validation Reuse',formationContract:'QA-REUSE'},{silent:true});
    const r=GH_WORLD_DATA.airports.find(x=>x[0]==='OMDB');
    await a.runAuthorizedDomainCommand('facilities','create',{facility:{id:'QA-REUSE-BASE',name:'QA Reuse Base',kind:'airport-base',company:'air',ownerCompanyId:'air',owned:true,sourceKey:'air:OMDB',code:r[1]||'OMDB',icao:'OMDB',iata:r[1],city:r[3]||'—',country:String(r[5]||'—'),coords:[r[6],r[7]]},bucket:'globalBases'},{silent:true});
-   await a.buyAsset('air','used',GH_ASSET_CATALOG.air.used[0].id,'lease',3000,'QA-REUSE-BASE',true,'QA-REUSE-BUY','air');
+   // Each new lane is 8 bytes/row. Exceed the unchanged 32 KiB
+   // worker-encoding threshold so the fallback assertion exercises real work.
+   await a.buyAsset('air','used',GH_ASSET_CATALOG.air.used[0].id,'lease',4400,'QA-REUSE-BASE',true,'QA-REUSE-BUY','air');
   });
   const result=await page.evaluate(async()=>{
    const s=__GH_STATE__,S=GH_FLEET_STORE,store=s.fleet,provider=GH_FLEET_VALIDATION_PROVIDER;
@@ -31,6 +33,12 @@ const {serve}=require('./helpers/web-server');
    S.set(store,1,'fuel',151);check(provider(s,changedRoutes,{syncOnly:true})===null,'stale evidence cannot satisfy an ordinary save');before=requests;const invalid=await provider(s,params);check(requests===before+1,'a fleet write invalidates the evidence');check(invalid.result.errors.includes('asset-fuel'),'the new fault is detected');
    S.set(store,1,'fuel',100);const waiting=provider(s,params);S.set(store,2,'condition',150);const stale=await waiting;check(!stale.current(),'a write while the worker runs invalidates its answer');const final=await provider(s,params);check(final.current()&&final.result.errors.includes('asset-condition'),'a new query sees the new state');
    S.set(store,2,'condition',90);const restored=await provider(s,params);check(restored.current()&&restored.result.errors.length===0,'restored fleet validates');
+   const profileRef=S.slot(store,'profile',0),profile=S.value(store,profileRef),rowRevision=store.revision;
+   S.applyValueChanges(store,{length:store.values.length,changes:[[profileRef,{...profile,model:'<unsafe-shared-profile>'}]]});
+   check(store.revision===rowRevision,'the fixture changes only an interned value');
+   check(provider(s,params,{syncOnly:true})===null,'a value-only change must expire cached worker evidence');
+   const valueChanged=await provider(s,params);check(valueChanged.current()&&valueChanged.result.errors.includes('display-text-assets-model'),'a new worker pass checks the replaced profile');
+   S.applyValueChanges(store,{length:store.values.length,changes:[[profileRef,profile]]});const valueRestored=await provider(s,params);check(valueRestored.current()&&valueRestored.result.errors.length===0,'restored shared profile validates');
    // Exercise the actual large Native background path, with a vault acknowledging only complete, hashed snapshots.
    await provider(s,GH_SAVE_SCHEMA.fleetValidationParams(s));
    const chunks=new Map(),commits=[];
@@ -65,15 +73,18 @@ const {serve}=require('./helpers/web-server');
    globalThis.GH_SAVE_CHECKSUM_PROVIDER=async(bytes,transform,expectedBytes)=>{const found=await originalProvider(bytes,transform,expectedBytes);if(writes++===0)S.set(store,0,'fuel',95);return found;};
    const retaken=await GH_PERSISTENCE.commitStateSliced(s,{yieldToFrame:tick});globalThis.GH_SAVE_CHECKSUM_PROVIDER=originalProvider;
    check(retaken.ok&&commits.length===beforeRetake+1&&s.saveRevision===retakeRev+1,'one concurrent write takes one fresh, validated worker snapshot');
+   check(GH_STATE_CODEC.cacheStats().chunks.checksumCalls===calls&&GH_STATE_CODEC.cacheStats().chunks.base64Calls===encodeBefore,'all successful retries retain the worker path');
    const savedAgain=GH_STATE_CODEC.deserialize(commits.at(-1).saveJSON,{resolveChunk:id=>chunks.get(id)});check(S.get(savedAgain.fleet,0,'fuel')===95,'the retaken save includes the new row');
-   const beforeInvalid=commits.length,invalidRev=s.saveRevision;writes=0;
+   // Decoding intentionally verifies the loaded lane cache. Keep test-only
+   // reload work outside the measured save/retry interval.
+   const beforeInvalid=commits.length,invalidRev=s.saveRevision,afterReloadCalls=GH_STATE_CODEC.cacheStats().chunks.checksumCalls;writes=0;
    globalThis.GH_SAVE_CHECKSUM_PROVIDER=async(bytes,transform,expectedBytes)=>{const found=await originalProvider(bytes,transform,expectedBytes);if(writes++===0)S.set(store,0,'fuel',151);return found;};
    const invalidRetry=await GH_PERSISTENCE.commitStateSliced(s,{yieldToFrame:tick});globalThis.GH_SAVE_CHECKSUM_PROVIDER=originalProvider;
    check(!invalidRetry.ok&&/asset-fuel/.test(invalidRetry.reason)&&commits.length===beforeInvalid&&s.saveRevision===invalidRev,'retry revalidates newly invalid rows instead of publishing old proof');S.set(store,0,'fuel',100);
    writes=0;globalThis.GH_SAVE_CHECKSUM_PROVIDER=async(bytes,transform,expectedBytes)=>{const found=await originalProvider(bytes,transform,expectedBytes);S.set(store,0,'fuel',writes++%2?94:95);return found;};
    const moving=await GH_PERSISTENCE.commitStateSliced(s,{yieldToFrame:tick});globalThis.GH_SAVE_CHECKSUM_PROVIDER=originalProvider;
    check(!moving.ok&&/fleet-changed-during-save/.test(moving.reason)&&writes===2&&commits.length===beforeInvalid&&s.saveRevision===invalidRev,'repeated changes stop after one bounded retry');S.set(store,0,'fuel',100);
-   check(GH_STATE_CODEC.cacheStats().chunks.checksumCalls===calls&&GH_STATE_CODEC.cacheStats().chunks.base64Calls===encodeBefore,'all retries and refusals retain the worker path');
+   check(GH_STATE_CODEC.cacheStats().chunks.checksumCalls===afterReloadCalls&&GH_STATE_CODEC.cacheStats().chunks.base64Calls===encodeBefore,'all retries and refusals retain the worker path');
    window.requestAnimationFrame=originalRAF;
    // Preserve a real, nonzero month close through the Native commit, then prove a failed next close rolls back.
    const command=(name,payload)=>__AUDIT__.runAuthorizedDomainCommand({domain:'finance',name,payload,silent:true}),live=()=>__GH_STATE__;
@@ -95,7 +106,7 @@ const {serve}=require('./helpers/web-server');
    check(!GH_PERSISTENCE.isLocked()&&GH_SAVE_CHECKSUM_THREAD.stats().activeSessions===0&&GH_SAVE_CHECKSUM_THREAD.stats().activeChannels===0,'monthly success/failure releases persistence and pipeline resources');
    client.terminate('test-done');check(provider(s,params)===null,'a disabled client cannot reuse evidence');return {fleet:store.live,requests,parallel:6,reused:6};
   });
-  assert.equal(result.fleet,3000);assert.deepEqual(errors,[]);console.log('FLEET_VALIDATION_REUSE_PASS',engine.name(),JSON.stringify(result));
+  assert.equal(result.fleet,4400);assert.deepEqual(errors,[]);console.log('FLEET_VALIDATION_REUSE_PASS',engine.name(),JSON.stringify(result));
  }finally{await browser.close();}}
  }finally{await server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

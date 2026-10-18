@@ -1,0 +1,28 @@
+AssertionError [ERR_ASSERTION]: joining an older pending timestamp must not label that dynamic result current
++ actual - expected
+
++ {
++   current: [Function: current],
++   lookup: {
++     total: 1
++   },
++   result: {
++     all: {
++       total: 1
++     },
++     asOfSimSeconds: 10,
++     legacy: false,
++     owners: [],
++     requestKey: '{"legacyOwner":{"air":"air"},"facilities":[]}'
++   }
++ }
+- null
+
+    at /workspace/madar/tests/build439-summary-single-request.cjs:38:188 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Object],
+  expected: null,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

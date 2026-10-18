@@ -1,0 +1,1 @@
+{"suite":"build369-insurance-risk-batch","passed":1,"total":1,"checks":["real policy summary instead of generic customer count","group approval click and signed stable payload","identical retry uses same idempotency key","transaction rollback on mid-batch document failure","batch receipt replay does not re-underwrite","batch command rejects execution outside transaction"]}

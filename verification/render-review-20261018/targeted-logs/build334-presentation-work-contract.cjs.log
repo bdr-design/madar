@@ -1,0 +1,63 @@
+{
+  "suite": "presentation-work-contract",
+  "results": [
+    {
+      "name": "scalar JSON clone semantics with no serialization work",
+      "passed": true,
+      "details": {
+        "primitiveValues": 14,
+        "primitiveCalls": {
+          "stringifyCalls": 0,
+          "parseCalls": 0
+        }
+      }
+    },
+    {
+      "name": "shared allocator pins selection, distributes countries and backfills non-overlapping Canvas proxies",
+      "passed": true,
+      "details": {
+        "candidates": 2001,
+        "kept": 120,
+        "countries": 41
+      }
+    },
+    {
+      "name": "asset lookup follows collection replacement without relying on save revision",
+      "passed": true,
+      "details": {
+        "replacements": 50,
+        "source": "Fleet Store + Fleet Data Access"
+      }
+    },
+    {
+      "name": "Canvas-compatible motion avoids redundant writes and drops detached adapters",
+      "passed": true,
+      "details": {
+        "idleWrites": 0,
+        "movingWrites": 1,
+        "canvasFlushRequests": 3,
+        "detached": "removed"
+      }
+    },
+    {
+      "name": "scheduled map cadence does not silently divide motion speed",
+      "passed": true,
+      "details": [
+        {
+          "intervalMs": 55,
+          "displacement": 26.400000000000002
+        },
+        {
+          "intervalMs": 110,
+          "displacement": 26.400000000000002
+        },
+        {
+          "intervalMs": 220,
+          "displacement": 26.400000000000002
+        }
+      ]
+    }
+  ],
+  "passed": 5,
+  "total": 5
+}

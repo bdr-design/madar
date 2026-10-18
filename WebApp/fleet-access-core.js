@@ -435,20 +435,47 @@
     return yield* STORE.reserveCapacityStages(store,store.length+additional,{rowSlice,label});
   }
   const maintenanceDays=new WeakMap();
-  function* maintainStages(state,day){
+  function* maintainStages(state,day,{waitForWorker=true}={}){
     const store=storeOf(state);if(!store)return {compacted:null,values:null};
     if(globalThis.GH_TRANSACTION_CORE?.isActive?.())throw new Error('fleet-maintenance-inside-transaction');
     const stats=STORE.stats(store),dead=Math.max(0,stats.length-stats.live);let compacted=null,values=null;
     if(stats.length>0&&dead/stats.length>.1){compacted=typeof STORE.compactRowsStages==='function'?yield* STORE.compactRowsStages(store,{rowSlice:4096}):STORE.compactRows(store);yield {stage:'compact',...compacted};if(compacted?.stale)return {compacted,values:null};}
     const currentDay=day==null?Math.floor(timeOf(state)/86400):Math.max(0,Math.floor(Number(day)||0));
     if(maintenanceDays.get(store)!==currentDay){
-      if(typeof STORE.collectValuesStages==='function')values=yield* STORE.collectValuesStages(store,{rowSlice:4096});
-      else values=STORE.collectValues(store);
-      if(!values?.stale)maintenanceDays.set(store,currentDay);
+      if(store.length>2048){
+        // Replaces the million-row UI mark pass. Use the existing replica and
+        // query queue; absence of a proof defers this optional collection.
+        // The row tag alone is insufficient: interning/reclaim can change the
+        // value table without moving store.revision.
+        const rows=store.rows,table=store.values,revision=store.revision,structure=store.structure,length=store.length,valueRevision=STORE.valueRevision(store),generation=STORE.valuesGeneration(store),epoch=STORE.epoch(store);
+        const same=()=>storeOf(state)===store&&store.rows===rows&&store.values===table&&store.revision===revision&&store.structure===structure&&store.length===length&&STORE.valueRevision(store)===valueRevision&&STORE.valuesGeneration(store)===generation&&STORE.epoch(store)===epoch;
+        const deferred=reason=>({deferred:true,stale:false,freed:0,reason});
+        let asked=null;if(waitForWorker)try{asked=globalThis.GH_FLEET_QUERY_PROVIDER?.(state,'valueCollection',{});}catch(_error){}
+        if(!asked){values=deferred('worker-unavailable');}
+        else{
+          const box={done:false,found:null};Promise.resolve(asked).then(found=>{box.found=found;box.done=true;},()=>{box.done=true;});
+          // A stalled worker must not hold the simulation's maintenance queue
+          // indefinitely. This is a bounded existing-task wait, not a timer.
+          for(let waits=0;!box.done&&waits<30;waits++)yield {stage:'values-wait'};
+          const found=box.found;
+          if(!box.done||!found?.result||found.current?.()!==true||!same())values=deferred(box.done?'worker-stale-or-unavailable':'worker-pending');
+          // apply owns the pinned row/value revisions from here, including its
+          // own reclaim revisions. Rechecking the original query's value tag
+          // after our first free batch would incorrectly reject our own work.
+          else{
+            const steps=STORE.applyValueCollectionPlanStages(store,found.result,{freeSlice:256,current:()=>storeOf(state)===store}),clock=()=>globalThis.performance?.now?.()??Date.now();let started=clock();
+            // These steps contain no asynchronous waits. Share the existing
+            // maintenance turn while below 4 ms; a tiny validated free batch
+            // must not suspend simulation for a complete display frame.
+            try{for(;;){const step=steps.next();if(step.done){values=step.value;break;}if(clock()-started>=4){yield step.value;started=clock();}}}finally{steps.return();}
+          }
+        }
+      }else values=yield* STORE.collectValuesStages(store,{rowSlice:4096});
+      if(!values?.stale&&!values?.deferred)maintenanceDays.set(store,currentDay);
     }
     return {compacted,values};
   }
-  function maintain(state,day){const steps=maintainStages(state,day);let step;while(!(step=steps.next()).done){}return step.value;}
+  function maintain(state,day){const steps=maintainStages(state,day,{waitForWorker:false});let step;while(!(step=steps.next()).done){}return step.value;}
 
   // Array-mode lookups are O(1) through a cached object/id index. A hit is
   // verified against the array; a miss rebuilds once when the array changed.

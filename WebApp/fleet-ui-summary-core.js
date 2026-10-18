@@ -208,6 +208,25 @@
     return `${SCHEMA}:${hash(stable(relevant))}`;
   }
 
+  // Facility descriptors affect only the facility counters. All other figures
+  // can be reused from an exact caller-validated summary of the same fleet.
+  // No asset is visited and a missing descriptor requires the ordinary pass.
+  function project(result,previousOptions={},options={}){
+    if(!result||result.schema!==SCHEMA||result.legacy||result.requestKey!==requestKey(previousOptions))return null;
+    if(typeof previousOptions.resolveOwner==='function'||typeof options.resolveOwner==='function'||typeof previousOptions.legacyOwner==='function'||typeof options.legacyOwner==='function')return null;
+    if(stable(previousOptions.legacyOwner??null)!==stable(options.legacyOwner??null)||stable(previousOptions.resolveOwner??null)!==stable(options.resolveOwner??null))return null;
+    const requested=normalizeFacilities(options),facilities=[];
+    if(requested.length){
+      const previous=normalizeFacilities(previousOptions),index=new Map();if(previous.length!==result.facilities?.length)return null;
+      for(let i=0;i<previous.length;i++){
+        const descriptor=previous[i],row=result.facilities[i];if(!row||!Object.is(row.id,descriptor.id)||row.mode!==descriptor.mode||!Number.isSafeInteger(row.count)||row.count<0)return null;
+        let ids=index.get(descriptor.mode);if(!ids){ids=new Map();index.set(descriptor.mode,ids);}let cities=ids.get(descriptor.id);if(!cities){cities=new Map();ids.set(descriptor.id,cities);}cities.set(descriptor.city,row.count);
+      }
+      for(const descriptor of requested){const cities=index.get(descriptor.mode)?.get(descriptor.id);if(!cities?.has(descriptor.city))return null;facilities.push({id:descriptor.id,mode:descriptor.mode,count:cities.get(descriptor.city)});}
+    }
+    return {...result,requestKey:requestKey(options),facilities};
+  }
+
   // Exact cache freshness.  Mutable legacy arrays deliberately return
   // cacheable:false: length/identity cannot detect an in-place asset write.
   function capture(state,fleet,options={}){
@@ -237,7 +256,7 @@
     });lookupCache.set(result,cached);return cached;
   }
 
-  const API=Object.freeze({VERSION,SCHEMA,FIELDS,compute,run:compute,requestKey,capture,current,lookup});
+  const API=Object.freeze({VERSION,SCHEMA,FIELDS,compute,run:compute,requestKey,project,capture,current,lookup});
   globalThis.GH_FLEET_UI_SUMMARY=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_FLEET_UI_SUMMARY=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

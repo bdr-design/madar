@@ -1,0 +1,60 @@
+{
+  "suite": "build358-fleet-chunk-manifest",
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "name": "initial and unchanged native manifest",
+      "ok": true,
+      "pages": 3
+    },
+    {
+      "name": "single fuel edit",
+      "ok": true,
+      "identityUploads": 0
+    },
+    {
+      "name": "daily counter columns, original row bits and rollback",
+      "ok": true,
+      "bytes": 1692864
+    },
+    {
+      "name": "single counter edit",
+      "ok": true
+    },
+    {
+      "name": "counter extras spill and restoration",
+      "ok": true
+    },
+    {
+      "name": "replacement can change profile and numeric lanes together",
+      "ok": true
+    },
+    {
+      "name": "event engine, failed transaction, mass write, growth and compaction",
+      "ok": true
+    },
+    {
+      "name": "unversioned byte mutation is detected in bounded rotation",
+      "ok": true
+    },
+    {
+      "name": "sparse mass-column writes preserve all byte-identical lanes",
+      "ok": true,
+      "uploadedBytes": 262144
+    },
+    {
+      "name": "cold adopted IDs stay exact across a new session and one edited lane",
+      "ok": true
+    },
+    {
+      "name": "legacy whole-row chunk save loads and converts exactly to lanes",
+      "ok": true
+    },
+    {
+      "name": "invalid resolver, short data, extra IDs, normalization and malformed extent refuse",
+      "ok": true,
+      "refusals": 8
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "scope": "Node worker only; 128 MB in 31 pages, representing one million 128-byte rows; three measured repeats after warmup. Not actual UI decisions, all-company revenue or iPhone storage.",
+  "rows": 1000000,
+  "sourceFiles": {
+    "save-checksum-thread.js": "ca4ece5a810d3e98c0b2c7bf640a3d637d857de2274f288a284018bb7ab9ae49",
+    "save-checksum-worker.js": "21b39c850eea9a2300e31a2572a52331b560c148842dfe90a69cf24db9d9d076",
+    "state-codec-core.js": "e8c72dc0d8afaded20736cfc541d6744feb706a907de6f2d86c3ce49a11739d4"
+  },
+  "samples": [
+    {
+      "repeat": 0,
+      "wallMs": 310.79958999999997,
+      "workerMs": 283.01852599999995,
+      "requests": 31,
+      "laneDigest": "6182bee9e9650d03785deac309a88434a467b0a2335a23fcda95aaf2541326b8"
+    },
+    {
+      "repeat": 1,
+      "wallMs": 277.134583,
+      "workerMs": 262.9453450000001,
+      "requests": 31,
+      "laneDigest": "6182bee9e9650d03785deac309a88434a467b0a2335a23fcda95aaf2541326b8"
+    },
+    {
+      "repeat": 2,
+      "wallMs": 281.7347450000001,
+      "workerMs": 265.41769699999963,
+      "requests": 31,
+      "laneDigest": "6182bee9e9650d03785deac309a88434a467b0a2335a23fcda95aaf2541326b8"
+    }
+  ],
+  "maxMainCopyMs": 1.7756549999999152,
+  "pending": 0
+}

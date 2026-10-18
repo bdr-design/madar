@@ -1,0 +1,11 @@
+{
+  "node": "v24.19.0",
+  "platform": "linux",
+  "arch": "x64",
+  "cpus": 5,
+  "cpuModel": "AMD EPYC 9V45 96-Core Processor",
+  "totalMemoryBytes": 18882674688,
+  "playwright": "1.55.1",
+  "chromium": "Chromium 140.0.7339.186",
+  "physicalIPhone": false
+}

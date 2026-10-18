@@ -1,0 +1,3 @@
+{"suite":"build362-company-dock-browser","passed":6,"results":[{"engine":"chromium","viewport":{"width":667,"height":375}},{"engine":"chromium","viewport":{"width":844,"height":390}},{"engine":"chromium","viewport":{"width":956,"height":440}},{"engine":"webkit","viewport":{"width":667,"height":375}},{"engine":"webkit","viewport":{"width":844,"height":390}},{"engine":"webkit","viewport":{"width":956,"height":440}}]}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.

@@ -1,0 +1,146 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+2026-10-18T09:28:59.276Z pw:browser <launching> /home/agent/.cache/ms-playwright/webkit-2203/pw_run.sh --inspector-pipe --headless --no-startup-window
+2026-10-18T09:28:59.279Z pw:browser <launched> pid=39349
+2026-10-18T09:28:59.351Z pw:browser [pid=39349][err] 
+2026-10-18T09:28:59.351Z pw:browser [pid=39349][err] ** (MiniBrowser:39355): CRITICAL **: 09:28:59.351: WebKitWebView is-controlled-by-automation set but automation is not allowed in the context, falling back to default session.
+2026-10-18T09:29:00.836Z pw:browser [pid=39349][err] WARNING: trying to load platform resource 'missingImage'
+READY webkit 1000000 { routed: 20000, moving: 838, simSeconds: 20 }
+{"engine":"webkit","kind":"bank","decision":"accept","round":0,"toAckMs":129,"maxNamedSyncMs":39,"liveAlerts":0}
+{"engine":"webkit","kind":"bank","decision":"reject","round":0,"toAckMs":153.00000000001455,"maxNamedSyncMs":4.000000000014552,"liveAlerts":0}
+{"engine":"webkit","kind":"insurance","decision":"accept","round":0,"toAckMs":91.00000000001455,"maxNamedSyncMs":8.000000000014552,"liveAlerts":0}
+{"engine":"webkit","kind":"insurance","decision":"reject","round":0,"toAckMs":133.00000000001455,"maxNamedSyncMs":3.000000000014552,"liveAlerts":0}
+{"engine":"webkit","kind":"telecom","decision":"accept","round":0,"toAckMs":113,"maxNamedSyncMs":14.999999999985448,"liveAlerts":0}
+{"engine":"webkit","kind":"telecom","decision":"reject","round":0,"toAckMs":131.99999999998545,"maxNamedSyncMs":4,"liveAlerts":0}
+{"engine":"webkit","kind":"bank","decision":"accept","round":1,"toAckMs":145.9999999999709,"maxNamedSyncMs":9,"liveAlerts":0}
+{"engine":"webkit","kind":"bank","decision":"reject","round":1,"toAckMs":137,"maxNamedSyncMs":4.000000000029104,"liveAlerts":0}
+{"engine":"webkit","kind":"insurance","decision":"accept","round":1,"toAckMs":123,"maxNamedSyncMs":5,"liveAlerts":0}
+{"engine":"webkit","kind":"insurance","decision":"reject","round":1,"toAckMs":117,"maxNamedSyncMs":9,"liveAlerts":0}
+{"engine":"webkit","kind":"telecom","decision":"accept","round":1,"toAckMs":117,"maxNamedSyncMs":9,"liveAlerts":0}
+{"engine":"webkit","kind":"telecom","decision":"reject","round":1,"toAckMs":161,"maxNamedSyncMs":4,"liveAlerts":0}
+{"engine":"webkit","kind":"bank","decision":"accept","round":2,"toAckMs":142,"maxNamedSyncMs":6,"liveAlerts":0}
+{"engine":"webkit","kind":"bank","decision":"reject","round":2,"toAckMs":144,"maxNamedSyncMs":4,"liveAlerts":0}
+{"engine":"webkit","kind":"insurance","decision":"accept","round":2,"toAckMs":103.0000000000291,"maxNamedSyncMs":7,"liveAlerts":0}
+{"engine":"webkit","kind":"insurance","decision":"reject","round":2,"toAckMs":92,"maxNamedSyncMs":4,"liveAlerts":0}
+{"engine":"webkit","kind":"telecom","decision":"accept","round":2,"toAckMs":123,"maxNamedSyncMs":10,"liveAlerts":0}
+{"engine":"webkit","kind":"telecom","decision":"reject","round":2,"toAckMs":82,"maxNamedSyncMs":11.000000000029104,"liveAlerts":0}
+2026-10-18T09:31:17.722Z pw:browser [pid=39349] <gracefully close start>
+2026-10-18T09:31:17.857Z pw:browser [pid=39349] <process did exit: exitCode=0, signal=null>
+2026-10-18T09:31:17.857Z pw:browser [pid=39349] starting temporary directories cleanup
+2026-10-18T09:31:17.859Z pw:browser [pid=39349] finished temporary directories cleanup
+2026-10-18T09:31:17.859Z pw:browser [pid=39349] <gracefully close end>
+[
+  {
+    "engine": "webkit",
+    "kind": "bank",
+    "decision": "accept",
+    "samples": 3,
+    "toAckMedianMs": 142,
+    "toUiEndMedianMs": 150,
+    "maxNamedSyncMs": 39,
+    "liveAlerts": [
+      0,
+      0,
+      0
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "bank",
+    "decision": "reject",
+    "samples": 3,
+    "toAckMedianMs": 144,
+    "toUiEndMedianMs": 151,
+    "maxNamedSyncMs": 4.000000000029104,
+    "liveAlerts": [
+      0,
+      0,
+      0
+    ],
+    "uploadBytes": [
+      0,
+      110640,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "insurance",
+    "decision": "accept",
+    "samples": 3,
+    "toAckMedianMs": 103.0000000000291,
+    "toUiEndMedianMs": 110,
+    "maxNamedSyncMs": 8.000000000014552,
+    "liveAlerts": [
+      0,
+      0,
+      0
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "insurance",
+    "decision": "reject",
+    "samples": 3,
+    "toAckMedianMs": 117,
+    "toUiEndMedianMs": 129,
+    "maxNamedSyncMs": 9,
+    "liveAlerts": [
+      0,
+      0,
+      0
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "telecom",
+    "decision": "accept",
+    "samples": 3,
+    "toAckMedianMs": 117,
+    "toUiEndMedianMs": 125,
+    "maxNamedSyncMs": 14.999999999985448,
+    "liveAlerts": [
+      0,
+      0,
+      0
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      172634
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "telecom",
+    "decision": "reject",
+    "samples": 3,
+    "toAckMedianMs": 131.99999999998545,
+    "toUiEndMedianMs": 138.99999999998545,
+    "maxNamedSyncMs": 11.000000000029104,
+    "liveAlerts": [
+      0,
+      0,
+      0
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  }
+]

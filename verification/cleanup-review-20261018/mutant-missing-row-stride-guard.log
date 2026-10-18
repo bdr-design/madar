@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: Missing expected exception: the current physical row-stride guard remains mandatory
+    at /workspace/madar/tests/build436-save-work-removal.cjs:24:45 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: /fleet-row-layout/,
+  operator: 'throws',
+  diff: 'simple'
+}

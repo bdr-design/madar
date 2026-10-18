@@ -1,0 +1,127 @@
+{
+  "source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+  "caught": 10,
+  "total": 10,
+  "results": [
+    {
+      "name": "duplicate-summary-query",
+      "file": "app.js",
+      "test": "build439-summary-single-request",
+      "exit_code": 1,
+      "caught": true,
+      "log": "duplicate-summary-query.log",
+      "replace": {
+        "before": "asked=fleetUiSummaryCache.get(key)?.asking?.promise",
+        "after": "asked=client.query(store,{name:'uiSummary',params:options,simSeconds})"
+      }
+    },
+    {
+      "name": "retain-historical-summary-stores",
+      "file": "app.js",
+      "test": "build439-summary-single-request",
+      "exit_code": 1,
+      "caught": true,
+      "log": "retain-historical-summary-stores.log",
+      "replace": {
+        "before": "fleetUiSummaryCache.clear();",
+        "after": ""
+      }
+    },
+    {
+      "name": "accept-older-pending-time",
+      "file": "app.js",
+      "test": "build439-summary-single-request",
+      "exit_code": 1,
+      "caught": true,
+      "log": "accept-older-pending-time.log",
+      "replace": {
+        "before": "Number(found.result.asOfSimSeconds)===Number(simSeconds)&&",
+        "after": ""
+      }
+    },
+    {
+      "name": "accept-value-only-stale-proof",
+      "file": "app.js",
+      "test": "build439-summary-single-request",
+      "exit_code": 1,
+      "caught": true,
+      "log": "accept-value-only-stale-proof.log",
+      "replace": {
+        "before": "&&(valueRevision===null||window.GH_FLEET_STORE.valueRevision(store)===valueRevision)",
+        "after": ""
+      }
+    },
+    {
+      "name": "unused-invoice-preparation",
+      "file": "app.js",
+      "test": "build440-document-collection-work",
+      "exit_code": 1,
+      "caught": true,
+      "log": "unused-invoice-preparation.log",
+      "replace": {
+        "before": "if(view==='cheques'){const cheques=",
+        "after": "if(view==='cheques'){state.finance.invoices.filter(()=>true);const cheques="
+      }
+    },
+    {
+      "name": "per-card-cheque-scan",
+      "file": "app.js",
+      "test": "build440-document-collection-work",
+      "exit_code": 1,
+      "caught": true,
+      "log": "per-card-cheque-scan.log",
+      "replace": {
+        "before": "issuedByInvoice.get(x.number)",
+        "after": "(state.finance.cheques||[]).find(ch=>ch.invoiceNumber===x.number&&ch.status==='صادر')"
+      }
+    },
+    {
+      "name": "last-cheque-overwrites-first",
+      "file": "app.js",
+      "test": "build440-document-collection-work",
+      "exit_code": 1,
+      "caught": true,
+      "log": "last-cheque-overwrites-first.log",
+      "replace": {
+        "before": "&&!issuedByInvoice.has(number)",
+        "after": ""
+      }
+    },
+    {
+      "name": "nan-equals-nan",
+      "file": "app.js",
+      "test": "build440-document-collection-work",
+      "exit_code": 1,
+      "caught": true,
+      "log": "nan-equals-nan.log",
+      "replace": {
+        "before": "number===number&&numbers.has(number)",
+        "after": "numbers.has(number)"
+      }
+    },
+    {
+      "name": "restore-nested-bank-migration",
+      "file": "banking-core.js",
+      "test": "build441-bank-migration-work",
+      "exit_code": 1,
+      "caught": true,
+      "log": "restore-nested-bank-migration.log",
+      "replace": {
+        "before": "  function migrateLegacyBranches(state){\n    const legacyCount=Math.max(0,Math.floor(Number(state.bank?.branches)||0)),bank=ensure(state);let added=0;\n    const facilities=(state.customHubs||[]).filter(row=>row?.owned===true&&facilityOwnerCompanyId(row)==='bank'&&row.kind==='bank'),knownFacilities=new Set(bank.branchNetwork.map(row=>row.facilityId));\n    for(const facility of facilities)if(!knownFacilities.has(facility.id)){\n      const branch=branchTemplate(state,{branchId:`BR-${++bank.sequence}`,facilityId:facility.id,capitalId:facility.capitalId||null,city:facility.city,country:facility.country,openedAt:facility.openedAt,servicesActive:true,legacyMigrated:true});\n      bank.branchNetwork.push(branch);knownFacilities.add(branch.facilityId);added++;\n    }\n    while(bank.branchNetwork.length<legacyCount){bank.branchNetwork.push(branchTemplate(state,{branchId:`BR-${++bank.sequence}`,city:'فرع محفوظ',country:'سجل قديم',openedAt:0,servicesActive:true,legacyMigrated:true}));added++;}\n    bank.branches=bank.branchNetwork.length;return {changed:added>0,added,branches:bank.branches};\n  }\n  // Branch markets (owner review, Build 358: customers grew 18-65 a day per branch forever, none ever left, a branch in a\n  // small state equal to one in Riyadh). A branch now serves a share of its country: 55% of the population banks, the\n  // group's bank can win at most 4% of them, split between its branches in that country (500 to 250,000 per branch,\n  // one business client per 40 people). Growth slows as a branch fills its market; customers leave at 6% a year (more when\n  // deposit pricing is below the market, less above) and take their share of the branch's deposits with them.\n  const SMALL_STATES=Object.freeze({'الإمارات':9890000,'سنغافورة':5920000,'عُمان':4580000,'البحرين':1500000,'المالديف':520000,'أيرلندا':5120000,'مالطا':530000,'أندورا':80000,'موناكو':39000,'سان مارينو':34000,'ليختنشتاين':39000,'الكونغو الديمقراطية':102000000,'الكونغو':6000000,'أفريقيا الوسطى':5500000,'الرأس الأخضر':590000,'ساو تومي وبرينسيب':220000,'ملاوي':20400000,'موريشيوس':1260000,'سيشل':100000,'جزر القمر':840000,'الباهاما':410000,'بربادوس':280000,'ساموا':220000,'تونغا':100000,'كيريباس':130000,'ميكرونيسيا':110000,'جزر مارشال':40000,'بالاو':18000,'ناورو':12000,'توفالو':11000});\n  const DEFAULT_POPULATION=10000000,BANKED_SHARE=.55,MAX_MARKET_SHARE=.04,BASE_RETAIL_CHURN=.06,BASE_BUSINESS_CHURN=.04,BUSINESS_PER_PEOPLE=40;",
+        "after": "  function migrateLegacyBranches(state){\n    const legacyCount=Math.max(0,Math.floor(Number(state.bank?.branches)||0)),bank=ensure(state);let added=0;\n    const facilities=(state.customHubs||[]).filter(row=>row?.owned===true&&facilityOwnerCompanyId(row)==='bank'&&row.kind==='bank');\n    for(const facility of facilities)if(!bank.branchNetwork.some(row=>row.facilityId===facility.id)){bank.branchNetwork.push(branchTemplate(state,{branchId:`BR-${++bank.sequence}`,facilityId:facility.id,capitalId:facility.capitalId||null,city:facility.city,country:facility.country,openedAt:facility.openedAt,servicesActive:true,legacyMigrated:true}));added++;}\n    while(bank.branchNetwork.length<legacyCount){bank.branchNetwork.push(branchTemplate(state,{branchId:`BR-${++bank.sequence}`,city:'فرع محفوظ',country:'سجل قديم',openedAt:0,servicesActive:true,legacyMigrated:true}));added++;}\n    bank.branches=bank.branchNetwork.length;return {changed:added>0,added,branches:bank.branches};\n  }\n  // Branch markets (owner review, Build 358: customers grew 18-65 a day per branch forever, none ever left, a branch in a\n  // small state equal to one in Riyadh). A branch now serves a share of its country: 55% of the population banks, the\n  // group's bank can win at most 4% of them, split between its branches in that country (500 to 250,000 per branch,\n  // one business client per 40 people). Growth slows as a branch fills its market; customers leave at 6% a year (more when\n  // deposit pricing is below the market, less above) and take their share of the branch's deposits with them.\n  const SMALL_STATES=Object.freeze({'الإمارات':9890000,'سنغافورة':5920000,'عُمان':4580000,'البحرين':1500000,'المالديف':520000,'أيرلندا':5120000,'مالطا':530000,'أندورا':80000,'موناكو':39000,'سان مارينو':34000,'ليختنشتاين':39000,'الكونغو الديمقراطية':102000000,'الكونغو':6000000,'أفريقيا الوسطى':5500000,'الرأس الأخضر':590000,'ساو تومي وبرينسيب':220000,'ملاوي':20400000,'موريشيوس':1260000,'سيشل':100000,'جزر القمر':840000,'الباهاما':410000,'بربادوس':280000,'ساموا':220000,'تونغا':100000,'كيريباس':130000,'ميكرونيسيا':110000,'جزر مارشال':40000,'بالاو':18000,'ناورو':12000,'توفالو':11000});\n  const DEFAULT_POPULATION=10000000,BANKED_SHARE=.55,MAX_MARKET_SHARE=.04,BASE_RETAIL_CHURN=.06,BASE_BUSINESS_CHURN=.04,BUSINESS_PER_PEOPLE=40;"
+      }
+    },
+    {
+      "name": "duplicate-new-bank-facility",
+      "file": "banking-core.js",
+      "test": "build441-bank-migration-work",
+      "exit_code": 1,
+      "caught": true,
+      "log": "duplicate-new-bank-facility.log",
+      "replace": {
+        "before": "knownFacilities.add(branch.facilityId);",
+        "after": ""
+      }
+    }
+  ]
+}

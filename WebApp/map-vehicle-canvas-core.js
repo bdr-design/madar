@@ -222,6 +222,9 @@
       counters.frames++;counters.drawn=drawOrder.length;counters.culled=culled;counters.lastDrawMs=Math.max(0,now()-started);
       return metrics();
     }
+    // The app's presentation loop can flush pending pixels without forcing a
+    // clear, projection pass and page-geometry read when nothing changed.
+    function drawIfDirty(){return !destroyed&&dirty?draw():null;}
 
     function apply(slot,patch,initial=false){
       if(!patch||typeof patch!=='object')throw new TypeError('map-vehicle-canvas-descriptor-required');
@@ -268,7 +271,10 @@
     }
     function update(idValue,patch){
       if(destroyed)return false;const id=idOf(idValue),slot=records.get(id);if(!slot)return false;
-      apply(slot,patch,false);counters.updates++;scheduleDraw();return slot.adapter;
+      const lat=slot.lat,lng=slot.lng,type=slot.type,heading=slot.heading,selected=slot.selected,opacity=slot.opacity,size=slot.size,color=slot.color,sprite=slot.sprite,spriteUrl=slot.spriteUrl,zIndex=slot.zIndex;
+      apply(slot,patch,false);counters.updates++;
+      if(lat!==slot.lat||lng!==slot.lng||type!==slot.type||heading!==slot.heading||selected!==slot.selected||opacity!==slot.opacity||size!==slot.size||color!==slot.color||sprite!==slot.sprite||spriteUrl!==slot.spriteUrl||zIndex!==slot.zIndex)scheduleDraw();
+      return slot.adapter;
     }
     function release(slot){
       releaseImage(slot);slot.active=false;slot.visible=false;slot.id='';slot.adapter=null;slot.sprite=null;slot.spriteUrl='';free.push(slot.index);
@@ -331,7 +337,7 @@
     }
 
     resize();
-    return Object.freeze({VERSION,canvas,hardLimit,add,update,remove,clear,draw,count,destroy,hitTest,metrics});
+    return Object.freeze({VERSION,canvas,hardLimit,add,update,remove,clear,draw,drawIfDirty,count,destroy,hitTest,metrics});
   }
 
   return Object.freeze({VERSION,MAX_VEHICLES,create});

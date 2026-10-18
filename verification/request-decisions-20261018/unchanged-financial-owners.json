@@ -1,0 +1,31 @@
+{
+  "changedRuntimeFiles": [
+    "WebApp/advanced-core.js",
+    "WebApp/app.js",
+    "WebApp/madar-shell.js",
+    "WebApp/transaction-core.js"
+  ],
+  "owners": {
+    "banking-core.js": {
+      "before": "9f6b63caef710f107f9af872c93ed93687b2ded0183983e278f0e92857861d2b",
+      "after": "9f6b63caef710f107f9af872c93ed93687b2ded0183983e278f0e92857861d2b"
+    },
+    "insurance-core.js": {
+      "before": "62b008bd240125653fb42ee8e60cdcc6233a6151bf8e221a2439f67490567f5a",
+      "after": "62b008bd240125653fb42ee8e60cdcc6233a6151bf8e221a2439f67490567f5a"
+    },
+    "telecom-market-core.js": {
+      "before": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec",
+      "after": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec"
+    },
+    "finance-core.js": {
+      "before": "318484eece7c440e70b58888f329dca2b4001163b64bcb5d4e3f8ae21486b027",
+      "after": "318484eece7c440e70b58888f329dca2b4001163b64bcb5d4e3f8ae21486b027"
+    },
+    "procurement-core.js": {
+      "before": "72f233e723044d978da586ea66ec9289aafe0d4ae9efb0459996a62d4b6efea4",
+      "after": "72f233e723044d978da586ea66ec9289aafe0d4ae9efb0459996a62d4b6efea4"
+    }
+  },
+  "source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155"
+}

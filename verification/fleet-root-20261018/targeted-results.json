@@ -1,0 +1,1287 @@
+{
+  "kind": "local-targeted-fleet-repair",
+  "date": "2026-10-18",
+  "repository": "/workspace/madar",
+  "branch": "claude/madar-ventora-handover-3.0.0-stg723",
+  "basedOn": "2ad7e1698cc875b50d569a3408b646ebb00d037a",
+  "runtimeSourceSha256": "a663f662120db8c1e38c334491a5964fc03cf62ab80de7b53827d1d15905d16e",
+  "webappSha256": "1893c225cbd3aca63c5b6db72ebb439f2b989853cd9b02a8f3a836568312c494",
+  "published": false,
+  "newIpaBuilt": false,
+  "releaseApproved": false,
+  "declaredGates": 459,
+  "preflightCommands": 62,
+  "fullAcceptanceRun": false,
+  "targetedScriptsPassed": 48,
+  "checks": [
+    {
+      "script": "tests/acceptance-policy.py",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/policy-final.log"
+    },
+    {
+      "script": "tests/build339-phase1bb-pacing-separation.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build339-phase1bb-pacing-separation.log"
+    },
+    {
+      "script": "tests/build356-fleet-store.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build356-fleet-store.log"
+    },
+    {
+      "script": "tests/build358-codec-segments.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build358-codec-segments.log"
+    },
+    {
+      "script": "tests/build358-fleet-chunk-manifest.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/build358-fleet-chunk-manifest.log"
+    },
+    {
+      "script": "tests/build358-fleet-row-codec-cache.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build358-fleet-row-codec-cache.log"
+    },
+    {
+      "script": "tests/build358-native-chunked-save.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/build358-native-chunked-save.log"
+    },
+    {
+      "script": "tests/build358-row-snapshot-rollback.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build358-row-snapshot-rollback.log"
+    },
+    {
+      "script": "tests/build358-validation-classes.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build358-validation-classes.log"
+    },
+    {
+      "script": "tests/build359-sim-smoothness.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build359-sim-smoothness.log"
+    },
+    {
+      "script": "tests/build362-durable-prestage.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/build362-durable-prestage.log"
+    },
+    {
+      "script": "tests/build362-save-validation-chunks.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build362-save-validation-chunks.log"
+    },
+    {
+      "script": "tests/build371-calendar-cancel-maintenance-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/maintenance-final/build371-calendar-cancel-maintenance-browser.log"
+    },
+    {
+      "script": "tests/build372-asset-purchase-app-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/purchase-200k-final.log"
+    },
+    {
+      "script": "tests/build372-fleet-day-core.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build372-fleet-day-core.log"
+    },
+    {
+      "script": "tests/build372-fleet-day-exceptional.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build372-fleet-day-exceptional.log"
+    },
+    {
+      "script": "tests/build372-fleet-day-slice-parity.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build372-fleet-day-slice-parity.log"
+    },
+    {
+      "script": "tests/build372-fleet-day-worker-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/browsers/build372-fleet-day-worker-browser.log"
+    },
+    {
+      "script": "tests/build372-fleet-day-worker.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build372-fleet-day-worker.log"
+    },
+    {
+      "script": "tests/build372-fleet-query-worker-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/browsers-final/build372-fleet-query-worker-browser.log"
+    },
+    {
+      "script": "tests/build372-maintenance-health-worker-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/browsers-final/build372-maintenance-health-worker-browser.log"
+    },
+    {
+      "script": "tests/build372-native-migration-chunk-adoption.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/build372-native-migration-chunk-adoption.log"
+    },
+    {
+      "script": "tests/build372-native-seed-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/container-final-browsers/build372-native-seed-browser.log"
+    },
+    {
+      "script": "tests/build372-replica-value-log.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build372-replica-value-log.log"
+    },
+    {
+      "script": "tests/build372-route-tier.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build372-route-tier.log"
+    },
+    {
+      "script": "tests/build372-store-maintenance-stages.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/maintenance-final/build372-store-maintenance-stages.log"
+    },
+    {
+      "script": "tests/build379-financial-posting.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build379-financial-posting.log"
+    },
+    {
+      "script": "tests/build379-mutation-validation-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/browsers-final/build379-mutation-validation-browser.log"
+    },
+    {
+      "script": "tests/build379-simulation-recovery.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build379-simulation-recovery.log"
+    },
+    {
+      "script": "tests/build405-worker-close-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/maintenance-final/build405-worker-close-browser.log"
+    },
+    {
+      "script": "tests/build406-save-chunk-transport.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build406-save-chunk-transport.log"
+    },
+    {
+      "script": "tests/build409-compressed-persistence.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/build409-compressed-persistence.log"
+    },
+    {
+      "script": "tests/build410-fleet-save-row-patches.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/build410-fleet-save-row-patches.log"
+    },
+    {
+      "script": "tests/build411-command-row-patch-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/maintenance-final/build411-command-row-patch-browser.log"
+    },
+    {
+      "script": "tests/build412-live-validation-predicates.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build412-live-validation-predicates.log"
+    },
+    {
+      "script": "tests/build423-worker-sync-work.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build423-worker-sync-work.log"
+    },
+    {
+      "script": "tests/build424-dense-fleet-pages.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/container-final.log"
+    },
+    {
+      "script": "tests/build425-validation-dependencies.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build425-validation-dependencies.log"
+    },
+    {
+      "script": "tests/build426-governor-recovery.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build426-governor-recovery.log"
+    },
+    {
+      "script": "tests/build427-day-profile-work.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/related/build427-day-profile-work.log"
+    },
+    {
+      "script": "tests/build428-worker-value-collection.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/gc-final.log"
+    },
+    {
+      "script": "tests/build429-worker-value-collection-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/browsers-final/build429-worker-value-collection-browser.log"
+    },
+    {
+      "script": "tests/build430-legacy-fleet-pages.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/build430-legacy-fleet-pages.log"
+    },
+    {
+      "script": "tests/fleet-save-slicing.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/codec-final/fleet-save-slicing.log"
+    },
+    {
+      "script": "tests/fleet-validation-reuse-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/container-final-browsers/fleet-validation-reuse-browser.log"
+    },
+    {
+      "script": "tests/native-save-worker-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/container-final-browsers/native-save-worker-browser.log"
+    },
+    {
+      "script": "tests/save-checksum-worker-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/browsers-final/save-checksum-worker-browser.log"
+    },
+    {
+      "script": "tests/save-pipeline-browser.cjs",
+      "exit": 0,
+      "log": "/workspace/scratch/radical-20261018/container-final-browsers/save-pipeline-browser.log"
+    }
+  ],
+  "measurements": {
+    "denseChangedRows": 65537,
+    "fleetRows": 1000000,
+    "densePairedBefore": {
+      "samples": [
+        {
+          "source": "/workspace/scratch/radical-20261018",
+          "rows": 1000000,
+          "changedRows": 65537,
+          "replayMs": 21.316069999999854,
+          "trackingBatchRows": 65537,
+          "trackingSamples": 128,
+          "trackingP50Ms": 0.0003299999998489511,
+          "trackingP99Ms": 0.004517000000305416,
+          "trackingMaxMs": 0.015102000000297267,
+          "checkpointIncludingRestoreProofMs": 1192.7411170000005,
+          "serializationMs": 60.861784000000625,
+          "maxCodecStepMs": 0.3215990000007878,
+          "compressionWallMs": 480.7403899999954,
+          "wireBytes": 11454914,
+          "prepareAndCompressMs": 541.602173999996,
+          "format": "overlay-v1",
+          "laneUploads": 0,
+          "baseUploads": 31,
+          "uploadedBytes": 128000000,
+          "patchBytes": 0,
+          "exactRestore": true
+        },
+        {
+          "source": "/workspace/scratch/radical-20261018",
+          "rows": 1000000,
+          "changedRows": 65537,
+          "replayMs": 23.385733999999502,
+          "trackingBatchRows": 65537,
+          "trackingSamples": 128,
+          "trackingP50Ms": 0.00029999999969732016,
+          "trackingP99Ms": 0.0082830000001195,
+          "trackingMaxMs": 0.015202000000499538,
+          "checkpointIncludingRestoreProofMs": 1380.1218339999996,
+          "serializationMs": 67.339653,
+          "maxCodecStepMs": 0.25965700000051584,
+          "compressionWallMs": 501.6185710000027,
+          "wireBytes": 11454914,
+          "prepareAndCompressMs": 568.9582240000027,
+          "format": "overlay-v1",
+          "laneUploads": 0,
+          "baseUploads": 31,
+          "uploadedBytes": 128000000,
+          "patchBytes": 0,
+          "exactRestore": true
+        },
+        {
+          "source": "/workspace/scratch/radical-20261018",
+          "rows": 1000000,
+          "changedRows": 65537,
+          "replayMs": 21.340806000000157,
+          "trackingBatchRows": 65537,
+          "trackingSamples": 128,
+          "trackingP50Ms": 0.0003299999998489511,
+          "trackingP99Ms": 0.0047969999995984836,
+          "trackingMaxMs": 0.013380000000324799,
+          "checkpointIncludingRestoreProofMs": 1221.2737699999998,
+          "serializationMs": 61.770879000000605,
+          "maxCodecStepMs": 0.30050699999992503,
+          "compressionWallMs": 511.37068600000293,
+          "wireBytes": 11454914,
+          "prepareAndCompressMs": 573.1415650000035,
+          "format": "overlay-v1",
+          "laneUploads": 0,
+          "baseUploads": 31,
+          "uploadedBytes": 128000000,
+          "patchBytes": 0,
+          "exactRestore": true
+        }
+      ],
+      "medians": {
+        "serializationMs": 61.770879000000605,
+        "compressionWallMs": 501.6185710000027,
+        "prepareAndCompressMs": 568.9582240000027,
+        "uploadedBytes": 128000000,
+        "wireBytes": 11454914,
+        "maxCodecStepMs": 0.30050699999992503
+      }
+    },
+    "densePairedAfter": {
+      "samples": [
+        {
+          "source": "/workspace/madar",
+          "rows": 1000000,
+          "changedRows": 65537,
+          "replayMs": 22.02614799999992,
+          "trackingBatchRows": 65537,
+          "trackingSamples": 128,
+          "trackingP50Ms": 0.00030000000060681487,
+          "trackingP99Ms": 0.004206999999951222,
+          "trackingMaxMs": 0.014992999999776657,
+          "checkpointIncludingRestoreProofMs": 576.3977590000004,
+          "serializationMs": 302.3155370000004,
+          "maxCodecStepMs": 0.3115539999998873,
+          "compressionWallMs": 49.18289700000241,
+          "wireBytes": 8000000,
+          "prepareAndCompressMs": 351.4984340000028,
+          "format": "lanes-v1",
+          "laneUploads": 31,
+          "baseUploads": 0,
+          "uploadedBytes": 8000000,
+          "patchBytes": 0,
+          "exactRestore": true
+        },
+        {
+          "source": "/workspace/madar",
+          "rows": 1000000,
+          "changedRows": 65537,
+          "replayMs": 20.684760999999526,
+          "trackingBatchRows": 65537,
+          "trackingSamples": 128,
+          "trackingP50Ms": 0.00029999999969732016,
+          "trackingP99Ms": 0.00398600000062288,
+          "trackingMaxMs": 0.014731999999639811,
+          "checkpointIncludingRestoreProofMs": 539.4615170000006,
+          "serializationMs": 287.25933800000075,
+          "maxCodecStepMs": 0.2373539999998684,
+          "compressionWallMs": 48.29800300000443,
+          "wireBytes": 8000000,
+          "prepareAndCompressMs": 335.5573410000052,
+          "format": "lanes-v1",
+          "laneUploads": 31,
+          "baseUploads": 0,
+          "uploadedBytes": 8000000,
+          "patchBytes": 0,
+          "exactRestore": true
+        },
+        {
+          "source": "/workspace/madar",
+          "rows": 1000000,
+          "changedRows": 65537,
+          "replayMs": 20.680124000000433,
+          "trackingBatchRows": 65537,
+          "trackingSamples": 128,
+          "trackingP50Ms": 0.0002899999999499414,
+          "trackingP99Ms": 0.00402600000052189,
+          "trackingMaxMs": 0.014240999999856285,
+          "checkpointIncludingRestoreProofMs": 519.0892819999999,
+          "serializationMs": 288.80818499999987,
+          "maxCodecStepMs": 0.2798870000005991,
+          "compressionWallMs": 41.66100499999993,
+          "wireBytes": 8000000,
+          "prepareAndCompressMs": 330.4691899999998,
+          "format": "lanes-v1",
+          "laneUploads": 31,
+          "baseUploads": 0,
+          "uploadedBytes": 8000000,
+          "patchBytes": 0,
+          "exactRestore": true
+        }
+      ],
+      "medians": {
+        "serializationMs": 288.80818499999987,
+        "compressionWallMs": 48.29800300000443,
+        "prepareAndCompressMs": 335.5573410000052,
+        "uploadedBytes": 8000000,
+        "wireBytes": 8000000,
+        "maxCodecStepMs": 0.2798870000005991
+      }
+    },
+    "validationBefore": {
+      "source": "/workspace/scratch/radical-20261018",
+      "mode": "validation",
+      "rows": 1000000,
+      "routes": 859,
+      "warmMs": [
+        40.42668499999991,
+        29.66891799999985,
+        28.46840999999995
+      ],
+      "referenceMs": 1479.852937,
+      "afterCounterMs": 1052.7483809999994,
+      "counterChunksChecked": 31,
+      "counterChunksReused": 0,
+      "exact": true
+    },
+    "validationAfter": {
+      "source": "/workspace/madar",
+      "mode": "validation",
+      "rows": 1000000,
+      "routes": 859,
+      "warmMs": [
+        39.82939199999964,
+        29.122571000000335,
+        29.00608800000009
+      ],
+      "referenceMs": 1495.4347779999998,
+      "afterCounterMs": 30.263372999999774,
+      "counterChunksChecked": 0,
+      "counterChunksReused": 31,
+      "exact": true
+    },
+    "dailyFormulaParity": {
+      "suite": "build427-day-profile-work",
+      "ok": true,
+      "rows": 1000000,
+      "beforePowCalls": 1000001,
+      "afterPowCalls": 7,
+      "beforeMs": 1065.7765229999995,
+      "afterMs": 650.6770370000004,
+      "literalFinancialParity": true,
+      "exceptionalParity": true
+    },
+    "valueCollectionBefore": {
+      "source": "2ad7e16 unmodified baseline",
+      "scope": "desktop GC only, one existing task call per RAF; not full close or iPhone",
+      "results": [
+        {
+          "engine": "chromium",
+          "rows": 1000000,
+          "freed": 4096,
+          "mainMarkSlices": 245,
+          "frames": 249,
+          "maxMainMs": 1.0999999977648258,
+          "elapsedMs": 4116.39999999851
+        },
+        {
+          "engine": "webkit",
+          "rows": 1000000,
+          "freed": 4096,
+          "mainMarkSlices": 245,
+          "frames": 249,
+          "maxMainMs": 2,
+          "elapsedMs": 4009.000000000001
+        }
+      ]
+    },
+    "valueCollectionAfter": {
+      "suite": "build429-worker-value-collection-browser",
+      "ok": true,
+      "results": [
+        {
+          "engine": "chromium",
+          "rows": 1000000,
+          "freed": 4096,
+          "expected": 4096,
+          "exact": true,
+          "noDuplicateFree": true,
+          "reusedParity": true,
+          "queryCount": 1,
+          "mainMarkSlices": 0,
+          "waitFrames": 1,
+          "maxMainMs": 2.7999999970197678,
+          "elapsedMs": 19.099999997764826,
+          "maxQueryWorkerMs": 29.699999999254942
+        },
+        {
+          "engine": "webkit",
+          "rows": 1000000,
+          "freed": 4096,
+          "expected": 4096,
+          "exact": true,
+          "noDuplicateFree": true,
+          "reusedParity": true,
+          "queryCount": 1,
+          "mainMarkSlices": 0,
+          "waitFrames": 1,
+          "maxMainMs": 5,
+          "elapsedMs": 34,
+          "maxQueryWorkerMs": 14
+        }
+      ]
+    },
+    "coldTransportBefore": {
+      "runtimeSourceSha256": "0fd590cb3018cc0cd5fe4e8f6b9f608698ab0007040e59ccdc569d6fc6e47017",
+      "sourceFiles": {
+        "fleet-store-core.js": "c1e7fa92abccf1f8f37e19e35bbffd6090ccc83124079c1c2e88226c3f7e9dbd",
+        "state-codec-core.js": "cb4076cfc454859cf655b1a33e204b544c9c76a986f63cdc72cf704f15bc8d47",
+        "save-chunk-codec.js": "d5f57ae917b813275ac60f23e936f25d714f8ec3923b6429d83c7b706fc0a2b0",
+        "save-checksum-thread.js": "32d840c6afbdcbffb1083ec4ade3c3633703695ffe1cf7c2fb2c7d6af08f5a33",
+        "save-checksum-worker.js": "de4f9056e1551d716f5b7842f5ea0e7055edeb101896915de0a7d45590a7d0a2"
+      },
+      "rows": 1000000,
+      "modes": [
+        "air",
+        "sea",
+        "road"
+      ],
+      "fixture": "real store and save pages; deterministic varied progress, fuel, condition and daily counters",
+      "scope": "desktop transport pressure only; no company revenue simulation, no physical iPhone timing",
+      "rawBytes": 141000000,
+      "wireBytes": 37293971,
+      "reductionPct": 73.55037517730496,
+      "workerMs": 676.7651580000056,
+      "maxWorkerMs": 38.58937200000037,
+      "wallMsIncludingIndependentSHA256AndDecode": 1249.1578610000006,
+      "compressedPages": 62,
+      "pages": 62,
+      "liveStateUnchanged": true,
+      "mainWorkerCopyMs": 0.07630299999800627,
+      "sizes": [
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073434,
+          "workerMs": 33.131632000000536
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 28.584159
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 17.124127999999473
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 21.58238799999981
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 21.857348999999886
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 17.080463000000236
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073436,
+          "workerMs": 17.32219299999997
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 17.302953999999772
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073436,
+          "workerMs": 18.11917100000028
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073434,
+          "workerMs": 17.147761999999602
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 17.029225999999653
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073434,
+          "workerMs": 16.843078999999307
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 28.649295000000166
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 35.90305100000023
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 16.76005499999974
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 17.078340000000026
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 17.308852999998635
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073435,
+          "workerMs": 17.700917000000118
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 24.765129999999772
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073434,
+          "workerMs": 18.11757800000123
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 17.82520300000033
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 17.1832059999997
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073434,
+          "workerMs": 17.608870000000024
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 17.378856999999698
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 17.147143000000142
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 17.952602000001207
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073428,
+          "workerMs": 18.296275000000605
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 38.58937200000037
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073430,
+          "workerMs": 16.49081500000102
+        },
+        {
+          "kind": "base",
+          "rawBytes": 4194304,
+          "wireBytes": 1073432,
+          "workerMs": 16.52395500000057
+        },
+        {
+          "kind": "base",
+          "rawBytes": 2170880,
+          "wireBytes": 555707,
+          "workerMs": 8.524348000000828
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148610,
+          "workerMs": 1.7619340000001102
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148615,
+          "workerMs": 1.9613919999992504
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148611,
+          "workerMs": 1.8164360000009765
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148615,
+          "workerMs": 1.7649290000008477
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148615,
+          "workerMs": 1.747272000000521
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148607,
+          "workerMs": 1.7845679999991262
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148612,
+          "workerMs": 1.7239580000004935
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148617,
+          "workerMs": 1.73113899999953
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148612,
+          "workerMs": 1.7685339999989083
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148612,
+          "workerMs": 1.7759150000001682
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148612,
+          "workerMs": 1.7141330000013113
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148610,
+          "workerMs": 1.75116799999887
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148615,
+          "workerMs": 1.732319999999163
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148616,
+          "workerMs": 1.7258709999987332
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148610,
+          "workerMs": 1.7485340000002907
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148610,
+          "workerMs": 1.7535820000011881
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148614,
+          "workerMs": 1.764658000000054
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148612,
+          "workerMs": 1.7768670000004931
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148615,
+          "workerMs": 1.7402529999999388
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148615,
+          "workerMs": 1.7544330000000627
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148606,
+          "workerMs": 1.749455000001035
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148613,
+          "workerMs": 1.7393910000009782
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148617,
+          "workerMs": 1.7736110000005283
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148611,
+          "workerMs": 1.7839469999998983
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148613,
+          "workerMs": 1.7495460000009189
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148612,
+          "workerMs": 1.7305879999985336
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148610,
+          "workerMs": 1.78494899999896
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148614,
+          "workerMs": 1.7980079999997542
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148617,
+          "workerMs": 1.7719300000007934
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 425984,
+          "wireBytes": 148610,
+          "workerMs": 1.7589700000007724
+        },
+        {
+          "kind": "overlay",
+          "rawBytes": 220480,
+          "wireBytes": 76939,
+          "workerMs": 0.8984980000004725
+        }
+      ]
+    },
+    "coldTransportAfter": {
+      "runtimeSourceSha256": "a663f662120db8c1e38c334491a5964fc03cf62ab80de7b53827d1d15905d16e",
+      "sourceFiles": {
+        "fleet-store-core.js": "30debea0d68d938ffb025d72efd132091a4f875d13a302c5cfff360fe9f2ef2d",
+        "state-codec-core.js": "e8c72dc0d8afaded20736cfc541d6744feb706a907de6f2d86c3ce49a11739d4",
+        "save-chunk-codec.js": "d5f57ae917b813275ac60f23e936f25d714f8ec3923b6429d83c7b706fc0a2b0",
+        "save-checksum-thread.js": "ca4ece5a810d3e98c0b2c7bf640a3d637d857de2274f288a284018bb7ab9ae49",
+        "save-checksum-worker.js": "21b39c850eea9a2300e31a2572a52331b560c148842dfe90a69cf24db9d9d076"
+      },
+      "rows": 1000000,
+      "modes": [
+        "air",
+        "sea",
+        "road"
+      ],
+      "fixture": "real store and save pages; deterministic varied progress, fuel, condition and daily counters",
+      "scope": "desktop transport pressure only; no company revenue simulation, no physical iPhone timing",
+      "rawBytes": 128000000,
+      "wireBytes": 38366672,
+      "reductionPct": 70.0260375,
+      "workerMs": 592.6375719999978,
+      "maxWorkerMs": 28.99228800000037,
+      "wallMsIncludingIndependentSHA256AndDecode": 1103.6537579999995,
+      "compressedPages": 31,
+      "pages": 31,
+      "liveStateUnchanged": true,
+      "mainWorkerCopyMs": 0.0636739999990823,
+      "sizes": [
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257145,
+          "workerMs": 28.99228800000037
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257183,
+          "workerMs": 24.155927000000702
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257158,
+          "workerMs": 18.439722999999503
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257187,
+          "workerMs": 17.987529999999424
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257157,
+          "workerMs": 19.172215999999935
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257181,
+          "workerMs": 22.269223999999667
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257165,
+          "workerMs": 17.66639099999975
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257185,
+          "workerMs": 17.30207799999971
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257167,
+          "workerMs": 19.355649999999514
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257184,
+          "workerMs": 18.147197999999662
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257151,
+          "workerMs": 17.83054600000014
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257194,
+          "workerMs": 19.477300999999898
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257154,
+          "workerMs": 17.822834000000512
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257186,
+          "workerMs": 17.65587500000038
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257160,
+          "workerMs": 17.62010199999986
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257174,
+          "workerMs": 18.02172100000007
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257161,
+          "workerMs": 17.29833299999973
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257193,
+          "workerMs": 18.073999000000185
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257155,
+          "workerMs": 25.4348030000001
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257190,
+          "workerMs": 20.450482000000193
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257152,
+          "workerMs": 19.603038000000197
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257188,
+          "workerMs": 18.35163199999988
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257162,
+          "workerMs": 18.33799100000033
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257185,
+          "workerMs": 19.570518999999877
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257162,
+          "workerMs": 18.57234999999855
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257181,
+          "workerMs": 17.866227000000436
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257157,
+          "workerMs": 18.063592000000426
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257184,
+          "workerMs": 25.626797999999326
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257159,
+          "workerMs": 17.120335999999952
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 4194304,
+          "wireBytes": 1257187,
+          "workerMs": 17.43793000000005
+        },
+        {
+          "kind": "lane",
+          "rawBytes": 2170880,
+          "wireBytes": 651525,
+          "workerMs": 8.912937999999485
+        }
+      ]
+    },
+    "actualChequeButtons": [
+      {
+        "engine": "chromium",
+        "command": "issue",
+        "fleetRows": 2112,
+        "documents": 12,
+        "clickToTestVaultAckMs": 94.70000000298023,
+        "longestNamedSynchronousSpanMs": 5.199999999254942,
+        "drawerOpenMs": 5.899999998509884,
+        "totalUnder20": false,
+        "namedSpanUnder20": true
+      },
+      {
+        "engine": "chromium",
+        "command": "cash",
+        "fleetRows": 2112,
+        "documents": 12,
+        "clickToTestVaultAckMs": 128.60000000149012,
+        "longestNamedSynchronousSpanMs": 17.5,
+        "drawerOpenMs": 15.799999997019768,
+        "totalUnder20": false,
+        "namedSpanUnder20": true
+      },
+      {
+        "engine": "webkit",
+        "command": "issue",
+        "fleetRows": 2112,
+        "documents": 12,
+        "clickToTestVaultAckMs": 237,
+        "longestNamedSynchronousSpanMs": 13.999999999999545,
+        "drawerOpenMs": 12,
+        "totalUnder20": false,
+        "namedSpanUnder20": true
+      },
+      {
+        "engine": "webkit",
+        "command": "cash",
+        "fleetRows": 2112,
+        "documents": 12,
+        "clickToTestVaultAckMs": 181,
+        "longestNamedSynchronousSpanMs": 56,
+        "drawerOpenMs": 35,
+        "totalUnder20": false,
+        "namedSpanUnder20": false
+      }
+    ],
+    "denseSafetyCases": {
+      "suite": "build424-dense-fleet-pages",
+      "ok": true,
+      "results": [
+        {
+          "name": "million assets: dense movement never uploads identities or whole-row pages",
+          "rows": 1000000,
+          "sparseBytes": 4116,
+          "denseBytes": 8000000,
+          "oldDenseBytes": 128000000,
+          "wholeRowUploads": 0,
+          "exactRestore": true,
+          "codecWallMs": 489.34115699999984
+        },
+        {
+          "name": "lane bytes have an independent row-order contract and accept unaligned resolvers",
+          "independentBytes": true,
+          "unalignedRestore": true
+        },
+        {
+          "name": "a write after decoding refuses stale adoption before any lane identity is reused",
+          "lateAdoptionRefused": true,
+          "exactRestore": true
+        },
+        {
+          "name": "cold adoption, transaction clone, dense flatten and repeated save retain exact identities",
+          "coldUploads": 0,
+          "cloneUploads": 0,
+          "flattenExact": true
+        },
+        {
+          "name": "daily f32 and exceptional counters, rollback, growth and untracked writes preserve every bit",
+          "counterBits": true,
+          "rollback": true,
+          "growth": true
+        },
+        {
+          "name": "no worker proof uses lanes; false proof, stale source and malformed worker evidence refuse",
+          "refused": 3,
+          "proofFallbackExact": true
+        },
+        {
+          "name": "corrupt lane manifests, extents, duplicates, missing chunks and patch headers fail closed",
+          "refused": 26
+        },
+        {
+          "name": "reader refuses a retained-container budget overflow before resolving payloads",
+          "budgetRefusedBeforeIO": true
+        },
+        {
+          "name": "alternating masks bound retained container bytes and never fan out uploads",
+          "rounds": 40,
+          "compacted": 11,
+          "maxRetainedBytes": 3264,
+          "rawBytes": 2176,
+          "exactRestore": true
+        },
+        {
+          "name": "forgotten native chunks are reuploaded exactly without an acknowledged stale ancestor",
+          "missingAncestor": true,
+          "forgottenVault": true
+        }
+      ]
+    }
+  },
+  "limits": {
+    "physicalIphoneMeasured": false,
+    "actualNativeSwiftOrGhSchemeRun": false,
+    "both20msBudgetsMet": false,
+    "millionFleetWithAllOtherCompanyRevenueSimultaneouslyMeasured": false,
+    "fullAppSafetyFixture": {
+      "openedCompanies": 11,
+      "routedAssets": 4400,
+      "realWorker": true,
+      "nativeVault": "protocol test double"
+    },
+    "containerByteLimitPerRawPage": 1.5,
+    "rowPatchMaxBytes": 16777216,
+    "wireCodec": "unchanged gh-packbits-v1 strides 1/13/128",
+    "formatCompatibility": "new reader supports old raw/overlay-v1/row-patch-v1; new packed writer uses overlay version 2 as an explicit old-reader refusal fence"
+  },
+  "compatibilityFence": {
+    "oldSource": "2ad7e16",
+    "oldReaderRefusedNewLayoutBeforeIO": true,
+    "newReaderExact": true,
+    "scope": "JavaScript codec resolver only; native bootstrap was not run"
+  },
+  "references": [
+    {
+      "title": "Unity Entities: Archetypes concepts",
+      "url": "https://docs.unity.cn/Packages/com.unity.entities@1.3/manual/concepts-archetypes.html"
+    },
+    {
+      "title": "Factorio FFF #176: Belts optimization for 0.15",
+      "url": "https://factorio.com/blog/post/fff-176"
+    }
+  ]
+}

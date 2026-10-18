@@ -1,0 +1,21 @@
+function rankedCandidates(model,country,region=''){
+      const key=`ranked|${country||''}|${country?'':region||''}`,cached=model.cache[key];if(cached)return cached;const weight=importance(model);
+      if(country){const out=(model.countryBuckets.get(country)||[]).slice().sort((a,b)=>weight[b]-weight[a]||a-b);model.cache[key]=out;return out;}
+      // Build 358: without a country, take one site per country in turn, the countries ordered so regions alternate;
+      // main sites (higher importance) still come before any lesser site.
+      const tiers=new Map();
+      for(const [countryId,bucket] of model.countryBuckets){
+        const countryRegion=model.countryRegions.get(countryId);if(region&&countryRegion!==region)continue;
+        for(const index of bucket){const tier=weight[index];let byCountry=tiers.get(tier);if(!byCountry)tiers.set(tier,byCountry=new Map());let list=byCountry.get(countryId);if(!list)byCountry.set(countryId,list=[]);list.push(index);}
+      }
+      const out=[];
+      for(const tier of [...tiers.keys()].sort((a,b)=>b-a)){
+        const byCountry=tiers.get(tier),byRegion=new Map();
+        for(const [countryId,list] of byCountry){const id=model.countryRegions.get(countryId);let countries=byRegion.get(id);if(!countries)byRegion.set(id,countries=[]);countries.push({countryId,list});}
+        for(const countries of byRegion.values())countries.sort((a,b)=>b.list.length-a.list.length||a.list[0]-b.list[0]);
+        const regionOrder=REGIONS.map(row=>row.id).filter(id=>byRegion.has(id)),order=[];
+        for(let round=0,added=true;added;round++){added=false;for(const id of regionOrder){const row=byRegion.get(id)[round];if(row){order.push(row);added=true;}}}
+        for(let round=0,added=true;added;round++){added=false;for(const row of order){if(round<row.list.length){out.push(row.list[round]);added=true;}}}
+      }
+      model.cache[key]=out;return out;
+    }

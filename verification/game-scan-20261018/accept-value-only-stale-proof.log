@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: a cached summary proof must expire on value-only writes as well as row writes
+
+true !== false
+
+    at /workspace/madar/tests/build439-summary-single-request.cjs:41:395 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

@@ -1,0 +1,20 @@
+{
+  "node": "v24.19.0",
+  "playwright": "1.55.1",
+  "browsers": {
+    "chromium": "140.0.7339.186",
+    "webkit": "26.0"
+  },
+  "platform": "linux",
+  "arch": "x64",
+  "cpus": 5,
+  "cpu": "AMD EPYC 9V45 96-Core Processor",
+  "memoryBytes": 18882674688,
+  "viewport": {
+    "width": 956,
+    "height": 440
+  },
+  "nativeBridge": "Protocol fixture, not physical native IO",
+  "timingScope": "Paused simulation, 1,000,000 actual fleet purchases, 11 open companies, 2048 generated expenses and cheques; no all-company revenue or fully moving fleet performance claim",
+  "mainTaskMethod": "CDP full RunTask overlaps from openDrawer until two RAFs; clock spans and tracing add shared measurement overhead"
+}

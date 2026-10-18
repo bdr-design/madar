@@ -1,0 +1,30 @@
+{
+  "banking-core.js": {
+    "head_sha256": "9f6b63caef710f107f9af872c93ed93687b2ded0183983e278f0e92857861d2b",
+    "current_sha256": "9f6b63caef710f107f9af872c93ed93687b2ded0183983e278f0e92857861d2b"
+  },
+  "insurance-core.js": {
+    "head_sha256": "62b008bd240125653fb42ee8e60cdcc6233a6151bf8e221a2439f67490567f5a",
+    "current_sha256": "62b008bd240125653fb42ee8e60cdcc6233a6151bf8e221a2439f67490567f5a"
+  },
+  "telecom-market-core.js": {
+    "head_sha256": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec",
+    "current_sha256": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec"
+  },
+  "realestate-core.js": {
+    "head_sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106",
+    "current_sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106"
+  },
+  "finance-core.js": {
+    "head_sha256": "318484eece7c440e70b58888f329dca2b4001163b64bcb5d4e3f8ae21486b027",
+    "current_sha256": "318484eece7c440e70b58888f329dca2b4001163b64bcb5d4e3f8ae21486b027"
+  },
+  "procurement-core.js": {
+    "head_sha256": "72f233e723044d978da586ea66ec9289aafe0d4ae9efb0459996a62d4b6efea4",
+    "current_sha256": "72f233e723044d978da586ea66ec9289aafe0d4ae9efb0459996a62d4b6efea4"
+  },
+  "document-proof-core.js": {
+    "head_sha256": "b330527c3e699bfba609a101d35346133f0f4887ed723071b414c0bcffc2ec4d",
+    "current_sha256": "b330527c3e699bfba609a101d35346133f0f4887ed723071b414c0bcffc2ec4d"
+  }
+}

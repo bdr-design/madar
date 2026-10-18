@@ -1,0 +1,18 @@
+{
+  "suite": "build359-fleet-list-query",
+  "passed": 57,
+  "total": 57,
+  "millionRows": 1000000,
+  "buildMs": 1450.4,
+  "buildSliceP99Ms": 5.05,
+  "querySliceP99Ms": 4.44,
+  "maxBuildSliceMs": 6.46,
+  "maxQuerySliceMs": 4.57,
+  "textMiB": 43.37,
+  "cacheEntries": 3,
+  "cacheRows": 33276,
+  "queryRowsTested": 2001004,
+  "millionBuildYields": 977,
+  "firstSearchYields": 244,
+  "asyncYields": 9
+}

@@ -1,0 +1,59 @@
+[
+  {
+    "file": "advanced-core.js",
+    "changedDeclarations": [
+      "customerCompanyOperations",
+      "companyView",
+      "renderInsuranceDeep",
+      "renderRealEstateDeep",
+      "renderEnergyDeep",
+      "renderBankDeep"
+    ],
+    "allOtherBytesIdentical": true,
+    "beforeSha256": "7a23153144f62d0f64c891e257dd470bd60f501ecb9201065fe89989468b66bb",
+    "afterSha256": "e7de3e67c751835402f34588cec6f63fddbbbe179fbaaf31422bbbcd17a9fcde"
+  },
+  {
+    "file": "app.js",
+    "changedDeclarations": [
+      "applyRoadGeometry",
+      "normalizeLegacyRouteAssignments",
+      "renderInvoices",
+      "bindDrawerActions"
+    ],
+    "allOtherBytesIdentical": true,
+    "beforeSha256": "14e9a4c28c6385c021c196affe4d438acb7226dfa70d6de0cf07501411d6205f",
+    "afterSha256": "94bb06cebce104b1dd318a8792113efb69acdeac5f7df41fa7f24bb979d0637e"
+  },
+  {
+    "file": "finance-core.js",
+    "changedDeclarations": [
+      "accruePayroll"
+    ],
+    "allOtherBytesIdentical": true,
+    "beforeSha256": "318484eece7c440e70b58888f329dca2b4001163b64bcb5d4e3f8ae21486b027",
+    "afterSha256": "b3ebcaa49bd6d69062f3416e2a98fa61eee2b575dc755ef3716f7c8d6a9b8494"
+  },
+  {
+    "file": "fleet-legacy-route-plan-core.js",
+    "changedDeclarations": [
+      "plan"
+    ],
+    "allOtherBytesIdentical": true,
+    "beforeSha256": "2c9e2826181ae4f346ca5e6108de2eb38018b6ca55015feac97e68892eca94ae",
+    "afterSha256": "501bf83286005c37a7379de452659e63a1dfbe60ca8a1f3fcf02825fed5bdf0c"
+  },
+  {
+    "file": "mobility-core.js",
+    "changedDeclarations": [
+      "advanceMobilityState",
+      "onSimulationTime",
+      "advanceThrough",
+      "serviceVehicle",
+      "sellVehicle"
+    ],
+    "allOtherBytesIdentical": true,
+    "beforeSha256": "62aef941570c5980a81804b9b21c22819c087a47c19e55051ce1464900cdc961",
+    "afterSha256": "710b6125dd14cf622e68c35b7400eb12236998ffea363e20460d79a2097f75dc"
+  }
+]

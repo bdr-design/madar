@@ -104,7 +104,7 @@
       try{adoptedFleetChunks=globalThis.GH_STATE_CODEC?.adoptChunkIds?.(saved.fleet,chunkManifest)===true;}catch{}
       // Original base pages do not contain row patches. The existing bounded replica builder streams the decoded
       // current rows instead; never seed the worker with an older base under a new saved world.
-      if(!chunkManifest.rowPatches&&typeof globalThis.GH_FLEET_STORE.setReplicaSeed==='function')try{
+      if(!chunkManifest.lanes&&!chunkManifest.rowPatches&&typeof globalThis.GH_FLEET_STORE.setReplicaSeed==='function')try{
         const overlay=chunkManifest.overlay?.version===1?chunkManifest.overlay:null,baseIds=overlay?chunkManifest.baseChunks:chunkManifest.chunks;
         globalThis.GH_FLEET_STORE.setReplicaSeed(saved.fleet,{chunks:baseIds.map(id=>nativeChunks.get(id)),chunkBytes:chunkManifest.chunkBytes,byteLength:chunkManifest.byteLength,...(overlay?{overlays:overlay.chunks.map(id=>nativeChunks.get(id)),presenceMask:overlay.presentMask}:{})});
       }catch{}

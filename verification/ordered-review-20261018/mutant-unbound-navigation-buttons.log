@@ -1,0 +1,10 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+AssertionError [ERR_ASSERTION]: page navigation must terminate on a bounded fixture
+    at /workspace/madar/tests/build445-document-pages-browser.cjs:12:79 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

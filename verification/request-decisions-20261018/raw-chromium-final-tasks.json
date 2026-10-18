@@ -1,0 +1,192 @@
+{
+  "scope": "Desktop Chromium RunTask on CrRendererMain, overlapping final confirmation through two animation frames after command completion. Includes layout/paint, untruncated overlapping tasks. Native tracing adds overhead; not iPhone evidence.",
+  "results": [
+    {
+      "case": 1,
+      "maxTaskMs": 13.169,
+      "tasks": 122,
+      "topEvents": [
+        {
+          "name": "RunTask",
+          "durationMs": 13.169
+        },
+        {
+          "name": "ThreadControllerImpl::RunTask",
+          "durationMs": 12.981
+        },
+        {
+          "name": "EventDispatch",
+          "durationMs": 11.872
+        },
+        {
+          "name": "v8.callFunction",
+          "durationMs": 11.574
+        },
+        {
+          "name": "FunctionCall",
+          "durationMs": 2.097
+        },
+        {
+          "name": "UpdateLayoutTree",
+          "durationMs": 1.84
+        }
+      ]
+    },
+    {
+      "case": 2,
+      "maxTaskMs": 9.873,
+      "tasks": 125,
+      "topEvents": [
+        {
+          "name": "RunTask",
+          "durationMs": 9.873
+        },
+        {
+          "name": "ThreadControllerImpl::RunTask",
+          "durationMs": 9.718
+        },
+        {
+          "name": "EventDispatch",
+          "durationMs": 8.057
+        },
+        {
+          "name": "v8.callFunction",
+          "durationMs": 7.719
+        },
+        {
+          "name": "FunctionCall",
+          "durationMs": 2.294
+        },
+        {
+          "name": "UpdateLayoutTree",
+          "durationMs": 2.053
+        }
+      ]
+    },
+    {
+      "case": 3,
+      "maxTaskMs": 12.652,
+      "tasks": 117,
+      "topEvents": [
+        {
+          "name": "RunTask",
+          "durationMs": 12.652
+        },
+        {
+          "name": "ThreadControllerImpl::RunTask",
+          "durationMs": 12.412
+        },
+        {
+          "name": "EventDispatch",
+          "durationMs": 10.819
+        },
+        {
+          "name": "v8.callFunction",
+          "durationMs": 10.516
+        },
+        {
+          "name": "FunctionCall",
+          "durationMs": 2.437
+        },
+        {
+          "name": "UpdateLayoutTree",
+          "durationMs": 2.242
+        }
+      ]
+    },
+    {
+      "case": 4,
+      "maxTaskMs": 9.963,
+      "tasks": 118,
+      "topEvents": [
+        {
+          "name": "RunTask",
+          "durationMs": 9.963
+        },
+        {
+          "name": "ThreadControllerImpl::RunTask",
+          "durationMs": 9.779
+        },
+        {
+          "name": "EventDispatch",
+          "durationMs": 7.884
+        },
+        {
+          "name": "v8.callFunction",
+          "durationMs": 7.595
+        },
+        {
+          "name": "FunctionCall",
+          "durationMs": 2.289
+        },
+        {
+          "name": "UpdateLayoutTree",
+          "durationMs": 2.113
+        }
+      ]
+    },
+    {
+      "case": 5,
+      "maxTaskMs": 14.418,
+      "tasks": 103,
+      "topEvents": [
+        {
+          "name": "RunTask",
+          "durationMs": 14.418
+        },
+        {
+          "name": "ThreadControllerImpl::RunTask",
+          "durationMs": 14.229
+        },
+        {
+          "name": "EventDispatch",
+          "durationMs": 12.813
+        },
+        {
+          "name": "v8.callFunction",
+          "durationMs": 12.53
+        },
+        {
+          "name": "FunctionCall",
+          "durationMs": 2.056
+        },
+        {
+          "name": "UpdateLayoutTree",
+          "durationMs": 1.909
+        }
+      ]
+    },
+    {
+      "case": 6,
+      "maxTaskMs": 7.726,
+      "tasks": 104,
+      "topEvents": [
+        {
+          "name": "RunTask",
+          "durationMs": 7.726
+        },
+        {
+          "name": "ThreadControllerImpl::RunTask",
+          "durationMs": 7.696
+        },
+        {
+          "name": "EventDispatch",
+          "durationMs": 7.387
+        },
+        {
+          "name": "v8.callFunction",
+          "durationMs": 7.079
+        },
+        {
+          "name": "FunctionCall",
+          "durationMs": 2.185
+        },
+        {
+          "name": "UpdateLayoutTree",
+          "durationMs": 2.001
+        }
+      ]
+    }
+  ],
+  "maximumMs": 14.418
+}

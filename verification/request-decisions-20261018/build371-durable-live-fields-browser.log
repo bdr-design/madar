@@ -1,0 +1,22 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{
+  "suite": "build371-durable-live-fields-browser",
+  "report": [
+    {
+      "name": "player changes during a committed command are kept",
+      "after": {
+        "speed": 2,
+        "mapMode": "expansion",
+        "lastPanel": "routes",
+        "saveRevision": 9
+      }
+    },
+    {
+      "name": "a protective stop during a committed command stays"
+    },
+    {
+      "name": "a protective stop during a rolled-back command stays"
+    }
+  ]
+}
+BUILD371_DURABLE_LIVE_FIELDS_PASS

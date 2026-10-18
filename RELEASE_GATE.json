@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "0fd590cb3018cc0cd5fe4e8f6b9f608698ab0007040e59ccdc569d6fc6e47017",
+  "source_tree_sha256": "3ab65095ec7455a3abd5a33240a36450c773a18f3e8d278396d11c149293d334",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -14,7 +14,10 @@
     "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
     "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
     "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
-    "Current candidate declares 452 source gates and 55 preflight commands, including command/save work and conference ACK/rollback/retry coverage. Full source acceptance and native CI are pending. Both requested 20 ms budgets have NOT been achieved. No physical iPhone measurements exist for this candidate; approval stays closed."
+    "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
+    "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
+    "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
+    "Current all-sections candidate: bounded desktop samples still include panel calls above 20 ms; no physical iPhone measurement or universal command-to-native-ACK below 20 ms is established. All-company million-fleet operation was exercised; 513-gate CI and a new IPA are pending."
   ],
   "phase_status": {
     "build357_fleet_store_and_access": "DIRECT_SOURCE_CI_143_OF_143_PASS",
@@ -22,13 +25,13 @@
     "build357_simulation_adapter": "DIRECT_SOURCE_CI_PASS; local 24h parity at rates 30/120/300/600; physical device profile pending",
     "build357_transaction_journal": "DIRECT_SOURCE_CI_PASS; rollback and durable journal guard tests pass",
     "build357_temporary_save_cap": "DIRECT_SOURCE_CI_PASS; save/load at 1,600 assets and over-cap rejection pass",
-    "full_source_acceptance": "CURRENT_LOCAL_TARGETED_ONLY; 447 declared gates / 49 preflight definitions; 28 targeted scripts passed; full acceptance and CI not run",
-    "native_swift_tests": "CURRENT_NATIVE_NOT_RUN; bootstrap capability changed; protocol covered by browser vault fixture only",
-    "physical_iphone_profile": "DX-1792279141500-15-279-3303300 profiles shipped 3abf657; current row-patch candidate requires new iPhone capture",
+    "full_source_acceptance": "CURRENT_513_DECLARED_GATES; local full run stopped early at test 25, an invalid speed-level input in the rendering test; corrected and targeted Chromium/WebKit test passed. Full CI pending.",
+    "native_swift_tests": "CURRENT_NATIVE_NOT_RUN; existing chunks-v1 envelope and gh-packbits-v1 stride128 wire decoder unchanged; HTTP protocol/worker fixtures covered locally",
+    "physical_iphone_profile": "DX-1792300929142 profiles shipped source 2ad7e16. Current local lane/validation/day-maintenance candidate has no physical iPhone measurement.",
     "chunked_binary_persistence": "IMPLEMENTED_BUILD358; fleet records in native vault chunks (see build358_chunked_native_save)",
     "manual_advance_frame_budget": "SLICE_LIMIT_IMPLEMENTED; 1,500-event window estimate; target-device frame timing pending",
     "release_approval": "CLOSED",
-    "browser_and_lint": "TARGETED_CHROMIUM_WEBKIT_PASS; changed JS syntax and diff checks; full lint not run",
+    "browser_and_lint": "TARGETED_CHROMIUM_WEBKIT_PASS; changed runtime JavaScript ESLint passed; full acceptance not run",
     "native_bridge_extracted_js": "DIRECT_CI_PASS; native storage and WKWebView checks pass",
     "build358_air_sea_dispatch": "LOCAL_PASS; store-mode air and sea bulk dispatch assigns every asset (browser test)",
     "build358_row_level_slice_snapshots": "LOCAL_PASS; steady/hour slices snapshot only written roots, enforced write sets over 288 slices, exact rollback of failed steady/hour/day slices",
@@ -47,13 +50,21 @@
     "build358_fleet_purchase_vat": "LOCAL_PASS; aircraft, ship and truck purchases are zero-rated (as Mobility vehicles and asset sales were), so trip VAT accrues and comes due at the month close; older saves have the fleet-purchase input VAT reversed once on load (open period, then carried credit, never more than held; cash unchanged)",
     "business_options_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE; 18 phone viewport cases passed; physical iPhone pending",
     "financial_fixes_local": "PASS; delivered direct/financed dealer sale P&L, technical stock safeguards, cent-precision VAT, registered tax IDs, branch-country/activity routing; Chromium/WebKit reload/duplicate and 13-company tax settlement checks",
-    "current_candidate_native": "LOCAL_UNPUBLISHED_ROW_AND_VALUE_PAGE_CANDIDATE; native build not run",
+    "current_candidate_native": "CURRENT_LOCAL_CANDIDATE; owner authorized push and unsigned IPA workflow on 2026-10-18; build pending",
     "performance_batch1_local": "PASS_IN_CURRENT_FULL_362_GATE_SUITE_AND_LINT; independent bounded checksum/base64 worker; exact validation reuse; one fresh validated sliced retry; repeated writes refused",
     "performance_pipeline_local": "TARGETED_PASS_CHROMIUM_WEBKIT; bounded deferred lookahead, stale/failure refusal and retry, monthly tax save/reload; full acceptance pending",
     "worker_daily_close": "CURRENT_SOURCE_PREFLIGHT_PASS; worker read-model and full-app cancellation gates passed; canonical full acceptance pending",
     "command_row_patch_save": "LOCAL_TARGETED_PASS; zero full fleet base uploads in eligible replay path; bounded patches, independent replica proof, exact restoration, NACK/rollback/replay; iPhone pending",
     "command_costs": "LOCAL_TARGETED_PASS; exact typed live predicates, nested sealed sharing, bounded settlement memo, route owner reuse, native value pages; remaining signatures/ACK/device costs documented",
-    "command_strict_trace": "LOCAL_TARGETED_PASS; exact canonical bytes, fresh amendment material reuse, real-button ACK/rollback/retry/cancel; 12 paired warm samples per source; device pending"
+    "command_strict_trace": "LOCAL_TARGETED_PASS; exact canonical bytes, fresh amendment material reuse, real-button ACK/rollback/retry/cancel; 12 paired warm samples per source; device pending",
+    "dense_lane_save": "LOCAL_TARGETED_PASS; independently reusable 8-byte lanes packed per dirty raw page, bounded 1.5x retained-container bytes, sparse patches v2, exact legacy decoding and ACK/NACK/retry; both 20 ms budgets remain unmet",
+    "daily_value_collection": "LOCAL_TARGETED_PASS; read-only existing-worker plan; no large UI mark pass; revision-protected bounded reclaim; unavailable/stale answers defer",
+    "request_decisions": "TARGETED_PASS; unused service fleet queries and live alert transactions removed; ready evidence synchronous; conditional prestage on actual worker waits; ready/cold/NACK/restore paths on Chromium and WebKit. Desktop ACK and physical-device targets remain unapproved.",
+    "cleanup_review": "TARGETED_PASS; all 16 pending runtime diffs reviewed, six files refined; unused aggregate hash, per-row allocation and obsolete setup removed; exact adoption chain and complete lane-evidence guards enforced",
+    "game_scan": "TARGETED_PASS; shared summary request, historical-store reference release, branch-scoped document reads, one-pass payable projection and linear legacy branch migration; exact value/time proof guards",
+    "all_sections_review": "CURRENT_TARGETED_PASS; 389-view/3904-control inventory; 1,000,000 routed fleet assets, 3,000 Mobility cars and actual positive daily revenue for all 11 companies; native device unverified",
+    "large_panel_worker_queries": "CURRENT_TARGETED_PASS; no main fleet health/route-conflict scan in actual 1,000,000-asset panel test; exact stale proof refusal; Chromium/WebKit at 4,400 rows",
+    "staged_fleet_replay": "CURRENT_TARGETED_PASS; bounded row/value replay and one upfront journal reservation; byte/revision/static parity and partial rollback; both global 20ms targets unproven"
   },
   "latest_direct_source_ci": {
     "run_id": 36956423617,
@@ -89,9 +100,9 @@
     "mode": "direct_git_tracked_branch",
     "branch": "claude/madar-ventora-handover-3.0.0-stg723",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "0fd590cb3018cc0cd5fe4e8f6b9f608698ab0007040e59ccdc569d6fc6e47017",
+    "source_tree_sha256": "3ab65095ec7455a3abd5a33240a36450c773a18f3e8d278396d11c149293d334",
     "working_tree_clean": false,
-    "note": "Current local strict-trace candidate changes only authorization/document-proof preparation relative to the preserved command-cost baseline. 28 targeted scripts passed; all three new scripts fail behavior/work-budget assertions on the old source. Full acceptance/CI/native/device results remain pending; historical receipts do not approve this source.",
+    "note": "Unpublished local fixes relative to 2ad7e16: bounded packed fleet lane storage, static validation dependencies, value-aware worker evidence, day formula memo, worker value collection, governor deadline-overrun signal, unused service-panel fleet query removal, durable decision notices and synchronous ready validation reuse, and conditional durable preparation only during actual worker waits (ordinary and composite commands). Targeted desktop checks only; physical-device and full-source acceptance are pending. Latest cleanup reviews all 16 pending runtime files, removes duplicate packed-page hashing and per-row temporary allocations, preserves old-save readers, and refuses mismatched patch adoption or incomplete lane hashes. Latest game scan parses 132 runtime scripts and refines only app summary/document consumers and legacy bank branch migration; 22 related checks and 10 detected mutations, no new device/full-command timing claim. Latest section review removes repeated HR facility/vehicle work, bounds labor/facility/task/loan cards, uses current worker aggregates for capacity and CII previews, and defers and time-slices the existing fleet-list index. Read-only desktop and targeted integrity evidence; no physical-iPhone or full-command ACK guarantee. Rendering review removes no-op Canvas paints and stable HUD writes, skips hidden/detached navigation geometry, bounds catalog cards and patches market summary fields without rebuilding forms. 24 related scripts passed; cold worker CPU contention and the global 20ms target remain pending. The owner subsequently authorized an exhaustive section audit followed by full gates, push and IPA delivery.",
     "news_work": {
       "local_targeted_checks": {
         "passed": 14,
@@ -554,9 +565,22 @@
       "ipa_built": false,
       "physical_iphone_tested": false,
       "production_approved": false
+    },
+    "fleet_root_repair_20261018": {
+      "based_on_commit": "2ad7e1698cc875b50d569a3408b646ebb00d037a",
+      "targeted_scripts_passed": 48,
+      "declared_gates": 459,
+      "preflight_commands": 62,
+      "report": "VENTORA_FLEET_REPAIR_20261018_AR.md",
+      "evidence": "verification/fleet-root-20261018/targeted-results.json",
+      "both_20ms_targets_met": false,
+      "physical_iphone_measured": false,
+      "native_ci_run": false,
+      "published": false,
+      "new_ipa_built": false
     }
   },
-  "point": "LOCAL_STRICT_COMMAND_TRACE_20261018_TARGETED_PASS_DEVICE_PENDING",
+  "point": "LOCAL_RENDER_REVIEW_20261018_TARGETED_PASS_COLD_WORKER_PENDING",
   "local_business_options_evidence": {
     "validation_type": "targeted",
     "passed": 21,
@@ -707,7 +731,7 @@
     "total": 419,
     "source_tree_sha256": "80592f601ffcbc496fac7f34bd2a36bd822dc153ed91a154133d31ca4fbf3a64",
     "acceptance_contract_sha256": "0a1db88187201b912d16fa6d42ea6f0c8dd9dbc3cb311c9dbaf161f9ec451ff9",
-    "status": "PASS_CURRENT_SOURCE",
+    "status": "HISTORICAL_PASS_DIFFERENT_SOURCE",
     "minimum_gates": 419,
     "results": "/workspace/acceptance/hospitality-integrated-20261016-07/results.json",
     "runtime_unchanged": true,
@@ -721,7 +745,8 @@
     },
     "physical_iphone": "NOT_RUN",
     "current_native": "PENDING_FRESH_CI",
-    "ipa": "PENDING_BUILD"
+    "ipa": "PENDING_BUILD",
+    "applies_to_current_source": false
   },
   "local_performance_pipeline_evidence": {
     "validation_type": "targeted_and_component_profile",
@@ -1559,5 +1584,262 @@
     "production_approved": false,
     "inner_text_layout_targeted_pass": true,
     "command_trace_counter_scope": "real settlement owner; deterministic per-document budgets; ambient proof reads still reported"
+  },
+  "governor_recovery_followup_20261018": {
+    "status": "LOCAL_TARGETED_PASS_DEVICE_PENDING",
+    "runtime_source_sha256": "a613d80a1b5398fb8ddd7b58265b4c9187b6cd2e1df93df44d5db2222c3a8815",
+    "report": "VENTORA_GOVERNOR_REVIEW_20261018_AR.md",
+    "evidence": "verification/governor-20261018/targeted-results.json",
+    "passed_related_scripts": 24,
+    "declared_gates": 460,
+    "declared_preflight": 63,
+    "full_suite_run": false,
+    "physical_iphone_tested": false,
+    "pushed": false,
+    "ci_run": false,
+    "ipa_built": false,
+    "production_approved": false,
+    "historical_snapshot": true,
+    "withdrawn_policy": true,
+    "superseded_by": "governor_pressure_followup_20261018"
+  },
+  "governor_pressure_followup_20261018": {
+    "status": "LOCAL_TARGETED_PASS_DEVICE_CADENCE_PENDING",
+    "runtime_source_sha256": "8e35b6f0f193472c5e751aa0e5c6c28d9a1fb65f5ea1bf79aef8854d807d006d",
+    "report": "VENTORA_GOVERNOR_PRESSURE_20261018_AR.md",
+    "evidence": "verification/governor-overrun-20261018/targeted-results.json",
+    "related_scripts_passed": 24,
+    "declared_gates": 460,
+    "declared_preflight": 63,
+    "full_acceptance_run": false,
+    "physical_iphone_tested": false,
+    "synthetic_calendar_max_ms": {
+      "heavy_every_400": 16.6,
+      "heavy_every_50": 17.4
+    },
+    "production_approved": false,
+    "ci_run": false,
+    "pushed": false,
+    "ipa_built": false
+  },
+  "request_decisions_followup": {
+    "date": "2026-10-18",
+    "source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155",
+    "baseline_source_tree_sha256": "8e35b6f0f193472c5e751aa0e5c6c28d9a1fb65f5ea1bf79aef8854d807d006d",
+    "related_scripts_passed": 26,
+    "functional_browser_cases_passed": 44,
+    "mutation_cases_detected": 9,
+    "evidence": "verification/request-decisions-20261018/evidence-index.json",
+    "report": "VENTORA_REQUEST_DECISIONS_20261018_AR.md",
+    "desktop_world": {
+      "fleet_rows": 1000000,
+      "companies_opened": 11,
+      "routed_rows": 20000,
+      "initial_moving_rows": 838,
+      "all_company_revenue_stress_tested": false,
+      "native_storage": "protocol double"
+    },
+    "chromium_full_task_max_ms": 14.418,
+    "webkit_named_validation_max_ms": 29,
+    "ack_under_20_ms": false,
+    "physical_iphone_tested": false,
+    "full_acceptance_run": false,
+    "native_build_run": false,
+    "published": false,
+    "applies_to_current_source": false,
+    "superseded_by": "cleanup_review_20261018"
+  },
+  "cleanup_review_20261018": {
+    "source_tree_sha256": "a2d4029f606e63ca516d62bf35b56c6be8552a85b26902f750c8610661d5ad5f",
+    "baseline_source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155",
+    "reviewed_runtime_files": 16,
+    "refined_runtime_files": 6,
+    "related_scripts_passed": 39,
+    "mutation_cases_detected": 9,
+    "declared_gates": 468,
+    "preflight_definitions": 71,
+    "report": "VENTORA_CLEANUP_REVIEW_20261018_AR.md",
+    "evidence": "verification/cleanup-review-20261018/evidence-index.json",
+    "all_tests_run": false,
+    "native_ci_run": false,
+    "iphone_profile": false,
+    "full_command_20ms_established": false,
+    "published": false,
+    "applies_to_current_source": false,
+    "superseded_by": "game_scan_20261018"
+  },
+  "game_scan_20261018": {
+    "source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+    "baseline_source_tree_sha256": "a2d4029f606e63ca516d62bf35b56c6be8552a85b26902f750c8610661d5ad5f",
+    "static_files_scanned": 132,
+    "changed_runtime_files": 2,
+    "related_scripts_passed": 22,
+    "mutation_cases_detected": 10,
+    "html_parity_cases": 416,
+    "declared_gates": 471,
+    "preflight_definitions": 74,
+    "report": "VENTORA_GAME_SCAN_20261018_AR.md",
+    "evidence": "verification/game-scan-20261018/evidence-index.json",
+    "all_tests_run": false,
+    "native_ci_run": false,
+    "iphone_profile": false,
+    "million_asset_full_app_profile": false,
+    "full_command_20ms_established": false,
+    "published": false,
+    "desktop_latency_comparison": {
+      "source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+      "baseline_source_tree_sha256": "a2d4029f606e63ca516d62bf35b56c6be8552a85b26902f750c8610661d5ad5f",
+      "report": "VENTORA_GAME_SCAN_LATENCY_20261018_AR.md",
+      "evidence": "verification/game-scan-latency-20261018/evidence-index.json",
+      "engine": "desktop-chromium",
+      "viewport": [
+        956,
+        440
+      ],
+      "fleet": 1000000,
+      "companies_opened": 11,
+      "all_revenue_models_active": false,
+      "simulation_paused": true,
+      "page_samples_per_source": 10,
+      "summary_samples_per_source": 6,
+      "reversed_order": true,
+      "summary_wait_median_ms": {
+        "before": 1017.3,
+        "after": 497.3
+      },
+      "document_main_task_medians_after_ms": {
+        "payables": 13.85,
+        "cheques": 104.09,
+        "invoices": 243.74
+      },
+      "physical_iphone": false,
+      "financial_command_ack_profile": false,
+      "budget20ms_established": false
+    },
+    "applies_to_current_source": false,
+    "superseded_by": "ordered_review_20261018"
+  },
+  "ordered_review_20261018": {
+    "source_tree_sha256": "983e3fd14465d9f51bad33adf5ae59515a0d9197f1df976d270ba0a269e5c6b1",
+    "baseline_source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+    "acceptance_contract_sha256": "52f828f151b6b5847e22d30a4b432e6caa2b098abfd52e0ff5586e9ab0a8a205",
+    "report": "VENTORA_ORDERED_REVIEW_20261018_AR.md",
+    "evidence": "verification/ordered-review-20261018/evidence-index.json",
+    "related_scripts_passed": 54,
+    "mutations_detected": 16,
+    "declared_gates": 476,
+    "preflight_definitions": 79,
+    "runtime_files_changed_this_batch": 5,
+    "named_functions_changed_this_batch": 17,
+    "company_order": [
+      "air",
+      "sea",
+      "road",
+      "mobility",
+      "power",
+      "bank",
+      "insurance",
+      "realestate",
+      "telecom",
+      "dealership",
+      "hospitality"
+    ],
+    "desktop_ui_latency": {
+      "fleet": 1000000,
+      "companies_open": 11,
+      "simulation": "paused",
+      "all_company_revenue_active": false,
+      "source_orders": [
+        [
+          "after",
+          "before"
+        ],
+        [
+          "before",
+          "after"
+        ]
+      ],
+      "samples_per_page_per_source": 10,
+      "summary": "verification/ordered-review-20261018/latency/summary.json",
+      "main_task_ms": {
+        "payables": {
+          "median": 12.764,
+          "max": 14.536
+        },
+        "cheques": {
+          "median": 15.022,
+          "max": 17.929
+        },
+        "invoices": {
+          "median": 15.657499999999999,
+          "max": 19.573
+        },
+        "cold-summary": {
+          "median": 4.603999999999999,
+          "max": 18.774
+        }
+      },
+      "financial_command_ack_measured": false,
+      "physical_iphone_measured": false,
+      "not_a_global_20ms_guarantee": true
+    },
+    "full_acceptance_run": false,
+    "preflight_executed": false,
+    "production_approved": false,
+    "applies_to_current_source": false
+  },
+  "full_acceptance_current_source": {
+    "verified": false,
+    "status": "NOT_RUN_FOR_RENDER_REVIEW_CANDIDATE",
+    "approved": false
+  },
+  "section_review_20261018": {
+    "baseline_source_tree_sha256": "983e3fd14465d9f51bad33adf5ae59515a0d9197f1df976d270ba0a269e5c6b1",
+    "source_tree_sha256": "d87227a2800d06da546ce8c84f9e28ef18f5ad39507090e7292a50d6b825f06d",
+    "report": "VENTORA_SECTION_REVIEW_20261018_AR.md",
+    "evidence": "verification/section-review-20261018/evidence-index.json",
+    "related_scripts": 37,
+    "new_gates": 10,
+    "mutations_detected": 16,
+    "declared_gates": 486,
+    "preflight_definitions": 89,
+    "runtime_files_changed": 6,
+    "current_verification": "LOCAL_TARGETED_37_OF_37_PASS_FULL_ACCEPTANCE_PENDING",
+    "all_company_revenue_active": false,
+    "physical_iphone_measured": false,
+    "financial_command_ack_measured": false,
+    "global_20ms_target_proven": false,
+    "full_acceptance_run": false,
+    "preflight_executed": false,
+    "ci_run": false,
+    "pushed": false,
+    "ipa_built": false,
+    "approved": false,
+    "acceptance_contract_sha256": "ae4ba28609150d3eefa9d5893140399aba85ca5abc23dfe1d8bd75bdb01b05d9",
+    "applies_to_current_source": false
+  },
+  "render_review_20261018": {
+    "baseline_source_tree_sha256": "d87227a2800d06da546ce8c84f9e28ef18f5ad39507090e7292a50d6b825f06d",
+    "report": "VENTORA_RENDER_REVIEW_20261018_AR.md",
+    "evidence": "verification/render-review-20261018/evidence-index.json",
+    "related_scripts": 24,
+    "new_gates": 6,
+    "mutations_detected": 12,
+    "declared_gates": 492,
+    "preflight_definitions": 95,
+    "runtime_files_changed": 3,
+    "current_verification": "LOCAL_TARGETED_24_OF_24_PASS_COLD_WALL_LATENCY_PENDING",
+    "all_company_revenue_active": false,
+    "physical_iphone_measured": false,
+    "financial_command_ack_measured": false,
+    "global_20ms_target_proven": false,
+    "full_acceptance_run": false,
+    "preflight_executed": false,
+    "ci_run": false,
+    "pushed": false,
+    "ipa_built": false,
+    "approved": false,
+    "source_tree_sha256": "b6dc7c6c0cd786f37b1dc0742feb361ccc0f0a061e9f1b33f0173c0b129042fb",
+    "acceptance_contract_sha256": "9eef9f807d9ade72d0b1353bc2eee2a00fc3bead17cbd0662acda96e044eac4e"
   }
 }

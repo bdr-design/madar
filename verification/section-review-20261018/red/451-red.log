@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: hr-appoint-all-managers: place success in the same durable command
++ actual - expected
+
++ 'undefined'
+- 'function'
+
+    at run (/workspace/madar/tests/build451-hr-notice-work.cjs:3:1742)
+    at async /workspace/madar/tests/build451-hr-notice-work.cjs:4:168 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'undefined',
+  expected: 'function',
+  operator: 'strictEqual',
+  diff: 'simple'
+}

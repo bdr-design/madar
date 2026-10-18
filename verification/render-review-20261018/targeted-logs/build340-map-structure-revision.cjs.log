@@ -1,0 +1,1 @@
+PASS map structure polling is O(1), ignores mobility movement, and follows displayed structure revisions

@@ -1,0 +1,192 @@
+{
+  "suite": "build362-save-validation-chunks",
+  "passed": 10,
+  "total": 10,
+  "results": [
+    {
+      "name": "the static fields exclude every field whose in-place write leaves identityVersions alone",
+      "ok": true,
+      "detail": {
+        "static": 34,
+        "live": 11
+      }
+    },
+    {
+      "name": "a cold pass equals the reference, a second one reuses every chunk",
+      "ok": true,
+      "detail": {
+        "cold": {
+          "checked": 3,
+          "reused": 0,
+          "errors": 2,
+          "companyErrors": 0
+        },
+        "warm": {
+          "checked": 0,
+          "reused": 3,
+          "errors": 2,
+          "companyErrors": 0
+        }
+      }
+    },
+    {
+      "name": "time, engine and route writes in place reuse every static chunk and still report their faults",
+      "ok": true,
+      "detail": {
+        "time": {
+          "checked": 0,
+          "reused": 3,
+          "errors": 2,
+          "companyErrors": 0
+        },
+        "engine": {
+          "checked": 0,
+          "reused": 3,
+          "errors": 4,
+          "companyErrors": 0
+        },
+        "route": {
+          "checked": 0,
+          "reused": 3,
+          "errors": 4,
+          "companyErrors": 0
+        }
+      }
+    },
+    {
+      "name": "a static write checks only its chunk again, and the fault appears and clears exactly",
+      "ok": true,
+      "detail": {
+        "bad": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 6,
+          "companyErrors": 0
+        },
+        "more": {
+          "checked": 2,
+          "reused": 1,
+          "errors": 8,
+          "companyErrors": 0
+        },
+        "cleared": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 6,
+          "companyErrors": 0
+        },
+        "shape": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 8,
+          "companyErrors": 1
+        }
+      }
+    },
+    {
+      "name": "company errors keep their row order, cap and overflow across chunks",
+      "ok": true,
+      "detail": {
+        "checked": 3,
+        "reused": 0,
+        "errors": 8,
+        "companyErrors": 1024
+      }
+    },
+    {
+      "name": "more company errors than the cap inside one chunk still report the overflow",
+      "ok": true,
+      "detail": {
+        "companyErrors": 1024,
+        "overflow": true
+      }
+    },
+    {
+      "name": "duplicate ids, appended and removed rows stay exact",
+      "ok": true,
+      "detail": {
+        "dup": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 9,
+          "companyErrors": 1024
+        },
+        "added": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 11,
+          "companyErrors": 1024
+        },
+        "removed": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 9,
+          "companyErrors": 1024
+        }
+      }
+    },
+    {
+      "name": "mass column writes, a new context and a new text inspector check again",
+      "ok": true,
+      "detail": {
+        "mass": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 9,
+          "companyErrors": 1024
+        },
+        "context": {
+          "checked": 3,
+          "reused": 0,
+          "errors": 9,
+          "companyErrors": 1024
+        },
+        "again": {
+          "checked": 0,
+          "reused": 3,
+          "errors": 9,
+          "companyErrors": 1024
+        },
+        "restored": {
+          "checked": 3,
+          "reused": 0,
+          "errors": 9,
+          "companyErrors": 1024
+        }
+      }
+    },
+    {
+      "name": "a replica sync of rows checks their chunks again",
+      "ok": true,
+      "detail": {
+        "restored": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 9,
+          "companyErrors": 1024
+        },
+        "faulty": {
+          "checked": 1,
+          "reused": 2,
+          "errors": 11,
+          "companyErrors": 1024
+        }
+      }
+    },
+    {
+      "name": "a plain asset array (no store) is checked whole, exactly as before",
+      "ok": true,
+      "detail": {
+        "errors": [
+          "asset-route-company",
+          "display-text-assets-name",
+          "display-attribute-assets-name",
+          "asset-fuel",
+          "display-image-assets-photo",
+          "asset-route-reference",
+          "asset-route-capacity"
+        ]
+      }
+    }
+  ]
+}

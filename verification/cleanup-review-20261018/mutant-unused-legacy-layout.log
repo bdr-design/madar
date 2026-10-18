@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: the lane writer, proof and cache lineage must not construct the unused legacy counter layout
+
+30 !== 0
+
+    at /workspace/madar/tests/build436-save-work-removal.cjs:22:455 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 30,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

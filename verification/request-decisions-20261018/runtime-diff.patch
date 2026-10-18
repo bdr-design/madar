@@ -1,0 +1,151 @@
+--- a/WebApp/advanced-core.js
++++ b/WebApp/advanced-core.js
+@@ -903,7 +903,7 @@
+     const kind=String(btn.dataset.kind||''),company=String(btn.dataset.company||kind),accept=btn.dataset.decision==='accept',only=String(btn.dataset.request||''),plan=pendingDecisionPlan(ctx.state,kind,accept,only);
+     if(!plan){notify(ctx,'لا توجد قرارات معلّقة الآن.');refreshView(ctx,'company',company);return;}
+     if(!await confirmDecision(ctx,`${accept?'قبول':'رفض'} ${plan.count===1?'هذا الطلب':`${plan.count} ${plan.noun}`} في قرار ${plan.count===1?'واحد':'جماعي واحد'}؟`,'financial'))return;
+-    try{const result=await signedDomainCommand(ctx,plan.domain,plan.command,plan.payload,plan.options);notify(ctx,`اكتمل القرار: ${plan.summary(result||{})}.`,'success');}
++    try{await signedDomainCommand(ctx,plan.domain,plan.command,plan.payload,{...plan.options,successNotice:result=>({text:`اكتمل القرار: ${plan.summary(result||{})}.`,kind:'success',panel:ctx.currentPanel})});}
+     catch(error){notify(ctx,`تعذر تنفيذ القرار: ${reasonOf(error)}`);}
+     refreshView(ctx,'company',company);
+   }
+@@ -995,8 +995,8 @@
+     if(id==='energy-auto-maintenance'){try{await signedDomainCommand(ctx,'energy','set-auto-maintenance',{enabled:btn.dataset.enabled==='true'},{subjectId:'power',successNotice:result=>({text:result.enabled?'الصيانة التلقائية تعمل من الإقفال اليومي القادم.':'أُوقفت الصيانة التلقائية.'})});refreshView(ctx,'energy',{tab:'operations'});}catch(error){notify(ctx,`تعذر تغيير الصيانة التلقائية: ${reasonOf(error)}`);}return;}
+     if(id==='energy-finance-project'){try{const siteId=btn.dataset.site,site=globalThis.GH_ENERGY_CORE.ensure(ctx.state).sites.find(row=>row.id===siteId),share=Number(btn.closest('.list-item')?.querySelector('[data-finance-share]')?.value)||0,amount=Math.floor(globalThis.GH_ENERGY_CORE.projectFinanceRoom(ctx.state.energy,site)*share);await signedDomainCommand(ctx,'energy','finance-project',{siteId,amount},{subjectId:siteId,successNotice:row=>({text:`أُغلق تمويل المشروع ${row.id} بقيمة ${ctx.fmtMoney(row.amount)} بفائدة ${(row.rate*100).toFixed(2)}%.`})});backView(ctx,'energy',{tab:'control'});}catch(error){notify(ctx,`تعذر إغلاق تمويل المشروع: ${reasonOf(error)}`);}return;}
+     // Build 358: insurance and real-estate decisions (each through its domain command, signed like every other).
+-    if(id==='insurance-decide-risks-batch'){const decision=btn.dataset.decision==='accept'?'accept':'decline',selected=[...(document.querySelectorAll('[data-insurance-risk-select]:checked')||[])].map(input=>String(input.dataset.insuranceRiskSelect||'')).filter(Boolean).sort(),maximum=Number(globalThis.GH_INSURANCE_CORE?.MAX_OPEN_RISKS)||5;if(!selected.length){notify(ctx,'حدد خطرًا واحدًا على الأقل.');return;}if(selected.length>maximum){notify(ctx,`يمكن تحديد ${maximum} مخاطر كحد أقصى.`);return;}const periodId=String(Math.floor(Math.floor(Number(ctx.state.simSeconds)||0)/86400/30)),decisions=selected.map(riskId=>({id:riskId,decision})),canonical={periodId,decisions},digest=globalThis.GH_AUTHORIZATION?.digest?.(canonical)||(()=>{let hash=2166136261;for(const character of JSON.stringify(canonical)){hash^=character.charCodeAt(0);hash=Math.imul(hash,16777619)>>>0;}return hash.toString(36);})(),batchId=`INS-RISK-${periodId}-${String(digest).slice(0,24)}`,payload={batchId,periodId,decisions};if(!await confirmDecision(ctx,`${decision==='accept'?'قبول':'الاعتذار عن'} ${selected.length} مخاطر تأمين ضمن قرار جماعي موثق واحد؟`,'financial'))return;try{const result=await signedDomainCommand(ctx,'insurance','decide-risks-batch',payload,{idempotencyKey:batchId,subjectId:'insurance'});ctx.pushAlert(`اكتمل القرار الجماعي للتأمين: ${result.accepted} مقبول، ${result.declined} معتذر عنه، ${result.skipped} متجاوز. أقساط سنوية ${ctx.fmtMoney(result.totalPremium)} · تغطية ${ctx.fmtMoney(result.totalInsured)}.`);backView(ctx,'insurance',{tab:'overview'});}catch(error){notify(ctx,`تعذر اعتماد مجموعة التأمين: ${reasonOf(error)}`);}return;}
+-    if(id==='insurance-decide-risk'){const riskId=String(btn.dataset.risk||''),decision=btn.dataset.decision==='accept'?'accept':'decline';try{const share=Number(btn.dataset.share||1),result=await signedDomainCommand(ctx,'insurance','decide-risk',{id:riskId,decision,...(decision==='accept'&&share<1?{share}:{})},{subjectId:riskId});ctx.pushAlert(result.status==='مقبول'?`قُبل الخطر ${result.id} بقسط سنوي ${ctx.fmtMoney(result.premium)}.`:'اعتُذر عن الخطر.');}catch(error){notify(ctx,`تعذر تسجيل القرار: ${reasonOf(error)}`);}backView(ctx,'insurance',{tab:'overview'});return;}
++    if(id==='insurance-decide-risks-batch'){const decision=btn.dataset.decision==='accept'?'accept':'decline',selected=[...(document.querySelectorAll('[data-insurance-risk-select]:checked')||[])].map(input=>String(input.dataset.insuranceRiskSelect||'')).filter(Boolean).sort(),maximum=Number(globalThis.GH_INSURANCE_CORE?.MAX_OPEN_RISKS)||5;if(!selected.length){notify(ctx,'حدد خطرًا واحدًا على الأقل.');return;}if(selected.length>maximum){notify(ctx,`يمكن تحديد ${maximum} مخاطر كحد أقصى.`);return;}const periodId=String(Math.floor(Math.floor(Number(ctx.state.simSeconds)||0)/86400/30)),decisions=selected.map(riskId=>({id:riskId,decision})),canonical={periodId,decisions},digest=globalThis.GH_AUTHORIZATION?.digest?.(canonical)||(()=>{let hash=2166136261;for(const character of JSON.stringify(canonical)){hash^=character.charCodeAt(0);hash=Math.imul(hash,16777619)>>>0;}return hash.toString(36);})(),batchId=`INS-RISK-${periodId}-${String(digest).slice(0,24)}`,payload={batchId,periodId,decisions};if(!await confirmDecision(ctx,`${decision==='accept'?'قبول':'الاعتذار عن'} ${selected.length} مخاطر تأمين ضمن قرار جماعي موثق واحد؟`,'financial'))return;try{await signedDomainCommand(ctx,'insurance','decide-risks-batch',payload,{idempotencyKey:batchId,subjectId:'insurance',successNotice:result=>`اكتمل القرار الجماعي للتأمين: ${result.accepted} مقبول، ${result.declined} معتذر عنه، ${result.skipped} متجاوز. أقساط سنوية ${ctx.fmtMoney(result.totalPremium)} · تغطية ${ctx.fmtMoney(result.totalInsured)}.`});backView(ctx,'insurance',{tab:'overview'});}catch(error){notify(ctx,`تعذر اعتماد مجموعة التأمين: ${reasonOf(error)}`);}return;}
++    if(id==='insurance-decide-risk'){const riskId=String(btn.dataset.risk||''),decision=btn.dataset.decision==='accept'?'accept':'decline';try{const share=Number(btn.dataset.share||1);await signedDomainCommand(ctx,'insurance','decide-risk',{id:riskId,decision,...(decision==='accept'&&share<1?{share}:{})},{subjectId:riskId,successNotice:result=>result.status==='مقبول'?`قُبل الخطر ${result.id} بقسط سنوي ${ctx.fmtMoney(result.premium)}.`:'اعتُذر عن الخطر.'});}catch(error){notify(ctx,`تعذر تسجيل القرار: ${reasonOf(error)}`);}backView(ctx,'insurance',{tab:'overview'});return;}
+     if(id==='realestate-decide-requests-batch'){const decision=btn.dataset.decision==='accept'?'accept':'decline',selected=[...(document.querySelectorAll('[data-realestate-request-select]:checked')||[])].map(input=>String(input.dataset.realestateRequestSelect||'')).filter(Boolean).sort();if(!selected.length){notify(ctx,'حدد طلبًا واحدًا على الأقل.');return;}if(selected.length>5){notify(ctx,'يمكن تحديد خمسة طلبات كحد أقصى.');return;}const periodId=String(Math.floor(Math.floor(Number(ctx.state.simSeconds)||0)/86400/30)),digest=globalThis.GH_AUTHORIZATION?.digest?.({periodId,decision,selected})||selected.join('-'),batchId=`RE-LEASE-${periodId}-${decision}-${String(digest).slice(0,24)}`,payload={batchId,periodId,decisions:selected.map(requestId=>({id:requestId,decision}))};if(!await confirmDecision(ctx,`${decision==='accept'?'قبول':'الاعتذار عن'} ${selected.length} طلبات إيجار ضمن قرار جماعي واحد؟`,'financial'))return;try{const result=await signedDomainCommand(ctx,'realestate','decide-requests-batch',payload,{idempotencyKey:batchId,subjectId:'realestate'});ctx.pushAlert(`اكتمل القرار الجماعي: ${result.accepted} مقبول، ${result.declined} معتذر عنه، ${result.skipped} متجاوز. ${result.totalUnits} وحدة · ${ctx.fmtMoney(result.totalAnnualRent)} إيجار سنوي.`);}catch(error){notify(ctx,`تعذر اعتماد المجموعة: ${reasonOf(error)}`);}backView(ctx,'realestate',{tab:'overview'});return;}
+     if(id==='insurance-set-pricing'){const line=String(btn.dataset.line||''),level=Number(document.getElementById(`insPrice-${line}`)?.value);try{await signedDomainCommand(ctx,'insurance','set-pricing',{line,level},{subjectId:line,successNotice:result=>({text:`اعتُمد سعر ${globalThis.GH_INSURANCE_CORE?.LINES?.[line]?.name||line}: قسط سنوي ${ctx.fmtMoney(result.premium)}.`})});}catch(error){notify(ctx,`تعذر اعتماد السعر: ${reasonOf(error)}`);}backView(ctx,'insurance',{tab:'lines'});return;}
+     if(id==='realestate-finance-construction'){const projectId=String(btn.dataset.project||''),share=Number(btn.dataset.share);if(!await confirmDecision(ctx,`اقتراض ${share*100}% من تكلفة المشروع من بنوك الإنشاء بفائدة ثابتة؟`,'financial'))return;try{await signedDomainCommand(ctx,'realestate','finance-construction',{projectId,share},{subjectId:projectId,successNotice:result=>({text:`مُوّل المشروع بقرض إنشاء ${ctx.fmtMoney(result.amount)}.`})});refreshView(ctx,'realestate',{tab:'projects'});}catch(error){notify(ctx,`تعذر تمويل الإنشاء: ${reasonOf(error)}`);}return;}
+@@ -1012,7 +1012,7 @@
+     if(id==='bank-world-directory'){ctx.openWorldDirectory?.('bank');return;}
+     if(id==='bank-branch-campaign'){const branchId=String(btn.dataset.branch||'');try{await signedDomainCommand(ctx,'banking','branch-campaign',{branchId},{subjectId:branchId,successNotice:result=>({text:`أُطلقت حملة فرع ${result.city} بتكلفة ${ctx.fmtMoney(result.cost)} حتى اليوم ${result.until}.`})});}catch(error){notify(ctx,`تعذر إطلاق الحملة: ${reasonOf(error)}`);}backView(ctx,'bank',{tab:'branches'});return;}
+     if(id==='bank-branch-toggle'){const branchId=String(btn.dataset.branch||''),servicesActive=btn.dataset.active==='1';try{await signedDomainCommand(ctx,'banking','set-branch-services',{branchId,servicesActive},{subjectId:branchId,successNotice:branch=>({text:servicesActive?`أُعيد تشغيل فرع ${branch.city}.`:`أُوقف فرع ${branch.city} مؤقتًا؛ لا عملاء جدد ولا رسوم خدمات حتى إعادة التشغيل.`})});}catch(error){notify(ctx,`تعذر تغيير حالة الفرع: ${reasonOf(error)}`);}backView(ctx,'bank',{tab:'branches'});return;}
+-    if(id==='bank-loan-request'){const requestId=String(btn.dataset.request||''),decision=btn.dataset.decision==='approve'?'approve':'reject';try{const result=await signedDomainCommand(ctx,'banking','decide-loan-request',{id:requestId,decision},{subjectId:requestId});ctx.pushAlert(result.status==='موافق'?`مُنح التمويل ${result.loanId} بقيمة ${ctx.fmtMoney(result.principal)}.`:'رُفض طلب التمويل.');backView(ctx,'bank',{tab:'overview'});}catch(error){const reasons={'bank-loan-deposit-limit':'القروض ستتجاوز سقف نسبتها إلى الودائع. ارفع عوائد الودائع أو افتح فروعًا لزيادة الودائع.','bank-liquidity-buffer':'سيولة البنك لا تكفي لصرف القرض مع الإبقاء على الاحتياطي.','bank-loan-request-expired':'انتهت مهلة الطلب وذهب العميل إلى بنك آخر.','bank-loan-request-not-found':'الطلب لم يعد متاحًا.','bank-active-branch-required':'الفرع غير نشط.'},message=String(error?.message||'');notify(ctx,`تعذر تنفيذ القرار: ${reasons[message]||message}`);backView(ctx,'bank',{tab:'overview'});}return;}
++    if(id==='bank-loan-request'){const requestId=String(btn.dataset.request||''),decision=btn.dataset.decision==='approve'?'approve':'reject';try{await signedDomainCommand(ctx,'banking','decide-loan-request',{id:requestId,decision},{subjectId:requestId,successNotice:result=>result.status==='موافق'?`مُنح التمويل ${result.loanId} بقيمة ${ctx.fmtMoney(result.principal)}.`:'رُفض طلب التمويل.'});backView(ctx,'bank',{tab:'overview'});}catch(error){const reasons={'bank-loan-deposit-limit':'القروض ستتجاوز سقف نسبتها إلى الودائع. ارفع عوائد الودائع أو افتح فروعًا لزيادة الودائع.','bank-liquidity-buffer':'سيولة البنك لا تكفي لصرف القرض مع الإبقاء على الاحتياطي.','bank-loan-request-expired':'انتهت مهلة الطلب وذهب العميل إلى بنك آخر.','bank-loan-request-not-found':'الطلب لم يعد متاحًا.','bank-active-branch-required':'الفرع غير نشط.'},message=String(error?.message||'');notify(ctx,`تعذر تنفيذ القرار: ${reasons[message]||message}`);backView(ctx,'bank',{tab:'overview'});}return;}
+     if(id==='bank-originate-loan'){const product=document.getElementById('bankLoanProduct')?.value,branchId=document.getElementById('bankLoanBranch')?.value,amount=Math.max(0,Number(document.getElementById('bankLoanAmount')?.value)||0),riskGrade=document.getElementById('bankLoanRisk')?.value,sector=document.getElementById('bankLoanSector')?.value,collateralCoverage=Number(document.getElementById('bankLoanCollateral')?.value)||0;try{await signedDomainCommand(ctx,'banking','originate-loan',{product,branchId,amount,riskGrade,sector,collateralCoverage},{subjectId:branchId,successNotice:portfolio=>({text:`مُنحت محفظة ${portfolio.name} بقيمة ${ctx.fmtMoney(portfolio.principal)} وتصنيف ${portfolio.riskGrade} وExpected Loss ${ctx.fmtMoney(portfolio.expectedLoss)}.`})});refreshView(ctx,'bank',{tab:'credit'});}catch(error){notify(ctx,`تعذر منح التمويل: ${reasonOf(error)}`);}return;}
+     if(id==='bank-deposit-pricing'){try{await signedDomainCommand(ctx,'banking','set-deposit-pricing',{stance:document.getElementById('bankDepositStance')?.value},{subjectId:'bank',successNotice:pricing=>({text:`اعتمد تسعير الودائع: جاري ${(pricing.sight*100).toFixed(2)}%، ادخار ${(pricing.savings*100).toFixed(2)}%، لأجل ${(pricing.term*100).toFixed(2)}%.`})});refreshView(ctx,'bank',{tab:'control'});}catch(error){notify(ctx,`تعذر تسعير الودائع: ${reasonOf(error)}`);}return;}
+     if(id==='bank-risk-policy'){try{await signedDomainCommand(ctx,'banking','set-risk-policy',{maxLdr:Number(document.getElementById('bankRiskLdr')?.value),minLcr:Number(document.getElementById('bankRiskLcr')?.value),minCet1:Number(document.getElementById('bankRiskCet1')?.value),sectorConcentration:Number(document.getElementById('bankRiskConcentration')?.value)},{subjectId:'bank',successNotice:policy=>({text:`اعتمدت شهية المخاطر: LDR ${policy.maxLdr}%، LCR ${policy.minLcr}%، CET1 ${policy.minCet1}%.`})});refreshView(ctx,'bank',{tab:'control'});}catch(error){notify(ctx,`تعذر اعتماد المخاطر: ${reasonOf(error)}`);}return;}
+--- a/WebApp/app.js
++++ b/WebApp/app.js
+@@ -945,8 +945,8 @@
+   // Build 358 (lighter commands): a command's draft is validated section by section (GH_SAVE_SCHEMA.validationSteps) and
+   // saved in slices (commitDurableState yieldToFrame), with a frame painted whenever a slice has run 10 ms. The draft is
+   // private and the lifecycle lock holds the live state still, so the result is the one-shot result.
+-  async function validateDraftInSlices(draft,{onSlice=null}={}){
+-    return window.GH_TRANSACTION_CORE.validateSchemaInSlices(draft,{yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),onSlice:(start,end)=>{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.schema',start,end);onSlice?.(start,end);}});
++  async function validateDraftInSlices(draft,{onSlice=null,onFleetValidationWait}={}){
++    return window.GH_TRANSACTION_CORE.validateSchemaInSlices(draft,{yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),onFleetValidationWait,onSlice:(start,end)=>{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.schema',start,end);onSlice?.(start,end);}});
+   }
+   // Build 372: the save check's classes of rows and id check over the fleet (every row: 400 ms on the main thread at a
+   // million assets), found by the fleet engine's worker on a replica that is exactly this store (fieldClasses), for the
+@@ -992,13 +992,17 @@
+     for(let waits=0;!box.done&&waits<600;waits++)yield 'company-fleet-validation-wait';
+     if(!box.done||box.value?.current?.()!==true)throw new Error('company-fleet-worker-unavailable');
+   }
+-  globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false}={})=>{
++  globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false,beforeAsync}={})=>{
+     const client=fleetEngineThreadClient;if(!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
+     const store=s.fleet,contextToken=window.GH_FLEET_SAVE_VALIDATION?.contextToken?.(params||{}),wrap=found=>({result:found.result,current:()=>client.current(found,store)}),last=lastFleetValidation;
+     // Reuse only the exact store revision and validation context. Repeated validators of an unchanged fleet do not
+     // queue identical million-row passes ahead of simulation work; callers still perform all non-fleet validation.
+-    if(typeof contextToken==='string'&&last?.client===client&&last.store===store&&last.found.result?.contextToken===contextToken&&client.current(last.found,store))return syncOnly?wrap(last.found):Promise.resolve(wrap(last.found));
++    // A current answer is ready data, not another worker wait. Returning it directly also lets synchronous schema
++    // consumers avoid scheduling a polling timer for an already fulfilled promise; cache-miss requests remain async.
++    if(typeof contextToken==='string'&&last?.client===client&&last.store===store&&last.found.result?.contextToken===contextToken&&client.current(last.found,store))return wrap(last.found);
+     if(syncOnly)return null;
++    // Optional save preparation overlaps only real worker waits, before a new validation query is queued.
++    beforeAsync?.();
+     const pending=pendingFleetValidation;
+     if(typeof contextToken==='string'&&pending?.client===client&&pending.store===store&&pending.contextToken===contextToken&&client.current(pending.tag,store))return pending.promise;
+     const asked=client.query(store,{name:'saveValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
+@@ -1113,9 +1117,8 @@
+       if(window.__GH_DURABLE_COMMAND_CONTEXT__?.poisoned===true)throw new Error(`${name}-draft-poisoned`);
+       draft.saveRevision=previousRevision+1;
+       {const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-save',fields:carried});}
+-      // Build 362 follow-up: the draft's save chunks upload while it is validated; the commit below still serializes,
+-      // lists and uploads what is missing, and nothing commits before every check (GH_PERSISTENCE.prestageDurableChunks).
+-      if(largeNativeSave())try{staging=window.GH_PERSISTENCE.prestageDurableChunks?.(draft,{yieldToFrame:()=>yieldForInteractivePaint()})||null;}catch(_error){staging=null;}
++      // As in executeDurable, overlap preparation with an actual worker wait; ready evidence needs one serialization.
++      let stagingStarted=false;const onFleetValidationWait=largeNativeSave()?()=>{if(stagingStarted)return;stagingStarted=true;try{staging=window.GH_PERSISTENCE.prestageDurableChunks?.(draft,{yieldToFrame:()=>yieldForInteractivePaint()})||null;}catch(_error){staging=null;}}:undefined;
+       // Use elapsed work since the last cooperative slice, not three unconditional frame waits for every large fleet.
+       // Clone/apply and schema already yield by budget; a worker wait also ends its UI task. Keep the last schema
+       // slice's start so integrity cannot silently extend it beyond the command's four-millisecond work budget.
+@@ -1124,7 +1127,7 @@
+       // The draft inherited the verified-once ledger above: proofs already verified are trusted, new or changed ones are
+       // verified now. The proof audit of maintenance verifies every proof afresh over time, and loads always verify in full.
+       const validatedFleetRevision=Number.isSafeInteger(draft.fleet?.revision)?draft.fleet.revision:null;
+-      mark=clockNow();const schema=await validateDraftInSlices(draft,{onSlice:start=>{workStarted=start;}});lap('validateMs');if(!schema.ok)throw new Error(`invalid-draft:${schema.errors.join(',')}`);
++      mark=clockNow();const schema=await validateDraftInSlices(draft,{onFleetValidationWait,onSlice:start=>{workStarted=start;}});lap('validateMs');if(!schema.ok)throw new Error(`invalid-draft:${schema.errors.join(',')}`);
+       await yieldIfBusy();
+       mark=clockNow();const integrity=traceMainThreadWork('command.integrity',()=>window.GH_INTEGRITY_CORE.check(draft)),critical=(integrity?.critical||(integrity?.issues||[]).filter(row=>row.severity==='critical'));lap('integrityMs');
+       const introduced=critical.filter(row=>!priorCriticalIds.has(String(row.id||row.code||row.title)));
+--- a/WebApp/madar-shell.js
++++ b/WebApp/madar-shell.js
+@@ -159,13 +159,15 @@
+   return `<button type="button" class="mc-tile" ${go(panel,arg)} data-tile="${esc(tile.key)}"><img src="${ui(tile.img)}" alt="" loading="lazy" decoding="async">${art}<span class="mc-scrim"></span><span class="mc-badge">${icon(tile.icon)}</span>${extra}<span class="mc-text"><b>${esc(tile.title)}</b><small>${esc(tile.sub||'')}</small></span></button>`;
+ }
+ function money(ctx,value){return ctx.fmtMoney?.(Number(value)||0)||String(value);}
+-function companyFacts(state,id,ctx){
++function companyFacts(state,id,ctx,readFleet=false){
+   let summary=null,performance=null,balance=null,manager=null,fleet=null;
+   try{const instance=openedCompanies(state).find(row=>row.id===id);summary=globalThis.GH_ADVANCED?.companyOverviewSummary?.(state,instance)||null;}catch(_error){}
+   try{performance=ctx.companyPerformance?.(id,30)||null;}catch(_error){}
+   try{balance=ctx.companyOperatingBalance?.(id);}catch(_error){}
+   try{manager=globalThis.GH_HR_CORE?.officialManager?.(state,id)||null;}catch(_error){}
+-  try{fleet=ctx.companyFleetStats?.(id)||null;}catch(_error){}
++  // Service panels never display these fleet facts. Enqueuing their unused million-row query can delay the same
++  // worker's save proof when the player accepts or rejects a request; only fleet panels need this aggregate.
++  if(readFleet)try{fleet=ctx.companyFleetStats?.(id)||null;}catch(_error){}
+   return {summary,performance,balance,manager,fleet};
+ }
+ // One panel for a company and for a section, laid out for the landscape phone: the status line (with the count of open
+@@ -224,7 +226,7 @@
+ }
+ function renderCompany(state,id,ctx){
+   const kindId=kindOf(state,id),kind=KINDS[kindId];if(!kind)return '<div class="empty">الشركة غير مفتوحة أو غير معروفة.</div>';
+-  stickyCompany=id;const facts=companyFacts(state,id,ctx),perf=facts.performance,net=Number(perf?.net)||0,reported=Number(perf?.reportedDays)||0,summary=facts.summary;
++  stickyCompany=id;const facts=companyFacts(state,id,ctx,kind.fleet===true),perf=facts.performance,net=Number(perf?.net)||0,reported=Number(perf?.reportedDays)||0,summary=facts.summary;
+   const kpis=[['رصيد الشركة',Number.isFinite(Number(facts.balance))?money(ctx,facts.balance):'—',''],['صافي 30 يومًا',reported?`${net>=0?'+':''}${money(ctx,net)}`:'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],[summary?.primaryOperatingLabel||'التشغيل',typeof summary?.primaryOperatingCount==='number'?num(summary.primaryOperatingCount):(summary?.primaryOperatingCount??'—'),'']];
+   const status=facts.manager?.name?statusLine('good',`تعمل · المدير: ${facts.manager.name}`):statusLine('warn','بلا مدير تنفيذي معيّن');
+   let chips=[],count='';
+--- a/WebApp/transaction-core.js
++++ b/WebApp/transaction-core.js
+@@ -897,7 +897,7 @@
+   function criticalIds(result){return new Set((((result?.critical)||((result?.issues)||[]).filter(row=>row.severity==='critical'))||[]).map(row=>String(row.id||row.code||row.title)));}
+   // The transaction lock remains held while validation yields. Worker evidence must match this exact store/context;
+   // a large fleet without current evidence is rejected rather than synchronously rescanned on the UI thread.
+-  async function validateSchemaInSlices(draft,{yieldToHost,onSlice=()=>{},budgetMs=4}={}){
++  async function validateSchemaInSlices(draft,{yieldToHost,onSlice=()=>{},budgetMs=4,onFleetValidationWait}={}){
+     const schema=globalThis.GH_SAVE_SCHEMA;if(!schema)return undefined;
+     if(typeof yieldToHost!=='function'||typeof schema.validationSteps!=='function'){
+       const start=runtimeClock();try{return schema.validate?.(draft,{trustVerified:true});}finally{onSlice(start,runtimeClock());}
+@@ -906,7 +906,7 @@
+     try{rows=Number(fleet?.size?.(draft));if(!Number.isSafeInteger(rows)||rows<0)rows=Infinity;}catch{}
+     const requireFleetValidation=policy?.decision?policy.decision(draft,fleet,{operation:'command-save-validation',limit:2048}).allowed===false:rows>2048;
+     const provider=globalThis.GH_FLEET_VALIDATION_PROVIDER,options={trustVerified:true,requireFleetValidation};
+-    if(typeof provider==='function')options.fleetValidation=(state,params)=>provider(state,params);
++    if(typeof provider==='function')options.fleetValidation=(state,params)=>provider(state,params,{beforeAsync:onFleetValidationWait});
+     const steps=schema.validationSteps(draft,options),budget=Math.max(1,Number(budgetMs)||4);let start=runtimeClock(),reported=false;
+     try{for(;;){
+       const step=steps.next(),end=runtimeClock(),waiting=step.value==='fleet-validation-wait'||step.value==='fleet-classes-wait';
+@@ -948,11 +948,12 @@
+       if(context.poisoned)throw rejection(context.poisonReason||'durable-command-poisoned',label,phase);
+       if(Number(draft.saveRevision||0)!==expectedRevision)throw rejection('draft-save-revision-mutated',label,phase);
+       draft.saveRevision=expectedRevision+1;phase='validate';
+-      // The draft's save chunks may upload while it is validated (options.prestage, e.g. GH_PERSISTENCE.prestageDurableChunks).
+-      // Only an optimisation: persist still serializes and uploads what is missing, and nothing commits before every check.
+-      if(typeof options.prestage==='function')try{staging=options.prestage(draft,context)||null;}catch(_error){staging=null;}
++      // Prepare chunks only when fleet validation actually waits for the worker. Ready evidence goes straight to
++      // the single final serialization. On a miss, the provider starts this before queuing validation, preserving
++      // useful upload/validation overlap. Persist still uploads anything missing; this never authorizes a commit.
++      let stagingStarted=false;const onFleetValidationWait=typeof options.prestage==='function'?()=>{if(stagingStarted)return;stagingStarted=true;try{staging=options.prestage(draft,context)||null;}catch(_error){staging=null;}}:undefined;
+       const validatedFleetRevision=Number.isSafeInteger(draft.fleet?.revision)?draft.fleet.revision:null;
+-      mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
++      mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onFleetValidationWait,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
+       if(options.integrity!==false&&globalThis.GH_INTEGRITY_CORE?.check){const integrity=globalThis.GH_INTEGRITY_CORE.check(draft),introduced=(((integrity?.critical)||((integrity?.issues)||[]).filter(row=>row.severity==='critical'))||[]).filter(row=>!priorCritical.has(String(row.id||row.code||row.title)));if(introduced.length)throw rejection(`critical-integrity:${introduced.map(row=>row.id||row.code||row.title).join(',')}`,label,phase);}
+       if(typeof options.validate==='function'){const validation=await options.validate(draft,context);if(validation===false||validation?.ok===false)throw rejection(validation?.reason||'validation-rejected',label,phase);}
+       lap('integrityMs');

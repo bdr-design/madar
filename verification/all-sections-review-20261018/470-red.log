@@ -1,0 +1,13 @@
+AssertionError [ERR_ASSERTION]: transfer: summary belongs in original durable draft
+
+0 !== 1
+
+    at run (/workspace/madar/tests/build470-composite-notice-work.cjs:3:2561)
+    at async /workspace/madar/tests/build470-composite-notice-work.cjs:4:130 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

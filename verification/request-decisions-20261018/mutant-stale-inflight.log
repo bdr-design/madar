@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: a changed revision must not join a stale in-flight request
+    at /workspace/madar/tests/build432-ready-fleet-validation.cjs:18:44 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Promise],
+  expected: [Promise],
+  operator: 'notStrictEqual',
+  diff: 'simple'
+}

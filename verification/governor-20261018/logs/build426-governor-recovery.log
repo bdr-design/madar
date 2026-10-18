@@ -1,0 +1,58 @@
+{
+  "suite": "build426-governor-recovery",
+  "ok": true,
+  "passed": 9,
+  "scope": "injected clock; no iPhone benchmark",
+  "results": [
+    {
+      "name": "display cadence",
+      "intervalMs": 8,
+      "heldMs": 262
+    },
+    {
+      "name": "display cadence",
+      "intervalMs": 16,
+      "heldMs": 283
+    },
+    {
+      "name": "display cadence",
+      "intervalMs": 33,
+      "heldMs": 286
+    },
+    {
+      "name": "repeated pressure",
+      "afterLastSpikeMs": 283
+    },
+    {
+      "name": "immediate escalation",
+      "sequence": [
+        "YELLOW",
+        "ORANGE",
+        "RED",
+        "YELLOW",
+        "GREEN"
+      ]
+    },
+    {
+      "name": "seven-day advance",
+      "frames": 135,
+      "simSeconds": 604800,
+      "oldTransitions": 270,
+      "newTransitions": 1
+    },
+    {
+      "name": "held RED throttle",
+      "throttles": 1,
+      "simSeconds": 604800
+    },
+    {
+      "name": "cancel during RED",
+      "settledSimSeconds": 0
+    },
+    {
+      "name": "exact legacy trace",
+      "traceSHA256": "f046d61252299408ee9ab5f1639558503b67d004c29c0c06d4e08ce25b32e880",
+      "transitions": 299
+    }
+  ]
+}

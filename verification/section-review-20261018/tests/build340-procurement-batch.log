@@ -1,0 +1,1 @@
+{"suite":"build340-procurement-batch","assets":20000,"deliveriesBeforePurchase":400,"purchased":400,"batchVisits":{"assetPasses":1,"deliveryPasses":1,"occupancyCalls":0},"legacyVisits":{"assetPasses":12,"deliveryPasses":12,"occupancyCalls":4},"parity":true,"environment":"Node synthetic owner state; not iPhone performance"}

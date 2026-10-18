@@ -1,0 +1,27 @@
+{
+  "suite": "governor-recovery",
+  "passed": 5,
+  "scope": "simulation governor only; injected clock; not an iPhone benchmark",
+  "results": [
+    {
+      "name": "recurring pressure",
+      "changes": 1
+    },
+    {
+      "name": "single spike",
+      "heldMs": 283
+    },
+    {
+      "name": "stepped recovery",
+      "sequence": "RED>YELLOW>GREEN"
+    },
+    {
+      "name": "calendar throttle",
+      "throttles": 1
+    },
+    {
+      "name": "recovery disabled",
+      "changes": 299
+    }
+  ]
+}

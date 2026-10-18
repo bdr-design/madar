@@ -1,0 +1,82 @@
+{
+  "suite": "financial-monthly-batches",
+  "passed": 34,
+  "total": 34,
+  "customerQuote": {
+    "product": "consumer",
+    "termDays": 1825,
+    "invoiceAmount": 2000000,
+    "downPayment": 0,
+    "loanPrincipal": 2012072,
+    "originationFee": 12072,
+    "disbursementAmount": 2000000,
+    "customerContribution": 0
+  },
+  "batch": {
+    "batchId": "BANK-APPROVAL-FB-1",
+    "periodId": "0",
+    "approved": 0,
+    "rejected": 1,
+    "skipped": 0,
+    "totalPrincipal": 0,
+    "totalDisbursed": 0,
+    "items": [
+      {
+        "requestId": "AUTO-LOAN-SALE-FB",
+        "status": "مرفوض"
+      }
+    ]
+  },
+  "financedSale": {
+    "receipt": "CUST-DISB-CUST-LOAN-1",
+    "invoice": "AUTO-000001",
+    "amount": 2000000
+  },
+  "customerCollection": {
+    "paid": 1,
+    "principal": 32984.7868852459,
+    "interest": 14255.392306849315
+  },
+  "riskBatch": {
+    "rejected": {
+      "batchId": "INS-BATCH-FB-1",
+      "periodId": "0",
+      "accepted": 0,
+      "declined": 1,
+      "skipped": 0,
+      "totalPremium": 0,
+      "totalInsured": 0,
+      "items": [
+        {
+          "id": "RISK-FB",
+          "status": "معتذر عنه"
+        }
+      ]
+    },
+    "accepted": {
+      "batchId": "INS-BATCH-FB-2",
+      "periodId": "0",
+      "accepted": 1,
+      "declined": 0,
+      "skipped": 0,
+      "totalPremium": 40000,
+      "totalInsured": 20000000,
+      "items": [
+        {
+          "id": "RISK-FB-ACCEPT",
+          "status": "مقبول",
+          "premium": 40000
+        }
+      ]
+    }
+  },
+  "energyMigration": {
+    "lastOperatingInterestDay": 10,
+    "nextInterestDueDay": 40
+  },
+  "energySettlement": {
+    "interestInvoice": "PFINT-PF-LIFE-FB-1",
+    "amount": 39452.054794520525,
+    "deferred": 39452.054794520525
+  }
+}

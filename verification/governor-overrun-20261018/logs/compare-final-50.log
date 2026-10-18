@@ -1,0 +1,2 @@
+calendar 7d  overrun                    {"framesToFinish":552,"governorChanges":13,"framesWithReducedBudget":"83%","maxFrameWorkMs":17.4}
+live 300x    overrun                    {"simSecondsIn30s":8396,"governorChanges":720,"framesWithReducedBudget":"20%","maxFrameWorkMs":11.9}

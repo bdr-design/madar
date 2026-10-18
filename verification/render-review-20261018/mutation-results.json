@@ -1,0 +1,86 @@
+[
+  {
+    "name": "force-idle-draw",
+    "file": "map-vehicle-canvas-core.js",
+    "test": "tests/build457-canvas-idle-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "ignore-opacity",
+    "file": "map-vehicle-canvas-core.js",
+    "test": "tests/build457-canvas-idle-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "omit-image-refresh",
+    "file": "map-vehicle-canvas-core.js",
+    "test": "tests/build457-canvas-idle-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "repeat-calendar-label",
+    "file": "app.js",
+    "test": "tests/build458-stable-ui-writes.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "repeat-map-title",
+    "file": "app.js",
+    "test": "tests/build458-stable-ui-writes.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "scroll-hidden-tabs",
+    "file": "interface-core.js",
+    "test": "tests/build459-navigation-scroll-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "scroll-stale-tabs",
+    "file": "interface-core.js",
+    "test": "tests/build459-navigation-scroll-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "render-full-catalog",
+    "file": "app.js",
+    "test": "tests/build461-market-render-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "retain-stale-page",
+    "file": "app.js",
+    "test": "tests/build461-market-render-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "wrong-next-page",
+    "file": "app.js",
+    "test": "tests/build461-market-render-work.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "rebuild-market-on-summary",
+    "file": "app.js",
+    "test": "tests/build462-market-summary-refresh.cjs",
+    "exitCode": 1,
+    "detected": true
+  },
+  {
+    "name": "reenable-busy-sale",
+    "file": "app.js",
+    "test": "tests/build462-market-summary-refresh.cjs",
+    "exitCode": 1,
+    "detected": true
+  }
+]

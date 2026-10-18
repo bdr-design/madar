@@ -237,11 +237,15 @@
         if(!check?.ok)throw new Error(`invalid-save:${(check?.errors||['save-schema-unavailable']).join(',')}`);
       }finally{await session?.close();}
     }
-    const uploads=[];for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id)){
-      if(externalChecksums&&(chunk.kind==='base'||chunk.kind==='overlay')&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
-      const bytes=typeof chunk.text==='string'?await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing):copyChunkBytes(state,chunk);
+    const uploads=[];let uploadCopyStarted=clock();for(const chunk of out.chunks)if(!vaultChunks.has(chunk.id)){
+      if(externalChecksums&&chunk.kind==='lane'&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
+      let bytes;
+      if(typeof chunk.text==='string'){const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,busy);bytes=await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing);uploadCopyStarted=clock();}
+      else bytes=copyChunkBytes(state,chunk);
       uploads.push({id:chunk.id,kind:chunk.kind,bytes});
+      if(clock()-uploadCopyStarted>=4){const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,busy);timing.slices++;await yieldToFrame();uploadCopyStarted=clock();}
     }
+    {const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,busy);}
     return {json:out.text,uploads,chunked:true,chunkIds:out.chunks.map(chunk=>chunk.id)};
   }
   // Encode once in bounded pieces, then join into one exact-size buffer. Never split a surrogate pair.
@@ -270,8 +274,10 @@
     const rawBytes=bytes.byteLength;let wire=bytes,encoding='identity',workerMs=0;
     // Only a native host advertising the decoder receives compressed data. Existing IPAs keep the exact old route.
     // The existing worker owns the extra computation, on demand during a save; no gameplay scan or new worker/timer.
-    if((kind==='base'||kind==='overlay')&&rawBytes>=32768&&rawBytes<=4194304&&globalThis.GH_NATIVE_CHUNK_ENCODINGS?.includes?.('gh-packbits-v1')&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function'){
-      const packed=await globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER(bytes,kind==='base'?128:13,{transferOwnership:true});
+    if(kind==='lane'&&rawBytes>=32768&&rawBytes<=4194304&&globalThis.GH_NATIVE_CHUNK_ENCODINGS?.includes?.('gh-packbits-v1')&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function'){
+      // 128 is an existing wire-codec stride accepted by every advertising
+      // native host. It is independent of the lane's logical 8-byte records.
+      const packed=await globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER(bytes,128,{transferOwnership:true});
       if(!packed||packed.rawBytes!==rawBytes||!ArrayBuffer.isView(packed.bytes)||packed.bytes.BYTES_PER_ELEMENT!==1||!(packed.encoding==='identity'&&packed.bytes.byteLength===rawBytes||packed.encoding==='gh-packbits-v1'&&packed.bytes.byteLength>=20&&packed.bytes.byteLength<=Math.floor(rawBytes*.875)))throw new Error('save-chunk-encoding-evidence-invalid');
       wire=packed.bytes;encoding=packed.encoding;workerMs=Number(packed.workerMs)||0;
     }

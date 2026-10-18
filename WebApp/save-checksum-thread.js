@@ -1,6 +1,8 @@
 (()=>{
   'use strict';
   const VERSION='save-checksum-v1',MAX_BYTES=4*1024*1024,pending=new Map(),workerResults=new WeakSet();
+  const CHECKSUM=/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/,validChecksum=value=>typeof value==='string'&&CHECKSUM.test(value);
+  function validLaneSums(sums){if(!Array.isArray(sums)||sums.length!==16)return false;for(let lane=0;lane<16;lane++)if(!validChecksum(sums[lane]))return false;return true;}
   let worker=null,sequence=0;
   const stats={requests:0,completed:0,encodes:0,chunkEncodes:0,rawChunkBytes:0,wireChunkBytes:0,failures:0,copyMs:0,maxCopyMs:0,workerMs:0,maxWorkerMs:0,sessions:0,activeSessions:0,activeChannels:0,maxSessionJobs:0,lookaheadRequests:0,deferredSubmitMs:0,maxDeferredSubmitMs:0};
   const clock=()=>globalThis.performance?.now?.()??Date.now();
@@ -11,10 +13,10 @@
     worker.onmessage=event=>{
       const m=event.data||{},p=pending.get(m.id);if(!p)return;
       pending.delete(m.id);clearTimeout(p.timer);
-      const valid=p.kind==='checksum'?typeof m.checksum==='string'&&/^[0-9a-z]{1,7}\.[0-9a-z]{1,7}$/.test(m.checksum)&&m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===p.bytes:p.kind==='chunk-encode'?m.rawBytes===p.bytes&&m.buffer instanceof ArrayBuffer&&(m.encoding==='identity'&&m.buffer.byteLength===p.bytes||m.encoding==='gh-packbits-v1'&&m.buffer.byteLength>=20&&m.buffer.byteLength<=Math.floor(p.bytes*.875)):typeof m.text==='string'&&m.text.length===4*Math.ceil(p.bytes/3);
+      const valid=p.kind==='checksum'?m.buffer instanceof ArrayBuffer&&m.buffer.byteLength===p.bytes&&(p.lanes?validLaneSums(m.laneSums):validChecksum(m.checksum)):p.kind==='chunk-encode'?m.rawBytes===p.bytes&&m.buffer instanceof ArrayBuffer&&(m.encoding==='identity'&&m.buffer.byteLength===p.bytes||m.encoding==='gh-packbits-v1'&&m.buffer.byteLength>=20&&m.buffer.byteLength<=Math.floor(p.bytes*.875)):typeof m.text==='string'&&m.text.length===4*Math.ceil(p.bytes/3);
       if(m.type!==p.kind+'-result'||m.version!==VERSION||!valid){stats.failures++;p.reject(new Error('save-checksum-result-invalid'));return;}
       stats.completed++;stats.workerMs+=Number(m.workerMs)||0;stats.maxWorkerMs=Math.max(stats.maxWorkerMs,Number(m.workerMs)||0);
-      if(p.kind==='base64'){stats.encodes++;p.resolve(m.text);}else if(p.kind==='chunk-encode'){stats.chunkEncodes++;stats.rawChunkBytes+=p.bytes;stats.wireChunkBytes+=m.buffer.byteLength;p.resolve({encoding:m.encoding,bytes:new Uint8Array(m.buffer),rawBytes:m.rawBytes,workerMs:Number(m.workerMs)||0});}else{const result={checksum:m.checksum,bytes:new Uint8Array(m.buffer),copyMs:p.copyMs,workerMs:Number(m.workerMs)||0};workerResults.add(result);p.resolve(result);}
+      if(p.kind==='base64'){stats.encodes++;p.resolve(m.text);}else if(p.kind==='chunk-encode'){stats.chunkEncodes++;stats.rawChunkBytes+=p.bytes;stats.wireChunkBytes+=m.buffer.byteLength;p.resolve({encoding:m.encoding,bytes:new Uint8Array(m.buffer),rawBytes:p.bytes,workerMs:Number(m.workerMs)||0});}else{const result={bytes:new Uint8Array(m.buffer),...(p.lanes?{laneSums:m.laneSums.slice()}:{checksum:m.checksum}),copyMs:p.copyMs,workerMs:Number(m.workerMs)||0};workerResults.add(result);p.resolve(result);}
     };
     worker.onerror=()=>{stats.failures++;stop('save-checksum-worker-error');};
     worker.onmessageerror=()=>{stats.failures++;stop('save-checksum-message-error');};
@@ -25,7 +27,7 @@
     if(!Number.isSafeInteger(expectedBytes)||expectedBytes<1||expectedBytes>MAX_BYTES||transform!==null&&kind!=='checksum'||kind==='chunk-encode'&&![1,13,128].includes(stride))return Promise.reject(new Error('save-checksum-transform-invalid'));
     let w,copy,copyMs;try{w=ready();const start=clock();copy=takeOwnership&&bytes.byteOffset===0&&bytes.byteLength===bytes.buffer.byteLength?bytes:bytes.slice();copyMs=clock()-start;stats.copyMs+=copyMs;stats.maxCopyMs=Math.max(stats.maxCopyMs,copyMs);}catch(error){return Promise.reject(error);}
     const id=++sequence;stats.requests++;
-    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{stats.failures++;stop('save-checksum-worker-timeout');},60000);pending.set(id,{resolve,reject,timer,bytes:expectedBytes,copyMs,kind});try{w.postMessage({type:kind,version:VERSION,id,buffer:copy.buffer,transform,expectedBytes,stride},[copy.buffer]);}catch(error){clearTimeout(timer);pending.delete(id);stats.failures++;reject(error);}});
+    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{stats.failures++;stop('save-checksum-worker-timeout');},60000);pending.set(id,{resolve,reject,timer,bytes:expectedBytes,copyMs,kind,lanes:transform?.kind==='fleet-lanes-v1'});try{w.postMessage({type:kind,version:VERSION,id,buffer:copy.buffer,transform,expectedBytes,stride},[copy.buffer]);}catch(error){clearTimeout(timer);pending.delete(id);stats.failures++;reject(error);}});
   }
   const checksum=(bytes,transform=null,expectedBytes=bytes?.byteLength)=>request('checksum',bytes,transform,expectedBytes),base64=bytes=>request('base64',bytes);
   // Persistence owns its immutable upload snapshots and may transfer them instead of copying 4 MiB on this thread.

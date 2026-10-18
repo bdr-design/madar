@@ -1,0 +1,25 @@
+{
+  "matrix": {
+    "files": "matrix-before-final-deferral-source-files.json",
+    "scope": "28 cases x 3 openings per source, first index budget change included; final initial-yield change not yet present in this matrix."
+  },
+  "current_profile": {
+    "source_tree_sha256": "d87227a2800d06da546ce8c84f9e28ef18f5ad39507090e7292a50d6b825f06d",
+    "files": "current-source-files.json",
+    "scope": "Final current runtime with only test wrappers, 1M real purchased assets, 11 companies open, 3000 synthetic mobility rows/80 centers/1000 HR-history rows. 844x390, paused. Three calls per selected panel; one cold first open per stage."
+  },
+  "first_owned_assets_open_ms": {
+    "before_final_deferral": 42.9,
+    "after_final_deferral": 2.8
+  },
+  "max_synchronous_open_ms_current_profile": 11.0,
+  "browser_frame_bound_20ms_proven": false,
+  "cold_browser_trace_ms": {
+    "layout": 53.948,
+    "paint": 29.038,
+    "max_task": 78.98
+  },
+  "two_raf_wait_is_not_command_ack_latency": true,
+  "all_company_revenue_active": false,
+  "physical_iphone": false
+}

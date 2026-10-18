@@ -1,0 +1,1 @@
+{"suite":"build438-day-scratch-work","passed":2,"scope":"Test-only observation at the private constants boundary; no product instrumentation.","results":[{"case":"generic and overflow","rows":5065,"genericObjects":1,"cachedObjects":4097,"literalParity":true},{"case":"exceptional rows","rows":19,"constantObjects":1,"literalParity":true}]}

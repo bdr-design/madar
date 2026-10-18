@@ -1,0 +1,56 @@
+[
+  {
+    "framesToFinish": 371,
+    "governorChanges": 0,
+    "framesWithReducedBudget": "0%",
+    "maxFrameWorkMs": 10.2,
+    "source": "current",
+    "heavyEvery": 0,
+    "mode": "calendar"
+  },
+  {
+    "simSecondsIn30s": 9003,
+    "governorChanges": 0,
+    "framesWithReducedBudget": "0%",
+    "maxFrameWorkMs": 4.2,
+    "source": "current",
+    "heavyEvery": 0,
+    "mode": "live"
+  },
+  {
+    "framesToFinish": 407,
+    "governorChanges": 42,
+    "framesWithReducedBudget": "5%",
+    "maxFrameWorkMs": 16.6,
+    "source": "current",
+    "heavyEvery": 400,
+    "mode": "calendar"
+  },
+  {
+    "simSecondsIn30s": 9003,
+    "governorChanges": 84,
+    "framesWithReducedBudget": "2%",
+    "maxFrameWorkMs": 13,
+    "source": "current",
+    "heavyEvery": 400,
+    "mode": "live"
+  },
+  {
+    "framesToFinish": 552,
+    "governorChanges": 13,
+    "framesWithReducedBudget": "83%",
+    "maxFrameWorkMs": 17.4,
+    "source": "current",
+    "heavyEvery": 50,
+    "mode": "calendar"
+  },
+  {
+    "simSecondsIn30s": 8396,
+    "governorChanges": 720,
+    "framesWithReducedBudget": "20%",
+    "maxFrameWorkMs": 11.9,
+    "source": "current",
+    "heavyEvery": 50,
+    "mode": "live"
+  }
+]

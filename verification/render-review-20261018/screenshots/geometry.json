@@ -1,0 +1,266 @@
+[
+  {
+    "label": "before",
+    "engine": "chromium",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 520,
+      "y": -221.015625,
+      "width": 360,
+      "height": 1018.703125
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "before",
+    "engine": "chromium",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 420.328125,
+      "y": -208.015625,
+      "width": 347.671875,
+      "height": 1057.703125
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "before",
+    "engine": "chromium",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 328.28125,
+      "y": -280.625,
+      "width": 262.71875,
+      "height": 1165.328125
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "before",
+    "engine": "webkit",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 520,
+      "y": -224,
+      "width": 360,
+      "height": 1024
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "before",
+    "engine": "webkit",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 420.328125,
+      "y": -224,
+      "width": 347.671875,
+      "height": 1011
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "before",
+    "engine": "webkit",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 328.28125,
+      "y": -209,
+      "width": 262.71875,
+      "height": 1169.5
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "after",
+    "engine": "chromium",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 520,
+      "y": -221.015625,
+      "width": 360,
+      "height": 1018.703125
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "after",
+    "engine": "chromium",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 420.328125,
+      "y": -208.015625,
+      "width": 347.671875,
+      "height": 1057.703125
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "after",
+    "engine": "chromium",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 328.28125,
+      "y": -280.625,
+      "width": 262.71875,
+      "height": 1165.328125
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "after",
+    "engine": "webkit",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 520,
+      "y": -224,
+      "width": 360,
+      "height": 1024
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "after",
+    "engine": "webkit",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 420.328125,
+      "y": -224,
+      "width": 347.671875,
+      "height": 1011
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  },
+  {
+    "label": "after",
+    "engine": "webkit",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "horizontalOverflow": 0,
+    "card": {
+      "x": 328.28125,
+      "y": -209,
+      "width": 262.71875,
+      "height": 1169.5
+    },
+    "model": "A-ATR42",
+    "metrics": [
+      "48",
+      "1,326",
+      "1.1",
+      "14"
+    ]
+  }
+]

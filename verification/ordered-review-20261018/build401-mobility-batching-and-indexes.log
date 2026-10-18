@@ -1,0 +1,1 @@
+{"suite":"build401-mobility-batching-and-indexes","fleetRowsPerTrip":12000,"oneCenterRequestReads":6000,"tenCenterRequestReads":6000,"activeDriverContracts":1,"groupedDriverCount":4,"legacyHistoryRows":1,"rollbackExact":true}

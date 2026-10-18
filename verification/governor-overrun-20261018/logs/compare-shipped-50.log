@@ -1,0 +1,2 @@
+calendar 7d  shipped                    {"framesToFinish":582,"governorChanges":203,"framesWithReducedBudget":"100%","maxFrameWorkMs":14.9}
+live 300x    shipped                    {"simSecondsIn30s":8386,"governorChanges":1006,"framesWithReducedBudget":"69%","maxFrameWorkMs":11.9}

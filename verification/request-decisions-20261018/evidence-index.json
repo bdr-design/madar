@@ -1,0 +1,402 @@
+{
+  "source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155",
+  "baseline_source_tree_sha256": "8e35b6f0f193472c5e751aa0e5c6c28d9a1fb65f5ea1bf79aef8854d807d006d",
+  "acceptance_contract_sha256": "8cb19101c4ee20a3c33aced07c6a303e9d6a8b4a33196cc5ec157accf1a964ed",
+  "declared_gates": 465,
+  "preflight_definitions": 68,
+  "scope": "Related local tests only; no full acceptance, native CI, IPA or physical iPhone profile.",
+  "related_results": "targeted-results.json",
+  "functional_browser_cases": 44,
+  "mutations_detected": 9,
+  "paired_measurements": [
+    {
+      "file": "raw-chromium-before.json",
+      "bound_source_tree_sha256": "8e35b6f0f193472c5e751aa0e5c6c28d9a1fb65f5ea1bf79aef8854d807d006d",
+      "samples": 6,
+      "exit_code": 0,
+      "source_files_verified": true
+    },
+    {
+      "file": "raw-webkit-before.json",
+      "bound_source_tree_sha256": "8e35b6f0f193472c5e751aa0e5c6c28d9a1fb65f5ea1bf79aef8854d807d006d",
+      "samples": 18,
+      "exit_code": 0,
+      "source_files_verified": true
+    },
+    {
+      "file": "raw-chromium-final.json",
+      "bound_source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155",
+      "samples": 6,
+      "exit_code": 0,
+      "source_files_verified": true
+    },
+    {
+      "file": "raw-webkit-final.json",
+      "bound_source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155",
+      "samples": 18,
+      "exit_code": 0,
+      "source_files_verified": true
+    },
+    {
+      "file": "webkit-compile-followup.json",
+      "bound_source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155",
+      "samples": 6,
+      "exit_code": 0,
+      "source_files_verified": true
+    }
+  ],
+  "method": {
+    "collector": "raw reused-row scan of routeId/phase, replacing the older million view allocation",
+    "chromium_tasks": "RunTask on CrRendererMain through two RAFs after command, with native tracing overhead",
+    "webkit": "Three paired repeats with JSC_logGC=1; six extra diagnostic commands with compilation logging. Named spans do not cover every WebKit task.",
+    "vault": "protocol double; no iPhone storage timing",
+    "all_company_revenue_stress": false,
+    "fleet_rows": 1000000,
+    "routed_rows": 20000,
+    "initial_moving_rows": 838,
+    "companies_opened": 11,
+    "stale_saveBreakdown": "The wrapper includes lastSaveBreakdown, which belongs to an older ordinary save. It is not used to time the current durable command."
+  },
+  "open_measurement_limits": [
+    "Full durable ACK remains above 20 ms.",
+    "WebKit has a 29 ms named schema slice in one sample. Six follow-up commands did not repeat it (schema max 9 ms, apply max 20 ms); GC/compile logs did not establish its cause.",
+    "A superseded exploratory WebKit page closed before measurement; both final WebKit runs (18+6 commands) completed. No causality is claimed for the earlier closure."
+  ],
+  "historical_measurements": {
+    "patterns": [
+      "million-*.json",
+      "moving-*.json",
+      "conditional-chromium-exploratory.json"
+    ],
+    "status": "Exploratory, intermediate sources and/or older view-allocating collector; superseded by raw-* paired comparison. Do not use as current-candidate proof."
+  },
+  "native_traces": [
+    {
+      "path": "/workspace/scratch/request-decisions-20261018/task-trace-before-raw.json",
+      "sha256": "ece0b59d64d284fa8a4946b735612ebdd3b06c4a01a5c2608b54721c582ea8d9"
+    },
+    {
+      "path": "/workspace/scratch/request-decisions-20261018/task-trace-final-v4.json",
+      "sha256": "4abd9eeb99264c2314ac13a5aade4e2aa00978c5ec82fefdcbae255ce4a233e2"
+    }
+  ],
+  "reproduce": {
+    "ui_measurement": "GH_REQUEST_ENGINE=chromium GH_REQUEST_ROWS=1000000 GH_REQUEST_REPEATS=1 GH_REQUEST_MOVING=1 GH_REQUEST_RESULTS=/tmp/decisions.json node tools/measure_request_decisions.cjs",
+    "chromium_trace": "Set GH_TASK_TRACE_OUTPUT and GH_REQUEST_RESULTS, same million/moving env; run node verification/request-decisions-20261018/trace-decisions.cjs. GH_TEST_SOURCE_DIR selects the baseline.",
+    "webkit": "Set PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 and LD_LIBRARY_PATH for the locally supplied libraries, JSC_logGC=1 DEBUG=pw:browser, GH_REQUEST_ENGINE=webkit GH_REQUEST_REPEATS=3, same million/moving env; run profile-webkit-decisions.cjs. Compile follow-up also enables JSC_reportCompileTimes/JSC_reportBaselineCompileTimes/JSC_reportBytecodeCompileTimes."
+  },
+  "files": {
+    "acceptance-policy.log": {
+      "sha256": "45735e09e34185117d51fba05c664f3ad5798d14648b77625f7aece2bf4f1d82",
+      "bytes": 125
+    },
+    "browser-red.log": {
+      "sha256": "fcac380f0ff8bc4d271ba4dba08d48ede09a53d514984bceeaefd6404da105b6",
+      "bytes": 306
+    },
+    "build334-source-layout.log": {
+      "sha256": "b683d3e645a7d311d1ef5f3266af70e1ec37dbafcc4ea1a8cd04b2eba0285e31",
+      "bytes": 991
+    },
+    "build340-durable-draft-restore.log": {
+      "sha256": "9fcce089a93273c4bd77aeba96db6f1710e62b28b0ffd564939aebfc3b85173b",
+      "bytes": 211
+    },
+    "build362-durable-prestage.log": {
+      "sha256": "fbdf539f00fe1c8887c8750e9b5197f33b0436a266a061e7d99f48b323511520",
+      "bytes": 1642
+    },
+    "build362-save-validation-chunks.log": {
+      "sha256": "eb72556ee05845bc47272df2d1f4d52f9cd1793054a0b772d61165764b9f1e6e",
+      "bytes": 4373
+    },
+    "build364-company-overview-summary.log": {
+      "sha256": "fa126f4850dab025635aaea1ea9b74586571b244d8ab48018c5789b126c617aa",
+      "bytes": 194
+    },
+    "build364-financial-batches-baseline-failure.log": {
+      "sha256": "a832301f739fb58bdb679346b73434f8f4a7cc23b9c5fb33e0486e945f8669c7",
+      "bytes": 1590
+    },
+    "build364-financial-batches-initial-failure.log": {
+      "sha256": "a832301f739fb58bdb679346b73434f8f4a7cc23b9c5fb33e0486e945f8669c7",
+      "bytes": 1590
+    },
+    "build364-financial-batches.log": {
+      "sha256": "5ad179cdc597ac325f13683f3f60e9f41ced5b2487f11d0d9e815327e0757c66",
+      "bytes": 1760
+    },
+    "build369-insurance-risk-batch.log": {
+      "sha256": "a6cd48ccc6a04a45eb89770bd7a27bb2c66352074c2282eb1abf456835597d00",
+      "bytes": 376
+    },
+    "build371-durable-live-fields-browser.log": {
+      "sha256": "19e430e86355a783adaad19b982d19ba240710d6d59a16f98162004cff96986d",
+      "bytes": 601
+    },
+    "build373-revenue-chain-browser.log": {
+      "sha256": "bd7d0b5295749f84db02cb05a870ee83322c18bafe9cd6584b6a1551d4f7ea9b",
+      "bytes": 300
+    },
+    "build374-customer-base-telecom-market.log": {
+      "sha256": "bdbfe4ebc19d4ad042b79af5a44256273f6ef0111b92901876c6d935c47c6075",
+      "bytes": 423
+    },
+    "build379-command-validation-browser.log": {
+      "sha256": "13751f393f1912ba289e011e3d1774df9fca846c9faba6ae169fc0006f634587",
+      "bytes": 5662
+    },
+    "build385-bank-credit-accounting.log": {
+      "sha256": "201d1a73a99b8dfa53ce49f9cbf53b683be92283063239eb71f0dc622e403087",
+      "bytes": 533
+    },
+    "build404-worker-close-read-models.log": {
+      "sha256": "0498360dd189f67d64723ae18bda146ef368b09a142425f1bb8b699754888d42",
+      "bytes": 199
+    },
+    "build418-command-phase-trace-browser.log": {
+      "sha256": "ccb1bfe6029b149b5f9be9e2c188251aad59be281098495e3e6b8d196f19eae3",
+      "bytes": 3963
+    },
+    "build426-governor-pressure.log": {
+      "sha256": "e3e112b88f16b94d1f39259e20fed39857529ee71c05cf780b0c6771fc04e0b0",
+      "bytes": 1233
+    },
+    "build431-decision-notices.log": {
+      "sha256": "509de07eac82378c4c8dc8bf28755c89f2c789bd9352869332d936f3f0c385ac",
+      "bytes": 3799
+    },
+    "build432-ready-fleet-validation.log": {
+      "sha256": "0170a342f54f679b63d7ea50ff2a27fbd28e8c4a1c42e90be13d0f736c53ea84",
+      "bytes": 208
+    },
+    "build433-request-decisions-browser.log": {
+      "sha256": "dc7759d8c7c852975ea1d3f51c48c966f06427795808c58725d69f6a639cb2ee",
+      "bytes": 14601
+    },
+    "build434-service-panel-fleet-work.log": {
+      "sha256": "39d70beb05571d936dacafa0b2dacf964974644c7891a45c91a77dd269ac4cdd",
+      "bytes": 2097
+    },
+    "build435-conditional-prestage.log": {
+      "sha256": "9d650e7c5150da49c6acdc1e3aadaf5a4525e3c27b74bdd00729686d5d3197b0",
+      "bytes": 627
+    },
+    "build435-red.log": {
+      "sha256": "0fe04f617c93f6566b72526687810609318fc605499ae94a3e382682bfb1ffe5",
+      "bytes": 322
+    },
+    "conditional-chromium-exploratory.json": {
+      "sha256": "db5ebdb54b5d6d145edfe09adf4d54f62b16885af2e80dee2f70d194e7ef9391",
+      "bytes": 32500
+    },
+    "diagnostic-command-evidence.json": {
+      "sha256": "114f25f518d006cc84b2c0e61fa55dbb5b849a898965229e86f2a249a65a166c",
+      "bytes": 3807
+    },
+    "fleet-business-boundary-baseline-failure.log": {
+      "sha256": "f6a9f3afb78f670abcea3fabc51aa9c5b20da59a979b7dde24a1c0fb07c6a3f3",
+      "bytes": 1123
+    },
+    "fleet-business-boundary.log": {
+      "sha256": "8a516edb77a2480070d82c1251fb7fdac6090dff2cbe8a70818aa41691dad5c9",
+      "bytes": 97
+    },
+    "fleet-validation-reuse-browser.log": {
+      "sha256": "3c2867f9ffc5fcc84925c694c0103da712c0e214c5fc6ccf5864db689c2471de",
+      "bytes": 414
+    },
+    "governor-overrun-signal.log": {
+      "sha256": "ae89ec7a6f992d117b1436d2244d6430d924760ea6a09689a75638261ab2cb15",
+      "bytes": 652
+    },
+    "lint.log": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    },
+    "million-after.json": {
+      "sha256": "263db3483cd29e8917db828042f2fb3476ee3dff16ee3496e11bb3e5e51a47ac",
+      "bytes": 88228
+    },
+    "million-before.json": {
+      "sha256": "654e537674b2438a0ba7eac28a92a1bcdacfb04209f2cd7f389872b99b030d06",
+      "bytes": 88593
+    },
+    "million-webkit-after.json": {
+      "sha256": "1b32078453281fd086c53c21acfea2c40da3d5b8732b0d122d7dcbfdcc492a1f",
+      "bytes": 84013
+    },
+    "million-webkit-before.json": {
+      "sha256": "6c33827881f3ec14f539132ac0097fb16886b45a30ddd7ab8a651e70a0ddb9fc",
+      "bytes": 83931
+    },
+    "moving-after.json": {
+      "sha256": "220705ad93a198ad7b31a41f189f1eef6ca1c7e6f2c513cc6dab1cb625e7d0d4",
+      "bytes": 32712
+    },
+    "moving-before.json": {
+      "sha256": "f8d165f013c471f44351ec1e448e58f47ba5f24836afde1813d19fc7e655fc75",
+      "bytes": 32799
+    },
+    "moving-final.json": {
+      "sha256": "93df20fc0df2fd0615d7259034c81ed8bf5d70340e1b25fc5a32430173d1a226",
+      "bytes": 32871
+    },
+    "mutant-changed-context.log": {
+      "sha256": "c341248cb476278bfc39abf91a97da7d217b7a11b1087f9535654772c15291c5",
+      "bytes": 406
+    },
+    "mutant-missing-async-prestage-hook.log": {
+      "sha256": "fa92569d02e874cef98ec67ef35f46772dbeea90b76f29d5b51afb8611b3a175",
+      "bytes": 823
+    },
+    "mutant-missing-notice.log": {
+      "sha256": "adb553468b66947cd947c1b02d2696345f23b137a11ccdd5bcc781d179fe6c2b",
+      "bytes": 438
+    },
+    "mutant-ready-promise.log": {
+      "sha256": "cf99677107b83fd61de5fcf58de21bb9360f262b5e661594b5f8b4c2d361c050",
+      "bytes": 386
+    },
+    "mutant-skip-stage-settlement.log": {
+      "sha256": "65ebd9673d9bef7df72d877aaf9c39b1f99e6e8712deb0aecc2bd3d31afe8ac9",
+      "bytes": 298
+    },
+    "mutant-stale-inflight.log": {
+      "sha256": "6f6e0c338d63d2210fec3ce18c7feba90f69eed23c0ad72539baf2fed48f7b58",
+      "bytes": 310
+    },
+    "mutant-stale-ready-revision.log": {
+      "sha256": "add7c594ca2499f16550867f0af8f26394b3bbc012039859e07a4f1cb203495d",
+      "bytes": 390
+    },
+    "mutant-unconditional-prestage.log": {
+      "sha256": "0fe04f617c93f6566b72526687810609318fc605499ae94a3e382682bfb1ffe5",
+      "bytes": 322
+    },
+    "mutant-unneeded-fleet-query.log": {
+      "sha256": "6642f933aceba8fccf0baba528b8e08dfc68fdc2077874fda1a3e394d28a0a56",
+      "bytes": 890
+    },
+    "mutations.json": {
+      "sha256": "78e071235d9f13b465757b7fae3392020e7c3d261f2d53c41660cdc562719fe7",
+      "bytes": 1525
+    },
+    "notices-green.log": {
+      "sha256": "509de07eac82378c4c8dc8bf28755c89f2c789bd9352869332d936f3f0c385ac",
+      "bytes": 3799
+    },
+    "notices-red.log": {
+      "sha256": "0e68fb248f921421a7c2558ec9b04c5996c612246681d55b0333d4fa4d2f3af2",
+      "bytes": 438
+    },
+    "phone-layout-browser.log": {
+      "sha256": "dce48593ef26d35c4010a68bb8ae19aa46d0d6a548a2fc8cdbcbf51a4f63cb1c",
+      "bytes": 1597
+    },
+    "profile-webkit-decisions.cjs": {
+      "sha256": "87cfc94fb5b5090c7d76690a89172525aa87caf782076fc143a57ff6a6f7a331",
+      "bytes": 407
+    },
+    "raw-chromium-before-tasks.json": {
+      "sha256": "0c06ba296003038d5a18729af1b549edb8c70af43006cf254797f707dd3dd10d",
+      "bytes": 4242
+    },
+    "raw-chromium-before.json": {
+      "sha256": "8aa0bba668457be964d83e93137a779036a48df3d66ccd560e6dedb938494de7",
+      "bytes": 33214
+    },
+    "raw-chromium-final-tasks.json": {
+      "sha256": "3ecbdaf431c79854fb952b64842b9c68e07185e7809eb4d722e9d2150ba3b19a",
+      "bytes": 4111
+    },
+    "raw-chromium-final.json": {
+      "sha256": "a4350ba0e4762f1bd9f59df5421d1bd0909a014de25d888bc3f1235a9c7b622d",
+      "bytes": 97490
+    },
+    "raw-chromium-final.log": {
+      "sha256": "9c639816c4129bb9c21d8fab56d4e195b651fdfc51a8c040bc790892fdc2ed62",
+      "bytes": 2595
+    },
+    "raw-webkit-before.json": {
+      "sha256": "ab1c005a179d5c6a3781946c50da7b33ec97d70b43eda5dd0c3b3dada0dd5d4f",
+      "bytes": 281647
+    },
+    "raw-webkit-before.log": {
+      "sha256": "43d0616d4e70f203d295da2f65aecfce7129ccb8c97563068c978c260e5b28ce",
+      "bytes": 150289
+    },
+    "raw-webkit-final.json": {
+      "sha256": "41a93074463388a37fb967ce8c6c1f9c53d50d1fe45c9b627b9cefa758445cf6",
+      "bytes": 278968
+    },
+    "raw-webkit-final.log": {
+      "sha256": "06c0d1aa7f70d7913258a96172b60662ba5bba37a0cb08695799113c97348f90",
+      "bytes": 139984
+    },
+    "ready-validation-red.log": {
+      "sha256": "87684b15bf47e184677f36f3b4b7d8516b5313c062adc58fb32a0a4c1c4a9eb3",
+      "bytes": 385
+    },
+    "run-mutations.py": {
+      "sha256": "20080255447a3c5218dcdd01f148d16f78e6061d72a7ea29d6fd74505d146ce8",
+      "bytes": 3017
+    },
+    "runtime-diff.patch": {
+      "sha256": "4481c46d6742bbd48e18dc10ee8b10f9604b2aeda33a4b45db2de878406e5f27",
+      "bytes": 30003
+    },
+    "service-panel-green.log": {
+      "sha256": "86a26ff1c2958928c68c272e4b593b9b394868949d1986204e5f0e21f1d9eb54",
+      "bytes": 2063
+    },
+    "service-panel-red.log": {
+      "sha256": "6642f933aceba8fccf0baba528b8e08dfc68fdc2077874fda1a3e394d28a0a56",
+      "bytes": 890
+    },
+    "source-verification.json": {
+      "sha256": "113ec8449c1a12ce4d50343f59d2b1a6b7fcf3390f87e9a940a9ce850f017038",
+      "bytes": 3103
+    },
+    "summarize-tasks.py": {
+      "sha256": "1aba02e6940c089f27892a1479f94a4f37aad7d64d059b2e306443d22ac1ef8a",
+      "bytes": 1416
+    },
+    "superseded-webkit-page-closed.log": {
+      "sha256": "6c9d940277ae56fc2ee8d16a19936b8ac080f41dddf2205779d448f5b42c1bad",
+      "bytes": 247
+    },
+    "superseded-webkit-retry.log": {
+      "sha256": "568cfee1b8a46a3fd074c132d100dac592d305b06908e4b39d0890e14ab16ab8",
+      "bytes": 5278
+    },
+    "targeted-initial-failure.json": {
+      "sha256": "1a057c38d112f8935837a2e6ba8ecebc066eee50b1ad27329cfd35b37dc84913",
+      "bytes": 1567
+    },
+    "targeted-results.json": {
+      "sha256": "2e3965a6093a88c0a172d0f2cab3d831cb356eb3defade73ce3186486b8b70b1",
+      "bytes": 9689
+    },
+    "trace-decisions.cjs": {
+      "sha256": "fcaf5e0f7b00451e96e3bded4c38b33a51b883b93f235c428acf9aa080d0dfcc",
+      "bytes": 1603
+    },
+    "unchanged-financial-owners.json": {
+      "sha256": "02dca215e12fc0a2f0030b35c07f67394e3c1ee2d8ecd4bce183998e6a3c56d6",
+      "bytes": 1262
+    },
+    "webkit-compile-followup.json": {
+      "sha256": "cbe5a0c5a276023463490698f9256773703c8c6be45f9cb131e43d595c6c1430",
+      "bytes": 94985
+    },
+    "webkit-compile-followup.log": {
+      "sha256": "b21d5c93f4df15acd2f02988101c1a194870010c3b99c791b9f16e9cac0949be",
+      "bytes": 2150136
+    }
+  },
+  "report": {
+    "path": "VENTORA_REQUEST_DECISIONS_20261018_AR.md",
+    "sha256": "a896b8421ed0a46dfd13516dfc5b5c8ab6b7c3a76fbabcae129cf7e307044213"
+  }
+}

@@ -1,0 +1,2 @@
+calendar 7d  held                       {"framesToFinish":494,"governorChanges":1,"framesWithReducedBudget":"100%","maxFrameWorkMs":10}
+live 300x    held                       {"simSecondsIn30s":8541,"governorChanges":211,"framesWithReducedBudget":"94%","maxFrameWorkMs":4.1}

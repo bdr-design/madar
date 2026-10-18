@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: each build slice must respect elapsed work as well as row count
+    at /workspace/madar/tests/build456-list-build-budget.cjs:3:387 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

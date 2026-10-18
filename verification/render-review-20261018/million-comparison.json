@@ -1,0 +1,5780 @@
+{
+  "baseline_source_tree_sha256": "d87227a2800d06da546ce8c84f9e28ef18f5ad39507090e7292a50d6b825f06d",
+  "conditions": {
+    "fleet_rows": 1000000,
+    "companies_open": 11,
+    "revenue_all_companies_active": false,
+    "simulation": "paused",
+    "visible_fleet_canvas_markers": 1,
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "sampling": "one cold and one warm sample per source; finite DevTools instrumentation",
+    "physical_iphone": false
+  },
+  "before": {
+    "label": "before",
+    "cases": [
+      {
+        "name": "map-idle",
+        "syncMs": 0,
+        "frames": 32,
+        "rects": 96,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "targets",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.6000000014901161
+          },
+          {
+            "name": "loop",
+            "ms": 0.6999999955296516
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "targets",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.6999999955296516
+          },
+          {
+            "name": "loop",
+            "ms": 0.6999999955296516
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          }
+        ],
+        "mutations": {
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 2,
+            "totalMs": 0.458,
+            "maxMs": 0.232
+          },
+          "UpdateLayoutTree": {
+            "count": 2,
+            "totalMs": 0.483,
+            "maxMs": 0.244
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 0.439,
+            "maxMs": 0.146
+          },
+          "Layerize": {
+            "count": 42,
+            "totalMs": 0.16700000000000004,
+            "maxMs": 0.051
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 301,
+            "totalMs": 18.430000000000003,
+            "maxMs": 1.961
+          }
+        }
+      },
+      {
+        "name": "hr-cold",
+        "syncMs": 4.799999997019768,
+        "frames": 32,
+        "rects": 99,
+        "spans": [
+          {
+            "name": "targets",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.30000000447034836
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.30000000447034836
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.30000000447034836
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.3999999985098839
+          },
+          {
+            "name": "loop",
+            "ms": 0.3999999985098839
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.3999999985098839
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 2,
+          "drawerBody": 4,
+          "drawerMark": 1,
+          "sectionNav": 1,
+          "tabs mc-in-strip": 1,
+          "primary-btn": 13,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "active": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1,
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 16,
+            "totalMs": 2.4039999999999995,
+            "maxMs": 2.165
+          },
+          "UpdateLayoutTree": {
+            "count": 10,
+            "totalMs": 6.063,
+            "maxMs": 5.169
+          },
+          "Paint": {
+            "count": 7,
+            "totalMs": 2.6369999999999996,
+            "maxMs": 1.14
+          },
+          "Layerize": {
+            "count": 46,
+            "totalMs": 0.4890000000000001,
+            "maxMs": 0.342
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 447,
+            "totalMs": 36.765,
+            "maxMs": 14.605
+          }
+        }
+      },
+      {
+        "name": "market-cold",
+        "syncMs": 30,
+        "frames": 31,
+        "rects": 99,
+        "spans": [
+          {
+            "name": "animation",
+            "ms": 0.5
+          },
+          {
+            "name": "loop",
+            "ms": 0.6000000014901161
+          },
+          {
+            "name": "animation",
+            "ms": 0.3999999985098839
+          },
+          {
+            "name": "loop",
+            "ms": 0.3999999985098839
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "kpis",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "targets",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.4000000059604645
+          },
+          {
+            "name": "loop",
+            "ms": 0.5999999940395355
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 2,
+          "drawer": 12,
+          "drawerEyebrow": 4,
+          "drawerTitle": 2,
+          "drawerBody": 8,
+          "IMG": 32,
+          "drawerMark": 1,
+          "sectionNav": 1,
+          "on": 2,
+          "backdrop": 2,
+          "mapNavBtn": 1,
+          "settingsBtn": 2,
+          "filterPopover": 2,
+          "assetCard": 2,
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 3,
+            "totalMs": 22.381,
+            "maxMs": 17.89
+          },
+          "UpdateLayoutTree": {
+            "count": 5,
+            "totalMs": 9.891,
+            "maxMs": 7.36
+          },
+          "Paint": {
+            "count": 33,
+            "totalMs": 6.258000000000002,
+            "maxMs": 2.285
+          },
+          "Layerize": {
+            "count": 38,
+            "totalMs": 2.5999999999999965,
+            "maxMs": 1.076
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 345,
+            "totalMs": 104.847,
+            "maxMs": 63.508
+          }
+        }
+      },
+      {
+        "name": "market-static",
+        "syncMs": 4.5,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1,
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 4.401,
+            "maxMs": 4.401
+          },
+          "UpdateLayoutTree": {
+            "count": 4,
+            "totalMs": 2.8640000000000003,
+            "maxMs": 2.071
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.3800000000000003,
+            "maxMs": 1.227
+          },
+          "Layerize": {
+            "count": 43,
+            "totalMs": 0.44600000000000006,
+            "maxMs": 0.386
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 158,
+            "totalMs": 27.021000000000008,
+            "maxMs": 16.158
+          }
+        }
+      },
+      {
+        "name": "market-no-map",
+        "syncMs": 3.7000000029802322,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.30000000447034836
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1,
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 4.071,
+            "maxMs": 4.071
+          },
+          "UpdateLayoutTree": {
+            "count": 4,
+            "totalMs": 2.467,
+            "maxMs": 1.797
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.255,
+            "maxMs": 1.148
+          },
+          "Layerize": {
+            "count": 37,
+            "totalMs": 0.32400000000000007,
+            "maxMs": 0.249
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 157,
+            "totalMs": 23.695999999999987,
+            "maxMs": 12.117
+          }
+        }
+      },
+      {
+        "name": "market-no-strip",
+        "syncMs": 7.5,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1,
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 13.577,
+            "maxMs": 13.577
+          },
+          "UpdateLayoutTree": {
+            "count": 4,
+            "totalMs": 5.541,
+            "maxMs": 4.631
+          },
+          "Paint": {
+            "count": 3,
+            "totalMs": 12.863000000000001,
+            "maxMs": 6.949
+          },
+          "Layerize": {
+            "count": 38,
+            "totalMs": 2.465999999999996,
+            "maxMs": 2.413
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 160,
+            "totalMs": 51.884000000000036,
+            "maxMs": 37.267
+          }
+        }
+      },
+      {
+        "name": "market-contain-strip",
+        "syncMs": 3.899999998509884,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.30000000447034836
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.4000000059604645
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1,
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 3.974,
+            "maxMs": 3.974
+          },
+          "UpdateLayoutTree": {
+            "count": 4,
+            "totalMs": 3.0620000000000003,
+            "maxMs": 2.371
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.264,
+            "maxMs": 1.199
+          },
+          "Layerize": {
+            "count": 41,
+            "totalMs": 0.44200000000000006,
+            "maxMs": 0.382
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 414,
+            "totalMs": 84.61400000000006,
+            "maxMs": 21.537
+          }
+        }
+      },
+      {
+        "name": "market-no-image-effects",
+        "syncMs": 3.7999999970197678,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1,
+          "simNextDay": 6,
+          "simAdvanceStatus": 2,
+          "simCalendarGo": 4,
+          "mapStatus": 4
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 3.903,
+            "maxMs": 3.903
+          },
+          "UpdateLayoutTree": {
+            "count": 4,
+            "totalMs": 3.15,
+            "maxMs": 2.409
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.432,
+            "maxMs": 1.25
+          },
+          "Layerize": {
+            "count": 38,
+            "totalMs": 0.43300000000000005,
+            "maxMs": 0.376
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 158,
+            "totalMs": 25.073999999999998,
+            "maxMs": 13.085
+          }
+        }
+      }
+    ],
+    "resources": {
+      "fonts": "loaded",
+      "images": 34,
+      "broken": []
+    },
+    "failedResources": [],
+    "errors": []
+  },
+  "after": {
+    "label": "after",
+    "measuredWorld": {
+      "rows": 1000000,
+      "companies": 11,
+      "paused": true,
+      "map": {
+        "layers": 39,
+        "ownMarkers": 1,
+        "competitorMarkers": 0,
+        "vehicleIds": [
+          "fleet:N-AIR-00000001"
+        ],
+        "motionStates": 1,
+        "mode": "operations",
+        "routeLines": 0,
+        "facilityMarkers": 3,
+        "facilityKeys": [
+          "HQ-GROUP",
+          "country:AE",
+          "country:SA"
+        ],
+        "mobilityIds": [],
+        "mobilityDomMarkers": 0,
+        "worldMarkers": 0,
+        "individuals": 1,
+        "vehicleCount": 1,
+        "vehicleCanvasCount": 1,
+        "canvas": {
+          "version": "GH-MAP-VEHICLE-CANVAS-359.0.0",
+          "hardLimit": 300,
+          "active": 1,
+          "free": 299,
+          "slotObjects": 300,
+          "highWater": 3,
+          "adds": 4,
+          "updates": 24,
+          "removes": 3,
+          "clears": 1,
+          "slotReuses": 1,
+          "rejectedAtLimit": 0,
+          "frames": 7,
+          "drawn": 1,
+          "culled": 0,
+          "hitTests": 0,
+          "hits": 0,
+          "misses": 0,
+          "width": 956,
+          "height": 440,
+          "dpr": 1,
+          "imageCacheSize": 1,
+          "canvasCount": 1,
+          "pendingFrame": false,
+          "destroyed": false,
+          "lastDrawMs": 0.30000000447034836
+        },
+        "vehiclePoints": [
+          {
+            "id": "N-AIR-00000001",
+            "lat": 25.252799999999997,
+            "lng": 55.364400000000046,
+            "target": [
+              25.252799999999997,
+              55.364400000000046
+            ]
+          }
+        ],
+        "selectedAssetId": null,
+        "selectedMobilityId": null,
+        "selectedFacilityId": null,
+        "dom": 609
+      }
+    },
+    "cases": [
+      {
+        "name": "map-idle",
+        "syncMs": 0,
+        "frames": 0,
+        "rects": 0,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0.3999999985098839
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "targets",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "kpis",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {},
+        "trace": {
+          "Layout": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "UpdateLayoutTree": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "Paint": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "Layerize": {
+            "count": 36,
+            "totalMs": 0.04800000000000002,
+            "maxMs": 0.007
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 129,
+            "totalMs": 12.524000000000003,
+            "maxMs": 2.126
+          }
+        }
+      },
+      {
+        "name": "hr-cold",
+        "syncMs": 4.699999995529652,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "targets",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "loop",
+            "ms": 0.3999999985098839
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0.29999999701976776
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 2,
+          "drawerBody": 4,
+          "drawerMark": 1,
+          "sectionNav": 1,
+          "tabs mc-in-strip": 1,
+          "primary-btn": 13,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "active": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1
+        },
+        "trace": {
+          "Layout": {
+            "count": 16,
+            "totalMs": 2.355,
+            "maxMs": 2.141
+          },
+          "UpdateLayoutTree": {
+            "count": 8,
+            "totalMs": 5.87,
+            "maxMs": 5.38
+          },
+          "Paint": {
+            "count": 7,
+            "totalMs": 2.473,
+            "maxMs": 1.142
+          },
+          "Layerize": {
+            "count": 47,
+            "totalMs": 0.41900000000000004,
+            "maxMs": 0.304
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 293,
+            "totalMs": 26.931999999999995,
+            "maxMs": 14.597
+          }
+        }
+      },
+      {
+        "name": "market-cold",
+        "syncMs": 9.100000001490116,
+        "frames": 0,
+        "rects": 5,
+        "spans": [
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "animation",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "targets",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.19999999552965164
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "targets",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "animation",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "drawerMark": 1,
+          "sectionNav": 1,
+          "on": 3,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1,
+          "B": 1,
+          "SMALL": 1,
+          "danger-soft sell-all-assets": 2,
+          "OPTION": 6
+        },
+        "trace": {
+          "Layout": {
+            "count": 3,
+            "totalMs": 59.239000000000004,
+            "maxMs": 57.226
+          },
+          "UpdateLayoutTree": {
+            "count": 3,
+            "totalMs": 5.7139999999999995,
+            "maxMs": 5.108
+          },
+          "Paint": {
+            "count": 29,
+            "totalMs": 5.778999999999998,
+            "maxMs": 2.048
+          },
+          "Layerize": {
+            "count": 40,
+            "totalMs": 2.1509999999999962,
+            "maxMs": 0.938
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 178,
+            "totalMs": 98.23900000000012,
+            "maxMs": 76.667
+          }
+        }
+      },
+      {
+        "name": "market-static",
+        "syncMs": 3.9000000059604645,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 3.818,
+            "maxMs": 3.818
+          },
+          "UpdateLayoutTree": {
+            "count": 2,
+            "totalMs": 1.834,
+            "maxMs": 1.732
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.1609999999999996,
+            "maxMs": 1.115
+          },
+          "Layerize": {
+            "count": 34,
+            "totalMs": 0.42200000000000004,
+            "maxMs": 0.376
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 158,
+            "totalMs": 23.086999999999996,
+            "maxMs": 12.626
+          }
+        }
+      },
+      {
+        "name": "market-no-map",
+        "syncMs": 3.7999999970197678,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 3.891,
+            "maxMs": 3.891
+          },
+          "UpdateLayoutTree": {
+            "count": 2,
+            "totalMs": 1.862,
+            "maxMs": 1.76
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.08,
+            "maxMs": 1.062
+          },
+          "Layerize": {
+            "count": 34,
+            "totalMs": 0.28900000000000003,
+            "maxMs": 0.247
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 160,
+            "totalMs": 20.57900000000001,
+            "maxMs": 11.839
+          }
+        }
+      },
+      {
+        "name": "market-no-strip",
+        "syncMs": 3.5,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 3.914,
+            "maxMs": 3.914
+          },
+          "UpdateLayoutTree": {
+            "count": 2,
+            "totalMs": 2.442,
+            "maxMs": 2.333
+          },
+          "Paint": {
+            "count": 3,
+            "totalMs": 2.15,
+            "maxMs": 1.117
+          },
+          "Layerize": {
+            "count": 36,
+            "totalMs": 0.42800000000000005,
+            "maxMs": 0.371
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 221,
+            "totalMs": 54.52800000000003,
+            "maxMs": 20.136
+          }
+        }
+      },
+      {
+        "name": "market-contain-strip",
+        "syncMs": 4.899999998509884,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "map.status",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 3.808,
+            "maxMs": 3.808
+          },
+          "UpdateLayoutTree": {
+            "count": 2,
+            "totalMs": 2.4419999999999997,
+            "maxMs": 2.328
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.241,
+            "maxMs": 1.154
+          },
+          "Layerize": {
+            "count": 33,
+            "totalMs": 0.406,
+            "maxMs": 0.356
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 157,
+            "totalMs": 21.511000000000035,
+            "maxMs": 13.737
+          }
+        }
+      },
+      {
+        "name": "market-no-image-effects",
+        "syncMs": 3.7000000029802322,
+        "frames": 0,
+        "rects": 3,
+        "spans": [
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0.20000000298023224
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.09999999403953552
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          },
+          {
+            "name": "kpis",
+            "ms": 0.10000000149011612
+          },
+          {
+            "name": "map.status",
+            "ms": 0
+          },
+          {
+            "name": "loop",
+            "ms": 0
+          }
+        ],
+        "mutations": {
+          "workspaceBack": 1,
+          "drawer": 6,
+          "drawerEyebrow": 2,
+          "drawerTitle": 1,
+          "drawerBody": 4,
+          "IMG": 16,
+          "on": 2,
+          "backdrop": 1,
+          "mapNavBtn": 1,
+          "settingsBtn": 1,
+          "filterPopover": 1,
+          "assetCard": 1
+        },
+        "trace": {
+          "Layout": {
+            "count": 1,
+            "totalMs": 3.821,
+            "maxMs": 3.821
+          },
+          "UpdateLayoutTree": {
+            "count": 2,
+            "totalMs": 2.446,
+            "maxMs": 2.334
+          },
+          "Paint": {
+            "count": 4,
+            "totalMs": 2.1859999999999995,
+            "maxMs": 1.126
+          },
+          "Layerize": {
+            "count": 30,
+            "totalMs": 0.36800000000000005,
+            "maxMs": 0.336
+          },
+          "ThreadControllerImpl::RunTask": {
+            "count": 160,
+            "totalMs": 21.078000000000003,
+            "maxMs": 12.436
+          }
+        }
+      }
+    ],
+    "resources": {
+      "fonts": "loaded",
+      "images": 34,
+      "broken": []
+    },
+    "failedResources": [],
+    "errors": []
+  }
+}

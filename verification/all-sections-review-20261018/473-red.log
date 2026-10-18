@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: the purchase owner already recorded its durable procurement notice
+
+1 !== 0
+
+    at /workspace/madar/tests/build473-purchase-notice-work.cjs:3:971 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

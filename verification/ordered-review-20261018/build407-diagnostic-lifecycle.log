@@ -1,0 +1,1 @@
+{"suite":"build407-diagnostic-lifecycle","ok":true,"results":[{"case":"idempotent stop and visibility pause","ok":true},{"case":"late stages remain attributed; bounded index","entitySteps":3000,"lateWaitMs":106,"peakMapSize":65},{"case":"staged UI notifications, duplicate/bound/reset/rollback","ok":true}]}

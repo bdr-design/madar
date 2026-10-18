@@ -1,0 +1,75 @@
+[
+  {
+    "argv": [
+      "node",
+      "tests/build359-corridor-index.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 19.65,
+    "test_sha256": "d1bc945f9a041ed693125a4d616ee683c751bff2a2a42a3f9f20f1bd51dbd589"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build426-governor-pressure.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.032,
+    "test_sha256": "0318c892822e4ab3063ac91e5b3b0209be6464f3fed2cb709f36442aa471195a"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build427-day-profile-work.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.615,
+    "test_sha256": "a8a4082465b9cf32e67aa93a3e0f075d9b813e299c332b2a6a3a06ef8b72f693"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build362-phase-totals.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.032,
+    "test_sha256": "7d8f0bec1ec96b52a703a62f63a704c7024338c8a5cb42a58b3e4366c7930cc9"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build407-diagnostic-lifecycle.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.064,
+    "test_sha256": "adb74926ce2b8f260d2f14dd23a7e0a77168efbb20c7f0c61900282bee829e3e"
+  },
+  {
+    "argv": [
+      "npm",
+      "run",
+      "lint",
+      "--silent"
+    ],
+    "exit_code": 0,
+    "seconds": 4.034
+  },
+  {
+    "argv": [
+      "python3",
+      "tests/build334-source-layout.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.064,
+    "test_sha256": "e3b32246febbe86a47efa561e7d6752bcfa8e3f7d40faf8c996839860bdcc0a6"
+  },
+  {
+    "argv": [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.314,
+    "test_sha256": "1060ac29c367f35faa9ea9f785ad58553eb014b791498e6652adbfd5b449e96e"
+  }
+]

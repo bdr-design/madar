@@ -1,0 +1,68 @@
+[
+  {
+    "mutant": "projection-context",
+    "test": "build463-ui-summary-projection.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "projection-result-key",
+    "test": "build463-ui-summary-projection.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "projection-value-proof",
+    "test": "build464-summary-projection-boundary.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "projection-time-proof",
+    "test": "build464-summary-projection-boundary.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "directory-eager-decode",
+    "test": "build465-directory-ranking-work.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "directory-quadratic-ranking",
+    "test": "build466-directory-round-robin.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "directory-repeated-country",
+    "test": "build467-directory-country-work.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "notice-second-transaction",
+    "test": "build469-app-notice-work.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "composite-missing-notice",
+    "test": "build470-composite-notice-work.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "purchase-extra-refresh",
+    "test": "build473-purchase-notice-work.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  },
+  {
+    "mutant": "campaign-extra-notice",
+    "test": "build471-company-notice-work.cjs",
+    "exit": 1,
+    "detected_by_assertion": true
+  }
+]

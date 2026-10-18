@@ -1,0 +1,3 @@
+worker-close: fixture ready; advancing to boundary
+worker-close: before midnight
+{"suite":"build405-worker-close-browser","rows":2305,"mainFullWalks":0,"columnPlanSyncs":1,"wholeColumnSyncs":0,"interleavedMapReads":2,"cancelRollback":true,"lateAnswerRejected":true}

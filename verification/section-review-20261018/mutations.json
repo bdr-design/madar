@@ -1,0 +1,114 @@
+[
+  {
+    "name": "hr-index-per-center",
+    "file": "hr-core.js",
+    "test": "build447-hr-facility-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unused-hr-snapshot",
+    "file": "advanced-core.js",
+    "test": "build448-labor-tab-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unknown-capacity-zero",
+    "file": "facility-core.js",
+    "test": "build449-asset-capacity-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "large-capacity-fallback",
+    "file": "facility-core.js",
+    "test": "build449-asset-capacity-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "missing-delivery-occupancy",
+    "file": "facility-core.js",
+    "test": "build449-asset-capacity-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "duplicate-market-capacity",
+    "file": "app.js",
+    "test": "build449-asset-capacity-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unused-loan-projection",
+    "file": "advanced-core.js",
+    "test": "build450-other-section-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unbounded-hr-cards",
+    "file": "advanced-core.js",
+    "test": "build448-labor-tab-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "post-ack-personnel-notice",
+    "file": "advanced-core.js",
+    "test": "build451-hr-notice-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unused-customer-projection",
+    "file": "business-world-core.js",
+    "test": "build453-section-projections",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "copy-full-delivery-history",
+    "file": "advanced-core.js",
+    "test": "build453-section-projections",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unbounded-facilities",
+    "file": "app.js",
+    "test": "build454-facility-pages",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unbounded-hub-facilities",
+    "file": "app.js",
+    "test": "build454-facility-pages",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "cii-main-thread-scan",
+    "file": "advanced-core.js",
+    "test": "build455-cii-preview-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "cii-stale-summary",
+    "file": "advanced-core.js",
+    "test": "build455-cii-preview-work",
+    "exit_code": 1,
+    "detected": true
+  },
+  {
+    "name": "unbounded-list-build",
+    "file": "fleet-list-query-core.js",
+    "test": "build456-list-build-budget",
+    "exit_code": 1,
+    "detected": true
+  }
+]

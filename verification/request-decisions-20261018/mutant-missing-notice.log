@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: bank/company/accept: success notice belongs in the durable draft
++ actual - expected
+
++ 'undefined'
+- 'function'
+
+    at run (/workspace/madar/tests/build431-decision-notices.cjs:19:39)
+    at async /workspace/madar/tests/build431-decision-notices.cjs:28:126 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'undefined',
+  expected: 'function',
+  operator: 'strictEqual',
+  diff: 'simple'
+}

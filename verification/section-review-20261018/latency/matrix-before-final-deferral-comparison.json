@@ -1,0 +1,363 @@
+[
+  {
+    "panel": "labor",
+    "arg": "dashboard",
+    "beforeMedianMs": 5.699999995529652,
+    "afterMedianMs": 2.7000000029802322,
+    "beforeMaxMs": 8.900000005960464,
+    "afterMaxMs": 6.5,
+    "beforeDom": 234,
+    "afterDom": 234,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "labor",
+    "arg": "jobs",
+    "beforeMedianMs": 8.5,
+    "afterMedianMs": 1.7000000029802322,
+    "beforeMaxMs": 8.899999998509884,
+    "afterMaxMs": 2.2000000029802322,
+    "beforeDom": 1543,
+    "afterDom": 89,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "labor",
+    "arg": "contracts",
+    "beforeMedianMs": 49.70000000298023,
+    "afterMedianMs": 1.5,
+    "beforeMaxMs": 51,
+    "afterMaxMs": 1.7999999970197678,
+    "beforeDom": 18043,
+    "afterDom": 83,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "labor",
+    "arg": "payroll",
+    "beforeMedianMs": 6.800000004470348,
+    "afterMedianMs": 1.5,
+    "beforeMaxMs": 7.100000001490116,
+    "afterMaxMs": 1.8000000044703484,
+    "beforeDom": 25,
+    "afterDom": 25,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "labor",
+    "arg": "managers:air",
+    "beforeMedianMs": 5.200000002980232,
+    "afterMedianMs": 2.2999999970197678,
+    "beforeMaxMs": 6.199999995529652,
+    "afterMaxMs": 2.7000000029802322,
+    "beforeDom": 62,
+    "afterDom": 62,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "assetMarket",
+    "arg": "air",
+    "beforeMedianMs": 9.900000005960464,
+    "afterMedianMs": 6.9000000059604645,
+    "beforeMaxMs": 32.100000001490116,
+    "afterMaxMs": 20.299999997019768,
+    "beforeDom": 416,
+    "afterDom": 416,
+    "beforeClassReads": 6,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "assets",
+    "arg": "air",
+    "beforeMedianMs": 2.5,
+    "afterMedianMs": 2.399999998509884,
+    "beforeMaxMs": 38.30000000447035,
+    "afterMaxMs": 48.69999999552965,
+    "beforeDom": 37,
+    "afterDom": 37,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "facilityManage",
+    "arg": {
+      "id": "QA-DEC-OMDB",
+      "tab": "command"
+    },
+    "beforeMedianMs": 1.3999999985098839,
+    "afterMedianMs": 1.5,
+    "beforeMaxMs": 1.7999999970197678,
+    "afterMaxMs": 9.100000001490116,
+    "beforeDom": 14,
+    "afterDom": 14,
+    "beforeClassReads": 1,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "facilityManage",
+    "arg": {
+      "id": "QA-DEC-OMDB",
+      "tab": "operations"
+    },
+    "beforeMedianMs": 1.1999999955296516,
+    "afterMedianMs": 1.3000000044703484,
+    "beforeMaxMs": 1.3999999985098839,
+    "afterMaxMs": 1.3999999985098839,
+    "beforeDom": 13,
+    "afterDom": 13,
+    "beforeClassReads": 1,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "facilityManage",
+    "arg": {
+      "id": "QA-DEC-OMDB",
+      "tab": "finance"
+    },
+    "beforeMedianMs": 1.3000000044703484,
+    "afterMedianMs": 1.2999999970197678,
+    "beforeMaxMs": 1.5,
+    "afterMaxMs": 2.5,
+    "beforeDom": 14,
+    "afterDom": 14,
+    "beforeClassReads": 1,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "companyFacilities",
+    "arg": "air",
+    "beforeMedianMs": 1.5,
+    "afterMedianMs": 1.6000000014901161,
+    "beforeMaxMs": 24.200000002980232,
+    "afterMaxMs": 7,
+    "beforeDom": 31,
+    "afterDom": 31,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "companyFacilities",
+    "arg": "mobility",
+    "beforeMedianMs": 2.6999999955296516,
+    "afterMedianMs": 2.2000000029802322,
+    "beforeMaxMs": 4.200000002980232,
+    "afterMaxMs": 17.600000001490116,
+    "beforeDom": 421,
+    "afterDom": 45,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "expansion",
+    "arg": {
+      "sector": "mobility"
+    },
+    "beforeMedianMs": 4.800000004470348,
+    "afterMedianMs": 1.6999999955296516,
+    "beforeMaxMs": 9.899999998509884,
+    "afterMaxMs": 2.0999999940395355,
+    "beforeDom": 1659,
+    "afterDom": 143,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "procurement",
+    "arg": null,
+    "beforeMedianMs": 1.3999999985098839,
+    "afterMedianMs": 1.2000000029802322,
+    "beforeMaxMs": 1.7999999970197678,
+    "afterMaxMs": 1.2999999970197678,
+    "beforeDom": 20,
+    "afterDom": 20,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "treasury",
+    "arg": {
+      "tab": "reserve"
+    },
+    "beforeMedianMs": 1.8999999985098839,
+    "afterMedianMs": 1.8000000044703484,
+    "beforeMaxMs": 2.899999998509884,
+    "afterMaxMs": 2.399999998509884,
+    "beforeDom": 30,
+    "afterDom": 30,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "treasury",
+    "arg": {
+      "tab": "pool"
+    },
+    "beforeMedianMs": 2.8000000044703484,
+    "afterMedianMs": 2.899999998509884,
+    "beforeMaxMs": 3.2000000029802322,
+    "afterMaxMs": 2.899999998509884,
+    "beforeDom": 171,
+    "afterDom": 171,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "treasury",
+    "arg": {
+      "tab": "loans"
+    },
+    "beforeMedianMs": 2.399999998509884,
+    "afterMedianMs": 2.4000000059604645,
+    "beforeMaxMs": 2.5,
+    "afterMaxMs": 2.899999998509884,
+    "beforeDom": 66,
+    "afterDom": 66,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "businessWorld",
+    "arg": {
+      "tab": "overview"
+    },
+    "beforeMedianMs": 2.399999998509884,
+    "afterMedianMs": 1.6000000014901161,
+    "beforeMaxMs": 2.4000000059604645,
+    "afterMaxMs": 2.100000001490116,
+    "beforeDom": 129,
+    "afterDom": 129,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "businessWorld",
+    "arg": {
+      "tab": "customers"
+    },
+    "beforeMedianMs": 2,
+    "afterMedianMs": 2.3000000044703484,
+    "beforeMaxMs": 2.3000000044703484,
+    "afterMaxMs": 2.3000000044703484,
+    "beforeDom": 251,
+    "afterDom": 251,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "businessWorld",
+    "arg": {
+      "tab": "sponsorships"
+    },
+    "beforeMedianMs": 1.9000000059604645,
+    "afterMedianMs": 1.8999999985098839,
+    "beforeMaxMs": 2,
+    "afterMaxMs": 2.0999999940395355,
+    "beforeDom": 110,
+    "afterDom": 110,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "businessWorld",
+    "arg": {
+      "tab": "competitors"
+    },
+    "beforeMedianMs": 1.6000000014901161,
+    "afterMedianMs": 1.6000000014901161,
+    "beforeMaxMs": 1.7000000029802322,
+    "afterMaxMs": 1.7999999970197678,
+    "beforeDom": 170,
+    "afterDom": 170,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "actionCenter",
+    "arg": null,
+    "beforeMedianMs": 1.6000000014901161,
+    "afterMedianMs": 1.7000000029802322,
+    "beforeMaxMs": 2.1999999955296516,
+    "afterMaxMs": 2.2999999970197678,
+    "beforeDom": 120,
+    "afterDom": 120,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "compliance",
+    "arg": null,
+    "beforeMedianMs": 1.3999999985098839,
+    "afterMedianMs": 1.5,
+    "beforeMaxMs": 23.5,
+    "afterMaxMs": 2,
+    "beforeDom": 73,
+    "afterDom": 73,
+    "beforeClassReads": 1,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "esg",
+    "arg": null,
+    "beforeMedianMs": 1.6000000014901161,
+    "afterMedianMs": 1.6999999955296516,
+    "beforeMaxMs": 1.7999999970197678,
+    "afterMaxMs": 1.6999999955296516,
+    "beforeDom": 105,
+    "afterDom": 105,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "research",
+    "arg": null,
+    "beforeMedianMs": 1.3000000044703484,
+    "afterMedianMs": 1.5,
+    "beforeMaxMs": 1.7000000029802322,
+    "afterMaxMs": 1.6999999955296516,
+    "beforeDom": 61,
+    "afterDom": 61,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "maintenance",
+    "arg": null,
+    "beforeMedianMs": 1.3999999985098839,
+    "afterMedianMs": 1.5,
+    "beforeMaxMs": 1.7000000029802322,
+    "afterMaxMs": 1.8999999985098839,
+    "beforeDom": 102,
+    "afterDom": 102,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "news",
+    "arg": null,
+    "beforeMedianMs": 2.100000001490116,
+    "afterMedianMs": 2.5,
+    "beforeMaxMs": 2.600000001490116,
+    "afterMaxMs": 5.899999998509884,
+    "beforeDom": 245,
+    "afterDom": 245,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  },
+  {
+    "panel": "groupManagement",
+    "arg": null,
+    "beforeMedianMs": 2.399999998509884,
+    "afterMedianMs": 2.899999998509884,
+    "beforeMaxMs": 3.100000001490116,
+    "afterMaxMs": 4.100000001490116,
+    "beforeDom": 247,
+    "afterDom": 247,
+    "beforeClassReads": 0,
+    "afterClassReads": 0
+  }
+]

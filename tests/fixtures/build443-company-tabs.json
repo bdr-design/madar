@@ -1,0 +1,332 @@
+[
+  {
+    "type": "air",
+    "tab": "overview",
+    "sha256": "ab786f9d792b09206ce9d5099ae0ec0e965b240319ea895240bf9dabf89c4337"
+  },
+  {
+    "type": "air",
+    "tab": "operations",
+    "sha256": "0287dce655e7fc5aa7141b3393fca5ce82a548b298ac92141c2714ca76adff3a"
+  },
+  {
+    "type": "air",
+    "tab": "assets",
+    "sha256": "b4498180433eb1ae4da206c5c30f1cde40dc29254292fab8b3b3b94723a4d39a"
+  },
+  {
+    "type": "air",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "air",
+    "tab": "finance",
+    "sha256": "968bdb1aac9aa0218f2d0816d4dd663d367d548495f6d04dc4d33215cc28ea67"
+  },
+  {
+    "type": "air",
+    "tab": "management",
+    "sha256": "b05454605cb73f61f0974705fd5cd93ad386d529659de6715a2d6ea91fbc83ba"
+  },
+  {
+    "type": "sea",
+    "tab": "overview",
+    "sha256": "b6e8a7de0f164f86f88470c0a0e2ceebd1e0df87ee6f502275e65325fc08f2e9"
+  },
+  {
+    "type": "sea",
+    "tab": "operations",
+    "sha256": "46cd21a24b6a4ea72c04251dac50030458815021368f85baf4370081dc4d7562"
+  },
+  {
+    "type": "sea",
+    "tab": "assets",
+    "sha256": "03f1a8f82fce1655c7151c01339038815603774bb5fca5d23529f5b2a4cfc0b2"
+  },
+  {
+    "type": "sea",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "sea",
+    "tab": "finance",
+    "sha256": "847f010b2fb372833bdd79007129dc20a82e201dea5835b9132b554abd7953f7"
+  },
+  {
+    "type": "sea",
+    "tab": "management",
+    "sha256": "d0fb52f93e7968ce85340b7d6098516236333ac7209faf4a96ef1348a728d9c1"
+  },
+  {
+    "type": "road",
+    "tab": "overview",
+    "sha256": "3afbf32e8433724192ffcf5bfc4a004b2bce5e4265b359897bf407d2a0752741"
+  },
+  {
+    "type": "road",
+    "tab": "operations",
+    "sha256": "1f51a6cad9251e17e90a2ff1558b67fef735ac4519ee7687e673a1d3f0e08337"
+  },
+  {
+    "type": "road",
+    "tab": "assets",
+    "sha256": "52cbf510ae6fcb17c763c50cd9dee5bfd32222f76a5e9d30a06ca6653f2e3e54"
+  },
+  {
+    "type": "road",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "road",
+    "tab": "finance",
+    "sha256": "2125cdae4e70c356fdd70fff64244b209024bdc8c5da949cc4254c496f3b27f2"
+  },
+  {
+    "type": "road",
+    "tab": "management",
+    "sha256": "b2900fc661113b013eb53ce0edc4175800dfafe740924a867e26443f1e979a3e"
+  },
+  {
+    "type": "mobility",
+    "tab": "overview",
+    "sha256": "d37e8ed4d6beab26c1cb59aeb62d38fc197af52240ec33538bbf8b2ad31c1e42"
+  },
+  {
+    "type": "mobility",
+    "tab": "operations",
+    "sha256": "3b606d1c487ee00d5c0a0e0e7d325a6e4b8fcb088c3e79c644bb944850dd113d"
+  },
+  {
+    "type": "mobility",
+    "tab": "assets",
+    "sha256": "f4c53196e70a626922b0b51e108c36794e40ee3e9130f30ede04dba3cc1b0a49"
+  },
+  {
+    "type": "mobility",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "mobility",
+    "tab": "finance",
+    "sha256": "36fff04e6ede530d06b79cb71875ace7bdd6c58c020c2b2a24e4eb6565a3eddc"
+  },
+  {
+    "type": "mobility",
+    "tab": "management",
+    "sha256": "90fc2310306803a61f847d6cb9ea24c54286d27ad41fd79e9bc6334c46b663c5"
+  },
+  {
+    "type": "power",
+    "tab": "overview",
+    "sha256": "5b1ec12f2784f96c6cdd0afd84a8fc4f4e89df84da6d3ce07b7d477d2ec53b55"
+  },
+  {
+    "type": "power",
+    "tab": "operations",
+    "sha256": "7a56955639762a028f551c6002e78610fd737b3d038635c83df2dc39552e2370"
+  },
+  {
+    "type": "power",
+    "tab": "assets",
+    "sha256": "a80c4dc9982abb7555ac93b96007bd8309653e2415a2aca583b9bbe082ca4c51"
+  },
+  {
+    "type": "power",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "power",
+    "tab": "finance",
+    "sha256": "fc9c000878a60135fb42c27f2d9d7cca21f310bde61585ea902eed62c9bf7db1"
+  },
+  {
+    "type": "power",
+    "tab": "management",
+    "sha256": "f5aca5ca5fe6e0c5f436ab6d94f0ae88084407a02c8779d230f44b8451061945"
+  },
+  {
+    "type": "bank",
+    "tab": "overview",
+    "sha256": "568af0beb9bee5dc1bdd78449102cb4b61098e5a7b2bc6be381718db4c1e7009"
+  },
+  {
+    "type": "bank",
+    "tab": "operations",
+    "sha256": "bc350e7d0d191ca32ba08eb7dac976e61e274ef72366d4fc56156fc3fd386b0a"
+  },
+  {
+    "type": "bank",
+    "tab": "assets",
+    "sha256": "20a227feae2fcc85451af00ae7c7d761cf27d1bb68c8d68898ba8840620a9cce"
+  },
+  {
+    "type": "bank",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "bank",
+    "tab": "finance",
+    "sha256": "4613a128a024d41877c7e141ff34e74251e3c7f20cd9775b19cc524fbe3b8e40"
+  },
+  {
+    "type": "bank",
+    "tab": "management",
+    "sha256": "d0a66203cf08a037956f16a0632ea05ba0c1dc2bd6b724e3de8755b7fee9f9a9"
+  },
+  {
+    "type": "insurance",
+    "tab": "overview",
+    "sha256": "fc05476132d06fe75264ad692492a1b631ae6d92c8c83ccca018d2731f1e89d0"
+  },
+  {
+    "type": "insurance",
+    "tab": "operations",
+    "sha256": "eda9ca5a0533f30a33acd291a56dc45ca913f03cde32ba54fa2c6a38006592ef"
+  },
+  {
+    "type": "insurance",
+    "tab": "assets",
+    "sha256": "22360a99047ce7939d6567ed54b9277ca70b378ceb97e6bdd2ea66708c830f57"
+  },
+  {
+    "type": "insurance",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "insurance",
+    "tab": "finance",
+    "sha256": "3563fb9d35eb23eed3a1b10d341f5fa1f4375bca01424619c50965adeb96df0a"
+  },
+  {
+    "type": "insurance",
+    "tab": "management",
+    "sha256": "646eecaef285d0c32d6f4f2d35ae2eaf3cf7c5814e0cdb23de15be144135568c"
+  },
+  {
+    "type": "realestate",
+    "tab": "overview",
+    "sha256": "5635e7b0613d7d934da76c76873cb857be4eb4027189d553aa8fc5b9fb68de02"
+  },
+  {
+    "type": "realestate",
+    "tab": "operations",
+    "sha256": "961cec277f09cec25dc05917574ec5e1fd28e0cc0f71b1caf1d745d875e92cfc"
+  },
+  {
+    "type": "realestate",
+    "tab": "assets",
+    "sha256": "06416ab6998c858347cb353b15989257a3859922a5bdf1356701099d16461ef4"
+  },
+  {
+    "type": "realestate",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "realestate",
+    "tab": "finance",
+    "sha256": "3d1e6802223a3d6203893e9242e433630cfb106c3e5f5db82dccd551588c6914"
+  },
+  {
+    "type": "realestate",
+    "tab": "management",
+    "sha256": "aa716ef16761fe6d53b7bbf5e6d3639a72d2efb7e7a3d396d5ddcdbcb4d8c99f"
+  },
+  {
+    "type": "telecom",
+    "tab": "overview",
+    "sha256": "d47a8381daaae33214b544ba242ca1fdbf1aceb8c668110df3c9ba42d9ea5b9f"
+  },
+  {
+    "type": "telecom",
+    "tab": "operations",
+    "sha256": "27e27d9b3210deaf0c709f8760c006101b1af8fb497befcc23af11d2bad18181"
+  },
+  {
+    "type": "telecom",
+    "tab": "assets",
+    "sha256": "89adea5159720cc6cb26a649c0c69b0b3896d529011fcd5d5175c89c911f71bb"
+  },
+  {
+    "type": "telecom",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "telecom",
+    "tab": "finance",
+    "sha256": "890a3e1f42eac42a6d2c6acd561f1ec0f576a4ce9520d09c9db2db74e6ff2a96"
+  },
+  {
+    "type": "telecom",
+    "tab": "management",
+    "sha256": "be956312d9ef7dae369adf709b56e27db88815dcbf7a65c97d022c38b58ef4ce"
+  },
+  {
+    "type": "dealership",
+    "tab": "overview",
+    "sha256": "55d61c3d7faf3688890ed7a9271c0ee51ce110d4e30939b2758c4c68b4cf178e"
+  },
+  {
+    "type": "dealership",
+    "tab": "operations",
+    "sha256": "27e27d9b3210deaf0c709f8760c006101b1af8fb497befcc23af11d2bad18181"
+  },
+  {
+    "type": "dealership",
+    "tab": "assets",
+    "sha256": "d6252914f14fa9f2ee328a2355450fe7bdb21b0d1788b3089c42354c16f459f6"
+  },
+  {
+    "type": "dealership",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "dealership",
+    "tab": "finance",
+    "sha256": "79b79fb250fbeef5d8ba615f436acf2f3c9a4e09f8272793138bf113a9a54aa4"
+  },
+  {
+    "type": "dealership",
+    "tab": "management",
+    "sha256": "53308d2984e0203f741c8a5c4697df861e31f8efbe32aaf5e76ad7306cbc6f14"
+  },
+  {
+    "type": "hospitality",
+    "tab": "overview",
+    "sha256": "899d88617f9cbca5bfe5d353564766376a6f9c38db28caf88215a2838c21405b"
+  },
+  {
+    "type": "hospitality",
+    "tab": "operations",
+    "sha256": "fa98231cd953a2ca6373dcf98d0261b21a44237acc2e51efc1961a9f1db0803f"
+  },
+  {
+    "type": "hospitality",
+    "tab": "assets",
+    "sha256": "591b5597bb2e30ebd9d128066d481c1c0596bc846113e09bfb318746afb16d9d"
+  },
+  {
+    "type": "hospitality",
+    "tab": "people",
+    "sha256": "b89e3b0cbcfa06adee5f7280def6f4a964f1e3032bf086a898c2abd6f5ef6e7f"
+  },
+  {
+    "type": "hospitality",
+    "tab": "finance",
+    "sha256": "8b7d40b762a11378515e7992dae4d3b6176e3a49ca4d4f95ee60a0d1e2b5fc89"
+  },
+  {
+    "type": "hospitality",
+    "tab": "management",
+    "sha256": "e6fa4835834df6138e14b484bd5e160cbd5f001b57a795a247719e567ce61f16"
+  }
+]

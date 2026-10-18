@@ -11,7 +11,12 @@ async function validation(){
  for(let i=0;i<rows;i++){const r=routes[i%routes.length];S.add(fleet,{id:'QA-'+i,name:'QA '+i,type:r[1],ownerCompanyId:r[2],baseFacility:'BASE-'+(i%2),routeId:r[0],phase:'moving',progress:.1,fuel:90,condition:95,tripSeconds:70000});}
  const params={routeIds:routes.map(r=>r[0]),routes,registryCompanies:['air','sea','road'],definitionCompanies:['air','sea','road'],legacyAssetOwners:{air:'air',sea:'sea',road:'road'}},samples=[];
  V.summarize(state,F,params);let result;for(let i=0;i<3;i++){state.simSeconds+=20;const sample=await timed(()=>V.summarize(state,F,params));samples.push(sample.ms);result=sample.value;}
- const ref=await timed(()=>V.summarizeReference(state,F,params));assert.deepEqual(result,ref.value);return {rows,routes:routes.length,warmMs:samples,referenceMs:ref.ms,exact:true};
+ const ref=await timed(()=>V.summarizeReference(state,F,params));assert.deepEqual(result,ref.value);
+ // Explicit pressure fixture only. A daily counter write must not discard
+ // static text/identity proofs, while all live predicates still execute.
+ const write=S.columnWriter(fleet,['flightHours','flightCycles','nextCheckHours']);for(let i=0;i<rows;i++){write(i,'flightHours',4);write(i,'flightCycles',2);write(i,'nextCheckHours',600);}
+ const counters=await timed(()=>V.summarize(state,F,params)),counterStats=V.staticStats();assert.deepEqual(counters.value,V.summarizeReference(state,F,params));
+ return {rows,routes:routes.length,warmMs:samples,referenceMs:ref.ms,afterCounterMs:counters.ms,counterChunksChecked:counterStats.lastChecked,counterChunksReused:counterStats.lastReused,exact:true};
 }
 async function clone(){
  const shape={route:Array.from({length:5000},(_,i)=>[i/100,i/200]),terms:{currency:'USD',unitCost:1200}};assert(TX.sealValue(shape));const state={mobility:{vehicles:Array.from({length:3000},(_,i)=>({id:'CAR-'+i,battery:90,route:shape}))},saveRevision:10},samples=[];let copied;

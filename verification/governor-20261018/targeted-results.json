@@ -1,0 +1,391 @@
+{
+  "status": "LOCAL_TARGETED_PASS_DEVICE_PENDING",
+  "runtime_source_sha256": "a613d80a1b5398fb8ddd7b58265b4c9187b6cd2e1df93df44d5db2222c3a8815",
+  "webapp_sha256": "509d87c1a23e3e06cdd0f4efd41368af12a85fd14762f485d7c0b16753348261",
+  "based_on_commit": "2ad7e1698cc875b50d569a3408b646ebb00d037a",
+  "incoming_commit": "07a72238d7774f8f9575bac8677162dbb39de318",
+  "incoming_patch_sha256": "cedcf334e7352a9d9cb6cce7986be661d295a825d79a859aee65684b99670455",
+  "previous_local_runtime_sha256": "a663f662120db8c1e38c334491a5964fc03cf62ab80de7b53827d1d15905d16e",
+  "previous_local_backup": "/workspace/scratch/governor-20261018/before-integration.tar.gz",
+  "acceptance_contract_sha256": "40df854d64a4f92c3adf1a7b88491b712ec5d6e13adce13fce95b981e471830c",
+  "declared_gates": 460,
+  "declared_preflight": 63,
+  "passed_scripts": 24,
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/governor-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/governor-recovery.log",
+      "log_sha256": "1168b4c3d099f4039d9aecfffdb7f6b99283f020abbd4bd582b1f9c7cda6b594"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build426-governor-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build426-governor-recovery.log",
+      "log_sha256": "845c9c45462a0a40a70c1b0c8fd4b1b756753885e43f58c0f2318957825e1e07"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-scheduler-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build334-scheduler-liveness.log",
+      "log_sha256": "4afb79fa95fb54b6b667ea480b2368728ad60fbedaa3f50cdbfab4ad3b652a45"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sim-smoothness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.465,
+      "log": "verification/governor-20261018/logs/build359-sim-smoothness.log",
+      "log_sha256": "4026353086e4876137d645ab4b1009606f5c4f3ad92b59d71f55df9a0ae72426"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-late-frame-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-20261018/logs/build334-late-frame-liveness.log",
+      "log_sha256": "c7056910564b2be0486df1b3d411785109059958f49d09c4986e594cf1385370"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1bb-pacing-separation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build339-phase1bb-pacing-separation.log",
+      "log_sha256": "c4706845bc2e47adc37deea34ae1a42fea8fd9155de54c7ad98727302238aee4"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-worker-scheduler.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-20261018/logs/build340-simulation-worker-scheduler.log",
+      "log_sha256": "6fdf4d2c2e744c8a0e7ce3b1419e7f9c3b071f818fec3ff6467ecff94df1c2e2"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-simulation-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-20261018/logs/build362-simulation-lifecycle.log",
+      "log_sha256": "fd17157ede32199ae80103bb28dcd2fad227b883c549a7501546ff63b2d4428e"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-simulation-runtime.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-20261018/logs/build362-simulation-runtime.log",
+      "log_sha256": "6aebf451728b482c20ac9a2fb4e281d7f8d3a31e3627e36e45d38dc963db3c5b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-simulation-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build379-simulation-recovery.log",
+      "log_sha256": "2ef3a4fd0f8803d61699b0fccb2c96505f43bc376706478cdc748e749933f0da"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-time-golden.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build339-time-golden.log",
+      "log_sha256": "af7178398a767e3fd0379d097c749a74fc6243d6ffbb848d989f98de93a93b16"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-time-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build334-simulation-time-contract.log",
+      "log_sha256": "5f8170bd33635626ab30076cf31a670f84a875ab226e2469a4d0b45d0b58ae7a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-safety-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.314,
+      "log": "verification/governor-20261018/logs/build334-calendar-safety-contract.log",
+      "log_sha256": "0db5cf82c0685082869f3c4ae4afe5d11c4fbbca716b560bb3f99a36f1894ef9"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-calendar-window-equivalence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.929,
+      "log": "verification/governor-20261018/logs/build362-calendar-window-equivalence.log",
+      "log_sha256": "eed72cf98fabb55b7fb433e24598e7bafa3c86d776d4c2dcdb3f525ee135b967"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-calendar-staged-completion.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build358-calendar-staged-completion.log",
+      "log_sha256": "8c64152af5842ac559e8e8cdbd9801b5129abef1db007a4d77612114c1efbf35"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-calendar-cancel-settle-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-20261018/logs/build371-calendar-cancel-settle-core.log",
+      "log_sha256": "2d3e145e7c00e072b4d1e6d48c1b4ece315df6b2786d12de4b656b37f5efb052"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r3-calendar-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.032,
+      "log": "verification/governor-20261018/logs/build334-r3-calendar-work.log",
+      "log_sha256": "7d582ce61e53edb07388bebefddba72a1a12318cfd62d8fb5956a36ec7b337dd"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-runtime-diagnostics-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.114,
+      "log": "verification/governor-20261018/logs/build363-runtime-diagnostics-contract.log",
+      "log_sha256": "de9e758eea4eb6cf7ebe230edbe228b0d70687497382e8c82de867921579ad47"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-persistence-pacing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.134,
+      "log": "verification/governor-20261018/logs/build353-persistence-pacing.log",
+      "log_sha256": "e8fba30efd363f4c38c6267aee851451157e8967e4b666f7bd7c42d913ebcb56"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/lint.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.28,
+      "log": "verification/governor-20261018/logs/lint.log",
+      "log_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/build334-source-layout.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "verification/governor-20261018/logs/build334-source-layout.log",
+      "log_sha256": "b683d3e645a7d311d1ef5f3266af70e1ec37dbafcc4ea1a8cd04b2eba0285e31"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.314,
+      "log": "verification/governor-20261018/logs/acceptance-policy.log",
+      "log_sha256": "8cf875071efbe33aabfca543c8946b4ed2d9ddeff8a199f96ffc48d0c4afd4e4"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build405-worker-close-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.678,
+      "log": "verification/governor-20261018/logs/build405-worker-close-browser.log",
+      "log_sha256": "b1d47719bab7a0af6d0b8b1e5dc955eb02904219cafc0811b8da85985415b70b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build411-command-row-patch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.127,
+      "log": "verification/governor-20261018/logs/build411-final.log",
+      "environment_note": "Local Debian shared libraries supplied via LD_LIBRARY_PATH; static ldconfig cache validation bypassed after real WebKit launch succeeded. No repository test assertion skipped.",
+      "log_sha256": "ce8495454b5ba78bf301dec370368ac18c8b2e92a9820176f34d263b1e2c11b8"
+    }
+  ],
+  "governor_test_cases": [
+    {
+      "name": "recurring pressure",
+      "changes": 1
+    },
+    {
+      "name": "single spike",
+      "heldMs": 283
+    },
+    {
+      "name": "stepped recovery",
+      "sequence": "RED>YELLOW>GREEN"
+    },
+    {
+      "name": "calendar throttle",
+      "throttles": 1
+    },
+    {
+      "name": "recovery disabled",
+      "changes": 299
+    }
+  ],
+  "integration_test_cases": [
+    {
+      "name": "display cadence",
+      "intervalMs": 8,
+      "heldMs": 262
+    },
+    {
+      "name": "display cadence",
+      "intervalMs": 16,
+      "heldMs": 283
+    },
+    {
+      "name": "display cadence",
+      "intervalMs": 33,
+      "heldMs": 286
+    },
+    {
+      "name": "repeated pressure",
+      "afterLastSpikeMs": 283
+    },
+    {
+      "name": "immediate escalation",
+      "sequence": [
+        "YELLOW",
+        "ORANGE",
+        "RED",
+        "YELLOW",
+        "GREEN"
+      ]
+    },
+    {
+      "name": "seven-day advance",
+      "frames": 135,
+      "simSeconds": 604800,
+      "oldTransitions": 270,
+      "newTransitions": 1
+    },
+    {
+      "name": "held RED throttle",
+      "throttles": 1,
+      "simSeconds": 604800
+    },
+    {
+      "name": "cancel during RED",
+      "settledSimSeconds": 0
+    },
+    {
+      "name": "exact legacy trace",
+      "traceSHA256": "f046d61252299408ee9ab5f1639558503b67d004c29c0c06d4e08ce25b32e880",
+      "transitions": 299
+    }
+  ],
+  "mutation_tests": [
+    {
+      "mutation": "held-red-throttle",
+      "test": "tests/governor-recovery.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: held RED must not add unreported throttle yields"
+    },
+    {
+      "mutation": "no-recovery-window",
+      "test": "tests/governor-recovery.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: recurring pressure holds one level instead of flipping per stage (299 changes)"
+    },
+    {
+      "mutation": "pressure-does-not-restart",
+      "test": "tests/build426-governor-recovery.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: a restarted calm must not retain an earlier window peak for another full window"
+    },
+    {
+      "mutation": "forget-calm-peak",
+      "test": "tests/governor-recovery.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "failure": "AssertionError [ERR_ASSERTION]: after the recovery window it falls to the highest calm level (RED > GREEN)"
+    }
+  ],
+  "negative_or_environment_logs": [
+    "verification/governor-20261018/logs/shipped-before.log",
+    "verification/governor-20261018/logs/local-before.log",
+    "verification/governor-20261018/logs/build411-command-row-patch-browser.log",
+    "verification/governor-20261018/logs/build411-retry.log",
+    "verification/governor-20261018/logs/mutation-held-red-throttle.log",
+    "verification/governor-20261018/logs/mutation-no-recovery-window.log",
+    "verification/governor-20261018/logs/mutation-pressure-does-not-restart.log",
+    "verification/governor-20261018/logs/mutation-forget-calm-peak.log"
+  ],
+  "test_strengthening": [
+    "Count manualThrottleYields, because onThrottle emits only first/60th yield.",
+    "Use an early isolated YELLOW stage followed by light work to test calm peak retention.",
+    "Bound recovery after a repeated pressure stage above and below.",
+    "Compare disabled recovery against an exact 600-frame trace generated from unmodified 2ad7e16."
+  ],
+  "browser_environment": "Local Debian shared libraries supplied via LD_LIBRARY_PATH; static ldconfig cache validation bypassed after real WebKit launch succeeded. No repository test assertion skipped.",
+  "full_suite_run": false,
+  "ci_run": false,
+  "pushed": false,
+  "ipa_built": false,
+  "physical_iphone_tested": false,
+  "under_20ms_both_verified": false,
+  "limits": [
+    "Synthetic governor clocks do not measure real iPhone frame cadence or calendar completion time.",
+    "Prior million-row save/validation/maintenance measurements belong to previous local runtime a663f662; they were not rerun or relabelled.",
+    "No new million-row all-company revenue simulation in this governor batch.",
+    "Core default YELLOW budget 5.5ms; app/test overrides and existing manual budget policy unchanged.",
+    "Actual iOS native save, thermal, memory, and device seven-day profile pending."
+  ]
+}

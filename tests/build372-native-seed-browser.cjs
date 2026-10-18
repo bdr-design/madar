@@ -38,9 +38,12 @@ function nativeShell({workerSource,saved,chunks}){
     window.__GH_NATIVE_SAVE_CHUNKS__=map;window.__SEED_CHUNKS__=[...map.values()];
   }
 }
-const exportVault=page=>page.evaluate(()=>{const v=window.__VAULT__,saved=v.saves.at(-1);if(typeof saved!=='string')throw new Error('No acknowledged native save to export');const ids=JSON.parse(saved)?.fleet?.rows?.chunks||[];
+const exportVault=(page,legacyRaw=false)=>page.evaluate(legacy=>{const v=window.__VAULT__;let saved=v.saves.at(-1);if(typeof saved!=='string')throw new Error('No acknowledged native save to export');let ids=JSON.parse(saved)?.fleet?.rows?.chunks||[];
   const b64=bytes=>{let out='';for(let i=0;i<bytes.length;i+=32768)out+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(out);};
-  return {saved,chunks:ids.map(id=>[id,b64(v.chunks.get(id))])};});
+  // Keep the legacy raw-buffer transfer path covered explicitly. This fixture
+  // rewrites only storage encoding; the next product save must use containers.
+  if(legacy){const decoded=GH_STATE_CODEC.deserialize(saved,{resolveChunk:id=>v.chunks.get(id)}),tree=JSON.parse(saved),bytes=new Uint8Array(decoded.fleet.rows),chunkBytes=GH_FLEET_STORE.CHUNK_ROWS*128;ids=[];for(let from=0;from<bytes.length;from+=chunkBytes){const id='qa-legacy-seed.'+ids.length;ids.push(id);v.chunks.set(id,bytes.slice(from,from+chunkBytes));}tree.fleet.rows={$ghBinary:'chunks-v1',byteLength:bytes.length,chunkBytes,chunks:ids};saved=JSON.stringify(tree);}
+  return {saved,chunks:ids.map(id=>[id,b64(v.chunks.get(id))])};},legacyRaw);
 const compare=page=>page.evaluate(async()=>{
   const client=window.__AUDIT__.fleetEngineThreadClient?.()||null,store=__GH_STATE__.fleet,STORE=GH_FLEET_STORE;
   const replica=client?await client.inspect():null;if(!replica)return {replica:false};
@@ -70,7 +73,7 @@ const settled=page=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEX
     await first.page.waitForFunction(()=>GH_FLEET_DATA.filter(__GH_STATE__,row=>row.ownerCompanyId==='air').every(row=>row.routeId),null,{timeout:180000});
     await settled(first.page);await first.page.evaluate(()=>__AUDIT__.closeDrawer());
     const drained=await first.page.evaluate(()=>GH_PERSISTENCE.drain({timeoutMs:60000}));assert.equal(drained?.ok,true,'session 1 saves');
-    const vault=await exportVault(first.page);await first.page.close();
+    const vault=await exportVault(first.page,true);await first.page.close();
     assert.ok(vault.chunks.length>=1,'the fleet records are in vault chunks');
 
     // Session 2: reopened from the vault.
@@ -95,8 +98,12 @@ const settled=page=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEX
     assert.equal(again.requested,true,'session 2 explicitly requests a save');assert.equal(again.ok,true,'session 2 saves');assert.ok(again.commits>=1,'a new native save is acknowledged');assert.equal(again.savedSimSeconds,again.simSeconds,'the acknowledged save contains the played state');
     const vault2=await exportVault(second.page);await second.page.close();
     const third=await boot({browser,errors,viewport:{width:844,height:390},bypassCSP:true,beforeScripts:{fn:nativeShell,arg:{workerSource,...vault2}}});
-    await third.page.waitForFunction(()=>(window.__AUDIT__.fleetEngineThreadClient?.()?.stats?.().seedSyncs||0)>=1,null,{timeout:30000});
-    const reopened=await compare(third.page);assert.equal(reopened.row,-1);assert.equal(reopened.stats.fullSyncs,0);
+    // A small non-seed store creates its client on first use. Reach that real
+    // path through one bounded simulation second, rather than a fixture client.
+    await third.page.evaluate(()=>{const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+1,{reason:'qa-container-reopen',speed:300});if(!r.accepted)throw new Error(JSON.stringify(r));});
+    await third.page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance&&!__AUDIT__.fleetEngineThreadClient()?.busy&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__),null,{timeout:30000});
+    const reopened=await compare(third.page);assert.equal(reopened.row,-1);assert.equal(reopened.values,true);assert.equal(reopened.extras,true);
+    assert.equal(reopened.stats.seedSyncs,0,'new containers never masquerade as contiguous raw seed bytes');assert.equal(reopened.stats.fullSyncs,1,'the 120-row store uses the existing small-store replica path');assert.equal(reopened.stats.fallbacks,0);
     assert.deepEqual(errors,[]);
     console.log(JSON.stringify({ok:true,fleet,chunks:vault.chunks.length,seedMs:atOpen.stats.maxSeedSyncMs,routeAnswerMs:atOpen.stats.maxRouteAnswerMs,routeKeys:atOpen.stats.routeKeysAnswered,applied:afterPlay.stats.applied}));
   }finally{await browser.close();}

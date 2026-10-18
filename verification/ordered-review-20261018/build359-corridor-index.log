@@ -1,0 +1,39 @@
+{
+ "suite": "build359-corridor-index",
+ "passed": 4,
+ "total": 4,
+ "results": [
+  {
+   "name": "the index names every duplicate, and conflict() is the full pass",
+   "ok": true,
+   "detail": {
+    "routes": 374,
+    "duplicates": 170,
+    "averageNamed": 1.7
+   }
+  },
+  {
+   "name": "routes from the same hubs are compared with few routes",
+   "ok": true,
+   "detail": {
+    "average": 1.7,
+    "max": 4
+   }
+  },
+  {
+   "name": "a list changed in place is indexed again",
+   "ok": true,
+   "detail": {
+    "length": 51
+   }
+  },
+  {
+   "name": "the dispatch runs in chunks and yields after each new route",
+   "ok": true,
+   "detail": {
+    "frameBudgetMs": 6
+   }
+  }
+ ]
+}
+BUILD359_CORRIDOR_INDEX_PASS

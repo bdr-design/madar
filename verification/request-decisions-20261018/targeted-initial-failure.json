@@ -1,0 +1,56 @@
+{
+  "scope": "Targeted local scripts only; not full acceptance or native CI. Functional browser decisions use ordinary money mode after fixture setup.",
+  "source_tree_sha256": "78cb0cc09e44cde0225f7f16988d2a097c1d4531524df020f7880de2b8eee4c6",
+  "declared_gates": 463,
+  "preflight_definitions": 66,
+  "passed": 4,
+  "total": 18,
+  "completed": false,
+  "results": [
+    {
+      "argv": [
+        "node",
+        "tests/build431-decision-notices.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.037,
+      "log": "verification/request-decisions-20261018/build431-decision-notices.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build432-ready-fleet-validation.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03,
+      "log": "verification/request-decisions-20261018/build432-ready-fleet-validation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build433-request-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 25.216,
+      "log": "verification/request-decisions-20261018/build433-request-decisions-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-insurance-risk-batch.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.045,
+      "log": "verification/request-decisions-20261018/build369-insurance-risk-batch.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-financial-batches.cjs"
+      ],
+      "exit_code": 1,
+      "seconds": 0.07,
+      "log": "verification/request-decisions-20261018/build364-financial-batches.log"
+    }
+  ]
+}

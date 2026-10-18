@@ -87,9 +87,9 @@
   // Build 362 follow-up (iPhone diagnostic DX-1792142505027, 980,000 assets): each player decision waited ~2.0 s for this
   // pass on the fleet worker. About four fifths of it are checks of fields an operating fleet does not rewrite (names,
   // text, numbers, images, ids, owners, classes). Those checks are kept per store chunk and reused while the chunk's
-  // identityVersions, the store's epoch/mass/values stamp, the validation context and the text inspector are unchanged:
-  // the keys GH_FLEET_STORE's own class tables trust (every write other than an in-place engine or route field moves
-  // identityVersions; mass writes and value replacements move the stamp). The time-derived and route checks (base, phase,
+  // identityVersions, epoch/chunkMass, the actual interned dependencies, validation context and text inspector agree.
+  // Counter columns and unrelated interned values preserve this proof; a replacement of a referenced value expires it.
+  // The time-derived and route checks (base, phase,
   // progress, fuel, condition, route) still run over every row on every call. The result, including the order of its
   // errors and company errors, is exactly summarizeReference's: a code's place is its first row, then its place in a row.
   const LIVE_ONLY=Object.freeze(['baseFacility','phase','progress','fuel','condition','routeId','releaseExclusiveRouteOnArrival']);
@@ -100,10 +100,19 @@
   function knownModeOf(context,asset,mode,owner){return ROUTE_TYPES.has(mode)||Boolean(context.legacyOwners[mode])||(dataId(mode)&&owner&&context.registryCompanies.has(owner));}
   function staticChunk(state,fleet,context,from,to){
     const codes=new Map(),company=[],companySet=new Set();let overflow=false;
+    // Only these interned values feed STATIC_FIELDS. Unrelated last-trip/free-slot changes must not discard the
+    // million-row proof. Existing row identity versions still cover every field write and structural mutation.
+    const STORE=globalThis.GH_FLEET_STORE,store=fleet.storeOf?.(state),views=STORE?.isStore?.(store)?STORE.views(store):null,refs=new Map();
     const note=(code,index)=>{if(!codes.has(code))codes.set(code,index);};
     const addCompanyError=error=>{if(companySet.has(error))return;if(company.length>=COMPANY_ERROR_LIMIT){overflow=true;return;}companySet.add(error);company.push(error);};
     const validReference=companyId=>dataId(companyId)&&(context.companyReferenceCompanies.has(companyId)||context.definitionCompanies.has(companyId));
     fleet.scan(state,STATIC_FIELDS,(asset,index)=>{
+      if(views&&refs.size<=4096){
+        const w=index*STORE.WORDS_PER_ROW,present=views.u32[w+STORE.O.present];let ref=views.u32[w+STORE.O.profile];
+        if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);
+        if(present&STORE.HOT_BIT.id){ref=views.u32[w+STORE.O.idPattern];if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}
+        if(present&STORE.HOT_BIT.name){ref=views.u32[w+STORE.O.namePattern];if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}
+      }
       for(const [key,maximum] of ENTITY_TEXT_FIELDS)if(asset[key]!=null&&!safeText(asset[key],maximum))note(`display-text-assets-${key}`,index);
       for(const key of ENTITY_NUMBER_FIELDS)if(asset[key]!=null&&!finite(asset[key]))note(`display-number-assets-${key}`,index);
       if(asset.id!=null&&!safeAttribute(asset.id,180))note('display-attribute-assets-id',index);
@@ -116,7 +125,7 @@
       if(!validReference(platformOwner))addCompanyError(`asset-company-reference:${asset.id||'unknown'}`);
       if(asset.assetClass!==undefined&&!companyDataId(asset.assetClass))addCompanyError(`asset-class:${asset.id||'unknown'}`);
     },{from,to});
-    return {codes,company,overflow};
+    return {codes,company,overflow,refs:refs.size<=4096?[...refs]:null};
   }
   function staticTables(state,fleet,context){
     const STORE=globalThis.GH_FLEET_STORE,store=typeof fleet.storeOf==='function'?fleet.storeOf(state):null;
@@ -124,14 +133,14 @@
     staticStats.cacheable=cacheable;
     if(!cacheable){staticStats.chunksChecked++;staticStats.lastChecked=1;staticStats.lastReused=0;return [staticChunk(state,fleet,context,0,Infinity)];}
     const rows=STORE.CHUNK_ROWS,count=Math.ceil(store.length/rows),versions=STORE.staticSnapshot(store).identity,inspector=globalThis.GH_IDENTITY?.inspectPlainText||null;
-    const stamp=`${STORE.epoch(store)}:${STORE.chunkStamp(store).mass}:${STORE.valuesGeneration(store)}`;
+    const stamp=`${STORE.epoch(store)}:${STORE.chunkStamp(store).chunkMass}`;
     let cache=staticCache.get(store);
     if(!cache||cache.stamp!==stamp||cache.contextToken!==context.contextToken||cache.inspector!==inspector){cache={stamp,contextToken:context.contextToken,inspector,chunks:[]};staticCache.set(store,cache);}
     if(cache.chunks.length>count)cache.chunks.length=count;
     const tables=[];let checked=0,reused=0;
     for(let chunk=0;chunk<count;chunk++){
       const from=chunk*rows,to=Math.min(store.length,from+rows);let entry=cache.chunks[chunk];
-      if(entry&&entry.version===versions[chunk]&&entry.from===from&&entry.to===to)reused++;
+      if(entry&&entry.version===versions[chunk]&&entry.from===from&&entry.to===to&&entry.refs&&entry.refs.every(([ref,value])=>store.values[ref]===value))reused++;
       else{entry={version:versions[chunk],from,to,...staticChunk(state,fleet,context,from,to)};cache.chunks[chunk]=entry;checked++;}
       tables.push(entry);
     }

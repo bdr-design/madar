@@ -1,0 +1,202 @@
+{
+  "sourceAppSha256": "14e9a4c28c6385c021c196affe4d438acb7226dfa70d6de0cf07501411d6205f",
+  "historyRows": 2049,
+  "payablesRows": 2048,
+  "reads": {
+    "invoices": 0,
+    "cheques": 1,
+    "payrollReports": 0,
+    "commercialContracts": 0,
+    "receivables": 0,
+    "payables": 1,
+    "periods": 0,
+    "taxSettlements": 0,
+    "debtRecords": 0,
+    "debtSettlements": 0,
+    "ledger": 0
+  },
+  "visits": {
+    "invoices": 0,
+    "cheques": 2049,
+    "payrollReports": 0,
+    "commercialContracts": 0,
+    "receivables": 0,
+    "payables": 2048,
+    "periods": 0,
+    "taxSettlements": 0,
+    "debtRecords": 0,
+    "debtSettlements": 0,
+    "ledger": 0
+  },
+  "sha256": "5036957434129013890edd0b7161197446f4dfe55db63b6e723364b8a6691022",
+  "views": {
+    "cheques": {
+      "reads": {
+        "invoices": 0,
+        "cheques": 1,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      },
+      "visits": {
+        "invoices": 0,
+        "cheques": 2049,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      }
+    },
+    "invoices": {
+      "reads": {
+        "invoices": 1,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      },
+      "visits": {
+        "invoices": 2048,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      }
+    },
+    "contracts": {
+      "reads": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 1,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      },
+      "visits": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 2048,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      }
+    },
+    "payroll": {
+      "reads": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 1,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      },
+      "visits": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 2048,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 0
+      }
+    },
+    "settlements": {
+      "reads": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 1,
+        "debtRecords": 0,
+        "debtSettlements": 1,
+        "ledger": 0
+      },
+      "visits": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 2048,
+        "debtRecords": 0,
+        "debtSettlements": 2048,
+        "ledger": 0
+      }
+    },
+    "transfers": {
+      "reads": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 1
+      },
+      "visits": {
+        "invoices": 0,
+        "cheques": 0,
+        "payrollReports": 0,
+        "commercialContracts": 0,
+        "receivables": 0,
+        "payables": 0,
+        "periods": 0,
+        "taxSettlements": 0,
+        "debtRecords": 0,
+        "debtSettlements": 0,
+        "ledger": 2048
+      }
+    }
+  }
+}

@@ -1,0 +1,4508 @@
+{
+  "scope": "Desktop real app, 11 open companies, real fleet purchases, paused simulation. Finance history created via finance owner in a test transaction. Browser vault is a protocol double; no native iPhone IO. Source overlays only append test accessors. Trace adds overhead equally.",
+  "rows": 1000000,
+  "financeTarget": 2048,
+  "repeats": 5,
+  "sourceFiles": {
+    "before": {
+      "app": "14e9a4c28c6385c021c196affe4d438acb7226dfa70d6de0cf07501411d6205f",
+      "bank": "9002f83e355639b3483ace0bf1aa44fbd5f15b6207ea447e02d911ce97b9aafd"
+    },
+    "after": {
+      "app": "94bb06cebce104b1dd318a8792113efb69acdeac5f7df41fa7f24bb979d0637e",
+      "bank": "9002f83e355639b3483ace0bf1aa44fbd5f15b6207ea447e02d911ce97b9aafd"
+    }
+  },
+  "results": [
+    {
+      "engine": "chromium",
+      "label": "before",
+      "world": {
+        "rows": 1000000,
+        "companies": 11
+      },
+      "history": {
+        "invoices": 2050,
+        "cheques": 2050,
+        "payables": 2048,
+        "companies": 11,
+        "fleet": 1000000
+      },
+      "windows": [
+        {
+          "mark": "lag-payables-0",
+          "action": "payables",
+          "round": 0,
+          "syncMs": 4.799999997019768,
+          "toPaintMs": 33.19999999552965,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.1000000014901161
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.3000000044703484
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 2.100000001490116
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.7999999970197678
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 4.799999997019768
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 14.577
+        },
+        {
+          "mark": "lag-cheques-0",
+          "action": "cheques",
+          "round": 0,
+          "syncMs": 23.600000001490116,
+          "toPaintMs": 116.80000000447035,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 13
+            },
+            {
+              "name": "ui.panel",
+              "ms": 13
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 5.100000001490116
+            },
+            {
+              "name": "ui.bind",
+              "ms": 3.899999998509884
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 23.600000001490116
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 101.233
+        },
+        {
+          "mark": "lag-invoices-0",
+          "action": "invoices",
+          "round": 0,
+          "syncMs": 99,
+          "toPaintMs": 265.1000000014901,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.30000000447034836
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 78.89999999850988
+            },
+            {
+              "name": "ui.panel",
+              "ms": 79.09999999403954
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 12.200000002980232
+            },
+            {
+              "name": "ui.bind",
+              "ms": 5.600000001490116
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 99
+            },
+            {
+              "name": "ui.kpis",
+              "ms": 0.5
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 236.327
+        },
+        {
+          "mark": "lag-payables-1",
+          "action": "payables",
+          "round": 1,
+          "syncMs": 5,
+          "toPaintMs": 32.899999998509884,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.8999999985098839
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.2000000029802322
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 1.6999999955296516
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.8999999985098839
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 5
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 14.624
+        },
+        {
+          "mark": "lag-cheques-1",
+          "action": "cheques",
+          "round": 1,
+          "syncMs": 22,
+          "toPaintMs": 116.69999999552965,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 12
+            },
+            {
+              "name": "ui.panel",
+              "ms": 12.100000001490116
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 4.600000001490116
+            },
+            {
+              "name": "ui.bind",
+              "ms": 3.7000000029802322
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 22
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 101.845
+        },
+        {
+          "mark": "lag-invoices-1",
+          "action": "invoices",
+          "round": 1,
+          "syncMs": 95,
+          "toPaintMs": 246.79999999701977,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.6999999955296516
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 76.10000000149012
+            },
+            {
+              "name": "ui.panel",
+              "ms": 76.20000000298023
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 11
+            },
+            {
+              "name": "ui.bind",
+              "ms": 5.5
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 95
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 228.556
+        },
+        {
+          "mark": "lag-payables-2",
+          "action": "payables",
+          "round": 2,
+          "syncMs": 4.5,
+          "toPaintMs": 33.19999999552965,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.6999999955296516
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.1000000014901161
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 1.6000000014901161
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.9000000059604645
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 4.5
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 13.434
+        },
+        {
+          "mark": "lag-cheques-2",
+          "action": "cheques",
+          "round": 2,
+          "syncMs": 21.600000001490116,
+          "toPaintMs": 116.70000000298023,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 11.799999997019768
+            },
+            {
+              "name": "ui.panel",
+              "ms": 11.899999998509884
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 4.600000001490116
+            },
+            {
+              "name": "ui.bind",
+              "ms": 3.6999999955296516
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 21.600000001490116
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 101.958
+        },
+        {
+          "mark": "lag-invoices-2",
+          "action": "invoices",
+          "round": 2,
+          "syncMs": 93.5,
+          "toPaintMs": 259.40000000596046,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.4000000059604645
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 74.90000000596046
+            },
+            {
+              "name": "ui.panel",
+              "ms": 75
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 11.399999998509884
+            },
+            {
+              "name": "ui.bind",
+              "ms": 5.600000001490116
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 93.5
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 237.91
+        },
+        {
+          "mark": "lag-payables-3",
+          "action": "payables",
+          "round": 3,
+          "syncMs": 4.5,
+          "toPaintMs": 33.099999994039536,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.1000000014901161
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 1.6000000014901161
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.8000000044703484
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 4.399999998509884
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 13.514
+        },
+        {
+          "mark": "lag-cheques-3",
+          "action": "cheques",
+          "round": 3,
+          "syncMs": 22.5,
+          "toPaintMs": 109.10000000149012,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 11.799999997019768
+            },
+            {
+              "name": "ui.panel",
+              "ms": 11.899999998509884
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 5.399999998509884
+            },
+            {
+              "name": "ui.bind",
+              "ms": 3.5999999940395355
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 22.5
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 97.346
+        },
+        {
+          "mark": "lag-invoices-3",
+          "action": "invoices",
+          "round": 3,
+          "syncMs": 98,
+          "toPaintMs": 259.8999999985099,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.5
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 78.5
+            },
+            {
+              "name": "ui.panel",
+              "ms": 78.69999999552965
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 11.899999998509884
+            },
+            {
+              "name": "ui.bind",
+              "ms": 5.5
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 98
+            },
+            {
+              "name": "ui.kpis",
+              "ms": 0.5
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 230.404
+        },
+        {
+          "mark": "lag-payables-4",
+          "action": "payables",
+          "round": 4,
+          "syncMs": 4.4000000059604645,
+          "toPaintMs": 30.200000002980232,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.7000000029802322
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.0999999940395355
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.1999999955296516
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 1.3000000044703484
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.9000000059604645
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 4.4000000059604645
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 13.39
+        },
+        {
+          "mark": "lag-cheques-4",
+          "action": "cheques",
+          "round": 4,
+          "syncMs": 21.700000002980232,
+          "toPaintMs": 105.89999999850988,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 12.100000001490116
+            },
+            {
+              "name": "ui.panel",
+              "ms": 12.100000001490116
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 4.0999999940395355
+            },
+            {
+              "name": "ui.bind",
+              "ms": 3.899999998509884
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 21.700000002980232
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 94.104
+        },
+        {
+          "mark": "lag-invoices-4",
+          "action": "invoices",
+          "round": 4,
+          "syncMs": 95.5,
+          "toPaintMs": 239.10000000149012,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.7000000029802322
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.29999999701976776
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 77.79999999701977
+            },
+            {
+              "name": "ui.panel",
+              "ms": 77.89999999850988
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 10
+            },
+            {
+              "name": "ui.bind",
+              "ms": 5.700000002980232
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 95.5
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 220.54
+        },
+        {
+          "mark": "lag-summary-0",
+          "action": "cold-summary",
+          "round": 0,
+          "readyMs": 510.69999999552965,
+          "toPaintMs": 533.0999999940395,
+          "queryCount": 1,
+          "total": 1000000,
+          "maxMainTaskMs": 25.129
+        },
+        {
+          "mark": "lag-summary-1",
+          "action": "cold-summary",
+          "round": 1,
+          "readyMs": 541.2999999970198,
+          "toPaintMs": 566.6999999955297,
+          "queryCount": 1,
+          "total": 1000000,
+          "maxMainTaskMs": 4.807
+        },
+        {
+          "mark": "lag-summary-2",
+          "action": "cold-summary",
+          "round": 2,
+          "readyMs": 524.1000000014901,
+          "toPaintMs": 550,
+          "queryCount": 1,
+          "total": 1000000,
+          "maxMainTaskMs": 4.778
+        }
+      ],
+      "trace": {
+        "tasks": 3147,
+        "renderer": {
+          "pid": 54696,
+          "tid": 54696
+        }
+      }
+    },
+    {
+      "engine": "chromium",
+      "label": "after",
+      "world": {
+        "rows": 1000000,
+        "companies": 11
+      },
+      "history": {
+        "invoices": 2050,
+        "cheques": 2050,
+        "payables": 2048,
+        "companies": 11,
+        "fleet": 1000000
+      },
+      "windows": [
+        {
+          "mark": "lag-payables-0",
+          "action": "payables",
+          "round": 0,
+          "syncMs": 3,
+          "toPaintMs": 33,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.3000000044703484
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.4000000059604645
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.5
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.8000000044703484
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 3
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 13.118
+        },
+        {
+          "mark": "lag-cheques-0",
+          "action": "cheques",
+          "round": 0,
+          "syncMs": 4.200000002980232,
+          "toPaintMs": 33.20000000298023,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 2.399999998509884
+            },
+            {
+              "name": "ui.panel",
+              "ms": 2.5
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 4.200000002980232
+            }
+          ],
+          "cards": 4,
+          "maxMainTaskMs": 14.778
+        },
+        {
+          "mark": "lag-invoices-0",
+          "action": "invoices",
+          "round": 0,
+          "syncMs": 5.600000001490116,
+          "toPaintMs": 33.100000001490116,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 3.7999999970197678
+            },
+            {
+              "name": "ui.panel",
+              "ms": 3.899999998509884
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.7000000029802322
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 5.600000001490116
+            }
+          ],
+          "cards": 2,
+          "maxMainTaskMs": 14.689
+        },
+        {
+          "mark": "lag-payables-1",
+          "action": "payables",
+          "round": 1,
+          "syncMs": 3.100000001490116,
+          "toPaintMs": 33.20000000298023,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.1000000014901161
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.1999999955296516
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.7000000029802322
+            },
+            {
+              "name": "ui.bind",
+              "ms": 1
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 3.100000001490116
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 11.689
+        },
+        {
+          "mark": "lag-cheques-1",
+          "action": "cheques",
+          "round": 1,
+          "syncMs": 4,
+          "toPaintMs": 33.20000000298023,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 2
+            },
+            {
+              "name": "ui.panel",
+              "ms": 2.100000001490116
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.6999999955296516
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.6999999955296516
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 4
+            }
+          ],
+          "cards": 4,
+          "maxMainTaskMs": 14.224
+        },
+        {
+          "mark": "lag-invoices-1",
+          "action": "invoices",
+          "round": 1,
+          "syncMs": 5.600000001490116,
+          "toPaintMs": 33.100000001490116,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.20000000298023224
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.3999999985098839
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 3.5
+            },
+            {
+              "name": "ui.panel",
+              "ms": 3.600000001490116
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.7999999970197678
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.7999999970197678
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 5.600000001490116
+            }
+          ],
+          "cards": 2,
+          "maxMainTaskMs": 14.774
+        },
+        {
+          "mark": "lag-payables-2",
+          "action": "payables",
+          "round": 2,
+          "syncMs": 3.2999999970197678,
+          "toPaintMs": 33.19999999552965,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.3000000044703484
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.5
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.7999999970197678
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 3.1999999955296516
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 12.532
+        },
+        {
+          "mark": "lag-cheques-2",
+          "action": "cheques",
+          "round": 2,
+          "syncMs": 3.7000000029802322,
+          "toPaintMs": 33.30000000447035,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.7999999970197678
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.8999999985098839
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.7000000029802322
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.7000000029802322
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 3.7000000029802322
+            }
+          ],
+          "cards": 4,
+          "maxMainTaskMs": 16.46
+        },
+        {
+          "mark": "lag-invoices-2",
+          "action": "invoices",
+          "round": 2,
+          "syncMs": 5.100000001490116,
+          "toPaintMs": 33.70000000298023,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.30000000447034836
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 3.0999999940395355
+            },
+            {
+              "name": "ui.panel",
+              "ms": 3.1999999955296516
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.9000000059604645
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 5.100000001490116
+            }
+          ],
+          "cards": 2,
+          "maxMainTaskMs": 15.49
+        },
+        {
+          "mark": "lag-payables-3",
+          "action": "payables",
+          "round": 3,
+          "syncMs": 3.2999999970197678,
+          "toPaintMs": 33.19999999552965,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.2000000029802322
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.3000000044703484
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.bind",
+              "ms": 1
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 3.2999999970197678
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 12.659
+        },
+        {
+          "mark": "lag-cheques-3",
+          "action": "cheques",
+          "round": 3,
+          "syncMs": 5.300000004470348,
+          "toPaintMs": 34,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 3.1999999955296516
+            },
+            {
+              "name": "ui.panel",
+              "ms": 3.399999998509884
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.8000000044703484
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.7000000029802322
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 5.300000004470348
+            }
+          ],
+          "cards": 4,
+          "maxMainTaskMs": 17.929
+        },
+        {
+          "mark": "lag-invoices-3",
+          "action": "invoices",
+          "round": 3,
+          "syncMs": 7.100000001490116,
+          "toPaintMs": 33.30000000447035,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.19999999552965164
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 4
+            },
+            {
+              "name": "ui.panel",
+              "ms": 4.200000002980232
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 1.5999999940395355
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.6999999955296516
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 7.100000001490116
+            }
+          ],
+          "cards": 2,
+          "maxMainTaskMs": 19.573
+        },
+        {
+          "mark": "lag-payables-4",
+          "action": "payables",
+          "round": 4,
+          "syncMs": 3.0999999940395355,
+          "toPaintMs": 33.19999999552965,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.09999999403953552
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.3000000044703484
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.3000000044703484
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.6000000014901161
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.8999999985098839
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 3.0999999940395355
+            },
+            {
+              "name": "ui.kpis",
+              "ms": 0.10000000149011612
+            }
+          ],
+          "cards": 80,
+          "maxMainTaskMs": 12.869
+        },
+        {
+          "mark": "lag-cheques-4",
+          "action": "cheques",
+          "round": 4,
+          "syncMs": 3.5999999940395355,
+          "toPaintMs": 33.29999999701977,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 1.7000000029802322
+            },
+            {
+              "name": "ui.panel",
+              "ms": 1.8000000044703484
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 0.6999999955296516
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.6999999955296516
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 3.5999999940395355
+            }
+          ],
+          "cards": 4,
+          "maxMainTaskMs": 14.575
+        },
+        {
+          "mark": "lag-invoices-4",
+          "action": "invoices",
+          "round": 4,
+          "syncMs": 8.399999998509884,
+          "toPaintMs": 33.20000000298023,
+          "spans": [
+            {
+              "name": "ui.readScroll",
+              "ms": 0.10000000149011612
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0.29999999701976776
+            },
+            {
+              "name": "ui.signature",
+              "ms": 0
+            },
+            {
+              "name": "ui.invoices",
+              "ms": 4.299999997019768
+            },
+            {
+              "name": "ui.panel",
+              "ms": 4.299999997019768
+            },
+            {
+              "name": "ui.insertHTML",
+              "ms": 3.100000001490116
+            },
+            {
+              "name": "ui.bind",
+              "ms": 0.5999999940395355
+            },
+            {
+              "name": "ui.drawer",
+              "ms": 8.399999998509884
+            }
+          ],
+          "cards": 2,
+          "maxMainTaskMs": 17.442
+        },
+        {
+          "mark": "lag-summary-0",
+          "action": "cold-summary",
+          "round": 0,
+          "readyMs": 505.90000000596046,
+          "toPaintMs": 533.1000000014901,
+          "queryCount": 1,
+          "total": 1000000,
+          "maxMainTaskMs": 4.653
+        },
+        {
+          "mark": "lag-summary-1",
+          "action": "cold-summary",
+          "round": 1,
+          "readyMs": 532.6000000014901,
+          "toPaintMs": 549.8999999985099,
+          "queryCount": 1,
+          "total": 1000000,
+          "maxMainTaskMs": 4.555
+        },
+        {
+          "mark": "lag-summary-2",
+          "action": "cold-summary",
+          "round": 2,
+          "readyMs": 515.5,
+          "toPaintMs": 533.3000000044703,
+          "queryCount": 1,
+          "total": 1000000,
+          "maxMainTaskMs": 5.985
+        }
+      ],
+      "trace": {
+        "tasks": 887,
+        "renderer": {
+          "pid": 54815,
+          "tid": 54815
+        }
+      }
+    }
+  ]
+}

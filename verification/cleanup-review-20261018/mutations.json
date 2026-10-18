@@ -1,0 +1,106 @@
+{
+  "source_tree_sha256": "a2d4029f606e63ca516d62bf35b56c6be8552a85b26902f750c8610661d5ad5f",
+  "all_detected": true,
+  "count": 9,
+  "results": [
+    {
+      "name": "unused-whole-page-hash",
+      "file": "save-checksum-worker.js",
+      "test": "tests/build436-save-work-removal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "const evidence=m.transform",
+        "new": "self.GH_STATE_CODEC.chunkChecksum(output);const evidence=m.transform"
+      }
+    },
+    {
+      "name": "unused-legacy-layout",
+      "file": "state-codec-core.js",
+      "test": "tests/build436-save-work-removal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "if(STORE.STRIDE!==FLEET_ROW_STRIDE)",
+        "new": "fleetOverlayLayout();if(STORE.STRIDE!==FLEET_ROW_STRIDE)"
+      }
+    },
+    {
+      "name": "missing-row-stride-guard",
+      "file": "state-codec-core.js",
+      "test": "tests/build436-save-work-removal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "if(STORE.STRIDE!==FLEET_ROW_STRIDE)throw new Error('state-codec-fleet-row-layout');",
+        "new": ""
+      }
+    },
+    {
+      "name": "wrong-patch-lineage",
+      "file": "state-codec-core.js",
+      "test": "tests/build437-adoption-patch-lineage.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "    if(decoded.patches.length!==parts.patches.length||decoded.patches.some((p,i)=>p.id!==parts.patches[i].id||p.rows!==parts.patches[i].rows||p.byteLength!==parts.patches[i].byteLength))return false;",
+        "new": ""
+      }
+    },
+    {
+      "name": "per-row-reference-array",
+      "file": "fleet-save-validation-core.js",
+      "test": "tests/build436-save-work-removal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "      if(views&&refs.size<=4096){\n        const w=index*STORE.WORDS_PER_ROW,present=views.u32[w+STORE.O.present];let ref=views.u32[w+STORE.O.profile];\n        if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);\n        if(present&STORE.HOT_BIT.id){ref=views.u32[w+STORE.O.idPattern];if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}\n        if(present&STORE.HOT_BIT.name){ref=views.u32[w+STORE.O.namePattern];if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}\n      }\n",
+        "new": "      if(views&&refs.size<=4096){const w=index*STORE.WORDS_PER_ROW,present=views.u32[w+STORE.O.present];for(const ref of [views.u32[w+STORE.O.profile],present&STORE.HOT_BIT.id?views.u32[w+STORE.O.idPattern]:0,present&STORE.HOT_BIT.name?views.u32[w+STORE.O.namePattern]:0])if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);}\n"
+      }
+    },
+    {
+      "name": "thread-accepts-sparse-evidence",
+      "file": "save-checksum-thread.js",
+      "test": "tests/build436-save-work-removal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "function validLaneSums(sums){if(!Array.isArray(sums)||sums.length!==16)return false;for(let lane=0;lane<16;lane++)if(!validChecksum(sums[lane]))return false;return true;}",
+        "new": "function validLaneSums(sums){return Array.isArray(sums)&&sums.length===16&&sums.every(validChecksum);}"
+      }
+    },
+    {
+      "name": "codec-accepts-sparse-evidence",
+      "file": "state-codec-core.js",
+      "test": "tests/build436-save-work-removal.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "function validLaneSums(sums){if(!Array.isArray(sums)||sums.length!==LANES)return false;for(let lane=0;lane<LANES;lane++)if(typeof sums[lane]!=='string'||!LANE_SUM.test(sums[lane]))return false;return true;}",
+        "new": "function validLaneSums(sums){return Array.isArray(sums)&&sums.length===16&&sums.every(sum=>typeof sum==='string'&&LANE_SUM.test(sum));}"
+      }
+    },
+    {
+      "name": "per-row-financial-object",
+      "file": "fleet-day-core.js",
+      "test": "tests/build438-day-scratch-work.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "fixed(row,scratch||(scratch={}))",
+        "new": "fixed(row)"
+      }
+    },
+    {
+      "name": "scratch-aliased-into-cache",
+      "file": "fleet-day-core.js",
+      "test": "tests/build438-day-scratch-work.cjs",
+      "exit_code": 1,
+      "detected": true,
+      "replacement": {
+        "old": "cached=fixed(row);profileMemo.set(ref,cached);",
+        "new": "cached=fixed(row,scratch||(scratch={}));profileMemo.set(ref,cached);"
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+PASS map status cache: fleet HUD is cached and O(1); mobility vehicles are not scanned or drawn on the map

@@ -1,0 +1,44 @@
+{
+  "suite": "build372-asset-purchase-order",
+  "scope": "aggregate commercial order, exact allocation, deterministic ranges, SHA-256 command payload, one settlement and atomic rollback",
+  "passed": 9,
+  "total": 9,
+  "results": [
+    {
+      "name": "200k assets use 391 row stages but one commercial payment document set",
+      "ok": true
+    },
+    {
+      "name": "multi-base allocations share one cheque and their ordered residuals sum exactly",
+      "ok": true
+    },
+    {
+      "name": "aggregate cash finance and lease totals match the former 512 formulas without multiplying documents",
+      "ok": true
+    },
+    {
+      "name": "sequence reservation is O(allocations) and bit-for-bit nextId compatible at width eight",
+      "ok": true
+    },
+    {
+      "name": "availability is exact, scan-free after its worker baseline, and fails closed on stale/malformed roots",
+      "ok": true
+    },
+    {
+      "name": "quote rejects impossible serial arithmetic and invalid staffing before sequences or money can move",
+      "ok": true
+    },
+    {
+      "name": "signed command payload carries the compact full order and a recomputed SHA-256 digest",
+      "ok": true
+    },
+    {
+      "name": "one aggregate supplier settlement creates exactly one cheque invoice transaction and finance record",
+      "ok": true
+    },
+    {
+      "name": "failure during row slicing rolls back master documents allocations sequences labor and fleet together",
+      "ok": true
+    }
+  ]
+}

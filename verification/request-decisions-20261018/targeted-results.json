@@ -1,0 +1,275 @@
+{
+  "scope": "Targeted local scripts only; not full acceptance or native CI. Functional browser decisions use ordinary money mode after fixture setup.",
+  "source_tree_sha256": "2179ddb57a55a9ab68117f49d662c587b9ed63ef414956db138cb2fd78f9d155",
+  "declared_gates": 465,
+  "preflight_definitions": 68,
+  "passed": 26,
+  "total": 26,
+  "completed": true,
+  "results": [
+    {
+      "argv": [
+        "node",
+        "tests/build431-decision-notices.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.045,
+      "log": "verification/request-decisions-20261018/build431-decision-notices.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build432-ready-fleet-validation.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03,
+      "log": "verification/request-decisions-20261018/build432-ready-fleet-validation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build435-conditional-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.081,
+      "log": "verification/request-decisions-20261018/build435-conditional-prestage.log",
+      "prior_seconds": 0.07,
+      "recheck_note": "Rerun after adding explicit native NACK cases for ready and pending fleet proofs; all eight cases passed."
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build434-service-panel-fleet-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.044,
+      "log": "verification/request-decisions-20261018/build434-service-panel-fleet-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build433-request-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 26.146,
+      "log": "verification/request-decisions-20261018/build433-request-decisions-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-insurance-risk-batch.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.049,
+      "log": "verification/request-decisions-20261018/build369-insurance-risk-batch.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-financial-batches.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11,
+      "log": "verification/request-decisions-20261018/build364-financial-batches.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-customer-base-telecom-market.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.371,
+      "log": "verification/request-decisions-20261018/build374-customer-base-telecom-market.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build385-bank-credit-accounting.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.442,
+      "log": "verification/request-decisions-20261018/build385-bank-credit-accounting.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-revenue-chain-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 3.046,
+      "log": "verification/request-decisions-20261018/build373-revenue-chain-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-validation-reuse-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 5.553,
+      "log": "verification/request-decisions-20261018/fleet-validation-reuse-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-command-validation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.444,
+      "log": "verification/request-decisions-20261018/build379-command-validation-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build404-worker-close-read-models.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.565,
+      "log": "verification/request-decisions-20261018/build404-worker-close-read-models.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-durable-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 2.206,
+      "log": "verification/request-decisions-20261018/build362-durable-prestage.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-save-validation-chunks.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 12.166,
+      "log": "verification/request-decisions-20261018/build362-save-validation-chunks.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-durable-live-fields-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 7.393,
+      "log": "verification/request-decisions-20261018/build371-durable-live-fields-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-durable-draft-restore.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.512,
+      "log": "verification/request-decisions-20261018/build340-durable-draft-restore.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build418-command-phase-trace-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 7.779,
+      "log": "verification/request-decisions-20261018/build418-command-phase-trace-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-business-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.036,
+      "log": "verification/request-decisions-20261018/fleet-business-boundary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/governor-overrun-signal.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.075,
+      "log": "verification/request-decisions-20261018/governor-overrun-signal.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build426-governor-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.028,
+      "log": "verification/request-decisions-20261018/build426-governor-pressure.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-company-overview-summary.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.039,
+      "log": "verification/request-decisions-20261018/build364-company-overview-summary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 88.029,
+      "log": "verification/request-decisions-20261018/phone-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/lint.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.31,
+      "log": "verification/request-decisions-20261018/lint.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/build334-source-layout.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.051,
+      "log": "verification/request-decisions-20261018/build334-source-layout.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.276,
+      "log": "verification/request-decisions-20261018/acceptance-policy.log"
+    }
+  ],
+  "script_sha256": {
+    "tests/build431-decision-notices.cjs": "79b0d0bec9e591a9387d4a6d0a7edc333f250eb3d4d99864d88b03728035457d",
+    "tests/build432-ready-fleet-validation.cjs": "de7a5662b15ec0b52792ec076611ab2854d1efae73a36235010ce6aaa0e0f427",
+    "tests/build435-conditional-prestage.cjs": "a6575764e128f8b5f3a97b8b7b8b3a89ce57548a8de95541f72f89840b2b899a",
+    "tests/build434-service-panel-fleet-work.cjs": "89c05fac36b1ca04f60866cc03b212ddfb33b71fee2ba7f995347ca1483d83d1",
+    "tests/build433-request-decisions-browser.cjs": "f99a697c764f695634ee7196991de0cc72f9dbd1bf2bb98bf131bf10c664e808",
+    "tests/build369-insurance-risk-batch.cjs": "223842ace846d73b1b245081a53391c11e5d6064b68fe8dc73d7453db7420d28",
+    "tests/build364-financial-batches.cjs": "e74defd6120366083c46cf11971a033b782f10a62ae56c9919a02c47c3697901",
+    "tests/build374-customer-base-telecom-market.cjs": "ad48bbff0d023d6a6a739781d3c739317f9080706ddb441a030bad5ad36b17ea",
+    "tests/build385-bank-credit-accounting.cjs": "e4a615f22920d4c41b99654196bb516bc86e553c257fe727566caaba0021c9d0",
+    "tests/build373-revenue-chain-browser.cjs": "d94a2f38d84a6c6d37158813589849200332da30097fc6074c4244df4717bb8a",
+    "tests/fleet-validation-reuse-browser.cjs": "f8dc80fcd99a04bca994917cb9b2d329c6739f576b071de0cc3f1224727d8819",
+    "tests/build379-command-validation-browser.cjs": "accb79aa9195067c92ef74d4dc9e928c569fd974a2c06456fafb2a114736a816",
+    "tests/build404-worker-close-read-models.cjs": "d54cfab481e5b0bfc4a638aa6b62f2e6aec8795a5043b75d1ccfd31017766b7d",
+    "tests/build362-durable-prestage.cjs": "7f76d99f519de104aa76f5fbc820d84f008dd3e0f40f9c4b6277269bbe166ab3",
+    "tests/build362-save-validation-chunks.cjs": "901ac3e823e1c7b45e09c2278274ab4f0f1e15a4a6cea320e91da102648af9ce",
+    "tests/build371-durable-live-fields-browser.cjs": "d4c0fe74506765119ddc8ca3d5d4fcc968e438e0f388fa38e5675084ec0bdb11",
+    "tests/build340-durable-draft-restore.cjs": "745c422b5835f7266dbe47623273496dd26fd9b3c71d7d3464c714191d087fb3",
+    "tests/build418-command-phase-trace-browser.cjs": "b70aace5f44044098377f919f07436e62489f98e5e66a4004d2a8e3835728ce8",
+    "tests/fleet-business-boundary.cjs": "4eca5a4537653295bdaa99d22a6e5410844dcfed17194b2eb6cc176bf863b463",
+    "tests/governor-overrun-signal.cjs": "a4bb41607cdd0a00501ab456ac3b193bb04b88881de766d3b719a6d243fc5232",
+    "tests/build426-governor-pressure.cjs": "0318c892822e4ab3063ac91e5b3b0209be6464f3fed2cb709f36442aa471195a",
+    "tests/build364-company-overview-summary.cjs": "6016230bf03b0d2c18fc788f6e15e21b66ae489b13b4546c1264a6dda2df5b0d",
+    "tests/phone-layout-browser.cjs": "b539a385b2e547c07fb6cdd2f601fd89b2fa24fe2b8320a516282bb882085427",
+    "tests/lint.cjs": "d0a98b0b20af1caf0039fe1e56f804982e66f1f5462ae21aacb230ce853bbb9a",
+    "tests/build334-source-layout.py": "e3b32246febbe86a47efa561e7d6752bcfa8e3f7d40faf8c996839860bdcc0a6",
+    "tests/acceptance-policy.py": "da6c5f61867a6c2810f14bda8a1657d280b2f0a196a4192e266ac73f6153cf9b"
+  }
+}

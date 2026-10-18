@@ -1,0 +1,36 @@
+{
+  "suite": "build372-asset-purchase-plan",
+  "scope": "pure compact planning, exact procurement/delivery/staffing parity, four-millisecond staged apply and rollback",
+  "passed": 7,
+  "total": 7,
+  "results": [
+    {
+      "name": "compact plan and every materialized value match the current owners",
+      "ok": true
+    },
+    {
+      "name": "compact id lists match the owner across the eight-digit boundary",
+      "ok": true
+    },
+    {
+      "name": "asset values are independent while the plan stays compact",
+      "ok": true
+    },
+    {
+      "name": "fingerprint and exact context reject a changed or stale plan",
+      "ok": true
+    },
+    {
+      "name": "atomic staged apply matches the reference and keeps measured slices at four milliseconds",
+      "ok": true
+    },
+    {
+      "name": "first, middle, last and explicit abort all roll back byte-identically",
+      "ok": true
+    },
+    {
+      "name": "staffing products outside the exact integer domain are rejected during planning",
+      "ok": true
+    }
+  ]
+}

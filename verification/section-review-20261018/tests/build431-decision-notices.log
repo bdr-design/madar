@@ -1,0 +1,134 @@
+{
+  "suite": "build431-decision-notices",
+  "successCases": 18,
+  "cancelCases": 6,
+  "failedSaveCases": 6,
+  "results": [
+    {
+      "kind": "bank",
+      "page": "company",
+      "decision": "accept",
+      "single": false,
+      "notice": "اكتمل القرار: 2 موافق، 0 مرفوض، 0 مؤجل."
+    },
+    {
+      "kind": "bank",
+      "page": "company",
+      "decision": "accept",
+      "single": true,
+      "notice": "اكتمل القرار: 2 موافق، 0 مرفوض، 0 مؤجل."
+    },
+    {
+      "kind": "bank",
+      "page": "company",
+      "decision": "reject",
+      "single": false,
+      "notice": "اكتمل القرار: 2 موافق، 0 مرفوض، 0 مؤجل."
+    },
+    {
+      "kind": "bank",
+      "page": "company",
+      "decision": "reject",
+      "single": true,
+      "notice": "اكتمل القرار: 2 موافق، 0 مرفوض، 0 مؤجل."
+    },
+    {
+      "kind": "insurance",
+      "page": "company",
+      "decision": "accept",
+      "single": false,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه."
+    },
+    {
+      "kind": "insurance",
+      "page": "company",
+      "decision": "accept",
+      "single": true,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه."
+    },
+    {
+      "kind": "insurance",
+      "page": "company",
+      "decision": "reject",
+      "single": false,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه."
+    },
+    {
+      "kind": "insurance",
+      "page": "company",
+      "decision": "reject",
+      "single": true,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه."
+    },
+    {
+      "kind": "telecom",
+      "page": "company",
+      "decision": "accept",
+      "single": false,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه، 0 متجاوز."
+    },
+    {
+      "kind": "telecom",
+      "page": "company",
+      "decision": "accept",
+      "single": true,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه، 0 متجاوز."
+    },
+    {
+      "kind": "telecom",
+      "page": "company",
+      "decision": "reject",
+      "single": false,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه، 0 متجاوز."
+    },
+    {
+      "kind": "telecom",
+      "page": "company",
+      "decision": "reject",
+      "single": true,
+      "notice": "اكتمل القرار: 2 مقبول، 0 معتذر عنه، 0 متجاوز."
+    },
+    {
+      "kind": "bank",
+      "page": "bank",
+      "decision": "accept",
+      "single": true,
+      "notice": "مُنح التمويل LOAN-1 بقيمة 500000."
+    },
+    {
+      "kind": "insurance",
+      "page": "insurance",
+      "decision": "accept",
+      "single": true,
+      "notice": "قُبل الخطر REQ-1 بقسط سنوي 10000."
+    },
+    {
+      "kind": "insurance",
+      "page": "insurance",
+      "decision": "accept",
+      "single": false,
+      "notice": "اكتمل القرار الجماعي للتأمين: 2 مقبول، 0 معتذر عنه، 0 متجاوز. أقساط سنوية 20000 · تغطية 2000000."
+    },
+    {
+      "kind": "bank",
+      "page": "bank",
+      "decision": "reject",
+      "single": true,
+      "notice": "رُفض طلب التمويل."
+    },
+    {
+      "kind": "insurance",
+      "page": "insurance",
+      "decision": "reject",
+      "single": true,
+      "notice": "اعتُذر عن الخطر."
+    },
+    {
+      "kind": "insurance",
+      "page": "insurance",
+      "decision": "reject",
+      "single": false,
+      "notice": "اكتمل القرار الجماعي للتأمين: 2 مقبول، 0 معتذر عنه، 0 متجاوز. أقساط سنوية 20000 · تغطية 2000000."
+    }
+  ]
+}

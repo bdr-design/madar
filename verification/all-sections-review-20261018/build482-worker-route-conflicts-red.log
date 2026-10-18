@@ -1,0 +1,15 @@
+/workspace/madar/tests/build482-worker-route-conflicts.cjs:7
+ const before=compact?new Uint8Array(state.fleet.rows).slice():JSON.stringify(rows),expected=[...g.referenceRouteConflicts(state,routes)].map(([id,v])=>[id,!!v]),preview={routes,routeOwners:routes.map(r=>({id:r.id,companyId:r.ownerCompanyId,mode:r.type})),customRoutes:routes,legacyOwner:{air:'air',sea:'sea'}};assert.deepEqual(JSON.parse(JSON.stringify(F.previewRouteConflicts(state,preview))),expected);
+                                                                                                                                                                                                                                                                                                                                                                    ^
+
+TypeError: F.previewRouteConflicts is not a function
+    at Object.<anonymous> (/workspace/madar/tests/build482-worker-route-conflicts.cjs:7:357)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0

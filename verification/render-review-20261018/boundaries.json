@@ -1,0 +1,55 @@
+{
+  "runtimeFiles": [
+    "app.js",
+    "interface-core.js",
+    "map-vehicle-canvas-core.js"
+  ],
+  "checkedFunctions": 646,
+  "changed": [
+    "scheduleFleetUiSummaryRefresh",
+    "renderAllocatedVehicles",
+    "renderMap",
+    "updateMapStatus",
+    "animateMapMarkerPositions",
+    "updateCalendarAdvanceControl",
+    "updateDayStepControl",
+    "assetMarketHead",
+    "renderAssetMarketBody",
+    "bindDrawerActions"
+  ],
+  "unchangedFinancialFunctions": [
+    {
+      "name": "buyAsset",
+      "present": true,
+      "unchanged": true
+    },
+    {
+      "name": "spendCompany",
+      "present": true,
+      "unchanged": true
+    },
+    {
+      "name": "creditCompany",
+      "present": true,
+      "unchanged": true
+    },
+    {
+      "name": "runAuthorizedDomainCommand",
+      "present": true,
+      "unchanged": true
+    },
+    {
+      "name": "runDurableStateCommand",
+      "present": true,
+      "unchanged": true
+    },
+    {
+      "name": "processFinancialDay",
+      "present": true,
+      "unchanged": true
+    }
+  ],
+  "globalChanges": 1,
+  "baselineAppSha256": "f66dc20d80ebf23137a22b36411e317d2b3270a3a442ffd25910f77a5155cf56",
+  "currentAppSha256": "44402a0dd7c0d913f18cf5cf0aba176c6682162e2c41044a4c271460e2b8fc4d"
+}

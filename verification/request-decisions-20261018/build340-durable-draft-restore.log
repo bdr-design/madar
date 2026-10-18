@@ -1,0 +1,1 @@
+{"suite":"build340-durable-draft-restore","restoreDifferentialCases":600,"contracts":"discardable-draft, poison, source, real-core parity","environment":"node v24.19.0; synthetic state; not iPhone performance"}

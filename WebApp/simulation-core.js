@@ -78,7 +78,7 @@
     // Build 359: where a simulation cycle spends its time (create, chunks, finish, maintenance and render callbacks),
     // so a slow cycle names its stage in diagnostics. Measurement only; no decision reads it.
     let frameStages=null,cooldownNext=false,frameCadencePressure=0;const addFrameStage=(key,ms)=>{if(frameStages)frameStages[key]+=Math.max(0,Number(ms)||0);};
-    let hardTaskStreak=0,conflictStreak=0,lastObservedSpeed=null,throttlePending=null;const durationSamples=[],workSamples=[];let lastGovernor='GREEN';
+    let hardTaskStreak=0,conflictStreak=0,lastObservedSpeed=null,throttlePending=null;const durationSamples=[],workSamples=[],overrunSamples=[];let lastGovernor='GREEN';
     // boundaryAt treats a value within its relative epsilon as the boundary.
     // Use the same rule for cumulative health counters so a grouped window
     // reports every hour/day it actually crossed, rather than one counter tick
@@ -131,11 +131,17 @@
     // One real second of intended progress per atomic slice means higher UI multipliers do not create
     // eight full-state transactions per real second as older builds did.
     const quantum=s=>Math.max(1e-6,Math.min(3600,Math.max(1,s)*cfg.quantumRealSeconds));
-    function observeWork(stage,took,speed){
-      took=Math.max(0,Number(took)||0);health.lastWorkStage=stage;addFrameStage(`${stage}Ms`,took);workSamples.push(took);if(workSamples.length>40)workSamples.shift();health.avgWorkMs=workSamples.reduce((a,b)=>a+b,0)/Math.max(1,workSamples.length);
+    // overrun: work past the time the stage was given. A chunk runs until the frame's deadline by design (app.js runChunk ->
+    // staged step(deadline)), so its whole duration equals the budget this governor set and only its overrun is pressure;
+    // measuring the whole duration made each full frame cut the next budget (iPhone diagnostic DX-1792300927407: chunks
+    // took 4 ms of a 4 ms live budget, 9-11 ms of a 7.5-10 ms calendar budget; 80-253 level changes per 10 s).
+    // create/finish are indivisible, so their whole duration is the overrun. Long/hard tasks still use the duration.
+    function observeWork(stage,took,speed,overrun=took){
+      took=Math.max(0,Number(took)||0);overrun=Math.max(0,Number(overrun)||0);overrunSamples.push(overrun);if(overrunSamples.length>40)overrunSamples.shift();health.lastWorkStage=stage;addFrameStage(`${stage}Ms`,took);workSamples.push(took);if(workSamples.length>40)workSamples.shift();health.avgWorkMs=workSamples.reduce((a,b)=>a+b,0)/Math.max(1,workSamples.length);
       if(stage==='create'){health.lastCreateMs=took;health.maxCreateMs=Math.max(health.maxCreateMs,took);}else if(stage==='finish'){health.lastFinishMs=took;health.maxFinishMs=Math.max(health.maxFinishMs,took);}
       if(took>=cfg.longTaskWarnMs){health.longTasks++;hardTaskStreak++;}else hardTaskStreak=0;if(took>=cfg.hardTaskMs)health.hardTasks++;
-      const pressure=Math.max(health.avgWorkMs,took),governor=pressure>=cfg.hardTaskMs?'RED':pressure>=cfg.longTaskWarnMs?'ORANGE':pressure>=cfg.frameBudgetMs?'YELLOW':'GREEN';health.governor=governor;
+      const pressure=Math.max(health.avgWorkMs,took),overrunPressure=Math.max(overrunSamples.reduce((a,b)=>a+b,0)/overrunSamples.length,overrun);
+      const governor=pressure>=cfg.hardTaskMs?'RED':pressure>=cfg.longTaskWarnMs?'ORANGE':overrunPressure>=cfg.frameBudgetMs?'YELLOW':'GREEN';health.governor=governor;
       if(governor!==lastGovernor){lastGovernor=governor;try{adapter.onGovernor?.({level:governor,avgChunkMs:health.avgChunkMs,avgWorkMs:health.avgWorkMs,stage,took,speed});}catch(error){report('governor',error,false);}}
       // Work-pressure throttling is cooperative. Lowering a live multiplier does
       // not make fixed snapshot/commit work cheaper and only makes the game feel
@@ -317,12 +323,12 @@
           const result=job.runChunk(chunkItems,{deadline,speed,fast:fast(speed)});
           pending=result?.pending===true;done=result===true||result?.done===true;
         }catch(error){if(manualAdvance)failManualAdvance('chunk-error',{stage:'chunk',from:jobStart,to:jobStart+jobSlice,error});report('sliceChunk',error,true);cancelJob('chunk-error');pacing.clearBacklog();return;}
-        const took=clock()-chunkStart;
+        const chunkEnd=clock(),took=chunkEnd-chunkStart;
         jobWorkMs+=Math.max(0,took);
         health.chunks++;health.lastChunkMs=took;health.maxChunkMs=Math.max(health.maxChunkMs,took);
         durationSamples.push(took);if(durationSamples.length>30)durationSamples.shift();health.avgChunkMs=durationSamples.reduce((a,b)=>a+b,0)/Math.max(1,durationSamples.length);
         if(done)jobReadyToFinish=true;
-        observeWork('chunk',took,speed);
+        observeWork('chunk',took,speed,chunkEnd-deadline);
         // An asynchronous planner has yielded its work to a Worker. Stop this
         // frame here instead of spinning until the deadline; RAF will resume
         // the same atomic job when the result arrives.

@@ -2,6 +2,7 @@
 // Native vault protocol test double; does not replace financial owners or persistence code.
 function installVault(seed){
  const q=window.__DIFF_VAULT__={chunks:new Map((seed?.chunks||[]).map(([id,b64])=>[id,Uint8Array.from(atob(b64),c=>c.charCodeAt(0))])),head:seed?.json||null,history:[],uploads:[],attempts:[],pending:[],mode:'ok',hold:false,generation:10};
+ if(seed?.bootstrap){window.GH_NATIVE_ROW_PATCHES=1;window.GH_NATIVE_VALUE_CHUNKS=1;window.GH_NATIVE_CHUNK_ENCODINGS=['gh-packbits-v1'];window.__GH_NATIVE_SAVE_JSON__=seed.json;window.__GH_NATIVE_SAVE_CHUNKS__=new Map([...q.chunks].map(([id,bytes])=>[id,bytes.slice().buffer]));}
  GH_NATIVE_BUILD=362;window.webkit={messageHandlers:{saveBridge:{postMessage(m){
   const deliver=(name,detail)=>setTimeout(()=>dispatchEvent(new CustomEvent(name,{detail})),0);
   if(m.action==='storeSaveChunk'){

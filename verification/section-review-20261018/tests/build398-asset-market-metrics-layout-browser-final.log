@@ -1,0 +1,2 @@
+{"suite":"build398-asset-market-metrics-layout-browser","passed":3,"results":[{"viewport":{"width":956,"height":440},"grids":3,"columns":4,"minCellWidth":78,"clippedValues":0},{"viewport":{"width":844,"height":390},"grids":3,"columns":4,"minCellWidth":74.90625,"clippedValues":0},{"viewport":{"width":667,"height":375},"grids":3,"columns":2,"minCellWidth":113.359375,"clippedValues":0}]}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.

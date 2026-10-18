@@ -1,0 +1,18 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{
+  "suite": "build371-durable-fleet-isolation-browser",
+  "report": [
+    {
+      "name": "paused then interrupted: rolled back, nothing acted on the partial result",
+      "refusals": {
+        "save": false,
+        "player": "refused:durable-transaction-in-progress"
+      },
+      "visibleWhilePaused": "------------------------"
+    },
+    {
+      "name": "paused then committed: complete, reload restores it"
+    }
+  ]
+}
+BUILD371_DURABLE_FLEET_ISOLATION_PASS

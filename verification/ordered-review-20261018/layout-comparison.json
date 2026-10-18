@@ -1,0 +1,122 @@
+[
+  {
+    "label": "before",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "view": "cheques",
+    "cards": 17,
+    "file": "comparison-before-cheques-956.png"
+  },
+  {
+    "label": "before",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "view": "invoices",
+    "cards": 17,
+    "file": "comparison-before-invoices-956.png"
+  },
+  {
+    "label": "before",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "view": "cheques",
+    "cards": 17,
+    "file": "comparison-before-cheques-844.png"
+  },
+  {
+    "label": "before",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "view": "invoices",
+    "cards": 17,
+    "file": "comparison-before-invoices-844.png"
+  },
+  {
+    "label": "before",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "view": "cheques",
+    "cards": 17,
+    "file": "comparison-before-cheques-667.png"
+  },
+  {
+    "label": "before",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "view": "invoices",
+    "cards": 17,
+    "file": "comparison-before-invoices-667.png"
+  },
+  {
+    "label": "after",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "view": "cheques",
+    "cards": 4,
+    "file": "comparison-after-cheques-956.png"
+  },
+  {
+    "label": "after",
+    "viewport": {
+      "width": 956,
+      "height": 440
+    },
+    "view": "invoices",
+    "cards": 2,
+    "file": "comparison-after-invoices-956.png"
+  },
+  {
+    "label": "after",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "view": "cheques",
+    "cards": 4,
+    "file": "comparison-after-cheques-844.png"
+  },
+  {
+    "label": "after",
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "view": "invoices",
+    "cards": 2,
+    "file": "comparison-after-invoices-844.png"
+  },
+  {
+    "label": "after",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "view": "cheques",
+    "cards": 4,
+    "file": "comparison-after-cheques-667.png"
+  },
+  {
+    "label": "after",
+    "viewport": {
+      "width": 667,
+      "height": 375
+    },
+    "view": "invoices",
+    "cards": 2,
+    "file": "comparison-after-invoices-667.png"
+  }
+]

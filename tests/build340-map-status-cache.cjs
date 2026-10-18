@@ -20,7 +20,8 @@ const window={GH_MAP_STRUCTURE_REVISION:3,GH_MOBILITY_CORE:{mapStructureRevision
 const dom={mapStatus:{textContent:'',title:''}};
 let fakeNow=1000000;
 const context={state,window,Date:{now:()=>fakeNow},mapFleetSummaryClient:()=>null,mapFleetClassRows:()=>null,mapFleetSummary:{revision:-1},mapTilesOffline:false,mapCategoryVisible:()=>false,operationalRoutes:()=>{routeScans++;return [{routingSource:'OSRM'}];},getDynamicFacilities:()=>{facilityScans++;return [{owned:true},{owned:false}];},$:id=>dom[id]};
-const update=vm.runInNewContext(`(()=>{${source};return updateMapStatus;})()`,context,{filename:'map-status-cache.js'});
+const textHelper=app.slice(app.indexOf('  const setNodeText='),app.indexOf('  function updateKpis('));
+const update=vm.runInNewContext(`(()=>{${textHelper}\n${source};return updateMapStatus;})()`,context,{filename:'map-status-cache.js'});
 
 update();
 assert.equal(assetScans,1,'initial summary is built once');

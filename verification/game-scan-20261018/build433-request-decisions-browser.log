@@ -1,0 +1,595 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+PASS chromium bank accept batch
+PASS chromium bank accept single
+PASS chromium bank reject batch
+PASS chromium bank reject single
+PASS chromium insurance accept batch
+PASS chromium insurance accept single
+PASS chromium insurance reject batch
+PASS chromium insurance reject single
+PASS chromium telecom accept batch
+PASS chromium telecom accept single
+PASS chromium telecom reject batch
+PASS chromium telecom reject single
+PASS chromium bank accept specialist single
+PASS chromium bank reject specialist single
+PASS chromium insurance accept specialist single
+PASS chromium insurance reject specialist single
+PASS chromium insurance accept specialist batch
+PASS chromium insurance reject specialist batch
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+PASS webkit bank accept batch
+PASS webkit bank accept single
+PASS webkit bank reject batch
+PASS webkit bank reject single
+PASS webkit insurance accept batch
+PASS webkit insurance accept single
+PASS webkit insurance reject batch
+PASS webkit insurance reject single
+PASS webkit telecom accept batch
+PASS webkit telecom accept single
+PASS webkit telecom reject batch
+PASS webkit telecom reject single
+PASS webkit bank accept specialist single
+PASS webkit bank reject specialist single
+PASS webkit insurance accept specialist single
+PASS webkit insurance reject specialist single
+PASS webkit insurance accept specialist batch
+PASS webkit insurance reject specialist batch
+{
+  "suite": "build433-request-decisions-browser",
+  "passed": 44,
+  "scope": "real buttons and owners; protocol vault; landscape; no device performance claim",
+  "results": [
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "panel": "bank",
+      "decision": "accept",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "panel": "bank",
+      "decision": "reject",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "accept",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "reject",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "accept",
+      "single": false,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "reject",
+      "single": false,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "readyFleetValidation": true,
+      "prestages": 0
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "coldFleetValidation": true,
+      "prestages": 1,
+      "savedLatestFleet": true
+    },
+    {
+      "engine": "chromium",
+      "composite": true,
+      "cold": false,
+      "ok": true,
+      "prestages": 0,
+      "commits": 1,
+      "noticeSaved": true,
+      "fuel": 37
+    },
+    {
+      "engine": "chromium",
+      "composite": true,
+      "cold": true,
+      "ok": true,
+      "prestages": 1,
+      "commits": 1,
+      "noticeSaved": true,
+      "fuel": 26
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "decision": "accept",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "decision": "accept",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "decision": "reject",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "decision": "reject",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "decision": "accept",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "decision": "accept",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "decision": "reject",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "decision": "reject",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "telecom",
+      "decision": "accept",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "telecom",
+      "decision": "accept",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "telecom",
+      "decision": "reject",
+      "single": false,
+      "requests": 2,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "telecom",
+      "decision": "reject",
+      "single": true,
+      "requests": 1,
+      "cancel": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "receiptReplay": true,
+      "noticeSavedOnce": true
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "panel": "bank",
+      "decision": "accept",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "panel": "bank",
+      "decision": "reject",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "accept",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "reject",
+      "single": true,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "accept",
+      "single": false,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "webkit",
+      "kind": "insurance",
+      "panel": "insurance",
+      "decision": "reject",
+      "single": false,
+      "heldAck": true,
+      "duplicateBlocked": true,
+      "nackExactRollback": true,
+      "retry": true,
+      "receiptReplay": true,
+      "noticeSaved": true,
+      "liveAlertTransactions": 0
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "decision": "reject",
+      "readyFleetValidation": true,
+      "prestages": 0
+    },
+    {
+      "engine": "webkit",
+      "kind": "bank",
+      "decision": "reject",
+      "coldFleetValidation": true,
+      "prestages": 1,
+      "savedLatestFleet": true
+    },
+    {
+      "engine": "webkit",
+      "composite": true,
+      "cold": false,
+      "ok": true,
+      "prestages": 0,
+      "commits": 1,
+      "noticeSaved": true,
+      "fuel": 37
+    },
+    {
+      "engine": "webkit",
+      "composite": true,
+      "cold": true,
+      "ok": true,
+      "prestages": 1,
+      "commits": 1,
+      "noticeSaved": true,
+      "fuel": 26
+    }
+  ]
+}

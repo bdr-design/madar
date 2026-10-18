@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: an exact broader summary must answer immediately
+    at /workspace/madar/tests/build464-summary-projection-boundary.cjs:5:227 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

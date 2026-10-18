@@ -1,0 +1,27 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: {"company":"all","tab":"obligations","view":"payables","direction":"all"}
++ actual - expected
+
++ 'f237c13c4ce4ccd634f1c267c1d60459d731fa94b235314ce5ca3430d9983b42'
+- '597932f832435ec3e2804374b5c78dfa9e8b032d05a899a257713da23584a06f'
+
+    at Object.<anonymous> (/workspace/madar/tests/build440-document-collection-work.cjs:23:280)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'f237c13c4ce4ccd634f1c267c1d60459d731fa94b235314ce5ca3430d9983b42',
+  expected: '597932f832435ec3e2804374b5c78dfa9e8b032d05a899a257713da23584a06f',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

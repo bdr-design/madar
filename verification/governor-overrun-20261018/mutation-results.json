@@ -1,0 +1,58 @@
+[
+  {
+    "mutation": "duration-feedback",
+    "test": "tests/governor-overrun-signal.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: a chunk that stops at its deadline is not pressure (1687 level changes)"
+  },
+  {
+    "mutation": "ignore-overrun",
+    "test": "tests/governor-overrun-signal.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: an indivisible step past the deadline is pressure (none)"
+  },
+  {
+    "mutation": "per-chunk-budget",
+    "test": "tests/build426-governor-pressure.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+  },
+  {
+    "mutation": "long-task-uses-overrun",
+    "test": "tests/build426-governor-pressure.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+  },
+  {
+    "mutation": "hard-task-uses-overrun",
+    "test": "tests/build426-governor-pressure.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+  },
+  {
+    "mutation": "ignore-create-finish",
+    "test": "tests/build426-governor-pressure.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:"
+  },
+  {
+    "mutation": "disable-cadence-factor",
+    "test": "tests/build426-governor-pressure.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
+  },
+  {
+    "mutation": "disable-red-throttle",
+    "test": "tests/governor-overrun-signal.cjs",
+    "exit_code": 1,
+    "detected": true,
+    "failure": "AssertionError [ERR_ASSERTION]: a hard stage still throttles the calendar"
+  }
+]

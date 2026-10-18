@@ -1,0 +1,3143 @@
+{
+  "source": "/workspace/madar",
+  "sourceFiles": {
+    "app.js": "b0ee8e06255c87cfbc2778120c47e81b2a89a25c07af7a50f3884056d5fa3fd8",
+    "advanced-core.js": "7a23153144f62d0f64c891e257dd470bd60f501ecb9201065fe89989468b66bb",
+    "madar-shell.js": "1a9062a5c8d6076fbaf971804b628853a44943f0e981b9247d8d39ccc7a0d5a4",
+    "transaction-core.js": "d20fc32a6620fc28b033bc724b084de212bea9aa0f1f350f834550795bf78f52",
+    "domain-command-core.js": "3b8cdd8af5f51edefc10913b36d7077706a94546e6be518d1cdf3238eda38647",
+    "persistence-core.js": "d458510442de4c3661865477524a368043fd623d128e25dc2de0978b8cbf009e",
+    "state-codec-core.js": "e8c72dc0d8afaded20736cfc541d6744feb706a907de6f2d86c3ce49a11739d4",
+    "fleet-store-core.js": "30debea0d68d938ffb025d72efd132091a4f875d13a302c5cfff360fe9f2ef2d",
+    "save-schema.js": "31b1e122f9f8a65f6966471ca370113021bb2ae160f81515d36ab0f684cd902a",
+    "banking-core.js": "9f6b63caef710f107f9af872c93ed93687b2ded0183983e278f0e92857861d2b",
+    "insurance-core.js": "62b008bd240125653fb42ee8e60cdcc6233a6151bf8e221a2439f67490567f5a",
+    "telecom-market-core.js": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec"
+  },
+  "rows": 1000000,
+  "companiesOpened": 11,
+  "repeats": 1,
+  "moving": true,
+  "worlds": [
+    {
+      "engine": "chromium",
+      "rows": 1000000,
+      "companies": 11,
+      "routed": 20000,
+      "moving": 838,
+      "simSeconds": 20
+    }
+  ],
+  "scope": "Actual UI buttons, owners, worker and protocol ACK; real bulk air dispatch and 20s advancement before each decision; not all-company revenue or native iPhone IO. Named spans do not cover every browser task.",
+  "results": [
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-hbl3li",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-0-accept-0",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-1",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-2",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-3",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-4",
+                "decision": "approve"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-hbl3li",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-hbl3li",
+              "periodId": "0",
+              "approved": 5,
+              "rejected": 0,
+              "skipped": 0,
+              "totalPrincipal": 2500000,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-0-accept-0",
+                  "status": "موافق",
+                  "loanId": "LOAN-1",
+                  "contractId": "CUST-LOAN-1",
+                  "customerId": "BANK-CUST-8d86665",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-1",
+                  "status": "موافق",
+                  "loanId": "LOAN-2",
+                  "contractId": "CUST-LOAN-2",
+                  "customerId": "BANK-CUST-add38cd",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-2",
+                  "status": "موافق",
+                  "loanId": "LOAN-3",
+                  "contractId": "CUST-LOAN-3",
+                  "customerId": "BANK-CUST-cfe7fb9",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-3",
+                  "status": "موافق",
+                  "loanId": "LOAN-4",
+                  "contractId": "CUST-LOAN-4",
+                  "customerId": "BANK-CUST-c198d01",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-4",
+                  "status": "موافق",
+                  "loanId": "LOAN-5",
+                  "contractId": "CUST-LOAN-5",
+                  "customerId": "BANK-CUST-7691835",
+                  "principal": 500000
+                }
+              ]
+            }
+          },
+          "ended": 78565.09999999776
+        }
+      ],
+      "liveAlerts": 0,
+      "uiSummaryQueries": 0,
+      "prestages": 0,
+      "toAckMs": 35.400000002235174,
+      "toUiEndMs": 40,
+      "maxMeasuredSyncMs": 5.100000001490116,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.5999999977648258,
+          "maxMs": 1.5999999977648258
+        },
+        "command.apply-exact": {
+          "count": 1,
+          "totalMs": 5.100000001490116,
+          "maxMs": 5.100000001490116
+        },
+        "command.schema": {
+          "count": 1,
+          "totalMs": 1.300000000745058,
+          "maxMs": 1.300000000745058
+        },
+        "fleet.sync": {
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2,
+          "maxMs": 1
+        },
+        "ui.kpis": {
+          "count": 1,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.19999999925494194
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 1,
+          "maxMs": 1
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.4000000022351742,
+          "maxMs": 0.4000000022351742
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5999999977648258,
+          "maxMs": 0.5999999977648258
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5999999977648258,
+          "maxMs": 0.5999999977648258
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.899999998509884,
+          "maxMs": 2.899999998509884
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 1.6,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 5.3,
+        "validateMs": 1.3,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 0,
+        "persistMs": 24.3,
+        "publishMs": 1,
+        "afterMs": 0,
+        "totalMs": 34,
+        "committed": true,
+        "cloneBusyMs": 1.6,
+        "cloneMaxSliceMs": 1.6,
+        "cloneYields": 0,
+        "validateBusyMs": 1.3,
+        "validateMaxSliceMs": 1.3,
+        "recordedAtMs": 1792317348824
+      },
+      "rows": 1000000,
+      "companies": 11,
+      "validation": {
+        "totalMs": 1.300000000745058,
+        "authorizationMs": 0.4000000022351742,
+        "authorizationProofVerifyMs": 0.20000000298023224,
+        "documentProofMs": 0.09999999776482582,
+        "documentCollectionMs": 0,
+        "documentRecordVerifyMs": 0,
+        "documentVerifyMs": 0,
+        "companyPlatformMs": 0.10000000149011612,
+        "otherMs": 0.6999999992549419,
+        "errors": 0,
+        "fleetWork": {
+          "rootChecks": 1,
+          "identityValidationCalls": 1,
+          "conferenceValidationCalls": 1,
+          "presentationValidationCalls": 1,
+          "routeIdRows": 8,
+          "routeRows": 6,
+          "assetFieldVisits": 1000000,
+          "idCollisionChecks": 1,
+          "routeUserGroups": 6,
+          "routeSignatureGroups": 6,
+          "routeSignatureRows": 0,
+          "workerValidation": 1,
+          "workerClasses": 0
+        },
+        "routeStateWork": {
+          "endpointRows": 6,
+          "cacheRows": 0,
+          "cacheByteChecks": 1,
+          "retiredFeatureChecks": 1
+        },
+        "financeWork": {
+          "invoiceIdRows": 2,
+          "chequeIdRows": 2,
+          "customerReceiptRows": 0,
+          "customerCreditNoteRows": 0,
+          "companyBooks": 12,
+          "accountRows": 25,
+          "deliveryRows": 2,
+          "deliveryAssetIdProjectionRows": 0,
+          "deliveryAssetValidationRows": 0,
+          "compactReceiptChecks": 2,
+          "receiptFieldRows": 0,
+          "receiptDistinctRows": 2,
+          "deliveryAssetIdRows": 0,
+          "invoiceMathRows": 2,
+          "taxPeriodRows": 0,
+          "journalRows": 44,
+          "journalLineRows": 93,
+          "archiveRecordBuckets": 0,
+          "archiveDigestRows": 0,
+          "archiveQuarterRows": 0,
+          "coldArchiveChecks": 1,
+          "budgetRows": 1,
+          "budgetLineRows": 8
+        },
+        "booksWork": {
+          "controlCollectionChecks": 5,
+          "controlSequenceChecks": 5,
+          "controlIdRows": 3,
+          "controlEventRows": 3,
+          "controlOutboxRows": 0,
+          "domainCollectionChecks": 2,
+          "businessCollectionChecks": 4,
+          "businessIdRows": 35,
+          "partyRows": 52,
+          "relationshipRows": 1,
+          "profileOrderRows": 0,
+          "customerProfileRows": 0,
+          "customerCompanyRows": 0,
+          "customerSegmentRows": 0
+        },
+        "authorizationWork": {
+          "stateChecks": 1,
+          "people": 1,
+          "seals": 1,
+          "activeSeals": 1,
+          "mandates": 1,
+          "residencyRows": 0,
+          "proofRows": 33,
+          "proofVerifyCalls": 1,
+          "dependencyChecks": 0,
+          "archiveByteMeasurements": 1,
+          "archiveMemoHit": false,
+          "total": 40
+        },
+        "documentProofWork": {
+          "stateChecks": 1,
+          "archiveResidencyRows": 38,
+          "recordRows": 38,
+          "recordVerifyCalls": 0,
+          "liveDocuments": 28,
+          "archiveDocuments": 0,
+          "documentVerifyCalls": 0,
+          "documentSerializationRows": 0,
+          "dependencyChecks": 0,
+          "changeSetChecks": 0,
+          "changeListKinds": 0,
+          "changeRemovedDocumentEntries": 0,
+          "changeRemovedDocuments": 0,
+          "changeRemovedRecords": 0,
+          "changeRemovedCheckpoints": 0,
+          "changeChangedCheckpoints": 0,
+          "changeChangedPeriods": 0,
+          "changeChangedRecords": 0,
+          "changeRecordDocumentLinks": 0,
+          "changeChangedDocumentEntries": 0,
+          "changeRecheckDocuments": 0,
+          "checkpointVerifyCalls": 0,
+          "checkpointRows": 0,
+          "checkpointPeriodRows": 0,
+          "checkpointDigestRows": 0,
+          "sealVerifyCalls": 0,
+          "sealRows": 0,
+          "archiveMode": "same",
+          "total": 105
+        },
+        "companyPlatformWork": {
+          "stateChecks": 1,
+          "registryRows": 12,
+          "openedNormalizationRows": 11,
+          "openedRows": 11,
+          "assetEvidenceChecks": 1,
+          "assetFieldVisits": 0,
+          "assetFallbackRows": 0,
+          "deliveryRows": 2,
+          "deliveryProjectionRows": 2,
+          "deliveryAssetRows": 2,
+          "routeRows": 6,
+          "facilityRows": 5,
+          "companyFinanceRows": 12
+        },
+        "sectionSamples": [
+          {
+            "name": "fleet-routes",
+            "durationMs": 0.6000000014901161,
+            "units": 1000032,
+            "details": {
+              "work": {
+                "rootChecks": 1,
+                "identityValidationCalls": 1,
+                "conferenceValidationCalls": 1,
+                "presentationValidationCalls": 1,
+                "routeIdRows": 8,
+                "routeRows": 6,
+                "assetFieldVisits": 1000000,
+                "idCollisionChecks": 1,
+                "routeUserGroups": 6,
+                "routeSignatureGroups": 6,
+                "routeSignatureRows": 0,
+                "workerValidation": 1,
+                "workerClasses": 0
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          },
+          {
+            "name": "route-state",
+            "durationMs": 0,
+            "units": 8,
+            "details": {
+              "work": {
+                "endpointRows": 6,
+                "cacheRows": 0,
+                "cacheByteChecks": 1,
+                "retiredFeatureChecks": 1
+              }
+            }
+          },
+          {
+            "name": "finance",
+            "durationMs": 0.09999999776482582,
+            "units": 196,
+            "details": {
+              "work": {
+                "invoiceIdRows": 2,
+                "chequeIdRows": 2,
+                "customerReceiptRows": 0,
+                "customerCreditNoteRows": 0,
+                "companyBooks": 12,
+                "accountRows": 25,
+                "deliveryRows": 2,
+                "deliveryAssetIdProjectionRows": 0,
+                "deliveryAssetValidationRows": 0,
+                "compactReceiptChecks": 2,
+                "receiptFieldRows": 0,
+                "receiptDistinctRows": 2,
+                "deliveryAssetIdRows": 0,
+                "invoiceMathRows": 2,
+                "taxPeriodRows": 0,
+                "journalRows": 44,
+                "journalLineRows": 93,
+                "archiveRecordBuckets": 0,
+                "archiveDigestRows": 0,
+                "archiveQuarterRows": 0,
+                "coldArchiveChecks": 1,
+                "budgetRows": 1,
+                "budgetLineRows": 8
+              }
+            }
+          },
+          {
+            "name": "books",
+            "durationMs": 0,
+            "units": 110,
+            "details": {
+              "work": {
+                "controlCollectionChecks": 5,
+                "controlSequenceChecks": 5,
+                "controlIdRows": 3,
+                "controlEventRows": 3,
+                "controlOutboxRows": 0,
+                "domainCollectionChecks": 2,
+                "businessCollectionChecks": 4,
+                "businessIdRows": 35,
+                "partyRows": 52,
+                "relationshipRows": 1,
+                "profileOrderRows": 0,
+                "customerProfileRows": 0,
+                "customerCompanyRows": 0,
+                "customerSegmentRows": 0
+              }
+            }
+          },
+          {
+            "name": "authorization",
+            "durationMs": 0.4000000022351742,
+            "units": 40,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "people": 1,
+                "seals": 1,
+                "activeSeals": 1,
+                "mandates": 1,
+                "residencyRows": 0,
+                "proofRows": 33,
+                "proofVerifyCalls": 1,
+                "dependencyChecks": 0,
+                "archiveByteMeasurements": 1
+              },
+              "archiveMemoHit": false
+            }
+          },
+          {
+            "name": "document-proofs",
+            "durationMs": 0.09999999776482582,
+            "units": 105,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "archiveResidencyRows": 38,
+                "recordRows": 38,
+                "recordVerifyCalls": 0,
+                "liveDocuments": 28,
+                "archiveDocuments": 0,
+                "documentVerifyCalls": 0,
+                "documentSerializationRows": 0,
+                "dependencyChecks": 0,
+                "changeSetChecks": 0,
+                "changeListKinds": 0,
+                "changeRemovedDocumentEntries": 0,
+                "changeRemovedDocuments": 0,
+                "changeRemovedRecords": 0,
+                "changeRemovedCheckpoints": 0,
+                "changeChangedCheckpoints": 0,
+                "changeChangedPeriods": 0,
+                "changeChangedRecords": 0,
+                "changeRecordDocumentLinks": 0,
+                "changeChangedDocumentEntries": 0,
+                "changeRecheckDocuments": 0,
+                "checkpointVerifyCalls": 0,
+                "checkpointRows": 0,
+                "checkpointPeriodRows": 0,
+                "checkpointDigestRows": 0,
+                "sealVerifyCalls": 0,
+                "sealRows": 0
+              },
+              "archiveMode": "same"
+            }
+          },
+          {
+            "name": "company-platform",
+            "durationMs": 0.10000000149011612,
+            "units": 65,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "registryRows": 12,
+                "openedNormalizationRows": 11,
+                "openedRows": 11,
+                "assetEvidenceChecks": 1,
+                "assetFieldVisits": 0,
+                "assetFallbackRows": 0,
+                "deliveryRows": 2,
+                "deliveryProjectionRows": 2,
+                "deliveryAssetRows": 2,
+                "routeRows": 6,
+                "facilityRows": 5,
+                "companyFinanceRows": 12
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          }
+        ],
+        "routeWork": {
+          "geometryChecks": 6,
+          "geometryCacheHits": 0,
+          "geometryPoints": 234,
+          "yields": 0
+        },
+        "documentArchiveAnswered": 1,
+        "recordedAtMs": 1792317348799
+      },
+      "saveBreakdown": {
+        "kind": "ordinary-save",
+        "saveRevision": 2,
+        "nativeBridge": true,
+        "schemaMs": 3.600000001490116,
+        "stringifyMs": 3,
+        "measurementMs": 0.19999999925494194,
+        "browserCacheMs": 0,
+        "totalSyncMs": 6.800000000745058,
+        "utf8Bytes": 56761,
+        "cacheReason": "chunked-native-save",
+        "ok": true,
+        "chunkUploads": 0,
+        "recordedAtMs": 1792317270793
+      }
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-nz7adb",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-0-reject-0",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-1",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-2",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-3",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-4",
+                "decision": "reject"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-nz7adb",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-nz7adb",
+              "periodId": "0",
+              "approved": 0,
+              "rejected": 5,
+              "skipped": 0,
+              "totalPrincipal": 0,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-0-reject-0",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-1",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-2",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-3",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-4",
+                  "status": "مرفوض"
+                }
+              ]
+            }
+          },
+          "ended": 79010
+        }
+      ],
+      "liveAlerts": 0,
+      "uiSummaryQueries": 0,
+      "prestages": 0,
+      "toAckMs": 29.5,
+      "toUiEndMs": 33.5,
+      "maxMeasuredSyncMs": 2.899999998509884,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.6000000014901161,
+          "maxMs": 1.6000000014901161
+        },
+        "command.apply-exact": {
+          "count": 1,
+          "totalMs": 1.5,
+          "maxMs": 1.5
+        },
+        "command.schema": {
+          "count": 1,
+          "totalMs": 1.199999999254942,
+          "maxMs": 1.199999999254942
+        },
+        "fleet.sync": {
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.19999999925494194
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.7000000029802322,
+          "maxMs": 0.9000000022351742
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.7999999970197678,
+          "maxMs": 0.7999999970197678
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.6000000014901161,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.6000000014901161,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.899999998509884,
+          "maxMs": 2.899999998509884
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 1.7,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.4,
+        "applyMs": 1.5,
+        "validateMs": 1.2,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 0,
+        "persistMs": 22,
+        "publishMs": 0.9,
+        "afterMs": 0,
+        "totalMs": 27.9,
+        "committed": true,
+        "cloneBusyMs": 1.6,
+        "cloneMaxSliceMs": 1.6,
+        "cloneYields": 0,
+        "validateBusyMs": 1.2,
+        "validateMaxSliceMs": 1.2,
+        "recordedAtMs": 1792317349269
+      },
+      "rows": 1000000,
+      "companies": 11,
+      "validation": {
+        "totalMs": 1.199999999254942,
+        "authorizationMs": 0.6000000014901161,
+        "authorizationProofVerifyMs": 0.3999999985098839,
+        "documentProofMs": 0.10000000149011612,
+        "documentCollectionMs": 0.10000000149011612,
+        "documentRecordVerifyMs": 0,
+        "documentVerifyMs": 0,
+        "companyPlatformMs": 0.09999999776482582,
+        "otherMs": 0.3999999985098839,
+        "errors": 0,
+        "fleetWork": {
+          "rootChecks": 1,
+          "identityValidationCalls": 1,
+          "conferenceValidationCalls": 1,
+          "presentationValidationCalls": 1,
+          "routeIdRows": 8,
+          "routeRows": 6,
+          "assetFieldVisits": 1000000,
+          "idCollisionChecks": 1,
+          "routeUserGroups": 6,
+          "routeSignatureGroups": 6,
+          "routeSignatureRows": 0,
+          "workerValidation": 1,
+          "workerClasses": 0
+        },
+        "routeStateWork": {
+          "endpointRows": 6,
+          "cacheRows": 0,
+          "cacheByteChecks": 1,
+          "retiredFeatureChecks": 1
+        },
+        "financeWork": {
+          "invoiceIdRows": 2,
+          "chequeIdRows": 2,
+          "customerReceiptRows": 0,
+          "customerCreditNoteRows": 0,
+          "companyBooks": 12,
+          "accountRows": 25,
+          "deliveryRows": 2,
+          "deliveryAssetIdProjectionRows": 0,
+          "deliveryAssetValidationRows": 0,
+          "compactReceiptChecks": 2,
+          "receiptFieldRows": 0,
+          "receiptDistinctRows": 2,
+          "deliveryAssetIdRows": 0,
+          "invoiceMathRows": 2,
+          "taxPeriodRows": 0,
+          "journalRows": 44,
+          "journalLineRows": 93,
+          "archiveRecordBuckets": 0,
+          "archiveDigestRows": 0,
+          "archiveQuarterRows": 0,
+          "coldArchiveChecks": 1,
+          "budgetRows": 1,
+          "budgetLineRows": 8
+        },
+        "booksWork": {
+          "controlCollectionChecks": 5,
+          "controlSequenceChecks": 5,
+          "controlIdRows": 3,
+          "controlEventRows": 3,
+          "controlOutboxRows": 0,
+          "domainCollectionChecks": 2,
+          "businessCollectionChecks": 4,
+          "businessIdRows": 36,
+          "partyRows": 52,
+          "relationshipRows": 1,
+          "profileOrderRows": 0,
+          "customerProfileRows": 0,
+          "customerCompanyRows": 0,
+          "customerSegmentRows": 0
+        },
+        "authorizationWork": {
+          "stateChecks": 1,
+          "people": 1,
+          "seals": 1,
+          "activeSeals": 1,
+          "mandates": 1,
+          "residencyRows": 0,
+          "proofRows": 34,
+          "proofVerifyCalls": 1,
+          "dependencyChecks": 0,
+          "archiveByteMeasurements": 1,
+          "archiveMemoHit": false,
+          "total": 41
+        },
+        "documentProofWork": {
+          "stateChecks": 1,
+          "archiveResidencyRows": 38,
+          "recordRows": 38,
+          "recordVerifyCalls": 0,
+          "liveDocuments": 28,
+          "archiveDocuments": 0,
+          "documentVerifyCalls": 0,
+          "documentSerializationRows": 0,
+          "dependencyChecks": 0,
+          "changeSetChecks": 0,
+          "changeListKinds": 0,
+          "changeRemovedDocumentEntries": 0,
+          "changeRemovedDocuments": 0,
+          "changeRemovedRecords": 0,
+          "changeRemovedCheckpoints": 0,
+          "changeChangedCheckpoints": 0,
+          "changeChangedPeriods": 0,
+          "changeChangedRecords": 0,
+          "changeRecordDocumentLinks": 0,
+          "changeChangedDocumentEntries": 0,
+          "changeRecheckDocuments": 0,
+          "checkpointVerifyCalls": 0,
+          "checkpointRows": 0,
+          "checkpointPeriodRows": 0,
+          "checkpointDigestRows": 0,
+          "sealVerifyCalls": 0,
+          "sealRows": 0,
+          "archiveMode": "same",
+          "total": 105
+        },
+        "companyPlatformWork": {
+          "stateChecks": 1,
+          "registryRows": 12,
+          "openedNormalizationRows": 11,
+          "openedRows": 11,
+          "assetEvidenceChecks": 1,
+          "assetFieldVisits": 0,
+          "assetFallbackRows": 0,
+          "deliveryRows": 2,
+          "deliveryProjectionRows": 2,
+          "deliveryAssetRows": 2,
+          "routeRows": 6,
+          "facilityRows": 5,
+          "companyFinanceRows": 12
+        },
+        "sectionSamples": [
+          {
+            "name": "fleet-routes",
+            "durationMs": 0.30000000074505806,
+            "units": 1000032,
+            "details": {
+              "work": {
+                "rootChecks": 1,
+                "identityValidationCalls": 1,
+                "conferenceValidationCalls": 1,
+                "presentationValidationCalls": 1,
+                "routeIdRows": 8,
+                "routeRows": 6,
+                "assetFieldVisits": 1000000,
+                "idCollisionChecks": 1,
+                "routeUserGroups": 6,
+                "routeSignatureGroups": 6,
+                "routeSignatureRows": 0,
+                "workerValidation": 1,
+                "workerClasses": 0
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          },
+          {
+            "name": "route-state",
+            "durationMs": 0.09999999776482582,
+            "units": 8,
+            "details": {
+              "work": {
+                "endpointRows": 6,
+                "cacheRows": 0,
+                "cacheByteChecks": 1,
+                "retiredFeatureChecks": 1
+              }
+            }
+          },
+          {
+            "name": "finance",
+            "durationMs": 0,
+            "units": 196,
+            "details": {
+              "work": {
+                "invoiceIdRows": 2,
+                "chequeIdRows": 2,
+                "customerReceiptRows": 0,
+                "customerCreditNoteRows": 0,
+                "companyBooks": 12,
+                "accountRows": 25,
+                "deliveryRows": 2,
+                "deliveryAssetIdProjectionRows": 0,
+                "deliveryAssetValidationRows": 0,
+                "compactReceiptChecks": 2,
+                "receiptFieldRows": 0,
+                "receiptDistinctRows": 2,
+                "deliveryAssetIdRows": 0,
+                "invoiceMathRows": 2,
+                "taxPeriodRows": 0,
+                "journalRows": 44,
+                "journalLineRows": 93,
+                "archiveRecordBuckets": 0,
+                "archiveDigestRows": 0,
+                "archiveQuarterRows": 0,
+                "coldArchiveChecks": 1,
+                "budgetRows": 1,
+                "budgetLineRows": 8
+              }
+            }
+          },
+          {
+            "name": "books",
+            "durationMs": 0,
+            "units": 111,
+            "details": {
+              "work": {
+                "controlCollectionChecks": 5,
+                "controlSequenceChecks": 5,
+                "controlIdRows": 3,
+                "controlEventRows": 3,
+                "controlOutboxRows": 0,
+                "domainCollectionChecks": 2,
+                "businessCollectionChecks": 4,
+                "businessIdRows": 36,
+                "partyRows": 52,
+                "relationshipRows": 1,
+                "profileOrderRows": 0,
+                "customerProfileRows": 0,
+                "customerCompanyRows": 0,
+                "customerSegmentRows": 0
+              }
+            }
+          },
+          {
+            "name": "authorization",
+            "durationMs": 0.6000000014901161,
+            "units": 41,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "people": 1,
+                "seals": 1,
+                "activeSeals": 1,
+                "mandates": 1,
+                "residencyRows": 0,
+                "proofRows": 34,
+                "proofVerifyCalls": 1,
+                "dependencyChecks": 0,
+                "archiveByteMeasurements": 1
+              },
+              "archiveMemoHit": false
+            }
+          },
+          {
+            "name": "document-proofs",
+            "durationMs": 0.10000000149011612,
+            "units": 105,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "archiveResidencyRows": 38,
+                "recordRows": 38,
+                "recordVerifyCalls": 0,
+                "liveDocuments": 28,
+                "archiveDocuments": 0,
+                "documentVerifyCalls": 0,
+                "documentSerializationRows": 0,
+                "dependencyChecks": 0,
+                "changeSetChecks": 0,
+                "changeListKinds": 0,
+                "changeRemovedDocumentEntries": 0,
+                "changeRemovedDocuments": 0,
+                "changeRemovedRecords": 0,
+                "changeRemovedCheckpoints": 0,
+                "changeChangedCheckpoints": 0,
+                "changeChangedPeriods": 0,
+                "changeChangedRecords": 0,
+                "changeRecordDocumentLinks": 0,
+                "changeChangedDocumentEntries": 0,
+                "changeRecheckDocuments": 0,
+                "checkpointVerifyCalls": 0,
+                "checkpointRows": 0,
+                "checkpointPeriodRows": 0,
+                "checkpointDigestRows": 0,
+                "sealVerifyCalls": 0,
+                "sealRows": 0
+              },
+              "archiveMode": "same"
+            }
+          },
+          {
+            "name": "company-platform",
+            "durationMs": 0.09999999776482582,
+            "units": 65,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "registryRows": 12,
+                "openedNormalizationRows": 11,
+                "openedRows": 11,
+                "assetEvidenceChecks": 1,
+                "assetFieldVisits": 0,
+                "assetFallbackRows": 0,
+                "deliveryRows": 2,
+                "deliveryProjectionRows": 2,
+                "deliveryAssetRows": 2,
+                "routeRows": 6,
+                "facilityRows": 5,
+                "companyFinanceRows": 12
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          }
+        ],
+        "routeWork": {
+          "geometryChecks": 0,
+          "geometryCacheHits": 6,
+          "geometryPoints": 0,
+          "yields": 0
+        },
+        "documentArchiveAnswered": 1,
+        "recordedAtMs": 1792317349246
+      },
+      "saveBreakdown": {
+        "kind": "ordinary-save",
+        "saveRevision": 2,
+        "nativeBridge": true,
+        "schemaMs": 3.600000001490116,
+        "stringifyMs": 3,
+        "measurementMs": 0.19999999925494194,
+        "browserCacheMs": 0,
+        "totalSyncMs": 6.800000000745058,
+        "utf8Bytes": 56761,
+        "cacheReason": "chunked-native-save",
+        "ok": true,
+        "chunkUploads": 0,
+        "recordedAtMs": 1792317270793
+      }
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-9782ea3dec3e4c252f528074",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-0-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-9782ea3dec3e4c252f528074",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-9782ea3dec3e4c252f528074",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "totalPremium": 50000,
+              "totalInsured": 5000000,
+              "items": [
+                {
+                  "id": "QA-insurance-0-accept-0",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-1",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-2",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-3",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-4",
+                  "status": "مقبول",
+                  "premium": 10000
+                }
+              ]
+            }
+          },
+          "ended": 79462.5
+        }
+      ],
+      "liveAlerts": 0,
+      "uiSummaryQueries": 0,
+      "prestages": 0,
+      "toAckMs": 31.900000002235174,
+      "toUiEndMs": 35.100000001490116,
+      "maxMeasuredSyncMs": 4,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.3999999985098839,
+          "maxMs": 1.3999999985098839
+        },
+        "command.apply-exact": {
+          "count": 1,
+          "totalMs": 4,
+          "maxMs": 4
+        },
+        "command.schema": {
+          "count": 1,
+          "totalMs": 1.5,
+          "maxMs": 1.5
+        },
+        "fleet.sync": {
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2,
+          "maxMs": 1
+        },
+        "ui.kpis": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.29999999701976776,
+          "maxMs": 0.29999999701976776
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.8999999985098839,
+          "maxMs": 1.8999999985098839
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 1.5,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 4,
+        "validateMs": 1.6,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 0,
+        "persistMs": 21.7,
+        "publishMs": 1,
+        "afterMs": 0,
+        "totalMs": 30.3,
+        "committed": true,
+        "cloneBusyMs": 1.4,
+        "cloneMaxSliceMs": 1.4,
+        "cloneYields": 0,
+        "validateBusyMs": 1.5,
+        "validateMaxSliceMs": 1.5,
+        "recordedAtMs": 1792317349722
+      },
+      "rows": 1000000,
+      "companies": 11,
+      "validation": {
+        "totalMs": 1.5,
+        "authorizationMs": 0.4000000022351742,
+        "authorizationProofVerifyMs": 0.19999999925494194,
+        "documentProofMs": 0.5,
+        "documentCollectionMs": 0,
+        "documentRecordVerifyMs": 0.09999999776482582,
+        "documentVerifyMs": 0.4000000022351742,
+        "companyPlatformMs": 0.09999999776482582,
+        "otherMs": 0.5,
+        "errors": 0,
+        "fleetWork": {
+          "rootChecks": 1,
+          "identityValidationCalls": 1,
+          "conferenceValidationCalls": 1,
+          "presentationValidationCalls": 1,
+          "routeIdRows": 8,
+          "routeRows": 6,
+          "assetFieldVisits": 1000000,
+          "idCollisionChecks": 1,
+          "routeUserGroups": 6,
+          "routeSignatureGroups": 6,
+          "routeSignatureRows": 0,
+          "workerValidation": 1,
+          "workerClasses": 0
+        },
+        "routeStateWork": {
+          "endpointRows": 6,
+          "cacheRows": 0,
+          "cacheByteChecks": 1,
+          "retiredFeatureChecks": 1
+        },
+        "financeWork": {
+          "invoiceIdRows": 2,
+          "chequeIdRows": 2,
+          "customerReceiptRows": 0,
+          "customerCreditNoteRows": 0,
+          "companyBooks": 12,
+          "accountRows": 25,
+          "deliveryRows": 2,
+          "deliveryAssetIdProjectionRows": 0,
+          "deliveryAssetValidationRows": 0,
+          "compactReceiptChecks": 2,
+          "receiptFieldRows": 0,
+          "receiptDistinctRows": 2,
+          "deliveryAssetIdRows": 0,
+          "invoiceMathRows": 2,
+          "taxPeriodRows": 0,
+          "journalRows": 44,
+          "journalLineRows": 93,
+          "archiveRecordBuckets": 0,
+          "archiveDigestRows": 0,
+          "archiveQuarterRows": 0,
+          "coldArchiveChecks": 1,
+          "budgetRows": 1,
+          "budgetLineRows": 8
+        },
+        "booksWork": {
+          "controlCollectionChecks": 5,
+          "controlSequenceChecks": 5,
+          "controlIdRows": 3,
+          "controlEventRows": 3,
+          "controlOutboxRows": 0,
+          "domainCollectionChecks": 2,
+          "businessCollectionChecks": 4,
+          "businessIdRows": 36,
+          "partyRows": 52,
+          "relationshipRows": 1,
+          "profileOrderRows": 0,
+          "customerProfileRows": 0,
+          "customerCompanyRows": 0,
+          "customerSegmentRows": 0
+        },
+        "authorizationWork": {
+          "stateChecks": 1,
+          "people": 1,
+          "seals": 1,
+          "activeSeals": 1,
+          "mandates": 1,
+          "residencyRows": 0,
+          "proofRows": 35,
+          "proofVerifyCalls": 1,
+          "dependencyChecks": 0,
+          "archiveByteMeasurements": 1,
+          "archiveMemoHit": false,
+          "total": 42
+        },
+        "documentProofWork": {
+          "stateChecks": 1,
+          "archiveResidencyRows": 43,
+          "recordRows": 43,
+          "recordVerifyCalls": 5,
+          "liveDocuments": 33,
+          "archiveDocuments": 0,
+          "documentVerifyCalls": 5,
+          "documentSerializationRows": 5,
+          "dependencyChecks": 0,
+          "changeSetChecks": 0,
+          "changeListKinds": 0,
+          "changeRemovedDocumentEntries": 0,
+          "changeRemovedDocuments": 0,
+          "changeRemovedRecords": 0,
+          "changeRemovedCheckpoints": 0,
+          "changeChangedCheckpoints": 0,
+          "changeChangedPeriods": 0,
+          "changeChangedRecords": 0,
+          "changeRecordDocumentLinks": 0,
+          "changeChangedDocumentEntries": 0,
+          "changeRecheckDocuments": 0,
+          "checkpointVerifyCalls": 0,
+          "checkpointRows": 0,
+          "checkpointPeriodRows": 0,
+          "checkpointDigestRows": 0,
+          "sealVerifyCalls": 0,
+          "sealRows": 0,
+          "archiveMode": "same",
+          "total": 135
+        },
+        "companyPlatformWork": {
+          "stateChecks": 1,
+          "registryRows": 12,
+          "openedNormalizationRows": 11,
+          "openedRows": 11,
+          "assetEvidenceChecks": 1,
+          "assetFieldVisits": 0,
+          "assetFallbackRows": 0,
+          "deliveryRows": 2,
+          "deliveryProjectionRows": 2,
+          "deliveryAssetRows": 2,
+          "routeRows": 6,
+          "facilityRows": 5,
+          "companyFinanceRows": 12
+        },
+        "sectionSamples": [
+          {
+            "name": "fleet-routes",
+            "durationMs": 0.30000000074505806,
+            "units": 1000032,
+            "details": {
+              "work": {
+                "rootChecks": 1,
+                "identityValidationCalls": 1,
+                "conferenceValidationCalls": 1,
+                "presentationValidationCalls": 1,
+                "routeIdRows": 8,
+                "routeRows": 6,
+                "assetFieldVisits": 1000000,
+                "idCollisionChecks": 1,
+                "routeUserGroups": 6,
+                "routeSignatureGroups": 6,
+                "routeSignatureRows": 0,
+                "workerValidation": 1,
+                "workerClasses": 0
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          },
+          {
+            "name": "route-state",
+            "durationMs": 0,
+            "units": 8,
+            "details": {
+              "work": {
+                "endpointRows": 6,
+                "cacheRows": 0,
+                "cacheByteChecks": 1,
+                "retiredFeatureChecks": 1
+              }
+            }
+          },
+          {
+            "name": "finance",
+            "durationMs": 0.10000000149011612,
+            "units": 196,
+            "details": {
+              "work": {
+                "invoiceIdRows": 2,
+                "chequeIdRows": 2,
+                "customerReceiptRows": 0,
+                "customerCreditNoteRows": 0,
+                "companyBooks": 12,
+                "accountRows": 25,
+                "deliveryRows": 2,
+                "deliveryAssetIdProjectionRows": 0,
+                "deliveryAssetValidationRows": 0,
+                "compactReceiptChecks": 2,
+                "receiptFieldRows": 0,
+                "receiptDistinctRows": 2,
+                "deliveryAssetIdRows": 0,
+                "invoiceMathRows": 2,
+                "taxPeriodRows": 0,
+                "journalRows": 44,
+                "journalLineRows": 93,
+                "archiveRecordBuckets": 0,
+                "archiveDigestRows": 0,
+                "archiveQuarterRows": 0,
+                "coldArchiveChecks": 1,
+                "budgetRows": 1,
+                "budgetLineRows": 8
+              }
+            }
+          },
+          {
+            "name": "books",
+            "durationMs": 0.09999999776482582,
+            "units": 111,
+            "details": {
+              "work": {
+                "controlCollectionChecks": 5,
+                "controlSequenceChecks": 5,
+                "controlIdRows": 3,
+                "controlEventRows": 3,
+                "controlOutboxRows": 0,
+                "domainCollectionChecks": 2,
+                "businessCollectionChecks": 4,
+                "businessIdRows": 36,
+                "partyRows": 52,
+                "relationshipRows": 1,
+                "profileOrderRows": 0,
+                "customerProfileRows": 0,
+                "customerCompanyRows": 0,
+                "customerSegmentRows": 0
+              }
+            }
+          },
+          {
+            "name": "authorization",
+            "durationMs": 0.4000000022351742,
+            "units": 42,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "people": 1,
+                "seals": 1,
+                "activeSeals": 1,
+                "mandates": 1,
+                "residencyRows": 0,
+                "proofRows": 35,
+                "proofVerifyCalls": 1,
+                "dependencyChecks": 0,
+                "archiveByteMeasurements": 1
+              },
+              "archiveMemoHit": false
+            }
+          },
+          {
+            "name": "document-proofs",
+            "durationMs": 0.5,
+            "units": 135,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "archiveResidencyRows": 43,
+                "recordRows": 43,
+                "recordVerifyCalls": 5,
+                "liveDocuments": 33,
+                "archiveDocuments": 0,
+                "documentVerifyCalls": 5,
+                "documentSerializationRows": 5,
+                "dependencyChecks": 0,
+                "changeSetChecks": 0,
+                "changeListKinds": 0,
+                "changeRemovedDocumentEntries": 0,
+                "changeRemovedDocuments": 0,
+                "changeRemovedRecords": 0,
+                "changeRemovedCheckpoints": 0,
+                "changeChangedCheckpoints": 0,
+                "changeChangedPeriods": 0,
+                "changeChangedRecords": 0,
+                "changeRecordDocumentLinks": 0,
+                "changeChangedDocumentEntries": 0,
+                "changeRecheckDocuments": 0,
+                "checkpointVerifyCalls": 0,
+                "checkpointRows": 0,
+                "checkpointPeriodRows": 0,
+                "checkpointDigestRows": 0,
+                "sealVerifyCalls": 0,
+                "sealRows": 0
+              },
+              "archiveMode": "same"
+            }
+          },
+          {
+            "name": "company-platform",
+            "durationMs": 0.09999999776482582,
+            "units": 65,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "registryRows": 12,
+                "openedNormalizationRows": 11,
+                "openedRows": 11,
+                "assetEvidenceChecks": 1,
+                "assetFieldVisits": 0,
+                "assetFallbackRows": 0,
+                "deliveryRows": 2,
+                "deliveryProjectionRows": 2,
+                "deliveryAssetRows": 2,
+                "routeRows": 6,
+                "facilityRows": 5,
+                "companyFinanceRows": 12
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          }
+        ],
+        "routeWork": {
+          "geometryChecks": 0,
+          "geometryCacheHits": 6,
+          "geometryPoints": 0,
+          "yields": 0
+        },
+        "documentArchiveAnswered": 1,
+        "recordedAtMs": 1792317349699
+      },
+      "saveBreakdown": {
+        "kind": "ordinary-save",
+        "saveRevision": 2,
+        "nativeBridge": true,
+        "schemaMs": 3.600000001490116,
+        "stringifyMs": 3,
+        "measurementMs": 0.19999999925494194,
+        "browserCacheMs": 0,
+        "totalSyncMs": 6.800000000745058,
+        "utf8Bytes": 56761,
+        "cacheReason": "chunked-native-save",
+        "ok": true,
+        "chunkUploads": 0,
+        "recordedAtMs": 1792317270793
+      }
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-413507b716a03167a2dbe3e3",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-0-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-413507b716a03167a2dbe3e3",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-413507b716a03167a2dbe3e3",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "totalPremium": 0,
+              "totalInsured": 0,
+              "items": [
+                {
+                  "id": "QA-insurance-0-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 79915.09999999776
+        }
+      ],
+      "liveAlerts": 0,
+      "uiSummaryQueries": 0,
+      "prestages": 0,
+      "toAckMs": 33.099999997764826,
+      "toUiEndMs": 36.099999997764826,
+      "maxMeasuredSyncMs": 1.7999999970197678,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.300000000745058,
+          "maxMs": 1.300000000745058
+        },
+        "command.apply-exact": {
+          "count": 1,
+          "totalMs": 1.3999999985098839,
+          "maxMs": 1.3999999985098839
+        },
+        "command.schema": {
+          "count": 1,
+          "totalMs": 1.199999999254942,
+          "maxMs": 1.199999999254942
+        },
+        "fleet.sync": {
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.4000000022351742,
+          "maxMs": 0.20000000298023224
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.7999999970197678,
+          "maxMs": 0.8999999985098839
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.09999999776482582,
+          "maxMs": 0.09999999776482582
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.4000000022351742,
+          "maxMs": 0.4000000022351742
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.6999999992549419,
+          "maxMs": 0.6999999992549419
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.7999999970197678,
+          "maxMs": 1.7999999970197678
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 1.4,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.5,
+        "applyMs": 1.4,
+        "validateMs": 1.2,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 0,
+        "persistMs": 25.8,
+        "publishMs": 0.9,
+        "afterMs": 0,
+        "totalMs": 31.5,
+        "committed": true,
+        "cloneBusyMs": 1.3,
+        "cloneMaxSliceMs": 1.3,
+        "cloneYields": 0,
+        "validateBusyMs": 1.2,
+        "validateMaxSliceMs": 1.2,
+        "recordedAtMs": 1792317350174
+      },
+      "rows": 1000000,
+      "companies": 11,
+      "validation": {
+        "totalMs": 1.199999999254942,
+        "authorizationMs": 0.4000000022351742,
+        "authorizationProofVerifyMs": 0.30000000074505806,
+        "documentProofMs": 0.29999999701976776,
+        "documentCollectionMs": 0,
+        "documentRecordVerifyMs": 0.19999999925494194,
+        "documentVerifyMs": 0,
+        "companyPlatformMs": 0,
+        "otherMs": 0.5,
+        "errors": 0,
+        "fleetWork": {
+          "rootChecks": 1,
+          "identityValidationCalls": 1,
+          "conferenceValidationCalls": 1,
+          "presentationValidationCalls": 1,
+          "routeIdRows": 8,
+          "routeRows": 6,
+          "assetFieldVisits": 1000000,
+          "idCollisionChecks": 1,
+          "routeUserGroups": 6,
+          "routeSignatureGroups": 6,
+          "routeSignatureRows": 0,
+          "workerValidation": 1,
+          "workerClasses": 0
+        },
+        "routeStateWork": {
+          "endpointRows": 6,
+          "cacheRows": 0,
+          "cacheByteChecks": 1,
+          "retiredFeatureChecks": 1
+        },
+        "financeWork": {
+          "invoiceIdRows": 2,
+          "chequeIdRows": 2,
+          "customerReceiptRows": 0,
+          "customerCreditNoteRows": 0,
+          "companyBooks": 12,
+          "accountRows": 25,
+          "deliveryRows": 2,
+          "deliveryAssetIdProjectionRows": 0,
+          "deliveryAssetValidationRows": 0,
+          "compactReceiptChecks": 2,
+          "receiptFieldRows": 0,
+          "receiptDistinctRows": 2,
+          "deliveryAssetIdRows": 0,
+          "invoiceMathRows": 2,
+          "taxPeriodRows": 0,
+          "journalRows": 44,
+          "journalLineRows": 93,
+          "archiveRecordBuckets": 0,
+          "archiveDigestRows": 0,
+          "archiveQuarterRows": 0,
+          "coldArchiveChecks": 1,
+          "budgetRows": 1,
+          "budgetLineRows": 8
+        },
+        "booksWork": {
+          "controlCollectionChecks": 5,
+          "controlSequenceChecks": 5,
+          "controlIdRows": 3,
+          "controlEventRows": 3,
+          "controlOutboxRows": 0,
+          "domainCollectionChecks": 2,
+          "businessCollectionChecks": 4,
+          "businessIdRows": 36,
+          "partyRows": 52,
+          "relationshipRows": 1,
+          "profileOrderRows": 0,
+          "customerProfileRows": 0,
+          "customerCompanyRows": 0,
+          "customerSegmentRows": 0
+        },
+        "authorizationWork": {
+          "stateChecks": 1,
+          "people": 1,
+          "seals": 1,
+          "activeSeals": 1,
+          "mandates": 1,
+          "residencyRows": 0,
+          "proofRows": 36,
+          "proofVerifyCalls": 1,
+          "dependencyChecks": 0,
+          "archiveByteMeasurements": 1,
+          "archiveMemoHit": false,
+          "total": 43
+        },
+        "documentProofWork": {
+          "stateChecks": 1,
+          "archiveResidencyRows": 43,
+          "recordRows": 43,
+          "recordVerifyCalls": 0,
+          "liveDocuments": 33,
+          "archiveDocuments": 0,
+          "documentVerifyCalls": 0,
+          "documentSerializationRows": 5,
+          "dependencyChecks": 0,
+          "changeSetChecks": 0,
+          "changeListKinds": 0,
+          "changeRemovedDocumentEntries": 0,
+          "changeRemovedDocuments": 0,
+          "changeRemovedRecords": 0,
+          "changeRemovedCheckpoints": 0,
+          "changeChangedCheckpoints": 0,
+          "changeChangedPeriods": 0,
+          "changeChangedRecords": 0,
+          "changeRecordDocumentLinks": 0,
+          "changeChangedDocumentEntries": 0,
+          "changeRecheckDocuments": 0,
+          "checkpointVerifyCalls": 0,
+          "checkpointRows": 0,
+          "checkpointPeriodRows": 0,
+          "checkpointDigestRows": 0,
+          "sealVerifyCalls": 0,
+          "sealRows": 0,
+          "archiveMode": "same",
+          "total": 125
+        },
+        "companyPlatformWork": {
+          "stateChecks": 1,
+          "registryRows": 12,
+          "openedNormalizationRows": 11,
+          "openedRows": 11,
+          "assetEvidenceChecks": 1,
+          "assetFieldVisits": 0,
+          "assetFallbackRows": 0,
+          "deliveryRows": 2,
+          "deliveryProjectionRows": 2,
+          "deliveryAssetRows": 2,
+          "routeRows": 6,
+          "facilityRows": 5,
+          "companyFinanceRows": 12
+        },
+        "sectionSamples": [
+          {
+            "name": "fleet-routes",
+            "durationMs": 0.30000000074505806,
+            "units": 1000032,
+            "details": {
+              "work": {
+                "rootChecks": 1,
+                "identityValidationCalls": 1,
+                "conferenceValidationCalls": 1,
+                "presentationValidationCalls": 1,
+                "routeIdRows": 8,
+                "routeRows": 6,
+                "assetFieldVisits": 1000000,
+                "idCollisionChecks": 1,
+                "routeUserGroups": 6,
+                "routeSignatureGroups": 6,
+                "routeSignatureRows": 0,
+                "workerValidation": 1,
+                "workerClasses": 0
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          },
+          {
+            "name": "route-state",
+            "durationMs": 0,
+            "units": 8,
+            "details": {
+              "work": {
+                "endpointRows": 6,
+                "cacheRows": 0,
+                "cacheByteChecks": 1,
+                "retiredFeatureChecks": 1
+              }
+            }
+          },
+          {
+            "name": "finance",
+            "durationMs": 0.10000000149011612,
+            "units": 196,
+            "details": {
+              "work": {
+                "invoiceIdRows": 2,
+                "chequeIdRows": 2,
+                "customerReceiptRows": 0,
+                "customerCreditNoteRows": 0,
+                "companyBooks": 12,
+                "accountRows": 25,
+                "deliveryRows": 2,
+                "deliveryAssetIdProjectionRows": 0,
+                "deliveryAssetValidationRows": 0,
+                "compactReceiptChecks": 2,
+                "receiptFieldRows": 0,
+                "receiptDistinctRows": 2,
+                "deliveryAssetIdRows": 0,
+                "invoiceMathRows": 2,
+                "taxPeriodRows": 0,
+                "journalRows": 44,
+                "journalLineRows": 93,
+                "archiveRecordBuckets": 0,
+                "archiveDigestRows": 0,
+                "archiveQuarterRows": 0,
+                "coldArchiveChecks": 1,
+                "budgetRows": 1,
+                "budgetLineRows": 8
+              }
+            }
+          },
+          {
+            "name": "books",
+            "durationMs": 0.09999999776482582,
+            "units": 111,
+            "details": {
+              "work": {
+                "controlCollectionChecks": 5,
+                "controlSequenceChecks": 5,
+                "controlIdRows": 3,
+                "controlEventRows": 3,
+                "controlOutboxRows": 0,
+                "domainCollectionChecks": 2,
+                "businessCollectionChecks": 4,
+                "businessIdRows": 36,
+                "partyRows": 52,
+                "relationshipRows": 1,
+                "profileOrderRows": 0,
+                "customerProfileRows": 0,
+                "customerCompanyRows": 0,
+                "customerSegmentRows": 0
+              }
+            }
+          },
+          {
+            "name": "authorization",
+            "durationMs": 0.4000000022351742,
+            "units": 43,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "people": 1,
+                "seals": 1,
+                "activeSeals": 1,
+                "mandates": 1,
+                "residencyRows": 0,
+                "proofRows": 36,
+                "proofVerifyCalls": 1,
+                "dependencyChecks": 0,
+                "archiveByteMeasurements": 1
+              },
+              "archiveMemoHit": false
+            }
+          },
+          {
+            "name": "document-proofs",
+            "durationMs": 0.29999999701976776,
+            "units": 125,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "archiveResidencyRows": 43,
+                "recordRows": 43,
+                "recordVerifyCalls": 0,
+                "liveDocuments": 33,
+                "archiveDocuments": 0,
+                "documentVerifyCalls": 0,
+                "documentSerializationRows": 5,
+                "dependencyChecks": 0,
+                "changeSetChecks": 0,
+                "changeListKinds": 0,
+                "changeRemovedDocumentEntries": 0,
+                "changeRemovedDocuments": 0,
+                "changeRemovedRecords": 0,
+                "changeRemovedCheckpoints": 0,
+                "changeChangedCheckpoints": 0,
+                "changeChangedPeriods": 0,
+                "changeChangedRecords": 0,
+                "changeRecordDocumentLinks": 0,
+                "changeChangedDocumentEntries": 0,
+                "changeRecheckDocuments": 0,
+                "checkpointVerifyCalls": 0,
+                "checkpointRows": 0,
+                "checkpointPeriodRows": 0,
+                "checkpointDigestRows": 0,
+                "sealVerifyCalls": 0,
+                "sealRows": 0
+              },
+              "archiveMode": "same"
+            }
+          },
+          {
+            "name": "company-platform",
+            "durationMs": 0,
+            "units": 65,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "registryRows": 12,
+                "openedNormalizationRows": 11,
+                "openedRows": 11,
+                "assetEvidenceChecks": 1,
+                "assetFieldVisits": 0,
+                "assetFallbackRows": 0,
+                "deliveryRows": 2,
+                "deliveryProjectionRows": 2,
+                "deliveryAssetRows": 2,
+                "routeRows": 6,
+                "facilityRows": 5,
+                "companyFinanceRows": 12
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          }
+        ],
+        "routeWork": {
+          "geometryChecks": 0,
+          "geometryCacheHits": 6,
+          "geometryPoints": 0,
+          "yields": 0
+        },
+        "documentArchiveAnswered": 1,
+        "recordedAtMs": 1792317350147
+      },
+      "saveBreakdown": {
+        "kind": "ordinary-save",
+        "saveRevision": 2,
+        "nativeBridge": true,
+        "schemaMs": 3.600000001490116,
+        "stringifyMs": 3,
+        "measurementMs": 0.19999999925494194,
+        "browserCacheMs": 0,
+        "totalSyncMs": 6.800000000745058,
+        "utf8Bytes": 56761,
+        "cacheReason": "chunked-native-save",
+        "ok": true,
+        "chunkUploads": 0,
+        "recordedAtMs": 1792317270793
+      }
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-accept-5c037a5de594021bef3fadca",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-0-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-accept-5c037a5de594021bef3fadca",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-accept-5c037a5de594021bef3fadca",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "monthlyValue": 210000,
+              "items": [
+                {
+                  "id": "QA-telecom-0-accept-0",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-0",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-1",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-1",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-2",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-2",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-3",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-3",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-4",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-4",
+                  "monthlyValue": 42000
+                }
+              ]
+            }
+          },
+          "ended": 80361.5
+        }
+      ],
+      "liveAlerts": 0,
+      "uiSummaryQueries": 0,
+      "prestages": 0,
+      "toAckMs": 31.300000000745058,
+      "toUiEndMs": 36.899999998509884,
+      "maxMeasuredSyncMs": 6.5,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.2000000029802322,
+          "maxMs": 1.2000000029802322
+        },
+        "command.apply-exact": {
+          "count": 1,
+          "totalMs": 6.5,
+          "maxMs": 6.5
+        },
+        "command.schema": {
+          "count": 1,
+          "totalMs": 1.5999999977648258,
+          "maxMs": 1.5999999977648258
+        },
+        "fleet.sync": {
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.8000000044703484,
+          "maxMs": 1.4000000022351742
+        },
+        "ui.kpis": {
+          "count": 1,
+          "totalMs": 0.10000000149011612,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 1.7999999970197678,
+          "maxMs": 1.7999999970197678
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 3.7999999970197678,
+          "maxMs": 3.7999999970197678
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 1.2,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.4,
+        "applyMs": 6.5,
+        "validateMs": 1.6,
+        "integrityMs": 0.1,
+        "prestageWaitMs": 0,
+        "persistMs": 19.1,
+        "publishMs": 1.4,
+        "afterMs": 0,
+        "totalMs": 30.4,
+        "committed": true,
+        "cloneBusyMs": 1.2,
+        "cloneMaxSliceMs": 1.2,
+        "cloneYields": 0,
+        "validateBusyMs": 1.6,
+        "validateMaxSliceMs": 1.6,
+        "recordedAtMs": 1792317350621
+      },
+      "rows": 1000000,
+      "companies": 11,
+      "validation": {
+        "totalMs": 1.5999999977648258,
+        "authorizationMs": 0.5,
+        "authorizationProofVerifyMs": 0.30000000074505806,
+        "documentProofMs": 0.6000000014901161,
+        "documentCollectionMs": 0.09999999776482582,
+        "documentRecordVerifyMs": 0.10000000149011612,
+        "documentVerifyMs": 0.4000000022351742,
+        "companyPlatformMs": 0.09999999776482582,
+        "otherMs": 0.3999999985098839,
+        "errors": 0,
+        "fleetWork": {
+          "rootChecks": 1,
+          "identityValidationCalls": 1,
+          "conferenceValidationCalls": 1,
+          "presentationValidationCalls": 1,
+          "routeIdRows": 8,
+          "routeRows": 6,
+          "assetFieldVisits": 1000000,
+          "idCollisionChecks": 1,
+          "routeUserGroups": 6,
+          "routeSignatureGroups": 6,
+          "routeSignatureRows": 0,
+          "workerValidation": 1,
+          "workerClasses": 0
+        },
+        "routeStateWork": {
+          "endpointRows": 6,
+          "cacheRows": 0,
+          "cacheByteChecks": 1,
+          "retiredFeatureChecks": 1
+        },
+        "financeWork": {
+          "invoiceIdRows": 2,
+          "chequeIdRows": 2,
+          "customerReceiptRows": 0,
+          "customerCreditNoteRows": 0,
+          "companyBooks": 12,
+          "accountRows": 25,
+          "deliveryRows": 2,
+          "deliveryAssetIdProjectionRows": 0,
+          "deliveryAssetValidationRows": 0,
+          "compactReceiptChecks": 2,
+          "receiptFieldRows": 0,
+          "receiptDistinctRows": 2,
+          "deliveryAssetIdRows": 0,
+          "invoiceMathRows": 2,
+          "taxPeriodRows": 0,
+          "journalRows": 44,
+          "journalLineRows": 93,
+          "archiveRecordBuckets": 0,
+          "archiveDigestRows": 0,
+          "archiveQuarterRows": 0,
+          "coldArchiveChecks": 1,
+          "budgetRows": 1,
+          "budgetLineRows": 8
+        },
+        "booksWork": {
+          "controlCollectionChecks": 5,
+          "controlSequenceChecks": 5,
+          "controlIdRows": 3,
+          "controlEventRows": 3,
+          "controlOutboxRows": 0,
+          "domainCollectionChecks": 2,
+          "businessCollectionChecks": 4,
+          "businessIdRows": 42,
+          "partyRows": 57,
+          "relationshipRows": 6,
+          "profileOrderRows": 5,
+          "customerProfileRows": 5,
+          "customerCompanyRows": 1,
+          "customerSegmentRows": 1
+        },
+        "authorizationWork": {
+          "stateChecks": 1,
+          "people": 1,
+          "seals": 1,
+          "activeSeals": 1,
+          "mandates": 1,
+          "residencyRows": 0,
+          "proofRows": 37,
+          "proofVerifyCalls": 1,
+          "dependencyChecks": 0,
+          "archiveByteMeasurements": 1,
+          "archiveMemoHit": false,
+          "total": 44
+        },
+        "documentProofWork": {
+          "stateChecks": 1,
+          "archiveResidencyRows": 48,
+          "recordRows": 48,
+          "recordVerifyCalls": 5,
+          "liveDocuments": 38,
+          "archiveDocuments": 0,
+          "documentVerifyCalls": 5,
+          "documentSerializationRows": 10,
+          "dependencyChecks": 0,
+          "changeSetChecks": 0,
+          "changeListKinds": 0,
+          "changeRemovedDocumentEntries": 0,
+          "changeRemovedDocuments": 0,
+          "changeRemovedRecords": 0,
+          "changeRemovedCheckpoints": 0,
+          "changeChangedCheckpoints": 0,
+          "changeChangedPeriods": 0,
+          "changeChangedRecords": 0,
+          "changeRecordDocumentLinks": 0,
+          "changeChangedDocumentEntries": 0,
+          "changeRecheckDocuments": 0,
+          "checkpointVerifyCalls": 0,
+          "checkpointRows": 0,
+          "checkpointPeriodRows": 0,
+          "checkpointDigestRows": 0,
+          "sealVerifyCalls": 0,
+          "sealRows": 0,
+          "archiveMode": "same",
+          "total": 155
+        },
+        "companyPlatformWork": {
+          "stateChecks": 1,
+          "registryRows": 12,
+          "openedNormalizationRows": 11,
+          "openedRows": 11,
+          "assetEvidenceChecks": 1,
+          "assetFieldVisits": 0,
+          "assetFallbackRows": 0,
+          "deliveryRows": 2,
+          "deliveryProjectionRows": 2,
+          "deliveryAssetRows": 2,
+          "routeRows": 6,
+          "facilityRows": 5,
+          "companyFinanceRows": 12
+        },
+        "sectionSamples": [
+          {
+            "name": "fleet-routes",
+            "durationMs": 0.29999999701976776,
+            "units": 1000032,
+            "details": {
+              "work": {
+                "rootChecks": 1,
+                "identityValidationCalls": 1,
+                "conferenceValidationCalls": 1,
+                "presentationValidationCalls": 1,
+                "routeIdRows": 8,
+                "routeRows": 6,
+                "assetFieldVisits": 1000000,
+                "idCollisionChecks": 1,
+                "routeUserGroups": 6,
+                "routeSignatureGroups": 6,
+                "routeSignatureRows": 0,
+                "workerValidation": 1,
+                "workerClasses": 0
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          },
+          {
+            "name": "route-state",
+            "durationMs": 0,
+            "units": 8,
+            "details": {
+              "work": {
+                "endpointRows": 6,
+                "cacheRows": 0,
+                "cacheByteChecks": 1,
+                "retiredFeatureChecks": 1
+              }
+            }
+          },
+          {
+            "name": "finance",
+            "durationMs": 0.10000000149011612,
+            "units": 196,
+            "details": {
+              "work": {
+                "invoiceIdRows": 2,
+                "chequeIdRows": 2,
+                "customerReceiptRows": 0,
+                "customerCreditNoteRows": 0,
+                "companyBooks": 12,
+                "accountRows": 25,
+                "deliveryRows": 2,
+                "deliveryAssetIdProjectionRows": 0,
+                "deliveryAssetValidationRows": 0,
+                "compactReceiptChecks": 2,
+                "receiptFieldRows": 0,
+                "receiptDistinctRows": 2,
+                "deliveryAssetIdRows": 0,
+                "invoiceMathRows": 2,
+                "taxPeriodRows": 0,
+                "journalRows": 44,
+                "journalLineRows": 93,
+                "archiveRecordBuckets": 0,
+                "archiveDigestRows": 0,
+                "archiveQuarterRows": 0,
+                "coldArchiveChecks": 1,
+                "budgetRows": 1,
+                "budgetLineRows": 8
+              }
+            }
+          },
+          {
+            "name": "books",
+            "durationMs": 0,
+            "units": 139,
+            "details": {
+              "work": {
+                "controlCollectionChecks": 5,
+                "controlSequenceChecks": 5,
+                "controlIdRows": 3,
+                "controlEventRows": 3,
+                "controlOutboxRows": 0,
+                "domainCollectionChecks": 2,
+                "businessCollectionChecks": 4,
+                "businessIdRows": 42,
+                "partyRows": 57,
+                "relationshipRows": 6,
+                "profileOrderRows": 5,
+                "customerProfileRows": 5,
+                "customerCompanyRows": 1,
+                "customerSegmentRows": 1
+              }
+            }
+          },
+          {
+            "name": "authorization",
+            "durationMs": 0.5,
+            "units": 44,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "people": 1,
+                "seals": 1,
+                "activeSeals": 1,
+                "mandates": 1,
+                "residencyRows": 0,
+                "proofRows": 37,
+                "proofVerifyCalls": 1,
+                "dependencyChecks": 0,
+                "archiveByteMeasurements": 1
+              },
+              "archiveMemoHit": false
+            }
+          },
+          {
+            "name": "document-proofs",
+            "durationMs": 0.6000000014901161,
+            "units": 155,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "archiveResidencyRows": 48,
+                "recordRows": 48,
+                "recordVerifyCalls": 5,
+                "liveDocuments": 38,
+                "archiveDocuments": 0,
+                "documentVerifyCalls": 5,
+                "documentSerializationRows": 10,
+                "dependencyChecks": 0,
+                "changeSetChecks": 0,
+                "changeListKinds": 0,
+                "changeRemovedDocumentEntries": 0,
+                "changeRemovedDocuments": 0,
+                "changeRemovedRecords": 0,
+                "changeRemovedCheckpoints": 0,
+                "changeChangedCheckpoints": 0,
+                "changeChangedPeriods": 0,
+                "changeChangedRecords": 0,
+                "changeRecordDocumentLinks": 0,
+                "changeChangedDocumentEntries": 0,
+                "changeRecheckDocuments": 0,
+                "checkpointVerifyCalls": 0,
+                "checkpointRows": 0,
+                "checkpointPeriodRows": 0,
+                "checkpointDigestRows": 0,
+                "sealVerifyCalls": 0,
+                "sealRows": 0
+              },
+              "archiveMode": "same"
+            }
+          },
+          {
+            "name": "company-platform",
+            "durationMs": 0.09999999776482582,
+            "units": 65,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "registryRows": 12,
+                "openedNormalizationRows": 11,
+                "openedRows": 11,
+                "assetEvidenceChecks": 1,
+                "assetFieldVisits": 0,
+                "assetFallbackRows": 0,
+                "deliveryRows": 2,
+                "deliveryProjectionRows": 2,
+                "deliveryAssetRows": 2,
+                "routeRows": 6,
+                "facilityRows": 5,
+                "companyFinanceRows": 12
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          }
+        ],
+        "routeWork": {
+          "geometryChecks": 0,
+          "geometryCacheHits": 6,
+          "geometryPoints": 0,
+          "yields": 0
+        },
+        "documentArchiveAnswered": 1,
+        "recordedAtMs": 1792317350600
+      },
+      "saveBreakdown": {
+        "kind": "ordinary-save",
+        "saveRevision": 2,
+        "nativeBridge": true,
+        "schemaMs": 3.600000001490116,
+        "stringifyMs": 3,
+        "measurementMs": 0.19999999925494194,
+        "browserCacheMs": 0,
+        "totalSyncMs": 6.800000000745058,
+        "utf8Bytes": 56761,
+        "cacheReason": "chunked-native-save",
+        "ok": true,
+        "chunkUploads": 0,
+        "recordedAtMs": 1792317270793
+      }
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-decline-0329ee49fa7ccc209e02da30",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-0-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-decline-0329ee49fa7ccc209e02da30",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-decline-0329ee49fa7ccc209e02da30",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "monthlyValue": 0,
+              "items": [
+                {
+                  "id": "QA-telecom-0-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 80813.19999999925
+        }
+      ],
+      "liveAlerts": 0,
+      "uiSummaryQueries": 0,
+      "prestages": 0,
+      "toAckMs": 30.100000001490116,
+      "toUiEndMs": 35.600000001490116,
+      "maxMeasuredSyncMs": 3.5,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.4000000022351742,
+          "maxMs": 1.4000000022351742
+        },
+        "command.apply-exact": {
+          "count": 1,
+          "totalMs": 1.199999999254942,
+          "maxMs": 1.199999999254942
+        },
+        "command.schema": {
+          "count": 1,
+          "totalMs": 1.1000000014901161,
+          "maxMs": 1.1000000014901161
+        },
+        "fleet.sync": {
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.4000000022351742,
+          "maxMs": 0.30000000074505806
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.5999999940395355,
+          "maxMs": 1.2999999970197678
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 1.300000000745058,
+          "maxMs": 1.300000000745058
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.4000000022351742,
+          "maxMs": 0.4000000022351742
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.8000000007450581,
+          "maxMs": 0.8000000007450581
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 3.5,
+          "maxMs": 3.5
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 1.4,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.2,
+        "applyMs": 1.2,
+        "validateMs": 1.2,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 0,
+        "persistMs": 23.4,
+        "publishMs": 1.3,
+        "afterMs": 0,
+        "totalMs": 29,
+        "committed": true,
+        "cloneBusyMs": 1.4,
+        "cloneMaxSliceMs": 1.4,
+        "cloneYields": 0,
+        "validateBusyMs": 1.1,
+        "validateMaxSliceMs": 1.1,
+        "recordedAtMs": 1792317351072
+      },
+      "rows": 1000000,
+      "companies": 11,
+      "validation": {
+        "totalMs": 1.1000000014901161,
+        "authorizationMs": 0.4000000022351742,
+        "authorizationProofVerifyMs": 0.30000000074505806,
+        "documentProofMs": 0.09999999776482582,
+        "documentCollectionMs": 0,
+        "documentRecordVerifyMs": 0,
+        "documentVerifyMs": 0.09999999776482582,
+        "companyPlatformMs": 0.10000000149011612,
+        "otherMs": 0.5,
+        "errors": 0,
+        "fleetWork": {
+          "rootChecks": 1,
+          "identityValidationCalls": 1,
+          "conferenceValidationCalls": 1,
+          "presentationValidationCalls": 1,
+          "routeIdRows": 8,
+          "routeRows": 6,
+          "assetFieldVisits": 1000000,
+          "idCollisionChecks": 1,
+          "routeUserGroups": 6,
+          "routeSignatureGroups": 6,
+          "routeSignatureRows": 0,
+          "workerValidation": 1,
+          "workerClasses": 0
+        },
+        "routeStateWork": {
+          "endpointRows": 6,
+          "cacheRows": 0,
+          "cacheByteChecks": 1,
+          "retiredFeatureChecks": 1
+        },
+        "financeWork": {
+          "invoiceIdRows": 2,
+          "chequeIdRows": 2,
+          "customerReceiptRows": 0,
+          "customerCreditNoteRows": 0,
+          "companyBooks": 12,
+          "accountRows": 25,
+          "deliveryRows": 2,
+          "deliveryAssetIdProjectionRows": 0,
+          "deliveryAssetValidationRows": 0,
+          "compactReceiptChecks": 2,
+          "receiptFieldRows": 0,
+          "receiptDistinctRows": 2,
+          "deliveryAssetIdRows": 0,
+          "invoiceMathRows": 2,
+          "taxPeriodRows": 0,
+          "journalRows": 44,
+          "journalLineRows": 93,
+          "archiveRecordBuckets": 0,
+          "archiveDigestRows": 0,
+          "archiveQuarterRows": 0,
+          "coldArchiveChecks": 1,
+          "budgetRows": 1,
+          "budgetLineRows": 8
+        },
+        "booksWork": {
+          "controlCollectionChecks": 5,
+          "controlSequenceChecks": 5,
+          "controlIdRows": 3,
+          "controlEventRows": 3,
+          "controlOutboxRows": 0,
+          "domainCollectionChecks": 2,
+          "businessCollectionChecks": 4,
+          "businessIdRows": 43,
+          "partyRows": 57,
+          "relationshipRows": 6,
+          "profileOrderRows": 5,
+          "customerProfileRows": 5,
+          "customerCompanyRows": 1,
+          "customerSegmentRows": 1
+        },
+        "authorizationWork": {
+          "stateChecks": 1,
+          "people": 1,
+          "seals": 1,
+          "activeSeals": 1,
+          "mandates": 1,
+          "residencyRows": 0,
+          "proofRows": 38,
+          "proofVerifyCalls": 1,
+          "dependencyChecks": 0,
+          "archiveByteMeasurements": 1,
+          "archiveMemoHit": false,
+          "total": 45
+        },
+        "documentProofWork": {
+          "stateChecks": 1,
+          "archiveResidencyRows": 48,
+          "recordRows": 48,
+          "recordVerifyCalls": 0,
+          "liveDocuments": 38,
+          "archiveDocuments": 0,
+          "documentVerifyCalls": 0,
+          "documentSerializationRows": 10,
+          "dependencyChecks": 0,
+          "changeSetChecks": 0,
+          "changeListKinds": 0,
+          "changeRemovedDocumentEntries": 0,
+          "changeRemovedDocuments": 0,
+          "changeRemovedRecords": 0,
+          "changeRemovedCheckpoints": 0,
+          "changeChangedCheckpoints": 0,
+          "changeChangedPeriods": 0,
+          "changeChangedRecords": 0,
+          "changeRecordDocumentLinks": 0,
+          "changeChangedDocumentEntries": 0,
+          "changeRecheckDocuments": 0,
+          "checkpointVerifyCalls": 0,
+          "checkpointRows": 0,
+          "checkpointPeriodRows": 0,
+          "checkpointDigestRows": 0,
+          "sealVerifyCalls": 0,
+          "sealRows": 0,
+          "archiveMode": "same",
+          "total": 145
+        },
+        "companyPlatformWork": {
+          "stateChecks": 1,
+          "registryRows": 12,
+          "openedNormalizationRows": 11,
+          "openedRows": 11,
+          "assetEvidenceChecks": 1,
+          "assetFieldVisits": 0,
+          "assetFallbackRows": 0,
+          "deliveryRows": 2,
+          "deliveryProjectionRows": 2,
+          "deliveryAssetRows": 2,
+          "routeRows": 6,
+          "facilityRows": 5,
+          "companyFinanceRows": 12
+        },
+        "sectionSamples": [
+          {
+            "name": "fleet-routes",
+            "durationMs": 0.30000000074505806,
+            "units": 1000032,
+            "details": {
+              "work": {
+                "rootChecks": 1,
+                "identityValidationCalls": 1,
+                "conferenceValidationCalls": 1,
+                "presentationValidationCalls": 1,
+                "routeIdRows": 8,
+                "routeRows": 6,
+                "assetFieldVisits": 1000000,
+                "idCollisionChecks": 1,
+                "routeUserGroups": 6,
+                "routeSignatureGroups": 6,
+                "routeSignatureRows": 0,
+                "workerValidation": 1,
+                "workerClasses": 0
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          },
+          {
+            "name": "route-state",
+            "durationMs": 0,
+            "units": 8,
+            "details": {
+              "work": {
+                "endpointRows": 6,
+                "cacheRows": 0,
+                "cacheByteChecks": 1,
+                "retiredFeatureChecks": 1
+              }
+            }
+          },
+          {
+            "name": "finance",
+            "durationMs": 0.19999999925494194,
+            "units": 196,
+            "details": {
+              "work": {
+                "invoiceIdRows": 2,
+                "chequeIdRows": 2,
+                "customerReceiptRows": 0,
+                "customerCreditNoteRows": 0,
+                "companyBooks": 12,
+                "accountRows": 25,
+                "deliveryRows": 2,
+                "deliveryAssetIdProjectionRows": 0,
+                "deliveryAssetValidationRows": 0,
+                "compactReceiptChecks": 2,
+                "receiptFieldRows": 0,
+                "receiptDistinctRows": 2,
+                "deliveryAssetIdRows": 0,
+                "invoiceMathRows": 2,
+                "taxPeriodRows": 0,
+                "journalRows": 44,
+                "journalLineRows": 93,
+                "archiveRecordBuckets": 0,
+                "archiveDigestRows": 0,
+                "archiveQuarterRows": 0,
+                "coldArchiveChecks": 1,
+                "budgetRows": 1,
+                "budgetLineRows": 8
+              }
+            }
+          },
+          {
+            "name": "books",
+            "durationMs": 0,
+            "units": 140,
+            "details": {
+              "work": {
+                "controlCollectionChecks": 5,
+                "controlSequenceChecks": 5,
+                "controlIdRows": 3,
+                "controlEventRows": 3,
+                "controlOutboxRows": 0,
+                "domainCollectionChecks": 2,
+                "businessCollectionChecks": 4,
+                "businessIdRows": 43,
+                "partyRows": 57,
+                "relationshipRows": 6,
+                "profileOrderRows": 5,
+                "customerProfileRows": 5,
+                "customerCompanyRows": 1,
+                "customerSegmentRows": 1
+              }
+            }
+          },
+          {
+            "name": "authorization",
+            "durationMs": 0.4000000022351742,
+            "units": 45,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "people": 1,
+                "seals": 1,
+                "activeSeals": 1,
+                "mandates": 1,
+                "residencyRows": 0,
+                "proofRows": 38,
+                "proofVerifyCalls": 1,
+                "dependencyChecks": 0,
+                "archiveByteMeasurements": 1
+              },
+              "archiveMemoHit": false
+            }
+          },
+          {
+            "name": "document-proofs",
+            "durationMs": 0.09999999776482582,
+            "units": 145,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "archiveResidencyRows": 48,
+                "recordRows": 48,
+                "recordVerifyCalls": 0,
+                "liveDocuments": 38,
+                "archiveDocuments": 0,
+                "documentVerifyCalls": 0,
+                "documentSerializationRows": 10,
+                "dependencyChecks": 0,
+                "changeSetChecks": 0,
+                "changeListKinds": 0,
+                "changeRemovedDocumentEntries": 0,
+                "changeRemovedDocuments": 0,
+                "changeRemovedRecords": 0,
+                "changeRemovedCheckpoints": 0,
+                "changeChangedCheckpoints": 0,
+                "changeChangedPeriods": 0,
+                "changeChangedRecords": 0,
+                "changeRecordDocumentLinks": 0,
+                "changeChangedDocumentEntries": 0,
+                "changeRecheckDocuments": 0,
+                "checkpointVerifyCalls": 0,
+                "checkpointRows": 0,
+                "checkpointPeriodRows": 0,
+                "checkpointDigestRows": 0,
+                "sealVerifyCalls": 0,
+                "sealRows": 0
+              },
+              "archiveMode": "same"
+            }
+          },
+          {
+            "name": "company-platform",
+            "durationMs": 0.10000000149011612,
+            "units": 65,
+            "details": {
+              "work": {
+                "stateChecks": 1,
+                "registryRows": 12,
+                "openedNormalizationRows": 11,
+                "openedRows": 11,
+                "assetEvidenceChecks": 1,
+                "assetFieldVisits": 0,
+                "assetFallbackRows": 0,
+                "deliveryRows": 2,
+                "deliveryProjectionRows": 2,
+                "deliveryAssetRows": 2,
+                "routeRows": 6,
+                "facilityRows": 5,
+                "companyFinanceRows": 12
+              },
+              "logicalRows": 1000000,
+              "scan": "worker-summary"
+            }
+          }
+        ],
+        "routeWork": {
+          "geometryChecks": 0,
+          "geometryCacheHits": 6,
+          "geometryPoints": 0,
+          "yields": 0
+        },
+        "documentArchiveAnswered": 1,
+        "recordedAtMs": 1792317351047
+      },
+      "saveBreakdown": {
+        "kind": "ordinary-save",
+        "saveRevision": 2,
+        "nativeBridge": true,
+        "schemaMs": 3.600000001490116,
+        "stringifyMs": 3,
+        "measurementMs": 0.19999999925494194,
+        "browserCacheMs": 0,
+        "totalSyncMs": 6.800000000745058,
+        "utf8Bytes": 56761,
+        "cacheReason": "chunked-native-save",
+        "ok": true,
+        "chunkUploads": 0,
+        "recordedAtMs": 1792317270793
+      }
+    }
+  ],
+  "summaries": [
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "samples": 1,
+      "toAckMedianMs": 35.400000002235174,
+      "toUiEndMedianMs": 40,
+      "maxNamedSyncMs": 5.100000001490116,
+      "liveAlerts": [
+        0
+      ],
+      "uploadBytes": [
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "samples": 1,
+      "toAckMedianMs": 29.5,
+      "toUiEndMedianMs": 33.5,
+      "maxNamedSyncMs": 2.899999998509884,
+      "liveAlerts": [
+        0
+      ],
+      "uploadBytes": [
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "samples": 1,
+      "toAckMedianMs": 31.900000002235174,
+      "toUiEndMedianMs": 35.100000001490116,
+      "maxNamedSyncMs": 4,
+      "liveAlerts": [
+        0
+      ],
+      "uploadBytes": [
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "samples": 1,
+      "toAckMedianMs": 33.099999997764826,
+      "toUiEndMedianMs": 36.099999997764826,
+      "maxNamedSyncMs": 1.7999999970197678,
+      "liveAlerts": [
+        0
+      ],
+      "uploadBytes": [
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "samples": 1,
+      "toAckMedianMs": 31.300000000745058,
+      "toUiEndMedianMs": 36.899999998509884,
+      "maxNamedSyncMs": 6.5,
+      "liveAlerts": [
+        0
+      ],
+      "uploadBytes": [
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "samples": 1,
+      "toAckMedianMs": 30.100000001490116,
+      "toUiEndMedianMs": 35.600000001490116,
+      "maxNamedSyncMs": 3.5,
+      "liveAlerts": [
+        0
+      ],
+      "uploadBytes": [
+        0
+      ]
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "scope": "All 16 uncommitted runtime files relative to repository HEAD 2ad7e16; this cleanup delta is relative to the saved local 2179ddb baseline.",
+  "reviewed_files": 16,
+  "changed_files": 6,
+  "entries": [
+    {
+      "file": "WebApp/advanced-core.js",
+      "subject": "رسائل قرارات الشركات والبنك والتأمين",
+      "reviewed_path": "زر القرار → signedDomainCommand → successNotice في المسودة → ACK → تحديث اللوحة",
+      "related_tests": [
+        "431",
+        "433"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "7a23153144f62d0f64c891e257dd470bd60f501ecb9201065fe89989468b66bb",
+      "after_sha256": "7a23153144f62d0f64c891e257dd470bd60f501ecb9201065fe89989468b66bb"
+    },
+    {
+      "file": "WebApp/app.js",
+      "subject": "ربط التحقق والحفظ العادي والمركب",
+      "reviewed_path": "دليل جاهز مباشر؛ beforeAsync عند الطلب؛ شروط السياق والإصدار والقيم؛ حفظ ثم نشر",
+      "related_tests": [
+        "432",
+        "433",
+        "435"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "b0ee8e06255c87cfbc2778120c47e81b2a89a25c07af7a50f3884056d5fa3fd8",
+      "after_sha256": "b0ee8e06255c87cfbc2778120c47e81b2a89a25c07af7a50f3884056d5fa3fd8"
+    },
+    {
+      "file": "WebApp/fleet-access-core.js",
+      "subject": "صيانة قيم الأسطول",
+      "reviewed_path": "عامل valueCollection → current + row/value guards → دفعات تحرير؛ لا مسح كبير على الخيط الرئيسي؛ اختصار فرع مستحيل",
+      "related_tests": [
+        "428",
+        "429"
+      ],
+      "changed_in_this_review": true,
+      "before_sha256": "3bd0dba6008a2de9d305532188159ca3f4c009c2898e6e4d7eae3cb7befd592e",
+      "after_sha256": "a6a81898c5d16db4517347b74656757f96bce806f62d5bfdf4fdbd7ef6f4ae90"
+    },
+    {
+      "file": "WebApp/fleet-day-core.js",
+      "subject": "ملخص إقفال اليوم",
+      "reviewed_path": "scan ثابت → ذاكرة profiles محدودة → scratch خاص عند الحاجة → المجاميع بترتيب الجمع الأصلي → خطة العدادات",
+      "related_tests": [
+        "427",
+        "438",
+        "372-core",
+        "372-exceptional",
+        "372-slice",
+        "372-worker"
+      ],
+      "changed_in_this_review": true,
+      "before_sha256": "057af14de901a1ff149c3042a1024618dd6598ff6c1a06377c1badc57ccb1711",
+      "after_sha256": "d5dfbf652c00833499b5fcf34936fac01796a23c47bdc50201016f94707c8660"
+    },
+    {
+      "file": "WebApp/fleet-engine-thread.js",
+      "subject": "حداثة أجوبة العامل",
+      "reviewed_path": "queryTag/health/dispatch → valueRevision → current؛ الحماية مستخدمة وليست زائدة",
+      "related_tests": [
+        "429",
+        "423",
+        "fleet-validation-reuse"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "b31b627065395fa48c2e7dd7dbdf2f11e1ec2ffe740780cbbb1dc23996e182dc",
+      "after_sha256": "b31b627065395fa48c2e7dd7dbdf2f11e1ec2ffe740780cbbb1dc23996e182dc"
+    },
+    {
+      "file": "WebApp/fleet-query-core.js",
+      "subject": "استعلامات الإثبات والتحرير واليوم",
+      "reviewed_path": "run registry → saveChunkProof/valueCollection/fleetDay → نقل الخطة إلى المستهلك",
+      "related_tests": [
+        "428",
+        "429",
+        "372-worker"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "7bd1c13b1bf5adc862348fa203a46469ade5fba141b39c09bc8f7598293c2e2f",
+      "after_sha256": "7bd1c13b1bf5adc862348fa203a46469ade5fba141b39c09bc8f7598293c2e2f"
+    },
+    {
+      "file": "WebApp/fleet-save-validation-core.js",
+      "subject": "إعادة استخدام الفحص الثابت",
+      "reviewed_path": "مراجع القيم الفعلية + identity/chunkMass + السياق؛ حذف مصفوفة المراجع لكل صف؛ مقارنة reference تبقى",
+      "related_tests": [
+        "425",
+        "436",
+        "362-validation",
+        "412"
+      ],
+      "changed_in_this_review": true,
+      "before_sha256": "e218d57d2e81a7570050789e9d0532fa01ac124e8b0d9acf4bbd64b2ad2048ed",
+      "after_sha256": "b4801e4deb28e46c1120fa6a30b6cf6e74db7ac677f9659ab07bb713700da8e5"
+    },
+    {
+      "file": "WebApp/fleet-store-core.js",
+      "subject": "النسخ والإصدارات والتحرير",
+      "reviewed_path": "نسخ الحقول الصحيحة؛ id-pattern refs؛ mark read-only في العامل ثم تحقق الخطة كلها قبل التحرير؛ واجهات الصغيرة/المستقلة مستخدمة",
+      "related_tests": [
+        "356",
+        "425",
+        "428",
+        "429",
+        "362-validation"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "30debea0d68d938ffb025d72efd132091a4f875d13a302c5cfff360fe9f2ef2d",
+      "after_sha256": "30debea0d68d938ffb025d72efd132091a4f875d13a302c5cfff360fe9f2ef2d"
+    },
+    {
+      "file": "WebApp/madar-shell.js",
+      "subject": "قراءة بيانات صفحة الشركة",
+      "reviewed_path": "kind.fleet → companyFacts؛ لا طلب ملخص غير معروض؛ لوحات الأسطول الأربع تستخدمه",
+      "related_tests": [
+        "433",
+        "434"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "1a9062a5c8d6076fbaf971804b628853a44943f0e981b9247d8d39ccc7a0d5a4",
+      "after_sha256": "1a9062a5c8d6076fbaf971804b628853a44943f0e981b9247d8d39ccc7a0d5a4"
+    },
+    {
+      "file": "WebApp/migration-core.js",
+      "subject": "استرجاع وهجرة الحفظ",
+      "reviewed_path": "decode → adoptChunkIds؛ لا seeding لصفحات lanes أو patched bases كصفوف خام؛ القارئ القديم ضروري",
+      "related_tests": [
+        "430",
+        "437",
+        "372-migration"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "52ef6f9acb276e4368500987304280654fab0f9f03b4fe5f9a74d0c885076bb2",
+      "after_sha256": "52ef6f9acb276e4368500987304280654fab0f9f03b4fe5f9a74d0c885076bb2"
+    },
+    {
+      "file": "WebApp/persistence-core.js",
+      "subject": "حفظ الأجزاء والضغط",
+      "reviewed_path": "serializeNativeSliced → snapshot guard → encode/upload → native ACK؛ لم يحذف إثبات الصفوف أو توقيع الحفظ",
+      "related_tests": [
+        "358-native",
+        "409",
+        "411",
+        "save-slicing",
+        "362-prestage"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "d458510442de4c3661865477524a368043fd623d128e25dc2de0978b8cbf009e",
+      "after_sha256": "d458510442de4c3661865477524a368043fd623d128e25dc2de0978b8cbf009e"
+    },
+    {
+      "file": "WebApp/save-checksum-thread.js",
+      "subject": "مستهلك أدلة البصمات",
+      "reviewed_path": "طلبات raw/lanes منفصلة؛ كل lane مطلوب حتى لو كانت المصفوفة sparse؛ الحجز والإنهاء والنسخة المحدودة باقية",
+      "related_tests": [
+        "436",
+        "save-checksum-browser",
+        "save-pipeline"
+      ],
+      "changed_in_this_review": true,
+      "before_sha256": "ca4ece5a810d3e98c0b2c7bf640a3d637d857de2274f288a284018bb7ab9ae49",
+      "after_sha256": "3a22484e719c537d12745bf915944228ae04b13438396a0a7553dd0b09c4276a"
+    },
+    {
+      "file": "WebApp/save-checksum-worker.js",
+      "subject": "إنتاج أدلة البصمات",
+      "reviewed_path": "transpose → 16 بصمة مستهلكة؛ حذف aggregate غير المستعمل؛ checksum الصفوف الخام باقٍ",
+      "related_tests": [
+        "436",
+        "424",
+        "save-checksum-browser",
+        "save-pipeline"
+      ],
+      "changed_in_this_review": true,
+      "before_sha256": "21b39c850eea9a2300e31a2572a52331b560c148842dfe90a69cf24db9d9d076",
+      "after_sha256": "4d458e72c9df096e802652f3278bf8cdf72297819165421410e6b350f9ae6cf5"
+    },
+    {
+      "file": "WebApp/simulation-core.js",
+      "subject": "منظّم السرعة",
+      "reviewed_path": "تجاوز الموعد يحدد YELLOW؛ ORANGE/RED بالمدة؛ العتبات والسرعة ثابتة؛ لا بقايا من hold السابق",
+      "related_tests": [
+        "426",
+        "governor-overrun"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "b1e2d027e598bca474453aa25a346ed4df97ef65dbb25edf77c561eb2006b0a2",
+      "after_sha256": "b1e2d027e598bca474453aa25a346ed4df97ef65dbb25edf77c561eb2006b0a2"
+    },
+    {
+      "file": "WebApp/state-codec-core.js",
+      "subject": "كاتب الحفظ وذاكرة الأجزاء",
+      "reviewed_path": "كاتب lanes فقط؛ قارئ legacy باقٍ؛ فصل تخطيط العدادات القديم؛ مطابقة سلسلة patches قبل التبنّي؛ إزالة salt ثابت مع إبقاء شكل المعرف",
+      "related_tests": [
+        "436",
+        "437",
+        "424",
+        "430",
+        "358-manifest",
+        "410",
+        "372-migration"
+      ],
+      "changed_in_this_review": true,
+      "before_sha256": "e8c72dc0d8afaded20736cfc541d6744feb706a907de6f2d86c3ce49a11739d4",
+      "after_sha256": "e8bb9c8c652919a21a64f9acfacc6aaa24699689b2777043f769f578e6d95be4"
+    },
+    {
+      "file": "WebApp/transaction-core.js",
+      "subject": "المعاملات الذرية",
+      "reviewed_path": "apply → التحقق → تجهيز متداخل عند الانتظار → حفظ → ACK → publish؛ rollback وrevision guards لم تُحذف",
+      "related_tests": [
+        "433",
+        "435",
+        "362-prestage",
+        "411"
+      ],
+      "changed_in_this_review": false,
+      "before_sha256": "d20fc32a6620fc28b033bc724b084de212bea9aa0f1f350f834550795bf78f52",
+      "after_sha256": "d20fc32a6620fc28b033bc724b084de212bea9aa0f1f350f834550795bf78f52"
+    }
+  ]
+}

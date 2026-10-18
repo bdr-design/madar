@@ -13,7 +13,7 @@ assert(app.includes("map.createPane('vehicleCanvas')")&&app.includes('GH_MAP_VEH
 assert(app.includes('const limit=Math.min(300,MAP_VIEW.budget(\'vehicles\',zoom))'));
 assert(app.includes('allocator=window.GH_MAP_PROXY_CORE')&&app.includes('allocator.allocate(unique,'));
 assert(app.includes('renderAllocatedVehicles(vehicleCandidates,zoom)'));
-assert(app.includes('mapVehicleCanvas.add(candidate.id,')&&app.includes('mapVehicleCanvas?.draw?.()'));
+assert(app.includes('mapVehicleCanvas.add(candidate.id,')&&app.includes('mapVehicleCanvas?.drawIfDirty?.()'));
 assert(app.includes('presentationAssetLookup()'));
 assert(app.includes('let mapStatusCache={assetKey:'));
 assert(app.includes('if(mapStatusCache.assetKey!==assetKey)'));

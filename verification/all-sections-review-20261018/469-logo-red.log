@@ -1,0 +1,13 @@
+AssertionError [ERR_ASSERTION]: company-logo-upload input: success belongs in original durable draft
+
+0 !== 1
+
+    at run (/workspace/madar/tests/build469-app-notice-work.cjs:15:30)
+    at async /workspace/madar/tests/build469-app-notice-work.cjs:17:38 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

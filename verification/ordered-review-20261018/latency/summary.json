@@ -1,0 +1,2465 @@
+{
+  "scope": "Desktop real app, 11 open companies, real fleet purchases, paused simulation. Finance history created via finance owner in a test transaction. Browser vault is a protocol double; no native iPhone IO. Source overlays only append test accessors. Trace adds overhead equally.",
+  "beforeSource": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+  "afterSource": "983e3fd14465d9f51bad33adf5ae59515a0d9197f1df976d270ba0a269e5c6b1",
+  "sourceFiles": {
+    "before": {
+      "app": "14e9a4c28c6385c021c196affe4d438acb7226dfa70d6de0cf07501411d6205f",
+      "bank": "9002f83e355639b3483ace0bf1aa44fbd5f15b6207ea447e02d911ce97b9aafd"
+    },
+    "after": {
+      "app": "94bb06cebce104b1dd318a8792113efb69acdeac5f7df41fa7f24bb979d0637e",
+      "bank": "9002f83e355639b3483ace0bf1aa44fbd5f15b6207ea447e02d911ce97b9aafd"
+    }
+  },
+  "viewport": {
+    "width": 956,
+    "height": 440
+  },
+  "fleet": 1000000,
+  "companies": 11,
+  "simulation": "paused; company opening is not activation of all company revenue models",
+  "histories": {
+    "invoices": 2050,
+    "cheques": 2050,
+    "payables": 2048
+  },
+  "drawnCardsPerDrawer": {
+    "before": 80,
+    "after": {
+      "invoices": 2,
+      "cheques": 4,
+      "payables": 80
+    }
+  },
+  "orderResults": [
+    {
+      "file": "results-chromium-before.json",
+      "order": [
+        "before",
+        "after"
+      ],
+      "summaries": [
+        {
+          "label": "before",
+          "action": "payables",
+          "samples": 5,
+          "syncMedianMs": 4.5,
+          "toPaintMedianMs": 33.099999994039536,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 13.514,
+          "maxObservedMainTaskMs": 14.624,
+          "queryCounts": []
+        },
+        {
+          "label": "before",
+          "action": "cheques",
+          "samples": 5,
+          "syncMedianMs": 22,
+          "toPaintMedianMs": 116.69999999552965,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 101.233,
+          "maxObservedMainTaskMs": 101.958,
+          "queryCounts": []
+        },
+        {
+          "label": "before",
+          "action": "invoices",
+          "samples": 5,
+          "syncMedianMs": 95.5,
+          "toPaintMedianMs": 259.40000000596046,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 230.404,
+          "maxObservedMainTaskMs": 237.91,
+          "queryCounts": []
+        },
+        {
+          "label": "before",
+          "action": "cold-summary",
+          "samples": 3,
+          "syncMedianMs": null,
+          "toPaintMedianMs": 550,
+          "readyMedianMs": 524.1000000014901,
+          "mainTaskMedianMs": 4.807,
+          "maxObservedMainTaskMs": 25.129,
+          "queryCounts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "label": "after",
+          "action": "payables",
+          "samples": 5,
+          "syncMedianMs": 3.100000001490116,
+          "toPaintMedianMs": 33.19999999552965,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 12.659,
+          "maxObservedMainTaskMs": 13.118,
+          "queryCounts": []
+        },
+        {
+          "label": "after",
+          "action": "cheques",
+          "samples": 5,
+          "syncMedianMs": 4,
+          "toPaintMedianMs": 33.29999999701977,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 14.778,
+          "maxObservedMainTaskMs": 17.929,
+          "queryCounts": []
+        },
+        {
+          "label": "after",
+          "action": "invoices",
+          "samples": 5,
+          "syncMedianMs": 5.600000001490116,
+          "toPaintMedianMs": 33.20000000298023,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 15.49,
+          "maxObservedMainTaskMs": 19.573,
+          "queryCounts": []
+        },
+        {
+          "label": "after",
+          "action": "cold-summary",
+          "samples": 3,
+          "syncMedianMs": null,
+          "toPaintMedianMs": 533.3000000044703,
+          "readyMedianMs": 515.5,
+          "mainTaskMedianMs": 4.653,
+          "maxObservedMainTaskMs": 5.985,
+          "queryCounts": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "file": "results-chromium-after.json",
+      "order": [
+        "after",
+        "before"
+      ],
+      "summaries": [
+        {
+          "label": "before",
+          "action": "payables",
+          "samples": 5,
+          "syncMedianMs": 5.299999997019768,
+          "toPaintMedianMs": 33.100000001490116,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 15.157,
+          "maxObservedMainTaskMs": 22.228,
+          "queryCounts": []
+        },
+        {
+          "label": "before",
+          "action": "cheques",
+          "samples": 5,
+          "syncMedianMs": 22.5,
+          "toPaintMedianMs": 116.89999999850988,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 99.569,
+          "maxObservedMainTaskMs": 116.526,
+          "queryCounts": []
+        },
+        {
+          "label": "before",
+          "action": "invoices",
+          "samples": 5,
+          "syncMedianMs": 102.5,
+          "toPaintMedianMs": 272.19999999552965,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 239.273,
+          "maxObservedMainTaskMs": 283.326,
+          "queryCounts": []
+        },
+        {
+          "label": "before",
+          "action": "cold-summary",
+          "samples": 3,
+          "syncMedianMs": null,
+          "toPaintMedianMs": 516.6999999955297,
+          "readyMedianMs": 496.6000000014901,
+          "mainTaskMedianMs": 7.754,
+          "maxObservedMainTaskMs": 8.436,
+          "queryCounts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "label": "after",
+          "action": "payables",
+          "samples": 5,
+          "syncMedianMs": 3.2000000029802322,
+          "toPaintMedianMs": 33.100000001490116,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 13.018,
+          "maxObservedMainTaskMs": 14.536,
+          "queryCounts": []
+        },
+        {
+          "label": "after",
+          "action": "cheques",
+          "samples": 5,
+          "syncMedianMs": 4.100000001490116,
+          "toPaintMedianMs": 33.20000000298023,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 15.227,
+          "maxObservedMainTaskMs": 16.562,
+          "queryCounts": []
+        },
+        {
+          "label": "after",
+          "action": "invoices",
+          "samples": 5,
+          "syncMedianMs": 5.5,
+          "toPaintMedianMs": 33.19999999552965,
+          "readyMedianMs": null,
+          "mainTaskMedianMs": 15.825,
+          "maxObservedMainTaskMs": 16.544,
+          "queryCounts": []
+        },
+        {
+          "label": "after",
+          "action": "cold-summary",
+          "samples": 3,
+          "syncMedianMs": null,
+          "toPaintMedianMs": 516.6000000014901,
+          "readyMedianMs": 497.29999999701977,
+          "mainTaskMedianMs": 4.37,
+          "maxObservedMainTaskMs": 18.774,
+          "queryCounts": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "totals": [
+    {
+      "label": "before",
+      "action": "payables",
+      "samples": 10,
+      "syncMedianMs": 4.850000001490116,
+      "toPaintMedianMs": 33.099999997764826,
+      "readyMedianMs": null,
+      "mainTaskMedianMs": 14.594000000000001,
+      "maxObservedMainTaskMs": 22.228,
+      "queryCounts": []
+    },
+    {
+      "label": "before",
+      "action": "cheques",
+      "samples": 10,
+      "syncMedianMs": 22.400000002235174,
+      "toPaintMedianMs": 116.69999999925494,
+      "readyMedianMs": null,
+      "mainTaskMedianMs": 100.40100000000001,
+      "maxObservedMainTaskMs": 116.526,
+      "queryCounts": []
+    },
+    {
+      "label": "before",
+      "action": "invoices",
+      "samples": 10,
+      "syncMedianMs": 98.54999999701977,
+      "toPaintMedianMs": 260.3499999977648,
+      "readyMedianMs": null,
+      "mainTaskMedianMs": 235.87,
+      "maxObservedMainTaskMs": 283.326,
+      "queryCounts": []
+    },
+    {
+      "label": "before",
+      "action": "cold-summary",
+      "samples": 6,
+      "syncMedianMs": null,
+      "toPaintMedianMs": 524.8999999947846,
+      "readyMedianMs": 503.8499999977648,
+      "mainTaskMedianMs": 6.68,
+      "maxObservedMainTaskMs": 25.129,
+      "queryCounts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "label": "after",
+      "action": "payables",
+      "samples": 10,
+      "syncMedianMs": 3.150000002235174,
+      "toPaintMedianMs": 33.19999999552965,
+      "readyMedianMs": null,
+      "mainTaskMedianMs": 12.764,
+      "maxObservedMainTaskMs": 14.536,
+      "queryCounts": []
+    },
+    {
+      "label": "after",
+      "action": "cheques",
+      "samples": 10,
+      "syncMedianMs": 4.050000000745058,
+      "toPaintMedianMs": 33.25,
+      "readyMedianMs": null,
+      "mainTaskMedianMs": 15.022,
+      "maxObservedMainTaskMs": 17.929,
+      "queryCounts": []
+    },
+    {
+      "label": "after",
+      "action": "invoices",
+      "samples": 10,
+      "syncMedianMs": 5.600000001490116,
+      "toPaintMedianMs": 33.19999999925494,
+      "readyMedianMs": null,
+      "mainTaskMedianMs": 15.657499999999999,
+      "maxObservedMainTaskMs": 19.573,
+      "queryCounts": []
+    },
+    {
+      "label": "after",
+      "action": "cold-summary",
+      "samples": 6,
+      "syncMedianMs": null,
+      "toPaintMedianMs": 524.8500000014901,
+      "readyMedianMs": 502.7500000037253,
+      "mainTaskMedianMs": 4.603999999999999,
+      "maxObservedMainTaskMs": 18.774,
+      "queryCounts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "tracePhases": [
+    {
+      "file": "trace-chromium-before-before.json",
+      "label": "before",
+      "phases": [
+        {
+          "action": "payables",
+          "round": 0,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.357,
+            "maxMs": 5.318
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 2.019,
+            "maxMs": 1.991
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.716,
+            "maxMs": 1.163
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 67.826,
+            "maxMs": 62.961
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.4,
+            "maxMs": 1.25
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 7.578999999999999,
+            "maxMs": 2.947
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 126.92600000000002,
+            "maxMs": 117.804
+          },
+          "UpdateLayoutTree": {
+            "calls": 5,
+            "totalMs": 3.953,
+            "maxMs": 2.06
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 7.528000000000001,
+            "maxMs": 2.747
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 2.308,
+            "maxMs": 2.308
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 1,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.1290000000000004,
+            "maxMs": 5.089
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.84,
+            "maxMs": 1.875
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.649,
+            "maxMs": 1.148
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 69.26200000000001,
+            "maxMs": 64.453
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.366,
+            "maxMs": 1.215
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 7.117999999999995,
+            "maxMs": 2.84
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.38,
+            "maxMs": 1.38
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 123.75699999999999,
+            "maxMs": 115.818
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 2.0589999999999997,
+            "maxMs": 1.276
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 6.71,
+            "maxMs": 2.517
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 2.182,
+            "maxMs": 2.182
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 2,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 4.816,
+            "maxMs": 4.777
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.487,
+            "maxMs": 1.821
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.4599999999999995,
+            "maxMs": 1.06
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 71.06200000000001,
+            "maxMs": 66.671
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.331,
+            "maxMs": 1.205
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 6.903999999999999,
+            "maxMs": 2.826
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 135.40499999999997,
+            "maxMs": 127.702
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.627,
+            "maxMs": 1.201
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 5.919999999999998,
+            "maxMs": 2.231
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.996,
+            "maxMs": 1.996
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 3,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 4.905,
+            "maxMs": 4.866
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.4850000000000003,
+            "maxMs": 1.82
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.501,
+            "maxMs": 1.084
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 65.663,
+            "maxMs": 61.37
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.307,
+            "maxMs": 1.184
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 6.663,
+            "maxMs": 2.689
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 124.76100000000001,
+            "maxMs": 115.702
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 2.631,
+            "maxMs": 1.22
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 6.524999999999999,
+            "maxMs": 2.374
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 0.614,
+            "maxMs": 0.614
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 4,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 4.768,
+            "maxMs": 4.728
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.4690000000000003,
+            "maxMs": 1.727
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.5740000000000003,
+            "maxMs": 1.066
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 63.129,
+            "maxMs": 58.37
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.399,
+            "maxMs": 1.25
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 7.504000000000001,
+            "maxMs": 3.003
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 114.908,
+            "maxMs": 106.996
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.8259999999999998,
+            "maxMs": 1.183
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 7.049999999999998,
+            "maxMs": 2.502
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 2.402,
+            "maxMs": 2.402
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 0,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.274,
+            "maxMs": 0.274
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 1.879,
+            "maxMs": 1.071
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.167,
+            "maxMs": 0.116
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 1,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.266,
+            "maxMs": 0.266
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 1.095,
+            "maxMs": 1.095
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.151,
+            "maxMs": 0.105
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 2.994,
+            "maxMs": 2.994
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 2,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 1.127,
+            "maxMs": 1.127
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 0.989,
+            "maxMs": 0.989
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.17200000000000001,
+            "maxMs": 0.116
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        }
+      ]
+    },
+    {
+      "file": "trace-chromium-after-before.json",
+      "label": "after",
+      "phases": [
+        {
+          "action": "payables",
+          "round": 0,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.805,
+            "maxMs": 5.768
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 1.686,
+            "maxMs": 1.651
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.755,
+            "maxMs": 1.191
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 7.375,
+            "maxMs": 6.926
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.825,
+            "maxMs": 0.709
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.2049999999999996,
+            "maxMs": 1.355
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.388000000000001,
+            "maxMs": 5.977
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.727,
+            "maxMs": 0.625
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.6550000000000007,
+            "maxMs": 1.102
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 1,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.034000000000001,
+            "maxMs": 5.002
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 1.7209999999999999,
+            "maxMs": 1.635
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.37,
+            "maxMs": 0.987
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.885,
+            "maxMs": 6.446
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.865,
+            "maxMs": 0.755
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.2039999999999997,
+            "maxMs": 1.365
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.319999999999999,
+            "maxMs": 5.835
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.795,
+            "maxMs": 0.675
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.7380000000000004,
+            "maxMs": 1.119
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 2,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.1850000000000005,
+            "maxMs": 5.144
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 1.908,
+            "maxMs": 1.795
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.572,
+            "maxMs": 1.058
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 9.485999999999999,
+            "maxMs": 8.856
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.915,
+            "maxMs": 0.766
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.5169999999999995,
+            "maxMs": 1.383
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 7.569999999999999,
+            "maxMs": 7.117
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.75,
+            "maxMs": 0.627
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.701,
+            "maxMs": 1.105
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 3,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.25,
+            "maxMs": 5.212
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 1.99,
+            "maxMs": 1.875
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.5229999999999997,
+            "maxMs": 1.025
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 8.344999999999999,
+            "maxMs": 7.749
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.754,
+            "maxMs": 1.633
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.575999999999999,
+            "maxMs": 1.547
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 9.888000000000002,
+            "maxMs": 8.006
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.924,
+            "maxMs": 0.808
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.9500000000000006,
+            "maxMs": 1.203
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 4,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.4239999999999995,
+            "maxMs": 5.379
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 2.1999999999999997,
+            "maxMs": 1.753
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.7789999999999995,
+            "maxMs": 1.176
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.757,
+            "maxMs": 1.757
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.912,
+            "maxMs": 6.44
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.878,
+            "maxMs": 0.755
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.248,
+            "maxMs": 1.34
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.240999999999999,
+            "maxMs": 5.781
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.779,
+            "maxMs": 0.626
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.608,
+            "maxMs": 1.073
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 0,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.337,
+            "maxMs": 0.337
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 0.46499999999999997,
+            "maxMs": 0.308
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.191,
+            "maxMs": 0.131
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 1,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.338,
+            "maxMs": 0.338
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 0.299,
+            "maxMs": 0.299
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.176,
+            "maxMs": 0.123
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 2,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.565,
+            "maxMs": 0.565
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 0.223,
+            "maxMs": 0.223
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.156,
+            "maxMs": 0.108
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        }
+      ]
+    },
+    {
+      "file": "trace-chromium-after-after.json",
+      "label": "after",
+      "phases": [
+        {
+          "action": "payables",
+          "round": 0,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 4.902,
+            "maxMs": 4.87
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 1.696,
+            "maxMs": 1.671
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.5160000000000005,
+            "maxMs": 1.03
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 7.414,
+            "maxMs": 6.754
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.91,
+            "maxMs": 0.796
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.471,
+            "maxMs": 1.485
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.727999999999999,
+            "maxMs": 6.303
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 0.784,
+            "maxMs": 0.753
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.832,
+            "maxMs": 1.171
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 1,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.479,
+            "maxMs": 5.44
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.055,
+            "maxMs": 1.888
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.6029999999999998,
+            "maxMs": 1.09
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 7.688000000000001,
+            "maxMs": 7.139
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.009,
+            "maxMs": 0.855
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.6300000000000003,
+            "maxMs": 1.539
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 8.125,
+            "maxMs": 6.458
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.434,
+            "maxMs": 1.299
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.873,
+            "maxMs": 1.18
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 2,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.165,
+            "maxMs": 5.119
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.0700000000000003,
+            "maxMs": 1.885
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.739,
+            "maxMs": 1.145
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 7.079,
+            "maxMs": 6.56
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.799,
+            "maxMs": 1.607
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.37,
+            "maxMs": 1.449
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.694,
+            "maxMs": 6.236
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.926,
+            "maxMs": 0.791
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.774999999999999,
+            "maxMs": 1.154
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 3,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 6.07,
+            "maxMs": 6.032
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 2.532,
+            "maxMs": 2.02
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.69,
+            "maxMs": 1.166
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 7.304,
+            "maxMs": 6.854
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.559,
+            "maxMs": 1.457
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.2009999999999996,
+            "maxMs": 1.333
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.142,
+            "maxMs": 5.554
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.3399999999999999,
+            "maxMs": 1.226
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 3.633,
+            "maxMs": 1.059
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.565,
+            "maxMs": 1.565
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 4,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 4.97,
+            "maxMs": 4.917
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 1.77,
+            "maxMs": 1.678
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.35,
+            "maxMs": 0.955
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.9590000000000005,
+            "maxMs": 6.474
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.848,
+            "maxMs": 0.742
+          },
+          "Paint": {
+            "calls": 15,
+            "totalMs": 3.116,
+            "maxMs": 1.286
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 6.335999999999999,
+            "maxMs": 5.92
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 0.788,
+            "maxMs": 0.667
+          },
+          "Paint": {
+            "calls": 11,
+            "totalMs": 2.7489999999999997,
+            "maxMs": 1.141
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 0,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 17.892,
+            "maxMs": 17.892
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 0.79,
+            "maxMs": 0.52
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.153,
+            "maxMs": 0.108
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 1,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.272,
+            "maxMs": 0.272
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 0.259,
+            "maxMs": 0.259
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.145,
+            "maxMs": 0.102
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 2,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.271,
+            "maxMs": 0.271
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 0.244,
+            "maxMs": 0.244
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.16499999999999998,
+            "maxMs": 0.119
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        }
+      ]
+    },
+    {
+      "file": "trace-chromium-before-after.json",
+      "label": "before",
+      "phases": [
+        {
+          "action": "payables",
+          "round": 0,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 4.970000000000001,
+            "maxMs": 4.932
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 1.958,
+            "maxMs": 1.922
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.7089999999999996,
+            "maxMs": 1.128
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 67.658,
+            "maxMs": 62.738
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.4529999999999998,
+            "maxMs": 1.305
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 6.961,
+            "maxMs": 2.734
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 0,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 167.46699999999998,
+            "maxMs": 158.231
+          },
+          "UpdateLayoutTree": {
+            "calls": 5,
+            "totalMs": 3.724,
+            "maxMs": 1.728
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 8.222000000000001,
+            "maxMs": 3.196
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.825,
+            "maxMs": 1.825
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 1,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.035,
+            "maxMs": 4.995
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.628,
+            "maxMs": 1.817
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.644,
+            "maxMs": 1.128
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 66.355,
+            "maxMs": 61.291
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.5330000000000001,
+            "maxMs": 1.387
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 7.1729999999999965,
+            "maxMs": 2.793
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 1,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 123.051,
+            "maxMs": 113.307
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 2.396,
+            "maxMs": 1.235
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 7.069,
+            "maxMs": 2.499
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.814,
+            "maxMs": 1.814
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 2,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.194,
+            "maxMs": 5.149
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 2.8810000000000002,
+            "maxMs": 1.889
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.893,
+            "maxMs": 1.188
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 83.059,
+            "maxMs": 76.063
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.768,
+            "maxMs": 1.555
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 9.513999999999996,
+            "maxMs": 4.104
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 2,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 150.464,
+            "maxMs": 141.786
+          },
+          "UpdateLayoutTree": {
+            "calls": 5,
+            "totalMs": 3.27,
+            "maxMs": 1.578
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 7.222999999999997,
+            "maxMs": 2.866
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 2.265,
+            "maxMs": 2.265
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 3,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 9.947,
+            "maxMs": 9.908
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 3.751,
+            "maxMs": 2.426
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.9850000000000003,
+            "maxMs": 1.286
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 64.865,
+            "maxMs": 59.708
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 2.533,
+            "maxMs": 2.303
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 7.499,
+            "maxMs": 2.934
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 3,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 128.757,
+            "maxMs": 118.937
+          },
+          "UpdateLayoutTree": {
+            "calls": 5,
+            "totalMs": 4.223,
+            "maxMs": 2.289
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 7.3469999999999995,
+            "maxMs": 2.42
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.81,
+            "maxMs": 1.81
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "payables",
+          "round": 4,
+          "Layout": {
+            "calls": 4,
+            "totalMs": 5.215,
+            "maxMs": 5.174
+          },
+          "UpdateLayoutTree": {
+            "calls": 3,
+            "totalMs": 3.329,
+            "maxMs": 1.868
+          },
+          "Paint": {
+            "calls": 7,
+            "totalMs": 2.9090000000000003,
+            "maxMs": 1.269
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cheques",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 72.839,
+            "maxMs": 67.416
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.879,
+            "maxMs": 1.68
+          },
+          "Paint": {
+            "calls": 30,
+            "totalMs": 7.733,
+            "maxMs": 2.906
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "invoices",
+          "round": 4,
+          "Layout": {
+            "calls": 5,
+            "totalMs": 118.35799999999999,
+            "maxMs": 110.106
+          },
+          "UpdateLayoutTree": {
+            "calls": 4,
+            "totalMs": 1.766,
+            "maxMs": 1.212
+          },
+          "Paint": {
+            "calls": 21,
+            "totalMs": 6.451999999999998,
+            "maxMs": 2.388
+          },
+          "MinorGC": {
+            "calls": 1,
+            "totalMs": 1.549,
+            "maxMs": 1.549
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 0,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.287,
+            "maxMs": 0.287
+          },
+          "UpdateLayoutTree": {
+            "calls": 2,
+            "totalMs": 2.396,
+            "maxMs": 1.217
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.156,
+            "maxMs": 0.108
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 1,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.27,
+            "maxMs": 0.27
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 1.169,
+            "maxMs": 1.169
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.186,
+            "maxMs": 0.124
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        },
+        {
+          "action": "cold-summary",
+          "round": 2,
+          "Layout": {
+            "calls": 1,
+            "totalMs": 0.31,
+            "maxMs": 0.31
+          },
+          "UpdateLayoutTree": {
+            "calls": 1,
+            "totalMs": 1.18,
+            "maxMs": 1.18
+          },
+          "Paint": {
+            "calls": 2,
+            "totalMs": 0.152,
+            "maxMs": 0.106
+          },
+          "MinorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          },
+          "MajorGC": {
+            "calls": 0,
+            "totalMs": 0,
+            "maxMs": 0
+          }
+        }
+      ]
+    }
+  ]
+}

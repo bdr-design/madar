@@ -2,7 +2,6 @@
   'use strict';
   const VERSION='3.0.2';
   const platform=()=>globalThis.GH_COMPANY_PLATFORM||null;
-  const fleetData=()=>{const api=globalThis.GH_FLEET_DATA||(typeof require==='function'?require('./fleet-access-core.js'):null);if(!api)throw new Error('fleet-data-access-unavailable');return api;};
   const MANAGER_COMPANIES=Object.freeze(platform()?.listDefinitions?.({includeGroup:false}).filter(definition=>definition.capabilities.includes('hr.management')).map(definition=>definition.id)||['air','sea','road','power','bank','mobility']);
   const OFFICIAL_MANAGER_CANDIDATES=Object.freeze([
     {id:'M-AIR-01',company:'air',name:'ريم العتيبي',role:'الرئيس التنفيذي',city:'الرياض',nationality:'السعودية',salary:780000,skill:96,experience:18,specialty:'شبكات الطيران والنمو الدولي',style:'نمو منضبط'},
@@ -46,11 +45,7 @@
   });
   const GENERATED_MANAGER_CANDIDATE_COUNT=2;
   const FACILITY_STANDARDS=Object.freeze({hq:42,office:18,'airport-base':36,'port-base':44,logistics:24,depot:20,'mobility-center':18,'telecom-branch':14,'dealership-branch':18,power:32,bank:16,insurance:14,realestate:12,hotel:60,resort:110,acquired:28});
-  const assetOwner=a=>String(a?.ownerCompanyId||a?.companyId||platform()?.ownerForLegacyAssetMode?.(a?.assetMode||a?.type)||(!platform()?a?.type:'')||'');
   const facilityOwner=f=>String(f?.ownerCompanyId||f?.companyId||f?.company||'');
-  // Build 358 (million-asset): whether any asset belongs to an owner, counted per class of rows (one cached class scan
-  // per fleet revision) instead of visiting every asset until one matches.
-  const ownsAssets=(s,owner)=>(fleetData().countByFields(s,['ownerCompanyId','companyId','assetMode','type'],assetOwner).get(owner)||0)>0;
   const clone=v=>globalThis.structuredClone?structuredClone(v):JSON.parse(JSON.stringify(v));
   const day=s=>Math.floor((Number(s?.simSeconds)||0)/86400);
   function stableHash(value){let hash=2166136261;for(let index=0;index<String(value||'').length;index++){hash^=String(value).charCodeAt(index);hash=Math.imul(hash,16777619);}return hash>>>0;}
@@ -94,27 +89,39 @@
     retireLegacyExecutives(state,hr);return hr;
   }
   function companyOfFacility(f){const owner=facilityOwner(f);if(owner)return owner;if(f?.kind==='airport-base')return'air';if(f?.kind==='port-base')return'sea';if(['depot','logistics'].includes(f?.kind))return'road';if(f?.kind==='mobility-center')return'mobility';if(f?.kind==='telecom-branch')return'telecom';if(f?.kind==='dealership-branch')return'dealership';if(f?.kind==='power')return'power';if(f?.kind==='bank')return'bank';return'group';}
-  function facilityNeed(f,state=null){
+  function facilityNeed(f,state=null,mobilityCounts=null){
     const base=FACILITY_STANDARDS[f?.kind]||12;
     if(f?.kind==='hotel'||f?.kind==='resort')return Math.ceil(base*Math.max(1,Number(f.roomCount)|| (f.kind==='hotel'?100:120))/(f.kind==='hotel'?100:120));
     // A Mobility center's 3,000 bays are capacity, not 3,000 occupied vehicles. Staffing grows with the delivered fleet.
     // Energy keeps using commissioned project capacity; the canonical field is capacityAmount (capacityMW is legacy).
-    const mobilityVehicles=f?.kind==='mobility-center'&&state?(state.mobility?.vehicles||[]).filter(vehicle=>vehicle?.centerId===f.capitalId).length:0;
+    const mobilityVehicles=f?.kind==='mobility-center'&&state?(mobilityCounts?mobilityCounts.get(f.capitalId)||0:(state.mobility?.vehicles||[]).reduce((count,vehicle)=>count+(vehicle?.centerId===f.capitalId?1:0),0)):0;
     const cap=f?.kind==='mobility-center'?mobilityVehicles:Number(f?.capacityAmount??f?.capacityMW??0),scale=f?.kind==='power'?Math.ceil(cap/250)*4:['depot','logistics'].includes(f?.kind)?Math.ceil(Number(f?.bays||0)/20)*3:f?.kind==='mobility-center'?Math.ceil(cap/40)*2:0;
     return Math.max(base,base+scale);
   }
+  // A transient index belongs to one snapshot/reconciliation only. Never keep
+  // it across a vehicle transfer, sale, delivery, rollback or state replacement.
+  function mobilityCenterCounts(state){const counts=new Map();(state.mobility?.vehicles||[]).forEach(vehicle=>{const center=vehicle?.centerId;if(center===center)counts.set(center,(counts.get(center)||0)+1);});return counts;}
   function facilityGaps(state,ctx,company='all'){
-    const facilities=(ctx?.getDynamicFacilities?.()||[...(state.globalBases||[]),...(state.customHubs||[])]).filter(f=>f&&f.owned===true),rows=[];state.advanced=state.advanced||{};state.advanced.facilities=state.advanced.facilities||{};
+    const facilities=(ctx?.getDynamicFacilities?.()||[...(state.globalBases||[]),...(state.customHubs||[])]).filter(f=>f&&f.owned===true),rows=[];let mobilityCounts=null;state.advanced=state.advanced||{};state.advanced.facilities=state.advanced.facilities||{};
     // A facility still under construction (a hotel or resort before completion) has no operating team to staff yet: HR
     // listed its full team as a gap from the first day of building, and hiring it paid salaries for the whole build.
-    for(const f of facilities){const owner=companyOfFacility(f);if(company!=='all'&&owner!==company)continue;if(f.constructionStatus==='قيد الإنشاء')continue;const needed=facilityNeed(f,state),have=Math.max(0,Number(state.advanced.facilities?.[f.id]?.staff)||0),missing=Math.max(0,needed-have);rows.push({kind:'facility',company:owner,facilityId:f.id,name:f.name||f.id,needed,have,missing});}
+    for(const f of facilities){const owner=companyOfFacility(f);if(company!=='all'&&owner!==company)continue;if(f.constructionStatus==='قيد الإنشاء')continue;if(f.kind==='mobility-center'&&!mobilityCounts)mobilityCounts=mobilityCenterCounts(state);const needed=facilityNeed(f,state,mobilityCounts),have=Math.max(0,Number(state.advanced.facilities?.[f.id]?.staff)||0),missing=Math.max(0,needed-have);rows.push({kind:'facility',company:owner,facilityId:f.id,name:f.name||f.id,needed,have,missing});}
     return rows;
   }
-  function snapshot(state,ctx={},company='all'){
-    ensure(state);const crew=[],facilities=facilityGaps(state,ctx,company),executives=[],all=[...facilities],gaps=all.filter(x=>x.missing>0);
+  function summarizeFacilities(company,facilities){
+    const crew=[],executives=[],all=[...facilities],gaps=all.filter(x=>x.missing>0);
     const crewMissing=0,facilityMissing=facilities.reduce((n,x)=>n+x.missing,0),executiveMissing=executives.reduce((n,x)=>n+x.missing,0),total=facilityMissing+executiveMissing;
     const filled=all.reduce((n,x)=>n+Math.min(x.have,x.needed),0),required=all.reduce((n,x)=>n+x.needed,0),coverage=required?Math.round(filled/required*100):100;
     return {company,crew,facilities,executives,gaps,crewMissing,facilityMissing,executiveMissing,total,required,filled,coverage};
+  }
+  function snapshot(state,ctx={},company='all'){ensure(state);return summarizeFacilities(company,facilityGaps(state,ctx,company));}
+  // Read-only dashboard projections from one fresh facility/vehicle pass. The
+  // command APIs still take their own fresh authoritative snapshots.
+  function companySnapshots(state,ctx={},companyIds=[]){
+    const all=snapshot(state,ctx,'all'),byCompany=new Map();
+    for(const row of all.facilities){let rows=byCompany.get(row.company);if(!rows){rows=[];byCompany.set(row.company,rows);}rows.push(row);}
+    const companies=companyIds.map(id=>{const company=id===undefined?'all':id,rows=company==='all'?all.facilities:byCompany.get(company)||[];return summarizeFacilities(company,rows.map(row=>({...row})));});
+    return {all,companies};
   }
   function contract(state,data){const hr=ensure(state),company=String(data.ownerCompanyId||data.company||'group'),role=data.role||data.name,c={id:nextId(state,'EMP'),company,ownerCompanyId:company,name:data.name,role,count:Math.max(1,Number(data.count)||1),center:data.center||'المقر الرئيسي',facilityId:data.facilityId||null,salary:Math.max(0,Number(data.salary)||0),startDay:day(state),termMonths:Math.max(1,Number(data.termMonths)||hr.policy.contractMonths||24),status:'ساري',source:data.source||'HR Core',requisitionId:data.requisitionId||null,candidateId:data.candidateId||null,officialManager:!!data.officialManager,appointmentId:data.appointmentId||null,autoRenew:data.autoRenew===true||data.officialManager===true||role==='تشغيل منشأة'};hr.employmentContracts.unshift(c);return c;}
   function requireManagerCompany(state,company,{operational=true}={}){const P=platform();if(P)return P.requireCompany(state,company,{operational,capability:'hr.management'});if(!MANAGER_COMPANIES.includes(company))throw new Error('official-manager-company-invalid');if(operational&&!(state.openedCompanies||[]).includes(company))throw new Error('official-manager-company-not-open');return {id:company};}
@@ -151,9 +158,9 @@
     const r={id:nextId(state,'HR-REQ'),company,status:'open',source,createdAt:Number(state.simSeconds)||0,need:clone(need),title:company==='all'?`سد كامل العجز الوظيفي · ${need.total}`:`سد عجز ${company} · ${need.total}`,approvalRequestId:null};hr.requisitions.unshift(r);return r;
   }
   function reconcileFacilityStaffing(state,p={}){
-    const hr=ensure(state),facilityId=String(p.facilityId||''),facilities=[...(state.globalBases||[]),...(state.customHubs||[])].filter(f=>f?.owned===true&&(!facilityId||f.id===facilityId));let changed=0,reduced=0,ended=0;
+    const hr=ensure(state),facilityId=String(p.facilityId||''),facilities=[...(state.globalBases||[]),...(state.customHubs||[])].filter(f=>f?.owned===true&&(!facilityId||f.id===facilityId));let changed=0,reduced=0,ended=0,mobilityCounts=null;
     for(const f of facilities){
-      const m=state.advanced.facilities?.[f.id];if(!m)continue;const needed=facilityNeed(f,state),have=Math.max(0,Math.floor(Number(m.staff)||0));if(have<=needed)continue;
+      const m=state.advanced.facilities?.[f.id];if(!m)continue;if(f.kind==='mobility-center'&&!mobilityCounts)mobilityCounts=mobilityCenterCounts(state);const needed=facilityNeed(f,state,mobilityCounts),have=Math.max(0,Math.floor(Number(m.staff)||0));if(have<=needed)continue;
       let excess=have-needed;const owner=companyOfFacility(f),contracts=hr.employmentContracts.filter(c=>c?.status==='ساري'&&!c.automaticAssetStaffing&&c.role==='تشغيل منشأة'&&String(c.ownerCompanyId||c.company||'')===owner&&(c.facilityId===f.id||(!c.facilityId&&c.center===(f.name||f.id))));
       for(const c of contracts){if(excess<=0)break;const count=Math.max(1,Math.floor(Number(c.count)||1)),cut=Math.min(count,excess);excess-=cut;reduced+=cut;if(cut===count){c.count=0;c.status='منتهي';c.endedDay=day(state);c.endReason=String(p.reason||'مواءمة فريق المنشأة مع حجم التشغيل الفعلي');ended++;}else c.count=count-cut;changed++;}
       m.staff=needed;changed++;
@@ -174,6 +181,6 @@
   const SALARY_LEVELS=Object.freeze([.9,.95,1,1.05,1.1,1.15,1.2,1.3]);
   function setSalaryIndex(state,p){const hr=ensure(state),company=salaryCompany(state,p.company),index=Number(p.index);if(!SALARY_LEVELS.includes(index))throw new Error('salary-index-invalid');const policy=hr.salaryPolicy[company],day=Math.floor((Number(state.simSeconds)||0)/86400),before=policy.salaryIndex;policy.lastRaisePct=Math.round((index/before-1)*1e4)/100;policy.lastRaiseDay=day;policy.salaryIndex=index;policy.history.unshift({day,from:before,to:index});policy.history=policy.history.slice(0,24);return {company,index,from:before};}
   function execute(ctx,cmd,p={}){const state=ctx.state||ctx;if(cmd==='tick-day')return tickDay(state,p.day);if(cmd==='set-salary-index')return setSalaryIndex(state,p);if(cmd==='appoint-official-manager')return appointOfficialManager(state,p);if(cmd==='appoint-all-official-managers')return appointAllOfficialManagers(state,p);if(cmd==='dismiss-official-manager')return dismissOfficialManager(state,p);if(cmd==='hire')return executeHiring(state,ctx,p.company||'all',p.source||'HR Domain Command',p.scope||'all');if(cmd==='hire-executive')throw new Error('legacy-executives-retired');if(cmd==='requisition')return createRequisition(state,ctx,p.company||'all',p.source||'domain');throw new Error(`Unknown HR command: ${cmd}`);}
-  const API={VERSION,SALARY_LEVELS,managerSkill,MANAGER_COMPANIES,OFFICIAL_MANAGER_CANDIDATES,MANAGER_CANDIDATE_POOL,ensure,snapshot,health,createRequisition,executeHiring,reconcileFacilityStaffing,migrateFacilityStaffing,officialManager,officialManagerCandidates,appointOfficialManager,appointAllOfficialManagers,dismissOfficialManager,facilityNeed,companyOfFacility,tickDay,salaryMultiplier,salaryHistory,execute};
+  const API={VERSION,SALARY_LEVELS,managerSkill,MANAGER_COMPANIES,OFFICIAL_MANAGER_CANDIDATES,MANAGER_CANDIDATE_POOL,ensure,snapshot,companySnapshots,health,createRequisition,executeHiring,reconcileFacilityStaffing,migrateFacilityStaffing,officialManager,officialManagerCandidates,appointOfficialManager,appointAllOfficialManagers,dismissOfficialManager,facilityNeed,companyOfFacility,tickDay,salaryMultiplier,salaryHistory,execute};
   globalThis.GH_HR_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('hr',API);if(globalThis.window&&window!==globalThis)window.GH_HR_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

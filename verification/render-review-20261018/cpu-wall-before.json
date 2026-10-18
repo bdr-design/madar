@@ -1,0 +1,113 @@
+{
+  "label": "before",
+  "cases": [
+    {
+      "name": "map-idle",
+      "Layout": {
+        "count": 2,
+        "maxWallMs": 0.232,
+        "maxThreadCpuMs": 0.231,
+        "totalThreadCpuMs": 0.457
+      },
+      "UpdateLayoutTree": {
+        "count": 2,
+        "maxWallMs": 0.244,
+        "maxThreadCpuMs": 0.244,
+        "totalThreadCpuMs": 0.482
+      },
+      "Paint": {
+        "count": 4,
+        "maxWallMs": 0.146,
+        "maxThreadCpuMs": 0.145,
+        "totalThreadCpuMs": 0.434
+      },
+      "ThreadControllerImpl::RunTask": {
+        "count": 301,
+        "maxWallMs": 1.961,
+        "maxThreadCpuMs": 1.804,
+        "totalThreadCpuMs": 17.212999999999997
+      }
+    },
+    {
+      "name": "hr-cold",
+      "Layout": {
+        "count": 16,
+        "maxWallMs": 2.165,
+        "maxThreadCpuMs": 2.165,
+        "totalThreadCpuMs": 2.399999999999999
+      },
+      "UpdateLayoutTree": {
+        "count": 10,
+        "maxWallMs": 5.169,
+        "maxThreadCpuMs": 5.044,
+        "totalThreadCpuMs": 5.843999999999999
+      },
+      "Paint": {
+        "count": 7,
+        "maxWallMs": 1.14,
+        "maxThreadCpuMs": 1.084,
+        "totalThreadCpuMs": 2.524
+      },
+      "ThreadControllerImpl::RunTask": {
+        "count": 447,
+        "maxWallMs": 14.605,
+        "maxThreadCpuMs": 14.365,
+        "totalThreadCpuMs": 35.20400000000003
+      }
+    },
+    {
+      "name": "market-cold",
+      "Layout": {
+        "count": 3,
+        "maxWallMs": 17.89,
+        "maxThreadCpuMs": 9.06,
+        "totalThreadCpuMs": 13.058
+      },
+      "UpdateLayoutTree": {
+        "count": 5,
+        "maxWallMs": 7.36,
+        "maxThreadCpuMs": 5.59,
+        "totalThreadCpuMs": 8.094999999999999
+      },
+      "Paint": {
+        "count": 33,
+        "maxWallMs": 2.285,
+        "maxThreadCpuMs": 1.518,
+        "totalThreadCpuMs": 4.656000000000001
+      },
+      "ThreadControllerImpl::RunTask": {
+        "count": 345,
+        "maxWallMs": 63.508,
+        "maxThreadCpuMs": 30.29,
+        "totalThreadCpuMs": 61.73299999999995
+      }
+    },
+    {
+      "name": "market-static",
+      "Layout": {
+        "count": 1,
+        "maxWallMs": 4.401,
+        "maxThreadCpuMs": 4.043,
+        "totalThreadCpuMs": 4.043
+      },
+      "UpdateLayoutTree": {
+        "count": 4,
+        "maxWallMs": 2.071,
+        "maxThreadCpuMs": 2.03,
+        "totalThreadCpuMs": 2.7889999999999997
+      },
+      "Paint": {
+        "count": 4,
+        "maxWallMs": 1.227,
+        "maxThreadCpuMs": 1.174,
+        "totalThreadCpuMs": 2.276
+      },
+      "ThreadControllerImpl::RunTask": {
+        "count": 158,
+        "maxWallMs": 16.158,
+        "maxThreadCpuMs": 13.224,
+        "totalThreadCpuMs": 22.696000000000026
+      }
+    }
+  ]
+}

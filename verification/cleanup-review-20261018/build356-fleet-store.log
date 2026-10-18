@@ -1,0 +1,106 @@
+{
+  "suite": "build356-fleet-store",
+  "passed": 10,
+  "total": 10,
+  "results": [
+    {
+      "name": "ingest -> materialize preserves every JSON value of real-shaped and adversarial assets",
+      "ok": true,
+      "detail": {
+        "length": 10,
+        "live": 10,
+        "capacity": 10,
+        "values": 18,
+        "freeValues": 0,
+        "extras": 4,
+        "columnBytes": 1280,
+        "bytesPerAsset": 128
+      }
+    },
+    {
+      "name": "materialized objects are independent copies of shared values",
+      "ok": true,
+      "detail": {
+        "independent": true
+      }
+    },
+    {
+      "name": "set/get follow plain-object semantics and re-intern only the written asset",
+      "ok": true,
+      "detail": {
+        "ok": true
+      }
+    },
+    {
+      "name": "removal marks rows dead: rows never move, live order is array order, lookups skip them",
+      "ok": true,
+      "detail": {
+        "length": 7
+      }
+    },
+    {
+      "name": "a failed transaction restores writes, adds, replacements, removals and mass column writes exactly",
+      "ok": true,
+      "detail": {
+        "live": 39
+      }
+    },
+    {
+      "name": "a full-snapshot transaction restores the records, and the store and its lookups keep working",
+      "ok": true,
+      "detail": {
+        "revision": 48,
+        "structure": 45
+      }
+    },
+    {
+      "name": "fuzz: 400 random transactions (one in three fails) always equal a plain reference model",
+      "ok": true,
+      "detail": {
+        "commits": 245,
+        "failures": 155,
+        "live": 417,
+        "maxRows": 445,
+        "values": 98
+      }
+    },
+    {
+      "name": "row compaction and value reclamation run only between transactions and keep every asset",
+      "ok": true,
+      "detail": {
+        "gc": {
+          "freed": 30,
+          "values": 40,
+          "free": 30
+        },
+        "compacted": {
+          "removed": 3,
+          "length": 27
+        }
+      }
+    },
+    {
+      "name": "dirty chunks track exactly the rows written since the last checkpoint",
+      "ok": true,
+      "detail": {
+        "chunks": 3
+      }
+    },
+    {
+      "name": "100k rows stay compact and index lookups are fast",
+      "ok": true,
+      "detail": {
+        "buildMs": 1125,
+        "lookupMs": 9,
+        "length": 100000,
+        "live": 100000,
+        "capacity": 100000,
+        "values": 8,
+        "freeValues": 0,
+        "extras": 0,
+        "columnBytes": 12800000,
+        "bytesPerAsset": 128
+      }
+    }
+  ]
+}

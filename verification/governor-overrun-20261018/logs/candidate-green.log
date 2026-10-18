@@ -1,0 +1,29 @@
+{
+  "suite": "governor-overrun-signal",
+  "passed": 5,
+  "scope": "simulation governor only; injected clock; synthetic stages; not an iPhone benchmark",
+  "results": [
+    {
+      "name": "live, deadline-bounded work",
+      "levelChanges": 0,
+      "simSeconds": 8983
+    },
+    {
+      "name": "calendar, deadline-bounded work",
+      "levelChanges": 0,
+      "frames": 73
+    },
+    {
+      "name": "indivisible overrun",
+      "sequence": "YELLOW>GREEN>YELLOW>GREEN"
+    },
+    {
+      "name": "indivisible finish",
+      "sequence": "ORANGE>YELLOW>GREEN"
+    },
+    {
+      "name": "calendar throttle",
+      "throttles": 1
+    }
+  ]
+}

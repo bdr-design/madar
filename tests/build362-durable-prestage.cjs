@@ -144,7 +144,8 @@ async function durableCommit(target){const previous=Number(target.saveRevision)|
   await test('executeDurable stages after apply, commits only after every check, and releases either way',async()=>{
     const {s:core}=harness(['transaction-core']),t=core.GH_TRANSACTION_CORE,log=[];let validationGate=null;
     core.GH_FLEET_DATA={size:()=>0};
-    core.GH_SAVE_SCHEMA={*validationSteps(draft){log.push('validate-start');let done=false;validationGate.then(()=>{done=true;});while(!done)yield 'fleet-validation-wait';log.push('validate-end');return {ok:!draft.invalid,errors:draft.invalid?['injected-invalid']:[]};}};
+    core.GH_FLEET_VALIDATION_PROVIDER=(_draft,_params,{beforeAsync}={})=>{beforeAsync?.();return validationGate;};
+    core.GH_SAVE_SCHEMA={*validationSteps(draft,options){let done=false;options.fleetValidation(draft,{}).then(()=>{done=true;});log.push('validate-start');while(!done)yield 'fleet-validation-wait';log.push('validate-end');return {ok:!draft.invalid,errors:draft.invalid?['injected-invalid']:[]};}};
     const prestage=draft=>{log.push(`prestage:${draft.changed===true}`);let finish;const settled=new Promise(resolve=>{finish=resolve;});setTimeout(()=>{log.push('prestage-settled');finish({ok:true,uploads:2,bytes:8,wallMs:3});},5);return {settled,release(){log.push('release');return settled;}};};
     const run=async invalid=>{log.length=0;let open;validationGate=new Promise(resolve=>{open=resolve;});setTimeout(open,15);
       return t.executeDurable(live,{yieldToHost:()=>Promise.resolve(),prestage,apply:draft=>{log.push('apply');draft.changed=true;if(invalid)draft.invalid=true;},persist:async()=>{log.push('persist');return {ok:true};}});};

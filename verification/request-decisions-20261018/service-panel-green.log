@@ -1,0 +1,119 @@
+{
+  "suite": "build434-service-panel-fleet-work",
+  "passed": 22,
+  "nonfleetQueries": 0,
+  "retainedFleetKinds": 4,
+  "dynamicCompanyInstances": true,
+  "results": [
+    {
+      "kind": "air",
+      "id": "air",
+      "fleetReads": 1
+    },
+    {
+      "kind": "air",
+      "id": "air-second",
+      "fleetReads": 1
+    },
+    {
+      "kind": "sea",
+      "id": "sea",
+      "fleetReads": 1
+    },
+    {
+      "kind": "sea",
+      "id": "sea-second",
+      "fleetReads": 1
+    },
+    {
+      "kind": "road",
+      "id": "road",
+      "fleetReads": 1
+    },
+    {
+      "kind": "road",
+      "id": "road-second",
+      "fleetReads": 1
+    },
+    {
+      "kind": "mobility",
+      "id": "mobility",
+      "fleetReads": 1
+    },
+    {
+      "kind": "mobility",
+      "id": "mobility-second",
+      "fleetReads": 1
+    },
+    {
+      "kind": "power",
+      "id": "power",
+      "fleetReads": 0
+    },
+    {
+      "kind": "power",
+      "id": "power-second",
+      "fleetReads": 0
+    },
+    {
+      "kind": "bank",
+      "id": "bank",
+      "fleetReads": 0
+    },
+    {
+      "kind": "bank",
+      "id": "bank-second",
+      "fleetReads": 0
+    },
+    {
+      "kind": "insurance",
+      "id": "insurance",
+      "fleetReads": 0
+    },
+    {
+      "kind": "insurance",
+      "id": "insurance-second",
+      "fleetReads": 0
+    },
+    {
+      "kind": "realestate",
+      "id": "realestate",
+      "fleetReads": 0
+    },
+    {
+      "kind": "realestate",
+      "id": "realestate-second",
+      "fleetReads": 0
+    },
+    {
+      "kind": "telecom",
+      "id": "telecom",
+      "fleetReads": 0
+    },
+    {
+      "kind": "telecom",
+      "id": "telecom-second",
+      "fleetReads": 0
+    },
+    {
+      "kind": "dealership",
+      "id": "dealership",
+      "fleetReads": 0
+    },
+    {
+      "kind": "dealership",
+      "id": "dealership-second",
+      "fleetReads": 0
+    },
+    {
+      "kind": "hospitality",
+      "id": "hospitality",
+      "fleetReads": 0
+    },
+    {
+      "kind": "hospitality",
+      "id": "hospitality-second",
+      "fleetReads": 0
+    }
+  ]
+}

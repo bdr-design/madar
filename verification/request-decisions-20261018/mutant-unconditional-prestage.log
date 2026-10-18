@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: ready fleet evidence must not serialize/prepare the same save twice
+
+true !== false
+
+    at /workspace/madar/tests/build435-conditional-prestage.cjs:18:20 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

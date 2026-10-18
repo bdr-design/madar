@@ -1,0 +1,4 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build483-large-panel-worker-browser","engine":"chromium","rows":4400,"openings":[{"panel":"controlPlane","ms":4.200000002980232},{"panel":"diagnostics","ms":12},{"panel":"routes","ms":10.699999995529652}],"scans":0,"healthRequests":2,"revisionAdvanced":true,"lockReleased":true,"physicalIphone":false}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build483-large-panel-worker-browser","engine":"webkit","rows":4400,"openings":[{"panel":"controlPlane","ms":5.999999999998181},{"panel":"diagnostics","ms":17},{"panel":"routes","ms":10}],"scans":0,"healthRequests":3,"revisionAdvanced":true,"lockReleased":true,"physicalIphone":false}

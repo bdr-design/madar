@@ -167,7 +167,7 @@
     const b=env.store.values[bindingRef];
     if(pair.rA===bindingRef&&pair.rAv===b&&pair.rArev===reverse)return pair.rAok;
     if(pair.rB===bindingRef&&pair.rBv===b&&pair.rBrev===reverse)return pair.rBok;
-    const ok=isObject(b)&&own(b,'load')&&own(b,'from')&&own(b,'to')&&Object.is(b.distanceKm,pair.distanceKm)&&Object.is(b.tripSeconds,pair.D)&&Object.is(b.effectiveSpeedKmh,pair.effectiveSpeedKmh)&&Object.is(b.dwellHours,pair.dwellHours)&&Object.is(b.from,reverse?pair.toName:pair.fromName)&&Object.is(b.to,reverse?pair.fromName:pair.toName);
+    const ok=isObject(b)&&own(b,'from')&&own(b,'to')&&Object.is(b.distanceKm,pair.distanceKm)&&Object.is(b.tripSeconds,pair.D)&&Object.is(b.effectiveSpeedKmh,pair.effectiveSpeedKmh)&&Object.is(b.dwellHours,pair.dwellHours)&&Object.is(b.from,reverse?pair.toName:pair.fromName)&&Object.is(b.to,reverse?pair.fromName:pair.toName);
     pair.rB=pair.rA;pair.rBv=pair.rAv;pair.rBrev=pair.rArev;pair.rBok=pair.rAok;
     pair.rA=bindingRef;pair.rAv=b;pair.rArev=reverse;pair.rAok=ok;
     return ok;
@@ -180,6 +180,8 @@
     if(hit===undefined||hit.inV!==b||V[hit.out]!==hit.outV){
       const cls=pair.cls,label=cls.label??(cls.label=CORE.loadLabel({specs:cls.profile.specs,type:cls.type})),next={};
       for(const field of Object.keys(b)){if(field==='from')next.from=reverse?pair.toName:pair.fromName;else if(field==='to')next.to=reverse?pair.fromName:pair.toName;else if(field==='load')next.load=label;else next[field]=b[field];}
+      // A first departure adds load after the existing binding fields, exactly as the general writer does.
+      if(!own(b,'load'))next.load=label;
       const out=STORE.intern(env.store,next);hit={inV:b,out,outV:V[out]};
       if(pair.departures===null)pair.departures=new Map();pair.departures.set(key,hit);
     }
@@ -367,6 +369,12 @@
     if(outcome==='departed')trace.departed++;else{trace.blocked++;trace.reasonCounts[reason]=(trace.reasonCounts[reason]||0)+1;}
     if(trace.samples.length<24)trace.samples.push({assetId:String(asset?.id||'').slice(0,100),type:String(asset?.type||mode).slice(0,40),mode,companyId:String(CORE.assetOwner(asset)||'').slice(0,80),routeId:String(asset?.routeId||'').slice(0,100),baseFacility:String(asset?.baseFacility||'').slice(0,100),phase:String(asset?.phase||''),outcome,reasonCode:outcome==='departed'?'departure-accepted':reason,simSeconds:Number(env.curT)||0});
   }
+  function noteFastDeparture(env,row,cls,routeId,baseFacility){
+    let trace=env.departureTrace;if(!trace)trace=env.departureTrace={attempts:0,departed:0,blocked:0,modeCounts:{},reasonCounts:{},samples:[]};
+    const mode=String(cls.mode||cls.type||'unknown');trace.attempts++;trace.departed++;trace.modeCounts[mode]=(trace.modeCounts[mode]||0)+1;
+    // Id derivation and the sample object serve only the retained samples, never every departure in the fleet.
+    if(trace.samples.length<24)trace.samples.push({assetId:String(STORE.peek(env.store,row,'id')||'').slice(0,100),type:String(cls.type||mode).slice(0,40),mode,companyId:String(cls.owner||'').slice(0,80),routeId:String(routeId||'').slice(0,100),baseFacility:String(baseFacility||'').slice(0,100),phase:'turnaround',outcome:'departed',reasonCode:'departure-accepted',simSeconds:Number(env.curT)||0});
+  }
   function departureTraceSummary(env){const t=env.departureTrace;if(!t)return null;return {attempts:t.attempts,departed:t.departed,blocked:t.blocked,modeCounts:t.modeCounts,reasonCounts:t.reasonCounts,samples:t.samples};}
   // Per-trip bookkeeping shared by both paths: the trip total, and per-row
   // alert records until the alert limit is exceeded.
@@ -411,14 +419,14 @@
   }
 
   // ------------------------------------------------------------ fast path ---
-  const NEED=B.routeId|B.baseFacility|B.phase|B.progress|B.fuel|B.condition|B.simCarrySeconds;
+  const NEED=B.routeId|B.baseFacility|B.phase|B.progress|B.fuel|B.condition;
   // Processes the event and returns the row's next event time (env.hint: the
   // pair of that next event), or NaN when the general path must handle it
   // (nothing has been written then). `hint` is the pair the queue entry names.
   function fastEvent(env,row,T,hint){
     const e=env.e,store=env.store,V=store.values,F=env.f64,W=env.u32,U=env.u8,f=row*FR,w=row*WR,u=row*SR,present=W[w+W_PRESENT],ph=env.phases;
     if(U[u+U_FLAGS]&EXTRAS){const extras=store.extras[row];if(extras&&(extras.simulationFault!==undefined||extras.salePending!==undefined||extras.companyId!==undefined||hotInExtras(extras)))return NaN;}
-    if((present&NEED)!==NEED||F[f+F_CARRY]!==0)return NaN;
+    if((present&NEED)!==NEED||((present&B.simCarrySeconds)&&F[f+F_CARRY]!==0))return NaN;
     const phaseRef=W[w+W_PHASE],routeRef=W[w+W_ROUTE],baseRef=W[w+W_BASE];
     if(routeRef===0||baseRef===0||(phaseRef!==ph.moving&&phaseRef!==ph.turnaround))return NaN;
     const cls=classOf(e,W[w+W_PROFILE]);if(!cls.fastOk)return NaN;
@@ -431,10 +439,10 @@
       if(!cls.staffingReady||!pair.contract)return NaN;
       const dwell0=Math.max(0,(present&B.dwellRemaining)?number(F[f+F_DWELL]):0);if(T<at+dwell0)return NaN;
       const nextReverse=pair.baseIsTo?1:0,binding=departureBinding(env,pair,bindingRef,nextReverse);
-      noteDeparture(env,'departed',{id:STORE.peek(store,row,'id'),type:cls.type,assetMode:cls.mode,ownerCompanyId:cls.owner,routeId:V[routeRef],baseFacility:V[baseRef],phase:'turnaround'});
-      env.touch(row);
+      noteFastDeparture(env,row,cls,V[routeRef],V[baseRef]);
+      env.touch(row);F[f+F_CARRY]=0;
       U[u+U_REVERSE]=nextReverse;W[w+W_PHASE]=ph.moving;F[f+F_PROGRESS]=0;F[f+F_DWELL]=0;F[f+F_FUEL]=100;U[u+U_CREW_BLOCKED]=0;U[u+U_DEP_SCHEDULED]=0;
-      W[w+W_PRESENT]=(present|B.reverse|B.dwellRemaining|B.crewBlocked|B.departureScheduled)&~B.departureScheduledAt;
+      W[w+W_PRESENT]=(present|B.simCarrySeconds|B.reverse|B.dwellRemaining|B.crewBlocked|B.departureScheduled)&~B.departureScheduledAt;
       W[w+W_BINDING]=binding;F[f+F_AT]=T;
       // Arrival: at + (1 - 0)·D, on this same pair.
       env.hint=pair.idx+1;return T+pair.D;
@@ -443,11 +451,11 @@
     const p0=clamp(F[f+F_PROGRESS],0,1);if(T<at+(1-p0)*pair.D)return NaN;
     const eco=pairEconomics(env,pair),delta=1-p0,dwell=pair.dwellSeconds+slotDelay((present&B.routeSlot)?env.i32[w+W_SLOT]:0,cls.mode);
     const baseNext=facilityRef(env,pair,!reverse);
-    env.touch(row);
+    env.touch(row);F[f+F_CARRY]=0;
     F[f+F_PROGRESS]=1;F[f+F_FUEL]=clamp(F[f+F_FUEL]-delta*cls.fr,4,100);F[f+F_CONDITION]=clamp(F[f+F_CONDITION]-delta*cls.cr,55,100);
     W[w+W_PHASE]=ph.turnaround;F[f+F_DWELL]=dwell;U[u+U_DEP_SCHEDULED]=1;F[f+F_DEP_AT]=Math.max(0,T)+dwell;
     W[w+W_BASE]=baseNext;W[w+W_LAST_TRIP]=pair.ecoRef;F[f+F_AT]=T;
-    W[w+W_PRESENT]=present|B.dwellRemaining|B.departureScheduled|B.departureScheduledAt|B.lastTrip;
+    W[w+W_PRESENT]=present|B.simCarrySeconds|B.dwellRemaining|B.departureScheduled|B.departureScheduledAt|B.lastTrip;
     if(pair.countCall!==env.call){pair.countCall=env.call;pair.count=0;env.touched.push(pair);}
     pair.count++;countTrip(env,row,eco,undefined);
     // The departure pair (same class and route, the arrival base) for the next event.

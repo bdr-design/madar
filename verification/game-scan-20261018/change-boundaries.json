@@ -1,0 +1,23 @@
+[
+  {
+    "file": "WebApp/app.js",
+    "beforeSha256": "b0ee8e06255c87cfbc2778120c47e81b2a89a25c07af7a50f3884056d5fa3fd8",
+    "afterSha256": "14e9a4c28c6385c021c196affe4d438acb7226dfa70d6de0cf07501411d6205f",
+    "namedDeclarationsChecked": 649,
+    "changedDeclarations": [
+      "fleetUiSummary",
+      "currentFleetUiSummary",
+      "requireFleetUiSummary",
+      "renderInvoices"
+    ]
+  },
+  {
+    "file": "WebApp/banking-core.js",
+    "beforeSha256": "9f6b63caef710f107f9af872c93ed93687b2ded0183983e278f0e92857861d2b",
+    "afterSha256": "9002f83e355639b3483ace0bf1aa44fbd5f15b6207ea447e02d911ce97b9aafd",
+    "namedDeclarationsChecked": 91,
+    "changedDeclarations": [
+      "migrateLegacyBranches"
+    ]
+  }
+]

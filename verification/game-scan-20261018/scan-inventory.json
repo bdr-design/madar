@@ -1,0 +1,536 @@
+{
+  "scope": "Syntax/AST scan and targeted call-path review, not proof that all reachable gameplay is free of defects.",
+  "source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+  "scanned": 132,
+  "failures": [],
+  "files": [
+    {
+      "file": "WebApp/advanced-core.js",
+      "sha256": "7a23153144f62d0f64c891e257dd470bd60f501ecb9201065fe89989468b66bb"
+    },
+    {
+      "file": "WebApp/air-sea-network-core.js",
+      "sha256": "632f9359a865f7d5e40545efee7aa1faf7451ab30f85eca407de8aa3213559fc"
+    },
+    {
+      "file": "WebApp/air-sea-network-worker.js",
+      "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
+    },
+    {
+      "file": "WebApp/app.js",
+      "sha256": "14e9a4c28c6385c021c196affe4d438acb7226dfa70d6de0cf07501411d6205f"
+    },
+    {
+      "file": "WebApp/arabic-copy-core.js",
+      "sha256": "55be89b2901fb7202785df3eec1bcd3cc32f7931ee0fbca11cee3a8de7f7dd1c"
+    },
+    {
+      "file": "WebApp/asset-purchase-apply-core.js",
+      "sha256": "cd6a56c762e98e4d8307a835c761c5da4802cd3c334790b7e1bef48af583e016"
+    },
+    {
+      "file": "WebApp/asset-purchase-domain-core.js",
+      "sha256": "922a9c1a84e2ab70916eb0ea4e14f917d82b2f86d5761753cae8fc173145fd82"
+    },
+    {
+      "file": "WebApp/asset-purchase-order-core.js",
+      "sha256": "b3590f7f7d8426bc82b399b73a7417d6e994f652ac15f9fb3d0ac9a88ba7851e"
+    },
+    {
+      "file": "WebApp/asset-purchase-plan-core.js",
+      "sha256": "e4d146a8f6c6b2a80ef80b4f6963f49c969276813b51b6980692cdbbc1cde2c9"
+    },
+    {
+      "file": "WebApp/authorization-core.js",
+      "sha256": "4ec0b1444e6e87caf428a269415c61925e48f65147d8438d3df6b8d2f76ba11a"
+    },
+    {
+      "file": "WebApp/banking-core.js",
+      "sha256": "9002f83e355639b3483ace0bf1aa44fbd5f15b6207ea447e02d911ce97b9aafd"
+    },
+    {
+      "file": "WebApp/branch-campaign-core.js",
+      "sha256": "8c64f7e151efbe04fb3d9b179258128e837fb6328fcbc465bfdcd1a4574da646"
+    },
+    {
+      "file": "WebApp/business-options-ui.js",
+      "sha256": "1b84d14765856e5c63a96a6d92a066ceeda1a78bd16f0525c3b565344c3a2c63"
+    },
+    {
+      "file": "WebApp/business-world-core.js",
+      "sha256": "ae61a3dda39e33df232f2fc8732a5a1116cbdbc8e2f632fe18b7de1cf34e73bf"
+    },
+    {
+      "file": "WebApp/capability-registry-core.js",
+      "sha256": "43373f11e8c8e3882c63fec0e0503a67b2afe3a79f32467b16f9b500668dd2f1"
+    },
+    {
+      "file": "WebApp/company-adapters-core.js",
+      "sha256": "b0974d9e2f8ca6aa3a429b487741a7ff79ffd0345367a74977dff669a4f1f374"
+    },
+    {
+      "file": "WebApp/company-definitions.js",
+      "sha256": "19d7bef79e8fc9c13f5af108022b153852d2e4f4f2bbe4a2939817ff2f8b85ed"
+    },
+    {
+      "file": "WebApp/company-platform-core.js",
+      "sha256": "b0080634f269a3a5bb77be66152d696445f5e9ec6dfb051b6eb6fbaabc2d2a57"
+    },
+    {
+      "file": "WebApp/company-revenue-chain-core.js",
+      "sha256": "5ea4f5b7e6b21a4fc77b871351c78df56dd06ec4a30b0c3c142f3e29b9a4dc78"
+    },
+    {
+      "file": "WebApp/conference-3d.js",
+      "sha256": "e1ab43535fe1e8e93791ce3407d5a4cf85a95b6c888daa11dd0055415e24f99f"
+    },
+    {
+      "file": "WebApp/conference-board.js",
+      "sha256": "854cbf20d180d01de281d206df5db0bcb8f988a64987815c43510a61827259b8"
+    },
+    {
+      "file": "WebApp/conference-core.js",
+      "sha256": "b312dc00bf36aa18c096475831b7bf873fe4499dff0c9fdc35d403aa8f16c2a3"
+    },
+    {
+      "file": "WebApp/conference-model.js",
+      "sha256": "878e131d57e07696101d11b1224e5540b51638f14714f4a406a27b8d36a35946"
+    },
+    {
+      "file": "WebApp/conference-world.js",
+      "sha256": "4b38c2f13f4897231b5fa6cf6c2f65454ade2f1bcd9bdce725192c578d41578c"
+    },
+    {
+      "file": "WebApp/contracts-core.js",
+      "sha256": "8ef4780c3aa0803c158bf77f2ce847854fb542e051c6a8bbf03c0a6eb6a36fba"
+    },
+    {
+      "file": "WebApp/control-plane-core.js",
+      "sha256": "ddf4c2de9ab5e937a83e47781ad3e05ef0a49e0cdf9fa8389419b27627e88481"
+    },
+    {
+      "file": "WebApp/corporate-core.js",
+      "sha256": "f377686631f8b44f859087b8616b695782236fd9594afb4e544ae794c448ca38"
+    },
+    {
+      "file": "WebApp/customer-base-core.js",
+      "sha256": "df39514ddc70cf4ecc7cd1ac5be61d188f84b9de9f4a8ca382234c88ef9145d1"
+    },
+    {
+      "file": "WebApp/customer-companies-core.js",
+      "sha256": "ca055a4203312717b5b611eb87d7c49dbab825265c1c7b6e731650ec59f623c6"
+    },
+    {
+      "file": "WebApp/dealer-market-core.js",
+      "sha256": "700b329796166692c2899d2828c8b0d858b2b0365a6f5c1fd59be568d7c32ec4"
+    },
+    {
+      "file": "WebApp/delivery-monitor-core.js",
+      "sha256": "3be6d32518e4c124c1fb6754392c6938fb7324baa791ed08fdced072b22b2aad"
+    },
+    {
+      "file": "WebApp/dependency-core.js",
+      "sha256": "3f14c2d85d64000c8df57a43234b90233f1911528c653916375a9e99b18ccf8f"
+    },
+    {
+      "file": "WebApp/determinism-core.js",
+      "sha256": "11650b4b91eebd66bf301e2f4682b07696618001760c7f7c074ff597f089469a"
+    },
+    {
+      "file": "WebApp/diagnostics-core.js",
+      "sha256": "a4b70dac0ccb8258a8de08d960afb75cdec966dea4a485cbd345018707767370"
+    },
+    {
+      "file": "WebApp/directory-core.js",
+      "sha256": "8b940f54740f3b0a3791609ebe10dbf18058f501f0b16486c9deda8ef37b7e3d"
+    },
+    {
+      "file": "WebApp/document-proof-core.js",
+      "sha256": "b330527c3e699bfba609a101d35346133f0f4887ed723071b414c0bcffc2ec4d"
+    },
+    {
+      "file": "WebApp/domain-command-core.js",
+      "sha256": "3b8cdd8af5f51edefc10913b36d7077706a94546e6be518d1cdf3238eda38647"
+    },
+    {
+      "file": "WebApp/economics-core.js",
+      "sha256": "8a687eb9b209f2b2de2121a900a5154cff8f427b14ba4d20d671db729be6abd8"
+    },
+    {
+      "file": "WebApp/energy-core.js",
+      "sha256": "25734bb8c1f82596bf3a265bff1ce00b44ad37c3adf3d9daf1b0f23a7feabe7c"
+    },
+    {
+      "file": "WebApp/event-ledger-core.js",
+      "sha256": "189418d5c0903f4d76984b8af51039861ac79701631af6460219297de45ed07a"
+    },
+    {
+      "file": "WebApp/facility-core.js",
+      "sha256": "48cafe826951c8547d518718b613f55d71bbf4da64e10c103b0d0c6547c9edfd"
+    },
+    {
+      "file": "WebApp/finance-core.js",
+      "sha256": "318484eece7c440e70b58888f329dca2b4001163b64bcb5d4e3f8ae21486b027"
+    },
+    {
+      "file": "WebApp/finance-presentation.js",
+      "sha256": "d8f4dac46da8d0ebc8022cfe81ecbcd794ea196f581d07df3912cface61cb67a"
+    },
+    {
+      "file": "WebApp/finance-report-core.js",
+      "sha256": "78008d63af38b670abede7918342ffeba8ad0cea539931ba1a6807dda85ec20c"
+    },
+    {
+      "file": "WebApp/finance-report-worker.js",
+      "sha256": "2185b66024aa817032cbe2dcdaf804178962f05a552cf1b2230deb3725cd6a6e"
+    },
+    {
+      "file": "WebApp/fleet-access-core.js",
+      "sha256": "a6a81898c5d16db4517347b74656757f96bce806f62d5bfdf4fdbd7ef6f4ae90"
+    },
+    {
+      "file": "WebApp/fleet-core.js",
+      "sha256": "50d4a4043a485e6909dd59ed596022cef9712f87e929df2a197a8e40b809b2cb"
+    },
+    {
+      "file": "WebApp/fleet-day-core.js",
+      "sha256": "d5dfbf652c00833499b5fcf34936fac01796a23c47bdc50201016f94707c8660"
+    },
+    {
+      "file": "WebApp/fleet-dispatch-core.js",
+      "sha256": "11e4d591056fa961920fb515df375780a8f77e7aa745fef817f888d4c60ecdb0"
+    },
+    {
+      "file": "WebApp/fleet-engine-thread.js",
+      "sha256": "b31b627065395fa48c2e7dd7dbdf2f11e1ec2ffe740780cbbb1dc23996e182dc"
+    },
+    {
+      "file": "WebApp/fleet-engine-worker.js",
+      "sha256": "8dfa355bdf27b3388617cd3383d526ec96ef17aeaa64a3399d77e0fb9750328e"
+    },
+    {
+      "file": "WebApp/fleet-event-core.js",
+      "sha256": "ddd0bb36df176def943982d4ff99b2301f890ccaaf1f94f8536bfdde913e98ac"
+    },
+    {
+      "file": "WebApp/fleet-global-route-query-core.js",
+      "sha256": "94f3fd129e840e51a9bc76fc19a9765a4ec692d939e3734957a5467a236daabb"
+    },
+    {
+      "file": "WebApp/fleet-health-core.js",
+      "sha256": "c42e5d0eeeaf04173ee9b1df808637978a6149e8a705018cba33f82f077ff112"
+    },
+    {
+      "file": "WebApp/fleet-legacy-route-plan-core.js",
+      "sha256": "2c9e2826181ae4f346ca5e6108de2eb38018b6ca55015feac97e68892eca94ae"
+    },
+    {
+      "file": "WebApp/fleet-list-query-core.js",
+      "sha256": "0478d264e2b6ccbf57057d52022ea59032f85333f331eff724d4d1e3d6046e90"
+    },
+    {
+      "file": "WebApp/fleet-list-virtualizer.js",
+      "sha256": "4a0f925a3831754664e8c584617dbd91fd6ea67a97341eaac78123b66d862be9"
+    },
+    {
+      "file": "WebApp/fleet-main-thread-policy-core.js",
+      "sha256": "729baf864aeb3ef270a7c035633f75498f6772f82c3a89f228aa631da04b986a"
+    },
+    {
+      "file": "WebApp/fleet-manual-departure-plan-core.js",
+      "sha256": "39824c957bca60aff07665f3a95ae9492e55362c77e7766c4960656e5a7262a8"
+    },
+    {
+      "file": "WebApp/fleet-query-core.js",
+      "sha256": "7bd1c13b1bf5adc862348fa203a46469ade5fba141b39c09bc8f7598293c2e2f"
+    },
+    {
+      "file": "WebApp/fleet-reference-query-core.js",
+      "sha256": "9f3964308a082bea87b52860c8cfc0121aca8f5d9a6c8803c53d5c4f42a5a34b"
+    },
+    {
+      "file": "WebApp/fleet-route-normalization-core.js",
+      "sha256": "26a9d4c6c51b0d4b51226af73bcacd4986d395f8e507c22c398717c660bb1703"
+    },
+    {
+      "file": "WebApp/fleet-sale-plan-core.js",
+      "sha256": "57b0ae2712ebb734f14b0faf91542e342d851af048ebe1774cad191a9cda8125"
+    },
+    {
+      "file": "WebApp/fleet-save-validation-core.js",
+      "sha256": "b4801e4deb28e46c1120fa6a30b6cf6e74db7ac677f9659ab07bb713700da8e5"
+    },
+    {
+      "file": "WebApp/fleet-staffing-reconcile-plan-core.js",
+      "sha256": "6e209dc37f9e6ff0fae3e42124eae439116caff0342efbb5254e5f3b129824f3"
+    },
+    {
+      "file": "WebApp/fleet-startup-normalization-core.js",
+      "sha256": "f172b2141a0837c36cfd01f2bb0509a8550d9d846332d7207605b37edaad7bc0"
+    },
+    {
+      "file": "WebApp/fleet-store-core.js",
+      "sha256": "30debea0d68d938ffb025d72efd132091a4f875d13a302c5cfff360fe9f2ef2d"
+    },
+    {
+      "file": "WebApp/fleet-ui-summary-core.js",
+      "sha256": "51bf57be5e737e0c34c81f7141bc3c64e57cf9e8c52557031a1bb5f367361155"
+    },
+    {
+      "file": "WebApp/formation-engine.js",
+      "sha256": "cf50425a9159c69e4856992990c772b945a92ee0636b73f2161339485f088459"
+    },
+    {
+      "file": "WebApp/game-lifecycle-core.js",
+      "sha256": "c04e4ea2c68c43188de8a4e10694080dedecbc11ef1a1abae3664f2c3012c50c"
+    },
+    {
+      "file": "WebApp/governance-core.js",
+      "sha256": "3889022c93a89ca29108c296c3730acde409f4a2a948d68352c9bde67503b3f6"
+    },
+    {
+      "file": "WebApp/hospitality-calendar-core.js",
+      "sha256": "57d8d28e3fa20f9b2003ad14e6d7712aef7779ddeaa31ccf4077197b93812e08"
+    },
+    {
+      "file": "WebApp/hospitality-core.js",
+      "sha256": "ee917d8217e3ffc7587f62bbcc5eb3daf3708300a6070eb0e93e55a6e7a90daf"
+    },
+    {
+      "file": "WebApp/hospitality-finance-core.js",
+      "sha256": "dbee5faa3f760f161529573ee15df611732546b660d27c70c9236e7c6515a280"
+    },
+    {
+      "file": "WebApp/hospitality-links-core.js",
+      "sha256": "4b5a80c968170dced1201b4eba211c4ca0ca15ef12ef4fb369b6a8e7f5387290"
+    },
+    {
+      "file": "WebApp/hospitality-ui.js",
+      "sha256": "22a920ae3b07620c2d9f30ec5261a73c660a0ccd1f5c44f37c9c54f06bf9121e"
+    },
+    {
+      "file": "WebApp/hr-core.js",
+      "sha256": "9a8e879d8e7ff0d5b2ae4d193a13df4c53abeb13141f1ea6b0dbea6600df2b75"
+    },
+    {
+      "file": "WebApp/identity-system.js",
+      "sha256": "848478faf7b2c52d333aa1c4c734685028a9e8d30b5570eca1c8ac0efcbdf6a7"
+    },
+    {
+      "file": "WebApp/insurance-core.js",
+      "sha256": "62b008bd240125653fb42ee8e60cdcc6233a6151bf8e221a2439f67490567f5a"
+    },
+    {
+      "file": "WebApp/integrity-core.js",
+      "sha256": "0c77e9200553d86423518100c65e11297d5165e77995bbc1d5153b66fdcb7717"
+    },
+    {
+      "file": "WebApp/interaction-core.js",
+      "sha256": "4fd054c2a2d9ce8f703df991ac4826873f1409e0beae622fd91e46b06f98aa75"
+    },
+    {
+      "file": "WebApp/interface-core.js",
+      "sha256": "74cf05550e92d6958fe8ccff36104e0eae0593a85fdc32d341cd0b3ae5267b10"
+    },
+    {
+      "file": "WebApp/lifecycle-core.js",
+      "sha256": "b1f725d30a28a6f8f4a66ce3b410c179cd84bdac83bc85117fe10810770a109a"
+    },
+    {
+      "file": "WebApp/madar-icons.js",
+      "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
+    },
+    {
+      "file": "WebApp/madar-shell.js",
+      "sha256": "1a9062a5c8d6076fbaf971804b628853a44943f0e981b9247d8d39ccc7a0d5a4"
+    },
+    {
+      "file": "WebApp/map-asset-query-core.js",
+      "sha256": "080b6873f3bd5754b10d415ae7312c783fd904706d84d7abace7ae8e7c253a92"
+    },
+    {
+      "file": "WebApp/map-asset-query-worker.js",
+      "sha256": "dfb3ff3a140a40e4a0961fd4a6f8ac291135606fecf4740044b41d6e424c7dc4"
+    },
+    {
+      "file": "WebApp/map-feature-core.js",
+      "sha256": "76d6743316e28a70a7e0581af325a69dec92dd83d8eb7fbb43a8e764403f5fbe"
+    },
+    {
+      "file": "WebApp/map-labels.js",
+      "sha256": "c569692bfe4014170fe0250debf3068056e5e4f5f7565de044365bff3f0ad8f2"
+    },
+    {
+      "file": "WebApp/map-layer-registry.js",
+      "sha256": "ccfc75ea172fd45dd43afd2ff9a28647ee02870bb373470365de625c69503d50"
+    },
+    {
+      "file": "WebApp/map-presentation-core.js",
+      "sha256": "a64645b296afaeedb308c75180d094316ef95581a5220caf69500d50d7ffcb10"
+    },
+    {
+      "file": "WebApp/map-presentation-worker.js",
+      "sha256": "8bd6daba72d70169773d0d0ce9e0d6e396d37a70e11347f6f887ac115639336e"
+    },
+    {
+      "file": "WebApp/map-provider-core.js",
+      "sha256": "290d8b5d2621ba725a848e9fff9970c22a83f59912468d556f5d94c832e4cfe3"
+    },
+    {
+      "file": "WebApp/map-proxy-core.js",
+      "sha256": "87d3765d8853d6fc00eed3901c10550e0cc73f5080425d54bc10c8b695900958"
+    },
+    {
+      "file": "WebApp/map-vehicle-canvas-core.js",
+      "sha256": "a600edd7f992247c11fe2674958440319ad95f2f39aa8c4eda052bfcaecb15cf"
+    },
+    {
+      "file": "WebApp/map-view-core.js",
+      "sha256": "56424623df0232109e3ac824e0f479c5d713f7f2db3ea4efc42f26fb1f6b891c"
+    },
+    {
+      "file": "WebApp/market-core.js",
+      "sha256": "94ce25b6a2625ef4087a8ec0af0e62fd8ffbdeeca4048d01269ad32c8d21b0bb"
+    },
+    {
+      "file": "WebApp/market-reference-core.js",
+      "sha256": "9adba5deb8974cf08e8ff00ef629b2eb2336393830f26d0524e46a94d86e675b"
+    },
+    {
+      "file": "WebApp/media-asset-core.js",
+      "sha256": "766809780c747b3a896cdb04764c42a5349ce857953c338e8e0b7a0aeffab0c5"
+    },
+    {
+      "file": "WebApp/migration-core.js",
+      "sha256": "52ef6f9acb276e4368500987304280654fab0f9f03b4fe5f9a74d0c885076bb2"
+    },
+    {
+      "file": "WebApp/mobility-core.js",
+      "sha256": "62aef941570c5980a81804b9b21c22819c087a47c19e55051ce1464900cdc961"
+    },
+    {
+      "file": "WebApp/operating-acquisition-core.js",
+      "sha256": "030892a505198ec16c40700d383ed82e2e54bc6c6d66052c5c919fd89f93c72b"
+    },
+    {
+      "file": "WebApp/operations-core.js",
+      "sha256": "b456a744f67a407c3ff66fa47b41a87fa5b7e5046898100f056db750c9190dcb"
+    },
+    {
+      "file": "WebApp/persistence-core.js",
+      "sha256": "d458510442de4c3661865477524a368043fd623d128e25dc2de0978b8cbf009e"
+    },
+    {
+      "file": "WebApp/policy-core.js",
+      "sha256": "c4533a1e53328a2ddbda2bd064974d44cbea90bc46745c97b794d4b85b70574e"
+    },
+    {
+      "file": "WebApp/procurement-core.js",
+      "sha256": "72f233e723044d978da586ea66ec9289aafe0d4ae9efb0459996a62d4b6efea4"
+    },
+    {
+      "file": "WebApp/proof-verification-worker.js",
+      "sha256": "850d0de575cc6e6b0e79166ed50bc1b8fed84735e180bf3026adafeb9f09f873"
+    },
+    {
+      "file": "WebApp/qr-core.js",
+      "sha256": "59ec1d2750f314d1236bbb890be3dd0154ff37768a748ae194548397b7b688a4"
+    },
+    {
+      "file": "WebApp/realestate-core.js",
+      "sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106"
+    },
+    {
+      "file": "WebApp/realism-core.js",
+      "sha256": "8e8163517daad405273e5a7059af6e3077b8b704b0cb6fe99adb2f2daf98d6e7"
+    },
+    {
+      "file": "WebApp/road-planner-worker-core.js",
+      "sha256": "1857feb12e2de1bf79f23c41fab4590770ce0a9431efedb5a541d73a032c67ff"
+    },
+    {
+      "file": "WebApp/road-planner-worker.js",
+      "sha256": "03e51074e618c3ccb6bb1cfc5ed83863ff22151a12a48723fce43f8a7622102e"
+    },
+    {
+      "file": "WebApp/road-planner.js",
+      "sha256": "fdff61dde387c1bd93513e813f95aa76518ad24b20d11041678dbcadfe220bda"
+    },
+    {
+      "file": "WebApp/route-core.js",
+      "sha256": "f57ffab1ac776ccaa527a4c42994c6cf082730ddcb180d8233ebab3aa1af1923"
+    },
+    {
+      "file": "WebApp/save-checksum-thread.js",
+      "sha256": "3a22484e719c537d12745bf915944228ae04b13438396a0a7553dd0b09c4276a"
+    },
+    {
+      "file": "WebApp/save-checksum-worker.js",
+      "sha256": "4d458e72c9df096e802652f3278bf8cdf72297819165421410e6b350f9ae6cf5"
+    },
+    {
+      "file": "WebApp/save-chunk-codec.js",
+      "sha256": "d5f57ae917b813275ac60f23e936f25d714f8ec3923b6429d83c7b706fc0a2b0"
+    },
+    {
+      "file": "WebApp/save-policy-core.js",
+      "sha256": "e2b6a8811273984167e035dbe9a9ddce9cef58970bb565c56a8370314df64a07"
+    },
+    {
+      "file": "WebApp/save-schema.js",
+      "sha256": "31b1e122f9f8a65f6966471ca370113021bb2ae160f81515d36ab0f684cd902a"
+    },
+    {
+      "file": "WebApp/signature-pad-core.js",
+      "sha256": "a232973e5a74617d48f52b20e0eb9ec2a96583bfb6741400641eb118eb705182"
+    },
+    {
+      "file": "WebApp/simulation-asset-core.js",
+      "sha256": "4522dbd90f1bcebd73923cc41e8f317146194b1af55ff3062f40c6ce602dce40"
+    },
+    {
+      "file": "WebApp/simulation-asset-worker.js",
+      "sha256": "0e3f6cece32b6c12432a0d4ec77926f812b0417e5c3a7c357604b659a2ff7ed8"
+    },
+    {
+      "file": "WebApp/simulation-core.js",
+      "sha256": "b1e2d027e598bca474453aa25a346ed4df97ef65dbb25edf77c561eb2006b0a2"
+    },
+    {
+      "file": "WebApp/simulation-pacing-core.js",
+      "sha256": "5485fd451db02ca304b593b1fdfd9248ac2c78cdfc2aa4f568f389e8aa28956b"
+    },
+    {
+      "file": "WebApp/simulation-runtime-core.js",
+      "sha256": "39152d4bf3efdba8528b617270def173b1a0ccc14df0d44b10c2171b224c24a7"
+    },
+    {
+      "file": "WebApp/simulation-time-core.js",
+      "sha256": "7fba65430a479155bf423b5adca04c620bff3948b3da2c1bdab09927aecf6c15"
+    },
+    {
+      "file": "WebApp/state-codec-core.js",
+      "sha256": "e8bb9c8c652919a21a64f9acfacc6aaa24699689b2777043f769f578e6d95be4"
+    },
+    {
+      "file": "WebApp/strategy-core.js",
+      "sha256": "edacf776f6832178ea0e7678e0180b9381b56a3d6aeb57fff33165e24df554d9"
+    },
+    {
+      "file": "WebApp/telecom-market-core.js",
+      "sha256": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec"
+    },
+    {
+      "file": "WebApp/transaction-core.js",
+      "sha256": "d20fc32a6620fc28b033bc724b084de212bea9aa0f1f350f834550795bf78f52"
+    },
+    {
+      "file": "WebApp/ui-quality-core.js",
+      "sha256": "c20472c3a1b4b91f3473b568843b6ad28b966fdf59e97e6cdb35151541ee1bdb"
+    },
+    {
+      "file": "WebApp/workflow-core.js",
+      "sha256": "8b2264771d6b993ca75f55d655c84d9b46ae0259f2c8c106ab587d00ebb6a564"
+    }
+  ]
+}

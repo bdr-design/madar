@@ -1,0 +1,4298 @@
+{
+  "source_tree_sha256": "a2d4029f606e63ca516d62bf35b56c6be8552a85b26902f750c8610661d5ad5f",
+  "scope": "Static nested array-call candidates across WebApp engine scripts. Candidates are not diagnosed defects; literals and bounded owner checks are included.",
+  "count": 613,
+  "findings": [
+    {
+      "f": "advanced-core.js",
+      "line": 57,
+      "fn": "",
+      "depth": 1,
+      "text": "['بانتظار الاعتماد','قيد الدراسة'].includes(initiative.status)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 113,
+      "fn": "sanitizeMarkup",
+      "depth": 2,
+      "text": "['srcdoc','formaction','xlink:href','srcset','poster','action','manifest'].includes(name)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 237,
+      "fn": "customerCompanyOperations",
+      "depth": 1,
+      "text": "(Array.isArray(supplier.brands)?supplier.brands:[]).slice(0,4).map(brand=>ctx.esc(brand))"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 237,
+      "fn": "customerCompanyOperations",
+      "depth": 1,
+      "text": "(Array.isArray(supplier.models)?supplier.models:[]).slice(0,4).map(model=>ctx.esc(typeof model==='object'?model.name:model))"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 238,
+      "fn": "customerCompanyOperations",
+      "depth": 1,
+      "text": "(oem.models||[]).slice(0,4).map(model=>({oem,model}))"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 288,
+      "fn": "bankBranchDesk",
+      "depth": 1,
+      "text": "['BB','B'].includes(q.riskGrade)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 313,
+      "fn": "powerPlantDesk",
+      "depth": 1,
+      "text": "['مجدولة','قيد التنفيذ'].includes(plan.status)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 343,
+      "fn": "renderInsuranceDeep",
+      "depth": 1,
+      "text": "core.PRICE_LEVELS.map(level=>`<option value=\"${level}\" ${Number(level)===Number(q.level)?'selected':''}>${ctx.esc(levelLabel(level))}</option>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 380,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "(project.leases||[]).filter(lease=>lease.tenantCompanyId)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 382,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "(project.leases||[]).filter(lease=>lease.tenantCompanyId)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 382,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "tenants.map(company=>`<option value=\"${ctx.esc(company.id)}\">${ctx.esc(company.identity?.shortName||company.identity?.legalName||company.id)}</option>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 383,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "[...new Set([.25,.5,1].map(share=>Math.max(1,Math.floor(free*share))))].map(units=>`<option value=\"${units}\">${ctx.fmtNumber(units)} وحدة${units===free?' · كل المتاح':''}</option>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 383,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "[.25,.5,1].map(share=>Math.max(1,Math.floor(free*share)))"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 383,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "core.PRICE_LEVELS.map(level=>`<option value=\"${level}\" ${Number(project.priceLevel)===Number(level)?'selected':''}>${ctx.esc(levelLabel(level))}</option>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 385,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "core.PRICE_LEVELS.map(level=>`<option value=\"${level}\" ${Number(level)===Number(project.priceLevel)?'selected':''}>${ctx.esc(levelLabel(level))}</option>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 390,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "q.modes.map(m=>m==='sale'?'بيع':'تأجير')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 390,
+      "fn": "renderRealEstateDeep",
+      "depth": 1,
+      "text": "q.modes.includes('sale')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 499,
+      "fn": "renderCompanies",
+      "depth": 1,
+      "text": "definition.capabilities.includes('finance.book')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 514,
+      "fn": "renderActionCenter",
+      "depth": 1,
+      "text": "tasks.filter(t=>t.domain===domain)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 516,
+      "fn": "renderActionCenter",
+      "depth": 1,
+      "text": "rows.map(row)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 527,
+      "fn": "renderGroupManagement",
+      "depth": 1,
+      "text": "definition?.capabilities.includes('operations.bank')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 527,
+      "fn": "renderGroupManagement",
+      "depth": 1,
+      "text": "definition?.capabilities.includes('operations.energy')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 535,
+      "fn": "renderTreasury",
+      "depth": 1,
+      "text": "company.definition.capabilities.includes('finance.book')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 573,
+      "fn": "renderEnergyDeep",
+      "depth": 1,
+      "text": "(energy.outages||[]).some(row=>row.siteId===site.id&&row.status==='نشط')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 573,
+      "fn": "renderEnergyDeep",
+      "depth": 1,
+      "text": "(energy.fuelContracts||[]).some(row=>row.siteId===site.id&&row.status==='ساري')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 587,
+      "fn": "renderEnergyDeep",
+      "depth": 1,
+      "text": "energy.maintenancePlans.find(plan=>plan.siteId===site.id&&['مجدولة','قيد التنفيذ'].includes(plan.status))"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 587,
+      "fn": "renderEnergyDeep",
+      "depth": 2,
+      "text": "['مجدولة','قيد التنفيذ'].includes(plan.status)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 588,
+      "fn": "renderEnergyDeep",
+      "depth": 1,
+      "text": "energy.fuelContracts.find(row=>row.id===site.fuelContractId&&row.status==='ساري')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 588,
+      "fn": "renderEnergyDeep",
+      "depth": 1,
+      "text": "[[.25,'ربع المتاح'],[.5,'نصف المتاح'],[1,'كامل المتاح']].map(([share,label])=>`<option value=\"${share}\">${label} · ${ctx.fmtMoney(room*share)}</option>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 602,
+      "fn": "renderBankDeep",
+      "depth": 1,
+      "text": "['BB','B'].includes(q.riskGrade)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 609,
+      "fn": "renderBankDeep",
+      "depth": 1,
+      "text": "serviceCatalog.map(service=>`<span class=\"tag positive\">✓ ${ctx.esc(service)}</span>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 655,
+      "fn": "renderBusinessWorld",
+      "depth": 1,
+      "text": "(company.segments||[]).filter(row=>Number(row.namedCustomers||0)+Number(row.marketCustomers||0)>0).map(row=>`${segmentNames[row.segment]||row.segment}: ${ctx.fmtNumber(Number(row.namedCustomers||0)+Number(row.marketCustomers||0))}`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 655,
+      "fn": "renderBusinessWorld",
+      "depth": 1,
+      "text": "(company.segments||[]).filter(row=>Number(row.namedCustomers||0)+Number(row.marketCustomers||0)>0)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 656,
+      "fn": "renderBusinessWorld",
+      "depth": 1,
+      "text": "x.contracts.filter(o=>o.status==='نشط')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 662,
+      "fn": "renderBusinessWorld",
+      "depth": 1,
+      "text": "o.sectors.filter(x=>opened.includes(x))"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 662,
+      "fn": "renderBusinessWorld",
+      "depth": 2,
+      "text": "opened.includes(x)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 662,
+      "fn": "renderBusinessWorld",
+      "depth": 1,
+      "text": "eligible.map(x=>`<option value=\"${ctx.esc(x)}\">${ctx.esc(companyName(x))}</option>`)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 665,
+      "fn": "renderBusinessWorld",
+      "depth": 1,
+      "text": "(p.sectors||[]).map(ctx.typeName)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 725,
+      "fn": "renderLabor",
+      "depth": 1,
+      "text": "instance.definition.capabilities.includes('hr.management')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 976,
+      "fn": "handleAction",
+      "depth": 1,
+      "text": "companyInstances(s,true).filter(company=>company.definition.capabilities.includes('finance.book')).map(company=>company.id)"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 976,
+      "fn": "handleAction",
+      "depth": 1,
+      "text": "companyInstances(s,true).filter(company=>company.definition.capabilities.includes('finance.book'))"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 976,
+      "fn": "handleAction",
+      "depth": 2,
+      "text": "company.definition.capabilities.includes('finance.book')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 977,
+      "fn": "handleAction",
+      "depth": 1,
+      "text": "company.definition.capabilities.includes('finance.book')"
+    },
+    {
+      "f": "advanced-core.js",
+      "line": 1193,
+      "fn": "onFinancialDayStages",
+      "depth": 1,
+      "text": "Object.values(binding.engines).find(engine=>typeof engine.onFinancialDayStages==='function'||typeof engine.onFinancialDay==='function')"
+    },
+    {
+      "f": "air-sea-network-core.js",
+      "line": 24,
+      "fn": "createPlanner",
+      "depth": 1,
+      "text": "row.routeIds.filter(id=>routeById.has(id))"
+    },
+    {
+      "f": "air-sea-network-core.js",
+      "line": 103,
+      "fn": "validateDestinationPlan",
+      "depth": 1,
+      "text": "['direct','reuse','sectorUse','bandUse'].some(key=>!Number.isFinite(Number(row[key]))||Math.abs(Number(row[key])-expected[key])>1e-7)"
+    },
+    {
+      "f": "app.js",
+      "line": 563,
+      "fn": "",
+      "depth": 1,
+      "text": "(row.companyIds||[]).includes('*')"
+    },
+    {
+      "f": "app.js",
+      "line": 563,
+      "fn": "",
+      "depth": 1,
+      "text": "(row.scopes||[]).includes('*')"
+    },
+    {
+      "f": "app.js",
+      "line": 632,
+      "fn": "uniqueOperationalCompanyForCapability",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes(capability)"
+    },
+    {
+      "f": "app.js",
+      "line": 641,
+      "fn": "resolveOperationalCompanyForSector",
+      "depth": 1,
+      "text": "(company.definition?.classification?.sectorIds||[]).includes(sector)"
+    },
+    {
+      "f": "app.js",
+      "line": 651,
+      "fn": "routingCompanyIds",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes('operations.mobility')"
+    },
+    {
+      "f": "app.js",
+      "line": 655,
+      "fn": "routeCompanyFromInput",
+      "depth": 1,
+      "text": "companyRouteModes(companyId,target).includes(expectedMode)"
+    },
+    {
+      "f": "app.js",
+      "line": 655,
+      "fn": "routeCompanyFromInput",
+      "depth": 1,
+      "text": "companyRouteModes(companyId,target).includes(value)"
+    },
+    {
+      "f": "app.js",
+      "line": 711,
+      "fn": "",
+      "depth": 1,
+      "text": "state.acceptedContracts?.includes(x.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 711,
+      "fn": "",
+      "depth": 1,
+      "text": "state.failedBids?.includes(x.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 755,
+      "fn": "",
+      "depth": 1,
+      "text": "Object.keys(patch).some(key=>row[key]!==patch[key])"
+    },
+    {
+      "f": "app.js",
+      "line": 760,
+      "fn": "",
+      "depth": 1,
+      "text": "state.finance.periods.some(p=>(p.company||'group')===type&&p.status==='مستحق')"
+    },
+    {
+      "f": "app.js",
+      "line": 1143,
+      "fn": "runDurableStateCommand",
+      "depth": 1,
+      "text": "['air','sea','road'].includes(value)"
+    },
+    {
+      "f": "app.js",
+      "line": 1143,
+      "fn": "runDurableStateCommand",
+      "depth": 1,
+      "text": "reason.includes(prefix)"
+    },
+    {
+      "f": "app.js",
+      "line": 1166,
+      "fn": "founderAuthorization",
+      "depth": 1,
+      "text": "(row.companyIds||[]).includes('*')"
+    },
+    {
+      "f": "app.js",
+      "line": 1166,
+      "fn": "founderAuthorization",
+      "depth": 1,
+      "text": "(row.scopes||[]).includes('*')"
+    },
+    {
+      "f": "app.js",
+      "line": 1259,
+      "fn": "runAuthorizedCompositeCommand",
+      "depth": 1,
+      "text": "['air','sea','road'].includes(value)"
+    },
+    {
+      "f": "app.js",
+      "line": 1808,
+      "fn": "",
+      "depth": 1,
+      "text": "placed.some(b=>box.x<b.x+b.w+8&&box.x+box.w+8>b.x&&box.y<b.y+b.h+4&&box.y+box.h+4>b.y)"
+    },
+    {
+      "f": "app.js",
+      "line": 1829,
+      "fn": "dynamicFacilitiesFor",
+      "depth": 1,
+      "text": "expansionSites.find(x=>x.id===id)"
+    },
+    {
+      "f": "app.js",
+      "line": 1964,
+      "fn": "chooseDiverseWorldDestination",
+      "depth": 1,
+      "text": "ledger.coords.map(point=>[...point])"
+    },
+    {
+      "f": "app.js",
+      "line": 2163,
+      "fn": "dispatchSharedInternationalNetwork",
+      "depth": 1,
+      "text": "['air','sea'].includes(mode)"
+    },
+    {
+      "f": "app.js",
+      "line": 2234,
+      "fn": "",
+      "depth": 1,
+      "text": "originRoutes.find(row=>row.originId===group.origin.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 2239,
+      "fn": "",
+      "depth": 2,
+      "text": "[...openedHere,...originRouteIds.map(id=>registeredRouteById.get(id))].filter(route=>route&&(routeLoads.get(route.id)||0)+members.length<=window.GH_ROUTE_CORE.LIMITS.fleetCapacity&&members.every(asset=>routeFitsAsset(asset,route)))"
+    },
+    {
+      "f": "app.js",
+      "line": 2239,
+      "fn": "",
+      "depth": 2,
+      "text": "originRouteIds.map(id=>registeredRouteById.get(id))"
+    },
+    {
+      "f": "app.js",
+      "line": 2272,
+      "fn": "dispatchInternationalNetwork",
+      "depth": 1,
+      "text": "['air','sea'].includes(value)"
+    },
+    {
+      "f": "app.js",
+      "line": 2436,
+      "fn": "renderWorldInfrastructureMarkers",
+      "depth": 1,
+      "text": "group.members.map(member=>member.kind)"
+    },
+    {
+      "f": "app.js",
+      "line": 2605,
+      "fn": "mapOwnedFacilities",
+      "depth": 1,
+      "text": "['airport','airport-base'].includes(f.kind)"
+    },
+    {
+      "f": "app.js",
+      "line": 2605,
+      "fn": "mapOwnedFacilities",
+      "depth": 1,
+      "text": "['port','port-base'].includes(f.kind)"
+    },
+    {
+      "f": "app.js",
+      "line": 2674,
+      "fn": "renderMap",
+      "depth": 1,
+      "text": "filterState.companies.included.some(companyId=>COMPANY_PLATFORM.getRouteModes(companyId).includes(a.type))"
+    },
+    {
+      "f": "app.js",
+      "line": 2674,
+      "fn": "renderMap",
+      "depth": 2,
+      "text": "COMPANY_PLATFORM.getRouteModes(companyId).includes(a.type)"
+    },
+    {
+      "f": "app.js",
+      "line": 3186,
+      "fn": "monthlyPayrollSnapshot",
+      "depth": 1,
+      "text": "companyIds.filter(companyId=>companyHasCapability(state,companyId,'operations.fleet'))"
+    },
+    {
+      "f": "app.js",
+      "line": 3210,
+      "fn": "issueContractExpiryNotices",
+      "depth": 1,
+      "text": "[90,30,7].includes(remaining)"
+    },
+    {
+      "f": "app.js",
+      "line": 3226,
+      "fn": "financialDayStages",
+      "depth": 2,
+      "text": "state.finance.cheques.filter(c=>c.status==='صادر'&&c.dueDay<=state.lastFinancialDay)"
+    },
+    {
+      "f": "app.js",
+      "line": 3238,
+      "fn": "financialDayStages",
+      "depth": 2,
+      "text": "[tripProfit,tripRevenue,tripFuel,tripMaintenance,tripCount,tripCash].some(bucket=>Math.abs(Number(bucket?.[companyId])||0)>.005)"
+    },
+    {
+      "f": "app.js",
+      "line": 3253,
+      "fn": "financialDayStages",
+      "depth": 2,
+      "text": "contracts.find(x=>x.id===id)"
+    },
+    {
+      "f": "app.js",
+      "line": 3253,
+      "fn": "financialDayStages",
+      "depth": 2,
+      "text": "contracts.find(x=>x.id===id)"
+    },
+    {
+      "f": "app.js",
+      "line": 3278,
+      "fn": "financialDayStages",
+      "depth": 1,
+      "text": "(state.energy?.dailyHistory||[]).find(row=>Number(row.day)===Number(state.lastFinancialDay))"
+    },
+    {
+      "f": "app.js",
+      "line": 3284,
+      "fn": "financialDayStages",
+      "depth": 1,
+      "text": "companyIds.map(companyId=>[companyId,(Number(operatingRevenue[companyId])||0)-(Number(operatingExpense[companyId])||0)])"
+    },
+    {
+      "f": "app.js",
+      "line": 3309,
+      "fn": "financialDayStages",
+      "depth": 1,
+      "text": "companyIds.map(companyId=>[companyId,(Number(tripProfit[companyId])||0)+(Number(daily[companyId])||0)])"
+    },
+    {
+      "f": "app.js",
+      "line": 3329,
+      "fn": "financialDayStages",
+      "depth": 1,
+      "text": "[...companyIds,'group'].map(company=>payrollPlan[company]).filter(row=>row&&row.amount>0)"
+    },
+    {
+      "f": "app.js",
+      "line": 3329,
+      "fn": "financialDayStages",
+      "depth": 1,
+      "text": "[...companyIds,'group'].map(company=>payrollPlan[company])"
+    },
+    {
+      "f": "app.js",
+      "line": 3429,
+      "fn": "compactSimulationState",
+      "depth": 1,
+      "text": "book.ledger.some(row=>(Number(row?.at)||0)<detailCutoff)"
+    },
+    {
+      "f": "app.js",
+      "line": 3565,
+      "fn": "",
+      "depth": 1,
+      "text": "base.filter(row=>!gone.has(row))"
+    },
+    {
+      "f": "app.js",
+      "line": 3601,
+      "fn": "queueMaintenance",
+      "depth": 1,
+      "text": "maintenanceQueue.some(entry=>entry.task===task)"
+    },
+    {
+      "f": "app.js",
+      "line": 4049,
+      "fn": "",
+      "depth": 1,
+      "text": "(state.customRoutes||[]).some(route=>route.id===routeId)"
+    },
+    {
+      "f": "app.js",
+      "line": 4137,
+      "fn": "",
+      "depth": 1,
+      "text": "(state.customRoutes||[]).some(route=>route.id===routeId)"
+    },
+    {
+      "f": "app.js",
+      "line": 4177,
+      "fn": "requiresGlobalHalt",
+      "depth": 1,
+      "text": "GLOBAL_HALT_IDS.some(id=>String(issue.id||issue.code||'').startsWith(id))"
+    },
+    {
+      "f": "app.js",
+      "line": 4478,
+      "fn": "worldEntityCompanyCandidates",
+      "depth": 1,
+      "text": "company.providers.includes(provider)"
+    },
+    {
+      "f": "app.js",
+      "line": 4588,
+      "fn": "openFacilitiesByScope",
+      "depth": 1,
+      "text": "plan.items.filter(row=>row.company===company)"
+    },
+    {
+      "f": "app.js",
+      "line": 4603,
+      "fn": "worldSearchFieldIncludes",
+      "depth": 1,
+      "text": "normalizeSearch(text).includes(query)"
+    },
+    {
+      "f": "app.js",
+      "line": 4785,
+      "fn": "",
+      "depth": 1,
+      "text": "settled.some(row=>row?.committed===true)"
+    },
+    {
+      "f": "app.js",
+      "line": 4871,
+      "fn": "renderContracts",
+      "depth": 1,
+      "text": "state.acceptedContracts.includes(c.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 4872,
+      "fn": "renderContracts",
+      "depth": 1,
+      "text": "state.acceptedContracts.includes(c.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 4876,
+      "fn": "renderContracts",
+      "depth": 1,
+      "text": "(x.bids||[]).map(b=>`${esc(b.supplier)} (${fmtMoney(b.quote)})`)"
+    },
+    {
+      "f": "app.js",
+      "line": 4876,
+      "fn": "renderContracts",
+      "depth": 1,
+      "text": "eligible.map(companyId=>`<option value=\"${esc(companyId)}\">${esc(companyFinanceName(companyId))}</option>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 4886,
+      "fn": "portfolioValue",
+      "depth": 1,
+      "text": "state.market.find(s=>s.sym===sym)"
+    },
+    {
+      "f": "app.js",
+      "line": 4887,
+      "fn": "portfolioCost",
+      "depth": 1,
+      "text": "state.market.find(s=>s.sym===sym)"
+    },
+    {
+      "f": "app.js",
+      "line": 4903,
+      "fn": "renderMarketPrices",
+      "depth": 1,
+      "text": "history.slice(-90).map(row=>at(row,column))"
+    },
+    {
+      "f": "app.js",
+      "line": 4907,
+      "fn": "renderMarketPrices",
+      "depth": 1,
+      "text": "realism.markets.hedges.find(h=>h.company===company.id&&h.fuel===fuel&&h.status==='ساري'&&today>=h.startDay&&today<h.endDay)"
+    },
+    {
+      "f": "app.js",
+      "line": 4909,
+      "fn": "renderMarketPrices",
+      "depth": 1,
+      "text": "MARKET.HEDGE_MONTHS.map(months=>`<option value=\"${months}\">${months} أشهر · \\u2066${marketPrice(MARKET.hedgeQuote(state,fuel,months),unit,digits)}\\u2069</option>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 4909,
+      "fn": "renderMarketPrices",
+      "depth": 1,
+      "text": "MARKET.HEDGE_SHARES.map(share=>`<option value=\"${share}\"${share===.5?' selected':''}>${Math.round(share*100)}%</option>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 4918,
+      "fn": "renderDeals",
+      "depth": 1,
+      "text": "(state.maPortfolio||[]).find(row=>row.id===c.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 4919,
+      "fn": "renderDeals",
+      "depth": 1,
+      "text": "M.STAKE_TARGETS.filter(target=>target>stake)"
+    },
+    {
+      "f": "app.js",
+      "line": 4946,
+      "fn": "renderBudgets",
+      "depth": 1,
+      "text": "rows.indexOf(value)"
+    },
+    {
+      "f": "app.js",
+      "line": 4957,
+      "fn": "renderMaintenance",
+      "depth": 1,
+      "text": "(state.realism?.incidents||[]).filter(row=>row.company===company.id&&day-row.day<30)"
+    },
+    {
+      "f": "app.js",
+      "line": 4957,
+      "fn": "renderMaintenance",
+      "depth": 1,
+      "text": "(state.realism?.inspections||[]).find(row=>row.company===company.id&&day-row.day<30)"
+    },
+    {
+      "f": "app.js",
+      "line": 4958,
+      "fn": "renderMaintenance",
+      "depth": 1,
+      "text": "Object.entries(MAINTENANCE_COPY).map(([id,[label,copy]])=>`<option value=\"${id}\"${id===policy?' selected':''}>${label} · ${copy}</option>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 4958,
+      "fn": "renderMaintenance",
+      "depth": 1,
+      "text": "Object.entries(INSURANCE_COPY).map(([id,label])=>`<option value=\"${id}\"${id===cover?' selected':''}>${label}</option>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 4969,
+      "fn": "renderCrews",
+      "depth": 1,
+      "text": "HR.SALARY_LEVELS.map(level=>`<option value=\"${level}\"${Math.abs(level-index)<1e-9?' selected':''}>${(level*100).toFixed(0)}% من الأساس · ${((level/wage)*100).toFixed(0)}% من السوق</option>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 5076,
+      "fn": "assetMarketCatalogs",
+      "depth": 1,
+      "text": "Object.values(binding.engines).some(engine=>typeof engine.purchaseCatalogs==='function')"
+    },
+    {
+      "f": "app.js",
+      "line": 5080,
+      "fn": "assetMarketCatalogs",
+      "depth": 2,
+      "text": "supportedModes.includes(row?.mode)"
+    },
+    {
+      "f": "app.js",
+      "line": 5080,
+      "fn": "assetMarketCatalogs",
+      "depth": 2,
+      "text": "company.definition.classification.assetClasses.includes(row?.assetClass)"
+    },
+    {
+      "f": "app.js",
+      "line": 5092,
+      "fn": "assetMarketModeFor",
+      "depth": 1,
+      "text": "catalog.companies.some(company=>company.id===value)"
+    },
+    {
+      "f": "app.js",
+      "line": 5146,
+      "fn": "assetComparePanel",
+      "depth": 1,
+      "text": "items.find(x=>x.id===id)"
+    },
+    {
+      "f": "app.js",
+      "line": 5150,
+      "fn": "renderMobilityMarketBody",
+      "depth": 1,
+      "text": "mobilityCompanies.includes(companyOfFacility(f))"
+    },
+    {
+      "f": "app.js",
+      "line": 5163,
+      "fn": "renderAssetMarketBody",
+      "depth": 1,
+      "text": "normalizeSearch(`${a.name} ${a.segment} ${a.description}`).includes(q)"
+    },
+    {
+      "f": "app.js",
+      "line": 5168,
+      "fn": "renderAssetMarketBody",
+      "depth": 1,
+      "text": "marketCompare.includes(a.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 5168,
+      "fn": "renderAssetMarketBody",
+      "depth": 1,
+      "text": "marketCompare.includes(a.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 5169,
+      "fn": "renderAssetMarketBody",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes('operations.mobility')"
+    },
+    {
+      "f": "app.js",
+      "line": 5169,
+      "fn": "renderAssetMarketBody",
+      "depth": 1,
+      "text": "(company.definition?.classification?.routeModes||[]).includes(activeType)"
+    },
+    {
+      "f": "app.js",
+      "line": 5247,
+      "fn": "renderOwnedAssets",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes('operations.fleet')"
+    },
+    {
+      "f": "app.js",
+      "line": 5247,
+      "fn": "renderOwnedAssets",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes('operations.mobility')"
+    },
+    {
+      "f": "app.js",
+      "line": 5251,
+      "fn": "renderOwnedAssets",
+      "depth": 1,
+      "text": "(company.definition?.classification?.routeModes||[]).includes(arg)"
+    },
+    {
+      "f": "app.js",
+      "line": 5251,
+      "fn": "renderOwnedAssets",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes('operations.mobility')"
+    },
+    {
+      "f": "app.js",
+      "line": 5269,
+      "fn": "renderOwnedAssets",
+      "depth": 1,
+      "text": "normalizeSearch(`${vehicle.name} ${vehicle.model} ${vehicle.assetClass} ${vehicle.baseLocation}`).includes(q)"
+    },
+    {
+      "f": "app.js",
+      "line": 5323,
+      "fn": "renderFacilitiesHub",
+      "depth": 1,
+      "text": "allOwned.filter(row=>companyOfFacility(row)===id)"
+    },
+    {
+      "f": "app.js",
+      "line": 5326,
+      "fn": "renderFacilitiesHub",
+      "depth": 1,
+      "text": "state.branches.includes(site.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 5371,
+      "fn": "normalizeLegacyRouteAssignments",
+      "depth": 1,
+      "text": "groups.find(row=>{const other=routeTemplates[row[0]];return other&&(window.GH_ROUTE_CORE.signature(other)===signature||window.GH_ROUTE_CORE.corridorMetrics(other,route).duplicate);})"
+    },
+    {
+      "f": "app.js",
+      "line": 5379,
+      "fn": "normalizeLegacyRouteAssignments",
+      "depth": 1,
+      "text": "rows.find(row=>row.phase==='moving')"
+    },
+    {
+      "f": "app.js",
+      "line": 5394,
+      "fn": "roadFacilityOptions",
+      "depth": 1,
+      "text": "['depot','logistics'].includes(f.kind)"
+    },
+    {
+      "f": "app.js",
+      "line": 5499,
+      "fn": "renderRouteCenter",
+      "depth": 1,
+      "text": "['air','sea','road'].includes(mode)"
+    },
+    {
+      "f": "app.js",
+      "line": 5504,
+      "fn": "renderRouteCenter",
+      "depth": 1,
+      "text": "normalizeSearch(`${r.name} ${r.from} ${r.to} ${r.routingSource||''}`).includes(routeNeedle)"
+    },
+    {
+      "f": "app.js",
+      "line": 5516,
+      "fn": "renderRouteCenter",
+      "depth": 1,
+      "text": "assignable.map(asset=>`<option value=\"${esc(asset.id)}\">${esc(asset.name)}</option>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 5555,
+      "fn": "renderFinance",
+      "depth": 1,
+      "text": "rows.indexOf(value)"
+    },
+    {
+      "f": "app.js",
+      "line": 5556,
+      "fn": "",
+      "depth": 1,
+      "text": "['مسددة','محصلة','مدفوعة'].includes(x.status)"
+    },
+    {
+      "f": "app.js",
+      "line": 5574,
+      "fn": "accountOwnerLabel",
+      "depth": 1,
+      "text": "(b.accounts||[]).some(x=>x.id===accountId)"
+    },
+    {
+      "f": "app.js",
+      "line": 5575,
+      "fn": "companyKeyForAccount",
+      "depth": 1,
+      "text": "(b.accounts||[]).some(x=>x.id===accountId)"
+    },
+    {
+      "f": "app.js",
+      "line": 5580,
+      "fn": "legalPartyRecord",
+      "depth": 1,
+      "text": "[p.name,p.legalName].filter(Boolean).includes(key)"
+    },
+    {
+      "f": "app.js",
+      "line": 5580,
+      "fn": "legalPartyRecord",
+      "depth": 1,
+      "text": "[p.name,p.legalName].filter(Boolean)"
+    },
+    {
+      "f": "app.js",
+      "line": 5651,
+      "fn": "chequeArt",
+      "depth": 1,
+      "text": "[...part].map(ch=>`<i>${ch}</i>`)"
+    },
+    {
+      "f": "app.js",
+      "line": 5753,
+      "fn": "renderProfitFlow",
+      "depth": 1,
+      "text": "a.indexOf(v)"
+    },
+    {
+      "f": "app.js",
+      "line": 5753,
+      "fn": "renderProfitFlow",
+      "depth": 1,
+      "text": "[x.purposeCategory,x.purposeDetail,x.note,x.label].filter(Boolean)"
+    },
+    {
+      "f": "app.js",
+      "line": 5753,
+      "fn": "renderProfitFlow",
+      "depth": 1,
+      "text": "['revenue-collection','daily-operating-settlement','intercompany-interest','intercompany-energy'].includes(kind)"
+    },
+    {
+      "f": "app.js",
+      "line": 5753,
+      "fn": "renderProfitFlow",
+      "depth": 1,
+      "text": "arrivals.filter(x=>(x.beneficiaryCompany||x.company)===type)"
+    },
+    {
+      "f": "app.js",
+      "line": 5753,
+      "fn": "renderProfitFlow",
+      "depth": 1,
+      "text": "arrivals.filter(x=>(x.beneficiaryCompany||x.company)===type)"
+    },
+    {
+      "f": "app.js",
+      "line": 5772,
+      "fn": "renderInvoices",
+      "depth": 1,
+      "text": "(report.lines||[]).some(line=>line.company===validCompany)"
+    },
+    {
+      "f": "app.js",
+      "line": 5792,
+      "fn": "renderInvoices",
+      "depth": 1,
+      "text": "(state.finance.cheques||[]).find(ch=>ch.invoiceNumber===x.number&&ch.status==='صادر')"
+    },
+    {
+      "f": "app.js",
+      "line": 5793,
+      "fn": "renderInvoices",
+      "depth": 1,
+      "text": "a.indexOf(v)"
+    },
+    {
+      "f": "app.js",
+      "line": 5793,
+      "fn": "renderInvoices",
+      "depth": 1,
+      "text": "periods.filter(x=>(x.company||'group')===type&&x.status==='مستحق')"
+    },
+    {
+      "f": "app.js",
+      "line": 5797,
+      "fn": "renderInvoices",
+      "depth": 1,
+      "text": "a.indexOf(v)"
+    },
+    {
+      "f": "app.js",
+      "line": 5975,
+      "fn": "eligibleContractCompanyIds",
+      "depth": 1,
+      "text": "(company.definition?.classification?.sectorIds||[]).includes(contract.sector)"
+    },
+    {
+      "f": "app.js",
+      "line": 5976,
+      "fn": "eligibleContractCompanyIds",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes('operations.fleet')"
+    },
+    {
+      "f": "app.js",
+      "line": 5977,
+      "fn": "eligibleContractCompanyIds",
+      "depth": 1,
+      "text": "company.definition?.capabilities?.includes('operations.mobility')"
+    },
+    {
+      "f": "app.js",
+      "line": 5978,
+      "fn": "eligibleContractCompanyIds",
+      "depth": 1,
+      "text": "dynamicFacilitiesFor(target).some(facility=>facility.owned&&facilityOwnerCompanyId(facility)===company.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 6034,
+      "fn": "",
+      "depth": 1,
+      "text": "draft.openedCompanies.includes(plan.companyId)"
+    },
+    {
+      "f": "app.js",
+      "line": 6082,
+      "fn": "",
+      "depth": 1,
+      "text": "(draft.finance.payables||[]).find(row=>row.number===number)"
+    },
+    {
+      "f": "app.js",
+      "line": 6116,
+      "fn": "payAllTaxes",
+      "depth": 1,
+      "text": "a.indexOf(v)"
+    },
+    {
+      "f": "app.js",
+      "line": 6116,
+      "fn": "payAllTaxes",
+      "depth": 1,
+      "text": "(state.finance.periods||[]).some(row=>(row.company||'group')===type&&row.status==='مستحق')"
+    },
+    {
+      "f": "app.js",
+      "line": 6122,
+      "fn": "",
+      "depth": 1,
+      "text": "(draft.finance.periods||[]).filter(row=>(row.company||'group')===company&&row.status==='مستحق')"
+    },
+    {
+      "f": "app.js",
+      "line": 6311,
+      "fn": "departRouteAssets",
+      "depth": 1,
+      "text": "['air','sea','road'].includes(mode)"
+    },
+    {
+      "f": "app.js",
+      "line": 6374,
+      "fn": "",
+      "depth": 1,
+      "text": "window.GH_FLEET_CORE.find(draft,selected.id)"
+    },
+    {
+      "f": "app.js",
+      "line": 6390,
+      "fn": "syncMapCompanyFilterButtons",
+      "depth": 1,
+      "text": "section.querySelector('b')?.textContent?.includes('التشغيل')"
+    },
+    {
+      "f": "app.js",
+      "line": 6391,
+      "fn": "syncMapCompanyFilterButtons",
+      "depth": 1,
+      "text": "COMPANY_PLATFORM.listInstances(state,{includeGroup:false,openedOnly:true}).filter(row=>row.operational)"
+    },
+    {
+      "f": "asset-purchase-apply-core.js",
+      "line": 207,
+      "fn": "applyCrewDelta",
+      "depth": 1,
+      "text": "state.crew.find(row=>row?.id===id)"
+    },
+    {
+      "f": "asset-purchase-plan-core.js",
+      "line": 94,
+      "fn": "prepare",
+      "depth": 1,
+      "text": "baseStaffing.roles.some(role=>!Number.isSafeInteger(role.count*group.qty))"
+    },
+    {
+      "f": "authorization-core.js",
+      "line": 76,
+      "fn": "compact",
+      "depth": 1,
+      "text": "Object.values(auth.signatureAssetsById).filter(item=>item.ownerPersonId===row.ownerPersonId)"
+    },
+    {
+      "f": "authorization-core.js",
+      "line": 105,
+      "fn": "createDefaultMandate",
+      "depth": 1,
+      "text": "companyIds.map(String)"
+    },
+    {
+      "f": "authorization-core.js",
+      "line": 105,
+      "fn": "createDefaultMandate",
+      "depth": 1,
+      "text": "scopes.map(String)"
+    },
+    {
+      "f": "authorization-core.js",
+      "line": 141,
+      "fn": "commandCompanyIds",
+      "depth": 2,
+      "text": "(state?.finance?.[bucket]||[]).find(item=>!!item&&(same(item.id)||same(item.number)||same(item.reference)||same(item.chequeNumber)||same(item.loanId)||same(item.debtId)))"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 101,
+      "fn": "corporateCompanyIds",
+      "depth": 1,
+      "text": "all.indexOf(id)"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 127,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "bank[key].filter(Boolean)"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 159,
+      "fn": "migrateLegacyBranches",
+      "depth": 1,
+      "text": "bank.branchNetwork.some(row=>row.facilityId===facility.id)"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 283,
+      "fn": "decideLoanRequestsBatch",
+      "depth": 1,
+      "text": "['approve','reject'].includes(row.decision)"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 286,
+      "fn": "decideLoanRequestsBatch",
+      "depth": 1,
+      "text": "bank.loanRequests.find(row=>row.id===item.id)"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 301,
+      "fn": "collectCustomerInstallmentStages",
+      "depth": 1,
+      "text": "Object.keys(schedule).filter(eligible)"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 312,
+      "fn": "collectCustomerInstallmentStages",
+      "depth": 1,
+      "text": "bank.branchNetwork.find(row=>row.id===contract.branchId)"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 452,
+      "fn": "originateMarketMortgage",
+      "depth": 1,
+      "text": "(row.services||[]).includes('تمويل أفراد')"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 566,
+      "fn": "tickDayStages",
+      "depth": 1,
+      "text": "bank.loanPortfolios.filter(row=>row.status==='نشطة'||row.status==='مراقبة'||row.status==='متعثرة')"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 574,
+      "fn": "tickDayStages",
+      "depth": 1,
+      "text": "bank.corporateFacilities.filter(row=>row.status==='ساري'||row.status==='متأخر')"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 586,
+      "fn": "tickDayStages",
+      "depth": 1,
+      "text": "bank.treasurySecurities.filter(row=>row.status==='ساري')"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 592,
+      "fn": "tickDayStages",
+      "depth": 1,
+      "text": "bank.wholesaleFacilities.filter(row=>row.status==='ساري'||row.status==='متأخر')"
+    },
+    {
+      "f": "banking-core.js",
+      "line": 663,
+      "fn": "execute",
+      "depth": 1,
+      "text": "corporateCompanyIds(state,F).filter(id=>id!=='group')"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 25,
+      "fn": "legacySectorOwner",
+      "depth": 1,
+      "text": "P.getSectorIds(s,company.id).includes(sector)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 39,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "customers.profileOrder.includes(key)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 52,
+      "fn": "findByName",
+      "depth": 1,
+      "text": "(p.aliases||[]).some(a=>norm(a)===n)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 68,
+      "fn": "resolveParty",
+      "depth": 1,
+      "text": "(p.aliases||[]).some(a=>norm(a)===n)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 94,
+      "fn": "migrateCustomerPortfolio",
+      "depth": 1,
+      "text": "['نشط','منتهي','بانتظار التوقيع'].includes(opportunity.status)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 95,
+      "fn": "migrateCustomerPortfolio",
+      "depth": 1,
+      "text": "['محصلة','مدفوعة','مسددة'].includes(invoice.status)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 98,
+      "fn": "sectorCompany",
+      "depth": 1,
+      "text": "companySectors(s,row.id).includes(sector)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 113,
+      "fn": "customerPortfolio",
+      "depth": 1,
+      "text": "CUSTOMER_SEGMENTS.map(id=>segments?.[id]).filter(Boolean)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 113,
+      "fn": "customerPortfolio",
+      "depth": 1,
+      "text": "CUSTOMER_SEGMENTS.map(id=>segments?.[id])"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 113,
+      "fn": "customerPortfolio",
+      "depth": 1,
+      "text": "rows.map(row=>({...row,recentReferences:undefined}))"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 229,
+      "fn": "newsView",
+      "depth": 1,
+      "text": "fields.some(key=>row[key]!==old.rows[i]?.[key])"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 233,
+      "fn": "seedSponsors",
+      "depth": 1,
+      "text": "b.sponsorships.some(x=>x.id===seed.id)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 242,
+      "fn": "syncWorld",
+      "depth": 1,
+      "text": "b.opportunities.find(x=>x.id===o.id)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 248,
+      "fn": "competitorForSector",
+      "depth": 1,
+      "text": "p.roles.includes('competitor')"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 248,
+      "fn": "competitorForSector",
+      "depth": 1,
+      "text": "p.sectors.includes(sector)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 272,
+      "fn": "",
+      "depth": 1,
+      "text": "companySectors(s,row.id).some(sector=>offer.sectors.includes(sector))"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 272,
+      "fn": "",
+      "depth": 2,
+      "text": "offer.sectors.includes(sector)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 272,
+      "fn": "",
+      "depth": 1,
+      "text": "offer.sectors.includes(id)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 272,
+      "fn": "acceptSponsorship",
+      "depth": 1,
+      "text": "offer.sectors.includes(sector)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 284,
+      "fn": "competitorTick",
+      "depth": 1,
+      "text": "p.roles.includes('competitor')"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 294,
+      "fn": "customerSnapshot",
+      "depth": 1,
+      "text": "['نشط','منتهي'].includes(o.status)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 296,
+      "fn": "customerSnapshot",
+      "depth": 1,
+      "text": "['نشط','منتهي'].includes(o.status)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 296,
+      "fn": "customerSnapshot",
+      "depth": 1,
+      "text": "['محصلة','مدفوعة','مسددة'].includes(x.status)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 312,
+      "fn": "companyCustomerRating",
+      "depth": 1,
+      "text": "(row.roles||[]).includes('customer')"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 312,
+      "fn": "companyCustomerRating",
+      "depth": 1,
+      "text": "['نشط','منتهي'].includes(row.status)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 312,
+      "fn": "companyCustomerRating",
+      "depth": 1,
+      "text": "['critical','negative'].includes(row.severity)"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 320,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "(p.roles||[]).includes('customer')"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 320,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "(p.roles||[]).includes('competitor')"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 320,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "(p.roles||[]).includes('sponsor')"
+    },
+    {
+      "f": "business-world-core.js",
+      "line": 321,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "['متاحة','بانتظار التوقيع'].includes(o.status)"
+    },
+    {
+      "f": "company-adapters-core.js",
+      "line": 118,
+      "fn": "preflightProviders",
+      "depth": 1,
+      "text": "provider.methods.includes('*')"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 60,
+      "fn": "validateDefinition",
+      "depth": 1,
+      "text": "rows.some(value=>!validDataId(value))"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 76,
+      "fn": "validateDefinition",
+      "depth": 1,
+      "text": "capabilityRegistry.ADAPTER_KINDS.includes(kind)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 81,
+      "fn": "validateDefinition",
+      "depth": 1,
+      "text": "classification?.sectorIds?.includes(value)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 82,
+      "fn": "validateDefinition",
+      "depth": 1,
+      "text": "classification?.assetClasses?.includes(legacy?.assetClassByMode?.[value])"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 83,
+      "fn": "validateDefinition",
+      "depth": 1,
+      "text": "classification?.routeModes?.includes(value)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 84,
+      "fn": "validateDefinition",
+      "depth": 1,
+      "text": "assetOwnerModes?.includes(mode)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 84,
+      "fn": "validateDefinition",
+      "depth": 1,
+      "text": "classification?.assetClasses?.includes(assetClass)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 98,
+      "fn": "assertCrossDefinitionIntegrity",
+      "depth": 2,
+      "text": "definition.legacy.assetOwnerModes.includes(mode)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 99,
+      "fn": "assertCrossDefinitionIntegrity",
+      "depth": 2,
+      "text": "definition.legacy.routeOwnerModes.includes(mode)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 103,
+      "fn": "assertCrossDefinitionIntegrity",
+      "depth": 2,
+      "text": "definition.legacy.sectorAliases.includes(alias)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 143,
+      "fn": "listByCapability",
+      "depth": 1,
+      "text": "definition.capabilities.includes(String(capabilityId||''))"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 145,
+      "fn": "isKnownSector",
+      "depth": 1,
+      "text": "definition.classification.sectorIds.includes(sectorId)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 146,
+      "fn": "isKnownRouteMode",
+      "depth": 1,
+      "text": "definition.classification.routeModes.includes(routeMode)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 147,
+      "fn": "isKnownAssetClass",
+      "depth": 1,
+      "text": "definition.classification.assetClasses.includes(assetClassId)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 181,
+      "fn": "listInstances",
+      "depth": 1,
+      "text": "company.definition?.capabilities.includes(options.capability)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 233,
+      "fn": "definitionByLegacyOwner",
+      "depth": 1,
+      "text": "definition.legacy[key].includes(mode)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 303,
+      "fn": "migrateState",
+      "depth": 2,
+      "text": "state.unlockedSectors.includes(sectorId)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 303,
+      "fn": "migrateState",
+      "depth": 2,
+      "text": "state.openedCompanies.includes(companyId)"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 345,
+      "fn": "validateState",
+      "depth": 2,
+      "text": "record[key].some(value=>!validDataId(value))"
+    },
+    {
+      "f": "company-platform-core.js",
+      "line": 374,
+      "fn": "validateRegistry",
+      "depth": 2,
+      "text": "descriptor.errors.map(error=>`${definition.id}:${error}`)"
+    },
+    {
+      "f": "conference-board.js",
+      "line": 95,
+      "fn": "operationRows",
+      "depth": 1,
+      "text": "['activeAssets'].includes(key)"
+    },
+    {
+      "f": "conference-board.js",
+      "line": 96,
+      "fn": "operationRows",
+      "depth": 1,
+      "text": "['liquidity','premium30','claims30','rentRoll'].includes(key)"
+    },
+    {
+      "f": "conference-board.js",
+      "line": 96,
+      "fn": "operationRows",
+      "depth": 1,
+      "text": "['generationMW','storageMWh'].includes(key)"
+    },
+    {
+      "f": "conference-board.js",
+      "line": 96,
+      "fn": "operationRows",
+      "depth": 1,
+      "text": "['lossRatio','lossRatio30','occupancy'].includes(key)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 96,
+      "fn": "conferenceInstances",
+      "depth": 1,
+      "text": "COMPANIES.includes(type)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 174,
+      "fn": "socialSnapshot",
+      "depth": 1,
+      "text": "c.capabilities?.includes('operations.energy')"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 175,
+      "fn": "socialSnapshot",
+      "depth": 1,
+      "text": "c.capabilities?.includes('operations.fleet')"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 211,
+      "fn": "validateConferenceSnapshot",
+      "depth": 1,
+      "text": "c.capabilities?.includes('conference.participant')"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 216,
+      "fn": "definitionContributions",
+      "depth": 1,
+      "text": "context.capabilities.includes(chapter.capability)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 216,
+      "fn": "definitionContributions",
+      "depth": 1,
+      "text": "narration.map(localized)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 216,
+      "fn": "definitionContributions",
+      "depth": 1,
+      "text": "(chapter.metrics||[]).map((metric,index)=>({id:String(metric.id||index),label:localized(metric.label)||String(metric.id||index),value:formattedMetric(pathValue(context,metric.path||`company.ops.${metric.id}`),metric.format)}))"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 217,
+      "fn": "buildContributions",
+      "depth": 1,
+      "text": "context.capabilities.includes(contributor.capability)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 233,
+      "fn": "",
+      "depth": 1,
+      "text": "['activeAssets','facilities'].includes(key)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 233,
+      "fn": "",
+      "depth": 1,
+      "text": "['number','string'].includes(typeof value)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 233,
+      "fn": "",
+      "depth": 1,
+      "text": "['customerCount','branchCount','activeSubscriptions','activeServicePlans'].includes(key)"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 253,
+      "fn": "monthlyExecutiveSnapshot",
+      "depth": 1,
+      "text": "(s.finance?.periods||[]).filter(x=>(x.company||'group')===type&&x.status==='مستحق')"
+    },
+    {
+      "f": "conference-core.js",
+      "line": 316,
+      "fn": "people",
+      "depth": 1,
+      "text": "(globalThis.GH_HR_CORE?.salaryHistory?.(ctx.state,c.type)||[]).slice(0,3).map(h=>`<p class=\"section-mini\">${ctx.esc(h.ref)} · +${Number(h.percent).toFixed(1)}% · سنة ${h.year}</p>`)"
+    },
+    {
+      "f": "contracts-core.js",
+      "line": 9,
+      "fn": "migrateDocuments",
+      "depth": 1,
+      "text": "['نشط','منتهي'].includes(doc.status)"
+    },
+    {
+      "f": "control-plane-core.js",
+      "line": 103,
+      "fn": "enqueue",
+      "depth": 1,
+      "text": "c.outbox.indexOf(x)"
+    },
+    {
+      "f": "control-plane-core.js",
+      "line": 107,
+      "fn": "dispatchOutbox",
+      "depth": 1,
+      "text": "c.events.find(x=>x.id===item.eventId)"
+    },
+    {
+      "f": "control-plane-core.js",
+      "line": 169,
+      "fn": "check",
+      "depth": 1,
+      "text": "ENGINE_ORDER.includes(name)"
+    },
+    {
+      "f": "control-plane-core.js",
+      "line": 170,
+      "fn": "check",
+      "depth": 1,
+      "text": "ENGINE_ORDER.includes(name)"
+    },
+    {
+      "f": "control-plane-core.js",
+      "line": 172,
+      "fn": "check",
+      "depth": 1,
+      "text": "[!fromPresent?link.from:null,!toPresent?link.to:null].filter(Boolean)"
+    },
+    {
+      "f": "control-plane-core.js",
+      "line": 178,
+      "fn": "trace",
+      "depth": 1,
+      "text": "String(x.parentId).includes(correlation)"
+    },
+    {
+      "f": "control-plane-core.js",
+      "line": 178,
+      "fn": "trace",
+      "depth": 1,
+      "text": "String(x.childId).includes(correlation)"
+    },
+    {
+      "f": "corporate-core.js",
+      "line": 104,
+      "fn": "execute",
+      "depth": 1,
+      "text": "state.unlockedSectors.includes(sectorId)"
+    },
+    {
+      "f": "customer-base-core.js",
+      "line": 51,
+      "fn": "",
+      "depth": 1,
+      "text": "HOUSEHOLD_LINES.map(id=>num(lines[id]?.policies))"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 22,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "[...row.namedCustomerIds,...row.subscriptions.map(r=>r.partyId),...row.servicePlans.map(r=>r.partyId),...row.sales.map(r=>r.partyId)].filter(Boolean)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 22,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "row.subscriptions.map(r=>r.partyId)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 22,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "row.servicePlans.map(r=>r.partyId)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 22,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "row.sales.map(r=>r.partyId)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 22,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "row.namedCustomerIds.map(partyId=>`${id}::${partyId}`)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 25,
+      "fn": "ensureSupplyAgreements",
+      "depth": 1,
+      "text": "s.finance?.commercialContracts?.some(row=>row.id===agreement.financeContractId)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 35,
+      "fn": "modelFor",
+      "depth": 1,
+      "text": "oem.models.find(row=>row.id===id)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 61,
+      "fn": "retainSale",
+      "depth": 1,
+      "text": "['awaiting-bank-decision','awaiting-finance-settlement'].includes(root.sales[i]?.status)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 72,
+      "fn": "addStockBatch",
+      "depth": 1,
+      "text": "oem.models.find(model=>model.id===String(row?.modelId||''))"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 73,
+      "fn": "addStockBatch",
+      "depth": 1,
+      "text": "root.inventory.some(line=>line.oemId===oem.id&&line.modelId===row.model.id)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 75,
+      "fn": "addStockBatch",
+      "depth": 1,
+      "text": "root.inventory.find(item=>item.oemId===oem.id&&item.modelId===row.model.id)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 124,
+      "fn": "supplierDirectory",
+      "depth": 1,
+      "text": "agreements.find(row=>row.oemId===oem.id)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 124,
+      "fn": "supplierDirectory",
+      "depth": 1,
+      "text": "purchases.filter(row=>row.oemId===oem.id).map(row=>({reference:row.reference,modelId:row.modelId,quantity:row.quantity,amount:row.amount,invoiceNumber:row.invoiceNumber,chequeId:row.chequeId,createdDay:row.createdDay}))"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 124,
+      "fn": "supplierDirectory",
+      "depth": 1,
+      "text": "purchases.filter(row=>row.oemId===oem.id)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 124,
+      "fn": "supplierDirectory",
+      "depth": 1,
+      "text": "oem.models.map(model=>({...model}))"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 148,
+      "fn": "snapshot",
+      "depth": 2,
+      "text": "['sold-collected','sold-on-credit','sold-financed'].includes(sale.status)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 152,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "[...branchById.values()].map(branch=>{branch.customerCount+=branch.customerIds.size;delete branch.customerIds;return branch;})"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 153,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "row.sales.filter(sale=>sale.invoiceNumber)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 153,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "row.subscriptions.filter(item=>item.status==='active')"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 153,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "row.servicePlans.filter(item=>item.status==='active')"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 153,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "row.sales.filter(item=>item.status==='awaiting-bank-decision'||item.status==='awaiting-finance-settlement')"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 153,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "branches.filter(branch=>branch.status==='open')"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 154,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "row.sales.slice(0,40).map(clone)"
+    },
+    {
+      "f": "customer-companies-core.js",
+      "line": 154,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "row.financeApplications.slice(0,40).map(clone)"
+    },
+    {
+      "f": "dealer-market-core.js",
+      "line": 65,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "m[key].filter(Boolean)"
+    },
+    {
+      "f": "dealer-market-core.js",
+      "line": 151,
+      "fn": "restock",
+      "depth": 1,
+      "text": "inventory.find(row=>row.oemId===model.oemId&&row.modelId===model.modelId)"
+    },
+    {
+      "f": "dealer-market-core.js",
+      "line": 197,
+      "fn": "settleFinanced",
+      "depth": 1,
+      "text": "(data.sales||[]).filter(row=>row&&['awaiting-bank-decision','awaiting-finance-settlement'].includes(row.status))"
+    },
+    {
+      "f": "dealer-market-core.js",
+      "line": 197,
+      "fn": "settleFinanced",
+      "depth": 2,
+      "text": "['awaiting-bank-decision','awaiting-finance-settlement'].includes(row.status)"
+    },
+    {
+      "f": "dealer-market-core.js",
+      "line": 233,
+      "fn": "dayStages",
+      "depth": 2,
+      "text": "inventory.find(row=>row.oemId===model.oemId&&row.modelId===model.modelId)"
+    },
+    {
+      "f": "delivery-monitor-core.js",
+      "line": 6,
+      "fn": "inspect",
+      "depth": 1,
+      "text": "['delivered','cancelled'].includes(row.status)"
+    },
+    {
+      "f": "dependency-core.js",
+      "line": 10,
+      "fn": "unresolved",
+      "depth": 1,
+      "text": "['resolved','cancelled'].includes(e.status)"
+    },
+    {
+      "f": "dependency-core.js",
+      "line": 11,
+      "fn": "detectCycles",
+      "depth": 1,
+      "text": "['resolved','cancelled'].includes(e.status)"
+    },
+    {
+      "f": "diagnostics-core.js",
+      "line": 103,
+      "fn": "largestTiming",
+      "depth": 1,
+      "text": "skip.includes(key)"
+    },
+    {
+      "f": "diagnostics-core.js",
+      "line": 232,
+      "fn": "recorderStop",
+      "depth": 1,
+      "text": "events.find(e=>e.type===type)"
+    },
+    {
+      "f": "diagnostics-core.js",
+      "line": 398,
+      "fn": "stateByteProfileLegacy",
+      "depth": 1,
+      "text": "samples.some(row=>row.assetId===asset.id)"
+    },
+    {
+      "f": "diagnostics-core.js",
+      "line": 473,
+      "fn": "storeAssetSamplesSteps",
+      "depth": 1,
+      "text": "samples.some(sample=>sample.assetId===row.id)"
+    },
+    {
+      "f": "diagnostics-core.js",
+      "line": 487,
+      "fn": "stateByteProfileSteps",
+      "depth": 1,
+      "text": "samples.some(row=>row.assetId===asset.id)"
+    },
+    {
+      "f": "diagnostics-core.js",
+      "line": 569,
+      "fn": "",
+      "depth": 1,
+      "text": "Array.from(entry.attribution||[]).slice(0,4).map(row=>({containerType:String(row.containerType||''),containerName:String(row.containerName||''),containerId:String(row.containerId||''),containerSrc:String(row.containerSrc||'')}))"
+    },
+    {
+      "f": "directory-core.js",
+      "line": 41,
+      "fn": "",
+      "depth": 1,
+      "text": "region.codes.map(code=>[code,region.id])"
+    },
+    {
+      "f": "directory-core.js",
+      "line": 106,
+      "fn": "create",
+      "depth": 1,
+      "text": "capitals.filter(capital=>Array.isArray(capital?.coords)).map(capital=>[capital.city,capital.coords[0],capital.coords[1]])"
+    },
+    {
+      "f": "directory-core.js",
+      "line": 106,
+      "fn": "create",
+      "depth": 1,
+      "text": "capitals.filter(capital=>Array.isArray(capital?.coords))"
+    },
+    {
+      "f": "directory-core.js",
+      "line": 146,
+      "fn": "companyIds",
+      "depth": 1,
+      "text": "ids.includes(company.id)"
+    },
+    {
+      "f": "directory-core.js",
+      "line": 229,
+      "fn": "rankedCandidates",
+      "depth": 1,
+      "text": "REGIONS.map(row=>row.id).filter(id=>byRegion.has(id))"
+    },
+    {
+      "f": "directory-core.js",
+      "line": 229,
+      "fn": "rankedCandidates",
+      "depth": 1,
+      "text": "REGIONS.map(row=>row.id)"
+    },
+    {
+      "f": "document-proof-core.js",
+      "line": 121,
+      "fn": "migratePeriodDigests",
+      "depth": 1,
+      "text": "list.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id))).map(checkpointEntry)"
+    },
+    {
+      "f": "document-proof-core.js",
+      "line": 572,
+      "fn": "canonicalValue",
+      "depth": 1,
+      "text": "['__proto__','prototype','constructor'].includes(key)"
+    },
+    {
+      "f": "document-proof-core.js",
+      "line": 875,
+      "fn": "migrateLegacyLedgerProjections",
+      "depth": 1,
+      "text": "replaced.map(row=>row.value)"
+    },
+    {
+      "f": "document-proof-core.js",
+      "line": 875,
+      "fn": "migrateLegacyLedgerProjections",
+      "depth": 1,
+      "text": "replaced.map(row=>base[row.index])"
+    },
+    {
+      "f": "document-proof-core.js",
+      "line": 899,
+      "fn": "bindAuthorization",
+      "depth": 1,
+      "text": "proof.documentDigests.includes(record.contentDigest)"
+    },
+    {
+      "f": "document-proof-core.js",
+      "line": 899,
+      "fn": "bindAuthorization",
+      "depth": 1,
+      "text": "proof.documentIds.includes(record.documentId)"
+    },
+    {
+      "f": "domain-command-core.js",
+      "line": 69,
+      "fn": "decodeFleetReplay",
+      "depth": 1,
+      "text": "values.some(value=>value===decodeReplayColumn.invalid)"
+    },
+    {
+      "f": "domain-command-core.js",
+      "line": 200,
+      "fn": "validateContract",
+      "depth": 1,
+      "text": "['moving','turnaround'].includes(asset.phase)"
+    },
+    {
+      "f": "economics-core.js",
+      "line": 27,
+      "fn": "sectorEconomics",
+      "depth": 1,
+      "text": "['نشطة','مراقبة','متعثرة'].includes(row.status)"
+    },
+    {
+      "f": "economics-core.js",
+      "line": 46,
+      "fn": "sectorEconomics",
+      "depth": 1,
+      "text": "state.openedCompanies?.includes?.(companyId)"
+    },
+    {
+      "f": "economics-core.js",
+      "line": 59,
+      "fn": "sectorEconomics",
+      "depth": 1,
+      "text": "hospitality.read(state,instance.id)?.history?.find(r=>r.day===(requestedDay??Math.floor(num(state.simSeconds)/86400)))"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 58,
+      "fn": "syncSites",
+      "depth": 1,
+      "text": "[...(state.globalBases||[]),...(state.customHubs||[])].filter(row=>row?.owned===true&&String(row.ownerCompanyId||row.companyId||row.company||'')==='power'&&row.kind==='power')"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 70,
+      "fn": "dailyIndexes",
+      "depth": 1,
+      "text": "['مجدولة','قيد التنفيذ'].includes(row.status)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 77,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "energy[key].filter(Boolean)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 93,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "energy[key].filter(Boolean)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 149,
+      "fn": "signFuelContract",
+      "depth": 1,
+      "text": "energy.fuelContracts.filter(row=>row.siteId===site.id&&row.status==='ساري')"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 183,
+      "fn": "availabilityFor",
+      "depth": 1,
+      "text": "['مجدولة','قيد التنفيذ'].includes(row.status)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 186,
+      "fn": "debtSchedule",
+      "depth": 1,
+      "text": "['ساري','متأخر'].includes(row.status)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 213,
+      "fn": "siteEconomics",
+      "depth": 1,
+      "text": "(indexes.ppaContractsBySite.get(site.id)||[]).filter(row=>row.status==='ساري')"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 215,
+      "fn": "siteEconomics",
+      "depth": 1,
+      "text": "['gas'].includes(site.kind)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 215,
+      "fn": "siteEconomics",
+      "depth": 1,
+      "text": "['solar','wind'].includes(site.kind)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 237,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "['ساري','منتهي'].includes(contract.status)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 243,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "(state.finance?.invoices||[]).find(row=>row.number===number)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 257,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "siteRows.filter(item=>item.kind==='gas'&&num(item.fuelContractMWh)>0)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 258,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "siteRows.filter(item=>['solar','wind'].includes(item.kind)&&num(item.gridExportMWh)>0)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 258,
+      "fn": "tickDay",
+      "depth": 2,
+      "text": "['solar','wind'].includes(item.kind)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 258,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "energy.renewableCertificates.some(item=>item.id===id)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 259,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "energy.projectFinance.filter(row=>['ساري','متأخر'].includes(row.status)&&num(row.outstanding)>0)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 259,
+      "fn": "tickDay",
+      "depth": 2,
+      "text": "['ساري','متأخر'].includes(row.status)"
+    },
+    {
+      "f": "energy-core.js",
+      "line": 286,
+      "fn": "internalSupply",
+      "depth": 1,
+      "text": "Object.keys(byCompany).filter(id=>operating.has(id)&&id!==seller)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 54,
+      "fn": "companyIdsReference",
+      "depth": 1,
+      "text": "ids.includes(id)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 110,
+      "fn": "migrateFormalParties",
+      "depth": 2,
+      "text": "invoices.find(x=>x.number===doc.number)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 110,
+      "fn": "migrateFormalParties",
+      "depth": 1,
+      "text": "invoices.find(x=>x.number===cheque.invoiceNumber)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 125,
+      "fn": "backfillDebtRegister",
+      "depth": 1,
+      "text": "(s.finance.debtRecords||[]).filter(x=>x.company===t&&debtOutstanding(s,x)>.005)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 176,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "ids.includes(id)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 181,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "ids.filter(x=>x!=='group')"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 194,
+      "fn": "findColdArchivedDocument",
+      "depth": 2,
+      "text": "keys.some(field=>row[field]===value)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 219,
+      "fn": "findFinanceDocument",
+      "depth": 1,
+      "text": "keys.some(field=>row[field]===value)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 292,
+      "fn": "backfillPayrollTransfers",
+      "depth": 1,
+      "text": "['مدفوعة','مسددة','محصلة'].includes(doc.status)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 323,
+      "fn": "reconcile",
+      "depth": 1,
+      "text": "ids.includes(id)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 442,
+      "fn": "registerCommercialContract",
+      "depth": 1,
+      "text": "globalThis.GH_COMPANY_PLATFORM?.definitionFor?.(s,row.company)?.capabilities.includes('operations.hospitality')"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 442,
+      "fn": "registerCommercialContract",
+      "depth": 1,
+      "text": "String(row.id||'').includes('HOSP-')"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 609,
+      "fn": "",
+      "depth": 1,
+      "text": "group.rows.map(row=>row.number)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 616,
+      "fn": "",
+      "depth": 1,
+      "text": "out.companies.includes(t)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 631,
+      "fn": "settleDueTerms",
+      "depth": 1,
+      "text": "payableCheques(s,row.number).some(cheque=>cheque.status==='صادر')"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 649,
+      "fn": "settlePayable",
+      "depth": 1,
+      "text": "row.lines?.some(reportLine=>reportLine.dueRef===n)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 842,
+      "fn": "setDebt",
+      "depth": 1,
+      "text": "s.finance.debtRecords.filter(x=>x.company===t&&debtOutstanding(s,x)>.005)"
+    },
+    {
+      "f": "finance-core.js",
+      "line": 907,
+      "fn": "monthlyStatement",
+      "depth": 1,
+      "text": "companyTypes.map(type=>month.companies[type]||{company:type,income:0,expenses:0,net:0})"
+    },
+    {
+      "f": "finance-report-core.js",
+      "line": 23,
+      "fn": "buildMonthlyStatement",
+      "depth": 1,
+      "text": "companyTypes.map(type=>month.companies[type]||{company:type,income:0,expenses:0,net:0})"
+    },
+    {
+      "f": "fleet-access-core.js",
+      "line": 83,
+      "fn": "idListHasDuplicate",
+      "depth": 1,
+      "text": "rows.some(([first,count])=>split.number>=first&&split.number<first+count)"
+    },
+    {
+      "f": "fleet-access-core.js",
+      "line": 270,
+      "fn": "keysOf",
+      "depth": 1,
+      "text": "keys.includes(field)"
+    },
+    {
+      "f": "fleet-access-core.js",
+      "line": 292,
+      "fn": "",
+      "depth": 1,
+      "text": "keys.includes(key)"
+    },
+    {
+      "f": "fleet-access-core.js",
+      "line": 368,
+      "fn": "compactReceipt",
+      "depth": 1,
+      "text": "own.some((key,index)=>key!==keys[index])"
+    },
+    {
+      "f": "fleet-access-core.js",
+      "line": 374,
+      "fn": "compactReceipt",
+      "depth": 1,
+      "text": "assets.map(asset=>jsonClone(asset[key]))"
+    },
+    {
+      "f": "fleet-access-core.js",
+      "line": 393,
+      "fn": "receiptDistinctFields",
+      "depth": 1,
+      "text": "receipt.keys.includes(key)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 53,
+      "fn": "purchaseCatalogs",
+      "depth": 1,
+      "text": "classes.includes(assetClass)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 155,
+      "fn": "routeConflictContext",
+      "depth": 1,
+      "text": "[...groups.values()].filter(group=>group.mode==='air')"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 263,
+      "fn": "assignRoutesBatch",
+      "depth": 1,
+      "text": "[route.fromFacility,route.toFacility].includes(asset.baseFacility)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 303,
+      "fn": "synchronizeCrew",
+      "depth": 1,
+      "text": "state.crew.find(role=>role.id===id)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 304,
+      "fn": "synchronizeCrew",
+      "depth": 1,
+      "text": "['pilots','cabin','aeng'].includes(id)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 304,
+      "fn": "synchronizeCrew",
+      "depth": 1,
+      "text": "['captains','sailors','seng'].includes(id)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 313,
+      "fn": "",
+      "depth": 1,
+      "text": "state.crew.find(row=>row.id===role.id)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 355,
+      "fn": "provisionStaffingBatch",
+      "depth": 1,
+      "text": "group.rows.map(row=>row.asset.id)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 374,
+      "fn": "recordDeliveryBatch",
+      "depth": 1,
+      "text": "receiptAssets.map(asset=>asset?.id)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 375,
+      "fn": "recordDeliveryBatch",
+      "depth": 1,
+      "text": "snaps.some(snap=>!snap?.id||!receiptIds.has(snap.id))"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 376,
+      "fn": "recordDeliveryBatch",
+      "depth": 1,
+      "text": "snaps.map(snap=>requireFleetAsset(state,snap).companyId)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 378,
+      "fn": "recordDeliveryBatch",
+      "depth": 1,
+      "text": "['مدفوعة','مسددة','مصروف'].includes(document.status)"
+    },
+    {
+      "f": "fleet-core.js",
+      "line": 567,
+      "fn": "departBatch",
+      "depth": 1,
+      "text": "[route.fromFacility,route.toFacility].includes(asset.baseFacility)"
+    },
+    {
+      "f": "fleet-dispatch-core.js",
+      "line": 45,
+      "fn": "",
+      "depth": 1,
+      "text": "row?.classification?.routeModes?.includes(String(mode))"
+    },
+    {
+      "f": "fleet-dispatch-core.js",
+      "line": 76,
+      "fn": "compute",
+      "depth": 1,
+      "text": "ACCESS.indexOf(state,requestIds[k])"
+    },
+    {
+      "f": "fleet-engine-thread.js",
+      "line": 100,
+      "fn": "closeRouteKeys",
+      "depth": 1,
+      "text": "key.indexOf('\\u0000')"
+    },
+    {
+      "f": "fleet-engine-thread.js",
+      "line": 260,
+      "fn": "syncWork",
+      "depth": 1,
+      "text": "transfer.includes(view.buffer)"
+    },
+    {
+      "f": "fleet-engine-thread.js",
+      "line": 468,
+      "fn": "",
+      "depth": 1,
+      "text": "message.values.map(([r])=>r)"
+    },
+    {
+      "f": "fleet-engine-worker.js",
+      "line": 240,
+      "fn": "",
+      "depth": 1,
+      "text": "['flags','present','phase','routeId','profile'].includes(name)"
+    },
+    {
+      "f": "fleet-engine-worker.js",
+      "line": 292,
+      "fn": "",
+      "depth": 1,
+      "text": "transfers.includes(view.buffer)"
+    },
+    {
+      "f": "fleet-legacy-route-plan-core.js",
+      "line": 44,
+      "fn": "plan",
+      "depth": 1,
+      "text": "groups.find(ids=>{const other=runtime.get(ids[0]);return other&&(owners.route.signature(other)===signature||owners.route.corridorMetrics(other,route).duplicate);})"
+    },
+    {
+      "f": "fleet-legacy-route-plan-core.js",
+      "line": 46,
+      "fn": "plan",
+      "depth": 1,
+      "text": "rows.find(row=>row.phase==='moving')"
+    },
+    {
+      "f": "fleet-legacy-route-plan-core.js",
+      "line": 49,
+      "fn": "plan",
+      "depth": 2,
+      "text": "deletions.includes('departureScheduledAt')"
+    },
+    {
+      "f": "fleet-legacy-route-plan-core.js",
+      "line": 50,
+      "fn": "plan",
+      "depth": 1,
+      "text": "deletions.indexOf('departureScheduledAt')"
+    },
+    {
+      "f": "fleet-manual-departure-plan-core.js",
+      "line": 91,
+      "fn": "plan",
+      "depth": 1,
+      "text": "[...pool].filter(other=>position.has(other))"
+    },
+    {
+      "f": "fleet-save-validation-core.js",
+      "line": 97,
+      "fn": "",
+      "depth": 1,
+      "text": "LIVE_ONLY.includes(field)"
+    },
+    {
+      "f": "fleet-save-validation-core.js",
+      "line": 132,
+      "fn": "staticTables",
+      "depth": 1,
+      "text": "STORE.IDENTITY_TIER_EXEMPT.includes(field)"
+    },
+    {
+      "f": "fleet-staffing-reconcile-plan-core.js",
+      "line": 161,
+      "fn": "applyCrewTotals",
+      "depth": 1,
+      "text": "state.crew.find(role=>role.id===id)"
+    },
+    {
+      "f": "fleet-staffing-reconcile-plan-core.js",
+      "line": 162,
+      "fn": "applyCrewTotals",
+      "depth": 1,
+      "text": "['pilots','cabin','aeng'].includes(id)"
+    },
+    {
+      "f": "fleet-staffing-reconcile-plan-core.js",
+      "line": 162,
+      "fn": "applyCrewTotals",
+      "depth": 1,
+      "text": "['captains','sailors','seng'].includes(id)"
+    },
+    {
+      "f": "formation-engine.js",
+      "line": 41,
+      "fn": "validatePlan",
+      "depth": 1,
+      "text": "[effect.payload?.openingAssets,effect.payload?.openingFacilities,effect.payload?.openingRoutes].some(rows=>rows!==undefined&&(!Array.isArray(rows)||rows.length))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 141,
+      "fn": "decideOffers",
+      "depth": 1,
+      "text": "['accept','decline'].includes(r.decision)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 145,
+      "fn": "decideOffers",
+      "depth": 1,
+      "text": "root.requests.find(r=>r.id===decision.id)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 154,
+      "fn": "decideOffers",
+      "depth": 1,
+      "text": "root.requests.filter(r=>r.id!==request.id)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 159,
+      "fn": "canClose",
+      "depth": 1,
+      "text": "['confirmed','in-house'].includes(b.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 160,
+      "fn": "propertyForFacility",
+      "depth": 1,
+      "text": "root.properties.find(p=>p.facilityId===facilityId)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 175,
+      "fn": "settleStages",
+      "depth": 1,
+      "text": "['completed','cancelled'].includes(booking.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 184,
+      "fn": "settleStages",
+      "depth": 1,
+      "text": "['confirmed','in-house'].includes(row.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 192,
+      "fn": "marketDemandStages",
+      "depth": 2,
+      "text": "property.rooms.map((n,i)=>n+extra[i])"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 211,
+      "fn": "tickDayStages",
+      "depth": 1,
+      "text": "['confirmed','in-house'].includes(b.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 219,
+      "fn": "tickDayStages",
+      "depth": 1,
+      "text": "root.bookings.some(b=>b.propertyId===property.id&&['confirmed','in-house'].includes(b.status))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 219,
+      "fn": "tickDayStages",
+      "depth": 2,
+      "text": "['confirmed','in-house'].includes(b.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 253,
+      "fn": "dailyResult",
+      "depth": 1,
+      "text": "['hotel','resort'].includes(f.kind)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 305,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "['hotel','resort'].includes(f?.kind)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 305,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "P()?.definitionFor?.(s,String(f.ownerCompanyId||f.company||''))?.capabilities.includes('operations.hospitality')"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 312,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "P()?.definitionFor?.(s,id)?.capabilities.includes('operations.hospitality')"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 314,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "Object.values(root.totals).some(n=>!integer(n))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 320,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['owned','leased'].includes(row.ownership)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 320,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['construction','operating','closed'].includes(row.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 320,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "PRICE_LEVELS.includes(row.priceLevel)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 325,
+      "fn": "validationSteps",
+      "depth": 3,
+      "text": "['telecom','insurance'].includes(service.kind)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 325,
+      "fn": "validationSteps",
+      "depth": 3,
+      "text": "['active','paused','cancelled','expired'].includes(service.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 327,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "row.repairClaims.some(r=>!object(r)||!plain(r.id,120)||!plain(r.invoiceNumber,100)||!plain(r.incidentDocumentReference,140)||!integer(r.net)||!integer(r.day,C().MAX_DAY))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 330,
+      "fn": "validationSteps",
+      "depth": 3,
+      "text": "[...at.reserved,...at.walkin].some(n=>!integer(n,10000))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 331,
+      "fn": "validationSteps",
+      "depth": 3,
+      "text": "at.reserved.some((n,i)=>n+at.walkin[i]>row.rooms[i])"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 338,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['confirmed','in-house','completed','cancelled'].includes(b.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 338,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['earnedNet','depositCollected','depositApplied','depositRefunded','refundReserved'].some(k=>!integer(b[k]))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 340,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['confirmed','in-house'].includes(b.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 341,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "b.invoiceRefs.some(ref=>!object(ref)||!plain(ref.number,100)||['net','tax','gross','creditedNet','creditedTax'].some(k=>!integer(ref[k]))||ref.net+ref.tax!==ref.gross||ref.creditedNet>ref.net||ref.creditedTax>ref.tax)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 341,
+      "fn": "validationSteps",
+      "depth": 3,
+      "text": "['net','tax','gross','creditedNet','creditedTax'].some(k=>!integer(ref[k]))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 352,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['queued','paid'].includes(r.status)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 354,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['net','tax','gross'].some(k=>!integer(b[k]))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 354,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "Object.values(b.bookingCharges).some(n=>!integer(n))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 354,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "Object.entries(b.propertyCharges).some(([propertyId,net])=>!props.has(propertyId)||!integer(net))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 357,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "Object.values(a.contracts).some(n=>!integer(n))"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 361,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "['hotel','resort'].includes(site.kind)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 361,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "P()?.definitionFor?.(s,String(site.ownerCompanyId||site.company||''))?.capabilities.includes('operations.hospitality')"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 366,
+      "fn": "",
+      "depth": 1,
+      "text": "root?.properties.find(p=>p.id===payload.propertyId)?.repairClaims?.find(r=>r.id===payload.repairId)"
+    },
+    {
+      "f": "hospitality-core.js",
+      "line": 366,
+      "fn": "",
+      "depth": 1,
+      "text": "root?.properties.find(p=>p.id===payload.propertyId)"
+    },
+    {
+      "f": "hospitality-finance-core.js",
+      "line": 44,
+      "fn": "execute",
+      "depth": 1,
+      "text": "Object.entries(item.bookingNet||{}).map(([bookingId,net])=>({bookingId,net:integer(net)}))"
+    },
+    {
+      "f": "hospitality-links-core.js",
+      "line": 21,
+      "fn": "sign",
+      "depth": 1,
+      "text": "['active','paused'].includes(row.status)"
+    },
+    {
+      "f": "hospitality-links-core.js",
+      "line": 33,
+      "fn": "accrue",
+      "depth": 2,
+      "text": "['active','paused'].includes(service.status)"
+    },
+    {
+      "f": "hospitality-links-core.js",
+      "line": 59,
+      "fn": "settle",
+      "depth": 1,
+      "text": "s.finance.invoices.find(r=>r.number===account.invoiceNumber)"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 34,
+      "fn": "render",
+      "depth": 1,
+      "text": "root.properties.find(r=>r.id===p.id)"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 35,
+      "fn": "render",
+      "depth": 1,
+      "text": "H().PRICE_LEVELS.map(v=>`<option value=\"${v}\" ${v===p.priceLevel?'selected':''}>${(v*100).toFixed(0)}%</option>`)"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 42,
+      "fn": "render",
+      "depth": 1,
+      "text": "['hotel','resort'].includes(row.type)"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 47,
+      "fn": "render",
+      "depth": 1,
+      "text": "['confirmed','in-house'].includes(b.status)"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 63,
+      "fn": "serviceMarkup",
+      "depth": 1,
+      "text": "p.services.find(row=>row.kind===kind&&['active','paused'].includes(row.status)&&row.endDay>Math.floor(s.simSeconds/86400))"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 63,
+      "fn": "serviceMarkup",
+      "depth": 2,
+      "text": "['active','paused'].includes(row.status)"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 65,
+      "fn": "serviceMarkup",
+      "depth": 1,
+      "text": "(globalThis.GH_COMPANY_PLATFORM.listInstances(s,{includeGroup:false,openedOnly:true,capability:config.capability})||[]).filter(row=>row.operational)"
+    },
+    {
+      "f": "hospitality-ui.js",
+      "line": 65,
+      "fn": "serviceMarkup",
+      "depth": 1,
+      "text": "suppliers.map(row=>`<option value=\"${esc(row.id)}\">${esc(row.identity?.legalName||globalThis.GH_COMPANY_PLATFORM.resolveIdentity(s,row.id).legalName)}</option>`)"
+    },
+    {
+      "f": "hr-core.js",
+      "line": 6,
+      "fn": "",
+      "depth": 1,
+      "text": "definition.capabilities.includes('hr.management')"
+    },
+    {
+      "f": "hr-core.js",
+      "line": 134,
+      "fn": "appointAllOfficialManagers",
+      "depth": 1,
+      "text": "MANAGER_COMPANIES.includes(company)"
+    },
+    {
+      "f": "hr-core.js",
+      "line": 146,
+      "fn": "executeHiring",
+      "depth": 1,
+      "text": "before.facilities.filter(x=>x.missing>0&&(!ctx.facilityId||x.facilityId===ctx.facilityId))"
+    },
+    {
+      "f": "hr-core.js",
+      "line": 157,
+      "fn": "reconcileFacilityStaffing",
+      "depth": 1,
+      "text": "hr.employmentContracts.filter(c=>c?.status==='ساري'&&!c.automaticAssetStaffing&&c.role==='تشغيل منشأة'&&String(c.ownerCompanyId||c.company||'')===owner&&(c.facilityId===f.id||(!c.facilityId&&c.center===(f.name||f.id))))"
+    },
+    {
+      "f": "hr-core.js",
+      "line": 168,
+      "fn": "health",
+      "depth": 1,
+      "text": "MANAGER_COMPANIES.includes(c)"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 45,
+      "fn": "decodeBase64",
+      "depth": 1,
+      "text": "alphabet.indexOf(input[index])"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 45,
+      "fn": "decodeBase64",
+      "depth": 1,
+      "text": "alphabet.indexOf(input[index+1])"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 45,
+      "fn": "decodeBase64",
+      "depth": 1,
+      "text": "alphabet.indexOf(input[index+2])"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 45,
+      "fn": "decodeBase64",
+      "depth": 1,
+      "text": "alphabet.indexOf(input[index+3])"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 100,
+      "fn": "list",
+      "depth": 1,
+      "text": "row.capabilities.includes(capability)"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 106,
+      "fn": "companyOf",
+      "depth": 1,
+      "text": "row.assetKinds.includes(assetKind)"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 106,
+      "fn": "companyOf",
+      "depth": 1,
+      "text": "row.routeModes.includes(routeMode)"
+    },
+    {
+      "f": "identity-system.js",
+      "line": 106,
+      "fn": "companyOf",
+      "depth": 1,
+      "text": "row.facilityKinds.includes(facilityKind)"
+    },
+    {
+      "f": "insurance-core.js",
+      "line": 70,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "ins[key].filter(Boolean)"
+    },
+    {
+      "f": "insurance-core.js",
+      "line": 72,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "PRICE_LEVELS.includes(Number(ins.pricing[id]))"
+    },
+    {
+      "f": "insurance-core.js",
+      "line": 138,
+      "fn": "decideRisksBatch",
+      "depth": 1,
+      "text": "['accept','decline'].includes(row.decision)"
+    },
+    {
+      "f": "insurance-core.js",
+      "line": 141,
+      "fn": "decideRisksBatch",
+      "depth": 1,
+      "text": "ins.riskRequests.find(row=>row.id===item.id)"
+    },
+    {
+      "f": "integrity-core.js",
+      "line": 21,
+      "fn": "energyLifecycleSnapshot",
+      "depth": 1,
+      "text": "String(project?.stage||'').toLowerCase().includes('commission')"
+    },
+    {
+      "f": "integrity-core.js",
+      "line": 58,
+      "fn": "financeChecks",
+      "depth": 1,
+      "text": "cheques.some(replacement=>replacement.id===c.replacedBy&&replacement.invoiceNumber===c.invoiceNumber&&rowCompanyId(state,replacement)===rowCompanyId(state,c)&&Math.abs(Number(replacement.amount)-Number(c.amount))<.01)"
+    },
+    {
+      "f": "integrity-core.js",
+      "line": 69,
+      "fn": "financeChecks",
+      "depth": 1,
+      "text": "periods.filter(p=>rowCompanyId(state,p)===type)"
+    },
+    {
+      "f": "integrity-core.js",
+      "line": 69,
+      "fn": "financeChecks",
+      "depth": 1,
+      "text": "companyPeriods.filter(p=>p.status==='مستحق')"
+    },
+    {
+      "f": "integrity-core.js",
+      "line": 102,
+      "fn": "domainDepthChecks",
+      "depth": 1,
+      "text": "[0,25,50,75,100].includes(pct)"
+    },
+    {
+      "f": "integrity-core.js",
+      "line": 109,
+      "fn": "checkState",
+      "depth": 1,
+      "text": "snapshots.map(asset=>asset?.id).filter(Boolean)"
+    },
+    {
+      "f": "integrity-core.js",
+      "line": 109,
+      "fn": "checkState",
+      "depth": 1,
+      "text": "snapshots.map(asset=>asset?.id)"
+    },
+    {
+      "f": "interface-core.js",
+      "line": 51,
+      "fn": "managerView",
+      "depth": 1,
+      "text": "H.MANAGER_COMPANIES.includes(c)"
+    },
+    {
+      "f": "madar-shell.js",
+      "line": 18,
+      "fn": "kindOf",
+      "depth": 1,
+      "text": "caps.includes(capability)"
+    },
+    {
+      "f": "madar-shell.js",
+      "line": 268,
+      "fn": "sectionTasks",
+      "depth": 1,
+      "text": "domains.includes(task.domain)"
+    },
+    {
+      "f": "map-asset-query-core.js",
+      "line": 12,
+      "fn": "normalizeFilter",
+      "depth": 1,
+      "text": "included.includes(id)"
+    },
+    {
+      "f": "map-feature-core.js",
+      "line": 27,
+      "fn": "normalizeGeometry",
+      "depth": 1,
+      "text": "(Array.isArray(line)?line:[]).map(point)"
+    },
+    {
+      "f": "map-feature-core.js",
+      "line": 28,
+      "fn": "normalizeGeometry",
+      "depth": 1,
+      "text": "line.some(row=>!row)"
+    },
+    {
+      "f": "map-feature-core.js",
+      "line": 29,
+      "fn": "normalizeGeometry",
+      "depth": 1,
+      "text": "line.map(row=>Object.freeze(row))"
+    },
+    {
+      "f": "map-feature-core.js",
+      "line": 85,
+      "fn": "normalizeFilterState",
+      "depth": 1,
+      "text": "included.includes(id)"
+    },
+    {
+      "f": "map-layer-registry.js",
+      "line": 17,
+      "fn": "normalizeRenderer",
+      "depth": 1,
+      "text": "FEATURE.GEOMETRY_TYPES.includes(type)"
+    },
+    {
+      "f": "map-layer-registry.js",
+      "line": 69,
+      "fn": "layerFeatures",
+      "depth": 2,
+      "text": "rendererDescriptor.geometryTypes.includes(feature.geometry.type)"
+    },
+    {
+      "f": "map-layer-registry.js",
+      "line": 74,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "features.filter(row=>row.selected)"
+    },
+    {
+      "f": "map-layer-registry.js",
+      "line": 74,
+      "fn": "snapshot",
+      "depth": 1,
+      "text": "features.filter(row=>!row.selected)"
+    },
+    {
+      "f": "map-presentation-core.js",
+      "line": 50,
+      "fn": "buildPlan",
+      "depth": 1,
+      "text": "ordered.some(queue=>queue.length)"
+    },
+    {
+      "f": "map-presentation-core.js",
+      "line": 127,
+      "fn": "requestPlan",
+      "depth": 1,
+      "text": "route.map(point=>[point[0],point[1]])"
+    },
+    {
+      "f": "map-provider-core.js",
+      "line": 49,
+      "fn": "",
+      "depth": 1,
+      "text": "['routing-endpoint-too-far','routing-geometry-too-complex'].includes(error.message)"
+    },
+    {
+      "f": "map-proxy-core.js",
+      "line": 150,
+      "fn": "apportion",
+      "depth": 1,
+      "text": "groups.filter(group=>(target.get(group.key)||0)<group.rows.length)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 4,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "(s.market||[]).find(row=>row.sym===sym)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 5,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "lots.filter(l=>l&&Number.isSafeInteger(Number(l.quantity))&&Number(l.quantity)>0)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 5,
+      "fn": "ensure",
+      "depth": 2,
+      "text": "l.disposals.filter(x=>x&&Number(x.quantity)>0).map(x=>({quantity:Math.floor(Number(x.quantity)),day:Math.max(0,Math.floor(Number(x.day)||0)),reference:String(x.reference||'')}))"
+    },
+    {
+      "f": "market-core.js",
+      "line": 5,
+      "fn": "ensure",
+      "depth": 2,
+      "text": "l.disposals.filter(x=>x&&Number(x.quantity)>0)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 8,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "lots.filter(l=>Number(l?.remaining)>0?false:true)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 9,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "s.maPortfolio.some(row=>row.id===id)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 48,
+      "fn": "settleListedDividend",
+      "depth": 1,
+      "text": "(lot.disposals||[]).filter(row=>Number(row.day)<=day)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 48,
+      "fn": "settleListedDividend",
+      "depth": 1,
+      "text": "(lot.disposals||[]).filter(row=>Number(row.day)>day)"
+    },
+    {
+      "f": "market-core.js",
+      "line": 58,
+      "fn": "tradeStock",
+      "depth": 1,
+      "text": "[...(s.portfolioLots[sym]||[])].filter(row=>Number(row.remaining)>0)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 38,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "assets.map(asset=>asset.id)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 40,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "sourceAssets.map(sourceAsset=>{if(sourceAsset.deliveryOrderId===id&&sourceAsset.baseFacility===row.baseId)return sourceAsset;return {...sourceAsset,deliveryOrderId:id,baseFacility:sourceAsset.baseFacility||row.baseId};})"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 41,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "assets.map(asset=>asset.id)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 41,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "assets.some((asset,index)=>asset!==row.assets[index])"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 47,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "rows.filter(row=>row.length)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 47,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "valid.map(row=>row.contract.id)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 47,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "normalized.find(row=>row.id===canonical.deliveryOrderId)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 50,
+      "fn": "migrateDeliveryAndCrewBatches",
+      "depth": 1,
+      "text": "rows.flatMap(row=>L.is(row.assetIds)?L.toArray(row.assetIds):[row.assetId]).filter(id=>id!==undefined)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 153,
+      "fn": "structural",
+      "depth": 1,
+      "text": "state[key].filter(Boolean)"
+    },
+    {
+      "f": "migration-core.js",
+      "line": 172,
+      "fn": "canonicalMetricInstances",
+      "depth": 1,
+      "text": "instance.definition?.capabilities?.includes('finance.book')"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 294,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "CLASSES.find(x=>x.id===vehicle.assetClass)"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 299,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "zones.find(z=>z.id===trip.fromZone)"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 473,
+      "fn": "dispatch",
+      "depth": 1,
+      "text": "zones.find(z=>z.id===request.fromZone)"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 473,
+      "fn": "dispatch",
+      "depth": 1,
+      "text": "zones.find(z=>z.id===request.toZone)"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 561,
+      "fn": "selectForDisplay",
+      "depth": 1,
+      "text": "queues.some(q=>q.length)"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 573,
+      "fn": "pendingStreetRoutes",
+      "depth": 1,
+      "text": "zones.find(zone=>zone.id===trip.fromZone)"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 573,
+      "fn": "pendingStreetRoutes",
+      "depth": 1,
+      "text": "zones.find(zone=>zone.id===trip.toZone)"
+    },
+    {
+      "f": "mobility-core.js",
+      "line": 574,
+      "fn": "cacheStreetRoute",
+      "depth": 1,
+      "text": "m.activeTrips.filter(item=>streetRouteKey(item.centerId,item.fromZone,item.toZone)===key)"
+    },
+    {
+      "f": "operating-acquisition-core.js",
+      "line": 107,
+      "fn": "validRegistry",
+      "depth": 1,
+      "text": "COMPANIES.includes(r.company)"
+    },
+    {
+      "f": "operating-acquisition-core.js",
+      "line": 107,
+      "fn": "validRegistry",
+      "depth": 1,
+      "text": "VARIANTS[r.company].includes(r.variant)"
+    },
+    {
+      "f": "qr-core.js",
+      "line": 52,
+      "fn": "penalty",
+      "depth": 1,
+      "text": "m.map(row=>row[i])"
+    },
+    {
+      "f": "qr-core.js",
+      "line": 54,
+      "fn": "penalty",
+      "depth": 1,
+      "text": "line.map(v=>v?'1':'0')"
+    },
+    {
+      "f": "qr-core.js",
+      "line": 54,
+      "fn": "penalty",
+      "depth": 3,
+      "text": "text.indexOf(pattern)"
+    },
+    {
+      "f": "qr-core.js",
+      "line": 54,
+      "fn": "penalty",
+      "depth": 3,
+      "text": "text.indexOf(pattern,at+1)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 70,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "re[key].filter(Boolean)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 240,
+      "fn": "decideRequestsBatch",
+      "depth": 1,
+      "text": "['accept','decline'].includes(row.decision)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 244,
+      "fn": "decideRequestsBatch",
+      "depth": 1,
+      "text": "re.tenantRequests.find(row=>row.id===item.id)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 247,
+      "fn": "decideRequestsBatch",
+      "depth": 1,
+      "text": "re.projects.find(row=>row.id===request.projectId)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 268,
+      "fn": "leaseToCompany",
+      "depth": 1,
+      "text": "(row.leases||[]).filter(lease=>lease.tenantCompanyId)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 346,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "leases.filter(row=>!row.ended)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 356,
+      "fn": "tickDay",
+      "depth": 2,
+      "text": "F?.ensure?.(state)?.commercialContracts?.some(row=>row.id===lease.legalDocumentId)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 359,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "leases.filter(row=>!row.ended)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 360,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "leases.filter(row=>day>=row.startDay&&day<row.endDay)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 363,
+      "fn": "tickDay",
+      "depth": 2,
+      "text": "row.sourceRefs.includes(lease.id)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 374,
+      "fn": "tickDay",
+      "depth": 1,
+      "text": "done.includes(row)"
+    },
+    {
+      "f": "realestate-core.js",
+      "line": 377,
+      "fn": "tickDay",
+      "depth": 2,
+      "text": "account.sourceRefs.includes(ref)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 163,
+      "fn": "computeStatements",
+      "depth": 1,
+      "text": "String(x.status||'').includes('مكتمل')"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 168,
+      "fn": "updateBudgets",
+      "depth": 1,
+      "text": "Object.keys(b.lines).map(k=>[k,0])"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 168,
+      "fn": "updateBudgets",
+      "depth": 1,
+      "text": "Object.values(b.lines).some(Number)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 219,
+      "fn": "finishOps",
+      "depth": 1,
+      "text": "['logistics','depot'].includes(h.kind)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 219,
+      "fn": "finishOps",
+      "depth": 1,
+      "text": "platform()?.getRouteModes?.(state,rowCompanyId(state,h,''))?.includes('road')"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 264,
+      "fn": "marketCompanyIds",
+      "depth": 1,
+      "text": "(state.openedCompanies||[]).includes(id)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 327,
+      "fn": "updateInsurance",
+      "depth": 1,
+      "text": "['قيد الفحص','بانتظار سيولة شركة التأمين'].includes(c.status)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 329,
+      "fn": "updateInsurance",
+      "depth": 1,
+      "text": "[c.id,c.policyReference].filter(Boolean)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 334,
+      "fn": "updateInsurance",
+      "depth": 1,
+      "text": "['مدفوعة','مغلقة','مرفوضة'].includes(c.status)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 404,
+      "fn": "",
+      "depth": 1,
+      "text": "assets.map(asset=>fleetData().get(state,asset.id)||undefined)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 404,
+      "fn": "",
+      "depth": 1,
+      "text": "existing.filter(Boolean)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 405,
+      "fn": "",
+      "depth": 1,
+      "text": "existing.some(asset=>asset&&(asset.baseFacility!==d.baseId||asset.deliveryOrderId!==d.id))"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 406,
+      "fn": "",
+      "depth": 1,
+      "text": "compatibleDeliveryFacilities(state,assets[0]).find(f=>f.id===d.baseId)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 415,
+      "fn": "",
+      "depth": 1,
+      "text": "assets.map(asset=>({...asset,ownerCompanyId,companyName:companyLabel(state,ownerCompanyId)}))"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 434,
+      "fn": "updateProjects",
+      "depth": 1,
+      "text": "r.projects.find(x=>x.sourceId===c.id)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 434,
+      "fn": "updateProjects",
+      "depth": 1,
+      "text": "(state.customHubs||[]).find(row=>row.constructionContractId===c.id)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 457,
+      "fn": "integrity",
+      "depth": 1,
+      "text": "b.accounts.some(a=>!Number.isFinite(Number(a.balance)))"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 520,
+      "fn": "runIncidents",
+      "depth": 2,
+      "text": "hit.includes(pick)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 524,
+      "fn": "runIncidents",
+      "depth": 1,
+      "text": "book.fleetPolicies.find(row=>row.company===companyId&&row.status==='سارية')"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 526,
+      "fn": "runIncidents",
+      "depth": 1,
+      "text": "hit.map(asset=>asset.id)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 563,
+      "fn": "fleetDayWorkerParams",
+      "depth": 1,
+      "text": "[...candidates].filter(Boolean)"
+    },
+    {
+      "f": "realism-core.js",
+      "line": 564,
+      "fn": "fleetDayWorkerParams",
+      "depth": 1,
+      "text": "[...modes].filter(Boolean)"
+    },
+    {
+      "f": "road-planner.js",
+      "line": 31,
+      "fn": "plan",
+      "depth": 1,
+      "text": "routes.filter(route=>usable(asset,route)&&(loads.get(route.id)||0)<Math.min(automaticCapacity,Math.max(1,Math.floor(Number(routeCapacity(route))||DEFAULT_ROUTE_CAPACITY))))"
+    },
+    {
+      "f": "road-planner.js",
+      "line": 59,
+      "fn": "plan",
+      "depth": 1,
+      "text": "pending.filter(row=>row.origin.id===originId)"
+    },
+    {
+      "f": "road-planner.js",
+      "line": 62,
+      "fn": "plan",
+      "depth": 2,
+      "text": "row.members.map(member=>Number(member.asset.specs?.rangeKm)||Infinity)"
+    },
+    {
+      "f": "road-planner.js",
+      "line": 68,
+      "fn": "plan",
+      "depth": 2,
+      "text": "pending.indexOf(row)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 111,
+      "fn": "validateConferenceLogoState",
+      "depth": 3,
+      "text": "[company?.manager,...(Array.isArray(company?.executives)?company.executives.slice(0,64):[])].filter(object)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 127,
+      "fn": "validatePresentationTextState",
+      "depth": 1,
+      "text": "['buy','sell'].includes(trade.side)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 219,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "String(row?.domain||'').toLowerCase().includes(retired)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 219,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "String(row?.actor||'').toLowerCase().includes(retired)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 227,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "route.route.some(point=>!validPoint(point))"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 238,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "['air','sea','road'].includes(type)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 248,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "rows.find(asset=>asset.phase==='moving')"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 259,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "routes.map(route=>route.id)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 260,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "['air','sea','road'].includes(type)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 264,
+      "fn": "migrateLegacy",
+      "depth": 2,
+      "text": "[canonical.fromFacility,canonical.toFacility].includes(asset.baseFacility)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 272,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "users.find(asset=>asset.phase==='moving')"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 275,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "users.map(asset=>asset.routeId).filter(id=>ids.has(id))"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 275,
+      "fn": "migrateLegacy",
+      "depth": 1,
+      "text": "users.map(asset=>asset.routeId)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 388,
+      "fn": "validateAuthorizationState",
+      "depth": 1,
+      "text": "row.documentDigests.some(value=>!validDigest(value))"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 724,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "entry.route.some(point=>!validPoint(point))"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 736,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "['منفذة'].includes(row.status)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 739,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "['credit-carry','open-period-reversal'].includes(row.taxTreatment)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 742,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "['output','input','creditCarry','periodOutputStart','periodInputStart'].some(k=>!finite(vat[k])||Number(vat[k])<0)"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 758,
+      "fn": "validationSteps",
+      "depth": 1,
+      "text": "['مستحق','مسدد','صفر'].includes(String(p?.status||''))"
+    },
+    {
+      "f": "save-schema.js",
+      "line": 760,
+      "fn": "validationSteps",
+      "depth": 2,
+      "text": "['total','income','expense','intercompany'].some(key=>!finite(row[key])||Number(row[key])<0)"
+    },
+    {
+      "f": "signature-pad-core.js",
+      "line": 13,
+      "fn": "normalize",
+      "depth": 1,
+      "text": "stroke.map(value=>{count++;if(count>MAX_POINTS)throw new Error('signature-points-limit');return pointOf(value);})"
+    },
+    {
+      "f": "signature-pad-core.js",
+      "line": 25,
+      "fn": "svgMarkup",
+      "depth": 1,
+      "text": "stroke.map(point=>`${(point.x*w).toFixed(2)},${(point.y*h).toFixed(2)}`)"
+    },
+    {
+      "f": "simulation-asset-core.js",
+      "line": 236,
+      "fn": "processOne",
+      "depth": 1,
+      "text": "ctx.ownedFacilities?.includes(asset.baseFacility)"
+    },
+    {
+      "f": "simulation-asset-core.js",
+      "line": 254,
+      "fn": "validateResults",
+      "depth": 1,
+      "text": "WRITE_FIELDS.some(field=>!own(patch,field))"
+    },
+    {
+      "f": "simulation-asset-core.js",
+      "line": 255,
+      "fn": "validateResults",
+      "depth": 1,
+      "text": "EFFECT_MAPS.some(key=>Object.keys(effects[key]||{}).some(companyId=>companyId!==owner))"
+    },
+    {
+      "f": "simulation-asset-core.js",
+      "line": 255,
+      "fn": "validateResults",
+      "depth": 2,
+      "text": "Object.keys(effects[key]||{}).some(companyId=>companyId!==owner)"
+    },
+    {
+      "f": "simulation-asset-core.js",
+      "line": 255,
+      "fn": "validateResults",
+      "depth": 1,
+      "text": "effects.saleIds.some(id=>id!==input.id)"
+    },
+    {
+      "f": "simulation-asset-core.js",
+      "line": 255,
+      "fn": "validateResults",
+      "depth": 1,
+      "text": "effects.retiredRouteIds.some(id=>id!==input.asset.routeId)"
+    },
+    {
+      "f": "simulation-asset-core.js",
+      "line": 258,
+      "fn": "validateResults",
+      "depth": 1,
+      "text": "['progress','fuel','condition','dwellRemaining','simCarrySeconds'].some(field=>patch[field]!==undefined&&!Number.isFinite(Number(patch[field])))"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 169,
+      "fn": "rowPatchParts",
+      "depth": 1,
+      "text": "p.overlayChunks.some(id=>typeof id!=='string'||!CHUNK_ID.test(id))"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 199,
+      "fn": "beginFleetOverlay",
+      "depth": 1,
+      "text": "FLEET_OVERLAY_FIELDS.includes(f)"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 392,
+      "fn": "decodeCollection",
+      "depth": 1,
+      "text": "keys.some(key=>typeof key!=='string')"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 440,
+      "fn": "encodeRows",
+      "depth": 1,
+      "text": "[...found.entries()].sort((a,b)=>a[0]-b[0]).map(([position,cell])=>[position,pooler.tree(cell)])"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 578,
+      "fn": "decodeState",
+      "depth": 1,
+      "text": "path.some(key=>typeof key!=='string')"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 584,
+      "fn": "decodeState",
+      "depth": 1,
+      "text": "node.g.map(part=>{const decoded=decodeSegment(node.a,text(part,null)),adopted=isTextMarker(part)?ADOPTED_TEXT.get(null):null;ADOPTED_TEXT.delete(null);return {decoded,adopted};})"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 585,
+      "fn": "decodeState",
+      "depth": 1,
+      "text": "resolved.map(row=>row.decoded)"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 586,
+      "fn": "decodeState",
+      "depth": 1,
+      "text": "resolved.some(row=>row.adopted)"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 587,
+      "fn": "decodeState",
+      "depth": 1,
+      "text": "layout.bounds.map(bound=>[bound.start,bound])"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 598,
+      "fn": "decodeState",
+      "depth": 1,
+      "text": "path.some(key=>typeof key!=='string')"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 605,
+      "fn": "decodeState",
+      "depth": 1,
+      "text": "path.some(key=>typeof key!=='string')"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 943,
+      "fn": "laneBuffer",
+      "depth": 1,
+      "text": "LANE_PATCH_MAGIC.some((v,i)=>patch[i]!==v)"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 1017,
+      "fn": "chunkManifestSteps",
+      "depth": 2,
+      "text": "lanes.some(lane=>entry.sums[page*LANES+lane]!==found.laneSums[lane])"
+    },
+    {
+      "f": "state-codec-core.js",
+      "line": 1025,
+      "fn": "chunkManifestSteps",
+      "depth": 2,
+      "text": "changed.includes(lane)"
+    },
+    {
+      "f": "strategy-core.js",
+      "line": 8,
+      "fn": "execute",
+      "depth": 1,
+      "text": "s.advanced.programs.initiatives.filter(x=>x.status==='قيد التنفيذ')"
+    },
+    {
+      "f": "telecom-market-core.js",
+      "line": 49,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "PRICE_LEVELS.includes(Number(m.pricing[id]))"
+    },
+    {
+      "f": "telecom-market-core.js",
+      "line": 50,
+      "fn": "ensure",
+      "depth": 1,
+      "text": "m[key].filter(Boolean)"
+    },
+    {
+      "f": "telecom-market-core.js",
+      "line": 130,
+      "fn": "decideRequestsBatch",
+      "depth": 1,
+      "text": "['accept','decline'].includes(row.decision)"
+    },
+    {
+      "f": "telecom-market-core.js",
+      "line": 133,
+      "fn": "decideRequestsBatch",
+      "depth": 1,
+      "text": "m.requests.find(row=>row.id===item.id)"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 253,
+      "fn": "cloneWithoutJournaledRoots",
+      "depth": 2,
+      "text": "sealedTargets(root,name).map(target=>({...target,options}))"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 291,
+      "fn": "deepCloneInSlices",
+      "depth": 2,
+      "text": "sealedTargets(root,name).map(target=>({...target,options:collectionOptions(key,name)}))"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 444,
+      "fn": "restoreRootOrder",
+      "depth": 1,
+      "text": "rootOrder.includes(key)"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 586,
+      "fn": "restoreJournal",
+      "depth": 1,
+      "text": "assets.find(row=>row?.id===entry.id)"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 684,
+      "fn": "extendScope",
+      "depth": 1,
+      "text": "ctx.declaredWriteRoots.includes(key)"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 820,
+      "fn": "executeSteps",
+      "depth": 1,
+      "text": "context.declaredWriteRoots.includes(key)"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 872,
+      "fn": "executeSteps",
+      "depth": 1,
+      "text": "mutatedRoots.includes(key)"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 879,
+      "fn": "executeSteps",
+      "depth": 1,
+      "text": "context.postCommit.filter(x=>!x.critical)"
+    },
+    {
+      "f": "transaction-core.js",
+      "line": 886,
+      "fn": "executeSteps",
+      "depth": 1,
+      "text": "mutatedRoots.includes(key)"
+    }
+  ]
+}

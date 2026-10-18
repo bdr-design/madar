@@ -1,0 +1,30 @@
+{
+  "rateResults": {
+    "30": 30,
+    "120": 120,
+    "300": 300,
+    "600": 600
+  },
+  "calendarDaySeconds": 86400,
+  "calendarAtomicIntervals": 24,
+  "exactHourBoundaries": 24,
+  "visibleSpeedLevels": [
+    1,
+    2,
+    3
+  ],
+  "acceptedSpeedLevels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "effectiveRates": {
+    "0": 0,
+    "1": 30,
+    "2": 120,
+    "3": 300
+  },
+  "hiddenNonZeroLevels": [],
+  "schemaAllowsHiddenLevel": false
+}

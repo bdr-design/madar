@@ -1,0 +1,2 @@
+{"suite":"build366-mobility-map-policy-browser","mobilityMarkers":0,"routeLines":0,"branchVisible":true,"branchPanel":"facilityManage"}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.

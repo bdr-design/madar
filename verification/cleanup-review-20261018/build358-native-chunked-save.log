@@ -1,0 +1,100 @@
+{
+  "suite": "build358-native-chunked-save",
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "name": "a native save lists chunks, uploads them first and is not mirrored to WebStorage",
+      "ok": true,
+      "detail": {
+        "chunks": 2,
+        "saveBytes": 53395,
+        "uploaded": 2
+      }
+    },
+    {
+      "name": "an unchanged save uploads nothing; one written row uploads one chunk",
+      "ok": true,
+      "detail": {
+        "uploaded": 1
+      }
+    },
+    {
+      "name": "durable fleet clones and publication reuse unchanged chunk identities",
+      "ok": true,
+      "detail": {
+        "chunks": 3,
+        "changed": 1,
+        "unchangedChecksumBytes": 2366976,
+        "publishedUploads": 0
+      }
+    },
+    {
+      "name": "a full day-close uploads only counter overlays and rollback cannot publish them",
+      "ok": true,
+      "detail": {
+        "rows": 37768,
+        "overlayBytes": 1230240,
+        "uploadedPages": 2
+      }
+    },
+    {
+      "name": "cold finance history uploads as immutable bytes and stays out of the save JSON",
+      "ok": true,
+      "detail": {
+        "coldBytes": 96
+      }
+    },
+    {
+      "name": "a sliced save draft retains cold-page ownership across its structured clone",
+      "ok": true,
+      "detail": {
+        "yields": 3,
+        "saveRevision": 12
+      }
+    },
+    {
+      "name": "the save is the instant it was taken, even when rows change during the upload",
+      "ok": true,
+      "detail": {
+        "uploads": 2
+      }
+    },
+    {
+      "name": "a bootstrap from the vault loads the exact state, then the next save uploads nothing",
+      "ok": true,
+      "detail": {
+        "chunks": 6
+      }
+    },
+    {
+      "name": "a missing chunk refuses the durable commit, the vault set is forgotten and the retry uploads",
+      "ok": true,
+      "detail": {
+        "reuploaded": 3
+      }
+    },
+    {
+      "name": "manual slots and resets upload their chunks before they commit",
+      "ok": true,
+      "detail": {
+        "slotUploads": 3,
+        "resetUploads": 1
+      }
+    },
+    {
+      "name": "chunks travel as raw fetch POST bodies to gh://app; a runtime without the route falls back to the bridge",
+      "ok": true,
+      "detail": {
+        "posted": 3
+      }
+    },
+    {
+      "name": "the native ACK carries the vault commit stages into the save telemetry",
+      "ok": true,
+      "detail": {
+        "stages": 11
+      }
+    }
+  ]
+}

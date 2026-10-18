@@ -1,0 +1,95 @@
+{
+  "scope": "Node injected-clock engine loop; one 1ms synthetic pending chunk per call; actual CPU timing outside clock; excludes all game data, rendering, native IO and real device; no regression threshold",
+  "samples": [
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 17.535187,
+      "meanCpuMsPerFrame": 0.00017535187000000002,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "shipped",
+      "sample": 0
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 16.787504,
+      "meanCpuMsPerFrame": 0.00016787503999999998,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "held",
+      "sample": 0
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 19.221408000000004,
+      "meanCpuMsPerFrame": 0.00019221408000000005,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "overrun",
+      "sample": 0
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 44.067403999999996,
+      "meanCpuMsPerFrame": 0.00044067403999999995,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "overrun",
+      "sample": 1
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 15.574386,
+      "meanCpuMsPerFrame": 0.00015574386,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "held",
+      "sample": 1
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 15.778760999999996,
+      "meanCpuMsPerFrame": 0.00015778760999999995,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "shipped",
+      "sample": 1
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 16.646282999999997,
+      "meanCpuMsPerFrame": 0.00016646282999999997,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "shipped",
+      "sample": 2
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 22.741121,
+      "meanCpuMsPerFrame": 0.00022741121,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "held",
+      "sample": 2
+    },
+    {
+      "measuredFrameCalls": 100000,
+      "elapsedMs": 22.459867000000003,
+      "meanCpuMsPerFrame": 0.00022459867000000004,
+      "finalLevel": "GREEN",
+      "healthFrames": 120000,
+      "node": "v24.19.0",
+      "source": "overrun",
+      "sample": 2
+    }
+  ]
+}

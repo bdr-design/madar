@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: ready fleet replay needs the staged API
++ actual - expected
+
++ 'undefined'
+- 'function'
+
+    at success (/workspace/madar/tests/build476-staged-worker-replay.cjs:13:442)
+    at async /workspace/madar/tests/build476-staged-worker-replay.cjs:17:80 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'undefined',
+  expected: 'function',
+  operator: 'strictEqual',
+  diff: 'simple'
+}

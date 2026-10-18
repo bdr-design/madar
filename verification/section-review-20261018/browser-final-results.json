@@ -1,0 +1,50 @@
+[
+  {
+    "argv": [
+      "node",
+      "tests/build452-section-review-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 11.921167918997526
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build398-asset-market-metrics-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.885790911001095
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build375-compact-desks-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 3.3346718289976707
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build358-directory-open-sites-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 2.3297692039996036
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build372-asset-purchase-app-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 15.48662789700029
+  },
+  {
+    "argv": [
+      "node",
+      "tests/phone-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 88.6324183520046
+  }
+]

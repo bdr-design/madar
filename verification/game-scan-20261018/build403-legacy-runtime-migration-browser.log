@@ -1,0 +1,4 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build403-legacy-runtime-migration-browser","engine":"chromium","legacySpeed":4,"loadedSpeed":3,"activeDriverContracts":1,"drivers":2,"reloadIdempotent":true,"economyUnchanged":true}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build403-legacy-runtime-migration-browser","engine":"webkit","legacySpeed":4,"loadedSpeed":3,"activeDriverContracts":1,"drivers":2,"reloadIdempotent":true,"economyUnchanged":true}

@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: omit patches: decoded rows must never adopt a different patch chain
+
+true !== false
+
+    at /workspace/madar/tests/build437-adoption-patch-lineage.cjs:11:266 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

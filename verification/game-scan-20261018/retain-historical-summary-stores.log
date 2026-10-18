@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: replacing the fleet drops other strong references to historical summary stores
+
+2 !== 1
+
+    at /workspace/madar/tests/build439-summary-single-request.cjs:29:205 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

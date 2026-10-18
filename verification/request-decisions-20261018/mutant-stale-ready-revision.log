@@ -1,0 +1,19 @@
+AssertionError [ERR_ASSERTION]: a row write expires evidence
++ actual - expected
+
++ {
++   current: [Function: current],
++   result: {
++     contextToken: 'alpha'
++   }
++ }
+- null
+
+    at /workspace/madar/tests/build432-ready-fleet-validation.cjs:17:34 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Object],
+  expected: null,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

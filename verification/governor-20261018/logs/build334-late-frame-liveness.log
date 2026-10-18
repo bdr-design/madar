@@ -1,0 +1,31 @@
+{
+  "suite": "late-frame-liveness",
+  "results": [
+    {
+      "callbackDelayMs": 0,
+      "commits": 3,
+      "simSeconds": 46.08000000000003,
+      "slices": 3
+    },
+    {
+      "callbackDelayMs": 8,
+      "commits": 3,
+      "simSeconds": 46.08000000000003,
+      "slices": 3
+    },
+    {
+      "callbackDelayMs": 25,
+      "commits": 3,
+      "simSeconds": 46.08000000000003,
+      "slices": 3
+    },
+    {
+      "callbackDelayMs": 100,
+      "commits": 3,
+      "simSeconds": 46.08000000000003,
+      "slices": 3
+    }
+  ],
+  "passed": 4,
+  "total": 4
+}

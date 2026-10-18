@@ -1,0 +1,2 @@
+{"suite":"build372-fleet-day-worker","rows":2305,"requests":["fleetDay","conditionSum","identityIntegrity"],"waits":1,"applySlices":8}
+BUILD372_FLEET_DAY_WORKER_PASS

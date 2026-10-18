@@ -1,0 +1,8 @@
+PASS dormant unfounded prudential preview must not read or fabricate a bank book
+PASS non-dormant bank must still reject a missing finance book
+PASS daily dispatch skips unfounded catalog definitions and fleet-only groups
+PASS operational bank and energy retain their owners and one scheduled dispatch
+PASS held companies receive no daily operations; direct hook retains operational authorization
+PASS future registered operations hooks receive company context and roll back with enclosing day
+PASS existing simulation kernel reaches 365 and leap 366 days with exact ordered boundaries
+{"suite":"calendar-safety-contract","passed":7,"results":["dormant unfounded prudential preview must not read or fabricate a bank book","non-dormant bank must still reject a missing finance book","daily dispatch skips unfounded catalog definitions and fleet-only groups","operational bank and energy retain their owners and one scheduled dispatch","held companies receive no daily operations; direct hook retains operational authorization","future registered operations hooks receive company context and roll back with enclosing day","existing simulation kernel reaches 365 and leap 366 days with exact ordered boundaries"]}

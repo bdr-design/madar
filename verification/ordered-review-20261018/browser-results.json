@@ -1,0 +1,101 @@
+[
+  {
+    "argv": [
+      "node",
+      "tests/build445-document-pages-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 19.633,
+    "test_sha256": "59f1fef77edad79a552b3e9e3af515f85ea75ce305ab83192f602aef6dbdb85b"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build419-document-drawer-work-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 8.204,
+    "test_sha256": "712b58d2a2b5d385a39fa3091919c2f988904e0e11ef5f0b5b49e813aac161e7"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build371-custom-road-geometry-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 2.474,
+    "test_sha256": "15cc037a819033667b780cd37d07b01630ca2da965a32a69ef6f835530d3f569"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build371-durable-fleet-isolation-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 26.737,
+    "test_sha256": "890b67bc123467d0f3609fe523f5097bcaf02b8cf1331d5a7e691e417f0854b9"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build399-bank-prudential-summary-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 4.236,
+    "test_sha256": "620e068ca17d6180b820c39d373a93c3457a8d071a2469ed33d0d6fdb6c65690"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 20.542,
+    "test_sha256": "937a098bd54d8c9f8b1e8c76cf818c823cf8635405491366221c538934220884"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build382-nonfleet-tax-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 2.327,
+    "test_sha256": "8fa0518ae1b998816d1817796538cb11a45e5866f2f247247d08884858995cdd"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build433-request-decisions-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 26.861,
+    "test_sha256": "f99a697c764f695634ee7196991de0cc72f9dbd1bf2bb98bf131bf10c664e808"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build411-command-row-patch-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 23.375,
+    "test_sha256": "5c4d1fae811f8b49daa0ef3c23ba64b953e4ba9bca18fe921bae4ffefa9abb1d"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/build422-conference-content-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 4.691,
+    "test_sha256": "655d0cb3cfdd45cd868e86573306308893be8909e2dab195fa8680d968ffe7d7"
+  },
+  {
+    "argv": [
+      "node",
+      "tests/phone-layout-browser.cjs"
+    ],
+    "exit_code": 0,
+    "seconds": 88.924,
+    "test_sha256": "b539a385b2e547c07fb6cdd2f601fd89b2fa24fe2b8320a516282bb882085427"
+  }
+]

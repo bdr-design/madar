@@ -1,0 +1,3159 @@
+{
+  "source": "/workspace/scratch/request-decisions-20261018/baseline",
+  "sourceFiles": {
+    "app.js": "51f6ab4cddda04ded0dc18757b9a7becc5f254d21c95f5987fc493b0dc144864",
+    "advanced-core.js": "de1ba30c4c9a532d225c97ea6edeafcb1e0c94ab827c3deeaaab5c14362ae71f",
+    "transaction-core.js": "ddc9aa81529c02431f3b365b76e87a0bb12cf7462c68762730cfc980d9bbc5e6",
+    "domain-command-core.js": "3b8cdd8af5f51edefc10913b36d7077706a94546e6be518d1cdf3238eda38647",
+    "persistence-core.js": "d458510442de4c3661865477524a368043fd623d128e25dc2de0978b8cbf009e",
+    "state-codec-core.js": "e8c72dc0d8afaded20736cfc541d6744feb706a907de6f2d86c3ce49a11739d4",
+    "fleet-store-core.js": "30debea0d68d938ffb025d72efd132091a4f875d13a302c5cfff360fe9f2ef2d",
+    "save-schema.js": "31b1e122f9f8a65f6966471ca370113021bb2ae160f81515d36ab0f684cd902a",
+    "banking-core.js": "9f6b63caef710f107f9af872c93ed93687b2ded0183983e278f0e92857861d2b",
+    "insurance-core.js": "62b008bd240125653fb42ee8e60cdcc6233a6151bf8e221a2439f67490567f5a",
+    "telecom-market-core.js": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec"
+  },
+  "rows": 1000000,
+  "companiesOpened": 11,
+  "repeats": 3,
+  "scope": "Actual UI buttons, owners, worker and protocol ACK; paused fleet with no route dispatch; not all-company revenue or native iPhone IO. Named spans do not cover every browser task.",
+  "results": [
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-hbl3li",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-0-accept-0",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-1",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-2",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-3",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-0-accept-4",
+                "decision": "approve"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-hbl3li",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-hbl3li",
+              "periodId": "0",
+              "approved": 5,
+              "rejected": 0,
+              "skipped": 0,
+              "totalPrincipal": 2500000,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-0-accept-0",
+                  "status": "موافق",
+                  "loanId": "LOAN-1",
+                  "contractId": "CUST-LOAN-1",
+                  "customerId": "BANK-CUST-8d86665",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-1",
+                  "status": "موافق",
+                  "loanId": "LOAN-2",
+                  "contractId": "CUST-LOAN-2",
+                  "customerId": "BANK-CUST-add38cd",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-2",
+                  "status": "موافق",
+                  "loanId": "LOAN-3",
+                  "contractId": "CUST-LOAN-3",
+                  "customerId": "BANK-CUST-cfe7fb9",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-3",
+                  "status": "موافق",
+                  "loanId": "LOAN-4",
+                  "contractId": "CUST-LOAN-4",
+                  "customerId": "BANK-CUST-c198d01",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-0-accept-4",
+                  "status": "موافق",
+                  "loanId": "LOAN-5",
+                  "contractId": "CUST-LOAN-5",
+                  "customerId": "BANK-CUST-7691835",
+                  "principal": 500000
+                }
+              ]
+            }
+          },
+          "ended": 75404.59999999776
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 336.30000000074506,
+      "toUiEndMs": 350.5,
+      "maxMeasuredSyncMs": 4.699999999254942,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.3999999985098839,
+          "maxMs": 1.3999999985098839
+        },
+        "fleet.sync": {
+          "count": 4,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.0999999977648258,
+          "maxMs": 0.7999999970197678
+        },
+        "ui.readScroll": {
+          "count": 2,
+          "totalMs": 1.2000000029802322,
+          "maxMs": 1.1000000014901161
+        },
+        "ui.panel": {
+          "count": 2,
+          "totalMs": 1.199999999254942,
+          "maxMs": 0.7999999970197678
+        },
+        "ui.insertHTML": {
+          "count": 2,
+          "totalMs": 3.100000001490116,
+          "maxMs": 2.600000001490116
+        },
+        "ui.bind": {
+          "count": 2,
+          "totalMs": 1.300000000745058,
+          "maxMs": 0.6999999992549419
+        },
+        "ui.drawer": {
+          "count": 2,
+          "totalMs": 7.600000001490116,
+          "maxMs": 4.699999999254942
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.4000000059604645,
+          "maxMs": 0.7000000029802322
+        },
+        "ui.kpis": {
+          "count": 3,
+          "totalMs": 0.19999999552965164,
+          "maxMs": 0.09999999776482582
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 1.5,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.4,
+        "applyMs": 9.7,
+        "validateMs": 5.2,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 288.3,
+        "persistMs": 28.5,
+        "publishMs": 0.7,
+        "afterMs": 0,
+        "totalMs": 334.7,
+        "committed": true,
+        "cloneBusyMs": 1.4,
+        "cloneMaxSliceMs": 1.4,
+        "cloneYields": 0,
+        "validateBusyMs": 1.1,
+        "validateMaxSliceMs": 0.8,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 293.9,
+        "recordedAtMs": 1792313555043
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-nz7adb",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-0-reject-0",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-1",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-2",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-3",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-0-reject-4",
+                "decision": "reject"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-nz7adb",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-nz7adb",
+              "periodId": "0",
+              "approved": 0,
+              "rejected": 5,
+              "skipped": 0,
+              "totalPrincipal": 0,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-0-reject-0",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-1",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-2",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-3",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-0-reject-4",
+                  "status": "مرفوض"
+                }
+              ]
+            }
+          },
+          "ended": 75552.09999999776
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 35.30000000074506,
+      "toUiEndMs": 39.30000000074506,
+      "maxMeasuredSyncMs": 2.300000000745058,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.2000000029802322,
+          "maxMs": 1.2000000029802322
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 0.8999999985098839,
+          "maxMs": 0.6999999992549419
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.2000000029802322,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.09999999776482582,
+          "maxMs": 0.09999999776482582
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.6999999992549419,
+          "maxMs": 0.6999999992549419
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.300000000745058,
+          "maxMs": 2.300000000745058
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 1.3,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 0.9,
+        "validateMs": 13.4,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 3.6,
+        "persistMs": 13.1,
+        "publishMs": 0.6,
+        "afterMs": 0,
+        "totalMs": 33.8,
+        "committed": true,
+        "cloneBusyMs": 1.2,
+        "cloneMaxSliceMs": 1.2,
+        "cloneYields": 0,
+        "validateBusyMs": 0.9,
+        "validateMaxSliceMs": 0.7,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 17.5,
+        "recordedAtMs": 1792313555191
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-9782ea3dec3e4c252f528074",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-0-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-0-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-9782ea3dec3e4c252f528074",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-9782ea3dec3e4c252f528074",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "totalPremium": 50000,
+              "totalInsured": 5000000,
+              "items": [
+                {
+                  "id": "QA-insurance-0-accept-0",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-1",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-2",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-3",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-0-accept-4",
+                  "status": "مقبول",
+                  "premium": 10000
+                }
+              ]
+            }
+          },
+          "ended": 75700.89999999851
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 34,
+      "toUiEndMs": 37.5,
+      "maxMeasuredSyncMs": 1.7000000029802322,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.0999999977648258,
+          "maxMs": 1.0999999977648258
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.1999999955296516,
+          "maxMs": 1.0999999977648258
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.3999999985098839,
+          "maxMs": 0.6999999992549419
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.09999999776482582,
+          "maxMs": 0.09999999776482582
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.20000000298023224,
+          "maxMs": 0.20000000298023224
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.7000000029802322,
+          "maxMs": 1.7000000029802322
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 1.2,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.2,
+        "applyMs": 3.4,
+        "validateMs": 11.4,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 3.7,
+        "persistMs": 11.8,
+        "publishMs": 0.8,
+        "afterMs": 0,
+        "totalMs": 32.9,
+        "committed": true,
+        "cloneBusyMs": 1.1,
+        "cloneMaxSliceMs": 1.1,
+        "cloneYields": 0,
+        "validateBusyMs": 1.2,
+        "validateMaxSliceMs": 1.1,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 15.3,
+        "recordedAtMs": 1792313555340
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-413507b716a03167a2dbe3e3",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-0-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-0-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-413507b716a03167a2dbe3e3",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-413507b716a03167a2dbe3e3",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "totalPremium": 0,
+              "totalInsured": 0,
+              "items": [
+                {
+                  "id": "QA-insurance-0-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-0-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 75853.19999999925
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 35.19999999925494,
+      "toUiEndMs": 38.899999998509884,
+      "maxMeasuredSyncMs": 1.8999999985098839,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.0999999977648258,
+          "maxMs": 1.0999999977648258
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.0000000037252903,
+          "maxMs": 0.9000000022351742
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.3999999985098839,
+          "maxMs": 0.6999999992549419
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.10000000149011612,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5999999977648258,
+          "maxMs": 0.5999999977648258
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.8999999985098839,
+          "maxMs": 1.8999999985098839
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 1.2,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.4,
+        "applyMs": 0.6,
+        "validateMs": 12.7,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 3.7,
+        "persistMs": 14,
+        "publishMs": 0.7,
+        "afterMs": 0,
+        "totalMs": 33.8,
+        "committed": true,
+        "cloneBusyMs": 1.1,
+        "cloneMaxSliceMs": 1.1,
+        "cloneYields": 0,
+        "validateBusyMs": 1,
+        "validateMaxSliceMs": 0.9,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 16.8,
+        "recordedAtMs": 1792313555492
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-accept-5c037a5de594021bef3fadca",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-0-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-0-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-accept-5c037a5de594021bef3fadca",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-accept-5c037a5de594021bef3fadca",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "monthlyValue": 210000,
+              "items": [
+                {
+                  "id": "QA-telecom-0-accept-0",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-0",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-1",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-1",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-2",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-2",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-3",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-3",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-0-accept-4",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-0-accept-4",
+                  "monthlyValue": 42000
+                }
+              ]
+            }
+          },
+          "ended": 76010.29999999702
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 37.899999998509884,
+      "toUiEndMs": 47.899999998509884,
+      "maxMeasuredSyncMs": 4.899999998509884,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.0999999977648258,
+          "maxMs": 1.0999999977648258
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.6000000014901161,
+          "maxMs": 1.4000000022351742
+        },
+        "ui.kpis": {
+          "count": 3,
+          "totalMs": 0.29999999701976776,
+          "maxMs": 0.19999999925494194
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 9.699999999254942,
+          "maxMs": 4.899999998509884
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 1.5,
+          "maxMs": 1.5
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.5999999977648258,
+          "maxMs": 0.5999999977648258
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.6000000014901161,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.6000000014901161,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 3.600000001490116,
+          "maxMs": 3.600000001490116
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 1.2,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 6,
+        "validateMs": 9,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 4.1,
+        "persistMs": 14.5,
+        "publishMs": 4.9,
+        "afterMs": 0,
+        "totalMs": 40.4,
+        "committed": true,
+        "cloneBusyMs": 1.1,
+        "cloneMaxSliceMs": 1.1,
+        "cloneYields": 0,
+        "validateBusyMs": 1.6,
+        "validateMaxSliceMs": 1.4,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 13.5,
+        "recordedAtMs": 1792313555649
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "round": 0,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-decline-0329ee49fa7ccc209e02da30",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-0-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-0-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-decline-0329ee49fa7ccc209e02da30",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-decline-0329ee49fa7ccc209e02da30",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "monthlyValue": 0,
+              "items": [
+                {
+                  "id": "QA-telecom-0-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-0-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 76177.79999999702
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 40.19999999925494,
+      "toUiEndMs": 46.399999998509884,
+      "maxMeasuredSyncMs": 2.599999997764826,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 2.099999997764826,
+          "maxMs": 2.099999997764826
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 2.100000001490116,
+          "maxMs": 2
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 4.099999997764826,
+          "maxMs": 2.099999997764826
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.10000000149011612,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.8000000007450581,
+          "maxMs": 0.8000000007450581
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.6000000014901161,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.599999997764826,
+          "maxMs": 2.599999997764826
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 2.2,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.4,
+        "applyMs": 0.8,
+        "validateMs": 11.6,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 5.4,
+        "persistMs": 16.6,
+        "publishMs": 2.1,
+        "afterMs": 0,
+        "totalMs": 39.7,
+        "committed": true,
+        "cloneBusyMs": 2.1,
+        "cloneMaxSliceMs": 2.1,
+        "cloneYields": 0,
+        "validateBusyMs": 2.1,
+        "validateMaxSliceMs": 2,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 17.5,
+        "recordedAtMs": 1792313555817
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "round": 1,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-dtumad",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-1-accept-0",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-1-accept-1",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-1-accept-2",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-1-accept-3",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-1-accept-4",
+                "decision": "approve"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-dtumad",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-dtumad",
+              "periodId": "0",
+              "approved": 5,
+              "rejected": 0,
+              "skipped": 0,
+              "totalPrincipal": 2500000,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-1-accept-0",
+                  "status": "موافق",
+                  "loanId": "LOAN-6",
+                  "contractId": "CUST-LOAN-6",
+                  "customerId": "BANK-CUST-62f3b0b",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-1-accept-1",
+                  "status": "موافق",
+                  "loanId": "LOAN-7",
+                  "contractId": "CUST-LOAN-7",
+                  "customerId": "BANK-CUST-71a8c93",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-1-accept-2",
+                  "status": "موافق",
+                  "loanId": "LOAN-8",
+                  "contractId": "CUST-LOAN-8",
+                  "customerId": "BANK-CUST-7912077",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-1-accept-3",
+                  "status": "موافق",
+                  "loanId": "LOAN-9",
+                  "contractId": "CUST-LOAN-9",
+                  "customerId": "BANK-CUST-db1981f",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-1-accept-4",
+                  "status": "موافق",
+                  "loanId": "LOAN-10",
+                  "contractId": "CUST-LOAN-10",
+                  "customerId": "BANK-CUST-2fcce03",
+                  "principal": 500000
+                }
+              ]
+            }
+          },
+          "ended": 76322.29999999702
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 37,
+      "toUiEndMs": 42.19999999925494,
+      "maxMeasuredSyncMs": 2.699999999254942,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 2.699999999254942,
+          "maxMs": 2.699999999254942
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.199999999254942,
+          "maxMs": 1
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.1999999955296516,
+          "maxMs": 1.0999999977648258
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.09999999776482582,
+          "maxMs": 0.09999999776482582
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.7000000029802322,
+          "maxMs": 0.7000000029802322
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.5,
+          "maxMs": 2.5
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 2.7,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 5,
+        "validateMs": 7.4,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 4.3,
+        "persistMs": 14.6,
+        "publishMs": 1.1,
+        "afterMs": 0,
+        "totalMs": 36.1,
+        "committed": true,
+        "cloneBusyMs": 2.7,
+        "cloneMaxSliceMs": 2.7,
+        "cloneYields": 0,
+        "validateBusyMs": 1.2,
+        "validateMaxSliceMs": 1,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 12.3,
+        "recordedAtMs": 1792313555961
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "round": 1,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-ek5mf8",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-1-reject-0",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-1-reject-1",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-1-reject-2",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-1-reject-3",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-1-reject-4",
+                "decision": "reject"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-ek5mf8",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-ek5mf8",
+              "periodId": "0",
+              "approved": 0,
+              "rejected": 5,
+              "skipped": 0,
+              "totalPrincipal": 0,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-1-reject-0",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-1-reject-1",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-1-reject-2",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-1-reject-3",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-1-reject-4",
+                  "status": "مرفوض"
+                }
+              ]
+            }
+          },
+          "ended": 76473.09999999776
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 37.69999999925494,
+      "toUiEndMs": 42,
+      "maxMeasuredSyncMs": 2.199999999254942,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.5,
+          "maxMs": 1.5
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.2000000029802322,
+          "maxMs": 1
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.6000000014901161,
+          "maxMs": 0.8000000007450581
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.6000000014901161,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.19999999925494194
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.6000000014901161,
+          "maxMs": 0.6000000014901161
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.199999999254942,
+          "maxMs": 2.199999999254942
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 1.7,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.4,
+        "applyMs": 0.6,
+        "validateMs": 12.3,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 4.4,
+        "persistMs": 15.5,
+        "publishMs": 0.8,
+        "afterMs": 0,
+        "totalMs": 36.2,
+        "committed": true,
+        "cloneBusyMs": 1.5,
+        "cloneMaxSliceMs": 1.5,
+        "cloneYields": 0,
+        "validateBusyMs": 1.2,
+        "validateMaxSliceMs": 1,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 17.1,
+        "recordedAtMs": 1792313556112
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "round": 1,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-ca64c9ee8dfbcd294b600c3b",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-1-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-1-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-1-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-1-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-1-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-ca64c9ee8dfbcd294b600c3b",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-ca64c9ee8dfbcd294b600c3b",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "totalPremium": 50000,
+              "totalInsured": 5000000,
+              "items": [
+                {
+                  "id": "QA-insurance-1-accept-0",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-1-accept-1",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-1-accept-2",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-1-accept-3",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-1-accept-4",
+                  "status": "مقبول",
+                  "premium": 10000
+                }
+              ]
+            }
+          },
+          "ended": 76642
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 40.30000000074506,
+      "toUiEndMs": 44.19999999925494,
+      "maxMeasuredSyncMs": 2.699999999254942,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 2.699999999254942,
+          "maxMs": 2.699999999254942
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.699999999254942,
+          "maxMs": 1.5
+        },
+        "ui.kpis": {
+          "count": 3,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.19999999925494194
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2,
+          "maxMs": 1
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.10000000149011612,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.19999999925494194
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.4000000022351742,
+          "maxMs": 0.4000000022351742
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.699999999254942,
+          "maxMs": 1.699999999254942
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 2.8,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.2,
+        "applyMs": 2.9,
+        "validateMs": 9.9,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 5.2,
+        "persistMs": 16,
+        "publishMs": 1,
+        "afterMs": 0,
+        "totalMs": 38.5,
+        "committed": true,
+        "cloneBusyMs": 2.7,
+        "cloneMaxSliceMs": 2.7,
+        "cloneYields": 0,
+        "validateBusyMs": 1.7,
+        "validateMaxSliceMs": 1.5,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 15.5,
+        "recordedAtMs": 1792313556281
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "round": 1,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-0afb2b7c7d923bcb6af37d7c",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-1-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-1-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-1-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-1-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-1-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-0afb2b7c7d923bcb6af37d7c",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-0afb2b7c7d923bcb6af37d7c",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "totalPremium": 0,
+              "totalInsured": 0,
+              "items": [
+                {
+                  "id": "QA-insurance-1-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-1-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-1-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-1-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-1-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 76793.69999999925
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 41.899999998509884,
+      "toUiEndMs": 46.100000001490116,
+      "maxMeasuredSyncMs": 1.6000000014901161,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.5,
+          "maxMs": 1.5
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.7000000029802322,
+          "maxMs": 1.4000000022351742
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.600000001490116,
+          "maxMs": 1.300000000745058
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.19999999925494194
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.19999999925494194
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.6000000014901161,
+          "maxMs": 1.6000000014901161
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 1.7,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 0.6,
+        "validateMs": 13.4,
+        "integrityMs": 0.4,
+        "prestageWaitMs": 6.9,
+        "persistMs": 16.4,
+        "publishMs": 1.3,
+        "afterMs": 0,
+        "totalMs": 41.1,
+        "committed": true,
+        "cloneBusyMs": 1.5,
+        "cloneMaxSliceMs": 1.5,
+        "cloneYields": 0,
+        "validateBusyMs": 1.7,
+        "validateMaxSliceMs": 1.4,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 20.7,
+        "recordedAtMs": 1792313556433
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "round": 1,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-accept-fab61c5840d84a1b4b04c7f0",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-1-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-1-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-1-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-1-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-1-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-accept-fab61c5840d84a1b4b04c7f0",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-accept-fab61c5840d84a1b4b04c7f0",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "monthlyValue": 210000,
+              "items": [
+                {
+                  "id": "QA-telecom-1-accept-0",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-1-accept-0",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-1-accept-1",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-1-accept-1",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-1-accept-2",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-1-accept-2",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-1-accept-3",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-1-accept-3",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-1-accept-4",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-1-accept-4",
+                  "monthlyValue": 42000
+                }
+              ]
+            }
+          },
+          "ended": 76944.59999999776
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 43.30000000074506,
+      "toUiEndMs": 48.099999997764826,
+      "maxMeasuredSyncMs": 2.7999999970197678,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.6000000014901161,
+          "maxMs": 1.6000000014901161
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 2.9999999962747097,
+          "maxMs": 2.7999999970197678
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.1999999955296516,
+          "maxMs": 1.0999999977648258
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.8000000007450581,
+          "maxMs": 0.8000000007450581
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5999999977648258,
+          "maxMs": 0.5999999977648258
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.5,
+          "maxMs": 2.5
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 1.7,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 6.1,
+        "validateMs": 9.7,
+        "integrityMs": 0.1,
+        "prestageWaitMs": 5.1,
+        "persistMs": 18,
+        "publishMs": 1.1,
+        "afterMs": 0,
+        "totalMs": 42.3,
+        "committed": true,
+        "cloneBusyMs": 1.6,
+        "cloneMaxSliceMs": 1.6,
+        "cloneYields": 0,
+        "validateBusyMs": 3,
+        "validateMaxSliceMs": 2.8,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 15,
+        "recordedAtMs": 1792313556583
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "round": 1,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-decline-17a565679d5e423415b8e50b",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-1-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-1-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-1-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-1-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-1-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-decline-17a565679d5e423415b8e50b",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-decline-17a565679d5e423415b8e50b",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "monthlyValue": 0,
+              "items": [
+                {
+                  "id": "QA-telecom-1-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-1-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-1-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-1-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-1-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 77092.39999999851
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 41.399999998509884,
+      "toUiEndMs": 45.80000000074506,
+      "maxMeasuredSyncMs": 2.300000000745058,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.5,
+          "maxMs": 1.5
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 2.600000001490116,
+          "maxMs": 2.300000000745058
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2,
+          "maxMs": 1
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.20000000298023224,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.6999999992549419,
+          "maxMs": 0.6999999992549419
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.199999999254942,
+          "maxMs": 2.199999999254942
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 1.5,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 0.9,
+        "validateMs": 14.8,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 5.7,
+        "persistMs": 15.8,
+        "publishMs": 1,
+        "afterMs": 0,
+        "totalMs": 40.2,
+        "committed": true,
+        "cloneBusyMs": 1.5,
+        "cloneMaxSliceMs": 1.5,
+        "cloneYields": 0,
+        "validateBusyMs": 2.6,
+        "validateMaxSliceMs": 2.3,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 20.7,
+        "recordedAtMs": 1792313556731
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "round": 2,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-ac44z8",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-2-accept-0",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-2-accept-1",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-2-accept-2",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-2-accept-3",
+                "decision": "approve"
+              },
+              {
+                "id": "QA-bank-2-accept-4",
+                "decision": "approve"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-ac44z8",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-ac44z8",
+              "periodId": "0",
+              "approved": 5,
+              "rejected": 0,
+              "skipped": 0,
+              "totalPrincipal": 2500000,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-2-accept-0",
+                  "status": "موافق",
+                  "loanId": "LOAN-11",
+                  "contractId": "CUST-LOAN-11",
+                  "customerId": "BANK-CUST-6ab6881",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-2-accept-1",
+                  "status": "موافق",
+                  "loanId": "LOAN-12",
+                  "contractId": "CUST-LOAN-12",
+                  "customerId": "BANK-CUST-19a5a09",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-2-accept-2",
+                  "status": "موافق",
+                  "loanId": "LOAN-13",
+                  "contractId": "CUST-LOAN-13",
+                  "customerId": "BANK-CUST-5a9780d",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-2-accept-3",
+                  "status": "موافق",
+                  "loanId": "LOAN-14",
+                  "contractId": "CUST-LOAN-14",
+                  "customerId": "BANK-CUST-8d6bc75",
+                  "principal": 500000
+                },
+                {
+                  "requestId": "QA-bank-2-accept-4",
+                  "status": "موافق",
+                  "loanId": "LOAN-15",
+                  "contractId": "CUST-LOAN-15",
+                  "customerId": "BANK-CUST-7008d99",
+                  "principal": 500000
+                }
+              ]
+            }
+          },
+          "ended": 77261.09999999776
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 59.69999999925494,
+      "toUiEndMs": 64.30000000074506,
+      "maxMeasuredSyncMs": 2.300000000745058,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.5,
+          "maxMs": 1.5
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.3999999985098839,
+          "maxMs": 1.199999999254942
+        },
+        "ui.kpis": {
+          "count": 3,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.10000000149011612
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.1999999955296516,
+          "maxMs": 1.0999999977648258
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.8000000007450581,
+          "maxMs": 0.8000000007450581
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.19999999925494194
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.7000000029802322,
+          "maxMs": 0.7000000029802322
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.4000000022351742,
+          "maxMs": 0.4000000022351742
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.300000000745058,
+          "maxMs": 2.300000000745058
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 1.6,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 2.6,
+        "validateMs": 12.9,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 6.7,
+        "persistMs": 33.1,
+        "publishMs": 1.1,
+        "afterMs": 0,
+        "totalMs": 58.8,
+        "committed": true,
+        "cloneBusyMs": 1.5,
+        "cloneMaxSliceMs": 1.5,
+        "cloneYields": 0,
+        "validateBusyMs": 1.4,
+        "validateMaxSliceMs": 1.2,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 20.1,
+        "recordedAtMs": 1792313556900
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "round": 2,
+      "calls": [
+        {
+          "domain": "banking",
+          "name": "approve-loan-requests-batch",
+          "payload": {
+            "batchId": "BANK-LOANS-0-553yh5",
+            "periodId": 0,
+            "decisions": [
+              {
+                "id": "QA-bank-2-reject-0",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-2-reject-1",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-2-reject-2",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-2-reject-3",
+                "decision": "reject"
+              },
+              {
+                "id": "QA-bank-2-reject-4",
+                "decision": "reject"
+              }
+            ]
+          },
+          "key": "bank:loan-requests:BANK-LOANS-0-553yh5",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "BANK-LOANS-0-553yh5",
+              "periodId": "0",
+              "approved": 0,
+              "rejected": 5,
+              "skipped": 0,
+              "totalPrincipal": 0,
+              "totalDisbursed": 0,
+              "items": [
+                {
+                  "requestId": "QA-bank-2-reject-0",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-2-reject-1",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-2-reject-2",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-2-reject-3",
+                  "status": "مرفوض"
+                },
+                {
+                  "requestId": "QA-bank-2-reject-4",
+                  "status": "مرفوض"
+                }
+              ]
+            }
+          },
+          "ended": 77409.79999999702
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 42.100000001490116,
+      "toUiEndMs": 46.600000001490116,
+      "maxMeasuredSyncMs": 2.5,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 2.5,
+          "maxMs": 2.5
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 2.199999999254942,
+          "maxMs": 2
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.1999999955296516,
+          "maxMs": 1.0999999977648258
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.20000000298023224,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.6999999992549419,
+          "maxMs": 0.6999999992549419
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.20000000298023224,
+          "maxMs": 0.20000000298023224
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.199999999254942,
+          "maxMs": 2.199999999254942
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "banking:approve-loan-requests-batch",
+        "cloneMs": 2.6,
+        "inheritMs": 0.2,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 0.9,
+        "validateMs": 12.9,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 5.8,
+        "persistMs": 16.9,
+        "publishMs": 1.1,
+        "afterMs": 0,
+        "totalMs": 41,
+        "committed": true,
+        "cloneBusyMs": 2.5,
+        "cloneMaxSliceMs": 2.5,
+        "cloneYields": 0,
+        "validateBusyMs": 2.2,
+        "validateMaxSliceMs": 2,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 18.9,
+        "recordedAtMs": 1792313557049
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "round": 2,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-53591acd6f21864ea91d10a8",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-2-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-2-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-2-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-2-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-insurance-2-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-53591acd6f21864ea91d10a8",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-53591acd6f21864ea91d10a8",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "totalPremium": 50000,
+              "totalInsured": 5000000,
+              "items": [
+                {
+                  "id": "QA-insurance-2-accept-0",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-2-accept-1",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-2-accept-2",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-2-accept-3",
+                  "status": "مقبول",
+                  "premium": 10000
+                },
+                {
+                  "id": "QA-insurance-2-accept-4",
+                  "status": "مقبول",
+                  "premium": 10000
+                }
+              ]
+            }
+          },
+          "ended": 77560.39999999851
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 42.899999998509884,
+      "toUiEndMs": 46.80000000074506,
+      "maxMeasuredSyncMs": 2.199999999254942,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 2.199999999254942,
+          "maxMs": 2.199999999254942
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.9000000022351742,
+          "maxMs": 1.800000000745058
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 1.7999999970197678,
+          "maxMs": 0.8999999985098839
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.10000000149011612,
+          "maxMs": 0.10000000149011612
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.20000000298023224,
+          "maxMs": 0.20000000298023224
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5999999977648258,
+          "maxMs": 0.5999999977648258
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.800000000745058,
+          "maxMs": 1.800000000745058
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 2.3,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 2.4,
+        "validateMs": 12.1,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 6.2,
+        "persistMs": 17.1,
+        "publishMs": 0.9,
+        "afterMs": 0,
+        "totalMs": 41.7,
+        "committed": true,
+        "cloneBusyMs": 2.2,
+        "cloneMaxSliceMs": 2.2,
+        "cloneYields": 0,
+        "validateBusyMs": 1.9,
+        "validateMaxSliceMs": 1.8,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 18.7,
+        "recordedAtMs": 1792313557199
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "round": 2,
+      "calls": [
+        {
+          "domain": "insurance",
+          "name": "decide-risks-batch",
+          "payload": {
+            "batchId": "INS-RISK-0-0ab9fad2af48203f99b7fb55",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-insurance-2-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-2-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-2-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-2-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-insurance-2-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "INS-RISK-0-0ab9fad2af48203f99b7fb55",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "INS-RISK-0-0ab9fad2af48203f99b7fb55",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "totalPremium": 0,
+              "totalInsured": 0,
+              "items": [
+                {
+                  "id": "QA-insurance-2-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-2-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-2-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-2-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-insurance-2-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 77708.39999999851
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 41.100000001490116,
+      "toUiEndMs": 45,
+      "maxMeasuredSyncMs": 1.8999999985098839,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.8999999985098839,
+          "maxMs": 1.8999999985098839
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.9000000022351742,
+          "maxMs": 1.7000000029802322
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2,
+          "maxMs": 1
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.20000000298023224,
+          "maxMs": 0.20000000298023224
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.29999999701976776,
+          "maxMs": 0.29999999701976776
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 1.7999999970197678,
+          "maxMs": 1.7999999970197678
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "insurance:decide-risks-batch",
+        "cloneMs": 1.9,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.4,
+        "applyMs": 0.6,
+        "validateMs": 14.1,
+        "integrityMs": 0.3,
+        "prestageWaitMs": 5.4,
+        "persistMs": 16.2,
+        "publishMs": 1,
+        "afterMs": 0,
+        "totalMs": 40,
+        "committed": true,
+        "cloneBusyMs": 1.9,
+        "cloneMaxSliceMs": 1.9,
+        "cloneYields": 0,
+        "validateBusyMs": 1.9,
+        "validateMaxSliceMs": 1.7,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 19.9,
+        "recordedAtMs": 1792313557347
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "round": 2,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-accept-1a7b6c00010b0ffac93ab02e",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-2-accept-0",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-2-accept-1",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-2-accept-2",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-2-accept-3",
+                "decision": "accept"
+              },
+              {
+                "id": "QA-telecom-2-accept-4",
+                "decision": "accept"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-accept-1a7b6c00010b0ffac93ab02e",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-accept-1a7b6c00010b0ffac93ab02e",
+              "periodId": "0",
+              "accepted": 5,
+              "declined": 0,
+              "skipped": 0,
+              "monthlyValue": 210000,
+              "items": [
+                {
+                  "id": "QA-telecom-2-accept-0",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-2-accept-0",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-2-accept-1",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-2-accept-1",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-2-accept-2",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-2-accept-2",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-2-accept-3",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-2-accept-3",
+                  "monthlyValue": 42000
+                },
+                {
+                  "id": "QA-telecom-2-accept-4",
+                  "status": "مقبول",
+                  "contractId": "ENT-QA-telecom-2-accept-4",
+                  "monthlyValue": 42000
+                }
+              ]
+            }
+          },
+          "ended": 77865.09999999776
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 46.899999998509884,
+      "toUiEndMs": 51.69999999925494,
+      "maxMeasuredSyncMs": 2.400000002235174,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.7000000029802322,
+          "maxMs": 1.7000000029802322
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.800000000745058,
+          "maxMs": 1.6000000014901161
+        },
+        "ui.kpis": {
+          "count": 3,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.19999999925494194
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.2000000029802322,
+          "maxMs": 1.1000000014901161
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.8000000007450581,
+          "maxMs": 0.8000000007450581
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.3999999985098839,
+          "maxMs": 0.3999999985098839
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.400000002235174,
+          "maxMs": 2.400000002235174
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 53710,
+      "wireBytes": 53710,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 1.7,
+        "inheritMs": 0,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 4.8,
+        "validateMs": 9.2,
+        "integrityMs": 0.2,
+        "prestageWaitMs": 9.4,
+        "persistMs": 18.9,
+        "publishMs": 1.2,
+        "afterMs": 0,
+        "totalMs": 45.8,
+        "committed": true,
+        "cloneBusyMs": 1.7,
+        "cloneMaxSliceMs": 1.7,
+        "cloneYields": 0,
+        "validateBusyMs": 1.8,
+        "validateMaxSliceMs": 1.6,
+        "prestageOk": true,
+        "prestageUploads": 1,
+        "prestageBytes": 26855,
+        "prestageWallMs": 18.9,
+        "recordedAtMs": 1792313557504
+      },
+      "rows": 1000000,
+      "companies": 11
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "round": 2,
+      "calls": [
+        {
+          "domain": "customer-companies",
+          "name": "telecom-decide-requests-batch",
+          "payload": {
+            "company": "telecom",
+            "batchId": "TEL-ENT-0-decline-95d9164f985a724273c3f9ef",
+            "periodId": "0",
+            "decisions": [
+              {
+                "id": "QA-telecom-2-reject-0",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-2-reject-1",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-2-reject-2",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-2-reject-3",
+                "decision": "decline"
+              },
+              {
+                "id": "QA-telecom-2-reject-4",
+                "decision": "decline"
+              }
+            ]
+          },
+          "key": "TEL-ENT-0-decline-95d9164f985a724273c3f9ef",
+          "done": true,
+          "receipt": {
+            "committed": true,
+            "idempotent": false,
+            "result": {
+              "batchId": "TEL-ENT-0-decline-95d9164f985a724273c3f9ef",
+              "periodId": "0",
+              "accepted": 0,
+              "declined": 5,
+              "skipped": 0,
+              "monthlyValue": 0,
+              "items": [
+                {
+                  "id": "QA-telecom-2-reject-0",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-2-reject-1",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-2-reject-2",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-2-reject-3",
+                  "status": "معتذر عنه"
+                },
+                {
+                  "id": "QA-telecom-2-reject-4",
+                  "status": "معتذر عنه"
+                }
+              ]
+            }
+          },
+          "ended": 78027.69999999925
+        }
+      ],
+      "liveAlerts": 1,
+      "toAckMs": 44,
+      "toUiEndMs": 48.900000002235174,
+      "maxMeasuredSyncMs": 2.400000002235174,
+      "spans": {
+        "command.clone": {
+          "count": 1,
+          "totalMs": 1.6000000014901161,
+          "maxMs": 1.6000000014901161
+        },
+        "fleet.sync": {
+          "count": 2,
+          "totalMs": 0,
+          "maxMs": 0
+        },
+        "command.schema": {
+          "count": 2,
+          "totalMs": 1.699999999254942,
+          "maxMs": 1.5
+        },
+        "command.publish": {
+          "count": 2,
+          "totalMs": 2.2000000029802322,
+          "maxMs": 1.1000000014901161
+        },
+        "ui.kpis": {
+          "count": 2,
+          "totalMs": 0.19999999925494194,
+          "maxMs": 0.19999999925494194
+        },
+        "ui.readScroll": {
+          "count": 1,
+          "totalMs": 0.8000000007450581,
+          "maxMs": 0.8000000007450581
+        },
+        "ui.panel": {
+          "count": 1,
+          "totalMs": 0.30000000074505806,
+          "maxMs": 0.30000000074505806
+        },
+        "ui.insertHTML": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.bind": {
+          "count": 1,
+          "totalMs": 0.5,
+          "maxMs": 0.5
+        },
+        "ui.drawer": {
+          "count": 1,
+          "totalMs": 2.400000002235174,
+          "maxMs": 2.400000002235174
+        }
+      },
+      "attempts": 1,
+      "uploadBytes": 0,
+      "wireBytes": 0,
+      "timing": {
+        "label": "customer-companies:telecom-decide-requests-batch",
+        "cloneMs": 1.7,
+        "inheritMs": 0.1,
+        "baselineIntegrityMs": 0.3,
+        "applyMs": 0.7,
+        "validateMs": 14.2,
+        "integrityMs": 0.4,
+        "prestageWaitMs": 6.4,
+        "persistMs": 18,
+        "publishMs": 1.1,
+        "afterMs": 0,
+        "totalMs": 43,
+        "committed": true,
+        "cloneBusyMs": 1.6,
+        "cloneMaxSliceMs": 1.6,
+        "cloneYields": 0,
+        "validateBusyMs": 1.7,
+        "validateMaxSliceMs": 1.5,
+        "prestageOk": true,
+        "prestageUploads": 0,
+        "prestageBytes": 0,
+        "prestageWallMs": 21.1,
+        "recordedAtMs": 1792313557667
+      },
+      "rows": 1000000,
+      "companies": 11
+    }
+  ],
+  "summaries": [
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "accept",
+      "samples": 3,
+      "toAckMedianMs": 59.69999999925494,
+      "toUiEndMedianMs": 64.30000000074506,
+      "maxNamedSyncMs": 4.699999999254942,
+      "liveAlerts": [
+        1,
+        1,
+        1
+      ],
+      "uploadBytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "bank",
+      "decision": "reject",
+      "samples": 3,
+      "toAckMedianMs": 37.69999999925494,
+      "toUiEndMedianMs": 42,
+      "maxNamedSyncMs": 2.5,
+      "liveAlerts": [
+        1,
+        1,
+        1
+      ],
+      "uploadBytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "accept",
+      "samples": 3,
+      "toAckMedianMs": 40.30000000074506,
+      "toUiEndMedianMs": 44.19999999925494,
+      "maxNamedSyncMs": 2.699999999254942,
+      "liveAlerts": [
+        1,
+        1,
+        1
+      ],
+      "uploadBytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "insurance",
+      "decision": "reject",
+      "samples": 3,
+      "toAckMedianMs": 41.100000001490116,
+      "toUiEndMedianMs": 45,
+      "maxNamedSyncMs": 1.8999999985098839,
+      "liveAlerts": [
+        1,
+        1,
+        1
+      ],
+      "uploadBytes": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "accept",
+      "samples": 3,
+      "toAckMedianMs": 43.30000000074506,
+      "toUiEndMedianMs": 48.099999997764826,
+      "maxNamedSyncMs": 4.899999998509884,
+      "liveAlerts": [
+        1,
+        1,
+        1
+      ],
+      "uploadBytes": [
+        0,
+        0,
+        53710
+      ]
+    },
+    {
+      "engine": "chromium",
+      "kind": "telecom",
+      "decision": "reject",
+      "samples": 3,
+      "toAckMedianMs": 41.399999998509884,
+      "toUiEndMedianMs": 46.399999998509884,
+      "maxNamedSyncMs": 2.599999997764826,
+      "liveAlerts": [
+        1,
+        1,
+        1
+      ],
+      "uploadBytes": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

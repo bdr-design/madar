@@ -1,0 +1,2 @@
+{"suite":"build359-sim-smoothness","checks":["recorder-window","thread-columns","deferred-work","cooldown","proof-rollback-policy","conference-pause-wiring","app-wiring"]}
+BUILD359_SIM_SMOOTHNESS_PASS

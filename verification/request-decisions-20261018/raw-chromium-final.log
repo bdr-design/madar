@@ -1,0 +1,99 @@
+READY chromium 1000000 { routed: 20000, moving: 838, simSeconds: 20 }
+{"engine":"chromium","kind":"bank","decision":"accept","round":0,"toAckMs":35.400000002235174,"maxNamedSyncMs":5.100000001490116,"liveAlerts":0}
+{"engine":"chromium","kind":"bank","decision":"reject","round":0,"toAckMs":29.5,"maxNamedSyncMs":2.899999998509884,"liveAlerts":0}
+{"engine":"chromium","kind":"insurance","decision":"accept","round":0,"toAckMs":31.900000002235174,"maxNamedSyncMs":4,"liveAlerts":0}
+{"engine":"chromium","kind":"insurance","decision":"reject","round":0,"toAckMs":33.099999997764826,"maxNamedSyncMs":1.7999999970197678,"liveAlerts":0}
+{"engine":"chromium","kind":"telecom","decision":"accept","round":0,"toAckMs":31.300000000745058,"maxNamedSyncMs":6.5,"liveAlerts":0}
+{"engine":"chromium","kind":"telecom","decision":"reject","round":0,"toAckMs":30.100000001490116,"maxNamedSyncMs":3.5,"liveAlerts":0}
+[
+  {
+    "engine": "chromium",
+    "kind": "bank",
+    "decision": "accept",
+    "samples": 1,
+    "toAckMedianMs": 35.400000002235174,
+    "toUiEndMedianMs": 40,
+    "maxNamedSyncMs": 5.100000001490116,
+    "liveAlerts": [
+      0
+    ],
+    "uploadBytes": [
+      0
+    ]
+  },
+  {
+    "engine": "chromium",
+    "kind": "bank",
+    "decision": "reject",
+    "samples": 1,
+    "toAckMedianMs": 29.5,
+    "toUiEndMedianMs": 33.5,
+    "maxNamedSyncMs": 2.899999998509884,
+    "liveAlerts": [
+      0
+    ],
+    "uploadBytes": [
+      0
+    ]
+  },
+  {
+    "engine": "chromium",
+    "kind": "insurance",
+    "decision": "accept",
+    "samples": 1,
+    "toAckMedianMs": 31.900000002235174,
+    "toUiEndMedianMs": 35.100000001490116,
+    "maxNamedSyncMs": 4,
+    "liveAlerts": [
+      0
+    ],
+    "uploadBytes": [
+      0
+    ]
+  },
+  {
+    "engine": "chromium",
+    "kind": "insurance",
+    "decision": "reject",
+    "samples": 1,
+    "toAckMedianMs": 33.099999997764826,
+    "toUiEndMedianMs": 36.099999997764826,
+    "maxNamedSyncMs": 1.7999999970197678,
+    "liveAlerts": [
+      0
+    ],
+    "uploadBytes": [
+      0
+    ]
+  },
+  {
+    "engine": "chromium",
+    "kind": "telecom",
+    "decision": "accept",
+    "samples": 1,
+    "toAckMedianMs": 31.300000000745058,
+    "toUiEndMedianMs": 36.899999998509884,
+    "maxNamedSyncMs": 6.5,
+    "liveAlerts": [
+      0
+    ],
+    "uploadBytes": [
+      0
+    ]
+  },
+  {
+    "engine": "chromium",
+    "kind": "telecom",
+    "decision": "reject",
+    "samples": 1,
+    "toAckMedianMs": 30.100000001490116,
+    "toUiEndMedianMs": 35.600000001490116,
+    "maxNamedSyncMs": 3.5,
+    "liveAlerts": [
+      0
+    ],
+    "uploadBytes": [
+      0
+    ]
+  }
+]

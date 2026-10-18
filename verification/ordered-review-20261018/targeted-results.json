@@ -1,0 +1,498 @@
+{
+  "source_tree_sha256": "983e3fd14465d9f51bad33adf5ae59515a0d9197f1df976d270ba0a269e5c6b1",
+  "baseline_source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+  "acceptance_contract_sha256": "52f828f151b6b5847e22d30a4b432e6caa2b098abfd52e0ff5586e9ab0a8a205",
+  "scope": "54 related scripts, not full acceptance or preflight execution",
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/build442-fleet-review-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.315,
+      "test_sha256": "af7cf6515c24639ebd294025be9e6a4cdd0c6bd6feb67a5037479d3cdff48337"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build443-company-review-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.166,
+      "test_sha256": "add46b329d538fff6a77e92acae9f26433a910fac8bd5f362add2bee46869197"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build444-document-pages.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.344,
+      "test_sha256": "3460612d3d8831dcc0b23787347298ea7d7ebe0a22761a16aa8c25683d46670a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build446-payroll-unused-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.116,
+      "test_sha256": "29d8f37d20b20e290c66a59d2ad313a72b621247df0ad0ff610ff84bfc05a8a2"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-legacy-route-plan.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.064,
+      "test_sha256": "87e144971b577e0c15a2587306e7e9d2786f9905a49c83aee6dd63b82869da20"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-legacy-route-repair-index.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.064,
+      "test_sha256": "8f6851e6961756fd6336d60a5bf0c28ddc8cbe86e82034a76462b16a8c0da75c"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-route-normalization-plan.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.518,
+      "test_sha256": "c9bb68f21ee511b9b3ff9211229d1645224362776cfd18a19bb0abbe7d810a13"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build351-mobility-stepping.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.374,
+      "test_sha256": "7dafc50d157d0d47c8d605a8c754991a0c3de40ad785dc3d36d43775f29460a1"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build366-mobility-no-repeat-scans.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.266,
+      "test_sha256": "59364ff236f09a2343669fd071e7722c283cabe2effee09e44488104f082159b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build401-mobility-batching-and-indexes.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.67,
+      "test_sha256": "233c0882c02697147b76822615ba01e577109311a919b67ee2f25a3f7cee27a5"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-energy-market.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.115,
+      "test_sha256": "64141e993954f64785d81fea8890978ebbd65c310abe19b4a05ac1ffd12aeb53"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-energy-health-contract.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.064,
+      "test_sha256": "9dbdbd8523f16a70815ec13ae99f5d7dd9c436373dff023864e0af120d57a2ca"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-energy-blocks-ppa.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.115,
+      "test_sha256": "2e75d028deb19589d63355727581e76fb617955c6f46039747382f2ace98e741"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-insurance-risk-batch.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.064,
+      "test_sha256": "223842ace846d73b1b245081a53391c11e5d6064b68fe8dc73d7453db7420d28"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-realestate-internal-leases.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.114,
+      "test_sha256": "187143c2ed04d65b7810860db38bea62b16269da07d21cc5ea6a7b8a6017588f"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-realestate-off-plan.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.469,
+      "test_sha256": "7cfe509dc425cfd9704148faa7b12d39758f705b27ee9aee7be203721c202d64"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-customer-companies-core.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.119,
+      "test_sha256": "b73bdc818510754ca9bb79d51ee9dbc25a02db91b84377c9e7544030a2c7d9db"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build400-telecom-peer-index.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.479,
+      "test_sha256": "27b6b4a3e3922c174640644bb1a180d47e74ca6ef9279871bf24800c03f3e59d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build402-company-daily-indexes.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.115,
+      "test_sha256": "efce958323cc73cae45869c55c8ee5d9b1d77c3dd8cf719f39642f166bbee046"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build396-hospitality-budgets.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.469,
+      "test_sha256": "dc37fc9c092bef918de0eb0f5dc6b0ae7a601a6416dba1abe0dcdf2bcf4a1a80"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build393-hospitality-financial-safety.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.516,
+      "test_sha256": "63cb33b74a89c48d8fc9e6a9cd855135674d82e8fe74c7c30432388ef00aac25"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build368-hr-payroll-parity.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.165,
+      "test_sha256": "036649d0008717828ffabc4e761e9800a88ec7c35eeec27a403962d73418f827"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-payroll-settlement-index.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.065,
+      "test_sha256": "f5a08e53e1b2b2ebab1342841d2717f2c6eeed25a805d8cce790b499dd41ca22"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-financial-batches.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.114,
+      "test_sha256": "e74defd6120366083c46cf11971a033b782f10a62ae56c9919a02c47c3697901"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-cheque-index.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.117,
+      "test_sha256": "86e37f839728862bae0a339b6aba25f3b954bd4133b7bd2dadff537da0f1dd0c"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-precision-and-routing.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.468,
+      "test_sha256": "a26fa075cfaed5d00287b7d3ff7ba7b35bd6e7616bee20d3f8214b270575114a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build436-save-work-removal.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.114,
+      "test_sha256": "2f78d5ba4a6f10033b44d697017b79d63822ef205ee04046649de1eabe728e26"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build437-adoption-patch-lineage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.118,
+      "test_sha256": "7f3183a7e65585db7e635934f67c2ecc13b68ac12f0e8567a8e515dc531b1a6e"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build438-day-scratch-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.215,
+      "test_sha256": "ffa6140ec59d4fbc0811e8c05c4bbcd890e776475516af6e91ee48a56dd970a8"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build432-ready-fleet-validation.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.032,
+      "test_sha256": "de7a5662b15ec0b52792ec076611ab2854d1efae73a36235010ce6aaa0e0f427"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build435-conditional-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.114,
+      "test_sha256": "a6575764e128f8b5f3a97b8b7b8b3a89ce57548a8de95541f72f89840b2b899a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build439-summary-single-request.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.067,
+      "test_sha256": "3368f4418dce023c452f56a1e0c6fde0cf870d8368e8fd79810fdf97b532a348"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build440-document-collection-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.518,
+      "test_sha256": "a3448c71109213ac681d4127df93d75af83ce1f80a499b20a995aa94166ec590"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build441-bank-migration-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.115,
+      "test_sha256": "f69401c4baf99982bee19ff7c4c348a570233d98eed645842b026495e1945b89"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-business-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.064,
+      "test_sha256": "4eca5a4537653295bdaa99d22a6e5410844dcfed17194b2eb6cc176bf863b463"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build445-document-pages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 19.633,
+      "test_sha256": "59f1fef77edad79a552b3e9e3af515f85ea75ce305ab83192f602aef6dbdb85b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build419-document-drawer-work-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 8.204,
+      "test_sha256": "712b58d2a2b5d385a39fa3091919c2f988904e0e11ef5f0b5b49e813aac161e7"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-custom-road-geometry-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 2.474,
+      "test_sha256": "15cc037a819033667b780cd37d07b01630ca2da965a32a69ef6f835530d3f569"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-durable-fleet-isolation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 26.737,
+      "test_sha256": "890b67bc123467d0f3609fe523f5097bcaf02b8cf1331d5a7e691e417f0854b9"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build399-bank-prudential-summary-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.236,
+      "test_sha256": "620e068ca17d6180b820c39d373a93c3457a8d071a2469ed33d0d6fdb6c65690"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build394-hospitality-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 20.542,
+      "test_sha256": "937a098bd54d8c9f8b1e8c76cf818c823cf8635405491366221c538934220884"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-nonfleet-tax-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 2.327,
+      "test_sha256": "8fa0518ae1b998816d1817796538cb11a45e5866f2f247247d08884858995cdd"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build433-request-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 26.861,
+      "test_sha256": "f99a697c764f695634ee7196991de0cc72f9dbd1bf2bb98bf131bf10c664e808"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build411-command-row-patch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 23.375,
+      "test_sha256": "5c4d1fae811f8b49daa0ef3c23ba64b953e4ba9bca18fe921bae4ffefa9abb1d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build422-conference-content-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.691,
+      "test_sha256": "655d0cb3cfdd45cd868e86573306308893be8909e2dab195fa8680d968ffe7d7"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 88.924,
+      "test_sha256": "b539a385b2e547c07fb6cdd2f601fd89b2fa24fe2b8320a516282bb882085427"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-corridor-index.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 19.65,
+      "test_sha256": "d1bc945f9a041ed693125a4d616ee683c751bff2a2a42a3f9f20f1bd51dbd589"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build426-governor-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.032,
+      "test_sha256": "0318c892822e4ab3063ac91e5b3b0209be6464f3fed2cb709f36442aa471195a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build427-day-profile-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.615,
+      "test_sha256": "a8a4082465b9cf32e67aa93a3e0f075d9b813e299c332b2a6a3a06ef8b72f693"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-phase-totals.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.032,
+      "test_sha256": "7d8f0bec1ec96b52a703a62f63a704c7024338c8a5cb42a58b3e4366c7930cc9"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build407-diagnostic-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.064,
+      "test_sha256": "adb74926ce2b8f260d2f14dd23a7e0a77168efbb20c7f0c61900282bee829e3e"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "lint",
+        "--silent"
+      ],
+      "exit_code": 0,
+      "seconds": 4.034
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/build334-source-layout.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.064,
+      "test_sha256": "e3b32246febbe86a47efa561e7d6752bcfa8e3f7d40faf8c996839860bdcc0a6"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.314,
+      "test_sha256": "1060ac29c367f35faa9ea9f785ad58553eb014b791498e6652adbfd5b449e96e"
+    }
+  ],
+  "passed": 54,
+  "full_acceptance_run": false,
+  "mutations_detected": 16
+}

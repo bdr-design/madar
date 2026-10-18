@@ -1,0 +1,17 @@
+function directoryEntityOwnedFor(entity,target=state){if(!entity)return null;return entity.kind==='company-site'?dynamicFacilitiesFor(target).find(f=>f?.owned&&companyOfFacility(f)===entity.company&&(f.sourceKey===entity.key||(f.capitalId===entity.capitalId&&f.kind===entity.facilityKind))):globalBaseFor(entity.key,entity.company,target);}
+function facilityScopePlan(target=state,count=worldBulkCount,energyKind=worldBulkEnergyKind,selection={}){
+    const requested=Math.max(1,Math.min(10,Math.trunc(Number(count))||1)),companyId=isDirectoryCompany(selection.company??worldKind,target)?String(selection.company??worldKind):'all',regionId=String((selection.region??worldRegion)||''),countryId=String((selection.country??worldCountry)||''),items=[],skipped=[],companyTotals={};
+    const companies=directoryCompanyRows(target).filter(company=>companyId==='all'||company.id===companyId),region=window.GH_DIRECTORY_CORE.REGIONS.find(row=>row.id===regionId),scopeLabel=countryId?facilityDirectoryIndex().countryMetadata(countryId).label:region?.label||'جميع دول العالم';
+    for(const company of companies){
+      if(!company.operational){skipped.push({company:company.id,reason:'الشركة غير مؤسسة'});continue;}
+      const hospitality=isHospitalityDirectoryCompany(company.id,target),limit=hospitality?Math.min(requested,Math.max(0,window.GH_HOSPITALITY_CORE.MAX_PROPERTIES-(window.GH_HOSPITALITY_CORE.read(target,company.id)?.properties.length||0))):requested;
+      if(!limit){skipped.push({company:company.id,reason:'اكتمل الحد المتاح لمنشآت الشركة'});continue;}
+      const available=[];let page=0,result;
+      do{result=facilityDirectoryIndex().search({state:target,company:company.id,region:countryId?'':regionId,country:countryId,page,pageSize:24});for(const row of result.rows){const entity=directoryEntityByKey(row.key,company.id,target,{energyKind});if(!entity||directoryEntityOwnedFor(entity,target))continue;const baseCost=entity.kind==='company-site'?Number(entity.cost)||0:facilityPrice(entity),quote=hospitality?baseCost:constructionBid(company.id,entity.facilityKind,baseCost,entity.name).winner?.quote||0;if(quote<=0)continue;available.push({company:company.id,key:entity.key,energyKind:company.id==='power'?energyKind:null,quote,name:entity.name,country:entity.country});if(available.length>=limit)break;}page++;}while(available.length<limit&&page<result.pages);
+      if(!available.length){skipped.push({company:company.id,reason:'لا يوجد موقع صالح غير مملوك في النطاق'});continue;}
+      items.push(...available);companyTotals[company.id]=available.reduce((sum,row)=>sum+row.quote,0);
+      if(available.length<requested)skipped.push({company:company.id,reason:`المتاح ${available.length} من ${requested} داخل النطاق`});
+    }
+    const total=items.reduce((sum,row)=>sum+row.quote,0),groupFunding=Object.entries(companyTotals).reduce((sum,[company,amount])=>sum+Math.max(0,amount-companyOperatingBalanceFor(target,company)),0),groupCash=holdingOperatingCash(target),shortfall=Number.isFinite(groupCash)?Math.max(0,groupFunding-groupCash):0;
+    return {scopeKey:`${companyId}|${regionId}|${countryId}`,companyId,regionId,countryId,scopeLabel,requested,energyKind,items,skipped,companyTotals,total,groupFunding,shortfall};
+  }

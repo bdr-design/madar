@@ -1,0 +1,63 @@
+{
+  "suite": "build371-calendar-cancel-settle-core",
+  "passed": 13,
+  "total": 13,
+  "results": [
+    {
+      "name": "cancel inside the boundary task settles the queued maintenance before it is published",
+      "ok": true,
+      "timeAtCancel": 39600,
+      "deferredRuns": 4
+    },
+    {
+      "name": "cancel with no queued maintenance is published at once (unchanged)",
+      "ok": true
+    },
+    {
+      "name": "a second cancel while settling neither repeats the event nor changes its reason",
+      "ok": true
+    },
+    {
+      "name": "a new request is refused while a cancellation settles",
+      "ok": true
+    },
+    {
+      "name": "immediate cancel (halt, fatal) publishes at once and leaves the maintenance to the host",
+      "ok": true
+    },
+    {
+      "name": "reset (hidden, speed change) settles through the same path; a hidden page publishes only after it resumes and drains",
+      "ok": true
+    },
+    {
+      "name": "a suspended host (durable command, locked save) never lets the cancellation publish over unreported maintenance",
+      "ok": true
+    },
+    {
+      "name": "repeated advance and cancel cycles post each boundary once and publish each cancel once",
+      "ok": true,
+      "cycles": 5,
+      "slices": 59
+    },
+    {
+      "name": "completion is unchanged: published after the drain, never as a cancel",
+      "ok": true
+    },
+    {
+      "name": "a permanently suspended host with nothing queued (save recovery lock) publishes the cancel at once",
+      "ok": true
+    },
+    {
+      "name": "a permanently suspended host with work queued: the save-recovery cancel publishes at once under its own reason",
+      "ok": true
+    },
+    {
+      "name": "an emergency cancel while a cancel settles publishes at once under the emergency reason",
+      "ok": true
+    },
+    {
+      "name": "a temporarily suspended host with nothing queued publishes at once (as before Build 371)",
+      "ok": true
+    }
+  ]
+}

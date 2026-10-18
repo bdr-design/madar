@@ -1,0 +1,3526 @@
+{
+  "sourceFunctionSha256": "2609e9fbd93901cee278fdf3cf39a9067b69159b08ded743945dd21d00ad2e5c",
+  "cases": [
+    {
+      "arg": {
+        "company": "all",
+        "tab": "overview",
+        "direction": "all"
+      },
+      "sha256": "6c2f5bd3084e86f635bbdee175ddba15fbee359fafbb17b49791d93937fd3b5b"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "overview",
+        "direction": "incoming"
+      },
+      "sha256": "7a609a4b366d53b24dc784b06c686b3401bc53408d43f6209a301c867e3474fa"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "overview",
+        "direction": "outgoing"
+      },
+      "sha256": "287390378ae3fff9e8f7569daed23bb0a4134036e43068d093eb481669b14230"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "overview",
+        "direction": "internal"
+      },
+      "sha256": "633c0fbb6c35a0a2da39e0bbc089501e96413f464ab15253457fc3c762cd3058"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "all"
+      },
+      "sha256": "82fdfa71265dd708911fb0124f520a832f6d99671bf15703777b8799e0e6cab0"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "all"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "ce9b1a9a92cf4b25a69d0436fde281c7b8655feb44bdfa4e6ae3fd5134edc8fe"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "49d31c6191a7779d283bd932ec880de2f4c71d341651db431a7aab462779a001"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "all"
+      },
+      "sha256": "2e644a2649b0944f0e3f010ce01d64b4fed797867bef1dedd17a5f0c67b88e94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "c82fc83e39e58a944a6b747df3bbd78d4486edd7a9b8075f7181e95c427a0260"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "46408514eb48b65a121b677ceb2b9cbf345084c6dafb463832be0b07b685ba61"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "c65feae93e2b62f84f73cf9638e0087c405b49d3ec76d03b31b3583a556eba1b"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "all"
+      },
+      "sha256": "d9ded4fd4a37135c76809e8bef431d590f42bf3bed89594efa47a5c1ab6b0394"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "incoming"
+      },
+      "sha256": "2a068caee02d1fdebfc97ee50f36a20d875ab3f1ea1adcbcbf63c2d18512d947"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "outgoing"
+      },
+      "sha256": "1296ca44eb3d1ca91b729d5eb0ebbcee99e0358022d3e3ba309e24e2dcdbf0c7"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "internal"
+      },
+      "sha256": "1e4e22cf67130d80420cdbdaa5c19831d56598f3d851c265b7be5988eec6f806"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "all"
+      },
+      "sha256": "dcfbe4a1214a57117eb72873dea2a74cb7bb5161e8fa40d069a0c5d6c7641b7f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "9d3dcd6d09a5063755701ef7064f1b2df29142c63edd190dd5770ab9d0518114"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "d126481543fccf08014c9fec1dd7378c0e6fce072506035550ee21a09e8acf3c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "5f4f42caadf9a0898509c93dd286be6cf523647ac97503f2e66283641624fa03"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "all"
+      },
+      "sha256": "3fb4e962ea4451eb114d435941f31b68073c6f54712b0e1995d2d0ca48498c2e"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "incoming"
+      },
+      "sha256": "60596866dc101c7faa5fb5535319bfb0f9e01e990a8110cdf3b2a20b8e0e139d"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "outgoing"
+      },
+      "sha256": "8431e4dbb95fd7c55890f6c557feb4efba9703a9d02c3169174de156d531e84f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "internal"
+      },
+      "sha256": "87aad868cf0d132a5b4223fd98eb0b088a4aa1ee9d77a9b04e4cbcc796c9269a"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "82fdfa71265dd708911fb0124f520a832f6d99671bf15703777b8799e0e6cab0"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "all"
+      },
+      "sha256": "597932f832435ec3e2804374b5c78dfa9e8b032d05a899a257713da23584a06f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "incoming"
+      },
+      "sha256": "590cd764fed3a579a6b295a6bfe28628fa45207ab5bcdc708981d24330195639"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "outgoing"
+      },
+      "sha256": "8a19137471edc7dd53edd2e3ba132a97526b4a28185b7b5c14eb56c2e0a1fad6"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "internal"
+      },
+      "sha256": "ef76b074070446c69cda5f8929df9b9f2916835881b295cfcc8df33e18f997e7"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "all"
+      },
+      "sha256": "191d81f19075366d462d91a170d77225f7dc7870f4efda2c8a540549083b84dc"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "2185c5380f2e134cadba1c12a45728d9ffc4cc9b853f7c39b95c56748ee89c5f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "cc40f8d932f3eaec83e33ab258f7d792ae2fe47303fece5de96243a7cce67b8a"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "a412a26bae4b355da9847ee08c240894a2811ce89574eed781a20994fdb96466"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "all"
+      },
+      "sha256": "ce5c3cfb094752d69730b650a1f9e9a9c0e7dd1d0625e4ab5dd8bdd74c3d6b2d"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "incoming"
+      },
+      "sha256": "49732863b165d1ba8ce3c5b07454c1ef36b16af0bedf2588f79c4439b7559281"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "outgoing"
+      },
+      "sha256": "63369b5b2e0b931637e47f45a4f008c9a61b507200c04db183c6107087364afd"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "internal"
+      },
+      "sha256": "8e9b11048b74bf19ba0c40277fd5101e2e3361d2132b5ee619dc653e8adf461d"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "all"
+      },
+      "sha256": "feb1fff11d859002564172eaa7425242829211406dc94750fda8fb5656531621"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "incoming"
+      },
+      "sha256": "dcbfe9ee550f110bbb8da1aae2fa127070b84253dd4ebb60847c65fea4beb433"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "outgoing"
+      },
+      "sha256": "2519ebf894e97156c2685c3271fb672bba7f1620645774746b7d212c00e7a416"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "internal"
+      },
+      "sha256": "ccf91920d6e49ab4ed354e9fb58aecf5594af0a2123472119f82d86697860a09"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "597932f832435ec3e2804374b5c78dfa9e8b032d05a899a257713da23584a06f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "590cd764fed3a579a6b295a6bfe28628fa45207ab5bcdc708981d24330195639"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "8a19137471edc7dd53edd2e3ba132a97526b4a28185b7b5c14eb56c2e0a1fad6"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "ef76b074070446c69cda5f8929df9b9f2916835881b295cfcc8df33e18f997e7"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profits",
+        "direction": "all"
+      },
+      "sha256": "6310a9d3000052c3ae3516aef609a1bb936f72eda711d2284621d01830a15f94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profits",
+        "direction": "incoming"
+      },
+      "sha256": "64bd09d13e2e26858e69417c84c2328745047f6f0ed91a437838ca00b6244023"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profits",
+        "direction": "outgoing"
+      },
+      "sha256": "1dc1c3d659c07c58e84dedf801bcfd15da9804ee51f51426bfdfda9f75f67f94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profits",
+        "direction": "internal"
+      },
+      "sha256": "8c8c1bd70d1e3770943ce1357a49cba9b23c3d951c6994a93a94f2d4c2eaa5a7"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invalid",
+        "direction": "all"
+      },
+      "sha256": "6c2f5bd3084e86f635bbdee175ddba15fbee359fafbb17b49791d93937fd3b5b"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "7a609a4b366d53b24dc784b06c686b3401bc53408d43f6209a301c867e3474fa"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "287390378ae3fff9e8f7569daed23bb0a4134036e43068d093eb481669b14230"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "633c0fbb6c35a0a2da39e0bbc089501e96413f464ab15253457fc3c762cd3058"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "all",
+        "direction": "all"
+      },
+      "sha256": "6c2f5bd3084e86f635bbdee175ddba15fbee359fafbb17b49791d93937fd3b5b"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "all",
+        "direction": "incoming"
+      },
+      "sha256": "7a609a4b366d53b24dc784b06c686b3401bc53408d43f6209a301c867e3474fa"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "all",
+        "direction": "outgoing"
+      },
+      "sha256": "287390378ae3fff9e8f7569daed23bb0a4134036e43068d093eb481669b14230"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "all",
+        "direction": "internal"
+      },
+      "sha256": "633c0fbb6c35a0a2da39e0bbc089501e96413f464ab15253457fc3c762cd3058"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "collections",
+        "direction": "all"
+      },
+      "sha256": "6310a9d3000052c3ae3516aef609a1bb936f72eda711d2284621d01830a15f94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "collections",
+        "direction": "incoming"
+      },
+      "sha256": "64bd09d13e2e26858e69417c84c2328745047f6f0ed91a437838ca00b6244023"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "collections",
+        "direction": "outgoing"
+      },
+      "sha256": "1dc1c3d659c07c58e84dedf801bcfd15da9804ee51f51426bfdfda9f75f67f94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "collections",
+        "direction": "internal"
+      },
+      "sha256": "8c8c1bd70d1e3770943ce1357a49cba9b23c3d951c6994a93a94f2d4c2eaa5a7"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profitFlow",
+        "direction": "all"
+      },
+      "sha256": "6310a9d3000052c3ae3516aef609a1bb936f72eda711d2284621d01830a15f94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profitFlow",
+        "direction": "incoming"
+      },
+      "sha256": "64bd09d13e2e26858e69417c84c2328745047f6f0ed91a437838ca00b6244023"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profitFlow",
+        "direction": "outgoing"
+      },
+      "sha256": "1dc1c3d659c07c58e84dedf801bcfd15da9804ee51f51426bfdfda9f75f67f94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "profitFlow",
+        "direction": "internal"
+      },
+      "sha256": "8c8c1bd70d1e3770943ce1357a49cba9b23c3d951c6994a93a94f2d4c2eaa5a7"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "cheques",
+        "direction": "all"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "ce9b1a9a92cf4b25a69d0436fde281c7b8655feb44bdfa4e6ae3fd5134edc8fe"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "49d31c6191a7779d283bd932ec880de2f4c71d341651db431a7aab462779a001"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invoices",
+        "direction": "all"
+      },
+      "sha256": "2e644a2649b0944f0e3f010ce01d64b4fed797867bef1dedd17a5f0c67b88e94"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "c82fc83e39e58a944a6b747df3bbd78d4486edd7a9b8075f7181e95c427a0260"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "46408514eb48b65a121b677ceb2b9cbf345084c6dafb463832be0b07b685ba61"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "c65feae93e2b62f84f73cf9638e0087c405b49d3ec76d03b31b3583a556eba1b"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "transfers",
+        "direction": "all"
+      },
+      "sha256": "82fdfa71265dd708911fb0124f520a832f6d99671bf15703777b8799e0e6cab0"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "incoming",
+        "direction": "all"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "incoming",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "incoming",
+        "direction": "outgoing"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "incoming",
+        "direction": "internal"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "outgoing",
+        "direction": "all"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "outgoing",
+        "direction": "incoming"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "outgoing",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "outgoing",
+        "direction": "internal"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "internal",
+        "direction": "all"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "internal",
+        "direction": "incoming"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "internal",
+        "direction": "outgoing"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "internal",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "payroll",
+        "direction": "all"
+      },
+      "sha256": "dcfbe4a1214a57117eb72873dea2a74cb7bb5161e8fa40d069a0c5d6c7641b7f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "9d3dcd6d09a5063755701ef7064f1b2df29142c63edd190dd5770ab9d0518114"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "d126481543fccf08014c9fec1dd7378c0e6fce072506035550ee21a09e8acf3c"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "5f4f42caadf9a0898509c93dd286be6cf523647ac97503f2e66283641624fa03"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "receivables",
+        "direction": "all"
+      },
+      "sha256": "191d81f19075366d462d91a170d77225f7dc7870f4efda2c8a540549083b84dc"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "2185c5380f2e134cadba1c12a45728d9ffc4cc9b853f7c39b95c56748ee89c5f"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "cc40f8d932f3eaec83e33ab258f7d792ae2fe47303fece5de96243a7cce67b8a"
+    },
+    {
+      "arg": {
+        "company": "all",
+        "tab": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "a412a26bae4b355da9847ee08c240894a2811ce89574eed781a20994fdb96466"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "overview",
+        "direction": "all"
+      },
+      "sha256": "2944991797fd92602484f504ed4d2ff356bf7955ec57a6cbc3e1b9e44e126020"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "overview",
+        "direction": "incoming"
+      },
+      "sha256": "c1d75f34f13dfce9e6c4cd7b2e123667b0faa6a9e7460cf41e23d18edf254782"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "overview",
+        "direction": "outgoing"
+      },
+      "sha256": "79652965567efaab5f4f8a6e94373abe445adac826e2a7b2516c0dec50249d16"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "overview",
+        "direction": "internal"
+      },
+      "sha256": "cdf277cfb0aa63f25363011166f09f16923f091292fd740cb74a62df4cd63a39"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "all"
+      },
+      "sha256": "da1cfc7c59aad5cac8426866eab01640ee6c31038eb6e85135d77a7c490f5c88"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "ce45118b2f63d26360541c550efd2e7834c28bbee351515c74cace274f902017"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "1816755f9f56da66d493a5909f44932fdbfca5a60d2972c6bdbe7b1ef03c3a30"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "cc81d91682bb1e8a487b47051dfc25010f7eabd099814c8469f7ab79beaf8cff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "all"
+      },
+      "sha256": "bb008168f9fef9169e22a0a135c15c7e33916e409123dda3986e5939aec9a158"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "f3421ffda77ab22f41f916e116bb090ef00e5ee5c52d85e96910d821864ceacd"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "8255da6c13688fc67f9f155bc97af62c68d077ee779ef905b914dadf7d332434"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "bb008168f9fef9169e22a0a135c15c7e33916e409123dda3986e5939aec9a158"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "all"
+      },
+      "sha256": "4c6f2077881d1ee1e748c556574e8d538c062bdc4aae5ea8a18e3ab91da23e6c"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "767adeaab284bc7380ffd53efdb2c95313f661b5dae6aef7aa22ecd6b04a7d87"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "440d393fc78f0d129549d5325e499a5310921efefcc25867e61c4c004c1e189b"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "ae6546a22ea87c03f366fdc5053a4eca9abe97490dabcc79a9b4f133911c70e7"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "all"
+      },
+      "sha256": "bda6dc090bd58522675aec6fedbb674403e95cd9fec19eac0aa92edfada5de92"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "incoming"
+      },
+      "sha256": "1b3d569754233e987f0f67af5f114e05a204a49bb463adb3f5a59a598bd3ac8e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "outgoing"
+      },
+      "sha256": "e919a6c48c1380ae119b4be8eec147a42f2348499906f34711c6b8a95a31dee5"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "internal"
+      },
+      "sha256": "8b66e7b1a29fa211d388735cad2946c7c4bc2d1a6768fdd46e43b2ea98828406"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "all"
+      },
+      "sha256": "fd20a66c8f8cd3798c259528325f29cc3ccfd9f3ff4d25d8cfc5b85b73f1fa69"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "62e0ac7b7b7c582b71bfb6a210b47f1d2b355683c477af6039efaf746890d6ca"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "0b4ca74086d0b4cf7aa17f32d37086d3c433e78b26afd85b4fc554272084c669"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "500c3cda5c43e44338af91b7054cb104d7834bc00a063bcc2edc8d52525b0aa6"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "all"
+      },
+      "sha256": "8daac24b516c5330a2d6e2b2d0635229aa00cd85c0d0d300ceea1e2b0973d39b"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "incoming"
+      },
+      "sha256": "8b8067463d04aa61741ba244897a77cad35755aaf72ece9eb216106ee521f5bd"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "outgoing"
+      },
+      "sha256": "96ddb7b8e6783490ccf317a3a1bf3bd45967268e2ad76de1d8991cf748b79045"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "internal"
+      },
+      "sha256": "efc8dc22508432c8dbee1edf2d5394b66b1921d1826c205563c07afd17d558ed"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "da1cfc7c59aad5cac8426866eab01640ee6c31038eb6e85135d77a7c490f5c88"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "ce45118b2f63d26360541c550efd2e7834c28bbee351515c74cace274f902017"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "1816755f9f56da66d493a5909f44932fdbfca5a60d2972c6bdbe7b1ef03c3a30"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "cc81d91682bb1e8a487b47051dfc25010f7eabd099814c8469f7ab79beaf8cff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "all"
+      },
+      "sha256": "1539ceae4b7ea092d95902c66163eac82fef2669901a880fcf3e5d7a0e5dff44"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "incoming"
+      },
+      "sha256": "3ec2a26733478b12d443dbb2cf923436b76074bfd4fc902739c3a7866f34b013"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "outgoing"
+      },
+      "sha256": "d540889ece76c6801a84d3e88f39237af380a0c9f71659f65f5a6be015b0af3e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "internal"
+      },
+      "sha256": "fb208d7a4914587004e1ff3b813728d4bedc3c00dbb04b27018baf9bb1092949"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "all"
+      },
+      "sha256": "7c78ae0a6dd9bf422ce14a4136dd5150b360cca49d560379ea7b8fcaa0bdf5fe"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "977aad81ac74b832a47be0275211313fc16474c8348ac21a1ce05ccad1c01a6e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "8d5258e470082868139bf5465b3bd65bef2a78222f78add9685ccf2da4a3dad4"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "d03a417b676b0ee55f4cdfa40f4c3037dceb31f16e163f2a8b621b3521b12161"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "all"
+      },
+      "sha256": "d500a81b91f05aa26761c72e716c2afe63a365e1abd5433eb8ae2ccf973be8d6"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "incoming"
+      },
+      "sha256": "704743f570d4c8410a44cc03f28668b455c2956453e1ad35aeca3de0387678f7"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "outgoing"
+      },
+      "sha256": "45485abb408462f8d96d2c331ca1474483acbbd376bce28265732cb2e2ec156a"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "internal"
+      },
+      "sha256": "7ed9e64d113eefb812fd4a2dce659fbb57fd640714b57bcd6d6067ccf8c203d0"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "all"
+      },
+      "sha256": "6b72a59e9f816ea669d2c641c6a4016b993a467252989c3cfa2f8a5e137831c3"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "incoming"
+      },
+      "sha256": "f60fbe87ef67edd4acd7e9454a71b7bf7a2a6b4a616a7ea160f98b467f5614ff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "outgoing"
+      },
+      "sha256": "70353d0ed57b339365aadc17af5dc1993b4277733b034418c942b7677eedd7a9"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "internal"
+      },
+      "sha256": "eacc716bb7bf733bfe967e4242f518d3eddef832a73a5f6dff8fdb2d318c12c2"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "1539ceae4b7ea092d95902c66163eac82fef2669901a880fcf3e5d7a0e5dff44"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "3ec2a26733478b12d443dbb2cf923436b76074bfd4fc902739c3a7866f34b013"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "d540889ece76c6801a84d3e88f39237af380a0c9f71659f65f5a6be015b0af3e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "fb208d7a4914587004e1ff3b813728d4bedc3c00dbb04b27018baf9bb1092949"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profits",
+        "direction": "all"
+      },
+      "sha256": "00b12fab1383b16aeb02d6532d78da9e03f89573b434bbd242613d4996603a8e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profits",
+        "direction": "incoming"
+      },
+      "sha256": "8e423f1caa3310a48c9bb88c62fc3a2daf21a005d06dcd95f4f56ea5de480310"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profits",
+        "direction": "outgoing"
+      },
+      "sha256": "92f0774618f7732b69e6025a68251a2e84c22b441e1661dff2efe2679655ced3"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profits",
+        "direction": "internal"
+      },
+      "sha256": "16653a31b51fe8f31e1acecdb3f34bd3f49a9c4bcf560c2e5106a3b8deeed4f0"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invalid",
+        "direction": "all"
+      },
+      "sha256": "2944991797fd92602484f504ed4d2ff356bf7955ec57a6cbc3e1b9e44e126020"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "c1d75f34f13dfce9e6c4cd7b2e123667b0faa6a9e7460cf41e23d18edf254782"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "79652965567efaab5f4f8a6e94373abe445adac826e2a7b2516c0dec50249d16"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "cdf277cfb0aa63f25363011166f09f16923f091292fd740cb74a62df4cd63a39"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "all",
+        "direction": "all"
+      },
+      "sha256": "2944991797fd92602484f504ed4d2ff356bf7955ec57a6cbc3e1b9e44e126020"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "all",
+        "direction": "incoming"
+      },
+      "sha256": "c1d75f34f13dfce9e6c4cd7b2e123667b0faa6a9e7460cf41e23d18edf254782"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "all",
+        "direction": "outgoing"
+      },
+      "sha256": "79652965567efaab5f4f8a6e94373abe445adac826e2a7b2516c0dec50249d16"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "all",
+        "direction": "internal"
+      },
+      "sha256": "cdf277cfb0aa63f25363011166f09f16923f091292fd740cb74a62df4cd63a39"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "collections",
+        "direction": "all"
+      },
+      "sha256": "00b12fab1383b16aeb02d6532d78da9e03f89573b434bbd242613d4996603a8e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "collections",
+        "direction": "incoming"
+      },
+      "sha256": "8e423f1caa3310a48c9bb88c62fc3a2daf21a005d06dcd95f4f56ea5de480310"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "collections",
+        "direction": "outgoing"
+      },
+      "sha256": "92f0774618f7732b69e6025a68251a2e84c22b441e1661dff2efe2679655ced3"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "collections",
+        "direction": "internal"
+      },
+      "sha256": "16653a31b51fe8f31e1acecdb3f34bd3f49a9c4bcf560c2e5106a3b8deeed4f0"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profitFlow",
+        "direction": "all"
+      },
+      "sha256": "00b12fab1383b16aeb02d6532d78da9e03f89573b434bbd242613d4996603a8e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profitFlow",
+        "direction": "incoming"
+      },
+      "sha256": "8e423f1caa3310a48c9bb88c62fc3a2daf21a005d06dcd95f4f56ea5de480310"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profitFlow",
+        "direction": "outgoing"
+      },
+      "sha256": "92f0774618f7732b69e6025a68251a2e84c22b441e1661dff2efe2679655ced3"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "profitFlow",
+        "direction": "internal"
+      },
+      "sha256": "16653a31b51fe8f31e1acecdb3f34bd3f49a9c4bcf560c2e5106a3b8deeed4f0"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "cheques",
+        "direction": "all"
+      },
+      "sha256": "bb008168f9fef9169e22a0a135c15c7e33916e409123dda3986e5939aec9a158"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "f3421ffda77ab22f41f916e116bb090ef00e5ee5c52d85e96910d821864ceacd"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "8255da6c13688fc67f9f155bc97af62c68d077ee779ef905b914dadf7d332434"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "bb008168f9fef9169e22a0a135c15c7e33916e409123dda3986e5939aec9a158"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invoices",
+        "direction": "all"
+      },
+      "sha256": "4c6f2077881d1ee1e748c556574e8d538c062bdc4aae5ea8a18e3ab91da23e6c"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "767adeaab284bc7380ffd53efdb2c95313f661b5dae6aef7aa22ecd6b04a7d87"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "440d393fc78f0d129549d5325e499a5310921efefcc25867e61c4c004c1e189b"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "ae6546a22ea87c03f366fdc5053a4eca9abe97490dabcc79a9b4f133911c70e7"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "transfers",
+        "direction": "all"
+      },
+      "sha256": "da1cfc7c59aad5cac8426866eab01640ee6c31038eb6e85135d77a7c490f5c88"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "ce45118b2f63d26360541c550efd2e7834c28bbee351515c74cace274f902017"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "1816755f9f56da66d493a5909f44932fdbfca5a60d2972c6bdbe7b1ef03c3a30"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "cc81d91682bb1e8a487b47051dfc25010f7eabd099814c8469f7ab79beaf8cff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "incoming",
+        "direction": "all"
+      },
+      "sha256": "ce45118b2f63d26360541c550efd2e7834c28bbee351515c74cace274f902017"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "incoming",
+        "direction": "incoming"
+      },
+      "sha256": "ce45118b2f63d26360541c550efd2e7834c28bbee351515c74cace274f902017"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "incoming",
+        "direction": "outgoing"
+      },
+      "sha256": "ce45118b2f63d26360541c550efd2e7834c28bbee351515c74cace274f902017"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "incoming",
+        "direction": "internal"
+      },
+      "sha256": "ce45118b2f63d26360541c550efd2e7834c28bbee351515c74cace274f902017"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "outgoing",
+        "direction": "all"
+      },
+      "sha256": "1816755f9f56da66d493a5909f44932fdbfca5a60d2972c6bdbe7b1ef03c3a30"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "outgoing",
+        "direction": "incoming"
+      },
+      "sha256": "1816755f9f56da66d493a5909f44932fdbfca5a60d2972c6bdbe7b1ef03c3a30"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "outgoing",
+        "direction": "outgoing"
+      },
+      "sha256": "1816755f9f56da66d493a5909f44932fdbfca5a60d2972c6bdbe7b1ef03c3a30"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "outgoing",
+        "direction": "internal"
+      },
+      "sha256": "1816755f9f56da66d493a5909f44932fdbfca5a60d2972c6bdbe7b1ef03c3a30"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "internal",
+        "direction": "all"
+      },
+      "sha256": "cc81d91682bb1e8a487b47051dfc25010f7eabd099814c8469f7ab79beaf8cff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "internal",
+        "direction": "incoming"
+      },
+      "sha256": "cc81d91682bb1e8a487b47051dfc25010f7eabd099814c8469f7ab79beaf8cff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "internal",
+        "direction": "outgoing"
+      },
+      "sha256": "cc81d91682bb1e8a487b47051dfc25010f7eabd099814c8469f7ab79beaf8cff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "internal",
+        "direction": "internal"
+      },
+      "sha256": "cc81d91682bb1e8a487b47051dfc25010f7eabd099814c8469f7ab79beaf8cff"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "payroll",
+        "direction": "all"
+      },
+      "sha256": "fd20a66c8f8cd3798c259528325f29cc3ccfd9f3ff4d25d8cfc5b85b73f1fa69"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "62e0ac7b7b7c582b71bfb6a210b47f1d2b355683c477af6039efaf746890d6ca"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "0b4ca74086d0b4cf7aa17f32d37086d3c433e78b26afd85b4fc554272084c669"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "500c3cda5c43e44338af91b7054cb104d7834bc00a063bcc2edc8d52525b0aa6"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "receivables",
+        "direction": "all"
+      },
+      "sha256": "7c78ae0a6dd9bf422ce14a4136dd5150b360cca49d560379ea7b8fcaa0bdf5fe"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "977aad81ac74b832a47be0275211313fc16474c8348ac21a1ce05ccad1c01a6e"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "8d5258e470082868139bf5465b3bd65bef2a78222f78add9685ccf2da4a3dad4"
+    },
+    {
+      "arg": {
+        "company": "group",
+        "tab": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "d03a417b676b0ee55f4cdfa40f4c3037dceb31f16e163f2a8b621b3521b12161"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "overview",
+        "direction": "all"
+      },
+      "sha256": "b0e533a05965070487744d1bc495c2ce28f000094cf64a4ad172ed8ec2a5c7f1"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "overview",
+        "direction": "incoming"
+      },
+      "sha256": "843a2a07856eee03c7e2e5e9611069bfc4f8e750c5549d4aaea2dfe58b6fa4b8"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "overview",
+        "direction": "outgoing"
+      },
+      "sha256": "cca594d47fbdc2b4d2fb7f50888271eda4fd1b509e76111c6f39a85974303262"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "overview",
+        "direction": "internal"
+      },
+      "sha256": "5632a1372283ad385b80bc0df31045bebe6040faceabc2d6ee9a9fa510fa8250"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "all"
+      },
+      "sha256": "ee0ca65be1f74be2d3cd52ef5e17c5b36416c640a0d3213777ee60160f6022a1"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "52f698c4384e358d5651b0b2c1e7d4aeb1ef269e55ac5e09b8d137dacf1a384b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "854a1bdd3d927673492ea783305b5fcfe49f35fb294525d79115b56ac5243a6b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "165f93d84fc39204080421a2f373c0890d04b56c243ee057466a83e48099c98f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "all"
+      },
+      "sha256": "7bf690ef1528902ed8ae1283d372f453281f16257d6c23f9e35f7b55a3bdf7cd"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "2b5f6a63d68cef255b653923726855f4c66606efb7182297eee826fcbbcf7d24"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "d9b45c49c8be5c414e6eba5753c204cac264bbc55c2ebb206df3c6fe998ef7b4"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "7bf690ef1528902ed8ae1283d372f453281f16257d6c23f9e35f7b55a3bdf7cd"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "all"
+      },
+      "sha256": "0591f79fcd1f7d3d2665f397b45413e48abae9216cb6e0c72bce65c83b0adeac"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "da6fedc2b94abf4c4473777d05c745d39bc3c2ecef934490d9e653255e4f3300"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "c2ec78bdb26028ff68aa76b9471f56ac9c1ea8df4ceb25d8bf4c843b351d44f8"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "45cad6013e61331018afcb4ca6360a5d98a9ce96f72fff8931ddf81e8d0a2a58"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "all"
+      },
+      "sha256": "f315776e9bedb4e079c5887a89c342826e64ff5e8ea3ed503ca9250385c105c5"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "incoming"
+      },
+      "sha256": "f745b5eaa0013a9057dfc264b6270258cc94b1dce38dae4d13f89a19227a1097"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "outgoing"
+      },
+      "sha256": "9077c398860c16abfaa496af4378a87ea1e701a8cb2856e2dc5e5e3ccc30bed0"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "internal"
+      },
+      "sha256": "b14f06de6894cef0c73913c25292442ac47973acbb31d6cce10507a867c83f2d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "all"
+      },
+      "sha256": "d833262bbd87d31adc634008c619e1552c7e688da971fe9176fc7a549ee66fed"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "172680970232cfeb7d47f0c64c2214b946d8075eb170d50697d48d835602e8ca"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "e6d0ab67f593e6c51b070f51bab6712660d60ad95c7c9707cf5ef6e1f3f47971"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "93970e5365de621d27dba1f1985b99df2a1dcb3044439faee8001b9ee18947da"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "all"
+      },
+      "sha256": "994ef008803efdf9d85d999e337596fca29b00c7bc304caec41860e56cb1984f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "incoming"
+      },
+      "sha256": "3ea0e7f3adbbc966f7ec37a52bf8f30a371839f4ac9ca4232df6817bdce7b27e"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "outgoing"
+      },
+      "sha256": "54c96e69ae1febf73d85261e475f4a19ef9a71180046f1f1e710aa9aecf599df"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "internal"
+      },
+      "sha256": "e218626e6a351fd204d5584970d7fbf6e81f3e46f96605f4da10197b92d70031"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "ee0ca65be1f74be2d3cd52ef5e17c5b36416c640a0d3213777ee60160f6022a1"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "52f698c4384e358d5651b0b2c1e7d4aeb1ef269e55ac5e09b8d137dacf1a384b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "854a1bdd3d927673492ea783305b5fcfe49f35fb294525d79115b56ac5243a6b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "165f93d84fc39204080421a2f373c0890d04b56c243ee057466a83e48099c98f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "all"
+      },
+      "sha256": "4d67d0885a1af94f3c05c3850697973204ff5783ab0295977906f2f75cbba9e4"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "incoming"
+      },
+      "sha256": "4e66b4d550cfd25deb0e4bfe33cea27750ec64aba559c1af79a86ff0e108a914"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "outgoing"
+      },
+      "sha256": "69140e3e32214a185936b0f59334769309bef0a01cd89106d27e4cce69c4054d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "internal"
+      },
+      "sha256": "3ff5c4ba9251aa1cc01cd17a4a088e231fc335d03488114d0e4875ceaa90e0be"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "all"
+      },
+      "sha256": "91f93b1dc067154bc68d64f525832ad0612549e01fc560f9e03e8cc16247fba5"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "374ae490263442e18971628bf2e2fc36459c4fee15c501162b63f07ad8e9baa3"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "3e715d4481feef3970e7ef122682f3c166c97dcebdce8eae10a6851e6ff3f73d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "dd1c83a70ce27068dd209d0791e4fa09dfb1dbc397bdf65c328dcc5fb45652ab"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "all"
+      },
+      "sha256": "1543f1e715c7cf77ca98ca88346261e66576979a9906368756e9b6f2d07920e1"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "incoming"
+      },
+      "sha256": "3b3969c5d89763ac9bfb4433b069681499cb34f7e620f9d5246d9361da40cf5b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "outgoing"
+      },
+      "sha256": "a1f355b39b6f9438fb10bb59b2037b0040f9c43d4fefd519e1f4f3c5cae9d83a"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "internal"
+      },
+      "sha256": "236351f125f67faac23b5b3a3b1fe4485f2a3e4f1ab71110ebc3207eaa6e6e43"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "all"
+      },
+      "sha256": "984f39f38f1268aa488fefc7c6000350c22c4e6af9a24f632f07df36ca8ac47e"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "incoming"
+      },
+      "sha256": "1fbf8381ee6a9039a2b5e9519471ca582d66cbcd7cc6da783aa255270d1ed4f0"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "outgoing"
+      },
+      "sha256": "8d4747342bd40f124c143f154a3148924db92a2da409e248189e493dcefc9025"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "internal"
+      },
+      "sha256": "21f99bee7c200065d2d5797f271b4dc5b49e27b9f591952e176542396299609d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "4d67d0885a1af94f3c05c3850697973204ff5783ab0295977906f2f75cbba9e4"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "4e66b4d550cfd25deb0e4bfe33cea27750ec64aba559c1af79a86ff0e108a914"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "69140e3e32214a185936b0f59334769309bef0a01cd89106d27e4cce69c4054d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "3ff5c4ba9251aa1cc01cd17a4a088e231fc335d03488114d0e4875ceaa90e0be"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profits",
+        "direction": "all"
+      },
+      "sha256": "dfb1625b396ec08453f736b5dbd0b3d20428499335942de0ab57c532965eeab6"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profits",
+        "direction": "incoming"
+      },
+      "sha256": "7e345b1f127aab2a75ca6b6a216e016a427fe2b68876edabf61502c27abeb89d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profits",
+        "direction": "outgoing"
+      },
+      "sha256": "4a721de7400561b21b15e2542506a28e08a07cf0781ddb463b44b7ac9b8c7f3d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profits",
+        "direction": "internal"
+      },
+      "sha256": "ad1f883e17cad63d3e997eaa01229c49c0b024c1458e3f28186aca2eaed85379"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invalid",
+        "direction": "all"
+      },
+      "sha256": "b0e533a05965070487744d1bc495c2ce28f000094cf64a4ad172ed8ec2a5c7f1"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "843a2a07856eee03c7e2e5e9611069bfc4f8e750c5549d4aaea2dfe58b6fa4b8"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "cca594d47fbdc2b4d2fb7f50888271eda4fd1b509e76111c6f39a85974303262"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "5632a1372283ad385b80bc0df31045bebe6040faceabc2d6ee9a9fa510fa8250"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "all",
+        "direction": "all"
+      },
+      "sha256": "b0e533a05965070487744d1bc495c2ce28f000094cf64a4ad172ed8ec2a5c7f1"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "all",
+        "direction": "incoming"
+      },
+      "sha256": "843a2a07856eee03c7e2e5e9611069bfc4f8e750c5549d4aaea2dfe58b6fa4b8"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "all",
+        "direction": "outgoing"
+      },
+      "sha256": "cca594d47fbdc2b4d2fb7f50888271eda4fd1b509e76111c6f39a85974303262"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "all",
+        "direction": "internal"
+      },
+      "sha256": "5632a1372283ad385b80bc0df31045bebe6040faceabc2d6ee9a9fa510fa8250"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "collections",
+        "direction": "all"
+      },
+      "sha256": "dfb1625b396ec08453f736b5dbd0b3d20428499335942de0ab57c532965eeab6"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "collections",
+        "direction": "incoming"
+      },
+      "sha256": "7e345b1f127aab2a75ca6b6a216e016a427fe2b68876edabf61502c27abeb89d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "collections",
+        "direction": "outgoing"
+      },
+      "sha256": "4a721de7400561b21b15e2542506a28e08a07cf0781ddb463b44b7ac9b8c7f3d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "collections",
+        "direction": "internal"
+      },
+      "sha256": "ad1f883e17cad63d3e997eaa01229c49c0b024c1458e3f28186aca2eaed85379"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profitFlow",
+        "direction": "all"
+      },
+      "sha256": "dfb1625b396ec08453f736b5dbd0b3d20428499335942de0ab57c532965eeab6"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profitFlow",
+        "direction": "incoming"
+      },
+      "sha256": "7e345b1f127aab2a75ca6b6a216e016a427fe2b68876edabf61502c27abeb89d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profitFlow",
+        "direction": "outgoing"
+      },
+      "sha256": "4a721de7400561b21b15e2542506a28e08a07cf0781ddb463b44b7ac9b8c7f3d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "profitFlow",
+        "direction": "internal"
+      },
+      "sha256": "ad1f883e17cad63d3e997eaa01229c49c0b024c1458e3f28186aca2eaed85379"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "cheques",
+        "direction": "all"
+      },
+      "sha256": "7bf690ef1528902ed8ae1283d372f453281f16257d6c23f9e35f7b55a3bdf7cd"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "2b5f6a63d68cef255b653923726855f4c66606efb7182297eee826fcbbcf7d24"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "d9b45c49c8be5c414e6eba5753c204cac264bbc55c2ebb206df3c6fe998ef7b4"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "7bf690ef1528902ed8ae1283d372f453281f16257d6c23f9e35f7b55a3bdf7cd"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invoices",
+        "direction": "all"
+      },
+      "sha256": "0591f79fcd1f7d3d2665f397b45413e48abae9216cb6e0c72bce65c83b0adeac"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "da6fedc2b94abf4c4473777d05c745d39bc3c2ecef934490d9e653255e4f3300"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "c2ec78bdb26028ff68aa76b9471f56ac9c1ea8df4ceb25d8bf4c843b351d44f8"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "45cad6013e61331018afcb4ca6360a5d98a9ce96f72fff8931ddf81e8d0a2a58"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "transfers",
+        "direction": "all"
+      },
+      "sha256": "ee0ca65be1f74be2d3cd52ef5e17c5b36416c640a0d3213777ee60160f6022a1"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "52f698c4384e358d5651b0b2c1e7d4aeb1ef269e55ac5e09b8d137dacf1a384b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "854a1bdd3d927673492ea783305b5fcfe49f35fb294525d79115b56ac5243a6b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "165f93d84fc39204080421a2f373c0890d04b56c243ee057466a83e48099c98f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "incoming",
+        "direction": "all"
+      },
+      "sha256": "52f698c4384e358d5651b0b2c1e7d4aeb1ef269e55ac5e09b8d137dacf1a384b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "incoming",
+        "direction": "incoming"
+      },
+      "sha256": "52f698c4384e358d5651b0b2c1e7d4aeb1ef269e55ac5e09b8d137dacf1a384b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "incoming",
+        "direction": "outgoing"
+      },
+      "sha256": "52f698c4384e358d5651b0b2c1e7d4aeb1ef269e55ac5e09b8d137dacf1a384b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "incoming",
+        "direction": "internal"
+      },
+      "sha256": "52f698c4384e358d5651b0b2c1e7d4aeb1ef269e55ac5e09b8d137dacf1a384b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "outgoing",
+        "direction": "all"
+      },
+      "sha256": "854a1bdd3d927673492ea783305b5fcfe49f35fb294525d79115b56ac5243a6b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "outgoing",
+        "direction": "incoming"
+      },
+      "sha256": "854a1bdd3d927673492ea783305b5fcfe49f35fb294525d79115b56ac5243a6b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "outgoing",
+        "direction": "outgoing"
+      },
+      "sha256": "854a1bdd3d927673492ea783305b5fcfe49f35fb294525d79115b56ac5243a6b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "outgoing",
+        "direction": "internal"
+      },
+      "sha256": "854a1bdd3d927673492ea783305b5fcfe49f35fb294525d79115b56ac5243a6b"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "internal",
+        "direction": "all"
+      },
+      "sha256": "165f93d84fc39204080421a2f373c0890d04b56c243ee057466a83e48099c98f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "internal",
+        "direction": "incoming"
+      },
+      "sha256": "165f93d84fc39204080421a2f373c0890d04b56c243ee057466a83e48099c98f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "internal",
+        "direction": "outgoing"
+      },
+      "sha256": "165f93d84fc39204080421a2f373c0890d04b56c243ee057466a83e48099c98f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "internal",
+        "direction": "internal"
+      },
+      "sha256": "165f93d84fc39204080421a2f373c0890d04b56c243ee057466a83e48099c98f"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "payroll",
+        "direction": "all"
+      },
+      "sha256": "d833262bbd87d31adc634008c619e1552c7e688da971fe9176fc7a549ee66fed"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "172680970232cfeb7d47f0c64c2214b946d8075eb170d50697d48d835602e8ca"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "e6d0ab67f593e6c51b070f51bab6712660d60ad95c7c9707cf5ef6e1f3f47971"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "93970e5365de621d27dba1f1985b99df2a1dcb3044439faee8001b9ee18947da"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "receivables",
+        "direction": "all"
+      },
+      "sha256": "91f93b1dc067154bc68d64f525832ad0612549e01fc560f9e03e8cc16247fba5"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "374ae490263442e18971628bf2e2fc36459c4fee15c501162b63f07ad8e9baa3"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "3e715d4481feef3970e7ef122682f3c166c97dcebdce8eae10a6851e6ff3f73d"
+    },
+    {
+      "arg": {
+        "company": "air",
+        "tab": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "dd1c83a70ce27068dd209d0791e4fa09dfb1dbc397bdf65c328dcc5fb45652ab"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "overview",
+        "direction": "all"
+      },
+      "sha256": "6c2f5bd3084e86f635bbdee175ddba15fbee359fafbb17b49791d93937fd3b5b"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "overview",
+        "direction": "incoming"
+      },
+      "sha256": "7a609a4b366d53b24dc784b06c686b3401bc53408d43f6209a301c867e3474fa"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "overview",
+        "direction": "outgoing"
+      },
+      "sha256": "287390378ae3fff9e8f7569daed23bb0a4134036e43068d093eb481669b14230"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "overview",
+        "direction": "internal"
+      },
+      "sha256": "633c0fbb6c35a0a2da39e0bbc089501e96413f464ab15253457fc3c762cd3058"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "all"
+      },
+      "sha256": "82fdfa71265dd708911fb0124f520a832f6d99671bf15703777b8799e0e6cab0"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "all"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "ce9b1a9a92cf4b25a69d0436fde281c7b8655feb44bdfa4e6ae3fd5134edc8fe"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "49d31c6191a7779d283bd932ec880de2f4c71d341651db431a7aab462779a001"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "all"
+      },
+      "sha256": "2e644a2649b0944f0e3f010ce01d64b4fed797867bef1dedd17a5f0c67b88e94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "c82fc83e39e58a944a6b747df3bbd78d4486edd7a9b8075f7181e95c427a0260"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "46408514eb48b65a121b677ceb2b9cbf345084c6dafb463832be0b07b685ba61"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "c65feae93e2b62f84f73cf9638e0087c405b49d3ec76d03b31b3583a556eba1b"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "all"
+      },
+      "sha256": "d9ded4fd4a37135c76809e8bef431d590f42bf3bed89594efa47a5c1ab6b0394"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "incoming"
+      },
+      "sha256": "2a068caee02d1fdebfc97ee50f36a20d875ab3f1ea1adcbcbf63c2d18512d947"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "outgoing"
+      },
+      "sha256": "1296ca44eb3d1ca91b729d5eb0ebbcee99e0358022d3e3ba309e24e2dcdbf0c7"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "contracts",
+        "direction": "internal"
+      },
+      "sha256": "1e4e22cf67130d80420cdbdaa5c19831d56598f3d851c265b7be5988eec6f806"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "all"
+      },
+      "sha256": "dcfbe4a1214a57117eb72873dea2a74cb7bb5161e8fa40d069a0c5d6c7641b7f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "9d3dcd6d09a5063755701ef7064f1b2df29142c63edd190dd5770ab9d0518114"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "d126481543fccf08014c9fec1dd7378c0e6fce072506035550ee21a09e8acf3c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "5f4f42caadf9a0898509c93dd286be6cf523647ac97503f2e66283641624fa03"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "all"
+      },
+      "sha256": "3fb4e962ea4451eb114d435941f31b68073c6f54712b0e1995d2d0ca48498c2e"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "incoming"
+      },
+      "sha256": "60596866dc101c7faa5fb5535319bfb0f9e01e990a8110cdf3b2a20b8e0e139d"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "outgoing"
+      },
+      "sha256": "8431e4dbb95fd7c55890f6c557feb4efba9703a9d02c3169174de156d531e84f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "settlements",
+        "direction": "internal"
+      },
+      "sha256": "87aad868cf0d132a5b4223fd98eb0b088a4aa1ee9d77a9b04e4cbcc796c9269a"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "82fdfa71265dd708911fb0124f520a832f6d99671bf15703777b8799e0e6cab0"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "documents",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "all"
+      },
+      "sha256": "597932f832435ec3e2804374b5c78dfa9e8b032d05a899a257713da23584a06f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "incoming"
+      },
+      "sha256": "590cd764fed3a579a6b295a6bfe28628fa45207ab5bcdc708981d24330195639"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "outgoing"
+      },
+      "sha256": "8a19137471edc7dd53edd2e3ba132a97526b4a28185b7b5c14eb56c2e0a1fad6"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "payables",
+        "direction": "internal"
+      },
+      "sha256": "ef76b074070446c69cda5f8929df9b9f2916835881b295cfcc8df33e18f997e7"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "all"
+      },
+      "sha256": "191d81f19075366d462d91a170d77225f7dc7870f4efda2c8a540549083b84dc"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "2185c5380f2e134cadba1c12a45728d9ffc4cc9b853f7c39b95c56748ee89c5f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "cc40f8d932f3eaec83e33ab258f7d792ae2fe47303fece5de96243a7cce67b8a"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "a412a26bae4b355da9847ee08c240894a2811ce89574eed781a20994fdb96466"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "all"
+      },
+      "sha256": "ce5c3cfb094752d69730b650a1f9e9a9c0e7dd1d0625e4ab5dd8bdd74c3d6b2d"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "incoming"
+      },
+      "sha256": "49732863b165d1ba8ce3c5b07454c1ef36b16af0bedf2588f79c4439b7559281"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "outgoing"
+      },
+      "sha256": "63369b5b2e0b931637e47f45a4f008c9a61b507200c04db183c6107087364afd"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "taxes",
+        "direction": "internal"
+      },
+      "sha256": "8e9b11048b74bf19ba0c40277fd5101e2e3361d2132b5ee619dc653e8adf461d"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "all"
+      },
+      "sha256": "feb1fff11d859002564172eaa7425242829211406dc94750fda8fb5656531621"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "incoming"
+      },
+      "sha256": "dcbfe9ee550f110bbb8da1aae2fa127070b84253dd4ebb60847c65fea4beb433"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "outgoing"
+      },
+      "sha256": "2519ebf894e97156c2685c3271fb672bba7f1620645774746b7d212c00e7a416"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "debts",
+        "direction": "internal"
+      },
+      "sha256": "ccf91920d6e49ab4ed354e9fb58aecf5594af0a2123472119f82d86697860a09"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "all"
+      },
+      "sha256": "597932f832435ec3e2804374b5c78dfa9e8b032d05a899a257713da23584a06f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "590cd764fed3a579a6b295a6bfe28628fa45207ab5bcdc708981d24330195639"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "8a19137471edc7dd53edd2e3ba132a97526b4a28185b7b5c14eb56c2e0a1fad6"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "obligations",
+        "view": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "ef76b074070446c69cda5f8929df9b9f2916835881b295cfcc8df33e18f997e7"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profits",
+        "direction": "all"
+      },
+      "sha256": "6310a9d3000052c3ae3516aef609a1bb936f72eda711d2284621d01830a15f94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profits",
+        "direction": "incoming"
+      },
+      "sha256": "64bd09d13e2e26858e69417c84c2328745047f6f0ed91a437838ca00b6244023"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profits",
+        "direction": "outgoing"
+      },
+      "sha256": "1dc1c3d659c07c58e84dedf801bcfd15da9804ee51f51426bfdfda9f75f67f94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profits",
+        "direction": "internal"
+      },
+      "sha256": "8c8c1bd70d1e3770943ce1357a49cba9b23c3d951c6994a93a94f2d4c2eaa5a7"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invalid",
+        "direction": "all"
+      },
+      "sha256": "6c2f5bd3084e86f635bbdee175ddba15fbee359fafbb17b49791d93937fd3b5b"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invalid",
+        "direction": "incoming"
+      },
+      "sha256": "7a609a4b366d53b24dc784b06c686b3401bc53408d43f6209a301c867e3474fa"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invalid",
+        "direction": "outgoing"
+      },
+      "sha256": "287390378ae3fff9e8f7569daed23bb0a4134036e43068d093eb481669b14230"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invalid",
+        "direction": "internal"
+      },
+      "sha256": "633c0fbb6c35a0a2da39e0bbc089501e96413f464ab15253457fc3c762cd3058"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "all",
+        "direction": "all"
+      },
+      "sha256": "6c2f5bd3084e86f635bbdee175ddba15fbee359fafbb17b49791d93937fd3b5b"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "all",
+        "direction": "incoming"
+      },
+      "sha256": "7a609a4b366d53b24dc784b06c686b3401bc53408d43f6209a301c867e3474fa"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "all",
+        "direction": "outgoing"
+      },
+      "sha256": "287390378ae3fff9e8f7569daed23bb0a4134036e43068d093eb481669b14230"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "all",
+        "direction": "internal"
+      },
+      "sha256": "633c0fbb6c35a0a2da39e0bbc089501e96413f464ab15253457fc3c762cd3058"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "collections",
+        "direction": "all"
+      },
+      "sha256": "6310a9d3000052c3ae3516aef609a1bb936f72eda711d2284621d01830a15f94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "collections",
+        "direction": "incoming"
+      },
+      "sha256": "64bd09d13e2e26858e69417c84c2328745047f6f0ed91a437838ca00b6244023"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "collections",
+        "direction": "outgoing"
+      },
+      "sha256": "1dc1c3d659c07c58e84dedf801bcfd15da9804ee51f51426bfdfda9f75f67f94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "collections",
+        "direction": "internal"
+      },
+      "sha256": "8c8c1bd70d1e3770943ce1357a49cba9b23c3d951c6994a93a94f2d4c2eaa5a7"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profitFlow",
+        "direction": "all"
+      },
+      "sha256": "6310a9d3000052c3ae3516aef609a1bb936f72eda711d2284621d01830a15f94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profitFlow",
+        "direction": "incoming"
+      },
+      "sha256": "64bd09d13e2e26858e69417c84c2328745047f6f0ed91a437838ca00b6244023"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profitFlow",
+        "direction": "outgoing"
+      },
+      "sha256": "1dc1c3d659c07c58e84dedf801bcfd15da9804ee51f51426bfdfda9f75f67f94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "profitFlow",
+        "direction": "internal"
+      },
+      "sha256": "8c8c1bd70d1e3770943ce1357a49cba9b23c3d951c6994a93a94f2d4c2eaa5a7"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "cheques",
+        "direction": "all"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "cheques",
+        "direction": "incoming"
+      },
+      "sha256": "ce9b1a9a92cf4b25a69d0436fde281c7b8655feb44bdfa4e6ae3fd5134edc8fe"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "cheques",
+        "direction": "outgoing"
+      },
+      "sha256": "49d31c6191a7779d283bd932ec880de2f4c71d341651db431a7aab462779a001"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "cheques",
+        "direction": "internal"
+      },
+      "sha256": "94cada1cbff2aa79b5cc376915b8808f27521203662d04045d3fbd611e9c4180"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invoices",
+        "direction": "all"
+      },
+      "sha256": "2e644a2649b0944f0e3f010ce01d64b4fed797867bef1dedd17a5f0c67b88e94"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invoices",
+        "direction": "incoming"
+      },
+      "sha256": "c82fc83e39e58a944a6b747df3bbd78d4486edd7a9b8075f7181e95c427a0260"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invoices",
+        "direction": "outgoing"
+      },
+      "sha256": "46408514eb48b65a121b677ceb2b9cbf345084c6dafb463832be0b07b685ba61"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "invoices",
+        "direction": "internal"
+      },
+      "sha256": "c65feae93e2b62f84f73cf9638e0087c405b49d3ec76d03b31b3583a556eba1b"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "transfers",
+        "direction": "all"
+      },
+      "sha256": "82fdfa71265dd708911fb0124f520a832f6d99671bf15703777b8799e0e6cab0"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "transfers",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "transfers",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "transfers",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "incoming",
+        "direction": "all"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "incoming",
+        "direction": "incoming"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "incoming",
+        "direction": "outgoing"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "incoming",
+        "direction": "internal"
+      },
+      "sha256": "21498483a28c693cc8304f9248165ecc79f81d590e2cf7a4b2926e2aed1de69f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "outgoing",
+        "direction": "all"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "outgoing",
+        "direction": "incoming"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "outgoing",
+        "direction": "outgoing"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "outgoing",
+        "direction": "internal"
+      },
+      "sha256": "b5b30fe272c29892a42f81edbb6dccf98d67e372dbc390c52e2abf01b0dc9f7c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "internal",
+        "direction": "all"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "internal",
+        "direction": "incoming"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "internal",
+        "direction": "outgoing"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "internal",
+        "direction": "internal"
+      },
+      "sha256": "3e01cb0ced4405d5c61d10cee619510c58323951129adbb0b36e8f3afbf8cb55"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "payroll",
+        "direction": "all"
+      },
+      "sha256": "dcfbe4a1214a57117eb72873dea2a74cb7bb5161e8fa40d069a0c5d6c7641b7f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "payroll",
+        "direction": "incoming"
+      },
+      "sha256": "9d3dcd6d09a5063755701ef7064f1b2df29142c63edd190dd5770ab9d0518114"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "payroll",
+        "direction": "outgoing"
+      },
+      "sha256": "d126481543fccf08014c9fec1dd7378c0e6fce072506035550ee21a09e8acf3c"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "payroll",
+        "direction": "internal"
+      },
+      "sha256": "5f4f42caadf9a0898509c93dd286be6cf523647ac97503f2e66283641624fa03"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "receivables",
+        "direction": "all"
+      },
+      "sha256": "191d81f19075366d462d91a170d77225f7dc7870f4efda2c8a540549083b84dc"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "receivables",
+        "direction": "incoming"
+      },
+      "sha256": "2185c5380f2e134cadba1c12a45728d9ffc4cc9b853f7c39b95c56748ee89c5f"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "receivables",
+        "direction": "outgoing"
+      },
+      "sha256": "cc40f8d932f3eaec83e33ab258f7d792ae2fe47303fece5de96243a7cce67b8a"
+    },
+    {
+      "arg": {
+        "company": "invalid",
+        "tab": "receivables",
+        "direction": "internal"
+      },
+      "sha256": "a412a26bae4b355da9847ee08c240894a2811ce89574eed781a20994fdb96466"
+    }
+  ],
+  "note": "Two complete invoices or four other document cards per explicit page. Document templates are pinned independently by build444; full history, company and direction navigation are covered there."
+}

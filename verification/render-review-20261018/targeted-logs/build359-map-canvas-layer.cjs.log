@@ -1,0 +1,14 @@
+{
+  "suite": "build359-map-canvas-layer",
+  "passed": 7,
+  "total": 7,
+  "checks": [
+    "single-canvas",
+    "hard-cap-300",
+    "slot-pool-reuse",
+    "DPR-cap",
+    "hit-testing",
+    "deterministic-draw",
+    "listener-teardown-and-sprite-fallback"
+  ]
+}

@@ -1,0 +1,4 @@
+PASS target 86400, 4 pending chunks: 24 slices committed, completion after the last commit
+PASS target 259200, 6 pending chunks: 72 slices committed, completion after the last commit
+PASS target 86400, 40 pending chunks: 24 slices committed, completion after the last commit
+BUILD358_CALENDAR_STAGED_COMPLETION_PASS

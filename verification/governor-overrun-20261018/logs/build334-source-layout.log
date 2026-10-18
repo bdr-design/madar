@@ -1,0 +1,15 @@
+test_accept_matching_source (__main__.SourceValidation.test_accept_matching_source) ... ok
+test_changed_bytes (__main__.SourceValidation.test_changed_bytes) ... ok
+test_extra_runtime (__main__.SourceValidation.test_extra_runtime) ... ok
+test_false_tree_digest (__main__.SourceValidation.test_false_tree_digest) ... ok
+test_missing_file (__main__.SourceValidation.test_missing_file) ... ok
+test_old_repack_path_rejected (__main__.SourceValidation.test_old_repack_path_rejected) ... ok
+test_release_cannot_reuse_other_source_gate (__main__.SourceValidation.test_release_cannot_reuse_other_source_gate) ... ok
+test_release_is_not_implied_by_matching_bytes (__main__.SourceValidation.test_release_is_not_implied_by_matching_bytes) ... ok
+test_runtime_link (__main__.SourceValidation.test_runtime_link) ... ok
+test_unsafe_manifest_path (__main__.SourceValidation.test_unsafe_manifest_path) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.005s
+
+OK

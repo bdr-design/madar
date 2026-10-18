@@ -159,13 +159,15 @@ function tileMarkup(tile,id,extra=''){
   return `<button type="button" class="mc-tile" ${go(panel,arg)} data-tile="${esc(tile.key)}"><img src="${ui(tile.img)}" alt="" loading="lazy" decoding="async">${art}<span class="mc-scrim"></span><span class="mc-badge">${icon(tile.icon)}</span>${extra}<span class="mc-text"><b>${esc(tile.title)}</b><small>${esc(tile.sub||'')}</small></span></button>`;
 }
 function money(ctx,value){return ctx.fmtMoney?.(Number(value)||0)||String(value);}
-function companyFacts(state,id,ctx){
+function companyFacts(state,id,ctx,readFleet=false){
   let summary=null,performance=null,balance=null,manager=null,fleet=null;
   try{const instance=openedCompanies(state).find(row=>row.id===id);summary=globalThis.GH_ADVANCED?.companyOverviewSummary?.(state,instance)||null;}catch(_error){}
   try{performance=ctx.companyPerformance?.(id,30)||null;}catch(_error){}
   try{balance=ctx.companyOperatingBalance?.(id);}catch(_error){}
   try{manager=globalThis.GH_HR_CORE?.officialManager?.(state,id)||null;}catch(_error){}
-  try{fleet=ctx.companyFleetStats?.(id)||null;}catch(_error){}
+  // Service panels never display these fleet facts. Enqueuing their unused million-row query can delay the same
+  // worker's save proof when the player accepts or rejects a request; only fleet panels need this aggregate.
+  if(readFleet)try{fleet=ctx.companyFleetStats?.(id)||null;}catch(_error){}
   return {summary,performance,balance,manager,fleet};
 }
 // One panel for a company and for a section, laid out for the landscape phone: the status line (with the count of open
@@ -224,7 +226,7 @@ function marketChip2(state,kindId,ctx){
 }
 function renderCompany(state,id,ctx){
   const kindId=kindOf(state,id),kind=KINDS[kindId];if(!kind)return '<div class="empty">الشركة غير مفتوحة أو غير معروفة.</div>';
-  stickyCompany=id;const facts=companyFacts(state,id,ctx),perf=facts.performance,net=Number(perf?.net)||0,reported=Number(perf?.reportedDays)||0,summary=facts.summary;
+  stickyCompany=id;const facts=companyFacts(state,id,ctx,kind.fleet===true),perf=facts.performance,net=Number(perf?.net)||0,reported=Number(perf?.reportedDays)||0,summary=facts.summary;
   const kpis=[['رصيد الشركة',Number.isFinite(Number(facts.balance))?money(ctx,facts.balance):'—',''],['صافي 30 يومًا',reported?`${net>=0?'+':''}${money(ctx,net)}`:'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],[summary?.primaryOperatingLabel||'التشغيل',typeof summary?.primaryOperatingCount==='number'?num(summary.primaryOperatingCount):(summary?.primaryOperatingCount??'—'),'']];
   const status=facts.manager?.name?statusLine('good',`تعمل · المدير: ${facts.manager.name}`):statusLine('warn','بلا مدير تنفيذي معيّن');
   let chips=[],count='';

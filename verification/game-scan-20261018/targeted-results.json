@@ -1,0 +1,231 @@
+{
+  "source_tree_sha256": "613c1cf0687f55ad92ced3f9fc3215ded0fd822f0bd1b915d947036b13c81fbb",
+  "scope": "22 related local scripts only; not full acceptance, native CI or iPhone performance.",
+  "declared_gates": 471,
+  "preflight_definitions": 74,
+  "passed": 22,
+  "total": 22,
+  "completed": true,
+  "results": [
+    {
+      "argv": [
+        "node",
+        "tests/build439-summary-single-request.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.048,
+      "log": "build439-summary-single-request.log",
+      "script_sha256": "3368f4418dce023c452f56a1e0c6fde0cf870d8368e8fd79810fdf97b532a348"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build440-document-collection-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.486,
+      "log": "build440-document-collection-work.log",
+      "script_sha256": "a3448c71109213ac681d4127df93d75af83ce1f80a499b20a995aa94166ec590"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build441-bank-migration-work.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.057,
+      "log": "build441-bank-migration-work.log",
+      "script_sha256": "f69401c4baf99982bee19ff7c4c348a570233d98eed645842b026495e1945b89"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-ui-summary.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.029,
+      "log": "build372-fleet-ui-summary.log",
+      "script_sha256": "d0964074bc30213a9674bd3aa41ea70267754f7a231035339a2b3cc0fb47aae8"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-interactive-summary-consumers.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.028,
+      "log": "build372-interactive-summary-consumers.log",
+      "script_sha256": "dce083262bcb1d5b9b60c77f81d8744887100325da6a2dec9e26acdec856b996"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-conference-large-fleet-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 1.932,
+      "log": "build373-conference-large-fleet-browser.log",
+      "script_sha256": "76d8c57a8e30eee44678f679f33fa3d9ebb9ce09a3cf641d3165747024cf0ecd"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build419-document-drawer-work-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 8.992,
+      "log": "build419-document-drawer-work-browser.log",
+      "script_sha256": "ec56a79b95f06522570de181dfc15570dac780148ef14198f9d72935d248b03b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build420-conference-durable-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 11.698,
+      "log": "build420-conference-durable-browser.log",
+      "script_sha256": "2f9b3a64cf3bccf769c74c4ac940d196ab1ce50a2f3d4fd5f1f71c67235ff54d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build421-conference-recovery-contract.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.231,
+      "log": "build421-conference-recovery-contract.log",
+      "script_sha256": "281df5b73fd5cf7a283cad6e749ffaa84d3f40bee5851c6fd7e00e7a776fd0a1"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-cheque-index.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08,
+      "log": "build382-cheque-index.log",
+      "script_sha256": "86e37f839728862bae0a339b6aba25f3b954bd4133b7bd2dadff537da0f1dd0c"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-financial-batches.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11,
+      "log": "build364-financial-batches.log",
+      "script_sha256": "e74defd6120366083c46cf11971a033b782f10a62ae56c9919a02c47c3697901"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build385-bank-credit-accounting.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.405,
+      "log": "build385-bank-credit-accounting.log",
+      "script_sha256": "e4a615f22920d4c41b99654196bb516bc86e553c257fe727566caaba0021c9d0"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-bank-market.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.079,
+      "log": "build358-bank-market.log",
+      "script_sha256": "b5cd6841fdf313af29ac800801e7eb1177cb57d03d3430807d584133a02bbe66"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build403-legacy-runtime-migration-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 7.125,
+      "log": "build403-legacy-runtime-migration-browser.log",
+      "script_sha256": "ae215150e59d33307b9bcd9b038724b00086c723d26430365a1998159e5c370b"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build433-request-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 25.752,
+      "log": "build433-request-decisions-browser.log",
+      "script_sha256": "f99a697c764f695634ee7196991de0cc72f9dbd1bf2bb98bf131bf10c664e808"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build411-command-row-patch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 23.643,
+      "log": "build411-command-row-patch-browser.log",
+      "script_sha256": "5c4d1fae811f8b49daa0ef3c23ba64b953e4ba9bca18fe921bae4ffefa9abb1d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build435-conditional-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.072,
+      "log": "build435-conditional-prestage.log",
+      "script_sha256": "a6575764e128f8b5f3a97b8b7b8b3a89ce57548a8de95541f72f89840b2b899a"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build431-decision-notices.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.037,
+      "log": "build431-decision-notices.log",
+      "script_sha256": "79b0d0bec9e591a9387d4a6d0a7edc333f250eb3d4d99864d88b03728035457d"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build432-ready-fleet-validation.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.029,
+      "log": "build432-ready-fleet-validation.log",
+      "script_sha256": "de7a5662b15ec0b52792ec076611ab2854d1efae73a36235010ce6aaa0e0f427"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/lint.cjs"
+      ],
+      "exit_code": 0,
+      "seconds": 4.346,
+      "log": "lint.log",
+      "script_sha256": "d0a98b0b20af1caf0039fe1e56f804982e66f1f5462ae21aacb230ce853bbb9a"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/build334-source-layout.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.05,
+      "log": "build334-source-layout.log",
+      "script_sha256": "e3b32246febbe86a47efa561e7d6752bcfa8e3f7d40faf8c996839860bdcc0a6"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.272,
+      "log": "acceptance-policy.log",
+      "script_sha256": "28aa3634328e079c1f9ab614e3f83de25c260a2d3c18f2ae0ecebc459a85b013"
+    }
+  ]
+}

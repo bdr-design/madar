@@ -301,13 +301,13 @@
         // mutation journal stays open: rejection/NACK still restores both replicas, and no gameplay query is admitted.
         const session=mutationSession,clean=validation&&session.status==='open'&&session.ready&&!session.settled&&session.store===store&&synced.runtime===STORE.chunkStamp(store).runtime&&STORE.replicaClean(store)&&synced.length===store.length&&synced.valuesLength===store.values.length;
         if(!clean)return refuse('mutation-open');
-        return {store,runtime:session.runtime,revision:store.revision,structure:store.structure,length:store.length};
+        return {store,runtime:session.runtime,revision:store.revision,structure:store.structure,length:store.length,valueRevision:STORE.valueRevision(store)};
       }
       if(pending&&!pending.applied)return refuse('step-not-replayed');
       if(!pending&&!windowSession){if(!prime(store))return refuse('prime');}
       else if(synced.runtime!==STORE.chunkStamp(store).runtime)return refuse('store-changed');
       else if(!STORE.replicaClean(store)||synced.length!==store.length||synced.valuesLength!==store.values.length){const reason=syncIntoOpen(store);if(reason)return refuse(reason);}
-      return {store,runtime:STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length};
+      return {store,runtime:STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length,valueRevision:STORE.valueRevision(store)};
     }
     // Keeps the replica current between steps (after load, after commands): a later step then sends only its own
     // changes. Does nothing while a step or window is in flight.
@@ -436,47 +436,74 @@
       settleWaiters();return settled===outcome;
     }
     const sameExtra=(a,b)=>{if(a===b)return true;try{return JSON.stringify(a)===JSON.stringify(b);}catch(_error){return false;}};
-    function changedWindowRows(store,message){
+    function* changedWindowRows(store,message,{rowSlice,budgetMs}){
+      let sliceStart=clock();
       const indices=message.indices,source=new Uint32Array(message.bytes),target=STORE.views(store).u32,chosen=new Int32Array(indices.length);let count=0;
       for(let k=0;k<indices.length;k++){
         const row=indices[k],src=k*WR,dst=row*WR;let changed=!sameExtra(store.extras?.[row],message.extras?.[k]);
         for(let w=0;!changed&&w<WR;w++)if(source[src+w]!==target[dst+w])changed=true;
         if(changed)chosen[count++]=k;
+        if((k+1)%rowSlice===0&&k+1<indices.length){yield 'fleet.replay-compare';sliceStart=clock();}
+        else if(Number.isFinite(budgetMs)&&(k&63)===63&&clock()-sliceStart>=budgetMs){yield 'fleet.replay-compare';sliceStart=clock();}
       }
       if(count===indices.length)return {indices,bytes:message.bytes,extras:message.extras};
       const selected=new Int32Array(count),words=new Uint32Array(count*WR),extras=new Array(count);
-      for(let out=0;out<count;out++){const at=chosen[out];selected[out]=indices[at];words.set(source.subarray(at*WR,(at+1)*WR),out*WR);extras[out]=message.extras?.[at];}
+      for(let out=0;out<count;out++){const at=chosen[out];selected[out]=indices[at];words.set(source.subarray(at*WR,(at+1)*WR),out*WR);extras[out]=message.extras?.[at];if((out+1)%rowSlice===0&&out+1<count){yield 'fleet.replay-pack';sliceStart=clock();}else if(Number.isFinite(budgetMs)&&(out&63)===63&&clock()-sliceStart>=budgetMs){yield 'fleet.replay-pack';sliceStart=clock();}}
       return {indices:selected,bytes:words.buffer,extras};
     }
+    function replayOptions(options){return {...options,rowSlice:options.rowSlice===Infinity?Infinity:Math.max(1,Math.min(512,Math.floor(Number(options.rowSlice)||512))),budgetMs:options.budgetMs===Infinity?Infinity:Math.max(1,Number(options.budgetMs)||4)};}
+    function drainReplay(steps){let step;while(!(step=steps.next()).done){}return step.value;}
+    function requireCompleteReplay(ticket,tx,options){
+      if(options.rowSlice===Infinity)return true;
+      if(typeof tx.afterCommit!=='function')return false;
+      tx.afterCommit(()=>{if(ticket.applied!==true)throw new Error('fleet-thread-replay-incomplete');},{critical:true,owner:'fleet-thread-replay',writeContract:{proven:true,readOnly:true}});return true;
+    }
+    function* replayValues(store,message,{rowSlice,budgetMs},mismatch){
+      let sliceStart=clock();const limit=Math.min(rowSlice,32);
+      for(let index=0;index<message.values.length;index++){
+        const [ref,value]=message.values[index];let accepted=false;STORE.withoutReplicaLog(store,()=>{accepted=STORE.internAt(store,ref,value);});if(!accepted){needsFull=true;throw new Error(`${mismatch}:${ref}:length=${store.values.length}`);}
+        if((index+1)%limit===0&&index+1<message.values.length){yield 'fleet.replay-values';sliceStart=clock();}
+        else if(Number.isFinite(budgetMs)&&(index&7)===7&&clock()-sliceStart>=budgetMs){yield 'fleet.replay-values';sliceStart=clock();}
+      }
+    }
+    function* replayRows(store,rows,message,options){
+      const before=store.revision,total=rows.indices.length,target=before+Math.max(0,Math.floor(Number(message.revisionDelta)||0));
+      // Ranges view the same immutable worker image; they do not copy subarrays or gather all rows again.
+      if(!total){STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{revisionDelta:message.revisionDelta,staticRows:message.staticRows})));return;}
+      for(let start=0;start<total;){const end=Math.min(total,start+options.rowSlice),last=end===total;
+        STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{rowStart:start,rowEnd:end,reserveRows:start===0?total:end-start,revisionDelta:last?Math.max(0,target-store.revision):0,staticRows:message.staticRows===true?true:last?message.staticRows:false})));
+        start=end;if(start<total)yield 'fleet.replay-rows';
+      }
+    }
+    function apply(ticket,store,options={}){return drainReplay(applyStages(ticket,store,{...options,rowSlice:Infinity,budgetMs:Infinity}));}
+    function applyWindow(ticket,store,options={}){return drainReplay(applyWindowStages(ticket,store,{...options,rowSlice:Infinity,budgetMs:Infinity}));}
     // Replays a ready step into the store, inside the caller's transaction. Returns the engine's output, or null (the
     // ticket is then discarded and the caller runs the step itself).
-    function apply(ticket,store,{contextKey,tx}={}){
+    function* applyStages(ticket,store,options={}){
+      const {contextKey,tx}=options;options=replayOptions(options);
       if(!ticket||ticket.status!=='ready'||ticket.settled||ticket.discarded)return null;
       const refuse=reason=>{stats.fallbacks++;stats.lastReason=reason;discard(ticket);return null;};
       if(store!==ticket.store||store.revision!==ticket.revision||store.values.length!==ticket.valuesLength||store.length!==ticket.length||!STORE.replicaClean(store))return refuse('store-changed');
       if(contextKey!==undefined&&String(contextKey)!==ticket.contextKey)return refuse('context-changed');
       if(!tx?.registerUndo)return refuse('transaction-required');
+      if(!requireCompleteReplay(ticket,tx,options))return refuse('staged-transaction-required');
+      tx.registerUndo(()=>settle(ticket,'rollback'),()=>settle(ticket,'commit'));
       const started=clock(),message=ticket.result;
       const savePatchRevision=store.revision;
       // From here the store is written: a disagreement throws, and the transaction rolls back what was replayed. The
       // store's journal starts before the first value (it would otherwise start at the first row, and a rollback would
       // keep values interned before it while the worker removes them); a step that changed nothing opens none.
       if(message.values.length||message.indices.length)STORE.journalFor(store);
-      STORE.withoutReplicaLog(store,()=>{
-        for(const [ref,value] of message.values)if(!STORE.internAt(store,ref,value)){
-          needsFull=true;discard(ticket);
-          throw new Error(`fleet-thread-value-mismatch:${ref}:length=${store.values.length}:held=${JSON.stringify(store.values[ref]??null).slice(0,60)}:wanted=${JSON.stringify(value).slice(0,60)}:list=${JSON.stringify(message.values.map(([r])=>r))}`);
-        }
-      });
-      STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,message.indices,message.bytes,message.extras,{revisionDelta:message.revisionDelta,staticRows:message.staticRows})));
+      yield* replayValues(store,message,options,'fleet-thread-value-mismatch');
+      yield* replayRows(store,message,message,options);
       globalThis.GH_STATE_CODEC?.recordFleetRows?.(store,savePatchRevision,message.indices,true);
       ticket.applied=true;
-      tx.registerUndo(()=>settle(ticket,'rollback'),()=>settle(ticket,'commit'));
       replicaHolds(store,message.values);
       stats.applied++;stats.lastApplyMs=clock()-started;stats.maxApplyMs=Math.max(stats.maxApplyMs,stats.lastApplyMs);
       return message.out;
     }
-    function applyWindow(ticket,store,{contextKey,tx}={}){
+    function* applyWindowStages(ticket,store,options={}){
+      const {contextKey,tx}=options;options=replayOptions(options);
       const session=ticket?.window;
       if(!ticket||!session||ticket.status!=='ready'||ticket.settled||ticket.discarded||session!==windowSession||session.status!=='open')return null;
       const refuse=reason=>{stats.fallbacks++;stats.windowFallbacks++;stats.lastReason=reason;session.reason=reason;needsFull=true;
@@ -490,16 +517,13 @@
       if(!tx?.registerUndo)return refuse('window-transaction-required');
       const started=clock(),message=ticket.result;
       if(message.windowId!==session.id||Number(message.seq)!==ticket.seq||Number(message.from)!==ticket.from||Number(message.to)!==ticket.to)return refuse('window-result-mismatch');
+      if(!requireCompleteReplay(ticket,tx,options))return refuse('window-staged-transaction-required');
       if(!session.registered){tx.registerUndo(()=>settleWindow(session,'rollback'),()=>settleWindow(session,'commit'));session.registered=true;}
-      const rows=changedWindowRows(store,message);
+      const rows=yield* changedWindowRows(store,message,options);
       const savePatchRevision=store.revision;
       if(message.values.length||rows.indices.length)STORE.journalFor(store);
-      STORE.withoutReplicaLog(store,()=>{
-        for(const [ref,value] of message.values)if(!STORE.internAt(store,ref,value)){
-          needsFull=true;throw new Error(`fleet-window-value-mismatch:${ref}:length=${store.values.length}:held=${JSON.stringify(store.values[ref]??null).slice(0,60)}:wanted=${JSON.stringify(value).slice(0,60)}`);
-        }
-      });
-      STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{revisionDelta:message.revisionDelta,staticRows:message.staticRows})));
+      yield* replayValues(store,message,options,'fleet-window-value-mismatch');
+      yield* replayRows(store,rows,message,options);
       globalThis.GH_STATE_CODEC?.recordFleetRows?.(store,savePatchRevision,rows.indices,true);
       ticket.applied=true;ticket.settled=true;tickets.delete(ticket.id);clearTimeout(ticket.timer);if(pending===ticket)pending=null;
       session.revision=store.revision;session.valuesLength=store.values.length;session.length=store.length;session.nextFrom=Number(message.out?.completeTo);session.nextSeq++;session.steps++;
@@ -511,14 +535,14 @@
     // Resolves when no step is in flight (commands that write the fleet wait for it).
     function idle(){return pending||windowSession||mutationSession||dispatchRequests.size||replicaBuild?new Promise(resolve=>waiters.push(resolve)):Promise.resolve();}
     const api={
-      VERSION,request,apply,discard,beginWindow,requestWindow,applyWindow,settleWindow,beginMutation,flushMutation,finishMutation,settleMutation,idle,prime,
+      VERSION,request,apply,applyStages,discard,beginWindow,requestWindow,applyWindow,applyWindowStages,settleWindow,beginMutation,flushMutation,finishMutation,settleMutation,idle,prime,
       // Build 372: the health check's fleet issues (fleet-health-core), found by the worker on the replica brought to this
       // store now. Only with no step or window in flight (else null at once: the replica would hold an unsettled step).
       // Resolves with {store, runtime, revision, structure, length, simSeconds, issues} (the store as it was when asked;
       // the caller drops a result for another store), or null.
       health(store,{simSeconds=0}={}){
         if(!prime(store))return null;
-        const id=nextId++,tag={store,runtime:STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length,simSeconds:Number(simSeconds)||0};
+        const id=nextId++,tag={store,runtime:STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length,valueRevision:STORE.valueRevision(store),simSeconds:Number(simSeconds)||0};
         stats.healthRequests=(stats.healthRequests||0)+1;
         return new Promise(resolve=>{healthChecks.set(id,{tag,resolve});post({type:'health',id,simSeconds:tag.simSeconds});});
       },
@@ -552,13 +576,13 @@
         if(pending||windowSession||mutationSession||dispatchRequests.size||!STORE.isStore(store)||!input||typeof input!=='object'||!ensureWorker())return null;
         try{sync(store);}catch(error){disable(`dispatch-sync:${error?.message||error}`);return null;}
         if(replicaBuild)return null;
-        const id=nextId++,tag={store,runtime:STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length,valuesLength:store.values.length},wait=Math.max(1000,Math.floor(Number(timeout)||60000));
+        const id=nextId++,tag={store,runtime:STORE.chunkStamp(store).runtime,revision:store.revision,structure:store.structure,length:store.length,valueRevision:STORE.valueRevision(store),valuesLength:store.values.length},wait=Math.max(1000,Math.floor(Number(timeout)||60000));
         stats.dispatchPlanRequests=(stats.dispatchPlanRequests||0)+1;
         return new Promise(resolve=>{const entry={tag,resolve,timer:null};entry.timer=setTimeout(()=>{if(!dispatchRequests.delete(id))return;stats.dispatchPlanTimeouts=(stats.dispatchPlanTimeouts||0)+1;resolve(null);settleWaiters();},wait);dispatchRequests.set(id,entry);post({type:'dispatch-plan',id,input,tag:{revision:tag.revision,structure:tag.structure,length:tag.length,valuesLength:tag.valuesLength}});});
       },
       // A result of fieldClasses (or health) still describes this store: the same store, runtime, revision, length and
       // structure (every write moves the revision).
-      current(result,store){return !!result&&!!store&&result.store===store&&result.runtime===STORE.chunkStamp(store).runtime&&result.revision===store.revision&&result.length===store.length&&result.structure===store.structure;},
+      current(result,store){return !!result&&!!store&&result.store===store&&result.runtime===STORE.chunkStamp(store).runtime&&result.revision===store.revision&&result.length===store.length&&result.structure===store.structure&&result.valueRevision===STORE.valueRevision(store);},
       // Read-only guard for callers that must never trigger the first/full
       // replica export (bulk dispatch and large durable mutations). It performs
       // no sync and returns true only for an exact, idle incremental replica.

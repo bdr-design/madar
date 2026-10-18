@@ -99,9 +99,10 @@
   }
   // The route drawer used to do separate main-thread passes for totals, idle rows, manual candidates and assignable
   // candidates after durable commands. Keep one row-order pass and return only bounded presentation rows.
-  function routeCenter(state,fleet,{companyId=null,routeIds=[],manualNeedle='',manualLimit=80,idleLimit=60,assignableRoutes=[],facilityAliases={},legacyOwner=null}={}){
+  function routeCenter(state,fleet,{companyId=null,routeIds=[],manualNeedle='',manualLimit=80,idleLimit=60,assignableRoutes=[],facilityAliases={},legacyOwner=null,conflictPreview=null}={}){
     const flag={legacy:false},owner=ownerFn(legacyOwner,flag),wanted=new Set(routeIds),summaries=new Map(),cards=new Map(),idleByCompany=new Map(),manualAssets=[],assignable=new Map(),needle=normalizeSearch(manualNeedle),manualMax=Math.max(0,Math.floor(Number(manualLimit)||0)),idleMax=Math.max(0,Math.floor(Number(idleLimit)||0));
-    const routeSpecs=(assignableRoutes||[]).map(spec=>({...spec,aliases:new Set([...(spec.fromAliases||[]),...(spec.toAliases||[])])})),specsByAlias=new Map();
+    const conflicts=conflictPreview?globalThis.GH_FLEET_CORE.previewRouteConflicts({...state,customRoutes:conflictPreview.customRoutes},{...conflictPreview,legacyOwner}):null,conflictMap=new Map(conflicts||[]);
+    const routeSpecs=(assignableRoutes||[]).map(spec=>({...spec,conflict:conflicts?conflictMap.get(spec.id)===true:spec.conflict,aliases:new Set([...(spec.fromAliases||[]),...(spec.toAliases||[])])})),specsByAlias=new Map();
     for(const spec of routeSpecs)for(const alias of spec.aliases){let list=specsByAlias.get(alias);if(!list){list=[];specsByAlias.set(alias,list);}list.push(spec);}
     for(const spec of routeSpecs)assignable.set(spec.id,[]);
     fleet.scan(state,ROUTE_CENTER_FIELDS,row=>{
@@ -125,7 +126,7 @@
     if(flag.legacy)return {legacy:true};
     for(const [company,list] of idleByCompany){const summary=summaries.get(company);if(summary)summary.idleAssets=list;}
     for(const spec of routeSpecs)if(spec.conflict||(cards.get(spec.id)?.count||0)>=Number(spec.capacity||0))assignable.set(spec.id,[]);
-    return {legacy:false,summaryByCompany:[...summaries],cards:[...cards],manualAssets,assignable:[...assignable].map(([id,rows])=>[id,{rows,more:!!rows.more}])};
+    return {legacy:false,...(conflicts?{conflicts}:{}),summaryByCompany:[...summaries],cards:[...cards],manualAssets,assignable:[...assignable].map(([id,rows])=>[id,{rows,more:!!rows.more}])};
   }
   function copyRouteRow(row){const out={};for(const field of ROUTE_CENTER_RESULT_FIELDS)if(row[field]!==undefined)out[field]=row[field];return out;}
   function normalizeSearch(value){return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed]/g,'').toLocaleLowerCase('ar').replace(/\s+/g,' ').trim();}
@@ -156,7 +157,8 @@
   function manualDeparturePlan(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_MANUAL_DEPARTURE_PLAN')(state,fleet,params||{}));}
   function referenceUsage(state,fleet,params){const result=queryModule('GH_FLEET_REFERENCE_QUERY')(state,fleet,params||{});return result?.legacy?result:{...result,columns:{indices:result.routeCounts,values:result.baseCounts}};}
   function saveChunkProof(state,_fleet,params){return queryModule('GH_STATE_CODEC','fleetRowChecksum')(state.fleet,params?.index,params?.totalByteLength);}
-  const QUERIES=Object.freeze({saveChunkProof,dispatchEligible,routeCards,conditionSum,companyValidation,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
+  function valueCollection(state){const plan=queryModule('GH_FLEET_STORE','planValueCollection')(state.fleet);if(plan?.stale)throw new Error('fleet-value-plan-stale');return {version:plan.version,rowCount:plan.rowCount,valuesLength:plan.valuesLength,columns:{indices:plan.indices}};}
+  const QUERIES=Object.freeze({saveChunkProof,valueCollection,dispatchEligible,routeCards,conditionSum,companyValidation,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
   function run(name,state,fleet,params){const query=QUERIES[name];if(!query)throw new Error(`fleet-query-unknown:${name}`);return query(state,fleet,params||{});}
   const API=Object.freeze({VERSION,DISPATCH_FIELDS,CARD_FIELDS,ROUTE_CENTER_FIELDS,ROUTE_CENTER_RESULT_FIELDS,dispatchEligible,routeCards,conditionSum,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage,run,names:Object.freeze(Object.keys(QUERIES))});
   globalThis.GH_FLEET_QUERY=API;

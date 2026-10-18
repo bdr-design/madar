@@ -1,0 +1,23 @@
+{
+  "runtime_source_tree_sha256": "b6dc7c6c0cd786f37b1dc0742feb361ccc0f0a061e9f1b33f0173c0b129042fb",
+  "webapp_tree_sha256": "1dd80f8ef33aa2f8c90221d99a6f72b77ffcfe4a1bb2ccf3a25990bdf9c89e5f",
+  "acceptance_contract_sha256": "9eef9f807d9ade72d0b1353bc2eee2a00fc3bead17cbd0662acda96e044eac4e",
+  "runtime_files": {
+    "app.js": "44402a0dd7c0d913f18cf5cf0aba176c6682162e2c41044a4c271460e2b8fc4d",
+    "interface-core.js": "e3f394bf106d1612a13d8994d75b22305b84c257559b9f422e369162f42cf1be",
+    "map-vehicle-canvas-core.js": "b1353ec7d1b88bf7dd4989ef03ae144e50b95415d48a7fd6219cf7bfda60080a"
+  },
+  "runtime_tests_matching_source": true,
+  "new_gates": 6,
+  "related_scripts_passed": 24,
+  "mutations_detected": 12,
+  "full_acceptance_executed": false,
+  "physical_iphone_measured": false,
+  "all_company_revenues_running": false,
+  "approved": false,
+  "cpu_cgroup_quota": {
+    "quota_us": 400000,
+    "period_us": 100000,
+    "not_a_device_profile": true
+  }
+}

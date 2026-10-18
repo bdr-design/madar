@@ -1,0 +1,795 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+2026-10-18T09:49:20.671Z pw:browser <launching> /home/agent/.cache/ms-playwright/webkit-2203/pw_run.sh --inspector-pipe --headless --no-startup-window
+2026-10-18T09:49:20.674Z pw:browser <launched> pid=40842
+2026-10-18T09:49:20.735Z pw:browser [pid=40842][err] 
+2026-10-18T09:49:20.735Z pw:browser [pid=40842][err] ** (MiniBrowser:40848): CRITICAL **: 09:49:20.735: WebKitWebView is-controlled-by-automation set but automation is not allowed in the context, falling back to default session.
+2026-10-18T09:49:20.796Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: starting 0.021000ms]
+2026-10-18T09:49:21.311Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 8233kb => EdenCollection, ca=21687.777344kb h=27464.222656kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=0 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 0+0 p=0.662000ms (max 0.662000)...]
+2026-10-18T09:49:21.313Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=0kb hf=0.000 mu=0.700 v=6639kb (C:434 M:0 P1:641 P2:483 P3:1609 P4:3470) o=3 b=0 i#2:N<WsOJw> tp=0.300000ms 0+0 v=6639kb (C:434 M:0 P1:641 P2:483 P3:1609 P4:3470) o=4 b=0 i#3:P<WsOJwMsrShCsDMsm(0)CbDomo> => 12970kb, p=0.705000ms (max 0.705000), cycle 2.980000ms END]
+2026-10-18T09:49:21.313Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:21.313Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.215000ms]
+2026-10-18T09:49:21.515Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 18575kb => EdenCollection, ca=18178.425781kb h=30973.574219kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=90 i#1:N<CsMsrShDMsm(90)> tp=0.300000ms 0+0 v=2376kb (C:0 M:0 P1:748 P2:927 P3:698 P4:1) o=5 b=90 i#2:N<WsOJw> tp=0.300000ms 4+0 v=2378kb (C:0 M:0 P1:748 P2:929 P3:698 P4:1) o=5 b=90 i#3:P<OWsJwShMsm(0)MsrCsDCbDomo> => 20356kb, p=1.820000ms (max 1.820000), cycle 1.808000ms END]
+2026-10-18T09:49:21.515Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:21.515Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.024000ms]
+2026-10-18T09:49:21.944Z pw:browser [pid=40842][err] WARNING: trying to load platform resource 'missingImage'
+2026-10-18T09:49:22.438Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33567324 exceed bytes allowed: 33554432 normal bytes: 22368120 oversized bytes: 11199204 last oversized: 323538
+2026-10-18T09:49:22.444Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 35958kb => EdenCollection, ca=32780.589844kb h=16390.294922kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=2440 i#1:N<CsMsrShDMsm(2444)> tp=0.475200ms 45+0 v=3815kb (C:67 M:0 P1:7 P2:1613 P3:1184 P4:942) o=11 b=2440 i#2:N<WsOJw> tp=0.300000ms 106+0 v=3918kb (C:73 M:0 P1:18 P2:1646 P3:1187 P4:992) o=27 b=2440 i#3:P<WsO> tp=0.300000ms 0+0 v=3919kb (C:73 M:0 P1:19 P2:1646 P3:1188 P4:992) o=27 b=2440 i#4:P<WsJwOMsm(0)ShCsMsrDCbDomo> => 37668kb, p=5.667000ms (max 5.667000), cycle 5.653000ms END]
+2026-10-18T09:49:22.444Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:22.444Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.149000ms]
+2026-10-18T09:49:22.782Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: starting 0.010000ms]
+2026-10-18T09:49:23.359Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 4234313 exceed bytes allowed: 4194304 normal bytes: 2334313 oversized bytes: 1900000 last oversized: 249760
+2026-10-18T09:49:23.359Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 4538kb => EdenCollection, ca=4135.071289kb h=2067.535645kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=0 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 17+0 p=0.491000ms (max 5.667000)...]
+2026-10-18T09:49:23.360Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: M a=0kb hf=0.000 mu=0.700 v=839kb (C:367 M:0 P1:0 P2:0 P3:321 P4:151) o=4 b=0 i#2:N<WsOJw> tp=0.300000ms 0+0 v=840kb (C:367 M:0 P1:0 P2:0 P3:321 P4:151) o=4 b=0 i#3:P<OWsJwMsrShCsDMsm(0)CbDomo> => 4234kb, p=0.576000ms (max 5.667000), cycle 1.134000ms END]
+2026-10-18T09:49:23.360Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:23.360Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.017000ms]
+2026-10-18T09:49:23.435Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 266898412 exceed bytes allowed: 33554432 normal bytes: 169348944 oversized bytes: 97549468 last oversized: 1048624
+2026-10-18T09:49:23.436Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 206361kb => FullCollection, ca=260642.980469kb h=130321.490234kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=3139 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 60+0 p=0.917000ms (max 5.667000)...]
+2026-10-18T09:49:23.458Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=512kb hf=0.004 mu=0.697 v=15478kb (C:225 M:0 P1:2942 P2:5758 P3:1211 P4:5340) o=8 b=71 i#2:N<WsOJw> tp=0.300000ms 185+71 v=15619kb (C:303 M:0 P1:2943 P2:5778 P3:1228 P4:5365) o=9 b=71 i#3:P<WsOJwShMsrMsm(71)> tp=0.300000ms 0+0 v=15623kb (C:303 M:0 P1:2943 P2:5779 P3:1228 P4:5367) o=9 b=71 i#4:P<Msm(0)CsShMsr> tp=0.300000ms 5+0 v=15623kb (C:304 M:0 P1:2943 P2:5780 P3:1228 P4:5367) o=9 b=71 i#5:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 127016kb, p=7.074000ms (max 7.074000), cycle 23.095000ms END]
+2026-10-18T09:49:23.458Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:23.460Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 1.247000ms]
+2026-10-18T09:49:24.034Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 5269919 exceed bytes allowed: 4194304 normal bytes: 973951 oversized bytes: 4295968 last oversized: 2034912
+2026-10-18T09:49:24.034Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 10430kb => FullCollection, ca=5146.405273kb h=2573.202637kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=45 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 30+0 p=0.503000ms (max 7.074000)...]
+2026-10-18T09:49:24.035Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: M a=16kb hf=0.006 mu=0.696 v=892kb (C:380 M:0 P1:508 P2:0 P3:0 P4:3) o=3 b=17 i#2:N<WsOJw> tp=0.300000ms 1+17 v=893kb (C:380 M:0 P1:508 P2:0 P3:0 P4:3) o=3 b=17 i#3:P<OWsJwMsr> tp=0.300000ms 0+17 v=893kb (C:380 M:0 P1:508 P2:0 P3:0 P4:3) o=3 b=17 i#4:P<JwOWsShCsMsm(17)> tp=0.300000ms 0+0 v=893kb (C:380 M:0 P1:508 P2:0 P3:0 P4:3) o=3 b=17 i#5:P<Msm(0)ShCsMsrDCbDomoJwOWs> => 4013kb, p=0.963000ms (max 7.074000), cycle 1.624000ms END]
+2026-10-18T09:49:24.035Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:24.036Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.185000ms]
+2026-10-18T09:49:25.481Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384856890 exceed bytes allowed: 384854811 normal bytes: 380318954 oversized bytes: 4537936 last oversized: 103072
+2026-10-18T09:49:25.482Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 310327kb => EdenCollection, ca=375836.806641kb h=187918.403320kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=277 i#1:N<CsMsrShDMsm(292)> tp=0.300000ms 25+292 v=4319kb (C:4113 M:0 P1:0 P2:201 P3:1 P4:1) o=9 b=277 14+0 p=1.010000ms (max 7.074000)...]
+2026-10-18T09:49:25.496Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=18kb hf=0.000 mu=0.700 v=5754kb (C:4123 M:0 P1:250 P2:805 P3:106 P4:468) o=9 b=26 i#2:N<WsOJw> tp=0.300000ms 0+26 v=5754kb (C:4123 M:0 P1:250 P2:805 P3:106 P4:468) o=9 b=26 i#3:P<ShMsm(26)> tp=0.300000ms 13+0 v=5755kb (C:4123 M:0 P1:250 P2:805 P3:106 P4:468) o=9 b=26 i#4:P<Msm(0)CsShMsrD> tp=0.300000ms 0+0 v=5755kb (C:4123 M:0 P1:250 P2:805 P3:106 P4:469) o=9 b=26 i#5:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 135915kb, p=1.946000ms (max 7.074000), cycle 15.378000ms END]
+2026-10-18T09:49:25.496Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:25.496Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.013000ms]
+2026-10-18T09:49:26.401Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 18429295 exceed bytes allowed: 12323042 normal bytes: 3758783 oversized bytes: 14670512 last oversized: 6867808
+2026-10-18T09:49:26.401Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 23015kb => EdenCollection, ca=17997.358398kb h=8998.679199kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=32 i#1:N<CsMsrShDMsm(40)> tp=0.300000ms 12+0 v=4kb (C:2 M:0 P1:0 P2:0 P3:1 P4:0) o=5 b=32 i#2:N<WsOJw> tp=0.300000ms 1+0 v=4kb (C:2 M:0 P1:0 P2:0 P3:1 P4:0) o=5 b=32 i#3:P<WsJwOMsm(0)CsShMsrDCbDomo> => 21483kb, p=0.885000ms (max 7.074000), cycle 0.877000ms END]
+2026-10-18T09:49:26.401Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:26.401Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.003000ms]
+2026-10-18T09:49:26.947Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 23731kb => FullCollection, ca=982.451172kb h=17068.879883kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=19 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 0+0 v=1249kb (C:0 M:0 P1:1 P2:795 P3:451 P4:0) o=2 b=19 i#2:N<WsOJw> tp=0.300000ms 2+0 v=1251kb (C:0 M:0 P1:2 P2:795 P3:452 P4:0) o=2 b=19 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 9109kb, p=1.617000ms (max 7.074000), cycle 1.593000ms END]
+2026-10-18T09:49:26.947Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:26.961Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.046000ms]
+2026-10-18T09:49:27.540Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384859976 exceed bytes allowed: 384854811 normal bytes: 384550728 oversized bytes: 309248 last oversized: 154624
+2026-10-18T09:49:27.540Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 317344kb => EdenCollection, ca=375839.820312kb h=187919.910156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=168 i#1:N<CsMsrShDMsm(184)> tp=0.300000ms 19+184 p=0.593000ms (max 7.074000)...]
+2026-10-18T09:49:27.555Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=358kb hf=0.002 mu=0.699 v=1662kb (C:5 M:0 P1:50 P2:537 P3:163 P4:905) o=9 b=50 i#2:N<WsOJw> tp=0.300000ms 0+50 v=1662kb (C:5 M:0 P1:50 P2:537 P3:163 P4:905) o=9 b=50 i#3:P<Sh> tp=0.300000ms 41+50 v=1663kb (C:6 M:0 P1:50 P2:537 P3:163 P4:905) o=9 b=50 i#4:Msm(50) tp=0.300000ms 0+50 v=1666kb (C:8 M:0 P1:50 P2:538 P3:163 P4:906) o=9 b=50 i#5:P<Msm(0)ShCsMsrDCbDomo> tp=0.300000ms 0+0 v=1666kb (C:8 M:0 P1:50 P2:538 P3:163 P4:906) o=9 b=50 i#6:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 140665kb, p=1.932000ms (max 7.074000), cycle 15.494000ms END]
+2026-10-18T09:49:27.555Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:27.555Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.010000ms]
+2026-10-18T09:49:28.234Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 22175kb => EdenCollection, ca=12076.930664kb h=28873.258301kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=21 i#1:N<CsMsrShDMsm(22)> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=21 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=21 i#3:P<Msm(0)MsrShCsDCbDomoOWsJw> => 21030kb, p=0.973000ms (max 7.074000), cycle 0.941000ms END]
+2026-10-18T09:49:28.234Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:28.234Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.005000ms]
+2026-10-18T09:49:28.974Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 23362kb => FullCollection, ca=1270.144531kb h=39680.044434kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=18 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 0+0 v=1439kb (C:0 M:0 P1:340 P2:196 P3:5 P4:896) o=2 b=18 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1442kb (C:0 M:0 P1:340 P2:198 P3:5 P4:897) o=2 b=18 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 12423kb, p=1.432000ms (max 7.074000), cycle 1.407000ms END]
+2026-10-18T09:49:28.974Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:28.988Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.041000ms]
+2026-10-18T09:49:29.533Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384869776 exceed bytes allowed: 384854811 normal bytes: 384405904 oversized bytes: 463872 last oversized: 231936
+2026-10-18T09:49:29.536Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 322536kb => EdenCollection, ca=375849.390625kb h=187924.695312kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=180 i#1:N<CsMsrShDMsm(188)> tp=0.300000ms 26+188 p=0.751000ms (max 7.074000)...]
+2026-10-18T09:49:29.550Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=452kb hf=0.002 mu=0.698 v=1661kb (C:3 M:0 P1:318 P2:779 P3:463 P4:95) o=9 b=48 i#2:N<WsOJw> tp=0.300000ms 0+48 v=1661kb (C:3 M:0 P1:318 P2:779 P3:463 P4:95) o=9 b=48 i#3:P<Sh> tp=0.300000ms 33+48 v=1662kb (C:4 M:0 P1:318 P2:779 P3:463 P4:95) o=9 b=48 i#4:Msm(48) tp=0.300000ms 0+48 v=1665kb (C:6 M:0 P1:318 P2:780 P3:463 P4:95) o=9 b=48 i#5:P<Msm(0)ShCsMsrDCbDomo> tp=0.300000ms 0+0 v=1666kb (C:6 M:0 P1:318 P2:780 P3:464 P4:95) o=9 b=48 i#6:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 145372kb, p=1.972000ms (max 7.074000), cycle 16.994000ms END]
+2026-10-18T09:49:29.550Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:29.550Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.011000ms]
+2026-10-18T09:49:31.610Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384858772 exceed bytes allowed: 384854811 normal bytes: 384510868 oversized bytes: 347904 last oversized: 347904
+2026-10-18T09:49:31.613Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 327622kb => EdenCollection, ca=375838.644531kb h=187919.322266kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=179 i#1:N<CsMsrShDMsm(208)> tp=0.300000ms 27+208 v=103kb (C:6 M:0 P1:0 P2:0 P3:16 P4:79) o=9 b=179 0+0 v=271kb (C:6 M:0 P1:0 P2:0 P3:16 P4:246) o=9 b=179 0+0 v=1300kb (C:6 M:0 P1:375 P2:0 P3:303 P4:613) o=9 b=179 0+0 p=2.650000ms (max 7.074000)...]
+2026-10-18T09:49:31.626Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=26kb hf=0.000 mu=0.700 v=1663kb (C:7 M:0 P1:439 P2:19 P3:416 P4:779) o=9 b=46 i#2:N<WsOJw> tp=0.300000ms 0+46 v=1663kb (C:7 M:0 P1:439 P2:19 P3:416 P4:779) o=9 b=46 i#3:P<Sh> tp=0.300000ms 12+46 v=1663kb (C:8 M:0 P1:439 P2:19 P3:416 P4:779) o=9 b=46 i#4:Msm(46) tp=0.300000ms 0+46 v=1664kb (C:8 M:0 P1:439 P2:19 P3:416 P4:779) o=9 b=46 i#5:P<Msm(0)CsShMsrDCbDomo> tp=0.300000ms 8+0 v=1665kb (C:9 M:0 P1:439 P2:19 P3:416 P4:779) o=9 b=46 i#6:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 150092kb, p=2.094000ms (max 7.074000), cycle 15.723000ms END]
+2026-10-18T09:49:31.626Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:31.626Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.012000ms]
+2026-10-18T09:49:31.982Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 32881kb => EdenCollection, ca=19513.498047kb h=36316.083008kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=30 i#1:N<CsMsrShDMsm(77)> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:0 P2:1 P3:0 P4:0) o=3 b=30 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:0 P2:1 P3:0 P4:0) o=3 b=30 i#3:P<Msm(0)MsrShCsDCbDomoOWsJw> => 31621kb, p=0.975000ms (max 7.074000), cycle 0.946000ms END]
+2026-10-18T09:49:31.983Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:31.983Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.003000ms]
+2026-10-18T09:49:32.529Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 33635kb => FullCollection, ca=933.238281kb h=54896.342773kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=15 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 2+0 p=0.633000ms (max 7.074000)...]
+2026-10-18T09:49:32.531Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: C a=0kb hf=0.000 mu=0.700 v=762kb (C:103 M:0 P1:346 P2:138 P3:42 P4:132) o=2 b=0 i#2:N<WsOJw> tp=0.300000ms 0+0 v=764kb (C:103 M:0 P1:347 P2:138 P3:42 P4:133) o=2 b=0 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 16860kb, p=1.377000ms (max 7.074000), cycle 2.519000ms END]
+2026-10-18T09:49:32.531Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:32.544Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.046000ms]
+2026-10-18T09:49:33.589Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384859370 exceed bytes allowed: 384854811 normal bytes: 376470714 oversized bytes: 8388656 last oversized: 8388656
+2026-10-18T09:49:33.590Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 336954kb => EdenCollection, ca=375839.228516kb h=187919.614258kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=157 i#1:N<CsMsrShDMsm(170)> tp=0.300000ms 23+0 p=0.651000ms (max 7.074000)...]
+2026-10-18T09:49:33.604Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=116kb hf=0.001 mu=0.700 v=9819kb (C:4 M:0 P1:357 P2:8470 P3:905 P4:81) o=9 b=34 i#2:N<WsOJw> tp=0.300000ms 0+34 v=9819kb (C:4 M:0 P1:357 P2:8470 P3:905 P4:81) o=9 b=34 i#3:P<ShMsm(34)> tp=0.300000ms 25+0 v=9820kb (C:4 M:0 P1:358 P2:8470 P3:906 P4:81) o=9 b=34 i#4:P<Msm(0)ShCsMsrDCbDomoWs> tp=0.300000ms 0+0 v=9821kb (C:4 M:0 P1:358 P2:8470 P3:906 P4:81) o=9 b=34 i#5:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 162878kb, p=1.734000ms (max 7.074000), cycle 15.089000ms END]
+2026-10-18T09:49:33.604Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:33.606Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.012000ms]
+2026-10-18T09:49:34.690Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 43618kb => EdenCollection, ca=25892.194336kb h=49843.073730kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=16 i#1:N<CsMsrShDMsm(17)> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:0 P2:1 P3:0 P4:0) o=3 b=16 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:0 P2:1 P3:0 P4:0) o=3 b=16 i#3:P<Msm(0)MsrShCsDCbDomoOWsJw> => 42532kb, p=0.855000ms (max 7.074000), cycle 0.819000ms END]
+2026-10-18T09:49:34.690Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:34.690Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.004000ms]
+2026-10-18T09:49:35.361Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 44623kb => FullCollection, ca=981.390625kb h=74753.877441kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=9 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 1+0 v=743kb (C:83 M:0 P1:278 P2:130 P3:187 P4:36) o=2 b=9 1+0 v=763kb (C:88 M:0 P1:291 P2:149 P3:198 P4:36) o=2 b=9 i#2:N<WsOJw> tp=0.300000ms 1+0 v=765kb (C:88 M:0 P1:291 P2:151 P3:198 P4:36) o=2 b=9 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 24477kb, p=1.229000ms (max 7.074000), cycle 1.201000ms END]
+2026-10-18T09:49:35.361Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:35.375Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.029000ms]
+2026-10-18T09:49:35.679Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384854870 exceed bytes allowed: 384854811 normal bytes: 384333014 oversized bytes: 521856 last oversized: 521856
+2026-10-18T09:49:35.680Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 345296kb => EdenCollection, ca=375834.833984kb h=187917.416992kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=152 i#1:N<CsMsrShDMsm(165)> tp=0.300000ms 10+0 v=131kb (C:1 M:0 P1:16 P2:0 P3:112 P4:0) o=9 b=152 0+0 p=1.013000ms (max 7.074000)...]
+2026-10-18T09:49:35.696Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=68kb hf=0.000 mu=0.700 v=1661kb (C:1 M:0 P1:150 P2:371 P3:687 P4:449) o=9 b=45 i#2:N<WsOJw> tp=0.300000ms 0+45 v=1661kb (C:1 M:0 P1:150 P2:371 P3:687 P4:449) o=9 b=45 i#3:P<ShMsm(45)> tp=0.300000ms 12+0 v=1663kb (C:1 M:0 P1:151 P2:371 P3:688 P4:449) o=9 b=45 i#4:P<Msm(0)ShCsMsrDCbDomoWsOJw> tp=0.300000ms 0+0 v=1663kb (C:1 M:0 P1:151 P2:371 P3:688 P4:449) o=9 b=45 i#5:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 167573kb, p=2.455000ms (max 7.074000), cycle 17.134000ms END]
+2026-10-18T09:49:35.696Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:35.696Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.014000ms]
+2026-10-18T09:49:37.691Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384854932 exceed bytes allowed: 384854811 normal bytes: 384854932 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:37.692Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 350176kb => EdenCollection, ca=375834.894531kb h=187917.447266kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=164 i#1:N<CsMsrShDMsm(172)> tp=0.300000ms 10+0 v=112kb (C:1 M:0 P1:0 P2:0 P3:16 P4:94) o=9 b=164 0+0 v=305kb (C:1 M:0 P1:0 P2:0 P3:16 P4:287) o=9 b=164 0+0 p=1.785000ms (max 7.074000)...]
+2026-10-18T09:49:37.704Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=36kb hf=0.000 mu=0.700 v=1663kb (C:1 M:0 P1:326 P2:351 P3:357 P4:625) o=9 b=71 i#2:N<WsOJw> tp=0.300000ms 0+71 v=1664kb (C:1 M:0 P1:326 P2:351 P3:357 P4:626) o=9 b=71 i#3:P<WsOJwSh> tp=0.300000ms 0+71 v=1664kb (C:1 M:0 P1:326 P2:351 P3:357 P4:626) o=9 b=71 i#4:Msm(71) tp=0.300000ms 0+71 v=1665kb (C:1 M:0 P1:326 P2:351 P3:358 P4:627) o=9 b=71 i#5:P<Msm(0)ShCsMsrDCbDomo> tp=0.300000ms 0+0 v=1665kb (C:1 M:0 P1:326 P2:351 P3:358 P4:627) o=9 b=71 i#6:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 172269kb, p=1.742000ms (max 7.074000), cycle 13.615000ms END]
+2026-10-18T09:49:37.704Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:37.704Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.012000ms]
+2026-10-18T09:49:40.071Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384855090 exceed bytes allowed: 384854811 normal bytes: 384776114 oversized bytes: 78976 last oversized: 78976
+2026-10-18T09:49:40.073Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 354872kb => EdenCollection, ca=375835.048828kb h=187917.524414kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=168 i#1:N<CsMsrShDMsm(186)> tp=0.300000ms 15+0 v=56kb (C:2 M:0 P1:0 P2:16 P3:36 P4:0) o=9 b=168 0+0 v=223kb (C:2 M:0 P1:0 P2:16 P3:204 P4:0) o=9 b=168 0+0 p=1.879000ms (max 7.074000)...]
+2026-10-18T09:49:40.075Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=1kb hf=0.000 mu=0.700 v=1663kb (C:2 M:0 P1:345 P2:344 P3:615 P4:355) o=9 b=16 i#2:N<WsOJw> tp=0.300000ms 0+16 v=1663kb (C:2 M:0 P1:345 P2:344 P3:615 P4:355) o=9 b=16 i#3:P<ShMsm(16)> tp=0.300000ms 0+0 v=1663kb (C:2 M:0 P1:345 P2:344 P3:615 P4:355) o=9 b=16 i#4:P<Msm(0)CsShMsrDCbDomo> tp=0.300000ms 0+0 v=1665kb (C:2 M:0 P1:345 P2:344 P3:617 P4:355) o=9 b=16 i#5:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 176973kb, p=1.412000ms (max 7.074000), cycle 4.007000ms END]
+2026-10-18T09:49:40.075Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:40.075Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.011000ms]
+2026-10-18T09:49:40.904Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 67136kb => EdenCollection, ca=41901.739258kb h=67955.358887kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=13 i#1:N<CsMsrShDMsm(14)> tp=0.300000ms 4+0 v=3kb (C:0 M:0 P1:0 P2:0 P3:0 P4:3) o=4 b=13 i#2:N<WsOJw> tp=0.300000ms 0+0 v=3kb (C:0 M:0 P1:0 P2:0 P3:0 P4:3) o=4 b=13 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 65738kb, p=1.121000ms (max 7.074000), cycle 1.072000ms END]
+2026-10-18T09:49:40.905Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:40.905Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.010000ms]
+2026-10-18T09:49:41.136Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 67278kb => FullCollection, ca=347.070312kb h=109510.027832kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 5+0 p=0.640000ms (max 7.074000)...]
+2026-10-18T09:49:41.137Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: C a=0kb hf=0.000 mu=0.700 v=761kb (C:139 M:0 P1:160 P2:7 P3:171 P4:281) o=3 b=0 i#2:N<WsOJw> tp=0.300000ms 0+0 v=764kb (C:139 M:0 P1:160 P2:10 P3:172 P4:282) o=3 b=0 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 35948kb, p=0.507000ms (max 7.074000), cycle 1.178000ms END]
+2026-10-18T09:49:41.137Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:41.151Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.026000ms]
+2026-10-18T09:49:42.277Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384857400 exceed bytes allowed: 384854811 normal bytes: 384857400 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:42.278Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 359727kb => EdenCollection, ca=375837.304688kb h=187918.652344kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=144 i#1:N<CsMsrShDMsm(157)> tp=0.300000ms 13+0 v=104kb (C:3 M:0 P1:0 P2:16 P3:0 P4:82) o=9 b=144 0+0 p=1.040000ms (max 7.074000)...]
+2026-10-18T09:49:42.292Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=25kb hf=0.000 mu=0.700 v=1664kb (C:3 M:0 P1:271 P2:435 P3:292 P4:661) o=9 b=31 i#2:N<WsOJw> tp=0.300000ms 0+31 v=1664kb (C:3 M:0 P1:271 P2:435 P3:292 P4:661) o=9 b=31 i#3:P<ShMsm(31)> tp=0.300000ms 16+0 v=1665kb (C:4 M:0 P1:271 P2:435 P3:292 P4:662) o=9 b=31 i#4:P<Msm(0)ShCsMsrDCbDomo> tp=0.300000ms 8+0 v=1666kb (C:4 M:0 P1:271 P2:435 P3:292 P4:662) o=9 b=31 i#5:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 181678kb, p=1.961000ms (max 7.074000), cycle 15.560000ms END]
+2026-10-18T09:49:42.292Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:42.292Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.013000ms]
+2026-10-18T09:49:44.315Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384859784 exceed bytes allowed: 384854811 normal bytes: 367299736 oversized bytes: 17560048 last oversized: 16777264
+2026-10-18T09:49:44.316Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 374756kb => EdenCollection, ca=375839.632812kb h=187919.816406kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=144 i#1:N<CsMsrShDMsm(154)> tp=0.300000ms 20+0 p=0.690000ms (max 7.074000)...]
+2026-10-18T09:49:44.332Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=462kb hf=0.002 mu=0.698 v=17974kb (C:3 M:0 P1:363 P2:16877 P3:345 P4:384) o=9 b=47 i#2:N<WsOJw> tp=0.300000ms 0+47 v=17974kb (C:3 M:0 P1:363 P2:16877 P3:345 P4:384) o=9 b=47 i#3:P<Sh> tp=0.300000ms 38+47 v=17975kb (C:4 M:0 P1:363 P2:16877 P3:345 P4:384) o=9 b=47 i#4:Msm(47) tp=0.300000ms 0+47 p=0.821000ms (max 7.074000)...]
+2026-10-18T09:49:44.336Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=1748kb hf=0.009 mu=0.693 v=17978kb (C:4 M:0 P1:365 P2:16877 P3:345 P4:384) o=9 b=31 i#5:Msm(31) tp=0.300000ms 0+31 v=17984kb (C:8 M:0 P1:365 P2:16877 P3:346 P4:385) o=9 b=31 i#6:P<Sh> tp=0.300000ms 90+0 v=17985kb (C:10 M:0 P1:365 P2:16877 P3:346 P4:385) o=9 b=31 i#7:P<ShMsm(0)CsMsrDCbDomo> tp=0.300000ms 0+0 v=17989kb (C:10 M:0 P1:365 P2:16881 P3:346 P4:385) o=9 b=31 i#8:P<CsShMsm(0)MsrDCbDomoWsOJw> => 202576kb, p=1.987000ms (max 7.074000), cycle 20.455000ms END]
+2026-10-18T09:49:44.336Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:44.336Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.011000ms]
+2026-10-18T09:49:46.409Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384855008 exceed bytes allowed: 384854811 normal bytes: 384855008 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:46.410Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 386154kb => EdenCollection, ca=375834.968750kb h=187917.484375kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=139 i#1:N<CsMsrShDMsm(149)> tp=0.300000ms 11+149 p=0.668000ms (max 7.074000)...]
+2026-10-18T09:49:46.424Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=146kb hf=0.001 mu=0.699 v=1663kb (C:2 M:0 P1:521 P2:316 P3:723 P4:99) o=9 b=45 i#2:N<WsOJw> tp=0.300000ms 3+45 v=1664kb (C:2 M:0 P1:521 P2:316 P3:723 P4:99) o=9 b=45 i#3:P<JwWsOSh> tp=0.300000ms 29+45 v=1664kb (C:3 M:0 P1:521 P2:316 P3:723 P4:99) o=9 b=45 i#4:Msm(45) tp=0.300000ms 0+45 v=1666kb (C:4 M:0 P1:521 P2:316 P3:723 P4:99) o=9 b=45 i#5:P<Msm(0)ShCsMsrDCbDomoJw> tp=0.300000ms 8+0 v=1667kb (C:5 M:0 P1:521 P2:316 P3:723 P4:99) o=9 b=45 i#6:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 207289kb, p=2.094000ms (max 7.074000), cycle 15.581000ms END]
+2026-10-18T09:49:46.425Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:46.425Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.008000ms]
+2026-10-18T09:49:47.586Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 46274kb => EdenCollection, ca=9243.769531kb h=151897.079102kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=7 i#1:N<CsMsrShDMsm(17)> tp=0.300000ms 4+0 v=1kb (C:0 M:0 P1:1 P2:0 P3:0 P4:0) o=4 b=7 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:1 P2:0 P3:0 P4:0) o=4 b=7 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 44348kb, p=1.022000ms (max 7.074000), cycle 0.979000ms END]
+2026-10-18T09:49:47.586Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:47.586Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.021000ms]
+2026-10-18T09:49:48.403Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384866888 exceed bytes allowed: 384854811 normal bytes: 384866888 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:48.406Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 390859kb => EdenCollection, ca=375846.570312kb h=187923.285156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=140 i#1:N<CsMsrShDMsm(154)> tp=0.300000ms 14+154 p=0.712000ms (max 7.074000)...]
+2026-10-18T09:49:48.418Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=463kb hf=0.002 mu=0.698 v=1665kb (C:4 M:0 P1:216 P2:494 P3:759 P4:191) o=9 b=44 i#2:N<WsOJw> tp=0.300000ms 0+44 v=1665kb (C:4 M:0 P1:216 P2:494 P3:759 P4:191) o=9 b=44 i#3:P<ShMsm(44)> tp=0.300000ms 40+0 p=0.882000ms (max 7.074000)...]
+2026-10-18T09:49:48.421Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=463kb hf=0.002 mu=0.698 v=1669kb (C:5 M:0 P1:216 P2:494 P3:759 P4:193) o=9 b=0 i#4:P<Msm(0)ShCsMsrDCbDomoJw> tp=0.300000ms 0+0 v=1670kb (C:5 M:0 P1:216 P2:494 P3:760 P4:193) o=9 b=0 i#5:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 212000kb, p=2.441000ms (max 7.074000), cycle 17.771000ms END]
+2026-10-18T09:49:48.421Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:48.421Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.009000ms]
+2026-10-18T09:49:48.600Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 46983kb => FullCollection, ca=1412.253906kb h=159728.594727kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 5+0 v=523kb (C:31 M:0 P1:226 P2:20 P3:177 P4:60) o=3 b=4 20+0 v=763kb (C:35 M:0 P1:343 P2:71 P3:222 P4:89) o=3 b=4 i#2:N<WsOJw> tp=0.300000ms 7+0 v=765kb (C:37 M:0 P1:344 P2:71 P3:222 P4:89) o=3 b=4 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 35983kb, p=1.656000ms (max 7.074000), cycle 1.624000ms END]
+2026-10-18T09:49:48.600Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:48.614Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.031000ms]
+2026-10-18T09:49:49.866Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 89958kb => EdenCollection, ca=53286.001953kb h=108010.005859kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=18 i#1:N<CsMsrShDMsm(18)> tp=0.300000ms 5+0 v=3kb (C:1 M:0 P1:1 P2:0 P3:0 P4:0) o=5 b=18 i#2:N<WsOJw> tp=0.300000ms 0+0 v=3kb (C:1 M:0 P1:1 P2:0 P3:0 P4:0) o=5 b=18 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 89134kb, p=1.526000ms (max 7.074000), cycle 1.456000ms END]
+2026-10-18T09:49:49.866Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:49.866Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.009000ms]
+2026-10-18T09:49:50.337Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 90945kb => FullCollection, ca=649.753906kb h=160646.253906kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 5+0 v=763kb (C:2 M:0 P1:227 P2:256 P3:276 P4:0) o=3 b=4 i#2:N<WsOJw> tp=0.300000ms 9+0 v=766kb (C:4 M:0 P1:227 P2:256 P3:276 P4:0) o=3 b=4 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 53114kb, p=1.332000ms (max 7.074000), cycle 1.289000ms END]
+2026-10-18T09:49:50.337Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:50.351Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.048000ms]
+2026-10-18T09:49:50.430Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384856214 exceed bytes allowed: 384854811 normal bytes: 384856214 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:50.433Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 395628kb => EdenCollection, ca=375836.146484kb h=187918.073242kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=126 i#1:N<CsMsrShDMsm(139)> tp=0.300000ms 20+0 p=0.663000ms (max 7.074000)...]
+2026-10-18T09:49:50.435Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=1347kb hf=0.007 mu=0.695 v=1665kb (C:4 M:0 P1:754 P2:85 P3:404 P4:417) o=9 b=31 i#2:N<WsOJw> tp=0.300000ms 0+31 v=1665kb (C:4 M:0 P1:754 P2:85 P3:404 P4:417) o=9 b=31 i#3:P<ShMsm(31)> tp=0.300000ms 88+0 v=1673kb (C:5 M:0 P1:758 P2:85 P3:405 P4:418) o=9 b=31 i#4:P<ShMsm(0)CsMsrDCbDomoJwWs> tp=0.300000ms 0+0 v=1677kb (C:5 M:0 P1:758 P2:85 P3:405 P4:421) o=9 b=31 i#5:P<CsShMsm(0)MsrDCbDomoJwWsO> => 216711kb, p=2.025000ms (max 7.074000), cycle 5.378000ms END]
+2026-10-18T09:49:50.436Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:50.436Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.010000ms]
+2026-10-18T09:49:52.459Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384855432 exceed bytes allowed: 384854811 normal bytes: 383681256 oversized bytes: 1174176 last oversized: 1174176
+2026-10-18T09:49:52.460Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 401063kb => EdenCollection, ca=375835.382812kb h=187917.691406kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=130 i#1:N<CsMsrShDMsm(140)> tp=0.300000ms 14+0 v=21kb (C:2 M:0 P1:0 P2:1 P3:16 P4:0) o=9 b=130 0+0 p=1.048000ms (max 7.074000)...]
+2026-10-18T09:49:52.463Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=90kb hf=0.000 mu=0.700 v=1658kb (C:2 M:0 P1:378 P2:653 P3:263 P4:360) o=9 b=33 i#2:N<WsOJw> tp=0.300000ms 0+33 v=1658kb (C:2 M:0 P1:378 P2:653 P3:263 P4:360) o=9 b=33 i#3:P<ShMsm(33)> tp=0.300000ms 9+0 p=0.653000ms (max 7.074000)...]
+2026-10-18T09:49:52.464Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=90kb hf=0.000 mu=0.700 v=1659kb (C:2 M:0 P1:378 P2:653 P3:264 P4:361) o=9 b=0 i#4:P<Msm(0)CsShMsrDCbDomo> tp=0.300000ms 19+0 v=1663kb (C:5 M:0 P1:378 P2:653 P3:264 P4:361) o=9 b=0 i#5:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 221456kb, p=1.389000ms (max 7.074000), cycle 5.242000ms END]
+2026-10-18T09:49:52.464Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:52.464Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.010000ms]
+2026-10-18T09:49:54.405Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384857104 exceed bytes allowed: 384854811 normal bytes: 384857104 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:54.406Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 406316kb => EdenCollection, ca=375837.015625kb h=187918.507812kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=141 i#1:N<CsMsrShDMsm(154)> tp=0.300000ms 23+0 p=0.609000ms (max 7.074000)...]
+2026-10-18T09:49:54.421Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=893kb hf=0.005 mu=0.697 v=1667kb (C:5 M:0 P1:647 P2:409 P3:214 P4:389) o=10 b=49 i#2:N<WsOJw> tp=0.300000ms 1+49 v=1667kb (C:5 M:0 P1:647 P2:409 P3:214 P4:389) o=10 b=49 i#3:P<JwWsOSh> tp=0.300000ms 0+49 v=1668kb (C:5 M:0 P1:648 P2:409 P3:214 P4:389) o=10 b=49 i#4:Msm(49) tp=0.300000ms 0+49 p=0.728000ms (max 7.074000)...]
+2026-10-18T09:49:54.422Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=893kb hf=0.005 mu=0.697 v=1673kb (C:6 M:0 P1:648 P2:413 P3:214 P4:390) o=10 b=0 i#5:P<ShMsm(0)CsMsrDCbDomo> tp=0.300000ms 0+0 v=1674kb (C:6 M:0 P1:649 P2:413 P3:214 P4:390) o=10 b=0 i#6:P<CsShMsm(0)MsrDCbDomoJwWsO> => 226202kb, p=1.139000ms (max 7.074000), cycle 16.807000ms END]
+2026-10-18T09:49:54.422Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:54.422Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.010000ms]
+2026-10-18T09:49:56.481Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384857900 exceed bytes allowed: 384854811 normal bytes: 384857900 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:56.481Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 410586kb => EdenCollection, ca=375837.792969kb h=187918.896484kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=137 i#1:N<CsMsrShDMsm(153)> tp=0.300000ms 10+0 p=0.739000ms (max 7.074000)...]
+2026-10-18T09:49:56.485Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=970kb hf=0.005 mu=0.696 v=1668kb (C:2 M:0 P1:46 P2:492 P3:697 P4:429) o=10 b=31 i#2:N<WsOJw> tp=0.300000ms 0+31 v=1668kb (C:2 M:0 P1:46 P2:492 P3:697 P4:429) o=10 b=31 i#3:P<Sh> tp=0.300000ms 71+31 v=1669kb (C:3 M:0 P1:46 P2:492 P3:697 P4:429) o=10 b=31 i#4:Msm(31) tp=0.300000ms 0+31 p=1.081000ms (max 7.074000)...]
+2026-10-18T09:49:56.487Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=971kb hf=0.005 mu=0.696 v=1674kb (C:4 M:0 P1:46 P2:492 P3:698 P4:432) o=10 b=2 i#5:P<ShMsm(2)> tp=0.300000ms 0+2 v=1674kb (C:4 M:0 P1:46 P2:492 P3:698 P4:432) o=10 b=2 i#6:P<CsMsm(0)ShMsrDCbDomoJw> tp=0.300000ms 18+0 v=1676kb (C:5 M:0 P1:46 P2:493 P3:698 P4:432) o=10 b=2 i#7:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 230956kb, p=1.753000ms (max 7.074000), cycle 6.349000ms END]
+2026-10-18T09:49:56.487Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:56.487Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.011000ms]
+2026-10-18T09:49:58.574Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384856770 exceed bytes allowed: 384854811 normal bytes: 384856770 oversized bytes: 0 last oversized: 0
+2026-10-18T09:49:58.575Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 415007kb => EdenCollection, ca=375836.689453kb h=187918.344727kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=127 i#1:N<CsMsrShDMsm(134)> tp=0.300000ms 10+0 p=0.689000ms (max 7.074000)...]
+2026-10-18T09:49:58.590Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=49kb hf=0.000 mu=0.700 v=1670kb (C:2 M:0 P1:5 P2:684 P3:477 P4:501) o=10 b=31 i#2:N<WsOJw> tp=0.300000ms 1+31 v=1671kb (C:2 M:0 P1:5 P2:684 P3:477 P4:501) o=10 b=31 i#3:P<JwWsOSh> tp=0.300000ms 0+31 v=1671kb (C:2 M:0 P1:5 P2:684 P3:477 P4:501) o=10 b=31 i#4:Msm(31) tp=0.300000ms 0+31 v=1671kb (C:2 M:0 P1:5 P2:684 P3:477 P4:501) o=10 b=31 2+0 v=1671kb (C:2 M:0 P1:5 P2:684 P3:477 P4:501) o=10 b=31 i#5:P<Msm(0)ShCsMsrDCbDomo> tp=0.300000ms 6+0 v=1672kb (C:3 M:0 P1:5 P2:684 P3:477 P4:501) o=10 b=31 i#6:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 235692kb, p=2.661000ms (max 7.074000), cycle 16.019000ms END]
+2026-10-18T09:49:58.590Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:49:58.590Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.012000ms]
+2026-10-18T09:50:00.762Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384860324 exceed bytes allowed: 384854811 normal bytes: 384860324 oversized bytes: 0 last oversized: 0
+2026-10-18T09:50:00.763Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 420004kb => EdenCollection, ca=375840.160156kb h=187920.080078kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=124 i#1:N<CsMsrShDMsm(134)> tp=0.300000ms 15+0 p=0.644000ms (max 7.074000)...]
+2026-10-18T09:50:00.778Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=501kb hf=0.003 mu=0.698 v=1671kb (C:2 M:0 P1:442 P2:379 P3:564 P4:282) o=10 b=45 i#2:N<WsOJw> tp=0.300000ms 0+45 v=1671kb (C:2 M:0 P1:442 P2:379 P3:564 P4:282) o=10 b=45 i#3:P<Sh> tp=0.300000ms 45+45 v=1672kb (C:3 M:0 P1:442 P2:379 P3:564 P4:282) o=10 b=45 i#4:Msm(45) tp=0.300000ms 0+45 p=1.066000ms (max 7.074000)...]
+2026-10-18T09:50:00.779Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=501kb hf=0.003 mu=0.698 v=1676kb (C:4 M:0 P1:445 P2:380 P3:564 P4:282) o=10 b=0 i#5:P<Msm(0)ShCsMsr> tp=0.300000ms 7+0 v=1677kb (C:5 M:0 P1:445 P2:380 P3:564 P4:282) o=10 b=0 i#6:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 240431kb, p=1.401000ms (max 7.074000), cycle 16.983000ms END]
+2026-10-18T09:50:00.779Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:00.779Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.036000ms]
+2026-10-18T09:50:02.695Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384854888 exceed bytes allowed: 384854811 normal bytes: 351300408 oversized bytes: 33554480 last oversized: 33554480
+2026-10-18T09:50:02.696Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 445476kb => EdenCollection, ca=375834.851562kb h=187917.425781kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=122 i#1:N<CsMsrShDMsm(129)> tp=0.300000ms 16+0 v=20kb (C:3 M:0 P1:16 P2:0 P3:0 P4:0) o=10 b=122 0+0 p=1.010000ms (max 7.074000)...]
+2026-10-18T09:50:02.709Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=31kb hf=0.000 mu=0.700 v=34296kb (C:3 M:0 P1:338 P2:33352 P3:291 P4:310) o=10 b=43 i#2:N<WsOJw> tp=0.300000ms 0+43 v=34296kb (C:3 M:0 P1:338 P2:33352 P3:291 P4:310) o=10 b=43 i#3:P<Sh> tp=0.300000ms 15+43 v=34297kb (C:4 M:0 P1:338 P2:33352 P3:291 P4:310) o=10 b=43 i#4:Msm(43) tp=0.300000ms 0+43 p=0.916000ms (max 7.074000)...]
+2026-10-18T09:50:02.710Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=31kb hf=0.000 mu=0.700 v=34297kb (C:4 M:0 P1:339 P2:33352 P3:291 P4:310) o=10 b=0 i#5:P<Msm(0)CsShMsr> tp=0.300000ms 6+0 v=34298kb (C:4 M:0 P1:339 P2:33352 P3:291 P4:310) o=10 b=0 i#6:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 277511kb, p=1.379000ms (max 7.074000), cycle 15.462000ms END]
+2026-10-18T09:50:02.710Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:02.710Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.013000ms]
+2026-10-18T09:50:03.265Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 149498kb => EdenCollection, ca=96060.231445kb h=141582.979980kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=11 i#1:N<CsMsrShDMsm(11)> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:1 P2:0 P3:0 P4:0) o=4 b=11 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:1 P2:0 P3:0 P4:0) o=4 b=11 i#3:P<Msm(0)MsrShCsDCbDomoOWsJw> => 147266kb, p=3.109000ms (max 7.074000), cycle 2.959000ms END]
+2026-10-18T09:50:03.265Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:03.265Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.026000ms]
+2026-10-18T09:50:03.393Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 148698kb => FullCollection, ca=249.367188kb h=237393.844238kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=3 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 5+0 v=351kb (C:14 M:0 P1:37 P2:167 P3:109 P4:20) o=3 b=3 0+0 v=755kb (C:29 M:0 P1:84 P2:214 P3:343 P4:82) o=3 b=3 0+0 v=762kb (C:29 M:0 P1:84 P2:214 P3:351 P4:82) o=3 b=3 i#2:N<WsOJw> tp=0.300000ms 2+0 v=765kb (C:29 M:0 P1:84 P2:216 P3:351 P4:83) o=3 b=3 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 78804kb, p=1.872000ms (max 7.074000), cycle 1.823000ms END]
+2026-10-18T09:50:03.394Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:03.407Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.046000ms]
+2026-10-18T09:50:04.852Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384855770 exceed bytes allowed: 384854811 normal bytes: 384855770 oversized bytes: 0 last oversized: 0
+2026-10-18T09:50:04.853Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 462250kb => EdenCollection, ca=375835.712891kb h=187917.856445kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=126 i#1:N<CsMsrShDMsm(136)> tp=0.300000ms 16+0 v=20kb (C:4 M:0 P1:0 P2:0 P3:0 P4:16) o=10 b=126 0+0 p=1.026000ms (max 7.074000)...]
+2026-10-18T09:50:04.868Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=322kb hf=0.002 mu=0.699 v=1673kb (C:4 M:0 P1:697 P2:264 P3:303 P4:402) o=10 b=43 i#2:N<WsOJw> tp=0.300000ms 0+43 v=1673kb (C:4 M:0 P1:697 P2:264 P3:303 P4:402) o=10 b=43 i#3:P<Sh> tp=0.300000ms 39+43 v=1674kb (C:4 M:0 P1:697 P2:264 P3:303 P4:402) o=10 b=43 i#4:Msm(43) tp=0.300000ms 0+43 p=0.743000ms (max 7.074000)...]
+2026-10-18T09:50:04.870Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=375kb hf=0.002 mu=0.699 v=1676kb (C:5 M:0 P1:697 P2:264 P3:304 P4:403) o=10 b=31 i#5:Msm(31) tp=0.300000ms 0+31 v=1676kb (C:5 M:0 P1:697 P2:264 P3:304 P4:403) o=10 b=31 2+0 v=1676kb (C:5 M:0 P1:698 P2:264 P3:304 P4:403) o=10 b=31 i#6:P<Sh> tp=0.300000ms 6+0 v=1676kb (C:5 M:0 P1:698 P2:264 P3:304 P4:403) o=10 b=31 i#7:P<Msm(0)CsShMsrDCbDomo> tp=0.300000ms 8+0 v=1677kb (C:6 M:0 P1:698 P2:264 P3:305 P4:403) o=10 b=31 i#8:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 282253kb, p=1.999000ms (max 7.074000), cycle 17.868000ms END]
+2026-10-18T09:50:04.870Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:04.870Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.010000ms]
+2026-10-18T09:50:07.011Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384855230 exceed bytes allowed: 384854811 normal bytes: 383093966 oversized bytes: 1761264 last oversized: 1761264
+2026-10-18T09:50:07.013Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 468045kb => EdenCollection, ca=375835.185547kb h=187917.592773kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=120 i#1:N<CsMsrShDMsm(131)> tp=0.300000ms 7+131 p=0.693000ms (max 7.074000)...]
+2026-10-18T09:50:07.027Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=588kb hf=0.003 mu=0.698 v=1662kb (C:1 M:0 P1:654 P2:267 P3:369 P4:369) o=10 b=44 i#2:N<WsOJw> tp=0.300000ms 1+44 v=1663kb (C:1 M:0 P1:654 P2:267 P3:369 P4:369) o=10 b=44 i#3:P<JwWsOSh> tp=0.300000ms 0+44 v=1664kb (C:1 M:0 P1:654 P2:267 P3:370 P4:369) o=10 b=44 i#4:Msm(44) tp=0.300000ms 0+44 v=1666kb (C:2 M:0 P1:655 P2:267 P3:371 P4:369) o=10 b=44 21+0 v=1667kb (C:3 M:0 P1:655 P2:267 P3:371 P4:369) o=10 b=44 i#5:P<ShMsm(0)CsMsrD> tp=0.300000ms 0+0 v=1668kb (C:3 M:0 P1:655 P2:267 P3:372 P4:369) o=10 b=44 i#6:P<CsShMsm(0)MsrDCbDomoJwWsO> => 286958kb, p=2.854000ms (max 7.074000), cycle 16.228000ms END]
+2026-10-18T09:50:07.028Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:07.028Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.012000ms]
+2026-10-18T09:50:09.149Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384863248 exceed bytes allowed: 384854811 normal bytes: 384863248 oversized bytes: 0 last oversized: 0
+2026-10-18T09:50:09.149Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 473661kb => EdenCollection, ca=375843.015625kb h=187921.507812kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=125 i#1:N<CsMsrShDMsm(134)> tp=0.300000ms 25+0 p=0.687000ms (max 7.074000)...]
+2026-10-18T09:50:09.165Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=437kb hf=0.002 mu=0.698 v=1672kb (C:4 M:0 P1:344 P2:666 P3:384 P4:272) o=10 b=45 i#2:N<WsOJw> tp=0.300000ms 0+45 v=1672kb (C:4 M:0 P1:344 P2:666 P3:384 P4:272) o=10 b=45 i#3:P<ShMsm(45)> tp=0.300000ms 38+0 p=0.716000ms (max 7.074000)...]
+2026-10-18T09:50:09.167Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=438kb hf=0.002 mu=0.698 v=1676kb (C:4 M:0 P1:345 P2:668 P3:385 P4:272) o=10 b=0 i#4:P<Msm(0)ShCsMsrDCbDomoJw> tp=0.300000ms 0+0 v=1677kb (C:4 M:0 P1:345 P2:668 P3:386 P4:272) o=10 b=0 i#5:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 291687kb, p=1.366000ms (max 7.074000), cycle 18.026000ms END]
+2026-10-18T09:50:09.167Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:09.167Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.037000ms]
+2026-10-18T09:50:11.325Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384862658 exceed bytes allowed: 384854811 normal bytes: 384862658 oversized bytes: 0 last oversized: 0
+2026-10-18T09:50:11.328Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 478723kb => EdenCollection, ca=375842.439453kb h=187921.219727kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=122 i#1:N<CsMsrShDMsm(134)> tp=0.300000ms 24+134 p=1.961000ms (max 7.074000)...]
+2026-10-18T09:50:11.340Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=17kb hf=0.000 mu=0.700 v=1673kb (C:334 M:0 P1:354 P2:320 P3:343 P4:320) o=10 b=44 i#2:N<WsOJw> tp=0.300000ms 0+44 v=1673kb (C:334 M:0 P1:354 P2:320 P3:343 P4:320) o=10 b=44 i#3:P<JwWsOSh> tp=0.300000ms 0+44 v=1674kb (C:334 M:0 P1:354 P2:320 P3:343 P4:320) o=10 b=44 i#4:Msm(44) tp=0.300000ms 0+44 p=1.378000ms (max 7.074000)...]
+2026-10-18T09:50:11.341Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=17kb hf=0.000 mu=0.700 v=1674kb (C:334 M:0 P1:355 P2:320 P3:343 P4:320) o=10 b=0 i#5:P<Msm(0)CsShMsrDCbDomoJwWsO> tp=0.300000ms 0+0 v=1675kb (C:334 M:0 P1:355 P2:320 P3:343 P4:321) o=10 b=0 i#6:P<CsMsm(0)ShMsrDCbDomoJwWsO> => 296413kb, p=1.436000ms (max 7.074000), cycle 16.316000ms END]
+2026-10-18T09:50:11.341Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:11.341Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.012000ms]
+2026-10-18T09:50:11.875Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 91861kb => EdenCollection, ca=11983.257812kb h=339617.594727kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=3 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 4+0 v=2kb (C:0 M:0 P1:0 P2:1 P3:0 P4:0) o=4 b=3 i#2:N<WsOJw> tp=0.300000ms 0+0 v=2kb (C:0 M:0 P1:0 P2:1 P3:0 P4:0) o=4 b=3 i#3:P<WsJwOMsm(0)CsMsrShDCbDomo> => 89614kb, p=1.227000ms (max 7.074000), cycle 1.198000ms END]
+2026-10-18T09:50:11.875Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:11.875Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.026000ms]
+2026-10-18T09:50:12.635Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: starting 0.022000ms]
+2026-10-18T09:50:12.640Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 4407723 exceed bytes allowed: 4194304 normal bytes: 213323 oversized bytes: 4194400 last oversized: 4194400
+2026-10-18T09:50:12.641Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 4832kb => EdenCollection, ca=4304.416992kb h=2152.208496kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=0 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 118+0 v=199kb (C:142 M:0 P1:0 P2:0 P3:0 P4:57) o=1 b=0 i#2:N<WsOJw> tp=0.300000ms 0+0 v=199kb (C:142 M:0 P1:0 P2:0 P3:0 P4:57) o=1 b=0 i#3:P<MsrShCsDMsm(0)CbDomoWsOJw> => 4340kb, p=0.817000ms (max 7.074000), cycle 0.803000ms END]
+2026-10-18T09:50:12.641Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.641Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.010000ms]
+2026-10-18T09:50:12.642Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 4209090 exceed bytes allowed: 4194304 normal bytes: 14786 oversized bytes: 4194304 last oversized: 4194304
+2026-10-18T09:50:12.646Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 4892kb => FullCollection, ca=4110.439453kb h=2055.219727kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=13 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 22+0 v=207kb (C:62 M:0 P1:95 P2:23 P3:9 P4:16) o=2 b=13 i#2:N<WsOJw> tp=0.300000ms 1+0 v=207kb (C:62 M:0 P1:95 P2:23 P3:9 P4:16) o=2 b=13 i#3:P<WsOJwMsrShCsDMsm(0)CbDomo> => 4360kb, p=3.549000ms (max 7.074000), cycle 3.543000ms END]
+2026-10-18T09:50:12.646Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.646Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.034000ms]
+2026-10-18T09:50:12.673Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33669808 exceed bytes allowed: 13390237 normal bytes: 114800 oversized bytes: 33555008 last oversized: 4194400
+2026-10-18T09:50:12.675Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29530kb => EdenCollection, ca=32880.671875kb h=16440.335938kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=22 i#1:N<CsMsrShDMsm(26)> tp=0.300000ms 1+0 v=3kb (C:0 M:0 P1:0 P2:0 P3:3 P4:0) o=3 b=22 i#2:N<WsOJw> tp=0.300000ms 1+0 v=3kb (C:0 M:0 P1:0 P2:0 P3:3 P4:0) o=3 b=22 i#3:P<WsJwOMsm(0)CsMsrShDCbDomo> => 28966kb, p=1.064000ms (max 7.074000), cycle 0.996000ms END]
+2026-10-18T09:50:12.675Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.675Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.024000ms]
+2026-10-18T09:50:12.685Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33565200 exceed bytes allowed: 13390237 normal bytes: 10288 oversized bytes: 33554912 last oversized: 4194400
+2026-10-18T09:50:12.688Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 50035kb => FullCollection, ca=32778.515625kb h=16389.257812kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=6 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 20+0 v=210kb (C:96 M:0 P1:76 P2:4 P3:32 P4:2) o=3 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=211kb (C:96 M:0 P1:76 P2:4 P3:32 P4:2) o=3 b=6 i#3:P<WsJwOMsrShCsMsm(0)DCbDomo> => 8553kb, p=1.127000ms (max 7.074000), cycle 1.073000ms END]
+2026-10-18T09:50:12.688Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.691Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.030000ms]
+2026-10-18T09:50:12.702Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 386816254 exceed bytes allowed: 384854811 normal bytes: 239819198 oversized bytes: 146997056 last oversized: 4194304
+2026-10-18T09:50:12.702Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 504486kb => EdenCollection, ca=377750.248047kb h=188875.124023kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=417 i#1:N<CsMsrShDMsm(433)> tp=0.300000ms 23+433 p=0.602000ms (max 7.074000)...]
+2026-10-18T09:50:12.702Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33568384 exceed bytes allowed: 26251136 normal bytes: 13472 oversized bytes: 33554912 last oversized: 4194304
+2026-10-18T09:50:12.703Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29622kb => EdenCollection, ca=32781.625000kb h=16390.812500kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=8 i#1:N<CsMsrShDMsm(12)> tp=0.300000ms 5+12 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=8 i#2:N<WsOJw> tp=0.300000ms 1+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=8 i#3:P<WsJwOMsm(0)CsMsrShDCbDomo> => 29034kb, p=0.681000ms (max 7.074000), cycle 0.648000ms END]
+2026-10-18T09:50:12.703Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.703Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.026000ms]
+2026-10-18T09:50:12.716Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=4115kb hf=0.022 mu=0.685 v=1184kb (C:87 M:0 P1:9 P2:591 P3:329 P4:165) o=17 b=22 i#2:N<WsOJw> tp=0.300000ms 5+22 v=1184kb (C:87 M:0 P1:9 P2:591 P3:329 P4:165) o=17 b=22 i#3:P<WsJwOSh> tp=0.300000ms 2+22 v=1184kb (C:88 M:0 P1:9 P2:591 P3:329 P4:165) o=17 b=22 i#4:Msm(22) tp=0.300000ms 0+22 v=1186kb (C:88 M:0 P1:9 P2:591 P3:331 P4:165) o=18 b=22 i#5:P<CsMsm(0)> tp=0.751200ms 3+0 v=1186kb (C:88 M:0 P1:9 P2:591 P3:331 P4:165) o=18 b=22 i#6:P<CsShMsm(0)MsrDCbDomoWs> tp=0.300000ms 0+0 v=1186kb (C:88 M:0 P1:9 P2:591 P3:331 P4:165) o=18 b=22 i#7:P<WsJwOCsShMsm(0)MsrDCbDomo> => 406187kb, p=8.161000ms (max 8.161000), cycle 14.022000ms END]
+2026-10-18T09:50:12.716Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.718Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.021000ms]
+2026-10-18T09:50:12.729Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33565696 exceed bytes allowed: 26251136 normal bytes: 10688 oversized bytes: 33555008 last oversized: 4194400
+2026-10-18T09:50:12.734Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 54215kb => FullCollection, ca=32779.000000kb h=16389.500000kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=11 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 115+0 v=210kb (C:149 M:0 P1:6 P2:0 P3:0 P4:54) o=1 b=11 i#2:N<WsOJw> tp=0.300000ms 3+0 v=210kb (C:149 M:0 P1:6 P2:0 P3:0 P4:54) o=1 b=11 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 4456kb, p=4.704000ms (max 8.161000), cycle 4.695000ms END]
+2026-10-18T09:50:12.734Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.734Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.066000ms]
+2026-10-18T09:50:12.747Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559088 exceed bytes allowed: 13684171 normal bytes: 4176 oversized bytes: 33554912 last oversized: 4194400
+2026-10-18T09:50:12.750Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29638kb => EdenCollection, ca=32772.546875kb h=16386.273438kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=1 b=5 i#1:N<CsMsrShDMsm(5)> tp=0.300000ms 10+5 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=5 i#2:N<WsOJw> tp=0.300000ms 1+0 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=5 i#3:P<WsOJwCsMsm(0)MsrShDCbDomo> => 29034kb, p=2.533000ms (max 8.161000), cycle 2.498000ms END]
+2026-10-18T09:50:12.750Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.753Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+2026-10-18T09:50:12.759Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559064 exceed bytes allowed: 13684171 normal bytes: 4152 oversized bytes: 33554912 last oversized: 4194304
+2026-10-18T09:50:12.763Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 46022kb => FullCollection, ca=32772.523438kb h=16386.261719kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=5 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 16+0 v=210kb (C:80 M:0 P1:0 P2:0 P3:0 P4:129) o=2 b=5 i#2:N<WsOJw> tp=0.300000ms 2+0 v=210kb (C:80 M:0 P1:0 P2:0 P3:0 P4:129) o=2 b=5 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 4456kb, p=2.050000ms (max 8.161000), cycle 2.042000ms END]
+2026-10-18T09:50:12.763Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.763Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.022000ms]
+2026-10-18T09:50:12.788Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 36525388 exceed bytes allowed: 13684267 normal bytes: 21292 oversized bytes: 36504096 last oversized: 3670112
+2026-10-18T09:50:12.789Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 30363kb => EdenCollection, ca=35669.324219kb h=17834.662109kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=10 i#1:N<CsMsrShDMsm(12)> tp=0.300000ms 12+12 v=2kb (C:2 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=10 i#2:N<WsOJw> tp=0.300000ms 1+0 v=2kb (C:2 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=10 i#3:P<WsOJwCsMsm(0)MsrShDCbDomo> => 29771kb, p=0.725000ms (max 8.161000), cycle 0.716000ms END]
+2026-10-18T09:50:12.789Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.789Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.006000ms]
+2026-10-18T09:50:12.891Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 38577kb => EdenCollection, ca=12496.049805kb h=7549.263184kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=20 i#1:N<CsMsrShDMsm(22)> tp=0.300000ms 0+0 v=3kb (C:0 M:0 P1:0 P2:3 P3:0 P4:0) o=6 b=20 i#2:N<WsOJw> tp=0.300000ms 0+0 v=3kb (C:0 M:0 P1:0 P2:3 P3:0 P4:0) o=6 b=20 i#3:P<Msm(0)CsMsrShDCbDomoWsOJw> => 38020kb, p=1.515000ms (max 8.161000), cycle 1.495000ms END]
+2026-10-18T09:50:12.891Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:12.911Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.037000ms]
+2026-10-18T09:50:13.013Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 35815678 exceed bytes allowed: 13684267 normal bytes: 17448 oversized bytes: 35798230 last oversized: 3670112
+2026-10-18T09:50:13.014Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 62182kb => FullCollection, ca=34976.248047kb h=17488.124023kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=11 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 17+0 v=214kb (C:56 M:0 P1:0 P2:98 P3:20 P4:39) o=4 b=11 i#2:N<WsOJw> tp=0.300000ms 2+0 v=215kb (C:56 M:0 P1:0 P2:99 P3:20 P4:39) o=4 b=11 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 8111kb, p=0.984000ms (max 8.161000), cycle 0.976000ms END]
+2026-10-18T09:50:13.014Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.014Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.030000ms]
+2026-10-18T09:50:13.138Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 36430512 exceed bytes allowed: 24896675 normal bytes: 35032 oversized bytes: 36395480 last oversized: 3670112
+2026-10-18T09:50:13.138Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 32576kb => EdenCollection, ca=35576.671875kb h=17788.335938kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#1:N<CsMsrShDMsm(12)> tp=0.300000ms 6+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=10 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=10 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 31960kb, p=0.630000ms (max 8.161000), cycle 0.623000ms END]
+2026-10-18T09:50:13.138Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.138Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.011000ms]
+2026-10-18T09:50:13.247Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 48745kb => EdenCollection, ca=24335.486328kb h=12167.743164kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=19 i#1:N<CsMsrShDMsm(21)> tp=1.743000ms 0+0 v=1kb (C:0 M:0 P1:0 P2:0 P3:0 P4:1) o=6 b=19 i#2:N<WsOJw> tp=0.892200ms 0+0 v=1kb (C:0 M:0 P1:0 P2:0 P3:0 P4:1) o=6 b=19 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 48130kb, p=13.058000ms (max 13.058000), cycle 13.041000ms END]
+2026-10-18T09:50:13.247Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.255Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.030000ms]
+2026-10-18T09:50:13.331Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 64509kb => FullCollection, ca=23384.994141kb h=13084.744629kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=10 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 5+0 v=216kb (C:0 M:0 P1:0 P2:4 P3:150 P4:60) o=4 b=10 i#2:N<WsOJw> tp=0.300000ms 1+0 v=217kb (C:0 M:0 P1:0 P2:5 P3:150 P4:60) o=4 b=10 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 4553kb, p=1.252000ms (max 13.058000), cycle 1.227000ms END]
+2026-10-18T09:50:13.331Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.331Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.042000ms]
+2026-10-18T09:50:13.355Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 240039595 exceed bytes allowed: 240026182 normal bytes: 239902843 oversized bytes: 136752 last oversized: 71200
+2026-10-18T09:50:13.359Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 329309kb => EdenCollection, ca=234413.666992kb h=117206.833496kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=85 i#1:N<CsMsrShDMsm(88)> tp=0.300000ms 43+88 v=81kb (C:40 M:0 P1:41 P2:0 P3:0 P4:0) o=4 b=85 i#2:N<WsOJw> tp=0.319800ms 0+0 v=81kb (C:40 M:0 P1:41 P2:0 P3:0 P4:0) o=4 b=85 i#3:P<ShMsm(0)CsMsrDCbDomoWsJwO> => 91030kb, p=2.750000ms (max 13.058000), cycle 2.743000ms END]
+2026-10-18T09:50:13.359Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.359Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.009000ms]
+2026-10-18T09:50:13.410Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 36127506 exceed bytes allowed: 13981409 normal bytes: 7608 oversized bytes: 36119898 last oversized: 3670112
+2026-10-18T09:50:13.410Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 28882kb => EdenCollection, ca=35280.767578kb h=17640.383789kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=11 i#1:N<CsMsrShDMsm(11)> tp=0.300000ms 6+11 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=11 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=11 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 28267kb, p=0.561000ms (max 13.058000), cycle 0.552000ms END]
+2026-10-18T09:50:13.410Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.410Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.022000ms]
+2026-10-18T09:50:13.504Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 387265260 exceed bytes allowed: 384854811 normal bytes: 48081208 oversized bytes: 339184052 last oversized: 4194400
+2026-10-18T09:50:13.505Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 694493kb => EdenCollection, ca=378188.730469kb h=189094.365234kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=18 b=912 i#1:N<CsMsrShDMsm(920)> tp=0.300000ms 13+0 p=0.497000ms (max 13.058000)...]
+2026-10-18T09:50:13.506Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=0kb hf=0.000 mu=0.700 v=142kb (C:16 M:0 P1:76 P2:0 P3:39 P4:9) o=43 b=0 i#2:N<WsOJw[GC<0x7f32e227c0c0>: START C 44741kb => EdenCollection, ca=23631.151367kb h=11815.575684kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=9 i#1:N<Cs> tp=0.300000ms 24+0 v=143kb (C:17 M:0 P1:77 P2:0 P3:39 P4:9) o=43 b=0 i#3:P<WsOJwMsm(0)ShCsMsrDCbDomoMsrShDMsm(11)> tp=0.300000ms 0+11 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=9 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=9 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 44127kb, p=1.005000ms (max 13.058000), cycle 1.000000ms END]
+2026-10-18T09:50:13.506Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.507Z pw:browser [pid=40842][err] > => 635051kb, p=2.373000ms (max 13.058000), cycle 2.980000ms END]
+2026-10-18T09:50:13.507Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.507Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.035000ms]
+2026-10-18T09:50:13.508Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.018000ms]
+2026-10-18T09:50:13.694Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 240034360 exceed bytes allowed: 240026182 normal bytes: 240034360 oversized bytes: 0 last oversized: 0
+2026-10-18T09:50:13.694Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 332372kb => EdenCollection, ca=234408.554688kb h=117204.277344kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=34 i#1:N<CsMsrShDMsm(40)> tp=0.300000ms 13+0 v=21kb (C:2 M:0 P1:0 P2:0 P3:2 P4:16) o=4 b=34 i#2:N<WsOJw> tp=0.300000ms 0+0 v=21kb (C:2 M:0 P1:0 P2:0 P3:2 P4:16) o=4 b=34 i#3:P<ShMsm(0)CsMsrDCbDomoWsJwO> => 91076kb, p=0.937000ms (max 13.058000), cycle 0.912000ms END]
+2026-10-18T09:50:13.694Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:13.694Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.007000ms]
+2026-10-18T09:50:14.038Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 240027728 exceed bytes allowed: 240026182 normal bytes: 240027728 oversized bytes: 0 last oversized: 0
+2026-10-18T09:50:14.040Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 332428kb => EdenCollection, ca=234402.078125kb h=117201.039062kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=22 i#1:N<CsMsrShDMsm(31)> tp=0.300000ms 13+0 v=21kb (C:3 M:0 P1:0 P2:0 P3:0 P4:18) o=4 b=22 i#2:N<WsOJw> tp=0.300000ms 0+0 v=21kb (C:3 M:0 P1:0 P2:0 P3:0 P4:18) o=4 b=22 i#3:P<ShMsm(0)CsMsrDCbDomoWsJwO> => 91100kb, p=1.502000ms (max 13.058000), cycle 1.491000ms END]
+2026-10-18T09:50:14.040Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:14.040Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.008000ms]
+2026-10-18T09:50:14.129Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 336591kb => FullCollection, ca=57425.875000kb h=294174.977539kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=70 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 1+0 p=0.521000ms (max 13.058000)...]
+2026-10-18T09:50:14.130Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: C a=0kb hf=0.000 mu=0.700 v=828kb (C:210 M:0 P1:64 P2:0 P3:553 P4:0) o=2 b=0 i#2:N<WsOJw> tp=0.300000ms 8+0 v=841kb (C:223 M:0 P1:64 P2:0 P3:553 P4:0) o=2 b=0 i#3:P<OWsJwShMsrCsMsm(0)DCbDomo> => 78658kb, p=0.922000ms (max 13.058000), cycle 1.795000ms END]
+2026-10-18T09:50:14.130Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:14.145Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 65858kb => EdenCollection, ca=31501.527344kb h=15750.763672kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=16 i#1:N<CsMsrShDMsm(16)> tp=0.300000ms 0+16 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=16 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=16 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 65276kb, p=0.578000ms (max 13.058000), cycle 0.545000ms END]
+2026-10-18T09:50:14.145Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:14.145Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.011000ms]
+2026-10-18T09:50:14.157Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 65858kb => FullCollection, ca=0.000000kb h=20480.579590kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=0 i#1:N<CsMsrShDMsm(0)> tp=1.112400ms 0+0 v=215kb (C:0 M:0 P1:151 P2:63 P3:0 P4:0) o=2 b=0 i#2:N<WsOJw> tp=0.675300ms 1+0 v=216kb (C:0 M:0 P1:151 P2:63 P3:0 P4:0) o=2 b=0 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 456kb, p=11.301000ms (max 13.058000), cycle 11.276000ms END]
+2026-10-18T09:50:14.157Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:14.161Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.055000ms]
+2026-10-18T09:50:14.173Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.062000ms]
+2026-10-18T09:50:14.450Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 342729kb => EdenCollection, ca=117876.168945kb h=233079.885742kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=171 i#1:N<CsMsrShDMsm(188)> tp=0.300000ms 2040+188 p=0.570000ms (max 13.058000)...]
+2026-10-18T09:50:14.451Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: M a=0kb hf=0.000 mu=0.700 v=139kb (C:63 M:0 P1:73 P2:0 P3:0 P4:2) o=4 b=0 i#2:N<WsOJw> tp=0.300000ms 0+0 v=139kb (C:63 M:0 P1:73 P2:0 P3:0 P4:2) o=4 b=0 i#3:P<ShMsm(0)MsrCsDCbDomoOWsJw> => 79367kb, p=0.858000ms (max 13.058000), cycle 1.696000ms END]
+2026-10-18T09:50:14.451Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:14.451Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.010000ms]
+2026-10-18T09:50:17.015Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 82304kb => EdenCollection, ca=855.333984kb h=350100.720703kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=66 i#1:N<CsMsrShDMsm(69)> tp=0.300000ms 0+0 v=6kb (C:0 M:0 P1:0 P2:6 P3:0 P4:0) o=4 b=66 i#2:N<WsOJw> tp=0.300000ms 0+0 v=6kb (C:0 M:0 P1:0 P2:6 P3:0 P4:0) o=4 b=66 i#3:P<Msm(0)ShMsrCsDCbDomoOWsJw> => 80192kb, p=1.154000ms (max 13.058000), cycle 1.132000ms END]
+2026-10-18T09:50:17.015Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:17.015Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.012000ms]
+2026-10-18T09:50:17.091Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 384854901 exceed bytes allowed: 384854811 normal bytes: 139746406 oversized bytes: 245108495 last oversized: 1375104
+2026-10-18T09:50:17.096Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 945086kb => FullCollection, ca=375834.864258kb h=187917.432129kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=2728 i#1:N<CsMsrShDMsm(0)> tp=0.790200ms 56+0 p=3.516000ms (max 13.058000)...]
+2026-10-18T09:50:17.112Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=19kb hf=0.000 mu=0.700 v=46683kb (C:401 M:0 P1:1800 P2:33613 P3:3069 P4:7798) o=9 b=16 i#2:N<WsOJw> tp=0.300000ms 154+16 v=46862kb (C:418 M:0 P1:1910 P2:33649 P3:3085 P4:7798) o=10 b=16 i#3:P<WsOJwSh> tp=0.300000ms 0+16 v=46862kb (C:418 M:0 P1:1910 P2:33649 P3:3085 P4:7798) o=10 b=16 i#4:P<MsrCsMsm(16)> tp=0.300000ms 0+0 v=46863kb (C:418 M:0 P1:1910 P2:33650 P3:3085 P4:7798) o=10 b=16 i#5:P<Msm(0)ShCsMsrDCbDomoWsOJw> => 399380kb, p=6.256000ms (max 13.058000), cycle 20.345000ms END]
+2026-10-18T09:50:17.112Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:17.112Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.168000ms]
+2026-10-18T09:50:20.797Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 87575kb => FullCollection, ca=5243.066406kb h=345712.988281kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=19 i#1:N<CsMsrShDMsm(0)[GC<0x7f32e227c0c0>: START M 9232kb => EdenCollection, ca=8195.031250kb h=4097.515625kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#1:N<CsMsrSh> tp=0.300000ms 1+0 v=781kb (C:236 M:0 P1:17 P2:526 P3:0 P4:0) o=4 b=19 0+0 p=1.183000ms (max 13.058000)...]
+2026-10-18T09:50:20.797Z pw:browser [pid=40842][err] DMsm(6)> tp=0.300000ms 0+6 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 [GC<0x7f3403e050c0>: C i#2:a=0kb hf=0.000 mu=0.700 v=781kb (C:236 M:0 P1:17 P2:526 P3:0 P4:0) o=4 b=0 i#2:N<N<WsOJwWsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#3:P<Msm(0)Msr>Sh tp=0.300000ms 0+0 CsDCbDomoOWsJw> v=794kb (C:236 M:0 P1:18 P2:537 P3:0 P4:1) o=4 b=0 i#3:P<OWsJwSh=> 8648kb, p=1.175000ms (max 13.058000), cycle 1.157000ms END]
+2026-10-18T09:50:20.797Z pw:browser [pid=40842][err] MsrGC END!
+2026-10-18T09:50:20.797Z pw:browser [pid=40842][err] CsMsm(0)[GC<0x7f32e227c0c0>: finalize DCbDomo0.013000ms]
+2026-10-18T09:50:20.797Z pw:browser [pid=40842][err] > => 78019kb, p=0.510000ms (max 13.058000), cycle 1.816000ms END]
+2026-10-18T09:50:20.797Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:20.810Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.070000ms]
+2026-10-18T09:50:23.775Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174888052 exceed bytes allowed: 1174885720 normal bytes: 1174250724 oversized bytes: 637328 last oversized: 231936
+2026-10-18T09:50:23.778Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 942488kb => EdenCollection, ca=1147351.613281kb h=573675.806641kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=608 i#1:N<CsMsrShDMsm(2331)> tp=0.366900ms 36+0 v=136kb (C:12 M:0 P1:37 P2:0 P3:10 P4:75) o=10 b=608 0+0 p=2.245000ms (max 13.058000)...]
+2026-10-18T09:50:23.790Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=27kb hf=0.000 mu=0.700 v=5145kb (C:12 M:0 P1:590 P2:1630 P3:267 P4:2644) o=10 b=59 i#2:N<WsOJw> tp=0.300000ms 0+59 v=5146kb (C:12 M:0 P1:591 P2:1630 P3:267 P4:2645) o=10 b=59 i#3:P<OWsJwMsm(59)> tp=0.300000ms 0+0 v=5147kb (C:12 M:0 P1:591 P2:1630 P3:267 P4:2646) o=10 b=59 i#4:P<Sh> tp=0.300000ms 7+0 v=5148kb (C:13 M:0 P1:591 P2:1630 P3:267 P4:2646) o=10 b=59 i#5:P<Msm(0)CsShMsrDCbDomo> tp=0.300000ms 0+0 v=5148kb (C:13 M:0 P1:591 P2:1630 P3:267 P4:2646) o=10 b=59 i#6:P<CsMsm(0)ShMsrDCbDomoOWsJw> => 414979kb, p=3.679000ms (max 13.058000), cycle 14.084000ms END]
+2026-10-18T09:50:23.790Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:23.790Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.032000ms]
+2026-10-18T09:50:30.034Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174885847 exceed bytes allowed: 1174885720 normal bytes: 1174016087 oversized bytes: 869760 last oversized: 521856
+2026-10-18T09:50:30.034Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 959239kb => EdenCollection, ca=1147349.459961kb h=573674.729980kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=282 i#1:N<CsMsrShDMsm(298)> tp=0.300000ms 13+0 p=0.668000ms (max 13.058000)...]
+2026-10-18T09:50:30.051Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=859kb hf=0.001 mu=0.699 v=5028kb (C:2 M:0 P1:891 P2:2381 P3:197 P4:1555) o=10 b=77 i#2:N<WsOJw> tp=0.300000ms 0+77 v=5028kb (C:2 M:0 P1:891 P2:2381 P3:197 P4:1555) o=10 b=77 i#3:P<Sh> tp=0.300000ms 61+77 v=5030kb (C:3 M:0 P1:891 P2:2381 P3:197 P4:1555) o=10 b=77 i#4:Msm(77) tp=0.300000ms 0+77 v=5034kb (C:3 M:0 P1:891 P2:2385 P3:197 P4:1556) o=10 b=77 i#5:P<Msm(0)ShCsMsrDCbDomoO> tp=0.300000ms 0+0 v=5035kb (C:3 M:0 P1:891 P2:2385 P3:197 P4:1556) o=10 b=77 i#6:P<CsMsm(0)ShMsrDCbDomoOWsJw> => 429291kb, p=2.027000ms (max 13.058000), cycle 17.146000ms END]
+2026-10-18T09:50:30.051Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:30.051Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.015000ms]
+2026-10-18T09:50:30.714Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 208615kb => EdenCollection, ca=130245.805664kb h=217884.452637kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=64 i#1:N<CsMsrShDMsm(65)> tp=0.300000ms 0+0 v=17kb (C:0 M:0 P1:16 P2:0 P3:0 P4:1) o=5 b=64 i#2:N<WsOJw> tp=0.300000ms 0+0 v=17kb (C:0 M:0 P1:16 P2:0 P3:0 P4:1) o=5 b=64 i#3:P<OWsJwMsm(0)ShMsrCsDCbDomo> => 206930kb, p=1.124000ms (max 13.058000), cycle 1.096000ms END]
+2026-10-18T09:50:30.714Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:30.714Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.036000ms]
+2026-10-18T09:50:31.261Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 209814kb => FullCollection, ca=855.347656kb h=347274.910645kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=8 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 1+0 v=764kb (C:189 M:0 P1:47 P2:262 P3:221 P4:43) o=4 b=8 i#2:N<WsOJw> tp=0.300000ms 2+0 v=778kb (C:189 M:0 P1:47 P2:262 P3:221 P4:56) o=4 b=8 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 117065kb, p=1.290000ms (max 13.058000), cycle 1.261000ms END]
+2026-10-18T09:50:31.261Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:31.276Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.037000ms]
+2026-10-18T09:50:36.522Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174888548 exceed bytes allowed: 1174885720 normal bytes: 1174105764 oversized bytes: 782784 last oversized: 782784
+2026-10-18T09:50:36.523Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 973770kb => EdenCollection, ca=1147352.097656kb h=573676.048828kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=199 i#1:N<CsMsrShDMsm(212)> tp=0.300000ms 15+0 v=92kb (C:2 M:0 P1:71 P2:16 P3:0 P4:0) o=10 b=199 0+0 v=344kb (C:2 M:0 P1:325 P2:16 P3:0 P4:0) o=10 b=199 0+0 p=1.458000ms (max 13.058000)...]
+2026-10-18T09:50:36.539Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=18kb hf=0.000 mu=0.700 v=5033kb (C:2 M:0 P1:2156 P2:1224 P3:491 P4:1158) o=10 b=31 i#2:N<WsOJw> tp=0.300000ms 0+31 v=5033kb (C:2 M:0 P1:2156 P2:1224 P3:491 P4:1158) o=10 b=31 i#3:P<Sh> tp=0.300000ms 7+31 v=5033kb (C:3 M:0 P1:2156 P2:1224 P3:491 P4:1158) o=10 b=31 i#4:Msm(31) tp=0.300000ms 0+31 v=5033kb (C:3 M:0 P1:2156 P2:1224 P3:491 P4:1158) o=10 b=31 i#5:P<Msm(0)CsShMsr> tp=0.300000ms 0+0 v=5034kb (C:3 M:0 P1:2156 P2:1225 P3:491 P4:1158) o=10 b=31 i#6:P<CsMsm(0)ShMsrDCbDomoOWsJw> => 443587kb, p=1.965000ms (max 13.058000), cycle 16.799000ms END]
+2026-10-18T09:50:36.539Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:36.539Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.014000ms]
+2026-10-18T09:50:40.027Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 130867kb => EdenCollection, ca=12248.406250kb h=507898.266113kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=15 i#1:N<CsMsrShDMsm(16)> tp=0.300000ms 0+0 v=2kb (C:0 M:0 P1:1 P2:0 P3:0 P4:1) o=5 b=15 i#2:N<WsOJw> tp=0.300000ms 0+0 v=2kb (C:0 M:0 P1:1 P2:0 P3:0 P4:1) o=5 b=15 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 128167kb, p=1.022000ms (max 13.058000), cycle 0.995000ms END]
+2026-10-18T09:50:40.027Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:40.027Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.020000ms]
+2026-10-18T09:50:40.896Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 131064kb => FullCollection, ca=1114.156250kb h=519032.516113kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=3 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 5+0 v=765kb (C:1 M:0 P1:0 P2:277 P3:273 P4:212) o=5 b=3 i#2:N<WsOJw> tp=0.300000ms 1+0 v=779kb (C:1 M:0 P1:0 P2:289 P3:274 P4:213) o=5 b=3 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 117160kb, p=1.237000ms (max 13.058000), cycle 1.209000ms END]
+2026-10-18T09:50:40.896Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:40.912Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.037000ms]
+2026-10-18T09:50:43.339Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174887772 exceed bytes allowed: 1174885720 normal bytes: 1174808796 oversized bytes: 78976 last oversized: 78976
+2026-10-18T09:50:43.340Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 988155kb => EdenCollection, ca=1147351.339844kb h=573675.669922kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=226 i#1:N<CsMsrShDMsm(235)> tp=0.300000ms 15+0 v=19kb (C:3 M:0 P1:0 P2:16 P3:0 P4:0) o=10 b=226 0+0 p=1.010000ms (max 13.058000)...]
+2026-10-18T09:50:43.353Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=29kb hf=0.000 mu=0.700 v=5037kb (C:3 M:0 P1:1184 P2:883 P3:854 P4:2112) o=10 b=31 i#2:N<WsOJw> tp=0.300000ms 0+31 v=5037kb (C:3 M:0 P1:1184 P2:883 P3:854 P4:2112) o=10 b=31 i#3:P<ShMsm(31)> tp=0.300000ms 0+31 p=0.752000ms (max 13.058000)...]
+2026-10-18T09:50:43.355Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=29kb hf=0.000 mu=0.700 v=5038kb (C:3 M:0 P1:1184 P2:883 P3:854 P4:2112) o=10 b=0 i#4:P<Msm(0)ShCsMsrDCbDomoOWs> tp=0.300000ms 0+0 v=5039kb (C:3 M:0 P1:1184 P2:884 P3:854 P4:2112) o=10 b=0 i#5:P<CsMsm(0)ShMsrDCbDomoOWsJw> => 457888kb, p=1.509000ms (max 13.058000), cycle 15.249000ms END]
+2026-10-18T09:50:43.355Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:43.355Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.016000ms]
+2026-10-18T09:50:47.748Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 128442kb => EdenCollection, ca=9682.914062kb h=510880.604492kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=14 i#1:N<CsMsrShDMsm(21)> tp=0.300000ms 4+0 v=2kb (C:0 M:0 P1:1 P2:0 P3:0 P4:0) o=6 b=14 i#2:N<WsOJw> tp=0.300000ms 0+0 v=3kb (C:0 M:0 P1:1 P2:0 P3:0 P4:1) o=6 b=14 i#3:P<OWsJwMsm(0)CsMsrShDCbDomo> => 125922kb, p=0.924000ms (max 13.058000), cycle 0.896000ms END]
+2026-10-18T09:50:47.749Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:47.749Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.023000ms]
+2026-10-18T09:50:49.450Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174886992 exceed bytes allowed: 1174885720 normal bytes: 1106603904 oversized bytes: 68283088 last oversized: 1174176
+2026-10-18T09:50:49.450Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 1039838kb => EdenCollection, ca=1147350.578125kb h=573675.289062kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=164 i#1:N<CsMsrShDMsm(173)> tp=0.300000ms 23+0 p=0.674000ms (max 13.058000)...]
+2026-10-18T09:50:49.483Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=3733kb hf=0.007 mu=0.695 v=70284kb (C:4 M:0 P1:2177 P2:984 P3:66109 P4:1007) o=10 b=65 i#2:N<WsOJw> tp=0.300000ms 0+65 v=70284kb (C:4 M:0 P1:2177 P2:984 P3:66109 P4:1007) o=10 b=65 i#3:P<ShMsm(65)> tp=0.300000ms 217+0 p=0.728000ms (max 13.058000)...]
+2026-10-18T09:50:49.499Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=5396kb hf=0.009 mu=0.693 v=70305kb (C:7 M:0 P1:2189 P2:987 P3:66109 P4:1010) o=10 b=45 i#4:P<Sh> tp=0.300000ms 109+45 v=70307kb (C:9 M:0 P1:2189 P2:987 P3:66109 P4:1010) o=10 b=45 i#5:Msm(45) tp=0.300000ms 0+45 p=0.582000ms (max 13.058000)...]
+2026-10-18T09:50:49.500Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=5397kb hf=0.009 mu=0.693 v=70315kb (C:11 M:0 P1:2193 P2:990 P3:66109 P4:1010) o=10 b=0 i#6:P<ShMsm(0)CsMsrDCbDomo> tp=0.300000ms 0+0 v=70316kb (C:11 M:0 P1:2193 P2:990 P3:66109 P4:1011) o=10 b=0 i#7:P<CsShMsm(0)MsrDCbDomoOWsJw> => 536961kb, p=1.595000ms (max 13.058000), cycle 50.575000ms END]
+2026-10-18T09:50:49.500Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:49.500Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.013000ms]
+2026-10-18T09:50:50.837Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 131995kb => FullCollection, ca=4361.386719kb h=516202.131836kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=3 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 0+0 v=749kb (C:0 M:0 P1:206 P2:0 P3:351 P4:192) o=4 b=3 i#2:N<WsOJw> tp=0.300000ms 1+0 [GC<0x7f32e227c0c0>: START C 9168kb => v=761kb (C:12 M:0 P1:206 P2:0 P3:351 P4:192) o=4 b=3 FullCollection, i#3:P<ca=0.000000kb h=5458.795898kb a=0kb hf=0.000 mu=0.700 OWsv=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=0 i#1:N<CsJwMsrShMsm(0)CsDCbDomo> MsrShDMsm(0)> tp=0.300000ms 0+0 v=204kb (C:68 M:0 P1:0 P2:131 P3:0 P4:4) o=2 b=0 i#2:N<WsOJw=> 116503kb, p=1.306000ms (max 13.058000), cycle 1.272000ms END]
+2026-10-18T09:50:50.838Z pw:browser [pid=40842][err] > tp=0.300000ms 0+0 GC END!
+2026-10-18T09:50:50.838Z pw:browser [pid=40842][err] v=204kb (C:68 M:0 P1:0 P2:131 P3:0 P4:4) o=2 b=0 i#3:P<WsOJwMsrShMsm(0)CsDCbDomo> [GC<0x7f3403e050c0>: finalize 0.023000ms]
+2026-10-18T09:50:50.838Z pw:browser [pid=40842][err] => 229kb, p=0.816000ms (max 13.058000), cycle 0.794000ms END]
+2026-10-18T09:50:50.838Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:56.118Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174897464 exceed bytes allowed: 1174885720 normal bytes: 1174897464 oversized bytes: 0 last oversized: 0
+2026-10-18T09:50:56.119Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 1084172kb => EdenCollection, ca=1147360.804688kb h=573680.402344kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=668 i#1:N<CsMsrShDMsm(682)> tp=0.300000ms 34+0 p=0.570000ms (max 13.058000)...]
+2026-10-18T09:50:56.132Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=25kb hf=0.000 mu=0.700 v=5141kb (C:24 M:0 P1:1007 P2:732 P3:2076 P4:1301) o=10 b=38 i#2:N<WsOJw> tp=0.300000ms 0+38 v=5143kb (C:24 M:0 P1:1007 P2:732 P3:2076 P4:1301) o=10 b=38 i#3:P<OWsJwShMsm(38)> tp=0.300000ms 0+0 p=0.943000ms (max 13.058000)...]
+2026-10-18T09:50:56.134Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=25kb hf=0.000 mu=0.700 v=5144kb (C:24 M:0 P1:1007 P2:732 P3:2076 P4:1301) o=10 b=0 i#4:P<Msm(0)CsShMsrDCbDomo> tp=0.300000ms 0+0 v=5144kb (C:24 M:0 P1:1008 P2:732 P3:2076 P4:1301) o=10 b=0 i#5:P<CsMsm(0)ShMsrDCbDomoOWsJw> => 552588kb, p=1.931000ms (max 13.058000), cycle 16.429000ms END]
+2026-10-18T09:50:56.134Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:56.135Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.014000ms]
+2026-10-18T09:50:59.122Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 301474kb => EdenCollection, ca=185396.473633kb h=332288.306152kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=64 i#1:N<CsMsrShDMsm(64)> tp=0.300000ms 12+0 v=20kb (C:1 M:0 P1:2 P2:0 P3:15 P4:0) o=7 b=64 i#2:N<WsOJw> tp=0.300000ms 0+0 v=20kb (C:1 M:0 P1:2 P2:0 P3:15 P4:0) o=7 b=64 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 300822kb, p=1.637000ms (max 13.058000), cycle 1.608000ms END]
+2026-10-18T09:50:59.122Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:59.122Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.015000ms]
+2026-10-18T09:50:59.352Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 302966kb => FullCollection, ca=311.773438kb h=517373.006348kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=10 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 0+0 v=765kb (C:39 M:0 P1:164 P2:155 P3:61 P4:343) o=4 b=10 i#2:N<WsOJw> tp=0.300000ms 0+0 v=778kb (C:40 M:0 P1:164 P2:167 P3:61 P4:343) o=4 b=10 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 174862kb, p=1.472000ms (max 13.058000), cycle 1.445000ms END]
+2026-10-18T09:50:59.352Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:50:59.366Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.039000ms]
+2026-10-18T09:51:02.727Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174900866 exceed bytes allowed: 1174885720 normal bytes: 1173139602 oversized bytes: 1761264 last oversized: 1761264
+2026-10-18T09:51:02.728Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 1100530kb => EdenCollection, ca=1147364.126953kb h=573682.063477kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=211 i#1:N<CsMsrShDMsm(250)> tp=0.300000ms 12+0 p=0.642000ms (max 13.058000)...]
+2026-10-18T09:51:02.742Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=33kb hf=0.000 mu=0.700 v=5027kb (C:2 M:0 P1:1054 P2:1854 P3:1067 P4:1047) o=10 b=33 i#2:N<WsOJw> tp=0.300000ms 0+33 v=5027kb (C:2 M:0 P1:1054 P2:1854 P3:1067 P4:1047) o=10 b=33 i#3:P<Sh> tp=0.300000ms 0+33 v=5028kb (C:2 M:0 P1:1054 P2:1854 P3:1068 P4:1047) o=10 b=33 i#4:Msm(33) tp=0.300000ms 0+33 v=5028kb (C:2 M:0 P1:1054 P2:1854 P3:1068 P4:1047) o=10 b=33 1+0 v=5028kb (C:2 M:0 P1:1054 P2:1854 P3:1068 P4:1047) o=10 b=33 i#5:P<Msm(0)ShCsMsrDCbDomoO> tp=0.300000ms 0+0 v=5028kb (C:2 M:0 P1:1054 P2:1854 P3:1068 P4:1048) o=10 b=33 i#6:P<CsMsm(0)ShMsrDCbDomoOWsJw> => 566962kb, p=2.303000ms (max 13.058000), cycle 15.082000ms END]
+2026-10-18T09:51:02.742Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:02.742Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.014000ms]
+2026-10-18T09:51:07.466Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.108000ms]
+2026-10-18T09:51:07.467Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 4195496 exceed bytes allowed: 3959409 normal bytes: 1096 oversized bytes: 4194400 last oversized: 4194400
+2026-10-18T09:51:07.467Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 4857kb => EdenCollection, ca=4097.164062kb h=2048.582031kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=0 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 7+0 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=0 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=0 i#3:P<CsMsrShMsm(0)DCbDomoWsOJw> => 4326kb, p=0.432000ms (max 13.058000), cycle 0.426000ms END]
+2026-10-18T09:51:07.467Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.467Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.003000ms]
+2026-10-18T09:51:07.468Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 4207210 exceed bytes allowed: 3959409 normal bytes: 12906 oversized bytes: 4194304 last oversized: 4194304
+2026-10-18T09:51:07.469Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 4857kb => FullCollection, ca=4108.603516kb h=2054.301758kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=9 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 11+0 v=207kb (C:5 M:0 P1:11 P2:90 P3:8 P4:91) o=3 b=9 i#2:N<WsOJw> tp=0.300000ms 0+0 v=207kb (C:5 M:0 P1:11 P2:90 P3:8 P4:91) o=3 b=9 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 4340kb, p=0.758000ms (max 13.058000), cycle 0.752000ms END]
+2026-10-18T09:51:07.469Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.469Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.015000ms]
+2026-10-18T09:51:07.493Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33604176 exceed bytes allowed: 13327239 normal bytes: 49168 oversized bytes: 33555008 last oversized: 4194400
+2026-10-18T09:51:07.496Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29493kb => EdenCollection, ca=32816.578125kb h=16408.289062kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=15 i#1:N<CsMsrShDMsm(17)> tp=0.300000ms 0+17 v=2kb (C:1 M:0 P1:1 P2:0 P3:0 P4:0) o=4 b=15 i#2:N<WsOJw> tp=0.300000ms 1+0 v=2kb (C:1 M:0 P1:1 P2:0 P3:0 P4:0) o=4 b=15 i#3:P<WsOJwMsm(0)ShMsrCsDCbDomo> => 28944kb, p=2.608000ms (max 13.058000), cycle 2.601000ms END]
+2026-10-18T09:51:07.496Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.496Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.029000ms]
+2026-10-18T09:51:07.505Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33563184 exceed bytes allowed: 13327239 normal bytes: 8272 oversized bytes: 33554912 last oversized: 4194400
+2026-10-18T09:51:07.514Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 49999kb => FullCollection, ca=32776.546875kb h=16388.273438kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=6 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 67+0 v=209kb (C:138 M:0 P1:3 P2:67 P3:0 P4:0) o=4 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=209kb (C:138 M:0 P1:3 P2:67 P3:0 P4:0) o=4 b=6 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 8471kb, p=8.925000ms (max 13.058000), cycle 8.887000ms END]
+2026-10-18T09:51:07.514Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.514Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.055000ms]
+2026-10-18T09:51:07.525Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33565256 exceed bytes allowed: 26001724 normal bytes: 10344 oversized bytes: 33554912 last oversized: 4194304
+2026-10-18T09:51:07.529Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29526kb => EdenCollection, ca=32778.570312kb h=16389.285156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#1:N<CsMsrShDMsm(8)> tp=0.300000ms 5+8 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=6 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 28952kb, p=3.531000ms (max 13.058000), cycle 3.491000ms END]
+2026-10-18T09:51:07.529Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.529Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.024000ms]
+2026-10-18T09:51:07.542Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33565768 exceed bytes allowed: 26001724 normal bytes: 10760 oversized bytes: 33555008 last oversized: 4194400
+2026-10-18T09:51:07.544Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 54119kb => FullCollection, ca=32779.070312kb h=16389.535156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=7 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 48+0 v=208kb (C:136 M:0 P1:67 P2:4 P3:0 P4:0) o=2 b=7 i#2:N<WsOJw> tp=0.300000ms 0+0 v=209kb (C:136 M:0 P1:68 P2:4 P3:0 P4:0) o=2 b=7 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 4377kb, p=1.434000ms (max 13.058000), cycle 1.392000ms END]
+2026-10-18T09:51:07.544Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.544Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.045000ms]
+2026-10-18T09:51:07.556Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559088 exceed bytes allowed: 13442666 normal bytes: 4176 oversized bytes: 33554912 last oversized: 4194400
+2026-10-18T09:51:07.558Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29544kb => EdenCollection, ca=32772.546875kb h=16386.273438kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 9+6 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#2:N<WsOJw> tp=0.300000ms 1+0 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#3:P<WsOJwCsMsm(0)MsrShDCbDomo> => 28956kb, p=2.087000ms (max 13.058000), cycle 2.050000ms END]
+2026-10-18T09:51:07.558Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.558Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.022000ms]
+2026-10-18T09:51:07.569Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559064 exceed bytes allowed: 13442666 normal bytes: 4152 oversized bytes: 33554912 last oversized: 4194304
+2026-10-18T09:51:07.571Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 45929kb => FullCollection, ca=32772.523438kb h=16386.261719kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=7 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 351+0 p=1.549000ms (max 13.058000)...]
+2026-10-18T09:51:07.573Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: M a=0kb hf=0.000 mu=0.700 v=209kb (C:154 M:0 P1:0 P2:7 P3:43 P4:4) o=3 b=0 i#2:N<WsOJw> tp=0.300000ms 1+0 v=209kb (C:154 M:0 P1:0 P2:7 P3:43 P4:4) o=3 b=0 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 4377kb, p=1.703000ms (max 13.058000), cycle 3.345000ms END]
+2026-10-18T09:51:07.573Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.573Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.042000ms]
+2026-10-18T09:51:07.584Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33566584 exceed bytes allowed: 13442762 normal bytes: 11576 oversized bytes: 33555008 last oversized: 4194400
+2026-10-18T09:51:07.584Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29544kb => EdenCollection, ca=32779.867188kb h=16389.933594kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#1:N<CsMsrShDMsm(8)> tp=0.300000ms 1+8 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#2:N<WsOJw> tp=0.300000ms 1+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 28955kb, p=0.735000ms (max 13.058000), cycle 0.698000ms END]
+2026-10-18T09:51:07.584Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.585Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.021000ms]
+2026-10-18T09:51:07.593Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1175525959 exceed bytes allowed: 1174885720 normal bytes: 891970586 oversized bytes: 283555373 last oversized: 4194400
+2026-10-18T09:51:07.594Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 1178210kb => EdenCollection, ca=1147974.569336kb h=573987.284668kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=643 i#1:N<CsMsrShDMsm(652)> tp=0.300000ms 1062+652 p=0.573000ms (max 13.058000)...]
+2026-10-18T09:51:07.596Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559088 exceed bytes allowed: 13442762 normal bytes: 4176 oversized bytes: 33554912 last oversized: 4194400
+2026-10-18T09:51:07.597Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 54121kb => FullCollection, ca=32772.546875kb h=16386.273438kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=5 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 353+0 v=210kb (C:210 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=5 i#2:N<WsOJw> tp=0.300000ms 4+0 v=210kb (C:210 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=5 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 8483kb, p=0.485000ms (max 13.058000), cycle 0.478000ms END]
+2026-10-18T09:51:07.597Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.597Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.028000ms]
+2026-10-18T09:51:07.608Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=49154kb hf=0.086 mu=0.640 v=4041kb (C:136 M:0 P1:35 P2:2382 P3:255 P4:1233) o=26 b=90 i#2:N<WsOJw> tp=0.300000ms 0+90 v=4042kb (C:136 M:0 P1:35 P2:2382 P3:255 P4:1234) o=26 b=90 i#3:P<WsOJwSh> tp=0.300000ms 6+90 v=4043kb (C:137 M:0 P1:35 P2:2382 P3:255 P4:1234) o=28 b=90 i#4:Msm(90) tp=0.300000ms 0+90 Requesting GC because bytes allocated this cycle: 33559064 exceed bytes allowed: 26037445 normal bytes: 4152 oversized bytes: 33554912 last oversized: 4194304
+2026-10-18T09:51:07.608Z pw:browser [pid=40842][err] v=4065kb (C:141 M:0 P1:35 P2:2400 P3:255 P4:1234) o=30 b=90 i#5:P<Msm(0)Cs[GC<0x7f32e227c0c0>: START M 25457kb => EdenCollection, ca=32772.523438kb h=16386.261719kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=7 i#1:N<Cs> tp=0.300000ms 13+0 MsrShv=4066kb (C:141 M:0 P1:35 P2:2400 P3:255 P4:1234) o=30 b=90 i#6:P<DMsm(8)> tp=0.300000ms 8+8 CsShMsrv=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=7 i#2:N<WsOJwMsm(0)> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=7 Di#3:P<CbCsMsm(0)MsrShDCbDomoDomoWsWsOJw> => 24868kb, p=0.276000ms (max 13.058000), cycle 0.271000ms END]
+2026-10-18T09:51:07.608Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.608Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+2026-10-18T09:51:07.610Z pw:browser [pid=40842][err] > tp=0.300000ms 0+0 v=4066kb (C:141 M:0 P1:35 P2:2400 P3:255 P4:1234) o=30 b=90 i#7:P<WsOJwCsShMsrMsm(0)DCbDomo> => 806580kb, p=2.894000ms (max 13.058000), cycle 17.167000ms END]
+2026-10-18T09:51:07.610Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.610Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.019000ms]
+2026-10-18T09:51:07.617Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33558088 exceed bytes allowed: 26037445 normal bytes: 3080 oversized bytes: 33555008 last oversized: 4194400
+2026-10-18T09:51:07.618Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 50033kb => FullCollection, ca=32771.570312kb h=16385.785156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=7 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 3+0 v=209kb (C:129 M:0 P1:79 P2:0 P3:0 P4:0) o=2 b=7 i#2:N<WsOJw> tp=0.300000ms 2+0 v=209kb (C:129 M:0 P1:79 P2:0 P3:0 P4:0) o=2 b=7 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 4386kb, p=0.787000ms (max 13.058000), cycle 0.780000ms END]
+2026-10-18T09:51:07.618Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.618Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.026000ms]
+2026-10-18T09:51:07.626Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559064 exceed bytes allowed: 13468609 normal bytes: 4152 oversized bytes: 33554912 last oversized: 4194400
+2026-10-18T09:51:07.627Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29553kb => EdenCollection, ca=32772.523438kb h=16386.261719kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 9+6 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#2:N<WsOJw> tp=0.300000ms 1+0 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#3:P<WsOJwCsMsm(0)MsrShDCbDomo> => 28964kb, p=0.364000ms (max 13.058000), cycle 0.356000ms END]
+2026-10-18T09:51:07.627Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.627Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.008000ms]
+2026-10-18T09:51:07.634Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559040 exceed bytes allowed: 13468609 normal bytes: 4128 oversized bytes: 33554912 last oversized: 4194304
+2026-10-18T09:51:07.635Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 45937kb => FullCollection, ca=32772.500000kb h=16386.250000kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=7 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 335+0 v=209kb (C:117 M:0 P1:43 P2:33 P3:3 P4:10) o=3 b=7 i#2:N<WsOJw> tp=0.300000ms 1+0 v=209kb (C:117 M:0 P1:43 P2:33 P3:3 P4:10) o=3 b=7 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 4386kb, p=1.568000ms (max 13.058000), cycle 1.561000ms END]
+2026-10-18T09:51:07.635Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.635Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.030000ms]
+2026-10-18T09:51:07.646Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33581664 exceed bytes allowed: 13468705 normal bytes: 26656 oversized bytes: 33555008 last oversized: 4194400
+2026-10-18T09:51:07.647Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29553kb => EdenCollection, ca=32794.593750kb h=16397.296875kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=11 i#1:N<CsMsrShDMsm(13)> tp=0.300000ms 1+13 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=11 i#2:N<WsOJw> tp=0.300000ms 1+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=11 i#3:P<WsOJwMsm(0)CsMsrShDCbDomo> => 28963kb, p=0.874000ms (max 13.058000), cycle 0.867000ms END]
+2026-10-18T09:51:07.647Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.647Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+2026-10-18T09:51:07.657Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33559088 exceed bytes allowed: 13468705 normal bytes: 4176 oversized bytes: 33554912 last oversized: 4194400
+2026-10-18T09:51:07.657Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 54129kb => FullCollection, ca=32772.546875kb h=16386.273438kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=10 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 18+0 v=210kb (C:91 M:0 P1:119 P2:0 P3:0 P4:0) o=3 b=10 i#2:N<WsOJw> tp=0.300000ms 3+0 v=211kb (C:91 M:0 P1:119 P2:0 P3:0 P4:0) o=3 b=10 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 8507kb, p=0.604000ms (max 13.058000), cycle 0.597000ms END]
+2026-10-18T09:51:07.657Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.657Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.028000ms]
+2026-10-18T09:51:07.670Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33558368 exceed bytes allowed: 26110202 normal bytes: 3456 oversized bytes: 33554912 last oversized: 4194304
+2026-10-18T09:51:07.670Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 25480kb => EdenCollection, ca=32771.843750kb h=16385.921875kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#1:N<CsMsrShDMsm(7)> tp=0.300000ms 7+7 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#3:P<CsMsm(0)ShMsrDCbDomoWsOJw> => 24892kb, p=0.508000ms (max 13.058000), cycle 0.499000ms END]
+2026-10-18T09:51:07.670Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.670Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+2026-10-18T09:51:07.715Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 41423kb => EdenCollection, ca=21847.660156kb h=16399.706055kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=14 i#1:N<CsMsrShDMsm(16)> tp=0.300000ms 0+16 v=2kb (C:2 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=14 i#2:N<WsOJw> tp=0.300000ms 2+0 v=2kb (C:2 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=14 i#3:P<WsJwOMsm(0)CsShMsrDCbDomo> => 40873kb, p=0.491000ms (max 13.058000), cycle 0.460000ms END]
+2026-10-18T09:51:07.715Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.721Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.026000ms]
+2026-10-18T09:51:07.798Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 57483kb => EdenCollection, ca=23994.077148kb h=14253.289062kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=14 i#1:N<CsMsrShDMsm(19)> tp=0.300000ms 0+19 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=14 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1kb (C:1 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=14 i#3:P<Msm(0)CsShMsrDCbDomoWsJwO> => 56904kb, p=1.439000ms (max 13.058000), cycle 1.402000ms END]
+2026-10-18T09:51:07.798Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.798Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.027000ms]
+2026-10-18T09:51:07.802Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 57639kb => FullCollection, ca=315.169922kb h=37932.196289kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 334+0 v=212kb (C:190 M:0 P1:0 P2:0 P3:22 P4:0) o=2 b=4 i#2:N<WsOJw> tp=0.300000ms 5+0 v=213kb (C:191 M:0 P1:0 P2:0 P3:22 P4:0) o=2 b=4 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 369kb, p=3.853000ms (max 13.058000), cycle 3.838000ms END]
+2026-10-18T09:51:07.802Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.802Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.024000ms]
+2026-10-18T09:51:07.874Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 35804766 exceed bytes allowed: 3815528 normal bytes: 6536 oversized bytes: 35798230 last oversized: 3670112
+2026-10-18T09:51:07.887Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 24551kb => EdenCollection, ca=34965.591797kb h=17482.795898kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=11 i#1:N<CsMsrShDMsm(11)> tp=0.966000ms 7+11 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=11 i#2:N<WsOJw> tp=1.509900ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=11 i#3:P<WsOJwMsm(0)CsShMsrDCbDomo> => 23949kb, p=12.276000ms (max 13.058000), cycle 12.266000ms END]
+2026-10-18T09:51:07.887Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.890Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.018000ms]
+2026-10-18T09:51:07.984Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 36430658 exceed bytes allowed: 3815528 normal bytes: 35032 oversized bytes: 36395626 last oversized: 3670112
+2026-10-18T09:51:07.984Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 48399kb => FullCollection, ca=35576.814453kb h=17788.407227kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=9 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 19+0 v=214kb (C:14 M:0 P1:0 P2:5 P3:194 P4:0) o=5 b=9 i#2:N<WsOJw> tp=0.300000ms 2+0 v=215kb (C:14 M:0 P1:0 P2:5 P3:194 P4:0) o=5 b=9 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 8186kb, p=0.728000ms (max 13.058000), cycle 0.721000ms END]
+2026-10-18T09:51:07.984Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:07.984Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.024000ms]
+2026-10-18T09:51:08.069Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 36430464 exceed bytes allowed: 25126006 normal bytes: 34984 oversized bytes: 36395480 last oversized: 3670112
+2026-10-18T09:51:08.069Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 32635kb => EdenCollection, ca=35576.625000kb h=17788.312500kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=10 i#1:N<CsMsrShDMsm(12)> tp=0.300000ms 7+12 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=7 b=10 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=7 b=10 i#3:P<Msm(0)CsMsrShDCbDomoOWsJw> => 32035kb, p=0.317000ms (max 13.058000), cycle 0.310000ms END]
+2026-10-18T09:51:08.069Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.069Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+2026-10-18T09:51:08.228Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 48653kb => EdenCollection, ca=23996.216797kb h=12809.456055kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=7 b=9 i#1:N<CsMsrShDMsm(11)> tp=0.300000ms 0+11 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=7 b=9 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=7 b=9 i#3:P<Msm(0)CsMsrShDCbDomoOWsJw> => 48068kb, p=0.470000ms (max 13.058000), cycle 0.431000ms END]
+2026-10-18T09:51:08.228Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.228Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.010000ms]
+2026-10-18T09:51:08.228Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 48787kb => FullCollection, ca=315.222656kb h=36490.450195kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=5 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 334+0 v=214kb (C:214 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=5 i#2:N<WsOJw> tp=0.300000ms 5+0 v=214kb (C:214 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=5 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 370kb, p=0.481000ms (max 13.058000), cycle 0.468000ms END]
+2026-10-18T09:51:08.228Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.243Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.027000ms]
+2026-10-18T09:51:08.293Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 35343068 exceed bytes allowed: 3814424 normal bytes: 6488 oversized bytes: 35336580 last oversized: 3670112
+2026-10-18T09:51:08.294Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 24327kb => EdenCollection, ca=34514.714844kb h=17257.357422kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=10 i#1:N<CsMsrShDMsm(10)> tp=0.300000ms 6+10 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 23742kb, p=0.866000ms (max 13.058000), cycle 0.859000ms END]
+2026-10-18T09:51:08.294Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.294Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+2026-10-18T09:51:08.368Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 40008kb => EdenCollection, ca=23243.648438kb h=11621.824219kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#1:N<CsMsrShDMsm(8)> tp=0.300000ms 0+8 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 39423kb, p=0.475000ms (max 13.058000), cycle 0.445000ms END]
+2026-10-18T09:51:08.368Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.369Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.011000ms]
+2026-10-18T09:51:08.369Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 40072kb => FullCollection, ca=150.566406kb h=5436.968750kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=5 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 334+0 v=214kb (C:214 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=5 i#2:N<WsOJw> tp=0.300000ms 5+0 v=214kb (C:214 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=5 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 370kb, p=0.501000ms (max 13.058000), cycle 0.488000ms END]
+2026-10-18T09:51:08.369Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.382Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.040000ms]
+2026-10-18T09:51:08.433Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 527097772 exceed bytes allowed: 527086609 normal bytes: 526961020 oversized bytes: 136752 last oversized: 71200
+2026-10-18T09:51:08.433Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 699935kb => EdenCollection, ca=514743.917969kb h=257371.958984kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=102 i#1:N<CsMsrShDMsm(103)> tp=0.300000ms 1059+103 p=0.508000ms (max 13.058000)...]
+2026-10-18T09:51:08.435Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: M a=38kb hf=0.000 mu=0.700 v=74kb (C:74 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#2:N<WsOJw> tp=0.300000ms 0+10 v=74kb (C:74 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#3:P<Sh> tp=0.300000ms 51+10 v=75kb (C:75 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#4:Msm(10) tp=0.300000ms 0+10 v=75kb (C:75 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#5:P<ShCs> tp=0.300000ms 2+0 v=75kb (C:75 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=10 i#6:P<Msm(0)CsShMsrDCbDomoOWsJw> => 185829kb, p=1.404000ms (max 13.058000), cycle 2.109000ms END]
+2026-10-18T09:51:08.435Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.435Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.018000ms]
+2026-10-18T09:51:08.453Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 35177960 exceed bytes allowed: 3814424 normal bytes: 5840 oversized bytes: 35172120 last oversized: 3670112
+2026-10-18T09:51:08.453Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 24253kb => EdenCollection, ca=34353.476562kb h=17176.738281kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 6+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=6 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 23668kb, p=0.489000ms (max 13.058000), cycle 0.482000ms END]
+2026-10-18T09:51:08.453Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.453Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.011000ms]
+2026-10-18T09:51:08.517Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 39934kb => EdenCollection, ca=23243.015625kb h=11621.507812kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=5 i#1:N<CsMsrShDMsm(7)> tp=0.300000ms 5+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=5 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=5 i#3:P<Msm(0)CsShMsrDCbDomoOWsJw> => 39349kb, p=0.480000ms (max 13.058000), cycle 0.453000ms END]
+2026-10-18T09:51:08.517Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.517Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+2026-10-18T09:51:08.544Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 47742kb => FullCollection, ca=11544.074219kb h=5772.037109kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=6 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 0+0 v=214kb (C:81 M:0 P1:0 P2:132 P3:0 P4:0) o=2 b=6 i#2:N<WsOJw> tp=0.300000ms 4+0 v=214kb (C:82 M:0 P1:0 P2:132 P3:0 P4:0) o=2 b=6 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 370kb, p=0.667000ms (max 13.058000), cycle 0.648000ms END]
+2026-10-18T09:51:08.544Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.544Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.019000ms]
+2026-10-18T09:51:08.829Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 708511kb => EdenCollection, ca=250233.000000kb h=521866.524902kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=69 i#1:N<CsMsrShDMsm(77)> tp=0.300000ms 0+77 v=29kb (C:8 M:0 P1:0 P2:20 P3:0 P4:0) o=4 b=69 i#2:N<WsOJw> tp=0.300000ms 6+0 v=30kb (C:9 M:0 P1:0 P2:20 P3:0 P4:0) o=5 b=69 i#3:P<JwOWs> tp=0.300000ms 0+0 v=30kb (C:9 M:0 P1:0 P2:20 P3:0 P4:0) o=5 b=69 i#4:P<OJwWsShMsm(0)CsMsrDCbDomo> => 194105kb, p=1.211000ms (max 13.058000), cycle 1.171000ms END]
+2026-10-18T09:51:08.830Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.830Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.008000ms]
+2026-10-18T09:51:08.857Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 16730kb => EdenCollection, ca=23580.570312kb h=11790.285156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=14 i#1:N<CsMsrShDMsm(14)> tp=0.300000ms 1+0 v=1kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=14 i#2:N<WsOJw> tp=0.300000ms 0+0 v=1kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=14 i#3:P<Msm(0)CsMsrShDCbDomoOWsJw> => 16165kb, p=0.409000ms (max 13.058000), cycle 0.388000ms END]
+2026-10-18T09:51:08.857Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.857Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.008000ms]
+2026-10-18T09:51:08.973Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 33117kb => EdenCollection, ca=16388.796875kb h=8194.398438kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=1 i#1:N<CsMsrShDMsm(1)> tp=0.300000ms 1+1 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=1 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=1 i#3:P<Msm(0)CsMsrShDCbDomoOWsJw> => 32550kb, p=0.301000ms (max 13.058000), cycle 0.268000ms END]
+2026-10-18T09:51:08.973Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.973Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.014000ms]
+2026-10-18T09:51:08.978Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 33117kb => FullCollection, ca=0.000000kb h=5587.535156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=0 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 334+0 v=214kb (C:214 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=0 i#2:N<WsOJw> tp=1.364700ms 4+0 v=215kb (C:214 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=0 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 371kb, p=5.019000ms (max 13.058000), cycle 5.015000ms END]
+2026-10-18T09:51:08.978Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:08.978Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.015000ms]
+2026-10-18T09:51:09.351Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 302237kb => EdenCollection, ca=103962.605469kb h=668136.919434kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=5 b=138 i#1:N<CsMsrShDMsm(140)> tp=0.300000ms 3+140 v=303kb (C:248 M:0 P1:0 P2:0 P3:55 P4:0) o=7 b=138 i#2:N<WsOJw> tp=0.300000ms 1+0 v=304kb (C:248 M:0 P1:0 P2:0 P3:55 P4:0) o=7 b=138 i#3:P<OJw> tp=0.300000ms 1+0 v=304kb (C:248 M:0 P1:0 P2:0 P3:55 P4:0) o=7 b=138 i#4:P<JwOWsShMsm(0)CsMsrDCbDomo> => 194654kb, p=1.258000ms (max 13.058000), cycle 1.225000ms END]
+2026-10-18T09:51:09.351Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:10.060Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.029000ms]
+2026-10-18T09:51:11.346Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 602154kb => FullCollection, ca=416348.658203kb h=355750.866699kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=411 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 1+0 p=0.549000ms (max 13.058000)...]
+2026-10-18T09:51:11.357Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: M a=0kb hf=0.000 mu=0.700 v=943kb (C:106 M:0 P1:17 P2:0 P3:818 P4:0) o=1 b=0 i#2:N<WsOJw> tp=0.300000ms 25+0 p=9.790000ms (max 13.058000)...]
+2026-10-18T09:51:11.367Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: C a=0kb hf=0.000 mu=0.700 v=66990kb (C:65685 M:0 P1:72 P2:0 P3:818 P4:414) o=6 b=0 i#3:P<OJw> tp=0.300000ms 0+0 v=66991kb (C:65685 M:0 P1:72 P2:0 P3:818 P4:414) o=6 b=0 i#4:P<JwWsOShMsrCsMsm(0)DCbDomo> => 246809kb, p=1.964000ms (max 13.058000), cycle 22.519000ms END]
+2026-10-18T09:51:11.367Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:11.989Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174898698 exceed bytes allowed: 1174885720 normal bytes: 424713087 oversized bytes: 750185611 last oversized: 786480
+2026-10-18T09:51:11.991Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 1545206kb => EdenCollection, ca=1147362.009766kb h=573681.004883kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=30 b=4218 i#1:N<CsMsrShDMsm(4227)> tp=0.300000ms 52+0 p=0.533000ms (max 13.058000)...]
+2026-10-18T09:51:12.003Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=1391kb hf=0.002 mu=0.698 v=24652kb (C:119 M:0 P1:16893 P2:5110 P3:222 P4:2305) o=82 b=15 i#2:N<WsOJw> tp=0.300000ms 53+15 v=24783kb (C:130 M:0 P1:16974 P2:5123 P3:224 P4:2330) o=82 b=15 i#3:P<OWsJwMsm(15)> tp=0.300000ms 0+0 v=24783kb (C:130 M:0 P1:16974 P2:5124 P3:224 P4:2330) o=82 b=15 i#4:P<Sh> tp=0.300000ms 177+0 v=24786kb (C:133 M:0 P1:16974 P2:5124 P3:224 P4:2330) o=82 b=15 i#5:P<ShCsMsm(0)MsrDCbDomo> tp=0.300000ms 0+0 v=24937kb (C:133 M:0 P1:17125 P2:5124 P3:224 P4:2330) o=82 b=15 i#6:P<CsShMsm(0)MsrDCbDomoOWsJw> => 1282990kb, p=6.603000ms (max 13.058000), cycle 14.474000ms END]
+2026-10-18T09:51:12.003Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:12.004Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.317000ms]
+2026-10-18T09:51:12.121Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 33560776 exceed bytes allowed: 3814233 normal bytes: 5672 oversized bytes: 33555104 last oversized: 4194400
+2026-10-18T09:51:12.121Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 29612kb => EdenCollection, ca=32774.195312kb h=16387.097656kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 1+6 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#3:P<Msm(0)CsMsrShDCbDomoOWsJw> => 29044kb, p=0.771000ms (max 13.058000), cycle 0.763000ms END]
+2026-10-18T09:51:12.121Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:12.121Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.011000ms]
+2026-10-18T09:51:12.138Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.219000ms]
+2026-10-18T09:51:13.804Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 738183465 exceed bytes allowed: 738170782 normal bytes: 735068841 oversized bytes: 3114624 last oversized: 65552
+2026-10-18T09:51:13.810Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1008353kb => EdenCollection, ca=720882.290039kb h=360441.145020kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=6 b=121 i#1:N<CsMsrShDMsm(157)> tp=0.300000ms 44+157 v=76kb (C:24 M:0 P1:0 P2:0 P3:52 P4:0) o=9 b=121 i#2:N<WsOJw> tp=0.300000ms 0+0 v=76kb (C:24 M:0 P1:0 P2:0 P3:52 P4:0) o=9 b=121 i#3:P<ShMsm(0)CsMsrDCbDomoJwWsO> => 249939kb, p=1.339000ms (max 13.058000), cycle 1.331000ms END]
+2026-10-18T09:51:13.810Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:13.810Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.013000ms]
+2026-10-18T09:51:15.221Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 738180712 exceed bytes allowed: 738170782 normal bytes: 738180712 oversized bytes: 0 last oversized: 0
+2026-10-18T09:51:15.222Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1014751kb => EdenCollection, ca=720879.601562kb h=360439.800781kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=43 i#1:N<CsMsrShDMsm(52)> tp=0.300000ms 12+52 v=25kb (C:2 M:0 P1:0 P2:17 P3:4 P4:0) o=9 b=43 0+0 p=1.019000ms (max 13.058000)...]
+2026-10-18T09:51:15.223Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: M a=52kb hf=0.000 mu=0.700 v=25kb (C:2 M:0 P1:0 P2:17 P3:4 P4:0) o=9 b=11 i#2:N<WsOJw> tp=0.300000ms 0+11 v=25kb (C:2 M:0 P1:0 P2:17 P3:4 P4:0) o=9 b=11 i#3:P<Sh> tp=0.300000ms 0+11 v=26kb (C:2 M:0 P1:0 P2:18 P3:4 P4:0) o=9 b=11 i#4:Msm(11) tp=0.300000ms 0+11 v=26kb (C:2 M:0 P1:0 P2:18 P3:4 P4:0) o=9 b=11 i#5:P<ShCsMsm(0)MsrDCbDomoJwWsO> tp=0.300000ms 0+0 v=26kb (C:2 M:0 P1:0 P2:18 P3:4 P4:0) o=9 b=11 i#6:P<CsShMsm(0)MsrDCbDomoJwWsO> => 250033kb, p=1.229000ms (max 13.058000), cycle 2.576000ms END]
+2026-10-18T09:51:15.223Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:15.223Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.009000ms]
+2026-10-18T09:51:15.453Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 860276kb => EdenCollection, ca=110413.820312kb h=970891.036133kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=9 b=92 i#1:N<CsMsrShDMsm(99)> tp=0.300000ms 0+99 v=28kb (C:12 M:0 P1:0 P2:16 P3:0 P4:0) o=9 b=92 i#2:N<WsOJw> tp=0.300000ms 6+0 v=29kb (C:13 M:0 P1:0 P2:16 P3:0 P4:0) o=10 b=92 i#3:P<JwWsOShMsm(0)CsMsrDCbDomo> => 258284kb, p=1.195000ms (max 13.058000), cycle 1.154000ms END]
+2026-10-18T09:51:15.453Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:15.453Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.006000ms]
+2026-10-18T09:51:15.458Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 14059044 exceed bytes allowed: 3814233 normal bytes: 3480 oversized bytes: 14055564 last oversized: 190832
+2026-10-18T09:51:15.459Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 41444kb => FullCollection, ca=13729.535156kb h=6864.767578kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=10 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 16+0 v=213kb (C:147 M:0 P1:21 P2:31 P3:8 P4:4) o=3 b=10 i#2:N<WsOJw> tp=0.300000ms 2+0 v=215kb (C:147 M:0 P1:22 P2:31 P3:8 P4:4) o=3 b=10 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 4790kb, p=1.025000ms (max 13.058000), cycle 1.021000ms END]
+2026-10-18T09:51:15.459Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:15.459Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.021000ms]
+2026-10-18T09:51:16.824Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 738184557 exceed bytes allowed: 738170782 normal bytes: 738184557 oversized bytes: 0 last oversized: 0
+2026-10-18T09:51:16.825Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1159841kb => EdenCollection, ca=720883.356445kb h=360441.678223kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=118 i#1:N<CsMsrShDMsm(122)> tp=0.300000ms 41+0 v=115kb (C:57 M:0 P1:0 P2:31 P3:0 P4:26) o=10 b=118 i#2:N<WsOJw> tp=0.300000ms 0+0 v=115kb (C:57 M:0 P1:0 P2:31 P3:0 P4:26) o=10 b=118 i#3:P<ShMsm(0)CsMsrDCbDomoJwWsO> => 258547kb, p=1.641000ms (max 13.058000), cycle 1.633000ms END]
+2026-10-18T09:51:16.825Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:16.825Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.011000ms]
+2026-10-18T09:51:16.966Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1043331kb => EdenCollection, ca=113501.812500kb h=967803.043945kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=25 i#1:N<CsMsrShDMsm(29)> tp=0.300000ms 0+29 v=17kb (C:1 M:0 P1:16 P2:0 P3:0 P4:0) o=10 b=25 i#2:N<WsOJw> tp=0.300000ms 0+0 v=17kb (C:1 M:0 P1:16 P2:0 P3:0 P4:0) o=10 b=25 i#3:P<ShMsm(0)CsMsrDCbDomoJwWsO> => 258568kb, p=0.978000ms (max 13.058000), cycle 0.922000ms END]
+2026-10-18T09:51:16.966Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:16.966Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.007000ms]
+2026-10-18T09:51:17.020Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 1060393kb => EdenCollection, ca=61166.378906kb h=1020138.477539kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=105 i#1:N<CsMsrShDMsm(105)> tp=0.360900ms 0+0 v=35kb (C:0 M:0 P1:0 P2:1 P3:2 P4:30) o=10 b=105 i#2:N<WsOJw> tp=1.865400ms 0+0 v=36kb (C:0 M:0 P1:0 P2:3 P3:2 P4:30) o=11 b=105 i#3:P<OJwWsMsm(0)ShCsMsrDCbDomo> => 302701kb, p=9.091000ms (max 13.058000), cycle 9.070000ms END]
+2026-10-18T09:51:17.020Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:17.020Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.015000ms]
+2026-10-18T09:51:17.029Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1087463kb => FullCollection, ca=0.000000kb h=1081304.856445kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=0 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 2382+0 p=9.792000ms (max 13.058000)...]
+2026-10-18T09:51:17.033Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: C a=0kb hf=0.000 mu=0.700 v=66982kb (C:66101 M:0 P1:314 P2:9 P3:330 P4:224) o=7 b=0 i#2:N<WsOJw> tp=0.485400ms 45+0 v=67022kb (C:66128 M:0 P1:314 P2:9 P3:340 P4:228) o=8 b=0 i#3:P<OWsJwShMsrCsMsm(0)DCbDomo> => 290540kb, p=3.134000ms (max 13.058000), cycle 13.647000ms END]
+2026-10-18T09:51:17.033Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:17.036Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.054000ms]
+READY webkit 1000000 { routed: 20000, moving: 838, simSeconds: 20 }
+2026-10-18T09:51:18.606Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 9455kb => EdenCollection, ca=8194.375000kb h=13352.269531kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=3 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 1+6 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=3 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=3 i#3:P<Msm(0)CsMsrShDCbDomoOWsJw> => 8886kb, p=5.210000ms (max 13.058000), cycle 5.142000ms END]
+2026-10-18T09:51:18.607Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:18.607Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.014000ms]
+{"engine":"webkit","kind":"bank","decision":"accept","round":0,"toAckMs":641,"maxNamedSyncMs":10,"liveAlerts":1}
+2026-10-18T09:51:19.048Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1093478kb => EdenCollection, ca=64031.814453kb h=1202844.755371kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=8 b=164 i#1:N<CsMsrShDMsm(235)> tp=0.300000ms 0+0 v=36kb (C:6 M:0 P1:4 P2:23 P3:1 P4:0) o=8 b=164 0+0 v=36kb (C:6 M:0 P1:4 P2:23 P3:1 P4:0) o=8 b=164 0+0 v=36kb (C:6 M:0 P1:4 P2:23 P3:1 P4:0) o=8 b=164 i#2:N<WsOJw> tp=0.300000ms 0+0 v=36kb (C:6 M:0 P1:4 P2:23 P3:1 P4:0) o=8 b=164 i#3:P<JwOWsMsm(0)ShMsrCsDCbDomo> => 290737kb, p=1.876000ms (max 13.058000), cycle 1.843000ms END]
+2026-10-18T09:51:19.048Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:19.048Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.026000ms]
+2026-10-18T09:51:19.946Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1093638kb => EdenCollection, ca=62545.578125kb h=1204330.991699kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=8 b=83 i#1:N<CsMsrShDMsm(88)> tp=0.300000ms 0+88 v=2kb (C:2 M:0 P1:0 P2:0 P3:0 P4:0) o=8 b=83 i#2:N<WsOJw> tp=0.300000ms 0+0 v=2kb (C:2 M:0 P1:0 P2:0 P3:0 P4:0) o=8 b=83 i#3:P<Msm(0)ShMsrCsDCbDomoJwOWs> => 290774kb, p=0.771000ms (max 13.058000), cycle 0.740000ms END]
+2026-10-18T09:51:19.946Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:19.946Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.009000ms]
+2026-10-18T09:51:19.984Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 17647kb => FullCollection, ca=8194.375000kb h=13352.269531kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=3 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 0+0 v=213kb (C:14 M:0 P1:140 P2:1 P3:12 P4:45) o=2 b=3 i#2:N<WsOJw> tp=0.300000ms 3+0 v=214kb (C:15 M:0 P1:140 P2:1 P3:12 P4:45) o=2 b=3 i#3:P<OWsJwMsrShMsm(0)CsDCbDomo> => 368kb, p=1.132000ms (max 13.058000), cycle 1.100000ms END]
+2026-10-18T09:51:19.984Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:19.984Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.036000ms]
+{"engine":"webkit","kind":"bank","decision":"reject","round":0,"toAckMs":591,"maxNamedSyncMs":12,"liveAlerts":1}
+2026-10-18T09:51:21.121Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1092234kb => EdenCollection, ca=63345.582031kb h=1203530.987793kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=8 b=181 i#1:N<CsMsrShDMsm(181)> tp=0.300000ms 0+0 v=35kb (C:20 M:0 P1:10 P2:2 P3:0 P4:2) o=10 b=181 i#2:N<WsOJw> tp=0.300000ms 0+0 v=35kb (C:20 M:0 P1:10 P2:2 P3:0 P4:2) o=10 b=181 i#3:P<Msm(0)ShMsrCsDCbDomoJwOWs> => 290960kb, p=1.471000ms (max 13.058000), cycle 1.432000ms END]
+2026-10-18T09:51:21.121Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:21.121Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.010000ms]
+2026-10-18T09:51:21.170Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 4197568 exceed bytes allowed: 3817465 normal bytes: 3168 oversized bytes: 4194400 last oversized: 4194400
+2026-10-18T09:51:21.171Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 4969kb => EdenCollection, ca=4099.187500kb h=2049.593750kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=3 i#1:N<CsMsrShDMsm(3)> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=3 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=3 i#3:P<CsMsm(0)MsrShDCbDomoOWsJw> => 4464kb, p=1.423000ms (max 13.058000), cycle 1.385000ms END]
+2026-10-18T09:51:21.172Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:21.172Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.025000ms]
+2026-10-18T09:51:21.383Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START M 1068416kb => EdenCollection, ca=110.655273kb h=1266765.914551kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=53 i#1:N<CsMsrShDMsm(54)> tp=0.300000ms 0+54 v=9kb (C:9 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=53 i#2:N<WsOJw> tp=0.300000ms 4+0 v=10kb (C:10 M:0 P1:0 P2:0 P3:0 P4:0) o=10 b=53 i#3:P<JwOWsMsm(0)ShMsrCsDCbDomo> => 291093kb, p=0.725000ms (max 13.058000), cycle 0.691000ms END]
+2026-10-18T09:51:21.383Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:21.383Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.008000ms]
+{"engine":"webkit","kind":"insurance","decision":"accept","round":0,"toAckMs":998,"maxNamedSyncMs":16,"liveAlerts":1}
+2026-10-18T09:51:22.463Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 8413464 exceed bytes allowed: 3817465 normal bytes: 24664 oversized bytes: 8388800 last oversized: 4194400
+2026-10-18T09:51:22.464Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 13177kb => FullCollection, ca=8216.273438kb h=4108.136719kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=13 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 19+0 v=206kb (C:140 M:0 P1:0 P2:41 P3:21 P4:2) o=3 b=13 i#2:N<WsOJw> tp=0.300000ms 1+0 v=206kb (C:141 M:0 P1:0 P2:41 P3:21 P4:2) o=3 b=13 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 252kb, p=0.923000ms (max 13.058000), cycle 0.916000ms END]
+2026-10-18T09:51:22.464Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:22.464Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.072000ms]
+{"engine":"webkit","kind":"insurance","decision":"reject","round":0,"toAckMs":219,"maxNamedSyncMs":6.999999999985448,"liveAlerts":1}
+2026-10-18T09:51:23.298Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 8393760 exceed bytes allowed: 3935942 normal bytes: 4960 oversized bytes: 8388800 last oversized: 4194400
+2026-10-18T09:51:23.302Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 8973kb => EdenCollection, ca=8197.031250kb h=4098.515625kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=5 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 7+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=5 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=5 i#3:P<CsMsm(0)MsrShDCbDomoOWsJw> => 8445kb, p=3.410000ms (max 13.058000), cycle 3.404000ms END]
+2026-10-18T09:51:23.302Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:23.302Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.009000ms]
+{"engine":"webkit","kind":"telecom","decision":"accept","round":0,"toAckMs":266,"maxNamedSyncMs":17,"liveAlerts":1}
+2026-10-18T09:51:24.130Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 21261kb => FullCollection, ca=12295.195312kb h=6147.597656kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.359400ms 1+0 v=206kb (C:0 M:0 P1:201 P2:0 P3:4 P4:0) o=2 b=4 i#2:N<WsOJw> tp=0.300000ms 0+0 v=206kb (C:0 M:0 P1:201 P2:0 P3:4 P4:0) o=2 b=4 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 252kb, p=5.654000ms (max 13.058000), cycle 5.609000ms END]
+2026-10-18T09:51:24.130Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:24.160Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.051000ms]
+{"engine":"webkit","kind":"telecom","decision":"reject","round":0,"toAckMs":298,"maxNamedSyncMs":5,"liveAlerts":1}
+{"engine":"webkit","kind":"bank","decision":"accept","round":1,"toAckMs":402,"maxNamedSyncMs":24,"liveAlerts":1}
+2026-10-18T09:51:25.950Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 12451296 exceed bytes allowed: 3936085 normal bytes: 15552 oversized bytes: 12435744 last oversized: 4194400
+2026-10-18T09:51:25.952Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 12925kb => EdenCollection, ca=12159.468750kb h=6079.734375kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=7 i#1:N<CsMsrShDMsm(7)> tp=0.300000ms 7+7 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=7 i#2:N<WsOJw> tp=0.300000ms 1+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=7 i#3:P<JwOWsCsMsm(0)MsrShDCbDomo> => 12402kb, p=0.271000ms (max 13.058000), cycle 0.265000ms END]
+2026-10-18T09:51:25.952Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:25.952Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.011000ms]
+{"engine":"webkit","kind":"bank","decision":"reject","round":1,"toAckMs":446.00000000001455,"maxNamedSyncMs":19,"liveAlerts":1}
+2026-10-18T09:51:26.826Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 8659805 exceed bytes allowed: 3936085 normal bytes: 12749 oversized bytes: 8647056 last oversized: 4194400
+2026-10-18T09:51:26.829Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 21231kb => FullCollection, ca=8456.840820kb h=4228.420410kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=12 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 64+0 v=207kb (C:147 M:0 P1:0 P2:0 P3:60 P4:0) o=3 b=12 i#2:N<WsOJw> tp=0.300000ms 0+0 v=208kb (C:147 M:0 P1:0 P2:0 P3:60 P4:0) o=3 b=12 i#3:P<OWsJwMsrShCsMsm(0)DCbDomo> => 258kb, p=2.682000ms (max 13.058000), cycle 2.675000ms END]
+2026-10-18T09:51:26.829Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:26.829Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.032000ms]
+{"engine":"webkit","kind":"insurance","decision":"accept","round":1,"toAckMs":306.99999999998545,"maxNamedSyncMs":24.999999999985448,"liveAlerts":1}
+{"engine":"webkit","kind":"insurance","decision":"reject","round":1,"toAckMs":353,"maxNamedSyncMs":4,"liveAlerts":1}
+2026-10-18T09:51:28.539Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 16786848 exceed bytes allowed: 3929833 normal bytes: 9248 oversized bytes: 16777600 last oversized: 4194400
+2026-10-18T09:51:28.539Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 17170kb => EdenCollection, ca=16393.406250kb h=8196.703125kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=5 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 7+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=5 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=5 i#3:P<CsMsm(0)MsrShDCbDomoOWsJw> => 16643kb, p=0.344000ms (max 13.058000), cycle 0.339000ms END]
+2026-10-18T09:51:28.539Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:28.539Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.010000ms]
+{"engine":"webkit","kind":"telecom","decision":"accept","round":1,"toAckMs":357.00000000001455,"maxNamedSyncMs":10,"liveAlerts":1}
+2026-10-18T09:51:29.376Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 8393736 exceed bytes allowed: 3929833 normal bytes: 4936 oversized bytes: 8388800 last oversized: 4194400
+2026-10-18T09:51:29.378Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 25362kb => FullCollection, ca=8197.007812kb h=4098.503906kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 18+0 v=208kb (C:3 M:0 P1:174 P2:30 P3:0 P4:0) o=3 b=4 i#2:N<WsOJw> tp=0.300000ms 1+0 v=208kb (C:3 M:0 P1:174 P2:30 P3:0 P4:0) o=3 b=4 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 258kb, p=2.235000ms (max 13.058000), cycle 2.226000ms END]
+2026-10-18T09:51:29.378Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:29.379Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.027000ms]
+{"engine":"webkit","kind":"telecom","decision":"reject","round":1,"toAckMs":326,"maxNamedSyncMs":4.999999999985448,"liveAlerts":1}
+2026-10-18T09:51:29.739Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: START C 889370kb => FullCollection, ca=597622.627930kb h=669253.941895kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=518 i#1:N<CsMsrShDMsm(0)> tp=1.249200ms 0+0 v=66323kb (C:0 M:0 P1:611 P2:0 P3:65711 P4:0) o=1 b=518 0+0 p=6.887000ms (max 13.058000)...]
+2026-10-18T09:51:29.747Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: C a=0kb hf=0.000 mu=0.700 v=66891kb (C:1 M:0 P1:1063 P2:22 P3:65729 P4:74) o=11 b=0 i#2:N<WsOJw> tp=0.300000ms 16+0 v=66925kb (C:6 M:0 P1:1072 P2:25 P3:65746 P4:74) o=12 b=0 i#3:P<OWsJw> tp=0.300000ms 1+0 v=66925kb (C:7 M:0 P1:1072 P2:25 P3:65746 P4:74) o=12 b=0 i#4:P<JwOWsShMsrMsm(0)CsDCbDomo> => 289530kb, p=1.367000ms (max 13.058000), cycle 14.500000ms END]
+2026-10-18T09:51:29.747Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:29.747Z pw:browser [pid=40842][err] [GC<0x7f3403e050c0>: finalize 0.090000ms]
+2026-10-18T09:51:30.296Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 12590304 exceed bytes allowed: 3929833 normal bytes: 7104 oversized bytes: 12583200 last oversized: 4194400
+2026-10-18T09:51:30.300Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 13074kb => EdenCollection, ca=12295.218750kb h=6147.609375kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=5 i#1:N<CsMsrShDMsm(6)> tp=0.300000ms 7+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=5 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=5 i#3:P<CsMsm(0)MsrShDCbDomoWsOJw> => 12547kb, p=4.171000ms (max 13.058000), cycle 4.162000ms END]
+2026-10-18T09:51:30.300Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:30.301Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.020000ms]
+{"engine":"webkit","kind":"bank","decision":"accept","round":2,"toAckMs":339,"maxNamedSyncMs":5,"liveAlerts":1}
+2026-10-18T09:51:31.160Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START C 21266kb => FullCollection, ca=8197.007812kb h=4098.503906kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 1+0 v=206kb (C:0 M:0 P1:118 P2:88 P3:0 P4:0) o=2 b=4 i#2:N<WsOJw> tp=0.300000ms 0+0 v=207kb (C:0 M:0 P1:118 P2:88 P3:0 P4:0) o=2 b=4 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 247kb, p=1.838000ms (max 13.058000), cycle 1.817000ms END]
+2026-10-18T09:51:31.160Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:31.243Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.111000ms]
+{"engine":"webkit","kind":"bank","decision":"reject","round":2,"toAckMs":394.00000000001455,"maxNamedSyncMs":6,"liveAlerts":1}
+{"engine":"webkit","kind":"insurance","decision":"accept","round":2,"toAckMs":347.0000000000291,"maxNamedSyncMs":7.000000000014552,"liveAlerts":1}
+2026-10-18T09:51:32.859Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 12596984 exceed bytes allowed: 3940381 normal bytes: 13784 oversized bytes: 12583200 last oversized: 4194400
+2026-10-18T09:51:32.859Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 13065kb => EdenCollection, ca=12301.742188kb h=6150.871094kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=2 b=6 i#1:N<CsMsrShDMsm(9)> tp=0.300000ms 8+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#2:N<WsOJw> tp=0.300000ms 0+0 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=6 i#3:P<Msm(0)CsMsrShDCbDomoWsOJw> => 12543kb, p=0.696000ms (max 13.058000), cycle 0.688000ms END]
+2026-10-18T09:51:32.859Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:32.859Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.008000ms]
+2026-10-18T09:51:32.905Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 1174889528 exceed bytes allowed: 1174885720 normal bytes: 484737395 oversized bytes: 690152133 last oversized: 4194400
+2026-10-18T09:51:32.908Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: START M 1919919kb => EdenCollection, ca=1147353.054688kb h=573676.527344kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=82 b=7463 i#1:N<CsMsrShDMsm(7492)> tp=0.300000ms 77+0 p=0.699000ms (max 13.058000)...]
+2026-10-18T09:51:32.920Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: M a=199kb hf=0.000 mu=0.700 v=9405kb (C:82 M:0 P1:1093 P2:441 P3:7244 P4:544) o=122 b=10 i#2:N<WsOJw> tp=0.300000ms 358+10 v=9745kb (C:99 M:0 P1:1169 P2:468 P3:7441 P4:566) o=122 b=10 i#3:P<WsOJwMsm(10)> tp=0.300000ms 0+0 v=9746kb (C:99 M:0 P1:1169 P2:468 P3:7442 P4:566) o=122 b=10 i#4:P<ShCsMsm(0)MsrDCbDomo> tp=0.300000ms 0+0 v=9748kb (C:99 M:0 P1:1169 P2:468 P3:7444 P4:566) o=124 b=10 i#5:P<CsDomoShMsm(0)MsrDCbWsOJw> => 1630751kb, p=10.872000ms (max 13.058000), cycle 14.740000ms END]
+2026-10-18T09:51:32.920Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:32.922Z pw:browser [pid=40842][err] [GC<0x7f34df4000c0>: finalize 0.190000ms]
+{"engine":"webkit","kind":"insurance","decision":"reject","round":2,"toAckMs":423,"maxNamedSyncMs":6,"liveAlerts":1}
+2026-10-18T09:51:33.770Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 8393760 exceed bytes allowed: 3940381 normal bytes: 4960 oversized bytes: 8388800 last oversized: 4194400
+2026-10-18T09:51:33.773Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 21263kb => FullCollection, ca=8197.031250kb h=4098.515625kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=0 b=4 i#1:N<CsMsrShDMsm(0)> tp=0.300000ms 17+0 v=207kb (C:62 M:0 P1:0 P2:144 P3:0 P4:0) o=3 b=4 i#2:N<WsOJw> tp=0.300000ms 1+0 v=207kb (C:62 M:0 P1:0 P2:144 P3:0 P4:0) o=3 b=4 i#3:P<WsOJwMsrShCsMsm(0)DCbDomo> => 254kb, p=3.346000ms (max 13.058000), cycle 3.341000ms END]
+2026-10-18T09:51:33.773Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:33.773Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.021000ms]
+{"engine":"webkit","kind":"telecom","decision":"accept","round":2,"toAckMs":423,"maxNamedSyncMs":12,"liveAlerts":1}
+2026-10-18T09:51:34.690Z pw:browser [pid=40842][err] Requesting GC because bytes allocated this cycle: 8656968 exceed bytes allowed: 3933289 normal bytes: 9912 oversized bytes: 8647056 last oversized: 4194400
+2026-10-18T09:51:34.694Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: START M 9083kb => EdenCollection, ca=8454.070312kb h=4227.035156kb a=0kb hf=0.000 mu=0.700 v=0kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=3 b=8 i#1:N<CsMsrShDMsm(9)> tp=0.300000ms 7+0 v=1kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=8 i#2:N<WsOJw> tp=1.077000ms 0+0 v=1kb (C:0 M:0 P1:0 P2:0 P3:0 P4:0) o=4 b=8 i#3:P<Msm(0)CsMsrShDCbDomoWsOJw> => 8559kb, p=4.096000ms (max 13.058000), cycle 4.090000ms END]
+2026-10-18T09:51:34.694Z pw:browser [pid=40842][err] GC END!
+2026-10-18T09:51:34.694Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: finalize 0.029000ms]
+{"engine":"webkit","kind":"telecom","decision":"reject","round":2,"toAckMs":276.9999999999709,"maxNamedSyncMs":6,"liveAlerts":1}
+2026-10-18T09:51:34.822Z pw:browser [pid=40842] <gracefully close start>
+2026-10-18T09:51:34.861Z pw:browser [pid=40842][err] [GC<0x7f32e227c0c0>: shutdown 1234[GC<0x7f3403e050c0>: shutdown 12345 5 9.539000ms]
+2026-10-18T09:51:34.956Z pw:browser [pid=40842][err] 104.018000ms]
+2026-10-18T09:51:35.109Z pw:browser [pid=40842] <process did exit: exitCode=0, signal=null>
+2026-10-18T09:51:35.109Z pw:browser [pid=40842] starting temporary directories cleanup
+2026-10-18T09:51:35.110Z pw:browser [pid=40842] finished temporary directories cleanup
+2026-10-18T09:51:35.110Z pw:browser [pid=40842] <gracefully close end>
+[
+  {
+    "engine": "webkit",
+    "kind": "bank",
+    "decision": "accept",
+    "samples": 3,
+    "toAckMedianMs": 402,
+    "toUiEndMedianMs": 411,
+    "maxNamedSyncMs": 24,
+    "liveAlerts": [
+      1,
+      1,
+      1
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "bank",
+    "decision": "reject",
+    "samples": 3,
+    "toAckMedianMs": 446.00000000001455,
+    "toUiEndMedianMs": 454,
+    "maxNamedSyncMs": 19,
+    "liveAlerts": [
+      1,
+      1,
+      1
+    ],
+    "uploadBytes": [
+      0,
+      110640,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "insurance",
+    "decision": "accept",
+    "samples": 3,
+    "toAckMedianMs": 347.0000000000291,
+    "toUiEndMedianMs": 354,
+    "maxNamedSyncMs": 24.999999999985448,
+    "liveAlerts": [
+      1,
+      1,
+      1
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "insurance",
+    "decision": "reject",
+    "samples": 3,
+    "toAckMedianMs": 353,
+    "toUiEndMedianMs": 361,
+    "maxNamedSyncMs": 6.999999999985448,
+    "liveAlerts": [
+      1,
+      1,
+      1
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "telecom",
+    "decision": "accept",
+    "samples": 3,
+    "toAckMedianMs": 357.00000000001455,
+    "toUiEndMedianMs": 366,
+    "maxNamedSyncMs": 17,
+    "liveAlerts": [
+      1,
+      1,
+      1
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      172634
+    ]
+  },
+  {
+    "engine": "webkit",
+    "kind": "telecom",
+    "decision": "reject",
+    "samples": 3,
+    "toAckMedianMs": 298,
+    "toUiEndMedianMs": 307,
+    "maxNamedSyncMs": 6,
+    "liveAlerts": [
+      1,
+      1,
+      1
+    ],
+    "uploadBytes": [
+      0,
+      0,
+      0
+    ]
+  }
+]

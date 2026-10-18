@@ -1,0 +1,10 @@
+browserType.launch: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     liblzo2.so.2                                     ║
+║     libGLESv2.so.2                                   ║
+╚══════════════════════════════════════════════════════╝
+    at /workspace/madar/tests/build411-command-row-patch-browser.cjs:8:29 {
+  name: 'Error'
+}

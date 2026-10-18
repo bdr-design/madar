@@ -1,0 +1,13 @@
+AssertionError [ERR_ASSERTION]: a successful personnel action must not create another post-ACK alert transaction
+
+1 !== 0
+
+    at run (/workspace/madar/tests/build451-hr-notice-work.cjs:3:2029)
+    at async /workspace/madar/tests/build451-hr-notice-work.cjs:4:168 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
