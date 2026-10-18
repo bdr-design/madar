@@ -173,6 +173,16 @@
       "run": 39087933655,
       "result": "cancelled_to_add_inner_text_geometry_fix",
       "native_three_stages": "passed"
+    },
+    {
+      "commit": "46ee30b491501ead576fb44352200ae58fdbcd8f",
+      "run": 39088528554,
+      "result": "early_gate_418_counter_scope_failure",
+      "new_conference_text_gate": "PASS on macOS",
+      "native_three_stages": "PASS",
+      "failed_gate": 7,
+      "not_executed_remaining": 444,
+      "reason": "ambient proof verification mixed with settlement-owner material work; reproduced 108 vs 132 total with same 60 owner calls"
     }
   ],
   "local_full_suite": {
@@ -180,5 +190,36 @@
     "passed_before_environment_restart": 34,
     "runtime_sha256": "0cd3cc06dc2b4dd6cc0a6d6d244eb7f526e6c9a0da1c92e291421a95715b12ad",
     "reason": "execution environment restarted during calendar journey; NOT a full pass"
+  },
+  "command_trace_counter_scope": {
+    "test": "tests/build418-command-phase-trace-browser.cjs",
+    "runtime_code_changed": false,
+    "old_total_counter_unstable": {
+      "local_issue_samples": [
+        108,
+        132
+      ],
+      "macos_issue": 131
+    },
+    "owner_is_real_finance_execute_with_original_delegate": true,
+    "issue": {
+      "documents": 12,
+      "before_owner_material_calls": 96,
+      "after_owner_material_calls": 60,
+      "strict_max_per_document": 5
+    },
+    "cash": {
+      "documents": 12,
+      "before_owner_material_calls": 168,
+      "after_owner_material_calls": 96,
+      "strict_max_per_document": 8
+    },
+    "ambient_reads_test": "Twelve real invoice proof verifications while ACK is held must increase observed total and leave settlement-owner count unchanged.",
+    "unscoped_total_still_reported": true,
+    "bins_sum_verified": true,
+    "both_engines_pass": true,
+    "old_source_red": true,
+    "ack_rollback_retries_and_money_assertions_retained": true,
+    "elapsed_time_measurement": "Unchanged; the whole-command benchmark still includes all work and the 20 ms limit is not achieved."
   }
 }
