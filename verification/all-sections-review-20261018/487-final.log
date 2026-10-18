@@ -1,0 +1,8 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build487-route-pages-browser","engine":"chromium","viewport":{"width":956,"height":440},"cards":9,"pages":3,"overflow":false}
+{"suite":"build487-route-pages-browser","engine":"chromium","viewport":{"width":844,"height":390},"cards":9,"pages":3,"overflow":false}
+{"suite":"build487-route-pages-browser","engine":"chromium","viewport":{"width":667,"height":375},"cards":9,"pages":3,"overflow":false}
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+{"suite":"build487-route-pages-browser","engine":"webkit","viewport":{"width":956,"height":440},"cards":9,"pages":3,"overflow":false}
+{"suite":"build487-route-pages-browser","engine":"webkit","viewport":{"width":844,"height":390},"cards":9,"pages":3,"overflow":false}
+{"suite":"build487-route-pages-browser","engine":"webkit","viewport":{"width":667,"height":375},"cards":9,"pages":3,"overflow":false}

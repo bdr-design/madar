@@ -1,0 +1,5 @@
+
+> global-holdings-build340-webapp@3.0.0-build362 lint
+> node tests/lint.cjs
+
+[]

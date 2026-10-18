@@ -1,0 +1,357 @@
+{
+  "ok": true,
+  "headSim": 172800,
+  "sim": 172800,
+  "persistence": {
+    "generation": 11,
+    "pending": 0,
+    "slotPending": 0,
+    "ordinaryInFlight": false,
+    "ordinaryDirty": false,
+    "recoveryRequired": false,
+    "samples": [
+      {
+        "operation": "durable-commit",
+        "ok": true,
+        "utf8Bytes": 975212,
+        "native": true,
+        "browserCache": false,
+        "durationMs": 0
+      }
+    ],
+    "timings": {
+      "lastSaveBreakdown": null,
+      "lastNativeAck": {
+        "kind": "native-ack",
+        "requestId": "commitSave-1792338996817-1",
+        "action": "commitSave",
+        "saveRevision": 93,
+        "generation": 11,
+        "success": true,
+        "bridgeDispatchMs": 20.799999997019768,
+        "nativeAckLatencyMs": 21,
+        "nativeVaultCommitMs": null,
+        "nativeVaultStages": null,
+        "recordedAtMs": 1792338996838
+      },
+      "samples": [
+        {
+          "kind": "sliced-save",
+          "cloneMs": 977,
+          "validateMs": 17.200000002980232,
+          "totalMs": 997.1999999955297,
+          "ok": false,
+          "cloneBusyMs": 14.800000004470348,
+          "cloneMaxSliceMs": 4,
+          "cloneYields": 3,
+          "recordedAtMs": 1792338918549
+        },
+        {
+          "kind": "durable-save",
+          "saveRevision": 93,
+          "schemaMs": 1.3000000044703484,
+          "stringifyMs": 202.90000000596046,
+          "measurementMs": 1.8000000044703484,
+          "totalSyncMs": 206.00000001490116,
+          "utf8Bytes": 975212,
+          "ok": true,
+          "chunkUploads": 100,
+          "slices": 8,
+          "maxBusySliceMs": 23.100000001490116,
+          "checksumRequests": 42,
+          "checksumWorkerMs": 136.70000000298023,
+          "retakes": 0,
+          "wallMs": 311.90000000596046,
+          "recordedAtMs": 1792338994282
+        },
+        {
+          "kind": "chunk-upload",
+          "chunks": 100,
+          "bytes": 129659464,
+          "wireBytes": 34964548,
+          "encodingWorkerMs": 633.4999999627471,
+          "compressedChunks": 31,
+          "ms": 2532.3000000044703,
+          "recordedAtMs": 1792338996814
+        },
+        {
+          "kind": "bridge-dispatch",
+          "requestId": "commitSave-1792338996817-1",
+          "action": "commitSave",
+          "saveRevision": 93,
+          "bridgeDispatchMs": 20.799999997019768,
+          "recordedAtMs": 1792338996838
+        },
+        {
+          "kind": "native-ack",
+          "requestId": "commitSave-1792338996817-1",
+          "action": "commitSave",
+          "saveRevision": 93,
+          "generation": 11,
+          "success": true,
+          "bridgeDispatchMs": 20.799999997019768,
+          "nativeAckLatencyMs": 21,
+          "nativeVaultCommitMs": null,
+          "nativeVaultStages": null,
+          "recordedAtMs": 1792338996838
+        },
+        {
+          "kind": "sliced-save",
+          "cloneMs": 95.79999999701977,
+          "validateMs": 67.29999999701977,
+          "totalMs": 3064.3000000044703,
+          "ok": true,
+          "cloneBusyMs": 29.100000001490116,
+          "cloneMaxSliceMs": 4,
+          "cloneYields": 7,
+          "recordedAtMs": 1792338996838
+        }
+      ]
+    }
+  },
+  "alerts": [
+    "تم حفظ اللعبة.",
+    "جُدولت 10000 شاحنة ذريًا على 209 مسار أسطول لشركة QA Decision road؛ أُنشئ 208 مسارًا تلقائيًا.",
+    "أُنشئ مسار بري فعلي من QA Operating road إلى QA Road AUH بطول 974 كم."
+  ],
+  "runtime": {
+    "lastAtomicCommit": {
+      "from": 172724.0938107771,
+      "to": 172800,
+      "requestedTo": 172800,
+      "events": 6211,
+      "day": 2,
+      "hour": 48,
+      "at": 172800,
+      "core": "4.2.0",
+      "order": "sweep"
+    },
+    "lastCompactDay": 0
+  },
+  "events": [
+    {
+      "id": "DG-1792338996839-22",
+      "type": "WORKFLOW_NOTICE",
+      "severity": "info",
+      "at": 1792338996839,
+      "simSeconds": 172800,
+      "detail": {
+        "message": "تم حفظ اللعبة.",
+        "kind": "info",
+        "panel": "routes",
+        "action": null
+      }
+    },
+    {
+      "id": "DG-1792338996838-21",
+      "type": "SAVE_MANUAL",
+      "severity": "info",
+      "at": 1792338996838,
+      "simSeconds": 172800,
+      "detail": {
+        "ok": true,
+        "staged": false,
+        "saveRevision": 93
+      }
+    },
+    {
+      "id": "DG-1792338996838-20",
+      "type": "SAVE_OK",
+      "severity": "info",
+      "at": 1792338996838,
+      "simSeconds": 172800,
+      "detail": {
+        "bytes": 975212,
+        "saveRevision": 93,
+        "sliced": true
+      }
+    },
+    {
+      "id": "DG-1792338993714-19",
+      "type": "SIM_GOVERNOR",
+      "severity": "info",
+      "at": 1792338993714,
+      "simSeconds": 172800,
+      "detail": {
+        "level": "ORANGE",
+        "avgChunkMs": 11.050000000496706,
+        "avgWorkMs": 8.540000000409782,
+        "stage": "chunk",
+        "took": 38.399999998509884,
+        "speed": 300,
+        "coalesced": true,
+        "reason": "pressure-escalation",
+        "transitions": 2,
+        "firstAtMs": 1792338990216,
+        "lastAtMs": 1792338992941,
+        "windowMs": 10000,
+        "levels": {
+          "GREEN": 1,
+          "YELLOW": 0,
+          "ORANGE": 1,
+          "RED": 0
+        },
+        "peakLevel": "ORANGE",
+        "peakStage": "chunk",
+        "maxTook": 38.399999998509884,
+        "maxTookStage": "chunk",
+        "maxAvgWorkMs": 8.540000000409782,
+        "maxAvgChunkMs": 11.050000000496706
+      }
+    },
+    {
+      "id": "DG-1792338990388-18",
+      "type": "SIM_MAINTENANCE",
+      "severity": "info",
+      "at": 1792338990388,
+      "simSeconds": 169200,
+      "detail": {
+        "hour": 47
+      }
+    },
+    {
+      "id": "DG-1792338990232-17",
+      "type": "SIM_GOVERNOR",
+      "severity": "info",
+      "at": 1792338990232,
+      "simSeconds": 168488.13972733,
+      "detail": {
+        "level": "YELLOW",
+        "avgChunkMs": 2.8200000007947286,
+        "avgWorkMs": 2.1325000006705523,
+        "stage": "chunk",
+        "took": 16.399999998509884,
+        "speed": 300,
+        "coalesced": true,
+        "reason": "interval",
+        "transitions": 20,
+        "firstAtMs": 1792338979157,
+        "lastAtMs": 1792338990197,
+        "windowMs": 10000,
+        "levels": {
+          "GREEN": 10,
+          "YELLOW": 10,
+          "ORANGE": 0,
+          "RED": 0
+        },
+        "peakLevel": "YELLOW",
+        "peakStage": "chunk",
+        "maxTook": 18,
+        "maxTookStage": "chunk",
+        "maxAvgWorkMs": 2.479999999329448,
+        "maxAvgChunkMs": 3.203333333383004
+      }
+    },
+    {
+      "id": "DG-1792338982278-16",
+      "type": "ISSUE_OPEN",
+      "severity": "warning",
+      "at": 1792338982278,
+      "simSeconds": 126000,
+      "detail": {
+        "id": "BIZ_SEA_EEXI_READINESS_LOW",
+        "title": "جاهزية كفاءة السفن الفنية منخفضة",
+        "domain": "maritime"
+      }
+    },
+    {
+      "id": "DG-1792338982120-15",
+      "type": "SIM_MAINTENANCE",
+      "severity": "info",
+      "at": 1792338982120,
+      "simSeconds": 126000,
+      "detail": {
+        "hour": 35
+      }
+    },
+    {
+      "id": "DG-1792338979190-14",
+      "type": "SIM_GOVERNOR",
+      "severity": "info",
+      "at": 1792338979190,
+      "simSeconds": 110250.71564865609,
+      "detail": {
+        "level": "YELLOW",
+        "avgChunkMs": 2.726666667312384,
+        "avgWorkMs": 2.3350000005215406,
+        "stage": "chunk",
+        "took": 15.300000004470348,
+        "speed": 300,
+        "coalesced": true,
+        "reason": "interval",
+        "transitions": 25,
+        "firstAtMs": 1792338969051,
+        "lastAtMs": 1792338979135,
+        "windowMs": 10000,
+        "levels": {
+          "GREEN": 11,
+          "YELLOW": 11,
+          "ORANGE": 3,
+          "RED": 0
+        },
+        "peakLevel": "ORANGE",
+        "peakStage": "chunk",
+        "maxTook": 78.29999999701977,
+        "maxTookStage": "chunk",
+        "maxAvgWorkMs": 13.384999999776483,
+        "maxAvgChunkMs": 14.509999999900659
+      }
+    },
+    {
+      "id": "DG-1792338970631-13",
+      "type": "SIM_MAINTENANCE",
+      "severity": "info",
+      "at": 1792338970631,
+      "simSeconds": 82800,
+      "detail": {
+        "hour": 23
+      }
+    },
+    {
+      "id": "DG-1792338969061-12",
+      "type": "SIM_GOVERNOR",
+      "severity": "info",
+      "at": 1792338969061,
+      "simSeconds": 74956.85548963773,
+      "detail": {
+        "level": "ORANGE",
+        "avgChunkMs": 4.229999999950329,
+        "avgWorkMs": 3.1824999997392296,
+        "stage": "chunk",
+        "took": 36.100000001490116,
+        "speed": 300,
+        "coalesced": true,
+        "reason": "pressure-escalation",
+        "transitions": 12,
+        "firstAtMs": 1792338959531,
+        "lastAtMs": 1792338969020,
+        "windowMs": 10000,
+        "levels": {
+          "GREEN": 6,
+          "YELLOW": 5,
+          "ORANGE": 1,
+          "RED": 0
+        },
+        "peakLevel": "ORANGE",
+        "peakStage": "chunk",
+        "maxTook": 36.100000001490116,
+        "maxTookStage": "chunk",
+        "maxAvgWorkMs": 3.1824999997392296,
+        "maxAvgChunkMs": 4.229999999950329
+      }
+    },
+    {
+      "id": "DG-1792338961920-11",
+      "type": "SIM_MAINTENANCE",
+      "severity": "info",
+      "at": 1792338961920,
+      "simSeconds": 39600,
+      "detail": {
+        "hour": 11
+      }
+    }
+  ],
+  "bridge": true,
+  "attempts": 1,
+  "uploads": 100
+}

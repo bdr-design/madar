@@ -1,0 +1,63 @@
+{
+  "suite": "build362-durable-prestage",
+  "passed": 7,
+  "total": 7,
+  "results": [
+    {
+      "name": "staging uploads the changed chunks, never commits, and the commit after it uploads none of them",
+      "ok": true,
+      "detail": {
+        "staged": 2,
+        "stagedBytes": 410080,
+        "commitUploads": 0
+      }
+    },
+    {
+      "name": "a command that does not commit releases its staging; a vault that collected it is not trusted later",
+      "ok": true,
+      "detail": {
+        "released": 2,
+        "collected": 2,
+        "reuploaded": 2
+      }
+    },
+    {
+      "name": "a vault reset during staging leaves nothing trusted",
+      "ok": true,
+      "detail": {
+        "reason": "prestage-vault-changed",
+        "uploadsAfterReset": 2
+      }
+    },
+    {
+      "name": "a released staging stops, and a fleet change during staging asks for no fresh validation",
+      "ok": true,
+      "detail": {
+        "firstReason": "prestage-released",
+        "secondReason": "state-codec-fleet-changed-during-save",
+        "validations": 0
+      }
+    },
+    {
+      "name": "the periodic sliced save does not stage: a write during its validation takes the retake",
+      "ok": true,
+      "detail": {
+        "commits": 1
+      }
+    },
+    {
+      "name": "staging is skipped where it cannot help and never throws",
+      "ok": true,
+      "detail": {
+        "skipped": 3
+      }
+    },
+    {
+      "name": "executeDurable stages after apply, commits only after every check, and releases either way",
+      "ok": true,
+      "detail": {
+        "order": "apply>prestage>validate>persist>release"
+      }
+    }
+  ]
+}

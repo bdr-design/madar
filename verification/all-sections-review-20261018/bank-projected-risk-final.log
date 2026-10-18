@@ -1,0 +1,68 @@
+PASS LCR is tested after disbursement, not only before it
+PASS NSFR uses the proposed stable-funding requirement
+PASS CET1 includes proposed risk-weighted assets and upfront provisions
+PASS all three portfolio command aliases enforce the same preflight
+PASS a capital-funded new bank can still make its first eligible loan
+PASS projection matches committed ratios and has no mutation on normalized input
+PASS corporate facility draws cannot bypass LCR or loan/deposit policy
+PASS eligible corporate draw transfers principal and one fee to correct books
+PASS trade guarantees and letters of credit check projected off-balance risk before fees
+PASS eligible trade instrument keeps exact fee and reconciles actual off-balance risk
+PASS daily repayment, reload and a later rejected transaction preserve the loan and all books
+PASS durable persistence rejection publishes no loan, fee, journal or credit decision
+{
+  "suite": "bank-projected-risk",
+  "scope": "original banking/finance/transaction cores in Node; synthetic portfolios; concentration explicitly deferred",
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "name": "LCR is tested after disbursement, not only before it",
+      "ok": true
+    },
+    {
+      "name": "NSFR uses the proposed stable-funding requirement",
+      "ok": true
+    },
+    {
+      "name": "CET1 includes proposed risk-weighted assets and upfront provisions",
+      "ok": true
+    },
+    {
+      "name": "all three portfolio command aliases enforce the same preflight",
+      "ok": true
+    },
+    {
+      "name": "a capital-funded new bank can still make its first eligible loan",
+      "ok": true
+    },
+    {
+      "name": "projection matches committed ratios and has no mutation on normalized input",
+      "ok": true
+    },
+    {
+      "name": "corporate facility draws cannot bypass LCR or loan/deposit policy",
+      "ok": true
+    },
+    {
+      "name": "eligible corporate draw transfers principal and one fee to correct books",
+      "ok": true
+    },
+    {
+      "name": "trade guarantees and letters of credit check projected off-balance risk before fees",
+      "ok": true
+    },
+    {
+      "name": "eligible trade instrument keeps exact fee and reconciles actual off-balance risk",
+      "ok": true
+    },
+    {
+      "name": "daily repayment, reload and a later rejected transaction preserve the loan and all books",
+      "ok": true
+    },
+    {
+      "name": "durable persistence rejection publishes no loan, fee, journal or credit decision",
+      "ok": true
+    }
+  ]
+}

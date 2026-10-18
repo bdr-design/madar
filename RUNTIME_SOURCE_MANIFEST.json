@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "3ab65095ec7455a3abd5a33240a36450c773a18f3e8d278396d11c149293d334",
-  "webapp_tree_sha256": "cb79442eecf674cf7caeaccec958540b1e22a4a73493d52cb729bf8553163852",
+  "source_tree_sha256": "c4731d66037182d9fb5368c2503911f9cdb0c06e7763a2860c4f23baad8fc85e",
+  "webapp_tree_sha256": "051b074459ed36eead3fb1a95233c48aefb49d3f3d06aebc8f55a1288bbd7130",
   "files": {
     "WebApp/advanced-core.js": {
       "bytes": 366495,
@@ -19,8 +19,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1000778,
-      "sha256": "3b3f2fe5b4c0194b7506d40e47bc141ce015e9c104af03f188da1283c89269e9"
+      "bytes": 1002944,
+      "sha256": "b24115e922e0d71a31f5a99bfeab864585018b75031f9998fa83454d104c4773"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3375,8 +3375,8 @@
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 118980,
-      "sha256": "58879b0fb2b463c8618cf943e7b0f6da171359158bd2c9a5eecd340268060789"
+      "bytes": 119331,
+      "sha256": "9332bd5f570944afc0c4c149614c3216e537538db49cf04f96371d3d73536706"
     },
     "WebApp/branch-campaign-core.js": {
       "bytes": 3676,
@@ -4016,7 +4016,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "489290175c8924d30d4b43253d3231ddee9dd254da48487b0ab60b77622a359f"
+      "sha256": "3f98d34cab53021980f958bc70b41144425164d9947d1b248f888e2f2e51ab3a"
     },
     "BUILD": {
       "bytes": 4,
