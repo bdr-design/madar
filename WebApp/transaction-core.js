@@ -297,6 +297,9 @@
       const stack=[];let units=0;
       const allocate=source=>{
         if(typeof source==='function'||typeof source==='symbol')throw new TypeError('durable-draft-non-data-value');if(!source||typeof source!=='object')return source;if(copySeen.has(source))return copySeen.get(source);
+        // A nested value sealed by its owner is immutable too, even outside a registered collection. Preserve that
+        // identity instead of cloning shared route geometry/proof snapshots again inside otherwise mutable roots.
+        if(shareSealed&&SEALED.has(source)){copySeen.set(source,source);return source;}
         const tag=Object.prototype.toString.call(source);let out;
         if(tag==='[object ArrayBuffer]'){out=new ArrayBuffer(source.byteLength);stack.push({binary:true,source:new Uint8Array(source),out:new Uint8Array(out),at:0});}
         else if(ArrayBuffer.isView(source)){const buffer=allocate(source.buffer);out=tag==='[object DataView]'?new DataView(buffer,source.byteOffset,source.byteLength):new source.constructor(buffer,source.byteOffset,source.length);}

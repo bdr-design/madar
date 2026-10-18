@@ -639,7 +639,7 @@
   }
   function queueStats(store){const e=engineFor(store),q=heapFor(e);return {size:q.size,builds:q.builds};}
 
-  const API=Object.freeze({VERSION,DEPARTURE_INTERVAL_SECONDS,advance,nextEventTime,peekNext,timeForEventBudget,currentAsset,checkpointTime,queueStats,derive,fuelRate,conditionRate});
+  const API=Object.freeze({VERSION,DEPARTURE_INTERVAL_SECONDS,advance,nextEventTime,peekNext,timeForEventBudget,currentAsset,checkpointTime,queueStats,derive,boundedLiveDerive:derive,fuelRate,conditionRate});
   globalThis.GH_FLEET_EVENTS=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_FLEET_EVENTS=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

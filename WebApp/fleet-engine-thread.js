@@ -452,6 +452,7 @@
       if(contextKey!==undefined&&String(contextKey)!==ticket.contextKey)return refuse('context-changed');
       if(!tx?.registerUndo)return refuse('transaction-required');
       const started=clock(),message=ticket.result;
+      const savePatchRevision=store.revision;
       // From here the store is written: a disagreement throws, and the transaction rolls back what was replayed. The
       // store's journal starts before the first value (it would otherwise start at the first row, and a rollback would
       // keep values interned before it while the worker removes them); a step that changed nothing opens none.
@@ -463,6 +464,7 @@
         }
       });
       STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,message.indices,message.bytes,message.extras,{revisionDelta:message.revisionDelta,staticRows:message.staticRows})));
+      globalThis.GH_STATE_CODEC?.recordFleetRows?.(store,savePatchRevision,message.indices,true);
       ticket.applied=true;
       tx.registerUndo(()=>settle(ticket,'rollback'),()=>settle(ticket,'commit'));
       replicaHolds(store,message.values);
@@ -485,6 +487,7 @@
       if(message.windowId!==session.id||Number(message.seq)!==ticket.seq||Number(message.from)!==ticket.from||Number(message.to)!==ticket.to)return refuse('window-result-mismatch');
       if(!session.registered){tx.registerUndo(()=>settleWindow(session,'rollback'),()=>settleWindow(session,'commit'));session.registered=true;}
       const rows=changedWindowRows(store,message);
+      const savePatchRevision=store.revision;
       if(message.values.length||rows.indices.length)STORE.journalFor(store);
       STORE.withoutReplicaLog(store,()=>{
         for(const [ref,value] of message.values)if(!STORE.internAt(store,ref,value)){
@@ -492,6 +495,7 @@
         }
       });
       STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{revisionDelta:message.revisionDelta,staticRows:message.staticRows})));
+      globalThis.GH_STATE_CODEC?.recordFleetRows?.(store,savePatchRevision,rows.indices,true);
       ticket.applied=true;ticket.settled=true;tickets.delete(ticket.id);clearTimeout(ticket.timer);if(pending===ticket)pending=null;
       session.revision=store.revision;session.valuesLength=store.values.length;session.length=store.length;session.nextFrom=Number(message.out?.completeTo);session.nextSeq++;session.steps++;
       if(!Number.isFinite(session.nextFrom)||session.nextFrom<ticket.from-1e-6||session.nextFrom>ticket.to+1e-6)return refuse('window-complete-to-invalid');

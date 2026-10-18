@@ -29,6 +29,9 @@
   // Official papers keep the Arabic-Indic digits they were designed with.
   const ARABIC_INTEGER_FORMAT = new Intl.NumberFormat('ar-SA-u-nu-latn', {maximumFractionDigits: 0});
   const DOCUMENT_INTEGER_FORMAT = new Intl.NumberFormat('ar-SA', {maximumFractionDigits: 0});
+  const DOCUMENT_USD_FORMAT = new Intl.NumberFormat('en-US', {style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+  const DOCUMENT_DECIMAL_FORMAT = new Intl.NumberFormat('en-US', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const DOCUMENT_ENGLISH_FORMAT = new Intl.NumberFormat('en-US');
   // Build 358: date formatters are built once; constructing an Intl formatter on every KPI render (every frame) was a
   // measurable cost on iPhone.
   const SIM_DATE_FORMATS=Object.freeze({
@@ -913,16 +916,19 @@
   // drafts, GH_ROUTE_CORE) is prepared once per inputs (its owner known, its operation profile, the sea speed factor);
   // the runtime gets a shallow copy of that (its geometry, never edited, shared).
   const PREPARED_ROUTES=new WeakMap();
-  function preparedRoute(route,target){
+  function preparedRoute(route,target,context=null){
     if(!Object.isFrozen(route))return prepareRoute(clone(route),target);
-    const mode=routeModeOf(route),owner=routeOwnerCompanyId(route),key=`${isKnownCompanyId(owner,target)}|${String(route.operationProfileId||(target?COMPANY_PLATFORM.getOperationProfile?.(target,owner):COMPANY_PLATFORM.getOperationProfile?.(owner))||'')}|${mode==='sea'&&target?window.GH_GOVERNANCE_CORE?.seaSpeedFactor?.(target)??1:1}`;
+    const mode=routeModeOf(route),owner=routeOwnerCompanyId(route);let company=context?.companies.get(owner);
+    if(!company){company={known:isKnownCompanyId(owner,target),profile:(target?COMPANY_PLATFORM.getOperationProfile?.(target,owner):COMPANY_PLATFORM.getOperationProfile?.(owner))||''};context?.companies.set(owner,company);}
+    if(mode==='sea'&&target&&context&&context.sea===undefined)context.sea=window.GH_GOVERNANCE_CORE?.seaSpeedFactor?.(target)??1;
+    const speed=mode==='sea'&&target?(context?context.sea:window.GH_GOVERNANCE_CORE?.seaSpeedFactor?.(target)??1):1,key=`${company.known}|${String(route.operationProfileId||company.profile)}|${speed}`;
     let cached=PREPARED_ROUTES.get(route);if(!cached||cached.key!==key){cached={key,route:prepareRoute(clone(route),target)};PREPARED_ROUTES.set(route,cached);}
     return {...cached.route};
   }
   function routeRuntimeForState(target){
-    const runtime={};
+    const runtime={},context={companies:new Map(),sea:undefined};
     for(const id of BASE_ROUTE_IDS)runtime[id]=prepareRoute(clone(routeTemplates[id]),target);
-    for(const route of target.customRoutes||[])if(route?.id&&Array.isArray(route.route))runtime[route.id]=preparedRoute(route,target);
+    for(const route of target.customRoutes||[])if(route?.id&&Array.isArray(route.route))runtime[route.id]=preparedRoute(route,target,context);
     return runtime;
   }
   function replaceLiveState(snapshot){
@@ -939,8 +945,8 @@
   // Build 358 (lighter commands): a command's draft is validated section by section (GH_SAVE_SCHEMA.validationSteps) and
   // saved in slices (commitDurableState yieldToFrame), with a frame painted whenever a slice has run 10 ms. The draft is
   // private and the lifecycle lock holds the live state still, so the result is the one-shot result.
-  async function validateDraftInSlices(draft){
-    return window.GH_TRANSACTION_CORE.validateSchemaInSlices(draft,{yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),onSlice:(start,end)=>window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.schema',start,end)});
+  async function validateDraftInSlices(draft,{onSlice=null}={}){
+    return window.GH_TRANSACTION_CORE.validateSchemaInSlices(draft,{yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),onSlice:(start,end)=>{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.schema',start,end);onSlice?.(start,end);}});
   }
   // Build 372: the save check's classes of rows and id check over the fleet (every row: 400 ms on the main thread at a
   // million assets), found by the fleet engine's worker on a replica that is exactly this store (fieldClasses), for the
@@ -1046,7 +1052,7 @@
   // flight, and never reads the fleet on this thread beyond the existing small-fleet path.
   function currentFleetUiSummary(facilities=[],options={}){
     const store=state?.fleet,revision=window.GH_FLEET_DATA.revision(state),simSeconds=state.simSeconds,value=fleetUiSummary(facilities,options);
-    return value?{...value,current:target=>target===state&&target.fleet===store&&window.GH_FLEET_DATA.revision(target)===revision&&(!options.dynamic||Number(target.simSeconds)===Number(simSeconds))}:null;
+    return value?{...value,current:target=>(target===state||window.__GH_DURABLE_COMMAND_CONTEXT__?.liveState===state&&window.__GH_DURABLE_COMMAND_CONTEXT__?.draft===target)&&target.fleet===store&&window.GH_FLEET_DATA.revision(target)===revision&&(!options.dynamic||Number(target.simSeconds)===Number(simSeconds))}:null;
   }
   async function requireFleetUiSummary(facilities=[],{dynamic=false,timeoutMs=20000}={}){
     const deadline=performance.now()+Math.max(0,Number(timeoutMs)||0);
@@ -1056,7 +1062,7 @@
       if(!core?.requestKey||!core?.lookup||!window.GH_FLEET_STORE?.isStore?.(store))return null;
       if(client&&!client.disabled&&typeof client.query==='function'){
         const options=fleetUiSummaryOptions(facilities),key=core.requestKey(options),simSeconds=state.simSeconds,asked=client.query(store,{name:'uiSummary',params:options,simSeconds});
-        if(asked){const found=await asked;if(found&&client.current(found,store)&&found.result?.requestKey===key&&!found.result?.legacy&&(!dynamic||Number(state.simSeconds)===Number(simSeconds)))return {result:found.result,lookup:core.lookup(found.result),current:target=>target===state&&target.fleet===store&&client.current(found,store)&&(!dynamic||Number(target.simSeconds)===Number(simSeconds))};}
+        if(asked){const found=await asked;if(found&&client.current(found,store)&&found.result?.requestKey===key&&!found.result?.legacy&&(!dynamic||Number(state.simSeconds)===Number(simSeconds)))return {result:found.result,lookup:core.lookup(found.result),current:target=>(target===state||window.__GH_DURABLE_COMMAND_CONTEXT__?.liveState===state&&window.__GH_DURABLE_COMMAND_CONTEXT__?.draft===target)&&target.fleet===store&&client.current(found,store)&&(!dynamic||Number(target.simSeconds)===Number(simSeconds))};}
         else try{primeFleetThreadAfterCommand();}catch(_error){}
       }else if(!client)return null;
       if(performance.now()>=deadline)return null;
@@ -1084,7 +1090,7 @@
     durableCommandSettlement=new Promise(resolve=>{settleDurableCommand=resolve;});
     await fleetStepSettled();
     // Build 358: phase timings of every player command (diagnostics: GH_APP_RUNTIME_METRICS.snapshot().durable).
-    const clockNow=()=>globalThis.performance?.now?.()??Date.now(),durableStart=clockNow(),timing={name,cloneMs:0,prepareMs:0,baselineIntegrityMs:0,applyMs:0,validateMs:0,integrityMs:0,prestageWaitMs:0,persistMs:0,publishMs:0,afterMs:0,totalMs:0,committed:false};let mark=durableStart;const lap=key=>{const now=clockNow();timing[key]+=Math.max(0,now-mark);mark=now;};
+    const clockNow=()=>globalThis.performance?.now?.()??Date.now(),durableStart=clockNow(),timing={name,cloneMs:0,prepareMs:0,baselineIntegrityMs:0,applyMs:0,validateMs:0,integrityMs:0,prestageWaitMs:0,persistMs:0,publishMs:0,afterMs:0,totalMs:0,committed:false};let mark=durableStart,workStarted=durableStart;const lap=key=>{const now=clockNow();timing[key]+=Math.max(0,now-mark);mark=now;};
     try{
       const transactionCore=window.GH_TRANSACTION_CORE;
       if(fleetMutation){
@@ -1096,7 +1102,7 @@
       const livePreferences=captureLivePreferences();
       window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft:null};
       timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;
-      const onCloneSlice=(started,ended)=>{const busy=Math.max(0,ended-started);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.clone',started,ended);};
+      const onCloneSlice=(started,ended)=>{workStarted=started;const busy=Math.max(0,ended-started);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.clone',started,ended);};
       if(transactionCore?.deepCloneInSlices)draft=await transactionCore.deepCloneInSlices(state,{shareJournaledRoots:true,yieldToHost:async()=>{timing.cloneYields++;await yieldForInteractivePaint(document.hidden?0:80);},onSlice:onCloneSlice});
       else{const started=clockNow();try{draft=transactionCore?.deepClone?transactionCore.deepClone(state,{shareJournaledRoots:true}):clone(state);}finally{onCloneSlice(started,clockNow());}}lap('cloneMs');
       traceMainThreadWork('command.inherit',()=>window.GH_SAVE_SCHEMA?.inheritVerified?.(state,draft));const runtime=traceMainThreadWork('command.routes',()=>routeRuntimeForState(draft)),previousRevision=Math.max(0,Math.floor(Number(state.saveRevision)||0));lap('prepareMs');
@@ -1110,17 +1116,20 @@
       // Build 362 follow-up: the draft's save chunks upload while it is validated; the commit below still serializes,
       // lists and uploads what is missing, and nothing commits before every check (GH_PERSISTENCE.prestageDurableChunks).
       if(largeNativeSave())try{staging=window.GH_PERSISTENCE.prestageDurableChunks?.(draft,{yieldToFrame:()=>yieldForInteractivePaint()})||null;}catch(_error){staging=null;}
-      const shouldYieldForValidation=(window.GH_FLEET_DATA.size(draft)+(draft.mobility?.vehicles?.length||0))>=500;
-      if(shouldYieldForValidation)await yieldForInteractivePaint();
+      // Use elapsed work since the last cooperative slice, not three unconditional frame waits for every large fleet.
+      // Clone/apply and schema already yield by budget; a worker wait also ends its UI task. Keep the last schema
+      // slice's start so integrity cannot silently extend it beyond the command's four-millisecond work budget.
+      const yieldIfBusy=async()=>{if(clockNow()-workStarted>=4){await yieldForInteractivePaint();workStarted=clockNow();}};
+      await yieldIfBusy();
       // The draft inherited the verified-once ledger above: proofs already verified are trusted, new or changed ones are
       // verified now. The proof audit of maintenance verifies every proof afresh over time, and loads always verify in full.
       const validatedFleetRevision=Number.isSafeInteger(draft.fleet?.revision)?draft.fleet.revision:null;
-      mark=clockNow();const schema=await validateDraftInSlices(draft);lap('validateMs');if(!schema.ok)throw new Error(`invalid-draft:${schema.errors.join(',')}`);
-      if(shouldYieldForValidation)await yieldForInteractivePaint();
+      mark=clockNow();const schema=await validateDraftInSlices(draft,{onSlice:start=>{workStarted=start;}});lap('validateMs');if(!schema.ok)throw new Error(`invalid-draft:${schema.errors.join(',')}`);
+      await yieldIfBusy();
       mark=clockNow();const integrity=traceMainThreadWork('command.integrity',()=>window.GH_INTEGRITY_CORE.check(draft)),critical=(integrity?.critical||(integrity?.issues||[]).filter(row=>row.severity==='critical'));lap('integrityMs');
       const introduced=critical.filter(row=>!priorCriticalIds.has(String(row.id||row.code||row.title)));
       if(introduced.length)throw new Error(`critical-integrity:${introduced.map(row=>row.code||row.id||row.title).join(',')}`);
-      if(shouldYieldForValidation)await yieldForInteractivePaint();
+      await yieldIfBusy();
       if(staging?.settled){mark=clockNow();const staged=await staging.settled.catch(()=>null);timing.prestageOk=staged?.ok===true;timing.prestageUploads=Number(staged?.uploads)||0;timing.prestageBytes=Number(staged?.bytes)||0;timing.prestageWallMs=Number(staged?.wallMs)||0;lap('prestageWaitMs');}
       mark=clockNow();await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,validatedFleetRevision,yieldToFrame:()=>yieldForInteractivePaint()});lap('persistMs');
       // Storage has already committed. A publication failure is a recovery
@@ -1239,7 +1248,8 @@
     try{const result=await runDurableStateCommand(`authorized:${name}`,async context=>{
       const dispatch=(domain,command,payload={},dispatchOptions={})=>authorizedDraftDispatch(context.state,domain,command,payload,dispatchOptions);
       const recordAlert=(text,type='operation')=>window.GH_OPERATIONS_CORE.execute({state:context.state},'record-alert',{text,type});
-      return apply({...context,dispatch,recordAlert});
+      const run=()=>apply({...context,dispatch,recordAlert});
+      return /^settle-all-(?:payables|cheques)(?::|$)/.test(String(name))&&window.GH_FINANCE_CORE?.withSettlementBatch?window.GH_FINANCE_CORE.withSettlementBatch(context.state,run):run();
     },options);
     if(String(name).startsWith('bulk-shared-departure:')&&result?.departed){const type=String(result.type||name.split(':').at(-1)||'unknown'),attempts=Number(result.departed)||0,scheduled=Math.max(0,Number(result.scheduled)||0),moving=Math.max(0,Number(result.moving??(attempts-scheduled))||0);recordAssetDepartureTrace({source:'automatic-network-dispatch',attempts,departed:moving,scheduled,modeCounts:{[type]:attempts},reasonCounts:{'departure-accepted':attempts},routeIds:Array.isArray(result.routeIds)?result.routeIds.slice(0,12):[],planner:result.planner||undefined,performance:departurePerformanceSnapshot(startedAtMs,commandName),simSeconds:Number(state.simSeconds)||0});}
     else if(result===false&&String(name).startsWith('bulk-shared-departure:'))window.GH_DIAGNOSTICS?.annotateLastAssetDepartureTrace?.(state,commandName,{performance:departurePerformanceSnapshot(startedAtMs,commandName)});
@@ -1340,7 +1350,7 @@
     try{const out=await runAuthorizedDomainCommand('finance','settle-cheque',{id});result=out.result;if(result.settled!==true)throw new Error(result.reason||'cheque-not-settled');}
     catch(error){if(error?.durableCommitted!==true)notice(`تعذر صرف الشيك: ${String(error.message||error)}`);return false;}
     // Finance validated the posting before durable ACK. A later presentation failure must never report payment failure.
-    try{pushAlert(result.reason==='already-settled'?`الشيك ${id} مصروف سابقًا؛ لم يُخصم المبلغ مرة أخرى.`:`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}}
+    try{pushAlert(result.reason==='already-settled'?`الشيك ${id} مصروف سابقًا؛ لم يُخصم المبلغ مرة أخرى.`:`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}
     catch(error){console.warn('Cheque committed; presentation refresh failed',error);}
     return true;
   }
@@ -4800,10 +4810,11 @@
 
   const drawerScrollMemory={};
   const drawerOpenBindings=new WeakSet();
-  function openDrawer(panel, arg, diagnosticEvidence){
+  function openDrawer(panel, arg, diagnosticEvidence, scrollOptions={}){
     const redirected=window.GH_MADAR?.redirect?.(panel,arg);if(redirected)[panel,arg]=redirected;
     const drawerWasOpen=$('drawer').classList.contains('open');cancelDrawerSearch();window.GH_INTERFACE.navigate(panel,arg);
     const previousPanel=activeDrawerPanel,previousScroll=$('drawerBody').scrollTop,previousArg=activeDrawerArg;
+    const targetScroll=Number.isFinite(scrollOptions?.scrollTop)?scrollOptions.scrollTop:previousPanel===panel&&JSON.stringify(previousArg)===JSON.stringify(arg)?previousScroll:['companyFacilities','network'].includes(panel)?0:(drawerScrollMemory[panel]||0);
     if(panel!=='assets')clearFleetListSearchRequest();else if(previousPanel!=='assets'||!drawerWasOpen)refreshFleetListSnapshotIfStale();
     if(previousPanel)drawerScrollMemory[previousPanel]=previousScroll;
     activeDrawerPanel=panel;activeDrawerArg=arg;
@@ -4812,7 +4823,9 @@
     const metaEntry=panelMeta[panel],[eyebrow,title]=window.GH_MADAR?.meta?.(state,panel,arg)||window.GH_ADVANCED?.meta(panel,arg)||(typeof metaEntry==='function'?metaEntry(arg):metaEntry)||['الإدارة','لوحة'];
     $('drawerEyebrow').textContent=eyebrow; $('drawerTitle').textContent=title; $('drawerBody').innerHTML=renderPanel(panel,arg,diagnosticEvidence); window.GH_INTERFACE.prepare($('drawerBody'),activeDrawerPanel,activeDrawerArg,advancedContext());bindDrawerActions();
     if(panel==='news'){const summary=window.GH_ADVANCED?.newsSummary?.(state),events=state.businessWorld?.events||[],latest=events[0];lastRenderedNewsSignature=`${summary?.revision||0}|${summary?.count||0}|${summary?.latest?.id||''}|${summary?.latest?.reference||''}`;lastObservedNewsSourceSignature=`${Number(state.businessWorld?.sequence)||0}|${events.length}|${latest?.id||''}|${latest?.reference||''}`;}
-    $('drawerBody').scrollTop=previousPanel===panel&&JSON.stringify(previousArg)===JSON.stringify(arg)?previousScroll:['companyFacilities','network'].includes(panel)?0:(drawerScrollMemory[panel]||0);
+    // Replacing children preserves the scroll container's offset. Rewriting that same offset forced a full paper
+    // layout here, before the browser could paint. A different requested position still uses the normal clamp.
+    if(targetScroll!==previousScroll)$('drawerBody').scrollTop=targetScroll;
     if(panel==='assets')installOwnedVirtualizer();
     if(drawerUsesBackdrop()) $('backdrop').classList.remove('hidden'); else $('backdrop').classList.add('hidden');
     $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false'); setActiveNav(panelRoot(panel,arg));
@@ -5575,7 +5588,7 @@ ${page}</div>`;
   function chequeDateFromDay(day){return chequeDateFromSeconds(Math.max(0,Number(day)||0)*86400);}
   function transferDirection(x,company){const fromKey=companyKeyForAccount(x.from),toKey=companyKeyForAccount(x.to);if(fromKey&&toKey){if(fromKey===company&&toKey!==company)return {key:'outgoing',label:'حوالة صادرة',watermark:'OUTGOING'};if(toKey===company&&fromKey!==company)return {key:'incoming',label:'حوالة واردة',watermark:'INCOMING'};return {key:'internal',label:'تحويل داخلي',watermark:'INTERNAL'};}if(fromKey===company)return {key:'outgoing',label:'حوالة صادرة',watermark:'OUTGOING'};if(toKey===company)return {key:'incoming',label:'حوالة واردة',watermark:'INCOMING'};return {key:'internal',label:'إشعار تحويل مصرفي',watermark:'TRANSFER'};}
   // Financial documents resolve the current legal-entity identity at render time. No historical logo snapshot is persisted.
-  function fmtDocumentMoney(value){return `<bdi class="document-money" dir="ltr">${Number(value||0).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2})}</bdi>`;}
+  function fmtDocumentMoney(value){return `<bdi class="document-money" dir="ltr">${DOCUMENT_USD_FORMAT.format(Number(value||0))}</bdi>`;}
   // Build 358: bank-grade financial documents, approved by the owner from mockups built on how global banks issue them.
   // Transfers read as a SWIFT MT103 payment advice (field tags, UETR, value date, tracker, maker and authorised
   // signatory), cheques follow the standard cheque layout (date boxes, payee line, amount box and words, A/C payee
@@ -5606,7 +5619,7 @@ ${page}</div>`;
     return {name:bank?.tradeName||`خزينة ${group?.legalName||state.profile?.name||'المجموعة'}`,bic:`${code}SARI`,city,company:bankOpen?'bank':'group'};
   }
   const mono=value=>`<bdi class="bd-mono" dir="ltr">${esc(value)}</bdi>`;
-  const money=(value,currency='USD',sign='')=>`${esc(currency)} ${sign}${Number(value||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const money=(value,currency='USD',sign='')=>`${esc(currency)} ${sign}${DOCUMENT_DECIMAL_FORMAT.format(Number(value||0))}`;
   const docQr=(text,label)=>{try{return window.GH_QR?.svg?.(text,{className:'bd-qr',label})||'';}catch{return '';}};
   // Build 358: the company stamp on its own documents (cheque, transfer advice, invoice): a round seal in the company's
   // colour with its English name and commercial registration around the ring, its family logo and Arabic short name in
@@ -5629,7 +5642,7 @@ ${page}</div>`;
     const status=c.status||'صادر',stamp=status==='مرتجع'?'<div class="bd-stamp returned">مرتجع · RETURNED</div>':status==='محصل'?'<div class="bd-stamp paid">محصل · CLEARED</div>':status!=='صادر'?'<div class="bd-stamp paid">صُرف · PAID</div>':'';
     const number=String(c.chequeNumber||c.id||''),digits=(number.replace(/\D/g,'')||docDigits(number,6)).slice(-6).padStart(6,'0'),account=String(c.accountId||i.account),dated=simStamp(c.dueDay!=null?Number(c.dueDay)*86400:c.issuedAt),issued=simStamp(c.issuedAt);
     const purpose=c.purposeDetail||c.note||'دفعة مصرفية',signatureVisual=authorizationSignatureMarkup(c,{legacyLabel:'شيك سابق لنظام التوقيع المرئي'});
-    const figure=`**${Number(c.amount||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}**`,words=amountInWords(c.amount,currency);
+    const figure=`**${DOCUMENT_DECIMAL_FORMAT.format(Number(c.amount||0))}**`,words=amountInWords(c.amount,currency);
     return `<div class="document-card bank-doc-card"><article class="bank-doc cheque-instrument" data-status="${esc(status)}"><div class="cq-guilloche" aria-hidden="true"></div>
       <header class="cq-top"><div class="bd-brand cq-drawer">${companyLogoMarkup(company,'small')}<div><b><bdi>${esc(c.drawer||i.name)}</bdi></b><small>${esc(c.draweeBank||bank.name)} · ${mono(bank.bic)}</small></div></div>
       <div class="cq-no"><span>رقم الشيك ${mono(digits)}</span><div class="cq-date" dir="ltr">${dated.dmy.map((part,index)=>[...part].map(ch=>`<i>${ch}</i>`).join('')+(index<2?'<em>/</em>':'')).join('')}</div></div></header>
@@ -5656,7 +5669,7 @@ ${page}</div>`;
       <div class="iv-meta"><div><span>تاريخ الإصدار · Issue date</span>${mono(`${stamp.date} ${stamp.time.slice(0,5)}`)}</div><div><span>تاريخ التوريد · Supply date</span>${mono(stamp.date)}</div><div><span>الحالة · Status</span><b class="bd-state ${paid?'':'pending'}">${esc(d.status||'مستحقة')}</b></div></div>
       <div class="iv-parties">${partyBlock('المورد','Seller',seller)}${partyBlock('المشتري','Buyer',buyer)}</div>
       <div class="iv-table" role="table"><div class="iv-row iv-th" role="row"><span>الوصف<small>Description</small></span><span>الكمية<small>Qty</small></span><span>سعر الوحدة<small>Unit price</small></span><span>الضريبة ${rate}<small>VAT</small></span><span>الإجمالي<small>Total</small></span></div>
-        ${lines.map(line=>`<div class="iv-row" role="row"><span>${esc(truncateText(line.description||line.note||'',80))}</span><span>${mono(Number(line.quantity||1).toLocaleString('en-US'))}</span><span>${mono(Number(line.unitPrice??line.taxable??0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.vat||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.total||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span></div>`).join('')}</div>
+        ${lines.map(line=>`<div class="iv-row" role="row"><span>${esc(truncateText(line.description||line.note||'',80))}</span><span>${mono(DOCUMENT_ENGLISH_FORMAT.format(Number(line.quantity||1)))}</span><span>${mono(Number(line.unitPrice??line.taxable??0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.vat||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.total||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span></div>`).join('')}</div>
       <footer class="iv-foot"><div class="iv-qr">${qr}</div><div class="iv-pay"><span>طريقة السداد</span><b>${esc(d.method||'تحويل بنكي')}</b><span>الحساب ${mono(bankIban(account))}</span><span>${esc(bank.name)}</span><div class="iv-sign">${companyStampMarkup(company)}${signatureVisual}</div></div>
         <div class="iv-tot"><div><span>الإجمالي قبل الضريبة</span>${mono(money(subtotal))}</div><div><span>ضريبة القيمة المضافة ${rate}%</span>${mono(money(tax))}</div><div class="invoice-total"><span>الإجمالي شامل الضريبة</span>${mono(money(total))}</div></div></footer>
     </article></div>`;
@@ -6071,7 +6084,7 @@ ${page}</div>`;
         const out=dispatch('finance','settle-payable',{number,method}).result;count++;amount+=Number(out?.amount)||due;}
       if(!count)throw new Error(method==='cheque'?`لا توجد ذمة يمكن إصدار شيك لها الآن (${payableSkipText(reasons)})`:'لا يكفي رصيد الحساب الجاري لسداد أي ذمة الآن');
       return {count,amount,skipped,reasons};
-    },{afterCommit:()=>{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}}});
+    },{afterCommit:()=>{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}});
     if(result)pushAlert(method==='cheque'?`صدرت ${fmtNumber(result.count)} شيكات بقيمة ${fmtMoney(result.amount)} لسداد الذمم المفتوحة؛ تبقى كل ذمة مفتوحة حتى صرف شيكها.${result.skipped?` لم يصدر شيك لـ ${fmtNumber(result.skipped)} ذمة: ${payableSkipText(result.reasons)}.`:''}`:`سُددت ${fmtNumber(result.count)} ذمة بتحويلات بنكية بقيمة ${fmtMoney(result.amount)}${result.skipped?`؛ بقيت ${fmtNumber(result.skipped)} ذمة لعدم كفاية الرصيد`:''}.`);
     return result;
   }
@@ -6085,11 +6098,11 @@ ${page}</div>`;
         const out=dispatch('finance','settle-cheque',{id}).result;if(out?.settled!==true)throw new Error(`تعذر صرف الشيك ${id}: ${out?.reason||'رفض الصرف'}`);count++;amount+=due;}
       if(!count)throw new Error(reasons['insufficient-budget']?'لا تسمح الميزانية بصرف الشيكات المتاحة، أو لا يكفي رصيد الحساب الجاري.':'لا يكفي رصيد الحساب الجاري لصرف أي شيك الآن');
       return {count,amount,skipped,reasons};
-    },{afterCommit:()=>{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}}});
+    },{afterCommit:()=>{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}});
     if(result)pushAlert(`صُرف ${fmtNumber(result.count)} شيكًا بقيمة ${fmtMoney(result.amount)}${result.skipped?`؛ بقي ${fmtNumber(result.skipped)} شيكًا (${fmtNumber(result.reasons['insufficient-cash'])} لنقص الرصيد، ${fmtNumber(result.reasons['insufficient-budget'])} لسقف الميزانية)`:''}.`);
     return result;
   }
-  async function settlePayable(number,method='transfer'){const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;try{const result=(await runAuthorizedDomainCommand('finance','settle-payable',{number,method})).result;if(method==='cheque')pushAlert(`صدر الشيك ${result.chequeId} بقيمة ${fmtMoney(result.amount)} لسداد الذمة ${number}. ستبقى الذمة مفتوحة حتى صرف الشيك.`);else pushAlert(`تم سداد ${fmtMoney(result.amount)} بتحويل بنكي من حساب ${companyFinanceName(result.company)}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg);requestAnimationFrame(()=>{if($('drawerBody'))$('drawerBody').scrollTop=stayScroll;});}return result;}catch(error){notice(`تعذر سداد الذمة: ${error.message}`);return null;}}
+  async function settlePayable(number,method='transfer'){const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;try{const result=(await runAuthorizedDomainCommand('finance','settle-payable',{number,method})).result;if(method==='cheque')pushAlert(`صدر الشيك ${result.chequeId} بقيمة ${fmtMoney(result.amount)} لسداد الذمة ${number}. ستبقى الذمة مفتوحة حتى صرف الشيك.`);else pushAlert(`تم سداد ${fmtMoney(result.amount)} بتحويل بنكي من حساب ${companyFinanceName(result.company)}.`);updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg,undefined,{scrollTop:stayScroll});}return result;}catch(error){notice(`تعذر سداد الذمة: ${error.message}`);return null;}}
   // Build 359 (owner: "paying each company's tax on its own is tiring", "the tax shows as a cheque and a transfer"):
   // the cashing of a cheque is a treasury ledger row (paymentMethod cheque); the cheque is its document, so the transfers
   // list leaves those rows out. Money moves once either way (finance-core payTaxes debits the account once).

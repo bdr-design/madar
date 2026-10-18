@@ -142,7 +142,7 @@
     if(!fleet||typeof fleet.scan!=='function'||typeof fleet.idCollisions!=='function')throw new Error('fleet-save-validation-access-missing');
     const context=normalizedParams(params),first=new Map(),routeUsersAll=new Map();let logicalRows=0;
     const note=(code,index)=>{const prior=first.get(code);if(prior===undefined||index<prior)first.set(code,index);};
-    fleet.scan(state,LIVE_FIELDS,(asset,index)=>{
+    const inspect=(asset,index)=>{
       logicalRows++;
       const mode=modeOf(asset),explicitOwner=ownerOf(asset),owner=explicitOwner||String(context.legacyOwners[mode]||'')||mode;
       if(!String(asset.baseFacility||'').trim())note('asset-shape',index);
@@ -156,7 +156,43 @@
         let users=routeUsersAll.get(asset.routeId);if(!users){users={users:0,stable:0,firstIndex:index,firstMode:mode};routeUsersAll.set(asset.routeId,users);}users.users++;if(!(asset.phase==='moving'&&asset.releaseExclusiveRouteOnArrival===true))users.stable++;
         const route=context.routes.get(asset.routeId);if(route&&(route.mode!==mode||route.owner!==owner))note('asset-route-company',index);
       }
-    });
+    };
+    const STORE=globalThis.GH_FLEET_STORE,store=fleet.storeOf?.(state);
+    if(!STORE?.isStore?.(store)||typeof globalThis.GH_FLEET_EVENTS?.boundedLiveDerive!=='function'||globalThis.GH_FLEET_EVENTS.derive!==globalThis.GH_FLEET_EVENTS.boundedLiveDerive)fleet.scan(state,LIVE_FIELDS,inspect);
+    else{
+      // Ordinary numeric slots that are already inside these intervals stay inside them under Events.derive:
+      // progress clamps to [0,1], fuel to [4,100], condition to [55,100], and idle/turnaround retain the slots.
+      // Anything exceptional or outside the intervals still uses the exact time-derived reference projection.
+      // This cache lasts only this synchronous query. No gameplay bookkeeping or trust in raw-write versions is added.
+      const v=STORE.views(store),W=v.u32,F=v.f64,U=v.u8,V=store.values,O=STORE.O,B=STORE.HOT_BIT,t=Math.max(0,Number(state.simSeconds)||0),groups=new Array(8192);
+      let last=null,groupCount=0;
+      for(let index=0;index<store.length;index++){
+        const at=index*128,flags=U[at+O.flags];if(!(flags&STORE.ALIVE))continue;
+        const w=index*32,f=index*16,p=W[w+O.present],progress=p&B.progress?F[f+O.progress]:0,fuel=p&B.fuel?F[f+O.fuel]:100,condition=p&B.condition?F[f+O.condition]:100;
+        const routeRef=p&B.routeId?W[w+O.routeId]:-1,baseRef=p&B.baseFacility?W[w+O.baseFacility]:-1,phaseRef=p&B.phase?W[w+O.phase]:-1,profileRef=W[w+O.profile],release=p&B.releaseExclusiveRouteOnArrival?U[at+O.releaseExclusiveRouteOnArrival]===1:undefined;
+        const routeId=routeRef<0?undefined:routeRef===0?null:V[routeRef],phaseValue=phaseRef<0?undefined:phaseRef===0?null:V[phaseRef],phase=phaseValue|| (routeId?'moving':'idle'),binding=V[W[w+O.binding]],carry=p&B.simCarrySeconds?F[f+O.simCarrySeconds]:0;
+        if(groupCount>=4096||flags&STORE.EXTRAS||!(progress>=0&&progress<=1&&fuel>=0&&fuel<=100&&condition>=0&&condition<=100)||routeId&&phase!=='idle'&&t>F[f+O.at]-Math.max(0,Number.isFinite(carry)?carry:0)&&(!binding||typeof binding.tripSeconds!=='number'||!binding.tripSeconds)){
+          fleet.scan(state,LIVE_FIELDS,inspect,{from:index,to:index+1});continue;
+        }
+        logicalRows++;
+        let group=last;
+        if(!group||group.profileRef!==profileRef||group.routeRef!==routeRef||group.baseRef!==baseRef||group.phaseRef!==phaseRef||group.release!==release){
+          // A bounded query-local table, with full tuple equality after hashing. Collisions never reuse evidence.
+          let slot=(Math.imul(profileRef,0x9e3779b1)^Math.imul(routeRef,0x85ebca6b)^Math.imul(baseRef,0xc2b2ae35)^Math.imul(phaseRef,0x27d4eb2f)^(release===undefined?2:release?1:0))&8191,probes=0;
+          for(;;){group=groups[slot];if(!group||group.profileRef===profileRef&&group.routeRef===routeRef&&group.baseRef===baseRef&&group.phaseRef===phaseRef&&group.release===release)break;if(++probes===16)break;slot=(slot+1)&8191;}
+          if(probes===16){logicalRows--;fleet.scan(state,LIVE_FIELDS,inspect,{from:index,to:index+1});continue;}
+          if(!group){
+            const value=V[profileRef],profile=value&&typeof value==='object'?value:null,asset={assetMode:profile?.assetMode,type:profile?.type,ownerCompanyId:profile?.ownerCompanyId,companyId:undefined,baseFacility:baseRef<0?undefined:baseRef===0?null:V[baseRef],phase,progress:0,fuel:100,condition:100,routeId,releaseExclusiveRouteOnArrival:release};
+            // Apply categorical predicates once at their first row, but numeric predicates stay exact for every row.
+            const before=logicalRows;inspect(asset,index);logicalRows=before;
+            const users=routeId?routeUsersAll.get(routeId):null;
+            group={profileRef,routeRef,baseRef,phaseRef,release,users,stable:!(phase==='moving'&&release===true),first:index};groups[slot]=group;groupCount++;
+          }
+          last=group;
+        }
+        if(group.first!==index&&group.users){group.users.users++;if(group.stable)group.users.stable++;}
+      }
+    }
     const companyErrors=[],companyErrorSet=new Set();let companyErrorsOverflow=false;
     for(const table of staticTables(state,fleet,context)){
       for(const [code,index] of table.codes)note(code,index);

@@ -1,0 +1,1120 @@
+{
+  "title": "تتبع صارم لثقل الأوامر وإزالة تكرار تجهيز المستندات",
+  "recorded_at_utc": "2026-10-18T01:17:52.952781+00:00",
+  "status": "LOCAL_TARGETED_PASS_DEVICE_AND_NATIVE_PENDING",
+  "source": {
+    "head": "3abf65706629ed59718cc178b990205617d886e7",
+    "branch": "claude/madar-ventora-handover-3.0.0-stg723",
+    "runtime_sha256": "a852d12417b8325181e5b6de9b1fda9deb2334d92944b3f9a288b0108bf6b3d6",
+    "webapp_sha256": "687f9666c58d16bbf01a6e219b67f0002092ab082b6a6637c9e20ffad162224e",
+    "baseline_runtime_sha256": "e0452350fe4ee49c962b4e9892b34365785ce6d378ba6d4db88c8a92c42d7ed8",
+    "baseline": "/workspace/scratch/strict-trace-20261018/baseline",
+    "existing_work_preserved": true,
+    "production_js_changed_this_batch": [
+      "authorization-core.js",
+      "document-proof-core.js"
+    ],
+    "uncommitted": true
+  },
+  "trace_findings": [
+    "أظهر أخذ عينات CPU أن إعادة بناء النص القانوني للمستند وفرز مفاتيحه واستدعاءات ترميزها كانت أكبر من حساب SHA-256 وحده في دفعة الشيكات النموذجية. ملفات profiler تتضمن كلفة الأداة ولا تُستخدم كقياس زمن اللعبة.",
+    "كان تعديل المستند يعيد ترميز المادة قبل التعديل وبعده، ثم يعيد تجهيز مادة ما بعد التعديل مرة أخرى عند إنشاء الإثبات الجديد.",
+    "تجهيز القائمة القانونية لأسماء الحقول كان يعيد ترتيبها وتهيئة كل مفتاح على حدة، رغم تكرار البنية. القيم نفسها يجب أن تبقى مقروءة ومتحققة في كل استدعاء.",
+    "تتبع أزرار الواجهة أكد فصل النسخ والفحص والحفظ وACK والنشر. حُجز ACK عمدًا لاختبار السببية: لم تُنشر الأرصدة أو المستندات أو الإثباتات أو التراخيص قبل وصوله.",
+    "التقاط CPU للمتصفح أظهر أيضًا كلفة في openDrawer والنسخ والترميز وإعداد العرض. العينة تشمل عدة إجراءات ومراقبة الاختبار؛ لا تُحوَّل إلى زمن خاص بالآيفون أو إلى سبب وحيد لكل تقطيع."
+  ],
+  "fixes": [
+    {
+      "file": "WebApp/authorization-core.js",
+      "change": "إعادة استخدام ترتيب أسماء الحقول وصيغتها النصية ضمن فهرس محدود، واستبدال map لكل خاصية بحلقة مباشرة. مفتاح الفهرس هو النص الكامل لقائمة الأسماء، دون احتمال اصطدام بصمة.",
+      "preserved": "قراءة القيم من جديد، ترتيب المفاتيح النصي، معالجة الأرقام و-0، التحقق من الأنواع والدورات، ترتيب قراءة getters، ونفس النص القانوني حرفيًا. لا تخزين لقرار تحقق أو قيمة مستند.",
+      "fallbacks": "البنى فوق 128 خاصية أو أسماء تتجاوز 2048 وحدة خام أو مفتاح فهرسة فوق 8192 وحدة لا تُحتفظ بها. تُحذف الخطط القديمة عند بلوغ الميزانية، ويُمسح الفهرس عند تغير دالة JSON.stringify."
+    },
+    {
+      "file": "WebApp/document-proof-core.js",
+      "change": "إرجاع النص القانوني الذي حُسب بالفعل من خطوة تجهيز المادة، وإعادة استخدام لقطة المادة المفحوصة بعد التعديل داخل الاستدعاء المتزامن نفسه.",
+      "preserved": "كل فحوص المستند السابق والتوقيع وسلسلة الإثبات والتلاعب والحجم والعمق وهوية المستند والشركة باقية. الدالة العامة signedContent لا تقبل شهادة لتجاوز التجهيز؛ إعادة الاستخدام خاصة بالمالك فقط.",
+      "fallbacks": "الخصائص المحسوبة في المستند أو العناصر المتداخلة أو المصفوفة تُبقي التجهيز الجديد. لا إعادة استخدام عبر yield أو بين الأوامر. يبقى الرجوع بعد الإلغاء والخطأ وبعد نقل سجل إلى الأرشيف مطابقًا."
+    }
+  ],
+  "measurements": {
+    "environment": "Linux / Node v24.19.0; قياسات متسلسلة غير مسجلة بالـprofiler. المقارنة أربع عمليات مستقلة لكل مصدر، وترتيب المصادر يتبادل بين الجولات. ثلاث عينات دافئة لكل عملية: 12 عينة لكل مصدر.",
+    "scope": "تنفيذ نواة 80 إصدار شيك ثم 80 صرفًا، على نفس حالة QA. لا يشمل النسخ أو التحقق النهائي أو انتظار الرسم أو نقل Native أو القرص أو العرض. هذا ليس قياس مليون أصل مع إيرادات كل الشركات.",
+    "primary": {
+      "before": {
+        "samples": 12,
+        "warm_median_ms": 145.83623599999993,
+        "warm_range_ms": [
+          138.8179389999999,
+          161.39899400000002
+        ],
+        "first_batch_ms": [
+          183.77234599999997,
+          163.972155,
+          154.17348900000002,
+          154.471718
+        ],
+        "finance_sha256": [
+          "5e7f405f0de6c0ecdd57be722298a59226c465c00601d0f9b5d90b3d4075d5e8"
+        ]
+      },
+      "after": {
+        "samples": 12,
+        "warm_median_ms": 122.45729399999993,
+        "warm_range_ms": [
+          116.53562199999999,
+          138.05938700000002
+        ],
+        "first_batch_ms": [
+          138.85243100000002,
+          131.87564799999998,
+          130.672588,
+          161.45017299999998
+        ],
+        "finance_sha256": [
+          "5e7f405f0de6c0ecdd57be722298a59226c465c00601d0f9b5d90b3d4075d5e8"
+        ]
+      }
+    },
+    "median_reduction_pct": 16.03095543414875,
+    "initial_three_sample_comparison": {
+      "before": {
+        "source": "/workspace/scratch/strict-trace-20261018/baseline",
+        "mode": "settlement",
+        "issues": 80,
+        "settlements": 80,
+        "cold": {
+          "issueMs": 62.16556000000003,
+          "cashMs": 97.179349,
+          "totalMs": 160.28906
+        },
+        "warm": [
+          {
+            "issueMs": 62.38656999999995,
+            "cashMs": 102.59705700000006,
+            "totalMs": 165.39855699999998
+          },
+          {
+            "issueMs": 58.28698099999997,
+            "cashMs": 92.61274300000002,
+            "totalMs": 151.32306499999993
+          },
+          {
+            "issueMs": 64.27781399999992,
+            "cashMs": 99.71454800000004,
+            "totalMs": 164.4304860000001
+          }
+        ],
+        "exactAcrossRuns": true,
+        "financialSha256": "5e7f405f0de6c0ecdd57be722298a59226c465c00601d0f9b5d90b3d4075d5e8",
+        "scope": "core apply only; no UI yields, native ACK, schema, clone or publication"
+      },
+      "after": {
+        "source": "/workspace/madar",
+        "mode": "settlement",
+        "issues": 80,
+        "settlements": 80,
+        "cold": {
+          "issueMs": 53.664525999999995,
+          "cashMs": 78.46441599999997,
+          "totalMs": 132.91569600000003
+        },
+        "warm": [
+          {
+            "issueMs": 49.01433500000002,
+            "cashMs": 80.14693700000004,
+            "totalMs": 129.59916499999997
+          },
+          {
+            "issueMs": 44.87027899999998,
+            "cashMs": 72.10983899999997,
+            "totalMs": 117.41074200000003
+          },
+          {
+            "issueMs": 46.25332400000002,
+            "cashMs": 76.91143699999998,
+            "totalMs": 123.57657499999993
+          }
+        ],
+        "exactAcrossRuns": true,
+        "financialSha256": "5e7f405f0de6c0ecdd57be722298a59226c465c00601d0f9b5d90b3d4075d5e8",
+        "scope": "core apply only; no UI yields, native ACK, schema, clone or publication"
+      },
+      "note": "كانت المقارنة الأولى 164.4 إلى 123.6 مللي ثانية؛ اعتمد التقرير المقارنة الموسعة 145.8 إلى 122.5، لا أفضل عينة."
+    },
+    "other_scopes": {
+      "validation_before": {
+        "source": "/workspace/scratch/strict-trace-20261018/baseline",
+        "mode": "validation",
+        "rows": 1000000,
+        "routes": 859,
+        "warmMs": [
+          45.65862900000002,
+          28.434968000000026,
+          28.16899099999955
+        ],
+        "referenceMs": 1452.4095029999999,
+        "exact": true
+      },
+      "validation_after": {
+        "source": "/workspace/madar",
+        "mode": "validation",
+        "rows": 1000000,
+        "routes": 859,
+        "warmMs": [
+          38.48938399999997,
+          30.198847999999998,
+          29.070474999999988
+        ],
+        "referenceMs": 1430.43838,
+        "exact": true
+      },
+      "clone_before": {
+        "source": "/workspace/scratch/strict-trace-20261018/baseline",
+        "mode": "clone",
+        "vehicles": 3000,
+        "sealedPoints": 5000,
+        "extraGeometryCopies": 0,
+        "warmMs": [
+          0.9137139999999988,
+          4.356253000000002,
+          0.9094479999999976
+        ],
+        "mutableIsolation": true
+      },
+      "clone_after": {
+        "source": "/workspace/madar",
+        "mode": "clone",
+        "vehicles": 3000,
+        "sealedPoints": 5000,
+        "extraGeometryCopies": 0,
+        "warmMs": [
+          1.0201119999999975,
+          1.4585469999999958,
+          0.8234089999999981
+        ],
+        "mutableIsolation": true
+      },
+      "value_save_paired": {
+        "before": {
+          "samples": 12,
+          "warm_median_ms": 16.76005099999999,
+          "warm_range_ms": [
+            14.850014999999985,
+            21.373053999999996
+          ],
+          "first_batch_ms": [
+            36.325039,
+            39.698654000000005,
+            33.997805,
+            36.167154000000004
+          ],
+          "changed_ms": [
+            17.516163999999975,
+            15.448837999999995,
+            17.263113000000004,
+            16.001664000000005
+          ]
+        },
+        "after": {
+          "samples": 12,
+          "warm_median_ms": 17.1145245,
+          "warm_range_ms": [
+            14.940290000000005,
+            23.333247
+          ],
+          "first_batch_ms": [
+            42.114729999999994,
+            35.450934,
+            33.505401000000006,
+            39.168544000000004
+          ],
+          "changed_ms": [
+            16.561489999999992,
+            15.428337999999997,
+            17.390071999999975,
+            17.177870000000013
+          ]
+        }
+      },
+      "note": "لم يتغير تنفيذ الفحص أو النسخ أو الترميز في هذه الدفعة. تغيرات التوقيت الصغيرة ومدياتها المتداخلة لا تُعد تحسنًا جديدًا. عينة تغيير جدول القيم ارتفعت أولًا إلى 26.1 مقابل 16.9 مللي ثانية؛ تكرار المقارنة أعطى نطاقات متداخلة تقريبًا 15.4–17.5 مللي ثانية للمصدرين. لا نُخفي العينة أو ننسبها لإصلاح لم يلمس الترميز."
+    },
+    "work_counts": {
+      "same_32_field_shape_50_calls": {
+        "individual_key_json_calls_before": 1600,
+        "individual_key_json_calls_after": 32,
+        "additional_key_list_json_calls_after": 50,
+        "note": "الفهرس ما زال يرمز قائمة الأسماء كاملة لتحديد البنية؛ العدد 32 ليس ادعاء أن كل عمل التهيئة صار مرة واحدة."
+      },
+      "amendment_and_followup_verification": {
+        "before": 8,
+        "after": 5
+      },
+      "issue_button_12_payables": {
+        "before": 144,
+        "after": 108
+      },
+      "cash_button_12_cheques_after_retry": {
+        "before": 240,
+        "after_latest": 168,
+        "other_current_samples": [
+          168,
+          180
+        ]
+      },
+      "main_thread_generic_live_fleet_rows_in_worker_ready_fixture": 0
+    },
+    "reproduce": [
+      "GH_TEST_SOURCE_DIR=<source> node tools/measure_command_costs.cjs settlement",
+      "GH_TEST_SOURCE_DIR=<source> node tools/measure_command_costs.cjs validation",
+      "GH_TEST_SOURCE_DIR=<source> node tools/measure_command_costs.cjs clone",
+      "GH_TEST_SOURCE_DIR=<source> node tools/measure_command_costs.cjs values",
+      "GH_TRACE_PROFILE_PATH=/tmp/command.cpuprofile node tools/trace_command_costs.cjs",
+      "GH_TRACE_PROFILE_DIR=/tmp PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 node tests/build418-command-phase-trace-browser.cjs"
+    ]
+  },
+  "new_load": {
+    "timers_added": false,
+    "continuous_monitor_added": false,
+    "per_frame_hook_added": false,
+    "stable_plan_entries_max": 128,
+    "stable_plan_text_units_max": 262144,
+    "stable_plan_text_storage_max_kib_approx": 512,
+    "memory_limit_note": "حد النصوص فقط؛ Map والمصفوفات والمراجع لها كلفة إضافية لم تُقَس على الآيفون. الفهرس يحفظ أسماء حقول فقط. مخزن قيم الأسطول السابق منفصل ويظل بحده السابق.",
+    "cpu": "يوجد ترميز لقائمة المفاتيح عند استدعاء الترخيص القائم، وفحص واصفات الخصائص عند إعادة استخدام مادة تعديل مستند. صافي الزمن انخفض في المقارنة المحددة؛ لا ادعاء بصفر CPU أو صفر ذاكرة أو عدم تذبذب أول دفعة."
+  },
+  "tests": {
+    "scripts_passed": 28,
+    "source_tree_sha256": "a852d12417b8325181e5b6de9b1fda9deb2334d92944b3f9a288b0108bf6b3d6",
+    "new_scripts": 3,
+    "canonical": {
+      "suite": "build416-canonical-preparation",
+      "ok": true,
+      "results": [
+        {
+          "name": "seeded exact canonical bytes",
+          "cases": 1200
+        },
+        {
+          "name": "independent SHA-256 preserves canonical data and raw-string digest contracts",
+          "vectors": 100
+        },
+        {
+          "name": "unsupported values, numeric keys, cycles and aliases retain exact results",
+          "ok": true
+        },
+        {
+          "name": "cached property names never reuse document values",
+          "edits": 100
+        },
+        {
+          "name": "getter order and inherited toJSON semantics unchanged",
+          "ok": true
+        },
+        {
+          "name": "bounded property plans eliminate repeated quoting and safely fall back or evict",
+          "reused": 32,
+          "wideQuotes": 258,
+          "evicted": 1,
+          "longQuotes": 2
+        },
+        {
+          "name": "JSON implementation replacement invalidates property plans",
+          "ok": true
+        },
+        {
+          "name": "character budget evicts large name plans before the entry cap",
+          "requotes": 4
+        }
+      ]
+    },
+    "amendment": {
+      "suite": "build417-document-amendment-work",
+      "ok": true,
+      "results": [
+        {
+          "name": "exact document, ancestor, proof sequence, result and verification with less work",
+          "beforeMaterialSerializations": 8,
+          "afterMaterialSerializations": 5
+        },
+        {
+          "name": "every registered document type keeps exact signed bytes and proof links",
+          "types": 32
+        },
+        {
+          "name": "cancel, async, no change, identity edits, bad material, size and depth fail with exact rollback",
+          "cases": 11
+        },
+        {
+          "name": "tampering fails before amendment and preserves exact state",
+          "cases": 6
+        },
+        {
+          "name": "top, nested object and array accessors conservatively keep original source reads",
+          "cases": 3
+        },
+        {
+          "name": "five successive amendments retain exact whole ancestors and chain",
+          "ok": true
+        },
+        {
+          "name": "full admission window keeps the archived predecessor and exact superseded record",
+          "hotBefore": 5000,
+          "archived": 200
+        },
+        {
+          "name": "failure after admission restores both maps, sequence and document exactly",
+          "ok": true
+        }
+      ]
+    },
+    "phase_trace": {
+      "suite": "build418-command-phase-trace-browser",
+      "ok": true,
+      "results": [
+        {
+          "engine": "chromium",
+          "case": "issue button trace and held ACK",
+          "events": [
+            {
+              "name": "clone.begin",
+              "at": 2599.300000000745
+            },
+            {
+              "name": "clone.end",
+              "at": 2600.4000000003725
+            },
+            {
+              "name": "validate.begin",
+              "at": 2676.5
+            },
+            {
+              "name": "validate.end",
+              "at": 2684.0999999996275
+            },
+            {
+              "name": "save.begin",
+              "at": 2684.4000000003725
+            },
+            {
+              "name": "ack.ok",
+              "at": 2737.5999999996275
+            },
+            {
+              "name": "save.end",
+              "at": 2737.699999999255
+            },
+            {
+              "name": "publish.begin",
+              "at": 2737.699999999255
+            },
+            {
+              "name": "publish.end",
+              "at": 2738.5
+            }
+          ],
+          "mainLiveRows": 0,
+          "materialSerializations": 108,
+          "timing": {
+            "name": "authorized:settle-all-payables:cheque",
+            "cloneMs": 1.2,
+            "prepareMs": 0.1,
+            "baselineIntegrityMs": 0.4,
+            "applyMs": 61.7,
+            "validateMs": 7.6,
+            "integrityMs": 0.3,
+            "prestageWaitMs": 0,
+            "persistMs": 53.3,
+            "publishMs": 1.1,
+            "afterMs": 14.4,
+            "totalMs": 154,
+            "committed": true,
+            "cloneBusyMs": 1.1,
+            "cloneMaxSliceMs": 1.1,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 43975,
+            "prestageWallMs": 11.7
+          }
+        },
+        {
+          "engine": "chromium",
+          "case": "cash refusal retains every account, document, proof and authorization",
+          "exactRollback": true,
+          "attempts": 1
+        },
+        {
+          "engine": "chromium",
+          "case": "cash retry commits one exact payment after successful ACK",
+          "attempts": 1,
+          "materialSerializations": 168,
+          "timing": {
+            "name": "authorized:settle-all-cheques",
+            "cloneMs": 1.1,
+            "prepareMs": 0.2,
+            "baselineIntegrityMs": 0.4,
+            "applyMs": 81.7,
+            "validateMs": 8.2,
+            "integrityMs": 0.3,
+            "prestageWaitMs": 0,
+            "persistMs": 45.7,
+            "publishMs": 1.3,
+            "afterMs": 38,
+            "totalMs": 196.5,
+            "committed": true,
+            "cloneBusyMs": 1.1,
+            "cloneMaxSliceMs": 1.1,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 69950,
+            "prestageWallMs": 11.2
+          }
+        },
+        {
+          "engine": "chromium",
+          "case": "cancel stops before persistence and publication",
+          "attempts": 0
+        },
+        {
+          "engine": "webkit",
+          "case": "issue button trace and held ACK",
+          "events": [
+            {
+              "name": "clone.begin",
+              "at": 3816.0000000000005
+            },
+            {
+              "name": "clone.end",
+              "at": 3818
+            },
+            {
+              "name": "validate.begin",
+              "at": 4011
+            },
+            {
+              "name": "validate.end",
+              "at": 4030.9999999999995
+            },
+            {
+              "name": "save.begin",
+              "at": 4032
+            },
+            {
+              "name": "ack.ok",
+              "at": 4094.0000000000005
+            },
+            {
+              "name": "save.end",
+              "at": 4094.0000000000005
+            },
+            {
+              "name": "publish.begin",
+              "at": 4094.0000000000005
+            },
+            {
+              "name": "publish.end",
+              "at": 4096
+            }
+          ],
+          "mainLiveRows": 0,
+          "materialSerializations": 108,
+          "timing": {
+            "name": "authorized:settle-all-payables:cheque",
+            "cloneMs": 2,
+            "prepareMs": 0,
+            "baselineIntegrityMs": 1,
+            "applyMs": 173,
+            "validateMs": 21,
+            "integrityMs": 1,
+            "prestageWaitMs": 0,
+            "persistMs": 62,
+            "publishMs": 2,
+            "afterMs": 9,
+            "totalMs": 289,
+            "committed": true,
+            "cloneBusyMs": 2,
+            "cloneMaxSliceMs": 2,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 43975,
+            "prestageWallMs": 39
+          }
+        },
+        {
+          "engine": "webkit",
+          "case": "cash refusal retains every account, document, proof and authorization",
+          "exactRollback": true,
+          "attempts": 1
+        },
+        {
+          "engine": "webkit",
+          "case": "cash retry commits one exact payment after successful ACK",
+          "attempts": 1,
+          "materialSerializations": 168,
+          "timing": {
+            "name": "authorized:settle-all-cheques",
+            "cloneMs": 2,
+            "prepareMs": 0,
+            "baselineIntegrityMs": 1,
+            "applyMs": 125,
+            "validateMs": 15,
+            "integrityMs": 1,
+            "prestageWaitMs": 0,
+            "persistMs": 59,
+            "publishMs": 2,
+            "afterMs": 60,
+            "totalMs": 279,
+            "committed": true,
+            "cloneBusyMs": 2,
+            "cloneMaxSliceMs": 2,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 69950,
+            "prestageWallMs": 17
+          }
+        },
+        {
+          "engine": "webkit",
+          "case": "cancel stops before persistence and publication",
+          "attempts": 0
+        }
+      ]
+    },
+    "phase_trace_before": {
+      "suite": "build418-command-phase-trace-browser",
+      "ok": true,
+      "results": [
+        {
+          "engine": "chromium",
+          "case": "issue button trace and held ACK",
+          "events": [
+            {
+              "name": "clone.begin",
+              "at": 1819.1000000014901
+            },
+            {
+              "name": "clone.end",
+              "at": 1820.300000000745
+            },
+            {
+              "name": "validate.begin",
+              "at": 1877.1000000014901
+            },
+            {
+              "name": "validate.end",
+              "at": 1885.2000000011176
+            },
+            {
+              "name": "save.begin",
+              "at": 1893.7000000011176
+            },
+            {
+              "name": "ack.ok",
+              "at": 1930.7000000011176
+            },
+            {
+              "name": "save.end",
+              "at": 1930.800000000745
+            },
+            {
+              "name": "publish.begin",
+              "at": 1930.800000000745
+            },
+            {
+              "name": "publish.end",
+              "at": 1931.6000000014901
+            }
+          ],
+          "mainLiveRows": 0,
+          "materialSerializations": 144,
+          "timing": {
+            "name": "authorized:settle-all-payables:cheque",
+            "cloneMs": 1.3,
+            "prepareMs": 0.2,
+            "baselineIntegrityMs": 0.3,
+            "applyMs": 43.7,
+            "validateMs": 8.1,
+            "integrityMs": 0.4,
+            "prestageWaitMs": 0,
+            "persistMs": 37.1,
+            "publishMs": 1,
+            "afterMs": 11.7,
+            "totalMs": 124.5,
+            "committed": true,
+            "cloneBusyMs": 1.2,
+            "cloneMaxSliceMs": 1.2,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 43975,
+            "prestageWallMs": 12.3
+          }
+        },
+        {
+          "engine": "chromium",
+          "case": "cash refusal retains every account, document, proof and authorization",
+          "exactRollback": true,
+          "attempts": 1
+        },
+        {
+          "engine": "chromium",
+          "case": "cash retry commits one exact payment after successful ACK",
+          "attempts": 1,
+          "materialSerializations": 240,
+          "timing": {
+            "name": "authorized:settle-all-cheques",
+            "cloneMs": 1.4,
+            "prepareMs": 0.2,
+            "baselineIntegrityMs": 0.4,
+            "applyMs": 64,
+            "validateMs": 8.2,
+            "integrityMs": 0.3,
+            "prestageWaitMs": 0,
+            "persistMs": 39.7,
+            "publishMs": 1.6,
+            "afterMs": 36.1,
+            "totalMs": 174,
+            "committed": true,
+            "cloneBusyMs": 1.2,
+            "cloneMaxSliceMs": 1.2,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 69950,
+            "prestageWallMs": 10.8
+          }
+        },
+        {
+          "engine": "chromium",
+          "case": "cancel stops before persistence and publication",
+          "attempts": 0
+        },
+        {
+          "engine": "webkit",
+          "case": "issue button trace and held ACK",
+          "events": [
+            {
+              "name": "clone.begin",
+              "at": 3191.0000000000005
+            },
+            {
+              "name": "clone.end",
+              "at": 3193
+            },
+            {
+              "name": "validate.begin",
+              "at": 3321
+            },
+            {
+              "name": "validate.end",
+              "at": 3357
+            },
+            {
+              "name": "save.begin",
+              "at": 3372
+            },
+            {
+              "name": "ack.ok",
+              "at": 3492
+            },
+            {
+              "name": "save.end",
+              "at": 3492
+            },
+            {
+              "name": "publish.begin",
+              "at": 3493
+            },
+            {
+              "name": "publish.end",
+              "at": 3495
+            }
+          ],
+          "mainLiveRows": 0,
+          "materialSerializations": 144,
+          "timing": {
+            "name": "authorized:settle-all-payables:cheque",
+            "cloneMs": 2,
+            "prepareMs": 0,
+            "baselineIntegrityMs": 1,
+            "applyMs": 108,
+            "validateMs": 36,
+            "integrityMs": 1,
+            "prestageWaitMs": 14,
+            "persistMs": 120,
+            "publishMs": 3,
+            "afterMs": 11,
+            "totalMs": 315,
+            "committed": true,
+            "cloneBusyMs": 2,
+            "cloneMaxSliceMs": 2,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 43975,
+            "prestageWallMs": 69
+          }
+        },
+        {
+          "engine": "webkit",
+          "case": "cash refusal retains every account, document, proof and authorization",
+          "exactRollback": true,
+          "attempts": 1
+        },
+        {
+          "engine": "webkit",
+          "case": "cash retry commits one exact payment after successful ACK",
+          "attempts": 1,
+          "materialSerializations": 240,
+          "timing": {
+            "name": "authorized:settle-all-cheques",
+            "cloneMs": 2,
+            "prepareMs": 0,
+            "baselineIntegrityMs": 1,
+            "applyMs": 139,
+            "validateMs": 12,
+            "integrityMs": 0,
+            "prestageWaitMs": 0,
+            "persistMs": 52,
+            "publishMs": 1,
+            "afterMs": 77,
+            "totalMs": 301,
+            "committed": true,
+            "cloneBusyMs": 2,
+            "cloneMaxSliceMs": 2,
+            "cloneYields": 0,
+            "prestageOk": true,
+            "prestageUploads": 1,
+            "prestageBytes": 69950,
+            "prestageWallMs": 21
+          }
+        },
+        {
+          "engine": "webkit",
+          "case": "cancel stops before persistence and publication",
+          "attempts": 0
+        }
+      ]
+    },
+    "old_source_red_proofs": [
+      {
+        "test": "build416-canonical-preparation.cjs",
+        "old_source_exit_code": 1,
+        "behavior_assertion_failed": true
+      },
+      {
+        "test": "build417-document-amendment-work.cjs",
+        "old_source_exit_code": 1,
+        "behavior_assertion_failed": true
+      },
+      {
+        "test": "build418-command-phase-trace-browser.cjs",
+        "old_source_exit_code": 1,
+        "behavior_assertion_failed": true
+      }
+    ],
+    "commands": [
+      {
+        "argv": [
+          "node",
+          "tests/build416-canonical-preparation.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.064,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build416-canonical-preparation.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build417-document-amendment-work.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.264,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build417-document-amendment-work.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build414-command-preparation.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.619,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build414-command-preparation.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-document-proof-v3-security.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.064,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build334-document-proof-v3-security.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-document-seal.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 1.676,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build359-document-seal.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-archived-proofs.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 1.972,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build359-archived-proofs.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-proof-checkpoints.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 1.518,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build359-proof-checkpoints.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build350-proof-ledger-persistence.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.214,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build350-proof-ledger-persistence.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build372-proof-worker.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.665,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build372-proof-worker.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-durable-authorization-contract.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.114,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build334-durable-authorization-contract.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-finance-settlement-contract.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.064,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build334-finance-settlement-contract.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-sealed-flows.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.214,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build359-sealed-flows.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build340-durable-draft-restore.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.616,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build340-durable-draft-restore.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build412-live-validation-predicates.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.515,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build412-live-validation-predicates.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build413-fleet-value-chunks.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.516,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build413-fleet-value-chunks.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build410-fleet-save-row-patches.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.766,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build410-fleet-save-row-patches.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/fleet-business-boundary.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.064,
+        "log": "/workspace/scratch/strict-trace-20261018/final-fleet-business-boundary.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build418-command-phase-trace-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 9.39,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build418-command-phase-trace-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build411-command-row-patch-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 19.763,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build411-command-row-patch-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build358-bulk-payables-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 8.214,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build358-bulk-payables-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build415-route-publication-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 4.149,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build415-route-publication-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-sliced-save-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 3.737,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build359-sliced-save-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build372-proof-worker-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 3.884,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build372-proof-worker-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build372-save-validation-worker-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 6.763,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build372-save-validation-worker-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build387-save-once-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 23.947,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build387-save-once-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build389-differential-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 7.616,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build389-differential-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build405-worker-close-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 6.886,
+        "log": "/workspace/scratch/strict-trace-20261018/final-build405-worker-close-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "python3",
+          "tests/acceptance-policy.py"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "browser_fixture": {
+      "companies_open": 11,
+      "fleet_rows": 2112,
+      "viewport": [
+        956,
+        440
+      ],
+      "engines": [
+        "Chromium",
+        "WebKit"
+      ],
+      "real_fleet_worker": true,
+      "native_vault_is_protocol_double": true,
+      "all_company_revenues_at_million_rows_tested": false
+    },
+    "key_failure_coverage": [
+      "رفض التلاعب بالمال أو مادة المستند أو هوية مصدره وبصمته",
+      "الإلغاء، والتعديل غير المتزامن، وعدم تغير المادة، وتجاوز الحجم أو العمق",
+      "نافذة 5000 سجل ونقل 200 إلى الأرشيف ثم المحافظة على سجل السلف الكامل",
+      "فشل بعد نقل الأرشيف بسبب نفاد التسلسل: إعادة الخرائط والتسلسل والمستند كاملة",
+      "حجز ACK: لا نشر قبله؛ NACK: رجوع الحسابات والمستندات والإثباتات والتراخيص؛ إعادة المحاولة: أثر واحد",
+      "إلغاء قبل الحفظ: صفر محاولة حفظ وصفر نشر",
+      "البنى الواسعة وأسماء الحقول الكبيرة وتجاوز حد النصوص وتبدل JSON وتغير قيم المستند بين الاستدعاءات"
+    ],
+    "full_suite_run": false,
+    "native_compiled": false,
+    "physical_iphone_tested": false
+  },
+  "acceptance": {
+    "declared_source_gates": 447,
+    "declared_preflight_commands": 49,
+    "full_execution": false,
+    "approved": false
+  },
+  "remaining": [
+    "لا يزال تنفيذ الدفعة نحو 122.5 مللي ثانية محليًا، وليس صفرًا. الحساب والتوقيع وإنشاء القيود والمستندات الفردية عمل حقيقي.",
+    "فحص مليون أصل ما زال نحو 28–30 مللي ثانية في العينات الدافئة المحلية؛ وجوده في العامل بالمسار المختبر يمنع المسح العام من حجب الخيط الرئيسي ولا يجعل عمل الفحص صفرًا.",
+    "تأكيد الحفظ والقرص الأصليان لم يُقاسا بهذا المصدر. زمن ACK السابق 119–198 مللي ثانية يعود إلى البناء المنشور القديم، وهو ضمن زمن الحفظ لا يُجمع معه مرة ثانية.",
+    "الحفظ الأول، والتسطيح عند بلوغ حد سلسلة الصفوف، وبعض حالات الرجوع قد تحتاج صفحات كاملة. لا تغيير إضافي في هذه السياسات بهذه الدفعة.",
+    "نسخ الحالة القابلة للتعديل والنشر وتجهيز واجهة المستندات ما زالت موجودة. لم تُحذف المحافظة على مراجع المستهلكين أو فحوص المستندات مقابل سرعة شكلية.",
+    "تبقى مطابقة الأداء على الآيفون بعد بناء المصدر: قبول الطلبات وإصدار وصرف الشيكات، والذاكرة والحرارة والإطارات. لا ضمان بانعدام التقطيع أو هدف صفر قبل ذلك."
+  ],
+  "publication": {
+    "pushed": false,
+    "ci_run": false,
+    "ipa_built": false,
+    "release_approved": false
+  }
+}

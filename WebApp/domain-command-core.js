@@ -227,6 +227,7 @@
       // it can never be published), and the player command checks integrity once against the live state before and once
       // on the draft after. Each settled payable of a bulk action copied the whole draft and checked every finance row
       // twice.
+      globalThis.GH_FINANCE_CORE?.invalidateSettlementBatch?.(state,String(domain),String(name));
       const txOptions={label:`${domain}:${name}`,apply,...(inDurableDraft&&!tx.isActive()?{discardableDraft:true}:{})},ownerScope=!tx.isActive()&&systemAuthorized&&!approvalContext&&typeof owner.transactionScope==='function'?owner.transactionScope(String(name),payload):null;
       if(Array.isArray(ownerScope?.scope)&&ownerScope.scope.length){txOptions.scope=[...new Set([...ownerScope.scope,...COMMAND_RECORD_ROOTS])];txOptions.writeRoots=txOptions.scope;txOptions.rowRoots={...COMMAND_RECORD_ROW_POLICIES,...(ownerScope.rowRoots||{})};if(globalThis.__GH_BUILD358_ENFORCE_SLICE_SCOPE__===true){txOptions.auditWrites=true;txOptions.enforceWriteRoots=true;}}
       const out=(tx.isActive()?tx.join:tx.execute)(state,txOptions);return out.value;

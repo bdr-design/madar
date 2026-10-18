@@ -1,0 +1,467 @@
+{
+  "title": "تقرير إصلاح حمل حفظ الأوامر: الصفوف المتغيرة للأسطول",
+  "date_utc": "2026-10-18T00:17:25.545284+00:00",
+  "status": "إصلاح محلي واختبارات محدودة؛ غير مرفوع ولم يُبنَ IPA لهذا المصدر",
+  "baseline_commit": "3abf65706629ed59718cc178b990205617d886e7",
+  "runtime_source_sha256": "6d1c26d849019f8fc2243c1678c81b925eba8cf67935074d691644fb0777e41d",
+  "diagnostic": {
+    "evidence_id": "DX-1792279141500-15-279-3303300",
+    "sha256": "d987d65299b97bdc4d2d64590e6dc1dd4deaa844adf85213a72d4e0a169ec33c",
+    "command_profiles": 8,
+    "command_ms_range": [
+      2861,
+      3662
+    ],
+    "validation_prestage_wait_persist_share_percent": 92.9533,
+    "note": "القياس من IPA القديم 3abf657. زمن prestage الكامل يتداخل مع التحقق ولا يُجمع مرتين."
+  },
+  "root_cause": "تعديل صفوف قليلة موزعة على صفحات الأسطول يجعل المعاملة التالية تعيد تجهيز ونقل صفحات 4 MiB كاملة. ضُغطت بيانات النقل سابقًا لكن كلفة تجهيزها وتخزينها ظلت قائمة.",
+  "implementation": [
+    "حفظ صور الصفوف المتغيرة مع إعادة استخدام صفحات الأساس الثابتة. الميزة اختيارية بإعلان GH_NATIVE_ROW_PATCHES من المضيف Native.",
+    "عامل الحركة يسلم قائمة الفهارس الموجودة بالفعل؛ لا نسخ ثان لها في هذا المسار. لا مسح شامل أو مراقبة مستمرة أو مؤقت جديد أثناء اللعب.",
+    "فحص دوّار مستقل لكل بايت في صفحة، بما فيها عدادات الصيانة والمساحة المحجوزة الصفرية، بواسطة عامل الأسطول وعامل التحقق الموجودين. تُنسخ صفحة واحدة حتى 4 MiB إلى عامل التحقق عند الحفظ.",
+    "أولوية عدادات الحركة وإقفال اليوم محفوظة برموز المقاطع الثابتة لكل صفحة؛ عند إزالة سلسلة الصفوف تُعاد أيضًا صفحات العدادات لمنع بقاء قيمة قديمة.",
+    "جميع مقاطع الصفوف مذكورة في قائمة اعتماد الحفظ المعتادة؛ مسار ACK والتوقيع وتثبيت المال مرة واحدة باقٍ.",
+    "الكتابة غير المسجلة، والرجوع، وتغير البنية، والمقاطع المفقودة، وتجاوز الحدود تعيد المسار الكامل الآمن؛ عدم تطابق الإثبات المستقل يرفض الحفظ.",
+    "عند التشغيل البارد تُرسل الصفوف المفكوكة الحالية إلى العامل على دفعات؛ لا تُستخدم صفحات أساس قديمة كبذرة مع تجاهل صور الصفوف."
+  ],
+  "zeros_proven": {
+    "eligible_full_fleet_page_uploads": 0,
+    "second_index_copies_in_actual_worker_replay": 0,
+    "unchanged_codec_checkpoint_upload_bytes": 0,
+    "duplicate_effect_and_upload_on_replayed_command": 0,
+    "raw_restore_byte_differences_in_codec_tests": 0
+  },
+  "million_asset_measurement": {
+    "scope": "اختبار معزول للترميز: مليون صف air/sea/road، وتغيير 31 صفًا، صف في كل صفحة. ليس تشغيل إيرادات جميع الشركات مع مليون أصل داخل اللعبة.",
+    "conditions": "Node 24 على جهاز التطوير، عامل checksum الحقيقي، تشغيل المقارنات بالتتابع مرتين. لا نقل Native أو ACK أو فحص Save Schema في serializationMs. إجمالي checkpoint يتضمن SHA-256 وفك كل الصفوف لأغراض الاختبار.",
+    "before": [
+      {
+        "source": "/workspace/scratch/command-root-fix-20261017/baseline",
+        "rows": 1000000,
+        "changedRows": 31,
+        "replayMs": 0.5127050000000963,
+        "trackingBatchRows": 31,
+        "trackingSamples": 0,
+        "trackingP50Ms": 0,
+        "trackingP99Ms": 0,
+        "trackingMaxMs": 0,
+        "checkpointIncludingRestoreProofMs": 252.18451800000003,
+        "serializationMs": 68.1100690000003,
+        "baseUploads": 31,
+        "uploadedBytes": 128000000,
+        "patchBytes": 0,
+        "exactRestore": true
+      },
+      {
+        "source": "/workspace/scratch/command-root-fix-20261017/baseline",
+        "rows": 1000000,
+        "changedRows": 31,
+        "replayMs": 0.5018890000001193,
+        "trackingBatchRows": 31,
+        "trackingSamples": 0,
+        "trackingP50Ms": 0,
+        "trackingP99Ms": 0,
+        "trackingMaxMs": 0,
+        "checkpointIncludingRestoreProofMs": 344.71598300000005,
+        "serializationMs": 155.77105699999993,
+        "baseUploads": 31,
+        "uploadedBytes": 128000000,
+        "patchBytes": 0,
+        "exactRestore": true
+      }
+    ],
+    "after": [
+      {
+        "source": "/workspace/madar",
+        "rows": 1000000,
+        "changedRows": 31,
+        "replayMs": 0.7930639999999585,
+        "trackingBatchRows": 31,
+        "trackingSamples": 128,
+        "trackingP50Ms": 0.000311000000237982,
+        "trackingP99Ms": 0.016384999999900174,
+        "trackingMaxMs": 0.02178299999968658,
+        "checkpointIncludingRestoreProofMs": 247.32474300000013,
+        "serializationMs": 7.870979000000261,
+        "baseUploads": 0,
+        "uploadedBytes": 4116,
+        "patchBytes": 4116,
+        "exactRestore": true
+      },
+      {
+        "source": "/workspace/madar",
+        "rows": 1000000,
+        "changedRows": 31,
+        "replayMs": 0.6216379999996207,
+        "trackingBatchRows": 31,
+        "trackingSamples": 128,
+        "trackingP50Ms": 0.00030099999958110857,
+        "trackingP99Ms": 0.01653500000020358,
+        "trackingMaxMs": 0.028021999999964464,
+        "checkpointIncludingRestoreProofMs": 170.2551779999999,
+        "serializationMs": 6.86420599999974,
+        "baseUploads": 0,
+        "uploadedBytes": 4116,
+        "patchBytes": 4116,
+        "exactRestore": true
+      }
+    ],
+    "fleet_payload_reduction_percent": 99.996784375,
+    "reproduce_current": "GH_PATCH_ROWS=1000000 node tools/measure_fleet_row_patch_save.cjs",
+    "reproduce_baseline": "GH_TEST_SOURCE_DIR=/path/to/git-archive-of-3abf657 GH_PATCH_ROWS=1000000 node tools/measure_fleet_row_patch_save.cjs"
+  },
+  "actual_app_measurement": {
+    "scope": "Chromium وWebKit، مقاس أفقي 956×440، الشركات الإحدى عشرة مفتوحة، 2400 طائرة مشتراة وموزعة عبر المسار الفعلي وعامل الحركة الحقيقي. يتضمن إصدار شيك وزر صرف الشيكات، NACK والرجوع وإعادة المحاولة وإعادة الفتح. fixture لخزنة Native وليس جهاز iPhone. elapsedMs يتضمن تحقق الاسترجاع داخل الاختبار ولا يمثل لمس المستخدم على الهاتف. إيرادات جميع الشركات لم تُضغط مع المليون في هذه الدفعة.",
+    "cases": [
+      {
+        "engine": "chromium",
+        "case": "real worker movement then financial command",
+        "rows": 2400,
+        "companies": 11,
+        "elapsedMs": 107.79999999981374,
+        "baseUploads": 0,
+        "patchUploads": 1,
+        "uploadBytes": 895352,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "booksRestored": false,
+        "headUnchanged": false,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "chromium",
+        "case": "receipt replay",
+        "elapsedMs": 8.099999999627471,
+        "baseUploads": 0,
+        "patchUploads": 0,
+        "uploadBytes": 0,
+        "attempts": 0,
+        "balanceDelta": 0,
+        "booksRestored": true,
+        "headUnchanged": true,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "chromium",
+        "case": "actual cheque issuance and bulk cash button",
+        "issuedCommits": 1,
+        "cashCommits": 1,
+        "baseUploads": 0,
+        "cashDelta": -100
+      },
+      {
+        "engine": "chromium",
+        "case": "NACK preserves money and head",
+        "elapsedMs": 76.79999999981374,
+        "baseUploads": 0,
+        "patchUploads": 0,
+        "uploadBytes": 764981,
+        "attempts": 1,
+        "balanceDelta": 0,
+        "booksRestored": true,
+        "headUnchanged": true,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "chromium",
+        "case": "retry applies exactly once",
+        "elapsedMs": 134.70000000018626,
+        "baseUploads": 1,
+        "patchUploads": 0,
+        "uploadBytes": 1207721,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "booksRestored": false,
+        "headUnchanged": false,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "chromium",
+        "case": "real bootstrap exact current replica, motion, counters and books",
+        "replicaExact": true,
+        "coldProof": true,
+        "seedSyncs": 0
+      },
+      {
+        "engine": "webkit",
+        "case": "real worker movement then financial command",
+        "rows": 2400,
+        "companies": 11,
+        "elapsedMs": 171,
+        "baseUploads": 0,
+        "patchUploads": 1,
+        "uploadBytes": 894686,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "booksRestored": false,
+        "headUnchanged": false,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "webkit",
+        "case": "receipt replay",
+        "elapsedMs": 13.99999999999909,
+        "baseUploads": 0,
+        "patchUploads": 0,
+        "uploadBytes": 0,
+        "attempts": 0,
+        "balanceDelta": 0,
+        "booksRestored": true,
+        "headUnchanged": true,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "webkit",
+        "case": "actual cheque issuance and bulk cash button",
+        "issuedCommits": 1,
+        "cashCommits": 1,
+        "baseUploads": 0,
+        "cashDelta": -100
+      },
+      {
+        "engine": "webkit",
+        "case": "NACK preserves money and head",
+        "elapsedMs": 194,
+        "baseUploads": 0,
+        "patchUploads": 0,
+        "uploadBytes": 764315,
+        "attempts": 1,
+        "balanceDelta": 0,
+        "booksRestored": true,
+        "headUnchanged": true,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "webkit",
+        "case": "retry applies exactly once",
+        "elapsedMs": 136,
+        "baseUploads": 1,
+        "patchUploads": 0,
+        "uploadBytes": 1207055,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "booksRestored": false,
+        "headUnchanged": false,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "webkit",
+        "case": "real bootstrap exact current replica, motion, counters and books",
+        "replicaExact": true,
+        "coldProof": true,
+        "seedSyncs": 0
+      }
+    ],
+    "native_capabilities_tested": [
+      "GH_NATIVE_ROW_PATCHES=1",
+      "GH_NATIVE_CHUNK_ENCODINGS=gh-packbits-v1"
+    ]
+  },
+  "added_cost": {
+    "continuous_monitoring_or_new_timers": 0,
+    "pending_rows_limit": 65536,
+    "pending_batches_limit": 256,
+    "retained_index_payload_limit_bytes": 262144,
+    "temporary_sort_array_bytes_limit": 524288,
+    "row_patch_chain_limit_bytes": 16777216,
+    "row_patch_chain_limit_chunks": 128,
+    "detail": "تسجيل مرجع قائمة العامل وفحوص ثباتها كلفة جديدة غير صفرية. الميكروقياس الأخير: 256 دفعة من 31 فهرسًا؛ أعلى زمن رُصد 0.0281 ms، وليس ضمانًا لزمن الآيفون. بيانات وصفية ومراجع حتى 256 قائمة، إضافة إلى الأرقام المحدودة أعلاه. تُقطع معالجة الفرز عند الحفظ كل 2048 خطوة ونسخ السجلات كل 512 صفًا. تبقى نسخة صفحة حتى 4 MiB عند الحفظ للتحقق المستقل.",
+    "cold_start": "تحميل سلسلة الصفوف وتطبيقها وتهيئة نسخة العامل من الصفوف الحالية يضيف عملًا عند إعادة الفتح؛ يحدث على دفعات في المسار القائم. ذروة الذاكرة وحرارة الهاتف لم تُقاسا."
+  },
+  "tests": {
+    "strict_cases": 15,
+    "strict_results": [
+      {
+        "name": "tracked moving rows upload zero full base pages; all air/sea/road bytes restore exactly",
+        "rows": 65543,
+        "baseUploads": 0,
+        "patchBytes": 420,
+        "wallMs": 29.340855999999974
+      },
+      {
+        "name": "unchanged checkpoint uploads zero bytes and keeps exact patch identities",
+        "uploads": 0
+      },
+      {
+        "name": "owned row indices cannot be changed after replay; later layers override earlier ones",
+        "baseUploads": 0
+      },
+      {
+        "name": "cold adoption reuses ancestors and an old native writer safely flattens the extension",
+        "coldUploads": 0,
+        "flatBaseUploads": 3
+      },
+      {
+        "name": "completed worker replay transfers its index list without a second copy",
+        "indexCopies": 0,
+        "exactRestore": true
+      },
+      {
+        "name": "counter plans retain row patches and the latest overlay restores every float bit",
+        "baseUploads": 0
+      },
+      {
+        "name": "row replay counters and later daily overlays keep exact precedence on every page",
+        "baseUploads": 0,
+        "counterOverwritesExact": true,
+        "coldFlattenCountersExact": true
+      },
+      {
+        "name": "unknown writes, rollback and structural changes invalidate the delta path",
+        "unknownWriteFallback": true,
+        "rollbackExact": true,
+        "growthExact": true
+      },
+      {
+        "name": "unavailable/stale worker proof uses complete base storage; mismatched proof refuses",
+        "missingAndStaleFallback": true,
+        "corruptionRefused": true,
+        "counterCorruptionRefused": true
+      },
+      {
+        "name": "a write during the proof wait refuses the stale snapshot",
+        "staleRefused": true
+      },
+      {
+        "name": "missing ancestors rebase into a self-contained save",
+        "missingAncestorRepaired": true
+      },
+      {
+        "name": "malformed headers, indices, lists, missing chunks and hostile budgets refuse",
+        "refused": 16
+      },
+      {
+        "name": "independent replica proof covers reserved zero capacity and refuses hostile extents",
+        "paddingPagesChecked": 2,
+        "hostileExtentsRefused": 6,
+        "tailCorruptionDetected": true
+      },
+      {
+        "name": "maximum pending batch is sorted and deduplicated in bounded steps",
+        "pending": 65536,
+        "distinct": 19,
+        "baseUploads": 0
+      },
+      {
+        "name": "bounded chains rebase and pending row overflow never admits incomplete coverage",
+        "rebases": 1,
+        "pendingRowsBounded": true,
+        "pendingBatchesBounded": true
+      }
+    ],
+    "targeted_suites": [
+      {
+        "test": "tests/build410-fleet-save-row-patches.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/row-patches-strict.log"
+      },
+      {
+        "test": "tests/build411-command-row-patch-browser.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/browser-patches.log"
+      },
+      {
+        "test": "tests/build358-fleet-chunk-manifest.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/manifest-regression-final.log"
+      },
+      {
+        "test": "tests/build362-save-validation-chunks.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/validation-regression.log"
+      },
+      {
+        "test": "tests/build409-compressed-persistence.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/compressed-regression-final.log"
+      },
+      {
+        "test": "tests/build362-durable-prestage.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/prestage-regression.log"
+      },
+      {
+        "test": "tests/build372-native-migration-chunk-adoption.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/migration-regression.log"
+      },
+      {
+        "test": "tests/build405-worker-close-browser.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/worker-close-regression.log"
+      },
+      {
+        "test": "tests/build389-differential-browser.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/differential-regression.log"
+      },
+      {
+        "test": "tests/build387-save-once-browser.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/save-once-regression.log"
+      },
+      {
+        "test": "tests/fleet-validation-reuse-browser.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/validation-browser-regression.log"
+      },
+      {
+        "test": "tests/build372-save-validation-worker-browser.cjs",
+        "result": "PASS",
+        "log": "/workspace/scratch/command-root-fix-20261017/validation-worker-regression.log"
+      }
+    ],
+    "old_source_red_proofs": [
+      {
+        "test": "build410",
+        "result": "FAIL expected",
+        "reason": "3 full base uploads instead of zero",
+        "log": "/workspace/scratch/command-root-fix-20261017/row-patches-old.log"
+      },
+      {
+        "test": "build411",
+        "result": "FAIL expected",
+        "reason": "1 full base upload instead of zero",
+        "log": "/workspace/scratch/command-root-fix-20261017/browser-old-red.log"
+      },
+      {
+        "test": "counter precedence within new implementation",
+        "result": "FAIL before correction, PASS after correction",
+        "reason": "full restored raw SHA-256 mismatch exposed counter precedence",
+        "log": "/workspace/scratch/command-root-fix-20261017/counter-precedence-red.log"
+      }
+    ],
+    "declared_acceptance_gates": 440,
+    "declared_preflight_commands": 42,
+    "full_acceptance_run": false,
+    "ci_run": false,
+    "native_build_run": false,
+    "iphone_profile_run": false
+  },
+  "remaining": [
+    "زمن الأمر الكلي لم يصبح صفرًا، ولم يثبت اختفاء التقطيع على الآيفون.",
+    "التحقق الحي للأسطول لا يزال يمر على الصفوف في العامل. أُلغي اختصار تجريبي لأنه خالف القيم المحسوبة مع الوقت والفحص المرجعي؛ اختبارات التطابق المرجعية تمر.",
+    "تأكيد التخزين Native وكتابة حالة الشركات الأخرى ونشر الحالة والمسارات ما زالت لها كلفة. التشخيص السابق سجل ACK بين 119 و198 ms ونشرًا بين 12 و15 ms؛ لا توجد أرقام هاتف جديدة لهذا المصدر.",
+    "إذا تغيّر جزء كبير من الأسطول أو تجاوزت السلسلة الحدود أو وقع رجوع، قد يلزم حفظ كامل. الصفر المثبت لصفحات الأساس مقيد بمسار الصفوف المسجلة وإثبات عامل صالح.",
+    "صفحات العدادات اليومية ما زالت نحو 13 بايتًا لكل صف عند تغيرها؛ هذا الإصلاح لا يدعي صفر نقل لإقفال اليوم.",
+    "السلسلة امتداد اختياري داخلي للحفظ. القارئ الحالي يقرأ القديم، والمضيف بلا القدرة الجديدة يكتب مسطحًا؛ لا يُفترض أن IPA بواجهة JavaScript قديمة يقرأ حفظًا جديدًا مباشرة.",
+    "بوابة الإصدار مغلقة. لا تشمل النتائج تشغيلًا جديدًا لإيرادات جميع الشركات مع مليون أصل أو قياس FPS/حرارة/ذاكرة على الآيفون."
+  ]
+}

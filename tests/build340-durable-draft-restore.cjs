@@ -97,7 +97,7 @@ assert.match(app,/runAuthorizedCompositeCommand\('asset-purchase-order',async\(\
 assert.match(app,/await driveAssetPurchaseStages\(Apply\.reserveCapacityStages\(draft,provisional\.plan,/,'purchase keeps its indexed batch alive across cooperative chunk yields (Build 372: indexed capacity stages)');assert.match(app,/await Plan\.applyAtomic\(bound\.plan,adapter,\{budgetMs:4,maxRowsPerSlice:512,yieldControl:async stage=>\{/,'Build 372: the whole order is applied atomically across cooperative slices');
 assert.match(app,/__GH_DURABLE_COMMAND_CONTEXT__\?\.poisoned===true\)throw new Error\(`\$\{name\}-draft-poisoned`\)/,'runDurableStateCommand refuses to publish a poisoned draft');
 // Build 358: the draft is validated section by section (validateDraftInSlices).
-const poisonIndex=app.indexOf('-draft-poisoned'),schemaIndex=app.indexOf('validateDraftInSlices(draft)',poisonIndex);
+const poisonIndex=app.indexOf('-draft-poisoned'),schemaMatch=app.slice(poisonIndex).match(/validateDraftInSlices\(draft(?:,|\))/),schemaIndex=schemaMatch?poisonIndex+schemaMatch.index:-1;
 assert.ok(poisonIndex>0&&schemaIndex>poisonIndex,'poison check runs before schema validation, integrity and storage commit');
 
 // 4) real-core parity: byte-identical state whether the purchase used the old full snapshot or the new draft path

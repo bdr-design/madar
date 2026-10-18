@@ -5,6 +5,20 @@
   const fleetData=()=>{const api=globalThis.GH_FLEET_DATA||(typeof require==='function'?require('./fleet-access-core.js'):null);if(!api)throw new Error('fleet-data-access-unavailable');return api;};
   const clean=(value,max=160)=>String(value??'').trim().slice(0,max);
   const now=state=>Math.max(0,Number(state?.simSeconds)||0);
+  // Property names only: no document values or verification decisions survive a call. Reusing the lexical order and
+  // quoted names reduces per-property JS calls for the same signed-document shape. The lookup key still serializes
+  // the complete property-name list exactly; it never hashes or trusts document values. Both budgets are fixed.
+  const STABLE_PLANS=new Map(),STABLE_PLAN_LIMIT=128,STABLE_PLAN_CHARS=262144;let stablePlanChars=0,stablePlanJSON=JSON.stringify;
+  function stableObjectPlan(keys){
+    if(stablePlanJSON!==JSON.stringify){STABLE_PLANS.clear();stablePlanChars=0;stablePlanJSON=JSON.stringify;}
+    let cacheable=keys.length<=128,rawChars=0;if(cacheable)for(const key of keys){rawChars+=key.length;if(rawChars>2048){cacheable=false;break;}}
+    const id=cacheable?JSON.stringify(keys):null,known=id&&STABLE_PLANS.get(id);if(known)return known;
+    keys.sort();const quoted=keys.map(key=>JSON.stringify(key)),plan={keys,quoted};
+    if(!cacheable||id.length>8192)return plan;
+    const chars=id.length+keys.reduce((n,key,index)=>n+key.length+quoted[index].length,0);if(chars>STABLE_PLAN_CHARS)return plan;
+    while(STABLE_PLANS.size&&(STABLE_PLANS.size>=STABLE_PLAN_LIMIT||stablePlanChars+chars>STABLE_PLAN_CHARS)){const first=STABLE_PLANS.keys().next().value;stablePlanChars-=STABLE_PLANS.get(first).chars;STABLE_PLANS.delete(first);}
+    STABLE_PLANS.set(id,{...plan,chars});stablePlanChars+=chars;return plan;
+  }
   function stable(value){
     const stack=new WeakSet();
     const encode=current=>{
@@ -17,7 +31,9 @@
       try{
         if(Array.isArray(current)){const values=[];for(let index=0;index<current.length;index++)values.push(encode(current[index]));return`[${values.join(',')}]`;}
         if(Object.prototype.toString.call(current)!=='[object Object]'||Object.getOwnPropertySymbols(current).length)throw new Error('authorization-non-json-object');
-        return`{${Object.keys(current).sort().map(key=>`${JSON.stringify(key)}:${encode(current[key])}`).join(',')}}`;
+        const plan=stableObjectPlan(Object.keys(current)),parts=new Array(plan.keys.length);
+        for(let index=0;index<plan.keys.length;index++)parts[index]=`${plan.quoted[index]}:${encode(current[plan.keys[index]])}`;
+        return`{${parts.join(',')}}`;
       }finally{stack.delete(current);}
     };
     return encode(value);

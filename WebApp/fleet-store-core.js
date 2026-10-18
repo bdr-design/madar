@@ -129,6 +129,7 @@
   // Changes whenever an interned ref may now hold a different value (a reclaimed
   // slot, a rolled-back table); owners caching per-ref data compare it.
   function valuesGeneration(store){return rt(store).valuesGeneration;}
+  function valueRevision(store){return rt(store).valueRevision;}
   // Company/identity readers may keep a worker answer across pure movement. This is the exact same conservative
   // invalidation tier used by classScan: mass writes, reclaimed refs, rollback, membership and identity writes expire it.
   function identitySnapshot(store){const r=rt(store);return {runtime:r.uid,epoch:r.epoch,mass:r.massVersion,generation:r.valuesGeneration,length:store.length,structure:store.structure,versions:r.identityVersions.slice(0,Math.ceil(store.length/CHUNK_ROWS))};}
@@ -556,8 +557,8 @@
   // freshness checks still reject any actual write or an unauthorized direct drain. Cancellation always releases it.
   function columnPlanActive(store){return (runtime.get(store)?.columnPlans||0)>0;}
   function* columnPlanStages(store,plan,options={}){
-    const r=rt(store);r.columnPlans=(r.columnPlans||0)+1;
-    try{return yield* applyColumnPlanStages(store,plan,options);}finally{r.columnPlans--;}
+    const r=rt(store),codec=globalThis.GH_STATE_CODEC,ticket=codec?.beginFleetOverlay?.(store,plan?.fields);let completed=false;r.columnPlans=(r.columnPlans||0)+1;
+    try{const value=yield* applyColumnPlanStages(store,plan,options);completed=true;return value;}finally{r.columnPlans--;codec?.endFleetOverlay?.(store,ticket,completed);}
   }
   function* applyColumnPlanStages(store,plan,{rowSlice=4096,label='fleet.column-plan',replicaTransfer=false}={}){
     const fields=Array.isArray(plan?.fields)?[...plan.fields]:[],indices=plan?.indices,values=plan?.values,count=Number(plan?.count),width=fields.length,dual=plan?.exceptional!=null,exceptional=dual?plan.exceptional:null,rejectNaN=plan?.rejectNaN===true;
@@ -1440,7 +1441,7 @@
 
   const API=Object.freeze({VERSION,SCHEMA,CHUNK_SHIFT,CHUNK_ROWS,ALIVE,EXTRAS,I32_NULL,PROFILE_FIELDS,BINDING_FIELDS,HOT_FIELDS,HOT_BIT,STRIDE,F64_PER_ROW,WORDS_PER_ROW,SLOTS,SLOT_NAMES,O,
     create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
-    views,slot,setSlot,columnWriter,columnPlanStages,columnPlanActive,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
+    views,slot,setSlot,columnWriter,columnPlanStages,columnPlanActive,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,valueRevision,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachProfile,forEachLeaseGroup,forEachPayrollGroup,
     // Fields whose in-place writes leave identityVersions alone (engine, carried seconds, route tier): a per-chunk table
     // keyed on identityVersions must not read them (GH_FLEET_SAVE_VALIDATION's static checks verify this).
     IDENTITY_TIER_EXEMPT:Object.freeze([...IDENTITY_EXEMPT,...ROUTE_TIER])});

@@ -8,6 +8,18 @@ const num=v=>Math.max(0,Number(v)||0), now=s=>Number(s.simSeconds)||0;
 // FINAL_DOCUMENT), a mutable copy put in its place. Only migrations and identity refreshes rewrite documents this way.
 function writableRow(list,index){const row=list[index];if(!row||typeof row!=='object'||!Object.isFrozen(row))return row;const copy=clone(row);list[index]=copy;invalidateFinanceLookupIndexes();return copy;}
 let activeExecutionMeta=null,activeEnsureTarget=null,activeEnsureComplete=false;
+let activeSettlementBatch=null;
+const SETTLEMENT_COMMANDS=new Set(['settle-payable','issue-cheque','settle-cheque']);
+function settlementBatchFor(s){const b=activeSettlementBatch;return b&&b.state===s&&globalThis.__GH_DURABLE_COMMAND_CONTEXT__===b.context&&b.context.draft===s&&s.finance===b.finance&&s.companyFinance===b.books&&s.treasury===b.treasury&&s.companyRegistry===b.registry&&s.openedCompanies===b.opened&&globalThis.GH_COMPANY_PLATFORM===b.platform?b:null;}
+function invalidateSettlementBatch(s,domain,name){const b=activeSettlementBatch;if(b&&b.state===s&&!(domain==='finance'&&SETTLEMENT_COMMANDS.has(name))){b.ready=false;b.memo.clear();}}
+async function withSettlementBatch(s,apply){
+ if(typeof apply!=='function'||globalThis.__GH_DURABLE_COMMAND_CONTEXT__?.draft!==s||globalThis.__GH_DURABLE_COMMAND_CONTEXT__?.liveState===s)throw new Error('settlement-batch-requires-durable-draft');
+ const previous=activeSettlementBatch;if(previous){if(previous.state!==s||previous.context!==globalThis.__GH_DURABLE_COMMAND_CONTEXT__)throw new Error('settlement-batch-overlap');return apply();}ensure(s);
+ const b={state:s,context:globalThis.__GH_DURABLE_COMMAND_CONTEXT__,finance:s.finance,books:s.companyFinance,treasury:s.treasury,ready:true,memo:new Map(),companies:new Set(),ids:null,registry:s.companyRegistry,opened:s.openedCompanies,platform:globalThis.GH_COMPANY_PLATFORM};activeSettlementBatch=b;
+ try{return await apply();}finally{b.memo.clear();activeSettlementBatch=previous;}
+}
+function setCurrentTransactionMemo(key,value){const b=activeSettlementBatch;if(b&&settlementBatchFor(b.state)&&b.ready){b.memo.set(key,value);return;}globalThis.GH_TRANSACTION_CORE?.transactionMemoSet?.(key,value);}
+
 const collectionBatches=new WeakMap();
 const COLLECTION_PROFILES=Object.freeze({
  group:{channel:'تحويل تحصيل عملاء المجموعة',source:'مركز تحصيل المجموعة · العملاء المعتمدون',service:'خدمات المجموعة'},
@@ -38,11 +50,12 @@ function supportsCompany(s,value,options={}){
  if(platform?.resolveCompany){const company=platform.resolveCompany(s,id);if(!company?.known||!company.definition?.capabilities?.includes('finance.book'))return false;if(options.operational===true&&!company.operational)return false;return id==='group'||company.registered||company.opened;}
  return TYPES.includes(id);
 }
-function companyIds(s,options={}){
+function companyIdsReference(s,options={}){
  const rows=platformInstances(s,options);if(rows){const ids=rows.map(row=>String(row?.id||row?.record?.id||'')).filter(Boolean).filter(id=>id!=='group');for(const id of Object.keys(s?.companyFinance||{}))if(id!=='group'&&supportsCompany(s,id)&&!ids.includes(id))ids.push(id);if(options.includeGroup!==false)ids.unshift('group');return [...new Set(ids)];}
  return TYPES.filter(id=>options.includeGroup!==false||id!=='group');
 }
-function requireCompany(s,value,options={}){const raw=value==null||String(value).trim()===''?(options.defaultGroup===false?'': 'group'):String(value).trim();if(!raw)throw new Error('company-id-required');const platform=globalThis.GH_COMPANY_PLATFORM;if(platform?.requireCompany){platform.requireCompany(s,raw,{registered:true,operational:options.operational===true,capability:'finance.book'});return raw;}if(!TYPES.includes(raw))throw new Error(`company-not-found:${raw}`);return raw;}
+function companyIds(s,options={}){const batch=settlementBatchFor(s);if(!batch?.ready)return companyIdsReference(s,options);if(!batch.ids)batch.ids=companyIdsReference(s);return options.includeGroup===false?batch.ids.filter(id=>id!=='group'):batch.ids.slice();}
+function requireCompany(s,value,options={}){const raw=value==null||String(value).trim()===''?(options.defaultGroup===false?'': 'group'):String(value).trim();if(!raw)throw new Error('company-id-required');const platform=globalThis.GH_COMPANY_PLATFORM;if(platform?.requireCompany){const batch=settlementBatchFor(s),key=`${options.operational===true?'o':'r'}:${raw}`;if(batch?.ready&&batch.companies.has(key))return raw;platform.requireCompany(s,raw,{registered:true,operational:options.operational===true,capability:'finance.book'});if(batch?.ready)batch.companies.add(key);return raw;}if(!TYPES.includes(raw))throw new Error(`company-not-found:${raw}`);return raw;}
 function inactiveLegacyCompanyKey(s,id){
  const platform=globalThis.GH_COMPANY_PLATFORM,definition=platform?.getDefinition?.(id);
  return Boolean(definition?.capabilities?.includes('finance.book')&&!supportsCompany(s,id));
@@ -141,7 +154,7 @@ function fleetOwnerCounts(s){
  return counts;
 }
 function ensure(s){
- if(activeEnsureTarget===s&&activeEnsureComplete)return s.companyFinance;
+ if(activeEnsureTarget===s&&activeEnsureComplete||settlementBatchFor(s)?.ready)return s.companyFinance;
  s.finance=s.finance&&typeof s.finance==='object'?s.finance:{};for(const k of ['invoices','payables','receivables','cheques','periods','journalEntries','transfers','payrollReports','dailyCompanyReports','taxSettlements','debtRecords','debtSettlements','intercompanyLoans','intercompanyLoanSettlements','cashPoolSweeps','commercialContracts','customerLoanPaymentReceipts','customerFinancingReceipts','customerSalePaymentReceipts','customerSaleCreditNotes','hospitalityDocuments'])s.finance[k]=Array.isArray(s.finance[k])?s.finance[k]:[];
  s.finance.pendingDailyCash=companyMetricMap(s,s.finance.pendingDailyCash,'pending-daily-cash',{preserveLegacyZero:true});
  s.finance.debtInterestDays=s.finance.debtInterestDays&&typeof s.finance.debtInterestDays==='object'&&!Array.isArray(s.finance.debtInterestDays)?s.finance.debtInterestDays:{};
@@ -199,7 +212,7 @@ function findFinanceDocument(s,bucket,fields,value,accept=null){
   // A lone cheque settlement keeps its short linear lookup. Allocate a full cheque index only when the same
   // transaction asks again (issue + pay + retry), or already needed the linked-cheque index.
   const tx=globalThis.GH_TRANSACTION_CORE,key=FINANCE_LIST_INDEX_MEMO_PREFIX+bucket,seenKey=key+':lookups',seen=currentTransactionMemo(seenKey)||0;
-  if(tx?.isActive?.())tx.transactionMemoSet?.(seenKey,seen+1);
+  if(tx?.isActive?.()||settlementBatchFor(s)?.ready)setCurrentTransactionMemo(seenKey,seen+1);
   const field=keys[0],index=bucket!=='cheques'||seen>0||currentTransactionMemo(key)?financeListIndex(s,bucket):null,matches=index?.byField?.get(field)?.get(value);
   if(index?.byField?.has(field))return matches?.find(row=>!accept||accept(row))||findArchivedDocument(s,bucket,keys,value,accept);
  }
@@ -210,7 +223,7 @@ function hasFinanceDocument(s,bucket,fields,value,accept=null){return !!findFina
 const TRANSFER_INDEX_MEMO_KEY='finance.transfer-lookup-index/v1';
 const FINANCE_LIST_INDEX_MEMO_PREFIX='finance.list-number-index/v1:';
 const DUE_TERMS_INDEX_MEMO_PREFIX='finance.due-terms-index/v1:';
-function currentTransactionMemo(key){const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.())return undefined;return tx.transactionMemoGet?.(key);}
+function currentTransactionMemo(key){const b=activeSettlementBatch;if(b&&settlementBatchFor(b.state)&&b.ready)return b.memo.get(key);const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.())return undefined;return tx.transactionMemoGet?.(key);}
 function rankLookup(map,key,row,rank){if(key==null)return;const current=map.get(key);if(!current||rank<current.rank)map.set(key,{row,rank});}
 function addTransferIndexRow(index,row,rank){rankLookup(index.byReference,row?.reference,row,rank);rankLookup(index.byId,row?.id,row,rank);if(row?.documentNumber&&['payroll-payable','payroll-transfer'].includes(row.kind))rankLookup(index.byPayrollDocument,row.documentNumber,row,rank);}
 // The live transfers only; a key missing there is looked up in the archive's index (findArchivedDocument), so a command
@@ -220,7 +233,7 @@ function buildTransferLookupIndex(s){
  let rank=0;for(const row of live)addTransferIndexRow(index,row,rank++);return index;
 }
 const PAYROLL_TRANSFER=row=>['payroll-payable','payroll-transfer'].includes(row.kind);
-function transferLookupIndex(s){const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.())return null;let index=tx.transactionMemoGet?.(TRANSFER_INDEX_MEMO_KEY);if(!(index instanceof Object)){index=buildTransferLookupIndex(s);tx.transactionMemoSet?.(TRANSFER_INDEX_MEMO_KEY,index);}return index;}
+function transferLookupIndex(s){const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.()&&!settlementBatchFor(s)?.ready)return null;let index=currentTransactionMemo(TRANSFER_INDEX_MEMO_KEY);if(!(index instanceof Object)){index=buildTransferLookupIndex(s);setCurrentTransactionMemo(TRANSFER_INDEX_MEMO_KEY,index);}return index;}
 function bestTransferMatch(index,...matches){let found=null;for(const match of matches)if(match&&(!found||match.rank<found.rank))found=match;return found?.row;}
 function findTransferByReference(s,reference){const index=transferLookupIndex(s);return index?index.byReference.get(reference)?.row??findArchivedDocument(s,'transfers','reference',reference):findFinanceDocument(s,'transfers','reference',reference);}
 function findTransferById(s,id){const index=transferLookupIndex(s);return index?index.byId.get(id)?.row??findArchivedDocument(s,'transfers','id',id):findFinanceDocument(s,'transfers','id',id);}
@@ -233,8 +246,8 @@ function buildFinanceListIndex(s,bucket){
  for(const row of s.finance?.[bucket]||[])addFinanceFieldIndexes(index,row);return index;
 }
 function addFinanceFieldIndexes(index,row,front=false){for(const [field,map] of index.byField){const key=row?.[field];let matches=map.get(key);if(!matches){matches=[];map.set(key,matches);}if(front)matches.unshift(row);else matches.push(row);}}
-function financeListIndex(s,bucket){const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.())return null;const key=FINANCE_LIST_INDEX_MEMO_PREFIX+bucket;let index=tx.transactionMemoGet?.(key);if(!(index instanceof Object)||index.source!==s.finance?.[bucket]||index.length!==s.finance?.[bucket]?.length){index=buildFinanceListIndex(s,bucket);tx.transactionMemoSet?.(key,index);}return index;}
-function invalidateFinanceLookupIndexes(){const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.())return;tx.transactionMemoSet?.(TRANSFER_INDEX_MEMO_KEY,null);for(const bucket of ['invoices','payables','receivables','periods','cheques'])tx.transactionMemoSet?.(FINANCE_LIST_INDEX_MEMO_PREFIX+bucket,null);}
+function financeListIndex(s,bucket){const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.()&&!settlementBatchFor(s)?.ready)return null;const key=FINANCE_LIST_INDEX_MEMO_PREFIX+bucket;let index=currentTransactionMemo(key);if(!(index instanceof Object)||index.source!==s.finance?.[bucket]||index.length!==s.finance?.[bucket]?.length){index=buildFinanceListIndex(s,bucket);setCurrentTransactionMemo(key,index);}return index;}
+function invalidateFinanceLookupIndexes(){const tx=globalThis.GH_TRANSACTION_CORE;if(!tx?.isActive?.()&&!activeSettlementBatch)return;setCurrentTransactionMemo(TRANSFER_INDEX_MEMO_KEY,null);for(const bucket of ['invoices','payables','receivables','periods','cheques'])setCurrentTransactionMemo(FINANCE_LIST_INDEX_MEMO_PREFIX+bucket,null);}
 // Invoices: a number missing from the live list is looked up in the archive's index.
 function financeRowByNumber(s,bucket,number){const index=financeListIndex(s,bucket),found=index?index.byNumber.get(number):(Array.isArray(s.finance?.[bucket])?s.finance[bucket]:[]).find(row=>row.number===number);if(found||bucket!=='invoices')return found;return findArchivedDocument(s,'invoices','number',number);}
 function insertFinanceRow(s,bucket,row){const rows=s.finance[bucket],previousLength=rows.length,result=rows.unshift(row),index=currentTransactionMemo(FINANCE_LIST_INDEX_MEMO_PREFIX+bucket);if(index?.byNumber instanceof Map&&index.source===rows&&index.length===previousLength){index.byNumber.set(row?.number,row);if(index.allByNumber){let matches=index.allByNumber.get(row?.number);if(!matches){matches=[];index.allByNumber.set(row?.number,matches);}matches.unshift(row);}if(index.byInvoice&&row?.invoiceNumber){const n=String(row.invoiceNumber),matches=index.byInvoice.get(n)||[];matches.unshift(row);index.byInvoice.set(n,matches);}addFinanceFieldIndexes(index,row,true);index.length=rows.length;}return result;}
@@ -256,7 +269,7 @@ function dueTermsIndex(s,day){
  const index={receivables:new Map(),payables:new Map(),processedReceivables:new Set(),processedPayables:new Set()};
  const add=(bucket,rows)=>{for(const row of rows||[]){if(row?.autoSettle!==true||!Number.isFinite(Number(row.dueDay))||Number(row.dueDay)>day)continue;const company=requireCompany(s,row.company),list=bucket.get(company)||[];list.push(row);bucket.set(company,list);}};
  add(index.receivables,s.finance.receivables);add(index.payables,s.finance.payables);
- if(tx?.isActive?.())tx.transactionMemoSet?.(key,index);return index;
+ if(tx?.isActive?.())setCurrentTransactionMemo(key,index);return index;
 }
 function nextFinanceTransferReference(s,prefix){
  // Array length is not a sequence: archive trimming must not turn a new payment
@@ -954,7 +967,7 @@ function zeroRateFleetPurchaseVat(s){
 }
 function execute(ctx,cmd,p={},meta={}){
  const s=ctx.state||ctx,previousMeta=activeExecutionMeta,previousEnsureTarget=activeEnsureTarget,previousEnsureComplete=activeEnsureComplete;
- activeExecutionMeta={...meta,name:cmd};activeEnsureTarget=s;activeEnsureComplete=false;
+ invalidateSettlementBatch(s,'finance',String(cmd));activeExecutionMeta={...meta,name:cmd};activeEnsureTarget=s;activeEnsureComplete=false;
  try{
   // Capital initialization replaces the finance roots, so its own ensure must be
   // the first one in this command and must invalidate any transaction memo indexes.
@@ -1050,5 +1063,5 @@ const FINAL_DOCUMENT=Object.freeze({
 // company's ledger and the treasury ledger are sealed whole.
 for(const [root,keys] of [['finance',['journalEntries']],['companyFinance',['*.ledger']],['treasury',['ledger']]])(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys])))(root,keys);
 for(const [bucket,member] of Object.entries(FINAL_DOCUMENT))(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys,options)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys,options])))('finance',[bucket],{member});
-const API={VERSION,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+const API={VERSION,withSettlementBatch,invalidateSettlementBatch,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

@@ -1,0 +1,12 @@
+'use strict';
+// Explicit local CPU sampling only; adds profiler overhead. Never loaded by the game.
+// GH_TRACE_PROFILE_PATH=/tmp/command.cpuprofile node tools/trace_command_costs.cjs
+// Use unprofiled tools/measure_command_costs.cjs settlement for elapsed-time comparisons.
+const path=require('node:path'),fs=require('node:fs'),inspector=require('node:inspector');
+const root=path.resolve(process.env.GH_TEST_SOURCE_DIR||path.join(__dirname,'..'));const {scenario}=require(path.join(root,'tests/helpers/business-scenario'));
+const e=scenario(),g=e.s,s=e.state,F=g.GH_FINANCE_CORE; s.godMoney=true;s.infiniteMoney=true;
+g.__GH_DURABLE_COMMAND_CONTEXT__={name:'QA-profile',liveState:{},draft:s};
+const dispatch=(name,p)=>g.GH_DOMAIN_COMMANDS.dispatch({...e.ctx,state:s},'finance',name,p).result;
+for(let i=0;i<80;i++)dispatch('accrue-expense',{company:'air',amount:100+i,note:'QA '+i,counterparty:'QA Supplier LLC',number:'TRACE-'+i,taxable:false});
+const session=new inspector.Session();session.connect();const post=(name,args={})=>new Promise((resolve,reject)=>session.post(name,args,(error,out)=>error?reject(error):resolve(out)));
+(async()=>{await post('Profiler.enable');await post('Profiler.setSamplingInterval',{interval:100});await post('Profiler.start');const at=performance.now();const phases=[];await F.withSettlementBatch(s,async()=>{let start=performance.now();for(let i=0;i<80;i++)dispatch('settle-payable',{number:'TRACE-'+i,method:'cheque'});phases.push({name:'issue',ms:performance.now()-start});start=performance.now();for(const id of s.finance.cheques.map(r=>r.id))dispatch('settle-cheque',{id});phases.push({name:'cash',ms:performance.now()-start});});const wall=performance.now()-at,{profile}=await post('Profiler.stop');session.disconnect();if(process.env.GH_TRACE_PROFILE_PATH)fs.writeFileSync(process.env.GH_TRACE_PROFILE_PATH,JSON.stringify(profile));const byId=new Map(profile.nodes.map(n=>[n.id,n])),totals=new Map();for(let i=0;i<profile.samples.length;i++){const n=byId.get(profile.samples[i]),k=`${n.callFrame.functionName||'(anonymous)'} @ ${path.basename(n.callFrame.url)}:${n.callFrame.lineNumber+1}`;totals.set(k,(totals.get(k)||0)+(profile.timeDeltas[i]||0));}console.log(JSON.stringify({wallMs:wall,phases,top:[...totals].sort((a,b)=>b[1]-a[1]).slice(0,35).map(([name,us])=>({name,ms:us/1000}))},null,2));})().catch(error=>{console.error(error);process.exitCode=1;});

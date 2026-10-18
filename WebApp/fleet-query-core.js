@@ -155,7 +155,8 @@
   function salePlan(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_SALE_PLAN')(state,fleet,params||{}));}
   function manualDeparturePlan(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_MANUAL_DEPARTURE_PLAN')(state,fleet,params||{}));}
   function referenceUsage(state,fleet,params){const result=queryModule('GH_FLEET_REFERENCE_QUERY')(state,fleet,params||{});return result?.legacy?result:{...result,columns:{indices:result.routeCounts,values:result.baseCounts}};}
-  const QUERIES=Object.freeze({dispatchEligible,routeCards,conditionSum,companyValidation,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
+  function saveChunkProof(state,_fleet,params){return queryModule('GH_STATE_CODEC','fleetRowChecksum')(state.fleet,params?.index,params?.totalByteLength);}
+  const QUERIES=Object.freeze({saveChunkProof,dispatchEligible,routeCards,conditionSum,companyValidation,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
   function run(name,state,fleet,params){const query=QUERIES[name];if(!query)throw new Error(`fleet-query-unknown:${name}`);return query(state,fleet,params||{});}
   const API=Object.freeze({VERSION,DISPATCH_FIELDS,CARD_FIELDS,ROUTE_CENTER_FIELDS,ROUTE_CENTER_RESULT_FIELDS,dispatchEligible,routeCards,conditionSum,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage,run,names:Object.freeze(Object.keys(QUERIES))});
   globalThis.GH_FLEET_QUERY=API;

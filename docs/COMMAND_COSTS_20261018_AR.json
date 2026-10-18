@@ -1,0 +1,745 @@
+{
+  "title": "تقليل ثقل الأوامر والحفظ — تنفيذ وقياسات محلية",
+  "recorded_at_utc": "2026-10-18T00:53:40.473386+00:00",
+  "status": "LOCAL_TARGETED_PASS_NOT_DEVICE_APPROVAL",
+  "source": {
+    "head": "3abf65706629ed59718cc178b990205617d886e7",
+    "branch": "claude/madar-ventora-handover-3.0.0-stg723",
+    "runtime_sha256": "e0452350fe4ee49c962b4e9892b34365785ce6d378ba6d4db88c8a92c42d7ed8",
+    "webapp_sha256": "8a0f1a3cc347c6bc74543e6a99029a90531133351c376285f8ebb38772eb02fa",
+    "previous_local_runtime_sha256": "6d1c26d849019f8fc2243c1678c81b925eba8cf67935074d691644fb0777e41d",
+    "before_snapshot": "/workspace/scratch/command-near-zero-20261018/baseline",
+    "before_patch": "/workspace/scratch/command-near-zero-20261018/before.patch",
+    "uncommitted": true
+  },
+  "diagnostic": {
+    "evidence_id": "DX-1792279141500-15-279-3303300",
+    "sha256": "d987d65299b97bdc4d2d64590e6dc1dd4deaa844adf85213a72d4e0a169ec33c",
+    "shipped_commit": "3abf657",
+    "scope": "تشخيص الآيفون السابق يثبت الثقل في النسخة المنشورة؛ لا يقيس هذه الإصلاحات المحلية.",
+    "old_command_ms": [
+      2861,
+      3662
+    ],
+    "old_final_persist_including_ack_ms": [
+      263,
+      427
+    ],
+    "old_ack_included_not_added_again_ms": [
+      119,
+      198
+    ]
+  },
+  "implemented": [
+    {
+      "area": "فحص الأسطول",
+      "files": [
+        "WebApp/fleet-save-validation-core.js",
+        "WebApp/fleet-event-core.js"
+      ],
+      "cause": "إسقاط 11 حقلًا واشتقاق القيم لكل صف حتى عندما تكون داخل المجالات الآمنة.",
+      "fix": "قراءة الحقول العددية من السجل مباشرة، وإثبات ثبات مجالها تحت دالة الاشتقاق نفسها. فحوص الفئات مرة لكل مجموعة داخل الاستعلام فقط. أي حالة استثنائية أو مشتق مختلف أو تجاوز الميزانية يرجع إلى الإسقاط المرجعي.",
+      "safety": "لا تخطي للصفوف: قراءة كل أصل حي، ومقارنة الملخص كاملًا بالمرجع، بنفس ترتيب الأخطاء وعدّ مستخدمي المسارات. لا اعتماد على علامة كتابة ولا تخزين إثبات حي بين الاستعلامات."
+    },
+    {
+      "area": "نسخ المسودة",
+      "files": [
+        "WebApp/transaction-core.js"
+      ],
+      "cause": "نسخ قيمة مختومة بعمق مثل هندسة المسار داخل جذر قابل للتعديل.",
+      "fix": "مشاركة القيم التي ختمها مالكها مسبقًا فقط؛ تستمر عزلة السيارات والأرصدة والأبواب القابلة للتعديل.",
+      "safety": "حفظ هويات الحاويات المشتركة عند النشر، وإبقاء الرجوع الدقيق كما هو."
+    },
+    {
+      "area": "إصدار وصرف الشيكات جماعيًا",
+      "files": [
+        "WebApp/finance-core.js",
+        "WebApp/domain-command-core.js",
+        "WebApp/app.js"
+      ],
+      "cause": "إعادة تهيئة الدفاتر وبناء فهارس المستندات لكل شيك داخل الدفعة.",
+      "fix": "نطاق مؤقت للدفعة داخل المسودة الدائمة نفسها، يشارك الفهارس وإثباتات الشركة الناجحة بين أوامر التسوية المسموحة.",
+      "safety": "الأرصدة والميزانية تُقرأ بقيمها الحالية. أي أمر آخر يبطل النطاق. تغيّر الجذور أو السياق يمنع إعادة الاستخدام. رفض التداخل وتنظيف النطاق عند النجاح والإلغاء والفشل. المستندات والتواقيع والقيود الفردية والمال مطابقة تمامًا للتنفيذ المنفرد."
+    },
+    {
+      "area": "تجهيز المسارات للنشر",
+      "files": [
+        "WebApp/app.js"
+      ],
+      "cause": "حل بيانات مالك المسار مرارًا لكل مسار.",
+      "fix": "حل الشركة وخطة البحر مرة لكل بناء؛ نسخ تشغيلية مستقلة مع ملاحظة تغير التعريف والخطة.",
+      "safety": "رفض المالك غير المعروف، وبقاء تغيير خطة البحر نافذًا؛ لا اعتماد على مخزن دائم جديد."
+    },
+    {
+      "area": "جدول قيم الأسطول في الحفظ",
+      "files": [
+        "WebApp/state-codec-core.js",
+        "WebApp/fleet-store-core.js",
+        "iOS/GlobalHoldings/GlobalSaveVault.swift"
+      ],
+      "cause": "الجدول المختلط يبقى JSON داخل طلب الحفظ، فيعاد تمريره للجزء الأصلي كل أمر.",
+      "fix": "صفحات قيم من 256 عنصرًا، بمقارنة النص كاملًا في كل حفظ وتخزين الصفحات المتغيرة فقط. التفعيل حصريًا بقدرة المضيف الجديد GH_NATIVE_VALUE_CHUNKS=1.",
+      "safety": "قائمة الأجزاء الحالية تتضمن الصفحات، وتتحقق القراءة من الإدراج والتكرار والعدد والحجم وUTF-8 وJSON. تعديل متداخل مباشر يُكتشف في الحفظ التالي. تغير جدول intern خلال التجهيز يرفض اللقطة القديمة. لا تتغير صيغة التصدير المستقل أو الكتابة للمضيف القديم.",
+      "review_followup": "أُزيل تكرار تجهيز الصفحات التي تتجاوز حد التخزين النصي، ويثبت الاختبار قراءتها وتجهيزها مرة واحدة.",
+      "compatibility_limit": "القارئ القديم لا يفهم علامة جدول القيم الجديدة؛ النسخة الجديدة مرفقة مع المضيف الذي يعلن القدرة. لا ادعاء أن النسخ القديمة تقرأ ملفاتها."
+    },
+    {
+      "area": "انتظار الإطارات",
+      "files": [
+        "WebApp/app.js"
+      ],
+      "cause": "ثلاثة انتظارات مفروضة على الأوامر المركبة الكبيرة بصرف النظر عن العمل الفعلي.",
+      "fix": "فحص ميزانية العمل منذ آخر مقطع تعاوني بدل الانتظار غير المشروط؛ بقاء التوقف للرسم عند استهلاك الميزانية.",
+      "safety": "لا حذف لفحص المسودة أو التوقيع أو سلامة المال أو تأكيد التخزين؛ ميزانية التعاون لا تضمن سقفًا زمنيًا لكل عملية ذرية على كل جهاز."
+    }
+  ],
+  "measurements": {
+    "environment": "Linux / Node v24.19.0. تشغيل أداة المقارنة تسلسليًا؛ أرقام تجهيز أجزاء محددة وليست زمن الأمر النهائي على الآيفون.",
+    "command": "GH_TEST_SOURCE_DIR=<source> node tools/measure_command_costs.cjs <validation|clone|values>",
+    "million_fleet_validation": {
+      "fixture": "1,000,000 أصل من air/sea/road على 859 مسارًا؛ ليس محاكاة الإيرادات لكل الشركات.",
+      "before": {
+        "source": "/workspace/scratch/command-near-zero-20261018/baseline",
+        "mode": "validation",
+        "rows": 1000000,
+        "routes": 859,
+        "warmMs": [
+          277.2727869999999,
+          274.61833299999944,
+          270.3366329999999
+        ],
+        "referenceMs": 1459.4694849999996,
+        "exact": true
+      },
+      "after": {
+        "source": "/workspace/madar",
+        "mode": "validation",
+        "rows": 1000000,
+        "routes": 859,
+        "warmMs": [
+          43.623671000000286,
+          30.45671500000026,
+          29.08038099999976
+        ],
+        "referenceMs": 1503.8066369999997,
+        "exact": true
+      },
+      "median_before_ms": 274.61833299999944,
+      "median_after_ms": 30.45671500000026,
+      "exact_reference": true
+    },
+    "nested_sealed_clone": {
+      "fixture": "3,000 سيارة تشير إلى قيمة مختومة مشتركة فيها 5,000 نقطة؛ لا يمثل كامل نسخة عالم الآيفون.",
+      "before": {
+        "source": "/workspace/scratch/command-near-zero-20261018/baseline",
+        "mode": "clone",
+        "vehicles": 3000,
+        "sealedPoints": 5000,
+        "extraGeometryCopies": 1,
+        "warmMs": [
+          2.9120169999999987,
+          4.168793000000001,
+          1.8270070000000018
+        ],
+        "mutableIsolation": true
+      },
+      "after": {
+        "source": "/workspace/madar",
+        "mode": "clone",
+        "vehicles": 3000,
+        "sealedPoints": 5000,
+        "extraGeometryCopies": 0,
+        "warmMs": [
+          0.970989000000003,
+          1.436753999999997,
+          0.774405999999999
+        ],
+        "mutableIsolation": true
+      }
+    },
+    "bulk_80_issues_80_cash": {
+      "case": "80 issues then 80 settlements",
+      "reference": {
+        "scans": 25600,
+        "wallMs": 231.95459300000002
+      },
+      "optimized": {
+        "scans": 160,
+        "wallMs": 146.268665
+      },
+      "exactFinance": true
+    },
+    "route_runtime": {
+      "old_registry_reads": 1718,
+      "new": [
+        {
+          "engine": "chromium",
+          "routes": 859,
+          "owners": 3,
+          "routeReads": 6,
+          "baseReads": 6,
+          "wallMs": 0.3999999985098839,
+          "mismatch": 0,
+          "isolated": true,
+          "unknownOwnerRefused": true,
+          "seaChanged": true,
+          "seaRestored": true
+        },
+        {
+          "engine": "webkit",
+          "routes": 859,
+          "owners": 3,
+          "routeReads": 6,
+          "baseReads": 6,
+          "wallMs": 0,
+          "mismatch": 0,
+          "isolated": true,
+          "unknownOwnerRefused": true,
+          "seaChanged": true,
+          "seaRestored": true
+        }
+      ],
+      "scope": "تجهيز المسارات فقط؛ لا يمثل كامل استعادة جذور الحالة عند النشر."
+    },
+    "value_table_save": {
+      "fixture": "4,107 قيمة مختلطة + 19 أصلًا + حساب بسيط. بقية عالم الآيفون غير موجودة؛ 2.5 كيلوبايت ليست وعدًا بحجم حفظ اللعبة الكامل.",
+      "before": {
+        "source": "/workspace/scratch/command-near-zero-20261018/baseline",
+        "mode": "values",
+        "values": 4107,
+        "tableBytes": 5528206,
+        "cold": {
+          "ms": 32.18026,
+          "maxStepMs": 11.093880999999996,
+          "yields": 26,
+          "uploadBytes": 2679,
+          "payloadBytes": 5528902
+        },
+        "warm": [
+          {
+            "ms": 24.918047,
+            "maxStepMs": 5.4353729999999985,
+            "yields": 25,
+            "uploadBytes": 0,
+            "payloadBytes": 5528902
+          },
+          {
+            "ms": 22.54006800000002,
+            "maxStepMs": 5.257729000000012,
+            "yields": 25,
+            "uploadBytes": 0,
+            "payloadBytes": 5528902
+          },
+          {
+            "ms": 26.781770000000023,
+            "maxStepMs": 6.109760999999992,
+            "yields": 25,
+            "uploadBytes": 0,
+            "payloadBytes": 5528902
+          }
+        ],
+        "changed": {
+          "ms": 19.994286999999986,
+          "maxStepMs": 5.319540000000018,
+          "yields": 25,
+          "uploadBytes": 0,
+          "payloadBytes": 5528906
+        },
+        "cache": null,
+        "exact": true
+      },
+      "after": {
+        "source": "/workspace/madar",
+        "mode": "values",
+        "values": 4107,
+        "tableBytes": 5528206,
+        "cold": {
+          "ms": 36.810196000000005,
+          "maxStepMs": 4.071177000000006,
+          "yields": 251,
+          "uploadBytes": 5530897,
+          "payloadBytes": 2521
+        },
+        "warm": [
+          {
+            "ms": 21.027316999999982,
+            "maxStepMs": 1.7906229999999965,
+            "yields": 41,
+            "uploadBytes": 0,
+            "payloadBytes": 2521
+          },
+          {
+            "ms": 16.092341000000005,
+            "maxStepMs": 1.6716049999999996,
+            "yields": 41,
+            "uploadBytes": 0,
+            "payloadBytes": 2521
+          },
+          {
+            "ms": 15.022203999999988,
+            "maxStepMs": 1.351017000000013,
+            "yields": 41,
+            "uploadBytes": 0,
+            "payloadBytes": 2521
+          }
+        ],
+        "changed": {
+          "ms": 17.093907,
+          "maxStepMs": 2.7505859999999984,
+          "yields": 54,
+          "uploadBytes": 344769,
+          "payloadBytes": 2521
+        },
+        "cache": {
+          "entries": 17,
+          "chars": 3290168,
+          "limitChars": 8388608
+        },
+        "exact": true
+      },
+      "median_warm_before_ms": 24.918047,
+      "median_warm_after_ms": 16.092341000000005,
+      "first_save_extra_preparation_ms": 4.629936000000008,
+      "native_transport_or_disk_measured": false
+    },
+    "prior_row_patch_batch": {
+      "report": "docs/COMMAND_SAVE_ROW_PATCHES_20261018_AR.json",
+      "fixture": "قياس سابق مستقل: مليون أصل، 31 صفًا متغيرًا، نجاح المسار المؤهل.",
+      "before_base_upload_bytes": 128000000,
+      "after_patch_bytes": 4116,
+      "current_410_411_regressions_pass": true,
+      "not_new_device_result": true
+    }
+  },
+  "added_load": {
+    "continuous_gameplay_scan_added": false,
+    "timer_added": false,
+    "frame_monitor_added": false,
+    "value_cache_limit_utf16_units": 8388608,
+    "approx_max_string_storage_mib_excluding_engine_overhead": 16,
+    "measured_value_cache_utf16_units": 3290168,
+    "approx_fixture_string_storage_mb": 6.580336,
+    "validation_table": "مؤقت للاستعلام فقط: 8,192 موضعًا وحتى 4,096 مجموعة؛ بعد ذلك يستخدم المسار المرجعي.",
+    "settlement_indexes": "مؤقتة داخل الدفعة فقط، وتمحى عند الخروج.",
+    "cost_statement": "الكلفة ليست صفرًا: يوجد تجهيز أولي ومقارنة نصوص أثناء الحفظ وذاكرة محدودة. لا يُضاف ذلك إلى حلقة اللعب. قياس الآيفون للذاكرة والحرارة غير متوفر."
+  },
+  "tests": {
+    "source_tree_sha256": "e0452350fe4ee49c962b4e9892b34365785ce6d378ba6d4db88c8a92c42d7ed8",
+    "scoped_scripts_passed": 24,
+    "new_scripts": 4,
+    "new_cases": {
+      "build412": 7,
+      "build413": 9,
+      "build414": 5,
+      "build415": "محركان"
+    },
+    "commands": [
+      {
+        "argv": [
+          "node",
+          "tests/build412-live-validation-predicates.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.674,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build412-live-validation-predicates.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build413-fleet-value-chunks.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.668,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build413-fleet-value-chunks.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build414-command-preparation.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.823,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build414-command-preparation.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build340-durable-draft-restore.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.773,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build340-durable-draft-restore.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build362-save-validation-chunks.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 12.687,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build362-save-validation-chunks.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-durable-command-cost.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.315,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build359-durable-command-cost.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-sealed-flows.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.265,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build359-sealed-flows.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build409-compressed-persistence.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 2.582,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build409-compressed-persistence.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build410-fleet-save-row-patches.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 1.028,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build410-fleet-save-row-patches.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-cheque-archived-invoice.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.066,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build359-cheque-archived-invoice.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build360-bulk-receivables-cheque.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.217,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build360-bulk-receivables-cheque.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-finance-settlement-contract.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.115,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build334-finance-settlement-contract.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build334-finance-company-security-contract.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.165,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build334-finance-company-security-contract.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/fleet-business-boundary.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 0.064,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-fleet-business-boundary.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build411-command-row-patch-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 21.291,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build411-command-row-patch-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build415-route-publication-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 4.306,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build415-route-publication-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build358-bulk-payables-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 8.363,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build358-bulk-payables-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build359-sliced-save-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 3.425,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build359-sliced-save-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/fleet-validation-reuse-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 5.143,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-fleet-validation-reuse-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build387-save-once-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 25.814,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build387-save-once-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build389-differential-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 7.513,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build389-differential-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build372-save-validation-worker-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 6.591,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build372-save-validation-worker-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "node",
+          "tests/build405-worker-close-browser.cjs"
+        ],
+        "exit_code": 0,
+        "seconds": 7.045,
+        "log": "/workspace/scratch/command-near-zero-20261018/final-build405-worker-close-browser.cjs.log"
+      },
+      {
+        "argv": [
+          "python3",
+          "tests/acceptance-policy.py"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "old_source_red_proofs": [
+      {
+        "test": "build412-live-validation-predicates.cjs",
+        "old_source_exit_code": 1,
+        "assertion_failed": true,
+        "log": "/workspace/scratch/command-near-zero-20261018/red-final-build412-live-validation-predicates.cjs.log"
+      },
+      {
+        "test": "build413-fleet-value-chunks.cjs",
+        "old_source_exit_code": 1,
+        "assertion_failed": true,
+        "log": "/workspace/scratch/command-near-zero-20261018/red-final-build413-fleet-value-chunks.cjs.log"
+      },
+      {
+        "test": "build414-command-preparation.cjs",
+        "old_source_exit_code": 1,
+        "assertion_failed": true,
+        "log": "/workspace/scratch/command-near-zero-20261018/red-final-build414-command-preparation.cjs.log"
+      },
+      {
+        "test": "build415-route-publication-browser.cjs",
+        "old_source_exit_code": 1,
+        "assertion_failed": true,
+        "log": "/workspace/scratch/command-near-zero-20261018/red-final-build415-route-publication-browser.cjs.log"
+      }
+    ],
+    "integration": [
+      {
+        "engine": "chromium",
+        "case": "real worker movement then financial command",
+        "rows": 2400,
+        "companies": 11,
+        "rejected": false,
+        "baseUploads": 0,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "chromium",
+        "case": "receipt replay",
+        "rejected": false,
+        "baseUploads": 0,
+        "attempts": 0,
+        "balanceDelta": 0,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "chromium",
+        "case": "actual cheque issuance and bulk cash button",
+        "baseUploads": 0
+      },
+      {
+        "engine": "chromium",
+        "case": "bulk settlement NACK exact rollback"
+      },
+      {
+        "engine": "chromium",
+        "case": "bulk settlement retry after NACK preserves exact rows and books",
+        "attempts": 1,
+        "baseUploads": 1
+      },
+      {
+        "engine": "chromium",
+        "case": "NACK preserves money and head",
+        "rejected": true,
+        "baseUploads": 0,
+        "attempts": 1,
+        "balanceDelta": 0,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "chromium",
+        "case": "retry applies exactly once",
+        "rejected": false,
+        "baseUploads": 0,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "chromium",
+        "case": "real bootstrap exact current replica, motion, counters and books"
+      },
+      {
+        "engine": "webkit",
+        "case": "real worker movement then financial command",
+        "rows": 2400,
+        "companies": 11,
+        "rejected": false,
+        "baseUploads": 0,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "webkit",
+        "case": "receipt replay",
+        "rejected": false,
+        "baseUploads": 0,
+        "attempts": 0,
+        "balanceDelta": 0,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "webkit",
+        "case": "actual cheque issuance and bulk cash button",
+        "baseUploads": 0
+      },
+      {
+        "engine": "webkit",
+        "case": "bulk settlement NACK exact rollback"
+      },
+      {
+        "engine": "webkit",
+        "case": "bulk settlement retry after NACK preserves exact rows and books",
+        "attempts": 1,
+        "baseUploads": 1
+      },
+      {
+        "engine": "webkit",
+        "case": "NACK preserves money and head",
+        "rejected": true,
+        "baseUploads": 0,
+        "attempts": 1,
+        "balanceDelta": 0,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 0
+      },
+      {
+        "engine": "webkit",
+        "case": "retry applies exactly once",
+        "rejected": false,
+        "baseUploads": 0,
+        "attempts": 1,
+        "balanceDelta": 100,
+        "rowsMatch": true,
+        "booksMatch": true,
+        "revisionDelta": 1
+      },
+      {
+        "engine": "webkit",
+        "case": "real bootstrap exact current replica, motion, counters and books"
+      }
+    ],
+    "coverage": [
+      "مطابقة الفحص المرجعي مع فساد عشوائي وكتابة مباشرة وتغير الزمن والاشتقاق والمحلل وتصادم التجزئة وتجاوز الميزانية والرجوع",
+      "رفض اللقطات القديمة، وفقدان أو تشويه أو تكرار أجزاء القيم، والتحميل البارد والتوافق مع غياب القدرة",
+      "مطابقة كل مستند وإثبات وميزانية ورصيد بين الدفعة والتنفيذ المنفرد؛ الإلغاء وتغير الميزانية ومنع التداخل",
+      "زر إصدار وصرف الشيكات الفعلي مع رفض التخزين والرجوع والمحاولة التالية وعدم تكرار الأثر",
+      "عامل أسطول حقيقي وتحميل بارد ومطابقة الصفوف والعدادات والدفاتر على Chromium وWebKit",
+      "600 حالة لاستعادة الحالة؛ استمرار اختبارات الحفظ مرة واحدة والحفظ التفاضلي والعامل وإقفال اليوم"
+    ],
+    "full_acceptance_run": false,
+    "native_compiled": false,
+    "physical_iphone_tested": false
+  },
+  "acceptance_definitions": {
+    "source_gates": 444,
+    "preflight_commands": 46,
+    "definitions_updated": true,
+    "full_execution": false,
+    "release_approved": false
+  },
+  "remaining": [
+    "كل الأرقام لم تقترب من الصفر بعد: فحص مليون صف ما زال يأخذ نحو 30.5 مللي ثانية محليًا، والدفعة ذات 160 إجراء تحتاج نحو 146 مللي ثانية في المثال.",
+    "التوقيعات وبناء المستندات والقيود الفردية ما زالت عملًا حقيقيًا. لم يُنقل هذا المسار كاملًا إلى عامل ولم تُحذف فحوصه.",
+    "تأكيد الجزء الأصلي والكتابة إلى القرص غير مقاسين بهذا المصدر. لا يُعرض نجاح الحفظ قبل ACK؛ زمن ACK القديم داخل زمن persist وليس وقتًا إضافيًا.",
+    "النشر ما زال يستعيد الجذور القابلة للتعديل للحفاظ على مراجع المستهلكين؛ تحسن حل المسارات لا يعني أن كامل النشر صار صفرًا.",
+    "الحفظ الأول أو تسطيح سلسلة التعديلات أو الرجوع الذي يبطل أهلية إعادة الاستخدام قد يحتاج حفظ صفحات كاملة. اختبار إعادة محاولة دفعة الشيكات بعد NACK استخدم صفحة أساس كاملة وحافظ على كل البايتات والحسابات.",
+    "الصفحات التي تتغير فعلًا تُرفع. الأجزاء الكبيرة فوق حد الذاكرة تبقى كاملة داخل JSON بأمان، وقد تكون مكلفة. لا ادعاء أن جميع طلبات الحفظ أصبحت 2.5 كيلوبايت.",
+    "لم يُجر اختبار إيرادات جميع الشركات مع مليون أصل في هذه الدفعة. اختبار ربط المتصفح فتح الشركات الإحدى عشرة واستخدم 2,400 أصل؛ قياس المليون يخص الفحص المحدد.",
+    "يبقى بناء المضيف واختبار خزنة iOS وWKWebView، ثم تشخيص آيفون جديد لقبول الطلبات وإصدار وصرف الشيكات، قبل إثبات اختفاء التقطيع أو اعتماد أداء الإصدار."
+  ],
+  "publication": {
+    "pushed": false,
+    "ci_run": false,
+    "ipa_built": false,
+    "approved": false
+  }
+}

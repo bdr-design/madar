@@ -672,7 +672,7 @@ final class GlobalSaveVault {
         dispatchPrecondition(condition: .onQueue(queue))
         let nativeBuild = Int(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0") ?? 0
         let sourceSnapshot = String((Bundle.main.object(forInfoDictionaryKey: "GHSourceSnapshotSHA256") as? String ?? "").filter { $0.isHexDigit }.prefix(64))
-        let compatibility = "window.GH_NATIVE_BUILD=\(nativeBuild);window.GH_NATIVE_SOURCE_SNAPSHOT='\(sourceSnapshot)';window.GH_NATIVE_CHUNK_ENCODINGS=['gh-packbits-v1'];"
+        let compatibility = "window.GH_NATIVE_BUILD=\(nativeBuild);window.GH_NATIVE_SOURCE_SNAPSHOT='\(sourceSnapshot)';window.GH_NATIVE_CHUNK_ENCODINGS=['gh-packbits-v1'];window.GH_NATIVE_ROW_PATCHES=1;window.GH_NATIVE_VALUE_CHUNKS=1;"
         if fm.fileExists(atPath: resetCheckpointURL.path) { return compatibility + "window.GH_NATIVE_RECOVERY_BLOCKED=true;" }
         guard let envelope = bestEnvelope(), let data = envelope.payload.data(using: .utf8) else { return compatibility + (["A", "B"].contains(where: { fm.fileExists(atPath: url($0).path) }) ? "window.GH_NATIVE_RECOVERY_BLOCKED=true;" : "") }
         let b64 = data.base64EncodedString()

@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-18",
+  "scope": "تحسين عمل صفحة المستندات وإصلاح مسار المؤتمر، ثم بناء IPA للاختبار بطلب المالك",
+  "status": "LOCAL_TARGETED_PASS_FULL_ACCEPTANCE_AND_NATIVE_CI_PENDING",
+  "baseline": {
+    "commit": "3abf65706629ed59718cc178b990205617d886e7",
+    "working_source_sha256": "a852d12417b8325181e5b6de9b1fda9deb2334d92944b3f9a288b0108bf6b3d6",
+    "scratch": "/workspace/scratch/command-budget20-20261018/",
+    "preserved_before_edits": true
+  },
+  "document_drawer": {
+    "cause": "كتابة scrollTop نفسه بعد استبدال HTML تفرض تخطيط أوراق الشيكات متزامنًا؛ إعادة إضافية كانت تتم في أربع عمليات تحديث مالية.",
+    "fix": "تخطي الكتابة عند تطابق الموضع، وتمرير الموضع المطلوب مباشرة؛ إعادة استخدام ثلاثة منسقات Intl بنفس الخيارات والناتج.",
+    "design_files_changed": false,
+    "runtime_monitors_added": false,
+    "test": "tests/build419-document-drawer-work-browser.cjs",
+    "format_vectors": 630,
+    "scroll_write_before": 1,
+    "scroll_write_after": 0,
+    "money_and_proofs_unchanged": true
+  },
+  "local_protocol_fixture_measurement": {
+    "engines": [
+      "Chromium",
+      "WebKit"
+    ],
+    "viewport": [
+      956,
+      440
+    ],
+    "companies": 11,
+    "aircraft": 2112,
+    "bulk_documents": 12,
+    "native_vault": "protocol double, NOT disk or iPhone",
+    "before_first_cheque_drawer_ms": {
+      "chromium": 56.3,
+      "webkit": 270
+    },
+    "after_first_cheque_drawer_ms": {
+      "chromium": 18.5,
+      "webkit": 24
+    },
+    "after_click_to_ack_ms": {
+      "chromium_issue": 103.6,
+      "chromium_cash": 104.6,
+      "webkit_issue": 262,
+      "webkit_cash": 130
+    },
+    "after_largest_named_sync_work_ms": {
+      "chromium_issue": 3.7,
+      "chromium_cash": 14.9,
+      "webkit_issue": 55,
+      "webkit_cash": 26
+    },
+    "limit_both_ms": 20,
+    "both_limits_achieved": false,
+    "limits": "قياسات محلية محدودة مع تفاوت JIT/GC؛ الفترات المتزامنة المسماة ليست إثباتًا لكل مقطع في المتصفح. انتظار التخزين الأصلي غير مقاس هنا. لا دليل جديد على الآيفون."
+  },
+  "conference": {
+    "fixes": [
+      "الاحتفاظ بفاحص حداثة ملخص الأسطول عند تمريره؛ قبول مسودة المعاملة الفعلية التي تشارك نفس مخزن الأسطول دون قبول حالة غير مرتبطة.",
+      "ترتيب انتقال الافتتاح والعرض قبل حفظ التقدم؛ دمج موضع تقدم منتظر واحد أثناء الحفظ الموجود بلا مؤقت أو مراقبة.",
+      "انتظار حفظ الاختتام وتأكيده قبل إغلاق العرض؛ الإبقاء على فرصة إعادة المحاولة بعد الرفض دون تعديل المال أو السمعة أو الأرشيف.",
+      "دعم متابعة سجل قديم بقي في closing دون الرجوع غير الصحيح إلى opening.",
+      "منع استبدال مؤتمر مدفوع غير مكتمل بمؤتمر لسنة أخرى.",
+      "رفض إعادة عرض سنة غير موجودة بدل عرض السنة الحالية.",
+      "مطابقة فهرس المتابعة مع معرّف الفصل وخطة العرض.",
+      "إدراج قدرة مواقع الطاقة الحديثة المشغلة فقط، وفصل التخزين واستبعاد مواقع الإنشاء من قدرة التوليد."
+    ],
+    "tests": [
+      "tests/build420-conference-durable-browser.cjs",
+      "tests/build421-conference-recovery-contract.cjs"
+    ],
+    "engines": [
+      "Chromium",
+      "WebKit"
+    ],
+    "viewports": [
+      [
+        956,
+        440
+      ],
+      [
+        844,
+        390
+      ],
+      [
+        667,
+        375
+      ]
+    ],
+    "angles": [
+      "front",
+      "wide",
+      "stage"
+    ],
+    "chapters_per_angle": 49,
+    "measured_board_overflow_px": 0,
+    "measured_final_board_panel_overlap_px2": 0,
+    "cancel_exact": true,
+    "held_ack_unpublished": true,
+    "nack_exact_rollback": true,
+    "successful_retry_once": true,
+    "archive_replay_readonly": true,
+    "legacy_closing_core_and_launcher_test": true,
+    "energy_fixture": {
+      "legacy_generation_MW": 10,
+      "commissioned_site_MW": 40,
+      "construction_site_MW": 80,
+      "displayed_generation_MW": 50,
+      "legacy_storage_MWh": 5,
+      "commissioned_storage_MWh": 7,
+      "displayed_storage_MWh": 12
+    },
+    "layout_css_changes": false
+  },
+  "red_evidence": [
+    "419 original scroll path fails same-offset writes 1 vs 0",
+    "420 original conference start fails conference-fleet-summary-required above 2048 assets",
+    "420 after summary repair exposes Lifecycle persistence operation is in progress during opening",
+    "421 original owner allows replacing an unfinished paid conference"
+  ],
+  "acceptance_definition": {
+    "gates": 450,
+    "preflight": 52,
+    "all_source_gates_executed": false,
+    "native_tests_executed_locally": false,
+    "physical_iphone_tested": false,
+    "release_approved": false
+  },
+  "remaining": [
+    "حد 20 مللي ثانية لكامل الأمر لم يتحقق؛ كذلك ظهرت مقاطع أكبر من الحد على WebKit في القياس المحلي.",
+    "يلزم تشخيص جديد من IPA الحالي على الآيفون للمقارنة؛ الملفات السابقة تخص مصدرًا أقدم.",
+    "الاختبارات الأصلية الكاملة وبناء IPA على macOS لم تنفذ بعد عند تسجيل هذا التقرير؛ نتيجة CI المطابقة للمصدر هي المرجع النهائي."
+  ],
+  "earlier_reports": [
+    "docs/COMMAND_SAVE_ROW_PATCHES_20261018_AR.json",
+    "docs/COMMAND_COSTS_20261018_AR.json",
+    "docs/STRICT_COMMAND_TRACE_20261018_AR.json"
+  ]
+}

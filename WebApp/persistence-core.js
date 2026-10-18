@@ -194,6 +194,13 @@
       const start=clock();step=steps.next(input);input=undefined;const busy=clock()-start;active+=busy;timing.busyMs+=busy;
       timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,active);
       if(step.done)return step.value;
+      if(step.value?.kind==='fleet-row-proof'){
+        const provider=globalThis.GH_FLEET_QUERY_PROVIDER,asked=typeof provider==='function'?provider({fleet:step.value.store,simSeconds:0},'saveChunkProof',{index:step.value.index,totalByteLength:step.value.totalByteLength}):null;
+        input=await asked;
+        // Only a worker answer ends the UI task; an unavailable provider must keep the accumulated busy budget.
+        if(asked&&typeof asked.then==='function'){timing.slices++;active=0;}
+        if(active>=SLICE_MS){timing.slices++;await yieldToFrame();active=0;}continue;
+      }
       if(step.value==='fleet-validation-wait'){timing.slices++;await yieldToFrame();active=0;continue;}
       if(step.value?.kind==='fleet-chunk-checksum'){
         if(typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER!=='function')throw new Error('save-checksum-worker-unavailable');
@@ -219,7 +226,7 @@
       const store=state.fleet,revision=store?.revision,buffer=store?.rows,session=externalChecksums&&typeof globalThis.GH_SAVE_CHECKSUM_THREAD?.createSession==='function'?globalThis.GH_SAVE_CHECKSUM_THREAD.createSession({current:()=>state.fleet===store&&store.revision===revision&&store.rows===buffer,submit:globalThis.GH_SAVE_CHECKSUM_PROVIDER}):null;
       try{
         if(staleProof)throw new Error('state-codec-fleet-changed-during-save');
-        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,knownChunkIds:vaultChunks}),yieldToFrame,timing,session);
+        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,knownChunkIds:vaultChunks,allowRowPatches:globalThis.GH_NATIVE_ROW_PATCHES===1&&typeof globalThis.GH_FLEET_QUERY_PROVIDER==='function'}),yieldToFrame,timing,session);
         if(state.fleet?.revision!==revision)throw new Error('state-codec-fleet-changed-during-save');
         break;
       }catch(error){
