@@ -65,11 +65,13 @@
       "منع استبدال مؤتمر مدفوع غير مكتمل بمؤتمر لسنة أخرى.",
       "رفض إعادة عرض سنة غير موجودة بدل عرض السنة الحالية.",
       "مطابقة فهرس المتابعة مع معرّف الفصل وخطة العرض.",
-      "إدراج قدرة مواقع الطاقة الحديثة المشغلة فقط، وفصل التخزين واستبعاد مواقع الإنشاء من قدرة التوليد."
+      "إدراج قدرة مواقع الطاقة الحديثة المشغلة فقط، وفصل التخزين واستبعاد مواقع الإنشاء من قدرة التوليد.",
+      "منع انكماش سطر النص داخل البطاقة: صف grid للعنوان والقيمة مع تقليل الفراغ الداخلي في المقاسات الأفقية، مع إبقاء الخط والحجم والوزن واللون وحد السطرين للقيمة."
     ],
     "tests": [
       "tests/build420-conference-durable-browser.cjs",
-      "tests/build421-conference-recovery-contract.cjs"
+      "tests/build421-conference-recovery-contract.cjs",
+      "tests/build422-conference-content-layout-browser.cjs"
     ],
     "engines": [
       "Chromium",
@@ -112,7 +114,9 @@
       "commissioned_storage_MWh": 7,
       "displayed_storage_MWh": 12
     },
-    "layout_css_changes": false
+    "layout_css_changes": [
+      "WebApp/conference-board-layout.css"
+    ]
   },
   "red_evidence": [
     "419 original scroll path fails same-offset writes 1 vs 0",
@@ -121,8 +125,8 @@
     "421 original owner allows replacing an unfinished paid conference"
   ],
   "acceptance_definition": {
-    "gates": 450,
-    "preflight": 52,
+    "gates": 451,
+    "preflight": 53,
     "all_source_gates_executed": false,
     "native_tests_executed_locally": false,
     "physical_iphone_tested": false,
@@ -137,5 +141,44 @@
     "docs/COMMAND_SAVE_ROW_PATCHES_20261018_AR.json",
     "docs/COMMAND_COSTS_20261018_AR.json",
     "docs/STRICT_COMMAND_TRACE_20261018_AR.json"
-  ]
+  ],
+  "conference_text_layout": {
+    "test": "tests/build422-conference-content-layout-browser.cjs",
+    "real_assets_and_fonts": true,
+    "engines": [
+      "Chromium",
+      "WebKit"
+    ],
+    "chapters": 49,
+    "viewport_angle_engine_combinations": 18,
+    "text_nodes_per_combination": 296,
+    "scorecard_text_nodes": 210,
+    "financial_text_nodes": 86,
+    "before_clipped_nodes_total": 2940,
+    "after_clipped_nodes_total": 0,
+    "style_font_size_weight_color_verified_unchanged": true,
+    "runtime_javascript_added": false,
+    "original_label_ellipsis_and_two_line_value_limit_preserved": true,
+    "screenshots": "docs/evidence/conference-content-20261018"
+  },
+  "build_history": [
+    {
+      "commit": "762472dee0f057ca831f8d3f3250612360e01672",
+      "run": 39087693914,
+      "result": "early_integrity_failure_two_test_screenshot_hashes",
+      "source_runtime_hash_passed": true
+    },
+    {
+      "commit": "473c8e519c39517b12ddd3424bf63b1ed543daf2",
+      "run": 39087933655,
+      "result": "cancelled_to_add_inner_text_geometry_fix",
+      "native_three_stages": "passed"
+    }
+  ],
+  "local_full_suite": {
+    "completed": false,
+    "passed_before_environment_restart": 34,
+    "runtime_sha256": "0cd3cc06dc2b4dd6cc0a6d6d244eb7f526e6c9a0da1c92e291421a95715b12ad",
+    "reason": "execution environment restarted during calendar journey; NOT a full pass"
+  }
 }

@@ -1,6 +1,10 @@
 {
-  "minimum_acceptance_gates": 450,
+  "minimum_acceptance_gates": 451,
   "preflight_commands": [
+    [
+      "node",
+      "tests/build422-conference-content-layout-browser.cjs"
+    ],
     [
       "node",
       "tests/build419-document-drawer-work-browser.cjs"
@@ -2010,6 +2014,10 @@
     [
       "node",
       "tests/build421-conference-recovery-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build422-conference-content-layout-browser.cjs"
     ]
   ]
 }

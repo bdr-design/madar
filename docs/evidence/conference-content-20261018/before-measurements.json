@@ -1,0 +1,5136 @@
+{
+  "results": [
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "front",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10.516,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "wide",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.921875,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -19.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 8.328125,
+          "expected": 25.659,
+          "container": 29.25,
+          "top": 13.921875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.921875,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -19.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 8.328125,
+          "expected": 25.659,
+          "container": 29.25,
+          "top": 13.921875,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10.516,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "stage",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 7.703125,
+          "expected": 10,
+          "container": 36.671875,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.671875,
+          "top": 18.703125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 7.703125,
+          "expected": 10,
+          "container": 36.671875,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.671875,
+          "top": 18.703125,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10.516,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "front",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.03125,
+          "expected": 10,
+          "container": 27.484375,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.484375,
+          "top": 15.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 4.03125,
+          "expected": 10,
+          "container": 27.484375,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.484375,
+          "top": 15.03125,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "wide",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.421875,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 3.875,
+          "expected": 24.4,
+          "container": 23.296875,
+          "top": 12.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.421875,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 3.875,
+          "expected": 24.4,
+          "container": 23.296875,
+          "top": 12.421875,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "stage",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 5.046875,
+          "expected": 10,
+          "container": 29.875,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.875,
+          "top": 16.046875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 5.046875,
+          "expected": 10,
+          "container": 29.875,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.875,
+          "top": 16.046875,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "front",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 3.4375,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -15.671875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 4.671875,
+          "expected": 13,
+          "container": 26.109375,
+          "top": 14.4375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 3.4375,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -15.671875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 4.671875,
+          "expected": 13,
+          "container": 26.109375,
+          "top": 14.4375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 3.453125,
+          "expected": 10,
+          "container": 26.125,
+          "top": 7,
+          "bottom": -15.671875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 4.671875,
+          "expected": 13,
+          "container": 26.125,
+          "top": 14.453125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.1875,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -16.921875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 5.921875,
+          "expected": 24.4,
+          "container": 26.109375,
+          "top": 13.1875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.1875,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -16.921875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 5.921875,
+          "expected": 24.4,
+          "container": 26.109375,
+          "top": 13.1875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.1875,
+          "expected": 10,
+          "container": 26.125,
+          "top": 7,
+          "bottom": -16.9375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 5.9375,
+          "expected": 24.4,
+          "container": 26.125,
+          "top": 13.1875,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "wide",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 1.734375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.359375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 2.359375,
+          "expected": 13,
+          "container": 22.09375,
+          "top": 12.734375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 1.734375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.359375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 2.359375,
+          "expected": 13,
+          "container": 22.09375,
+          "top": 12.734375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 1.734375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.359375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 2.359375,
+          "expected": 13,
+          "container": 22.09375,
+          "top": 12.734375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 1.109375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.984375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 2.984375,
+          "expected": 24.4,
+          "container": 22.09375,
+          "top": 12.109375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.109375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.984375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 2.984375,
+          "expected": 24.4,
+          "container": 22.09375,
+          "top": 12.109375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.109375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.984375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 2.984375,
+          "expected": 24.4,
+          "container": 22.09375,
+          "top": 12.109375,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "stage",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.421875,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -16.984375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 5.984375,
+          "expected": 13,
+          "container": 28.40625,
+          "top": 15.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.421875,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -16.984375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 5.984375,
+          "expected": 13,
+          "container": 28.40625,
+          "top": 15.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.421875,
+          "expected": 10,
+          "container": 28.421875,
+          "top": 7,
+          "bottom": -17
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6,
+          "expected": 13,
+          "container": 28.421875,
+          "top": 15.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.8125,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -18.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 7.59375,
+          "expected": 24.4,
+          "container": 28.40625,
+          "top": 13.8125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.8125,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -18.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 7.59375,
+          "expected": 24.4,
+          "container": 28.40625,
+          "top": 13.8125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.8125,
+          "expected": 10,
+          "container": 28.421875,
+          "top": 7,
+          "bottom": -18.609375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 7.609375,
+          "expected": 24.4,
+          "container": 28.421875,
+          "top": 13.8125,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "front",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 7,
+          "expected": 9,
+          "container": 34.34375,
+          "top": 7,
+          "bottom": -20.34375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 9.34375,
+          "expected": 12,
+          "container": 34.34375,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 7,
+          "expected": 9,
+          "container": 34.34375,
+          "top": 7,
+          "bottom": -20.34375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 9.34375,
+          "expected": 12,
+          "container": 34.34375,
+          "top": 18,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10.516001,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "wide",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.984375,
+          "expected": 9,
+          "container": 29.625,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.625,
+          "top": 15.984375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 4.984375,
+          "expected": 9,
+          "container": 29.625,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.625,
+          "top": 15.984375,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10.516001,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "stage",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 84,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.03 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-leadership",
+          "kind": "text-clipped",
+          "text": "لا موظفين",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-leadership",
+          "kind": "text-clipped",
+          "text": "لا أصول",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-leadership",
+          "kind": "text-clipped",
+          "text": "لا منشآت",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-operations",
+          "kind": "text-clipped",
+          "text": "0",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-operations",
+          "kind": "text-clipped",
+          "text": "0",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10.516001,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "front",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "wide",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 3.203125,
+          "expected": 12,
+          "container": 23.609375,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 3.203125,
+          "expected": 12,
+          "container": 23.609375,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.625,
+          "top": 7,
+          "bottom": -14.21875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 3.21875,
+          "expected": 12,
+          "container": 23.625,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 3.203125,
+          "expected": 12,
+          "container": 23.609375,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.53125,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -15.078125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 4.078125,
+          "expected": 24,
+          "container": 23.609375,
+          "top": 12.53125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.53125,
+          "expected": 9,
+          "container": 23.625,
+          "top": 7,
+          "bottom": -15.09375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 4.09375,
+          "expected": 24,
+          "container": 23.625,
+          "top": 12.53125,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "stage",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "front",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 3.609375,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -15.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 4.828125,
+          "expected": 12,
+          "container": 26.4375,
+          "top": 14.609375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 3.609375,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -15.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 4.828125,
+          "expected": 12,
+          "container": 26.4375,
+          "top": 14.609375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 3.609375,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -15.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 4.828125,
+          "expected": 12,
+          "container": 26.4375,
+          "top": 14.609375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.296875,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.140625,
+          "expected": 24,
+          "container": 26.4375,
+          "top": 13.296875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.296875,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.140625,
+          "expected": 24,
+          "container": 26.4375,
+          "top": 13.296875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.296875,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.140625,
+          "expected": 24,
+          "container": 26.4375,
+          "top": 13.296875,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "wide",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 1.890625,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -13.515625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 2.515625,
+          "expected": 12,
+          "container": 22.40625,
+          "top": 12.890625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 1.890625,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -13.515625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 2.515625,
+          "expected": 12,
+          "container": 22.40625,
+          "top": 12.890625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 1.890625,
+          "expected": 9,
+          "container": 22.421875,
+          "top": 7,
+          "bottom": -13.53125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 2.53125,
+          "expected": 12,
+          "container": 22.421875,
+          "top": 12.890625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 1.203125,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 3.203125,
+          "expected": 24,
+          "container": 22.40625,
+          "top": 12.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.203125,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 3.203125,
+          "expected": 24,
+          "container": 22.40625,
+          "top": 12.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.203125,
+          "expected": 9,
+          "container": 22.421875,
+          "top": 7,
+          "bottom": -14.21875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 3.21875,
+          "expected": 24,
+          "container": 22.421875,
+          "top": 12.203125,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "stage",
+      "chapters": 49,
+      "counts": {
+        "facts": 210,
+        "financial": 86
+      },
+      "badCount": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.59375,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.140625,
+          "expected": 12,
+          "container": 28.734375,
+          "top": 15.59375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.59375,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.140625,
+          "expected": 12,
+          "container": 28.734375,
+          "top": 15.59375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.59375,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.140625,
+          "expected": 12,
+          "container": 28.734375,
+          "top": 15.59375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.921875,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -18.8125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 7.8125,
+          "expected": 24,
+          "container": 28.734375,
+          "top": 13.921875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.921875,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -18.8125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 7.8125,
+          "expected": 24,
+          "container": 28.734375,
+          "top": 13.921875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.921875,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -18.8125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 7.8125,
+          "expected": 24,
+          "container": 28.734375,
+          "top": 13.921875,
+          "bottom": -7
+        }
+      ],
+      "styles": [
+        {
+          "tag": "SMALL",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 7.5,
+          "weight": "400",
+          "color": "rgb(170, 198, 215)"
+        },
+        {
+          "tag": "B",
+          "font": "\"GH Plex Arabic\", sans-serif",
+          "size": 10,
+          "weight": "700",
+          "color": "rgb(241, 246, 255)"
+        }
+      ],
+      "unchanged": true,
+      "scheduled": false
+    }
+  ],
+  "violations": [
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "front",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 6.578125,
+          "expected": 10,
+          "container": 33.96875,
+          "top": 7,
+          "bottom": -20.390625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 9.390625,
+          "expected": 13,
+          "container": 33.96875,
+          "top": 17.578125,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "wide",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.640625,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -17.609375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.609375,
+          "expected": 13,
+          "container": 29.25,
+          "top": 15.640625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.921875,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -19.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 8.328125,
+          "expected": 25.659,
+          "container": 29.25,
+          "top": 13.921875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.921875,
+          "expected": 10,
+          "container": 29.25,
+          "top": 7,
+          "bottom": -19.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 8.328125,
+          "expected": 25.659,
+          "container": 29.25,
+          "top": 13.921875,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "stage",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 7.703125,
+          "expected": 10,
+          "container": 36.671875,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.671875,
+          "top": 18.703125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 7.6875,
+          "expected": 10,
+          "container": 36.65625,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.65625,
+          "top": 18.6875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 7.703125,
+          "expected": 10,
+          "container": 36.671875,
+          "top": 7,
+          "bottom": -21.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 10.96875,
+          "expected": 13,
+          "container": 36.671875,
+          "top": 18.703125,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "front",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.03125,
+          "expected": 10,
+          "container": 27.484375,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.484375,
+          "top": 15.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 4.015625,
+          "expected": 10,
+          "container": 27.46875,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.46875,
+          "top": 15.015625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 4.03125,
+          "expected": 10,
+          "container": 27.484375,
+          "top": 7,
+          "bottom": -16.453125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 5.453125,
+          "expected": 13,
+          "container": 27.484375,
+          "top": 15.03125,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "wide",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.25,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.046875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 3.046875,
+          "expected": 13,
+          "container": 23.296875,
+          "top": 13.25,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.421875,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 3.875,
+          "expected": 24.4,
+          "container": 23.296875,
+          "top": 12.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.421875,
+          "expected": 10,
+          "container": 23.296875,
+          "top": 7,
+          "bottom": -14.875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 3.875,
+          "expected": 24.4,
+          "container": 23.296875,
+          "top": 12.421875,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "stage",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 5.046875,
+          "expected": 10,
+          "container": 29.875,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.875,
+          "top": 16.046875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 5.03125,
+          "expected": 10,
+          "container": 29.859375,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.859375,
+          "top": 16.03125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 5.046875,
+          "expected": 10,
+          "container": 29.875,
+          "top": 7,
+          "bottom": -17.828125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.828125,
+          "expected": 13,
+          "container": 29.875,
+          "top": 16.046875,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "front",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 3.4375,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -15.671875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 4.671875,
+          "expected": 13,
+          "container": 26.109375,
+          "top": 14.4375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 3.4375,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -15.671875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 4.671875,
+          "expected": 13,
+          "container": 26.109375,
+          "top": 14.4375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 3.453125,
+          "expected": 10,
+          "container": 26.125,
+          "top": 7,
+          "bottom": -15.671875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 4.671875,
+          "expected": 13,
+          "container": 26.125,
+          "top": 14.453125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.1875,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -16.921875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 5.921875,
+          "expected": 24.4,
+          "container": 26.109375,
+          "top": 13.1875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.1875,
+          "expected": 10,
+          "container": 26.109375,
+          "top": 7,
+          "bottom": -16.921875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 5.921875,
+          "expected": 24.4,
+          "container": 26.109375,
+          "top": 13.1875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.1875,
+          "expected": 10,
+          "container": 26.125,
+          "top": 7,
+          "bottom": -16.9375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 5.9375,
+          "expected": 24.4,
+          "container": 26.125,
+          "top": 13.1875,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "wide",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 1.734375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.359375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 2.359375,
+          "expected": 13,
+          "container": 22.09375,
+          "top": 12.734375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 1.734375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.359375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 2.359375,
+          "expected": 13,
+          "container": 22.09375,
+          "top": 12.734375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 1.734375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.359375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 2.359375,
+          "expected": 13,
+          "container": 22.09375,
+          "top": 12.734375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 1.109375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.984375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 2.984375,
+          "expected": 24.4,
+          "container": 22.09375,
+          "top": 12.109375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.109375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.984375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 2.984375,
+          "expected": 24.4,
+          "container": 22.09375,
+          "top": 12.109375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.109375,
+          "expected": 10,
+          "container": 22.09375,
+          "top": 7,
+          "bottom": -13.984375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 2.984375,
+          "expected": 24.4,
+          "container": 22.09375,
+          "top": 12.109375,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "stage",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.421875,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -16.984375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 5.984375,
+          "expected": 13,
+          "container": 28.40625,
+          "top": 15.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.421875,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -16.984375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 5.984375,
+          "expected": 13,
+          "container": 28.40625,
+          "top": 15.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.421875,
+          "expected": 10,
+          "container": 28.421875,
+          "top": 7,
+          "bottom": -17
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6,
+          "expected": 13,
+          "container": 28.421875,
+          "top": 15.421875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.8125,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -18.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 7.59375,
+          "expected": 24.4,
+          "container": 28.40625,
+          "top": 13.8125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.8125,
+          "expected": 10,
+          "container": 28.40625,
+          "top": 7,
+          "bottom": -18.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 7.59375,
+          "expected": 24.4,
+          "container": 28.40625,
+          "top": 13.8125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.8125,
+          "expected": 10,
+          "container": 28.421875,
+          "top": 7,
+          "bottom": -18.609375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 7.609375,
+          "expected": 24.4,
+          "container": 28.421875,
+          "top": 13.8125,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "front",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 7,
+          "expected": 9,
+          "container": 34.34375,
+          "top": 7,
+          "bottom": -20.34375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 9.34375,
+          "expected": 12,
+          "container": 34.34375,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 7,
+          "expected": 9,
+          "container": 34.328125,
+          "top": 7,
+          "bottom": -20.328125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 9.328125,
+          "expected": 12,
+          "container": 34.328125,
+          "top": 18,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 7,
+          "expected": 9,
+          "container": 34.34375,
+          "top": 7,
+          "bottom": -20.34375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 9.34375,
+          "expected": 12,
+          "container": 34.34375,
+          "top": 18,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "wide",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.984375,
+          "expected": 9,
+          "container": 29.625,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.625,
+          "top": 15.984375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 4.96875,
+          "expected": 9,
+          "container": 29.609375,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.609375,
+          "top": 15.96875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 4.984375,
+          "expected": 9,
+          "container": 29.625,
+          "top": 7,
+          "bottom": -17.640625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.640625,
+          "expected": 12,
+          "container": 29.625,
+          "top": 15.984375,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "angle": "stage",
+      "count": 84,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.03 مليون دولار",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-leadership",
+          "kind": "text-clipped",
+          "text": "لا موظفين",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-leadership",
+          "kind": "text-clipped",
+          "text": "لا أصول",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-leadership",
+          "kind": "text-clipped",
+          "text": "لا منشآت",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-operations",
+          "kind": "text-clipped",
+          "text": "0",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        },
+        {
+          "scene": "air-operations",
+          "kind": "text-clipped",
+          "text": "0",
+          "height": 10.875,
+          "expected": 12,
+          "container": 37.03125,
+          "top": 19.15625,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "front",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 4.203125,
+          "expected": 9,
+          "container": 27.796875,
+          "top": 7,
+          "bottom": -16.59375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 5.59375,
+          "expected": 12,
+          "container": 27.796875,
+          "top": 15.203125,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "wide",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 3.203125,
+          "expected": 12,
+          "container": 23.609375,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 3.203125,
+          "expected": 12,
+          "container": 23.609375,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.625,
+          "top": 7,
+          "bottom": -14.21875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 3.21875,
+          "expected": 12,
+          "container": 23.625,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.40625,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 3.203125,
+          "expected": 12,
+          "container": 23.609375,
+          "top": 13.40625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.53125,
+          "expected": 9,
+          "container": 23.609375,
+          "top": 7,
+          "bottom": -15.078125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 4.078125,
+          "expected": 24,
+          "container": 23.609375,
+          "top": 12.53125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.53125,
+          "expected": 9,
+          "container": 23.625,
+          "top": 7,
+          "bottom": -15.09375
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 4.09375,
+          "expected": 24,
+          "container": 23.625,
+          "top": 12.53125,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "angle": "stage",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 5.21875,
+          "expected": 9,
+          "container": 30.1875,
+          "top": 7,
+          "bottom": -17.96875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.96875,
+          "expected": 12,
+          "container": 30.1875,
+          "top": 16.21875,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "front",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 3.609375,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -15.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 4.828125,
+          "expected": 12,
+          "container": 26.4375,
+          "top": 14.609375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 3.609375,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -15.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 4.828125,
+          "expected": 12,
+          "container": 26.4375,
+          "top": 14.609375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 3.609375,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -15.828125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 4.828125,
+          "expected": 12,
+          "container": 26.4375,
+          "top": 14.609375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.296875,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 6.140625,
+          "expected": 24,
+          "container": 26.4375,
+          "top": 13.296875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.296875,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 6.140625,
+          "expected": 24,
+          "container": 26.4375,
+          "top": 13.296875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.296875,
+          "expected": 9,
+          "container": 26.4375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 6.140625,
+          "expected": 24,
+          "container": 26.4375,
+          "top": 13.296875,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "wide",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 1.890625,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -13.515625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 2.515625,
+          "expected": 12,
+          "container": 22.40625,
+          "top": 12.890625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 1.890625,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -13.515625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 2.515625,
+          "expected": 12,
+          "container": 22.40625,
+          "top": 12.890625,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 1.890625,
+          "expected": 9,
+          "container": 22.421875,
+          "top": 7,
+          "bottom": -13.53125
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 2.53125,
+          "expected": 12,
+          "container": 22.421875,
+          "top": 12.890625,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 1.203125,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 3.203125,
+          "expected": 24,
+          "container": 22.40625,
+          "top": 12.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 1.203125,
+          "expected": 9,
+          "container": 22.40625,
+          "top": 7,
+          "bottom": -14.203125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 3.203125,
+          "expected": 24,
+          "container": 22.40625,
+          "top": 12.203125,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 1.203125,
+          "expected": 9,
+          "container": 22.421875,
+          "top": 7,
+          "bottom": -14.21875
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 3.21875,
+          "expected": 24,
+          "container": 22.421875,
+          "top": 12.203125,
+          "bottom": -7
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "angle": "stage",
+      "count": 168,
+      "examples": [
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الشركات المشاركة",
+          "height": 4.59375,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "11 شركة",
+          "height": 6.140625,
+          "expected": 12,
+          "container": 28.734375,
+          "top": 15.59375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "الموظفون",
+          "height": 4.59375,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "0 موظف",
+          "height": 6.140625,
+          "expected": 12,
+          "container": 28.734375,
+          "top": 15.59375,
+          "bottom": -7
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "سنة العرض",
+          "height": 4.59375,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -17.140625
+        },
+        {
+          "scene": "opening",
+          "kind": "text-clipped",
+          "text": "2026",
+          "height": 6.140625,
+          "expected": 12,
+          "container": 28.734375,
+          "top": 15.59375,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للطيران",
+          "height": 2.921875,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -18.8125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100 مليون دولار",
+          "height": 7.8125,
+          "expected": 24,
+          "container": 28.734375,
+          "top": 13.921875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للشحن البحري",
+          "height": 2.921875,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -18.8125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.01 مليون دولار",
+          "height": 7.8125,
+          "expected": 24,
+          "container": 28.734375,
+          "top": 13.921875,
+          "bottom": -7
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "شركة فنتورا العالمية للنقل",
+          "height": 2.921875,
+          "expected": 9,
+          "container": 28.734375,
+          "top": 7,
+          "bottom": -18.8125
+        },
+        {
+          "scene": "portfolio",
+          "kind": "text-clipped",
+          "text": "100.02 مليون دولار",
+          "height": 7.8125,
+          "expected": 24,
+          "container": 28.734375,
+          "top": 13.921875,
+          "bottom": -7
+        }
+      ]
+    }
+  ]
+}
