@@ -1,0 +1,10 @@
+PURCHASE_SYNC_BUDGET {"maxSyncMs":18,"maxFullSyncMs":0.30000000004656613,"maxSeedSyncMs":0,"maxReplicaPrimeSliceMs":0,"slowSyncs":1,"incrementalSyncs":1681,"maxMutationRows":220}
+AssertionError [ERR_ASSERTION]: a worker mutation sync took a whole frame: 18
+    at /Users/runner/work/madar/madar/tests/build372-asset-purchase-app-browser.cjs:54:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
