@@ -1,0 +1,86 @@
+{
+  "cases" : [
+    {
+      "name" : "4 MiB real worker reply matches reference and retains live buffer",
+      "ok" : true
+    },
+    {
+      "name" : "three chunk pipeline uses one bounded lookahead and no main checksum",
+      "ok" : true
+    },
+    {
+      "name" : "unchanged save performs only its rotating check",
+      "ok" : true
+    },
+    {
+      "name" : "sparse changes skip the known middle base page and reload exactly",
+      "ok" : true
+    },
+    {
+      "name" : "forgotten vault gets all unchanged snapshot bytes once",
+      "ok" : true
+    },
+    {
+      "name" : "changed revision rejects old work and then retries cleanly",
+      "ok" : true
+    },
+    {
+      "name" : "immediate promises cannot claim a worker task boundary",
+      "ok" : true
+    },
+    {
+      "name" : "termination rejects pending work without leaving resources",
+      "ok" : true
+    }
+  ],
+  "failed" : 0,
+  "nativeGatePassed" : true,
+  "origin" : "gh:\/\/app",
+  "passed" : 8,
+  "physicalIPhone" : false,
+  "platform" : "macOS",
+  "probeSha256" : "ad009434fa57e7cbcd9a63b963dab28eb905404eb0b822a54229ae59dfc2fb24",
+  "realWKWebView" : true,
+  "requestedPaths" : [
+    "\/index.html",
+    "\/fleet-store-core.js",
+    "\/state-codec-core.js",
+    "\/save-checksum-thread.js",
+    "\/__qa_native_worker_probe__.js",
+    "\/save-checksum-worker.js",
+    "\/state-codec-core.js",
+    "\/save-chunk-codec.js"
+  ],
+  "sourceSha256" : {
+    "fleet-store-core.js" : "027bc5b47063ebdd0571bb5e9a38bb81cb7f512379090c5265b37ee1732082d8",
+    "index.html" : "a98adceeadb8e62ac739271445b07e5ae50578869be77e98e5ee7d1ad67bc12e",
+    "save-checksum-thread.js" : "32d840c6afbdcbffb1083ec4ade3c3633703695ffe1cf7c2fb2c7d6af08f5a33",
+    "save-checksum-worker.js" : "de4f9056e1551d716f5b7842f5ea0e7055edeb101896915de0a7d45590a7d0a2",
+    "save-chunk-codec.js" : "d5f57ae917b813275ac60f23e936f25d714f8ec3923b6429d83c7b706fc0a2b0",
+    "state-codec-core.js" : "cb4076cfc454859cf655b1a33e204b544c9c76a986f63cdc72cf704f15bc8d47"
+  },
+  "stats" : {
+    "activeChannels" : 0,
+    "activeSessions" : 0,
+    "chunkEncodes" : 1,
+    "completed" : 24,
+    "copyMs" : 29,
+    "deferredSubmitMs" : 5,
+    "encodes" : 0,
+    "failures" : 0,
+    "lookaheadRequests" : 10,
+    "maxCopyMs" : 8,
+    "maxDeferredSubmitMs" : 2,
+    "maxSessionJobs" : 2,
+    "maxWorkerMs" : 40,
+    "pending" : 0,
+    "rawChunkBytes" : 4194304,
+    "requests" : 25,
+    "sessions" : 7,
+    "wireChunkBytes" : 65556,
+    "workerMs" : 101.00000000000006
+  },
+  "total" : 8,
+  "version" : "save-pipeline-native-v1",
+  "workerRequestObserved" : true
+}

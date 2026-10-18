@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: a worker mutation sync took a whole frame: 24.399999999906868
+    at /Users/runner/work/madar/madar/tests/build372-asset-purchase-app-browser.cjs:53:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
