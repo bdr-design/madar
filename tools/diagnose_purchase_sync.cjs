@@ -11,10 +11,8 @@ const profile={
     await page.evaluate(()=>{
       const samples=[],syncs=[];let cursor=0;
       const record=(name,start,end,detail)=>{samples.push({name,start,end,ms:end-start,detail});if(samples.length>12000){samples.splice(0,6000);cursor=Math.max(0,cursor-6000);}};
-      const store=GH_FLEET_STORE,wrapped={...store};
-      for(const name of ['drainReplica','readRows','replicaValueChanges','views'])wrapped[name]=function(...args){const start=performance.now();try{return store[name](...args);}finally{record(name,start,performance.now(),name==='readRows'?args[1]?.length:null);}};
-      globalThis.GH_FLEET_STORE=wrapped;
-      const post=Worker.prototype.postMessage;Worker.prototype.postMessage=function(message,...args){const start=performance.now();try{return post.call(this,message,...args);}finally{record('postMessage',start,performance.now(),{type:message?.type,rows:message?.rows?.indices?.length,values:message?.values?.changes?.length});}};
+      globalThis.__PURCHASE_RECORD__=record;
+      const post=Worker.prototype.postMessage;Worker.prototype.postMessage=function(message,...args){const detail={type:message?.type,rows:message?.rows?.indices?.length,values:message?.values?.changes?.length},start=performance.now();try{return post.call(this,message,...args);}finally{record('postMessage',start,performance.now(),detail);}};
       const engine=GH_FLEET_ENGINE_THREAD;
       globalThis.GH_FLEET_ENGINE_THREAD={...engine,create(options){return engine.create({...options,onMainThreadWork(name,start,end){options.onMainThreadWork?.(name,start,end);if(name==='fleet.sync'){if(end-start>=2)syncs.push({start,end,ms:end-start,spans:samples.slice(cursor).filter(row=>row.start>=start&&row.end<=end)});cursor=samples.length;}}});}};
       globalThis.__PURCHASE_PROFILE__={samples,syncs};
@@ -28,7 +26,8 @@ const profile={
 module.exports=profile;
 if(require.main===module){
  const file=path.join(root,'tests/build372-asset-purchase-app-browser.cjs'),original=fs.readFileSync(file,'utf8');
- let code=original.replace('beforeScripts:{arg:workerSource','beforeApp:profile.beforeApp,beforeScripts:{arg:workerSource').replace('}finally{await browser.close();}','}finally{try{await profile.finish();}finally{await browser.close();}}');
+ const prelude=`let storeApi;Object.defineProperty(globalThis,'GH_FLEET_STORE',{configurable:true,get:()=>storeApi,set(api){storeApi={...api};for(const name of ['drainReplica','readRows','replicaValueChanges','views'])storeApi[name]=function(...args){const start=performance.now();try{return api[name](...args);}finally{globalThis.__PURCHASE_RECORD__?.(name,start,performance.now(),name==='readRows'?args[1]?.length:null);}};}});`;
+ let code=original.replace('beforeScripts:{arg:workerSource','beforeApp:profile.beforeApp,beforeScripts:{arg:workerSource').replace('fn:source=>{','fn:source=>{'+prelude).replace('}finally{await browser.close();}','}finally{try{await profile.finish();}finally{await browser.close();}}');
  if(code===original||!code.includes('await profile.finish()'))throw new Error('purchase profile anchors changed');
  code="const profile=require('../tools/diagnose_purchase_sync.cjs');\n"+code;
  fs.writeFileSync(path.join(out,'purchase-sync-source.json'),JSON.stringify({testSha256:crypto.createHash('sha256').update(original).digest('hex'),commit:process.env.GITHUB_SHA||null}));

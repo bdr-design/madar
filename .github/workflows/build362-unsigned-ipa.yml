@@ -20,9 +20,14 @@ jobs:
           npm install --no-save --package-lock=false --no-audit --no-fund
           npx playwright install chromium
       - name: Execute original purchase gate with finite sync spans
-        run: node tools/diagnose_purchase_sync.cjs
+        run: |
+          set -euo pipefail
+          for sample in 1 2 3; do
+            GH_PURCHASE_PROFILE_OUT=".ci-output/sample-$sample" node tools/diagnose_purchase_sync.cjs
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: purchase-sync-profile
           path: .ci-output/
+          include-hidden-files: true
