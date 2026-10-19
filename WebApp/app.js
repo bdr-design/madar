@@ -955,7 +955,7 @@
   // saved in slices (commitDurableState yieldToFrame), with a frame painted whenever a slice has run 10 ms. The draft is
   // private and the lifecycle lock holds the live state still, so the result is the one-shot result.
   async function validateDraftInSlices(draft,{onSlice=null,onFleetValidationWait}={}){
-    return window.GH_TRANSACTION_CORE.validateSchemaInSlices(draft,{yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),onFleetValidationWait,budgetMs:window.GH_TRANSACTION_CORE.DURABLE_CLONE_SLICE_MS||4,onSlice:(start,end)=>{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.schema',start,end);onSlice?.(start,end);}});
+    return window.GH_TRANSACTION_CORE.validateSchemaInSlices(draft,{yieldToHost:()=>yieldForInteractivePaint(document.hidden?0:80),onFleetValidationWait,onSlice:(start,end)=>{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.schema',start,end);onSlice?.(start,end);}});
   }
   // Build 372: the save check's classes of rows and id check over the fleet (every row: 400 ms on the main thread at a
   // million assets), found by the fleet engine's worker on a replica that is exactly this store (fieldClasses), for the
