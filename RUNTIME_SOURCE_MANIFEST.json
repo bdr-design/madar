@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "6e1a8aab0ceddb04e31ec6e0368897df8b86d4e4f938c272e1a82ec9f464c3cf",
-  "webapp_tree_sha256": "31ec161ca7db52e2674958ccf74ab99a6899f0cc59898ab2ac17353be406f7ba",
+  "source_tree_sha256": "79d9c6823fad4e1493639fb3c30bed6aa0c49246a346d1e4cf0794a6985540de",
+  "webapp_tree_sha256": "99e40e37aaba4598b9f0c0fd97e01c1445ff95589975be7b4ba7403b270f1905",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3371,8 +3371,8 @@
       "sha256": "c22e1f0e0baee07621cb2e8afe3afa807bf7237b1ca385246131d541c655d63a"
     },
     "WebApp/authorization-core.js": {
-      "bytes": 43681,
-      "sha256": "4ec0b1444e6e87caf428a269415c61925e48f65147d8438d3df6b8d2f76ba11a"
+      "bytes": 44144,
+      "sha256": "54aab8e9e7960cf7b2162550805f5ef6230b81132ac85d232095297fa6b1dc27"
     },
     "WebApp/authorization-ui.css": {
       "bytes": 2714,
@@ -3499,8 +3499,8 @@
       "sha256": "b330527c3e699bfba609a101d35346133f0f4887ed723071b414c0bcffc2ec4d"
     },
     "WebApp/domain-command-core.js": {
-      "bytes": 59851,
-      "sha256": "3c6c32b931a69ce6623a5bb599b6d053733b49de8cb04b9a52de1b325e5f2359"
+      "bytes": 60195,
+      "sha256": "d236fcc99e30845cc8ab916398e50ecc359eb5913c610f3576b0df4b50830aba"
     },
     "WebApp/economics-core.js": {
       "bytes": 11768,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "93f8041cfa9b98aa62b927a0f5ce309296ed6a32b670362d062af1905a73c3b2"
+      "sha256": "1ff7c616d81fbcdc98470adfc7f92603752c22195a5d34b27d3f37ca326398a7"
     },
     "BUILD": {
       "bytes": 4,

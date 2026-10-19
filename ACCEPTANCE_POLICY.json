@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 552,
+  "minimum_acceptance_gates": 553,
   "preflight_commands": [
     [
       "node",
@@ -2746,6 +2746,10 @@
     [
       "node",
       "tests/build522-fleet-day-prefetch.cjs"
+    ],
+    [
+      "node",
+      "tests/build523-proofs-commands-tracked.cjs"
     ]
   ]
 }

@@ -209,6 +209,10 @@
   // Build 359: the proof archive is replaced on every change (copy-on-write), never edited: it is sealed whole once its
   // proofs are (a container, GH_TRANSACTION_CORE), so commands share it without walking it.
   (globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys])))('authorization',['proofsById']);
+  // Emulated phone (20k assets, 4x CPU, every company): a decision adds a proof, and the table (sealed rows, up to 4,000)
+  // was re-encoded in default segments of about 256 rows (one segment under 512 rows), twice per decision. Tracked: small
+  // segments, so only the one holding the new or removed proof is encoded again. Format and decoding are unchanged.
+  globalThis.GH_STATE_CODEC?.registerTrackedCollection?.(['authorization','proofsById'],{rows:32});
   (globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys,options)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys,options])))('authorization',['proofArchiveById'],{container:true});
   const API=Object.freeze({VERSION,SCHEMA,LIMITS,MAX_SIGNATURE_BYTES,stable,digest,ensure,compact,upsertPerson,ensurePrincipal,normalizeStrokes,validateVisualSeal,createVisualSeal,createSignature,revokeVisualSeal,revokeSignature,createMandate,createDefaultMandate,registerCommandTargetResolver,sealTargetResolvers,areTargetResolversSealed,commandIntent,commandCompanyIds,intentDigest,buildEnvelope,buildActiveEnvelope,authorize,findDelegatedAuthorization,issueProof,proofRecord,proofRecords,verifyProof});globalThis.GH_AUTHORIZATION=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_AUTHORIZATION=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();
