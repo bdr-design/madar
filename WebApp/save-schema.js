@@ -175,12 +175,15 @@
   const fleetSaveValidation=()=>globalThis.GH_FLEET_SAVE_VALIDATION||(typeof require==='function'?require('./fleet-save-validation-core.js'):null);
   // Everything outside the fleet that changes the compact worker answer.  The route and company registries are bounded,
   // so this context stays small even when the fleet has one million unique ids and names.
+  // The route ids are listed once each, in first-seen order, exactly as the route section's Set (built-in routes, then
+  // custom ids): a repeated custom id made the two lists, and so the context tokens, differ, and the save failed with
+  // fleet-validation-unavailable instead of reporting the duplicate route (iPhone diagnostic review, A2).
   function fleetValidationParams(state,routes=null,routeIds=null){
     const platform=globalThis.GH_COMPANY_PLATFORM,definitions=typeof platform?.listDefinitions==='function'?platform.listDefinitions():[],legacyModes=new Set();
     for(const mode of ROUTE_TYPES)legacyModes.add(mode);
     for(const definition of definitions)for(const mode of definition?.legacy?.assetOwnerModes||[])legacyModes.add(String(mode));
     const legacyAssetOwners={};for(const mode of legacyModes){const owner=platform?.ownerForLegacyAssetMode?.(mode);if(owner)legacyAssetOwners[mode]=String(owner);}
-    const custom=Array.isArray(routes)?routes:Array.isArray(state?.customRoutes)?state.customRoutes:[],known=routeIds instanceof Set?[...routeIds]:[...BUILTIN_ROUTES,...custom.map(route=>route?.id).filter(Boolean)],registry=object(state?.companyRegistry)?state.companyRegistry:{};
+    const custom=Array.isArray(routes)?routes:Array.isArray(state?.customRoutes)?state.customRoutes:[],known=routeIds instanceof Set?[...routeIds]:[...new Set([...BUILTIN_ROUTES,...custom.map(route=>route?.id).filter(Boolean)])],registry=object(state?.companyRegistry)?state.companyRegistry:{};
     const params={routeIds:known,routes:custom.filter(route=>route?.id).map(route=>[route.id,routeMode(route),routeOwner(route),routeCapacity(route,routeMode(route))]),registryCompanies:Object.entries(registry).filter(([,record])=>object(record)).map(([id])=>id),companyReferenceCompanies:Object.entries(registry).filter(([,record])=>Boolean(record)).map(([id])=>id),definitionCompanies:[...new Set(definitions.flatMap(definition=>[definition?.id,definition?.definitionId,...(definition?.legacy?.companyAliases||[])]).map(value=>String(value||'').trim()).filter(Boolean))],legacyAssetOwners};
     params.contextToken=fleetSaveValidation()?.contextToken?.(params)||'';return params;
   }

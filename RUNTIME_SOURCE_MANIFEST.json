@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "38568ed4454418187dd6983ba8a62668d013b844c8f65d0a3b111f12c61ee62c",
-  "webapp_tree_sha256": "be6333b410c0f20d951f7ccea30f0a850dd77ac7888bb3f65d61da30c3ea4302",
+  "source_tree_sha256": "d2efdb7578b5a669fbdf36d1d49aca84cfce56198e78c650328e7a1fe051eabd",
+  "webapp_tree_sha256": "1a7259a94d2813628b5818908f0ef915f377dbd486833d16e187078e6a696626",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3871,8 +3871,8 @@
       "sha256": "e2b6a8811273984167e035dbe9a9ddce9cef58970bb565c56a8370314df64a07"
     },
     "WebApp/save-schema.js": {
-      "bytes": 129550,
-      "sha256": "8419246eb127353523af4a233f088f29264f101ce8ed3e709b896518eb2287fa"
+      "bytes": 129910,
+      "sha256": "f2d46600e09b372e8bac32f221a625ebaa490d14fb4b95cf81a650fd38d42992"
     },
     "WebApp/section-identities.css": {
       "bytes": 3518,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "46aabd6814a4fb097fe0a4e6c844edcca39c6a7e53d4bc2f6530694e0f12764f"
+      "sha256": "30fde2e9fc408b9d2321ab81891779107bdd26f851c413bb599b582f68f49d4e"
     },
     "BUILD": {
       "bytes": 4,

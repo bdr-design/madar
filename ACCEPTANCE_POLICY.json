@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 554,
+  "minimum_acceptance_gates": 555,
   "preflight_commands": [
     [
       "node",
@@ -2754,6 +2754,10 @@
     [
       "node",
       "tests/build524-sealed-text-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build525-validation-context-route-ids.cjs"
     ]
   ]
 }
