@@ -106,7 +106,8 @@
     const note=(code,index)=>{if(!codes.has(code))codes.set(code,index);};
     const addCompanyError=error=>{if(companySet.has(error))return;if(company.length>=COMPANY_ERROR_LIMIT){overflow=true;return;}companySet.add(error);company.push(error);};
     const validReference=companyId=>dataId(companyId)&&(context.companyReferenceCompanies.has(companyId)||context.definitionCompanies.has(companyId));
-    fleet.scan(state,STATIC_FIELDS,(asset,index)=>{
+    let companyFailed=false;
+    const inspect=(asset,index)=>{
       if(views&&refs.size<=4096){
         const w=index*STORE.WORDS_PER_ROW,present=views.u32[w+STORE.O.present];let ref=views.u32[w+STORE.O.profile];
         if(ref&&!refs.has(ref))refs.set(ref,store.values[ref]);
@@ -122,9 +123,36 @@
       const mode=modeOf(asset),explicitOwner=ownerOf(asset),owner=explicitOwner||String(context.legacyOwners[mode]||'')||mode;
       if(!object(asset)||!String(asset.id||'').trim()||!knownModeOf(context,asset,mode,owner)||!dataId(owner))note('asset-shape',index);
       const platformOwner=String(explicitOwner||context.legacyOwners[mode]||'');
-      if(!validReference(platformOwner))addCompanyError(`asset-company-reference:${asset.id||'unknown'}`);
-      if(asset.assetClass!==undefined&&!companyDataId(asset.assetClass))addCompanyError(`asset-class:${asset.id||'unknown'}`);
-    },{from,to});
+      if(!validReference(platformOwner)){companyFailed=true;addCompanyError(`asset-company-reference:${asset.id||'unknown'}`);}
+      if(asset.assetClass!==undefined&&!companyDataId(asset.assetClass)){companyFailed=true;addCompanyError(`asset-class:${asset.id||'unknown'}`);}
+    };
+    if(!views){fleet.scan(state,STATIC_FIELDS,inspect,{from,to});return {codes,company,overflow,refs:refs.size<=4096?[...refs]:null};}
+    // Emulated phone (200,000 assets, 4x CPU): this pass read every row's static fields and inspected their text, about
+    // 400 ms per chunk of 32,768 rows, and a day close moves every active chunk's identity version without writing a
+    // static field (flight hours, incidents, trip ends), so the first command after it re-checked them all (2.3 s on
+    // the iPhone's worker). A row without extras takes its static fields from three interned values only: its profile
+    // (model, icon, year, mode, type, class, owner) and its id and name, each a pattern prefix plus a number. The checks
+    // read text through its characters and trimmed length, and digits are never refused, so rows with the same
+    // profile, the same patterns and the same digit counts get the same verdicts. Each such group is inspected at its
+    // first row (the earliest index, so every code keeps its first index); a group whose first row fails a company
+    // check (its errors name each row's id) has every member inspected. Rows with extras, and a full group table, are
+    // inspected row by row as before.
+    const W=views.u32,U=views.u8,V=store.values,O=STORE.O,ID=STORE.HOT_BIT.id,NAME=STORE.HOT_BIT.name,WR=STORE.WORDS_PER_ROW,SR=STORE.STRIDE,ALIVE=STORE.ALIVE,EXTRAS=STORE.EXTRAS,end=Math.min(store.length,to),table=new Array(8192);
+    const one=index=>fleet.scan(state,STATIC_FIELDS,inspect,{from:index,to:index+1});
+    const digits=n=>n<10?1:n<100?2:n<1e3?3:n<1e4?4:n<1e5?5:n<1e6?6:n<1e7?7:n<1e8?8:n<1e9?9:10;
+    const width=(ref,n)=>{const pattern=V[ref],w=pattern&&typeof pattern==='object'?Number(pattern.w)||0:0,d=digits(n);return w>d?w:d;};
+    let groups=0;
+    for(let index=Math.max(0,from);index<end;index++){
+      const flags=U[index*SR+O.flags];if(!(flags&ALIVE))continue;
+      if(flags&EXTRAS||groups>=4096){one(index);continue;}
+      const w=index*WR,present=W[w+O.present],profile=W[w+O.profile],idRef=present&ID?W[w+O.idPattern]:0,idWidth=present&ID?width(idRef,W[w+O.idNumber]):-1,nameRef=present&NAME?W[w+O.namePattern]:0,nameWidth=present&NAME?width(nameRef,W[w+O.nameNumber]):-1;
+      // A bounded query-local table, with full tuple equality after hashing. Collisions never reuse a verdict.
+      let slot=(Math.imul(profile,0x9e3779b1)^Math.imul(idRef,0x85ebca6b)^Math.imul(nameRef,0xc2b2ae35)^Math.imul(idWidth+2,0x27d4eb2f)^Math.imul(nameWidth+2,0x165667b1))&8191,probes=0,group;
+      for(;;){group=table[slot];if(!group||group.profile===profile&&group.idRef===idRef&&group.idWidth===idWidth&&group.nameRef===nameRef&&group.nameWidth===nameWidth)break;if(++probes===16)break;slot=(slot+1)&8191;}
+      if(probes===16){one(index);continue;}
+      if(!group){companyFailed=false;one(index);table[slot]={profile,idRef,idWidth,nameRef,nameWidth,company:companyFailed};groups++;continue;}
+      if(group.company)one(index);
+    }
     return {codes,company,overflow,refs:refs.size<=4096?[...refs]:null};
   }
   function staticTables(state,fleet,context){

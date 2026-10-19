@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 550,
+  "minimum_acceptance_gates": 551,
   "preflight_commands": [
     [
       "node",
@@ -2738,6 +2738,10 @@
     [
       "node",
       "tests/build520-map-aggregate-threshold-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build521-static-validation-groups.cjs"
     ]
   ]
 }
