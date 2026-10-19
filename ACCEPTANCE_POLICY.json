@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 544,
+  "minimum_acceptance_gates": 545,
   "preflight_commands": [
     [
       "node",
@@ -2714,6 +2714,10 @@
     [
       "node",
       "tests/build514-map-summary-cadence-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build515-mobility-day-ledger-rollback.cjs"
     ]
   ]
 }

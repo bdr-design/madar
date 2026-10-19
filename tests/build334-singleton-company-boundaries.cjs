@@ -20,7 +20,7 @@ model.rideRequests.push({id:'REQ-CANONICAL',ownerCompanyId:'mobility',status:'ac
 model.activeTrips.push({id:'TRIP-CANONICAL',ownerCompanyId:'mobility',requestId:'REQ-CANONICAL',vehicleId:vehicle.id,driverId:driver.id,centerId:'RUH',fromZone:'KAFD',toZone:'OLAYA',routeVerified:true,dueAt:1,distanceKm:10,fare:100});vehicle.status='moving';driver.status='on-trip';
 const cashBefore=F.operating(state,'mobility');M.onSimulationTime({state},2);
 
-assert.equal(model.ownerCompanyId,'mobility');assert.equal(vehicle.ownerCompanyId,'mobility');assert.equal(driver.ownerCompanyId,'mobility');assert.equal(model.tripArchive[0].ownerCompanyId,'mobility');
+assert.equal(model.ownerCompanyId,'mobility');assert.equal(vehicle.ownerCompanyId,'mobility');assert.equal(driver.ownerCompanyId,'mobility');assert.equal(model.tripDays[0].ownerCompanyId,'mobility');assert.equal(model.tripDays[0].completed,1);
 const staffing=state.advanced.labor.employmentContracts.find(row=>row.id===vehicle.staffing.employmentContractId);assert.equal(staffing.ownerCompanyId,'mobility');assert.equal(staffing.mobilityDriverCohort,true);assert.equal(staffing.count,1);assert.equal(staffing.salary,6000);assert.equal(state.tripProfitAccrued.mobility,74);assert.equal(state.tripProfitAccrued['mobility-two'],undefined);assert.equal(state.finance.pendingDailyCash.mobility,74);assert.equal(F.operating(state,'mobility'),cashBefore);
 assert.equal(P.validateState(state).ok,true,P.validateState(state).errors.join(','));const reloaded=P.migrateState(JSON.parse(JSON.stringify(state)));assert.equal(reloaded.errors.length,0,reloaded.errors.join(','));assert.equal(M.ensure(reloaded.state).vehicles[0].ownerCompanyId,'mobility');
 

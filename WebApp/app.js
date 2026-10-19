@@ -610,6 +610,7 @@
   window.GH_MIGRATION_CORE.completeBusinessState(state,{defaultState,initialStocks,crewRolesSeed});
   const legacyBankMigration=window.GH_BANKING_CORE?.migrateLegacyBranches?.(state)||{changed:false,added:0};
   const legacyMobilityMigration=window.GH_MOBILITY_CORE?.migrateLegacyDriverContracts?.(state)||{changed:false};
+  const mobilityTripLedgerMigration=window.GH_MOBILITY_CORE?.migrateTripLedger?.(state)||{changed:false};
   // Company collections are live projections of the platform registry.  Never
   // cache these lists: a newly formed instance must enter UI, finance and map
   // consumers in the same session without a reload.
@@ -738,7 +739,7 @@
   if (state.saveVersion !== SAVE_SCHEMA_VERSION) state.saveVersion = SAVE_SCHEMA_VERSION;
   state.customRoutes.forEach(route=>{if(route?.id&&Array.isArray(route.route)){routeTemplates[route.id]=prepareRoute(clone(route));}});
   const legacyRouteExclusivity=normalizeLegacyRouteAssignments();
-  if(dedupeCustomRoutes()||legacyBankMigration.changed||legacyMobilityMigration.changed||legacyRouteExclusivity.changed) save();
+  if(dedupeCustomRoutes()||legacyBankMigration.changed||legacyMobilityMigration.changed||mobilityTripLedgerMigration.changed||legacyRouteExclusivity.changed) save();
   // ترحيل المسارات البحرية القديمة التي كانت خطوطًا عامة إلى شبكة الممرات البحرية الحالية.
   let maritimeMigrationChanged=false;
   // Routes with a moving asset, counted once per class of rows (phase as views present it), only when a sea route
