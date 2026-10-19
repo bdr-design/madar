@@ -1,0 +1,6 @@
+preflight 1/560 0 tests/build334-security-contract.cjs
+preflight 2/560 0 tests/acceptance-policy.py
+preflight 3/560 0 tests/build498-native-save-export-contract.cjs
+preflight 4/560 0 tests/build395-hospitality-edge-cases.cjs
+preflight 5/560 1 tests/build372-asset-purchase-app-browser.cjs
+EARLY_FAILURE tests/build372-asset-purchase-app-browser.cjs: stopping before remaining 555 gate(s)
