@@ -246,6 +246,10 @@
   // inside a member are replaced, never edited in place. Archived trips, events and cached street routes are never
   // edited after insertion. tests/build358-row-snapshot-rollback.cjs proves exact rollback of real simulation slices.
   const IMMUTABLE_ROWS=new Set(['tripArchive','events','streetRoutes']);
+  // Vehicles and drivers are edited in place, a few per minute of play: the save encodes again only the small segments
+  // whose rows changed (GH_STATE_CODEC tracked collections; this owner replaces staffing whole, never edits inside it).
+  globalThis.GH_STATE_CODEC?.registerTrackedCollection?.(['mobility','vehicles'],{rows:32});
+  globalThis.GH_STATE_CODEC?.registerTrackedCollection?.(['mobility','drivers'],{rows:64});
   const ROLLBACK_POLICY=Object.freeze({level:'rows',immutable:Object.freeze([...IMMUTABLE_ROWS])});
   // The same rows are shared, sealed, between a durable draft and the live state.
   (globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys])))('mobility',[...IMMUTABLE_ROWS]);

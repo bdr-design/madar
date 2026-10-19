@@ -467,13 +467,41 @@
   }
   function identityHash(text){let h=0x811c9dc5|0;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),0x01000193);return h>>>0;}
   // Segment bounds: [{start,end,key}] where key names the segment by its first member ('#index' for positional ones).
-  function segmentBounds(value){
+  // Large-world study (977k assets, a Mobility fleet, 4x CPU): Mobility's vehicles and drivers (mutable rows, 0.2-1.4% of
+  // them changed between two decisions while playing) were encoded afresh on every save, 57 ms of the save's work. Their
+  // owner registers them (registerTrackedCollection): its writes replace a row's top-level values and never edit an object
+  // inside a row, which is sealed here (an edit would throw instead of being missed). Their segments are small (about
+  // `rows` members), and a segment whose members are the same objects holding the same top-level values as when its text
+  // was made reuses that text (and its chunk). The text is the one a fresh encoding gives; decoding is unchanged.
+  const TRACKED=new Map(),TRACKED_TEXT=new Map(),MEMBER_VALUES=new WeakMap(),TRACKED_CHUNK_MIN=512,trackedStats={reused:0,encoded:0,members:0};
+  function registerTrackedCollection(path,{rows=32}={}){
+    if(!Array.isArray(path)||!path.length||path.some(key=>typeof key!=='string'||!key))throw new TypeError('state-codec-tracked-path-invalid');
+    const size=Math.max(8,Math.min(256,2**Math.round(Math.log2(Number(rows)||32))));TRACKED.set(JSON.stringify(path),Object.freeze({floor:size/2,mask:size/2-1,ceil:size*4,min:size*2}));return true;
+  }
+  // Taken before the member is encoded, so a value written while a sliced save yields is seen as a change next time.
+  function memberValues(member){
+    const keys=Object.keys(member),values=new Array(keys.length),seal=globalThis.GH_TRANSACTION_CORE?.sealValue;
+    for(let i=0;i<keys.length;i++){const value=member[keys[i]];if(value&&typeof value==='object'&&!(typeof seal==='function'&&seal(value)))return null;values[i]=value;}
+    return {keys,values};
+  }
+  function sameMemberValues(member){
+    const known=MEMBER_VALUES.get(member);if(!known)return false;const keys=Object.keys(member);if(keys.length!==known.keys.length)return false;
+    for(let i=0;i<keys.length;i++)if(keys[i]!==known.keys[i]||!Object.is(member[keys[i]],known.values[i]))return false;
+    return true;
+  }
+  function trackedText(partKey,members){
+    const entry=TRACKED_TEXT.get(partKey);if(!entry||entry.members.length!==members.length)return null;
+    for(let i=0;i<members.length;i++)if(entry.members[i]!==members[i]||!sameMemberValues(members[i]))return null;
+    return entry.text;
+  }
+  function segmentBounds(value,policy=null){
     const isArray=Array.isArray(value),keys=isArray?null:Object.keys(value),count=isArray?value.length:keys.length,ids=new Array(count),seen=new Set();let identified=true;
+    const floor=policy?policy.floor:SEGMENT_FLOOR,mask=policy?policy.mask:255,ceil=policy?policy.ceil:SEGMENT_CEIL,positional=policy?policy.floor*2:SEGMENT_ROWS;
     for(let i=0;i<count&&identified;i++){const id=isArray?memberIdentity(value[i]):`k:${keys[i]}`;if(id===null||seen.has(id))identified=false;else{seen.add(id);ids[i]=id;}}
     const out=[];
-    if(!identified){for(let start=0,index=0;start<count;start+=SEGMENT_ROWS,index++)out.push({start,end:Math.min(count,start+SEGMENT_ROWS),key:`#${index}`});return {keys,bounds:out};}
+    if(!identified){for(let start=0,index=0;start<count;start+=positional,index++)out.push({start,end:Math.min(count,start+positional),key:`#${index}`});return {keys,bounds:out};}
     let start=0;
-    for(let i=0;i<count;i++){const length=i-start+1;if((length>=SEGMENT_FLOOR&&(identityHash(ids[i])&255)===0)||length>=SEGMENT_CEIL){out.push({start,end:i+1,key:ids[start]});start=i+1;}}
+    for(let i=0;i<count;i++){const length=i-start+1;if((length>=floor&&(identityHash(ids[i])&mask)===0)||length>=ceil){out.push({start,end:i+1,key:ids[start]});start=i+1;}}
     if(start<count)out.push({start,end:count,key:ids[start]});
     return {keys,bounds:out};
   }
@@ -481,7 +509,7 @@
     const isArray=Array.isArray(value),{keys,bounds}=layout;
     return bounds.map(({start,end})=>{if(isArray)return value.slice(start,end);const part={};for(let i=start;i<end;i++)part[keys[i]]=value[keys[i]];return part;});
   }
-  function segmented(value){return (Array.isArray(value)?value.length:Object.keys(value).length)>=SEGMENT_MIN;}
+  function segmented(value,policy=null){return (Array.isArray(value)?value.length:Object.keys(value).length)>=(policy?policy.min:SEGMENT_MIN);}
   function encodeCollection(value){
     if(!segmented(value))return encodeRows(value);
     return {$gh:3,a:Array.isArray(value)?1:0,g:segmentSlices(value).map(encodeRows)};
@@ -598,7 +626,7 @@
         const resolved=node.g.map(part=>{const decoded=decodeSegment(node.a,text(part,null)),adopted=isTextMarker(part)?ADOPTED_TEXT.get(null):null;ADOPTED_TEXT.delete(null);return {decoded,adopted};});
         const combined=combineSegments(node.a,resolved.map(row=>row.decoded));
         if(resolved.some(row=>row.adopted)){
-          const layout=segmentBounds(combined),byStart=new Map(layout.bounds.map(bound=>[bound.start,bound]));let start=0;
+          const layout=segmentBounds(combined,TRACKED.get(key)||null),byStart=new Map(layout.bounds.map(bound=>[bound.start,bound]));let start=0;
           for(const row of resolved){const length=node.a?row.decoded.length:Object.keys(row.decoded).length,bound=byStart.get(start);if(row.adopted&&bound&&bound.end===start+length)ADOPTED_TEXT.set(`${key}${bound.key.startsWith('#')?'':'@'}${bound.key}`,row.adopted);start+=length;}
         }
         out=writePathCopy(out,path,combined);continue;
@@ -756,7 +784,7 @@
   function collectionLayout(key,value){
     // The same sealed container as at the last save has the same members: no member is compared.
     const cached=PATH_LAYOUT.get(key);if(cached&&(cached.value===value&&sealedContainer(value)||sameSequence(cached,value))){cached.value=value;layoutCacheStats.hits++;return cached;}
-    const split=segmented(value),layout=split?segmentBounds(value):null,parts=split?segmentSlices(value,layout):[Array.isArray(value)?value.slice():{...value}],keys=Array.isArray(value)?null:Object.keys(value);
+    const policy=TRACKED.get(key)||null,split=segmented(value,policy),layout=split?segmentBounds(value,policy):null,parts=split?segmentSlices(value,layout):[Array.isArray(value)?value.slice():{...value}],keys=Array.isArray(value)?null:Object.keys(value);
     const entry={value,keys,members:keys?keys.map(name=>value[name]):value.slice(),split,layout,parts,sealed:new Array(parts.length).fill(null)};
     PATH_LAYOUT.set(key,entry);layoutCacheStats.misses++;return entry;
   }
@@ -845,10 +873,10 @@
     }else if(textChunks&&rowsText!==null){VALUE_TEXT.clear();valueChars=0;}
     const scan=scanPaths(out),paths=scan.paths;
     if(!paths.length&&!binaryPaths.length&&!scan.runs.length&&!cold.ids.length&&!cold.hasPages)return yield* stringifySteps(out);
-    let segments=false;const livePaths=new Set();
+    let segments=false;const livePaths=new Set(),liveTracked=new Set();
     for(const path of paths){
       const value=readPath(out,path),key=JSON.stringify(path),shape=collectionLayout(key,value),split=shape.split;if(split)segments=true;livePaths.add(key);
-      const layout=shape.layout,parts=shape.parts,texts=[];let cached=true;
+      const layout=shape.layout,parts=shape.parts,texts=[],tracked=TRACKED.has(key);let cached=true;
       for(let index=0;index<parts.length;index++){
         const partKey=split?`${key}${layout.bounds[index].key.startsWith('#')?'':'@'}${layout.bounds[index].key}`:key;
         let current=shape.sealed[index];if(!current){current=sealedMembers(parts[index]);if(current)shape.sealed[index]=current;}
@@ -856,8 +884,17 @@
         // the sealed segments beside it keep their cached text (the text is the same as encodeCollection's).
         if(!current){
           if(!split&&!textChunks){cached=false;break;}
-          const encoded=yield* encodeRowsSteps(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):yield* encodedPartTextSteps(encoded);collectionCacheStats.open++;
-          const chunk=textChunks&&text.length>=TEXT_CHUNK_MIN?(yield* openTextChunkOf(text,partKey)):null;
+          const members=tracked&&Array.isArray(parts[index])?parts[index]:null;let text=members?trackedText(partKey,members):null;
+          if(members)liveTracked.add(partKey);
+          if(text!==null)trackedStats.reused++;
+          else{
+            const known=members?members.map(member=>member&&typeof member==='object'?memberValues(member):null):null;
+            const encoded=yield* encodeRowsSteps(parts[index]);text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):yield* encodedPartTextSteps(encoded);collectionCacheStats.open++;
+            if(members){trackedStats.encoded++;trackedStats.members+=members.length;if(known.every(Boolean)){members.forEach((member,i)=>MEMBER_VALUES.set(member,known[i]));TRACKED_TEXT.set(partKey,{members:members.slice(),text});}else TRACKED_TEXT.delete(partKey);}
+          }
+          // A tracked segment is small (it was cut small to be reused): it is its own chunk at any size, so the header holds
+          // only its reference and an unchanged one keeps its chunk id (nothing to upload or rewrite).
+          const chunk=textChunks&&text.length>=(members?TRACKED_CHUNK_MIN:TEXT_CHUNK_MIN)?(yield* openTextChunkOf(text,partKey)):null;
           if(chunk){liveOpen.add(partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
           else texts.push(text);yield;continue;
         }
@@ -872,6 +909,7 @@
       const token=`\u0000gh-codec:${NONCE}:${fragments.length}\u0000`;fragments.push({token:JSON.stringify(token),text});out=writePathCopy(out,path,token);yield;
     }
     for(const key of [...COLLECTION_TEXT.keys()])if(!live.has(key))COLLECTION_TEXT.delete(key);
+    for(const key of [...TRACKED_TEXT.keys()])if(!liveTracked.has(key))TRACKED_TEXT.delete(key);
     if(textChunks)for(const key of [...OPEN_TEXT.keys()])if(!liveOpen.has(key))forgetOpenText(key);
     for(const key of [...PATH_LAYOUT.keys()])if(!livePaths.has(key))PATH_LAYOUT.delete(key);
     for(const {path,run} of scan.runs)out=writePathCopy(out,path,run);
@@ -1105,7 +1143,7 @@
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 
-  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT}}),valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
+  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT},tracked:{...trackedStats,entries:TRACKED_TEXT.size,paths:TRACKED.size}}),registerTrackedCollection,valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
   globalThis.GH_STATE_CODEC=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_STATE_CODEC=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 545,
+  "minimum_acceptance_gates": 546,
   "preflight_commands": [
     [
       "node",
@@ -2718,6 +2718,10 @@
     [
       "node",
       "tests/build515-mobility-day-ledger-rollback.cjs"
+    ],
+    [
+      "node",
+      "tests/build516-tracked-collections.cjs"
     ]
   ]
 }
