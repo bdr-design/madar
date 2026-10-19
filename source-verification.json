@@ -1,0 +1,24 @@
+{
+  "verified": true,
+  "files": 1007,
+  "source_tree_sha256": "5f7ac7d65b550c77cf7635a4553cc9e28212edb129d0ddb074c675a69e415d69",
+  "version": "3.0.0",
+  "build": 362,
+  "save_schema": "3.0.0",
+  "release_approved": false,
+  "blocking_issues": [
+    "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
+    "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
+    "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
+    "Historical desktop measurements from an earlier 600x source: Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+    "A fully moving fleet still needs fresh complete validation after writes. Coalesced validation and chunk-checksum workers have targeted desktop coverage; iPhone profiling of ordinary saves, background saves, startup, manual slots, reset and large text chunks remains unverified for this candidate.",
+    "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
+    "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
+    "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
+    "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
+    "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
+    "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
+    "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
+    "Current all-sections candidate: 530 mandatory gates / 134 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
+  ]
+}

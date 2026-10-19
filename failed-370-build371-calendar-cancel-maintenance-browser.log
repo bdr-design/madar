@@ -1,0 +1,16 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   'Durable state command is in progress'
++ ]
+- []
+
+    at /Users/runner/work/madar/madar/tests/build371-calendar-cancel-maintenance-browser.cjs:118:12 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
