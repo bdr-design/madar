@@ -17,7 +17,7 @@ const SPECS={air:id=>DESK(id,'facility-hire'),sea:id=>DESK(id,'facility-hire'),r
   bank:id=>DESK(id,'bank-branch-campaign'),power:id=>DESK(id,'energy-set-dispatch'),insurance:id=>DESK(id,'insurance-office-campaign'),telecom:id=>DESK(id,'telecom-campaign'),dealership:id=>DESK(id,'dealership-campaign'),
   realestate:()=>['realestate',[{tab:'develop'}],'[data-gh-action="realestate-start-project"]:not([disabled])'],
   hospitality:()=>['hospitality',[{company:'hospitality',tab:'properties'}],'[data-gh-action="hospitality-hire"]:not([disabled])']};
-const GAP_US=Number(process.env.GAP_US||4000),PROFILE_DIR=process.env.PROFILE_DIR||null;
+const PROFILE=process.env.PROFILE!=='0',GAP_US=Number(process.env.GAP_US||4000),PROFILE_DIR=process.env.PROFILE_DIR||null;
 const COMPANIES=(process.argv[6]||'air,sea,road,power,bank,mobility,insurance,realestate,telecom,dealership,hospitality').split(',');
 const stats=rows=>{const xs=rows.slice().sort((a,b)=>a-b),q=p=>xs.length?+xs[Math.min(xs.length-1,Math.floor(xs.length*p))].toFixed(1):0;return {frames:xs.length,p50:q(.5),max:xs.length?+xs[xs.length-1].toFixed(1):0,over33:xs.filter(x=>x>33.4).length,missed:Math.round(xs.reduce((n,x)=>n+Math.max(0,Math.round(x/16.67)-1),0))};};
 // Busy stretches (>50 ms, gaps under 4 ms) of a CPU profile, each with its top self and inclusive frames.
@@ -64,6 +64,8 @@ function blocks(p,top=8){
         deliver('gh-native-save-ack',{requestId:m.requestId,action:m.action,saveRevision:m.saveRevision,resetEpoch:m.resetEpoch,saveSchemaVersion:m.saveSchemaVersion,saveHash:m.saveHash,success:true,generation:++q.generation,message:null});};});
     const dispatch=await page.evaluate(()=>__AUDIT__.dispatchSharedInternationalNetwork('air'));out.dispatch={departed:dispatch?.departed||0};
     await page.evaluate(()=>{window.__FRAMES__={phase:'setup',rows:[]};let last=null;const loop=t=>{if(last!==null)window.__FRAMES__.rows.push([window.__FRAMES__.phase,t-last]);last=t;requestAnimationFrame(loop);};requestAnimationFrame(loop);
+      // Long animation frames (Chromium): every frame over 50 ms with the scripts that ran in it.
+      window.__LOAF__=[];try{new PerformanceObserver(list=>{for(const e of list.getEntries())if(window.__FRAMES__.phase.startsWith('decide-'))window.__LOAF__.push({ms:Math.round(e.duration),blocking:Math.round(e.blockingDuration),render:Math.round(e.renderStart?e.startTime+e.duration-e.renderStart:0),style:Math.round(e.styleAndLayoutStart?e.startTime+e.duration-e.styleAndLayoutStart:0),scripts:e.scripts.map(x=>({ms:Math.round(x.duration),fn:x.sourceFunctionName,src:String(x.sourceURL||'').split('/').pop(),at:x.sourceCharPosition,invoker:x.invoker,forced:Math.round(x.forcedStyleAndLayoutDuration||0)})).filter(x=>x.ms>=3)});}).observe({type:'long-animation-frame',buffered:false});}catch{}
       // Bounded timing of the one durable command per press; nothing is replaced in the product.
       const commands=GH_DOMAIN_COMMANDS,q=window.__FIRST__={active:false,calls:[]};
       window.GH_DOMAIN_COMMANDS={...commands,async dispatchDurable(ctx,envelope,options){const intent=GH_AUTHORIZATION.commandIntent(envelope.command),call={domain:intent.domain,name:intent.name,started:performance.now(),done:false};if(q.active)q.calls.push(call);try{const r=await commands.dispatchDurable(ctx,envelope,options);call.committed=r.committed;call.result=r.value?.result?.status||null;return r;}catch(e){call.error=String(e.message||e);throw e;}finally{call.done=true;call.ms=performance.now()-call.started;}}};
@@ -77,16 +79,16 @@ function blocks(p,top=8){
       const [panel,args,selector]=SPECS[type](facility);let button=null;row.decision=selector;
       for(const arg of args){await page.evaluate(([p,a])=>__AUDIT__.openDrawer(p,a),[panel,arg]);await page.waitForTimeout(700);const b=page.locator(selector).first();if(await b.count()){button=b;row.tab=arg.tab;break;}}
       if(!button){row.skipped='no-button';row.seen=await page.evaluate(()=>[...new Set([...document.querySelectorAll('#drawer [data-gh-action]')].map(b=>b.dataset.ghAction+(b.disabled?'(disabled)':'')))]);continue;}
-      await page.evaluate(()=>{window.__FIRST__.active=true;window.__FIRST__.calls=[];globalThis.__CODEC_TRACE__=[];});await cdp.send('Profiler.start');await page.waitForTimeout(300);await phase('decide-'+type);const started=Date.now();
+      await page.evaluate(()=>{window.__LOAF__=[];window.__FIRST__.active=true;window.__FIRST__.calls=[];globalThis.__CODEC_TRACE__=[];});if(PROFILE)await cdp.send('Profiler.start');await page.waitForTimeout(300);await phase('decide-'+type);const started=Date.now();
       await button.click();
       const confirm=page.locator('.ui-confirm [data-confirm="accept"]');try{await confirm.waitFor({state:'visible',timeout:1500});await page.evaluate(()=>{window.__FRAMES__.rows=window.__FRAMES__.rows.filter(r=>!r[0].startsWith('decide-'));});await confirm.click();row.confirmed=true;}catch{}
       await page.waitForFunction(()=>{const c=window.__FIRST__.calls;return c.length>=1&&c.every(x=>x.done)&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked();},null,{timeout:120000});
-      row.wallMs=Date.now()-started;await page.waitForTimeout(500);const {profile}=await cdp.send('Profiler.stop');if(PROFILE_DIR)fs.writeFileSync(path.join(PROFILE_DIR,`${LABEL}-${type}.cpuprofile`),JSON.stringify(profile));await phase('setup');
+      row.wallMs=Date.now()-started;await page.waitForTimeout(500);const {profile}=PROFILE?await cdp.send('Profiler.stop'):{profile:null};if(PROFILE_DIR&&profile)fs.writeFileSync(path.join(PROFILE_DIR,`${LABEL}-${type}.cpuprofile`),JSON.stringify(profile));await phase('setup');
       const rows=await page.evaluate(t=>{window.__FIRST__.active=false;return window.__FRAMES__.rows.filter(r=>r[0]===t).map(r=>r[1]);},'decide-'+type);
       Object.assign(row,{frames:stats(rows),play:stats(await page.evaluate(t=>window.__FRAMES__.rows.filter(r=>r[0]===t).map(r=>r[1]),'play-'+type)),
         calls:await page.evaluate(()=>window.__FIRST__.calls.map(c=>({command:c.domain+'/'+c.name,ms:Math.round(c.ms),committed:c.committed,result:c.result,error:c.error}))),
         durable:await page.evaluate(()=>{const t=GH_TRANSACTION_CORE.telemetry().lastDurable||{},o={};for(const [k,v] of Object.entries(t))if(typeof v==='number'&&k!=='recordedAtMs'&&v>=1)o[k]=Math.round(v);return o;}),
-        busy:blocks(profile),encoded:await page.evaluate(()=>(globalThis.__CODEC_TRACE__||[]).map(r=>({...r,wall:Math.round(r.wall)})))});
+        busy:profile?blocks(profile):[],loaf:await page.evaluate(()=>window.__LOAF__.slice()),encoded:await page.evaluate(()=>(globalThis.__CODEC_TRACE__||[]).map(r=>({...r,wall:Math.round(r.wall)})))});
       console.error(type,JSON.stringify({max:row.frames.max,missed:row.frames.missed,calls:row.calls,durable:row.durable,busy:row.busy.map(b=>b.ms)}));
     }
     out.errors=errors.slice(0,5);

@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "21315f9a579e5d50ba8c55957e83dbc8290f56e7a1f3e5d81683f99d1600c487",
-  "webapp_tree_sha256": "7b577d3cdff983685e550f8f093a846f7a9659d857507f33f27af0c5d05a86b8",
+  "source_tree_sha256": "5fb2b7872db09e0ae64f4bfc9cd4e5bb75dcce226e829861437d1fa1ff9b46ee",
+  "webapp_tree_sha256": "c14c6d2a5c3cc11337248750f85e0bed4430f11489e9004eb86aa64da436eaed",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3499,8 +3499,8 @@
       "sha256": "b330527c3e699bfba609a101d35346133f0f4887ed723071b414c0bcffc2ec4d"
     },
     "WebApp/domain-command-core.js": {
-      "bytes": 59278,
-      "sha256": "3b8cdd8af5f51edefc10913b36d7077706a94546e6be518d1cdf3238eda38647"
+      "bytes": 59851,
+      "sha256": "3c6c32b931a69ce6623a5bb599b6d053733b49de8cb04b9a52de1b325e5f2359"
     },
     "WebApp/economics-core.js": {
       "bytes": 11768,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "e19b2413de009284a19615e0e6d5402f3014893cddee04d8b53a6b63b422d108"
+      "sha256": "faa6d9a8c6097111a0546a64027b6f9a0d8854f8f8bb6b6d97094010c4965393"
     },
     "BUILD": {
       "bytes": 4,
