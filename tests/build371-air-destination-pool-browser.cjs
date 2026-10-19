@@ -84,7 +84,9 @@ function installVault(){
     await page.evaluate(()=>__AUDIT__.openDrawer('routes','air'));
     const beforeReuse=secondPurchase.revision;await button.click();
     let reuseRevision=beforeReuse;
-    for(let i=0;i<600;i++){reuseRevision=await page.evaluate(()=>__GH_STATE__.saveRevision);if(reuseRevision>beforeReuse)break;await page.waitForTimeout(250);}
+    // The revision moves when the command publishes; its record (durable.last) is written when it has settled, a frame
+    // and its refresh later (the macOS gate read the purchase's record in between). Both are read once it has settled.
+    for(let i=0;i<600;i++){reuseRevision=await page.evaluate(()=>__GH_STATE__.saveRevision);if(reuseRevision>beforeReuse)break;await page.waitForTimeout(250);}await page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__,null,{timeout:120000});
     assert.ok(reuseRevision>beforeReuse,'the second dispatch commits after purchasing more aircraft');
     const reuseCommit=await page.evaluate(()=>window.GH_APP_RUNTIME_METRICS?.snapshot?.().durable?.last||null);
     assert.equal(reuseCommit?.name,'authorized:bulk-shared-departure:air','the reused-route dispatch is the last durable command');
@@ -113,7 +115,7 @@ function installVault(){
     assert.equal(largePool.bought,32,`a long-range airport fixture is ready: ${JSON.stringify(largePool)}`);
     await page.evaluate(()=>__AUDIT__.openDrawer('routes','air'));
     const beforeLargePool=largePool.revision;await button.click();let largeRevision=beforeLargePool;
-    for(let i=0;i<600;i++){largeRevision=await page.evaluate(()=>__GH_STATE__.saveRevision);if(largeRevision>beforeLargePool)break;await page.waitForTimeout(250);}
+    for(let i=0;i<600;i++){largeRevision=await page.evaluate(()=>__GH_STATE__.saveRevision);if(largeRevision>beforeLargePool)break;await page.waitForTimeout(250);}await page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__,null,{timeout:120000});
     const largePoolResult=await page.evaluate(()=>{
       const s=__GH_STATE__,trace=GH_DIAGNOSTICS.departureTraceSnapshot(s),routes=(s.customRoutes||[]).filter(route=>(route.routeMode||route.type)==='air');
       const ids=new Set();GH_FLEET_DATA.scan(s,['ownerCompanyId','companyId','routeId','baseFacility'],row=>{if((row.ownerCompanyId||row.companyId)==='air'&&row.baseFacility==='QA-air-EGLL'&&row.routeId)ids.add(row.routeId);});
