@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 542,
+  "minimum_acceptance_gates": 544,
   "preflight_commands": [
     [
       "node",
@@ -2706,6 +2706,14 @@
     [
       "node",
       "tests/build512-deferred-mobility-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build513-published-command-wait-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build514-map-summary-cadence-browser.cjs"
     ]
   ]
 }

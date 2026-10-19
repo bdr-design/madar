@@ -991,7 +991,8 @@
       phase='publish';if(typeof options.publish==='function')await options.publish(liveState,draft,context);else publishObject(liveState,draft);MONEY_GUARD.seal(liveState);lap('publishMs');
       // Emulated-phone profile: publishing the draft and the caller's page refresh ran in one task (29-43 ms at 4x CPU).
       // The command still holds its lock and reports nothing before the ACK it already has; one frame is painted here.
-      if(typeof yieldToHost==='function')await yieldToHost();
+      // published lets the next command wait for this one to settle instead of being refused during that frame.
+      context.published=true;if(typeof yieldToHost==='function')await yieldToHost();
       for(const task of afterPublishTasks)try{await task(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-publish side effect failed`,error);}
       if(typeof options.afterCommit==='function')try{await options.afterCommit(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-commit side effect failed`,error);}
       lap('afterMs');durableTiming.committed=true;durableTiming.totalMs=Math.max(0,runtimeClock()-durableStart);publishDurableMetric(durableTiming);

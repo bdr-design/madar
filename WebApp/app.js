@@ -1112,8 +1112,12 @@
     for(const key of LIVE_PREFERENCE_KEYS){const live=state[key];if(Object.is(live,start[key])||Object.is(draft[key],live))continue;if(!(key==='speed'&&Number(live)===0)&&!Object.is(draft[key],start[key]))continue;draft[key]=live;carried.push(key);}
     return carried;
   }
+  // A command that has already published still holds the lock for its painted frame and page refresh: the next command
+  // waits for it to settle instead of being refused as concurrent. One still copying, validating or saving refuses it.
+  // Callers wait for this first, then for staged work and any sliced save the settled command left running.
+  async function durablePublicationSettled(){if(durableCommandInProgress&&window.__GH_DURABLE_COMMAND_CONTEXT__?.published===true)await durableCommandSettlement;}
   async function runDurableStateCommand(name,apply,{afterCommit=null,silent=false,fleetMutation=null}={}){
-    await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
+    await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()){if(!silent)notice('الحفظ مشغول بعملية ذرية أخرى. لم يتغير أي أصل؛ أعد المحاولة بعد لحظات.');return false;}
     durableCommandInProgress=true;
     let draft=null,committed=false,settleDurableCommand=null,rootSessions=[],afterPublishTasks=[],fleetMutationSession=null,fleetMutationClient=null,fleetMutationSettled=false,staging=null;
@@ -1163,7 +1167,7 @@
       mark=clockNow();await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,validatedFleetRevision,yieldToFrame:()=>yieldForInteractivePaint()});lap('persistMs');
       // Storage has already committed. A publication failure is a recovery
       // condition, never a successful rollback and never safe to retry blindly.
-      committed=true;transactionCore?.commitJournaledRoots?.(rootSessions);rootSessions=[];if(fleetMutationSession){if(fleetMutationClient.settleMutation(fleetMutationSession,'commit')!==true)throw new Error('fleet-mutation-commit-rejected');fleetMutationSettled=true;}{const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-publish',fields:carried});}replaceLiveState(draft);await yieldForInteractivePaint(document.hidden?0:80);for(const task of afterPublishTasks)try{await task(value,window.__GH_DURABLE_COMMAND_CONTEXT__);}catch(error){console.warn(`Durable command after-publish hook failed [${name}]`,error);}lap('publishMs');diag('DURABLE_COMMAND_COMMITTED',{name,saveRevision:state.saveRevision});
+      committed=true;transactionCore?.commitJournaledRoots?.(rootSessions);rootSessions=[];if(fleetMutationSession){if(fleetMutationClient.settleMutation(fleetMutationSession,'commit')!==true)throw new Error('fleet-mutation-commit-rejected');fleetMutationSettled=true;}{const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-publish',fields:carried});}replaceLiveState(draft);if(window.__GH_DURABLE_COMMAND_CONTEXT__)window.__GH_DURABLE_COMMAND_CONTEXT__.published=true;await yieldForInteractivePaint(document.hidden?0:80);for(const task of afterPublishTasks)try{await task(value,window.__GH_DURABLE_COMMAND_CONTEXT__);}catch(error){console.warn(`Durable command after-publish hook failed [${name}]`,error);}lap('publishMs');diag('DURABLE_COMMAND_COMMITTED',{name,saveRevision:state.saveRevision});
       if(afterCommit){try{await afterCommit(value);}catch(error){diag('DURABLE_COMMAND_PRESENTATION_FAILED',{name,saveRevision:state.saveRevision,reason:String(error.message||error)},'warning');console.warn(`Durable command committed but presentation refresh failed [${name}]`,error);if(!silent)notice('تم حفظ العملية بنجاح، لكن تعذر تحديث العرض. أعد فتح القسم لرؤية الحالة المحفوظة.','warning');}}
       return value;
     }catch(error){if(committed){window.GH_PERSISTENCE.markRecoveryRequired('durable-publish-failed-after-ack',{durableCommitted:true,saveRevision:Number(draft?.saveRevision)||0});state.speed=0;simulationEngine.cancelAdvance?.('durable-publication-failed-after-ack',{immediate:true});diag('DURABLE_PUBLISH_FAILED_AFTER_ACK',{name,saveRevision:Number(draft?.saveRevision)||0,reason:String(error.message||error)},'critical');console.error(`Durable command publication failed after device acknowledgement [${name}]`,error);return true;}try{window.GH_TRANSACTION_CORE?.rollbackJournaledRoots?.(rootSessions);rootSessions=[];}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-rollback-failed');error.rollbackError=rollbackError;error.critical=true;}finally{if(fleetMutationSession&&!fleetMutationSettled){try{fleetMutationClient?.settleMutation?.(fleetMutationSession,'rollback');fleetMutationSettled=true;}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-replica-rollback-failed');error.replicaRollbackError=rollbackError;error.critical=true;}}}const reason=String(error.message||error),sharedDeparture=String(name||'').match(/^authorized:bulk-shared-departure:(.+)$/);if(sharedDeparture){const companyId=sharedDeparture[1],mode=companyRouteModes(companyId).find(value=>['air','sea','road'].includes(value)),trace=error.assetDepartureTrace||{},code=String(error.code||reason.slice(0,64)||'dispatch-rollback');recordAssetDepartureTrace({source:'durable-command-rollback',attempts:Math.max(1,Number(trace.attempts)||1),blocked:Math.max(1,Number(trace.blocked)||1),modeCounts:{[trace.mode||mode||'unknown']:Math.max(1,Number(trace.blocked)||1)},reasonCounts:{[code]:Math.max(1,Number(trace.blocked)||1)},error:reason,samples:[{outcome:'blocked',mode:trace.mode||mode||'unknown',reasonCode:code,companyId,commandName:String(name).slice(0,100),error:reason.slice(0,180),planner:trace.planner||undefined,attemptedAssets:Number(trace.attempts)||1}],simSeconds:Number(state.simSeconds)||0});}const capExceeded=reason.startsWith('fleet-persistence-record-cap:'),saveTooLarge=['save-size-hard-limit','native-save-size-hard-limit'].some(prefix=>reason.includes(prefix)),playerMessage=capExceeded?'بلغ الأسطول الحد المؤقت الآمن للحفظ. لم يُخصم أي مبلغ ولم يُضف أي أصل.':saveTooLarge?'تجاوز الحفظ الحد الحالي؛ أُلغيت العملية ولم يُخصم أي مبلغ.':`أُلغي الأمر بالكامل ولم يتغير أي أصل: ${reason}`;diag('DURABLE_COMMAND_ROLLED_BACK',{name,reason},'warning');console.warn(`Durable command rolled back [${name}]`,error);if(!silent)notice(playerMessage);return false;}
@@ -1251,7 +1255,7 @@
     if(domain&&typeof domain==='object'&&!Array.isArray(domain)){const request=domain;domain=request.domain;name=request.name;payload=request.payload||{};options={...request,...options};}
     domain=String(domain||'').trim();name=String(name||'').trim();if(!domain||!name)throw new Error('authorized-command-invalid');
     const authority=founderAuthorization(state);if(!authority.signature||!authority.mandate){openSignatureDialog?.({required:true});if(!options.silent)notice('اعتمد توقيعك المرئي أولًا. لم تُنفذ المعاملة.');throw new Error('active-visual-seal-required');}
-    await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
+    await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked())throw new Error('durable-transaction-in-progress');
     const envelope=window.GH_AUTHORIZATION.buildActiveEnvelope(state,{domain,name,payload,principalId:FOUNDER_PRINCIPAL_ID,actor:{kind:'player',principalId:FOUNDER_PRINCIPAL_ID},idempotencyKey:options.idempotencyKey||authorizationIdempotencyKey(state,domain,name,payload)});
     durableCommandInProgress=true;let committed=false,settle=null;durableCommandSettlement=new Promise(resolve=>{settle=resolve;});
@@ -1798,8 +1802,11 @@
     layer.on('tileload',()=>{if(layer!==currentTile)return;mapTileSuccesses++;if(mapTileSuccesses>=2){mapTileFailures=0;setMapTilesOffline(false);}});
     return layer;
   }
-  function scheduleViewportMapRender(delay=90){
-    clearTimeout(mapRenderTimer);mapRenderTimer=setTimeout(()=>{mapRenderTimer=null;renderMap();},Math.max(0,Number(delay)||0));
+  // summaryFollowUp: the one redraw that shows a newer fleet summary after a render drew an older one. It does not ask
+  // for another redraw itself (mapFleetSummary.followUp), so summaries arriving during play no longer chain rebuilds.
+  let mapSummaryFollowUpRender=false;
+  function scheduleViewportMapRender(delay=90,summaryFollowUp=false){
+    clearTimeout(mapRenderTimer);mapRenderTimer=setTimeout(()=>{mapRenderTimer=null;mapSummaryFollowUpRender=summaryFollowUp===true;try{renderMap();}finally{mapSummaryFollowUpRender=false;}},Math.max(0,Number(delay)||0));
   }
   function selectCanvasVehicle(hit,_adapter,event){
     if(event?.target?.closest?.('.leaflet-control,.leaflet-marker-icon,.leaflet-popup'))return;
@@ -2548,22 +2555,28 @@
   // redraws, an older one never does, and one for another store or row layout (a reset, a compaction) is not used. With
   // the worker the main thread never reads the rows for these counts (before the first summary the map draws no fleet);
   // without it they are read here as before.
-  const mapFleetSummary={store:null,runtime:null,epoch:null,revision:-1,rows:null,asking:false,received:0};
+  const mapFleetSummary={store:null,runtime:null,epoch:null,revision:-1,rows:null,asking:false,received:0,followUp:-1};
   function mapFleetSummaryClient(){const client=fleetEngineThreadClient;return client&&!client.disabled&&typeof client.fieldClasses==='function'&&window.GH_FLEET_STORE?.isStore?.(state.fleet)?client:null;}
   // The summary's class rows ([row, count, index, members]) for the store as it is, or null while there is none; asks
   // for a newer one when the store has moved on.
   function mapFleetClassRows(){
     const client=mapFleetSummaryClient();if(!client)return null;
     const STORE=window.GH_FLEET_STORE,store=state.fleet,runtime=STORE.chunkStamp(store).runtime,epoch=STORE.epoch(store),m=mapFleetSummary;
-    if(m.store!==store||m.runtime!==runtime){m.store=store;m.runtime=runtime;m.epoch=null;m.revision=-1;m.rows=null;}
+    if(m.store!==store||m.runtime!==runtime){m.store=store;m.runtime=runtime;m.epoch=null;m.revision=-1;m.rows=null;m.followUp=-1;}
     if(!m.asking&&(m.revision!==store.revision||m.epoch!==epoch)){
       const asked=client.fieldClasses(store,{fields:MAP_CLASS_FIELDS});
       if(asked){
         m.asking=true;
         asked.then(result=>{
           m.asking=false;if(!result||result.store!==m.store||result.runtime!==m.runtime||result.revision<m.revision||(result.revision===m.revision&&m.epoch===epoch))return;
+          // Redrawn at once (unless a render is already pending) only when it reaches the store revision a render wanted
+          // (followUp) or the map held no rows of this layout (the first summary, a compaction); otherwise the loop draws it
+          // within its structural interval (mapStructureSignature reads received). Each summary used to rebuild the map,
+          // and that render asked for the next summary, about once a second while the fleet moved.
+          const hadRows=!!m.rows&&m.epoch===epoch,due=m.followUp>=0&&result.revision>=m.followUp;
           m.rows=result.rows;m.revision=result.revision;m.epoch=epoch;m.received++;mapStatusCache.assetKey='';mapStatusCache.ownerKey='';
-          if(map)scheduleViewportMapRender(0);
+          if(!map)return;if(due)m.followUp=-1;
+          if(due||!hadRows){if(mapRenderTimer===null)scheduleViewportMapRender(0,true);}else if(m.followUp>=0)mapFleetClassRows();
         },()=>{m.asking=false;});
       }
     }
@@ -2717,6 +2730,9 @@
     }
     for(const [key,marker] of facilityMarkers)if(facilityPresentation.get(marker)?.generation!==facilityPresentationGeneration){try{map.removeLayer(marker);}catch(error){nonCritical('map-layer-remove',error);}facilityMarkers.delete(key);}
     updateMapStatus();renderWorldInfrastructureMarkers();lastMapStructureSignature=mapStructureSignature();updateMarkerPositions(true);mapVehicleCanvas?.drawIfDirty?.();
+    // A render that drew a fleet summary older than the store wants the store's revision drawn once its summary arrives;
+    // the follow-up render itself wants nothing, or each summary of a moving fleet would rebuild the map again.
+    if(!mapSummaryFollowUpRender&&mapFleetSummaryClient()){const m=mapFleetSummary,store=state.fleet,drawn=m.rows&&m.store===store&&m.epoch===window.GH_FLEET_STORE.epoch(store)?m.revision:-1;m.followUp=drawn<store.revision?store.revision:-1;}
     window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'map.structure',renderStarted,appMetricClock());
   }
 
@@ -2871,7 +2887,7 @@
     visualResyncRequested=false;mapVehicleCanvas?.drawIfDirty?.();
   }
   window.GH_VISUAL_MOTION=Object.freeze({MIN_FRAME_MS:50,MAX_FRAME_MS:300,profile:markerMotionProfile,boundedStepRatio,interpolateRoute:interpolatePresentationRoute});
-  function mapStructureSignature(){if(!map)return'';const zoom=Math.floor(Number(map.getZoom?.())||0),center=map.getCenter?.(),viewport=`${Number(center?.lat||0).toFixed(3)}:${Number(center?.lng||0).toFixed(3)}`,fleetMembership=window.GH_FLEET_DATA?.membershipRevision?.(state)||'none',fleetSize=window.GH_FLEET_DATA?.size?.(state)||0,assetRevision=`${Number(state.saveRevision)||0}:${Number(window.GH_MAP_STRUCTURE_REVISION)||0}:${fleetMembership}:${fleetSize}`;return `${JSON.stringify(currentMapFilter())};${zoom};${viewport};${selectedAssetId||''};${selectedFacilityId||''};${assetRevision}`;}
+  function mapStructureSignature(){if(!map)return'';const zoom=Math.floor(Number(map.getZoom?.())||0),center=map.getCenter?.(),viewport=`${Number(center?.lat||0).toFixed(3)}:${Number(center?.lng||0).toFixed(3)}`,fleetMembership=window.GH_FLEET_DATA?.membershipRevision?.(state)||'none',fleetSize=window.GH_FLEET_DATA?.size?.(state)||0,assetRevision=`${Number(state.saveRevision)||0}:${Number(window.GH_MAP_STRUCTURE_REVISION)||0}:${fleetMembership}:${fleetSize}:${mapFleetSummary.received}`;return `${JSON.stringify(currentMapFilter())};${zoom};${viewport};${selectedAssetId||''};${selectedFacilityId||''};${assetRevision}`;}
 
   function presentationAssetLookup(){
     // The index is a pure function of the fleet rows array, which is replaced (never edited in place) when the store
@@ -4748,7 +4764,7 @@
     fleetUiSummaryCache.clear();fleetUiSummaryCacheStore=null;fleetUiSummaryProjectSource=null;
     if(fleetUiSummaryRefreshTimer!==null)clearTimeout(fleetUiSummaryRefreshTimer);fleetUiSummaryRefreshTimer=null;
     if(fleetUiSummaryPrimeTask!==null){if(typeof window.requestIdleCallback==='function')window.cancelIdleCallback?.(fleetUiSummaryPrimeTask);else clearTimeout(fleetUiSummaryPrimeTask);}fleetUiSummaryPrimeTask=null;
-    Object.assign(mapFleetSummary,{store:null,runtime:null,epoch:null,revision:-1,rows:null,asking:false,received:0});
+    Object.assign(mapFleetSummary,{store:null,runtime:null,epoch:null,revision:-1,rows:null,asking:false,received:0,followUp:-1});
     mapFleetRowsSource=null;mapFleetRowsMembership='';mapFleetRows=[];presentationAssetIndex.clear();presentationAssetIndexSource=null;mapAssetQueryRequest=null;mapAssetQueryEngine?.reset?.();
     clearFleetListSearchRequest();fleetListQueryEngine?.invalidate?.(state);fleetListQueryWarm=null;fleetListQueryWarmState=null;fleetListQueryWarmSource=null;fleetListQueryWarmMembership='';fleetListSearchFacilityNames.clear();
     financeReportEngine?.reset?.();financeReportWorkerResult=null;financeReportSnapshotCache=null;financeReportFallbackCache=null;
