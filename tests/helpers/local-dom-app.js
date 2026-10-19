@@ -41,7 +41,8 @@ async function boot(options={}){
     return ()=>{({openDrawer,renderPanel,renderInvoices,bindDrawerActions,authorizationSignatureMarkup,signatureSnapshot,authorizedDraftDispatch,replaceLiveState,updateKpis}=original);Object.assign(__AUDIT__,auditOriginal);delete window.__QA_WORK_OBSERVER__;};
   };
   `+text.slice(i);}
-  await page.evaluate('(()=>{'+text+'\n})()');
+  // The file name lets traces and long-animation-frame entries name the script (a comment; the code is unchanged).
+  await page.evaluate('(()=>{'+text+'\n})()\n//# sourceURL=gh-app/'+file);
  }
  if(options.found===false||process.env.GH_AUDIT_UNFORMED)return {page,browser,errors};
  if(!await page.evaluate(()=>window.__GH_STATE__?.onboardingComplete)){await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);}
