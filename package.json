@@ -96,7 +96,7 @@
     "test:drawer-bind-scope": "node tests/build506-drawer-bind-scope-browser.cjs",
     "test:encode-rows-steps": "node tests/build507-encode-rows-steps.cjs",
     "test:presentation-index-saves": "node tests/build508-presentation-index-saves.cjs",
-    "test:realtime-health-layout": "node tests/build509-realtime-health-layout.cjs && node tests/build510-validation-cache-reasons.cjs && node tests/build511-deferred-draft-roots.cjs && node tests/build512-deferred-mobility-browser.cjs && node tests/build513-published-command-wait-browser.cjs && node tests/build514-map-summary-cadence-browser.cjs && node tests/build515-mobility-day-ledger-rollback.cjs && node tests/build516-tracked-collections.cjs && node tests/build517-hr-hire-view-facilities-browser.cjs"
+    "test:realtime-health-layout": "node tests/build509-realtime-health-layout.cjs && node tests/build510-validation-cache-reasons.cjs && node tests/build511-deferred-draft-roots.cjs && node tests/build512-deferred-mobility-browser.cjs && node tests/build513-published-command-wait-browser.cjs && node tests/build514-map-summary-cadence-browser.cjs && node tests/build515-mobility-day-ledger-rollback.cjs && node tests/build516-tracked-collections.cjs && node tests/build517-hr-hire-view-facilities-browser.cjs && node tests/build518-maintenance-worst-first.cjs"
   },
   "devDependencies": {
     "three": "0.180.0",

@@ -469,16 +469,30 @@
   // condition after the checks is the company's wear for the next day's trips (fuel burn and delay losses,
   // GH_SIMULATION_ASSET_CORE.computeTripEconomics and GH_ADVANCED.adjustTripEconomics).
   const MAINTENANCE_POLICIES=Object.freeze({preventive:90,standard:80,deferred:65}),CHECK_COST=Object.freeze({air:.004,sea:.003,road:.006}),CHECKS_PER_DAY=2000,MAINTENANCE_STEP=256;
+  // Owner decision (19 Oct 2026): the daily checks go to a company's lowest-condition assets, ties in row order (the
+  // first rows under the line took them all, and a fleet larger than the capacity never reached its later rows). Twin
+  // of fleet-day-core's queueCheck/settleChecks (the worker pass): keep both the same.
+  const lessUrgent=(a,b)=>a.condition>b.condition||(a.condition===b.condition&&a.index>b.index);
+  function queueCheck(heap,condition,index,id){
+    let at;
+    if(heap.length<CHECKS_PER_DAY){at=heap.length;heap.push({condition,index,id,cost:0});
+      while(at>0){const up=(at-1)>>1;if(!lessUrgent(heap[at],heap[up]))break;const swap=heap[at];heap[at]=heap[up];heap[up]=swap;at=up;}return heap[at];}
+    const entry=heap[0];if(condition>entry.condition||(condition===entry.condition&&index>entry.index))return null;
+    entry.condition=condition;entry.index=index;entry.id=id;at=0;
+    for(;;){const left=at*2+1,right=left+1;let top=at;if(left<heap.length&&lessUrgent(heap[left],heap[top]))top=left;if(right<heap.length&&lessUrgent(heap[right],heap[top]))top=right;if(top===at)break;const swap=heap[at];heap[at]=heap[top];heap[top]=swap;at=top;}
+    return entry;
+  }
+  function settleChecks(acc,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){acc.due.push(entry.id);acc.restored+=100-entry.condition;acc.cost+=entry.cost;}}
   function maintenancePolicy(state,companyId){const policy=state.advanced?.companies?.[companyId]?.maintenancePolicy;return Object.prototype.hasOwnProperty.call(MAINTENANCE_POLICIES,policy)?policy:'standard';}
   function maintenanceVisitor(state){
-    const companies=new Map(),owners=new Map();
-    const visit=a=>{
+    const companies=new Map(),owners=new Map(),checks=new Map();
+    const visit=(a,index)=>{
       const ownerKey=`${a.ownerCompanyId}\u0000${a.companyId}\u0000${a.company}\u0000${a.assetMode}\u0000${a.type}`;let owner=owners.get(ownerKey);if(owner===undefined){owner=assetOwnerCompanyId(state,a);owners.set(ownerKey,owner);}
-      let acc=companies.get(owner);if(!acc){acc={threshold:MAINTENANCE_POLICIES[maintenancePolicy(state,owner)],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};companies.set(owner,acc);}
+      let acc=companies.get(owner);if(!acc){acc={threshold:MAINTENANCE_POLICIES[maintenancePolicy(state,owner)],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};companies.set(owner,acc);checks.set(acc,[]);}
       const condition=clamp(Number(a.condition)||100,0,100),mode=assetMode(a),price=Math.max(0,Number(a.purchasePrice)||0);acc.conditionSum+=condition;acc.count++;acc.value+=price;acc.risk+=INCIDENT_RATE[mode]||INCIDENT_RATE.road;acc.premium+=price*(PREMIUM_RATE[mode]||PREMIUM_RATE.road);acc.licence+=LICENCE_FEE[mode]||LICENCE_FEE.road;if(condition<UNSAFE_CONDITION){acc.unsafe++;acc.fine+=INSPECTION_FINE[mode]||INSPECTION_FINE.road;}if(acc.sample.length<INCIDENT_SAMPLE)acc.sample.push({id:a.id,price});
-      if(condition<acc.threshold&&acc.due.length<CHECKS_PER_DAY){acc.due.push(a.id);acc.restored+=100-condition;acc.cost+=Math.max(0,Number(a.purchasePrice)||0)*(CHECK_COST[assetMode(a)]||CHECK_COST.road);}
+      if(condition<acc.threshold){const entry=queueCheck(checks.get(acc),condition,index,a.id);if(entry)entry.cost=Math.max(0,Number(a.purchasePrice)||0)*(CHECK_COST[assetMode(a)]||CHECK_COST.road);}
     };
-    return {visit,companies};
+    return {visit,companies,finish:()=>{for(const acc of companies.values())settleChecks(acc,checks.get(acc));}};
   }
   function* runMaintenance(state,maintenance,day){
     const r=migrate(state),fleet=fleetData(),F=globalThis.GH_FINANCE_CORE,stamp=Number(state.simSeconds)||0;r.maintenance=r.maintenance&&typeof r.maintenance==='object'?r.maintenance:{};r.maintenance.companies={};
@@ -641,8 +655,8 @@
     const worker=yield* fleetDayFromWorker(state);if(worker)return worker;
     const fleet=fleetData(),owner=ownerTotalsVisitor(state),ops=opsVisitor(state),maintenance=maintenanceVisitor(state);let insured=0,readiness=0;
     if(fleet.size(state)>2048&&globalThis.GH_TRANSACTION_CORE?.isStaged?.(state)===true)throw new Error('fleet-day-worker-unavailable');
-    yield* fleet.scanStages(state,FLEET_DAY_FIELDS,(a,index)=>{owner.visit(a);ops.visit(a,index);maintenance.visit(a);const condition=Number(a.condition);insured+=condition||100;readiness+=condition||0;},OPS_SLICE_ROWS,'realism.fleet-day');
-    ownerTotalsMemo={state,key:ownerTotalsKey(state),totals:owner.totals};
+    yield* fleet.scanStages(state,FLEET_DAY_FIELDS,(a,index)=>{owner.visit(a);ops.visit(a,index);maintenance.visit(a,index);const condition=Number(a.condition);insured+=condition||100;readiness+=condition||0;},OPS_SLICE_ROWS,'realism.fleet-day');
+    maintenance.finish();ownerTotalsMemo={state,key:ownerTotalsKey(state),totals:owner.totals};
     const key=conditionSumKey(state);conditionSumMemo=key?{state,key,sum:insured,readiness}:null;
     ops.maintenance=maintenance;return ops;
   }

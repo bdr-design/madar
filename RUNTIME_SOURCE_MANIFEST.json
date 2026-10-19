@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "d5986b76c4b8cf4805cde58e2a086dd587515beac816b053df21f002c7796a12",
-  "webapp_tree_sha256": "83be8268bc966008d10a9bf258d41954a4790f8711e943323510de9987353e17",
+  "source_tree_sha256": "e1010eec4f4987e0ea2db6a4abfbccd944718b95741aab3be8b03e6725ac7968",
+  "webapp_tree_sha256": "daa1755430b87e7685e8e0c0338eff1523c85374f89ab1e0d259b49bce19fda9",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1012610,
-      "sha256": "7aed938559f9c3f982d35f0a387c93370aa8a30d606b21a1dffcf95f3a55c59f"
+      "bytes": 1012645,
+      "sha256": "e17dd4768a803b837b7523831163f23f4304a166736082963398420b0cf49c5e"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3547,8 +3547,8 @@
       "sha256": "8e819fccfca5497b979fab68466b9a478d4deeedcac608b77a0e04637985b8d9"
     },
     "WebApp/fleet-day-core.js": {
-      "bytes": 19249,
-      "sha256": "d5dfbf652c00833499b5fcf34936fac01796a23c47bdc50201016f94707c8660"
+      "bytes": 20864,
+      "sha256": "ced98976f6c3869e5b89fa86fe788e9552b2a690e338a62780c4c1722010e53a"
     },
     "WebApp/fleet-dispatch-core.js": {
       "bytes": 21796,
@@ -3831,8 +3831,8 @@
       "sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106"
     },
     "WebApp/realism-core.js": {
-      "bytes": 117146,
-      "sha256": "8e8163517daad405273e5a7059af6e3077b8b704b0cb6fe99adb2f2daf98d6e7"
+      "bytes": 118662,
+      "sha256": "26711a539e7f8e122295aff054c6aabd9f479370176e597a3d544aed523a1de3"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "ab1f6b1a8156230249ae1fb68898f13b62499e2eb5ecfdc5fbf3f10e529faced"
+      "sha256": "8c9a752e5b10bb2e9efe70d16933dc0dbbdbc528f63b924515efb0ee27be4276"
     },
     "BUILD": {
       "bytes": 4,

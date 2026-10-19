@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 547,
+  "minimum_acceptance_gates": 548,
   "preflight_commands": [
     [
       "node",
@@ -2726,6 +2726,10 @@
     [
       "node",
       "tests/build517-hr-hire-view-facilities-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build518-maintenance-worst-first.cjs"
     ]
   ]
 }

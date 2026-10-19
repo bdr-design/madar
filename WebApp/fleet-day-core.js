@@ -20,6 +20,21 @@
   const MAINTENANCE_POLICIES=Object.freeze({preventive:90,standard:80,deferred:65});
   const CHECK_COST=Object.freeze({air:.004,sea:.003,road:.006});
   const CHECKS_PER_DAY=2000;
+  // Owner decision (19 Oct 2026): a company's daily checks go to its lowest-condition assets, ties in row order. The
+  // first rows under the line took them all, so the later rows of a fleet larger than the capacity were never checked.
+  // A bounded heap holds the candidates (its root the least urgent); the chosen rows are summed in row order, as before.
+  // Twin of realism-core's queueCheck/settleChecks (the main-thread pass): keep both the same.
+  const lessUrgent=(a,b)=>a.condition>b.condition||(a.condition===b.condition&&a.index>b.index);
+  function queueCheck(heap,condition,index,id){
+    let at;
+    if(heap.length<CHECKS_PER_DAY){at=heap.length;heap.push({condition,index,id,cost:0});
+      while(at>0){const up=(at-1)>>1;if(!lessUrgent(heap[at],heap[up]))break;const swap=heap[at];heap[at]=heap[up];heap[up]=swap;at=up;}return heap[at];}
+    const entry=heap[0];if(condition>entry.condition||(condition===entry.condition&&index>entry.index))return null;
+    entry.condition=condition;entry.index=index;entry.id=id;at=0;
+    for(;;){const left=at*2+1,right=left+1;let top=at;if(left<heap.length&&lessUrgent(heap[left],heap[top]))top=left;if(right<heap.length&&lessUrgent(heap[right],heap[top]))top=right;if(top===at)break;const swap=heap[at];heap[at]=heap[top];heap[top]=swap;at=top;}
+    return entry;
+  }
+  function settleChecks(maint,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){maint.due.push(entry.id);maint.restored+=100-entry.condition;maint.cost+=entry.cost;}}
   const INCIDENT_RATE=Object.freeze({air:.000044,sea:.000077,road:.00038});
   const PREMIUM_RATE=Object.freeze({air:.0035,sea:.006,road:.03});
   const INCIDENT_SAMPLE=64;
@@ -135,7 +150,7 @@
 
   function compute(state,fleet,options={}){
     if(!fleet||typeof fleet.scan!=='function')throw new TypeError('fleet-day-scan-unavailable');
-    const ownerFlag={legacy:false},resolveOwner=makeOwnerResolver(state,options,ownerFlag),policyOf=makePolicyResolver(state,options),owners=new Map(),ownerTotals=new Map(),maintenance=new Map(),columns=makeColumnPlan(state,fleet,options);
+    const ownerFlag={legacy:false},resolveOwner=makeOwnerResolver(state,options,ownerFlag),policyOf=makePolicyResolver(state,options),owners=new Map(),ownerTotals=new Map(),maintenance=new Map(),checks=new Map(),columns=makeColumnPlan(state,fleet,options);
     const simSeconds=Math.max(0,Number(state?.simSeconds)||0),simYear=2026+Math.floor(simSeconds/(365*86400)),monthlyRate=Math.pow(1.07,1/12)-1;
     const economy=state?.realism?.economy||{},airDemand=own(options,'airDemand')?options.airDemand:economy.airDemand,bunkerValue=own(options,'bunker')?options.bunker:economy.bunker;
     const demand=clamp((airDemand||100)/100,.65,1.35),bunker=Math.max(1,bunkerValue);
@@ -173,8 +188,8 @@
       else{total.assetVal+=constants.book*(.75+.25*condition/100);total.depr+=constants.depr;total.owned+=constants.rawPrice*clamp((Number(row.condition)||100)/100,.4,1);}
       total.fuelCost+=Number(row.lastTrip?.fuelCost)||0;total.maintReserve+=Number(row.lastTrip?.maintReserve)||0;total.payroll+=constants.payroll;
 
-      let maint=maintenance.get(owner);if(!maint){const policy=policyOf(owner);maint={threshold:MAINTENANCE_POLICIES[own(MAINTENANCE_POLICIES,policy)?policy:'standard'],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};maintenance.set(owner,maint);}
-      const mode=constants.mode;maint.conditionSum+=condition;maint.count++;maint.value+=price;maint.risk+=INCIDENT_RATE[mode]||INCIDENT_RATE.road;maint.premium+=price*(PREMIUM_RATE[mode]||PREMIUM_RATE.road);maint.licence+=LICENCE_FEE[mode]||LICENCE_FEE.road;if(condition<UNSAFE_CONDITION){maint.unsafe++;maint.fine+=INSPECTION_FINE[mode]||INSPECTION_FINE.road;}if(maint.sample.length<INCIDENT_SAMPLE)maint.sample.push({id:row.id,price});if(condition<maint.threshold&&maint.due.length<CHECKS_PER_DAY){maint.due.push(row.id);maint.restored+=100-condition;maint.cost+=Math.max(0,Number(row.purchasePrice)||0)*(CHECK_COST[modeOf(row)]||CHECK_COST.road);}
+      let maint=maintenance.get(owner);if(!maint){const policy=policyOf(owner);maint={threshold:MAINTENANCE_POLICIES[own(MAINTENANCE_POLICIES,policy)?policy:'standard'],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};maintenance.set(owner,maint);checks.set(maint,[]);}
+      const mode=constants.mode;maint.conditionSum+=condition;maint.count++;maint.value+=price;maint.risk+=INCIDENT_RATE[mode]||INCIDENT_RATE.road;maint.premium+=price*(PREMIUM_RATE[mode]||PREMIUM_RATE.road);maint.licence+=LICENCE_FEE[mode]||LICENCE_FEE.road;if(condition<UNSAFE_CONDITION){maint.unsafe++;maint.fine+=INSPECTION_FINE[mode]||INSPECTION_FINE.road;}if(maint.sample.length<INCIDENT_SAMPLE)maint.sample.push({id:row.id,price});if(condition<maint.threshold){const entry=queueCheck(checks.get(maint),condition,index,row.id);if(entry)entry.cost=Math.max(0,Number(row.purchasePrice)||0)*(CHECK_COST[modeOf(row)]||CHECK_COST.road);}
 
       if(mode==='air'){
         const cap=Math.max(0,Number(row.specs?.capacity)||0),distance=Math.max(0,Number(row.lastTrip?.distanceKm)||Number(row.lastTrip?.distance)||0),airCond=condition,conditionFactor=clamp(.82+(airCond-70)*.004,.70,1.06),loadFactor=clamp(.78*demand*conditionFactor,.52,.96);
@@ -190,6 +205,7 @@
       const rawCondition=Number(row.condition);insured+=rawCondition||100;readiness+=rawCondition||0;
     });
 
+    for(const maint of maintenance.values())settleChecks(maint,checks.get(maint));
     const ops={ask,rpk,rev,cost,fuel,movingAir,airCondition,maintReserve,maintExposure,airCount,maintenanceDue,aog,seaDistance,seaFuelProxy,seaTransport,seaCo2,seaWork,seaRefWork,seaCondition,movingSea,seaCount,seaDryDock,roadCount,roadWeak,roadDamaged};
     return {schema:SCHEMA,version:VERSION,legacy:ownerFlag.legacy,ownerTotals:[...ownerTotals],ops,maintenance:[...maintenance],condition:{insured,readiness},dailyMetrics,columns:columns.finish()};
   }
