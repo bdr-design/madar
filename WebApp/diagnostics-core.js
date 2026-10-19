@@ -321,7 +321,10 @@
 
     const integrity=Object.prototype.hasOwnProperty.call(extra,'integrity')?extra.integrity:globalThis.GH_INTEGRITY_CORE?.check?.(state);
     if(integrity?.issues?.length)for(const x of integrity.issues)add(`BIZ_${x.id}`,x.severity,x.title,x.detail,x.domain||'business',x.evidence||{});
-    const layout=layoutSnapshot();
+    // Layout and button checks read element geometry (a forced synchronous layout: 50 ms at 4x CPU after a decision
+    // re-render) and scan every button. They belong to explicit diagnostics (export, the open diagnostics page), not
+    // to the periodic in-game health pass, which passes layout:false.
+    const layout=options.layout===false?null:layoutSnapshot();
     if(layout?.topbar){
       const buttons=(layout.actionButtons||[]).map(x=>x.rect).filter(Boolean);
       if(buttons.length>1){const tops=buttons.map(r=>r.top),bottoms=buttons.map(r=>r.bottom);if(Math.max(...tops)-Math.min(...tops)>4||Math.max(...bottoms)-Math.min(...bottoms)>4)add('UI_TOPBAR_ACTION_WRAP','warning','التفاف أزرار الشريط العلوي','أزرار الإجراءات ليست على صف واحد؛ قد يكون عدد الأعمدة أقل من عدد الأزرار.','ui',{layout});}

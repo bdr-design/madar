@@ -4189,7 +4189,7 @@
     }
     const healthStarted=performance.now();
     try{
-      const integrity=window.GH_INTEGRITY_CORE.check(state),health=window.GH_DIAGNOSTICS.runHealthCheck(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:simulationEngine.snapshot(),integrity,...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{})},{recordEvent:false,trackTransitions:true});
+      const integrity=window.GH_INTEGRITY_CORE.check(state),health=window.GH_DIAGNOSTICS.runHealthCheck(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:simulationEngine.snapshot(),integrity,...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{})},{recordEvent:false,trackTransitions:true,layout:activeDrawerPanel==='diagnostics'&&$('drawer').classList.contains('open')});
       lastRealtimeHealthCostMs=performance.now()-healthStarted;
       // The last panel name survives closing. Refresh only a visible health page, using this synchronous pass's
       // integrity result for presentation; no retained cache may conceal a later state change.

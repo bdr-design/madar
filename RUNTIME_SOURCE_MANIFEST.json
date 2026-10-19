@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "5cf16ab46ae1281ecfb5bb6c16a631d96292d2ee11aa0a59037d173413028729",
-  "webapp_tree_sha256": "6fa45dee4bd5d497dba7a68230ead3e71739d84b5ba131aea63aa60d581a5b49",
+  "source_tree_sha256": "38332dec93ccc42383b16c7a9d7f705dae1af82980889c65155191287620e86c",
+  "webapp_tree_sha256": "0972ccb6496611a4dbae4b50c03f6468af5830b4054b8fc1e5e21a3818d80507",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1009639,
-      "sha256": "85036aa4b566e9c57919ba0b3ad622e1879ee66258c9c9915096293f0249bbd9"
+      "bytes": 1009720,
+      "sha256": "d2a520c32be48710fc521be87974ca4457d187127a7ed578d1f17e03d32f0bc9"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3487,8 +3487,8 @@
       "sha256": "11650b4b91eebd66bf301e2f4682b07696618001760c7f7c074ff597f089469a"
     },
     "WebApp/diagnostics-core.js": {
-      "bytes": 99305,
-      "sha256": "1fc583a013f04609d69588b3af882019ae0896f312d3706ac0c73f85d26242ec"
+      "bytes": 99639,
+      "sha256": "e189a3156299378223b8c1f1efeb5fef5cb077886881c4c5d5bbe81559c5f8f4"
     },
     "WebApp/directory-core.js": {
       "bytes": 30336,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "3ce979e39c39520c07e9623dc95a25459babf08c1c9e1e9e30560643622ef22a"
+      "sha256": "4bf094df81417902cccd7dd53741781f46bae1eed7c329b460c079868946add5"
     },
     "BUILD": {
       "bytes": 4,

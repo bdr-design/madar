@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 538,
+  "minimum_acceptance_gates": 539,
   "preflight_commands": [
     [
       "node",
@@ -2690,6 +2690,10 @@
     [
       "node",
       "tests/build508-presentation-index-saves.cjs"
+    ],
+    [
+      "node",
+      "tests/build509-realtime-health-layout.cjs"
     ]
   ]
 }
