@@ -102,7 +102,7 @@
   // it across a vehicle transfer, sale, delivery, rollback or state replacement.
   function mobilityCenterCounts(state){const counts=new Map();(state.mobility?.vehicles||[]).forEach(vehicle=>{const center=vehicle?.centerId;if(center===center)counts.set(center,(counts.get(center)||0)+1);});return counts;}
   function facilityGaps(state,ctx,company='all'){
-    const facilities=(ctx?.getDynamicFacilities?.()||[...(state.globalBases||[]),...(state.customHubs||[])]).filter(f=>f&&f.owned===true),rows=[];let mobilityCounts=null;state.advanced=state.advanced||{};state.advanced.facilities=state.advanced.facilities||{};
+    const facilities=(ctx?.getDynamicFacilities?.(state)||[...(state.globalBases||[]),...(state.customHubs||[])]).filter(f=>f&&f.owned===true),rows=[];let mobilityCounts=null;state.advanced=state.advanced||{};state.advanced.facilities=state.advanced.facilities||{};
     // A facility still under construction (a hotel or resort before completion) has no operating team to staff yet: HR
     // listed its full team as a gap from the first day of building, and hiring it paid salaries for the whole build.
     for(const f of facilities){const owner=companyOfFacility(f);if(company!=='all'&&owner!==company)continue;if(f.constructionStatus==='قيد الإنشاء')continue;if(f.kind==='mobility-center'&&!mobilityCounts)mobilityCounts=mobilityCenterCounts(state);const needed=facilityNeed(f,state,mobilityCounts),have=Math.max(0,Number(state.advanced.facilities?.[f.id]?.staff)||0),missing=Math.max(0,needed-have);rows.push({kind:'facility',company:owner,facilityId:f.id,name:f.name||f.id,needed,have,missing});}

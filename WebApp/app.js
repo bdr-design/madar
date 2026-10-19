@@ -1869,7 +1869,8 @@
     const publicEndpoints=Object.values(target.routeEndpoints||{}).filter(endpoint=>endpoint&&endpoint.id&&Array.isArray(endpoint.coords));
     return [headquartersFacility(target),...facilities,...(target.globalBases||[]),...(target.customHubs||[]),...publicEndpoints,...branches,...acquired];
   }
-  function getDynamicFacilities(){return dynamicFacilitiesFor(state);}
+  // A command's owner passes its draft (GH_HR_CORE facilityGaps), so the list is the one the command writes to.
+  function getDynamicFacilities(target=state){return dynamicFacilitiesFor(target);}
   function routeFacilityFor(target,id){return dynamicFacilitiesFor(target).find(f=>f.id===id)||null;}
 
   function endpointMatchesWorldEntity(endpoint,entity){
