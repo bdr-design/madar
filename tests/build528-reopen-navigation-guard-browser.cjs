@@ -9,17 +9,35 @@
 //     3. a decision that redraws after its commit (signing a company's charter) each keep the treasury loans tab and commit;
 //  4. without navigation each still redraws its own page;
 //  5. no other app.js decision awaits and then opens a page directly (god mode redraws the page already shown).
+// The first version of check 5 read one line at a time and missed thirteen decisions whose page opens on another line
+// or in their command's afterCommit; the macOS gate (run 64, tax-precision-and-routing-browser) then lost the global
+// network page to "open all companies" redrawing the companies page. Check 5 now parses app.js and covers every page
+// open after an await in its async function and in every afterCommit/afterPublish callback; case 6 is that gate's flow:
+//  6. "open all companies" with a navigation while it is in flight keeps the page the player opened.
 // GH_GUARD_ENGINE=chromium runs Chromium only (WebKit is not installed everywhere).
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{chromium,webkit}=require('playwright');
 const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
 const {bootRenderApp}=require('./helpers/render-app.cjs'),{installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepare}=require('./helpers/request-decisions-fixture.cjs');
-// 5. Source: after an await, a page opens only through reopenDrawer or behind the same revision check.
+// 5. Source (parsed): a page opened after an await of its async function, or in an afterCommit/afterPublish callback,
+// opens through reopenDrawer or behind the same revision check.
 {
-  const lines=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8').split('\n'),direct=[];
-  lines.forEach((line,index)=>{const at=line.indexOf('await');if(at<0)return;const tail=line.slice(at),re=/(^|[^A-Za-z_.])openDrawer\(/g;let m;
-    while((m=re.exec(tail))){const before=tail.slice(Math.max(0,m.index-60),m.index+1);if(/(drawerNavigationRevision===navigationRevision\)|navigationRevision===drawerNavigationRevision\)&&)$/.test(before))continue;direct.push({line:index+1,text:tail.slice(Math.max(0,m.index-50),m.index+60)});}});
-  assert.equal(direct.length,1,`5: one direct page open after an await (${JSON.stringify(direct)})`);assert.match(direct[0].text,/if\(activeDrawerPanel\)openDrawer\(activeDrawerPanel,activeDrawerArg\)/,'5: god mode redraws the page already shown');
-  assert.ok(lines.filter(line=>line.includes('reopenDrawer(navigationRevision,')).length>=30,'5: the decisions redraw through reopenDrawer');
+  const acorn=require('acorn'),src=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8'),ast=acorn.parse(src,{ecmaVersion:'latest',locations:true}),direct=[];let reopened=0;
+  const firstAwait=fn=>{let first=Infinity;(function visit(n){if(!n||typeof n!=='object')return;if(n!==fn&&/Function/.test(n.type)&&n.type!=='ArrowFunctionExpression'&&!n.async)return;if(n.type==='AwaitExpression'&&n.start<first)first=n.start;for(const v of Object.values(n)){if(Array.isArray(v))v.forEach(visit);else if(v&&typeof v==='object'&&v.type)visit(v);}})(fn.body);return first;};
+  (function visit(n,ancestors){
+    if(!n||typeof n!=='object')return;
+    if(n.type==='CallExpression'&&n.callee.type==='Identifier'&&n.callee.name==='reopenDrawer'&&n.arguments[0]?.name==='navigationRevision')reopened++;
+    if(n.type==='CallExpression'&&n.callee.type==='Identifier'&&n.callee.name==='openDrawer'){
+      let late=false;
+      for(let i=ancestors.length-1;i>=0;i--){const fn=ancestors[i];if(!/Function/.test(fn.type))continue;const parent=ancestors[i-1];
+        if(parent?.type==='Property'&&['afterCommit','afterPublish'].includes(parent.key?.name)){late=true;break;}
+        if(fn.async){late=firstAwait(fn)<n.start;break;}}
+      const before=src.slice(Math.max(0,n.start-60),n.start);
+      if(late&&!/(drawerNavigationRevision===navigationRevision\)|navigationRevision===drawerNavigationRevision\)&&)$/.test(before))direct.push({line:n.loc.start.line,text:src.slice(Math.max(0,n.start-50),n.end)});
+    }
+    const next=[...ancestors,n];for(const v of Object.values(n)){if(Array.isArray(v))v.forEach(c=>visit(c,next));else if(v&&typeof v==='object'&&v.type)visit(v,next);}
+  })(ast,[]);
+  assert.equal(direct.length,1,`5: one direct page open after a command (${JSON.stringify(direct)})`);assert.match(direct[0].text,/if\(activeDrawerPanel\)openDrawer\(activeDrawerPanel,activeDrawerArg\)/,'5: god mode redraws the page already shown');
+  assert.ok(reopened>=45,`5: the decisions redraw through reopenDrawer (${reopened})`);
 }
 const panel=page=>page.evaluate(()=>({panel:document.querySelector('#drawer')?.dataset.panel||'',loans:!!document.querySelector('#drawerBody #icLoanLender')}));
 async function held(page,press,{navigate}){
@@ -45,6 +63,11 @@ async function held(page,press,{navigate}){
   };
   const opened=await charter(true,types[0]);assert.equal(opened.panel,'treasury','3: a company opening keeps the page the player opened');assert.equal(opened.loans,true);assert.equal(opened.opened,true,'3: the company is opened');
   const openedHere=await charter(false,types[1]);assert.equal(openedHere.panel,'formationContract','4: without navigation the formation contract is shown');assert.equal(openedHere.opened,true);
+  // 6. The gate's flow: "open all companies" (after its confirmation) with a navigation while it is in flight.
+  await page.evaluate(()=>__AUDIT__.openDrawer('companies','subs'));const openAll=page.locator('#drawerBody .open-all-companies').first();await openAll.waitFor();
+  const all=await held(page,async()=>{await openAll.click();await page.locator('dialog.ui-confirm [data-confirm="accept"]').click();},{navigate:true});
+  assert.equal(all.panel,'treasury','6: "open all companies" keeps the page the player opened');assert.equal(all.loans,true);
+  assert.equal(await page.evaluate(()=>GH_COMPANY_PLATFORM.listInstances(__GH_STATE__,{includeGroup:false}).every(c=>c.operational)),true,'6: every company is opened');
   await prepare(page,{rows:200});
   // 1. A page button: the finance page's reserve transfer.
   const reserve=()=>page.evaluate(()=>{const s=__GH_STATE__;return (s.companyFinance?.group?.accounts?.[1]?.balance)??JSON.stringify(s.companyFinance?.group?.accounts||null);});
@@ -63,7 +86,7 @@ async function held(page,press,{navigate}){
   };
   const traded=await trade(true);assert.equal(traded.panel,'treasury','2: a stock purchase keeps the page the player opened');assert.equal(traded.loans,true);assert.equal(traded.bought,1000,'2: the shares are bought');
   const tradedHere=await trade(false);assert.equal(tradedHere.panel,'stocks','4: without navigation the stock page is redrawn');assert.equal(tradedHere.bought,1000);
-  assert.deepEqual(errors,[],'no page errors');results.push({engine:engine.name(),moved:moved.panel,stayed:stayed.panel,traded:traded.panel,tradedHere:tradedHere.panel,opened:opened.panel,openedHere:openedHere.panel});
+  assert.deepEqual(errors,[],'no page errors');results.push({engine:engine.name(),openAll:all.panel,moved:moved.panel,stayed:stayed.panel,traded:traded.panel,tradedHere:tradedHere.panel,opened:opened.panel,openedHere:openedHere.panel});
  }finally{await browser.close();await env?.closeOrigin?.();}}
  console.log(JSON.stringify({suite:'build528-reopen-navigation-guard-browser',ok:true,results}));
 })().catch(error=>{console.error(error);process.exit(1);});

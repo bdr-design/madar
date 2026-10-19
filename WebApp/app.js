@@ -1388,13 +1388,13 @@
   }
 
   function settleCheque(cheque){return dispatchSystemCommand({state},'finance','settle-cheque',{id:cheque?.id},{actor:'finance-scheduler'}).result;}
-  async function settleIssuedCheque(id){
+  async function settleIssuedCheque(id){const navigationRevision=drawerNavigationRevision;
     const cheque=state.finance.cheques.find(row=>row.id===id);if(!cheque){notice('الشيك غير موجود.');return false;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;let result;
     try{const out=await runAuthorizedDomainCommand('finance','settle-cheque',{id},{successNotice:result=>result.settled===true?(result.reason==='already-settled'?`الشيك ${id} مصروف سابقًا؛ لم يُخصم المبلغ مرة أخرى.`:`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`):''});result=out.result;if(result.settled!==true)throw new Error(result.reason||'cheque-not-settled');}
     catch(error){if(error?.durableCommitted!==true)notice(`تعذر صرف الشيك: ${String(error.message||error)}`);return false;}
     // Finance validated the posting before durable ACK. A later presentation failure must never report payment failure.
-    try{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}
+    try{updateKpis();if(stayPanel){reopenDrawer(navigationRevision,stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}
     catch(error){console.warn('Cheque committed; presentation refresh failed',error);}
     return true;
   }
@@ -2024,7 +2024,7 @@
     }
     source.metrics.candidatePoolExhaustions++;const error=new Error(`${asset.name}: لا توجد وجهة ${source.type==='air'?'الجوية':'البحرية'} آمنة ومتنوعة ضمن مدى مجموعة الأسطول`);error.code=`${source.type}-destination-pool-exhausted`;error.assetDepartureTrace={mode:source.type,planner:{...rejected,source:source.snapshot?.()||null}};throw error;
   }
-  async function createGlobalRoute(assetId,destinationKey){
+  async function createGlobalRoute(assetId,destinationKey){const navigationRevision=drawerNavigationRevision;
     return runAuthorizedCompositeCommand('create-global-route',({state:draft,routes,dispatch})=>{
       const asset=window.GH_FLEET_DATA.get(draft,assetId),entity=worldEntityByKey(destinationKey);if(!asset||!entity)throw new Error('الأصل أو الوجهة لم يعودا متاحين');
       const expectedKind=asset.type==='air'?'airport':'port';if(entity.kind!==expectedKind)throw new Error(`يجب اختيار ${asset.type==='air'?'مطار':'ميناء'} لهذا الأصل`);if(asset.phase==='moving')throw new Error('الأصل متحرك ولا يمكن تغيير وجهته');
@@ -2036,7 +2036,7 @@
       dispatch('fleet','assign-route',{id:asset.id,routeId:route.id,baseFacility:asset.baseFacility,phase:'turnaround',route});{const fleetRow=window.GH_FLEET_DATA.draft(draft,asset);window.GH_FLEET_CORE.normalizeAsset(fleetRow,{route,catalogItem:catalogItem(fleetRow.type,fleetRow.catalogId)});window.GH_FLEET_DATA.commit(draft,[fleetRow]);}
       if(!replaceable&&previousRouteId&&previousRouteId!==route.id&&!window.GH_FLEET_DATA.some(draft,row=>row.routeId===previousRouteId)&&(draft.customRoutes||[]).some(row=>row.id===previousRouteId))window.GH_ROUTE_CORE.execute({state:draft},'delete',{id:previousRouteId});
       window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`أُنشئ خط ${asset.type==='air'?'جوي':'بحري'} عام: ${route.name}.`,type:'route'});return {assetId:asset.id,routeId:route.id};
-    },{afterCommit:result=>{lastDepartureBlocked=[];renderMap();updateKpis();openDrawer('assetManage',result.assetId);}});
+    },{afterCommit:result=>{lastDepartureBlocked=[];renderMap();updateKpis();reopenDrawer(navigationRevision,'assetManage',result.assetId);}});
   }
   // Cooperative planning hands the thread back between bounded slices. setTimeout(0) did that through a timer: from the
   // fifth nested timer on, browsers (Chromium and WebKit) clamp it to 4 ms, so a slice of under 1 ms waited 4 ms idle.
@@ -2206,7 +2206,7 @@
   const fleetQueryStats={worker:0,main:0};
   // The network planner (GH_AIR_SEA_NETWORK_CORE) plans at most 20,000 assets per call.
   const SHARED_DISPATCH_LIMIT=20000;
-  async function dispatchSharedInternationalNetwork(companyInput){
+  async function dispatchSharedInternationalNetwork(companyInput,navigationRevision=drawerNavigationRevision){
     const companyId=routeCompanyFromInput(companyInput),type=companyId?companyRouteModes(companyId).find(mode=>['air','sea'].includes(mode)):null;
     if(!companyId||!type)throw new Error('unsupported-shared-international-company');
     await yieldFleetPlanning();
@@ -2313,14 +2313,14 @@
       window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`وُزعت ${plannedCount} ${type==='air'?'طائرة':'سفينة'} ذريًا على ${routeIds.length} مسارًا ${routeLabel} مشتركًا؛ ${moving} غادرت و${scheduled} مجدولة بفتحات زمنية، وأُنشئ ${createdRoutes.length} مسار جديد فقط.${capacityRemaining?` بقيت ${capacityRemaining} دون مغادرة لعدم توافر سعة مسارات مناسبة؛ لم تتغير حالتها.`:''}${sharedBatches?` نفدت الوجهات المميزة ضمن المدى لبعض نقاط الانطلاق، فانضمت ${sharedBatches} دفعة إلى مسارات قائمة منها.`:''}`,type:'dispatch'});
       return {departed:plannedCount,routeIds,moving,scheduled,createdRoutes:createdRoutes.length,sharedBatches,targetLoad,routeCapacity:capacity,remaining,capacityLimited:capacityRemaining>0,planner:source.snapshot()};
       }catch(error){error.assetDepartureTrace={...(error.assetDepartureTrace||{}),mode:type,attempts:source.metrics.assetsPlanned||0,blocked:source.metrics.assetsPlanned||0,planner:{...(error.assetDepartureTrace?.planner||{}),source:source.snapshot()}};throw error;}finally{routeWorker?.close();}
-    },{afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();openDrawer('routes',companyId);}});
+    },{afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();reopenDrawer(navigationRevision,'routes',companyId);}});
   }
   async function dispatchInternationalNetwork(companyInput){
     const companyId=routeCompanyFromInput(companyInput),mode=companyId?companyRouteModes(companyId).find(value=>['air','sea'].includes(value)):null;
     if(!companyId||!mode){notice('اختر شركة جوية أو بحرية واحدة؛ لا يسمح بأمر مختلط بين شركتين.');return false;}
     // A fleet above one dispatch's planner limit departs in successive committed dispatches.
-    let result=await dispatchSharedInternationalNetwork(companyId);
-    while(result&&result.remaining>0&&result.departed>0&&!result.capacityLimited)result=await dispatchSharedInternationalNetwork(companyId);
+    const navigationRevision=drawerNavigationRevision;let result=await dispatchSharedInternationalNetwork(companyId,navigationRevision);
+    while(result&&result.remaining>0&&result.departed>0&&!result.capacityLimited)result=await dispatchSharedInternationalNetwork(companyId,navigationRevision);
     return result;
   }
   let roadPlanning=null;
@@ -5702,7 +5702,7 @@
     return `<div class="list"><article class="list-item registry-hero"><div class="list-item-head"><div><h3>مركز المسارات المستقل</h3><p>الجوي والبحري والبري وMobility منفصلة بالكامل؛ لا توجد قائمة مختلطة ولا قرار آلي قد يغير مسارًا.</p></div><span class="tag positive">التحكم بالمسارات</span></div><div class="tabs small">${tabs}</div></article>${routeLoading}${overview}${blockers}${workspace}</div>`;
   }
 
-  async function createRoadRouteFromForm(){
+  async function createRoadRouteFromForm(){const navigationRevision=drawerNavigationRevision;
     const button=document.querySelector('.build-road-route'),companyId=routeCompanyFromInput(button?.dataset?.company||routeFilterType,state,'road'),fromId=$('roadFrom')?.value,toId=$('roadTo')?.value;if(!fromId||!toId||fromId===toId){notice('اختر مركزي تشغيل مختلفين تابعين للشركة نفسها.');return false;}
     const from=routeFacility(fromId),to=routeFacility(toId);if(!companyId||!from||!to||!from.owned||!to.owned||facilityOwnerCompanyId(from)!==companyId||facilityOwnerCompanyId(to)!==companyId){notice('رُفض المسار: نقطتا التشغيل يجب أن تكونا مملوكتين للشركة المحددة وحدها.');return false;}
     if(button?.disabled)return false;const label=button?.textContent;if(button){button.disabled=true;button.textContent='جاري حساب الطريق…';}
@@ -5712,7 +5712,7 @@
       const draftFrom=routeFacilityFor(draft,fromId),draftTo=routeFacilityFor(draft,toId);if(!draftFrom||!draftTo||!draftFrom.owned||!draftTo.owned||facilityOwnerCompanyId(draftFrom)!==companyId||facilityOwnerCompanyId(draftTo)!==companyId)throw new Error('تغيرت ملكية إحدى نقطتي التشغيل أثناء الحساب');
       const id=window.GH_DETERMINISM.nextId(draft,'ROAD-CUSTOM'),durationHours=Math.max(.25,geometry.durationSeconds/3600),fromName=roadLocationName(draftFrom),toName=roadLocationName(draftTo),route=prepareRoute({id,type:'road',routeMode:'road',ownerCompanyId:companyId,name:`${fromName} → ${toName}`,from:fromName,to:toName,fromFacility:draftFrom.id,toFacility:draftTo.id,route:geometry.route,roadGeometryVersion:311,roadNetworkDistanceKm:geometry.distanceKm,maxLegKm:geometry.distanceKm,effectiveSpeedKmh:clamp(geometry.distanceKm/durationHours,42,82),dwellHours:2.5,routingSource:'OSRM · شبكة طرق فعلية'},draft);
       dispatch('routes','create-with-cache',{route,distanceKm:route.distanceKm,durationSeconds:geometry.durationSeconds});window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`أُنشئ مسار بري فعلي من ${route.from} إلى ${route.to} بطول ${fmtNumber(route.distanceKm)} كم.`,type:'route'});return {routeId:id};
-    },{afterCommit:()=>{renderMap();updateKpis();openDrawer('routes',companyId);}});
+    },{afterCommit:()=>{renderMap();updateKpis();reopenDrawer(navigationRevision,'routes',companyId);}});
     }catch(error){notice(`تعذر حساب الطريق: ${String(error.message||error)}`);return false;}finally{if(button?.isConnected){button.disabled=false;button.textContent=label;}}
   }
   function companyLogoMarkup(type,size='normal'){
@@ -6160,9 +6160,9 @@ ${page}</div>`;
     site=canonicalDirectorySite(site,'bank');if(!site){notice('اختر موقع الفرع من الدليل العالمي.');return false;}
     const result=await runAuthorizedCompositeCommand('open-bank-branch',({state:draft,dispatch,recordAlert})=>applyBankBranchDraft(draft,dispatch,recordAlert,site.key),{silent:Boolean(opts.silent),afterCommit:()=>{updateKpis();renderMap();if(!opts.silent)reopenDrawer(navigationRevision,'bank');}});return result||false;
   }
-  async function fundResearch(project){
+  async function fundResearch(project){const navigationRevision=drawerNavigationRevision;
     if(!Object.prototype.hasOwnProperty.call(state.research,project)){pushAlert('مشروع البحث غير معروف.');return false;}if(state.research[project]>=100){pushAlert('اكتمل هذا المشروع بالفعل بنسبة 100%.');openDrawer('research');return false;}if(state.advanced?.researchPrograms?.[project]?.phase){pushAlert('مرحلة هذا المشروع ما زالت جارية؛ تكتمل بعد 30 يومًا من بدايتها.');openDrawer('research');return false;}
-    return runAuthorizedCompositeCommand('fund-research',({state:draft,dispatch,recordAlert})=>{const result=dispatch('governance','research-fund',{project}).result;recordAlert(`بدأت مرحلة بحث ${project} بتكلفة ${fmtMoney(result.phase.cost)}؛ تكتمل يوم ${result.phase.endDay+1} ويرتفع المشروع 25 نقطة.`,'governance');return result;},{afterCommit:()=>{updateKpis();openDrawer('research');}});
+    return runAuthorizedCompositeCommand('fund-research',({state:draft,dispatch,recordAlert})=>{const result=dispatch('governance','research-fund',{project}).result;recordAlert(`بدأت مرحلة بحث ${project} بتكلفة ${fmtMoney(result.phase.cost)}؛ تكتمل يوم ${result.phase.endDay+1} ويرتفع المشروع 25 نقطة.`,'governance');return result;},{afterCommit:()=>{updateKpis();reopenDrawer(navigationRevision,'research');}});
   }
   function inspectContract(id){const c=contracts.find(x=>x.id===id);if(!c){pushAlert('تعذر فتح تفاصيل هذه المناقصة؛ قد تكون تغيّرت. أعد فتح قسم العقود.');return;}notice(`${c.name}\n\nقيمة العقد: ${fmtMoney(c.value)}\nالتكلفة المتوقعة: ${fmtMoney(c.cost)}\nهامش كامل: ${fmtMoney(c.value-c.cost)}\nSLA: ${c.sla}\nالقدرة المطلوبة: ${c.capacity}\nالغرامات: ${c.penalty}`);}
   function eligibleContractCompanyIds(contract,target=state){
@@ -6220,7 +6220,7 @@ ${page}</div>`;
     const result=await runDurableStateCommand(`open-company:${type}`,({state:draft})=>applyCompanyOpeningDraft(draft,plan),{silent:true,afterCommit:()=>{syncMapCompanyFilterButtons();updateKpis();renderMap();reopenDrawer(navigationRevision,'formationContract',type);}});
     if(!result){notice(`لم تُفتح ${companyName}. ${openingBlocker(type)||'تعذر تأكيد الحفظ؛ لم يتغير شيء. أعد المحاولة.'}`,'warning');return false;}return true;
   }
-  async function openAllCompanies(){
+  async function openAllCompanies(){const navigationRevision=drawerNavigationRevision;
     const types=unopenedCompanyTypes();if(!types.length){notice('جميع الشركات مؤسسة وتعمل بالفعل.');return false;}
     const authority=founderAuthorization(state);if(!authority.signature||!authority.mandate){openSignatureDialog({required:true});notice('اعتمد توقيعك المرئي قبل توقيع عقود الشركات.');return false;}
     const total=types.reduce((sum,type)=>sum+(Number(COMPANY_PLATFORM.getDefinition(type)?.founding?.defaultCapital)||0),0),shortfall=total-holdingOperatingCash();
@@ -6231,7 +6231,7 @@ ${page}</div>`;
       if(plans.some(plan=>draft.openedCompanies.includes(plan.companyId)))throw new Error('formation-company-set-changed');
       if(total-holdingOperatingCash(draft)>0)throw new Error('formation-total-capital-unavailable');
       const records=plans.map(plan=>applyCompanyOpeningDraft(draft,plan));return {count:records.length,companyIds:records.map(row=>row.companyId),planIds:records.map(row=>row.planId),capital:total};
-    },{silent:true,afterCommit:()=>{syncMapCompanyFilterButtons();updateKpis();renderMap();openDrawer('companies','subs');}});
+    },{silent:true,afterCommit:()=>{syncMapCompanyFilterButtons();updateKpis();renderMap();reopenDrawer(navigationRevision,'companies','subs');}});
     if(!result){notice('لم تُفتح أي شركة؛ أُلغي الاعتماد كاملًا دون خصم أو عقد جزئي.','warning');return false;}
     notice(`تم فتح ${fmtNumber(result.count)} شركات وتسجيل عقودها المستقلة بإجمالي ${fmtMoney(result.capital)}.`);return result;
   }
@@ -6271,7 +6271,7 @@ ${page}</div>`;
   // button shows how far the batch has come. Still one command, one approval and one save.
   const BULK_SLICE_MS=4;
   function bulkSlicer(total,progress){const clock=()=>globalThis.performance?.now?.()??Date.now();let start=clock();return async done=>{if(clock()-start<BULK_SLICE_MS)return;progress?.(done,total);await yieldForInteractivePaint();start=clock();};}
-  async function settleAllPayables(method,filter,{progress=null}={}){
+  async function settleAllPayables(method,filter,{progress=null}={}){const navigationRevision=drawerNavigationRevision;
     const numbers=openPayablesFor(filter).map(row=>row.number);if(!numbers.length){notice('لا توجد ذمم مفتوحة لهذا الإجراء.');return null;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;
     const result=await runAuthorizedCompositeCommand(`settle-all-payables:${method}`,async({state:draft,dispatch,recordAlert})=>{
@@ -6285,11 +6285,11 @@ ${page}</div>`;
         const out=dispatch('finance','settle-payable',{number,method}).result;count++;amount+=Number(out?.amount)||due;}
       if(!count)throw new Error(method==='cheque'?`لا توجد ذمة يمكن إصدار شيك لها الآن (${payableSkipText(reasons)})`:'لا يكفي رصيد الحساب الجاري لسداد أي ذمة الآن');
       const result={count,amount,skipped,reasons};recordAlert(method==='cheque'?`صدرت ${fmtNumber(result.count)} شيكات بقيمة ${fmtMoney(result.amount)} لسداد الذمم المفتوحة؛ تبقى كل ذمة مفتوحة حتى صرف شيكها.${result.skipped?` لم يصدر شيك لـ ${fmtNumber(result.skipped)} ذمة: ${payableSkipText(result.reasons)}.`:''}`:`سُددت ${fmtNumber(result.count)} ذمة بتحويلات بنكية بقيمة ${fmtMoney(result.amount)}${result.skipped?`؛ بقيت ${fmtNumber(result.skipped)} ذمة لعدم كفاية الرصيد`:''}.`);return result;
-    },{afterCommit:()=>{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}});
+    },{afterCommit:()=>{updateKpis();if(stayPanel){reopenDrawer(navigationRevision,stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}});
 
     return result;
   }
-  async function settleAllIssuedCheques(filter,{progress=null}={}){
+  async function settleAllIssuedCheques(filter,{progress=null}={}){const navigationRevision=drawerNavigationRevision;
     const ids=issuedChequesFor(filter).sort((a,b)=>(Number(a.dueDay)||0)-(Number(b.dueDay)||0)||String(a.id).localeCompare(String(b.id))).map(row=>row.id);if(!ids.length){notice('لا توجد شيكات صادرة بانتظار الصرف.');return null;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;
     const result=await runAuthorizedCompositeCommand('settle-all-cheques',async({state:draft,dispatch,recordAlert})=>{
@@ -6299,7 +6299,7 @@ ${page}</div>`;
         const out=dispatch('finance','settle-cheque',{id}).result;if(out?.settled!==true)throw new Error(`تعذر صرف الشيك ${id}: ${out?.reason||'رفض الصرف'}`);count++;amount+=due;}
       if(!count)throw new Error(reasons['insufficient-budget']?'لا تسمح الميزانية بصرف الشيكات المتاحة، أو لا يكفي رصيد الحساب الجاري.':'لا يكفي رصيد الحساب الجاري لصرف أي شيك الآن');
       const result={count,amount,skipped,reasons};recordAlert(`صُرف ${fmtNumber(result.count)} شيكًا بقيمة ${fmtMoney(result.amount)}${result.skipped?`؛ بقي ${fmtNumber(result.skipped)} شيكًا (${fmtNumber(result.reasons['insufficient-cash'])} لنقص الرصيد، ${fmtNumber(result.reasons['insufficient-budget'])} لسقف الميزانية)`:''}.`);return result;
-    },{afterCommit:()=>{updateKpis();if(stayPanel){openDrawer(stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}});
+    },{afterCommit:()=>{updateKpis();if(stayPanel){reopenDrawer(navigationRevision,stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}});
 
     return result;
   }
@@ -6310,7 +6310,7 @@ ${page}</div>`;
   function isChequeLedgerRow(row){return row?.paymentMethod==='شيك مصرفي'||Boolean(row?.chequeNumber);}
   // One approval pays every company whose VAT is due: each company's own cheque from its own account (as payTaxes).
   // A company without the cash is left due and named; the rest are paid.
-  async function payAllTaxes(){
+  async function payAllTaxes(){const navigationRevision=drawerNavigationRevision;
     const companies=companyFinanceTypes(state,{openedOnly:true}).filter((v,i,a)=>a.indexOf(v)===i).filter(type=>(state.finance.periods||[]).some(row=>(row.company||'group')===type&&row.status==='مستحق'));
     if(!companies.length){notice('لا توجد ضريبة مستحقة على أي شركة.');return null;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg;
@@ -6323,14 +6323,14 @@ ${page}</div>`;
       }
       if(!paid.length)throw new Error('لا يكفي رصيد أي شركة لسداد ضريبتها الآن');
       const result={count:paid.length,amount:paid.reduce((n,row)=>n+row.amount,0),cheques:paid.map(row=>row.chequeId),skipped};recordAlert(`سُددت ضرائب ${fmtNumber(result.count)} شركات بقيمة ${fmtMoney(result.amount)}، بشيك لكل شركة صُرف فورًا (${result.cheques.join('، ')}).${result.skipped.length?` بقيت مستحقة لعدم كفاية الرصيد: ${result.skipped.map(companyFinanceName).join('، ')}.`:''}`);return result;
-    },{afterCommit:()=>{updateKpis();if(stayPanel)openDrawer(stayPanel,stayArg);}});
+    },{afterCommit:()=>{updateKpis();if(stayPanel)reopenDrawer(navigationRevision,stayPanel,stayArg);}});
 
     return result;
   }
   async function payTaxes(company='group'){const navigationRevision=drawerNavigationRevision;company=String(company||'');try{if(!isFinanceCompany(company))throw new Error(`company-not-found:${company}`);const result=(await runAuthorizedDomainCommand('finance','pay-taxes',{company},{successNotice:result=>!result.amount?`لا توجد فترة ضريبية مستحقة على ${companyFinanceName(company)}.`:`صدر الشيك ${result.chequeId} لهيئة الزكاة والضريبة والجمارك وصُرف: سُددت ضريبة ${companyFinanceName(company)} بقيمة ${fmtMoney(result.amount)}، وحُفظت ورقة التسوية ${result.settlementId}.`})).result;if(!result.amount)return;updateKpis();reopenDrawer(navigationRevision,'invoices',{company,tab:'obligations',view:'taxes'});}catch(error){notice(`تعذر سداد الضريبة: ${error.message}`);}}
 
   function viewInvoices(company='all'){openDrawer('invoices',{company,tab:'overview'});}
-  async function manualPurchaseFromCard(button){
+  async function manualPurchaseFromCard(button){const navigationRevision=drawerNavigationRevision;
     const card=button?.closest?.('.asset-market-card'),type=button?.dataset?.type,tab=button?.dataset?.tab,id=button?.dataset?.id;
     const baseSelect=card?.querySelector('.manual-asset-base'),baseId=baseSelect?.value,ownerCompanyId=baseSelect?.selectedOptions?.[0]?.dataset?.company||facilityOwnerCompanyId(findFacility(baseId)),qty=card?.querySelector('.manual-asset-qty')?.value,mode=card?.querySelector('.manual-asset-mode')?.value||'cash',distribution=card?.querySelector('.manual-asset-distribution')?.value||'total';
     if(!type||!id||!baseId){notice('اختر أصلًا وقاعدة تسليم متوافقة.');return null;}
@@ -6342,7 +6342,7 @@ ${page}</div>`;
       const purchaseOptions={distribution,progress:(done,total)=>{if(button.isConnected)button.textContent=`جارٍ الشراء… ${fmtNumber(done)} / ${fmtNumber(total)}`;}};
       const orderId=await buyAsset(type,tab,id,mode,qty,baseId,true,null,ownerCompanyId,purchaseOptions);
       if(!orderId)throw new Error(purchaseOptions.errorMessage||'رفض محرك الشراء الطلب.');
-      openDrawer('assetMarket',type);return orderId;
+      reopenDrawer(navigationRevision,'assetMarket',type);return orderId;
     }catch(error){
       notice(`لم يُنفذ الشراء ولم يحدث أي خصم: ${String(error.message||'راجع الرصيد والمورد والسعة.')}`);return null;
     }finally{release();}
@@ -6415,7 +6415,7 @@ ${page}</div>`;
   // the fleet moving, a simulation step landed between the quote and the commit and every large order was cancelled.
   // The simulation is suspended (as during any durable command) from the quote to the commit, then resumes.
   async function buyAsset(...args){assetPurchaseHolds++;try{return await buyAssetHeld(...args);}finally{assetPurchaseHolds--;}}
-  async function buyAssetHeld(type,tab,id,mode='cash',qty=1,baseId=null,silent=false,requestRef=null,requestedOwnerCompanyId=null,purchaseOptions={}){
+  async function buyAssetHeld(type,tab,id,mode='cash',qty=1,baseId=null,silent=false,requestRef=null,requestedOwnerCompanyId=null,purchaseOptions={}){const navigationRevision=drawerNavigationRevision;
     purchaseOptions=purchaseOptions&&typeof purchaseOptions==='object'?purchaseOptions:{};const reject=message=>{purchaseOptions.errorMessage=String(message||'تعذر تنفيذ الشراء.');if(!silent)notice(purchaseOptions.errorMessage);return null;};
     const Order=window.GH_ASSET_PURCHASE_ORDER_CORE,Plan=window.GH_ASSET_PURCHASE_PLAN_CORE,Apply=window.GH_ASSET_PURCHASE_APPLY_CORE,maxRequest=Order?.MAX_ASSETS||window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000,requestedQty=Math.floor(Number(qty)||1);
     if(!Order?.quote||!Plan?.applyAtomic||!Apply?.createAdapter)return reject('تعذر تنفيذ الشراء: وحدة الشراء المجمّع غير متاحة.');if(!Number.isSafeInteger(requestedQty)||requestedQty<1||requestedQty>maxRequest)return reject(`العدد يجب أن يكون بين 1 و${fmtNumber(maxRequest)}.`);
@@ -6447,7 +6447,7 @@ ${page}</div>`;
         const ledger=await driveAssetPurchaseStages(publishAssetPurchaseLedgerStages(draft,receiptRows,bound.audit,{orderDigest:intentPayload.orderDigest,authorizationProofId:authorized.authorizationProofId,commandId:authorized.commandId,supplierTransactionId:paid.transaction?.id}),{}),first=bound.audit.allocations[0];if(!first?.deliveryOrderId)throw new Error('asset-purchase-delivery-order-missing');
         const shown=order.allocations.slice(0,6).map(row=>`${row.baseName}: ${fmtNumber(row.qty)}`).join(' · '),more=order.allocations.length>6?` · و${fmtNumber(order.allocations.length-6)} منشأة أخرى`:'';recordAlert(`تم شراء وتسليم ${fmtNumber(totalQty)} × ${item.name} بأمر تجاري وشيك واحد، وتطبيق الصفوف في ${fmtNumber(order.rowStageCount)} مراحل قصيرة (${shown}${more}). مرجع المورد ${first.deliveryOrderId}.`,'procurement');
         return {orderId:first.deliveryOrderId,requestRef:order.requestRef,count:totalQty,deliveryOrderIds:bound.audit.allocations.map(row=>row.deliveryOrderId),allocations:order.allocations.map(row=>({baseId:row.baseId,baseName:row.baseName,qty:row.qty})),rowStageCount:order.rowStageCount,authorizationProofId:authorized.authorizationProofId,orderDigest:intentPayload.orderDigest,purchaseOrder:ledger.purchaseOrder};
-      },{silent,fleetMutation:{required:totalQty>=512,label:`asset-purchase:${order.requestRef}`},afterCommit:()=>{updateKpis();if(!silent)openDrawer('assetMarket',type);}});
+      },{silent,fleetMutation:{required:totalQty>=512,label:`asset-purchase:${order.requestRef}`},afterCommit:()=>{updateKpis();if(!silent)reopenDrawer(navigationRevision,'assetMarket',type);}});
       if(!completed?.orderId)return reject(purchaseOptions.errorMessage||'أُلغي الشراء قبل الاعتماد.');purchaseOptions.completedCount=completed.count;purchaseOptions.facilityCount=completed.allocations.length;purchaseOptions.chunkCount=completed.rowStageCount;purchaseOptions.rowStageCount=completed.rowStageCount;purchaseOptions.authorizationProofId=completed.authorizationProofId;purchaseOptions.orderDigest=completed.orderDigest;return completed.orderId;
     }catch(error){purchaseOptions.errorMessage=String(error.message||error);console.error('فشل معاملة شراء الأصل',error);if(!silent)notice(`أُلغي الشراء بالكامل ولم يعتمد أي خصم أو تسليم: ${purchaseOptions.errorMessage}`);return null;}
   }
@@ -6473,7 +6473,7 @@ ${page}</div>`;
   function routeMatchingFacility(routeId,baseFacility){
     return routeMatchingFacilityFor(state,routeTemplates,routeId,baseFacility);
   }
-  async function assignRoute(assetId,routeId,opts={}){
+  async function assignRoute(assetId,routeId,opts={}){const navigationRevision=drawerNavigationRevision;
     return runAuthorizedCompositeCommand('assign-route',({state:draft,routes,dispatch})=>{
       const asset=window.GH_FLEET_DATA.get(draft,assetId),route=routes[routeId];
       if(!asset||!route||assetModeOf(asset)!==routeModeOf(route)||!assetOwnerCompanyId(asset)||assetOwnerCompanyId(asset)!==routeOwnerCompanyId(route))throw new Error('الأصل أو المسار لا يتبعان الشركة نفسها');
@@ -6485,7 +6485,7 @@ ${page}</div>`;
       dispatch('fleet','assign-route',{id:asset.id,routeId:route.id,baseFacility:asset.baseFacility,phase:'turnaround',route:matched});
       {const fleetRow=window.GH_FLEET_DATA.draft(draft,asset);window.GH_FLEET_CORE.normalizeAsset(fleetRow,{route:matched,catalogItem:catalogItem(fleetRow.type,fleetRow.catalogId)});window.GH_FLEET_DATA.commit(draft,[fleetRow]);}
       window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`عُيّن ${asset.name} لمسار ${assetModeOf(asset)==='air'?'حصري':'أسطول مشترك'} ${route.name}.`,type:'route'});return {assetId:asset.id,companyId:assetOwnerCompanyId(asset)};
-    },{silent:Boolean(opts.silent),afterCommit:result=>{lastDepartureBlocked=[];renderMap();updateKpis();openDrawer(opts.returnToRoutes?'routes':'assetManage',opts.returnToRoutes?result.companyId:result.assetId);}});
+    },{silent:Boolean(opts.silent),afterCommit:result=>{lastDepartureBlocked=[];renderMap();updateKpis();reopenDrawer(navigationRevision,opts.returnToRoutes?'routes':'assetManage',opts.returnToRoutes?result.companyId:result.assetId);}});
   }
   async function serviceAsset(id){
     const navigationRevision=drawerNavigationRevision;
@@ -6562,7 +6562,7 @@ ${page}</div>`;
   }
   function finalizeAssetSale(id,automatic=false){const a=window.GH_FLEET_DATA.get(state,id);if(!a||a.phase==='moving')return false;return disposeAsset(id,{automatic});}
   function requestAssetSale(id,bulk=false){return disposeAsset(id,{bulk});}
-  async function sellAllAssets(companyInput){
+  async function sellAllAssets(companyInput){const navigationRevision=drawerNavigationRevision;
     const companyId=routeCompanyFromInput(companyInput,state)||String(companyInput||''),company=COMPANY_PLATFORM.resolveCompany(state,companyId);if(!company?.operational){notice('تعذر تحديد الشركة المالكة لأمر البيع.');return false;}
     const rows=window.GH_FLEET_DATA.filter(state,asset=>assetOwnerCompanyId(asset)===companyId&&!asset.salePending);if(!rows.length){pushAlert(`لا توجد أصول ${companyFinanceName(companyId)} متاحة لإصدار أوامر بيع.`);return;}
     const moving=rows.filter(a=>a.phase==='moving').length,estimated=rows.reduce((n,a)=>n+Math.max(0,saleEstimate(a)),0);
@@ -6581,7 +6581,7 @@ ${page}</div>`;
         recordAlert(`أمر البيع الجماعي لشركة ${companyFinanceName(companyId)}: بيع ${sold}، إعادة ${returned} مؤجر، وجدولة ${scheduled} بعد الوصول. لا بيع في منتصف الرحلة.`,'fleet');return {sold,returned,scheduled};
       }))});
       if(!transaction.committed)throw new Error(transaction.reason||'fleet-disposal-batch-rejected');return transaction.value;
-    },{afterCommit:()=>{updateKpis();renderMap();openDrawer('assets',companyId);}});
+    },{afterCommit:()=>{updateKpis();renderMap();reopenDrawer(navigationRevision,'assets',companyId);}});
   }
   function sellAsset(id){return requestAssetSale(id,false);}
 
