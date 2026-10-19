@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: the reused-route dispatch is the last durable command
++ actual - expected
+
++ 'authorized:asset-purchase-order'
+- 'authorized:bulk-shared-departure:air'
+              ^
+
+    at /Users/runner/work/madar/madar/tests/build371-air-destination-pool-browser.cjs:90:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'authorized:asset-purchase-order',
+  expected: 'authorized:bulk-shared-departure:air',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
