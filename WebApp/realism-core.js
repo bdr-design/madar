@@ -641,18 +641,35 @@
     const maintenance={companies:prepared.maintenanceCompanies};
     return {maintenance,finish:day=>finishOps(state,day,result.ops)};
   }
-  function* fleetDayFromWorker(state){
+  // iPhone diagnostic DX-1792378248326 (980,000 assets): the close's first wait was the worker's day pass (1,576 ms),
+  // asked only when realism-close began, after 228-450 ms of financial stages that do not query the worker. The app asks
+  // for it as the financial day begins (prefetchFleetDay); realism-close uses that answer only if it was asked for the
+  // same staged state, simulation time and context and still matches the fleet (current()), else asks again as before.
+  // Nothing is applied early: the answer is read where it always was.
+  let fleetDayPrefetch=null;
+  function askFleetDay(state){
     const provider=globalThis.GH_FLEET_QUERY_PROVIDER,fleet=fleetData();
     if(typeof provider!=='function'||globalThis.GH_TRANSACTION_CORE?.isStaged?.(state)!==true||fleet.mode(state)!=='store'||!fleet.size(state))return null;
     const params=fleetDayWorkerParams(state),contextKey=fleetDayContextKey(params);let asked=null;
     try{asked=provider(state,'fleetDay',params);}catch(_error){asked=null;}
     if(!asked||typeof asked.then!=='function')return null;
-    const box={done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});
+    const box={state,simSeconds:Number(state.simSeconds)||0,contextKey,done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});
+    return box;
+  }
+  function prefetchFleetDay(state){fleetDayPrefetch=askFleetDay(state);return !!fleetDayPrefetch;}
+  function* awaitFleetDay(state,box){
     for(let waits=0;!box.done&&waits<FLEET_DAY_WAITS;waits++)yield 'realism.fleet-day-wait';
     const found=box.value;
     if(!box.done||!found||typeof found.current!=='function')return null;
     const current=()=>{try{return found.current()===true;}catch(_error){return false;}};
-    if(!current()||fleetDayContextKey(fleetDayWorkerParams(state))!==contextKey)return null;
+    if(!current()||fleetDayContextKey(fleetDayWorkerParams(state))!==box.contextKey)return null;
+    return {found,current};
+  }
+  function* fleetDayFromWorker(state){
+    const early=fleetDayPrefetch;fleetDayPrefetch=null;let answer=null,contextKey=null;
+    if(early&&early.state===state&&early.simSeconds===(Number(state.simSeconds)||0)&&early.contextKey===fleetDayContextKey(fleetDayWorkerParams(state))){answer=yield* awaitFleetDay(state,early);if(answer)contextKey=early.contextKey;}
+    if(!answer){const box=askFleetDay(state);if(!box)return null;answer=yield* awaitFleetDay(state,box);if(!answer)return null;contextKey=box.contextKey;}
+    const {found,current}=answer;
     const prepared=prepareFleetDayResult(found.result);if(!prepared)return null;
     return yield* applyFleetDayResult(state,found.result,prepared,current,contextKey);
   }
@@ -744,5 +761,5 @@
     ${section('سلامة النواة','فحص وقائي يومي يمنع التكرار والأرصدة غير الرقمية والأحداث المكررة.',`<div class="metric-row">${metric('Integrity issues',String(r.controls.issues.length),r.controls.issues.length?'negative':'positive')}${metric('Schema',r.schema)}${metric('Core',r.version)}</div>${r.controls.issues.length?`<div class="realism-alerts">${r.controls.issues.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}`)}
   </div>`;}
   function financeHTML(state){const r=migrate(state),types=companyTypes(state);return `<article class="list-item realism-finance-appendix"><div class="list-item-head"><div><h3>القوائم المالية 2.0</h3><p>30 يومًا متحركًا · Consolidation مع استبعاد التعاملات الداخلية وLease liabilities.</p></div><span class="tag positive">${esc(r.rating.grade)}</span></div><div class="realism-mini-grid">${types.map(t=>{const s=r.financial.statements[t]||statements(state,t);return `<div><span>${esc(entityName(state,t))}</span><b>${money(s.net||0)}</b><small>إيراد ${money(s.revenue||0)} · أصول ${money(s.assets||0)}</small></div>`}).join('')}</div></article><article class="list-item realism-finance-appendix"><h3>المخطط والفعلي والمتوقع والانحراف</h3><div class="realism-budget-table">${types.map(t=>{const b=r.budgets[t]||(r.budgets[t]=defaultBudget()),plan=Object.values(b.lines).reduce((a,x)=>a+(Number(x)||0),0),actual=Object.values(b.actual).reduce((a,x)=>a+(Number(x)||0),0),forecast=Object.values(b.forecast).reduce((a,x)=>a+(Number(x)||0),0);return `<div><b>${esc(entityName(state,t))}</b><span>${money(plan)}</span><span>${money(actual)}</span><span>${money(forecast)}</span><span class="${forecast<=plan?'positive':'negative'}">${money(forecast-plan)}</span></div>`}).join('')}<div class="budget-head"><b>الشركة</b><span>المخطط</span><span>الفعلي</span><span>المتوقع</span><span>الانحراف</span></div></div></article>`;}
-  window.GH_REALISM={VERSION,SCHEMA,migrate,fleetReadinessTotal,fleetDailyMetrics,reconcilePendingDeliveryCount,hasPendingDeliveries,nextDeliveryDueAt,deliveryDueBy,simulationSliceLimit,onHour,onDay,onDayStages,onSimulationTime:deliverDueAssetsAt,tripModifier,fuelForward,gasForward,recordMarketDay,updateRating,updateEnergyAdequacy,MAINTENANCE_POLICIES,maintenancePolicy,fleetWear,INSURANCE_COVERS,insuranceCover,runIncidents,updateCrews,crewShortage,payRatio,render,financeHTML,statements,bankingMetrics,deliveryCapacity,companyTypes,assetMode,assetOwnerCompanyId};
+  window.GH_REALISM={VERSION,SCHEMA,migrate,fleetReadinessTotal,fleetDailyMetrics,reconcilePendingDeliveryCount,hasPendingDeliveries,nextDeliveryDueAt,deliveryDueBy,simulationSliceLimit,onHour,onDay,onDayStages,prefetchFleetDay,onSimulationTime:deliverDueAssetsAt,tripModifier,fuelForward,gasForward,recordMarketDay,updateRating,updateEnergyAdequacy,MAINTENANCE_POLICIES,maintenancePolicy,fleetWear,INSURANCE_COVERS,insuranceCover,runIncidents,updateCrews,crewShortage,payRatio,render,financeHTML,statements,bankingMetrics,deliveryCapacity,companyTypes,assetMode,assetOwnerCompanyId};
 })();

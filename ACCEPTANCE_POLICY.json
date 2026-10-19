@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 551,
+  "minimum_acceptance_gates": 552,
   "preflight_commands": [
     [
       "node",
@@ -2742,6 +2742,10 @@
     [
       "node",
       "tests/build521-static-validation-groups.cjs"
+    ],
+    [
+      "node",
+      "tests/build522-fleet-day-prefetch.cjs"
     ]
   ]
 }

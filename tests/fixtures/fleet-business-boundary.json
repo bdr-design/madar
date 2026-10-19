@@ -274,6 +274,26 @@
     ],
     "WebApp/realism-core.js": [
       {
+        "before": "  function* fleetDayFromWorker(state){\n",
+        "after": "  // iPhone diagnostic DX-1792378248326 (980,000 assets): the close's first wait was the worker's day pass (1,576 ms),\n  // asked only when realism-close began, after 228-450 ms of financial stages that do not query the worker. The app asks\n  // for it as the financial day begins (prefetchFleetDay); realism-close uses that answer only if it was asked for the\n  // same staged state, simulation time and context and still matches the fleet (current()), else asks again as before.\n  // Nothing is applied early: the answer is read where it always was.\n  let fleetDayPrefetch=null;\n  function askFleetDay(state){\n",
+        "sha256": "fc1e9dca81b766e94019d1f62113a70da23d1b758b4fbc98843c86c3ef180efc"
+      },
+      {
+        "before": "    const box={done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});\n",
+        "after": "    const box={state,simSeconds:Number(state.simSeconds)||0,contextKey,done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});\n    return box;\n  }\n  function prefetchFleetDay(state){fleetDayPrefetch=askFleetDay(state);return !!fleetDayPrefetch;}\n  function* awaitFleetDay(state,box){\n",
+        "sha256": "4dab8a115dca410b91f5cb3d615fe29eb85ce662e626469a70458cb2ac8c1652"
+      },
+      {
+        "before": "    if(!current()||fleetDayContextKey(fleetDayWorkerParams(state))!==contextKey)return null;\n",
+        "after": "    if(!current()||fleetDayContextKey(fleetDayWorkerParams(state))!==box.contextKey)return null;\n    return {found,current};\n  }\n  function* fleetDayFromWorker(state){\n    const early=fleetDayPrefetch;fleetDayPrefetch=null;let answer=null,contextKey=null;\n    if(early&&early.state===state&&early.simSeconds===(Number(state.simSeconds)||0)&&early.contextKey===fleetDayContextKey(fleetDayWorkerParams(state))){answer=yield* awaitFleetDay(state,early);if(answer)contextKey=early.contextKey;}\n    if(!answer){const box=askFleetDay(state);if(!box)return null;answer=yield* awaitFleetDay(state,box);if(!answer)return null;contextKey=box.contextKey;}\n    const {found,current}=answer;\n",
+        "sha256": "928708aae929365d8d9e54f14a5ed50925b4a8ec8d09410ba74dd7894b5bccf2"
+      },
+      {
+        "before": "  window.GH_REALISM={VERSION,SCHEMA,migrate,fleetReadinessTotal,fleetDailyMetrics,reconcilePendingDeliveryCount,hasPendingDeliveries,nextDeliveryDueAt,deliveryDueBy,simulationSliceLimit,onHour,onDay,onDayStages,onSimulationTime:deliverDueAssetsAt,tripModifier,fuelForward,gasForward,recordMarketDay,updateRating,updateEnergyAdequacy,MAINTENANCE_POLICIES,maintenancePolicy,fleetWear,INSURANCE_COVERS,insuranceCover,runIncidents,updateCrews,crewShortage,payRatio,render,financeHTML,statements,bankingMetrics,deliveryCapacity,companyTypes,assetMode,assetOwnerCompanyId};\n",
+        "after": "  window.GH_REALISM={VERSION,SCHEMA,migrate,fleetReadinessTotal,fleetDailyMetrics,reconcilePendingDeliveryCount,hasPendingDeliveries,nextDeliveryDueAt,deliveryDueBy,simulationSliceLimit,onHour,onDay,onDayStages,prefetchFleetDay,onSimulationTime:deliverDueAssetsAt,tripModifier,fuelForward,gasForward,recordMarketDay,updateRating,updateEnergyAdequacy,MAINTENANCE_POLICIES,maintenancePolicy,fleetWear,INSURANCE_COVERS,insuranceCover,runIncidents,updateCrews,crewShortage,payRatio,render,financeHTML,statements,bankingMetrics,deliveryCapacity,companyTypes,assetMode,assetOwnerCompanyId};\n",
+        "sha256": "673daee96b92a1aca9ca8830cc75329bd7fdc1ebbf106fedf703c3aae45a5f4c"
+      },
+      {
         "before": "",
         "after": "  // Owner decision (19 Oct 2026): the daily checks go to a company's lowest-condition assets, ties in row order (the\n  // first rows under the line took them all, and a fleet larger than the capacity never reached its later rows). Twin\n  // of fleet-day-core's queueCheck/settleChecks (the worker pass): keep both the same.\n  const lessUrgent=(a,b)=>a.condition>b.condition||(a.condition===b.condition&&a.index>b.index);\n  function queueCheck(heap,condition,index,id){\n    let at;\n    if(heap.length<CHECKS_PER_DAY){at=heap.length;heap.push({condition,index,id,cost:0});\n      while(at>0){const up=(at-1)>>1;if(!lessUrgent(heap[at],heap[up]))break;const swap=heap[at];heap[at]=heap[up];heap[up]=swap;at=up;}return heap[at];}\n    const entry=heap[0];if(condition>entry.condition||(condition===entry.condition&&index>entry.index))return null;\n    entry.condition=condition;entry.index=index;entry.id=id;at=0;\n    for(;;){const left=at*2+1,right=left+1;let top=at;if(left<heap.length&&lessUrgent(heap[left],heap[top]))top=left;if(right<heap.length&&lessUrgent(heap[right],heap[top]))top=right;if(top===at)break;const swap=heap[at];heap[at]=heap[top];heap[top]=swap;at=top;}\n    return entry;\n  }\n  function settleChecks(acc,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){acc.due.push(entry.id);acc.restored+=100-entry.condition;acc.cost+=entry.cost;}heap.length=0;}\n",
         "sha256": "6113ac402cce23342d0bcd4b7dbb6f4bc432ed718714329c1654f8a72fbe3e2e"
@@ -398,6 +418,13 @@
         "tests/build518-maintenance-worst-first.cjs",
         "tests/build372-fleet-day-core.cjs"
       ]
+    },
+    "review_2026_10_19_fleet_day_prefetch": {
+      "reason": "Performance 2026-10-19 (owner-requested batches): the day close asks the fleet worker for its day pass as the financial day begins (prefetchFleetDay) and realism-close reads that answer only for the same staged state, time, context and fleet, else asks again. The pass, its inputs and every business result are unchanged (build522, build372-fleet-day-worker byte-for-byte).",
+      "baseline_commit": "fb0dda3",
+      "edits": {
+        "WebApp/realism-core.js": 4
+      }
     }
   }
 }

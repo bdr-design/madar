@@ -3274,6 +3274,8 @@
     globalThis.__GH_HOURLY_SCHEMA_DUE__=true;
     while(state.lastFinancialDay<day&&financialDaysProcessed<1){
       state.lastFinancialDay++;financialDaysProcessed++;
+      // The worker's day pass runs while the financial stages below run (they do not touch the fleet); realism-close reads it.
+      window.GH_REALISM?.prefetchFleetDay?.(state);
       for(const c of state.finance.cheques.filter(c=>c.status==='صادر'&&c.dueDay<=state.lastFinancialDay)){
         phase('simulation.finance-day.cheque-settlement',()=>{const result=settleCheque(c);if(result.settled===true)pushAlert(`تم صرف الشيك ${result.id} من حساب ${companyFinanceName(result.company)} وتسجيله في الدفتر المالي.`);else pushAlert(`ارتجع الشيك ${result.id} لعدم كفاية رصيد أو ميزانية ${companyFinanceName(result.company)}.`);});
         yield 'finance-day.cheque-settlement';
