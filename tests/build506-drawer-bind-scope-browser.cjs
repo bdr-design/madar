@@ -10,7 +10,7 @@ const LINE="    const drawerRoot=$('drawerBody');";
 (async()=>{
   const app=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8');assert.equal(app.split(LINE).length,2,'bindDrawerActions searches #drawerBody');
   const body=app.slice(app.indexOf('  function bindDrawerActions(){'),app.indexOf('\n  }\n',app.indexOf('  function bindDrawerActions(){')));
-  assert.ok(!/\n    document\.querySelectorAll\(/.test(body),'no binding query searches the whole document');assert.ok(!body.includes('[data-market-view]'),'the dead selector is removed');
+  assert.deepEqual(body.match(/\n    document\.querySelectorAll\([^)]*\)/g),["\n    document.querySelectorAll('[data-open]')"],'only navigation buttons are bound across the document (build383: a persistent one outside the drawer), once each');assert.ok(!body.includes('[data-market-view]'),'the dead selector is removed');
   const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'ventora-bind-scope-'));fs.cpSync(path.join(ROOT,'WebApp'),path.join(tmp,'WebApp'),{recursive:true});
   fs.writeFileSync(path.join(tmp,'WebApp/app.js'),app.replace(LINE,"    const drawerRoot=window.__QA_DOCUMENT_SCOPE__?document:$('drawerBody');"));
   const browser=await chromium.launch({headless:true}),errors=[];let env;

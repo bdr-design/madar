@@ -1008,7 +1008,7 @@
   }
   globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false,beforeAsync}={})=>{
     const client=fleetEngineThreadClient||(!syncOnly?fleetEngineThread():null);if(!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
-    const store=s.fleet,contextToken=typeof params?.contextToken==='string'&&params.contextToken?params.contextToken:window.GH_FLEET_SAVE_VALIDATION?.contextToken?.(params||{}),wrap=found=>({result:found.result,current:()=>s.fleet===store&&client.current(found,store)}),last=lastFleetValidation;
+    const store=s.fleet,contextToken=window.GH_FLEET_SAVE_VALIDATION?.contextToken?.(params||{}),wrap=found=>({result:found.result,current:()=>s.fleet===store&&client.current(found,store)}),last=lastFleetValidation;
     // Reuse only the exact store revision and validation context. Repeated validators of an unchanged fleet do not
     // queue identical million-row passes ahead of simulation work; callers still perform all non-fleet validation.
     // A current answer is ready data, not another worker wait. Returning it directly also lets synchronous schema
@@ -6000,7 +6000,9 @@ ${page}</div>`;
     // Every element these selectors bind is rendered into #drawerBody (all seven callers rewrite it just before), so the
     // binding queries search that subtree instead of the whole document; click-time queries are unchanged.
     const drawerRoot=$('drawerBody');
-    drawerRoot.querySelectorAll('[data-open]').forEach(b=>{if(b.closest('#ownedVirtualList')||drawerOpenBindings.has(b))return;drawerOpenBindings.add(b);b.dataset.interactionBound='1';b.addEventListener('click',()=>globalThis.GH_INTERACTION?.run?globalThis.GH_INTERACTION.run(b,()=>openDrawer(b.dataset.open,b.dataset.arg||undefined),{action:`open:${b.dataset.open}`,state,navigation:true}):openDrawer(b.dataset.open,b.dataset.arg||undefined));});
+    // Navigation buttons are bound wherever they are (once each, drawerOpenBindings): build383 keeps a persistent one
+    // outside the drawer bound. Every other binding query searches the drawer it was rendered into.
+    document.querySelectorAll('[data-open]').forEach(b=>{if(b.closest('#ownedVirtualList')||drawerOpenBindings.has(b))return;drawerOpenBindings.add(b);b.dataset.interactionBound='1';b.addEventListener('click',()=>globalThis.GH_INTERACTION?.run?globalThis.GH_INTERACTION.run(b,()=>openDrawer(b.dataset.open,b.dataset.arg||undefined),{action:`open:${b.dataset.open}`,state,navigation:true}):openDrawer(b.dataset.open,b.dataset.arg||undefined));});
     drawerRoot.querySelectorAll('.inspect-contract').forEach(b=>b.addEventListener('click',()=>inspectContract(b.dataset.id)));
     drawerRoot.querySelectorAll('.bid-contract').forEach(b=>b.addEventListener('click',()=>bidContract(b.dataset.id)));
     drawerRoot.querySelectorAll('.salary-save').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ الاعتماد…');if(!release)return;const company=b.dataset.company,index=Number(b.closest('.crew-card')?.querySelector('[data-salary-index]')?.value);try{await runAuthorizedDomainCommand('hr','set-salary-index',{company,index},{successNotice:_result=>`صار مستوى أجور ${companyFinanceName(company)} ${(index*100).toFixed(0)}% من الأساس، ويظهر في المسير القادم.`});updateKpis();openDrawer('crews',activeDrawerArg);}catch(_error){}finally{release();}}));

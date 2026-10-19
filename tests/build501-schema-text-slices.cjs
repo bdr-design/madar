@@ -96,6 +96,8 @@ try{
   assert.match(app,/function maintenanceFleetValidation\(s,params\)\{return fleetEngineThreadClient\?globalThis\.GH_FLEET_VALIDATION_PROVIDER\?\.\(s,params\)\|\|null:null;\}/,'existing client only, never starting a worker');
   assert.ok(!/requireFleetValidation/.test(app.slice(app.indexOf('function schemaSectionsTask'),app.indexOf('function haltOnGlobalFault'))),'maintenance stays non fail-closed (a missing answer falls back to classes)');
   assert.ok(!schema.includes('validatePresentationTextState'),'the unsliced text pass is removed, not kept beside the stepped one');
-  assert.match(app,/contextToken=typeof params\?\.contextToken==='string'&&params\.contextToken\?params\.contextToken:/,'the provider reuses the token its params already carry');
+  // fleet-validation-reuse-browser: a caller may extend the params it was given, so the provider derives the token from
+  // the params it sends (trusting a carried token made every reuse miss and rescan the fleet).
+  assert.match(app,/const store=s\.fleet,contextToken=window\.GH_FLEET_SAVE_VALIDATION\?\.contextToken\?\.\(params\|\|\{\}\),/,'the provider derives the context token from the params it queries');
   console.log('PASS maintenance takes worker evidence; the old text pass is removed');
 }
