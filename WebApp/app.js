@@ -945,7 +945,7 @@
     cancelSimulationPersistence();
     (window.GH_TRANSACTION_CORE.publishObject||window.GH_TRANSACTION_CORE.restoreObject)(state,snapshot);
     window.GH_REALISM?.reconcilePendingDeliveryCount?.(state,true);
-    const runtime=routeRuntimeForState(state);for(const id of Object.keys(routeTemplates))delete routeTemplates[id];Object.assign(routeTemplates,runtime);
+    const routesStarted=appMetricClock(),runtime=routeRuntimeForState(state);for(const id of Object.keys(routeTemplates))delete routeTemplates[id];Object.assign(routeTemplates,runtime);window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.publish.routes',routesStarted,appMetricClock());
     window.__GH_STATE__=state;
     }finally{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.publish',traceStarted,appMetricClock());}
   }
@@ -2678,7 +2678,7 @@
     try{if(marker?.getSnapshot)marker.remove?.();else map.removeLayer(marker);}catch(error){nonCritical('map-layer-remove',error);}
   }
   function renderMap(){
-    if(!map)return;
+    if(!map)return;const renderStarted=appMetricClock();
     const mode=mapMode(),filter=state.activeFilter||'all',filterState=currentMapFilter(),zoom=map.getZoom(),aggregate=mapAggregateMode(),showFleet=mode!=='expansion'&&(mapCategoryVisible('assets')||mapCategoryVisible('routes')),visibleAssets=showFleet&&!aggregate?mapVisibleAssetRows(filterState):[];
     captureMarkerVisualPositions();markerMotionStates.clear();syncMapModeButtons();
     routeLayers.forEach(layer=>{try{map.removeLayer(layer)}catch(error){nonCritical('map-route-remove',error);}}); routeLayers=[];
@@ -2717,6 +2717,7 @@
     }
     for(const [key,marker] of facilityMarkers)if(facilityPresentation.get(marker)?.generation!==facilityPresentationGeneration){try{map.removeLayer(marker);}catch(error){nonCritical('map-layer-remove',error);}facilityMarkers.delete(key);}
     updateMapStatus();renderWorldInfrastructureMarkers();lastMapStructureSignature=mapStructureSignature();updateMarkerPositions(true);mapVehicleCanvas?.drawIfDirty?.();
+    window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'map.structure',renderStarted,appMetricClock());
   }
 
   const MAP_STATUS_SWEEP_ROWS=50000,MAP_STATUS_SWEEP_MS=4;
@@ -3673,7 +3674,7 @@
     if(entry.task==='fleet'){
       if(!entry.steps)entry.steps=window.GH_FLEET_DATA.maintainStages?.(state,entry.day)||null;
       if(!entry.steps){if(!mainFleetHealthAllowed()){runtimeInstrumentation.maintenance.fleetUnavailable={atSimSeconds:Number(state.simSeconds)||0,rows:fleetRowsForHealth(),reason:'staged-maintenance-unavailable'};return true;}window.GH_FLEET_DATA.maintain(state,entry.day);return true;}
-      const step=entry.steps.next();
+      const step=entry.steps.next();entry.lastStage=step.done?'done':String(step.value?.stage||'step');
       // compactRowsStages publishes only at its final freshness barrier. Move
       // the map revision once after that atomic swap, never while its private
       // destination buffer is still being built across frames.
@@ -3729,7 +3730,7 @@
     try{finished=runMaintenanceTask(entry)!==false;}
     catch(error){finished=true;diag('SIM_MAINTENANCE_FAILED',{task:entry.task,error:String(error?.message||error).slice(0,240)},'warning');console.warn('تعذر تنفيذ جزء من الصيانة الدورية',entry.task,error);}
     finally{
-      const ms=Math.max(0,appMetricClock()-started),key=`${entry.task}Ms`;metric.last[key]=(entry.task==='schema'&&metric.lastTask==='schema'?(Number(metric.last[key])||0):0)+ms;metric.lastTask=entry.task;metric.max[key]=Math.max(Number(metric.max[key])||0,ms);metric.runs++;
+      const ended=appMetricClock(),ms=Math.max(0,ended-started),key=`${entry.task}Ms`;window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,`maintenance.${entry.task}${entry.lastStage?'.'+entry.lastStage:''}`,started,ended);metric.last[key]=(entry.task==='schema'&&metric.lastTask==='schema'?(Number(metric.last[key])||0):0)+ms;metric.lastTask=entry.task;metric.max[key]=Math.max(Number(metric.max[key])||0,ms);metric.runs++;
       if(finished)maintenanceQueue.shift();metric.pending=maintenanceQueue.map(row=>row.task);
     }
     return true;
@@ -4914,7 +4915,10 @@
   const drawerScrollMemory={};
   const drawerOpenBindings=new WeakSet();
   let drawerNavigationRevision=0;
+  // Diagnostic DX-1792378248326: 110 of 120 iPhone frame drops had no measured app stage; page opens were not named.
+  // The explicit fault recorder now receives ui.render / ui.prepare / ui.bind / ui.open (nothing is kept while it is off).
   function openDrawer(panel, arg, diagnosticEvidence, scrollOptions={}){
+    const openStarted=appMetricClock(),work=(stage,from)=>window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,stage,from,appMetricClock());
     const redirected=window.GH_MADAR?.redirect?.(panel,arg);if(redirected)[panel,arg]=redirected;
     const drawerWasOpen=$('drawer').classList.contains('open');cancelDrawerSearch();window.GH_INTERFACE.navigate(panel,arg);
     const previousPanel=activeDrawerPanel,previousScroll=$('drawerBody').scrollTop,previousArg=activeDrawerArg;
@@ -4927,7 +4931,7 @@
     $('drawer').dataset.panel=String(panel||'');
     state.lastPanel=panel;state.lastPanelArg=arg??null;
     const metaEntry=panelMeta[panel],[eyebrow,title]=window.GH_MADAR?.meta?.(state,panel,arg)||window.GH_ADVANCED?.meta(panel,arg)||(typeof metaEntry==='function'?metaEntry(arg):metaEntry)||['الإدارة','لوحة'];
-    $('drawerEyebrow').textContent=eyebrow; $('drawerTitle').textContent=title; $('drawerBody').innerHTML=renderPanel(panel,arg,diagnosticEvidence); window.GH_INTERFACE.prepare($('drawerBody'),activeDrawerPanel,activeDrawerArg,advancedContext());bindDrawerActions();
+    $('drawerEyebrow').textContent=eyebrow; $('drawerTitle').textContent=title;let stageStarted=appMetricClock(); $('drawerBody').innerHTML=renderPanel(panel,arg,diagnosticEvidence);work('ui.render',stageStarted);stageStarted=appMetricClock(); window.GH_INTERFACE.prepare($('drawerBody'),activeDrawerPanel,activeDrawerArg,advancedContext());work('ui.prepare',stageStarted);stageStarted=appMetricClock();bindDrawerActions();work('ui.bind',stageStarted);
     if(panel==='news'){const summary=window.GH_ADVANCED?.newsSummary?.(state),events=state.businessWorld?.events||[],latest=events[0];lastRenderedNewsSignature=`${summary?.revision||0}|${summary?.count||0}|${summary?.latest?.id||''}|${summary?.latest?.reference||''}`;lastObservedNewsSourceSignature=`${Number(state.businessWorld?.sequence)||0}|${events.length}|${latest?.id||''}|${latest?.reference||''}`;}
     // Replacing children preserves the scroll container's offset. Rewriting that same offset forced a full paper
     // layout here, before the browser could paint. A different requested position still uses the normal clamp.
@@ -4935,7 +4939,7 @@
     if(panel==='assets')installOwnedVirtualizer();
     if(drawerUsesBackdrop()) $('backdrop').classList.remove('hidden'); else $('backdrop').classList.add('hidden');
     $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false'); setActiveNav(panelRoot(panel,arg));
-    closeMapPopovers(); $('assetCard').classList.add('hidden');
+    closeMapPopovers(); $('assetCard').classList.add('hidden');work('ui.open',openStarted);
   }
   function openDrawerContent(eyebrow,title,html){
     drawerNavigationRevision++;

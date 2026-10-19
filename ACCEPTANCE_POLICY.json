@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 531,
+  "minimum_acceptance_gates": 533,
   "preflight_commands": [
     [
       "node",
@@ -2662,6 +2662,14 @@
     [
       "node",
       "tests/build501-schema-text-slices.cjs"
+    ],
+    [
+      "node",
+      "tests/build502-consolidated-cash-order.cjs"
+    ],
+    [
+      "node",
+      "tests/build503-recorder-stage-names-browser.cjs"
     ]
   ]
 }
