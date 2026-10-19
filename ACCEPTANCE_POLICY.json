@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 534,
+  "minimum_acceptance_gates": 536,
   "preflight_commands": [
     [
       "node",
@@ -2674,6 +2674,14 @@
     [
       "node",
       "tests/build504-durable-clone-budget.cjs"
+    ],
+    [
+      "node",
+      "tests/build505-fleet-maintenance-guard.cjs"
+    ],
+    [
+      "node",
+      "tests/build506-drawer-bind-scope-browser.cjs"
     ]
   ]
 }

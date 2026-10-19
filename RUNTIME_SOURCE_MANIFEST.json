@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "4b21ee3c19df85c61cc6917ea6ff9d4cc17c6d735719d5a50fa2e544251762c7",
-  "webapp_tree_sha256": "2438188a4029ef41b33086eb173c8ff42a3d058e2a07ed48d6e0cabb1cf1ed90",
+  "source_tree_sha256": "305088322141f8845f1c9aef59f480ad748d0a93b21eede3c92efb9adc33a71a",
+  "webapp_tree_sha256": "5686739d84f68c6bed156d114465a0012224c21b893f8d4f84e1a1b695e5fd18",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1009406,
-      "sha256": "48cee2a8f03765f4274cd34a2ef15f589bedc562ec6828f6f5d94ec140a50fc7"
+      "bytes": 1009701,
+      "sha256": "c83e3cc12b641b624da63d07c69d8a0c466e1252d629876140fe3bb39e2be221"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3539,8 +3539,8 @@
       "sha256": "2185b66024aa817032cbe2dcdaf804178962f05a552cf1b2230deb3725cd6a6e"
     },
     "WebApp/fleet-access-core.js": {
-      "bytes": 65086,
-      "sha256": "079c44ae9e7ef65a5be2a9daa9406f8a2a61141c81b6bf67e1d273b4612d41f1"
+      "bytes": 65321,
+      "sha256": "5a21c45c513900d403fa667cc7e56fd88604b347760d1f3972976871c9d9f542"
     },
     "WebApp/fleet-core.js": {
       "bytes": 62719,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "fbf78247eea12a2c203fbb97915b9842afd64b8a436b3b1ffee47a86fb17f0c7"
+      "sha256": "22f8b790534eddfad1febd8f61b9759bcb3c0cd20a5e296042d540625a3117d9"
     },
     "BUILD": {
       "bytes": 4,
