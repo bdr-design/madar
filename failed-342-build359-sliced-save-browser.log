@@ -1,0 +1,36 @@
+{
+ "suite": "build359-sliced-save-browser",
+ "passed": 3,
+ "total": 4,
+ "results": [
+  {
+   "name": "Save Now commits once, as asked, over frames",
+   "ok": false,
+   "error": "page.evaluate: Error: it yielded to the frame\n    at eval (eval at evaluate (:291:30), <anonymous>:9:27)\n    at async <anonymous>:317:30\n    at /Users/runner/work/madar/madar/tests/build359-sliced-save-browser.cjs:35:19\n    at test (/Users/runner/work/madar/madar/tests/build359-sliced-save-browser.cjs:28:75)\n    at /Users/runner/work/madar/madar/tests/build359-sliced-save-browser.cjs:34:11"
+  },
+  {
+   "name": "the simulation waits, and a save asked meanwhile runs once more",
+   "ok": true,
+   "detail": {
+    "commits": 2
+   }
+  },
+  {
+   "name": "a player command asked during the save commits after it",
+   "ok": true,
+   "detail": {
+    "revisions": [
+     8,
+     9
+    ]
+   }
+  },
+  {
+   "name": "stopping the fault recorder refreshes its panel without saving",
+   "ok": true,
+   "detail": {
+    "saves": 0
+   }
+  }
+ ]
+}
