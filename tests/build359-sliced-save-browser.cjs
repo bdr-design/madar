@@ -33,15 +33,19 @@ function installVault(){
 
     await test('Save Now commits once, as asked, over frames',async()=>{
       return page.evaluate(async()=>{
-        const s=__GH_STATE__,v=window.__VAULT__,before=v.commits.length,revision=s.saveRevision;s.qaMarker='asked';let frames=0,run=true;const tick=()=>{frames++;if(run)requestAnimationFrame(tick);};requestAnimationFrame(tick);
-        const t=performance.now(),pending=__AUDIT__.saveNow(),syncMs=performance.now()-t;s.qaMarker='after';
+        // The save yields through yieldForInteractivePaint: the next frame when the page paints, else a host task (a
+        // hidden page, or no frame within 80 ms; the macOS gate once saw no frame at all during the save). A host turn
+        // before it resolves is required always; a painted frame during it whenever the page is painting frames.
+        const live=await new Promise(resolve=>{let n=0;const f=()=>{if(++n>=2)resolve(!document.hidden);else requestAnimationFrame(f);};requestAnimationFrame(f);setTimeout(()=>resolve(false),500);});
+        const s=__GH_STATE__,v=window.__VAULT__,before=v.commits.length,revision=s.saveRevision;s.qaMarker='asked';let frames=0,run=true,hostTurn=false;const tick=()=>{frames++;if(run)requestAnimationFrame(tick);};requestAnimationFrame(tick);
+        const t=performance.now(),pending=__AUDIT__.saveNow(),syncMs=performance.now()-t;s.qaMarker='after';setTimeout(()=>{hostTurn=true;},0);
         const ok=await pending;run=false;
         if(ok!==true)throw new Error(`the save failed (${ok})`);if(v.commits.length!==before+1)throw new Error(`one commit (${v.commits.length-before})`);
         const commit=v.commits.at(-1);if(commit.marker!=='asked')throw new Error(`the save holds the state of the moment it was asked (${commit.marker})`);
         if(s.saveRevision!==revision+1||commit.saveRevision!==revision+1)throw new Error('the next revision');
         const timing=GH_PERSISTENCE.telemetry().timings.samples.filter(r=>r.kind==='sliced-save').at(-1);if(!timing?.ok)throw new Error('the sliced path ran');
-        if(frames<1)throw new Error('it yielded to the frame');
-        return {syncMs:Math.round(syncMs),frames,cloneMs:Math.round(timing.cloneMs),validateMs:Math.round(timing.validateMs)};
+        if(!hostTurn)throw new Error('it gave the host a turn');if(live&&frames<1)throw new Error('it yielded to the frame');
+        return {syncMs:Math.round(syncMs),frames,live,hostTurn,cloneMs:Math.round(timing.cloneMs),validateMs:Math.round(timing.validateMs)};
       });
     });
 
