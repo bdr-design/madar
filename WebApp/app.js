@@ -1391,7 +1391,7 @@
   function hrContext(target=state){return {getDynamicFacilities:()=>dynamicFacilitiesFor(target)};}
   function ensureFacilityWorkforceDraft(target,dispatch,company='all',source='HR authorized facility staffing'){const result=dispatch('hr','hire',{company,source,scope:'facility'},{context:hrContext(target)}).result;if(!result)throw new Error('HR Core unavailable');return result.facilities||[];}
   async function ensureFacilityWorkforce(company='all',source='HR authorized facility staffing'){const out=await runAuthorizedDomainCommand('hr','hire',{company,source,scope:'facility'},{context:hrContext()});if(!out.result)throw new Error('HR Core unavailable');return out.result.facilities||[];}
-  let map, currentTile, layers = {}, terrainLayer=null, routeLayers = [], ownMarkers = new Map(), facilityMarkers = new Map(), competitorMarkers = new Map(), worldMarkers = new Map(), renderedAssetIds = new Set(), renderedMobilityIds = new Set(), presentationAssetIndex = new Map(), presentationAssetIndexRevision = -1, presentationAssetIndexLength = -1, presentationAssetIndexSource = null, worldSpatialIndexCache = null, mapAssetQueryRequest = null, mapVehicleCanvas = null, mapVehicleHitTargets = new Map(), mapRenderTimer = null;
+  let map, currentTile, layers = {}, terrainLayer=null, routeLayers = [], ownMarkers = new Map(), facilityMarkers = new Map(), competitorMarkers = new Map(), worldMarkers = new Map(), renderedAssetIds = new Set(), renderedMobilityIds = new Set(), presentationAssetIndex = new Map(), presentationAssetIndexSource = null, worldSpatialIndexCache = null, mapAssetQueryRequest = null, mapVehicleCanvas = null, mapVehicleHitTargets = new Map(), mapRenderTimer = null;
   let mapFleetRowsSource=null,mapFleetRowsMembership='',mapFleetRows=[];
   function fleetPresentationRows(){
     const fleet=window.GH_FLEET_DATA,source=fleet.source(state),membership=fleet.membershipRevision(state);
@@ -2874,10 +2874,11 @@
   function mapStructureSignature(){if(!map)return'';const zoom=Math.floor(Number(map.getZoom?.())||0),center=map.getCenter?.(),viewport=`${Number(center?.lat||0).toFixed(3)}:${Number(center?.lng||0).toFixed(3)}`,fleetMembership=window.GH_FLEET_DATA?.membershipRevision?.(state)||'none',fleetSize=window.GH_FLEET_DATA?.size?.(state)||0,assetRevision=`${Number(state.saveRevision)||0}:${Number(window.GH_MAP_STRUCTURE_REVISION)||0}:${fleetMembership}:${fleetSize}`;return `${JSON.stringify(currentMapFilter())};${zoom};${viewport};${selectedAssetId||''};${selectedFacilityId||''};${assetRevision}`;}
 
   function presentationAssetLookup(){
-    const revision=Math.max(0,Math.floor(Number(state.saveRevision)||0)),assets=fleetPresentationRows(),length=assets.length;
-    if(presentationAssetIndexRevision!==revision||presentationAssetIndexLength!==length||presentationAssetIndexSource!==assets){
-      presentationAssetIndex=new Map(assets.map(asset=>[asset.id,asset]));presentationAssetIndexRevision=revision;presentationAssetIndexLength=length;presentationAssetIndexSource=assets;
-    }
+    // The index is a pure function of the fleet rows array, which is replaced (never edited in place) when the store
+    // source or membership changes. Keying it on saveRevision as well rebuilt the same id->row Map after every save
+    // (62 ms at 20,000 assets on an emulated phone, inside the first frame after a decision).
+    const assets=fleetPresentationRows();
+    if(presentationAssetIndexSource!==assets){presentationAssetIndex=new Map(assets.map(asset=>[asset.id,asset]));presentationAssetIndexSource=assets;}
     return presentationAssetIndex;
   }
   function updateMarkerPositions(force=false){
@@ -4748,7 +4749,7 @@
     if(fleetUiSummaryRefreshTimer!==null)clearTimeout(fleetUiSummaryRefreshTimer);fleetUiSummaryRefreshTimer=null;
     if(fleetUiSummaryPrimeTask!==null){if(typeof window.requestIdleCallback==='function')window.cancelIdleCallback?.(fleetUiSummaryPrimeTask);else clearTimeout(fleetUiSummaryPrimeTask);}fleetUiSummaryPrimeTask=null;
     Object.assign(mapFleetSummary,{store:null,runtime:null,epoch:null,revision:-1,rows:null,asking:false,received:0});
-    mapFleetRowsSource=null;mapFleetRowsMembership='';mapFleetRows=[];presentationAssetIndex.clear();presentationAssetIndexSource=null;presentationAssetIndexRevision=-1;presentationAssetIndexLength=-1;mapAssetQueryRequest=null;mapAssetQueryEngine?.reset?.();
+    mapFleetRowsSource=null;mapFleetRowsMembership='';mapFleetRows=[];presentationAssetIndex.clear();presentationAssetIndexSource=null;mapAssetQueryRequest=null;mapAssetQueryEngine?.reset?.();
     clearFleetListSearchRequest();fleetListQueryEngine?.invalidate?.(state);fleetListQueryWarm=null;fleetListQueryWarmState=null;fleetListQueryWarmSource=null;fleetListQueryWarmMembership='';fleetListSearchFacilityNames.clear();
     financeReportEngine?.reset?.();financeReportWorkerResult=null;financeReportSnapshotCache=null;financeReportFallbackCache=null;
     fleetRouteCache.clear();routeCacheRevision=-1;Object.assign(globalRouteCandidateCache,{key:'',store:null,stamp:null,result:null,asking:null});

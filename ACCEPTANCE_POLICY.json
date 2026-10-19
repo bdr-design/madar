@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 536,
+  "minimum_acceptance_gates": 538,
   "preflight_commands": [
     [
       "node",
@@ -2682,6 +2682,14 @@
     [
       "node",
       "tests/build506-drawer-bind-scope-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build507-encode-rows-steps.cjs"
+    ],
+    [
+      "node",
+      "tests/build508-presentation-index-saves.cjs"
     ]
   ]
 }

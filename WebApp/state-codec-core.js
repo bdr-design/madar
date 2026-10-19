@@ -430,17 +430,23 @@
     return out;
   }
 
-  function encodeRows(value){
+  // Emulated-phone profile (4x CPU): one unsealed segment's encoding ran 37-52 ms inside a single sliced-save step, so
+  // every decision held a 63-117 ms block. The same encoding now yields every ENCODE_ROWS_STEP rows in both passes;
+  // a sliced caller gives the frame back past its budget, and encodeRows() drains the identical steps at once.
+  const ENCODE_ROWS_STEP=64;
+  function encodeRows(value){const steps=encodeRowsSteps(value);let step;while(!(step=steps.next()).done){}return step.value;}
+  function* encodeRowsSteps(value){
     const encoder=createEncoder(),isArray=Array.isArray(value),keys=isArray?null:Object.keys(value);
     const count=isArray?value.length:keys.length,raw=new Array(count);
-    for(let i=0;i<count;i++)raw[i]=encoder.row(isArray?value[i]:value[keys[i]]);
+    for(let i=0;i<count;i++){raw[i]=encoder.row(isArray?value[i]:value[keys[i]]);if((i+1)%ENCODE_ROWS_STEP===0)yield;}
     const constants=findConstants(raw,encoder.shapes),pooler=createPool();
     const shapes=encoder.shapes.map((list,sid)=>{
       const found=constants.get(sid);if(!found)return list;
       return {k:list,c:[...found.entries()].sort((a,b)=>a[0]-b[0]).map(([position,cell])=>[position,pooler.tree(cell)])};
     });
-    const rows=new Array(count);
+    const rows=new Array(count);yield;
     for(let i=0;i<count;i++){
+      if(i&&i%ENCODE_ROWS_STEP===0)yield;
       const source=raw[i],found=constants.get(source[0]),row=[source[0]];
       for(let position=0;position<source.length-1;position++){if(found&&found.has(position))continue;row.push(pooler.tree(source[position+1]));}
       rows[i]=row;
@@ -842,14 +848,14 @@
         // the sealed segments beside it keep their cached text (the text is the same as encodeCollection's).
         if(!current){
           if(!split&&!textChunks){cached=false;break;}
-          const encoded=encodeRows(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);collectionCacheStats.open++;
+          const encoded=yield* encodeRowsSteps(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);collectionCacheStats.open++;
           const chunk=textChunks&&text.length>=TEXT_CHUNK_MIN?(yield* openTextChunkOf(text,partKey)):null;
           if(chunk){liveOpen.add(partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
           else texts.push(text);yield;continue;
         }
         live.add(partKey);let entry=COLLECTION_TEXT.get(partKey);
         if(entry&&(entry.members===current.members&&entry.keys===current.keys||sameMembers(entry,current)))collectionCacheStats.hits++;
-        else{const encoded=encodeRows(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);entry={keys:current.keys,members:current.members,text};COLLECTION_TEXT.set(partKey,entry);collectionCacheStats.misses++;}
+        else{const encoded=yield* encodeRowsSteps(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);entry={keys:current.keys,members:current.members,text};COLLECTION_TEXT.set(partKey,entry);collectionCacheStats.misses++;}
         if(textChunks&&entry.text.length>=TEXT_CHUNK_MIN){const chunk=yield* textChunkOf(entry,partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text:entry.text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
         else texts.push(entry.text);
       }
