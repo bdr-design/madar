@@ -224,7 +224,7 @@
   // validatedFleetRevision: the fleet revision the caller's validation saw. A write since (direct store writes are not
   // blocked by the lifecycle lock, and a chunk staging may overlap the validation) takes the same fresh, validated retake
   // as a write during serialization, so a save never lists rows newer than its proof.
-  async function serializeNativeSliced(state,yieldToFrame,timing,{retake=true,validatedFleetRevision=null,knownChunkIds=vaultChunks,forceChunked=false}={}){
+  async function serializeNativeSliced(state,yieldToFrame,timing,{retake=true,validatedFleetRevision=null,knownChunkIds=vaultChunks,forceChunked=false,fleetChunksOnly=false}={}){
     const codec=stateCodec();if(!chunkedNative(state)&&!forceChunked)return typeof codec?.serializeSteps==='function'?{json:await runSliced(codec.serializeSteps(state),yieldToFrame,timing),uploads:[],chunked:false}:serializeNative(state);
     if(typeof codec.serializeChunkedSteps!=='function')return serializeNative(state);
     const externalChecksums=typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER==='function'&&Number(state.fleet?.length)>FLEET_MAIN_THREAD_ROWS;let out;
@@ -233,7 +233,7 @@
       const store=state.fleet,revision=store?.revision,buffer=store?.rows,session=externalChecksums&&typeof globalThis.GH_SAVE_CHECKSUM_THREAD?.createSession==='function'?globalThis.GH_SAVE_CHECKSUM_THREAD.createSession({current:()=>state.fleet===store&&store.revision===revision&&store.rows===buffer,submit:globalThis.GH_SAVE_CHECKSUM_PROVIDER}):null;
       try{
         if(staleProof)throw new Error('state-codec-fleet-changed-during-save');
-        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,externalEncoding:externalChecksums&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function',knownChunkIds,allowRowPatches:globalThis.GH_NATIVE_ROW_PATCHES===1&&typeof globalThis.GH_FLEET_QUERY_PROVIDER==='function'}),yieldToFrame,timing,session);
+        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,externalEncoding:externalChecksums&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function',knownChunkIds,allowRowPatches:globalThis.GH_NATIVE_ROW_PATCHES===1&&typeof globalThis.GH_FLEET_QUERY_PROVIDER==='function',fleetChunksOnly}),yieldToFrame,timing,session);
         if(state.fleet?.revision!==revision)throw new Error('state-codec-fleet-changed-during-save');
         break;
       }catch(error){
@@ -337,7 +337,8 @@
     const settled=(async()=>{
       try{
         // No retake: the command holds the lifecycle lock, so a fleet change here means the staging is stale; persist decides.
-        const save=await serializeNativeSliced(state,async()=>{await yieldToFrame();stopIfReleased();},timing,{retake:false});
+        // Only the fleet's chunks: the commit writes the save text once, after validation (no second serialization).
+        const save=await serializeNativeSliced(state,async()=>{await yieldToFrame();stopIfReleased();},timing,{retake:false,fleetChunksOnly:true});
         for(const upload of save.uploads){
           if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}
           stopIfReleased();

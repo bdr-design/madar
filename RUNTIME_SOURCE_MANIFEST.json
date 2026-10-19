@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "d2efdb7578b5a669fbdf36d1d49aca84cfce56198e78c650328e7a1fe051eabd",
-  "webapp_tree_sha256": "1a7259a94d2813628b5818908f0ef915f377dbd486833d16e187078e6a696626",
+  "source_tree_sha256": "26ee34eda966a218bed691a2d66e7f9b9145cb7057af126e0e5422d657ad92d6",
+  "webapp_tree_sha256": "0f4e68e7add38b314b19d6e71dbe8eecef60f46623809410b1e95e03504a4f88",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3799,8 +3799,8 @@
       "sha256": "b456a744f67a407c3ff66fa47b41a87fa5b7e5046898100f056db750c9190dcb"
     },
     "WebApp/persistence-core.js": {
-      "bytes": 75384,
-      "sha256": "1d78f3ac1dd0f1b476a28dabbfd3211cdafdbea22156b0936fddfc8d4e4abcd9"
+      "bytes": 75561,
+      "sha256": "6f7a8948d0f934fe628d42d70ba47b22fd3a04fc675696a463f6d3de1ae44238"
     },
     "WebApp/phone-layout.css": {
       "bytes": 1568,
@@ -3907,8 +3907,8 @@
       "sha256": "7fba65430a479155bf423b5adca04c620bff3948b3da2c1bdab09927aecf6c15"
     },
     "WebApp/state-codec-core.js": {
-      "bytes": 106318,
-      "sha256": "47b29e1cbbd9964ae7083f72266a4435395a9cd9fa54d445c8c058784f8c908f"
+      "bytes": 106648,
+      "sha256": "049488c76659eaf5b8a4ecae20d7f60decd22d0cdb143855df3f017f00aff635"
     },
     "WebApp/strategy-core.js": {
       "bytes": 4799,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "30fde2e9fc408b9d2321ab81891779107bdd26f851c413bb599b582f68f49d4e"
+      "sha256": "8de23c3c77a76e08a365cefb6748d6f2a89758f76409ea8773a5f32e42e5efc8"
     },
     "BUILD": {
       "bytes": 4,

@@ -1152,7 +1152,11 @@
     if(!isPlain(state)||!isArrayBuffer(state.fleet?.rows))return {text:yield* serializeSteps(state),chunks:[]};
     // Each dirty 4 MiB chunk and the rotating reuse check get their own step. A sliced save can paint between them;
     // the synchronous API drains these identical steps and retains the same IDs, checksums and corruption checks.
-    const manifest=yield* chunkManifestSteps(state.fleet,options),textChunks=[],coldChunks=[],text=yield* serializeSteps(state,{rowsText:JSON.stringify(manifest.marker),textChunks,coldChunks});
+    const manifest=yield* chunkManifestSteps(state.fleet,options);
+    // A command's early upload (persistence prestageDurableChunks) needs only the fleet's chunks: it discarded the save
+    // text, and the commit serialized it again (emulated phone, 200k assets: 128 ms of the early pass in 9 frames).
+    if(options.fleetChunksOnly===true)return {text:null,chunks:manifest.chunks};
+    const textChunks=[],coldChunks=[],text=yield* serializeSteps(state,{rowsText:JSON.stringify(manifest.marker),textChunks,coldChunks});
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 

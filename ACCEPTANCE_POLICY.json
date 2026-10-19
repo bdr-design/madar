@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 555,
+  "minimum_acceptance_gates": 556,
   "preflight_commands": [
     [
       "node",
@@ -2758,6 +2758,10 @@
     [
       "node",
       "tests/build525-validation-context-route-ids.cjs"
+    ],
+    [
+      "node",
+      "tests/build526-prestage-fleet-chunks-only.cjs"
     ]
   ]
 }
