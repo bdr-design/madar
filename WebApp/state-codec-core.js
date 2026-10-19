@@ -433,7 +433,15 @@
   // Emulated-phone profile (4x CPU): one unsealed segment's encoding ran 37-52 ms inside a single sliced-save step, so
   // every decision held a 63-117 ms block. The same encoding now yields every ENCODE_ROWS_STEP rows in both passes;
   // a sliced caller gives the frame back past its budget, and encodeRows() drains the identical steps at once.
-  const ENCODE_ROWS_STEP=64;
+  const ENCODE_ROWS_STEP=32;
+  // The encoded part's text in row blocks: JSON.stringify of a block of array items equals their comma-joined JSON, and
+  // r is the part's last key, so the text is exactly JSON.stringify(part) without one native call over every row.
+  function* encodedPartTextSteps(part){
+    const rows=part.r;if(!Array.isArray(rows)||rows.length<=ENCODE_ROWS_STEP)return JSON.stringify(part);
+    const head=JSON.stringify({...part,r:[]}),pieces=[head.slice(0,-2)];
+    for(let at=0;at<rows.length;at+=ENCODE_ROWS_STEP){pieces.push((at?',':'')+JSON.stringify(rows.slice(at,at+ENCODE_ROWS_STEP)).slice(1,-1));yield;}
+    pieces.push(']}');return pieces.join('');
+  }
   function encodeRows(value){const steps=encodeRowsSteps(value);let step;while(!(step=steps.next()).done){}return step.value;}
   function* encodeRowsSteps(value){
     const encoder=createEncoder(),isArray=Array.isArray(value),keys=isArray?null:Object.keys(value);
@@ -848,14 +856,14 @@
         // the sealed segments beside it keep their cached text (the text is the same as encodeCollection's).
         if(!current){
           if(!split&&!textChunks){cached=false;break;}
-          const encoded=yield* encodeRowsSteps(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);collectionCacheStats.open++;
+          const encoded=yield* encodeRowsSteps(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):yield* encodedPartTextSteps(encoded);collectionCacheStats.open++;
           const chunk=textChunks&&text.length>=TEXT_CHUNK_MIN?(yield* openTextChunkOf(text,partKey)):null;
           if(chunk){liveOpen.add(partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
           else texts.push(text);yield;continue;
         }
         live.add(partKey);let entry=COLLECTION_TEXT.get(partKey);
         if(entry&&(entry.members===current.members&&entry.keys===current.keys||sameMembers(entry,current)))collectionCacheStats.hits++;
-        else{const encoded=yield* encodeRowsSteps(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):JSON.stringify(encoded);entry={keys:current.keys,members:current.members,text};COLLECTION_TEXT.set(partKey,entry);collectionCacheStats.misses++;}
+        else{const encoded=yield* encodeRowsSteps(parts[index]),text=COOPERATIVE_PARTS.has(encoded)?yield* stringifySteps(encoded):yield* encodedPartTextSteps(encoded);entry={keys:current.keys,members:current.members,text};COLLECTION_TEXT.set(partKey,entry);collectionCacheStats.misses++;}
         if(textChunks&&entry.text.length>=TEXT_CHUNK_MIN){const chunk=yield* textChunkOf(entry,partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text:entry.text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
         else texts.push(entry.text);
       }

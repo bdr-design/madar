@@ -20,7 +20,7 @@ for(const g of groups){assert(g.call);g.binding=app.split('\n').find(line=>line.
      const code=`${encoder}\n${registry}\n${renderer}\nconst tab='';return ${g.call};`;
      document.querySelector('#fixture').innerHTML=new Function(code)();
      window.observedRoutes=[];window.openDrawer=(panel,arg)=>window.observedRoutes.push({panel,arg});
-     new Function(g.binding)();
+     new Function('drawerRoot',g.binding)(document);
      return [...document.querySelectorAll('button')].map(button=>({label:button.textContent,id:button.getAttribute(g.attribute),attributes:button.getAttributeNames()}));
     },{encoder,renderer,registry,g});
     for(const item of items){

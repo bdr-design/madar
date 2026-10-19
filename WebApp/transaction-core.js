@@ -966,6 +966,9 @@
       phase='durable-commit';const persist=options.persist||((state,meta)=>{const owner=globalThis.GH_PERSISTENCE;if(!owner?.commitDurableState)throw new Error('durable-persistence-owner-unavailable');return owner.commitDurableState(state,meta);}),persisted=await persist(draft,{...(options.persistence||{}),expectedPreviousRevision:expectedRevision,validatedFleetRevision,transactionId,idempotencyKey:options.idempotencyKey||null,prevalidated:true});if(persisted===false||persisted?.ok===false)throw rejection(persisted?.reason||'durable-persistence-rejected',label,phase);durableCommitted=true;commitJournaledRoots(rootSessions);
       lap('persistMs');staging?.release?.();
       phase='publish';if(typeof options.publish==='function')await options.publish(liveState,draft,context);else publishObject(liveState,draft);MONEY_GUARD.seal(liveState);lap('publishMs');
+      // Emulated-phone profile: publishing the draft and the caller's page refresh ran in one task (29-43 ms at 4x CPU).
+      // The command still holds its lock and reports nothing before the ACK it already has; one frame is painted here.
+      if(typeof yieldToHost==='function')await yieldToHost();
       for(const task of afterPublishTasks)try{await task(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-publish side effect failed`,error);}
       if(typeof options.afterCommit==='function')try{await options.afterCommit(value,context);}catch(error){globalThis.console?.warn?.(`${label}: after-commit side effect failed`,error);}
       lap('afterMs');durableTiming.committed=true;durableTiming.totalMs=Math.max(0,runtimeClock()-durableStart);publishDurableMetric(durableTiming);
