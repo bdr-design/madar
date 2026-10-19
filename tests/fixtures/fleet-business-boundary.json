@@ -137,6 +137,76 @@
     ],
     "WebApp/mobility-core.js": [
       {
+        "before": "",
+        "after": "  // Vehicles and drivers are edited in place, a few per minute of play: the save encodes again only the small segments\n  // whose rows changed (GH_STATE_CODEC tracked collections; this owner replaces staffing whole, never edits inside it).\n  globalThis.GH_STATE_CODEC?.registerTrackedCollection?.(['mobility','vehicles'],{rows:32});\n  globalThis.GH_STATE_CODEC?.registerTrackedCollection?.(['mobility','drivers'],{rows:64});\n",
+        "sha256": "3be4d3150ad9e9dc175149cd5000eb0ed6939b3a5a626dd04155e9640e905607"
+      },
+      {
+        "before": "  function archivedTrip(trip,outcome){const {route,...rest}=trip;void route;return {...rest,...outcome};}\n",
+        "after": "  // Owner decision (19 Oct 2026): no record per trip or per driver. Each simulated day keeps one row per center\n  // (completed and cancelled trips, bookings, driver payouts, platform revenue, distance) while it is open (tripDays,\n  // edited in place); once the day has passed the row moves, never edited again, into tripArchive (newest first). Driver\n  // pay is booked in aggregate already (apply-simulation-journal, one HR cohort per center); the per-trip archive, the\n  // per-driver earnings and trip counts, and the finished requests kept for a day were read by nothing.\n  const TRIP_DAY_ARCHIVE_LIMIT=400;\n  function tripDayRow(m,day,centerId){let row=m.tripDays.find(item=>item.day===day&&item.centerId===centerId);if(!row){row={id:`MOB-DAY-${day}-${centerId}`,ownerCompanyId:m.ownerCompanyId||'mobility',day,centerId,completed:0,cancelled:0,grossBookings:0,driverPayouts:0,platformRevenue:0,distanceKm:0};m.tripDays.push(row);}return row;}\n  function closeTripDays(m,at){\n    const today=Math.floor(at/86400);if(!m.tripDays.some(row=>row.day<today))return 0;\n    const closed=m.tripDays.filter(row=>row.day<today).sort((a,b)=>b.day-a.day||String(a.centerId).localeCompare(String(b.centerId)));\n    m.tripDays=m.tripDays.filter(row=>row.day>=today);m.tripArchive=[...closed.map(row=>({...row})),...m.tripArchive].slice(0,TRIP_DAY_ARCHIVE_LIMIT);return closed.length;\n  }\n  function pruneRequests(m){if(m.rideRequests.length>1600||m.rideRequests.some(request=>request.status!=='queued'&&request.status!=='active'))m.rideRequests=m.rideRequests.filter(request=>request.status==='queued'||request.status==='active').slice(-1600);}\n",
+        "sha256": "4e78c030df6cd10454a9b7353fc26c13a719815e4532e9a38d82a9f5c56b3c4e"
+      },
+      {
+        "before": "    const ownerCompanyId=mobilityOwnerCompanyId(state,explicitOwner),m=state.mobility=state.mobility&&typeof state.mobility==='object'?state.mobility:{driverLedgerVersion:1};\n",
+        "after": "    const ownerCompanyId=mobilityOwnerCompanyId(state,explicitOwner),m=state.mobility=state.mobility&&typeof state.mobility==='object'?state.mobility:{driverLedgerVersion:1,tripLedgerVersion:1};\n",
+        "sha256": "ecd4f9f4b11ba9fd254c2ceddd7f677ec2398da16bc392c9f189acbf6f484b71"
+      },
+      {
+        "before": "    for(const key of ['vehicles','drivers','rideRequests','activeTrips','tripArchive','events','capitalCenters'])m[key]=Array.isArray(m[key])?m[key]:[];\n",
+        "after": "    for(const key of ['vehicles','drivers','rideRequests','activeTrips','tripDays','tripArchive','events','capitalCenters'])m[key]=Array.isArray(m[key])?m[key]:[];\n",
+        "sha256": "92ce7d34abd042b7da44178c76684e693586076f0e12099cf039be13a195d386"
+      },
+      {
+        "before": "    for(const key of ['vehicles','drivers','rideRequests','activeTrips','tripArchive','events','capitalCenters']){\n",
+        "after": "    for(const key of ['vehicles','drivers','rideRequests','activeTrips','tripDays','tripArchive','events','capitalCenters']){\n",
+        "sha256": "c981b26ef4c859c80f709b4307b9a86aeeb31cb178611819179ea409f57dfc08"
+      },
+      {
+        "before": "",
+        "after": "  // Called once by startup migration, like migrateLegacyDriverContracts: folds a per-trip archive into day rows per\n  // center (closed days into tripArchive, today into tripDays), drops per-driver earnings and trip counts, and drops the\n  // finished requests. The marker check runs before ensure() so a migrated save is not scanned again.\n  function migrateTripLedger(state){\n    const m=state?.mobility;if(!m||typeof m!=='object'||m.tripLedgerVersion===1)return {changed:false};\n    const owner=String(m.ownerCompanyId||'mobility'),days=new Map(),archive=Array.isArray(m.tripArchive)?m.tripArchive:[];\n    for(const row of archive){\n      if(!row||typeof row!=='object')continue;const completed=row.status==='completed',day=Number.isSafeInteger(row.day)&&row.status===undefined?row.day:Math.max(0,Math.floor((Number(completed?row.completedAt:row.cancelledAt)||0)/86400)),centerId=String(row.centerId||'RUH'),key=`${day}|${centerId}`;\n      let agg=days.get(key);if(!agg){agg={id:`MOB-DAY-${day}-${centerId}`,ownerCompanyId:owner,day,centerId,completed:0,cancelled:0,grossBookings:0,driverPayouts:0,platformRevenue:0,distanceKm:0};days.set(key,agg);}\n      if(row.status===undefined&&Number.isSafeInteger(row.day)){for(const field of ['completed','cancelled','grossBookings','driverPayouts','platformRevenue','distanceKm'])agg[field]+=Number(row[field])||0;}\n      else if(completed){agg.completed++;agg.grossBookings+=Number(row.fare)||0;agg.driverPayouts+=Number(row.driverPayout)||0;agg.platformRevenue+=Number(row.platformRevenue)||0;agg.distanceKm+=Number(row.distanceKm)||0;}else agg.cancelled++;\n    }\n    const today=Math.floor(now(state)/86400),rows=[...days.values()].sort((a,b)=>b.day-a.day||a.centerId.localeCompare(b.centerId)),drivers=Array.isArray(m.drivers)?m.drivers:[],requests=Array.isArray(m.rideRequests)?m.rideRequests:[];\n    m.tripDays=rows.filter(row=>row.day>=today);m.tripArchive=rows.filter(row=>row.day<today).slice(0,TRIP_DAY_ARCHIVE_LIMIT);\n    for(const driver of drivers)if(driver&&typeof driver==='object'){delete driver.earnings;delete driver.totalTrips;}\n    m.rideRequests=requests.filter(request=>request?.status==='queued'||request?.status==='active');\n    m.tripLedgerVersion=1;return {changed:true,trips:archive.length,dayRows:rows.length,requestsDropped:requests.length-m.rideRequests.length};\n  }\n",
+        "sha256": "0b13a847b42715c619312bc194d8539b6f1c2fcc1a417a1ffe54ee14af3e172f"
+      },
+      {
+        "before": "      const driverId=id(m,'DRV'),contractId=id(m,'EMP-MOB'),vehicle=vehicles[i],driver={id:driverId,ownerCompanyId:company,name:`سائق ${String(first+i+1).padStart(4,'0')}`,status:'online',rating:Number(random(`driver:${first+i}`,4.72,4.99).toFixed(2)),centerId,zoneId:zones[(first+i)%zones.length].id,tripId:null,totalTrips:0,earnings:0,monthlySalary:6000,assetId:vehicle.id,automaticAssetStaffing:true};\n",
+        "after": "      const driverId=id(m,'DRV'),contractId=id(m,'EMP-MOB'),vehicle=vehicles[i],driver={id:driverId,ownerCompanyId:company,name:`سائق ${String(first+i+1).padStart(4,'0')}`,status:'online',rating:Number(random(`driver:${first+i}`,4.72,4.99).toFixed(2)),centerId,zoneId:zones[(first+i)%zones.length].id,tripId:null,monthlySalary:6000,assetId:vehicle.id,automaticAssetStaffing:true};\n",
+        "sha256": "390798f040b193cde9d1a67e852b7d3bb355ca5eba070bb36fcc65215393f333"
+      },
+      {
+        "before": "    if(!done.length){const expiredCompleted=m.rideRequests.length>1600||m.rideRequests.some(request=>request.status==='completed'&&at-Number(request.completedAt||0)>=86400);if(expiredCompleted)m.rideRequests=m.rideRequests.filter(request=>request.status!=='completed'||at-Number(request.completedAt||0)<86400).slice(-1600);return 0;}\n",
+        "after": "    if(!done.length){pruneRequests(m);closeTripDays(m,at);return 0;}\n",
+        "sha256": "b34700b01cc125b80bbe408e2d7b6be0127c40d552d0be2234c9f52c013d46ba"
+      },
+      {
+        "before": "    for(const trip of done){if(trip.ownerCompanyId!==company)throw new Error(`mobility-trip-owner-conflict:${trip.id}`);const request=requestIndex.get(trip.requestId),driverPay=trip.fare*.10,platform=trip.fare-driverPay,cid=trip.centerId||'RUH';if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));if(request){request.status='completed';request.completedAt=trip.dueAt;}gross+=trip.fare;payout+=driverPay;const pc=perCenter[cid]||(perCenter[cid]={completed:0,gross:0,payout:0});pc.completed++;pc.gross+=trip.fare;pc.payout+=driverPay;m.tripArchive.unshift(archivedTrip(trip,{status:'completed',completedAt:trip.dueAt,driverPayout:driverPay,platformRevenue:platform}));}\n",
+        "after": "    for(const trip of done){if(trip.ownerCompanyId!==company)throw new Error(`mobility-trip-owner-conflict:${trip.id}`);const request=requestIndex.get(trip.requestId),driverPay=trip.fare*.10,platform=trip.fare-driverPay,cid=trip.centerId||'RUH';if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));if(request){request.status='completed';request.completedAt=trip.dueAt;}gross+=trip.fare;payout+=driverPay;const pc=perCenter[cid]||(perCenter[cid]={completed:0,gross:0,payout:0});pc.completed++;pc.gross+=trip.fare;pc.payout+=driverPay;const day=tripDayRow(m,Math.floor(Number(trip.dueAt)/86400),cid);day.completed++;day.grossBookings+=trip.fare;day.driverPayouts+=driverPay;day.platformRevenue+=platform;day.distanceKm+=Number(trip.distanceKm)||0;}\n",
+        "sha256": "1b955750cfb199345aefcf73323b9e2bac606f0031ad327287bc940ad535a961"
+      },
+      {
+        "before": "    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){const driverPay=trip.fare*.10;driver.status='online';driver.zoneId=trip.toZone;driver.tripId=null;driver.totalTrips++;driver.earnings+=driverPay;}\n    m.activeTrips=open;m.tripArchive=m.tripArchive.slice(0,1200);m.rideRequests=m.rideRequests.filter(request=>request.status!=='completed'||at-Number(request.completedAt||0)<86400).slice(-1600);\n",
+        "after": "    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){driver.status='online';driver.zoneId=trip.toZone;driver.tripId=null;}\n    m.activeTrips=open;pruneRequests(m);closeTripDays(m,at);\n",
+        "sha256": "bc618bb9f92007d6687e07dc32cbfb065c57daaea2e4d44c0f47787b8fb16b21"
+      },
+      {
+        "before": "    for(const trip of expired){if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));const request=requests.get(trip.requestId),reason='تعذر تثبيت مسار شارع خلال 15 دقيقة';if(request){request.status='cancelled';request.cancelledAt=at;request.cancelReason=reason;}m.kpis.cancelled++;m.tripArchive.unshift(archivedTrip(trip,{status:'cancelled',cancelledAt:at,cancelReason:reason}));m.events.unshift({id:id(m,'MOB-EV'),at,type:'ROUTE_TIMEOUT_RELEASED',ownerCompanyId:m.ownerCompanyId||'mobility',tripId:trip.id,vehicleId:trip.vehicleId,driverId:trip.driverId,centerId:trip.centerId});}\n",
+        "after": "    for(const trip of expired){if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));const request=requests.get(trip.requestId),reason='تعذر تثبيت مسار شارع خلال 15 دقيقة';if(request){request.status='cancelled';request.cancelledAt=at;request.cancelReason=reason;}m.kpis.cancelled++;tripDayRow(m,Math.floor(at/86400),trip.centerId||'RUH').cancelled++;m.events.unshift({id:id(m,'MOB-EV'),at,type:'ROUTE_TIMEOUT_RELEASED',ownerCompanyId:m.ownerCompanyId||'mobility',tripId:trip.id,vehicleId:trip.vehicleId,driverId:trip.driverId,centerId:trip.centerId});}\n",
+        "sha256": "fda856958179c3416a0284e16491dfe0112ea271da9956e34f1f3f69f5045521"
+      },
+      {
+        "before": "    m.activeTrips=m.activeTrips.filter(trip=>!ids.has(trip.id));m.tripArchive=m.tripArchive.slice(0,1200);m.events=m.events.slice(0,600);noteMapStructureChange();return expired.length;\n",
+        "after": "    m.activeTrips=m.activeTrips.filter(trip=>!ids.has(trip.id));m.events=m.events.slice(0,600);noteMapStructureChange();return expired.length;\n",
+        "sha256": "91765241d6c99c883ec11e5f2d08141676e576a760bbc06c98f616b6c13cfc29"
+      },
+      {
+        "before": "",
+        "after": "    pruneRequests(m);\n",
+        "sha256": "cdc48e04fb2af86f6fe490b255f9ff9607a1dcb8cae63cadbf98a3b9956c0a1b"
+      },
+      {
+        "before": "  const API={VERSION,MAX_FLEET_PURCHASE_QUANTITY,ROLLBACK_POLICY,transactionScope,purchaseCatalogs,ROUTE_WAIT_TIMEOUT_SECONDS,ZONES,CLASSES,CAPITALS,mobilityOwnerCompanyId,mapStructureRevision:()=>mapStructureVersion,ensure,migrateLegacyDriverContracts,launch,buyFleet,onSimulationTime,advanceThrough,simulationSliceLimit,snapshot,managementSnapshot,centerSnapshot,centerClusters,liveVehicles,vehiclePosition,pendingStreetRoutes,cacheStreetRoute,routePosition,urbanPath,zonesFor,capitalMeta,centerMeta,findVehicle,serviceVehicle,sellVehicle,render,renderFleet,execute};globalThis.GH_MOBILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('mobility',API);if(globalThis.window&&window!==globalThis)window.GH_MOBILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;\n",
+        "after": "  const API={VERSION,MAX_FLEET_PURCHASE_QUANTITY,ROLLBACK_POLICY,transactionScope,purchaseCatalogs,ROUTE_WAIT_TIMEOUT_SECONDS,ZONES,CLASSES,CAPITALS,mobilityOwnerCompanyId,mapStructureRevision:()=>mapStructureVersion,ensure,migrateLegacyDriverContracts,migrateTripLedger,launch,buyFleet,onSimulationTime,advanceThrough,simulationSliceLimit,snapshot,managementSnapshot,centerSnapshot,centerClusters,liveVehicles,vehiclePosition,pendingStreetRoutes,cacheStreetRoute,routePosition,urbanPath,zonesFor,capitalMeta,centerMeta,findVehicle,serviceVehicle,sellVehicle,render,renderFleet,execute};globalThis.GH_MOBILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('mobility',API);if(globalThis.window&&window!==globalThis)window.GH_MOBILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;\n",
+        "sha256": "a277808e5d05a887bddac38d1129e12ba85aa85177c3693d302f90d12a5edc91"
+      },
+      {
         "before": "function serviceVehicle(ctx,{id:vehicleId}={}){const state=ctx.state||ctx,m=ensure(state),company=mobilityOwnerCompanyId(state,m.ownerCompanyId,{operational:true}),vehicle=findVehicle(state,vehicleId);if(!vehicle)throw new Error('mobility-vehicle-not-found');if(vehicle.ownerCompanyId!==company)throw new Error('mobility-vehicle-owner-conflict');if(vehicle.status==='moving')throw new Error('mobility-vehicle-moving');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');const transaction=globalThis.GH_TRANSACTION_CORE;if(!transaction?.execute)throw new Error('transaction-core-missing');const runner=transaction.isActive()?transaction.join:transaction.execute,out=runner(state,{label:'mobility-vehicle-service',apply:()=>{const payment=globalThis.GH_FINANCE_CORE.execute({state},'pay-by-cheque',{company,amount:850,note:`صيانة ${vehicle.name}`,beneficiary:'GH Mobility Service Network',line:'maintenance',requestRef:`MOB-MAINT-${vehicle.id}-${Math.floor(now(state))}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('mobility-maintenance-cheque-not-cleared');vehicle.condition=100;vehicle.battery=100;vehicle.lastServiceAt=now(state);vehicle.lastServiceCheque=payment.cheque.id;vehicle.lastServiceInvoice=payment.invoice.number;m.events.unshift({id:id(m,'MOB-EV'),ownerCompanyId:company,at:now(state),type:'VEHICLE_SERVICED',vehicleId,chequeId:payment.cheque.id,invoiceNumber:payment.invoice.number});return vehicle;}});return out.value;}",
         "after": "function serviceVehicle(ctx,{id:vehicleId}={}){const state=ctx.state||ctx,m=ensure(state),company=mobilityOwnerCompanyId(state,m.ownerCompanyId,{operational:true}),vehicle=m.vehicles.find(row=>row.id===vehicleId)||null;if(!vehicle)throw new Error('mobility-vehicle-not-found');if(vehicle.ownerCompanyId!==company)throw new Error('mobility-vehicle-owner-conflict');if(vehicle.status==='moving')throw new Error('mobility-vehicle-moving');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');const transaction=globalThis.GH_TRANSACTION_CORE;if(!transaction?.execute)throw new Error('transaction-core-missing');const runner=transaction.isActive()?transaction.join:transaction.execute,out=runner(state,{label:'mobility-vehicle-service',apply:()=>{const payment=globalThis.GH_FINANCE_CORE.execute({state},'pay-by-cheque',{company,amount:850,note:`صيانة ${vehicle.name}`,beneficiary:'GH Mobility Service Network',line:'maintenance',requestRef:`MOB-MAINT-${vehicle.id}-${Math.floor(now(state))}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('mobility-maintenance-cheque-not-cleared');vehicle.condition=100;vehicle.battery=100;vehicle.lastServiceAt=now(state);vehicle.lastServiceCheque=payment.cheque.id;vehicle.lastServiceInvoice=payment.invoice.number;m.events.unshift({id:id(m,'MOB-EV'),ownerCompanyId:company,at:now(state),type:'VEHICLE_SERVICED',vehicleId,chequeId:payment.cheque.id,invoiceNumber:payment.invoice.number});return vehicle;}});return out.value;}",
         "sha256": "854e2ee8147011f0dba17a68beb149ab20180ac2447418544696983b87d98d53"
@@ -204,6 +274,51 @@
     ],
     "WebApp/realism-core.js": [
       {
+        "before": "",
+        "after": "  // Owner decision (19 Oct 2026): the daily checks go to a company's lowest-condition assets, ties in row order (the\n  // first rows under the line took them all, and a fleet larger than the capacity never reached its later rows). Twin\n  // of fleet-day-core's queueCheck/settleChecks (the worker pass): keep both the same.\n  const lessUrgent=(a,b)=>a.condition>b.condition||(a.condition===b.condition&&a.index>b.index);\n  function queueCheck(heap,condition,index,id){\n    let at;\n    if(heap.length<CHECKS_PER_DAY){at=heap.length;heap.push({condition,index,id,cost:0});\n      while(at>0){const up=(at-1)>>1;if(!lessUrgent(heap[at],heap[up]))break;const swap=heap[at];heap[at]=heap[up];heap[up]=swap;at=up;}return heap[at];}\n    const entry=heap[0];if(condition>entry.condition||(condition===entry.condition&&index>entry.index))return null;\n    entry.condition=condition;entry.index=index;entry.id=id;at=0;\n    for(;;){const left=at*2+1,right=left+1;let top=at;if(left<heap.length&&lessUrgent(heap[left],heap[top]))top=left;if(right<heap.length&&lessUrgent(heap[right],heap[top]))top=right;if(top===at)break;const swap=heap[at];heap[at]=heap[top];heap[top]=swap;at=top;}\n    return entry;\n  }\n  function settleChecks(acc,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){acc.due.push(entry.id);acc.restored+=100-entry.condition;acc.cost+=entry.cost;}heap.length=0;}\n",
+        "sha256": "6113ac402cce23342d0bcd4b7dbb6f4bc432ed718714329c1654f8a72fbe3e2e"
+      },
+      {
+        "before": "    const companies=new Map(),owners=new Map();\n    const visit=a=>{\n",
+        "after": "    const companies=new Map(),owners=new Map(),checks=new Map();\n    const visit=(a,index)=>{\n",
+        "sha256": "05439a117d229ce303899c3797eb8d111cdc1922ccd9c6f0dda9c4dfd2d1c9ca"
+      },
+      {
+        "before": "      let acc=companies.get(owner);if(!acc){acc={threshold:MAINTENANCE_POLICIES[maintenancePolicy(state,owner)],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};companies.set(owner,acc);}\n",
+        "after": "      let acc=companies.get(owner);if(!acc){acc={threshold:MAINTENANCE_POLICIES[maintenancePolicy(state,owner)],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};companies.set(owner,acc);checks.set(acc,[]);}\n",
+        "sha256": "08615ba03a5398767200b4a3cd9b1a53c554c756a0b675b708fda217c1966498"
+      },
+      {
+        "before": "      if(condition<acc.threshold&&acc.due.length<CHECKS_PER_DAY){acc.due.push(a.id);acc.restored+=100-condition;acc.cost+=Math.max(0,Number(a.purchasePrice)||0)*(CHECK_COST[assetMode(a)]||CHECK_COST.road);}\n",
+        "after": "      if(condition<acc.threshold){const entry=queueCheck(checks.get(acc),condition,index,a.id);if(entry)entry.cost=Math.max(0,Number(a.purchasePrice)||0)*(CHECK_COST[assetMode(a)]||CHECK_COST.road);}\n",
+        "sha256": "731359378aae72fb755f02b3e48836a9db6a81d1fca48fec6d9f7754ec7d58e5"
+      },
+      {
+        "before": "    return {visit,companies};\n",
+        "after": "    return {visit,companies,finish:()=>{for(const acc of companies.values())settleChecks(acc,checks.get(acc));}};\n",
+        "sha256": "4032ec825d1e429645119dc4f029195f923728e9fa8dbe449f704f3b4cfa8279"
+      },
+      {
+        "before": "",
+        "after": "  // A check writes the condition only, an engine column written in place. It also stamped lastMaintenanceAt, which nothing\n  // reads: a field outside the columns, so a checked row kept an extras entry for good (the slow path of every later\n  // scan; 500k rows all with one: the worker's day pass 436 -> 1,050 ms on desktop) and its chunk's identity version\n  // moved, so the first save after the close checked that chunk's static tables again (2.3 s for 30 chunks on iPhone).\n  // Worst-first spreads the checks over the fleet, so the stamp would have reached every chunk.\n",
+        "sha256": "76fcc82288c8ab2ea0589110897998729625514f94ee8528b92a62ed40d82c61"
+      },
+      {
+        "before": "    const r=migrate(state),fleet=fleetData(),F=globalThis.GH_FINANCE_CORE,stamp=Number(state.simSeconds)||0;r.maintenance=r.maintenance&&typeof r.maintenance==='object'?r.maintenance:{};r.maintenance.companies={};\n",
+        "after": "    const r=migrate(state),fleet=fleetData(),F=globalThis.GH_FINANCE_CORE;r.maintenance=r.maintenance&&typeof r.maintenance==='object'?r.maintenance:{};r.maintenance.companies={};\n",
+        "sha256": "8a779cf7ff8b0eff03c46c4eeaad86896302bcb29c69b784d6563ea7a47c2ff3"
+      },
+      {
+        "before": "      for(let i=0;i<acc.due.length;i+=MAINTENANCE_STEP){for(const id of acc.due.slice(i,i+MAINTENANCE_STEP))fleet.update(state,id,{condition:100,lastMaintenanceAt:stamp});yield 'realism.maintenance';}\n",
+        "after": "      for(let i=0;i<acc.due.length;i+=MAINTENANCE_STEP){for(const id of acc.due.slice(i,i+MAINTENANCE_STEP))fleet.update(state,id,{condition:100});yield 'realism.maintenance';}\n",
+        "sha256": "97db0de8f20025247146228ade5e8efaff8f3048193860d93f8e3621bde33053"
+      },
+      {
+        "before": "    yield* fleet.scanStages(state,FLEET_DAY_FIELDS,(a,index)=>{owner.visit(a);ops.visit(a,index);maintenance.visit(a);const condition=Number(a.condition);insured+=condition||100;readiness+=condition||0;},OPS_SLICE_ROWS,'realism.fleet-day');\n    ownerTotalsMemo={state,key:ownerTotalsKey(state),totals:owner.totals};\n",
+        "after": "    yield* fleet.scanStages(state,FLEET_DAY_FIELDS,(a,index)=>{owner.visit(a);ops.visit(a,index);maintenance.visit(a,index);const condition=Number(a.condition);insured+=condition||100;readiness+=condition||0;},OPS_SLICE_ROWS,'realism.fleet-day');\n    maintenance.finish();ownerTotalsMemo={state,key:ownerTotalsKey(state),totals:owner.totals};\n",
+        "sha256": "a517c7cee4b7b6bf0e7615c99a9e2bb35088eeb065d1d19cdb9d36026672e21f"
+      },
+      {
         "before": "  // The row pass may run on the fleet worker. Publishing its already ordered numeric summary stays here because it also\n  // reads governance, facilities, cyber and energy state and writes the realism model. Keeping this one publisher for\n  // both paths prevents the worker path from becoming a second set of business rules.\n  function finishOps(state,day,summary){\n    const r=migrate(state),{ask,rpk,rev,cost,fuel,movingAir,airCondition,maintReserve,maintExposure,airCount,maintenanceDue,aog,seaCo2,seaWork,seaRefWork,seaCondition,movingSea,seaCount,seaDryDock,roadCount,roadWeak,roadDamaged}=summary;\n    r.aviation.ask=ask;r.aviation.rpk=rpk;r.aviation.loadFactor=ask?clamp(rpk/ask*100,0,100):0;r.aviation.yield=rpk?rev/rpk:0;r.aviation.rask=ask?rev/ask:0;r.aviation.cask=ask?cost/ask:0;r.aviation.caskExFuel=ask?(cost-fuel)/ask:0;\n",
         "after": "  // The row pass may run on the fleet worker. Publishing its already ordered numeric summary stays here because it also\n  // reads governance, facilities, cyber and energy state and writes the realism model. Keeping this one publisher for\n  // both paths prevents the worker path from becoming a second set of business rules.\n  function updateEnergyAdequacy(state,day){\n    const r=migrate(state),e=state.energy||{},sites=(Array.isArray(e.sites)?e.sites:[]).filter(site=>site?.commissioned===true&&!String(site.id||'').startsWith('LEGACY-')),capacityFor=site=>Math.max(0,Number(site?.capacity)||0),legacyCapacity=key=>Math.max(0,Number(e[key])||0),siteCapacity=kind=>sites.filter(site=>site.kind===kind).reduce((sum,site)=>sum+capacityFor(site),0),capacity=(kind,key)=>siteCapacity(kind)||legacyCapacity(key);\n    const gasMW=capacity('gas','gasMW'),\n      solarMW=capacity('solar','solarMW'),\n      windMW=capacity('wind','windMW'),\n      totalMW=gasMW+solarMW+windMW,renewableMW=solarMW+windMW,rawAvailability=Number(e.availability),availability=clamp(Number.isFinite(rawAvailability)?rawAvailability:90,0,100);\n    const weatherFactor=clamp(.74+rand(`energy:${day}:weather`,-.08,.08),.58,.90),thermalFactor=.72;\n    r.energy.capacityFactor=totalMW?clamp(((gasMW*thermalFactor+renewableMW*weatherFactor)/totalMW)*(availability/100)*100,0,100):0;r.energy.availableMW=totalMW*availability/100;r.energy.renewableShare=totalMW?renewableMW/totalMW*100:0;\n    const storageMWh=capacity('storage','storageMWh'),spread=Math.max(0,r.economy.electricity-r.economy.gas),beforeSoc=r.energy.storageSoc;\n    if(storageMWh>0&&spread>25&&r.energy.storageSoc>20){r.energy.storageSoc=clamp(r.energy.storageSoc-8,5,100);r.energy.cycles+=.08;}else if(storageMWh>0&&r.economy.electricity<75&&r.energy.storageSoc<90){r.energy.storageSoc=clamp(r.energy.storageSoc+7,0,100);r.energy.cycles+=.07;}\n    r.energy.roundTripEfficiency=clamp(86-r.energy.degradation*.10,78,90);r.energy.degradation=clamp(1+r.energy.cycles*.012,1,20);r.energy.storageHealth=clamp(100-r.energy.degradation,60,100);r.energy.effectiveStorageMWh=storageMWh*r.energy.storageHealth/100;r.energy.storageThroughputMWh=Math.abs(r.energy.storageSoc-beforeSoc)/100*r.energy.effectiveStorageMWh;r.energy.roundTripLossMWh=r.energy.storageThroughputMWh*(1-r.energy.roundTripEfficiency/100);r.energy.reserveMargin=totalMW?clamp((r.energy.availableMW-(totalMW*.78))/Math.max(1,totalMW*.78)*100,-50,80):0;r.energy.adequacyEvaluatedDay=Math.max(0,Math.floor(Number(day)||0));r.energy.adequacyMethodVersion=3;r.energy.curtailment=clamp(Math.max(0,r.energy.renewableShare-55)*.08+Math.max(0,r.energy.storageSoc-92)*.1,0,25);\n  }\n  function finishOps(state,day,summary){\n    const r=migrate(state),{ask,rpk,rev,cost,fuel,movingAir,airCondition,maintReserve,maintExposure,airCount,maintenanceDue,aog,seaCo2,seaWork,seaRefWork,seaCondition,movingSea,seaCount,seaDryDock,roadCount,roadWeak,roadDamaged}=summary;\n    r.aviation.ask=ask;r.aviation.rpk=rpk;r.aviation.loadFactor=ask?clamp(rpk/ask*100,0,100):0;r.aviation.yield=rpk?rev/rpk:0;r.aviation.rask=ask?rev/ask:0;r.aviation.cask=ask?cost/ask:0;r.aviation.caskExFuel=ask?(cost-fuel)/ask:0;\n",
         "sha256": "80e812037cc53f4123e00327bf7bd1b129480d2de19afc90adef1665edf1c53c"
@@ -269,6 +384,20 @@
       "tests/build359-management-effects.cjs",
       "tests/build334-simulation-time-contract.cjs",
       "tests/build334-calendar-journey-browser.cjs"
-    ]
+    ],
+    "reviews_2026_10_19": {
+      "reason": "Owner decisions 2026-10-19: Mobility keeps one trip row per day and center (no per-trip or per-driver record; the 10% driver share and the platform revenue are computed as before) and its vehicles and drivers are tracked save collections; daily fleet maintenance checks the worst condition first within the same 2,000-check capacity and no longer stamps checked assets. No customer, price or economic constant changed. Restored first, before the earlier reviewed edits.",
+      "baseline_commit": "7c34d20",
+      "edits": {
+        "WebApp/mobility-core.js": 14,
+        "WebApp/realism-core.js": 9
+      },
+      "tests": [
+        "tests/build515-mobility-day-ledger-rollback.cjs",
+        "tests/build516-tracked-collections.cjs",
+        "tests/build518-maintenance-worst-first.cjs",
+        "tests/build372-fleet-day-core.cjs"
+      ]
+    }
   }
 }
