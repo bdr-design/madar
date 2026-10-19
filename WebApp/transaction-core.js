@@ -285,11 +285,27 @@
   // 72-79% of cloneMs (111-506 ms) was waiting. A durable command holds the lifecycle lock (no simulation slice or
   // marker work shares its frames), so its copy takes up to 8 ms of each frame; ordinary background saves keep 4 ms.
   const DURABLE_CLONE_SLICE_MS=8;
-  async function deepCloneInSlices(value,{shareJournaledRoots=false,shareSealed=shareJournaledRoots,yieldToHost,budgetMs=4,onSlice=null}={}){
+  // Emulated phone, operating world (3,000 Mobility vehicles, 4x CPU): Mobility was 81.5 of the 100.8 ms copy of every
+  // player command, and the bank, telecom, insurance, governance and finance decisions never read it. Their drafts defer
+  // it: a read or write during the command copies it (same sharing rules, in one synchronous copy), and
+  // settleDeferredRoots, called right after apply, gives the draft the live root when it was never touched, so it is
+  // validated, saved and published as the very object the live state holds. The lifecycle lock keeps every transaction
+  // off the live state until publication, so a shared root cannot change between apply and the ACK. Every other command
+  // (Mobility itself, HR hiring, which counts vehicles per center, facilities, fleet) copies it with the draft as before.
+  const DURABLE_DEFERRED_ROOTS=Object.freeze(['mobility']),DEFERRED_DRAFTS=new WeakMap();
+  const MOBILITY_FREE_COMMANDS=/^(?:banking|customer-companies|insurance|governance|finance):|^authorized:(?:settle-all-payables|settle-all-cheques|record-paid-cheque|pay-all-taxes|launch-ipo)(?::|$)/;
+  function durableDeferredRoots(label){return MOBILITY_FREE_COMMANDS.test(String(label||''))?DURABLE_DEFERRED_ROOTS:null;}
+  function settleDeferredRoots(draft){
+    const row=draft&&DEFERRED_DRAFTS.get(draft);if(!row)return {shared:0,copied:0,copyMs:0};DEFERRED_DRAFTS.delete(draft);let shared=0;
+    for(const [key,entry] of row.roots){const descriptor=Object.getOwnPropertyDescriptor(draft,key);if(descriptor?.get!==entry.get)continue;Object.defineProperty(draft,key,{value:entry.root,writable:true,enumerable:true,configurable:true});shared++;}
+    return {shared,copied:row.copied,copyMs:row.copyMs};
+  }
+  async function deepCloneInSlices(value,{shareJournaledRoots=false,shareSealed=shareJournaledRoots,yieldToHost,budgetMs=4,onSlice=null,deferRoots=null}={}){
     if(typeof yieldToHost!=='function')return deepClone(value,{shareJournaledRoots,shareSealed});
-    const initialStarted=runtimeClock(),seen=new Map(),keys=Object.keys(value),source={},targets=new Map(),roots=new Map();
+    const initialStarted=runtimeClock(),seen=new Map(),keys=Object.keys(value),source={},targets=new Map(),roots=new Map(),deferred=new Map(),deferNames=Array.isArray(deferRoots)?new Set(deferRoots):null;
     for(const key of keys){
       if(JOURNALED_ROOTS.has(key))continue;const root=value[key],collections=shareSealed&&SEALED_COLLECTIONS.get(key);
+      if(deferNames?.has(key)&&root&&typeof root==='object'&&!Array.isArray(root)&&plainData(root)){deferred.set(key,root);continue;}
       if(shareSealed&&SEALED_ROOTS.has(key)&&Array.isArray(root)){roots.set(key,root);continue;}
       if(collections&&root&&typeof root==='object'&&!Array.isArray(root)&&plainData(root)){
         const rows=collections.flatMap(name=>sealedTargets(root,name).map(target=>({...target,options:collectionOptions(key,name)})));
@@ -335,8 +351,15 @@
     function* work(){
       const cloned=yield* copy(source);
       for(const [key,rows] of targets)for(const {path,collection,options} of rows){let node=cloned[key];for(let i=0;i<path.length-1;i++)node=node[path[i]];node[path[path.length-1]]=yield* collectionCopy(collection,options);}
-      const out={};for(const key of keys){if(JOURNALED_ROOTS.has(key)){if(shareJournaledRoots)out[key]=value[key];}else out[key]=roots.has(key)?yield* collectionCopy(roots.get(key)):cloned[key];yield;}
+      const out={},row=deferred.size?{roots:new Map(),copied:0,copyMs:0}:null;
+      for(const key of keys){if(JOURNALED_ROOTS.has(key)){if(shareJournaledRoots)out[key]=value[key];}else if(deferred.has(key))defer(out,key,deferred.get(key),row);else out[key]=roots.has(key)?yield* collectionCopy(roots.get(key)):cloned[key];yield;}
+      if(row)DEFERRED_DRAFTS.set(out,row);
       return inheritCloneRuntimeMetadata(value,out);
+    }
+    function defer(out,key,root,row){
+      const own=next=>Object.defineProperty(out,key,{value:next,writable:true,enumerable:true,configurable:true});
+      const entry={root,get(){const started=runtimeClock(),copy=deepClone({[key]:root},{shareJournaledRoots,shareSealed})[key];row.copied++;row.copyMs+=Math.max(0,runtimeClock()-started);own(copy);return copy;},set(next){own(next);}};
+      row.roots.set(key,entry);Object.defineProperty(out,key,{get:entry.get,set:entry.set,enumerable:true,configurable:true});
     }
     const iterator=work(),limit=Math.max(.5,Math.min(8,Number(budgetMs)||4));let started=initialStarted,measuring=true;
     const note=()=>{if(!measuring)return;measuring=false;const ended=runtimeClock();try{onSlice?.(started,ended);}catch(_error){} };
@@ -943,12 +966,12 @@
       const yieldToHost=options.yieldToHost||options.persistence?.yieldToFrame;
       durableTiming.cloneBusyMs=0;durableTiming.cloneMaxSliceMs=0;durableTiming.cloneYields=0;
       const onSlice=(started,ended)=>{const busy=Math.max(0,ended-started);durableTiming.cloneBusyMs+=busy;durableTiming.cloneMaxSliceMs=Math.max(durableTiming.cloneMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.clone',started,ended);};
-      if(typeof yieldToHost==='function')draft=await deepCloneInSlices(liveState,{shareJournaledRoots:true,budgetMs:DURABLE_CLONE_SLICE_MS,yieldToHost:async()=>{durableTiming.cloneYields++;await yieldToHost();},onSlice});
+      if(typeof yieldToHost==='function')draft=await deepCloneInSlices(liveState,{shareJournaledRoots:true,budgetMs:DURABLE_CLONE_SLICE_MS,deferRoots:durableDeferredRoots(label),yieldToHost:async()=>{durableTiming.cloneYields++;await yieldToHost();},onSlice});
       else{const started=runtimeClock();try{draft=deepClone(liveState,{shareJournaledRoots:true});}finally{onSlice(started,runtimeClock());}}
       context.draft=draft;lap('cloneMs');
       try{globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(liveState,draft);}catch(_error){/* trust is an optimisation */}
       lap('inheritMs');priorCritical=criticalIds(globalThis.GH_INTEGRITY_CORE?.check?.(liveState));lap('baselineIntegrityMs');phase='apply';
-      mark=runtimeClock();const value=await options.apply(draft,context);lap('applyMs');if(value===false)throw rejection(`${label}-rejected`,label,phase);
+      mark=runtimeClock();const value=await options.apply(draft,context);{const deferred=settleDeferredRoots(draft);durableTiming.deferredShared=deferred.shared;durableTiming.deferredCopied=deferred.copied;durableTiming.deferredCopyMs=deferred.copyMs;}lap('applyMs');if(value===false)throw rejection(`${label}-rejected`,label,phase);
       if(context.poisoned)throw rejection(context.poisonReason||'durable-command-poisoned',label,phase);
       if(Number(draft.saveRevision||0)!==expectedRevision)throw rejection('draft-save-revision-mutated',label,phase);
       draft.saveRevision=expectedRevision+1;phase='validate';
@@ -981,5 +1004,5 @@
       throw error;
     }finally{if(!durableCommitted&&rootSessions.length)try{rollbackJournaledRoots(rootSessions);}catch{}if(globalThis.__GH_DURABLE_COMMAND_CONTEXT__===context)delete globalThis.__GH_DURABLE_COMMAND_CONTEXT__;durableTargets.delete(liveState);}
   }
-  const API=Object.freeze({VERSION,DURABLE_CLONE_SLICE_MS,changeTracking:changeState.api,moneyGuard:MONEY_GUARD,validateSchemaInSlices,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,DURABLE_CLONE_SLICE_MS,DURABLE_DEFERRED_ROOTS,durableDeferredRoots,settleDeferredRoots,changeTracking:changeState.api,moneyGuard:MONEY_GUARD,validateSchemaInSlices,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

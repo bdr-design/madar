@@ -1133,13 +1133,13 @@
       window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft:null};
       timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;
       const onCloneSlice=(started,ended)=>{workStarted=started;const busy=Math.max(0,ended-started);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.clone',started,ended);};
-      if(transactionCore?.deepCloneInSlices)draft=await transactionCore.deepCloneInSlices(state,{shareJournaledRoots:true,budgetMs:transactionCore.DURABLE_CLONE_SLICE_MS||4,yieldToHost:async()=>{timing.cloneYields++;await yieldForInteractivePaint(document.hidden?0:80);},onSlice:onCloneSlice});
+      if(transactionCore?.deepCloneInSlices)draft=await transactionCore.deepCloneInSlices(state,{shareJournaledRoots:true,budgetMs:transactionCore.DURABLE_CLONE_SLICE_MS||4,deferRoots:transactionCore.durableDeferredRoots?.(name),yieldToHost:async()=>{timing.cloneYields++;await yieldForInteractivePaint(document.hidden?0:80);},onSlice:onCloneSlice});
       else{const started=clockNow();try{draft=transactionCore?.deepClone?transactionCore.deepClone(state,{shareJournaledRoots:true}):clone(state);}finally{onCloneSlice(started,clockNow());}}lap('cloneMs');
       traceMainThreadWork('command.inherit',()=>window.GH_SAVE_SCHEMA?.inheritVerified?.(state,draft));const runtime=traceMainThreadWork('command.routes',()=>routeRuntimeForState(draft)),previousRevision=Math.max(0,Math.floor(Number(state.saveRevision)||0));lap('prepareMs');
       const fleetMutationContext=fleetMutationSession?Object.freeze({client:fleetMutationClient,session:fleetMutationSession,store:draft.fleet,flush(){return fleetMutationClient.flushMutation(fleetMutationSession,draft.fleet);},finish(){return fleetMutationClient.finishMutation(fleetMutationSession,draft.fleet);}}):null;
       window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft,fleetMutation:fleetMutationContext,afterPublish(fn){if(typeof fn==='function')afterPublishTasks.push(fn);}};
       const priorCriticalIds=new Set(((traceMainThreadWork('command.baseline-integrity',()=>window.GH_INTEGRITY_CORE.check(state))?.issues)||[]).filter(row=>row.severity==='critical').map(row=>String(row.id||row.code||row.title)));lap('baselineIntegrityMs');
-      const value=await apply({state:draft,routes:runtime,fleetMutation:fleetMutationContext});lap('applyMs');if(value===false)throw new Error(`${name}-rejected`);
+      const value=await apply({state:draft,routes:runtime,fleetMutation:fleetMutationContext});{const deferred=transactionCore?.settleDeferredRoots?.(draft);if(deferred){timing.deferredShared=deferred.shared;timing.deferredCopied=deferred.copied;timing.deferredCopyMs=deferred.copyMs;}}lap('applyMs');if(value===false)throw new Error(`${name}-rejected`);
       if(window.__GH_DURABLE_COMMAND_CONTEXT__?.poisoned===true)throw new Error(`${name}-draft-poisoned`);
       draft.saveRevision=previousRevision+1;
       {const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-save',fields:carried});}

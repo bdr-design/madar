@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 540,
+  "minimum_acceptance_gates": 542,
   "preflight_commands": [
     [
       "node",
@@ -2698,6 +2698,14 @@
     [
       "node",
       "tests/build510-validation-cache-reasons.cjs"
+    ],
+    [
+      "node",
+      "tests/build511-deferred-draft-roots.cjs"
+    ],
+    [
+      "node",
+      "tests/build512-deferred-mobility-browser.cjs"
     ]
   ]
 }
