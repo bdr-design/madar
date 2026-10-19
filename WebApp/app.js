@@ -1294,7 +1294,7 @@
     try{return (tx.isActive()?tx.join:tx.execute)(state,{label:name,apply:()=>{const value=apply();if(value===false)throw new Error(name+'-rejected');return value;}}).value;}
     catch(error){console.warn('Business operation rolled back',name,error);if(!tx.isActive())notice('تعذر إكمال العملية؛ تم التراجع عن أثرها: '+String(error.message||error));return false;}
   }
-  const deferredStagedAlerts=new Set();let deferredStagedAlertFlush=false;
+  const deferredStagedAlerts=new Set();let deferredStagedAlertFlush=false;const deferredDurableAlerts=[];let deferredDurableAlertFlush=false;
   function pushAlert(text){
     // A UI notification is a domain write too. Queue one bounded flush through the existing staged lifecycle;
     // never enter a second transaction while a simulation slice owns the live state.
@@ -1303,6 +1303,16 @@
       const message=String(text||'');if(deferredStagedAlerts.size>=16&&!deferredStagedAlerts.has(message))return false;
       deferredStagedAlerts.add(message);
       if(!deferredStagedAlertFlush){deferredStagedAlertFlush=true;const epoch=Number(state.resetEpoch)||0;afterStagedState(()=>{const messages=[...deferredStagedAlerts];deferredStagedAlerts.clear();deferredStagedAlertFlush=false;if((Number(state.resetEpoch)||0)===epoch&&messages.length)window.GH_INTERACTION_NOTICE(messages.join(' • '));});}
+      return true;
+    }
+    // A durable command holds the live state from its copy until its publication settles (a frame and its refresh after
+    // the state is published): an alert raised meanwhile (the calendar's "+ day" pressed during a decision; the macOS
+    // gate pressed it as the founding command published) is written, as raised, once that command has settled.
+    const durable=window.__GH_DURABLE_COMMAND_CONTEXT__;
+    if(durable?.liveState===state&&durable.draft!==state){
+      const message=String(text||'');if(deferredDurableAlerts.length>=16&&!deferredDurableAlerts.includes(message))return false;
+      if(!deferredDurableAlerts.includes(message))deferredDurableAlerts.push(message);
+      if(!deferredDurableAlertFlush){deferredDurableAlertFlush=true;const epoch=Number(state.resetEpoch)||0;durableCommandSettlement.then(()=>new Promise(resolve=>setTimeout(resolve,0))).then(()=>{const messages=deferredDurableAlerts.splice(0);deferredDurableAlertFlush=false;if((Number(state.resetEpoch)||0)===epoch)for(const row of messages)pushAlert(row);}).catch(error=>{deferredDurableAlerts.length=0;deferredDurableAlertFlush=false;console.warn('Deferred alert failed',error);});}
       return true;
     }
     const result=dispatchSystemCommand({state},'operations','record-alert',{id:nextId('EV'),text,type:'operation'},{actor:'system-ui-notification'});
