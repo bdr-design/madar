@@ -4,6 +4,7 @@
 // company and phase by phase (the decision and the play before it), and exits 1 when any company got heavier:
 //  - a phase's missed frames grew by more than max(3, 25%), or its worst frame grew by more than 34 ms (two frames);
 //  - a decision's committed command changed, failed, or stopped committing;
+//  - a decision's uploaded save bytes grew by more than 25% and 64 KB (close to deterministic, unlike frames);
 //  - a company measured before is missing or skipped after.
 // One emulated run is noisy (the play phase most): a flagged company is measured again before a fix is kept.
 //   node tools/compare_first_decision.cjs before.json after.json
@@ -22,6 +23,7 @@ for(const [company,a] of Object.entries(before.companies||{})){
   const callA=(a.calls||[]).map(c=>`${c.command}:${c.committed}`).join(','),callB=(b.calls||[]).map(c=>`${c.command}:${c.committed}`).join(',');
   if(callA!==callB)problems.push(`${company}: command ${callA} -> ${callB}`);
   if((b.calls||[]).some(c=>c.error||c.committed!==true))problems.push(`${company}: the decision did not commit (${JSON.stringify(b.calls)})`);
+  const ua=a.uploads?.bytes,ub=b.uploads?.bytes;if(Number.isFinite(ua)&&Number.isFinite(ub)&&ub-ua>Math.max(65536,ua*.25))problems.push(`${company} decision: uploaded ${Math.round(ua/1024)} KB -> ${Math.round(ub/1024)} KB`);
   for(const [phase,key] of [['decision','frames'],['play','play']]){const w=worse(a[key],b[key]);if(w.length)problems.push(`${company} ${phase}: ${w.join(', ')}`);}
   rows.push([company,`${a.frames.max}/${a.frames.missed}`,`${b.frames.max}/${b.frames.missed}`,`${a.play?.max}/${a.play?.missed}`,`${b.play?.max}/${b.play?.missed}`]);
 }
