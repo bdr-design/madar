@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: loans offers choices
+    at /Users/runner/work/madar/madar/tests/build358-budgets-browser.cjs:31:113 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
