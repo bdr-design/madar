@@ -284,6 +284,8 @@
   // iPhone diagnostic DX-1792378248326: a command's copy ran 4 ms per frame and then waited for the next frame, so
   // 72-79% of cloneMs (111-506 ms) was waiting. A durable command holds the lifecycle lock (no simulation slice or
   // marker work shares its frames), so its copy takes up to 8 ms of each frame; ordinary background saves keep 4 ms.
+  // Its schema validation holds the same lock and took 4 ms per frame (about 28 ms of checks over 100 ms at 200,000
+  // assets on an emulated phone): it takes the same 8 ms.
   const DURABLE_CLONE_SLICE_MS=8;
   // Emulated phone, operating world (3,000 Mobility vehicles, 4x CPU): Mobility was 81.5 of the 100.8 ms copy of every
   // player command, and the bank, telecom, insurance, governance and finance decisions never read it. Their drafts defer
@@ -980,7 +982,7 @@
       // useful upload/validation overlap. Persist still uploads anything missing; this never authorizes a commit.
       let stagingStarted=false;const onFleetValidationWait=typeof options.prestage==='function'?()=>{if(stagingStarted)return;stagingStarted=true;try{staging=options.prestage(draft,context)||null;}catch(_error){staging=null;}}:undefined;
       const validatedFleetRevision=Number.isSafeInteger(draft.fleet?.revision)?draft.fleet.revision:null;
-      mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onFleetValidationWait,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
+      mark=runtimeClock();durableTiming.validateBusyMs=0;durableTiming.validateMaxSliceMs=0;const schema=await validateSchemaInSlices(draft,{yieldToHost,onFleetValidationWait,budgetMs:DURABLE_CLONE_SLICE_MS,onSlice:(start,end)=>{const busy=Math.max(0,end-start);durableTiming.validateBusyMs+=busy;durableTiming.validateMaxSliceMs=Math.max(durableTiming.validateMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.schema',start,end);}});lap('validateMs');if(schema&&schema.ok===false)throw rejection(`invalid-draft:${(schema.errors||[]).join(',')}`,label,phase);
       if(options.integrity!==false&&globalThis.GH_INTEGRITY_CORE?.check){const integrity=globalThis.GH_INTEGRITY_CORE.check(draft),introduced=(((integrity?.critical)||((integrity?.issues)||[]).filter(row=>row.severity==='critical'))||[]).filter(row=>!priorCritical.has(String(row.id||row.code||row.title)));if(introduced.length)throw rejection(`critical-integrity:${introduced.map(row=>row.id||row.code||row.title).join(',')}`,label,phase);}
       if(typeof options.validate==='function'){const validation=await options.validate(draft,context);if(validation===false||validation?.ok===false)throw rejection(validation?.reason||'validation-rejected',label,phase);}
       lap('integrityMs');
