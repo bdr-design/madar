@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 557,
+  "minimum_acceptance_gates": 558,
   "preflight_commands": [
     [
       "node",
@@ -2766,6 +2766,10 @@
     [
       "node",
       "tests/build527-decision-navigation-guard-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build528-reopen-navigation-guard-browser.cjs"
     ]
   ]
 }
