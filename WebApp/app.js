@@ -966,6 +966,11 @@
     const store=s.fleet;return asked.then(result=>result?{rows:result.rows,ids:result.ids,current:()=>client.current(result,store)}:null);
   }
   globalThis.GH_FLEET_CLASSES_PROVIDER=(...args)=>fleetClassesForValidation(...args);
+  // iPhone diagnostic DX-1792378248326 (980,000 assets): the maintenance schema pass had only fleetClasses, so its
+  // company-platform section scanned fleet classes on the main thread (24 ms in one frame) while command validations
+  // took the worker's bounded evidence (0-1 ms). Same provider and the same acceptance (current() and context token);
+  // an existing client only, and without an answer the section still falls back to the worker classes as before.
+  function maintenanceFleetValidation(s,params){return fleetEngineThreadClient?globalThis.GH_FLEET_VALIDATION_PROVIDER?.(s,params)||null:null;}
   // Save Schema's required fleet evidence for a fleet above the main-thread limit (control-plane-core and persistence-core
   // pass requireFleetValidation, and a missing answer fails closed). Nothing supplied it: every hour-boundary integrity
   // check with more than 2,048 assets failed with fleet-validation-unavailable and stopped the engine at 00:59. The worker
@@ -1002,7 +1007,7 @@
   }
   globalThis.GH_FLEET_VALIDATION_PROVIDER=(s,params,{syncOnly=false,beforeAsync}={})=>{
     const client=fleetEngineThreadClient||(!syncOnly?fleetEngineThread():null);if(!client||client.disabled||typeof client.query!=='function'||!window.GH_FLEET_STORE?.isStore?.(s?.fleet))return null;
-    const store=s.fleet,contextToken=window.GH_FLEET_SAVE_VALIDATION?.contextToken?.(params||{}),wrap=found=>({result:found.result,current:()=>s.fleet===store&&client.current(found,store)}),last=lastFleetValidation;
+    const store=s.fleet,contextToken=typeof params?.contextToken==='string'&&params.contextToken?params.contextToken:window.GH_FLEET_SAVE_VALIDATION?.contextToken?.(params||{}),wrap=found=>({result:found.result,current:()=>s.fleet===store&&client.current(found,store)}),last=lastFleetValidation;
     // Reuse only the exact store revision and validation context. Repeated validators of an unchanged fleet do not
     // queue identical million-row passes ahead of simulation work; callers still perform all non-fleet validation.
     // A current answer is ready data, not another worker wait. Returning it directly also lets synchronous schema
@@ -3630,7 +3635,7 @@
   function schemaSectionsTask(){
     const schema=window.GH_SAVE_SCHEMA;if(typeof schema?.validationSteps!=='function')return null;
     const mark=()=>`${state.saveRevision}|${state.controlPlane?.revision}|${state.simSeconds}`;
-    return {task:'schema',steps:schema.validationSteps(state,{trustVerified:true,fleetClasses:fleetClassesForValidation}),mark:mark(),markOf:mark};
+    return {task:'schema',steps:schema.validationSteps(state,{trustVerified:true,fleetClasses:fleetClassesForValidation,fleetValidation:maintenanceFleetValidation}),mark:mark(),markOf:mark};
   }
   function haltOnGlobalFault(health,central){if(requiresGlobalHalt(health,central)){simulationEngine.cancelAdvance?.('global-halt',{immediate:true});state.speed=0;pushAlert('أُوقفت المحاكاة لأن خللًا في سلامة الحفظ أو سجل الأوامر قد يهدد الحالة كاملة. مشكلات القطاعات الأخرى تبقى معزولة داخل قطاعها.');}}
   function runMaintenanceTask(entry){
@@ -3681,7 +3686,7 @@
       // Before its proof section, the permanent worker only prepares canonical text and SHA certificates for the exact
       // sealed archive objects; a stale certificate is discarded and an unavailable worker leaves the original check.
       if(!advanceArchivedProofValidation(entry))return false;
-      if(entry.markOf()!==entry.mark){entry.steps=window.GH_SAVE_SCHEMA.validationSteps(state,{trustVerified:true,fleetClasses:fleetClassesForValidation});entry.mark=entry.markOf();entry.restarts=(entry.restarts||0)+1;}
+      if(entry.markOf()!==entry.mark){entry.steps=window.GH_SAVE_SCHEMA.validationSteps(state,{trustVerified:true,fleetClasses:fleetClassesForValidation,fleetValidation:maintenanceFleetValidation});entry.mark=entry.markOf();entry.restarts=(entry.restarts||0)+1;}
       const step=entry.steps.next();if(!step.done)return false;
       const check=step.value;if(check&&check.ok===false){const reason=check.reason||check.errors?.join(',')||'invalid state';diag('SAVE_SCHEMA_INTEGRITY',{reason:String(reason).slice(0,240),source:'maintenance-compaction'},'critical');haltOnGlobalFault({issues:[{id:'SAVE_SCHEMA_INTEGRITY',severity:'critical'}]});}
       return true;

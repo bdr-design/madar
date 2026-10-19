@@ -1,6 +1,6 @@
 {
   "approved": false,
-  "source_tree_sha256": "1c9ff0107e024749cd95ac57cf6b5535eabb083ed5c28d64bfb674d091007662",
+  "source_tree_sha256": "8579a63215f414b5313ea3b8ec14d26a94ec012ea36bca24c080730c15c9c0ec",
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
@@ -106,7 +106,7 @@
     "mode": "direct_git_tracked_branch",
     "branch": "claude/madar-ventora-handover-3.0.0-stg723",
     "based_on": "claude/madar-map-conference-cleanup@4f3fea7",
-    "source_tree_sha256": "1c9ff0107e024749cd95ac57cf6b5535eabb083ed5c28d64bfb674d091007662",
+    "source_tree_sha256": "8579a63215f414b5313ea3b8ec14d26a94ec012ea36bca24c080730c15c9c0ec",
     "working_tree_clean": false,
     "note": "Unpublished local fixes relative to 2ad7e16: bounded packed fleet lane storage, static validation dependencies, value-aware worker evidence, day formula memo, worker value collection, governor deadline-overrun signal, unused service-panel fleet query removal, durable decision notices and synchronous ready validation reuse, and conditional durable preparation only during actual worker waits (ordinary and composite commands). Targeted desktop checks only; physical-device and full-source acceptance are pending. Latest cleanup reviews all 16 pending runtime files, removes duplicate packed-page hashing and per-row temporary allocations, preserves old-save readers, and refuses mismatched patch adoption or incomplete lane hashes. Latest game scan parses 132 runtime scripts and refines only app summary/document consumers and legacy bank branch migration; 22 related checks and 10 detected mutations, no new device/full-command timing claim. Latest section review removes repeated HR facility/vehicle work, bounds labor/facility/task/loan cards, uses current worker aggregates for capacity and CII previews, and defers and time-slices the existing fleet-list index. Read-only desktop and targeted integrity evidence; no physical-iPhone or full-command ACK guarantee. Rendering review removes no-op Canvas paints and stable HUD writes, skips hidden/detached navigation geometry, bounds catalog cards and patches market summary fields without rebuilding forms. 24 related scripts passed; cold worker CPU contention and the global 20ms target remain pending. The owner subsequently authorized an exhaustive section audit followed by full gates, push and IPA delivery.",
     "news_work": {
