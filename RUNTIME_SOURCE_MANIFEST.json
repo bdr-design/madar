@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "79d9c6823fad4e1493639fb3c30bed6aa0c49246a346d1e4cf0794a6985540de",
-  "webapp_tree_sha256": "99e40e37aaba4598b9f0c0fd97e01c1445ff95589975be7b4ba7403b270f1905",
+  "source_tree_sha256": "38568ed4454418187dd6983ba8a62668d013b844c8f65d0a3b111f12c61ee62c",
+  "webapp_tree_sha256": "be6333b410c0f20d951f7ccea30f0a850dd77ac7888bb3f65d61da30c3ea4302",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3907,8 +3907,8 @@
       "sha256": "7fba65430a479155bf423b5adca04c620bff3948b3da2c1bdab09927aecf6c15"
     },
     "WebApp/state-codec-core.js": {
-      "bytes": 105185,
-      "sha256": "acd75d379ade2288fd0add3e68a820784117bc0e4fdeb0f9b4e156db209e8d4e"
+      "bytes": 106318,
+      "sha256": "47b29e1cbbd9964ae7083f72266a4435395a9cd9fa54d445c8c058784f8c908f"
     },
     "WebApp/strategy-core.js": {
       "bytes": 4799,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "1ff7c616d81fbcdc98470adfc7f92603752c22195a5d34b27d3f37ca326398a7"
+      "sha256": "46aabd6814a4fb097fe0a4e6c844edcca39c6a7e53d4bc2f6530694e0f12764f"
     },
     "BUILD": {
       "bytes": 4,

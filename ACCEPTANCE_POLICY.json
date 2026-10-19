@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 553,
+  "minimum_acceptance_gates": 554,
   "preflight_commands": [
     [
       "node",
@@ -2750,6 +2750,10 @@
     [
       "node",
       "tests/build523-proofs-commands-tracked.cjs"
+    ],
+    [
+      "node",
+      "tests/build524-sealed-text-reuse.cjs"
     ]
   ]
 }

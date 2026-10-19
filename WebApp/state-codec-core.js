@@ -821,7 +821,20 @@
   // (members whose value is undefined, a function or a symbol are
   // left out of objects and written null in arrays; a value with toJSON is serialized whole).
   const STRINGIFY_STEP=256,STRING_PIECE=16384;
+  // Emulated phone (20k assets, every company): each save stringified the roots outside the collections whole, about
+  // 470K characters per save, a third of them in sealed values (final finance documents, ledger rows, proof
+  // checkpoints). A sealed value is deep-frozen plain data (GH_TRANSACTION_CORE.isSealed) and can never change, so its
+  // text is kept with it (by identity, released with it) and reused by every later save; the text is exactly
+  // JSON.stringify's, at any depth. Values under SEALED_TEXT_MIN characters are not kept.
+  const SEALED_TEXT=new WeakMap(),SEALED_TEXT_MIN=256,sealedTextStats={hits:0,stored:0};
   function* stringifySteps(value,depth=0){
+    const sealed=!!value&&typeof value==='object'&&globalThis.GH_TRANSACTION_CORE?.isSealed?.(value)===true;
+    if(sealed){const text=SEALED_TEXT.get(value);if(text!==undefined){sealedTextStats.hits++;return text;}}
+    const json=yield* stringifyValueSteps(value,depth);
+    if(sealed&&typeof json==='string'&&json.length>=SEALED_TEXT_MIN){SEALED_TEXT.set(value,json);sealedTextStats.stored++;}
+    return json;
+  }
+  function* stringifyValueSteps(value,depth){
     if(typeof value==='string'&&value.length>STRING_PIECE){
       const parts=[];let at=0;
       while(at<value.length){let end=Math.min(value.length,at+STRING_PIECE);if(end<value.length){const high=value.charCodeAt(end-1),low=value.charCodeAt(end);if(high>=0xD800&&high<=0xDBFF&&low>=0xDC00&&low<=0xDFFF)end--;}const part=JSON.stringify(value.slice(at,end));parts.push(part.slice(1,-1));at=end;yield;}
@@ -1143,7 +1156,7 @@
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 
-  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT},tracked:{...trackedStats,entries:TRACKED_TEXT.size,paths:TRACKED.size}}),registerTrackedCollection,valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
+  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT},tracked:{...trackedStats,entries:TRACKED_TEXT.size,paths:TRACKED.size},sealedText:{...sealedTextStats}}),registerTrackedCollection,valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
   globalThis.GH_STATE_CODEC=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_STATE_CODEC=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;
