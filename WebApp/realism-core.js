@@ -482,7 +482,7 @@
     for(;;){const left=at*2+1,right=left+1;let top=at;if(left<heap.length&&lessUrgent(heap[left],heap[top]))top=left;if(right<heap.length&&lessUrgent(heap[right],heap[top]))top=right;if(top===at)break;const swap=heap[at];heap[at]=heap[top];heap[top]=swap;at=top;}
     return entry;
   }
-  function settleChecks(acc,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){acc.due.push(entry.id);acc.restored+=100-entry.condition;acc.cost+=entry.cost;}}
+  function settleChecks(acc,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){acc.due.push(entry.id);acc.restored+=100-entry.condition;acc.cost+=entry.cost;}heap.length=0;}
   function maintenancePolicy(state,companyId){const policy=state.advanced?.companies?.[companyId]?.maintenancePolicy;return Object.prototype.hasOwnProperty.call(MAINTENANCE_POLICIES,policy)?policy:'standard';}
   function maintenanceVisitor(state){
     const companies=new Map(),owners=new Map(),checks=new Map();
@@ -494,10 +494,15 @@
     };
     return {visit,companies,finish:()=>{for(const acc of companies.values())settleChecks(acc,checks.get(acc));}};
   }
+  // A check writes the condition only, an engine column written in place. It also stamped lastMaintenanceAt, which nothing
+  // reads: a field outside the columns, so a checked row kept an extras entry for good (the slow path of every later
+  // scan; 500k rows all with one: the worker's day pass 436 -> 1,050 ms on desktop) and its chunk's identity version
+  // moved, so the first save after the close checked that chunk's static tables again (2.3 s for 30 chunks on iPhone).
+  // Worst-first spreads the checks over the fleet, so the stamp would have reached every chunk.
   function* runMaintenance(state,maintenance,day){
-    const r=migrate(state),fleet=fleetData(),F=globalThis.GH_FINANCE_CORE,stamp=Number(state.simSeconds)||0;r.maintenance=r.maintenance&&typeof r.maintenance==='object'?r.maintenance:{};r.maintenance.companies={};
+    const r=migrate(state),fleet=fleetData(),F=globalThis.GH_FINANCE_CORE;r.maintenance=r.maintenance&&typeof r.maintenance==='object'?r.maintenance:{};r.maintenance.companies={};
     for(const [companyId,acc] of maintenance.companies){
-      for(let i=0;i<acc.due.length;i+=MAINTENANCE_STEP){for(const id of acc.due.slice(i,i+MAINTENANCE_STEP))fleet.update(state,id,{condition:100,lastMaintenanceAt:stamp});yield 'realism.maintenance';}
+      for(let i=0;i<acc.due.length;i+=MAINTENANCE_STEP){for(const id of acc.due.slice(i,i+MAINTENANCE_STEP))fleet.update(state,id,{condition:100});yield 'realism.maintenance';}
       const cost=Math.round(acc.cost);if(cost>0&&F?.execute)F.execute({state},'accrue-expense',{company:companyId,amount:cost,note:`صيانة دورية لـ ${acc.due.length} ${acc.due.length===1?'أصل':'أصول'} · اليوم ${day}`,method:'فاتورة صيانة',taxable:true,dueDay:day+7,number:`MNT-${String(companyId).toUpperCase()}-${day}`,paymentTerms:7,counterparty:'شبكة الصيانة المعتمدة',line:'maintenance'});
       r.maintenance.companies[companyId]={day,policy:maintenancePolicy(state,companyId),threshold:acc.threshold,assets:acc.count,checks:acc.due.length,cost,avgCondition:acc.count?(acc.conditionSum+acc.restored)/acc.count:100};
     }

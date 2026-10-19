@@ -34,7 +34,7 @@
     for(;;){const left=at*2+1,right=left+1;let top=at;if(left<heap.length&&lessUrgent(heap[left],heap[top]))top=left;if(right<heap.length&&lessUrgent(heap[right],heap[top]))top=right;if(top===at)break;const swap=heap[at];heap[at]=heap[top];heap[top]=swap;at=top;}
     return entry;
   }
-  function settleChecks(maint,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){maint.due.push(entry.id);maint.restored+=100-entry.condition;maint.cost+=entry.cost;}}
+  function settleChecks(maint,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){maint.due.push(entry.id);maint.restored+=100-entry.condition;maint.cost+=entry.cost;}heap.length=0;}
   const INCIDENT_RATE=Object.freeze({air:.000044,sea:.000077,road:.00038});
   const PREMIUM_RATE=Object.freeze({air:.0035,sea:.006,road:.03});
   const INCIDENT_SAMPLE=64;

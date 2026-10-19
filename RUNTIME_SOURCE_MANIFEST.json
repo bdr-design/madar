@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "d8e99f7c28bd11527125c583e62bd3890d5fd0d29552ab6db0a4dea31b19f0fc",
-  "webapp_tree_sha256": "f7a2e90413db6e8e78f200adc5efd07818264ca5fe3aa900762641fb952d8110",
+  "source_tree_sha256": "21315f9a579e5d50ba8c55957e83dbc8290f56e7a1f3e5d81683f99d1600c487",
+  "webapp_tree_sha256": "7b577d3cdff983685e550f8f093a846f7a9659d857507f33f27af0c5d05a86b8",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3547,8 +3547,8 @@
       "sha256": "8e819fccfca5497b979fab68466b9a478d4deeedcac608b77a0e04637985b8d9"
     },
     "WebApp/fleet-day-core.js": {
-      "bytes": 20864,
-      "sha256": "ced98976f6c3869e5b89fa86fe788e9552b2a690e338a62780c4c1722010e53a"
+      "bytes": 20878,
+      "sha256": "49af60404278391e739ef626267674aaae7cb640b72f38ebef481eefb88f59d3"
     },
     "WebApp/fleet-dispatch-core.js": {
       "bytes": 21796,
@@ -3831,8 +3831,8 @@
       "sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106"
     },
     "WebApp/realism-core.js": {
-      "bytes": 118662,
-      "sha256": "26711a539e7f8e122295aff054c6aabd9f479370176e597a3d544aed523a1de3"
+      "bytes": 119195,
+      "sha256": "fba17cafe1f46b46338b36902ec2efdbc7cc0b5c98b66157268bbe38f6cb66ac"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "1eaf230d06d5e3f6f06d1fdf48d7c86c7b85fb2f58fefe71d1b6378e40f7e269"
+      "sha256": "e19b2413de009284a19615e0e6d5402f3014893cddee04d8b53a6b63b422d108"
     },
     "BUILD": {
       "bytes": 4,

@@ -126,5 +126,14 @@ assert.equal(unresolved.legacy,true,'missing serializable owner resolution is re
   assert.equal(indexBuffer.byteLength,0);assert.equal(valueBuffer.byteLength,0);assert.equal(moved.indices.length,fastCount);assert.equal(moved.exceptional.indices[0],total-1);assert.equal(moved.indices.buffer,moved.exceptional.indices.buffer);assert.equal(moved.values.buffer,moved.exceptional.values.buffer);assert.equal(moved.exceptional.values[0],Infinity);assert.equal(moved.exceptional.values[1],-Infinity);assert.ok(Object.is(moved.exceptional.values[2],-0));
 }
 
+// Worst-first over capacity with mixed conditions (owner decision, 19 Oct 2026): two owners past the 2,000 checks, tied
+// and distinct conditions, rows rejected once the heap is full, against the self-contained reference.
+const mixedAssets=[],levels=[55,60,70,75,79];
+for(let i=0;i<6000;i++){const owner=i%2?'mix-a':'mix-b',c=i%7===0?55+((i*7919)%2500)/100:levels[(i*31)%levels.length];mixedAssets.push({id:`DAY-MIX-${String(i).padStart(4,'0')}`,ownerCompanyId:owner,assetMode:'road',ownership:'owned',purchasePrice:5000+(i*37)%9000,condition:c,phase:'idle'});}
+{const policies=[['mix-a','preventive'],['mix-b','preventive']],state=makeState(mixedAssets),expected=reference(state,ownerResolution,policies),actual=DAY.compute(state,FLEET,{ownerResolution,maintenancePolicies:policies,storeApi:STORE});
+  exact(actual.maintenance,expected.maintenance,'mixed.maintenance');for(const [owner,row] of actual.maintenance)assert.equal(row.due.length,2000,`${owner}: the capacity is used`);
+  const a=actual.maintenance.find(([owner])=>owner==='mix-a')[1],rows=new Map(mixedAssets.map((row,i)=>[row.id,{c:row.condition,i}])),chosen=a.due.map(id=>rows.get(id));
+  assert.ok(chosen.every((row,k)=>k===0||row.i>chosen[k-1].i),'due in row order');const worst=Math.max(...chosen.map(row=>row.c));assert.ok(mixedAssets.filter((row,i)=>i%2&&!a.due.includes(row.id)).every(row=>row.condition>=worst),'no unchosen row is worse than a chosen one');}
+
 console.log(JSON.stringify({suite:'build372-fleet-day-core',rows:baseAssets.length,airRows:safe.columns.totalCount,owners:safe.ownerTotals.length,exceptionalRows:unsafe.columns.exceptionalRows}));
 console.log('BUILD372_FLEET_DAY_CORE_PASS');
