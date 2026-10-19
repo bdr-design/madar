@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: time crosses an hour boundary at the supported maximum speed
+    at /Users/runner/work/madar/madar/tests/build359-save-policy-browser.cjs:67:108 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
