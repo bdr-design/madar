@@ -59,10 +59,12 @@ function installVault(){
     await page.evaluate(()=>__AUDIT__.save());await settle();
     const first=await commits();assert.equal(first,1,'one baseline save');
 
-    // Live play at the top speed with map changes: no save.
+    // Live play at the top speed with map changes: no save. A live slice writes its time in its first stage and commits
+    // in a later one; pausing cancels a slice still in flight and rolls its time back (the macOS gate once read 3,900 s
+    // there and kept 3,600 s), so the crossing is read once committed.
     const live=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length,from=__GH_STATE__.simSeconds;a.setSpeed(3);
       for(const mode of ['network','expansion','operations']){document.querySelector(`.map-modes [data-map-mode="${mode}"]`)?.click();await new Promise(r=>setTimeout(r,1200));}
-      document.querySelector('#layerMenu button')?.click();const deadline=performance.now()+25000;while(__GH_STATE__.simSeconds<=from+3600&&performance.now()<deadline)await new Promise(r=>setTimeout(r,50));a.setSpeed(0);return {saves:__VAULT__.commits.length-before,sim:__GH_STATE__.simSeconds,advanced:__GH_STATE__.simSeconds-from};});
+      document.querySelector('#layerMenu button')?.click();const deadline=performance.now()+25000;while((__GH_STATE__.simSeconds<=from+3600||GH_TRANSACTION_CORE.isStaged(__GH_STATE__))&&performance.now()<deadline)await new Promise(r=>setTimeout(r,50));a.setSpeed(0);return {saves:__VAULT__.commits.length-before,sim:__GH_STATE__.simSeconds,advanced:__GH_STATE__.simSeconds-from};});
     await settle();
     assert.equal(live.saves,0,`live play with map changes does not save (${JSON.stringify(live)})`);assert.ok(live.advanced>3600,'time crosses an hour boundary at the supported maximum speed');
 
