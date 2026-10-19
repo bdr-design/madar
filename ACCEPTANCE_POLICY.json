@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 548,
+  "minimum_acceptance_gates": 550,
   "preflight_commands": [
     [
       "node",
@@ -2730,6 +2730,14 @@
     [
       "node",
       "tests/build518-maintenance-worst-first.cjs"
+    ],
+    [
+      "node",
+      "tests/build519-idempotency-tracked.cjs"
+    ],
+    [
+      "node",
+      "tests/build520-map-aggregate-threshold-browser.cjs"
     ]
   ]
 }
