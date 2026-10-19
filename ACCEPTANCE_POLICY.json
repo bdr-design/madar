@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 539,
+  "minimum_acceptance_gates": 540,
   "preflight_commands": [
     [
       "node",
@@ -2694,6 +2694,10 @@
     [
       "node",
       "tests/build509-realtime-health-layout.cjs"
+    ],
+    [
+      "node",
+      "tests/build510-validation-cache-reasons.cjs"
     ]
   ]
 }

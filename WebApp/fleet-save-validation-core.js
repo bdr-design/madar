@@ -96,7 +96,7 @@
   const LIVE_FIELDS=Object.freeze(['assetMode','type','ownerCompanyId','companyId',...LIVE_ONLY]);
   const STATIC_FIELDS=Object.freeze(FIELDS.filter(field=>!LIVE_ONLY.includes(field)));
   const ROW_ORDER=new Map([...ENTITY_TEXT_FIELDS.map(([key])=>`display-text-assets-${key}`),...ENTITY_NUMBER_FIELDS.map(key=>`display-number-assets-${key}`),'display-attribute-assets-id','display-attribute-assets-name','display-image-assets-photo','display-coords-assets','asset-shape','asset-phase','asset-progress','asset-fuel','asset-condition','asset-route-reference','asset-route-required','asset-route-company'].map((code,at)=>[code,at]));
-  const staticCache=new WeakMap();let staticStats={chunksChecked:0,chunksReused:0,lastChecked:0,lastReused:0,cacheable:null};
+  const staticCache=new WeakMap();let staticStats={chunksChecked:0,chunksReused:0,lastChecked:0,lastReused:0,cacheable:null,lastReset:'',lastMiss:null};
   function knownModeOf(context,asset,mode,owner){return ROUTE_TYPES.has(mode)||Boolean(context.legacyOwners[mode])||(dataId(mode)&&owner&&context.registryCompanies.has(owner));}
   function staticChunk(state,fleet,context,from,to){
     const codes=new Map(),company=[],companySet=new Set();let overflow=false;
@@ -135,16 +135,20 @@
     const rows=STORE.CHUNK_ROWS,count=Math.ceil(store.length/rows),versions=STORE.staticSnapshot(store).identity,inspector=globalThis.GH_IDENTITY?.inspectPlainText||null;
     const stamp=`${STORE.epoch(store)}:${STORE.chunkStamp(store).chunkMass}`;
     let cache=staticCache.get(store);
-    if(!cache||cache.stamp!==stamp||cache.contextToken!==context.contextToken||cache.inspector!==inspector){cache={stamp,contextToken:context.contextToken,inspector,chunks:[]};staticCache.set(store,cache);}
+    // iPhone diagnostic DX-1792378248326: the first command after a day close re-checked all 30 chunks (2.3 s on the
+    // worker) and nothing said why. The reason is kept with the existing counters (no extra pass): which part of the
+    // cache key moved, and for each re-checked chunk whether its identity version, bounds or interned values changed.
+    let reset='';if(!cache)reset='empty';else if(cache.stamp!==stamp)reset=cache.stamp.split(':')[0]!==stamp.split(':')[0]?'epoch':'chunk-mass';else if(cache.contextToken!==context.contextToken)reset='context';else if(cache.inspector!==inspector)reset='inspector';
+    if(reset){cache={stamp,contextToken:context.contextToken,inspector,chunks:[]};staticCache.set(store,cache);}
     if(cache.chunks.length>count)cache.chunks.length=count;
-    const tables=[];let checked=0,reused=0;
+    const tables=[],miss={version:0,bounds:0,refs:0,new:0};let checked=0,reused=0;
     for(let chunk=0;chunk<count;chunk++){
       const from=chunk*rows,to=Math.min(store.length,from+rows);let entry=cache.chunks[chunk];
       if(entry&&entry.version===versions[chunk]&&entry.from===from&&entry.to===to&&entry.refs&&entry.refs.every(([ref,value])=>store.values[ref]===value))reused++;
-      else{entry={version:versions[chunk],from,to,...staticChunk(state,fleet,context,from,to)};cache.chunks[chunk]=entry;checked++;}
+      else{miss[!entry?'new':entry.version!==versions[chunk]?'version':entry.from!==from||entry.to!==to?'bounds':'refs']++;entry={version:versions[chunk],from,to,...staticChunk(state,fleet,context,from,to)};cache.chunks[chunk]=entry;checked++;}
       tables.push(entry);
     }
-    staticStats.chunksChecked+=checked;staticStats.chunksReused+=reused;staticStats.lastChecked=checked;staticStats.lastReused=reused;
+    staticStats.chunksChecked+=checked;staticStats.chunksReused+=reused;staticStats.lastChecked=checked;staticStats.lastReused=reused;staticStats.lastReset=reset;staticStats.lastMiss=miss;
     return tables;
   }
   function summarize(state,fleet,params={}){
