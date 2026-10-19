@@ -281,6 +281,10 @@
   }
   // Cooperative durable-draft copy. The caller owns the live-state lock throughout; the journaled fleet and sealed
   // records follow the same sharing rules as deepClone. Each yield is outside a measured synchronous slice.
+  // iPhone diagnostic DX-1792378248326: a command's copy ran 4 ms per frame and then waited for the next frame, so
+  // 72-79% of cloneMs (111-506 ms) was waiting. A durable command holds the lifecycle lock (no simulation slice or
+  // marker work shares its frames), so its copy takes up to 8 ms of each frame; ordinary background saves keep 4 ms.
+  const DURABLE_CLONE_SLICE_MS=8;
   async function deepCloneInSlices(value,{shareJournaledRoots=false,shareSealed=shareJournaledRoots,yieldToHost,budgetMs=4,onSlice=null}={}){
     if(typeof yieldToHost!=='function')return deepClone(value,{shareJournaledRoots,shareSealed});
     const initialStarted=runtimeClock(),seen=new Map(),keys=Object.keys(value),source={},targets=new Map(),roots=new Map();
@@ -939,7 +943,7 @@
       const yieldToHost=options.yieldToHost||options.persistence?.yieldToFrame;
       durableTiming.cloneBusyMs=0;durableTiming.cloneMaxSliceMs=0;durableTiming.cloneYields=0;
       const onSlice=(started,ended)=>{const busy=Math.max(0,ended-started);durableTiming.cloneBusyMs+=busy;durableTiming.cloneMaxSliceMs=Math.max(durableTiming.cloneMaxSliceMs,busy);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(liveState,'command.clone',started,ended);};
-      if(typeof yieldToHost==='function')draft=await deepCloneInSlices(liveState,{shareJournaledRoots:true,yieldToHost:async()=>{durableTiming.cloneYields++;await yieldToHost();},onSlice});
+      if(typeof yieldToHost==='function')draft=await deepCloneInSlices(liveState,{shareJournaledRoots:true,budgetMs:DURABLE_CLONE_SLICE_MS,yieldToHost:async()=>{durableTiming.cloneYields++;await yieldToHost();},onSlice});
       else{const started=runtimeClock();try{draft=deepClone(liveState,{shareJournaledRoots:true});}finally{onSlice(started,runtimeClock());}}
       context.draft=draft;lap('cloneMs');
       try{globalThis.GH_SAVE_SCHEMA?.inheritVerified?.(liveState,draft);}catch(_error){/* trust is an optimisation */}
@@ -974,5 +978,5 @@
       throw error;
     }finally{if(!durableCommitted&&rootSessions.length)try{rollbackJournaledRoots(rootSessions);}catch{}if(globalThis.__GH_DURABLE_COMMAND_CONTEXT__===context)delete globalThis.__GH_DURABLE_COMMAND_CONTEXT__;durableTargets.delete(liveState);}
   }
-  const API=Object.freeze({VERSION,changeTracking:changeState.api,moneyGuard:MONEY_GUARD,validateSchemaInSlices,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,DURABLE_CLONE_SLICE_MS,changeTracking:changeState.api,moneyGuard:MONEY_GUARD,validateSchemaInSlices,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

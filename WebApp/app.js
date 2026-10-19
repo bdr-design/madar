@@ -1133,7 +1133,7 @@
       window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft:null};
       timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;
       const onCloneSlice=(started,ended)=>{workStarted=started;const busy=Math.max(0,ended-started);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.clone',started,ended);};
-      if(transactionCore?.deepCloneInSlices)draft=await transactionCore.deepCloneInSlices(state,{shareJournaledRoots:true,yieldToHost:async()=>{timing.cloneYields++;await yieldForInteractivePaint(document.hidden?0:80);},onSlice:onCloneSlice});
+      if(transactionCore?.deepCloneInSlices)draft=await transactionCore.deepCloneInSlices(state,{shareJournaledRoots:true,budgetMs:transactionCore.DURABLE_CLONE_SLICE_MS||4,yieldToHost:async()=>{timing.cloneYields++;await yieldForInteractivePaint(document.hidden?0:80);},onSlice:onCloneSlice});
       else{const started=clockNow();try{draft=transactionCore?.deepClone?transactionCore.deepClone(state,{shareJournaledRoots:true}):clone(state);}finally{onCloneSlice(started,clockNow());}}lap('cloneMs');
       traceMainThreadWork('command.inherit',()=>window.GH_SAVE_SCHEMA?.inheritVerified?.(state,draft));const runtime=traceMainThreadWork('command.routes',()=>routeRuntimeForState(draft)),previousRevision=Math.max(0,Math.floor(Number(state.saveRevision)||0));lap('prepareMs');
       const fleetMutationContext=fleetMutationSession?Object.freeze({client:fleetMutationClient,session:fleetMutationSession,store:draft.fleet,flush(){return fleetMutationClient.flushMutation(fleetMutationSession,draft.fleet);},finish(){return fleetMutationClient.finishMutation(fleetMutationSession,draft.fleet);}}):null;

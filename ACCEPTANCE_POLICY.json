@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 533,
+  "minimum_acceptance_gates": 534,
   "preflight_commands": [
     [
       "node",
@@ -2670,6 +2670,10 @@
     [
       "node",
       "tests/build503-recorder-stage-names-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build504-durable-clone-budget.cjs"
     ]
   ]
 }
