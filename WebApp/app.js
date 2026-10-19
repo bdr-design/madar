@@ -2547,7 +2547,10 @@
   // Build 358 (million-asset): above MAP_AGGREGATE_ASSETS the map reads the fleet from classes of rows (exact counts,
   // one cached class scan per fleet revision) instead of one view per asset. Only the vehicles drawn (one per owner and
   // route, round robin across owners) and the selected asset get views.
-  const MAP_AGGREGATE_ASSETS=20000;
+  // Owner decision (emulated phone, 4x CPU, median structural render): one view per asset cost 41 ms at 2,000 assets,
+  // 93 ms at 5,000 and 234 ms at 20,000, while classes stayed at 19-36 ms; the two are even near 1,000. Above 1,000
+  // assets the map draws one vehicle per owner, base and route.
+  const MAP_AGGREGATE_ASSETS=1000;
   const MAP_CLASS_FIELDS=Object.freeze(['ownerCompanyId','companyId','assetMode','type','baseFacility','routeId','reverse','phase','simulationFault']);
   function mapAggregateMode(){return (window.GH_FLEET_DATA.size(state)||0)>MAP_AGGREGATE_ASSETS;}
   // Build 372: the fleet's classes over MAP_CLASS_FIELDS for the map and its status line (routes in motion, parked assets
