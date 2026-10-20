@@ -42,7 +42,7 @@ const fields=JSON.parse(read('save-schema.js').match(/FLEET_VALIDATION_FIELDS=Ob
         const expected=mainClasses(),ok=same(found.rows,expected.rows)&&same(found.ids,expected.ids);log.push({label,classes:expected.rows.length,ids:expected.ids,ok});
         if(!ok)throw new Error(`${label}: classes differ`);return found;
       };
-      client.prime(store);await new Promise(resolve=>setTimeout(resolve,200));
+      client.prime(store);for(let wait=0;wait<600&&!client.replicaReady(store);wait++)await new Promise(resolve=>setTimeout(resolve,50));if(!client.replicaReady(store))throw new Error('worker-replica-not-ready');
       await compare('initial');
       // Writes just before the request: faults, a NaN, extras, removals.
       const rows=live();STORE.set(store,rows[10],'condition',150);STORE.set(store,rows[20],'progress',NaN);STORE.set(store,rows[30],'id',STORE.idAt(store,rows[31]));STORE.set(store,rows[40],'city','Jeddah <b>');STORE.removeMany(store,[rows[50],rows[51]]);

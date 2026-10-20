@@ -38,7 +38,7 @@ const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-work
         const expected=Q.run(name,state,DATA,{...params,legacyOwner}),ok=same(found.result,expected);
         log.push({label,ok,size:name==='dispatchEligible'?expected.indices.length:name==='routeCards'?expected.cards.length:name==='routeCenter'?expected.manualAssets.length:expected.sum});if(!ok)throw new Error(`${label}: differs`);
       };
-      client.prime(store);await new Promise(resolve=>setTimeout(resolve,1000));
+      client.prime(store);for(let wait=0;wait<600&&!client.replicaReady(store);wait++)await new Promise(resolve=>setTimeout(resolve,50));if(!client.replicaReady(store))throw new Error('worker-replica-not-ready');
       const live=()=>{const out=[];for(let i=0;i<store.length;i++)if(STORE.isAlive(store,i))out.push(i);return out;};
       const rows=live();for(const index of rows.slice(100,400))STORE.set(store,index,'routeId',null);STORE.set(store,rows[500],'salePending',true);STORE.removeMany(store,[rows[600],rows[601]]);
       for(const [companyId,type] of [['road','road'],['air','air'],['sea','sea']]){

@@ -57,7 +57,7 @@ const server=http.createServer((request,response)=>{
       const staleState=build(),staleAsked=client.dispatchPlan(staleState.fleet,{input});
       // The client is bound to one current store; bring the worker to the new store first if the direct request is refused.
       let staleFound=staleAsked&&await staleAsked;
-      if(!staleFound){client.prime(staleState.fleet);await new Promise(resolve=>setTimeout(resolve,20));const retry=client.dispatchPlan(staleState.fleet,{input});staleFound=retry&&await retry;}
+      if(!staleFound){client.prime(staleState.fleet);for(let wait=0;wait<600&&!client.replicaReady(staleState.fleet);wait++)await new Promise(resolve=>setTimeout(resolve,50));if(!client.replicaReady(staleState.fleet))throw new Error('worker-replica-not-ready');const retry=client.dispatchPlan(staleState.fleet,{input});staleFound=retry&&await retry;}
       if(!staleFound)throw new Error('stale-plan-setup-failed');
       const staleBefore=STORE.readRows(staleState.fleet,staleFound.plan.indices),staleJournal=STORE.beginJournal(staleState.fleet);STORE.set(staleState.fleet,COUNT-1,'condition',71);let staleRejected=false;
       try{DISPATCH.applyStages(staleState,staleFound.plan,input).next();}catch(error){staleRejected=/fleet-dispatch-plan-stale:revision/.test(String(error?.message||error));}
