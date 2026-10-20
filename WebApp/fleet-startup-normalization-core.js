@@ -37,7 +37,6 @@
     return {found:found&&value!==null&&value!==undefined,value};
   }
   const dependencyKey=(type,id)=>JSON.stringify([type===undefined?['undefined']:['value',type],id===undefined?['undefined']:['value',id]]);
-  function recordCatalog(table,catalog,row){const key=dependencyKey(row?.type,row?.catalogId);if(table.has(key))return;const resolved=catalogResult(catalog,row);table.set(key,{type:copy(row?.type),catalogId:copy(row?.catalogId),found:resolved.found,specs:resolved.found?copy(resolved.value):null});}
 
   // Verbatim equivalent of app.js' startupPatch.  In particular it does not
   // apply route.speedFactor; changing that here would alter an in-flight

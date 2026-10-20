@@ -464,7 +464,7 @@
   // type, company, depth, content digest and authorization digest. A document is sealed only when it verifies whole now,
   // when it is the one canonical copy in the audit archive, and when no kept document, ledger row or other record still
   // carries its proof or an earlier version of it. Everything is prepared before the store is published.
-  const SEAL_FIELDS=Object.freeze(['id','documentId','documentType','companyId','chainDepth','contentDigest','authorizationProofId','authorizationDigest','createdAtSim','period']),SEAL_KEYS=[...SEAL_FIELDS].sort().join(',');
+  const SEAL_FIELDS=Object.freeze(['id','documentId','documentType','companyId','chainDepth','contentDigest','authorizationProofId','authorizationDigest','createdAtSim','period']);
   const sealEntry=row=>SEAL_FIELDS.map(field=>row[field]??null),sealDigest=row=>rowDigest(row,sealEntry);
   function heldAuthorizationDigest(state,record){
     if(record.form===ARCHIVED_FORM_V2)return record.authorizationDigest??null;if(!record.authorizationProofId)return null;

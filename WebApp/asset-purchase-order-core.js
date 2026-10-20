@@ -22,7 +22,6 @@
   const normalizedPrefix=value=>String(value||'ID').replace(/[^A-Z0-9_-]/gi,'').toUpperCase()||'ID';
   const formatted=(prefix,number,width=8)=>`${prefix}-${String(number).padStart(width,'0')}`;
   const countOf=delivery=>{if(delivery?.assetReceipt?.schema==='gh-asset-receipt-v1')return Math.max(0,Math.floor(Number(delivery.assetReceipt.count)||0));if(Array.isArray(delivery?.assets))return delivery.assets.length;if(delivery?.asset)return 1;return Math.max(0,Math.floor(Number(delivery?.count)||0));};
-  const ownerModeKey=(owner,mode)=>`${String(owner)}\u0000${String(mode)}`;
 
   function contextRows(deliveries,facilities){
     const pending=(Array.isArray(deliveries)?deliveries:[]).filter(row=>row?.status==='pending').map(row=>({id:String(row.id||''),status:'pending',baseId:String(row.baseId||''),count:countOf(row),ownerCompanyId:String(row.ownerCompanyId||row.companyId||''),assetMode:String(row.assetMode||row.type||'')}));

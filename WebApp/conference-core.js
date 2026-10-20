@@ -117,7 +117,6 @@ function payrollBase(s,company,definition=null,fleetView=null){
  for(const c of contracts){const count=Math.max(1,Math.floor(Number(c.count)||1)),isExecutive=!!c.candidateId||String(c.role||'')!=='تشغيل منشأة';if(isExecutive){amount+=pos(c.salary)/12;headcount+=1;}else{amount+=pos(c.salary)*count;headcount+=count;}}
  return {amount:Math.round(amount*salaryMultiplier(s,company)),baseAmount:Math.round(amount),headcount,multiplier:salaryMultiplier(s,company)};
 }
-function reportRowsForYear(s,year){const start=Math.floor((Date.UTC(year,0,1)-EPOCH)/DAY),end=Math.floor((Date.UTC(year+1,0,1)-EPOCH)/DAY)-1;return (s.finance?.dailyCompanyReports||[]).filter(r=>Number(r?.day)>=start&&Number(r?.day)<=end);}
 function aggregateYear(s,type,year){return globalThis.GH_FINANCE_CORE.annualPerformance(s,type,year);}
 function comparableGrowth(current,prior){return {revenue:current.complete&&prior.complete?pctChange(current.grossRevenue,prior.grossRevenue):null,net:current.complete&&prior.complete?pctChange(current.net,prior.net):null};}
 function standaloneLogoCheck(value){

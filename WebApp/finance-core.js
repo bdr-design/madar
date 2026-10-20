@@ -132,17 +132,6 @@ function isZeroFinancePlaceholder(book){
  if(numeric.some(value=>value!==undefined&&value!==null&&(!Number.isFinite(Number(value))||Math.abs(Number(value))>.000001)))return false;
  return accounts.length>0&&(!Array.isArray(book.ledger)||book.ledger.length===0)&&(!Array.isArray(book.auditTrail)||book.auditTrail.length===0);
 }
-function pruneOrphanFinanceBooks(s){
- const books=s.companyFinance&&typeof s.companyFinance==='object'&&!Array.isArray(s.companyFinance)?s.companyFinance:null;if(!books)return;
- const active=new Set((platformInstances(s)||[]).map(row=>String(row?.id||'')).filter(Boolean));
- for(const id of Object.keys(books)){
-  if(active.has(id))continue;
-  // Build 332/333 persisted zero placeholders for unfounded built-in sectors.
-  // They are safe to discard; any non-zero or recorded orphan is a hard stop.
-  if(isZeroFinancePlaceholder(books[id])){delete books[id];continue;}
-  throw new Error(`finance-company-orphan:${id}`);
- }
-}
 // The legacy first-book allocation is a one-time load migration.  It used to
 // call fleet.count once for every opened company, so C companies caused C full
 // fleet passes (and C sets of row views) before the first frame.  Ownership is

@@ -60,7 +60,6 @@
     const row=(Array.isArray(globalThis.GH_MAP_LABELS)?globalThis.GH_MAP_LABELS:[]).find(item=>item?.name===name);
     return Number(row?.population)>0?Number(row.population):DEFAULT_POPULATION;
   }
-  const blankLine=()=>({policies:0,newToday:0,lapsedToday:0,claimsToday:0,claimsCountToday:0,premiumToday:0});
   function officeTemplate(p={}){
     const lines={};for(const id of LINE_IDS){const row=p.lines?.[id]||{};lines[id]={policies:Math.max(0,Math.floor(Number(row.policies)||0)),newToday:Math.max(0,Math.floor(Number(row.newToday)||0)),lapsedToday:Math.max(0,Math.floor(Number(row.lapsedToday)||0)),claimsToday:num(row.claimsToday),claimsCountToday:Math.max(0,Math.floor(Number(row.claimsCountToday)||0)),premiumToday:num(row.premiumToday)};}
     return {id:String(p.id||''),facilityId:String(p.facilityId||''),city:String(p.city||'غير محدد'),country:String(p.country||'غير محدد'),openedAt:Number(p.openedAt)||0,active:p.active!==false,marketPopulation:Number(p.marketPopulation)>0?Number(p.marketPopulation):0,lines,campaignUntil:Math.max(0,Math.floor(Number(p.campaignUntil)||0)),campaigns:Math.max(0,Math.floor(Number(p.campaigns)||0)),campaignSpend:num(p.campaignSpend),today:p.today&&typeof p.today==='object'?{...p.today}:null};

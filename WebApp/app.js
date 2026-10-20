@@ -41,7 +41,6 @@
     cheque:new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'})
   });
   const fmtNumber = value => ARABIC_INTEGER_FORMAT.format(value || 0);
-  const fmtStars = value => { const full=Math.round(clamp(value,0,5)*2)/2; let s=''; for(let i=1;i<=5;i++){ s += i<=full?'★':(i-0.5===full?'⯨':'☆'); } return s; };
   const APP_VERSION = '3.0.0';
   // مؤشر تشخيص حقيقي: هذا الرقم مضمّن داخل app.js نفسه (وليس ملف إعداد منفصل)، فيظهر على الشاشة
   // بالضبط ما يشغّله الجهاز فعليًا الآن. إذا لم يطابق آخر رقم BUILD مرفوع، فهذا دليل قاطع أن نسخة
@@ -56,7 +55,7 @@
   let durableCommandInProgress=false;
   let assetPurchaseHolds=0; // Build 373: asset orders being quoted; the simulation is suspended meanwhile (buyAsset).
   let diagnosticExportTail=Promise.resolve();window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__=false;
-  let mapInteractionActive=false,lastMarkerFrameAt=0,lastHudRefreshAt=0,lastMapStructureSignature='',visualResyncRequested=false;
+  let mapInteractionActive=false,lastMarkerFrameAt=0,lastMapStructureSignature='',visualResyncRequested=false;
   const markerMotionStates=new Map();let markerVisualCarry=new Map();
   const legacyStorageKeys = ['global-holdings-world-v2.0.0','global-holdings-world-v1.2.0','global-holdings-world-v1.1.0','global-holdings-premium-v1.0.0','global-holdings-clean-v0.1.2'];
   const SIM_START = Date.UTC(2026, 0, 1, 0, 0, 0);
@@ -677,7 +676,6 @@
   state.mapFilterState=clone(currentMapFilter(state));state.showCompetitors=Boolean(state.mapFilterState.market.competitors);
   const mapCompanyVisible=(companyId,target=state)=>MAP_FEATURE_CORE.companyVisible(currentMapFilter(target),companyId,{state:target,companyPlatform:COMPANY_PLATFORM});
   const mapCategoryVisible=(category,target=state)=>MAP_FEATURE_CORE.categoryVisible(currentMapFilter(target),category);
-  const mapLayerVisible=(category,companyId=null,layerId='runtime',target=state,market=null)=>MAP_FEATURE_CORE.layerVisible(currentMapFilter(target),{id:layerId,category,companyId,market,defaultVisible:true},{state:target,companyPlatform:COMPANY_PLATFORM});
   const companyFinanceName=type=>window.GH_IDENTITY?.legalName?.(state,type)||(type==='group'?state.profile.name:(state.companyRegistry?.[type]?.legalName||typeName(type)));
   function ensureCompanyFinance(){return window.GH_FINANCE_CORE?.ensure?.(state);}
   function companyBook(type='group'){return window.GH_FINANCE_CORE.book(state,type);}
@@ -1297,11 +1295,6 @@
     else if(result===false&&String(name).startsWith('bulk-shared-departure:'))window.GH_DIAGNOSTICS?.annotateLastAssetDepartureTrace?.(state,commandName,{performance:departurePerformanceSnapshot(startedAtMs,commandName)});
     return result;}catch(error){if(String(name).startsWith('bulk-shared-departure:')){const companyId=String(name.split(':').at(-1)||''),type=companyRouteModes(companyId).find(value=>['air','sea','road'].includes(value))||'unknown',code=String(error?.code||error?.message||'automatic-dispatch-rejected').slice(0,120),planner=error?.assetDepartureTrace?.planner;recordAssetDepartureTrace({source:'automatic-network-planning',blocked:1,reasonCounts:{[code]:1},modeCounts:{[type]:1},error:code,planner,performance:departurePerformanceSnapshot(startedAtMs,commandName),samples:[{outcome:'blocked',mode:type,reasonCode:code,planner,commandName,performance:departurePerformanceSnapshot(startedAtMs,commandName)}],simSeconds:Number(state.simSeconds)||0});}throw error;}
   }
-  function runBusinessOperation(name,apply){
-    const tx=window.GH_TRANSACTION_CORE;
-    try{return (tx.isActive()?tx.join:tx.execute)(state,{label:name,apply:()=>{const value=apply();if(value===false)throw new Error(name+'-rejected');return value;}}).value;}
-    catch(error){console.warn('Business operation rolled back',name,error);if(!tx.isActive())notice('تعذر إكمال العملية؛ تم التراجع عن أثرها: '+String(error.message||error));return false;}
-  }
   const deferredStagedAlerts=new Set();let deferredStagedAlertFlush=false;const deferredDurableAlerts=[];let deferredDurableAlertFlush=false;
   function pushAlert(text){
     // A UI notification is a domain write too. Queue one bounded flush through the existing staged lifecycle;
@@ -1329,7 +1322,6 @@
     return true;
   }
   const validMoney = amount => Number.isFinite(Number(amount)) && Number(amount)>=0;
-  const operatingBalance = () => companyOperatingBalance('group');
   const canSpend = amount => canCompanySpend('group',amount);
   const pendingInteractionNotices=new Set();
   window.GH_INTERACTION_NOTICE=text=>{
@@ -1599,11 +1591,6 @@
     return routeBearing(currentAssetRoute(asset),asset.phase==='turnaround'?1:asset.progress);
   }
   // ---- أيقونات مركبات حقيقية (خطوط علوية بسيطة، مو رموز إيموجي) تدور فعليًا باتجاه السير ----
-  const VEHICLE_SVG = {
-    air: '<svg viewBox="0 0 24 24"><path d="M12 1 L14 9 L22 13 L22 15 L14 13 L13 20 L17 22 L17 23 L12 22 L7 23 L7 22 L11 20 L10 13 L2 15 L2 13 L10 9 Z"/></svg>',
-    sea: '<svg viewBox="0 0 24 24"><path d="M12 2 L14 9 L14 15 L20 15 L17 21 L7 21 L4 15 L10 15 L10 9 Z"/></svg>',
-    road:'<svg viewBox="0 0 24 24"><path d="M3 8 H13 L17 12 H19 V16 H3 Z"/><circle cx="6" cy="17" r="1.7"/><circle cx="16" cy="17" r="1.7"/></svg>'
-  };
   const VEHICLE_MARKER_PHOTOS={air:'assets/images/map-aircraft-topdown.png',sea:'assets/images/map-container-ship-topdown.png',road:'assets/images/map-truck-topdown.png',mobility:'assets/images/map-mobility-sedan-topdown.webp'};
   function markerKind(type){return type==='air'?'air':type==='sea'?'sea':type==='mobility'?'mobility':'road';}
   // صورنا العلوية كلها موجّهة إلى أعلى؛ لا تضف انحرافًا خاصًا للشاحنة.
@@ -2089,7 +2076,7 @@
       try{if(typeof requestAnimationFrame==='function')requestAnimationFrame(resume);else resume();}catch(_error){resume();}
     });
   }
-  const yieldFleetPlanning=yieldToEventLoop,DISPATCH_CHUNK=500,FLEET_DISPATCH_FRAME_BUDGET_MS=6,FLEET_PROJECTION_MAX_ROWS=256;
+  const yieldFleetPlanning=yieldToEventLoop,FLEET_DISPATCH_FRAME_BUDGET_MS=6,FLEET_PROJECTION_MAX_ROWS=256;
   // Materializing the bounded 20k dispatch page is still enough work to miss several frames when it is expressed as
   // Array.map/filter chains.  Every projection below uses this owner: it checks the clock after every row and also has
   // a hard row ceiling, so cheap rows cannot accidentally make one long task merely because the clock is coarse.
@@ -2212,29 +2199,15 @@
       return seen.size===input.assets.length&&planned.size===input.assets.length;
     }catch(_error){return false;}
   }
-  // Build 372: a fleet-query-core pass over every row of `s.fleet` (the live store, or a draft sharing it): found by the
-  // fleet engine's worker on a replica that is exactly that store (and still describing it when it arrives), else run
-  // here with the company platform's legacy owner table. Both run the same code on the same rows.
-  async function fleetQuery(s,name,params){
-    const client=fleetEngineThreadClient,store=s?.fleet;
-    if(client&&!client.disabled&&typeof client.query==='function'&&window.GH_FLEET_STORE?.isStore?.(store)){
-      const asked=client.query(store,{name,params,simSeconds:s.simSeconds});
-      if(asked){const found=await asked;if(found&&client.current(found,store)){fleetQueryStats.worker++;return found.result;}}
-    }
-    fleetQueryStats.main++;
-    return window.GH_FLEET_QUERY.run(name,s,window.GH_FLEET_DATA,{...params,legacyOwner:mode=>COMPANY_PLATFORM.ownerForLegacyAssetMode?.(mode)});
-  }
   async function fleetDispatchQuery(s,name,params){
     const client=fleetEngineThreadClient,store=s?.fleet,large=window.GH_FLEET_DATA.size(s)>=FLEET_THREAD_EARLY_ROWS;
     if(client&&!client.disabled&&typeof client.query==='function'&&window.GH_FLEET_STORE?.isStore?.(store)){
       const asked=client.query(store,{name,params,simSeconds:s.simSeconds});
-      if(asked){const found=await asked;if(found&&client.current(found,store)){fleetQueryStats.worker++;return found.result;}if(large)throw new Error('fleet-dispatch-query-stale');}
+      if(asked){const found=await asked;if(found&&client.current(found,store))return found.result;if(large)throw new Error('fleet-dispatch-query-stale');}
       else if(large)throw new Error('fleet-dispatch-worker-not-ready');
     }else if(large)throw new Error('fleet-dispatch-worker-unavailable');
-    fleetQueryStats.main++;
     return window.GH_FLEET_QUERY.run(name,s,window.GH_FLEET_DATA,{...params,legacyOwner:mode=>COMPANY_PLATFORM.ownerForLegacyAssetMode?.(mode)});
   }
-  const fleetQueryStats={worker:0,main:0};
   // The network planner (GH_AIR_SEA_NETWORK_CORE) plans at most 20,000 assets per call.
   const SHARED_DISPATCH_LIMIT=20000;
   async function dispatchSharedInternationalNetwork(companyInput,navigationRevision=drawerNavigationRevision){
@@ -2470,24 +2443,6 @@
     if(needFine&&!group.fine)group.fine=worldInfrastructureLatitudeBands(group.rows,2,filter);
     if(!needFine&&!group.majorIndices)group.majorIndices=worldInfrastructureMajorIndexes(group.rows,filter);
     return group;
-  }
-  // Build 358: the view holds more airports or ports than are drawn. Taking the first rows in file order filled the
-  // map with one region and left the rest (Riyadh, Dubai) empty, so the drawn ones are spread over a 12×8 grid of
-  // the view, one per cell per round.
-  function spreadInfrastructure(indexes,coordsOf,bounds,limit){
-    if(!Number.isFinite(limit)||indexes.length<=limit)return indexes;
-    const west=bounds.getWest(),south=bounds.getSouth(),width=Math.max(1e-6,bounds.getEast()-west),height=Math.max(1e-6,bounds.getNorth()-south),cols=12,rows=8,cells=new Map();
-    for(const index of indexes){const [lat,lng]=coordsOf(index),key=Math.max(0,Math.min(rows-1,Math.floor((lat-south)/height*rows)))*cols+Math.max(0,Math.min(cols-1,Math.floor((lng-west)/width*cols)));if(!cells.has(key))cells.set(key,[]);cells.get(key).push(index);}
-    const queues=[...cells.values()],out=[];
-    for(let round=0;out.length<limit;round++){let took=false;for(const queue of queues){if(round>=queue.length)continue;out.push(queue[round]);took=true;if(out.length>=limit)break;}if(!took)break;}
-    return out.sort((a,b)=>a-b);
-  }
-  function worldInfrastructureRowIndexes(filter,bounds,zoom,limit=Infinity){
-    const group=worldInfrastructureSpatialIndex(filter,zoom>=5),rowsOf=zoom<5?group.rows:group.fine.rows,coordsOf=index=>{const row=rowsOf[index];return filter==='airport'?[row[6],row[7]]:[row[3],row[4]];};
-    if(zoom<5)return spreadInfrastructure(group.majorIndices.filter(index=>bounds.contains(coordsOf(index))),coordsOf,bounds,limit);
-    const fine=group.fine,bandDeg=fine.bandDeg,south=Math.max(-90,Math.min(90,bounds.getSouth())),north=Math.max(-90,Math.min(90,bounds.getNorth())),start=Math.max(0,Math.min(fine.bands.length-1,Math.floor((south+90)/bandDeg))),end=Math.max(0,Math.min(fine.bands.length-1,Math.floor((Math.min(89.999999,north)+90)/bandDeg))),indexes=[];
-    for(let band=start;band<=end;band++)for(const index of fine.bands[band])if(bounds.contains(coordsOf(index)))indexes.push(index);
-    indexes.sort((a,b)=>a-b);return spreadInfrastructure(indexes,coordsOf,bounds,limit);
   }
 
   function worldInfrastructureIcon(filter,label=''){
@@ -3110,41 +3065,6 @@
 
   const SIMULATION_ASSET_ENGINE=window.GH_SIMULATION_ASSET_CORE;
   if(!SIMULATION_ASSET_ENGINE?.processRow||!Array.isArray(SIMULATION_ASSET_ENGINE.WRITE_FIELDS))throw new Error('Simulation Asset Core failed to load before app.js');
-  let simulationAssetWorker=null,simulationAssetWorkerFailed=false,simulationAssetWorkerPending=null,simulationAssetWorkerRequestId=0;
-  function disableSimulationAssetWorker(error){
-    simulationAssetWorkerFailed=true;try{simulationAssetWorker?.terminate?.();}catch{}simulationAssetWorker=null;
-    const pending=simulationAssetWorkerPending;if(pending&&pending.status==='pending'){pending.status='error';pending.error=String(error?.message||error||'simulation-asset-worker-failed');clearTimeout(pending.timer);}
-  }
-  function ensureSimulationAssetWorker(){
-    if(simulationAssetWorkerFailed||typeof Worker!=='function')return null;
-    if(simulationAssetWorker)return simulationAssetWorker;
-    try{
-      const worker=new Worker('simulation-asset-worker.js');simulationAssetWorker=worker;
-      worker.onmessage=event=>{
-        const pending=simulationAssetWorkerPending,message=event?.data||{};
-        if(!pending||pending.status!=='pending'||message.requestId!==pending.requestId)return;
-        clearTimeout(pending.timer);
-        if(message.type==='result'&&message.version==='GH-SIMULATION-ASSET-WORKER-340.1.0'&&message.coreVersion===SIMULATION_ASSET_ENGINE.VERSION){pending.status='done';pending.message=message;}
-        else{pending.status='error';pending.error=String(message.error||'simulation-asset-worker-message-invalid');}
-      };
-      worker.onerror=event=>disableSimulationAssetWorker(event?.error||new Error(event?.message||'simulation-asset-worker-error'));
-      worker.onmessageerror=()=>disableSimulationAssetWorker(new Error('simulation-asset-worker-message-error'));
-      return worker;
-    }catch(error){disableSimulationAssetWorker(error);return null;}
-  }
-  function submitSimulationAssetBatch(rows,context,simAdvance,simMeta){
-    const worker=ensureSimulationAssetWorker();if(!worker||simulationAssetWorkerPending)return null;
-    const requestId=++simulationAssetWorkerRequestId,pending={requestId,status:'pending',timer:null,message:null,error:null};simulationAssetWorkerPending=pending;
-    pending.timer=setTimeout(()=>disableSimulationAssetWorker(new Error('simulation-asset-worker-timeout')),15000);
-    try{worker.postMessage({type:'process',requestId,rows:rows.map(({id,asset,route,catalogSpecs,departureDelay})=>({id,asset,route,catalogSpecs,departureDelay})),context,simAdvance,simMeta});}
-    catch(error){disableSimulationAssetWorker(error);}
-    return pending;
-  }
-  function releaseSimulationAssetBatch(pending,{cancel=false}={}){
-    if(!pending)return;
-    if(cancel&&simulationAssetWorkerPending===pending){try{simulationAssetWorker?.postMessage?.({type:'cancel',requestId:pending.requestId});}catch{}try{simulationAssetWorker?.terminate?.();}catch{}simulationAssetWorker=null;simulationAssetWorkerPending=null;clearTimeout(pending.timer);pending.status='cancelled';return;}
-    if(simulationAssetWorkerPending===pending)simulationAssetWorkerPending=null;clearTimeout(pending.timer);
-  }
   // Build 359: an owned base staffed below its need turns assets round slower: dwell × (1 + missing share), at most ×2.
   // Only understaffed bases are listed (the context is part of the trip cache key).
   function baseDwellFactors(facilities){
@@ -3166,13 +3086,6 @@
       market:{share:market.share||{},competitorPressure:market.competitorPressure||{}},maritime:{fuelFactor:window.GH_GOVERNANCE_CORE?.seaFuelFactor?.(state)??1},reputation:realism.reputation||{},ownedFacilities,baseDwellFactor:baseDwellFactors(facilities),simSeconds:Number(state.simSeconds)||0,
       workerCompatible:realism.schema===window.GH_REALISM?.SCHEMA&&typeof window.GH_ADVANCED?.adjustTripEconomics==='function'&&typeof window.GH_REALISM?.tripModifier==='function'
     };
-  }
-  function simulationRouteForAsset(asset,cache){
-    if(!asset?.routeId)return null;const key=`${asset.routeId}\u0000${asset.baseFacility||''}`;if(cache.has(key))return cache.get(key);
-    const template=routeTemplates[asset.routeId];if(!template){cache.set(key,null);return null;}
-    const route=routeMatchingFacility(asset.routeId,asset.baseFacility)||template;
-    const planned={id:route.id,type:route.type,routeMode:route.routeMode,ownerCompanyId:routeOwnerCompanyId(route),companyId:route.companyId,company:route.company,from:route.from,to:route.to,fromFacility:route.fromFacility,toFacility:route.toFacility,distanceKm:route.distanceKm,tripSeconds:route.tripSeconds,effectiveSpeedKmh:route.effectiveSpeedKmh,dwellHours:route.dwellHours};
-    cache.set(key,planned);return planned;
   }
 
   function makeSimulationEffects(){
@@ -3199,36 +3112,6 @@
     // asset being processed, inside the existing budgeted chunk; do not clone
     // the entire fleet twice before the first chunk can yield to the display.
     return {id:asset.id,...JSON.parse(guard)};
-  }
-  // Build 353: commit-time guard check without re-serializing the whole fleet in
-  // one frame. `parsed` is JSON.parse(guard) kept from the snapshot. jsonSameAs()
-  // answers true ONLY when JSON.stringify(value) would equal JSON.stringify(parsed);
-  // anything it does not model (toJSON, boxed values, depth) answers false and the
-  // caller repeats the original string comparison, so accept/reject is unchanged.
-  const isJsonOmitted=value=>value===undefined||typeof value==='function'||typeof value==='symbol';
-  function jsonSameAs(value,parsed,depth){
-    const kind=typeof parsed;
-    if(kind==='string'||kind==='boolean'||kind==='number')return value===parsed;
-    if(kind!=='object')return false;
-    if(parsed===null)return value===null||(typeof value==='number'&&!Number.isFinite(value));
-    if(!value||typeof value!=='object'||depth>32||typeof value.toJSON==='function')return false;
-    if(Array.isArray(parsed)){
-      if(!Array.isArray(value)||value.length!==parsed.length)return false;
-      for(let index=0;index<parsed.length;index++){const item=value[index];if(isJsonOmitted(item)?parsed[index]!==null:!jsonSameAs(item,parsed[index],depth+1))return false;}
-      return true;
-    }
-    if(Array.isArray(value))return false;
-    const expected=Object.keys(parsed),keys=Object.keys(value);let matched=0;
-    for(let index=0;index<keys.length;index++){const key=keys[index],item=value[key];if(isJsonOmitted(item))continue;if(expected[matched]!==key||!jsonSameAs(item,parsed[key],depth+1))return false;matched++;}
-    return matched===expected.length;
-  }
-  function simulationAssetGuardMatches(asset,guard,parsed){
-    if(asset&&parsed&&typeof parsed==='object'){
-      let same=true;
-      for(const field of SIMULATION_ASSET_GUARD_FIELDS){const value=asset[field],captured=Object.prototype.hasOwnProperty.call(parsed,field);if(isJsonOmitted(value)?captured:(!captured||!jsonSameAs(value,parsed[field],1))){same=false;break;}}
-      if(same)return true;
-    }
-    return simulationAssetGuard(asset,false)===guard;
   }
   function simulationContextGuard(){
     // Only inputs read by trip economics belong in this optimistic conflict
@@ -5266,7 +5149,6 @@
     if(legacyClass&&assetClasses.includes(legacyClass))return legacyClass;
     return assetClasses.length===1?assetClasses[0]:null;
   }
-  function companySupportsAssetMode(target,companyId,assetMode,assetClass=''){return Boolean(companyAssetClassForMode(target,companyId,assetMode,assetClass));}
   function assetMarketCatalogs(target=state){
     const catalogs=new Map(),adapters=window.GH_COMPANY_ADAPTERS;
     if(!adapters?.resolveAdapter||!adapters?.invokeAdapter)return [];
@@ -5289,7 +5171,6 @@
     }
     return [...catalogs.values()];
   }
-  function assetMarketModes(target=state){return assetMarketCatalogs(target).map(catalog=>catalog.mode);}
   function assetMarketModeFor(value,target=state){
     value=String(value||'');const catalogs=assetMarketCatalogs(target);
     return catalogs.find(catalog=>catalog.mode===value)?.mode||catalogs.find(catalog=>catalog.companies.some(company=>company.id===value))?.mode||catalogs[0]?.mode||null;
@@ -5623,7 +5504,6 @@
   // What the route cards show about the company's assets on `routeIds`, per route, from one row pass (no view per
   // asset): how many, ready / scheduled / moving counts, the first asset's id, and the trip margin and revenue sums in
   // row order over assets with a last trip (the former per-card filters and reduces over the views, in the same order).
-  const ROUTE_CENTER_LINKED_FIELDS=Object.freeze(['ownerCompanyId','companyId','assetMode','type','routeId','phase','departureScheduled','lastTrip','id']);
   // Build 372: the pass (fleet-query-core routeCards) runs on the fleet engine's worker; the cards show the latest result
   // for this company and these routes on this store (at most a step behind) and the drawer is drawn again when a newer
   // one arrives; until the first, the counts are not shown as zero but as the last known ones (none: zero). Without the
@@ -5816,8 +5696,6 @@ ${page}</div>`;
     if(rest)parts.push(belowThousand(rest));return parts.join(' و');
   }
   function amountInWords(amount,currency='USD'){const numeric=Math.max(0,Number(amount)||0),whole=Math.floor(numeric),cents=Math.round((numeric-whole)*100),unit=currency==='SAR'?'ريال سعودي':'دولار أمريكي';return `فقط ${arabicNumberWords(whole)} ${unit}${cents?` و${arabicNumberWords(cents)} سنتًا`:''} لا غير`;}
-  function chequeDateFromSeconds(seconds){return SIM_DATE_FORMATS.cheque.format(new Date(SIM_START+Math.max(0,Number(seconds)||0)*1000));}
-  function chequeDateFromDay(day){return chequeDateFromSeconds(Math.max(0,Number(day)||0)*86400);}
   function transferDirection(x,company){const fromKey=companyKeyForAccount(x.from),toKey=companyKeyForAccount(x.to);if(fromKey&&toKey){if(fromKey===company&&toKey!==company)return {key:'outgoing',label:'حوالة صادرة',watermark:'OUTGOING'};if(toKey===company&&fromKey!==company)return {key:'incoming',label:'حوالة واردة',watermark:'INCOMING'};return {key:'internal',label:'تحويل داخلي',watermark:'INTERNAL'};}if(fromKey===company)return {key:'outgoing',label:'حوالة صادرة',watermark:'OUTGOING'};if(toKey===company)return {key:'incoming',label:'حوالة واردة',watermark:'INCOMING'};return {key:'internal',label:'إشعار تحويل مصرفي',watermark:'TRANSFER'};}
   // Financial documents resolve the current legal-entity identity at render time. No historical logo snapshot is persisted.
   function fmtDocumentMoney(value){return `<bdi class="document-money" dir="ltr">${DOCUMENT_USD_FORMAT.format(Number(value||0))}</bdi>`;}
@@ -5844,7 +5722,6 @@ ${page}</div>`;
   const accountNumberText=accountId=>bankAccountNumber(accountId).replace(/^(\d{4})(\d{2})(\d{2})(\d{6})$/,'$1-$2-$3-$4');
   function bankIban(accountId){const bban=`80${bankAccountNumber(accountId).padStart(18,'0')}`,numeric=`${bban}281000`;let rest=0;for(const ch of numeric)rest=(rest*10+Number(ch))%97;const check=String(98-rest).padStart(2,'0');return `SA${check}${bban}`.replace(/(.{4})/g,'$1 ').trim();}
   const isBankAccountId=value=>Boolean(value)&&Boolean(companyKeyForAccount(String(value)));
-  function vatNumberOf(key){return `3${docDigits(`vat|${key}`,9)}00003`;}
   function treasuryBank(){
     const bankOpen=state.openedCompanies?.includes('bank'),group=COMPANY_PLATFORM.resolveIdentity?.(state,'group'),bank=bankOpen?COMPANY_PLATFORM.resolveIdentity?.(state,'bank'):null;
     const letters=String(state.profile?.shortName||'GH').toUpperCase().replace(/[^A-Z]/g,''),code=(letters+'TBXX').slice(0,4),city=window.GH_GAME_LIFECYCLE?.locationFor?.(state.profile)?.city||'الرياض';
@@ -6157,7 +6034,7 @@ ${page}</div>`;
     const refreshBulkTotal=()=>{const total=bulkInputs.reduce((n,i)=>n+(Math.max(0,Number(i.value)||0)),0),el=$('bulkTransferTotal');if(el)el.textContent=fmtMoney(total);return total;};
     bulkInputs.forEach(i=>i.addEventListener('input',refreshBulkTotal));refreshBulkTotal();
     drawerRoot.querySelectorAll('.bulk-transfer-equal').forEach(b=>b.addEventListener('click',()=>{const pool=Math.max(0,Number($('bulkTransferPool')?.value)||0);if(!bulkInputs.length)return;const each=Math.floor(pool/bulkInputs.length/1000)*1000;let used=0;bulkInputs.forEach((i,idx)=>{const val=idx===bulkInputs.length-1?Math.max(0,pool-used):each;i.value=Math.round(val);used+=val;});refreshBulkTotal();}));
-    drawerRoot.querySelectorAll('.bulk-transfer-needs').forEach(b=>b.addEventListener('click',()=>{const pool=Math.max(0,Number($('bulkTransferPool')?.value)||0);if(!bulkInputs.length)return;const summary=fleetUiSummary();if(!summary){notice('ملخص الأسطول قيد التحديث؛ أعد اختيار التوزيع حسب الاحتياج بعد لحظات.');return;}const rows=bulkInputs.map(i=>{const t=i.dataset.company,bud=companyBudget(t),remaining=companyBudgetRemaining(t),cash=companyOperatingBalance(t),operatingFloor=5000000+(summary.lookup.type(t)?.total||0)*350000,need=Math.max(250000,operatingFloor-cash)+(Number.isFinite(remaining)?Math.max(0,remaining)*.18:0);return {i,need};});const totalNeed=rows.reduce((n,x)=>n+x.need,0)||rows.length;let used=0;rows.forEach((x,idx)=>{const val=idx===rows.length-1?Math.max(0,pool-used):Math.floor(pool*x.need/totalNeed/1000)*1000;x.i.value=Math.round(val);used+=val;});refreshBulkTotal();}));
+    drawerRoot.querySelectorAll('.bulk-transfer-needs').forEach(b=>b.addEventListener('click',()=>{const pool=Math.max(0,Number($('bulkTransferPool')?.value)||0);if(!bulkInputs.length)return;const summary=fleetUiSummary();if(!summary){notice('ملخص الأسطول قيد التحديث؛ أعد اختيار التوزيع حسب الاحتياج بعد لحظات.');return;}const rows=bulkInputs.map(i=>{const t=i.dataset.company,remaining=companyBudgetRemaining(t),cash=companyOperatingBalance(t),operatingFloor=5000000+(summary.lookup.type(t)?.total||0)*350000,need=Math.max(250000,operatingFloor-cash)+(Number.isFinite(remaining)?Math.max(0,remaining)*.18:0);return {i,need};});const totalNeed=rows.reduce((n,x)=>n+x.need,0)||rows.length;let used=0;rows.forEach((x,idx)=>{const val=idx===rows.length-1?Math.max(0,pool-used):Math.floor(pool*x.need/totalNeed/1000)*1000;x.i.value=Math.round(val);used+=val;});refreshBulkTotal();}));
     drawerRoot.querySelectorAll('.bulk-transfer-submit').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const rows=bulkInputs.map(i=>({company:i.dataset.company,amount:Number(i.value)||0})).filter(x=>x.amount>0),result=await bulkTransferFromGroup(rows);if(!result.ok){notice(result.reason||'تعذر تنفيذ التوزيع الجماعي.');return;}pushAlert(`تم توزيع ${fmtMoney(result.total)} من القابضة على ${result.count} شركة · ${result.batchId}.`);updateKpis();reopenDrawer(navigationRevision,'finance');}));
     
     drawerRoot.querySelectorAll('.sign-contract').forEach(b=>b.addEventListener('click',()=>signContract(b.dataset.id,b.closest('article')?.querySelector('.contract-company-select')?.value||null)));
@@ -6520,7 +6397,6 @@ ${page}</div>`;
     if(!a||!b)return false;
     return Boolean((a.iata&&a.iata===b.iata)||(a.icao&&a.icao===b.icao)||(a.code&&a.code===b.code));
   }
-  function sameUnderlyingFacility(baseFacilityId,routeFacilityId){return sameUnderlyingFacilityFor(state,baseFacilityId,routeFacilityId);}
   function routeMatchingFacilityFor(target,runtime,routeId,baseFacility){
     const r=runtime[routeId];if(!r||!baseFacility||baseFacility===r.fromFacility||baseFacility===r.toFacility)return r;
     if(sameUnderlyingFacilityFor(target,baseFacility,r.fromFacility))return {...r,fromFacility:baseFacility};
