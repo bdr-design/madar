@@ -42,16 +42,17 @@ function sectorEconomics(state,options={}){
   const companyRevenue={},companyExpense={},companyCashRevenue={},companyCashExpense={},companyCashTaxExemptRevenue={},companyFacilityVat={};
   // Build 374: the telecom market's network and acquisition costs and the dealer market's workshop cost (their revenue
   // arrives on invoices); a save whose company has no market yet reports nothing here, exactly as before.
+  const internalRent=[];
   for(const [engine,companyId] of [[globalThis.GH_INSURANCE_CORE,'insurance'],[globalThis.GH_REALESTATE_CORE,'realestate'],[globalThis.GH_TELECOM_MARKET,'telecom'],[globalThis.GH_DEALER_MARKET,'dealership']]){
     if(typeof engine?.dailyResult!=='function'||!state.openedCompanies?.includes?.(companyId))continue;
     if((companyId==='telecom'||companyId==='dealership')&&!engine.read?.(state))continue;
     const row=engine.dailyResult(state,requestedDay??Math.floor(num(state.simSeconds)/86400));companyCashTaxExemptRevenue[companyId]=Math.max(0,num(row.cashTaxExemptRevenue));companyRevenue[companyId]=num(row.revenue);companyCashRevenue[companyId]=num(row.cashRevenue??row.revenue);companyExpense[companyId]=num(row.expense);companyCashExpense[companyId]=num(row.cashExpense??row.expense);
-    if(companyId==='realestate'){
-      // Internal rent is already accrued in each tenant's P&L, and a monthly settlement has already moved cash and
-      // created its paired finance documents. Exclude both from the generic close's cash postings to avoid paying twice.
-      for(const item of row.internalRentRows||[]){companyExpense[item.companyId]=(Number(companyExpense[item.companyId])||0)+num(item.amount);companyCashExpense[item.companyId]=Number(companyCashExpense[item.companyId])||0;}
-    }
+    if(companyId==='realestate')internalRent.push(...(row.internalRentRows||[]));
   }
+  // Internal rent is the tenant's P&L expense; a monthly settlement moves its cash and creates its paired documents, so it
+  // stays out of the close's cash postings. Added after every engine's own row, which sets (not adds to) its company's
+  // expense: a telecom or dealership tenant processed after real estate kept no rent at all.
+  for(const item of internalRent){companyExpense[item.companyId]=(Number(companyExpense[item.companyId])||0)+num(item.amount);companyCashExpense[item.companyId]=Number(companyCashExpense[item.companyId])||0;}
   const hospitality=globalThis.GH_HOSPITALITY_CORE;
   for(const instance of globalThis.GH_COMPANY_PLATFORM?.listInstances?.(state,{includeGroup:false,openedOnly:true,capability:'operations.hospitality'})||[]){
     if(!instance.operational||!hospitality?.read(state,instance.id))continue;

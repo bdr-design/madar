@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 572,
+  "minimum_acceptance_gates": 573,
   "preflight_commands": [
     [
       "node",
@@ -2826,6 +2826,10 @@
     [
       "node",
       "tests/build543-external-claim-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build544-internal-rent-tenants.cjs"
     ]
   ]
 }
