@@ -254,7 +254,7 @@
 
 ## 3. البيئة والأوامر
 
-- Node **24.19** (من nodejs.org مع التحقق من `SHASUMS256.txt`)، وPlaywright في `NODE_PATH`، ومجلد فيه `leaflet/dist/{leaflet.js,leaflet.css}` منسوخ من `WebApp/vendor/leaflet` (يحتاجه `conference-integration`).
+- Node **24.22** (24.19 ينهار على مشغّل macOS بمعالج arm64) (من nodejs.org مع التحقق من `SHASUMS256.txt`)، وPlaywright في `NODE_PATH`، ومجلد فيه `leaflet/dist/{leaflet.js,leaflet.css}` منسوخ من `WebApp/vendor/leaflet` (يحتاجه `conference-integration`).
 - البوابة الكاملة (نحو 35 دقيقة):
   `NODE_PATH=<playwright>:<leaflet-parent> python3 tools/run_acceptance.py --output <dir-outside-repo> --node <node24> --timeout 300`
 - بعد أي تعديل:

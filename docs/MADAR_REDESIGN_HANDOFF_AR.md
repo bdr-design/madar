@@ -30,7 +30,7 @@
 - أُلغي تشغيل GitHub الأخير (`38276398670`) عمدًا لأنه على commit قبل الإصلاح.
 
 ### خطوات الإكمال
-1. Node 24.19 (من nodejs.org مع التحقق من SHASUMS256)، و`NODE_PATH` يحوي playwright، ومجلد فيه `leaflet/dist/{leaflet.js,leaflet.css}` منسوخ من `WebApp/vendor/leaflet` (يحتاجه `conference-integration`).
+1. Node 24.22 (24.19 ينهار على مشغّل macOS بمعالج arm64؛ انظر CURRENT_REVIEW_POINT_AR.md) (من nodejs.org مع التحقق من SHASUMS256)، و`NODE_PATH` يحوي playwright، ومجلد فيه `leaflet/dist/{leaflet.js,leaflet.css}` منسوخ من `WebApp/vendor/leaflet` (يحتاجه `conference-integration`).
 2. `python3 tools/run_acceptance.py --output /tmp/acc --node <node24> --timeout 300`. المتوقع 331/331. اختبارات WebKit تعمل على CI فقط.
 3. أي تعديل بعدها: `python3 tools/refresh_fingerprints.py` ثم `python3 tools/verify_current_source.py`، ثم أعد `verification/` بـ `git checkout -- verification && git clean -fq verification`، واحذف `tools/__pycache__`.
 4. شغّل `build362-unsigned-ipa.yml` على الفرع (workflow_dispatch). ينجح فقط إذا نجحت كل الاختبارات. ثم سلّم رابط artifact `GlobalHoldings_BUILD362_unsigned_TEST_ipa`.
@@ -78,7 +78,7 @@
 - build371-native-update-isolation: نقطة الإيقاف صارت أول yield في أمر الإرسال البحري. **لم يُشغَّل بعد التعديل.**
 
 الخطوات المتبقية:
-1. شغّل البوابة كاملة محليًا على Node 24.19 وأضف `NODE_PATH` الذي يحوي playwright:
+1. شغّل البوابة كاملة محليًا على Node 24.22 وأضف `NODE_PATH` الذي يحوي playwright:
    `python3 tools/run_acceptance.py --output /tmp/acc --node <node24> --timeout 300`
    - آخر تشغيل وصل إلى 246/330 قبل إيقافه. أعد التشغيل وتحقق من الاختبارات المعدّلة أعلاه ومن البقية بعد 246.
    - مرّت منفردة: build358-row-snapshot-rollback، native-chunked-save، fleet-regressions، build336، build339، 600-air-calendar.
