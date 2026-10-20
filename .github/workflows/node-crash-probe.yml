@@ -6,6 +6,10 @@ name: Node crash probe on macOS (diagnostic only)
 # prints the faulting thread of each macOS crash report. It builds nothing and is not an acceptance gate.
 
 on:
+  # A workflow that is not on the default branch cannot be dispatched; a push that changes this file runs it.
+  push:
+    paths:
+      - .github/workflows/node-crash-probe.yml
   workflow_dispatch:
     inputs:
       rounds:
@@ -30,7 +34,7 @@ jobs:
       - name: Repeat the hospitality tests per V8 variant
         shell: bash
         env:
-          ROUNDS: ${{ inputs.rounds }}
+          ROUNDS: ${{ inputs.rounds || '30' }}
         run: |
           set -uo pipefail
           out="$RUNNER_TEMP/probe";mkdir -p "$out"
