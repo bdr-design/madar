@@ -1827,8 +1827,12 @@
   // MAP_LOOP_RENDER_DEFER_MS (an unavailable, rejected or slow summary) draws then with the summary held, as a render that
   // wants no follow-up (a summary arriving later is drawn by the next loop render), keeping the loop's cadence.
   let mapLoopRenderDeferredAt=0;const MAP_LOOP_RENDER_DEFER_MS=1000;
-  function scheduleViewportMapRender(delay=90,summaryFollowUp=false){
-    clearTimeout(mapRenderTimer);mapRenderTimer=setTimeout(()=>{mapRenderTimer=null;mapSummaryFollowUpRender=summaryFollowUp===true;try{renderMap();}finally{mapSummaryFollowUpRender=false;}},Math.max(0,Number(delay)||0));
+  // Why the next structural render runs (loop, loop-late, summary-due, summary-new-layout, viewport); an empty reason is an
+  // explicit renderMap call, named by its caller while a diagnostic recording is active.
+  let mapRenderReason='';
+  function mapRenderCaller(){for(const line of String(new Error().stack||'').split('\n')){const name=(/^\s*at\s+(?:async\s+)?(?:Object\.)?([\w$.]+)\s/.exec(line)||/^\s*(?:Object\.)?([\w$.]*)@/.exec(line))?.[1];if(name&&!/^(renderMap|mapRenderCaller)$/.test(name))return name.slice(0,48);}return 'unknown';}
+  function scheduleViewportMapRender(delay=90,summaryFollowUp=false,reason='viewport'){
+    clearTimeout(mapRenderTimer);mapRenderTimer=setTimeout(()=>{mapRenderTimer=null;mapSummaryFollowUpRender=summaryFollowUp===true;mapRenderReason=reason;try{renderMap();}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}},Math.max(0,Number(delay)||0));
   }
   function selectCanvasVehicle(hit,_adapter,event){
     if(event?.target?.closest?.('.leaflet-control,.leaflet-marker-icon,.leaflet-popup'))return;
@@ -2602,7 +2606,7 @@
           const hadRows=!!m.rows&&m.epoch===epoch,due=m.followUp>=0&&result.revision>=m.followUp;
           m.rows=result.rows;m.revision=result.revision;m.epoch=epoch;m.received++;mapStatusCache.assetKey='';mapStatusCache.ownerKey='';
           if(!map)return;if(due)m.followUp=-1;
-          if(due||!hadRows){if(mapRenderTimer===null)scheduleViewportMapRender(0,true);}else if(m.followUp>=0)mapFleetClassRows();
+          if(due||!hadRows){if(mapRenderTimer===null)scheduleViewportMapRender(0,true,due?'summary-due':'summary-new-layout');}else if(m.followUp>=0)mapFleetClassRows();
         },()=>{m.asking=false;});
       }
     }
@@ -2771,7 +2775,8 @@
     // A render that drew a fleet summary older than the store wants the store's revision drawn once its summary arrives;
     // the follow-up render itself wants nothing, or each summary of a moving fleet would rebuild the map again.
     if(!mapSummaryFollowUpRender&&mapFleetSummaryClient()){const m=mapFleetSummary,store=state.fleet,drawn=m.rows&&m.store===store&&m.epoch===window.GH_FLEET_STORE.epoch(store)?m.revision:-1;m.followUp=drawn<store.revision?store.revision:-1;}
-    window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'map.structure',renderStarted,appMetricClock());
+    const reason=loopDeferred?'loop-deferred':mapRenderReason||(window.GH_DIAGNOSTICS?.recorderIsActive?.(state)===true?`explicit:${mapRenderCaller()}`:'explicit');mapRenderReason='';
+    window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'map.structure',renderStarted,appMetricClock(),{reason});
     // The loop's deferred render runs in the summary's follow-up task, outside the frame: it is still the loop's
     // structural render and is measured as one.
     if(loopDeferred)recordRenderMetric('structural-render',Math.max(0,appMetricClock()-renderStarted),{fleetSize:window.GH_FLEET_DATA.size(state),ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,deferred:true});
@@ -6842,7 +6847,7 @@ ${page}</div>`;
     // Target collection may scan a fleet; interpolation touches only the bounded
     // visible marker set. Keep it independent of fleet size and of game time.
     if(!document.hidden&&now-lastMarkerAnimationAt>=32){lastMarkerAnimationAt=now;const measureAnimation=frameRecorderActive||(++renderMetrics.animationCounter%15)===0;if(measureAnimation)stageStarted=appMetricClock();animateMapMarkerPositions(now);if(measureAnimation){markerAnimationMs=Math.max(0,appMetricClock()-stageStarted);markerAnimated=true;recordRenderMetric('marker-animation',markerAnimationMs,{ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
-    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000,deferredLate=mapLoopRenderDeferredAt>0&&now-mapLoopRenderDeferredAt>=MAP_LOOP_RENDER_DEFER_MS;if(map&&(deferredLate||now-lastMapRenderAt>=mapStructureInterval)){if(deferredLate){mapLoopRenderDeferredAt=0;mapFleetSummary.followUp=-1;}else lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&(deferredLate||!deferLoopRenderToSummary(now))){stageStarted=appMetricClock();mapSummaryFollowUpRender=deferredLate;try{renderMap();}finally{mapSummaryFollowUpRender=false;}structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
+    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000,deferredLate=mapLoopRenderDeferredAt>0&&now-mapLoopRenderDeferredAt>=MAP_LOOP_RENDER_DEFER_MS;if(map&&(deferredLate||now-lastMapRenderAt>=mapStructureInterval)){if(deferredLate){mapLoopRenderDeferredAt=0;mapFleetSummary.followUp=-1;}else lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&(deferredLate||!deferLoopRenderToSummary(now))){stageStarted=appMetricClock();mapSummaryFollowUpRender=true;mapRenderReason=deferredLate?'loop-late':'loop';try{renderMap();}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
     const simulationSnapshot=frameRecorderActive?simulationEngine.snapshot():null,callbackEndMs=measureFrame?appMetricClock():0,frameWorkMs=measureFrame?Math.max(0,callbackEndMs-frameStarted):0;
     if(measureFrame)recordRenderMetric('frame',frameWorkMs,{frameIntervalMs,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});
     if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});
