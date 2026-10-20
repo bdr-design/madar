@@ -301,6 +301,18 @@ jobs:
           out=Path(os.environ['RUNNER_TEMP'])
           shown=0
           results=list(out.glob('build362-source-acceptance/results.json'))
+          # A gate killed by a signal (Node exit -11 in runs 70 and 71) leaves an empty log; keep the macOS crash reports,
+          # which name the faulting frame, in the receipt.
+          try:
+              crashed=[row['argv'][-1] for row in json.loads(results[0].read_text()).get('tests',[]) if (row.get('exit_code') or 0)<0] if results else []
+              if crashed:
+                  reports=[]
+                  for folder in (Path.home()/'Library/Logs/DiagnosticReports',Path('/Library/Logs/DiagnosticReports')):
+                      if folder.is_dir():reports+=[path for path in folder.rglob('node*') if path.is_file()]
+                  reports.sort(key=lambda path:path.stat().st_mtime,reverse=True)
+                  for report in reports[:4]:(Path(os.environ['GITHUB_WORKSPACE'])/'.ci-output'/('crash-'+report.stem+'.txt')).write_text(report.read_text(errors='replace'))
+                  print(f"::error title=Node crashed in {', '.join(crashed)}::{len(reports)} macOS crash report(s) kept in the receipt as crash-*.txt")
+          except Exception as error:print(f"::warning title=crash reports not collected::{error}")
           if results:
               data=json.loads(results[0].read_text())
               for row in data.get('tests',[]):
