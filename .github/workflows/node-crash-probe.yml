@@ -1,0 +1,85 @@
+name: Node crash probe on macOS (diagnostic only)
+
+# Runs 70 and 71 of the Build 362 workflow stopped on Node exiting with -11 (SIGSEGV) in build391-hospitality-core and
+# build396-hospitality-budgets, about 0.4 s in, with an empty log; on Linux the same Node passes them every time. This
+# workflow repeats those tests on the same macOS runner and Node, with V8 subsystems switched off one at a time, and
+# prints the faulting thread of each macOS crash report. It builds nothing and is not an acceptance gate.
+
+on:
+  workflow_dispatch:
+    inputs:
+      rounds:
+        description: Runs of each test per variant
+        required: false
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.19.0"
+
+      - name: Repeat the hospitality tests per V8 variant
+        shell: bash
+        env:
+          ROUNDS: ${{ inputs.rounds }}
+        run: |
+          set -uo pipefail
+          out="$RUNNER_TEMP/probe";mkdir -p "$out"
+          export GH_TEST_SOURCE_DIR="$GITHUB_WORKSPACE"
+          node --version;uname -m;sysctl -n machdep.cpu.brand_string || true
+          for variant in default --single-threaded --no-maglev --no-turbofan --jitless; do
+            flags=();[[ "$variant" != default ]] && flags=("$variant")
+            for test in tests/build391-hospitality-core.cjs tests/build396-hospitality-budgets.cjs tests/build392-hospitality-links.cjs tests/build393-hospitality-financial-safety.cjs; do
+              crashed=0;failed=0
+              for i in $(seq 1 "$ROUNDS"); do
+                node ${flags[@]+"${flags[@]}"} "$test" >/dev/null 2>"$out/last.err";code=$?
+                if (( code >= 128 ));then crashed=$((crashed+1));elif (( code != 0 ));then failed=$((failed+1));cp "$out/last.err" "$out/failed-$variant-$(basename "$test").err";fi
+              done
+              echo "variant=$variant test=$test rounds=$ROUNDS crashed=$crashed failed=$failed" | tee -a "$out/summary.txt"
+            done
+          done
+
+      - name: Print the faulting thread of each crash report
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,shutil
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'probe';out.mkdir(exist_ok=True)
+          reports=[]
+          for folder in (Path.home()/'Library/Logs/DiagnosticReports',Path('/Library/Logs/DiagnosticReports')):
+              if folder.is_dir():reports+=[path for path in folder.rglob('node*') if path.is_file()]
+          reports.sort(key=lambda path:path.stat().st_mtime)
+          print(f'{len(reports)} node crash report(s)')
+          for report in reports[:6]:
+              shutil.copy2(report,out/report.name)
+              text=report.read_text(errors='replace');print('=====',report.name)
+              try:
+                  body=json.loads(text.split('\n',1)[1]);images=body.get('usedImages',[])
+                  print('exception',json.dumps(body.get('exception')),'termination',json.dumps(body.get('termination')))
+                  thread=next((t for t in body.get('threads',[]) if t.get('triggered')),None) or body['threads'][body.get('faultingThread',0)]
+                  print('thread',thread.get('name') or thread.get('queue') or '',thread.get('id'))
+                  for frame in thread.get('frames',[])[:48]:
+                      image=images[frame['imageIndex']].get('name','?') if 'imageIndex' in frame and frame['imageIndex']<len(images) else '?'
+                      print(f"  {image}  {frame.get('symbol','?')}+{frame.get('symbolLocation',frame.get('imageOffset'))}")
+              except Exception as error:print('unparsed',error);print(text[:6000])
+          PY
+
+      - name: Keep the probe output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-crash-probe
+          path: ${{ runner.temp }}/probe
+          if-no-files-found: warn
+          retention-days: 14
