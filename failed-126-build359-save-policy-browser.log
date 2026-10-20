@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: one baseline save
+
+0 !== 1
+
+    at /Users/runner/work/madar/madar/tests/build359-save-policy-browser.cjs:60:40 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
