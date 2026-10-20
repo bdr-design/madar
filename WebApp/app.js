@@ -3275,6 +3275,9 @@
       // Corporate facility interest is transferred and journaled by Banking Core.
       // Keep it in bank P&L, but exclude it from the cash credit posted by this close.
       const cashOperatingRevenue={...operatingRevenue},cashOperatingExpense={...operatingExpense};for(const companyId of companyIds)if(ed.companyCashRevenue&&Object.prototype.hasOwnProperty.call(ed.companyCashRevenue,companyId))cashOperatingRevenue[companyId]=(companyContractRevenue[companyId]||0)+Math.max(0,Number(ed.companyCashRevenue[companyId])||0);if(bankCompany)cashOperatingRevenue[bankCompany]=(companyContractRevenue[bankCompany]||0)+Math.max(0,Number(ed.companyRevenue?.[bankCompany])||0)+Math.max(0,Number(ed.bankCashRevenueToPost??ed.bankRevenue)||0);if(energyCompany)cashOperatingExpense[energyCompany]=Math.max(0,Number(cashOperatingExpense[energyCompany]||0)-Math.max(0,Number(ed.takeOrPayAccrued)||0));
+      // Credit-loss provisions and write-off shortfalls are losses on money already lent: the bank's P&L carries them, but
+      // no cash leaves the bank for them.
+      if(bankCompany)cashOperatingExpense[bankCompany]=Math.max(0,(Number(cashOperatingExpense[bankCompany])||0)-Math.max(0,Number(ed.bankProvisionExpense)||0));
       // Build 358: electricity the power company sold inside the group today (Energy Core settled it with documents and the
       // cash transfer). The buyer's facility cost drops by the outside bill it no longer pays and carries the internal price
       // instead; the cash already moved, so neither side's internal amount is posted again here.

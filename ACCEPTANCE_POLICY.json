@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 569,
+  "minimum_acceptance_gates": 570,
   "preflight_commands": [
     [
       "node",
@@ -2814,6 +2814,10 @@
     [
       "node",
       "tests/build540-bank-fee-close-day.cjs"
+    ],
+    [
+      "node",
+      "tests/build541-bank-provision-cash.cjs"
     ]
   ]
 }

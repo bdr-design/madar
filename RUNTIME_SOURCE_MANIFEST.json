@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "a376b5ac6e0de04d977f96ed8b3334ca102f51283fad8140ca90d2a9d20aa321",
-  "webapp_tree_sha256": "209f26955395017fe630ba7d593833f070fd7f3544b353da4e031c1735ae6f85",
+  "source_tree_sha256": "bbc24dbffaace6ce6d4f5f50a6f7caa692ff8fe576ebb18dbc743f070c4fc167",
+  "webapp_tree_sha256": "46850569b9ca360e9c932b0bd58be487eb5b43d19ca8ad01f040c54da2bade05",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1013588,
-      "sha256": "9d135669674649defe903754a754386a41d8595012e6de531bacaf43fde3ba2e"
+      "bytes": 1013917,
+      "sha256": "ce48f79b88744fd5f700d97c79c2d48496b0ddd7be23ab66c02c785996197085"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3503,8 +3503,8 @@
       "sha256": "d236fcc99e30845cc8ab916398e50ecc359eb5913c610f3576b0df4b50830aba"
     },
     "WebApp/economics-core.js": {
-      "bytes": 11768,
-      "sha256": "8a687eb9b209f2b2de2121a900a5154cff8f427b14ba4d20d671db729be6abd8"
+      "bytes": 11857,
+      "sha256": "30d7ab09e7ec4bc107b9823fe4e13bc1af20c4fd04b92b3a933ebed31ece23bd"
     },
     "WebApp/energy-core.js": {
       "bytes": 66261,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "1b0f9cc52eda0346667f32d556ee1ff2d2704b046021cc42a806b927906120c5"
+      "sha256": "2db902aa3b9a3486a2c49bfafb235010639f394184362b6c5e0a11522554a0b1"
     },
     "BUILD": {
       "bytes": 4,
