@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "a7921e2e3ee05ca8702fcc3e4ddf601fd79388a5c3e1cc3c62add9110461d8fd",
-  "webapp_tree_sha256": "e7b82bf0435b976ed43a4e31c4f3e6732034e91bea46777fd2114ed24597a63e",
+  "source_tree_sha256": "a376b5ac6e0de04d977f96ed8b3334ca102f51283fad8140ca90d2a9d20aa321",
+  "webapp_tree_sha256": "209f26955395017fe630ba7d593833f070fd7f3544b353da4e031c1735ae6f85",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3379,8 +3379,8 @@
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 118990,
-      "sha256": "b0b6bba6de432402d56cfd0068a00cbe8990618f4a39b40773d6af827aa3d6dd"
+      "bytes": 119332,
+      "sha256": "3917f7e2ecb81a3e0aa53a609105b84d3203428a81bf110172bb10a0d8edde3a"
     },
     "WebApp/branch-campaign-core.js": {
       "bytes": 3676,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "4c960b662eb9497e598fce02b749aa463bd278c1a5c60e763e752d6b9a3a6254"
+      "sha256": "1b0f9cc52eda0346667f32d556ee1ff2d2704b046021cc42a806b927906120c5"
     },
     "BUILD": {
       "bytes": 4,

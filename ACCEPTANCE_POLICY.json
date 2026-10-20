@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 568,
+  "minimum_acceptance_gates": 569,
   "preflight_commands": [
     [
       "node",
@@ -2810,6 +2810,10 @@
     [
       "node",
       "tests/build539-intercompany-interest-pnl.cjs"
+    ],
+    [
+      "node",
+      "tests/build540-bank-fee-close-day.cjs"
     ]
   ]
 }

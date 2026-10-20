@@ -125,7 +125,7 @@
     const bank=state.bank=state.bank&&typeof state.bank==='object'?state.bank:{};
     bank.corporateClients=bank.corporateClients&&typeof bank.corporateClients==='object'?bank.corporateClients:{};
     for(const key of ['riskReviews','lettersOfCredit','guarantees','cashSweeps','branchNetwork','loanPortfolios','corporateFacilities','dailyHistory','treasurySecurities','wholesaleFacilities','creditDecisions','delinquencyEvents','recoveries','feeEvents','loanRequests','loanRequestHistory','customerLoanContracts','customerLoanContractArchive','customerInstallmentSettlements','loanApprovalBatches','customerInstallmentBatches','customerDisbursements'])bank[key]=Array.isArray(bank[key])?bank[key].filter(Boolean):[];
-    if(!bank.transactionFeeByDay||typeof bank.transactionFeeByDay!=='object'||Array.isArray(bank.transactionFeeByDay)){bank.transactionFeeByDay={};for(const row of bank.feeEvents){const day=String(Math.max(0,Math.floor(Number(row.day)||0)));bank.transactionFeeByDay[day]=num(bank.transactionFeeByDay[day])+num(row.amount);}}
+    if(!bank.transactionFeeByDay||typeof bank.transactionFeeByDay!=='object'||Array.isArray(bank.transactionFeeByDay)){bank.transactionFeeByDay={};for(const row of bank.feeEvents){const day=String(Math.max(0,Math.floor(Number(row.closeDay??row.day)||0)));bank.transactionFeeByDay[day]=num(bank.transactionFeeByDay[day])+num(row.amount);}}
     for(const type of corporateCompanyIds(state,globalThis.GH_FINANCE_CORE))if(!bank.corporateClients[type])bank.corporateClients[type]={company:type,ownerCompanyId:type,creditLimit:5000000,drawn:0,depositBalance:0,lastReview:0,rating:'BBB'};
     for(const key of ['branches','deposits','loans','npl','capitalRatio','hqla','stableFunding','requiredStableFunding','wholesaleFunding','offBalance','feeIncomeYTD','provisions','retailCustomers','businessCustomers','dailyServiceFeeRevenue','interestIncomeYTD','depositInterestExpenseYTD','creditLossExpenseYTD'])bank[key]=num(bank[key]);
     // Net income is signed: normalizing balances must not erase accumulated losses.
@@ -439,9 +439,12 @@
   }
   function gradeFor(p,amount,product){if(RISK_GRADES[p.riskGrade])return p.riskGrade;const collateral=clamp(p.collateralCoverage||0,0,5),borrowers=Math.max(1,Number(p.borrowers)||1),size=amount/Math.max(1,requestBase(product)),score=72+collateral*9-Math.log10(Math.max(1,size))*5-Math.min(12,borrowers/20);return score>=88?'AA':score>=78?'A':score>=66?'BBB':score>=54?'BB':'B';}
   function recordTransactionFee(bank,{id,at,day,amount,category,sourceId}){
-    const fee=num(amount);if(fee<=0)return;const key=String(Math.max(0,Math.floor(Number(day)||0)));
+    const fee=num(amount);if(fee<=0)return;
+    // A fee is counted by the first bank close that has not run yet. The close of a day runs at its start, so a fee
+    // charged after that day's bank close (any daytime action, or later in that close) is counted the next day.
+    const eventDay=Math.max(0,Math.floor(Number(day)||0)),closeDay=Number(bank.lastProcessedDay)>=eventDay?eventDay+1:eventDay,key=String(closeDay);
     if(bank.feeEvents.some(row=>row.id===id))return;
-    bank.feeEvents.unshift({id,at,day:Number(key),amount:fee,category,sourceId});bank.feeEvents=bank.feeEvents.slice(0,800);
+    bank.feeEvents.unshift({id,at,day:eventDay,closeDay,amount:fee,category,sourceId});bank.feeEvents=bank.feeEvents.slice(0,800);
     bank.transactionFeeByDay=bank.transactionFeeByDay&&typeof bank.transactionFeeByDay==='object'&&!Array.isArray(bank.transactionFeeByDay)?bank.transactionFeeByDay:{};
     bank.transactionFeeByDay[key]=num(bank.transactionFeeByDay[key])+fee;
     const days=Object.keys(bank.transactionFeeByDay).map(Number).filter(Number.isFinite).sort((a,b)=>b-a);for(const stale of days.slice(0+400))delete bank.transactionFeeByDay[String(stale)];
