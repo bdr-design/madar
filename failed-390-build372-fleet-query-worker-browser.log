@@ -1,0 +1,5 @@
+page.evaluate: Error: eligible-road: refused
+    at compare (eval at evaluate (:291:30), <anonymous>:10:99)
+    at eval (eval at evaluate (:291:30), <anonymous>:19:15)
+    at async <anonymous>:317:30
+    at /Users/runner/work/madar/madar/tests/build372-fleet-query-worker-browser.cjs:27:29

@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "repository": "bdr-design/madar",
+  "source_commit": "18625f5d9fec2009fbbc9864d94a72c764b54573",
+  "run_id": 39353751732,
+  "attempt": 1,
+  "job_status": "failure",
+  "run_url": "https://github.com/bdr-design/madar/actions/runs/39353751732",
+  "certified": false,
+  "ipa_artifact_url": "",
+  "ipa_single_file_url": "",
+  "physical_iphone_tested": false,
+  "receipt_ref": "refs/heads/ci-receipts/build362/18625f5d9fec2009fbbc9864d94a72c764b54573/39353751732-1",
+  "files": {
+    "failed-390-build372-fleet-query-worker-browser.log": {
+      "bytes": 290,
+      "sha256": "ba6771c531600626fa9b21bd897ac734126753d622ce7ecbed29f9f84d5bc37c"
+    },
+    "native-bridge-tests.log": {
+      "bytes": 36,
+      "sha256": "50dd0bcb2aebe2013e152f5b2b96571654d735dce56ba474420da83422e977d8"
+    },
+    "native-ios-typecheck.log": {
+      "bytes": 1302,
+      "sha256": "2d86ffa4079c8a4e92b22b4808aef30853e0a0e95e76cac4727bb518e755ecf6"
+    },
+    "native-save-export-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-export.json": {
+      "bytes": 1317,
+      "sha256": "59859ec19192f08a770d79fea15a8de975c1a933cd8be6373c72eb8527f92691"
+    },
+    "native-save-export.log": {
+      "bytes": 446,
+      "sha256": "4e8a366ca58871c893cb68748a00a5c975b5eef569f5834538e9c4235c4b936f"
+    },
+    "native-save-worker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-worker.json": {
+      "bytes": 2885,
+      "sha256": "96e426712f1aad6e41159cf866d5ae4a983f704692157b237d7dd30c5a04baad"
+    },
+    "native-save-worker.log": {
+      "bytes": 24,
+      "sha256": "dd525051f0f38965b26a9cc154e88f84063d2a5699f52deaae78c7f045b0fcf3"
+    },
+    "native-storage-tests.log": {
+      "bytes": 4600,
+      "sha256": "bdc34adc10fc8cac272d27921b82e8a02f6429b3311c5ab05e7d82abfb9607e4"
+    },
+    "native-tests.json": {
+      "bytes": 6053,
+      "sha256": "280d79205a298e4fd2177bb4f6c27d3021e8fe984842f824615352bf33f49e2d"
+    },
+    "save-enqueue-measurement.json": {
+      "bytes": 1795,
+      "sha256": "fba6c5645b9bb19f865ed82c6e94a0a3663c97024fa9c9e33d854480933adcef"
+    },
+    "source-acceptance-results.json": {
+      "bytes": 87667,
+      "sha256": "c5e1ff2dad18d810c3a3e9c2f103e192a5833af01160ff180b9096aa5936ed23"
+    },
+    "source-acceptance.log": {
+      "bytes": 22368,
+      "sha256": "a254fcb7f182a3191ab106ece3c3d0cc569e26cabdcca0b0971c0e0a210366e8"
+    },
+    "source-mode.txt": {
+      "bytes": 82,
+      "sha256": "2dfcfa7a37cd880dea14f4032a485c286e9c17e7b7a3e66df8c51dec6ea35960"
+    },
+    "source-package-integrity.log": {
+      "bytes": 124808,
+      "sha256": "e9c4ec5987709ea56da914e834c80666bc3f4f13edfbb97fdcc2015c451e75b2"
+    },
+    "source-verification.json": {
+      "bytes": 4339,
+      "sha256": "58245c96137b88792c150fb27dfc965f5955dcb51acd1f948a2e5cc45e5e0e41"
+    },
+    "update-bridge-tests.json": {
+      "bytes": 2957,
+      "sha256": "fef0dbbb7b826247036938934cfc2df07d4e512fc1f1a1e507fa6472db2007d3"
+    },
+    "webkit-smoke.json": {
+      "bytes": 1413,
+      "sha256": "1c58cfcceac1e5c6e25750a4cdf7f831d083493474d23b6e3be0fa2ac04b20f6"
+    },
+    "webkit-smoke.log": {
+      "bytes": 13,
+      "sha256": "e8e430dae0cde2e04ebf507648d40f5598df20df446b4fd73a3e1b3213c192dd"
+    }
+  }
+}
