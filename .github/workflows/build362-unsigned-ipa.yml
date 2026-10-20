@@ -23,6 +23,9 @@ jobs:
     steps:
       - name: Check out the isolated Build 362 branch
         uses: actions/checkout@v4
+        with:
+          # The parity gates (build501, build502, build504, build505, build507) read earlier source files from Git history.
+          fetch-depth: 0
 
       - name: Select Node 24
         uses: actions/setup-node@v4

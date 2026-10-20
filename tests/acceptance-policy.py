@@ -209,6 +209,7 @@ for command in [['node','tests/save-pipeline-browser.cjs'],['node','tests/native
 for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
     text=(root/'.github/workflows'/name).read_text()
     assert 'inputs.acceptance' not in text and 'acceptance_gate=NOT_RUN' not in text
+    checkout=text.index('uses: actions/checkout@v4');assert 'fetch-depth: 0' in text[checkout:text.index('\n      - name:',checkout)],'check out the full history: the parity gates read earlier source files with git show'
     source_step='Run all declared Build 362 source acceptance gates' if name=='build362-unsigned-ipa.yml' else 'Run the full source acceptance gate'
     start=text.index('      - name: '+source_step);end=text.index('\n      - name:',start+1);step=text[start:end]
     assert 'run_acceptance.py' in step and 'verify_acceptance.py' in step
