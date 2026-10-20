@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 570,
+  "minimum_acceptance_gates": 571,
   "preflight_commands": [
     [
       "node",
@@ -2818,6 +2818,10 @@
     [
       "node",
       "tests/build541-bank-provision-cash.cjs"
+    ],
+    [
+      "node",
+      "tests/build542-contract-deposit.cjs"
     ]
   ]
 }
