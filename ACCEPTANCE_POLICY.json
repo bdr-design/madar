@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 567,
+  "minimum_acceptance_gates": 568,
   "preflight_commands": [
     [
       "node",
@@ -2806,6 +2806,10 @@
     [
       "node",
       "tests/build538-conference-group-headcount.cjs"
+    ],
+    [
+      "node",
+      "tests/build539-intercompany-interest-pnl.cjs"
     ]
   ]
 }

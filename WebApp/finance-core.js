@@ -456,6 +456,9 @@ function settleIntercompanyInterest(s,p={}){
  const expense=invoice(s,{kind:'مصروف',amount,note,method:'تسوية فائدة داخلية',taxable:false,taxCode:'financial-interest',status:'مدفوعة',company:from,counterparty:bankName,sourceRef:reference});
  const income=invoice(s,{kind:'دخل',amount,note:`دخل ${note}`,method:'تسوية فائدة داخلية',taxable:false,taxCode:'financial-interest',status:'محصلة',company:to,counterparty:payerName,sourceRef:reference});
  const event={at:now(s),from:payer.accounts[0].id,to:receiver.accounts[0].id,amount,note,kind:'intercompany-interest',company:from,beneficiaryCompany:to,reference,expenseDocumentNumber:expense.number,incomeDocumentNumber:income.number};
+ // The bank's own close counts this interest as income when it is paid; the borrower's close carries the same expense,
+ // or the group's profit would keep interest one of its companies paid another.
+ notePnl(s,from,0,amount);
  Object.assign(event,{id:reference,status:'منفذة',collection:true,channel:collectionProfile(to,s).channel,service:'تحصيل فائدة تسهيل ائتماني',grossAmount:amount,deductions:0,invoiceNumbers:[income.number],sourceRefs:[reference],fromCompany:from,toCompany:to,requestFingerprint});protectDocument(s,event,'intercompany-interest');amendInvoice(s,expense,'invoice-transfer-linked',doc=>{doc.transferReference=reference;});amendInvoice(s,income,'invoice-transfer-linked',doc=>{doc.transferReference=reference;});insertFinanceTransfer(s,{...event});ledger(s,from,event);companyLedger(s,to,event);reconcile(s);
  return {settled:true,from,to,amount,reference,expenseInvoiceNumber:expense.number,incomeInvoiceNumber:income.number,idempotent:false,cashPostedRevenue:amount};
 }
