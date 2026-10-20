@@ -20,7 +20,7 @@ function documentFor(snapshot,scene){
    {label:row.net<0?'صافي الخسارة':'صافي الربح',value:`${amount(row.net).value} ${amount(row.net).unit}`},
    annualGrowth(row,'revenue',snapshot.year)!=null?{label:'نمو الإيرادات · مقارنة بفترتين مكتملتين',value:`${number(annualGrowth(row,'revenue',snapshot.year))>0?'+':''}${number(annualGrowth(row,'revenue',snapshot.year)).toFixed(1)}%`}:row.complete&&number(row.grossRevenue)>0?{label:'هامش صافي الفترة',value:`${(number(row.net)/number(row.grossRevenue)*100).toFixed(1)}%`}:{label:'تغطية الإقفال · المسجل / المتوقع',value:row.expectedDays?`${int(row.reportedDays)} / ${int(row.expectedDays)} يومًا`:int(row.reportedDays)}
   ]:[];
-  doc.stats=[];doc.note=usable(row)?'المصدر: الإقفالات المالية اليومية المسجلة داخل اللعبة. لا تُقدّر القيم غير المتاحة.':row.dataQuality?.reason||'لا توجد إقفالات مالية معتمدة لهذه الفترة.';
+  doc.stats=[];doc.note=usable(row)?'المصدر: الإقفالات المالية اليومية المسجلة. لا تُقدّر القيم غير المتاحة.':row.dataQuality?.reason||'لا توجد إقفالات مالية معتمدة لهذه الفترة.';
  }else if(scene.kind==='opening'){
   doc.title=String(snapshot.year);doc.numeric=true;doc.heroLabel='المؤتمر التنفيذي السنوي';doc.unit=g.name||'Ventora';doc.chartTitle='نطاق المؤتمر';doc.list=[{label:'الشركات المشاركة',value:`${int(companies.length)} شركة`},{label:'الموظفون',value:`${int(totalHeadcount)} موظف`},{label:'سنة العرض',value:String(snapshot.year)}];doc.stats=[];
  }else if(scene.kind==='closing'){
@@ -32,7 +32,7 @@ function documentFor(snapshot,scene){
  }else if(scene.kind==='outlook'){
   doc.title=String(Number(snapshot.year)+1);doc.numeric=true;doc.unit='المرحلة القادمة';doc.chartTitle='خطة العام المقبل';doc.list=scene.metrics;doc.stats=[];
  }else if(scene.kind==='audience'){
-  doc.title=int(snapshot.social?.viewers);doc.numeric=true;doc.unit='مشاهدة داخل عالم اللعبة';doc.chartTitle='مؤشرات التفاعل المحاكي';doc.list=scene.metrics;doc.stats=[];
+  doc.title=int(snapshot.social?.viewers);doc.numeric=true;doc.unit='مشاهدة للبث المباشر';doc.chartTitle='مؤشرات التفاعل';doc.list=scene.metrics;doc.stats=[];
  }else if(scene.kind==='leadership'){
   doc.title=scene.presenter;doc.unit=scene.role;doc.chartTitle='الشركة في أرقام';doc.list=scene.metrics;doc.stats=[];
  }else if(scene.kind==='customers'){

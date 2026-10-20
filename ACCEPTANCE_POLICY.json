@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 565,
+  "minimum_acceptance_gates": 566,
   "preflight_commands": [
     [
       "node",
@@ -2798,6 +2798,10 @@
     [
       "node",
       "tests/build536-conference-progress-cost.cjs"
+    ],
+    [
+      "node",
+      "tests/build537-conference-copy.cjs"
     ]
   ]
 }
