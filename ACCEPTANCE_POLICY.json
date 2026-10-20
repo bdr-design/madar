@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 564,
+  "minimum_acceptance_gates": 565,
   "preflight_commands": [
     [
       "node",
@@ -2794,6 +2794,10 @@
     [
       "node",
       "tests/build535-staged-save-retake-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build536-conference-progress-cost.cjs"
     ]
   ]
 }
