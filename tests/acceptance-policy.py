@@ -208,11 +208,13 @@ with tempfile.TemporaryDirectory(prefix='madar-acceptance-early-stop-') as tmp:
 for command in [['node','tests/save-pipeline-browser.cjs'],['node','tests/native-save-worker-browser.cjs']]:assert command in declared['commands']
 # Node 24.19.0 crashes (SIGSEGV) on the arm64 macOS runner: a full GC in a Sparkplug prologue reads an untagged slot
 # (node-crash-probe.yml, which keeps 24.19.0 as its baseline). Every other workflow pins 24.22.0 or later.
+# Each node-version value on a non-comment line, as (major, minor, patch), or None when it is not an exact version.
 def node_pins(text):
-    return [tuple(map(int,pin)) for line in text.splitlines() if not line.lstrip().startswith('#') for pin in re.findall(r'node-version:\s*["\']?v?(\d+)\.(\d+)\.(\d+)',line)]
-for workflow in sorted((root/'.github/workflows').glob('*.yml')):
+    values=[m.group(1) for line in text.splitlines() if not line.lstrip().startswith('#') for m in [re.search(r'node-version:\s*([^\s#,}]+)',line)] if m]
+    return [tuple(map(int,v.groups())) if (v:=re.fullmatch(r'["\']?v?(\d+)\.(\d+)\.(\d+)["\']?',value)) else None for value in values]
+for workflow in sorted([*(root/'.github/workflows').glob('*.yml'),*(root/'.github/workflows').glob('*.yaml')]):
     if workflow.name=='node-crash-probe.yml':continue
-    assert all(pin>=(24,22,0) for pin in node_pins(workflow.read_text())),f'{workflow.name}: Node 24.19.0 crashes on the arm64 runner; pin 24.22.0 or later'
+    assert all(pin is not None and pin>=(24,22,0) for pin in node_pins(workflow.read_text())),f'{workflow.name}: pin an exact Node 24.22.0 or later (24.19.0 crashes on the arm64 runner)'
 for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
     text=(root/'.github/workflows'/name).read_text()
     assert 'inputs.acceptance' not in text and 'acceptance_gate=NOT_RUN' not in text
