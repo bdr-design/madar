@@ -56,7 +56,7 @@ const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-work
       // A step in flight: no health result (its replica holds the unsettled step).
       const ticket=client.request(state.fleet,{from:5000,to:6800,context,contextKey:'k',tripAlertLimit:64,order:'events',maxEvents:4000,budget:4000});
       const refusedWhileStep=client.health(state.fleet,{simSeconds:5000})===null;client.discard(ticket);
-      await new Promise(resolve=>setTimeout(resolve,50));
+      for(let wait=0;wait<600&&!client.replicaReady(state.fleet);wait++)await new Promise(resolve=>setTimeout(resolve,50));if(!client.replicaReady(state.fleet))throw new Error('worker-replica-not-ready');
       // The result names the store it was found on: a new game's store is another one.
       const oldStore=state.fleet,pending=client.health(oldStore,{simSeconds:state.simSeconds});state={fleet:STORE.fromAssets(fleet.slice(0,20).map((a,i)=>({...structuredClone(a),id:`R-${i}`})),{at:0}),simSeconds:0};
       const late=await pending;await check('new-store');

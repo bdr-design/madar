@@ -64,7 +64,7 @@ const workerSource=cores.map(read).join('\n;\n')+'\n;\n'+read('fleet-engine-work
       // A step in flight.
       const ticket=client.request(store,{from:0,to:1800,context,contextKey:'k',tripAlertLimit:64,order:'events',maxEvents:4000,budget:4000});
       const refusedInFlight=client.query(store,{name:'routeCards',params:{companyId:'road',routeIds:['R1']}})===null;client.discard(ticket);
-      await new Promise(resolve=>setTimeout(resolve,50));
+      for(let wait=0;wait<600&&!client.replicaReady(store);wait++)await new Promise(resolve=>setTimeout(resolve,50));if(!client.replicaReady(store))throw new Error('worker-replica-not-ready');
       const asked=client.query(store,{name:'routeCenter',params:{companyId:'air',routeIds:['A1'],manualLimit:0,assignableRoutes:[]}});STORE.set(store,rows[800],'condition',70);const late=await asked;
       // The passes as app.js made them before Build 372 (verbatim, with its owner and mode helpers): the module's results
       // must equal them.
