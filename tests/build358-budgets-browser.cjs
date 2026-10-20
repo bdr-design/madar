@@ -13,7 +13,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     page.on('pageerror',error=>errors.push(error.message));page.on('dialog',dialog=>dialog.accept());
     await page.route(/https:\/\/(tile\.openstreetmap\.org|server\.arcgisonline\.com)\//,route=>route.abort());
     await page.goto(server.baseURL);await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);
-    await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
+    await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
     await page.evaluate(()=>{__GH_STATE__.speed=0;const prepare=GH_INTERFACE.prepare;window.GH_INTERFACE={...GH_INTERFACE,prepare(root,panel,arg,ctx){window.qaContext=ctx;return prepare(root,panel,arg,ctx);}};});
     await page.locator('.side-nav [data-panel=financeHub]').click();
     await page.evaluate(async()=>{const d=GH_COMPANY_PLATFORM.definitionFor(__GH_STATE__,'air');await qaContext.runAuthorizedDomainCommand('corporate','open-company',{type:'air',companyId:'air',capital:Math.max(50000000,d.founding.minimumCapital),legalName:'شركة الطيران',formationContract:'BUDGET-QA'});});

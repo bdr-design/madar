@@ -20,7 +20,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
   await page.click('#founderReview');
   await drawFounderSignature(page);
   await page.locator('#founderForm button[type=submit]').click();
-  await page.waitForFunction(()=>__GH_STATE__.onboardingComplete);
+  await page.waitForFunction(()=>__GH_STATE__.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
   await page.evaluate(()=>{
     __GH_STATE__.speed=0;
     const original=GH_INTERFACE.prepare;
@@ -113,7 +113,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
   assert.equal(await page.evaluate(()=>__GH_STATE__.advanced.labor.employmentContracts.filter(row=>row.officialManager&&row.company==='air'&&row.status==='ساري').length),1);
   await page.waitForTimeout(1200);
   await page.reload();
-  await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
+  await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
   assert.equal(await page.evaluate(()=>GH_HR_CORE.officialManager(__GH_STATE__,'air')?.contractId),manager.contractId);
   assert.equal(await page.locator('#speedMenu [data-speed]').count(),3);
   assert.equal(await page.locator('#speedMenu').innerText(),'30×\n120×\n300×');

@@ -387,7 +387,7 @@ async function advanceCalendar(page){
     await session.page.click('#founderReview');
     await drawFounderSignature(session.page);
     await session.page.locator('#founderForm button[type=submit]').click();
-    await session.page.waitForFunction(()=>__GH_STATE__?.onboardingComplete,null,{timeout:30000});
+    await session.page.waitForFunction(()=>__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'),null,{timeout:30000});
     if(await session.page.evaluate(()=>__GH_STATE__.speed>0))await session.page.locator('#speedToggle').click();
     await buildFleet(session.page);
     const fixture=session.bridge.json;

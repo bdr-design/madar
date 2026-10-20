@@ -34,7 +34,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     assert.doesNotMatch(draft,/\b(balanced|founder|conservative|growth|competitive)\b/,'no internal English ids in the contract');
     assert.equal(await page.locator('#founderContractPreview .charter').getAttribute('data-status'),'draft');
     await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();
-    await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
+    await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
     await page.evaluate(()=>{__GH_STATE__.speed=0;const prepare=GH_INTERFACE.prepare;window.GH_INTERFACE={...GH_INTERFACE,prepare(root,panel,arg,ctx){window.qaContext=ctx;return prepare(root,panel,arg,ctx);}};});
     const founded=await page.evaluate(()=>({profile:__GH_STATE__.profile,document:__GH_STATE__.companyRegistry.group.formationDocument,hq:document.querySelectorAll('.facility-marker').length}));
     assert.equal(founded.profile.locationId,'LON');assert.equal(founded.profile.city,'لندن');

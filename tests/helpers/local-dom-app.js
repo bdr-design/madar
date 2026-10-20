@@ -45,7 +45,7 @@ async function boot(options={}){
   await page.evaluate('(()=>{'+text+'\n})()\n//# sourceURL=gh-app/'+file);
  }
  if(options.found===false||process.env.GH_AUDIT_UNFORMED)return {page,browser,errors};
- if(!await page.evaluate(()=>window.__GH_STATE__?.onboardingComplete)){await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);}
+ if(!await page.evaluate(()=>window.__GH_STATE__?.onboardingComplete)){await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));}
  if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.click('#speedToggle');
  return {page,browser,errors};
 }

@@ -6,9 +6,9 @@ async function boot({browser,errors}){
  const page=await browser.newPage({viewport:{width:932,height:430},isMobile:true,hasTouch:true,locale:'ar-SA'});page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/app.js',route=>{const source=fs.readFileSync(path.resolve(__dirname,'../WebApp/app.js'),'utf8'),i=source.lastIndexOf('})();');return route.fulfill({contentType:'text/javascript',body:source.slice(0,i)+'\nwindow.__AUDIT__={openDrawer,closeDrawer,runAuthorizedDomainCommand,saveNow,currentPanel:()=>activeDrawerPanel};\n'+source.slice(i)});});
  await page.route(/https:\/\/(tile\.openstreetmap\.org|server\.arcgisonline\.com)\//,route=>route.abort());
- await page.goto(server.baseURL);await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.tap('#speedToggle');await page.evaluate(()=>document.fonts.ready);return {page};
+ await page.goto(server.baseURL);await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.tap('#speedToggle');await page.evaluate(()=>document.fonts.ready);return {page};
 }
-async function reboot(page){await page.reload();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);return {page};}
+async function reboot(page){await page.reload();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));return {page};}
 async function settled(page){await page.waitForFunction(()=>{const k=GH_SIM_KERNEL.snapshot();return !k.manualAdvance&&!k.jobActive&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__)&&!GH_PERSISTENCE.isLocked()&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.__GH_APP_RUNTIME_INSTRUMENTATION__?.maintenance.pending?.length;});}
 async function tapTile(page,key,panel){
  await settled(page);

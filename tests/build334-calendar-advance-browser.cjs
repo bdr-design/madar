@@ -10,7 +10,7 @@ const out=path.resolve(__dirname,'../verification');
  page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(12000);
  try{
   await page.route(/https:\/\/(tile\.openstreetmap\.org|server\.arcgisonline\.com)\//,r=>r.abort());
-  await page.goto(server.baseURL);await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
+  await page.goto(server.baseURL);await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
   if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.click('#speedToggle');
   const before=await page.evaluate(()=>({time:__GH_STATE__.simSeconds,owners:[...__GH_STATE__.openedCompanies],books:Object.keys(__GH_STATE__.companyFinance)}));
   assert.equal(before.time,0);assert.deepEqual(before.owners,[]);

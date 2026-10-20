@@ -169,7 +169,7 @@ function stateSnapshot(){
     await page.locator('#founderSignatureMount .authorization-pad-canvas').scrollIntoViewIfNeeded();
     await drawFounderSignature(page);
     await page.locator('#founderForm button[type=submit]').click();
-    try{await page.waitForFunction(()=>globalThis.__GH_STATE__?.onboardingComplete===true,null,{timeout:10000});}
+    try{await page.waitForFunction(()=>globalThis.__GH_STATE__?.onboardingComplete===true&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'),null,{timeout:10000});}
     catch(error){
       const founding=await page.evaluate(()=>({
         feedback:document.querySelector('#founderError')?.textContent?.trim()||'',

@@ -18,7 +18,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     await page.route('**/app.js',route=>{const source=fs.readFileSync(path.join(__dirname,'../WebApp/app.js'),'utf8'),i=source.lastIndexOf('})();');assert.ok(i>=0);return route.fulfill({contentType:'application/javascript',body:source.slice(0,i)+'\nwindow.__QA_MAP_READER__=()=>map;\n'+source.slice(i)});});
     await page.route(/https:\/\/(tile\.openstreetmap\.org|server\.arcgisonline\.com)\//,route=>route.abort());
     await page.goto(server.baseURL);await page.click('#founderReview');await drawFounderSignature(page);
-    await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
+    await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
     if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.click('#speedToggle');
 
     // Build 373 floating frame: the top bar band ends at 38px and the rail floats 6px clear of the inset. Build 378
@@ -62,7 +62,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     await page.locator('.god-mode-toggle').tap();
     await page.waitForFunction(()=>__GH_STATE__.godMoney===true&&__GH_STATE__.infiniteMoney===true);
     await page.waitForFunction(()=>document.getElementById('cashKpi').textContent==='∞');
-    await page.reload();await page.waitForFunction(()=>__GH_STATE__?.onboardingComplete);
+    await page.reload();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
     assert.deepEqual(await page.evaluate(()=>[__GH_STATE__.godMoney,__GH_STATE__.infiniteMoney]),[true,true],'God Mode survives a reload');
     // Switching it off works (the command used to return false, read as a rejection, so it stayed on).
     await page.tap('#settingsBtn');{const again=page.locator('#drawerBody [data-go="investorMode"]').first();if(await again.count())await again.tap();}
