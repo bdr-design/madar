@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 573,
+  "minimum_acceptance_gates": 574,
   "preflight_commands": [
     [
       "node",
@@ -2830,6 +2830,10 @@
     [
       "node",
       "tests/build544-internal-rent-tenants.cjs"
+    ],
+    [
+      "node",
+      "tests/build545-power-finance-interest.cjs"
     ]
   ]
 }
