@@ -1,0 +1,14 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'found-group'
+- 'open-all-companies'
+
+    at /Users/runner/work/madar/madar/tests/build361-bulk-opening-browser.cjs:15:429 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'found-group',
+  expected: 'open-all-companies',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
