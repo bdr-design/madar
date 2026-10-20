@@ -26,7 +26,8 @@ jobs:
       - name: Select Node 24
         uses: actions/setup-node@v4
         with:
-          node-version: "24.19.0"
+          # 24.19.0 crashed (SIGSEGV) on the arm64 runner in a GC during a Sparkplug prologue; see node-crash-probe.yml.
+          node-version: "24.22.0"
 
       - name: Require direct Git-tracked source
         shell: bash

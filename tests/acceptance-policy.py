@@ -206,10 +206,17 @@ with tempfile.TemporaryDirectory(prefix='madar-acceptance-early-stop-') as tmp:
     assert evidence['failed_early']==expected_preflight[0][1] and len(evidence['tests'])==1
     assert evidence['tests'][0]['exit_code']==7
 for command in [['node','tests/save-pipeline-browser.cjs'],['node','tests/native-save-worker-browser.cjs']]:assert command in declared['commands']
+# Node 24.19.0 crashes (SIGSEGV) on the arm64 macOS runner: a full GC in a Sparkplug prologue reads an untagged slot
+# (node-crash-probe.yml, which keeps 24.19.0 as its baseline). Every other workflow pins 24.22.0 or later.
+def node_pins(text):
+    return [tuple(map(int,pin)) for line in text.splitlines() if not line.lstrip().startswith('#') for pin in re.findall(r'node-version:\s*["\']?v?(\d+)\.(\d+)\.(\d+)',line)]
+for workflow in sorted((root/'.github/workflows').glob('*.yml')):
+    if workflow.name=='node-crash-probe.yml':continue
+    assert all(pin>=(24,22,0) for pin in node_pins(workflow.read_text())),f'{workflow.name}: Node 24.19.0 crashes on the arm64 runner; pin 24.22.0 or later'
 for name in ['build362-unsigned-ipa.yml','ventora-release-ipa.yml']:
     text=(root/'.github/workflows'/name).read_text()
     assert 'inputs.acceptance' not in text and 'acceptance_gate=NOT_RUN' not in text
-    pinned=re.search(r'node-version: "(\d+)\.(\d+)\.(\d+)"',text);assert pinned and tuple(map(int,pinned.groups()))>=(24,22,0),'Node 24.19.0 crashes (SIGSEGV) on the arm64 runner: a full GC in a Sparkplug prologue reads an untagged slot'
+    assert node_pins(text),f'{name} pins its Node version'
     checkout=text.index('uses: actions/checkout@v4');assert 'fetch-depth: 0' in text[checkout:text.index('\n      - name:',checkout)],'check out the full history: the parity gates read earlier source files with git show'
     source_step='Run all declared Build 362 source acceptance gates' if name=='build362-unsigned-ipa.yml' else 'Run the full source acceptance gate'
     start=text.index('      - name: '+source_step);end=text.index('\n      - name:',start+1);step=text[start:end]

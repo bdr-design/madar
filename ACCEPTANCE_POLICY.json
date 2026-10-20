@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 560,
+  "minimum_acceptance_gates": 561,
   "preflight_commands": [
     [
       "node",
@@ -2778,6 +2778,10 @@
     [
       "node",
       "tests/build531-durable-publish-no-late-write-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build532-map-loop-single-render.cjs"
     ]
   ]
 }
