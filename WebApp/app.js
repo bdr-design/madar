@@ -1818,6 +1818,9 @@
   // summaryFollowUp: the one redraw that shows a newer fleet summary after a render drew an older one. It does not ask
   // for another redraw itself (mapFleetSummary.followUp), so summaries arriving during play no longer chain rebuilds.
   let mapSummaryFollowUpRender=false;
+  // A loop render due while the summary is older than the store waits for the store's summary (mapLoopRenderDeferred);
+  // any render clears it, and a deferral the summary never answered draws at the next loop render.
+  let mapLoopRenderDeferred=false;
   function scheduleViewportMapRender(delay=90,summaryFollowUp=false){
     clearTimeout(mapRenderTimer);mapRenderTimer=setTimeout(()=>{mapRenderTimer=null;mapSummaryFollowUpRender=summaryFollowUp===true;try{renderMap();}finally{mapSummaryFollowUpRender=false;}},Math.max(0,Number(delay)||0));
   }
@@ -2600,6 +2603,15 @@
     // Row indices (representatives) hold while no compaction moved the rows (the store's epoch).
     return m.rows&&m.epoch===epoch?m.rows:null;
   }
+  // The structural loop drew the summary it held and that render then wanted the store's revision: a second full render
+  // about 15 ms later, when the newer summary arrived (two of the 41-44 ms iPhone rebuilds for one loop render). When the
+  // held summary is older than the store, the loop asks for the store's revision and draws once, on its arrival.
+  function deferLoopRenderToSummary(){
+    if(mapLoopRenderDeferred||!mapFleetSummaryClient())return false;
+    const m=mapFleetSummary,store=state.fleet;
+    if(!m.rows||m.store!==store||m.epoch!==window.GH_FLEET_STORE.epoch(store)||m.revision>=store.revision)return false;
+    m.followUp=store.revision;mapLoopRenderDeferred=true;mapFleetClassRows();return true;
+  }
   // Every class of the store over MAP_CLASS_FIELDS as forEachFieldClasses gives it: from the summary when the worker
   // serves the map (nothing until its first one), else read here.
   function forEachMapFleetClass(fn){
@@ -2746,7 +2758,7 @@
       });
     }
     for(const [key,marker] of facilityMarkers)if(facilityPresentation.get(marker)?.generation!==facilityPresentationGeneration){try{map.removeLayer(marker);}catch(error){nonCritical('map-layer-remove',error);}facilityMarkers.delete(key);}
-    updateMapStatus();renderWorldInfrastructureMarkers();lastMapStructureSignature=mapStructureSignature();updateMarkerPositions(true);mapVehicleCanvas?.drawIfDirty?.();
+    updateMapStatus();renderWorldInfrastructureMarkers();lastMapStructureSignature=mapStructureSignature();mapLoopRenderDeferred=false;updateMarkerPositions(true);mapVehicleCanvas?.drawIfDirty?.();
     // A render that drew a fleet summary older than the store wants the store's revision drawn once its summary arrives;
     // the follow-up render itself wants nothing, or each summary of a moving fleet would rebuild the map again.
     if(!mapSummaryFollowUpRender&&mapFleetSummaryClient()){const m=mapFleetSummary,store=state.fleet,drawn=m.rows&&m.store===store&&m.epoch===window.GH_FLEET_STORE.epoch(store)?m.revision:-1;m.followUp=drawn<store.revision?store.revision:-1;}
@@ -6818,7 +6830,7 @@ ${page}</div>`;
     // Target collection may scan a fleet; interpolation touches only the bounded
     // visible marker set. Keep it independent of fleet size and of game time.
     if(!document.hidden&&now-lastMarkerAnimationAt>=32){lastMarkerAnimationAt=now;const measureAnimation=frameRecorderActive||(++renderMetrics.animationCounter%15)===0;if(measureAnimation)stageStarted=appMetricClock();animateMapMarkerPositions(now);if(measureAnimation){markerAnimationMs=Math.max(0,appMetricClock()-stageStarted);markerAnimated=true;recordRenderMetric('marker-animation',markerAnimationMs,{ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
-    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000;if(map&&now-lastMapRenderAt>=mapStructureInterval){lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature){stageStarted=appMetricClock();renderMap();structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
+    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000;if(map&&now-lastMapRenderAt>=mapStructureInterval){lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&!deferLoopRenderToSummary()){stageStarted=appMetricClock();renderMap();structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
     const simulationSnapshot=frameRecorderActive?simulationEngine.snapshot():null,callbackEndMs=measureFrame?appMetricClock():0,frameWorkMs=measureFrame?Math.max(0,callbackEndMs-frameStarted):0;
     if(measureFrame)recordRenderMetric('frame',frameWorkMs,{frameIntervalMs,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});
     if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});
