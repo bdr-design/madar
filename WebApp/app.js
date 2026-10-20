@@ -1826,11 +1826,25 @@
   // the loop time it was deferred at (0: none). Any render clears it; one the summary has not answered within
   // MAP_LOOP_RENDER_DEFER_MS (an unavailable, rejected or slow summary) draws then with the summary held, as a render that
   // wants no follow-up (a summary arriving later is drawn by the next loop render), keeping the loop's cadence.
-  let mapLoopRenderDeferredAt=0;const MAP_LOOP_RENDER_DEFER_MS=1000;
+  // The deferral wants the store's revision through mapFleetSummary.followUp (mapLoopDeferredFollowUp) and hands back,
+  // when it ends, the follow-up an earlier render wanted (mapLoopPriorFollowUp), see endLoopFollowUp.
+  let mapLoopRenderDeferredAt=0,mapLoopDeferredFollowUp=-1,mapLoopPriorFollowUp=-1;const MAP_LOOP_RENDER_DEFER_MS=1000;
   // Why the next structural render runs (loop, loop-late, summary-due, summary-new-layout, viewport); an empty reason is an
-  // explicit renderMap call, named by its caller while a diagnostic recording is active.
+  // explicit renderMap call, named by its caller while a diagnostic recording is active. A render that also serves a
+  // deferred loop render is loop-deferred when it is the summary's answer, else its own reason with +loop.
   let mapRenderReason='';
-  function mapRenderCaller(){for(const line of String(new Error().stack||'').split('\n')){const name=(/^\s*at\s+(?:async\s+)?(?:Object\.)?([\w$.]+)\s/.exec(line)||/^\s*(?:Object\.)?([\w$.]*)@/.exec(line))?.[1];if(name&&!/^(renderMap|mapRenderCaller)$/.test(name))return name.slice(0,48);}return 'unknown';}
+  // The first app frame below renderMap in a V8 or JavaScriptCore stack: its function's name, or file:line for an
+  // anonymous function (most explicit renders come from arrow handlers). Engine built-ins are skipped.
+  function mapRenderCaller(){
+    for(const line of String(new Error().stack||'').split('\n')){
+      if(/\[native code\]|\(<anonymous>\)/.test(line))continue;
+      const name=String((/^\s*at\s+(?:async\s+)?(?:new\s+)?(.*?)\s+\(/.exec(line)||/^\s*(?:[\w$]+\*)?(.*?)@/.exec(line))?.[1]||'').replace(/^Object\./,'');
+      if(/^(renderMap|mapRenderCaller)$/.test(name))continue;
+      if(/^[\w$.]+$/.test(name))return name.slice(0,48);
+      const where=/([\w.-]+\.js)(?:\?[^:\s]*)?:(\d+)(?::\d+)?\)?\s*$/.exec(line);if(where)return `${where[1]}:${where[2]}`.slice(0,48);
+    }
+    return 'unknown';
+  }
   function scheduleViewportMapRender(delay=90,summaryFollowUp=false,reason='viewport'){
     clearTimeout(mapRenderTimer);mapRenderTimer=setTimeout(()=>{mapRenderTimer=null;mapSummaryFollowUpRender=summaryFollowUp===true;mapRenderReason=reason;try{renderMap();}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}},Math.max(0,Number(delay)||0));
   }
@@ -2603,7 +2617,9 @@
           // (followUp) or the map held no rows of this layout (the first summary, a compaction); otherwise the loop draws it
           // within its structural interval (mapStructureSignature reads received). Each summary used to rebuild the map,
           // and that render asked for the next summary, about once a second while the fleet moved.
-          const hadRows=!!m.rows&&m.epoch===epoch,due=m.followUp>=0&&result.revision>=m.followUp;
+          // While a deferral is armed it holds followUp at the store's revision; an answer that meets the wish of the render
+          // before it (mapLoopPriorFollowUp) is due too, and drawing it serves the deferral.
+          const hadRows=!!m.rows&&m.epoch===epoch,due=m.followUp>=0&&(result.revision>=m.followUp||mapLoopRenderDeferredAt>0&&mapLoopPriorFollowUp>=0&&result.revision>=mapLoopPriorFollowUp);
           m.rows=result.rows;m.revision=result.revision;m.epoch=epoch;m.received++;mapStatusCache.assetKey='';mapStatusCache.ownerKey='';
           if(!map)return;if(due)m.followUp=-1;
           if(due||!hadRows){if(mapRenderTimer===null)scheduleViewportMapRender(0,true,due?'summary-due':'summary-new-layout');}else if(m.followUp>=0)mapFleetClassRows();
@@ -2621,9 +2637,17 @@
     if(mapLoopRenderDeferredAt||!mapFleetSummaryClient())return false;
     const STORE=window.GH_FLEET_STORE,m=mapFleetSummary,store=state.fleet;
     if(!m.rows||m.store!==store||m.epoch!==STORE.epoch(store)||m.revision>=store.revision)return false;
-    m.followUp=store.revision;mapFleetClassRows();
-    if(!m.asking){m.followUp=-1;return false;}
+    mapLoopPriorFollowUp=m.followUp;mapLoopDeferredFollowUp=m.followUp=store.revision;mapFleetClassRows();
+    if(!m.asking){endLoopFollowUp();return false;}
     mapLoopRenderDeferredAt=Math.max(1,Number(now)||0);return true;
+  }
+  // A deferral ends (refused, late, or served by a render): its own wish for the store's revision goes, and a follow-up an
+  // earlier render wanted comes back unless the summary the map shows meets it. Clearing it outright (d09e11b, and the late
+  // path since ed364e2) left an explicit render's revision, a purchase's afterCommit for one, off the map for an interval.
+  function endLoopFollowUp(){
+    const m=mapFleetSummary,store=state.fleet,drawn=m.rows&&m.store===store&&m.epoch===window.GH_FLEET_STORE.epoch(store)?m.revision:-1;
+    if(mapLoopDeferredFollowUp>=0&&m.followUp===mapLoopDeferredFollowUp)m.followUp=mapLoopPriorFollowUp>drawn?mapLoopPriorFollowUp:-1;
+    mapLoopDeferredFollowUp=-1;mapLoopPriorFollowUp=-1;
   }
   // Every class of the store over MAP_CLASS_FIELDS as forEachFieldClasses gives it: from the summary when the worker
   // serves the map (nothing until its first one), else read here.
@@ -2771,11 +2795,11 @@
       });
     }
     for(const [key,marker] of facilityMarkers)if(facilityPresentation.get(marker)?.generation!==facilityPresentationGeneration){try{map.removeLayer(marker);}catch(error){nonCritical('map-layer-remove',error);}facilityMarkers.delete(key);}
-    updateMapStatus();renderWorldInfrastructureMarkers();lastMapStructureSignature=mapStructureSignature();const loopDeferred=mapLoopRenderDeferredAt>0;mapLoopRenderDeferredAt=0;updateMarkerPositions(true);mapVehicleCanvas?.drawIfDirty?.();
+    updateMapStatus();renderWorldInfrastructureMarkers();lastMapStructureSignature=mapStructureSignature();const loopDeferred=mapLoopRenderDeferredAt>0;mapLoopRenderDeferredAt=0;if(loopDeferred)endLoopFollowUp();updateMarkerPositions(true);mapVehicleCanvas?.drawIfDirty?.();
     // A render that drew a fleet summary older than the store wants the store's revision drawn once its summary arrives;
     // the follow-up render itself wants nothing, or each summary of a moving fleet would rebuild the map again.
     if(!mapSummaryFollowUpRender&&mapFleetSummaryClient()){const m=mapFleetSummary,store=state.fleet,drawn=m.rows&&m.store===store&&m.epoch===window.GH_FLEET_STORE.epoch(store)?m.revision:-1;m.followUp=drawn<store.revision?store.revision:-1;}
-    const reason=loopDeferred?'loop-deferred':mapRenderReason||(window.GH_DIAGNOSTICS?.recorderIsActive?.(state)===true?`explicit:${mapRenderCaller()}`:'explicit');mapRenderReason='';
+    const own=mapRenderReason||(window.GH_DIAGNOSTICS?.recorderIsActive?.(state)===true?`explicit:${mapRenderCaller()}`:'explicit'),reason=!loopDeferred?own:own==='summary-due'?'loop-deferred':`${own}+loop`;mapRenderReason='';
     window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'map.structure',renderStarted,appMetricClock(),{reason});
     // The loop's deferred render runs in the summary's follow-up task, outside the frame: it is still the loop's
     // structural render and is measured as one.
@@ -6847,7 +6871,7 @@ ${page}</div>`;
     // Target collection may scan a fleet; interpolation touches only the bounded
     // visible marker set. Keep it independent of fleet size and of game time.
     if(!document.hidden&&now-lastMarkerAnimationAt>=32){lastMarkerAnimationAt=now;const measureAnimation=frameRecorderActive||(++renderMetrics.animationCounter%15)===0;if(measureAnimation)stageStarted=appMetricClock();animateMapMarkerPositions(now);if(measureAnimation){markerAnimationMs=Math.max(0,appMetricClock()-stageStarted);markerAnimated=true;recordRenderMetric('marker-animation',markerAnimationMs,{ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
-    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000,deferredLate=mapLoopRenderDeferredAt>0&&now-mapLoopRenderDeferredAt>=MAP_LOOP_RENDER_DEFER_MS;if(map&&(deferredLate||now-lastMapRenderAt>=mapStructureInterval)){if(deferredLate){mapLoopRenderDeferredAt=0;mapFleetSummary.followUp=-1;}else lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&(deferredLate||!deferLoopRenderToSummary(now))){stageStarted=appMetricClock();mapSummaryFollowUpRender=true;mapRenderReason=deferredLate?'loop-late':'loop';try{renderMap();}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
+    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000,deferredLate=mapLoopRenderDeferredAt>0&&now-mapLoopRenderDeferredAt>=MAP_LOOP_RENDER_DEFER_MS;if(map&&(deferredLate||now-lastMapRenderAt>=mapStructureInterval)){if(deferredLate){mapLoopRenderDeferredAt=0;endLoopFollowUp();}else lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&(deferredLate||!deferLoopRenderToSummary(now))){stageStarted=appMetricClock();mapSummaryFollowUpRender=true;mapRenderReason=deferredLate?'loop-late':'loop';try{renderMap();}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
     const simulationSnapshot=frameRecorderActive?simulationEngine.snapshot():null,callbackEndMs=measureFrame?appMetricClock():0,frameWorkMs=measureFrame?Math.max(0,callbackEndMs-frameStarted):0;
     if(measureFrame)recordRenderMetric('frame',frameWorkMs,{frameIntervalMs,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});
     if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});
