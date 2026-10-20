@@ -7,12 +7,13 @@ function amount(v){const n=number(v),a=Math.abs(n);return a>=1e9?{value:(n/1e9).
 const companyCount=n=>n===1?'شركة واحدة':n===2?'شركتان':n<=10?`${int(n)} شركات`:`${int(n)} شركة`;
 function documentFor(snapshot,scene){
  const g=snapshot.group||{},companies=snapshot.companies||[],company=companies.find(c=>c.type===scene.type),row=company||g;
- const totalHeadcount=number(g.headcount)+companies.reduce((sum,c)=>sum+number(c.headcount),0);
+ // Snapshots archived before totalHeadcount existed hold the holding's own staff in headcount: add the companies'.
+ const totalHeadcount=Number.isFinite(Number(g.totalHeadcount))?number(g.totalHeadcount):number(g.headcount)+companies.reduce((sum,c)=>sum+number(c.headcount),0);
  const doc={...scene,year:snapshot.year,eyebrow:scene.title,title:scene.headline,unit:scene.subtitle,numeric:false,stats:scene.metrics,series:[],chartTitle:'',note:scene.caption,exact:null,logo:scene.logo};
  if(scene.kind==='finance'){
   doc.title='النتائج المالية';doc.unit=`الفترة ${snapshot.year||'الحالية'}`;doc.numeric=false;doc.exact=null;
   const totalDays=Number(row.expectedDays)||0,reportedDays=Number(row.reportedDays)||0,ratio=totalDays>0?Math.max(0,Math.min(100,reportedDays/totalDays*100)):null,margin=number(row.grossRevenue)>0?number(row.net)/number(row.grossRevenue)*100:null,growth=annualGrowth(row,'revenue',snapshot.year);
-  doc.summary={revenue:number(row.grossRevenue),expenses:number(row.expenses),net:number(row.net),reportedDays,expectedDays:totalDays,coverage:ratio,margin,growth,complete:!!row.complete,quality:row.dataQuality?.status||'empty',qualityReason:row.dataQuality?.reason||'',ops:company?.ops||null,group:!company,companyCount:companies.length,groupHeadcount:number(g.headcount),groupFacilities:companies.reduce((n,c)=>n+number(c.facilities),0),opsAsOfDay:company?.opsAsOfDay||null};
+  doc.summary={revenue:number(row.grossRevenue),expenses:number(row.expenses),net:number(row.net),reportedDays,expectedDays:totalDays,coverage:ratio,margin,growth,complete:!!row.complete,quality:row.dataQuality?.status||'empty',qualityReason:row.dataQuality?.reason||'',ops:company?.ops||null,group:!company,companyCount:companies.length,groupHeadcount:totalHeadcount,groupFacilities:companies.reduce((n,c)=>n+number(c.facilities),0),opsAsOfDay:company?.opsAsOfDay||null};
   doc.heroLabel='ملخص الفترة المالية';doc.chartTitle='الأرقام من الإقفالات المالية المسجلة';
   doc.list=usable(row)?[
    {label:'الإيرادات المسجلة',value:`${amount(row.grossRevenue).value} ${amount(row.grossRevenue).unit}`},

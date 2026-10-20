@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 566,
+  "minimum_acceptance_gates": 567,
   "preflight_commands": [
     [
       "node",
@@ -2802,6 +2802,10 @@
     [
       "node",
       "tests/build537-conference-copy.cjs"
+    ],
+    [
+      "node",
+      "tests/build538-conference-group-headcount.cjs"
     ]
   ]
 }
