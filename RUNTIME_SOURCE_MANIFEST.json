@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "d318208a239bfa005e518db00244d2cb0760a1ace0daf4185e58f8958d31dd37",
-  "webapp_tree_sha256": "41dea8ab7c2f98a137bc9171256526114ca2df1fd0cbe8d64f4be346df24a6ac",
+  "source_tree_sha256": "b32bcd098ec19759b3ec6eb232d049a72ead04771cd3e6143c79a59219ed25f8",
+  "webapp_tree_sha256": "ebb8704a0a697da9641988a3472c2c27f5042ad18e8a5f00d4830169de32d478",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1024623,
-      "sha256": "65182de5d66df4f299222dfeda1fc3a0b003f4ddaabaf6c2d8fa7faaf419e366"
+      "bytes": 1024881,
+      "sha256": "3019be450689adf97a30c1a57f629f81e851891ecf124442592ce6372b68332e"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3799,8 +3799,8 @@
       "sha256": "b456a744f67a407c3ff66fa47b41a87fa5b7e5046898100f056db750c9190dcb"
     },
     "WebApp/persistence-core.js": {
-      "bytes": 75561,
-      "sha256": "6f7a8948d0f934fe628d42d70ba47b22fd3a04fc675696a463f6d3de1ae44238"
+      "bytes": 78024,
+      "sha256": "d6c4a5ec974125e153f55be5b777efc754c56107782dd5dc7f14284c0aa53d9d"
     },
     "WebApp/phone-layout.css": {
       "bytes": 1568,
@@ -3923,8 +3923,8 @@
       "sha256": "68bfb3d67c109a41ada0bc54f39c9671ce3ddd659cab12510ae81622712c04ec"
     },
     "WebApp/transaction-core.js": {
-      "bytes": 102008,
-      "sha256": "1470a69c7a3bd83684c0608ce535d2346a260a1bbc33a31cd355e619d3ebb59f"
+      "bytes": 102645,
+      "sha256": "6e6368d569d36eb17c1867567e2d4fe79ecc045834aba0a3b478eaa771f26758"
     },
     "WebApp/ui-quality-core.js": {
       "bytes": 6266,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "f4feb079c22d98a3c1698cf4f3fff6561e2dd16d7654e1785396b2e4364a6a3b"
+      "sha256": "23bc6d4d40eb49af7e7cb8122510d4e4850253d663d85672b5559f2965c8a223"
     },
     "BUILD": {
       "bytes": 4,

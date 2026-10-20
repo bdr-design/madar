@@ -328,17 +328,21 @@
   // serializes the draft itself, lists what it lists, uploads whatever is missing, and the vault refuses a commit whose
   // chunks are absent. release() forgets the ids this staging uploaded that no committed manifest lists, so a later save
   // uploads them again rather than trusting a file the vault may have collected. Failures only lose the head start.
+  // `planned` resolves, once the fleet manifest is made (before the uploads), to the ids this staging will upload, or null
+  // when it stopped before: commitDurableState serializes meanwhile and waits for the uploads only before its own.
   function prestageDurableChunks(state,{yieldToFrame=null}={}){
     const staged=new Set(),epoch=vaultEpoch,started=clock(),timing={kind:'durable-prestage',ok:false,uploads:0,bytes:0,wireBytes:0,encodingWorkerMs:0,compressedChunks:0,busyMs:0,slices:0,retakes:0,wallMs:0,reason:null};let stopped=false;
     // A released staging stops at its next yield or upload: the command has ended and may have rolled the fleet back.
     const stopIfReleased=()=>{if(stopped)throw new Error('prestage-released');if(recoveryRequired||vaultEpoch!==epoch)throw new Error('prestage-vault-changed');};
     const applicable=typeof yieldToFrame==='function'&&!locked&&!durableLocked&&!recoveryRequired&&chunkedNative(state)&&Number(state?.fleet?.length)>FLEET_MAIN_THREAD_ROWS;
     if(!applicable)return null;
+    let plan=null;const planned=new Promise(resolve=>{plan=resolve;});
     const settled=(async()=>{
       try{
         // No retake: the command holds the lifecycle lock, so a fleet change here means the staging is stale; persist decides.
         // Only the fleet's chunks: the commit writes the save text once, after validation (no second serialization).
         const save=await serializeNativeSliced(state,async()=>{await yieldToFrame();stopIfReleased();},timing,{retake:false,fleetChunksOnly:true});
+        plan(new Set(save.uploads.filter(upload=>!vaultChunks.has(upload.id)).map(upload=>upload.id)));
         for(const upload of save.uploads){
           if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}
           stopIfReleased();
@@ -348,11 +352,11 @@
         }
         timing.ok=true;
       }catch(error){timing.reason=String(error?.message||error).slice(0,160);}
-      finally{timing.wallMs=Math.max(0,clock()-started);rememberTiming(timing);}
+      finally{plan(null);timing.wallMs=Math.max(0,clock()-started);rememberTiming(timing);}
       return {ok:timing.ok,uploads:timing.uploads,bytes:timing.bytes,wallMs:timing.wallMs,reason:timing.reason};
     })();
     let released=null;
-    return Object.freeze({settled,release(){
+    return Object.freeze({settled,planned,release(){
       stopped=true;
       if(!released)released=settled.then(()=>{if(vaultEpoch===epoch)for(const id of staged)if(!lastCommittedChunkIds?.has(id))vaultChunks.delete(id);staged.clear();});
       return released;
@@ -451,7 +455,11 @@
     return beginOrdinary(state,snapshotOptions);
   }
   async function drain(options={}){return waitOrdinaryIdle(options);}
-  async function commitDurableState(state,{storageKey='global-holdings-world-v3.0.0',appVersion=VERSION,yieldToFrame=null,...options}={}){
+  // `staging`: the command's prestageDurableChunks. The sliced native save serializes while it still uploads, trusting the
+  // ids it planned, and waits for it before its own uploads (stagingWaitMs). Should it not have uploaded an id this save
+  // lists, the save is serialized again without that trust (stagingRetakes), so a commit never lists a chunk the vault
+  // lacks. Commands waited for the staging before persisting: 155-175 ms of 3 of 6 iPhone decisions at 980,000 assets.
+  async function commitDurableState(state,{storageKey='global-holdings-world-v3.0.0',appVersion=VERSION,yieldToFrame=null,staging=null,...options}={}){
     if(locked||durableLocked||(slicedLocked&&options[SLICED_COMMIT]!==true))throw new Error('lifecycle-locked');if(recoveryRequired)throw new Error('memory-recovery-required');
     if(options.expectedPreviousRevision!=null){const previous=Number(options.expectedPreviousRevision),next=Number(state?.saveRevision);if(!Number.isSafeInteger(previous)||previous<0||!Number.isSafeInteger(next)||next!==previous+1)throw new Error(`save-revision-conflict:${previous}:${next}`);}
     durableLocked=true;
@@ -459,12 +467,23 @@
     try{
       await waitOrdinaryIdle({supersedeDirty:true});
       const durableTiming={kind:'durable-save',saveRevision:Number(state?.saveRevision)||0,schemaMs:0,stringifyMs:0,measurementMs:0,totalSyncMs:0,utf8Bytes:null,ok:false};let stageStart=clock();const syncStart=stageStart;
-      assertRecurringState(state,{prevalidated:options.prevalidated===true});durableTiming.schemaMs=Math.max(0,clock()-stageStart);stageStart=clock();const changeToken=captureSaveChanges(state),nativeBridge=!!bridgeFor('commitSave'),sliced=nativeBridge&&typeof yieldToFrame==='function'?{busyMs:0,slices:0,retakes:0}:null,nativeSave=nativeBridge?(sliced?await serializeNativeSliced(state,yieldToFrame,sliced,{validatedFleetRevision:Number.isSafeInteger(options.validatedFleetRevision)?options.validatedFleetRevision:null}):serializeNative(state)):null,json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
+      assertRecurringState(state,{prevalidated:options.prevalidated===true});durableTiming.schemaMs=Math.max(0,clock()-stageStart);stageStart=clock();const changeToken=captureSaveChanges(state),nativeBridge=!!bridgeFor('commitSave'),sliced=nativeBridge&&typeof yieldToFrame==='function'?{busyMs:0,slices:0,retakes:0}:null,validatedFleetRevision=Number.isSafeInteger(options.validatedFleetRevision)?options.validatedFleetRevision:null,overlap=!!staging&&!!sliced;
+      // stagingPlanWaitMs: waiting for the staging's plan (its fleet manifest); stagingUploadWaitMs: for its uploads.
+      const awaitStaging=async(promise,key)=>{const waited=clock();const value=await Promise.resolve(promise).catch(()=>null),ms=Math.max(0,clock()-waited);durableTiming[key]=(durableTiming[key]||0)+ms;durableTiming.stagingWaitMs=(durableTiming.stagingWaitMs||0)+ms;return value;};
+      if(staging&&!overlap)await awaitStaging(staging.settled,'stagingUploadWaitMs');
+      const planned=overlap?await awaitStaging(staging.planned,'stagingPlanWaitMs'):null,trusting=planned instanceof Set&&planned.size?{has:id=>vaultChunks.has(id)||planned.has(id)}:null;
+      let nativeSave=nativeBridge?(sliced?await serializeNativeSliced(state,yieldToFrame,sliced,{validatedFleetRevision,...(trusting?{knownChunkIds:trusting}:{})}):serializeNative(state)):null;
+      if(overlap){await awaitStaging(staging.settled,'stagingUploadWaitMs');if(trusting&&nativeSave?.chunkIds?.some(id=>planned.has(id)&&!vaultChunks.has(id))){durableTiming.stagingRetakes=1;nativeSave=await serializeNativeSliced(state,yieldToFrame,sliced,{validatedFleetRevision});}}
+      const json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
       if(nativeBridge){
-        stageStart=clock();const encodeBusy=sliced?sliced.busyMs:0,encoded=sliced?await runSliced(utf8Steps(json),yieldToFrame,sliced):utf8(json),measurement=inspectNativeJSON(json,encoded);durableTiming.measurementMs=sliced?sliced.busyMs-encodeBusy:Math.max(0,clock()-stageStart);durableTiming.utf8Bytes=measurement.utf8Bytes;durableTiming.totalSyncMs=sliced?durableTiming.schemaMs+sliced.busyMs:Math.max(0,clock()-syncStart);if(sliced){durableTiming.slices=sliced.slices;durableTiming.maxBusySliceMs=sliced.maxBusySliceMs||0;durableTiming.checksumRequests=sliced.checksumRequests||0;durableTiming.checksumWorkerMs=sliced.checksumWorkerMs||0;durableTiming.retakes=sliced.retakes;durableTiming.wallMs=Math.max(0,clock()-syncStart);}durableTiming.ok=true;rememberTiming(durableTiming);let ack;try{await uploadChunks(nativeSave?.uploads);ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state),encoded});}catch(error){throw noteNativeRefusal(error);}ordinaryError=null;
+        stageStart=clock();const encodeBusy=sliced?sliced.busyMs:0,encoded=sliced?await runSliced(utf8Steps(json),yieldToFrame,sliced):utf8(json),measurement=inspectNativeJSON(json,encoded);durableTiming.measurementMs=sliced?sliced.busyMs-encodeBusy:Math.max(0,clock()-stageStart);durableTiming.utf8Bytes=measurement.utf8Bytes;durableTiming.totalSyncMs=sliced?durableTiming.schemaMs+sliced.busyMs:Math.max(0,clock()-syncStart);if(sliced){durableTiming.slices=sliced.slices;durableTiming.maxBusySliceMs=sliced.maxBusySliceMs||0;durableTiming.checksumRequests=sliced.checksumRequests||0;durableTiming.checksumWorkerMs=sliced.checksumWorkerMs||0;durableTiming.retakes=sliced.retakes;durableTiming.wallMs=Math.max(0,clock()-syncStart);}durableTiming.ok=true;rememberTiming(durableTiming);let ack;try{await uploadChunks(nativeSave?.uploads);
+          // Every chunk the save lists is one this session uploaded or the vault reported: a commit never reaches the vault
+          // listing one it may lack (the vault would refuse it; this refuses it first, with nothing saved).
+          const absent=nativeSave?.chunked?nativeSave.chunkIds.find(id=>!vaultChunks.has(id)):null;if(absent)throw new Error(`save-chunk-not-uploaded:${absent}`);
+          ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state),encoded});}catch(error){throw noteNativeRefusal(error);}ordinaryError=null;
         const cache=nativeSave?.chunked?{ok:false,reason:'chunked-native-save',previous:null,bypassed:true}:(measurement.utf8Bytes>PERSISTENCE_LIMITS.hardBytes||measurement.storageBytes>PERSISTENCE_LIMITS.hardBytes)?{ok:false,reason:'browser-cache-size-bypass',previous:null,bypassed:true}:writeJSON(storageKey,json,{...options,mirror:true},encoded);
         if(!cache.ok&&!nativeSave?.chunked)status({ok:true,warning:true,reason:'browser-cache-skipped',cacheReason:cache.reason,durable:true,utf8Bytes:measurement.utf8Bytes,mirror:true});
-        acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:0});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason};
+        acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:0});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason,stagingWaitMs:durableTiming.stagingWaitMs||0};
       }
       written=writeJSON(storageKey,json,options);if(!written.ok)throw new Error(written.reason);
       const ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state)});ordinaryError=null;

@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 562,
+  "minimum_acceptance_gates": 564,
   "preflight_commands": [
     [
       "node",
@@ -2786,6 +2786,14 @@
     [
       "node",
       "tests/build533-durable-context-release.cjs"
+    ],
+    [
+      "node",
+      "tests/build534-staged-save-overlap.cjs"
+    ],
+    [
+      "node",
+      "tests/build535-staged-save-retake-browser.cjs"
     ]
   ]
 }

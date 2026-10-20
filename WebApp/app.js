@@ -1165,8 +1165,10 @@
       const introduced=critical.filter(row=>!priorCriticalIds.has(String(row.id||row.code||row.title)));
       if(introduced.length)throw new Error(`critical-integrity:${introduced.map(row=>row.code||row.id||row.title).join(',')}`);
       await yieldIfBusy();
-      if(staging?.settled){mark=clockNow();const staged=await staging.settled.catch(()=>null);timing.prestageOk=staged?.ok===true;timing.prestageUploads=Number(staged?.uploads)||0;timing.prestageBytes=Number(staged?.bytes)||0;timing.prestageWallMs=Number(staged?.wallMs)||0;lap('prestageWaitMs');}
-      mark=clockNow();await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,validatedFleetRevision,yieldToFrame:()=>yieldForInteractivePaint()});lap('persistMs');
+      // The save is serialized while the staging still uploads; persistence waits for it before its own uploads
+      // (prestageWaitMs is that wait, inside persistMs).
+      mark=clockNow();const persisted=await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,validatedFleetRevision,yieldToFrame:()=>yieldForInteractivePaint(),...(staging?.settled?{staging}:{})});lap('persistMs');
+      if(staging?.settled){const staged=await staging.settled.catch(()=>null);timing.prestageOk=staged?.ok===true;timing.prestageUploads=Number(staged?.uploads)||0;timing.prestageBytes=Number(staged?.bytes)||0;timing.prestageWallMs=Number(staged?.wallMs)||0;timing.prestageWaitMs=Number(persisted?.stagingWaitMs)||0;mark=clockNow();}
       // Storage has already committed. A publication failure is a recovery
       // condition, never a successful rollback and never safe to retry blindly.
       // A recovery lock raised in the frame after the publication owns the runtime: the committed event, the one write
