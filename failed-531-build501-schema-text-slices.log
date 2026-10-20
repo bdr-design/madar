@@ -1,0 +1,31 @@
+fatal: path 'WebApp/save-schema.js' exists on disk, but not in '23f6be66d960d75a2425e1f054b9f9e62d109557'
+node:child_process:981
+    throw err;
+    ^
+
+Error: Command failed: git -C /Users/runner/work/madar/madar show 23f6be66d960d75a2425e1f054b9f9e62d109557:WebApp/save-schema.js
+fatal: path 'WebApp/save-schema.js' exists on disk, but not in '23f6be66d960d75a2425e1f054b9f9e62d109557'
+
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:942:11)
+    at execFileSync (node:child_process:978:15)
+    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/build501-schema-text-slices.cjs:45:18)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19) {
+  status: 128,
+  signal: null,
+  output: [
+    null,
+    '',
+    "fatal: path 'WebApp/save-schema.js' exists on disk, but not in '23f6be66d960d75a2425e1f054b9f9e62d109557'\n"
+  ],
+  pid: 78756,
+  stdout: '',
+  stderr: "fatal: path 'WebApp/save-schema.js' exists on disk, but not in '23f6be66d960d75a2425e1f054b9f9e62d109557'\n"
+}
+
+Node.js v24.19.0
