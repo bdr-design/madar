@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "0e84037b220a6db652c411dca5c2a194fa81f06fac6ef777b24236f257c1426a",
-  "webapp_tree_sha256": "29b4541be0b3cb35753f3277c1c9bd84625ca5d8c8371d1810244d3877218ced",
+  "source_tree_sha256": "b45e5fc7948bb2a479442e49031e65bceaf17d911cc37692cb9eb66553385436",
+  "webapp_tree_sha256": "a02fec0b2c2745ae804407eeaf9989439812e480db774f037d6b4aae45f4ac7a",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3831,8 +3831,8 @@
       "sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106"
     },
     "WebApp/realism-core.js": {
-      "bytes": 120584,
-      "sha256": "73023757759e5fbfbaae83f46d6cf46b747be46f2ed58e87380e797445bd4d38"
+      "bytes": 120608,
+      "sha256": "5de8c917bea0044328bc5c02140f8380a36c9c0bf44d766c86d9bffd02c42425"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "7d73351a322238e30366ca9da4754ac9a6859acfbb088322e004b4ddaf8fda43"
+      "sha256": "88dcfc77e27fb24d0277ea4caf878770948249ee8a49f34c09081ee2782afb55"
     },
     "BUILD": {
       "bytes": 4,

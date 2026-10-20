@@ -426,5 +426,15 @@
         "WebApp/realism-core.js": 4
       }
     }
+  },
+  "approved_financial_booking_edits": {
+    "WebApp/realism-core.js": [
+      {
+        "reason": "Owner revenue audit (20 Oct 2026): an external insurer's fleet claim recovery is income in the fleet company's daily close (as hospitality claims are); no price, demand or customer change.",
+        "before": "counterparty:'شركة التأمين الخارجية'});c.transferReference=payment?.transferReference",
+        "after": "counterparty:'شركة التأمين الخارجية',investmentResult:amount});c.transferReference=payment?.transferReference",
+        "sha256": "88c51c7b136d5ea9db28903a2edadc5c365752c661e4a1278c2d9c77b584eb0f"
+      }
+    ]
   }
 }

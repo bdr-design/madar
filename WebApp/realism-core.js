@@ -327,7 +327,7 @@
       if(['قيد الفحص','بانتظار سيولة شركة التأمين'].includes(c.status)&&nowSec-Number(c.openedAt||0)>=REVIEW_SECONDS){
         const amount=Math.max(0,Number(c.covered)||0),companyId=rowCompanyId(state,c,'');if(amount>0&&!companyId)throw new Error(`insurance-claim-company-invalid:${c.id||'unknown'}`);
         const insurer=String(c.insurerCompanyId||'');if(insurer&&insurer===internalInsurer){if(Math.max(0,Number(F?.operating?.(state,insurer))||0)+1e-8<amount){c.status='بانتظار سيولة شركة التأمين';continue;}const settlement=F.execute({state},'settle-intercompany-service',{from:insurer,to:companyId,amount,note:`تعويض مطالبة تأمين أسطول · ${c.id}`,serviceCategory:'تعويض مطالبة تأمين أسطول',taxCode:'insurance-claim',ref:`FLEET-CLAIM-${c.id}`,sourceRefs:[c.id,c.policyReference].filter(Boolean)});c.transferReference=settlement.reference;c.provider='شركة التأمين التابعة';}
-        else if(amount>0){const payment=F?.execute?.({state},'credit',{company:companyId,amount,note:`تعويض مطالبة تأمين ${c.id}`,method:'تحويل شركة تأمين',taxable:false,taxCode:'insurance-claim',reference:`EXT-FLEET-CLAIM-${c.id}`,counterparty:'شركة التأمين الخارجية'});c.transferReference=payment?.transferReference||`EXT-FLEET-CLAIM-${c.id}`;c.provider='شركة تأمين خارجية';}
+        else if(amount>0){const payment=F?.execute?.({state},'credit',{company:companyId,amount,note:`تعويض مطالبة تأمين ${c.id}`,method:'تحويل شركة تأمين',taxable:false,taxCode:'insurance-claim',reference:`EXT-FLEET-CLAIM-${c.id}`,counterparty:'شركة التأمين الخارجية',investmentResult:amount});c.transferReference=payment?.transferReference||`EXT-FLEET-CLAIM-${c.id}`;c.provider='شركة تأمين خارجية';}
         c.status='مدفوعة';c.paid=amount;c.paidAt=nowSec;
       }
     }

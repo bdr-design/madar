@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 571,
+  "minimum_acceptance_gates": 572,
   "preflight_commands": [
     [
       "node",
@@ -2822,6 +2822,10 @@
     [
       "node",
       "tests/build542-contract-deposit.cjs"
+    ],
+    [
+      "node",
+      "tests/build543-external-claim-recovery.cjs"
     ]
   ]
 }
