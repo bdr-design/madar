@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 577,
+  "minimum_acceptance_gates": 578,
   "preflight_commands": [
     [
       "node",
@@ -2846,6 +2846,10 @@
     [
       "node",
       "tests/build548-group-intercompany-elimination.cjs"
+    ],
+    [
+      "node",
+      "tests/build549-intercompany-loan-interest.cjs"
     ]
   ]
 }
