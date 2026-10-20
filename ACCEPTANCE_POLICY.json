@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 576,
+  "minimum_acceptance_gates": 577,
   "preflight_commands": [
     [
       "node",
@@ -2842,6 +2842,10 @@
     [
       "node",
       "tests/build547-conference-customer-base.cjs"
+    ],
+    [
+      "node",
+      "tests/build548-group-intercompany-elimination.cjs"
     ]
   ]
 }

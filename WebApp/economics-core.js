@@ -52,17 +52,20 @@ function sectorEconomics(state,options={}){
   // Internal rent is the tenant's P&L expense; a monthly settlement moves its cash and creates its paired documents, so it
   // stays out of the close's cash postings. Added after every engine's own row, which sets (not adds to) its company's
   // expense: a telecom or dealership tenant processed after real estate kept no rent at all.
-  for(const item of internalRent){companyExpense[item.companyId]=(Number(companyExpense[item.companyId])||0)+num(item.amount);companyCashExpense[item.companyId]=Number(companyCashExpense[item.companyId])||0;}
+  // Both sides of internal rent and internal hospitality services are in the companies' rows; the close leaves them out of
+  // the group's consolidated revenue and expenses (intercompanyRows: payer, seller, amount).
+  const intercompanyRows=[];
+  for(const item of internalRent){companyExpense[item.companyId]=(Number(companyExpense[item.companyId])||0)+num(item.amount);companyCashExpense[item.companyId]=Number(companyCashExpense[item.companyId])||0;intercompanyRows.push({from:item.companyId,to:'realestate',amount:num(item.amount)});}
   const hospitality=globalThis.GH_HOSPITALITY_CORE;
   for(const instance of globalThis.GH_COMPANY_PLATFORM?.listInstances?.(state,{includeGroup:false,openedOnly:true,capability:'operations.hospitality'})||[]){
     if(!instance.operational||!hospitality?.read(state,instance.id))continue;
     const row=hospitality.dailyResult(state,requestedDay??Math.floor(num(state.simSeconds)/86400),instance.id,options);
     const suppliers=hospitality.read(state,instance.id)?.history?.find(r=>r.day===(requestedDay??Math.floor(num(state.simSeconds)/86400)))?.supplierRevenue||{};
-    for(const [supplier,cents] of Object.entries(suppliers)){companyCashRevenue[supplier]=num(companyCashRevenue[supplier]??companyRevenue[supplier]);companyRevenue[supplier]=num(companyRevenue[supplier])+num(cents)/100;}
+    for(const [supplier,cents] of Object.entries(suppliers)){companyCashRevenue[supplier]=num(companyCashRevenue[supplier]??companyRevenue[supplier]);companyRevenue[supplier]=num(companyRevenue[supplier])+num(cents)/100;intercompanyRows.push({from:instance.id,to:supplier,amount:num(cents)/100});}
     // Real estate may already have accrued this legal operator's rent. Its paired settlement owns that cash.
     companyRevenue[instance.id]=num(companyRevenue[instance.id])+num(row.revenue);companyExpense[instance.id]=num(companyExpense[instance.id])+num(row.expense);companyCashRevenue[instance.id]=num(companyCashRevenue[instance.id])+num(row.cashRevenue);companyCashExpense[instance.id]=num(companyCashExpense[instance.id])+num(row.cashExpense);companyFacilityVat[instance.id]=num(row.facilityVatAdjustment);
   }
-  return {power,powerFreeCash,bank,detail:{companyRevenue,companyCashRevenue,companyExpense,companyCashExpense,companyCashTaxExemptRevenue,companyFacilityVat,generation,revenue,gasFuel,carbon,storageMargin,ppaRevenue:num(energyDetail?.ppaRevenue),spotRevenue:num(energyDetail?.spotRevenue),ppaMWh:num(energyDetail?.ppaMWh),interestIncome,securityIncome,depositExpense,wholesaleInterestExpense,expectedLoss,bankProvisionExpense,powerRevenue,powerExpense,powerDebtPrincipal,powerDebtInterest,powerDebtService,bankRevenue,bankCashRevenueToPost,bankExpense,bankExpenseToPost,bankFacilityExpense,powerExpenseToPost,powerFacilityExpense,takeOrPayAccrued:num(energyClose?.takeOrPayAccrued),bankOpex,feeIncome,transactionFeeIncome,reportedFeeIncome,liquidityCarry}};
+  return {power,powerFreeCash,bank,detail:{companyRevenue,companyCashRevenue,companyExpense,companyCashExpense,intercompanyRows,companyCashTaxExemptRevenue,companyFacilityVat,generation,revenue,gasFuel,carbon,storageMargin,ppaRevenue:num(energyDetail?.ppaRevenue),spotRevenue:num(energyDetail?.spotRevenue),ppaMWh:num(energyDetail?.ppaMWh),interestIncome,securityIncome,depositExpense,wholesaleInterestExpense,expectedLoss,bankProvisionExpense,powerRevenue,powerExpense,powerDebtPrincipal,powerDebtInterest,powerDebtService,bankRevenue,bankCashRevenueToPost,bankExpense,bankExpenseToPost,bankFacilityExpense,powerExpenseToPost,powerFacilityExpense,takeOrPayAccrued:num(energyClose?.takeOrPayAccrued),bankOpex,feeIncome,transactionFeeIncome,reportedFeeIncome,liquidityCarry}};
 }
 const API=Object.freeze({VERSION,sectorEconomics});globalThis.GH_ECONOMICS_CORE=API;if(globalThis.window&&window!==globalThis)window.GH_ECONOMICS_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

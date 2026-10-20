@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "0c281109d10a6988f1f71e88c2a5014c90fcdc7455765925700a102c444a84af",
-  "webapp_tree_sha256": "ec0557c688baa33c4bbb6f74555b39b167b70ecad487fcaee27e04d342652b36",
+  "source_tree_sha256": "c37eec596d261effdc8f4537d4733cb62ddf52095ca449f66a8b0713ed136c4a",
+  "webapp_tree_sha256": "c96bac4b12b3cc1db050a3a3297af84d5ae8d006f5d2683beda6c742c25b48fa",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1014328,
-      "sha256": "126d9a4304d6aca1b6cbcaa3d81bfbeaaf8ffd3c996d664d45888c2bd876e7e6"
+      "bytes": 1015479,
+      "sha256": "58c3602715160e384c99011a0a5d6a01a0809080dbfb834b602ba95ef55cc504"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3503,8 +3503,8 @@
       "sha256": "d236fcc99e30845cc8ab916398e50ecc359eb5913c610f3576b0df4b50830aba"
     },
     "WebApp/economics-core.js": {
-      "bytes": 12008,
-      "sha256": "963151173b4c419a16dc96e01a4d6377478e6c2ed0337ebf47cbdf728e3dc767"
+      "bytes": 12433,
+      "sha256": "30cd0fb82389fd99dc3bb15233ddc84c56050c037e46b15cbb9fb57a123b7a11"
     },
     "WebApp/energy-core.js": {
       "bytes": 66261,
@@ -3519,8 +3519,8 @@
       "sha256": "7eecd848ab6d83132057f97ee046559394b24f5d44514d9f63e5e85ab75b1044"
     },
     "WebApp/finance-core.js": {
-      "bytes": 203252,
-      "sha256": "63b779fef12425f8e91d75d311db06cc19c162190640606bc2dbb4497c245630"
+      "bytes": 205359,
+      "sha256": "5d84b4b1d3f4a8e71503f3f345bfce439b357584965d7c5f0825b5c3e47c3314"
     },
     "WebApp/finance-presentation.css": {
       "bytes": 33498,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "65b347e97533606cf4b942429fba8dbe086c11c4214b9804146e18fe45afee5e"
+      "sha256": "54db8c7dbf5b1aeecf902797d40614a10f6d495ebb9c64892cb68e69585e38a3"
     },
     "BUILD": {
       "bytes": 4,
