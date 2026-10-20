@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 575,
+  "minimum_acceptance_gates": 576,
   "preflight_commands": [
     [
       "node",
@@ -2838,6 +2838,10 @@
     [
       "node",
       "tests/build546-sponsorship-revenue.cjs"
+    ],
+    [
+      "node",
+      "tests/build547-conference-customer-base.cjs"
     ]
   ]
 }
