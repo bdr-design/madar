@@ -15,7 +15,7 @@ on:
       rounds:
         description: Runs of each test per variant
         required: false
-        default: "30"
+        default: "80"
 
 permissions:
   contents: read
@@ -31,71 +31,37 @@ jobs:
         with:
           node-version: "24.19.0"
 
-      - name: Count crashes per V8 variant
+      - name: Count crashes per Node runtime
         shell: bash
         env:
-          ROUNDS: ${{ inputs.rounds || '30' }}
+          ROUNDS: ${{ inputs.rounds || '80' }}
         run: |
+          # Probe 2 caught the crash under lldb and in six crash reports, always the same: a full GC requested in a
+          # Sparkplug function's out-of-line prologue (Runtime_StackGuardWithGap) reads the untagged value 0xf in that
+          # InternalFrame as a pointer (ClearStaleLeftTrimmedPointerVisitor, address 0xe). This compares runtimes on the
+          # same runner: the current Node, the current Node without Sparkplug, and the newest Node 24 and 26 releases.
           # GitHub runs bash with -e; a crashed run must be counted, not end the step.
           set +e -uo pipefail
-          out="$RUNNER_TEMP/probe";mkdir -p "$out"
+          out="$RUNNER_TEMP/probe";mkdir -p "$out/node"
           export GH_TEST_SOURCE_DIR="$GITHUB_WORKSPACE"
-          node --version;uname -m;sysctl -n machdep.cpu.brand_string
-          codesign -dv --entitlements - "$(command -v node)" 2>&1 | head -20
-          for variant in default --no-turbofan --no-maglev "--no-turbofan --no-maglev"; do
-            read -r -a flags <<<"${variant/default/}"
-            for test in tests/build391-hospitality-core.cjs tests/build396-hospitality-budgets.cjs tests/build392-hospitality-links.cjs tests/build393-hospitality-financial-safety.cjs; do
+          uname -m;sysctl -n machdep.cpu.brand_string
+          for version in 24.22.0 26.12.0;do
+            curl -fsSL "https://nodejs.org/dist/v$version/node-v$version-darwin-arm64.tar.gz" | tar xz -C "$out/node" || echo "download failed: $version"
+          done
+          runtimes=("$(command -v node)|" "$(command -v node)|--no-sparkplug" "$out/node/node-v24.22.0-darwin-arm64/bin/node|" "$out/node/node-v26.12.0-darwin-arm64/bin/node|")
+          for runtime in "${runtimes[@]}";do
+            bin="${runtime%%|*}";extra="${runtime#*|}";[[ -x "$bin" ]] || { echo "missing $bin";continue; }
+            for case in "tests/build391-hospitality-core.cjs|--no-turbofan" "tests/build391-hospitality-core.cjs|" "tests/build396-hospitality-budgets.cjs|";do
+              test="${case%%|*}";read -r -a flags <<<"$extra ${case#*|}"
               crashed=0;failed=0
-              for i in $(seq 1 "$ROUNDS"); do
-                node ${flags[@]+"${flags[@]}"} "$test" >/dev/null 2>"$out/last.err";code=$?
-                if (( code >= 128 ));then crashed=$((crashed+1));elif (( code != 0 ));then failed=$((failed+1));cp "$out/last.err" "$out/failed-${variant// /_}-$(basename "$test").err";fi
+              for i in $(seq 1 "$ROUNDS");do
+                "$bin" ${flags[@]+"${flags[@]}"} "$test" >/dev/null 2>"$out/last.err";code=$?
+                if (( code >= 128 ));then crashed=$((crashed+1));elif (( code != 0 ));then failed=$((failed+1));cp "$out/last.err" "$out/failed-$(basename "$test").err";fi
               done
-              echo "variant=$variant test=$test rounds=$ROUNDS crashed=$crashed failed=$failed" | tee -a "$out/summary.txt"
+              echo "node=$("$bin" --version) flags=[${flags[*]-}] test=$test rounds=$ROUNDS crashed=$crashed failed=$failed" | tee -a "$out/summary.txt"
             done
           done
-          exit 0
-
-      - name: Catch one crash under the debugger and name its code
-        shell: bash
-        run: |
-          set +e -uo pipefail
-          out="$RUNNER_TEMP/probe";mkdir -p "$out"
-          export GH_TEST_SOURCE_DIR="$GITHUB_WORKSPACE"
-          # A copy signed ad hoc with get-task-allow can be launched by lldb; the release binary's hardened runtime refuses it.
-          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0"><dict><key>com.apple.security.get-task-allow</key><true/></dict></plist>' >"$out/debug.plist"
-          cp "$(command -v node)" "$out/node-debug" && codesign --force --sign - --entitlements "$out/debug.plist" "$out/node-debug"
-          for variant in --no-turbofan default; do
-            read -r -a flags <<<"${variant/default/}"
-            for test in tests/build391-hospitality-core.cjs tests/build396-hospitality-budgets.cjs; do
-              for i in $(seq 1 25); do
-                log="$out/code-$(basename "$test" .cjs)-${variant}-$i.log"
-                perl -e 'alarm shift;exec @ARGV' 180 lldb --batch -o "process handle SIGSEGV -s true -p false" -o run \
-                  -k "thread backtrace -c 40" -k "register read pc lr sp fp x0 x1 x2 x3 x4 x5 x16 x17" -k "image lookup -a \$pc" -k "disassemble -s \$pc-48 -c 24" -k "process kill" -k quit \
-                  -- "$out/node-debug" ${flags[@]+"${flags[@]}"} --log-code --logfile="$log" --no-logfile-per-isolate "$test" >"$out/lldb.txt" 2>&1
-                if grep -qE "EXC_BAD_ACCESS|signal SIGSEGV|EXC_BAD_INSTRUCTION" "$out/lldb.txt";then
-                  echo "===== crash: variant=$variant test=$test attempt=$i";grep -vE "^\s*$" "$out/lldb.txt" | grep -v "^(lldb) run" | head -150
-                  cp "$out/lldb.txt" "$out/crash-lldb-${variant}-$(basename "$test" .cjs).txt"
-                  python3 - "$out/lldb.txt" "$log" <<'PY'
-          import re,sys
-          text=open(sys.argv[1],errors='replace').read();m=re.search(r'\bpc = (0x[0-9a-f]+)',text)
-          if not m:print('no pc');raise SystemExit
-          pc=int(m.group(1),16);best=None
-          try:
-              for line in open(sys.argv[2],errors='replace'):
-                  if not line.startswith('code-creation,'):continue
-                  parts=line.rstrip('\n').split(',')
-                  try:start=int(parts[4],16);size=int(parts[5])
-                  except (ValueError,IndexError):continue
-                  if start<=pc<start+size:best=parts
-          except FileNotFoundError:print('no code log');raise SystemExit
-          print('pc',hex(pc),'is in',('code '+' | '.join(best[1:3]+[best[6] if len(best)>6 else ''])) if best else 'no logged code object (C++ or unlogged)')
-          PY
-                  break
-                fi
-              done
-            done
-          done
-          ls "$out" | head -40;exit 0
+          rm -rf "$out/node";exit 0
 
       - name: Print the faulting thread of each crash report
         if: always()
@@ -110,15 +76,15 @@ jobs:
               if folder.is_dir():reports+=[path for path in folder.rglob('node*') if path.is_file()]
           reports.sort(key=lambda path:path.stat().st_mtime)
           print(f'{len(reports)} node crash report(s)')
-          for report in reports[:6]:
+          for report in reports[-8:]:
               shutil.copy2(report,out/report.name)
               text=report.read_text(errors='replace');print('=====',report.name)
               try:
                   body=json.loads(text.split('\n',1)[1]);images=body.get('usedImages',[])
-                  print('exception',json.dumps(body.get('exception')),'termination',json.dumps(body.get('termination')))
+                  print('process',body.get('procPath'),'exception',json.dumps(body.get('exception')))
                   thread=next((t for t in body.get('threads',[]) if t.get('triggered')),None) or body['threads'][body.get('faultingThread',0)]
                   print('thread',thread.get('name') or thread.get('queue') or '',thread.get('id'))
-                  for frame in thread.get('frames',[])[:48]:
+                  for frame in thread.get('frames',[])[:18]:
                       image=images[frame['imageIndex']].get('name','?') if 'imageIndex' in frame and frame['imageIndex']<len(images) else '?'
                       print(f"  {image}  {frame.get('symbol','?')}+{frame.get('symbolLocation',frame.get('imageOffset'))}")
               except Exception as error:print('unparsed',error);print(text[:6000])
