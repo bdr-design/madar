@@ -274,10 +274,12 @@ function acceptSponsorship(s,p={}){
  touchRelationship(s,{partyId:offer.partyId,company,role:'sponsor',reference:offer.id,contractId:offer.id});recordEvent(s,{kind:'sponsorship',partyId:offer.partyId,company,title:`قبول رعاية ${resolveParty(s,offer.partyId)?.displayName}`,detail:`${offer.rights} · حصرية: ${offer.exclusivity}`,amount:offer.value,reference:`SPON-ACCEPT-${offer.id}`,severity:'positive',official:true,sourceDomain:'business-world',sourceRef:offer.id,documentRef:offer.id});return offer;
 }
 function rejectSponsorship(s,p={}){const offer=ensure(s).sponsorships.find(x=>x.id===p.id);if(!offer)throw new Error('sponsorship-not-found');if(offer.status!=='عرض متاح')throw new Error('sponsorship-not-available');offer.status='مرفوض';offer.closedAt=now(s);recordEvent(s,{kind:'sponsorship',partyId:offer.partyId,title:`رفض عرض رعاية ${resolveParty(s,offer.partyId)?.displayName}`,reference:`SPON-REJECT-${offer.id}`});return offer;}
+// A sponsor's monthly payment is the company's income for that day's close (investmentResult notes it, as for claim
+// payments); the credit alone moved the cash and made the invoice.
 function billSponsorship(s,offer,processedDay){
  if(offer.status!=='نشط'||processedDay<offer.nextBillingDay)return 0;if(processedDay>offer.endDay){offer.status='منتهي';return 0;}
  const F=globalThis.GH_FINANCE_CORE;if(!F?.execute)return 0;const period=offer.billedPeriods+1,ref=`SPON-${offer.id}-P${period}`,party=resolveParty(s,offer.partyId),amount=Math.min(offer.monthlyValue,Math.max(0,offer.value-offer.billedPeriods*offer.monthlyValue));
- if(amount<=0){offer.status='منتهي';return 0;}F.execute({state:s},'credit',{company:offer.company,amount,reference:ref,note:`دفعة رعاية ${offer.id} · الفترة ${period}`,counterparty:party?.legalName||party?.displayName||'راعٍ تجاري',taxable:true,sourceRefs:[offer.id]});offer.billedPeriods=period;offer.lastBillingDay=processedDay;offer.nextBillingDay+=30;if(offer.nextBillingDay>offer.endDay||offer.billedPeriods*offer.monthlyValue>=offer.value-.01)offer.status='منتهي';return amount;
+ if(amount<=0){offer.status='منتهي';return 0;}F.execute({state:s},'credit',{company:offer.company,amount,reference:ref,note:`دفعة رعاية ${offer.id} · الفترة ${period}`,counterparty:party?.legalName||party?.displayName||'راعٍ تجاري',taxable:true,sourceRefs:[offer.id],investmentResult:amount});offer.billedPeriods=period;offer.lastBillingDay=processedDay;offer.nextBillingDay+=30;if(offer.nextBillingDay>offer.endDay||offer.billedPeriods*offer.monthlyValue>=offer.value-.01)offer.status='منتهي';return amount;
 }
 function competitorTick(s,processedDay,b=ensure(s)){
  const week=Math.floor(processedDay/7);if(week<=0||b.lastCompetitorWeek>=week)return null;b.lastCompetitorWeek=week;

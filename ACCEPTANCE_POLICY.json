@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 574,
+  "minimum_acceptance_gates": 575,
   "preflight_commands": [
     [
       "node",
@@ -2834,6 +2834,10 @@
     [
       "node",
       "tests/build545-power-finance-interest.cjs"
+    ],
+    [
+      "node",
+      "tests/build546-sponsorship-revenue.cjs"
     ]
   ]
 }

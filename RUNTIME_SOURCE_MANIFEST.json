@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "25918abb4375280ac8d015cafed35c45c900af7b10c6942830e81ed3603bef1b",
-  "webapp_tree_sha256": "dd943e9e7ca8751777d799088f14d8fb2d919fb55e2cb8af02da0024d49feca1",
+  "source_tree_sha256": "96f485cacda9a9f52df839b759579e862c69c35c883dcc26316e7bea4791547a",
+  "webapp_tree_sha256": "1aea8b26cf9545dd9a7176cde33ea9082872eb4f57b1e851e777c4854e202fa9",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3391,8 +3391,8 @@
       "sha256": "1b84d14765856e5c63a96a6d92a066ceeda1a78bd16f0525c3b565344c3a2c63"
     },
     "WebApp/business-world-core.js": {
-      "bytes": 59480,
-      "sha256": "ec6b4f62005584e728ef36ec9ccc5c9c73da8eef64e5f747e19cffda2abf431e"
+      "bytes": 59689,
+      "sha256": "1f9d54c7d19d281a8ae30994af4f5172772991ca3ff4acd05665edfb15f4fabc"
     },
     "WebApp/capability-registry-core.js": {
       "bytes": 11311,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "465a284b4bbf76181f4e1afcb6ef9add863784865c37c30b15c65e75344f0d41"
+      "sha256": "6b3f2801df2e7383c976fd963395cc31ae8432c33155f402e8493e5944d38d8e"
     },
     "BUILD": {
       "bytes": 4,
