@@ -73,19 +73,10 @@ function tidy(doc,scene){
  return doc;
 }
 function domain(series){const values=series.map(x=>number(x.value));return{min:Math.min(0,...values),max:Math.max(0,...values)||1};}
-function graphHTML(doc){
- const quotes=doc.quotes?.length?`<div class="ghc3-quotes">${doc.quotes.map(q=>`<blockquote><p>${esc(q.value)}</p><cite dir="ltr">${esc(q.label)}</cite></blockquote>`).join('')}</div>`:'';
- if(doc.list){const facts=doc.list.slice(0,4),current=['customers','operations','leadership'].includes(doc.kind),reference=current?'لقطة وقت إعداد المؤتمر':'سجلات هذه الشريحة',basis=doc.kind==='customers'?'سجلات دورة العملاء · لا نتائج استبيان':doc.kind==='operations'?'مؤشرات حالة وليست حصيلة سنوية':doc.kind==='leadership'?'بيانات الإدارة الحالية':'بيانات النظام المسجلة';while(facts.length>0&&facts.length<4)facts.push({label:facts.length===3?'مرجع البيانات':'طبيعة القياس',value:facts.length===3?reference:basis});return `<div class="ghc3-facts" data-count="${facts.length}" data-total="${doc.list.length}" data-source="${esc(doc.id||doc.templateId||'conference-scene')}">${facts.map((x,i)=>`<div class="ghc3-fact ghc3-fact-${i+1}"><small>${esc(x.label)}</small><b dir="auto">${esc(x.value)}</b></div>`).join('')}</div>${quotes}`;}
- if(quotes&&!doc.series.length)return quotes;
- if(!doc.series.length)return `<div class="ghc3-empty"><span aria-hidden="true"></span><b>${esc(doc.emptyTitle||'لا توجد بيانات مكتملة بعد')}</b><p>${esc(doc.empty)}</p></div>`;
- const series=doc.series.slice().sort((a,b)=>number(b.value)-number(a.value)).slice(0,4),list=series.map(x=>({label:x.label,value:doc.chartUnit?`${int(x.value)} ${doc.chartUnit}`:`${amount(x.value).value} ${amount(x.value).unit}`}));if(doc.series.length>4)doc.chartTitle='أعلى أربع نتائج مسجلة حسب الشركة';const filler=doc.kind==='people'?[{label:'مرجع البيانات',value:'لقطة وقت إعداد المؤتمر'},{label:'مصدر البيانات',value:'سجلات الموارد البشرية'}]:[{label:'الفترة المرجعية',value:`${doc.year||'الفترة المعروضة'}`},{label:'مصدر المقارنة',value:'الإقفالات المالية المسجلة'}];while(list.length>0&&list.length<4)list.push(filler[list.length-2]||{label:'نطاق المقارنة',value:'السجلات المتاحة'});
- return `<div class="ghc3-facts ghc3-facts-series" data-count="${list.length}" data-total="${doc.series.length}" data-source="conference-series">${list.map((x,i)=>`<div class="ghc3-fact ghc3-fact-${i+1}"><small>${esc(x.label)}</small><b dir="auto">${esc(x.value)}</b></div>`).join('')}</div>`;
-}
 function identityFor(snapshot,scene){
  const type=String(scene.type||'group'),owner=type==='group'?(snapshot.group||{}):(snapshot.companies||[]).find(row=>row.type===type)||{};
  return {name:String(owner.legalName||owner.name||(type==='group'?'Ventora':type)),shortName:String(owner.shortName||owner.brand?.shortName||scene.type||'VH'),logo:safeLogo(scene.logo||owner.brand?.logo),markLogo:safeLogo(owner.brand?.variants?.mark),type,year:String(snapshot.year||'')};
 }
-function statsHTML(stats){return stats?.length?`<div class="ghc3-stats" data-count="${stats.length}">${stats.map(m=>`<div><b dir="auto">${esc(m.value)}${m.unit?`<small>${esc(m.unit)}</small>`:''}</b><span>${esc(m.label)}</span></div>`).join('')}</div>`:'';}
 function compactMoney(value){const part=amount(value);return `${part.value} ${part.unit}`;}
 const OPS_LABELS={assetCount:'الأصول',activeAssets:'أصول عاملة',routeCount:'المسارات',tripCount:'الرحلات',generationMW:'قدرة التوليد',storageMWh:'التخزين',projects:'المشاريع',branches:'الفروع',branchCount:'الفروع',corporateClients:'عملاء الشركات',liquidity:'السيولة',vehicles:'المركبات',activeVehicles:'مركبات عاملة',drivers:'السائقون',centers:'المراكز',customerCount:'العملاء',activeSubscriptions:'اشتراكات نشطة',activeServicePlans:'خطط خدمة نشطة',policies:'الوثائق',offices:'المكاتب',lossRatio:'نسبة الخسائر',lossRatio30:'نسبة الخسائر',premium30:'أقساط آخر 30 يومًا',claims30:'مطالبات آخر 30 يومًا',units:'الوحدات',occupancy:'الإشغال',rentRoll:'الإيجار السنوي'};
 function operationRows(summary){

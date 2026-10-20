@@ -114,7 +114,6 @@
       if(node.hasAttribute('data-gh-action')){const actionId=node.getAttribute('data-gh-action'),origin=node.getAttribute('data-gh-action-origin'),insideText=Boolean(node.closest('h1,h2,h3,h4,h5,h6,p,span,b,small,option,label')),valid=node.tagName==='BUTTON'&&!insideText&&ACTION_IDS.has(actionId)&&origin===ACTION_ORIGIN;if(valid)node.setAttribute('data-gh-action-origin',ACTION_ORIGIN);else{node.removeAttribute('data-gh-action');node.removeAttribute('data-gh-action-origin');node.setAttribute('disabled','');}}
     });return template.innerHTML;
   }
-  const deterministicId=(state,prefix)=>globalThis.GH_DETERMINISM?.nextId?.(state,prefix)||`${prefix}-${Math.floor(Number(state?.simSeconds)||0)}-${Math.max(1,(state?.eventLog?.length||0)+1)}`;
   const findPhoto = (type) => platform()?.getDefinition?.(type)?.identity?.hero||(type==='air'?photos.airport:type==='sea'?photos.port:['road','mobility'].includes(type)?photos.logistics:type==='power'?photos.power:type==='bank'?photos.bank:photos.hq);
 
   const managerRoleFor = kind => ({
@@ -806,7 +805,6 @@
     return map[panel]?sanitizeMarkup(map[panel]()+(panel==='bank'||panel==='insurance'?companyCampaignMarkup(ctx,panel):'')+(globalThis.GH_BUSINESS_UI?.extras(panel,arg,ctx,{action})||'')):null;
   }
 
-  const logFacility = (m,text,ctx) => {m.lastAction=ctx.state.simSeconds;m.history.unshift({at:ctx.state.simSeconds,text});if(m.history.length>30)m.history.length=30;};
   function notify(ctx,text,kind='info'){if(globalThis.GH_WORKFLOW?.notify)return globalThis.GH_WORKFLOW.notify(String(text||''),kind,{state:ctx.state,panel:ctx.currentPanel});ctx.pushAlert?.(String(text||''));return true;}
   function refresh(ctx,panel,arg){ctx.save();ctx.updateKpis();ctx.openDrawer(panel,arg);}
   // Signed durable commands already saved and published their complete state. Reopening their view must not

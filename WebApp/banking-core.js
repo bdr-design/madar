@@ -321,8 +321,6 @@
   }
   function drainBankStages(stages){let step;while(!(step=stages.next()).done){}return step.value;}
   function collectCustomerInstallments(state,p={}){return drainBankStages(collectCustomerInstallmentStages(state,p));}
-  function F_BOOK(state,company){const F=globalThis.GH_FINANCE_CORE;if(!F?.book)throw new Error('finance-core-missing');return F.book(state,company);}
-  function F_JOURNAL(state,company,note,lines,ref){const F=globalThis.GH_FINANCE_CORE;if(!F?.journal)throw new Error('finance-core-missing');return F.journal(state,company,note,lines,ref);}
   function dormant(bank){return num(bank.branches)===0&&num(bank.deposits)===0&&num(bank.loans)===0&&num(bank.wholesaleFunding)===0;}
   function depositMix(bank){
     const mix=bank.branchNetwork.reduce((out,branch)=>{for(const key of Object.keys(DEPOSIT_PRODUCTS))out[key]+=num(branch.depositMix?.[key]);return out;},{sight:0,savings:0,term:0}),known=mix.sight+mix.savings+mix.term,missing=Math.max(0,num(bank.deposits)-known);

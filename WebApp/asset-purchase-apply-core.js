@@ -90,8 +90,6 @@
     const store=fleet.storeOf?.(state);if(store&&store.capacity<store.length+plan.count)throw new Error(`asset-purchase-capacity-reservation-required:${store.length+plan.count}:${store.capacity}`);
     return result;
   }
-  function laborOf(state){state.advanced=state.advanced||{};const labor=state.advanced.labor=object(state.advanced.labor)?state.advanced.labor:{};labor.employmentContracts=Array.isArray(labor.employmentContracts)?labor.employmentContracts:[];labor.hiringLog=Array.isArray(labor.hiringLog)?labor.hiringLog:[];return labor;}
-  function procurementOf(state){state.realism=object(state.realism)?state.realism:{};const procurement=state.realism.procurement=object(state.realism.procurement)?state.realism.procurement:{};procurement.deliveries=Array.isArray(procurement.deliveries)?procurement.deliveries:[];return procurement;}
   function roleSector(id){return ['pilots','cabin','aeng'].includes(id)?'air':['captains','sailors','seng'].includes(id)?'sea':'road';}
   function applyReceipt(target,source){for(const key of Object.keys(source))target[key]=clone(source[key]);delete target.assets;delete target.asset;return target;}
 

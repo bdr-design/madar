@@ -140,7 +140,6 @@
     const row={id:group.orderId,deliveryOrderId:group.orderId,status:'pending',payment:clone(group.payment),requestRef:group.requestRef,orderedDay:group.orderedDay,orderedAtSeconds:group.orderedAtSeconds,dueDay:group.dueDay,dueAtSeconds:group.dueAtSeconds,contractLeadDays:group.documentLeadDays,immediateDelivery:group.immediateDelivery,ownerCompanyId:plan.common.ownerCompanyId,assetMode:plan.common.assetMode,assetClass:plan.common.assetClass,type:plan.common.assetMode,catalogId:plan.item.id,baseId:group.baseId,destination:group.baseName,supplier:group.supplier,count:group.qty,assetIds,assets};
     if(!withAssets)delete row.assets;return row;
   }
-  function deliveredKeys(plan,groupIndex){return Object.keys(deliveredAsset(plan,groupIndex,0));}
   function deliveredReceiptWithTotal(plan,groupIndex,purchasePrice){
     // Realism compacts the procurement snapshot after delivery.  That snapshot
     // intentionally remains in its ordered `phase: delivery` form; the live
