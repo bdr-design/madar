@@ -1121,7 +1121,7 @@
     await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()){if(!silent)notice('الحفظ مشغول بعملية ذرية أخرى. لم يتغير أي أصل؛ أعد المحاولة بعد لحظات.');return false;}
     durableCommandInProgress=true;
-    let draft=null,committed=false,settleDurableCommand=null,rootSessions=[],afterPublishTasks=[],fleetMutationSession=null,fleetMutationClient=null,fleetMutationSettled=false,staging=null;
+    let draft=null,committed=false,settleDurableCommand=null,rootSessions=[],afterPublishTasks=[],fleetMutationSession=null,fleetMutationClient=null,fleetMutationSettled=false,staging=null,durableContext=null;
     durableCommandSettlement=new Promise(resolve=>{settleDurableCommand=resolve;});
     await fleetStepSettled();
     // Build 358: phase timings of every player command (diagnostics: GH_APP_RUNTIME_METRICS.snapshot().durable).
@@ -1135,14 +1135,14 @@
       }
       rootSessions=transactionCore?.beginJournaledRoots?.(state)||[];
       const livePreferences=captureLivePreferences();
-      window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft:null};
+      window.__GH_DURABLE_COMMAND_CONTEXT__=durableContext={name,liveState:state,draft:null};
       timing.cloneBusyMs=0;timing.cloneMaxSliceMs=0;timing.cloneYields=0;
       const onCloneSlice=(started,ended)=>{workStarted=started;const busy=Math.max(0,ended-started);timing.cloneBusyMs+=busy;timing.cloneMaxSliceMs=Math.max(timing.cloneMaxSliceMs,busy);window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.clone',started,ended);};
       if(transactionCore?.deepCloneInSlices)draft=await transactionCore.deepCloneInSlices(state,{shareJournaledRoots:true,budgetMs:transactionCore.DURABLE_CLONE_SLICE_MS||4,deferRoots:transactionCore.durableDeferredRoots?.(name),yieldToHost:async()=>{timing.cloneYields++;await yieldForInteractivePaint(document.hidden?0:80);},onSlice:onCloneSlice});
       else{const started=clockNow();try{draft=transactionCore?.deepClone?transactionCore.deepClone(state,{shareJournaledRoots:true}):clone(state);}finally{onCloneSlice(started,clockNow());}}lap('cloneMs');
       traceMainThreadWork('command.inherit',()=>window.GH_SAVE_SCHEMA?.inheritVerified?.(state,draft));const runtime=traceMainThreadWork('command.routes',()=>routeRuntimeForState(draft)),previousRevision=Math.max(0,Math.floor(Number(state.saveRevision)||0));lap('prepareMs');
       const fleetMutationContext=fleetMutationSession?Object.freeze({client:fleetMutationClient,session:fleetMutationSession,store:draft.fleet,flush(){return fleetMutationClient.flushMutation(fleetMutationSession,draft.fleet);},finish(){return fleetMutationClient.finishMutation(fleetMutationSession,draft.fleet);}}):null;
-      window.__GH_DURABLE_COMMAND_CONTEXT__={name,liveState:state,draft,fleetMutation:fleetMutationContext,afterPublish(fn){if(typeof fn==='function')afterPublishTasks.push(fn);}};
+      window.__GH_DURABLE_COMMAND_CONTEXT__=durableContext={name,liveState:state,draft,fleetMutation:fleetMutationContext,afterPublish(fn){if(typeof fn==='function')afterPublishTasks.push(fn);}};
       const priorCriticalIds=new Set(((traceMainThreadWork('command.baseline-integrity',()=>window.GH_INTEGRITY_CORE.check(state))?.issues)||[]).filter(row=>row.severity==='critical').map(row=>String(row.id||row.code||row.title)));lap('baselineIntegrityMs');
       const value=await apply({state:draft,routes:runtime,fleetMutation:fleetMutationContext});{const deferred=transactionCore?.settleDeferredRoots?.(draft);if(deferred){timing.deferredShared=deferred.shared;timing.deferredCopied=deferred.copied;timing.deferredCopyMs=deferred.copyMs;}}lap('applyMs');if(value===false)throw new Error(`${name}-rejected`);
       if(window.__GH_DURABLE_COMMAND_CONTEXT__?.poisoned===true)throw new Error(`${name}-draft-poisoned`);
@@ -1177,7 +1177,10 @@
     finally{
       staging?.release?.();lap('afterMs');timing.committed=committed;timing.totalMs=Math.max(0,clockNow()-durableStart);for(const key of Object.keys(timing))if(typeof timing[key]==='number')timing[key]=Math.round(timing[key]*10)/10;const durableSink=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.durable;if(durableSink){durableSink.last=timing;durableSink.samples.push(timing);if(durableSink.samples.length>16)durableSink.samples.shift();}
       if(!committed&&rootSessions.length)try{window.GH_TRANSACTION_CORE?.rollbackJournaledRoots?.(rootSessions);rootSessions=[];}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-rollback-failed');console.error('Durable command fleet rollback failed',rollbackError);}if(fleetMutationSession&&!fleetMutationSettled){try{fleetMutationClient?.settleMutation?.(fleetMutationSession,'rollback');fleetMutationSettled=true;}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-replica-rollback-failed');console.error('Durable command fleet replica rollback failed',rollbackError);}}
-      const context=window.__GH_DURABLE_COMMAND_CONTEXT__?.liveState===state&&window.__GH_DURABLE_COMMAND_CONTEXT__?.draft===draft?window.__GH_DURABLE_COMMAND_CONTEXT__:null;
+      // The command releases the context it set, by identity (as transaction-core does): a throw after the clone and
+      // before the draft was published in it (inheritVerified, routeRuntimeForState) left {draft:null} set, which refused
+      // every authorized command and every sliced save until another durable command replaced it.
+      const context=durableContext&&window.__GH_DURABLE_COMMAND_CONTEXT__===durableContext?durableContext:null;
       if(context)delete window.__GH_DURABLE_COMMAND_CONTEXT__;durableCommandInProgress=false;
       // Build 372: the rows a command wrote reach the engine thread's replica now, at the end of the command (a fleet bought
       // in back-to-back commands, before any slice, used to reach it as one whole copy when play started; a later task found

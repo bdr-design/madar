@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 561,
+  "minimum_acceptance_gates": 562,
   "preflight_commands": [
     [
       "node",
@@ -2782,6 +2782,10 @@
     [
       "node",
       "tests/build532-map-loop-single-render.cjs"
+    ],
+    [
+      "node",
+      "tests/build533-durable-context-release.cjs"
     ]
   ]
 }
