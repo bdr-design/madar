@@ -24,7 +24,8 @@ const COMPANIES=['bank','power','road','mobility','telecom','dealership'];
       await page.locator('#worldKind').selectOption(company);
       const open=page.locator('#drawerBody .open-directory-site').first();
       await open.waitFor({state:'visible'});await open.click();
-      await page.waitForFunction(([c,n])=>(__GH_STATE__.customHubs||[]).filter(f=>(f.ownerCompanyId||f.company)===c).length>n||window.GH_APP_RUNTIME_METRICS?.snapshot?.().durable?.last?.committed===false,[company,before],{timeout:30000}).catch(()=>{});
+      // The command's record (durable.last) is written when it settles, a frame and a refresh after its state publishes.
+      await page.waitForFunction(([c,n])=>((__GH_STATE__.customHubs||[]).filter(f=>(f.ownerCompanyId||f.company)===c).length>n||window.GH_APP_RUNTIME_METRICS?.snapshot?.().durable?.last?.committed===false)&&!window.__GH_DURABLE_COMMAND_CONTEXT__,[company,before],{timeout:30000}).catch(()=>{});
       const row=await page.evaluate(c=>{const s=__GH_STATE__,d=window.GH_APP_RUNTIME_METRICS.snapshot().durable.last,f=(s.customHubs||[]).filter(x=>(x.ownerCompanyId||x.company)===c).at(-1),customerSummary=window.GH_CUSTOMER_COMPANIES_CORE.snapshot(s,c)?.[c];return {company:c,facilities:(s.customHubs||[]).filter(x=>(x.ownerCompanyId||x.company)===c).length,kind:f?.kind,sourceKey:f?.sourceKey,owner:f?.ownerCompanyId||f?.company,hrStaff:s.advanced?.facilities?.[f?.id]?.staff||0,customerBranches:customerSummary?.branchCount,branches:s.bank?.branchNetwork?.length||0,command:d?.name,committed:d?.committed};},company);
       results.push(row);
       assert.equal(row.facilities,before+1,`${company}: a facility is opened from the directory (${JSON.stringify(row)}; ${warnings.join(' | ')})`);

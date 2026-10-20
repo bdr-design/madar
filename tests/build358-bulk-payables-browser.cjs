@@ -60,7 +60,8 @@ const COUNT=30;
     assert.equal(Number(await multi.locator('.open-scope-facilities').getAttribute('data-count')),110,'the scale scenario opens ten facilities for each of eleven sectors');
     await multi.locator('.open-scope-facilities').click();
     await multi.locator('dialog.ui-confirm [data-confirm="accept"]').click();
-    await multi.waitForFunction(()=>__GH_STATE__.globalBases.length+__GH_STATE__.customHubs.length===110);
+    // The next step changes the live state directly: wait until the opening command has settled, not only published.
+    await multi.waitForFunction(()=>__GH_STATE__.globalBases.length+__GH_STATE__.customHubs.length===110&&!window.__GH_DURABLE_COMMAND_CONTEXT__);
     assert.equal(await multi.evaluate(()=>GH_HOSPITALITY_CORE.read(__GH_STATE__,'hospitality').properties.filter(p=>p.status==='construction').length),10,'ten hotel properties are real paid construction before financial settlement');
     const ids=await multi.evaluate(async()=>{
       const F=GH_FINANCE_CORE,s=__GH_STATE__;s.godMoney=false;s.infiniteMoney=false;
