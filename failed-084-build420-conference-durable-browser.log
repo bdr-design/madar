@@ -1,0 +1,15 @@
+chromium: fixture
+chromium: pending
+chromium: prepared
+chromium: presenting
+AssertionError [ERR_ASSERTION]: {"slides":23,"slidesFit":23,"led":{"x":155.5968780517578,"y":9.59375,"w":532.796875,"h":246.59375},"ledVisible":false,"controlsVisible":true}
+    at /Users/runner/work/madar/madar/tests/build420-conference-durable-browser.cjs:14:96
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:541:9) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
