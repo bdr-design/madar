@@ -362,6 +362,21 @@ function returnAllToInvestorCard(s,p={}){
  for(const row of investorCardReturnPlan(s).rows)if(row.availableAll>0)rows.push(returnToInvestorCard(s,{company:row.company,amount:row.availableAll,ref:`${ref}-${row.company}`}));
  return {ref,rows,amount:Math.round(rows.reduce((n,row)=>n+num(row.amount),0)*100)/100,companies:rows.filter(row=>row.amount>0).length};
 }
+// A dividend to the offering's shareholders (owner, IPO restructuring batch 4; GH_CORPORATE_CORE close-dividend at a
+// quarter's close): an outgoing transfer from the holding's account (signed, journal against retained earnings: a
+// distribution of profit, not an expense, so no daily report counts it), never more than the account holds; in
+// investor mode the card covers a shortfall as for any payment. Idempotent by its reference.
+function payDividend(s,p){
+ const t=requireCompany(s,p.company||'group'),a=Math.round(num(p.amount)*100)/100,given=String(p.ref||''),prior=given?findTransferById(s,given)||s.treasury.ledger.find(x=>x.reference===given):null;
+ if(t!=='group')throw new Error('dividend-company-invalid');
+ if(prior){if(prior.company!==t||prior.kind!=='dividend-distribution'||Math.abs(num(prior.amount)-a)>.01)throw new Error('dividend-reference-conflict');return {ref:given,amount:0,company:t,idempotent:true};}
+ if(!(a>0))throw new Error('invalid-amount');coverFromInvestorCard(s,t,a,'توزيع أرباح');if(a>operating(s,t)+.005)throw new Error('insufficient-cash');
+ const ref=given||nextFinanceTransferReference(s,'DIV'),b=book(s,t);
+ const transfer={id:ref,reference:ref,at:now(s),kind:'dividend-distribution',label:'توزيع أرباح على مساهمي الطرح',from:b.accounts[0].id,fromAccount:b.accounts[0].id,to:'مساهمو الطرح العام',amount:a,company:t,status:'منفذة',note:String(p.note||'توزيع أرباح ربع سنوي').slice(0,160),...(p.perShare!=null?{perShare:num(p.perShare),shares:Math.floor(num(p.shares))}:{})};
+ // Sealed before the dividend leaves the account.
+ protectDocument(s,transfer,'dividend-distribution');b.accounts[0].balance-=a;insertFinanceTransfer(s,{...transfer});ledger(s,t,transfer);journal(s,t,`${ref} · توزيع أرباح`,[{account:'أرباح مبقاة',debit:a},{account:b.accounts[0].id,credit:a}],ref);reconcile(s);
+ return {ref,amount:a,company:t,documentProofId:transfer.documentProofId,contentDigest:transfer.contentDigest};
+}
 function consumeBudget(s,t,a,l){const b=mutableBudget(s,t);a=num(a);if(b.enabled&&b.limit>0)b.spent+=a;if(l)b.spentByLine[l]=num(b.spentByLine[l])+a;} // Incurred expenses are liabilities, not discretionary cash spends. Reserve them for budget tracking even when cash or the budget cap is short.
 function reserveAccruedObligationBudget(s,t,a,l='other'){a=num(a);if(a<0)return null;const b=mutableBudget(s,t),totalRoom=!b.enabled||b.limit<=0?Infinity:Math.max(0,b.limit-b.spent-b.reserved),lineLimit=num(b.lines[l]),lineRoom=!b.enabled||lineLimit<=0?Infinity:Math.max(0,lineLimit-num(b.spentByLine[l])-num(b.reservedByLine[l])),reserved=Math.max(0,Math.min(a,totalRoom,lineRoom));if(b.enabled&&b.limit>0)b.reserved+=reserved;if(l)b.reservedByLine[l]=num(b.reservedByLine[l])+reserved;return {reserved,unbudgeted:Math.max(0,a-reserved)};}
 function reserveBudget(s,t,a,l='other'){a=num(a);if(!canSpend(s,t,a,l))return false;const b=mutableBudget(s,t);if(b.enabled&&b.limit>0)b.reserved+=a;b.reservedByLine[l]=num(b.reservedByLine[l])+a;return true;} function consumeReserved(s,t,a,l='other'){const b=mutableBudget(s,t),held=Math.min(num(a),num(b.reservedByLine[l]));b.reserved=Math.max(0,b.reserved-held);b.reservedByLine[l]=Math.max(0,num(b.reservedByLine[l])-held);consumeBudget(s,t,a,l);} function releaseReserved(s,t,a,l='other'){const b=mutableBudget(s,t),held=Math.min(num(a),num(b.reservedByLine[l]));b.reserved=Math.max(0,b.reserved-held);b.reservedByLine[l]=Math.max(0,num(b.reservedByLine[l])-held);return held;}
@@ -1079,6 +1094,7 @@ function execute(ctx,cmd,p={},meta={}){
    case'founder-withdrawal':return founderWithdrawal(s,p);
    case'investor-card-return':return returnToInvestorCard(s,p);
    case'investor-card-return-all':return returnAllToInvestorCard(s,p);
+   case'pay-dividend':return payDividend(s,p);
    case'set-budget':{const b=mutableBudget(s,p.company),limit=num(p.limit),lines={...b.lines,...(p.lines||{})};if(!p.resetSpent){if(limit>0&&limit<b.spent+b.reserved)throw new Error('budget-below-month-spend');for(const [line,value] of Object.entries(lines))if(num(value)>0&&num(value)<num(b.spentByLine[line])+num(b.reservedByLine[line]))throw new Error(`budget-line-below-month-spend:${line}`);}b.limit=limit;b.enabled=b.limit>0;b.lines=lines;if(p.resetSpent){b.spent=0;b.reserved=0;b.spentByLine={};b.reservedByLine={};}return clone(b);}
    case'reset-budget':{const b=mutableBudget(s,p.company);b.limit=0;b.spent=0;b.reserved=0;b.enabled=false;b.lines={};b.spentByLine={};b.reservedByLine={};return clone(b);}
    case'refresh-identity':return refreshIdentity(s,p);

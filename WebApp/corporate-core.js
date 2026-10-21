@@ -85,6 +85,39 @@
     if(agmMove)moves.push({kind:'agm',pct:agmEffect*per(v.fair)/p0,year:Number(agm.year),positive:num(agm.positive),negative:num(agm.negative)});
     for(const move of moves)if(Math.abs(move.pct)>=EVENT_MOVE)shareEvent(v,{day,...move,pct:Math.round(move.pct*10000)/10000});
   }
+  // Dividends (owner, IPO restructuring batch 4): the player sets a share of each quarter's profit (0, 25, 40 or 60%).
+  // At the close of every 90th day after the listing, the profit of the days since the last quarter (none before the
+  // listing) times that share is the dividend, the same for every share. The public's part leaves the holding by one
+  // signed transfer to the offering's shareholders (GH_FINANCE_CORE pay-dividend: a distribution of profit, not an
+  // expense); the founder's part stays in the holding until the founder's section exists (owner's decision). A loss or
+  // too little cash in the holding pays nothing, and the record says why. Nothing is read on the other days.
+  const DIVIDEND_PAYOUTS=Object.freeze([0,25,40,60]),DIVIDEND_QUARTER=90,DIVIDEND_RECORDS=12;
+  function dividends(state){ensure(state);const current=state.advanced.dividends;if(object(current))return current;return state.advanced.dividends={payout:0,records:[]};}
+  function capShares(ipo,id){return Math.floor(Number((Array.isArray(ipo?.capTable)?ipo.capTable:[]).find(row=>row?.holderId===id)?.shares)||0);}
+  function profitBetween(state,from,to){let sum=0;for(const row of state.finance?.dailyCompanyReports||[]){const day=Number(row?.day);if(Number.isFinite(day)&&day>from&&day<=to)sum+=Number(row.net)||0;}return sum;}
+  function closeDividend(state,payload={}){
+    const ipo=state.ipo,day=Math.max(0,Math.floor(Number(payload.day)||0)),listedDay=Math.floor(Number(ipo?.listedDay)||0);if(ipo?.listed!==true||day%DIVIDEND_QUARTER!==0||day<=listedDay)return null;
+    const current=object(state.advanced?.dividends)?state.advanced.dividends:null,payout=DIVIDEND_PAYOUTS.includes(Number(current?.payout))?Number(current.payout):0;if(!payout||current.records?.some?.(row=>row?.day===day))return null;
+    const total=Math.floor(Number(ipo.totalShares)||0);if(total<1)return null;
+    const d=dividends(state),profit=profitBetween(state,Math.max(day-DIVIDEND_QUARTER,listedDay),day),publicShares=capShares(ipo,'public-float'),record={day,payout,profit:cents(profit),amount:0,perShare:0,publicAmount:0,founderAmount:0,paid:false};
+    if(profit<=0)record.reason='loss';
+    else{const amount=cents(profit*payout/100),perShare=Math.round(amount/total*1e6)/1e6,publicAmount=cents(amount*publicShares/total),finance=globalThis.GH_FINANCE_CORE;Object.assign(record,{amount,perShare,publicAmount,founderAmount:cents(amount-publicAmount)});
+     if(!finance?.execute||typeof finance.operating!=='function')throw new Error('finance-core-missing');
+     if(publicAmount>finance.operating(state,'group')+.005&&finance.investorMode?.(state)!==true)record.reason='cash';
+     // Through the command owner as the financial close (as the conference records its meeting): the transfer is sealed as a
+     // system document, and inside the day's close it joins that transaction, so a failure rolls the whole day back.
+     else if(publicAmount>0){const commands=globalThis.GH_DOMAIN_COMMANDS;if(typeof commands?.dispatchSystem!=='function')throw new Error('domain-commands-missing');const paid=commands.dispatchSystem({state},'finance','pay-dividend',{company:'group',amount:publicAmount,ref:`DIV-${String(ipo.ticker||'GH')}-${day}`,perShare,shares:publicShares,note:`توزيع ${payout}% من ربح الربع`},{actor:'financial-close'})?.result;if(!paid?.ref)throw new Error('dividend-payment-missing');record.ref=paid.ref;record.paid=true;}}
+    d.records.unshift(record);if(d.records.length>DIVIDEND_RECORDS)d.records.length=DIVIDEND_RECORDS;return {...record};
+  }
+  // What the page and the dialog show for a share of the profit (read-only): the next quarter's day, its dividend so far
+  // plus the last 90 days' pace for the days left, its split, and the year's dividends per share against the price.
+  function dividendPlan(state,payoutPct){
+    const ipo=state.ipo||{},d=object(state.advanced?.dividends)?state.advanced.dividends:{payout:0,records:[]},v=object(state.advanced?.valuation)?state.advanced.valuation:{},day=Math.floor(now(state)/86400),listedDay=Math.floor(Number(ipo.listedDay)||0);
+    const policy=DIVIDEND_PAYOUTS.includes(Number(d.payout))?Number(d.payout):0,payout=DIVIDEND_PAYOUTS.includes(Number(payoutPct))?Number(payoutPct):policy,total=Math.max(1,Math.floor(Number(ipo.totalShares)||0)),publicShares=capShares(ipo,'public-float');
+    const next=(Math.floor(day/DIVIDEND_QUARTER)+1)*DIVIDEND_QUARTER,from=Math.max(next-DIVIDEND_QUARTER,listedDay),soFar=profitBetween(state,from,day),pace=(Number(v.profit90)||0)/365,quarter=Math.max(0,soFar+pace*Math.max(0,next-Math.max(day,from)));
+    const amount=cents(quarter*payout/100),publicAmount=cents(amount*publicShares/total),records=(Array.isArray(d.records)?d.records:[]).map(row=>({...row})),price=Number(v.price)||0,year=records.filter(row=>day-Number(row.day)<365).reduce((sum,row)=>sum+(Number(row.perShare)||0),0);
+    return {policy,payout,payouts:DIVIDEND_PAYOUTS,nextDay:next,daysLeft:next-day,estimate:amount,perShare:amount/total,publicShares,publicPct:100*publicShares/total,publicAmount,founderAmount:cents(amount-publicAmount),yieldPct:price>0?year/price*100:0,records};
+  }
   // The offering (owner, IPO restructuring): the founder's shares are set so a share is worth about $25 at the fair
   // value; the public takes 10% to 30% in new shares, offered 10% under the fair value per share and ±10% with demand
   // (reputation, rating, the year's growth, the last conference's reception); 3% underwriting and $3M of listing and
@@ -188,6 +221,8 @@
     }
     if(command==='adjust-group-value'){const delta=Number(payload.delta)||0;state.groupValue=Math.max(0,(Number(state.groupValue)||0)+delta);if(payload.kind==='facility'){const v=valuation(state);v.facilityBook=Math.max(0,num(v.facilityBook)+delta);}return state.groupValue;}
     if(command==='close-valuation')return closeValuation(state,payload);
+    if(command==='set-dividend-policy'){if(state.ipo?.listed!==true)throw new Error('dividend-not-listed');const payout=Number(payload.payout);if(!DIVIDEND_PAYOUTS.includes(payout))throw new Error('dividend-payout-invalid');const d=dividends(state);d.payout=payout;d.setDay=Math.floor(now(state)/86400);return {payout,setDay:d.setDay};}
+    if(command==='close-dividend')return closeDividend(state,payload);
     if(command==='set-credit-rating'){state.profile=state.profile||{};state.profile.creditRating=String(payload.grade||'BBB');return state.profile.creditRating;}
     // The annual general meeting: how shareholders read the year moves the credit rating score for a year (GH_REALISM updateRating).
     // A fleet company's maintenance policy: the condition at which an asset gets its check (GH_REALISM runMaintenance).
@@ -214,7 +249,7 @@
     throw new Error(`Unknown corporate command: ${command}`);
   }
 
-  const API=Object.freeze({VERSION,COMPANY_TYPES,IPO_FLOATS,SHARE_MOOD:Object.freeze({min:MOOD_MIN,max:MOOD_MAX,daily:MOOD_DAILY,agm:MOOD_AGM}),ensure,model,planOpenCompany,validate,execute,ipoTerms,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
+  const API=Object.freeze({VERSION,COMPANY_TYPES,IPO_FLOATS,DIVIDEND_PAYOUTS,dividendPlan,SHARE_MOOD:Object.freeze({min:MOOD_MIN,max:MOOD_MAX,daily:MOOD_DAILY,agm:MOOD_AGM}),ensure,model,planOpenCompany,validate,execute,ipoTerms,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
   globalThis.GH_CORPORATE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('corporate',API);
   if(globalThis.window&&window!==globalThis)globalThis.window.GH_CORPORATE_CORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;
