@@ -56,7 +56,7 @@ const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
  assert.equal(await page.locator('#drawerBody .launch-ipo').count(),0,'6: and does not list from its own button');
  // 7
  await page.evaluate(()=>{const s=__GH_STATE__;delete s.advanced.valuation;s.groupValue=3e9;s.ipo={listed:true,ticker:'VH',listedDay:10,issuedPct:18,proceeds:3.6e8,offerPrice:20,sharesIssued:18e6,totalShares:1e8,capTable:[{holderId:'founders',label:'المؤسسون',shares:82e6},{holderId:'public-float',label:'المساهمون العموم',shares:18e6}],transferReference:'IPO-VH-10'};});
- text=await open('ipo');assert(text.includes('$30.00')&&text.includes('+50.00%'),'7: the old price until the first valuation');
+ text=await open('ipo');assert(text.includes('$30.00')&&text.includes('منذ الطرح')&&text.includes('+50.0%'),'7: the old price until the first valuation');
  // 8
  const weight=await page.evaluate(()=>{const s=__GH_STATE__,C=GH_CORPORATE_CORE;s.finance.dailyCompanyReports=Array.from({length:400},(_,i)=>({id:`CLOSE-${600-i}`,day:600-i,net:1e6+(i%7)*1e5}));
   let t=performance.now();for(let d=601;d<2601;d++)C.execute({state:s},'close-valuation',{day:d});const dayMs=(performance.now()-t)/2000;t=performance.now();for(let i=0;i<2000;i++)C.ipoTerms(s,20);return {dayMs,termsMs:(performance.now()-t)/2000};});

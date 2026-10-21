@@ -46,7 +46,7 @@
   // never under 80% of the net assets.
   const VALUE_MULTIPLES=Object.freeze({A:16,'A-':14,'BBB+':13,BBB:12,'BBB-':11,'BB+':9,BB:8}),FACILITY_DEPRECIATION=.04;
   function valuation(state){ensure(state);const current=state.advanced.valuation;if(object(current))return current;return state.advanced.valuation={day:null,fair:0,earnings:0,nav:0,equity:0,holdings:0,facilityBook:0,profit12:0,profitDays:0,multiple:12,grade:'BBB'};}
-  function trailingProfit(state,day){let sum=0,recent=0,first=day,seen=0;for(const row of state.finance?.dailyCompanyReports||[]){const rowDay=Number(row?.day);if(!Number.isFinite(rowDay)||rowDay>day||rowDay<=day-365)continue;const net=Number(row.net)||0;sum+=net;if(rowDay>day-90)recent+=net;if(rowDay<first)first=rowDay;seen++;}const days=seen?day-first+1:0;return {profit:days>=30?sum*365/Math.min(365,days):0,recent:days>=30?recent*365/Math.min(90,days):0,days};}
+  function trailingProfit(state,day){let sum=0,recent=0,first=day,seen=0,today=null;for(const row of state.finance?.dailyCompanyReports||[]){const rowDay=Number(row?.day);if(!Number.isFinite(rowDay)||rowDay>day||rowDay<=day-365)continue;const net=Number(row.net)||0;sum+=net;if(rowDay>day-90)recent+=net;if(rowDay<first)first=rowDay;seen++;if(rowDay===day)today=row;}const days=seen?day-first+1:0;return {profit:days>=30?sum*365/Math.min(365,days):0,recent:days>=30?recent*365/Math.min(90,days):0,days,today};}
   function holdingsAtMarket(state){
     let sum=0;const market=Array.isArray(state.market)?state.market:[],rivals=Array.isArray(state.simulationWorld?.competitors)?state.simulationWorld.competitors:[];
     for(const [sym,qty] of Object.entries(object(state.portfolio)?state.portfolio:{}))sum+=num(qty)*num(market.find(row=>row?.sym===sym)?.price);
@@ -54,9 +54,36 @@
   }
   function closeValuation(state,payload={}){
     const v=valuation(state),day=Math.max(0,Math.floor(Number(payload.day)||0));if(v.day===day)return {...v};
+    const before={day:v.day,earnings:Number(v.earnings)||0,nav:Number(v.nav)||0,profit12:Number(v.profit12)||0,multiple:Number(v.multiple)||12,grade:v.grade};
     v.facilityBook=num(v.facilityBook)*Math.pow(1-FACILITY_DEPRECIATION,(v.day==null?0:Math.max(0,day-v.day))/365);
     const trailing=trailingProfit(state,day),grade=String(state.profile?.creditRating||'BBB'),multiple=VALUE_MULTIPLES[grade]||12,equity=Number(state.realism?.financial?.consolidated?.equity)||0,holdings=holdingsAtMarket(state),nav=equity+holdings+num(v.facilityBook),earnings=trailing.profit*multiple;
-    Object.assign(v,{day,fair:valueAfter(earnings,nav,0),earnings,nav,equity,holdings,profit12:trailing.profit,profit90:trailing.recent,profitDays:trailing.days,multiple,grade});return {...v};
+    Object.assign(v,{day,fair:valueAfter(earnings,nav,0),earnings,nav,equity,holdings,profit12:trailing.profit,profit90:trailing.recent,profitDays:trailing.days,multiple,grade});
+    if(state.ipo?.listed===true)closeShare(state,v,before,day,trailing.today);return {...v};
+  }
+  // The group's share once listed (owner, IPO restructuring batch 3, and the annual meeting moving the shares): at each
+  // close its price is the fair value per share × the market's mood. The mood keeps 90% of its distance from 100% a
+  // day, moves up to ±1.5% a day (from the save's seed and the day: nothing stored, no stream advanced), stays between
+  // 85% and 115%, and once a year takes the annual meeting's reception (up to ±3%). The page reads a year of closing
+  // prices and the last 20 moves of 1% or more with their cause, split from the day's change in the same order the
+  // value is built (the rating's multiple, the year's profit, the net assets, the meeting). Constant work a day.
+  const MOOD_MIN=.85,MOOD_MAX=1.15,MOOD_KEEP=.9,MOOD_DAILY=.015,MOOD_AGM=.03,PRICE_DAYS=365,PRICE_EVENTS=20,EVENT_MOVE=.01;
+  function moodNoise(state,day){let h=((Number(state.determinism?.seed)>>>0)^Math.imul(day+1,0x9e3779b1))>>>0;h^=h>>>16;h=Math.imul(h,0x85ebca6b)>>>0;h^=h>>>13;h=Math.imul(h,0xc2b2ae35)>>>0;h^=h>>>16;return ((h>>>0)/4294967296*2-1)*MOOD_DAILY;}
+  function shareEvent(v,row){v.events=Array.isArray(v.events)?v.events:[];v.events.unshift(row);if(v.events.length>PRICE_EVENTS)v.events.length=PRICE_EVENTS;}
+  function sharePrice(v,day,price){v.price=price;v.priceDay=day;v.history=Array.isArray(v.history)?v.history:[];v.history.push([day,price]);if(v.history.length>PRICE_DAYS)v.history.splice(0,v.history.length-PRICE_DAYS);}
+  function closeShare(state,v,before,day,today){
+    const ipo=state.ipo,total=Math.floor(Number(ipo.totalShares)||0);if(total<1)return;
+    const mood0=Number.isFinite(v.sentiment)?v.sentiment:1,agm=state.profile?.agm,bound=m=>Math.max(MOOD_MIN,Math.min(MOOD_MAX,m)),drift=1+MOOD_KEEP*(mood0-1)+moodNoise(state,day);let agmMove=0;
+    if(object(agm)&&agm.positive!=null&&Number(agm.day)>=Number(ipo.listedDay||0)&&Number(agm.day)<=day&&Number(agm.year)!==Number(v.agmApplied)){agmMove=MOOD_AGM*unit((num(agm.positive)-num(agm.negative)-60)/40);v.agmApplied=Number(agm.year);}
+    const mood=bound(drift+agmMove),agmEffect=mood-bound(drift),per=value=>Math.max(.01,value/total),price=cents(per(v.fair)*mood),prev=num(v.price);
+    v.prevPrice=prev||price;v.sentiment=mood;sharePrice(v,day,price);if(!prev||before.day==null)return;
+    // The day's change split in the order the value is built: each step's move as a share of yesterday's price.
+    const at=(earnings,nav,m)=>per(valueAfter(earnings,nav,0))*m,p0=at(before.earnings,before.nav,mood0),pM=at(before.profit12*v.multiple,before.nav,mood0),pE=at(v.earnings,before.nav,mood0),pN=at(v.earnings,v.nav,mood0),moves=[];
+    if(v.multiple!==before.multiple)moves.push({kind:'rating',pct:pM/p0-1,grade:v.grade,from:before.grade,multiple:v.multiple,prevMultiple:before.multiple});
+    const net=Number(today?.net)||0;let company=null,companyNet=0;if(object(today?.companies))for(const [id,row] of Object.entries(today.companies)){const value=Number(row?.net)||0;if(Math.sign(value)===Math.sign(net)&&Math.abs(value)>Math.abs(companyNet)){company=id;companyNet=value;}}
+    moves.push({kind:'profit',pct:(pE-pM)/p0,profit12:v.profit12,net,company,companyNet});
+    moves.push({kind:'assets',pct:(pN-pE)/p0,amount:v.nav-before.nav});
+    if(agmMove)moves.push({kind:'agm',pct:agmEffect*per(v.fair)/p0,year:Number(agm.year),positive:num(agm.positive),negative:num(agm.negative)});
+    for(const move of moves)if(Math.abs(move.pct)>=EVENT_MOVE)shareEvent(v,{day,...move,pct:Math.round(move.pct*10000)/10000});
   }
   // The offering (owner, IPO restructuring): the founder's shares are set so a share is worth about $25 at the fair
   // value; the public takes 10% to 30% in new shares, offered 10% under the fair value per share and ±10% with demand
@@ -172,7 +199,9 @@
     if(command==='set-ipo'){
       if(payload.listed===true){if(state.ipo?.listed)throw new Error('ipo-already-listed');const totalShares=Math.floor(Number(payload.totalShares)||0),capTable=Array.isArray(payload.capTable)?payload.capTable.map(row=>({holderId:checkedIdentifier(row?.holderId,'ipo-holder-id-invalid'),label:checkedText(row?.label||row?.holderId,'ipo-holder-label-invalid',100),shares:Math.floor(Number(row?.shares)||0)})):[];if(totalShares<2||!capTable.length||capTable.some(row=>!row.holderId||row.shares<0)||capTable.reduce((sum,row)=>sum+row.shares,0)!==totalShares||new Set(capTable.map(row=>row.holderId)).size!==capTable.length)throw new Error('ipo-cap-table-unbalanced');if(!capTable.some(row=>row.holderId==='founders')||!capTable.some(row=>row.holderId==='public-float'))throw new Error('ipo-cap-table-owners-missing');
         const ticker=checkedText(payload.ticker||'VH','ipo-ticker-invalid',12).toUpperCase(),issuedPct=Number(payload.issuedPct),proceeds=num(payload.proceeds),offerPrice=Number(payload.offerPrice),sharesIssued=Math.floor(Number(payload.sharesIssued)||0),transferReference=String(payload.transferReference||''),publicPct=100*capTable.find(row=>row.holderId==='public-float').shares/totalShares;if(!Number.isFinite(issuedPct)||issuedPct<=0||issuedPct>=100||Math.abs(issuedPct-publicPct)>.0001||proceeds<=0||!Number.isFinite(offerPrice)||offerPrice<=0||Math.abs(offerPrice*sharesIssued-proceeds)>.02||sharesIssued<1||sharesIssued!==capTable.find(row=>row.holderId==='public-float').shares||!transferReference)throw new Error('ipo-terms-invalid');const fees=num(payload.fees);if(fees>=proceeds)throw new Error('ipo-terms-invalid');const equityTransfer=(state.finance?.transfers||[]).find(row=>row.reference===transferReference)||globalThis.GH_FINANCE_CORE?.findArchivedDocument?.(state,'transfers','reference',transferReference);if(equityTransfer?.kind!=='equity-financing'||equityTransfer.company!=='group'||Math.abs(Number(equityTransfer.amount)-(proceeds-fees))>.02)throw new Error('ipo-proceeds-transfer-mismatch');
-        const listedDay=Math.max(0,Math.floor(Number(payload.listedDay)||0)),v=valuation(state);if(v.day!=null){v.nav=(Number(v.nav)||0)+(proceeds-fees);v.equity=(Number(v.equity)||0)+(proceeds-fees);v.fair=valueAfter(Number(v.earnings)||0,v.nav,0);}v.sentiment=.95+.1*Math.max(0,Math.min(1,Number(payload.demand)||.5));state.ipo={listed:true,ticker,listedDay,issuedPct,proceeds,fees,netProceeds:cents(proceeds-fees),offerPrice,sharesIssued,totalShares,marketCap:num(payload.marketCap),capTable,transferReference,lockupUntilDay:Math.max(listedDay,Math.floor(Number(payload.lockupUntilDay)||listedDay)),...(payload.priceLow!=null?{priceLow:num(payload.priceLow),priceHigh:num(payload.priceHigh),demand:Math.max(0,Math.min(1,Number(payload.demand)||0))}:{})};return state.ipo;
+        const listedDay=Math.max(0,Math.floor(Number(payload.listedDay)||0)),v=valuation(state);if(v.day!=null){v.nav=(Number(v.nav)||0)+(proceeds-fees);v.equity=(Number(v.equity)||0)+(proceeds-fees);v.fair=valueAfter(Number(v.earnings)||0,v.nav,0);}v.sentiment=.95+.1*Math.max(0,Math.min(1,Number(payload.demand)||.5));state.ipo={listed:true,ticker,listedDay,issuedPct,proceeds,fees,netProceeds:cents(proceeds-fees),offerPrice,sharesIssued,totalShares,marketCap:num(payload.marketCap),capTable,transferReference,lockupUntilDay:Math.max(listedDay,Math.floor(Number(payload.lockupUntilDay)||listedDay)),...(payload.priceLow!=null?{priceLow:num(payload.priceLow),priceHigh:num(payload.priceHigh),demand:Math.max(0,Math.min(1,Number(payload.demand)||0))}:{})};
+        // The first day's price is the value per share after the offering × the mood the demand set: its chart starts here.
+        if(v.day!=null){const price=cents(Math.max(.01,v.fair/totalShares)*v.sentiment);v.history=[];v.events=[];v.prevPrice=offerPrice;sharePrice(v,listedDay,price);shareEvent(v,{day:listedDay,kind:'listing',pct:Math.round((price/offerPrice-1)*10000)/10000,ticker,offerPrice});}return state.ipo;
       }
       if(state.ipo?.listed)throw new Error('ipo-delisted-requires-governance');state.ipo={...(state.ipo&&typeof state.ipo==='object'?state.ipo:{}),listed:false,ticker:String(payload.ticker||'GH').toUpperCase()};return state.ipo;
     }
@@ -185,7 +214,7 @@
     throw new Error(`Unknown corporate command: ${command}`);
   }
 
-  const API=Object.freeze({VERSION,COMPANY_TYPES,IPO_FLOATS,ensure,model,planOpenCompany,validate,execute,ipoTerms,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
+  const API=Object.freeze({VERSION,COMPANY_TYPES,IPO_FLOATS,SHARE_MOOD:Object.freeze({min:MOOD_MIN,max:MOOD_MAX,daily:MOOD_DAILY,agm:MOOD_AGM}),ensure,model,planOpenCompany,validate,execute,ipoTerms,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
   globalThis.GH_CORPORATE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('corporate',API);
   if(globalThis.window&&window!==globalThis)globalThis.window.GH_CORPORATE_CORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

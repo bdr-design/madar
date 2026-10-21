@@ -2886,6 +2886,14 @@
     [
       "node",
       "tests/build561-ipo-offering-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build562-group-share-price.cjs"
+    ],
+    [
+      "node",
+      "tests/build563-group-share-page-browser.cjs"
     ]
   ]
 }
