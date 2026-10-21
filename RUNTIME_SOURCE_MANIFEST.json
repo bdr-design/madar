@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "7d1fcd6f11ba772b81ab0b8e43159098287221fa254562b26c34c2a33fce658b",
-  "webapp_tree_sha256": "7020dfccd4010a939539603d4b2913d0f6e7165277488230fe9e5f5121b2f0f6",
+  "source_tree_sha256": "11e6dd490a21cdfddc74e9d449ae406574dac8df12fb0905cd9e3795680246a1",
+  "webapp_tree_sha256": "1bb9361d45f5a43ce907295ba057ee3c096cca5e6052398a06af5ac544467e93",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -46,25 +46,13 @@
       "bytes": 22420,
       "sha256": "999908a62942306e153185aa4709a41a0c15cdf580ea5d75ffe42565438b40af"
     },
-    "WebApp/assets/conference/AUDITORIUM-ART-NOTES.txt": {
-      "bytes": 1170,
-      "sha256": "5a7c8cfb0c5682bb3f5e2d38237b23165dedd9eb393e38960f166068f80398d8"
+    "WebApp/assets/conference/HALL-ART-NOTES.txt": {
+      "bytes": 658,
+      "sha256": "57ccf94c42cdae8a7aa8d57ec3682d9b97ac889e6ab001209734160051998edb"
     },
-    "WebApp/assets/conference/PROVENANCE.json": {
-      "bytes": 1894,
-      "sha256": "01df825d52aab0fb204ad77b4386f0411bccaff5556c3d85b85786f76d542a8c"
-    },
-    "WebApp/assets/conference/ROCKETBOX-LICENSE.txt": {
-      "bytes": 1066,
-      "sha256": "17474e386e0b9e1a700cc3d06b2b0882a2c376d9c6b49c7f8274409b8f8d2352"
-    },
-    "WebApp/assets/conference/auditorium-gold.webp": {
-      "bytes": 155496,
-      "sha256": "5f28f7da34a8dacc9bac21cff3a5a16e515606813f9ad9505d0e7a04c921c1ae"
-    },
-    "WebApp/assets/conference/auditorium-live-stage.webp": {
-      "bytes": 196460,
-      "sha256": "97606f372e03222e817d9ed5f226d58996f2101fbb1eb281150152de324e39ba"
+    "WebApp/assets/conference/hall-dark.webp": {
+      "bytes": 71526,
+      "sha256": "4d77a1af47a56d470533e4f78f5c2f2bb1bf0e3389b81ce7c18968de824f92b5"
     },
     "WebApp/assets/fonts/IBMPlexSansArabic-Medium.ttf": {
       "bytes": 242100,
@@ -3419,36 +3407,24 @@
       "sha256": "5ea4f5b7e6b21a4fc77b871351c78df56dd06ec4a30b0c3c142f3e29b9a4dc78"
     },
     "WebApp/conference-3d.css": {
-      "bytes": 22562,
-      "sha256": "c93703006afc976c5af13b4c0d6c8c34ac2258cdd5e523082614a4d4b1263a27"
+      "bytes": 10835,
+      "sha256": "69ebf3ca175700f40adf161ff0516a8c1725d5b76e51f3051aef73e86b64a334"
     },
     "WebApp/conference-3d.js": {
-      "bytes": 15418,
-      "sha256": "e1ab43535fe1e8e93791ce3407d5a4cf85a95b6c888daa11dd0055415e24f99f"
-    },
-    "WebApp/conference-board-layout.css": {
-      "bytes": 17176,
-      "sha256": "2821ee6cdf393814825194c2b5151f35574a3f6eac94fa1798c821ae3142a204"
-    },
-    "WebApp/conference-board.js": {
-      "bytes": 26496,
-      "sha256": "9f599d9b9514a2b9544e0d56f98a377264612e10ff5b4dad79526624c7b619a9"
+      "bytes": 16487,
+      "sha256": "e0144c6e482820928d50581c81ea04f92cbad1fd98038e1b70e3ed5b3b99483e"
     },
     "WebApp/conference-core.js": {
-      "bytes": 88184,
-      "sha256": "71b39d583518243713d8a56037d6a1c2a4b3e24bdc39bc13e6cf23e542edc067"
+      "bytes": 88830,
+      "sha256": "0db991eb15ed86fc7cb5ee87d05330737b6a403502e96446e70817887e0dbee3"
+    },
+    "WebApp/conference-keynote.js": {
+      "bytes": 17357,
+      "sha256": "9824b4d59e6ae08ca550ae70d4aa48469856fb930390f8d214313dcc534d75b4"
     },
     "WebApp/conference-model.js": {
-      "bytes": 14716,
-      "sha256": "4957f34c23ba3fd36460c8b9380576ad0ba2ac71b49c5f2f785779ecd59f35f0"
-    },
-    "WebApp/conference-side-brand.css": {
-      "bytes": 1333,
-      "sha256": "ac1bc45e0938e37e02a7feb19909b9932b6e2d2ba9c6fab4787027aa4916bec5"
-    },
-    "WebApp/conference-world.js": {
-      "bytes": 3838,
-      "sha256": "4b38c2f13f4897231b5fa6cf6c2f65454ade2f1bcd9bdce725192c578d41578c"
+      "bytes": 14869,
+      "sha256": "a0197807ca47bf8e25c5f2528047ecda2892150efade455ffb28717cfe0fb549"
     },
     "WebApp/contracts-core.js": {
       "bytes": 10329,
@@ -3679,8 +3655,8 @@
       "sha256": "848478faf7b2c52d333aa1c4c734685028a9e8d30b5570eca1c8ac0efcbdf6a7"
     },
     "WebApp/index.html": {
-      "bytes": 25367,
-      "sha256": "f2188db91b582fd40db4a875f1b961b31949f6a69fac597c831878ac3470cd5d"
+      "bytes": 25203,
+      "sha256": "772fb8afb1543d85039878aa74df715be014763077d1e2bcd220142a61eebf23"
     },
     "WebApp/insurance-core.js": {
       "bytes": 34814,
@@ -3851,8 +3827,8 @@
       "sha256": "f57ffab1ac776ccaa527a4c42994c6cf082730ddcb180d8233ebab3aa1af1923"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 36974,
-      "sha256": "f849d5caa384cb2199c485305266e99cf88d6ed6f392dc491b8870a824c67e7f"
+      "bytes": 36729,
+      "sha256": "2a2e12e1dfc0ba292fa1073b0b06218b63cf9bf2a9c0b5fc24da2133fcd68004"
     },
     "WebApp/save-checksum-thread.js": {
       "bytes": 11845,
@@ -4024,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "e50c3c51148e0ee2b01a3b5d18e82e6948f9309a55abea1b98de8619dad92b08"
+      "sha256": "6c7153a921a19de05da7e7ffb866ca50911186b8dd2bdbd36b9baac7c6f10f2f"
     },
     "BUILD": {
       "bytes": 4,

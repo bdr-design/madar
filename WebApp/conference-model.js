@@ -55,7 +55,8 @@ function validatePlanBundle(bundle,snapshot=null){if(!bundle||bundle.schema!==PL
 // Plans archived before the copy changed keep their wording (it is part of their hash); the displayed scenes use the current copy.
 const RETIRED_COPY=new Map([['تفاعل الجمهور داخل عالم اللعبة','تفاعل الجمهور مع المؤتمر'],['مؤشرات وتعليقات محاكية مشتقة من لقطة المؤتمر المؤرشفة.','مؤشرات وتعليقات من لقطة المؤتمر المؤرشفة.']]);
 const currentCopy=scene=>{for(const key of ['subtitle','caption'])if(RETIRED_COPY.has(scene[key]))scene[key]=RETIRED_COPY.get(scene[key]);return scene;};
-function scenesForPlan(bundle,mode='full'){validatePlanBundle(bundle);const selected=['full','brief','manual'].includes(mode)?mode:'full';return freeze(clone(bundle.modes[selected]).map(currentCopy));}
+// validated: the caller has just validated this bundle (the stage does on opening); the scenes are not hashed again.
+function scenesForPlan(bundle,mode='full',{validated=false}={}){if(!validated)validatePlanBundle(bundle);const selected=['full','brief','manual'].includes(mode)?mode:'full';return freeze(clone(bundle.modes[selected]).map(currentCopy));}
 globalThis.GH_CONF_MODEL=Object.freeze({VERSION,PLAN_SCHEMA,buildScenePlan,buildPlanBundle,validatePlanBundle,scenesForPlan,clone,freeze,esc,number,int,money,usable,annualGrowth,coverage,metric,stable,hash});
 if(typeof module!=='undefined'&&module.exports)module.exports=globalThis.GH_CONF_MODEL;
 })();

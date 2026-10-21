@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
 const root=path.resolve(__dirname,'..');process.env.GH_TEST_SOURCE_DIR=root;
-for(const file of ['WebApp/conference-3d.js','WebApp/conference-world.js']){const source=fs.readFileSync(path.join(root,file),'utf8');assert.doesNotMatch(source,/\brequestAnimationFrame\s*\(/,`${file} must not schedule a continuous animation loop`);assert.doesNotMatch(source,/\bWebGLRenderer\b|\bGH_THREE\b|\bCanvasTexture\b/,`${file} must not instantiate or depend on WebGL/Three`);}
+for(const file of ['WebApp/conference-3d.js','WebApp/conference-keynote.js']){const source=fs.readFileSync(path.join(root,file),'utf8');assert.doesNotMatch(source,/\brequestAnimationFrame\s*\(/,`${file} must not schedule a continuous animation loop`);assert.doesNotMatch(source,/\bWebGLRenderer\b|\bGH_THREE\b|\bCanvasTexture\b/,`${file} must not instantiate or depend on WebGL/Three`);}
 const {scenario}=require('./helpers/business-scenario.js'),env=scenario(),{s,state,command}=env;
 env.load('arabic-copy-core');env.load('conference-model');env.load('conference-core');
 state.simSeconds=365*86400;s.GH_CONFERENCE.execute({state},'tick-day',{day:365});assert.equal(state.advanced.conference.pendingYear,2026);

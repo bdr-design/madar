@@ -15,7 +15,7 @@ process.env.GH_TEST_SOURCE_DIR=SOURCE;
 const {scenario:business}=require('./helpers/business-scenario.js');
 
 function scenario(){
-  const env=business(),{s,state,command}=env;for(const name of ['customer-base-core','banking-core','insurance-core','arabic-copy-core','conference-model','conference-board','conference-core'])env.load(name);
+  const env=business(),{s,state,command}=env;for(const name of ['customer-base-core','banking-core','insurance-core','arabic-copy-core','conference-model',fs.existsSync(path.join(SOURCE,'WebApp/conference-keynote.js'))?'conference-keynote':'conference-board','conference-core'])env.load(name);
   s.GH_FINANCE_CORE.book(state,'group').accounts[0].balance+=2e9;command('corporate','open-company',{type:'bank',capital:400000000,legalName:'Test Bank'});command('corporate','open-company',{type:'insurance',capital:200000000,legalName:'Test Insurance'});
   const bank=s.GH_BANKING_CORE.ensure(state);bank.branchNetwork.push({id:'BR-QA',city:'Riyadh',country:'Saudi Arabia',servicesActive:true,deposits:0,loans:0,retailCustomers:800,businessCustomers:40,lastProcessedDay:0});
   const ins=s.GH_INSURANCE_CORE.ensure(state);(ins.offices||[]).length||ins.offices.push({id:'INS-QA',city:'Riyadh',country:'Saudi Arabia',lines:{}});

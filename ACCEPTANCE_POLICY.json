@@ -327,7 +327,7 @@
     ],
     [
       "node",
-      "tests/build422-conference-content-layout-browser.cjs"
+      "tests/build552-conference-hall-layout-browser.cjs"
     ],
     [
       "node",
@@ -1921,11 +1921,11 @@
     ],
     [
       "node",
-      "tests/conference-visual-build334.cjs"
+      "tests/build552-conference-hall-layout-browser.cjs"
     ],
     [
       "node",
-      "tests/build366-conference-board-layout.cjs"
+      "tests/build551-conference-keynote-slides.cjs"
     ],
     [
       "node",
@@ -2365,7 +2365,7 @@
     ],
     [
       "node",
-      "tests/build422-conference-content-layout-browser.cjs"
+      "tests/build553-conference-open-cost.cjs"
     ],
     [
       "node",

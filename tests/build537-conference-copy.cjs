@@ -1,12 +1,12 @@
 'use strict';
 // The conference must read as a real corporate event: no wording that calls it a simulation or a game. Proven on the real
-// conference owner, plan model and board (business scenario):
+// conference owner, plan model and slides (business scenario):
 //  1. a prepared conference stores no vendor "simulation" notice, and its preparation page and the monthly report say
 //     nothing of a simulation or a game (the notice an older save stored is not shown either);
-//  2. a new plan's audience chapter, and the board documents of the audience and financial chapters, carry no such words;
+//  2. a new plan's audience chapter, and the slides of the audience and a company's financial chapters, carry no such words;
 //  3. a plan archived with the old wording keeps its stored text and hash (it still validates), while the scenes shown
 //     from it use the current wording;
-//  4. the previous source, restored in memory, showed that wording on the page, the plan and the board.
+//  4. the previous source, restored in memory, showed that wording on the page, the plan and its board.
 const assert=require('node:assert/strict'),path=require('node:path'),vm=require('node:vm'),{execFileSync}=require('node:child_process');
 const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');process.env.GH_TEST_SOURCE_DIR=ROOT;
 const {scenario}=require('./helpers/business-scenario.js');
@@ -15,7 +15,7 @@ const previous=file=>execFileSync('git',['-C',process.env.GH_CONFERENCE_GIT_DIR|
 
 function world(sources=null){
   const env=scenario(),{s,state,command}=env;env.load('arabic-copy-core');
-  for(const name of ['conference-model','conference-board','conference-core']){if(sources)vm.runInContext(sources[name],s,{filename:`${name}.js`});else env.load(name);}
+  for(const name of sources?['conference-model','conference-board','conference-core']:['conference-model','conference-keynote','conference-core']){if(sources)vm.runInContext(sources[name],s,{filename:`${name}.js`});else env.load(name);}
   state.simSeconds=365*86400;s.GH_CONFERENCE.execute({state},'tick-day',{day:365});command('conference','prepare',{year:2026,packageId:'executive'});
   const ctx={state,esc:value=>String(value??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),fmtMoney:value=>String(value),fmtNumber:value=>String(value),fmtInt:value=>String(value)};
   return {s,state,command,ctx,page:arg=>s.GH_CONFERENCE.render(ctx,arg)};
@@ -23,7 +23,7 @@ function world(sources=null){
 function chapters(w){
   const row=w.state.advanced.conference.current,bundle=row.presentation.planBundle,scenes=w.s.GH_CONF_MODEL.scenesForPlan(bundle,'full');
   const pick=id=>scenes.find(scene=>scene.id===id),financial=scenes.find(scene=>/-financial$/.test(scene.id));
-  return {row,bundle,scenes,audience:pick('audience'),financial,doc:scene=>JSON.stringify(w.s.GH_CONF_BOARD.documentFor(row.snapshot,scene))};
+  return {row,bundle,scenes,audience:pick('audience'),financial,doc:scene=>JSON.stringify(w.s.GH_CONF_KEYNOTE?w.s.GH_CONF_KEYNOTE.slides(row.snapshot,scenes).filter(slide=>slide.sceneId===scene.id||scene.type&&scene.type!=='group'&&slide.type===scene.type):w.s.GH_CONF_BOARD.documentFor(row.snapshot,scene))};
 }
 (()=>{
   const out={};
@@ -37,7 +37,7 @@ function chapters(w){
     assert(c.audience&&c.financial,'the plan has audience and financial chapters');
     assert(!WORDS.test(`${c.audience.subtitle} ${c.audience.caption}`),`2: the audience chapter (${c.audience.subtitle} / ${c.audience.caption})`);
     assert(!WORDS.test(JSON.stringify(c.bundle)),'2: nothing in the stored plan');
-    for(const scene of [c.audience,c.financial])assert(!WORDS.test(c.doc(scene)),`2: the board document of ${scene.id}`);
+    for(const scene of [c.audience,c.financial])assert(!WORDS.test(c.doc(scene)),`2: the slides of ${scene.id}`);
     // 3: a plan archived with the old wording.
     const legacyModel=previous('conference-model.js'),model=w.s.GH_CONF_MODEL;vm.runInContext(legacyModel,w.s,{filename:'conference-model-previous.js'});
     const legacy=w.s.GH_CONF_MODEL.buildPlanBundle(c.row.snapshot,{conferenceId:c.row.id,createdAt:1});w.s.GH_CONF_MODEL=model;
@@ -46,7 +46,7 @@ function chapters(w){
     const shown=model.scenesForPlan(legacy,'full'),audience=shown.find(scene=>scene.id==='audience');
     assert.equal(JSON.stringify(legacy),stored,'3: showing it does not change the stored plan');
     assert(!WORDS.test(`${audience.subtitle} ${audience.caption}`),'3: the archived audience chapter is shown with the current wording');
-    assert(!WORDS.test(c.doc(audience)),'3: and so is its board document');
+    assert(!WORDS.test(c.doc(audience)),'3: and so are its slides');
     assert.deepEqual(shown.map(scene=>scene.id),legacy.modes.full.map(scene=>scene.id),'3: the chapters and their order are the archived ones');
     out.current={chapters:c.scenes.length,legacyChapters:shown.length};}
   // 4: the previous source.
