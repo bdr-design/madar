@@ -2922,6 +2922,14 @@
     [
       "node",
       "tests/build570-documents-list-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build571-tax-month-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build572-fleet-premium-unpaid.cjs"
     ]
   ]
 }

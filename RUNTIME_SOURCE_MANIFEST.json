@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "f64574a846b845329d6dd66b7d99b5584cfd90835e416d44b31b2e0e4dcb3249",
-  "webapp_tree_sha256": "8e12cf4a0e6e395e9c8ad696925af734caeafb2652098fb9617470e1ce14f22a",
+  "source_tree_sha256": "404725e20bd4097ee5a0f9cceaba4ab7ae7dac44180b9c56bd08f3b142c632aa",
+  "webapp_tree_sha256": "a431526e7d956caa69cd4a6eee91dbc2914a6ddcbdca58dbc154cd6289bca059",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1040269,
-      "sha256": "0b418ea7ec48a35dd6293db8f0b18e92d625dc6178598ff8faacc59837974b32"
+      "bytes": 1041447,
+      "sha256": "804ea09dfb527a1fefea502e49b4dfd99ff02162b4b2f65d2d81fb142a235380"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3807,8 +3807,8 @@
       "sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106"
     },
     "WebApp/realism-core.js": {
-      "bytes": 120608,
-      "sha256": "5de8c917bea0044328bc5c02140f8380a36c9c0bf44d766c86d9bffd02c42425"
+      "bytes": 121350,
+      "sha256": "49f96413a953d578b5050aec1025afd27a89c681aa59b272ddf0f8d5412d9455"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "90299b14b7b153fc80a6a1462021a2c7ab64cac40533c0a137d8d629c997f23d"
+      "sha256": "caa68b7ecbd94d4f753b33ea2ae9edb44c41a983617bd3569bd7d09bd58f9c88"
     },
     "BUILD": {
       "bytes": 4,
