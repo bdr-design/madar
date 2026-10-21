@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "6507cb091c9790adc69765766b31b733e78c2b973d539964e764fa19f1876462",
-  "webapp_tree_sha256": "a531341023579ee6527b4df4f0270c305fd57c028a1afc4c25ccab2e29a722b8",
+  "source_tree_sha256": "be239c02bd56298d381eb6b2f6e9ab25cca0fe2de368daa9811ca666edb81864",
+  "webapp_tree_sha256": "048837acde42b47cb410be564ad80cb4df554e5f0bfcc27864f6fd680842396c",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1015364,
-      "sha256": "077716085e7174b36990f87dc3971afb78e581ecf18b7b72dc00ba559f59a351"
+      "bytes": 1015674,
+      "sha256": "a914f21daf9859c1ecf9cef0b7e3a6f09604b9ce85afd72c8a921ec135991e35"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3519,8 +3519,8 @@
       "sha256": "5a21c45c513900d403fa667cc7e56fd88604b347760d1f3972976871c9d9f542"
     },
     "WebApp/fleet-core.js": {
-      "bytes": 62719,
-      "sha256": "8e819fccfca5497b979fab68466b9a478d4deeedcac608b77a0e04637985b8d9"
+      "bytes": 64677,
+      "sha256": "dd32ae080e7039a22f89febec2aa29910360fb46f9673ea88c6c8d31ba84b0b7"
     },
     "WebApp/fleet-day-core.js": {
       "bytes": 20878,
@@ -3743,8 +3743,8 @@
       "sha256": "56424623df0232109e3ac824e0f479c5d713f7f2db3ea4efc42f26fb1f6b891c"
     },
     "WebApp/market-core.js": {
-      "bytes": 19409,
-      "sha256": "1a815724b78eaac3b8cf14107be5236ff8e5fefeb147d31d0f30f84026892d2c"
+      "bytes": 19598,
+      "sha256": "a43be5cb28786dbc5ec1e77ea1141d87c89d96356d2647b1be6973f799b04c6e"
     },
     "WebApp/market-reference-core.js": {
       "bytes": 4206,
@@ -3847,8 +3847,8 @@
       "sha256": "e2b6a8811273984167e035dbe9a9ddce9cef58970bb565c56a8370314df64a07"
     },
     "WebApp/save-schema.js": {
-      "bytes": 129910,
-      "sha256": "f2d46600e09b372e8bac32f221a625ebaa490d14fb4b95cf81a650fd38d42992"
+      "bytes": 130025,
+      "sha256": "4103171a9fbc43fbeeccf34ddf74e5d1ee9aa033a11406943d43e0f3fd6a8d5b"
     },
     "WebApp/section-identities.css": {
       "bytes": 3518,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "fb5bc50a10682bb637eb64fcc3dcfb0fa1122ecb078046a252a1f6d873358cfc"
+      "sha256": "b3ba63a22b373ce107170bb308d496dd7a9103c88343dae68a8d0cb3f340b868"
     },
     "BUILD": {
       "bytes": 4,

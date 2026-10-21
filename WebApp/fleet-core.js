@@ -92,6 +92,19 @@
     if(batch){if(batch.assetById.get(asset?.id)!==asset)return false;batch.assetById.delete(asset.id);batch.removed.add(asset.id);return true;}
     return fleetData().remove(state,asset);
   }
+  // A sale is priced here, from the asset and its catalog row, not taken from the page (the page shows the same quote):
+  // value falls over five years towards the catalog residual, a worn asset loses up to 30% more, a lease ends with two
+  // months' rent. The group value gives back what the asset added when it was bought (86% of its price, 8% for a lease).
+  // Constant work per asset: the catalog is indexed once per catalog object.
+  const saleCatalogIndex=new WeakMap();
+  function saleCatalogItem(type,id){const catalog=globalThis.GH_ASSET_CATALOG?.[type];if(!catalog||typeof catalog!=='object')return null;let index=saleCatalogIndex.get(catalog);if(!index){index=new Map();for(const row of [...(catalog.used||[]),...(catalog.new||[])])if(row?.id)index.set(row.id,row);saleCatalogIndex.set(catalog,index);}return index.get(id)||null;}
+  function saleQuote(state,asset){
+    if(asset.ownership==='lease')return {proceeds:0,fee:Math.max(0,(Number(asset.monthlyLease)||0)*2)};
+    const item=saleCatalogItem(asset.type,asset.catalogId),basis=Number(asset.purchasePrice)||Number(item?.price)||1000000,residual=Math.max(.15,Math.min(.95,(Number(item?.residual5y)||60)/100));
+    const built=Number(asset.year)||2026,ageYears=Math.max(0,2026+(Number(state.simSeconds)||0)/(365*86400)-built),value=Number(asset.purchasePrice)?basis*Math.pow(residual,Math.max(0,ageYears-Math.max(0,2026-built))/5):basis*Math.pow(residual,ageYears/5);
+    return {proceeds:value*(.7+.3*Math.max(0,Math.min(100,Number(asset.condition??100)))/100),fee:0};
+  }
+  function assetGroupValue(asset){const basis=Number(asset.purchasePrice)||Number(saleCatalogItem(asset.type,asset.catalogId)?.price)||0;return basis*(asset.ownership==='lease'?.08:.86);}
   function removeLeasedAsset(state,assetId){
     const batch=disposalBatches.get(state);
     if(batch){batch.leasedRemoved.add(assetId);return;}
@@ -620,16 +633,16 @@
       if(asset.phase==='moving')throw new Error('asset-moving');const removed=fleetData().released(asset);if(!removeAsset(state,asset))return false;releaseStaffing(state,removed,'بيع الأصل');return removed;
     }
     if(cmd==='return-lease'){
-      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),fee=Math.max(0,Number(p.fee)||0);if(fee&&!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');
+      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),fee=saleQuote(state,asset).fee,corporate=globalThis.GH_CORPORATE_CORE;if(fee&&!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');if(!corporate?.execute)throw new Error('corporate-core-missing');
       if(fee)globalThis.GH_FINANCE_CORE.execute({state},'spend',{company:owner.companyId,amount:fee,note:`رسوم إنهاء تأجير ${asset.name}`,method:'تحويل بنكي',taxable:false,line:'capex'});
-      removeLeasedAsset(state,asset.id);
-      const removed=fleetData().released(asset);if(!removeAsset(state,asset))throw new Error('asset-not-found');releaseStaffing(state,removed,'إعادة أصل مؤجر');return {asset:removed,fee};
+      const value=assetGroupValue(asset);removeLeasedAsset(state,asset.id);
+      const removed=fleetData().released(asset);if(!removeAsset(state,asset))throw new Error('asset-not-found');releaseStaffing(state,removed,'إعادة أصل مؤجر');corporate.execute({state},'adjust-group-value',{delta:-value});return {asset:removed,fee};
     }
     if(cmd==='sell'){
-      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),proceeds=Math.max(0,Number(p.proceeds)||0);if(proceeds<=0)throw new Error('invalid-sale-proceeds');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');
+      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),proceeds=saleQuote(state,asset).proceeds,value=assetGroupValue(asset),corporate=globalThis.GH_CORPORATE_CORE;if(!(proceeds>0))throw new Error('invalid-sale-proceeds');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');if(!corporate?.execute)throw new Error('corporate-core-missing');
       globalThis.GH_FINANCE_CORE.execute({state},'credit',{company:owner.companyId,amount:proceeds,note:`بيع أصل ${asset.name}`,method:'تحويل مشتري',taxable:false,counterparty:p.buyer||'مشتري أصل'});
       const removed=fleetData().released(asset);if(!removeAsset(state,asset))throw new Error('asset-not-found');releaseStaffing(state,removed,'بيع الأصل');
-      const corporate=globalThis.GH_CORPORATE_CORE;if(!corporate?.execute)throw new Error('corporate-core-missing');corporate.execute({state},'adjust-group-value',{delta:-proceeds*.18});return {asset:removed,proceeds};
+      corporate.execute({state},'adjust-group-value',{delta:-value});return {asset:removed,proceeds};
     }
     if(cmd==='dispose'){
       if(asset.phase==='moving'||(asset.phase==='turnaround'&&p.atOwnedCenter===false&&asset.routeId)){
@@ -644,6 +657,6 @@
     if(cmd==='reconcile-staffing')return reconcileStaffing(state,p.facilityResolver);
     throw new Error(`Unknown fleet command: ${cmd}`);
   }
-  const API={VERSION,DISPATCH_INTENT_SCHEMA,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,previewRouteConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffingContractsStages,reconcileStaffingContracts,reconcileStaffingPlanStages,reconcileStaffingPlan,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch};
+  const API={VERSION,saleQuote,DISPATCH_INTENT_SCHEMA,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,previewRouteConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffingContractsStages,reconcileStaffingContracts,reconcileStaffingPlanStages,reconcileStaffingPlan,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch};
   globalThis.GH_FLEET_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('fleet',API);if(globalThis.window&&window!==globalThis)window.GH_FLEET_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

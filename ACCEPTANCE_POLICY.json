@@ -2874,6 +2874,10 @@
     [
       "node",
       "tests/build558-investor-card-load-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build559-share-value-fixes-browser.cjs"
     ]
   ]
 }

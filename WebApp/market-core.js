@@ -95,7 +95,8 @@ if(cmd==='tick-prices'){
     const sentiment=(rnd.nextFloat(s,'market-sentiment')-.5)*.012;
     const change=Math.max(-4.5,Math.min(4.5,(fundamentals+sentiment)*100));
     // Build 375: the market value and the P/E follow the price (they stayed at their opening values).
-    const before=num(row.price);row.change=change;row.price=Math.max(2,before*(1+change/100));const ratio=before>0?row.price/before:1;if(num(row.marketCap)>0)row.marketCap=Math.round(num(row.marketCap)*ratio);if(num(row.pe)>0)row.pe=Math.round(num(row.pe)*ratio*10)/10;
+    // The previous day's close, taken on the first tick of each day (one number a stock a day): the desk shows the day's move.
+    const before=num(row.price);if(hour%24===0||!(num(row.prevClose)>0))row.prevClose=before;row.change=change;row.price=Math.max(2,before*(1+change/100));const ratio=before>0?row.price/before:1;if(num(row.marketCap)>0)row.marketCap=Math.round(num(row.marketCap)*ratio);if(num(row.pe)>0)row.pe=Math.round(num(row.pe)*ratio*10)/10;
   }
   for(const rival of s.simulationWorld.competitors){
     rival.price=Math.max(num(rival.revenue)*.2,num(rival.price)*(1+(rnd.nextFloat(s,'competitor-price')-.5)*.003));

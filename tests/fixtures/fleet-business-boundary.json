@@ -488,5 +488,45 @@
         "sha256": "2da805165ebcaaec0fc2273d4ef33031af517831699da034a0511249fade0bab"
       }
     ]
+  },
+  "approved_share_value_edits": {
+    "WebApp/fleet-core.js": [
+      {
+        "reason": "Owner decision (21 Oct 2026, «حل المشاكل» on the shares review): a sale is priced by the fleet owner from the asset and its catalog (the same formula the page showed; no price changed), and the group value gives back what the asset added when bought (86% of its price, 8% for a lease) instead of 18% of the proceeds.",
+        "before": "  function removeLeasedAsset(state,assetId){\n",
+        "after": "  // A sale is priced here, from the asset and its catalog row, not taken from the page (the page shows the same quote):\n  // value falls over five years towards the catalog residual, a worn asset loses up to 30% more, a lease ends with two\n  // months' rent. The group value gives back what the asset added when it was bought (86% of its price, 8% for a lease).\n  // Constant work per asset: the catalog is indexed once per catalog object.\n  const saleCatalogIndex=new WeakMap();\n  function saleCatalogItem(type,id){const catalog=globalThis.GH_ASSET_CATALOG?.[type];if(!catalog||typeof catalog!=='object')return null;let index=saleCatalogIndex.get(catalog);if(!index){index=new Map();for(const row of [...(catalog.used||[]),...(catalog.new||[])])if(row?.id)index.set(row.id,row);saleCatalogIndex.set(catalog,index);}return index.get(id)||null;}\n  function saleQuote(state,asset){\n    if(asset.ownership==='lease')return {proceeds:0,fee:Math.max(0,(Number(asset.monthlyLease)||0)*2)};\n    const item=saleCatalogItem(asset.type,asset.catalogId),basis=Number(asset.purchasePrice)||Number(item?.price)||1000000,residual=Math.max(.15,Math.min(.95,(Number(item?.residual5y)||60)/100));\n    const built=Number(asset.year)||2026,ageYears=Math.max(0,2026+(Number(state.simSeconds)||0)/(365*86400)-built),value=Number(asset.purchasePrice)?basis*Math.pow(residual,Math.max(0,ageYears-Math.max(0,2026-built))/5):basis*Math.pow(residual,ageYears/5);\n    return {proceeds:value*(.7+.3*Math.max(0,Math.min(100,Number(asset.condition??100)))/100),fee:0};\n  }\n  function assetGroupValue(asset){const basis=Number(asset.purchasePrice)||Number(saleCatalogItem(asset.type,asset.catalogId)?.price)||0;return basis*(asset.ownership==='lease'?.08:.86);}\n  function removeLeasedAsset(state,assetId){\n",
+        "sha256": "9b26051333b00c26ffc8aec12e707247b09a0a8415d21b8c983a0122f4886ead"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, «حل المشاكل» on the shares review): a sale is priced by the fleet owner from the asset and its catalog (the same formula the page showed; no price changed), and the group value gives back what the asset added when bought (86% of its price, 8% for a lease) instead of 18% of the proceeds.",
+        "before": "      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),fee=Math.max(0,Number(p.fee)||0);if(fee&&!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');\n",
+        "after": "      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),fee=saleQuote(state,asset).fee,corporate=globalThis.GH_CORPORATE_CORE;if(fee&&!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');if(!corporate?.execute)throw new Error('corporate-core-missing');\n",
+        "sha256": "d04f62499fa172475720a9e45986268a3f6033d1ed6c9d7ba1f634714a075c30"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, «حل المشاكل» on the shares review): a sale is priced by the fleet owner from the asset and its catalog (the same formula the page showed; no price changed), and the group value gives back what the asset added when bought (86% of its price, 8% for a lease) instead of 18% of the proceeds.",
+        "before": "      removeLeasedAsset(state,asset.id);\n      const removed=fleetData().released(asset);if(!removeAsset(state,asset))throw new Error('asset-not-found');releaseStaffing(state,removed,'إعادة أصل مؤجر');return {asset:removed,fee};\n",
+        "after": "      const value=assetGroupValue(asset);removeLeasedAsset(state,asset.id);\n      const removed=fleetData().released(asset);if(!removeAsset(state,asset))throw new Error('asset-not-found');releaseStaffing(state,removed,'إعادة أصل مؤجر');corporate.execute({state},'adjust-group-value',{delta:-value});return {asset:removed,fee};\n",
+        "sha256": "0390477cc41b4de51dc0c9445e5d1f7b5c88ce0a85330fb8c5d220dc8239e9e2"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, «حل المشاكل» on the shares review): a sale is priced by the fleet owner from the asset and its catalog (the same formula the page showed; no price changed), and the group value gives back what the asset added when bought (86% of its price, 8% for a lease) instead of 18% of the proceeds.",
+        "before": "      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),proceeds=Math.max(0,Number(p.proceeds)||0);if(proceeds<=0)throw new Error('invalid-sale-proceeds');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');\n",
+        "after": "      if(asset.phase==='moving')throw new Error('asset-moving');const owner=requireFleetAsset(state,asset),proceeds=saleQuote(state,asset).proceeds,value=assetGroupValue(asset),corporate=globalThis.GH_CORPORATE_CORE;if(!(proceeds>0))throw new Error('invalid-sale-proceeds');if(!globalThis.GH_FINANCE_CORE?.execute)throw new Error('finance-core-missing');if(!corporate?.execute)throw new Error('corporate-core-missing');\n",
+        "sha256": "7a099aad95a058d5f4f9fa567b4688d1df6d791f35e84160066a4f8a6700b76d"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, «حل المشاكل» on the shares review): a sale is priced by the fleet owner from the asset and its catalog (the same formula the page showed; no price changed), and the group value gives back what the asset added when bought (86% of its price, 8% for a lease) instead of 18% of the proceeds.",
+        "before": "      const corporate=globalThis.GH_CORPORATE_CORE;if(!corporate?.execute)throw new Error('corporate-core-missing');corporate.execute({state},'adjust-group-value',{delta:-proceeds*.18});return {asset:removed,proceeds};\n",
+        "after": "      corporate.execute({state},'adjust-group-value',{delta:-value});return {asset:removed,proceeds};\n",
+        "sha256": "32edc15df4dada130840d8b99b2712911bb729b112f2bbec5488f648abdf1842"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, «حل المشاكل» on the shares review): a sale is priced by the fleet owner from the asset and its catalog (the same formula the page showed; no price changed), and the group value gives back what the asset added when bought (86% of its price, 8% for a lease) instead of 18% of the proceeds.",
+        "before": "  const API={VERSION,DISPATCH_INTENT_SCHEMA,",
+        "after": "  const API={VERSION,saleQuote,DISPATCH_INTENT_SCHEMA,",
+        "sha256": "c8dff1137efd56384866ac2ac15c808613e7057a439d462ee9ed753bbf2452cf"
+      }
+    ]
   }
 }
