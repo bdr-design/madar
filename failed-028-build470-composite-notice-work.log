@@ -1,0 +1,35 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ TypeError: window.GH_FINANCE_CORE.investorMode is not a function
++     at evalmachine.<anonymous>:5:66
++     at runAuthorizedCompositeCommand (/Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:3:1485)
++     at Object.settleAllPayables (evalmachine.<anonymous>:4:24)
++     at run (/Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:3:2415)
++     at /Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:4:136
++     at Object.<anonymous> (/Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:4:324)
++     at Module._compile (node:internal/modules/cjs/loader:1929:14)
++     at Object..js (node:internal/modules/cjs/loader:2060:10)
++     at Module.load (node:internal/modules/cjs/loader:1651:32)
++     at Module._load (node:internal/modules/cjs/loader:1443:12)
+- undefined
+
+    at run (/Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:3:2659)
+    at async /Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:4:130 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: TypeError: window.GH_FINANCE_CORE.investorMode is not a function
+      at evalmachine.<anonymous>:5:66
+      at runAuthorizedCompositeCommand (/Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:3:1485)
+      at Object.settleAllPayables (evalmachine.<anonymous>:4:24)
+      at run (/Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:3:2415)
+      at /Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:4:136
+      at Object.<anonymous> (/Users/runner/work/madar/madar/tests/build470-composite-notice-work.cjs:4:324)
+      at Module._compile (node:internal/modules/cjs/loader:1929:14)
+      at Object..js (node:internal/modules/cjs/loader:2060:10)
+      at Module.load (node:internal/modules/cjs/loader:1651:32)
+      at Module._load (node:internal/modules/cjs/loader:1443:12),
+  expected: undefined,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
