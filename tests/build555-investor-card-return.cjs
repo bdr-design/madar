@@ -29,7 +29,7 @@ function funded(){const s=world();s.godMoney=true;s.infiniteMoney=true;run(s,'sp
 const s=funded();
 {const cash=F.operating(s,'air'),entries=s.finance.journalEntries.length;const r=run(s,'investor-card-return',{company:'air',amount:12000000,ref:'INV-RET-QA-1'});const [t]=returns(s);
  assert.equal(r.amount,12000000);assert.equal(r.owed,18000000);assert.equal(F.operating(s,'air'),cash-12000000,'2: the current account goes down by the amount');
- assert.equal(t.label,'إرجاع إلى بطاقة المستثمر');assert.equal(t.to,'بطاقة المستثمر · سالم');assert.equal(t.purposeCategory,'إرجاع إلى بطاقة المستثمر');assert(t.documentProofId&&t.contentDigest,'2: signed');
+ assert.equal(t.label,'إرجاع إلى بطاقة المستثمر');assert.equal(t.to,'بطاقة المستثمر · سالم');assert.equal(t.note,'إرجاع رأس مال');assert(t.documentProofId&&t.contentDigest,'2: signed');
  const entry=s.finance.journalEntries.find(x=>x.sourceRef==='INV-RET-QA-1');assert.deepEqual(plain(entry.lines.map(l=>[l.account,l.debit,l.credit])),[['حقوق ملكية المؤسس',12000000,0],[F.book(s,'air').accounts[0].id,0,12000000]]);assert.equal(s.finance.journalEntries.length-entries,1);
  assert.equal(s.finance.investorCard.returned.air,12000000);assert.deepEqual(plain(s.finance.investorCard.rows[0]),{kind:'return',day:10,company:'air',amount:12000000,count:1,purposes:['إرجاع رأس مال']});
  const plan=F.investorCardReturnPlan(s).rows.find(row=>row.company==='air');assert.equal(plan.owed,18000000);}

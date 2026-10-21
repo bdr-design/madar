@@ -26,8 +26,8 @@ let sealed=0;const proof=G.GH_DOCUMENT_PROOF;G.GH_DOCUMENT_PROOF={...proof,sealD
 const s=world();s.godMoney=true;s.infiniteMoney=true;
 {const before=s.finance.journalEntries.length;run(s,'spend',{company:'air',amount:5000000,note:'خدمات أرضية',line:'other'});
  const [t]=cardTransfers(s);assert(t,'2: one card transfer');assert.equal(cardTransfers(s).length,1);
- assert.equal(t.kind,'founder-investment');assert.equal(t.label,'حوالة واردة من بطاقة المستثمر');assert.equal(t.from,'بطاقة المستثمر · سالم');assert.match(t.id,/^INV-\d+-\d+$/);
- assert.equal(t.purposeCategory,'شحن من بطاقة المستثمر');assert.equal(t.purposeDetail,'مصروف');assert(t.documentProofId&&t.contentDigest,'2: the transfer is a signed document');
+ assert.equal(t.kind,'founder-investment');assert.equal(t.label,'شحن من بطاقة المستثمر');assert.equal(t.from,'بطاقة المستثمر · سالم');assert.match(t.id,/^INV-\d+-\d+$/);
+ assert.equal(t.note,'مصروف','2: the purpose shows under «شحن من بطاقة المستثمر»');assert(t.documentProofId&&t.contentDigest,'2: the transfer is a signed document');
  assert.equal(t.amount,30000000,'2: a 3 million shortfall arrives as 30 million (10 million steps, at least 25 million headroom)');assert.equal(F.operating(s,'air'),2000000+30000000-5000000);
  const entry=s.finance.journalEntries.find(x=>x.sourceRef===t.id);assert(entry,'2: journal');assert.deepEqual(plain(entry.lines.map(l=>[l.account,l.debit,l.credit])),[[F.book(s,'air').accounts[0].id,30000000,0],['حقوق ملكية المؤسس',0,30000000]]);assert.equal(s.finance.journalEntries.length-before,2,'2: the charge and the payment');
  assert.equal(card(s).charged.air,30000000);assert.equal(card(s).rows.length,1);assert.deepEqual(plain(card(s).rows[0]),{kind:'charge',day:10,company:'air',amount:30000000,count:1,purposes:['مصروف']});
@@ -44,7 +44,7 @@ const s=world();s.godMoney=true;s.infiniteMoney=true;
  assert.equal(card(s).charged.insurance,cardTransfers(s).filter(x=>x.company==='insurance').reduce((n,x)=>n+x.amount,0),'4: the totals do not depend on the statement rows');}
 // 5
 {const t0=cardTransfers(s).length;run(s,'transfer-reserve',{company:'telecom',amount:7000000,toReserve:false});const reserve=cardTransfers(s).slice(0,cardTransfers(s).length-t0)[0];
- assert(reserve&&reserve.toAccount===F.book(s,'telecom').accounts[1].id,'5: the reserve is funded by the card');assert.equal(reserve.purposeDetail,'تحويل من الاحتياطي');
+ assert(reserve&&reserve.toAccount===F.book(s,'telecom').accounts[1].id,'5: the reserve is funded by the card');assert.equal(reserve.note,'تحويل من الاحتياطي');
  const t1=cardTransfers(s).length,pending=Number(s.finance.pendingDailyCash.telecom)||0,cash=F.operating(s,'telecom');const settled=run(s,'settle-daily-cash',{company:'telecom',amount:-(cash+4000000),day:70});
  assert.equal(settled.shortfall,0,'5: the daily settlement is paid in full');assert.equal(Number(s.finance.pendingDailyCash.telecom)||0,pending,'5: nothing is carried');assert.equal(cardTransfers(s).length,t1+1);
  run(s,'raise-debt',{company:'air',amount:600000,lender:'بنك التمويل التجاري',note:'تمويل معدات'});F.book(s,'air').accounts[0].balance=100000;F.reconcile(s);const t2=cardTransfers(s).length;

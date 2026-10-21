@@ -324,7 +324,7 @@ function noteInvestorCard(s,t,kind,a,purpose){
 }
 function investorCardTransfer(s,t,a,account,purpose){
  const acc=book(s,t).accounts[account],founder=s.profile?.founder||'المؤسس',id=nextFinanceTransferReference(s,'INV');acc.balance+=a;
- const transfer={id,reference:id,at:now(s),kind:'founder-investment',label:'حوالة واردة من بطاقة المستثمر',from:`بطاقة المستثمر · ${founder}`,to:companyName(s,t),toAccount:acc.id,amount:a,company:t,beneficiaryCompany:t,status:'منفذة',note:`شحن من بطاقة المستثمر · ${purpose}`,purposeCategory:'شحن من بطاقة المستثمر',purposeDetail:purpose,paymentMethod:'حوالة واردة من بطاقة المستثمر',fundingSource:'investor-card'};
+ const transfer={id,reference:id,at:now(s),kind:'founder-investment',label:'شحن من بطاقة المستثمر',from:`بطاقة المستثمر · ${founder}`,to:companyName(s,t),toAccount:acc.id,amount:a,company:t,beneficiaryCompany:t,status:'منفذة',note:purpose,fundingSource:'investor-card'};
  protectDocument(s,transfer,'founder-investment');insertFinanceTransfer(s,{...transfer});ledger(s,t,transfer);journal(s,t,`${id} · شحن من بطاقة المستثمر`,[{account:acc.id,debit:a},{account:'حقوق ملكية المؤسس',credit:a}],id);noteInvestorCard(s,t,'charge',a,purpose);reconcile(s);return transfer;
 }
 function coverFromInvestorCard(s,t,a,purpose='مصروف',account=0){
@@ -353,7 +353,7 @@ function returnToInvestorCard(s,p){
  if(!(a>0))throw new Error('invalid-amount');const current=s.finance.investorCard,owed=Math.max(0,current?num(current.charged?.[t])-num(current.returned?.[t]):num(legacyInvestorFunding(s).byCompany.get(t)));
  if(a>owed+.005)throw new Error('investor-card-return-over-owed');if(a>operating(s,t)+.005)throw new Error('insufficient-cash');
  investorCard(s);const ref=given||nextFinanceTransferReference(s,'INV-RET'),b=book(s,t),founder=s.profile?.founder||'المؤسس';b.accounts[0].balance-=a;
- const transfer={id:ref,reference:ref,at:now(s),kind:'founder-withdrawal',label:'إرجاع إلى بطاقة المستثمر',from:companyName(s,t),fromAccount:b.accounts[0].id,to:`بطاقة المستثمر · ${founder}`,amount:a,company:t,status:'منفذة',note:'إرجاع رأس مال',purposeCategory:'إرجاع إلى بطاقة المستثمر',purposeDetail:'إرجاع رأس مال',paymentMethod:'حوالة صادرة إلى بطاقة المستثمر',fundingSource:'investor-card'};
+ const transfer={id:ref,reference:ref,at:now(s),kind:'founder-withdrawal',label:'إرجاع إلى بطاقة المستثمر',from:companyName(s,t),fromAccount:b.accounts[0].id,to:`بطاقة المستثمر · ${founder}`,amount:a,company:t,status:'منفذة',note:'إرجاع رأس مال',fundingSource:'investor-card'};
  protectDocument(s,transfer,'founder-withdrawal');insertFinanceTransfer(s,{...transfer});ledger(s,t,transfer);journal(s,t,`${ref} · إرجاع إلى بطاقة المستثمر`,[{account:'حقوق ملكية المؤسس',debit:a},{account:b.accounts[0].id,credit:a}],ref);noteInvestorCard(s,t,'return',a,'إرجاع رأس مال');reconcile(s);
  return {ref,amount:a,company:t,owed:Math.max(0,owed-a),documentProofId:transfer.documentProofId,contentDigest:transfer.contentDigest};
 }
