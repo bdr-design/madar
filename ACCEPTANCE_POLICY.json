@@ -2938,6 +2938,10 @@
     [
       "node",
       "tests/build574-investor-budget-overrun.cjs"
+    ],
+    [
+      "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
     ]
   ]
 }

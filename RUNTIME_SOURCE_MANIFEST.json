@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "89043af0b9f90e08c743540701529590380d705a614bc03cee6c2a4de69ae9c6",
-  "webapp_tree_sha256": "7c1e671e6d0d32713310b0b4215f4d657f4ef7c99c47ef3dba5c993b64f6e08c",
+  "source_tree_sha256": "c46a20e1db415d84d8d3509d5913cbf7f21bb5d1d94c6303b2acefa8d05ef09b",
+  "webapp_tree_sha256": "8bbe583dc9e287bd545bf65f969c2686bab146b5cf467860c16a30266eac5065",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -45,14 +45,6 @@
     "WebApp/asset-purchase-plan-core.js": {
       "bytes": 22420,
       "sha256": "999908a62942306e153185aa4709a41a0c15cdf580ea5d75ffe42565438b40af"
-    },
-    "WebApp/assets/conference/HALL-ART-NOTES.txt": {
-      "bytes": 658,
-      "sha256": "57ccf94c42cdae8a7aa8d57ec3682d9b97ac889e6ab001209734160051998edb"
-    },
-    "WebApp/assets/conference/hall-dark.webp": {
-      "bytes": 71526,
-      "sha256": "4d77a1af47a56d470533e4f78f5c2f2bb1bf0e3389b81ce7c18968de824f92b5"
     },
     "WebApp/assets/fonts/IBMPlexSansArabic-Medium.ttf": {
       "bytes": 242100,
@@ -3407,20 +3399,20 @@
       "sha256": "5ea4f5b7e6b21a4fc77b871351c78df56dd06ec4a30b0c3c142f3e29b9a4dc78"
     },
     "WebApp/conference-3d.css": {
-      "bytes": 10835,
-      "sha256": "69ebf3ca175700f40adf161ff0516a8c1725d5b76e51f3051aef73e86b64a334"
+      "bytes": 16102,
+      "sha256": "2295c90315daae467ae03fa30655ea469e9d8decd12549e20bf61e01b7cda985"
     },
     "WebApp/conference-3d.js": {
-      "bytes": 16487,
-      "sha256": "e0144c6e482820928d50581c81ea04f92cbad1fd98038e1b70e3ed5b3b99483e"
+      "bytes": 15076,
+      "sha256": "d90c4503ea3f6bff7fad12d4e7b120a82bcbb1ab6d3e6f985c5c1773a0e51af5"
     },
     "WebApp/conference-core.js": {
       "bytes": 88890,
       "sha256": "4fb5bd7c30f0b62ac8b66a4176c38308565a18064641f2e612be2b6fb785a7bf"
     },
     "WebApp/conference-keynote.js": {
-      "bytes": 17357,
-      "sha256": "9824b4d59e6ae08ca550ae70d4aa48469856fb930390f8d214313dcc534d75b4"
+      "bytes": 17986,
+      "sha256": "92779d4f4d7f40296455330d251db312adc6ca34944e7feebdb7fc0f1e627a9d"
     },
     "WebApp/conference-model.js": {
       "bytes": 14869,
@@ -3827,8 +3819,8 @@
       "sha256": "f57ffab1ac776ccaa527a4c42994c6cf082730ddcb180d8233ebab3aa1af1923"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 36729,
-      "sha256": "2a2e12e1dfc0ba292fa1073b0b06218b63cf9bf2a9c0b5fc24da2133fcd68004"
+      "bytes": 36645,
+      "sha256": "7d61b5511cfe344b58f26c2be11d8e2c4270ec5c47d3490e26acfabd0e336b83"
     },
     "WebApp/save-checksum-thread.js": {
       "bytes": 11845,
@@ -4000,7 +3992,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "b7e1bffb4c413354779ad772c271b1747039a25f3390888290be876ec939a2fc"
+      "sha256": "a2daf612d35602adc6bf0de8b8b562b04813390eff447405fda76f767dcc9abe"
     },
     "BUILD": {
       "bytes": 4,

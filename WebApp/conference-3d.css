@@ -1,79 +1,175 @@
-/* The conference hall: one photograph of the dark hall, framed to the screen (never stretched), with the live slide
-   on its LED screen and the speaker's logo on the side screens. Motion runs once per slide, on transform and opacity. */
+/* The conference keynote, full screen: one idea per slide on black, in the colour of the company on stage, the way the
+   Apple and Google keynotes present. The controls float above the slide inside the safe area: close and the chapter at
+   the top, the slide arrows at the sides where the thumbs rest in landscape, play and the chapters opposite; they dim
+   while it plays. Motion runs once per slide, on transform and opacity; nothing repaints between slides. */
 .ghc3{
  --safe-top:env(safe-area-inset-top,0px);--safe-left:env(safe-area-inset-left,0px);--safe-right:env(safe-area-inset-right,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
- --k:1;--x:0px;--y:0px;--grad:linear-gradient(100deg,#fff4dc,#e9c27a 45%,#c8963e);
+ --edge:16px;--btn:44px;--stage-top:calc(var(--safe-top) + 64px);--stage-bottom:calc(var(--safe-bottom) + 26px);--stage-left:calc(var(--safe-left) + 76px);--stage-right:calc(var(--safe-right) + 76px);
+ --grad:linear-gradient(100deg,#fff4dc,#e9c27a 45%,#c8963e);--accent:#c8963e;--tile:#161618;--line:rgba(255,255,255,.08);--muted:#a1a1a6;
  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;z-index:2147483000;overflow:hidden;isolation:isolate;
- background:#000;color:#f5f5f7;text-align:right;font-family:'GH Plex Arabic',sans-serif!important;box-sizing:border-box;color-scheme:dark;-webkit-font-smoothing:antialiased
+ background:#000;color:#f5f5f7;text-align:right;font-family:'GH Plex Arabic',sans-serif!important;box-sizing:border-box;color-scheme:dark;-webkit-font-smoothing:antialiased;
 }
-.ghc3 *{box-sizing:border-box}.ghc3 [hidden]{display:none!important}.ghc3 h2,.ghc3 h3,.ghc3 h4,.ghc3 p{margin:0;color:inherit;font-family:inherit}
+.ghc3 *{box-sizing:border-box}
+.ghc3 [hidden]{display:none!important}
+.ghc3 h2,.ghc3 h3,.ghc3 h4,.ghc3 p{margin:0;color:inherit;font-family:inherit}
 .ghc3 bdi{unicode-bidi:isolate}
-.ghc3 button{display:grid;place-items:center;min-width:44px;height:44px;margin:0;padding:0 14px;border:0;border-radius:22px;background:rgba(0,0,0,.55);color:#f5f5f7;box-shadow:0 0 0 1px rgba(255,255,255,.12);font:500 13px/1 'GH Plex Arabic',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.ghc3 button svg{width:16px;height:16px}.ghc3 button.ghc3-icon{padding:0}
-.ghc3 button:focus-visible{outline:2px solid #e9c27a;outline-offset:2px}.ghc3 button:disabled{opacity:.35;cursor:default}
-.ghc3-viewport{position:absolute;inset:0;overflow:hidden;background:#000}
-.ghc3-hall{position:absolute;left:0;top:0;width:calc(var(--hall-w)*1px*var(--k));height:calc(var(--hall-h)*1px*var(--k));transform:translate(var(--x),var(--y));background:#000 url("assets/conference/hall-dark.webp") 0 0/100% 100% no-repeat}
-.ghc3-hall:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(0,0,0,.35),transparent 12%,transparent 86%,rgba(0,0,0,.45))}
-.ghc3-led,.ghc3-side{position:absolute;overflow:hidden;container-type:size;background:#000}
-.ghc3-led{box-shadow:0 0 calc(50px*var(--k)) rgba(255,255,255,.06)}
-.ghc3-side{display:grid;place-items:center}.ghc3-side img{width:56cqw;max-height:80cqh;object-fit:contain;opacity:.9}
-/* One idea per slide: black, centred, very large type. */
-.ghc3-beat{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 8cqw;animation:ghc3-fade .7s ease both}
-.ghc3-beat>*{animation:ghc3-up .8s cubic-bezier(.2,.7,.2,1) both}.ghc3-beat>:nth-child(2){animation-delay:.12s}.ghc3-beat>:nth-child(3){animation-delay:.24s}.ghc3-beat>:nth-child(4){animation-delay:.36s}
-@keyframes ghc3-fade{from{opacity:0}}@keyframes ghc3-up{from{opacity:0;transform:translateY(3cqh)}}@keyframes ghc3-drift{from{transform:scale(1.08)}to{transform:scale(1)}}
-@keyframes ghc3-grow{from{transform:scaleX(0)}}@keyframes ghc3-rise{from{transform:scaleY(0)}}
-.ghc3-kicker{font-size:max(11px,5cqh);font-weight:500;color:#a1a1a6}
-.ghc3-value{font-size:max(44px,36cqh);font-weight:700;line-height:1.02;font-variant-numeric:tabular-nums;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
-.ghc3-unit{font-size:max(14px,8cqh);font-weight:600;margin-top:.6cqh}
-.ghc3-cap{font-size:max(11px,4.6cqh);color:#a1a1a6;margin-top:2cqh;max-width:70cqw;line-height:1.45}
-.ghc3-statement{font-size:max(28px,17cqh);font-weight:700;line-height:1.15}
-.ghc3-statement em,.ghc3-no,.ghc3-trio b,.ghc3-list b{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.ghc3-no{font-size:max(12px,5.4cqh);font-weight:600}.ghc3-divider .ghc3-statement{margin-top:1.4cqh}
-.ghc3-logo{height:30cqh;max-width:60cqw;object-fit:contain}.ghc3-logo.is-small{height:16cqh;margin-bottom:3cqh}
-.ghc3-title{font-size:max(16px,9cqh);font-weight:700}
+.ghc3 button{display:grid;place-items:center;min-width:var(--btn);height:var(--btn);margin:0;padding:0 16px;border:0;border-radius:22px;background:rgba(36,36,38,.8);color:#f5f5f7;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22),0 8px 24px rgba(0,0,0,.35);font:600 14px/1 'GH Plex Arabic',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.ghc3 button svg{width:18px;height:18px}
+.ghc3 button.ghc3-icon{padding:0}
+.ghc3 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ghc3 button:disabled{opacity:.3;cursor:default}
+.ghc3 button:active:not(:disabled){transform:scale(.94)}
+
+/* The backdrop: black, lit from above in the speaker's colour; a company's photograph fills it on its hero slide. */
+.ghc3-backdrop{position:absolute;inset:0;overflow:hidden;background:radial-gradient(64% 56% at 50% -6%,color-mix(in srgb,var(--accent) 20%,transparent),transparent 70%)}
 .ghc3-photo{position:absolute;inset:0;background:var(--img) center/cover no-repeat;animation:ghc3-drift 7s ease-out both}
-.ghc3-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.55) 38%,rgba(0,0,0,0) 70%),linear-gradient(0deg,rgba(0,0,0,.5),transparent 40%)}
-.ghc3-hero{align-items:flex-start;text-align:right;padding:0 7cqw}.ghc3-hero .ghc3-value{font-size:max(36px,28cqh)}.ghc3-hero .ghc3-cap{max-width:48cqw}
-.ghc3-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:4cqw;width:100%}.ghc3-trio.is-duo{grid-template-columns:repeat(2,1fr);width:70%}
-.ghc3-trio b{display:block;font-size:max(22px,17cqh);font-weight:700;line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums}.ghc3-trio small{font-size:.42em;font-weight:600}
-.ghc3-trio span{display:block;font-size:max(11px,4.8cqh);color:#a1a1a6;margin-top:1cqh}
-.ghc3-bars{width:100%;display:grid;gap:3.4cqh;margin-top:5cqh}
-.ghc3-bar{display:grid;grid-template-columns:30cqw 1fr 18cqw;gap:2.4cqw;align-items:center;font-size:max(11px,4.6cqh);text-align:right}
+.ghc3-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.66) 34%,rgba(0,0,0,.12) 70%,rgba(0,0,0,0)),linear-gradient(0deg,rgba(0,0,0,.6),transparent 36%),linear-gradient(180deg,rgba(0,0,0,.5),transparent 24%)}
+
+/* The stage: the part of the screen the slide may use, clear of the safe areas and the controls. */
+.ghc3-viewport{position:absolute;inset:0}
+.ghc3-stage{position:absolute;top:var(--stage-top);bottom:var(--stage-bottom);left:var(--stage-left);right:var(--stage-right);container:ghc3-stage/size}
+
+/* One idea per slide: centred, very large type. */
+.ghc3-beat{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:ghc3-fade .5s ease both}
+.ghc3-beat>*{animation:ghc3-up .7s cubic-bezier(.2,.8,.2,1) both}
+.ghc3-beat>:nth-child(2){animation-delay:.08s}
+.ghc3-beat>:nth-child(3){animation-delay:.16s}
+.ghc3-beat>:nth-child(4){animation-delay:.24s}
+.ghc3-beat>.ghc3-value{animation-name:ghc3-pop}
+@keyframes ghc3-fade{from{opacity:0}}
+@keyframes ghc3-up{from{opacity:0;transform:translateY(14px)}}
+@keyframes ghc3-pop{from{opacity:0;transform:scale(.94)}}
+@keyframes ghc3-drift{from{transform:scale(1.06)}to{transform:scale(1)}}
+@keyframes ghc3-grow{from{transform:scaleX(0)}}
+@keyframes ghc3-rise{from{transform:scaleY(0)}}
+
+.ghc3-kicker{font-size:max(13px,min(5.4cqh,3.2cqw));font-weight:600;color:var(--muted);line-height:1.3}
+.ghc3-value{font-size:max(40px,min(40cqh,17cqw));font-weight:700;line-height:1.06;font-variant-numeric:tabular-nums;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .04em}
+.ghc3-value bdi{letter-spacing:-.02em}
+.ghc3-unit{font-size:max(16px,min(7.4cqh,4.4cqw));font-weight:600;margin-top:.6cqh}
+.ghc3-cap{font-size:max(13px,min(4.6cqh,2.8cqw));color:var(--muted);margin-top:2.6cqh;max-width:72cqw;line-height:1.5}
+.ghc3-statement{font-size:max(26px,min(16cqh,7.4cqw));font-weight:700;line-height:1.22}
+.ghc3-statement em,.ghc3-no,.ghc3-trio b,.ghc3-list b{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ghc3-title{font-size:max(17px,min(8cqh,4.8cqw));font-weight:700;line-height:1.3}
+.ghc3-logo{height:min(40cqh,24cqw);max-width:60cqw;object-fit:contain}
+.ghc3-logo+.ghc3-cap{font-size:max(15px,min(6cqh,3.6cqw));font-weight:600;color:#f5f5f7}
+.ghc3-logo.is-small{height:min(12cqh,7.2cqw);margin-bottom:2cqh}
+/* A figure that shares the slide with a mark, stars or tiles is drawn smaller so the slide keeps its margins. */
+.ghc3-logo.is-small~.ghc3-value,.ghc3-value.is-compact{font-size:max(36px,min(30cqh,14cqw))}
+
+/* A chapter opens with its number in a ring of the speaker's colour. */
+.ghc3-no{display:inline-grid;place-items:center;min-width:max(44px,15cqh);height:max(28px,9cqh);padding:0 3cqh;border-radius:99px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 75%,transparent);font-size:max(13px,min(4.8cqh,2.9cqw));font-weight:700;font-variant-numeric:tabular-nums}
+.ghc3-divider .ghc3-statement{margin-top:3cqh;font-size:max(28px,min(19cqh,8.6cqw))}
+
+.ghc3-hero{align-items:flex-start;text-align:right}
+.ghc3-hero .ghc3-statement{max-width:64cqw}
+.ghc3-hero .ghc3-value{font-size:max(36px,min(32cqh,14cqw))}
+.ghc3-hero .ghc3-cap{max-width:48cqw}
+
+/* Figures side by side sit in tiles, as in the keynotes' recap slides. */
+.ghc3-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:max(8px,2.2cqw);width:100%}
+.ghc3-trio.is-duo{grid-template-columns:repeat(2,1fr);width:72%}
+.ghc3-trio>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:max(4px,1.8cqh);min-height:min(54cqh,26cqw);padding:5cqh 2cqw;border-radius:max(16px,7cqh);background:var(--tile);box-shadow:inset 0 0 0 1px var(--line);container-type:inline-size}
+/* A figure is sized to its tile (cqi) as well as to the stage (cqh), so a long count stays inside it. */
+.ghc3-trio b{display:block;font-size:max(18px,min(18cqh,calc(150cqi / var(--chars,9))));font-weight:700;line-height:1.12;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ghc3-trio small{font-size:max(12px,.42em);font-weight:600}
+.ghc3-trio span{display:block;font-size:max(12px,min(4.6cqh,9cqi));color:var(--muted)}
+
+.ghc3-bars{width:100%;display:grid;gap:4.4cqh;margin-top:6cqh}
+.ghc3-bar{display:grid;grid-template-columns:32cqw 1fr 15cqw;gap:2.4cqw;align-items:center;font-size:max(12px,min(5cqh,3cqw));text-align:right}
 .ghc3-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ghc3-track{height:max(6px,4cqh);border-radius:3cqh;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
-.ghc3-track i{position:absolute;top:0;bottom:0;right:0;border-radius:3cqh;background:rgba(255,255,255,.35);transform-origin:right;animation:ghc3-grow 1s .3s cubic-bezier(.2,.7,.2,1) both}
-.ghc3-bar.is-lead i{background:var(--grad)}.ghc3-bar.is-loss i{background:#ff6961}.ghc3-bar b{text-align:left;font-weight:600;font-variant-numeric:tabular-nums}.ghc3-bar.is-loss b{color:#ff6961}
-.ghc3-vchart{display:grid;grid-template-columns:repeat(3,1fr);gap:7cqw;height:56cqh;width:66cqw;margin-top:3cqh}
-.ghc3-vchart>div{display:flex;flex-direction:column;align-items:center;height:100%;gap:1.4cqh}.ghc3-vchart .ghc3-track{flex:1;width:100%;height:auto;background:none;overflow:visible;border-radius:0}
-.ghc3-vchart b{position:absolute;left:0;right:0;text-align:center;font-size:max(12px,5.6cqh);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;animation:ghc3-up .8s .5s both}
-.ghc3-vchart i{top:auto;bottom:0;left:0;right:0;border-radius:2cqh 2cqh .6cqh .6cqh;background:rgba(255,255,255,.3);transform-origin:bottom;animation:ghc3-rise .9s .3s cubic-bezier(.2,.7,.2,1) both}
-.ghc3-vchart i.is-cost{background:#ff6961}.ghc3-vchart i.is-gain{background:var(--grad)}.ghc3-vchart span{font-size:max(10px,4cqh);color:#a1a1a6;white-space:nowrap}
-.ghc3-stars{position:relative;font-size:max(14px,7cqh);letter-spacing:.6cqw;color:rgba(255,255,255,.15);line-height:1;margin-top:1cqh}
+.ghc3-track{height:max(8px,4.2cqh);border-radius:99px;background:var(--line);position:relative;overflow:hidden}
+.ghc3-track i{position:absolute;top:0;bottom:0;right:0;border-radius:99px;background:rgba(255,255,255,.35);transform-origin:right;animation:ghc3-grow 1s .3s cubic-bezier(.2,.8,.2,1) both}
+.ghc3-bar.is-lead i{background:var(--grad)}
+.ghc3-bar.is-loss i{background:#ff6961}
+.ghc3-bar b{text-align:left;font-weight:600;font-variant-numeric:tabular-nums}
+.ghc3-bar.is-loss b{color:#ff6961}
+
+.ghc3-vchart{display:grid;grid-template-columns:repeat(3,1fr);gap:4cqw;height:54cqh;width:66cqw;margin-top:4cqh}
+.ghc3-vchart>div{display:flex;flex-direction:column;align-items:center;height:100%;gap:1.6cqh}
+.ghc3-vchart .ghc3-track{flex:1;width:100%;height:auto;background:none;overflow:visible;border-radius:0}
+.ghc3-vchart b{position:absolute;left:0;right:0;text-align:center;font-size:max(12px,min(5.8cqh,2.8cqw));font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;animation:ghc3-up .8s .5s both}
+.ghc3-vchart i{top:auto;bottom:0;left:0;right:0;border-radius:max(8px,3cqh) max(8px,3cqh) max(3px,1cqh) max(3px,1cqh);background:rgba(255,255,255,.3);transform-origin:bottom;animation:ghc3-rise .9s .3s cubic-bezier(.2,.8,.2,1) both}
+.ghc3-vchart i.is-cost{background:#ff6961}
+.ghc3-vchart i.is-gain{background:var(--grad)}
+.ghc3-vchart span{font-size:max(12px,min(4.4cqh,2.6cqw));color:var(--muted);white-space:nowrap}
+
+.ghc3-stars{position:relative;font-size:max(16px,min(7.6cqh,4.6cqw));letter-spacing:.6cqw;color:rgba(255,255,255,.15);line-height:1;margin-top:1.4cqh}
 .ghc3-stars i{position:absolute;inset:0 0 0 auto;overflow:hidden;white-space:nowrap;color:#f5c451;font-style:normal}
-.ghc3-parts{display:grid;grid-template-columns:repeat(3,1fr);gap:5cqw;width:72cqw;margin-top:5cqh}.ghc3-parts b{display:block;font-size:max(14px,7.4cqh);font-weight:700;font-variant-numeric:tabular-nums}
-.ghc3-parts span{display:block;font-size:max(10px,3.8cqh);color:#a1a1a6}.ghc3-parts .ghc3-track{height:max(4px,1.4cqh);margin-top:1.4cqh}.ghc3-parts .ghc3-track i{background:var(--grad)}
-.ghc3-split{display:flex;width:76cqw;height:max(8px,5cqh);border-radius:3cqh;overflow:hidden;margin-top:5cqh;gap:.5cqw}.ghc3-split i{display:block;transform-origin:right;animation:ghc3-grow 1s .3s cubic-bezier(.2,.7,.2,1) both}
-.ghc3-legend{display:flex;gap:5cqw;margin-top:2.4cqh;font-size:max(10px,4cqh);color:#a1a1a6}.ghc3-legend b{color:#f5f5f7;font-weight:600}
-.ghc3-legend span:before{content:"";display:inline-block;width:1.6cqh;height:1.6cqh;border-radius:50%;background:var(--c);margin-inline-end:1cqw;vertical-align:middle}
-.ghc3-list{display:grid;grid-template-columns:repeat(3,1fr);gap:5cqw;margin-top:6cqh;width:100%}
-.ghc3-list div{display:flex;flex-direction:column;align-items:center;gap:1.6cqh}.ghc3-list b{font-size:max(18px,11cqh);font-weight:700;line-height:1}
-.ghc3-list h4{font-size:max(12px,5.2cqh);font-weight:600;line-height:1.35}.ghc3-list p{font-size:max(10px,3.8cqh);color:#a1a1a6;line-height:1.4}
-.ghc3-quote{font-size:max(18px,9.6cqh);font-weight:600;line-height:1.35;max-width:80cqw}
-.ghc3-logos{display:flex;gap:3.6cqw;margin-top:5cqh}.ghc3-logos img{height:11cqh;width:11cqh;object-fit:contain}
-.ghc3-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:1.4cqh 1.6cqw;margin-top:4.6cqh;max-width:80cqw}.ghc3-chips span{font-size:max(10px,4cqh);padding:1.2cqh 2.6cqw;border-radius:4cqh;background:rgba(255,255,255,.08)}
-/* Controls in the corners, clear of the safe areas. */
-.ghc3-ctl{position:absolute;z-index:5;display:flex;align-items:center;gap:6px}
-.ghc3-ctl-top{top:calc(10px + var(--safe-top));left:calc(10px + var(--safe-left))}
-.ghc3-ctl-transport{bottom:calc(10px + var(--safe-bottom));left:calc(10px + var(--safe-left))}
-.ghc3-ctl-end{bottom:calc(10px + var(--safe-bottom));right:calc(10px + var(--safe-right))}
-.ghc3-count{font-size:12px;color:#d6d6db;background:rgba(0,0,0,.55);height:28px;line-height:28px;padding:0 12px;border-radius:14px;white-space:nowrap;max-width:60vw;overflow:hidden;text-overflow:ellipsis}
-.ghc3-progress{position:absolute;z-index:5;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.08)}.ghc3-progress i{position:absolute;top:0;bottom:0;right:0;background:var(--grad);transition:width .4s ease}
-.ghc3-loading,.ghc3-recovery{position:absolute;inset:0;z-index:6;display:grid;place-content:center;gap:12px;text-align:center;background:rgba(0,0,0,.72);font-size:14px}
-.ghc3-loading span{width:28px;height:28px;margin:0 auto;border-radius:50%;border:2px solid rgba(255,255,255,.2);border-top-color:#e9c27a;animation:ghc3-spin 1s linear infinite}@keyframes ghc3-spin{to{transform:rotate(360deg)}}
-.ghc3-recovery h2{font-size:18px}.ghc3-recovery button{justify-self:center}
-.ghc3-panel{position:absolute;z-index:7;top:0;bottom:0;right:0;width:min(360px,86vw);display:flex;flex-direction:column;background:rgba(10,10,12,.94);box-shadow:-1px 0 0 rgba(255,255,255,.08);padding:calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(12px + var(--safe-bottom)) 12px}
-.ghc3-panel header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.ghc3-panel h3{font-size:15px;font-weight:600}
+.ghc3-parts{display:grid;grid-template-columns:repeat(3,1fr);gap:max(8px,2.2cqw);width:76cqw;margin-top:5cqh}
+.ghc3-parts>div{padding:3.4cqh 2.4cqw;border-radius:max(14px,5.6cqh);background:var(--tile);box-shadow:inset 0 0 0 1px var(--line)}
+.ghc3-parts b{display:block;font-size:max(15px,min(7.4cqh,4.4cqw));font-weight:700;font-variant-numeric:tabular-nums}
+.ghc3-parts span{display:block;font-size:max(12px,min(4cqh,2.4cqw));color:var(--muted)}
+.ghc3-parts .ghc3-track{height:max(5px,1.6cqh);margin-top:1.8cqh}
+.ghc3-parts .ghc3-track i{background:var(--grad)}
+
+.ghc3-split{display:flex;width:76cqw;height:max(10px,5.4cqh);border-radius:99px;overflow:hidden;margin-top:5cqh;gap:.6cqw}
+.ghc3-split i{display:block;transform-origin:right;animation:ghc3-grow 1s .3s cubic-bezier(.2,.8,.2,1) both}
+.ghc3-legend{display:flex;gap:5cqw;margin-top:3cqh;font-size:max(12px,min(4.4cqh,2.6cqw));color:var(--muted)}
+.ghc3-legend b{color:#f5f5f7;font-weight:600}
+.ghc3-legend span:before{content:"";display:inline-block;width:max(8px,2cqh);height:max(8px,2cqh);border-radius:50%;background:var(--c);margin-inline-end:1cqw;vertical-align:middle}
+
+.ghc3-list{display:flex;justify-content:center;gap:max(8px,2.2cqw);margin-top:5cqh;width:100%}
+.ghc3-list>div{flex:0 1 32%;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1.8cqh;min-height:min(50cqh,24cqw);padding:5cqh 2.2cqw;border-radius:max(16px,7cqh);background:var(--tile);box-shadow:inset 0 0 0 1px var(--line)}
+.ghc3-list b{display:grid;place-items:center;width:max(30px,min(12cqh,7.2cqw));height:max(30px,min(12cqh,7.2cqw));border-radius:50%;-webkit-background-clip:border-box;background-clip:border-box;color:#111;font-size:max(14px,min(5.6cqh,3.4cqw));font-weight:700;line-height:1}
+.ghc3-list h4{font-size:max(13px,min(5.4cqh,3.2cqw));font-weight:700;line-height:1.35}
+.ghc3-list p{font-size:max(12px,min(4cqh,2.4cqw));color:var(--muted);line-height:1.45}
+
+.ghc3-quote{font-size:max(18px,min(9.4cqh,4.4cqw));font-weight:600;line-height:1.5;max-width:84cqw}
+.ghc3-logos{display:flex;flex-wrap:wrap;justify-content:center;gap:max(8px,2.2cqw);margin-top:5cqh;max-width:90cqw}
+.ghc3-logos img{width:max(44px,min(17cqh,10cqw));height:max(44px,min(17cqh,10cqw));padding:3cqh;border-radius:max(12px,5cqh);background:var(--tile);box-shadow:inset 0 0 0 1px var(--line);object-fit:contain}
+.ghc3-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:max(6px,2cqh) max(6px,1.6cqw);margin-top:5cqh;max-width:86cqw}
+.ghc3-chips span{font-size:max(12px,min(4.4cqh,2.6cqw));padding:max(6px,1.8cqh) max(12px,2.8cqw);border-radius:99px;background:var(--tile);box-shadow:inset 0 0 0 1px var(--line)}
+
+/* The controls float above the slide, inside the safe area, and dim while the keynote plays. */
+.ghc3-ctl{position:absolute;z-index:5;display:flex;align-items:center;gap:8px;transition:opacity .35s ease}
+.ghc3[data-playing="true"] .ghc3-ctl:not(:focus-within){opacity:.5}
+.ghc3-ctl-top{top:calc(var(--safe-top) + 10px);right:calc(var(--safe-right) + var(--edge))}
+.ghc3-ctl-end{top:calc(var(--safe-top) + 10px);left:calc(var(--safe-left) + var(--edge))}
+.ghc3-ctl-transport{top:var(--stage-top);bottom:var(--stage-bottom);left:calc(var(--safe-left) + var(--edge));right:calc(var(--safe-right) + var(--edge));justify-content:space-between;pointer-events:none}
+.ghc3-ctl-transport button{pointer-events:auto;background:rgba(36,36,38,.62)}
+.ghc3-ctl-transport button svg{width:20px;height:20px}
+.ghc3-chip{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:18px;background:rgba(36,36,38,.8);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2);max-width:min(48vw,440px);min-width:0;font-size:13px;white-space:nowrap}
+.ghc3-brand{width:22px;height:22px;flex:none;display:grid;place-items:center}
+.ghc3-brand img{max-width:22px;max-height:22px;object-fit:contain}
+.ghc3-live{width:8px;height:8px;flex:none;border-radius:50%;background:#ff453a;box-shadow:0 0 0 3px rgba(255,69,58,.25)}
+.ghc3-count{overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.ghc3-count small{font-size:12px;font-weight:500;color:var(--muted)}
+.ghc3 button[data-c3="finish"]{background:var(--grad);color:#111;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.ghc3-progress{position:absolute;z-index:5;left:var(--stage-left);right:var(--stage-right);bottom:calc(var(--safe-bottom) + 11px);height:3px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden}
+.ghc3-progress i{position:absolute;top:0;bottom:0;right:0;border-radius:2px;background:var(--grad);transition:width .4s ease}
+
+.ghc3-loading,.ghc3-recovery{position:absolute;inset:0;z-index:6;display:grid;place-content:center;gap:12px;text-align:center;background:rgba(0,0,0,.78);font-size:14px}
+.ghc3-loading span{width:28px;height:28px;margin:0 auto;border-radius:50%;border:2px solid rgba(255,255,255,.2);border-top-color:var(--accent);animation:ghc3-spin 1s linear infinite}
+@keyframes ghc3-spin{to{transform:rotate(360deg)}}
+.ghc3-recovery h2{font-size:18px}
+.ghc3-recovery button{justify-self:center}
+
+.ghc3-panel{position:absolute;z-index:7;top:0;bottom:0;right:0;width:min(380px,88vw);display:flex;flex-direction:column;background:#0e0e10;box-shadow:-1px 0 0 rgba(255,255,255,.08),-24px 0 48px rgba(0,0,0,.5);padding:calc(12px + var(--safe-top)) calc(14px + var(--safe-right)) calc(12px + var(--safe-bottom)) 14px}
+.ghc3-panel header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.ghc3-panel h3{font-size:16px;font-weight:700}
 .ghc3-panel-content{overflow:auto;display:grid;gap:4px;align-content:start}
-.ghc3-panel-content button{justify-content:start;justify-items:start;grid-auto-flow:column;gap:10px;height:auto;min-height:44px;padding:8px 12px;border-radius:12px;background:transparent;box-shadow:none;text-align:right;font-size:14px;line-height:1.35}
-.ghc3-panel-content button[aria-current]{background:rgba(255,255,255,.1)}.ghc3-panel-content small{color:#a1a1a6;font-variant-numeric:tabular-nums}
+.ghc3-panel-content button{justify-content:start;justify-items:start;grid-auto-flow:column;gap:12px;height:auto;min-height:44px;padding:8px 12px;border-radius:14px;background:transparent;box-shadow:none;text-align:right;font-size:14px;font-weight:500;line-height:1.35}
+.ghc3-panel-content button[aria-current]{background:rgba(255,255,255,.1);font-weight:700}
+.ghc3-panel-content small{color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* A narrow stage (a phone held upright) stacks the tiles. */
+@container ghc3-stage (max-width:480px){
+ .ghc3-trio,.ghc3-trio.is-duo{grid-template-columns:1fr;width:100%}
+ .ghc3-trio b{font-size:max(18px,min(9cqh,calc(150cqi / var(--chars,9))))}
+ .ghc3-list{flex-direction:column;align-items:stretch}
+ .ghc3-trio>div,.ghc3-list>div{min-height:0;flex:none;padding:2.4cqh 4cqw}
+ .ghc3-list>div{display:grid;grid-template-columns:auto 1fr;column-gap:4cqw;row-gap:.4cqh;align-items:center;text-align:right}
+ .ghc3-list b{grid-row:1/3;width:max(30px,9cqw);height:max(30px,9cqw)}
+ .ghc3-list h4{font-size:max(13px,4.6cqw)}
+ .ghc3-list p{font-size:max(12px,3.8cqw)}
+ .ghc3-vchart{width:100%}
+}
+/* A tall screen: the slide arrows move to the bottom, beside each other. */
+@media (orientation:portrait){
+ .ghc3{--stage-bottom:calc(var(--safe-bottom) + 84px);--stage-left:calc(var(--safe-left) + 20px);--stage-right:calc(var(--safe-right) + 20px)}
+ .ghc3-ctl-transport{top:auto;bottom:calc(var(--safe-bottom) + 24px);justify-content:center;gap:32px}
+ .ghc3-progress{bottom:calc(var(--safe-bottom) + 8px)}
+ .ghc3-chip{max-width:calc(100vw - 200px)}
+}
 @media (prefers-reduced-motion:reduce){.ghc3 *{animation:none!important;transition:none!important}}
