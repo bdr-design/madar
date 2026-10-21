@@ -1,0 +1,27 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: fleet customer/price boundary changed: WebApp/simulation-asset-core.js
++ actual - expected
+
++ '40c8b193251673c2ecf681b634d1ca51f520f867df140c2d16df5e3711de0246'
+- '4522dbd90f1bcebd73923cc41e8f317146194b1af55ff3062f40c6ce602dce40'
+
+    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/fleet-business-boundary.cjs:20:9)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '40c8b193251673c2ecf681b634d1ca51f520f867df140c2d16df5e3711de0246',
+  expected: '4522dbd90f1bcebd73923cc41e8f317146194b1af55ff3062f40c6ce602dce40',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0
