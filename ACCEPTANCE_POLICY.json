@@ -2906,6 +2906,14 @@
     [
       "node",
       "tests/build566-fresh-capital-facility-book.cjs"
+    ],
+    [
+      "node",
+      "tests/build567-budget-lapsed-reservation.cjs"
+    ],
+    [
+      "node",
+      "tests/build568-budget-lapsed-cheques-browser.cjs"
     ]
   ]
 }

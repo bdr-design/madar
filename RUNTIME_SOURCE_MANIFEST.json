@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "6815b0cc17df06413156123132469791da2236a70e61952d18144c3f2610b5ff",
-  "webapp_tree_sha256": "19de12cad78a103b83d3b9325479854ebcbe65737ea0e19654dcec38c788d48c",
+  "source_tree_sha256": "0152d6542dad6a202ff7adc1cc93c6d9fbd078f1f7c718c609423d07e63ac61a",
+  "webapp_tree_sha256": "51d065b5ecc5fc2b0d0b1c1285fb7521f6bf6ab6901851d2e00461087f8b4d4f",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3495,8 +3495,8 @@
       "sha256": "668f00649308e2bdd80c11b9e267a102e5aedf20d282f085d3ef9ba615a0c88a"
     },
     "WebApp/finance-core.js": {
-      "bytes": 214890,
-      "sha256": "70eccb2f9f25cc4923a4cfdd0267f0055a705222eaeeac627136f662f59ffe7b"
+      "bytes": 215422,
+      "sha256": "d9d8c5b3919354481dcaa6083ce9e0f0e5b15b17cb048420e5fcad415448c0df"
     },
     "WebApp/finance-presentation.css": {
       "bytes": 33498,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "069f645ca183e4d55f9f4e58a6d150218519ee10093532fe6cbd65825674363c"
+      "sha256": "868004d702fe91f049a5fe4ae1fbb06e34bcd292a6247a62d3c23254985d04fe"
     },
     "BUILD": {
       "bytes": 4,
