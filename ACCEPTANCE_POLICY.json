@@ -2862,6 +2862,10 @@
     [
       "node",
       "tests/build555-investor-card-return.cjs"
+    ],
+    [
+      "node",
+      "tests/build556-investor-card-page-browser.cjs"
     ]
   ]
 }

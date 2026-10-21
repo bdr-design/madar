@@ -3,16 +3,16 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "1c111bf92e76454a0f260d48675b673a3132a3c0946a34769cc295e2c2cfd233",
-  "webapp_tree_sha256": "8c872043276657cdaef243c738ebb726ffb6119343ece19f6fe1268b6882cc1c",
+  "source_tree_sha256": "81a8d037d8511abd4fc80a496639d04c245c79f2126eb111bc75fcc33f7f25d3",
+  "webapp_tree_sha256": "37feb8edb8ff2fe4b366e1ba52f546f346c2bd42ce619a6cf852cf935192c1cc",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
       "sha256": "ddfc582b5ce53a62686684a8232f5c3a84e44e3dcef36ec88ac125a16c919971"
     },
     "WebApp/advanced-core.js": {
-      "bytes": 367667,
-      "sha256": "1e6837bc0c41ff329c75ff463b539aa5dd67cfd073aa7e8c53527703e486e177"
+      "bytes": 376379,
+      "sha256": "54131ce5429632fe4fdba8dba1ced0b0a465e8c3ae5c8dc394c3226c2588eebe"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -3891,8 +3891,8 @@
       "sha256": "edacf776f6832178ea0e7678e0180b9381b56a3d6aeb57fff33165e24df554d9"
     },
     "WebApp/styles.css": {
-      "bytes": 68353,
-      "sha256": "62679681c22ead7d99f51a80a8aa5962c99d70553ed4446451dc946ea5f7d204"
+      "bytes": 71984,
+      "sha256": "2e1f5889fda3ecbebac01b7e479d878431675c62215b436781a2b3490342e6d1"
     },
     "WebApp/telecom-market-core.js": {
       "bytes": 31937,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "bef8bcca19d63ade158704a36329c7195a26bb2ebf338aa95c817146bf1c38d7"
+      "sha256": "580c36e10162f6ce11d00c43275a25e1ed4b87ed4d03ebf618560d1b6d67b8e5"
     },
     "BUILD": {
       "bytes": 4,
