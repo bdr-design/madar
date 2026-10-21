@@ -1,8 +1,8 @@
 {
   "design_files": {
     "WebApp/interface-layout.css": "3fbee7b58006f5dd057f0cbf2780527fc2b9cd559770be08cc9b2c78624580a6",
-    "WebApp/styles.css": "62679681c22ead7d99f51a80a8aa5962c99d70553ed4446451dc946ea5f7d204",
-    "WebApp/madar-shell.css": "03c1e9d11aad5ef221e129319881e261a7318b061e888d7519d3b6f91fff066a",
+    "WebApp/styles.css": "2e1f5889fda3ecbebac01b7e479d878431675c62215b436781a2b3490342e6d1",
+    "WebApp/madar-shell.css": "7f2ef842a1e2a2d18010481b1598d29d9d1549ca4aea3bf8e240c6b7d6e434f5",
     "WebApp/section-identities.css": "24bc5a39de24b847a9435440b70b6297927b1d050dc0fc03cd3d63c2d9994073",
     "WebApp/finance-presentation.css": "186312f062c0159cb3a1de27012ea8baf19944ae3bcd23f9f1b20d4051c33be2"
   }

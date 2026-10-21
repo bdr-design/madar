@@ -3031,7 +3031,7 @@
   function updateKpis(){
     const identitySignature=[state.profile?.name,state.profile?.shortName,state.profile?.logo,state.companyRegistry?.group?.legalName,state.companyRegistry?.group?.logo].map(value=>String(value||'')).join('|');
     if(identitySignature!==lastKpiIdentitySignature){lastKpiIdentitySignature=identitySignature;if(window.GH_IDENTITY)window.GH_IDENTITY.applyDocument(state);else{setNodeText('groupName',state.profile.name);setNodeText('brandMark',(state.profile.shortName||'GH').slice(0,4).toUpperCase());}}
-    setNodeText('cashKpi',window.GH_FINANCE_CORE.investorMode(state)?'∞':fmtMoney(state.cash));
+    setNodeText('cashKpi',window.GH_FINANCE_CORE?.investorMode?.(state)?'∞':fmtMoney(state.cash));
     setNodeText('profitKpi',`${state.todayProfit>=0?'+':''}${fmtMoney(state.todayProfit)}`);
     const profitPositive=state.todayProfit>=0;if(profitPositive!==lastKpiProfitSign){lastKpiProfitSign=profitPositive;$('profitKpi').classList.toggle('positive',profitPositive);$('profitKpi').classList.toggle('negative',!profitPositive);}
     setNodeText('simDate',formatSimDateCompact());
@@ -6176,7 +6176,7 @@ ${page}</div>`;
   async function tradeStock(sym,qty){const navigationRevision=drawerNavigationRevision;try{const result=(await runAuthorizedDomainCommand('market','trade-stock',{sym,qty},{successNotice:result=>`${qty>0?'شراء':'بيع'} ${fmtNumber(Math.abs(qty))} سهم من ${sym} بقيمة ${fmtMoney(result.value)}.`})).result;updateKpis();reopenDrawer(navigationRevision,'stocks',`sym:${sym}`);return true;}catch(error){notice(`تعذر تنفيذ الصفقة: ${error.message}`);return false;}}
   // Build 358: a subsidiary opens by signing its opening contract (the formationContract panel). The contract is the
   // confirmation step, and it states the capital that leaves the holding's current account, which must cover it.
-  function holdingOperatingCash(target=state){return window.GH_FINANCE_CORE.investorMode(target)?Infinity:Math.max(0,Number(window.GH_FINANCE_CORE.operating(target,'group'))||0);}
+  function holdingOperatingCash(target=state){return window.GH_FINANCE_CORE?.investorMode?.(target)?Infinity:Math.max(0,Number(window.GH_FINANCE_CORE.operating(target,'group'))||0);}
   function openingBlocker(type,target=state){
     const definition=COMPANY_PLATFORM.getDefinition(type),cost=Number(definition?.founding?.defaultCapital)||0;
     if(!definition||definition.kind!=='subsidiary'||definition.lifecycle!=='active'||cost<=0)return 'تعريف هذه الشركة غير متاح للفتح.';
@@ -6233,7 +6233,7 @@ ${page}</div>`;
   // (GH_FINANCE_CORE coverFromInvestorCard). The top bar shows ∞ while it is on. Both saved engine flags turn together.
   // The command returns an object: a bare «false» (switching it off) read as a rejected command and kept it on.
   async function toggleInvestorMode(){
-    const result=await runDurableStateCommand('investor-mode',({state:draft})=>{const next=!window.GH_FINANCE_CORE.investorMode(draft);draft.godMoney=next;draft.infiniteMoney=next;window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:next?'تفعيل وضع المستثمر الحر: كل نقص في السيولة يصل حوالةً واردة من بطاقة المستثمر.':'إيقاف وضع المستثمر الحر؛ يبقى ما شُحن من بطاقة المستثمر في حسابات الشركات حتى تُرجعه بنفسك.',type:'investor-mode'});return {enabled:next};},{silent:true,afterCommit:()=>{updateKpis();if(activeDrawerPanel)openDrawer(activeDrawerPanel,activeDrawerArg);}});
+    const result=await runDurableStateCommand('investor-mode',({state:draft})=>{const next=!window.GH_FINANCE_CORE?.investorMode?.(draft);draft.godMoney=next;draft.infiniteMoney=next;window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:next?'تفعيل وضع المستثمر الحر: كل نقص في السيولة يصل حوالةً واردة من بطاقة المستثمر.':'إيقاف وضع المستثمر الحر؛ يبقى ما شُحن من بطاقة المستثمر في حسابات الشركات حتى تُرجعه بنفسك.',type:'investor-mode'});return {enabled:next};},{silent:true,afterCommit:()=>{updateKpis();if(activeDrawerPanel)openDrawer(activeDrawerPanel,activeDrawerArg);}});
     if(!result)notice('لم يتغير وضع المستثمر؛ تعذر تأكيد الحفظ.','warning');
   }
   document.addEventListener('click',event=>{const button=event.target.closest?.('.investor-mode-toggle');if(!button)return;event.preventDefault();event.stopPropagation();toggleInvestorMode();},true);
@@ -6268,7 +6268,7 @@ ${page}</div>`;
     const numbers=openPayablesFor(filter).map(row=>row.number);if(!numbers.length){notice('لا توجد ذمم مفتوحة لهذا الإجراء.');return null;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;
     const result=await runAuthorizedCompositeCommand(`settle-all-payables:${method}`,async({state:draft,dispatch,recordAlert})=>{
-      const F=window.GH_FINANCE_CORE,free=window.GH_FINANCE_CORE.investorMode(draft),slice=bulkSlicer(numbers.length,progress);let count=0,amount=0,skipped=0,done=0;
+      const F=window.GH_FINANCE_CORE,free=window.GH_FINANCE_CORE?.investorMode?.(draft),slice=bulkSlicer(numbers.length,progress);let count=0,amount=0,skipped=0,done=0;
       const reasons={};
       for(const number of numbers){await slice(done++);const item=(draft.finance.payables||[]).find(row=>row.number===number);if(!item)continue;const due=Number(item.total??item.amount)||0;
         if(method==='transfer'&&!free&&F.operating(draft,F.requireCompany(draft,item.company||'group'))<due){skipped++;reasons['insufficient-cash']=(reasons['insufficient-cash']||0)+1;continue;}
@@ -6308,7 +6308,7 @@ ${page}</div>`;
     if(!companies.length){notice('لا توجد ضريبة مستحقة على أي شركة.');return null;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg;
     const result=await runAuthorizedCompositeCommand('pay-all-taxes',({state:draft,dispatch,recordAlert})=>{
-      const F=window.GH_FINANCE_CORE,free=window.GH_FINANCE_CORE.investorMode(draft),paid=[],skipped=[];
+      const F=window.GH_FINANCE_CORE,free=window.GH_FINANCE_CORE?.investorMode?.(draft),paid=[],skipped=[];
       for(const company of companies){
         const due=(draft.finance.periods||[]).filter(row=>(row.company||'group')===company&&row.status==='مستحق').reduce((n,row)=>n+(Number(row.amount)||0),0);if(due<=0)continue;
         if(!free&&F.operating(draft,F.requireCompany(draft,company))<due){skipped.push(company);continue;}
@@ -6423,7 +6423,7 @@ ${page}</div>`;
       const preview=Order.previewReservation(order);provisional=Order.bind(order,preview,{ref:'PENDING-ASSET-PURCHASE-CHEQUE',invoiceRef:'PENDING-ASSET-PURCHASE-INVOICE',amount:order.totalUpfront});idGuardTicket=await assetPurchaseBaselineTicket(state,provisional.plan);if(!baselineTicket.current()||!idGuardTicket.current()||baselineTicket.result.membershipRevision!==idGuardTicket.result.membershipRevision||baselineTicket.result.revision!==idGuardTicket.result.revision)throw new Error('asset-purchase-worker-baseline-stale');
     }catch(error){return reject(error.message||error);}
     const totalQty=order.count,upfront=order.totalUpfront,recordLimit=window.GH_PERSISTENCE?.fleetRecordLimit?.(),recordCount=window.GH_FLEET_DATA.persistenceRecordCount(state,deliveries);if(Number.isSafeInteger(recordLimit)&&recordCount+totalQty>recordLimit)return reject(`سعة حفظ هذا الجهاز تسمح بإضافة ${fmtNumber(Math.max(0,recordLimit-recordCount))} أصل فقط الآن؛ لم يبدأ الشراء.`);
-    const finance=window.GH_FINANCE_CORE,unlimited=window.GH_FINANCE_CORE.investorMode(state),ownerCash=companyOperatingBalance(ownerCompanyId),groupCover=ownerCompanyId==='group'?0:companyOperatingBalance('group');if(!unlimited&&ownerCash+groupCover<upfront)return reject(`السيولة المجمعة لا تكفي للدفعة المطلوبة ${fmtMoney(upfront)}.`);if(!unlimited&&(finance.remaining(state,ownerCompanyId)<upfront||finance.lineRemaining(state,ownerCompanyId,'capex')<upfront))return reject(`ميزانية ${companyFinanceName(ownerCompanyId)} لا تسمح بكامل الطلب ${fmtMoney(upfront)}؛ لم يبدأ أي جزء.`);
+    const finance=window.GH_FINANCE_CORE,unlimited=window.GH_FINANCE_CORE?.investorMode?.(state),ownerCash=companyOperatingBalance(ownerCompanyId),groupCover=ownerCompanyId==='group'?0:companyOperatingBalance('group');if(!unlimited&&ownerCash+groupCover<upfront)return reject(`السيولة المجمعة لا تكفي للدفعة المطلوبة ${fmtMoney(upfront)}.`);if(!unlimited&&(finance.remaining(state,ownerCompanyId)<upfront||finance.lineRemaining(state,ownerCompanyId,'capex')<upfront))return reject(`ميزانية ${companyFinanceName(ownerCompanyId)} لا تسمح بكامل الطلب ${fmtMoney(upfront)}؛ لم يبدأ أي جزء.`);
     try{
       const completed=await runAuthorizedCompositeCommand('asset-purchase-order',async({state:draft,dispatch,recordAlert,fleetMutation})=>{
         const current=()=>idGuardTicket.current()&&purchaseOrderCurrent(order,draft,type,ownerCompanyId,assetClass,context);if(!idGuardTicket.current())throw new Error('asset-purchase-id-guard-stale');if(!purchaseOrderCurrent(order,draft,type,ownerCompanyId,assetClass,context))throw new Error('asset-purchase-availability-stale');const transactionBaseline=rebaseAssetPurchaseBaseline(idGuardTicket,draft);
@@ -6432,7 +6432,7 @@ ${page}</div>`;
         // the reservation snapshot, while there are no logical rows to send.
         await driveAssetPurchaseStages(Apply.reserveCapacityStages(draft,provisional.plan,{current,fleetData:window.GH_FLEET_DATA,planCore:Plan,rowSlice:4096,label:'asset-purchase.capacity'}));if(!current())throw new Error('asset-purchase-order-stale');
         const intentPayload=Order.commandPayload(order,{authorization:window.GH_AUTHORIZATION}),authorized=dispatch('asset-purchase','authorize-order',intentPayload,{idempotencyKey:order.requestRef});if(!authorized?.authorizationProofId||authorized.result?.orderDigest!==intentPayload.orderDigest)throw new Error('asset-purchase-intent-not-authorized');
-        const reservation=Order.reserve(draft,order,{transactionCore:window.GH_TRANSACTION_CORE,durableContext:window.__GH_DURABLE_COMMAND_CONTEXT__}),draftGap=(window.GH_FINANCE_CORE.investorMode(draft))||ownerCompanyId==='group'?0:Math.max(0,upfront-companyOperatingBalanceFor(draft,ownerCompanyId));
+        const reservation=Order.reserve(draft,order,{transactionCore:window.GH_TRANSACTION_CORE,durableContext:window.__GH_DURABLE_COMMAND_CONTEXT__}),draftGap=(window.GH_FINANCE_CORE?.investorMode?.(draft))||ownerCompanyId==='group'?0:Math.max(0,upfront-companyOperatingBalanceFor(draft,ownerCompanyId));
         if(draftGap>0){if(companyOperatingBalanceFor(draft,'group')<draftGap||dispatch('finance','transfer',{from:'group',to:ownerCompanyId,amount:draftGap,note:`تمويل شراء أصول يدوي · ${item.name} × ${totalQty}`}).result?.transferred!==true)throw new Error('تعذر تمويل الشركة التابعة داخل معاملة الشراء.');recordAlert(`حُوِّل ${fmtMoney(draftGap)} من الشركة القابضة إلى ${typeName(ownerCompanyId)} لتغطية شراء ${item.name}.`,'finance');}
         const financial=Order.financialIntent(order,reservation),paid=dispatch('procurement','supplier-payment',financial.payment,{idempotencyKey:financial.payment.requestRef}).result;if(!paid?.cheque?.id||paid.cheque.status!=='مصروف'||paid.invoice?.status!=='مسددة')throw new Error('asset-purchase-payment-contract-invalid');const bound=Order.bind(order,reservation,{...paid,amount:financial.payment.amount});if(bound.finance)dispatch('finance','record-asset-finance',bound.finance,{idempotencyKey:`${order.requestRef}:FINANCE`});dispatch('corporate','unlock-sector',{type:owner.definition.classification.primarySectorId},{idempotencyKey:`${order.requestRef}:SECTOR`});
         const receiptRows=[],adapter=Apply.createAdapter(draft,{baseline:transactionBaseline,current,fleetData:window.GH_FLEET_DATA,storeApi:window.GH_FLEET_STORE,transactionCore:window.GH_TRANSACTION_CORE,planCore:Plan,contextToken:order.contextToken,facilityOf:facilityId=>[...(draft.globalBases||[]),...(draft.customHubs||[])].find(row=>String(row?.id)===String(facilityId))||null,capacityOf:facility=>window.GH_FACILITY_CORE.assetCapacity(facility),validateGroup:(group,facility)=>facilityOwnerCompanyId(facility)===ownerCompanyId&&window.GH_FACILITY_CORE.isAssetFacilityCompatible({assetMode:type,ownerCompanyId,assetClass},facility,draft)===true,manageReceipts:false,manageLabor:true,manageGroupValue:true,maxSynchronousBaselineRows:0,onGroupFinished:(_group,out)=>receiptRows.push(out.receipt)});let progressed=0;
