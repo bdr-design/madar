@@ -2969,6 +2969,7 @@
     const active=simulationEngine.snapshot().manualAdvance;if(active){notice('هناك تقديم زمني جارٍ الآن. أوقفه أولًا ثم اختر مدة جديدة.');return false;}
     const now=Math.max(0,Number(state.simSeconds)||0),next=Math.floor(Number(target)||0);if(!Number.isFinite(next)||next<=now){notice('اختر تاريخًا لاحقًا عن التاريخ الحالي.');return false;}
     const max=366*86400;if(next-now>max+1){notice('للحفاظ على سلامة المحاكاة يمكن التقديم حتى سنة واحدة في كل عملية.');return false;}
+    observeLoopLock();
     // Calendar advance is a bounded cooperative workload independent from the player's live-speed selection.
     // The simulation core keeps the current atomic slice alive under device pressure instead of restarting it.
     // the simulation core still commits every hour/day boundary atomically.
@@ -6848,13 +6849,19 @@ ${page}</div>`;
   // A hidden page takes no rested pass: the browser stops its frames until the page shows again.
   function nextLoopPass(rest){if(!rest||document.hidden){requestAnimationFrame(loop);return;}lastLoopRafTimestamp=null;if(!presentationRestTimer)presentationRestTimer=setTimeout(()=>{presentationRestTimer=0;requestAnimationFrame(loop);},PRESENTATION_REST_MS);}
   function wakePresentationLoop(){if(!presentationRestTimer)return false;clearTimeout(presentationRestTimer);presentationRestTimer=0;requestAnimationFrame(loop);return true;}
+  // What holds the loop (and resets the engine when it begins): the conference, a reset, a durable command or a save.
+  function loopLockReason(){return window.GH_CONFERENCE?.isPresentationActive?.()?'conference-3d':hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()?'lifecycle-lock':'';}
+  // A resting loop sees a lock that began meanwhile only at its next pass, and seeing it resets the engine, which cancels
+  // a calendar advance accepted in between (build530: "+ day" pressed as the founding command publishes). The advance sees
+  // the lock first, as the loop at the display rate did within a frame.
+  function observeLoopLock(){const lock=loopLockReason();if(!lock||lastLoopGuardReason===lock)return false;lastLoopGuardReason=lock;simulationEngine.reset(performance.now(),lock);simulationRuntime.wake();return true;}
   const latestSimulationTransaction=()=>window.GH_TRANSACTION_CORE?.telemetry?.()?.lastSimulation||null;
   function recordGuardedDiagnosticFrame(now,callbackStartMs,guardReason){const callbackEndMs=appMetricClock(),fleetSize=window.GH_FLEET_DATA.size(state)+(state.mobility?.vehicles?.length||0);window.GH_DIAGNOSTICS?.recorderFrame?.(state,{rafTimestampMs:Number(now),callbackStartMs,callbackEndMs,simSeconds:state.simSeconds,visible:!document.hidden,hidden:!!document.hidden,panel:activeDrawerPanel||'map',mapActive:!!map,fleetSize,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,simulationStage:guardReason,guardReason,simulationProgressExpected:false},{transactionProvider:latestSimulationTransaction});}
   function presentationFrameInterval(){const fleetSize=window.GH_FLEET_DATA.size(state),advancing=!!simulationEngine.snapshot().manualAdvance;if(document.hidden)return 1000;if(activeDrawerPanel||advancing)return fleetSize>2000?300:fleetSize>750?220:fleetSize>250?150:100;if(fleetSize>3000)return 220;if(fleetSize>1500)return 180;if(fleetSize>750)return 140;if(fleetSize>400)return 110;if(fleetSize>180)return 80;return 55;}
   function loop(now){
     const frameIntervalMs=lastLoopRafTimestamp===null?null:Math.max(0,now-lastLoopRafTimestamp);lastLoopRafTimestamp=now;
     const frameRecorderActive=window.GH_DIAGNOSTICS?.recorderIsActive?.(state)===true,recorderCallbackStartMs=frameRecorderActive?appMetricClock():0;
-    const guardReason=window.GH_CONFERENCE?.isPresentationActive?.()?'conference-3d':hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()?'lifecycle-lock':processOneRecoveryBoundary()?'boundary-recovery':'';
+    const guardReason=loopLockReason()||(processOneRecoveryBoundary()?'boundary-recovery':'');
     if(guardReason){if(lastLoopGuardReason!==guardReason){lastLoopGuardReason=guardReason;simulationEngine.reset(now,guardReason);simulationRuntime.wake();updateDayStepControl();}if(frameRecorderActive)recordGuardedDiagnosticFrame(now,recorderCallbackStartMs,guardReason);nextLoopPass(guardReason==='conference-3d'&&!frameRecorderActive);return;}
     if(lastLoopGuardReason){lastLoopGuardReason='';simulationRuntime.wake();}
     const renderMetrics=runtimeInstrumentation.render,measureFrame=frameRecorderActive||(++renderMetrics.frameCounter%30)===0,frameStarted=measureFrame?appMetricClock():0;let simulationMs=0,simulationTaskMs=0,simulationTaskMaxMs=0,simulationTaskCount=0,simulationTaskFirstStartedAtMs=null,simulationTaskLastEndedAtMs=null,targetUpdateMs=0,markerAnimationMs=0,structuralRenderMs=0,targetUpdated=false,markerAnimated=false,structureRendered=false;
