@@ -436,5 +436,39 @@
         "sha256": "88c51c7b136d5ea9db28903a2edadc5c365752c661e4a1278c2d9c77b584eb0f"
       }
     ]
+  },
+  "approved_airline_cost_edits": {
+    "WebApp/simulation-asset-core.js": [
+      {
+        "reason": "Owner decision (21 Oct 2026, 'نفذ الباقي' on the airline margin audit): a passenger flight pays the airline's missing trip costs (ground handling, passenger services and catering, sales and distribution, station and administration overhead) in its fees; fares, demand, customers, freight and charter are unchanged.",
+        "before": "  //   air-pax      economy fare 45$ + 0.075$/km to 3,000 km, 0.055$/km beyond; premium ×1.7, business ×3.8, first ×6.5;\n  //                belly cargo 0.28$ per tonne-km; airport and navigation charges from MTOW and distance.\n  //   air-freight  0.30$ per tonne-km on long haul, up to 0.55$ on short haul.\n",
+        "after": "  //   air-pax      economy fare 45$ + 0.075$/km to 3,000 km, 0.055$/km beyond; premium ×1.7, business ×3.8, first ×6.5;\n  //                belly cargo 0.28$ per tonne-km; airport and navigation charges from MTOW and distance. A passenger\n  //                flight also pays ground handling (350$ + 16$ per MTOW tonne a departure), passenger services and\n  //                catering (3$ + 1.1$ per hour a boarded passenger; premium ×2, business ×5, first ×9), sales and\n  //                distribution (5% of its revenue) and station and administration overhead (4%); in its fees.\n  //   air-freight  0.30$ per tonne-km on long haul, up to 0.55$ on short haul.\n",
+        "sha256": "6a158aad072671993eb2cc01b10e069e19c596737f11b1f5e7dbe3adb4e00973"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, 'نفذ الباقي' on the airline margin audit): a passenger flight pays the airline's missing trip costs (ground handling, passenger services and catering, sales and distribution, station and administration overhead) in its fees; fares, demand, customers, freight and charter are unchanged.",
+        "before": "  });\n  const CABIN=Object.freeze({economy:[1,.84],premium:[1.7,.78],business:[3.8,.70],first:[6.5,.55]});\n  const ROAD_RATE=Object.freeze({general:.075,container:.085,fuel:.095,reefer:.10,chemical:.12,heavy:.16,urban:.25});\n",
+        "after": "  });\n  const CABIN=Object.freeze({economy:[1,.84],premium:[1.7,.78],business:[3.8,.70],first:[6.5,.55]}),PASSENGER_SERVICE=Object.freeze({economy:1,premium:2,business:5,first:9});\n  const ROAD_RATE=Object.freeze({general:.075,container:.085,fuel:.095,reefer:.10,chemical:.12,heavy:.16,urban:.25});\n",
+        "sha256": "820b2c15839e23c657e3a545c07b0597c228cd8e7720ce65032394d0817b2676"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, 'نفذ الباقي' on the airline margin audit): a passenger flight pays the airline's missing trip costs (ground handling, passenger services and catering, sales and distribution, station and administration overhead) in its fees; fares, demand, customers, freight and charter are unchanged.",
+        "before": "        const cabin=specs.cabin||{economy:capacity},fare=economyFare(km);\n        for(const [cls,[factor,load]] of Object.entries(CABIN))revenue+=Math.max(0,number(cabin[cls]))*load*fare*factor;\n        revenue+=Math.max(0,number(specs.bellyCargoT))*.60*km*.28;\n",
+        "after": "        const cabin=specs.cabin||{economy:capacity},fare=economyFare(km);\n        let passengerServices=0;\n        for(const [cls,[factor,load]] of Object.entries(CABIN)){const boarded=Math.max(0,number(cabin[cls]))*load;revenue+=boarded*fare*factor;passengerServices+=boarded*(3+1.1*h)*PASSENGER_SERVICE[cls];}\n        revenue+=Math.max(0,number(specs.bellyCargoT))*.60*km*.28;\n",
+        "sha256": "a59e1e9c8ad12c9a0510b9d7bb5425f6ce87aad532722782ecf6b1d113076f1a"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, 'نفذ الباقي' on the airline margin audit): a passenger flight pays the airline's missing trip costs (ground handling, passenger services and catering, sales and distribution, station and administration overhead) in its fees; fares, demand, customers, freight and charter are unchanged.",
+        "before": "        revenue+=Math.max(0,number(specs.bellyCargoT))*.60*km*.28;\n      }\n",
+        "after": "        revenue+=Math.max(0,number(specs.bellyCargoT))*.60*km*.28;\n        fees=350+16*Math.max(0,number(specs.mtowTon))+passengerServices+revenue*(.05+.04);\n      }\n",
+        "sha256": "15588a201048391f7e4ae47c7d2e092a3e0207004e60cf45bf2595ac253fae2d"
+      },
+      {
+        "reason": "Owner decision (21 Oct 2026, 'نفذ الباقي' on the airline margin audit): a passenger flight pays the airline's missing trip costs (ground handling, passenger services and catering, sales and distribution, station and administration overhead) in its fees; fares, demand, customers, freight and charter are unchanged.",
+        "before": "      maintenance=number(specs.maintenancePerBlockHour)*h;\n      const mtow=Math.max(0,number(specs.mtowTon));fees=mtow*10+(km/100)*Math.sqrt(mtow/50)*60;\n    }else if(mode==='sea'){\n",
+        "after": "      maintenance=number(specs.maintenancePerBlockHour)*h;\n      const mtow=Math.max(0,number(specs.mtowTon));fees+=mtow*10+(km/100)*Math.sqrt(mtow/50)*60;\n    }else if(mode==='sea'){\n",
+        "sha256": "bccba9d293bd50a4125a42d56192c686492ed6f34471eee2541a0af8ba0dcbf6"
+      }
+    ]
   }
 }
