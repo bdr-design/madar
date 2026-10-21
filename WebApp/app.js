@@ -3246,10 +3246,11 @@
         if(revenue>0)post('دخل',revenue,`تسوية رحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية تشغيل يومية',taxable,'مدفوعة',companyId,profile.source,{settlementAccount:clearing});
         if(fuel>0)post('مصروف',fuel,`تكلفة تشغيل رحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية مورد تشغيل يومية',taxable,'مدفوعة',companyId,mobility?'السائقون ومزودو التشغيل':'موردو الوقود المعتمدون',{settlementAccount:clearing});
         if(maint>0)post('مصروف',maint,`مخصص صيانة رحلات يومية ${typeName(companyId)} · ${count} رحلة`,'مخصص صيانة يومي',false,'مدفوعة',companyId,'مراكز الصيانة المعتمدة',{settlementAccount:clearing});
-        // Build 375: port, airport and road fees of the day's trips. They were deducted from the trips' margin and cash
-        // (cashContribution) with no document; the settlement carried them as an unexplained adjustment.
+        // Build 375: port, airport and road fees of the day's trips (and a passenger flight's handling, passenger services,
+        // distribution and overhead). They were deducted from the trips' margin and cash (cashContribution) with no
+        // document; the settlement carried them as an unexplained adjustment.
         const amount=Number(tripCash[companyId])||0,fees=Math.round(Math.max(0,revenue-fuel-maint-amount)*100)/100;
-        if(fees>=.01)post('مصروف',fees,`رسوم موانئ ومطارات وطرق لرحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية رسوم تشغيل يومية',taxable,'مدفوعة',companyId,'سلطات الموانئ والمطارات والطرق',{settlementAccount:clearing});
+        if(fees>=.01)post('مصروف',fees,`رسوم وخدمات تشغيل لرحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية رسوم تشغيل يومية',taxable,'مدفوعة',companyId,'سلطات الموانئ والمطارات والطرق ومزودو الخدمات',{settlementAccount:clearing});
         if(Math.abs(amount)>=.005||revenue>0){const before=companyOperatingBalance(companyId),settlement=dispatchSystemCommand({state},'finance','settle-daily-cash',{company:companyId,amount,grossAmount:revenue,deductions:fuel+maint+(fees>=.01?fees:0),tripCount:count,invoiceNumbers,day:state.lastFinancialDay,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,note:`تحويل صافي تشغيل اليوم ${state.lastFinancialDay} إلى الحساب الجاري · ${typeName(companyId)}`},{actor:'financial-close'}).result;window.GH_FINANCE_CORE.assertAccountPosting(state,settlement,{company:companyId,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,balanceBefore:before,code:`daily-profit-current-account-mismatch:${companyId}`});if(settlement?.shortfall>0)pushAlert(`رحّلت تسوية نقدية غير مغطاة بقيمة ${fmtMoney(settlement.shortfall)} في ${typeName(companyId)} إلى إقفال اليوم التالي دون إسقاطها.`);}
       });yield 'finance-day.trip-settlement';}
       const companyContractRevenue=zeroCompanyMap(state),companyContractCost=zeroCompanyMap(state),contractDailyRows=[];

@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "9e6b8fca60b918709dbf246948e8f27a94b6449d4018a9b14ca58565c9d611f2",
-  "webapp_tree_sha256": "162c24ecb024e0ce54ef42a4c7ca0c22d928d320192f76caa125aeb8c0ddf1b6",
+  "source_tree_sha256": "7d1fcd6f11ba772b81ab0b8e43159098287221fa254562b26c34c2a33fce658b",
+  "webapp_tree_sha256": "7020dfccd4010a939539603d4b2913d0f6e7165277488230fe9e5f5121b2f0f6",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1015479,
-      "sha256": "58c3602715160e384c99011a0a5d6a01a0809080dbfb834b602ba95ef55cc504"
+      "bytes": 1015590,
+      "sha256": "503c0239107790761313f7183e47c11efd5792f1eb7c4fd02b0e23cc6d4204ed"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3883,8 +3883,8 @@
       "sha256": "a232973e5a74617d48f52b20e0eb9ec2a96583bfb6741400641eb118eb705182"
     },
     "WebApp/simulation-asset-core.js": {
-      "bytes": 28119,
-      "sha256": "4522dbd90f1bcebd73923cc41e8f317146194b1af55ff3062f40c6ce602dce40"
+      "bytes": 28762,
+      "sha256": "40c8b193251673c2ecf681b634d1ca51f520f867df140c2d16df5e3711de0246"
     },
     "WebApp/simulation-asset-worker.js": {
       "bytes": 1677,
@@ -4024,7 +4024,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "f79c8ac1fad91cb45c91e591dd74964ab99c9a21e585a66bb3a652400de4a20f"
+      "sha256": "e50c3c51148e0ee2b01a3b5d18e82e6948f9309a55abea1b98de8619dad92b08"
     },
     "BUILD": {
       "bytes": 4,

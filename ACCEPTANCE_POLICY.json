@@ -1,5 +1,5 @@
 {
-  "minimum_acceptance_gates": 578,
+  "minimum_acceptance_gates": 579,
   "preflight_commands": [
     [
       "node",
@@ -2850,6 +2850,10 @@
     [
       "node",
       "tests/build549-intercompany-loan-interest.cjs"
+    ],
+    [
+      "node",
+      "tests/build550-airline-passenger-costs.cjs"
     ]
   ]
 }

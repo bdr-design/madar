@@ -82,7 +82,10 @@
   // tariff; a one-way trade (bulk, crude, products, cars, fuel and chemical tankers) sails or drives back empty, so its
   // load is averaged over both legs. Fuel is at the reference price (fuelPriceFactor scales it to the market).
   //   air-pax      economy fare 45$ + 0.075$/km to 3,000 km, 0.055$/km beyond; premium ×1.7, business ×3.8, first ×6.5;
-  //                belly cargo 0.28$ per tonne-km; airport and navigation charges from MTOW and distance.
+  //                belly cargo 0.28$ per tonne-km; airport and navigation charges from MTOW and distance. A passenger
+  //                flight also pays ground handling (350$ + 16$ per MTOW tonne a departure), passenger services and
+  //                catering (3$ + 1.1$ per hour a boarded passenger; premium ×2, business ×5, first ×9), sales and
+  //                distribution (5% of its revenue) and station and administration overhead (4%); in its fees.
   //   air-freight  0.30$ per tonne-km on long haul, up to 0.55$ on short haul.
   //   air-charter  the hourly charter rate for 75% of the hours (positioning legs fly empty).
   //   sea          container 260$ + 0.11$/nm per TEU; dry bulk 4$ + 0.0016$/nm per tonne; crude 3$ + 0.0018$/nm, products
@@ -98,7 +101,7 @@
     lng:{load:1,charter:true},lpg:{load:1,charter:true},offshore:{load:1,charter:true},'heavy-lift':{load:1,charter:true},tug:{load:.65},
     parcel:{load:1},urban:{load:.70},general:{load:.82},reefer:{load:.80},fuel:{load:.5},chemical:{load:.5},container_road:{load:.75},heavy:{load:.6},vehicles:{load:.7}
   });
-  const CABIN=Object.freeze({economy:[1,.84],premium:[1.7,.78],business:[3.8,.70],first:[6.5,.55]});
+  const CABIN=Object.freeze({economy:[1,.84],premium:[1.7,.78],business:[3.8,.70],first:[6.5,.55]}),PASSENGER_SERVICE=Object.freeze({economy:1,premium:2,business:5,first:9});
   const ROAD_RATE=Object.freeze({general:.075,container:.085,fuel:.095,reefer:.10,chemical:.12,heavy:.16,urban:.25});
   // A spec without a market (a fixture or an asset from before the real catalogue) reads as the plain market of its mode.
   function marketId(asset){
@@ -117,12 +120,14 @@
       else if(market.id==='air-freight')revenue=capacity*market.load*km*(.30+.60*Math.max(0,(2000-km)/2000));
       else{
         const cabin=specs.cabin||{economy:capacity},fare=economyFare(km);
-        for(const [cls,[factor,load]] of Object.entries(CABIN))revenue+=Math.max(0,number(cabin[cls]))*load*fare*factor;
+        let passengerServices=0;
+        for(const [cls,[factor,load]] of Object.entries(CABIN)){const boarded=Math.max(0,number(cabin[cls]))*load;revenue+=boarded*fare*factor;passengerServices+=boarded*(3+1.1*h)*PASSENGER_SERVICE[cls];}
         revenue+=Math.max(0,number(specs.bellyCargoT))*.60*km*.28;
+        fees=350+16*Math.max(0,number(specs.mtowTon))+passengerServices+revenue*(.05+.04);
       }
       fuelCost=number(specs.fuelBurnKgPerKm)*km*.86;
       maintenance=number(specs.maintenancePerBlockHour)*h;
-      const mtow=Math.max(0,number(specs.mtowTon));fees=mtow*10+(km/100)*Math.sqrt(mtow/50)*60;
+      const mtow=Math.max(0,number(specs.mtowTon));fees+=mtow*10+(km/100)*Math.sqrt(mtow/50)*60;
     }else if(mode==='sea'){
       // Bulk and tanker rates per tonne fall with ship size (a Handysize earns more per tonne than a Capesize).
       const nm=km/1.852,load=market.load,size=Math.pow(Math.max(1,capacity)/60000,-.15);
