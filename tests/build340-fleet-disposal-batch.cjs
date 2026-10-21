@@ -33,7 +33,15 @@ function batchedApply(state,rows){return Fleet.withDisposalBatch(state,()=>{cons
 {
   const legacy=fixture(240),optimized=fixture(240),rows=disposalRows(legacy),expected=legacyApply(legacy,rows);
   const outer=Transaction.execute(optimized,{label:'fleet-disposal-batch-test',apply:()=>batchedApply(optimized,rows)});
-  assert.equal(outer.committed,true);assert.deepEqual(outer.value,expected);assert.deepEqual(optimized,legacy,'batch removal must preserve per-asset outcomes, finance rows, contracts, crew totals, leased assets, and stable fleet order');
+  // Owner («بيع الاصول مايشتغل»): a bulk sale is one order, so each company's proceeds are credited once and its lease
+  // fees paid once (an invoice per asset froze a large fleet's sale for minutes). Everything else is as one by one, and
+  // the money is the same to the cent.
+  const sum=(rows,key)=>Math.round(rows.reduce((n,row)=>n+row.amount,0)*100)/100;
+  assert.equal(outer.committed,true);assert.deepEqual(outer.value,expected);
+  assert.deepEqual({...optimized,finance:null},{...legacy,finance:null},'batch removal must preserve per-asset outcomes, contracts, crew totals, leased assets, group value and stable fleet order');
+  assert.equal(optimized.finance.credits.length,1,'one credit for the order');assert.equal(optimized.finance.spends.length,1,'one payment of the lease fees');
+  assert.equal(optimized.finance.credits[0].amount,sum(legacy.finance.credits),'the same proceeds');assert.equal(optimized.finance.spends[0].amount,sum(legacy.finance.spends),'the same fees');
+  assert.equal(optimized.finance.spends[0].line,'capex');assert.match(optimized.finance.credits[0].note,/^بيع \d+ أصل بأمر بيع جماعي$/);
   const metric=Transaction.telemetry().last;assert.equal(metric.label,'fleet-disposal-batch-test');assert.equal(metric.rollbackStorage,'full-snapshot');assert.equal(metric.committed,true,'the coalesced owner write retains Full Snapshot rollback');
 }
 
@@ -47,13 +55,13 @@ function batchedApply(state,rows){return Fleet.withDisposalBatch(state,()=>{cons
 {
   const state=fixture(20000,{mixed:false}),rows=disposalRows(state),started=performance.now();let outcome;
   const tx=Transaction.execute(state,{label:'fleet-disposal-batch-20k',apply:()=>{outcome=batchedApply(state,rows);return outcome;}});
-  assert.equal(tx.committed,true);assert.deepEqual(outcome,{sold:20000,scheduled:0,returned:0});assert.equal(state.assets.length,0);assert.equal(state.finance.credits.length,20000);assert.equal(state.advanced.labor.employmentContracts.every(row=>row.status==='منتهي'),true);assert.equal(state.crew.find(row=>row.id==='pilots').count,0);
-  console.log(JSON.stringify({suite:'build340-fleet-disposal-batch',assets:20000,nodeElapsedMs:+(performance.now()-started).toFixed(2),fullSnapshot:Transaction.telemetry().last.rollbackStorage,perAssetFinanceRecords:state.finance.credits.length,environment:`Node ${process.version}; synthetic fleet state; not iPhone performance`}));
+  assert.equal(tx.committed,true);assert.deepEqual(outcome,{sold:20000,scheduled:0,returned:0});assert.equal(state.assets.length,0);assert.equal(state.finance.credits.length,1);assert.equal(state.advanced.labor.employmentContracts.every(row=>row.status==='منتهي'),true);assert.equal(state.crew.find(row=>row.id==='pilots').count,0);
+  console.log(JSON.stringify({suite:'build340-fleet-disposal-batch',assets:20000,nodeElapsedMs:+(performance.now()-started).toFixed(2),fullSnapshot:Transaction.telemetry().last.rollbackStorage,financeRecordsForTheOrder:state.finance.credits.length,environment:`Node ${process.version}; synthetic fleet state; not iPhone performance`}));
 }
 
 {
   const start=APP.indexOf('  async function sellAllAssets(companyInput){'),end=APP.indexOf('\n  function sellAsset(id)',start),source=APP.slice(start,end);
-  assert(start>=0&&end>start);assert.match(source,/GH_TRANSACTION_CORE\.execute\(draft/);assert.match(source,/GH_FLEET_CORE\.withDisposalBatch\(draft/);assert.match(source,/GH_FLEET_CORE\.find\(draft,selected\.id\)/);assert.match(source,/facilityById\.get\(current\.baseFacility\)/);assert.doesNotMatch(source,/draft\.assets\.find\(/);assert.doesNotMatch(source,/dynamicFacilitiesFor\(draft\)\.find\(/);
+  assert(start>=0&&end>start);assert.match(source,/GH_TRANSACTION_CORE\.execute\(draft/);assert.match(source,/GH_FLEET_CORE\.withDisposalBatch\(draft/);assert.match(source,/dispatch\('fleet','dispose-company'/,'one fleet command for the order');assert.doesNotMatch(source,/dispatch\('fleet','dispose',/,'not one command per asset');assert.doesNotMatch(source,/draft\.assets\.find\(/);assert.doesNotMatch(source,/dynamicFacilitiesFor\(draft\)\.find\(/);
 }
 
-console.log('PASS bulk disposal uses one indexed Fleet context and one full-snapshot transaction while retaining per-asset finance results and rollback');
+console.log('PASS bulk disposal uses one indexed Fleet context and one full-snapshot transaction, settles each company once with the same money, and rolls back whole');

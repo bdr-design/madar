@@ -2930,6 +2930,14 @@
     [
       "node",
       "tests/build572-fleet-premium-unpaid.cjs"
+    ],
+    [
+      "node",
+      "tests/build573-asset-sale-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build574-investor-budget-overrun.cjs"
     ]
   ]
 }
