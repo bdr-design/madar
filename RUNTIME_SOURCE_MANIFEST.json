@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "f3269d7076111cfba2f8495b68a244d0b4778b1167293989bc75c73b7c3d4669",
-  "webapp_tree_sha256": "671775ace9a461cb467f9dc5995287c0e479669609f730a059117990c05b65e7",
+  "source_tree_sha256": "3036f9822fe221c4d3e1b3d129db1e41909507f3e0d26369a2de98dfede21663",
+  "webapp_tree_sha256": "d9f11be7ceb3714fe7a4ab99659c26bc82a2b2499509c15df9748516206371cf",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1030848,
-      "sha256": "cd36be8ab4fd1618e67a2203bdece3091eba374c5e95a9787df2f527ed9e0738"
+      "bytes": 1031101,
+      "sha256": "aa6d73fd78a32374969fcd11372b9961ce58d865ce4c6140a430d3468d07c537"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3435,8 +3435,8 @@
       "sha256": "ddf4c2de9ab5e937a83e47781ad3e05ef0a49e0cdf9fa8389419b27627e88481"
     },
     "WebApp/corporate-core.js": {
-      "bytes": 36409,
-      "sha256": "3de86652e3e07ce7a07dd8f1df3b72fa83dd249b522b407a34460d183b9e1a31"
+      "bytes": 37296,
+      "sha256": "9533356eeac0805f814b78f5fbacfe11e8815ed5b4817c5bee3e7332d978dc09"
     },
     "WebApp/customer-base-core.js": {
       "bytes": 21836,
@@ -3491,8 +3491,8 @@
       "sha256": "189418d5c0903f4d76984b8af51039861ac79701631af6460219297de45ed07a"
     },
     "WebApp/facility-core.js": {
-      "bytes": 26285,
-      "sha256": "c8600c99e3af3ebd20d5785479b2002ee776171e64b37e98d3427f0bcd9d7f44"
+      "bytes": 27032,
+      "sha256": "668f00649308e2bdd80c11b9e267a102e5aedf20d282f085d3ef9ba615a0c88a"
     },
     "WebApp/finance-core.js": {
       "bytes": 214890,
@@ -3691,8 +3691,8 @@
       "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
     },
     "WebApp/madar-shell.css": {
-      "bytes": 14272,
-      "sha256": "d7ee3c1566c2d6f5fad31bde73126e27b8622c7a206237be553d5727e75b0d2d"
+      "bytes": 14629,
+      "sha256": "7f2ef842a1e2a2d18010481b1598d29d9d1549ca4aea3bf8e240c6b7d6e434f5"
     },
     "WebApp/madar-shell.js": {
       "bytes": 56584,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "ac9993ea14136c4b9b85776af700e38d3744d9020de00b3d3fafeda92af482ad"
+      "sha256": "20fc415d2e18c221a7d95027217e7a09cc9e91b69b2948ba0d69594c9ae93bb8"
     },
     "BUILD": {
       "bytes": 4,

@@ -2902,6 +2902,10 @@
     [
       "node",
       "tests/build565-group-dividends-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build566-fresh-capital-facility-book.cjs"
     ]
   ]
 }

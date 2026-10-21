@@ -71,6 +71,10 @@
 .pv-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;padding:3px;border-radius:12px;background:#EEF2F5}
 .pv-seg>button{min-height:0;height:30px;padding:0 6px;border:0;border-radius:9px;background:transparent;font:600 12px var(--font);color:#4C6272;box-shadow:none}
 .pv-seg>button.on{background:#FFFFFF;color:#0D3B57;box-shadow:0 1px 4px rgba(13,59,87,.12)}
+/* The stock desk's tabs as designed (owner, IPO restructuring): the drawer's own button style is set aside the way the
+   option buttons do it, the open tab dark. */
+.pv-seg>button{background:transparent!important;border:0!important;box-shadow:none!important;color:#4C6272!important}
+.pv-seg>button.on{background:#0D3B57!important;color:#FFFFFF!important}
 .pv-page>.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;padding:3px;margin:0;border-radius:12px;background:#EEF2F5;border:0}
 .pv-page>.tabs .tab-btn{min-height:0;height:30px;padding:0 6px;border:0;border-radius:9px;background:transparent;font:600 12px var(--font);color:#4C6272;box-shadow:none}
 .pv-page>.tabs .tab-btn.active{background:#FFFFFF;color:#0D3B57;box-shadow:0 1px 4px rgba(13,59,87,.12)}
