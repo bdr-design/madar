@@ -5,10 +5,12 @@ const ROOT=path.resolve(__dirname,'..'),app=fs.readFileSync(path.join(ROOT,'WebA
 function fragment(start,end){const a=app.indexOf(start),b=app.indexOf(end,a);assert(a>=0&&b>a,`${start} -> ${end}`);return app.slice(a,b);}
 const EXPECTED={
   1:['acceptedContracts','advanced','assets','bank','businessWorld','cash','companyBudgets','companyFinance','contractStartDays','documentProofs','domainRuntime','failedBids','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','maPortfolio','operations','portfolio','portfolioBook','portfolioLots','portfolioTradeSequence','portfolioTrades','profile','realism','todayProfit','treasury'],
-  26:['alerts','businessWorld','cash','companyBudgets','companyFinance','documentProofs','domainRuntime','eventLog','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','operations','realism','sequences','treasury'],
+  // The group's fair value is worked out at every close (GH_CORPORATE_CORE close-valuation) and kept in advanced.valuation;
+  // the daily close already captures every root for its rollback and saves stay full, so the root costs no copy.
+  26:['advanced','alerts','businessWorld','cash','companyBudgets','companyFinance','documentProofs','domainRuntime','eventLog','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','operations','realism','sequences','treasury'],
   // Build 375: day 30 carries the month's fleet insurance premium (a document realism-core issues every 30 days); it is now
   // the company's profit too (Finance Core notes documents made outside the close), so this close publishes the profit roots.
-  30:['alerts','businessWorld','cash','companyBudgets','companyFinance','documentProofs','domainRuntime','eventLog','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','operations','realism','sequences','treasury']
+  30:['advanced','alerts','businessWorld','cash','companyBudgets','companyFinance','documentProofs','domainRuntime','eventLog','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','operations','realism','sequences','treasury']
 };
 function installDayOwner(){
   const e=scenario();for(const name of ['strategy-core','business-world-core','conference-core','advanced-core','economics-core','banking-core','contracts-core','company-adapters-core'])e.load(name);

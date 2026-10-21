@@ -5,8 +5,9 @@
 //     round trip, for nothing), and the sale pays the fleet owner's own quote whatever price the page sends;
 //  2. returning a leased asset charges two months' rent whatever fee the page sends, and gives back its 8%;
 //  3. the sale quote is the same formula the page used (no price changed), constant work per asset;
-//  4. a listing whose value moved less than 1% while the dialog was open lists at the live value;
-//  5. after a day boundary every stock keeps its previous close, and the desk shows the day's move.
+//  4. after a day boundary every stock keeps its previous close, and the desk shows the day's move;
+//  5. an offering whose value moved less than 1% while the dialog was open lists at the live terms (the owner's IPO
+//     restructuring prices it on the group's fair value; build561 proves the rest of the offering).
 const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=require('playwright');
 const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareCommandWorld}=require('./helpers/command-world-fixture.cjs');
 const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
@@ -30,15 +31,16 @@ const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
   const sample={type:'air',catalogId:GH_ASSET_CATALOG.air.new[0].id,ownership:'cash',year:2020,condition:80,purchasePrice:0},t0=performance.now();let sum=0;for(let i=0;i<100000;i++)sum+=GH_FLEET_CORE.saleQuote(s,sample).proceeds;return {worst,checked,ms:performance.now()-t0,sum};});
  assert(parity.checked>100&&parity.worst<1e-6,`3: the same prices (${JSON.stringify(parity)})`);assert(parity.ms<400,`3: 100,000 quotes in ${parity.ms.toFixed(1)} ms`);
  // 4
- await page.evaluate(()=>__AUDIT__.openDrawer('stocks','ipo'));await page.waitForSelector('#drawerBody .launch-ipo');
- const shown=await page.evaluate(()=>Number(__GH_STATE__.groupValue));await page.locator('#drawerBody .launch-ipo').click();await page.waitForSelector('dialog.ui-confirm[open]');
- await page.evaluate(v=>__AUDIT__.runAuthorizedDomainCommand('corporate','adjust-group-value',{delta:Math.round(v*.005)},{silent:true}),shown);await settled();
- const live=await page.evaluate(()=>Number(__GH_STATE__.groupValue));await page.locator('dialog.ui-confirm [data-confirm="accept"]').click();await page.waitForFunction(()=>__GH_STATE__.ipo?.listed===true);await settled();
- const ipo=await page.evaluate(()=>__GH_STATE__.ipo);assert(Math.abs(ipo.offerPrice-live/82000000)<1e-9,`4: listed at the live value (${ipo.offerPrice} vs ${live/82000000})`);assert(Math.abs(ipo.proceeds-Math.round(live/82000000*18000000*100)/100)<.01);
- // 5
  await page.evaluate(()=>{const r=__AUDIT__.simulationEngine.advanceTo((Math.floor(__GH_STATE__.simSeconds/86400)+1)*86400+7200,{reason:'qa-559-day',speed:300});if(!r.accepted)throw Error(JSON.stringify(r));});await page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:120000});await settled();
- const stocks=await page.evaluate(()=>(__GH_STATE__.market||[]).map(r=>({sym:r.sym,price:r.price,prevClose:r.prevClose,change:r.change})));assert(stocks.length>0&&stocks.every(r=>r.prevClose>0),`5: previous closes (${JSON.stringify(stocks)})`);
+ const stocks=await page.evaluate(()=>(__GH_STATE__.market||[]).map(r=>({sym:r.sym,price:r.price,prevClose:r.prevClose,change:r.change})));assert(stocks.length>0&&stocks.every(r=>r.prevClose>0),`4: previous closes (${JSON.stringify(stocks)})`);
  await page.evaluate(()=>__AUDIT__.openDrawer('stocks','portfolio'));await page.waitForSelector('#drawerBody .pv-row');
- const shownMoves=await page.locator('#drawerBody .pv-row .pv-val span').allInnerTexts();for(const [i,row] of stocks.entries()){const move=(row.price/row.prevClose-1)*100;assert.equal(shownMoves[i],`${move>=0?'+':''}${move.toFixed(2)}%`,`5: ${row.sym} shows the day's move`);}
+ const shownMoves=await page.locator('#drawerBody .pv-row .pv-val span').allInnerTexts();for(const [i,row] of stocks.entries()){const move=(row.price/row.prevClose-1)*100;assert.equal(shownMoves[i],`${move>=0?'+':''}${move.toFixed(2)}%`,`4: ${row.sym} shows the day's move`);}
+ // 5: a group the offering accepts (a year of profit, 200 days old, rated A), valued at the close
+ await page.evaluate(()=>{const s=__GH_STATE__;s.realism.financial.consolidated.equity=2.5e9;s.finance.dailyCompanyReports=Array.from({length:365},(_,i)=>({id:`CLOSE-${200-i}`,day:200-i,net:1.2e6}));s.simSeconds=200*86400;s.profile.creditRating='A';delete s.advanced.valuation;GH_CORPORATE_CORE.execute({state:s},'close-valuation',{day:200});__AUDIT__.openDrawer('stocks','ipo:20');});
+ await page.waitForSelector('#drawerBody .launch-ipo:not([disabled])');const shown=await page.evaluate(()=>GH_CORPORATE_CORE.ipoTerms(__GH_STATE__,20));await page.locator('#drawerBody .launch-ipo').click();await page.waitForSelector('dialog.ui-confirm[open]');
+ await page.evaluate(()=>{const v=__GH_STATE__.advanced.valuation;v.fair*=1.004;v.earnings*=1.004;v.nav*=1.004;});const live=await page.evaluate(()=>GH_CORPORATE_CORE.ipoTerms(__GH_STATE__,20));
+ assert.equal(live.founderShares,shown.founderShares,'5: the same shares');assert(live.price>shown.price&&live.price/shown.price-1<.01,`5: the price moved under 1% (${shown.price} → ${live.price})`);
+ await page.locator('dialog.ui-confirm [data-confirm="accept"]').click();await page.waitForFunction(()=>__GH_STATE__.ipo?.listed===true);await settled();
+ const ipo=await page.evaluate(()=>__GH_STATE__.ipo);assert.equal(ipo.offerPrice,live.price,`5: listed at the live price (${ipo.offerPrice} vs ${live.price})`);assert.equal(ipo.proceeds,live.proceeds);assert.equal(ipo.fees,live.fees);
  assert.deepEqual(errors,[]);console.log(JSON.stringify({suite:'build559-share-value-fixes-browser',ok:true,trips,parity:{checked:parity.checked,ms:+parity.ms.toFixed(1)},offerPrice:ipo.offerPrice}));
 }finally{await browser.close();await env?.closeOrigin?.();}})().catch(error=>{console.error(error);process.exitCode=1;});

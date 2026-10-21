@@ -2878,6 +2878,14 @@
     [
       "node",
       "tests/build559-share-value-fixes-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build560-group-fair-value.cjs"
+    ],
+    [
+      "node",
+      "tests/build561-ipo-offering-browser.cjs"
     ]
   ]
 }

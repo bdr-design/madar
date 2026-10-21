@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "be239c02bd56298d381eb6b2f6e9ab25cca0fe2de368daa9811ca666edb81864",
-  "webapp_tree_sha256": "048837acde42b47cb410be564ad80cb4df554e5f0bfcc27864f6fd680842396c",
+  "source_tree_sha256": "7b252385bd87e3777080893616215381e178b57f1655d01cfb4989f5d0c7ae23",
+  "webapp_tree_sha256": "d4670de3add2ea25fea55ed3154e0163ba2026f0d1468919d5439ea008324b76",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1015674,
-      "sha256": "a914f21daf9859c1ecf9cef0b7e3a6f09604b9ce85afd72c8a921ec135991e35"
+      "bytes": 1021366,
+      "sha256": "87cd5eb8ad54727e724b09da25ba376d0e4bb5d80f0cf4d3aaee7a8544cff1df"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3415,8 +3415,8 @@
       "sha256": "e0144c6e482820928d50581c81ea04f92cbad1fd98038e1b70e3ed5b3b99483e"
     },
     "WebApp/conference-core.js": {
-      "bytes": 88830,
-      "sha256": "0db991eb15ed86fc7cb5ee87d05330737b6a403502e96446e70817887e0dbee3"
+      "bytes": 88890,
+      "sha256": "4fb5bd7c30f0b62ac8b66a4176c38308565a18064641f2e612be2b6fb785a7bf"
     },
     "WebApp/conference-keynote.js": {
       "bytes": 17357,
@@ -3435,8 +3435,8 @@
       "sha256": "ddf4c2de9ab5e937a83e47781ad3e05ef0a49e0cdf9fa8389419b27627e88481"
     },
     "WebApp/corporate-core.js": {
-      "bytes": 19209,
-      "sha256": "f377686631f8b44f859087b8616b695782236fd9594afb4e544ae794c448ca38"
+      "bytes": 26516,
+      "sha256": "67dbcb1c1db1d5956f6b9a7cc765fcf6d6ab9f5342ab5725c057567e050a3c7b"
     },
     "WebApp/customer-base-core.js": {
       "bytes": 21836,
@@ -3491,12 +3491,12 @@
       "sha256": "189418d5c0903f4d76984b8af51039861ac79701631af6460219297de45ed07a"
     },
     "WebApp/facility-core.js": {
-      "bytes": 26269,
-      "sha256": "7eecd848ab6d83132057f97ee046559394b24f5d44514d9f63e5e85ab75b1044"
+      "bytes": 26285,
+      "sha256": "c8600c99e3af3ebd20d5785479b2002ee776171e64b37e98d3427f0bcd9d7f44"
     },
     "WebApp/finance-core.js": {
-      "bytes": 212679,
-      "sha256": "471609942dd963b877ba88973954d60b2c63db01bb34e863215fbf2c4d65ae05"
+      "bytes": 212803,
+      "sha256": "89834922cd7180af83a531ae1198aef93a6d84e4a57bd6ec716dc335d37a590d"
     },
     "WebApp/finance-presentation.css": {
       "bytes": 33498,
@@ -3691,8 +3691,8 @@
       "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
     },
     "WebApp/madar-shell.css": {
-      "bytes": 12091,
-      "sha256": "03c1e9d11aad5ef221e129319881e261a7318b061e888d7519d3b6f91fff066a"
+      "bytes": 13575,
+      "sha256": "695e83a3b8c6444b419783cd20465716cef7fbe69ee1077b1d672fcf5e6c8279"
     },
     "WebApp/madar-shell.js": {
       "bytes": 56584,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "b3ba63a22b373ce107170bb308d496dd7a9103c88343dae68a8d0cb3f340b868"
+      "sha256": "f6b0a0d30847dfffbc7e58870b302cc4bed016ccd84c41d65ad31634449301d4"
     },
     "BUILD": {
       "bytes": 4,

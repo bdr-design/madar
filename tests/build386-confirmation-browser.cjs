@@ -15,6 +15,8 @@ const results=[];
    const a=__AUDIT__,s=__GH_STATE__;s.godMoney=true;s.infiniteMoney=true;
    for(const type of ['air','mobility'])await a.runAuthorizedDomainCommand('corporate','open-company',{type,capital:400000000,legalName:'QA Confirmation '+type},{silent:true});
    const st=__GH_STATE__;st.groupValue=2000000000;
+   // A group the offering accepts (owner, IPO restructuring): a year of profit, 200 days old, rated A, valued at the close.
+   st.realism=st.realism||{};st.realism.financial=st.realism.financial||{};st.realism.financial.consolidated={...(st.realism.financial.consolidated||{}),equity:2.5e9};st.finance.dailyCompanyReports=Array.from({length:365},(_,i)=>({id:`CLOSE-${200-i}`,day:200-i,net:1.2e6}));st.simSeconds=200*86400;st.profile.creditRating='A';if(st.advanced)delete st.advanced.valuation;GH_CORPORATE_CORE.execute({state:st},'close-valuation',{day:200});if(!GH_CORPORATE_CORE.ipoTerms(st,20).ready)throw new Error('QA offering not ready');
    st.globalBases.push({id:'QA-AIR-BASE',name:'QA Airport',kind:'airport-base',ownerCompanyId:'air',company:'air',owned:true,icao:'OERK',iata:'RUH',city:'الرياض',country:'السعودية',coords:[24.95,46.7]});
    for(let i=1;i<=3;i++)GH_FLEET_DATA.add(st,{id:'N-AIR-CONFIRM-'+i,name:'QA Aircraft '+i,type:'air',assetMode:'air',assetClass:'aircraft',ownerCompanyId:'air',baseFacility:'QA-AIR-BASE',model:'QA',ownership:i===3?'lease':'owned',monthlyLease:i===3?1000:0,phase:'idle',purchasePrice:100000,condition:100,fuel:100,progress:0,routeId:null});
    const m=GH_MOBILITY_CORE.ensure(st);m.vehicles.push({id:'M-CONFIRM-1',name:'QA Car',model:'QA',assetClass:'economy',ownerCompanyId:'mobility',status:'idle',condition:100,battery:100,purchasePrice:100000,totalTrips:0,totalKm:0,centerId:'RUH'});
@@ -23,6 +25,8 @@ const results=[];
    window.__CONFIRM_TEST__={mode:'ok',commits:[],loads:0,generation:0};
   });
   const snapshot=()=>page.evaluate(()=>{const s=__GH_STATE__;return {revision:s.saveRevision,cash:s.cash,groupValue:s.groupValue,balances:Object.fromEntries(['group','air','mobility'].map(c=>[c,GH_FINANCE_CORE.operating(s,c)])),financialState:{books:s.companyFinance,finance:s.finance},receivables:s.finance.receivables.map(r=>r.number),cheques:s.finance.cheques.length,transfers:s.finance.transfers.length,listed:s.ipo.listed,assets:GH_FLEET_DATA.filter(s,()=>true).map(r=>r.id),vehicles:GH_MOBILITY_CORE.ensure(s).vehicles.map(v=>v.id)};});
+  // A QA aircraft's sale is the fleet owner's quote on the day (it loses value with the days the offering fixture adds).
+  const sale=await page.evaluate(()=>GH_FLEET_CORE.saleQuote(__GH_STATE__,{type:'air',ownership:'owned',purchasePrice:100000,condition:100}).proceeds);
   const cases=[
    {name:'load-slot',panel:'settings',selector:'[data-gh-action="load-slot"][data-slot="0"]'},
    {name:'launch-ipo',panel:'stocks',arg:'ipo',selector:'.launch-ipo'},
@@ -46,7 +50,7 @@ const results=[];
   const beforeEscape=await snapshot();await confirm(cases[1]);await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('.ui-confirm')&&!document.querySelector('.launch-ipo').disabled);assert.deepEqual(await snapshot(),beforeEscape);
   results.push({engine:engine.name(),action:'launch-ipo',escapeCancel:true});
   // Decline a stale fixed-price quote; the simulation is now free to progress while the DOM dialog is open.
-  await confirm(cases[1]);await page.evaluate(()=>__AUDIT__.runAuthorizedDomainCommand('corporate','adjust-group-value',{delta:Math.ceil((Number(__GH_STATE__.groupValue)||0)*.011)},{silent:true}));const changedQuote=await snapshot();await page.locator('.ui-confirm [data-confirm=accept]').click();await page.waitForFunction(()=>!document.querySelector('.launch-ipo').disabled&&!window.__GH_DURABLE_COMMAND_CONTEXT__);assert.deepEqual(await snapshot(),changedQuote,'an IPO price that moved more than 1% cannot execute or save');
+  await confirm(cases[1]);await page.evaluate(()=>{const v=__GH_STATE__.advanced.valuation;v.fair*=1.05;v.earnings*=1.05;v.nav*=1.05;});const changedQuote=await snapshot();await page.locator('.ui-confirm [data-confirm=accept]').click();await page.waitForFunction(()=>!document.querySelector('.launch-ipo').disabled&&!window.__GH_DURABLE_COMMAND_CONTEXT__);assert.deepEqual(await snapshot(),changedQuote,'an IPO price that moved more than 1% cannot execute or save');
   results.push({engine:engine.name(),action:'launch-ipo',changedQuoteRejected:true});
   // The confirmation UI is required. Its absence cannot fall back to a blocking native confirm or approve an action.
   for(const c of cases){const button=await open(c),before=await snapshot();await page.evaluate(()=>{window.__CONFIRM_INTERFACE__=GH_INTERFACE;window.GH_INTERFACE=null;});await button.click();await page.waitForFunction(sel=>{const b=document.querySelector(sel);return b&&!b.disabled&&!b.dataset.busy;},c.selector);assert.equal(await page.locator('.ui-confirm').count(),0);assert.deepEqual(await snapshot(),before,c.name+' fails closed without confirmation UI');await page.evaluate(()=>{window.GH_INTERFACE=__CONFIRM_INTERFACE__;delete window.__CONFIRM_INTERFACE__;});results.push({engine:engine.name(),action:c.name,missingConfirmationDeclined:true});}
@@ -71,9 +75,9 @@ const results=[];
    if(c.name==='launch-ipo'){assert.equal(after.listed,true);assert.ok(after.balances.group>before.balances.group);assert.equal(after.transfers,before.transfers+1);}
    if(c.name==='collect-all-receivables'){assert.equal(after.receivables.length,0);assert.equal(after.cheques,before.cheques+1);assert.equal(after.balances.group-before.balances.group,11500);}
    if(c.name==='sell-mobility-asset'){assert.equal(after.vehicles.length,0);assert.equal(after.balances.mobility-before.balances.mobility,60000);}
-   if(c.name==='sell-asset'){assert.equal(after.assets.length,before.assets.length-1);assert.equal(after.balances.air-before.balances.air,100000);}
+   if(c.name==='sell-asset'){assert.equal(after.assets.length,before.assets.length-1);assert(Math.abs(after.balances.air-before.balances.air-sale)<.005,`the fleet owner's quote ${sale}`);}
    if(c.name==='return-lease'){assert.equal(after.assets.length,before.assets.length-1);assert.equal(after.balances.air-before.balances.air,-2000,'one lease termination fee');}
-   if(c.name==='sell-all-assets'){assert.equal(after.assets.length,0);assert.equal(after.balances.air-before.balances.air,100000,'one remaining owned sale');}
+   if(c.name==='sell-all-assets'){assert.equal(after.assets.length,0);assert(Math.abs(after.balances.air-before.balances.air-sale)<.005,'one remaining owned sale');}
    results.push({engine:engine.name(),action:c.name,success:true,commits:1,revisionDelta:1});
   }
   // Conference preparation normally used DOM already; its missing-component fallback must also decline safely.

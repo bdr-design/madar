@@ -174,7 +174,7 @@ function canonicalFacility(state,p={}){
  return {...row,sourceKey:site.key,capitalId:site.capitalId,ownerCompanyId:company,kind:site.facilityKind,city:site.city,country:site.country,coords:[...site.coords]};
 }
 function finance(){const f=globalThis.GH_FINANCE_CORE;if(!f?.execute)throw new Error('finance-core-missing');return f;}
-function value(s,delta){const c=globalThis.GH_CORPORATE_CORE;if(!c?.execute)throw new Error('corporate-core-missing');return c.execute({state:s},'adjust-group-value',{delta});}
+function value(s,delta){const c=globalThis.GH_CORPORATE_CORE;if(!c?.execute)throw new Error('corporate-core-missing');return c.execute({state:s},'adjust-group-value',{delta,kind:'facility'});}
 function spend(s,company,amount,note,line='capex'){if(num(amount)<=0)return true;finance().execute({state:s},'spend',{company,amount,note,method:'تحويل بنكي',line});return true;}
 // Build 375: an expansion costs a quarter of what the facility cost to build (at least $250,000) and raises its running
 // cost with its capacity. Only a facility whose asset capacity can bind is expanded (a base's default capacity is a

@@ -109,5 +109,16 @@ button.pv-row{cursor:pointer}
 .pv-optrow{display:flex;flex-direction:column;gap:4px}
 .pv-optrow>span{font:600 11.5px var(--font);color:#29404F;margin:0 2px}
 .pv-note{margin:0 2px;font:500 11.5px/1.6 var(--font);color:#6B7F8E}
+/* The offering and the group's share (owner, IPO restructuring): plain cards, no animation. */
+.pvx-opt5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.pvx-card{background:#FFFFFF;border:1px solid #E6ECF0;border-radius:13px;padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+.pvx-card h4{margin:0;font:700 13px var(--font);color:#0D3B57}.pvx-card p{margin:0;font:500 11.5px/1.6 var(--font);color:#6B7F8E}
+.pvx-split{display:flex;flex-direction:column;gap:6px}
+.pvx-line{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;font:600 12px var(--font);color:#13222D}
+.pvx-line b{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}.pvx-line small{grid-column:1/-1;font:500 10.5px var(--font);color:#6B7F8E}
+.pvx-meter{grid-column:1/-1;height:6px;border-radius:99px;background:#EEF2F5;overflow:hidden}.pvx-meter i{display:block;height:100%;border-radius:99px;background:#0D3B57}.pvx-meter i.gold{background:#E7B556}
+.pvx-total{display:flex;justify-content:space-between;gap:8px;border-top:1px dashed #DCE3E8;padding-top:6px;font:700 13px var(--font);color:#0D3B57}.pvx-total b{direction:ltr;unicode-bidi:isolate}
+.pvx-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.pvx-check{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:10px;background:#F2FAF6;font:600 11.5px var(--font);color:#1D6B4B}.pvx-check.no{background:#FFF3F1;color:#A23B32}.pvx-check i{font-style:normal;font-weight:800}
 .pv-back{align-self:flex-start;min-height:0;height:26px;padding:0 8px;border:0;border-radius:8px;background:transparent;font:600 12px var(--font);color:#0D3B57;box-shadow:none}
 .pv-empty{padding:12px;border-radius:12px;border:1.5px dashed #C9D6DF;font:500 12px var(--font);color:#6B7F8E;text-align:center}
