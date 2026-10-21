@@ -1,0 +1,18 @@
+commit: 21 frames, 616.6 ms, longest frame gap 116.7 ms, no long task; save deferred; command waited
+pause: aborted (user-speed-change); state restored byte for byte apart from the diagnostics log; diagnostics appended []
+AssertionError [ERR_ASSERTION]: hide: state restored exactly (diagnostics appended: ["DIAGNOSTICS_READY","SAVE_OK","COMPANY_PLATFORM_SEALED"])
++ actual - expected
+
++ [
++   'fleet'
++ ]
+- []
+
+    at /Users/runner/work/madar/madar/tests/build358-staged-day-browser.cjs:115:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
