@@ -2942,6 +2942,10 @@
     [
       "node",
       "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build576-presentation-rest-browser.cjs"
     ]
   ]
 }

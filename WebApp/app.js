@@ -56,6 +56,8 @@
   let assetPurchaseHolds=0; // Build 373: asset orders being quoted; the simulation is suspended meanwhile (buyAsset).
   let diagnosticExportTail=Promise.resolve();window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__=false;
   let mapInteractionActive=false,lastMarkerFrameAt=0,lastMapStructureSignature='',visualResyncRequested=false;
+  // The frame loop's rest (loop): a marker still moving keeps it at the display rate; the timer of a resting pass.
+  let markerMotionPending=false,presentationRestTimer=0;
   const markerMotionStates=new Map();let markerVisualCarry=new Map();
   const legacyStorageKeys = ['global-holdings-world-v2.0.0','global-holdings-world-v1.2.0','global-holdings-world-v1.1.0','global-holdings-premium-v1.0.0','global-holdings-clean-v0.1.2'];
   const SIM_START = Date.UTC(2026, 0, 1, 0, 0, 0);
@@ -2859,7 +2861,7 @@
   }
   function markerDisplayStart(key,target){const clean=markerPoint(target);if(!clean)return target;const carry=markerVisualCarry.get(key),point=markerPoint(carry?.point||carry);if(!point)return clean;const latGap=Math.abs(clean[0]-point[0]),lngGap=Math.abs(shortestLongitudeDelta(point[1],clean[1]));return latGap<=45&&lngGap<=120?point:clean;}
   function fadeResyncMarker(row,now){const target=markerPoint(row.target);if(!target)return;try{row.marker.setOpacity?.(0);row.marker.setLatLng(target);row.current=target;row.routeBridge=[];row.visualProgress=Number.isFinite(row.targetProgress)?row.targetProgress:null;row.lastAt=now;row.needsResync=false;const reveal=()=>{try{row.marker.setOpacity?.(1);}catch(_error){}};if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(reveal));else reveal();}catch(error){nonCritical('map-marker-resync',error);}}
-  function requestVisualResync(){visualResyncRequested=true;for(const row of markerMotionStates.values())row.needsResync=true;}
+  function requestVisualResync(){visualResyncRequested=true;for(const row of markerMotionStates.values())row.needsResync=true;wakePresentationLoop();}
   function setMapMarkerTarget(key,marker,target,now,force=false,motion={}){
     const clean=markerPoint(target);if(!marker||!clean)return;
     let row=markerMotionStates.get(key),current=markerPoint(marker.getLatLng?.())||clean;
@@ -2897,11 +2899,12 @@
     return advanceRouteSegment(row.route,row.visualProgress,row.targetProgress,row.current,maxPixels);
   }
   function animateMapMarkerPositions(now){
-    if(!markerMotionStates.size||mapInteractionActive||document.hidden)return;
-    const profile=markerMotionProfile(effectiveSimulationRate(state.speed));
+    if(!markerMotionStates.size){markerMotionPending=false;return;}
+    if(mapInteractionActive||document.hidden)return;
+    const profile=markerMotionProfile(effectiveSimulationRate(state.speed));let motion=false;
     for(const [key,row] of markerMotionStates){try{
       const attached=row.marker?.getSnapshot?Boolean(row.marker.getSnapshot()):Boolean(row.marker?._map);if(!attached){markerMotionStates.delete(key);continue;}
-      const elapsed=Math.max(0,Number(now)-Number(row.lastAt||now));row.lastAt=now;if(row.needsResync){fadeResyncMarker(row,now);continue;}
+      const elapsed=Math.max(0,Number(now)-Number(row.lastAt||now));row.lastAt=now;if(row.needsResync){motion=true;fadeResyncMarker(row,now);continue;}
       // Respect intentional presentation sampling without treating each sample
       // as a 50ms frame. Stalls still have bounded, non-authoritative catch-up.
       const maxFrameMs=Math.min(300,Math.max(50,presentationFrameInterval())),maxPixels=profile.maxPixelsPerSecond*Math.min(maxFrameMs,elapsed)/1000;if(maxPixels<=0)continue;
@@ -2909,9 +2912,10 @@
       let next=routeStep?.point;
       if(routeStep){if(!routeStep.bridge)row.visualProgress=routeStep.progress;}
       else{const distance=markerScreenDistance(row.current,row.target),ratio=boundedStepRatio(distance,maxPixels);next=interpolateMarkerPoint(row.current,row.target,ratio);}
-      if(next){const moved=next[0]!==row.current[0]||next[1]!==row.current[1];if(routeStep&&moved&&((routeStep.bridge&&row.markerType)||key.startsWith('own:mobility:')))refreshVehicleMarker(row.marker,row.markerType||'mobility',bearingBetween(row.current,next),row.markerMoving!==false);if(moved)row.marker.setLatLng(next);row.current=next;}
+      if(next){const moved=next[0]!==row.current[0]||next[1]!==row.current[1];if(moved)motion=true;if(routeStep&&moved&&((routeStep.bridge&&row.markerType)||key.startsWith('own:mobility:')))refreshVehicleMarker(row.marker,row.markerType||'mobility',bearingBetween(row.current,next),row.markerMoving!==false);if(moved)row.marker.setLatLng(next);row.current=next;}
+      if(row.routeBridge?.length)motion=true;
     }catch(error){markerMotionStates.delete(key);nonCritical('map-marker-motion',error);}}
-    visualResyncRequested=false;mapVehicleCanvas?.drawIfDirty?.();
+    markerMotionPending=motion;visualResyncRequested=false;mapVehicleCanvas?.drawIfDirty?.();
   }
   window.GH_VISUAL_MOTION=Object.freeze({MIN_FRAME_MS:50,MAX_FRAME_MS:300,profile:markerMotionProfile,boundedStepRatio,interpolateRoute:interpolatePresentationRoute});
   function mapStructureSignature(){if(!map)return'';const zoom=Math.floor(Number(map.getZoom?.())||0),center=map.getCenter?.(),viewport=`${Number(center?.lat||0).toFixed(3)}:${Number(center?.lng||0).toFixed(3)}`,fleetMembership=window.GH_FLEET_DATA?.membershipRevision?.(state)||'none',fleetSize=window.GH_FLEET_DATA?.size?.(state)||0,assetRevision=`${Number(state.saveRevision)||0}:${Number(window.GH_MAP_STRUCTURE_REVISION)||0}:${fleetMembership}:${fleetSize}:${mapFleetSummary.received}`;return `${JSON.stringify(currentMapFilter())};${zoom};${viewport};${selectedAssetId||''};${selectedFacilityId||''};${assetRevision}`;}
@@ -2970,7 +2974,7 @@
     // the simulation core still commits every hour/day boundary atomically.
     const request=simulationEngine.advanceTo(next,{speed:SIMULATION_RATE_BY_LEVEL[3],batchSeconds:3600,reason,maxSeconds:366*86400});
     if(!request.accepted){notice('تعذر تقديم التاريخ الآن؛ لم يُكتب أي وقت مباشرة.');return false;}
-    simulationRuntime.wake();
+    simulationRuntime.wake();wakePresentationLoop();
     pushAlert(`بدأ تقديم التقويم ${label||''} عبر محرك المحاكاة الآمن.`);updateDayStepControl();renderSimulationCalendar();return true;
   }
   function renderSimulationCalendar(){
@@ -3603,11 +3607,16 @@
   const HEALTH_WORKER_WAITS=600,HEALTH_WORKER_RETRIES=4,FLEET_HEALTH_MAIN_ROWS=2048;
   const fleetRowsForHealth=()=>Math.max(0,Number(window.GH_FLEET_DATA?.size?.(state))||0);
   const mainFleetHealthAllowed=()=>fleetRowsForHealth()<=FLEET_HEALTH_MAIN_ROWS;
+  // Battery: with the game paused and nothing changed since the audit last went through every proof, another cycle would
+  // verify the same proofs again; the render callback's steps wait for a change or for the game to run. The maintenance
+  // pass's step and every verification on admission, load and import are unchanged.
+  const proofAuditMark=()=>`${state.saveRevision}|${state.controlPlane?.revision}|${state.simSeconds}`;
+  const proofAuditResting=()=>Number(state.speed)===0&&proofAudit?.state===state&&proofAudit.restMark===proofAuditMark();
   function proofAuditStep(budgetMs=PROOF_AUDIT_MS){
     const schema=window.GH_SAVE_SCHEMA;if(typeof schema?.createProofAudit!=='function')return null;
     if(!proofAudit||proofAudit.state!==state)proofAudit={state,audit:schema.createProofAudit()};
     const out=proofAudit.audit.step(state,{maxItems:PROOF_AUDIT_ITEMS,budgetMs});runtimeInstrumentation.proofAudit={...out,...proofAudit.audit.status()};
-    if(out.ok)return out;
+    if(out.ok){if(out.cycleDone)proofAudit.restMark=proofAuditMark();return out;}
     const full=schema.validate(state);
     if(full.ok){diag('PROOF_AUDIT_UNCONFIRMED',{errors:out.errors.join(',').slice(0,240)},'info');return out;}
     const reason=full.errors?.join(',')||out.errors.join(',');diag('SAVE_SCHEMA_INTEGRITY',{reason:String(reason).slice(0,240),source:'proof-audit'},'critical');
@@ -4271,7 +4280,7 @@
       timed('recorderMs',()=>{try{window.GH_DIAGNOSTICS.recorderSample?.(state,simulationEngine.snapshot(),{nowMs:Date.now(),context:{governor:runtimeGovernor},fleetPhaseHint:mapStatusCache.countedAt?{assets:mapStatusCache.countedAssets,moving:mapStatusCache.moving}:null});}catch(error){console.warn('تعذر أخذ عينة مسجل عطل المحاكاة',error);}});
       // Build 359: the proof audit also takes a short step (PROOF_AUDIT_RENDER_MS) on a render callback while no slice job,
       // maintenance part, player command or save is in flight, so a cycle over every proof completes in minutes of play.
-      if(!jobActive&&!maintenanceQueue.length&&!document.hidden&&!hardResetInProgress&&!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.GH_PERSISTENCE.isLocked()&&!stagedStateBusy())timed('proofAuditMs',()=>proofAuditStep(PROOF_AUDIT_RENDER_MS));
+      if(!jobActive&&!maintenanceQueue.length&&!document.hidden&&!hardResetInProgress&&!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.GH_PERSISTENCE.isLocked()&&!stagedStateBusy()&&!proofAuditResting())timed('proofAuditMs',()=>proofAuditStep(PROOF_AUDIT_RENDER_MS));
       // Diagnostics may use wall-clock cadence for UI health only. Keep their state writes outside every simulation
       // slice, including the short interval while an independently-driven slice waits for its fleet-thread result.
       // Build 371: nor while a durable command holds the state (its draft shares the fleet root, so the health check read
@@ -4333,8 +4342,10 @@
     onThrottle:({took,reason,stage})=>{diag('SIM_THROTTLE',{took,reason,stage});console.warn(`Simulation watchdog throttled after ${Math.round(took)}ms ${stage||'work'} stage`);},
     onGovernor:({level,avgChunkMs,avgWorkMs,stage,took,speed})=>{runtimeGovernor={level,avgChunkMs,avgWorkMs,stage,took,speed};governorEventCoalescer.observe(runtimeGovernor);}
   },{minRealSliceSeconds:1,allowedSpeeds:[0,30,120,300],fallbackSpeed:30,frameBudgetMs:4,manualFrameBudgetMs:10,chunkItems:32,manualChunkItems:64,renderEveryNormalMs:260,renderEveryFastMs:650,maintenanceEveryHours:12,manualBatchSeconds:3600,manualMinBatchSeconds:300,manualRetryLimit:3});
+  // The conference suspends the simulation (isSuspended above); meanwhile its runtime ticks at the paused cadence instead
+  // of 60 times a second for frames that do nothing (battery). Closing the conference wakes it (loop).
   const simulationRuntime=window.GH_SIMULATION_RUNTIME_CORE.create({
-    engine:simulationEngine,getSpeed:()=>effectiveSimulationRate(state.speed),isHidden:()=>document.hidden,
+    engine:simulationEngine,getSpeed:()=>window.GH_CONFERENCE?.isPresentationActive?.()?0:effectiveSimulationRate(state.speed),isHidden:()=>document.hidden,
     hasDeferredWork:()=>maintenanceQueue.length>0,
     onError:error=>{state.speed=0;diag('SIM_RUNTIME_TASK_FAILED',{message:String(error?.message||error)},'critical');console.error('Simulation runtime task failed',error);}
   },{manualIntervalMs:8,liveIntervalMs:16,deferredIntervalMs:50,pausedIntervalMs:250,hiddenIntervalMs:1000});
@@ -6647,7 +6658,7 @@ ${page}</div>`;
     // may restore it; publishing the player's new speed only after that rollback
     // prevents a cancelled midnight close from silently starting again.
     simulationEngine.cancelAdvance?.('user-speed-change');simulationEngine.reset(now,'user-speed-change');
-    state.speed=next;simulationEngine.reset(now,'user-speed-change-settled');simulationRuntime.wake();
+    state.speed=next;simulationEngine.reset(now,'user-speed-change-settled');simulationRuntime.wake();wakePresentationLoop();
     document.querySelectorAll('#speedMenu button[data-speed]').forEach(b=>b.classList.toggle('active',Number(b.dataset.speed)===state.speed));$('speedLabel').textContent=SPEED_LABEL_BY_LEVEL[state.speed];$('speedToggle').querySelector('span').textContent=state.speed===0?'▶':'Ⅱ';$('speedToggle').setAttribute('aria-pressed',String(state.speed===0));updateDayStepControl();
   }
 
@@ -6828,6 +6839,15 @@ ${page}</div>`;
   }
 
   let lastMapRenderAt=0,lastPresentationPaintAt=0,lastMarkerAnimationAt=0,lastLoopRafTimestamp=null,lastLoopGuardReason='';
+  // Battery (owner: «موضوع استهلاك البطارية وش المسببات»): the loop asked for every display frame, 60 a second, with the
+  // game paused and nothing on the map moving, and through the whole conference, which covers the map and stops the
+  // simulation. It now rests then: one pass every PRESENTATION_REST_MS, the same housekeeping (the save cap, map refresh,
+  // marker targets) less often, until the game runs, a marker has to move, the map is released after a drag, or the
+  // recorder samples frames. A rested pass reports no frame interval, so the simulation's frame pacing never sees it.
+  const PRESENTATION_REST_MS=250;
+  // A hidden page takes no rested pass: the browser stops its frames until the page shows again.
+  function nextLoopPass(rest){if(!rest||document.hidden){requestAnimationFrame(loop);return;}lastLoopRafTimestamp=null;if(!presentationRestTimer)presentationRestTimer=setTimeout(()=>{presentationRestTimer=0;requestAnimationFrame(loop);},PRESENTATION_REST_MS);}
+  function wakePresentationLoop(){if(!presentationRestTimer)return false;clearTimeout(presentationRestTimer);presentationRestTimer=0;requestAnimationFrame(loop);return true;}
   const latestSimulationTransaction=()=>window.GH_TRANSACTION_CORE?.telemetry?.()?.lastSimulation||null;
   function recordGuardedDiagnosticFrame(now,callbackStartMs,guardReason){const callbackEndMs=appMetricClock(),fleetSize=window.GH_FLEET_DATA.size(state)+(state.mobility?.vehicles?.length||0);window.GH_DIAGNOSTICS?.recorderFrame?.(state,{rafTimestampMs:Number(now),callbackStartMs,callbackEndMs,simSeconds:state.simSeconds,visible:!document.hidden,hidden:!!document.hidden,panel:activeDrawerPanel||'map',mapActive:!!map,fleetSize,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,simulationStage:guardReason,guardReason,simulationProgressExpected:false},{transactionProvider:latestSimulationTransaction});}
   function presentationFrameInterval(){const fleetSize=window.GH_FLEET_DATA.size(state),advancing=!!simulationEngine.snapshot().manualAdvance;if(document.hidden)return 1000;if(activeDrawerPanel||advancing)return fleetSize>2000?300:fleetSize>750?220:fleetSize>250?150:100;if(fleetSize>3000)return 220;if(fleetSize>1500)return 180;if(fleetSize>750)return 140;if(fleetSize>400)return 110;if(fleetSize>180)return 80;return 55;}
@@ -6835,7 +6855,7 @@ ${page}</div>`;
     const frameIntervalMs=lastLoopRafTimestamp===null?null:Math.max(0,now-lastLoopRafTimestamp);lastLoopRafTimestamp=now;
     const frameRecorderActive=window.GH_DIAGNOSTICS?.recorderIsActive?.(state)===true,recorderCallbackStartMs=frameRecorderActive?appMetricClock():0;
     const guardReason=window.GH_CONFERENCE?.isPresentationActive?.()?'conference-3d':hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()?'lifecycle-lock':processOneRecoveryBoundary()?'boundary-recovery':'';
-    if(guardReason){if(lastLoopGuardReason!==guardReason){lastLoopGuardReason=guardReason;simulationEngine.reset(now,guardReason);simulationRuntime.wake();updateDayStepControl();}if(frameRecorderActive)recordGuardedDiagnosticFrame(now,recorderCallbackStartMs,guardReason);requestAnimationFrame(loop);return;}
+    if(guardReason){if(lastLoopGuardReason!==guardReason){lastLoopGuardReason=guardReason;simulationEngine.reset(now,guardReason);simulationRuntime.wake();updateDayStepControl();}if(frameRecorderActive)recordGuardedDiagnosticFrame(now,recorderCallbackStartMs,guardReason);nextLoopPass(guardReason==='conference-3d'&&!frameRecorderActive);return;}
     if(lastLoopGuardReason){lastLoopGuardReason='';simulationRuntime.wake();}
     const renderMetrics=runtimeInstrumentation.render,measureFrame=frameRecorderActive||(++renderMetrics.frameCounter%30)===0,frameStarted=measureFrame?appMetricClock():0;let simulationMs=0,simulationTaskMs=0,simulationTaskMaxMs=0,simulationTaskCount=0,simulationTaskFirstStartedAtMs=null,simulationTaskLastEndedAtMs=null,targetUpdateMs=0,markerAnimationMs=0,structuralRenderMs=0,targetUpdated=false,markerAnimated=false,structureRendered=false;
     // A staged transaction belongs to the slice handle, including audited jobs driven directly outside the scheduler.
@@ -6859,7 +6879,7 @@ ${page}</div>`;
     const simulationSnapshot=frameRecorderActive?simulationEngine.snapshot():null,callbackEndMs=measureFrame?appMetricClock():0,frameWorkMs=measureFrame?Math.max(0,callbackEndMs-frameStarted):0;
     if(measureFrame)recordRenderMetric('frame',frameWorkMs,{frameIntervalMs,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});
     if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});
-    requestAnimationFrame(loop);
+    nextLoopPass(state.speed===0&&!simulationEngine.snapshot().manualAdvance&&!markerMotionPending&&!mapLoopRenderDeferredAt&&!frameRecorderActive);
   }
   simulationEngine.reset(performance.now());
   simulationRuntime.start();
