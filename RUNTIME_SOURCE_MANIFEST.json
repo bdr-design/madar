@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "9e243293a23baa4c1b4eed00ff9ccf127c2c04db2294e00ad9319cddae83fa34",
-  "webapp_tree_sha256": "1033abe730877bac2b764d6b2edbf4225ef94443ec6a26e1a7bd7023e0ef7656",
+  "source_tree_sha256": "f64574a846b845329d6dd66b7d99b5584cfd90835e416d44b31b2e0e4dcb3249",
+  "webapp_tree_sha256": "8e12cf4a0e6e395e9c8ad696925af734caeafb2652098fb9617470e1ce14f22a",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1031122,
-      "sha256": "9c633ad1fa5b62640cab09990ceedf49cd27b173cd8228881a76318d6f5a779a"
+      "bytes": 1040269,
+      "sha256": "0b418ea7ec48a35dd6293db8f0b18e92d625dc6178598ff8faacc59837974b32"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 3015,
@@ -3499,8 +3499,8 @@
       "sha256": "d9d8c5b3919354481dcaa6083ce9e0f0e5b15b17cb048420e5fcad415448c0df"
     },
     "WebApp/finance-presentation.css": {
-      "bytes": 33498,
-      "sha256": "186312f062c0159cb3a1de27012ea8baf19944ae3bcd23f9f1b20d4051c33be2"
+      "bytes": 35155,
+      "sha256": "131ceccf5cf2923590e292bfda1b4820abe4757177bf97be68e67205da247bc6"
     },
     "WebApp/finance-presentation.js": {
       "bytes": 3080,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "68524e4d85f7a6ffd4587ad3af7ae16d8411892289c79503e2d042f46085bc45"
+      "sha256": "90299b14b7b153fc80a6a1462021a2c7ab64cac40533c0a137d8d629c997f23d"
     },
     "BUILD": {
       "bytes": 4,

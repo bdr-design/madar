@@ -19,7 +19,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     });
     assert.ok(due.group>0&&due.air>0,`VAT is due for two companies: ${JSON.stringify(due)}`);
     const snap=()=>page.evaluate(()=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;return {group:F.operating(s,'group'),air:F.operating(s,'air'),cheques:s.finance.cheques.map(row=>({id:row.id,company:row.company,amount:row.amount,status:row.status,beneficiary:row.beneficiary})),open:s.finance.periods.filter(row=>row.status==='مستحق').length,saveRevision:s.saveRevision,valid:GH_SAVE_SCHEMA.validate(s).ok};});
-    const cards=async view=>{await page.evaluate(view=>__AUDIT__.openDrawer('invoices',{company:'all',tab:'documents',view}),view);await page.waitForTimeout(100);return page.locator('#drawerBody .doc-art-grid .document-card').count();};
+    const cards=async view=>{await page.evaluate(view=>__AUDIT__.openDrawer('invoices',{company:'all',tab:'documents',view}),view);await page.waitForTimeout(100);return page.locator('#drawerBody .doc-list .doc-list-row').count();};
     const cardsBefore={transfers:await cards('transfers'),cheques:await cards('cheques')};
     const before=await snap();
     await page.evaluate(()=>__AUDIT__.openDrawer('invoices',{company:'all',tab:'obligations',view:'taxes'}));

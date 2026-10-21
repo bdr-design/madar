@@ -45,7 +45,9 @@ const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
  assert(Math.abs(paid.record.publicAmount-paid.record.amount*.2)<.01&&Math.abs(paid.record.founderAmount-paid.record.amount*.8)<.02,'3: 20% to the public, 80% kept');assert(paid.alert,'3: the player is told');assert.equal(paid.lastFinancialDay,270,'3: the game closed day 270');
  text=await open();const after=await page.evaluate(()=>GH_CORPORATE_CORE.dividendPlan(__GH_STATE__));assert(after.yieldPct>0,'3: a yield');assert(text.includes(`${after.yieldPct.toFixed(1)}%`)&&text.includes('آخر توزيع اليوم 270'),`3: the page shows the dividend\n${text}`);
  // 4
+ // The documents page lists rows; the transfer's own row opens its full document.
  let card=null;for(let pageNo=0;pageNo<20&&!card;pageNo++){await page.evaluate(pageNo=>__AUDIT__.openDrawer('invoices',{company:'group',tab:'documents',view:'transfers',direction:'outgoing',page:pageNo}),pageNo);await page.waitForSelector('#drawerBody');
+  const row=page.locator('#drawerBody .doc-list-row',{hasText:'DIV-VH-270'}).first();if(!await row.count())continue;await row.click();await page.waitForSelector('#drawerBody .document-card');
   card=await page.evaluate(()=>{const found=[...document.querySelectorAll('#drawerBody *')].filter(el=>el.textContent.includes('DIV-VH-270')&&el.textContent.includes('إشعار تحويل')).sort((a,b)=>a.textContent.length-b.textContent.length)[0];return found?found.innerText:null;});}
  assert(card,'4: the dividend is among the group\'s outgoing transfers');for(const shown of ['إشعار تحويل صادر','مساهمو الطرح العام','توزيع أرباح على مساهمي الطرح'])assert(card.includes(shown),`4: its page shows «${shown}»\n${card}`);
  // 5

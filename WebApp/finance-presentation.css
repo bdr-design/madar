@@ -159,3 +159,20 @@
 .bank-doc .cq-sig .bd-company-stamp{width:4.6em;height:4.6em;inset-inline-start:-.4em;top:-2.6em}
 .iv-issuer{display:flex;align-items:center;gap:.6em;min-width:0;flex:1}.iv-issuer b{font-size:1.02em;color:var(--ink);line-height:1.3}
 .cq-top .cq-drawer{max-width:52%}.cq-top .cq-drawer b{font-size:1.18em}
+/* Documents list (owner, build 77 diagnostic): a light row per document; the full document opens from its row. */
+.doc-list{display:grid;gap:6px;margin:8px 0}
+.doc-list-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-height:52px;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-sm,12px);background:var(--surface-2);color:var(--text);font:inherit;text-align:start;cursor:pointer;box-sizing:border-box}
+.doc-list-row:active{border-color:var(--line-strong)}
+.doc-list-row .dlr-main{display:grid;gap:2px;min-width:0}
+.doc-list-row .dlr-main b{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-list-row small{font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-list-row .dlr-side{display:grid;gap:2px;justify-items:end;max-width:46vw}
+.doc-list-row .dlr-side b{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.doc-list-row.is-incoming .dlr-side b{color:var(--good)}
+.doc-list-row.is-outgoing .dlr-side b{color:var(--danger)}
+.doc-list-action{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:stretch}
+.doc-list-action .primary-btn{margin:0;min-height:52px;padding:0 12px;white-space:nowrap}
+.doc-detail-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 10px}
+.doc-detail-bar>span:not(.doc-detail-steps){font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.doc-detail-steps{display:flex;gap:6px}
+.doc-detail-bar .secondary-btn{min-height:40px;margin:0}
