@@ -1,0 +1,10 @@
+AssertionError [ERR_ASSERTION]: 3: the investor page (87.4 ms) against the finance overview (65.2 ms)
+    at /Users/runner/work/madar/madar/tests/build558-investor-card-load-browser.cjs:38:63
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
