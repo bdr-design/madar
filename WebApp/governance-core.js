@@ -67,7 +67,7 @@ function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);
      // Build 359: yearly upkeep (10% of the cost) from the paying company; unpaid, the programme lapses and loses 2
      // maturity points a month until a later attempt (every 30 days) pays.
      const catalog=ESG_PROGRAMS[id],upkeep=Math.round(num(program.cost||catalog?.cost)*UPKEEP_SHARE),dueDay=Number.isFinite(Number(program.nextUpkeepDay))&&program.nextUpkeepDay!==null?Number(program.nextUpkeepDay):Math.floor(started/86400)+UPKEEP_DAYS;
-     if(day>=dueDay&&upkeep>0){const company=payingCompany(s,program.company||catalog?.company||'group'),F=globalThis.GH_FINANCE_CORE,cash=s.godMoney&&s.infiniteMoney?Infinity:Number(F?.operating?.(s,company))||0;
+     if(day>=dueDay&&upkeep>0){const company=payingCompany(s,program.company||catalog?.company||'group'),F=globalThis.GH_FINANCE_CORE,cash=globalThis.GH_FINANCE_CORE?.investorMode?.(s)?Infinity:Number(F?.operating?.(s,company))||0;
        if(cash>=upkeep){spend(s,upkeep,`صيانة سنوية لبرنامج الاستدامة ${id}`,company);program.lapsed=false;program.nextUpkeepDay=dueDay+UPKEEP_DAYS;program.upkeepPaid=(Number(program.upkeepPaid)||0)+upkeep;}
        else{program.lapsed=true;program.nextUpkeepDay=day+30;}}
      const maturity=program.lapsed?clamp((Number(program.maturity)||0)-steps*LAPSE_PER_DAY,0,100):program.status==='مكتمل'?100:clamp((Number(program.maturity)||0)+steps*4,0,100);program.maturity=maturity;program.lastMaturityDay=elapsedDays;const factor=maturity/100;

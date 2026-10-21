@@ -470,5 +470,23 @@
         "sha256": "bccba9d293bd50a4125a42d56192c686492ed6f34471eee2541a0af8ba0dcbf6"
       }
     ]
+  },
+  "approved_investor_card_edits": {
+    "WebApp/governance-core.js": [
+      {
+        "reason": "Owner decision (21 Oct 2026, «كل شي يخص وضع المستثمر يطلع من البطاقة … اي شي سابق ازله من الجذر بأمان»): the investor-mode check reads the one finance helper (GH_FINANCE_CORE.investorMode); prices, customers and costs are unchanged.",
+        "before": "cash=s.godMoney&&s.infiniteMoney?Infinity:",
+        "after": "cash=globalThis.GH_FINANCE_CORE?.investorMode?.(s)?Infinity:",
+        "sha256": "5abb95e506a4646d72d6e67a8000ff63758d6fc5fae346499089f6fc8d23dd58"
+      }
+    ],
+    "WebApp/procurement-core.js": [
+      {
+        "reason": "Owner decision (21 Oct 2026, «كل شي يخص وضع المستثمر يطلع من البطاقة … اي شي سابق ازله من الجذر بأمان»): the investor-mode check reads the one finance helper (GH_FINANCE_CORE.investorMode); prices, customers and costs are unchanged.",
+        "before": "const fundingGap=(s.infiniteMoney||s.godMoney)?0:",
+        "after": "const fundingGap=globalThis.GH_FINANCE_CORE?.investorMode?.(s)?0:",
+        "sha256": "2da805165ebcaaec0fc2273d4ef33031af517831699da034a0511249fade0bab"
+      }
+    ]
   }
 }

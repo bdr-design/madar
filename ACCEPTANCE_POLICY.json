@@ -2854,6 +2854,10 @@
     [
       "node",
       "tests/build550-airline-passenger-costs.cjs"
+    ],
+    [
+      "node",
+      "tests/build554-investor-card-funding.cjs"
     ]
   ]
 }

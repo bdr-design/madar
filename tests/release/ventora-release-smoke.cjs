@@ -27,8 +27,8 @@ const root=path.resolve(process.argv[2]||path.join(__dirname,'../..'));
     }
     assert.ok(opened>=8,`pages opened: ${opened}`);
     await page.click('#settingsBtn');await page.locator('#drawerBody [data-go="investorMode"]').first().click();
-    await page.locator('#drawerBody .god-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===true);
-    await page.locator('#drawerBody .god-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===false);
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===true);
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===false);
     assert.deepEqual(errors,[],'no page error');
     console.log('VENTORA_RELEASE_SMOKE_PASS',JSON.stringify({root:path.basename(root),pages:opened}));
   }finally{await browser.close();}

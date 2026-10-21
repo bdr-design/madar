@@ -165,7 +165,7 @@
     if(energy.maintenancePlans.some(row=>row.status==='مجدولة'||row.status==='قيد التنفيذ'))return null;
     const candidates=energy.sites.filter(site=>site.commissioned&&performanceLoss(site,day)>=AUTO_MAINTENANCE_LOSS).sort((a,b)=>performanceLoss(b,day)-performanceLoss(a,day)||String(a.id).localeCompare(String(b.id)));
     const site=candidates[0];if(!site)return null;
-    const cost=num(maintenanceQuote(site).cost),F=globalThis.GH_FINANCE_CORE;if(cost>0&&!(state.godMoney&&state.infiniteMoney)&&num(F?.operating?.(state,'power'))<cost)return null;
+    const cost=num(maintenanceQuote(site).cost),F=globalThis.GH_FINANCE_CORE;if(cost>0&&!(globalThis.GH_FINANCE_CORE?.investorMode?.(state))&&num(F?.operating?.(state,'power'))<cost)return null;
     return scheduleMaintenance(state,{siteId:site.id,startDay:day+AUTO_MAINTENANCE_LEAD_DAYS});
   }
   function projectFinanceRate(state){const F=globalThis.GH_FINANCE_CORE;if(!F?.floatingDebtRate)throw new Error('finance-core-missing');return Math.round((F.floatingDebtRate(state)+PROJECT_PREMIUM)*1e5)/1e5;}

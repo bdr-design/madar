@@ -134,7 +134,7 @@ function companyCampaign(state,p){const m=ensure(state);return globalThis.GH_BRA
 function showroomCampaign(state,p={}){
   const m=ensure(state),showroom=m.showrooms.find(row=>row.id===p.showroomId||row.facilityId===p.showroomId);if(!showroom)throw new Error('dealership-showroom-not-found');if(!showroom.active)throw new Error('dealership-showroom-inactive');
   const day=today(state);if(Number(showroom.campaignUntil)>day)throw new Error('dealership-campaign-running');
-  const cost=campaignCost(m,showroom),F=finance();if(!(state.godMoney&&state.infiniteMoney)&&num(F.operating?.(state,'dealership'))<cost)throw new Error('insufficient-cash');
+  const cost=campaignCost(m,showroom),F=finance();if(!(globalThis.GH_FINANCE_CORE?.investorMode?.(state))&&num(F.operating?.(state,'dealership'))<cost)throw new Error('insufficient-cash');
   const payment=F.execute({state},'pay-by-cheque',{company:'dealership',amount:cost,note:`حملة تسويقية · معرض ${showroom.city||showroom.country} · ${CAMPAIGN_DAYS} يومًا`,beneficiary:`وكالة تسويق · ${showroom.city||showroom.country}`,line:'marketing',requestRef:`AUTO-CAMPAIGN-${showroom.id}-${day}`});
   if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('dealership-campaign-cheque-not-cleared');
   showroom.campaignUntil=day+CAMPAIGN_DAYS;showroom.campaigns=Math.max(0,Math.floor(Number(showroom.campaigns)||0))+1;showroom.campaignSpend=num(showroom.campaignSpend)+cost;m.ytd.campaignCost+=cost;
@@ -145,7 +145,7 @@ function showroomCampaign(state,p={}){
 // in one purchase order per maker (one invoice and one cheque per maker, at most six a round).
 function restock(state,m,day,inventory,shares,peers,economy){
   const ops=companies().dealerOps,expected=m.showrooms.reduce((sum,row)=>sum+expectedBuyers(state,m,row,day,peers.get(row.country),economy),0),orders=[];if(!expected)return orders;
-  const F=finance(),unlimited=state.godMoney&&state.infiniteMoney;let cash=unlimited?Infinity:num(F.operating?.(state,'dealership'));
+  const F=finance(),unlimited=globalThis.GH_FINANCE_CORE?.investorMode?.(state);let cash=unlimited?Infinity:num(F.operating?.(state,'dealership'));
   const byMaker=new Map();
   for(const model of shares){
     const line=inventory.find(row=>row.oemId===model.oemId&&row.modelId===model.modelId),available=line?num(line.quantity)-num(line.reserved):0,target=Math.ceil(expected*model.share*m.coverDays);
@@ -186,7 +186,7 @@ function financeRequest(state,m,day,inventory){
   // A fleet is ordered from its maker for the deal: the shortfall is bought first (if the bank declines, the cars stay
   // in stock for retail buyers).
   const line=inventory.find(row=>row.oemId===fleet.model.oemId&&row.modelId===fleet.model.modelId),short=Math.max(0,fleet.quantity-(line?num(line.quantity)-num(line.reserved):0)),cost=short*fleet.model.cost;
-  if(short>0&&!(state.godMoney&&state.infiniteMoney)&&num(finance().operating?.(state,'dealership'))<cost)return null;
+  if(short>0&&!(globalThis.GH_FINANCE_CORE?.investorMode?.(state))&&num(finance().operating?.(state,'dealership'))<cost)return null;
   const n=++m.financeSequence;
   if(short>0){ops.addStock(state,{modelId:fleet.model.modelId,quantity:short,reference:`AUTO-FLEET-STOCK-${n}`});m.ytd.restockSpend+=cost;}
   return ops.sellVehicle(state,{saleId:`AUTO-MKT-FIN-${n}`,customerName:household?HOUSEHOLD_BUYERS[Math.floor(deterministic(`${day}:auto-finance:buyer`,0,HOUSEHOLD_BUYERS.length))%HOUSEHOLD_BUYERS.length]:FLEET_BUYERS[Math.floor(deterministic(`${day}:auto-finance:buyer`,0,FLEET_BUYERS.length))%FLEET_BUYERS.length],industry:household?'أسرة · تمويل سيارة':'أسطول سيارات شركة',country:showroom.country,modelId:fleet.model.modelId,quantity:fleet.quantity,unitPrice:fleet.price,financeRequested:true,branchId:showroom.branchId});

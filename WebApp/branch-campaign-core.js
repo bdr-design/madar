@@ -27,7 +27,7 @@
     const plan=quote(state,company,rows,duration);if(!plan.count)throw new Error('campaign-no-eligible-branches');
     if(typeof p.quoteKey!=='string'||plan.quoteKey!==p.quoteKey)throw new Error('campaign-quote-changed');
     const F=globalThis.GH_FINANCE_CORE;
-    if(!(state.godMoney&&state.infiniteMoney)&&F.operating(state,company)<plan.total)throw new Error('insufficient-cash');
+    if(!(globalThis.GH_FINANCE_CORE?.investorMode?.(state))&&F.operating(state,company)<plan.total)throw new Error('insufficient-cash');
     if(!F.canSpend(state,company,plan.total,'marketing'))throw new Error('insufficient-budget');
     const payment=F.execute({state},'pay-by-cheque',{company,amount:plan.total,line:'marketing',requestRef:reference,
       note:`حملة إعلامية لجميع الفروع المؤهلة · ${plan.count} فرع · ${duration} يومًا · ${reference}`,beneficiary:'وكالة الحملات الإعلامية المعتمدة'});

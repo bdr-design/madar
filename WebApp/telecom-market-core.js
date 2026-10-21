@@ -149,7 +149,7 @@ function networkDepreciation(branch,day){return (Array.isArray(branch.networkAss
 function upgradeNetwork(state,p={}){
   const m=ensure(state),branch=m.branches.find(row=>row.id===p.branchId||row.facilityId===p.branchId);if(!branch)throw new Error('telecom-branch-not-found');if(!branch.active)throw new Error('telecom-branch-inactive');
   const level=networkLevel(branch);if(level>=NETWORK_MAX_LEVEL)throw new Error('telecom-network-max-level');
-  const day=today(state),cost=networkCapex(m,branch),F=finance();if(!(state.godMoney&&state.infiniteMoney)&&num(F.operating?.(state,'telecom'))<cost)throw new Error('insufficient-cash');
+  const day=today(state),cost=networkCapex(m,branch),F=finance();if(!(globalThis.GH_FINANCE_CORE?.investorMode?.(state))&&num(F.operating?.(state,'telecom'))<cost)throw new Error('insufficient-cash');
   const payment=F.execute({state},'pay-by-cheque',{company:'telecom',amount:cost,note:`توسعة الشبكة · فرع ${branch.city||branch.country} · المستوى ${level+1}`,beneficiary:`مورد معدات الشبكة · ${branch.country}`,line:'capex',requestRef:`TEL-NETWORK-${branch.id}-${level+1}`});
   if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('telecom-network-cheque-not-cleared');
   branch.networkLevel=level+1;branch.networkAssets=[...(Array.isArray(branch.networkAssets)?branch.networkAssets:[]),{level:level+1,cost,day}];m.ytd.networkCapex+=cost;
@@ -161,7 +161,7 @@ function companyCampaign(state,p){const m=ensure(state);return globalThis.GH_BRA
 function branchCampaign(state,p={}){
   const m=ensure(state),branch=m.branches.find(row=>row.id===p.branchId||row.facilityId===p.branchId);if(!branch)throw new Error('telecom-branch-not-found');if(!branch.active)throw new Error('telecom-branch-inactive');
   const day=today(state);if(Number(branch.campaignUntil)>day)throw new Error('telecom-campaign-running');
-  const cost=campaignCost(m,branch),F=finance();if(!(state.godMoney&&state.infiniteMoney)&&num(F.operating?.(state,'telecom'))<cost)throw new Error('insufficient-cash');
+  const cost=campaignCost(m,branch),F=finance();if(!(globalThis.GH_FINANCE_CORE?.investorMode?.(state))&&num(F.operating?.(state,'telecom'))<cost)throw new Error('insufficient-cash');
   const payment=F.execute({state},'pay-by-cheque',{company:'telecom',amount:cost,note:`حملة تسويقية · فرع ${branch.city||branch.country} · ${CAMPAIGN_DAYS} يومًا`,beneficiary:`وكالة تسويق · ${branch.city||branch.country}`,line:'marketing',requestRef:`TEL-CAMPAIGN-${branch.id}-${day}`});
   if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('telecom-campaign-cheque-not-cleared');
   branch.campaignUntil=day+CAMPAIGN_DAYS;branch.campaigns=Math.max(0,Math.floor(Number(branch.campaigns)||0))+1;branch.campaignSpend=num(branch.campaignSpend)+cost;m.ytd.campaignCost+=cost;

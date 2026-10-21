@@ -3,7 +3,7 @@
 // - The scope and world-infrastructure filters apply (a blanket stopPropagation on popover buttons swallowed them).
 // - The operations section stays hidden until a company is open.
 // - The drawn airports cover the view instead of the first rows of the file.
-// - God Mode is a Settings switch again; it survives a reload and the top bar shows ∞.
+// - Investor mode is a Settings switch; it survives a reload and the top bar shows ∞.
 // - The rail keeps the full landscape inset only on the side of the camera housing.
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
@@ -59,17 +59,17 @@ const {drawFounderSignature}=require('./helpers/signature-input');
 
     // The unlimited-money mode («وضع المستثمر الحر») from its own page in the system section.
     await page.tap('#settingsBtn');const card=page.locator('#drawerBody [data-go="investorMode"]').first();if(await card.count())await card.tap();
-    await page.locator('.god-mode-toggle').tap();
+    await page.locator('.investor-mode-toggle').tap();
     await page.waitForFunction(()=>__GH_STATE__.godMoney===true&&__GH_STATE__.infiniteMoney===true);
     await page.waitForFunction(()=>document.getElementById('cashKpi').textContent==='∞');
     await page.reload();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));
-    assert.deepEqual(await page.evaluate(()=>[__GH_STATE__.godMoney,__GH_STATE__.infiniteMoney]),[true,true],'God Mode survives a reload');
+    assert.deepEqual(await page.evaluate(()=>[__GH_STATE__.godMoney,__GH_STATE__.infiniteMoney]),[true,true],'investor mode survives a reload');
     // Switching it off works (the command used to return false, read as a rejection, so it stayed on).
     await page.tap('#settingsBtn');{const again=page.locator('#drawerBody [data-go="investorMode"]').first();if(await again.count())await again.tap();}
-    await page.locator('.god-mode-toggle').tap();
+    await page.locator('.investor-mode-toggle').tap();
     await page.waitForFunction(()=>__GH_STATE__.godMoney===false&&__GH_STATE__.infiniteMoney===false);
     await page.waitForFunction(()=>document.getElementById('cashKpi').textContent!=='∞');
     assert.deepEqual(errors,[]);
-    console.log('PASS build358-map-controls-browser: filters apply by touch, airports cover the view, God Mode switch persists and switches off, rail keeps the inset only on the camera side');
+    console.log('PASS build358-map-controls-browser: filters apply by touch, airports cover the view, investor mode switch persists and switches off, rail keeps the inset only on the camera side');
   }finally{await browser.close();await server.close?.();}
 })().catch(error=>{console.error(error);process.exit(1);});

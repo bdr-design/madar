@@ -36,13 +36,13 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     assert.doesNotMatch(settings,/تحديثات VENTORA|ملف تحديث|عند الخروج فقط|مدة الأمان|God Mode|وضع التجربة/);
     assert.equal(await page.locator('#drawerBody .save-cap-choices').count(),0);assert.equal(await page.locator('#drawerBody .save-now-btn').count(),1);
     assert.equal(await page.locator('#drawerBody [data-gh-action="report-problem"]').count(),1,'the problem report stays');
-    assert.equal(await page.locator('#drawerBody .god-mode-toggle').count(),0,'the money mode left the settings');
+    assert.equal(await page.locator('#drawerBody .investor-mode-toggle').count(),0,'the money mode left the settings');
 
     // «وضع المستثمر الحر» on its own page.
     await open('investorMode');assert.match(await body(),/وضع المستثمر الحر/);
-    await page.locator('#drawerBody .god-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===true&&__GH_STATE__.infiniteMoney===true);
-    await page.waitForFunction(()=>document.querySelector('#drawerBody .god-mode-toggle')?.textContent.includes('إيقاف'));
-    await page.locator('#drawerBody .god-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===false);
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===true&&__GH_STATE__.infiniteMoney===true);
+    await page.waitForFunction(()=>document.querySelector('#drawerBody .investor-mode-toggle')?.textContent.includes('إيقاف'));
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===false);
     assert.deepEqual(errors,[]);
     console.log('BUILD376_RELEASE_EDITION_BROWSER_PASS');
   }finally{await browser.close();}

@@ -8,7 +8,7 @@
 //  1. a page button (the finance page's reserve transfer), 2. a decision function from its page (a stock purchase) and
 //     3. a decision that redraws after its commit (signing a company's charter) each keep the treasury loans tab and commit;
 //  4. without navigation each still redraws its own page;
-//  5. no other app.js decision awaits and then opens a page directly (god mode redraws the page already shown).
+//  5. no other app.js decision awaits and then opens a page directly (investor mode redraws the page already shown).
 // The first version of check 5 read one line at a time and missed thirteen decisions whose page opens on another line
 // or in their command's afterCommit; the macOS gate (run 64, tax-precision-and-routing-browser) then lost the global
 // network page to "open all companies" redrawing the companies page. Check 5 now parses app.js and covers every page
@@ -36,7 +36,7 @@ const {bootRenderApp}=require('./helpers/render-app.cjs'),{installVault}=require
     }
     const next=[...ancestors,n];for(const v of Object.values(n)){if(Array.isArray(v))v.forEach(c=>visit(c,next));else if(v&&typeof v==='object'&&v.type)visit(v,next);}
   })(ast,[]);
-  assert.equal(direct.length,1,`5: one direct page open after a command (${JSON.stringify(direct)})`);assert.match(direct[0].text,/if\(activeDrawerPanel\)openDrawer\(activeDrawerPanel,activeDrawerArg\)/,'5: god mode redraws the page already shown');
+  assert.equal(direct.length,1,`5: one direct page open after a command (${JSON.stringify(direct)})`);assert.match(direct[0].text,/if\(activeDrawerPanel\)openDrawer\(activeDrawerPanel,activeDrawerArg\)/,'5: investor mode redraws the page already shown');
   assert.ok(reopened>=45,`5: the decisions redraw through reopenDrawer (${reopened})`);
 }
 const panel=page=>page.evaluate(()=>({panel:document.querySelector('#drawer')?.dataset.panel||'',loans:!!document.querySelector('#drawerBody #icLoanLender')}));

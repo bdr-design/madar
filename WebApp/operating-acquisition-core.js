@@ -66,11 +66,11 @@ function acquire(s,c,p){
  if(Object.keys(registry(s)).length>=LIMIT)throw new Error('operating-acquisition-limit');
  if(c==='realestate'&&s.realEstate.projects.length>=globalThis.GH_REALESTATE_CORE.MAX_ACTIVE_PROJECTS)throw new Error('realestate-project-limit');
  if(c==='power'&&s.energy.sites.length>=128)throw new Error('operating-site-limit');
- if(c==='bank'&&!(s.godMoney&&s.infiniteMoney)&&!globalThis.GH_BANKING_CORE.operatingAcquisitionPreview(s,q).accepted)throw new Error('operating-bank-capital');
+ if(c==='bank'&&!(globalThis.GH_FINANCE_CORE?.investorMode?.(s))&&!globalThis.GH_BANKING_CORE.operatingAcquisitionPreview(s,q).accepted)throw new Error('operating-bank-capital');
  if(c==='insurance'){
   const I=globalThis.GH_INSURANCE_CORE,ins=s.insurance,B=base(),priceIndex=Number(B.priceIndex(s))||1;
   const existing=ins.offices.reduce((sum,o)=>sum+I.LINE_IDS.reduce((a,line)=>a+num(o.lines?.[line]?.policies)*I.linePrice(ins,line)*(Number(B.incomeFactor(o.country,'insurancePrice'))||1)*priceIndex,0),0);
-  if(!(s.godMoney&&s.infiniteMoney)&&finance.operating(s,c)-q.price<(existing+q.annualRevenue)*.2)throw new Error('operating-insurance-capital');
+  if(!(globalThis.GH_FINANCE_CORE?.investorMode?.(s))&&finance.operating(s,c)-q.price<(existing+q.annualRevenue)*.2)throw new Error('operating-insurance-capital');
  }
  const payment=finance.execute({state:s},'pay-by-cheque',{company:c,amount:q.price,line:'capex',taxable:false,beneficiary:`بائع ${q.name}`,note:`استحواذ على ${q.name}`,requestRef:q.id});
  if(payment?.cheque?.status!=='مصروف')throw new Error('operating-cheque-not-cleared');
@@ -96,7 +96,7 @@ function acquire(s,c,p){
   finance.journal(s,c,`نقل أرصدة ${q.name}`,c==='bank'?[{account:account.id,debit:q.transferredCash},{account:'محفظة القروض',debit:q.loans},{account:'ودائع العملاء',credit:q.deposits}]:[{account:account.id,debit:q.transferredCash},{account:'احتياطي مطالبات التأمين',credit:q.liabilities}],`BAL-${q.id}`);
  }
  finance.reconcile(s);
- if(c==='bank'){const K=globalThis.GH_BANKING_CORE;K.reconcilePrudential(s);if(!(s.godMoney&&s.infiniteMoney)&&(num(s.bank.cet1)<num(s.bank.riskPolicy.minCet1)||num(s.bank.lcr)<num(s.bank.riskPolicy.minLcr)||num(s.bank.nsfr)<num(s.bank.riskPolicy.minNsfr)||num(s.bank.loanDepositRatio)>num(s.bank.riskPolicy.maxLdr)||num(s.bank.leverageRatio)<3))throw new Error('operating-bank-capital');}
+ if(c==='bank'){const K=globalThis.GH_BANKING_CORE;K.reconcilePrudential(s);if(!(globalThis.GH_FINANCE_CORE?.investorMode?.(s))&&(num(s.bank.cet1)<num(s.bank.riskPolicy.minCet1)||num(s.bank.lcr)<num(s.bank.riskPolicy.minLcr)||num(s.bank.nsfr)<num(s.bank.riskPolicy.minNsfr)||num(s.bank.loanDepositRatio)>num(s.bank.riskPolicy.maxLdr)||num(s.bank.leverageRatio)<3))throw new Error('operating-bank-capital');}
  const legal=finance.execute({state:s},'register-commercial-contract',{id:`LEGAL-${q.id}`,company:c,contractType:'عقد استحواذ على أعمال قائمة',counterparty:`بائع ${q.name}`,title:q.name,startDay:start,amount:q.price,terms:{assetId:q.assetId,targetId:q.targetId,variant:q.variant,transferredCash:q.transferredCash,liabilities:q.liabilities,quoteKey:q.quoteKey},sourceRefs:[q.assetId],linkedDocuments:[payment.invoice.number,payment.cheque.id]});
  const record={id:q.id,company:c,assetId:q.assetId,targetId:q.targetId,variant:q.variant,day:start,price:q.price,chequeId:payment.cheque.id,invoiceNumber:payment.invoice.number,legalDocumentId:legal.id,offer:{...q}};
  s.finance.operatingAcquisitions={...registry(s),[q.id]:record};return {...record,transferredCash:q.transferredCash,liabilities:q.liabilities};

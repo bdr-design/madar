@@ -44,7 +44,7 @@ if(cmd==='purchase-assets'){
  const total=num(item.price)*qty,upfront=num(p.upfront);if(total<=0)throw new Error('invalid-asset-price');
  const expected=mode==='cash'?total:mode==='finance'?total*Number(item.downPayment||.2):num(item.leaseMonthly)*3*qty;
  if(Math.abs(expected-upfront)>.01)throw new Error('purchase-upfront-mismatch');
- const fundingGap=(s.infiniteMoney||s.godMoney)?0:Math.max(0,expected-(Number(F.operating?.(s,companyId))||0)),policy=globalThis.GH_POLICY_CORE?.procurement?.({item,base,qty,freeCapacity:capacity-current,fundingGap});
+ const fundingGap=globalThis.GH_FINANCE_CORE?.investorMode?.(s)?0:Math.max(0,expected-(Number(F.operating?.(s,companyId))||0)),policy=globalThis.GH_POLICY_CORE?.procurement?.({item,base,qty,freeCapacity:capacity-current,fundingGap});
  if(!policy?.approved)throw new Error(`manual-purchase-policy:${(policy?.blocked||[]).map(row=>row.id).join(',')||'unavailable'}`);
  // Build 358: aircraft, ships and trucks are zero-rated means of transport (as Mobility vehicles and every asset sale
  // already were). Taxed purchases left an input-VAT credit larger than months of trip VAT, so the tax never accrued.
