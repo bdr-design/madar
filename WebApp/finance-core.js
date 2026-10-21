@@ -332,6 +332,36 @@ function coverFromInvestorCard(s,t,a,purpose='مصروف',account=0){
  const amount=Math.ceil((shortfall+Math.max(shortfall,INVESTOR_CARD_STEP*2.5))/INVESTOR_CARD_STEP)*INVESTOR_CARD_STEP;
  investorCardTransfer(s,t,amount,account,purpose);return amount;
 }
+// Returns (owner: «خله يدوي انا ارجعه اذا بغيت»): only the player returns money to the card, never the game. A company
+// sends back what the card sent it by an outgoing transfer to the card (signed, journal against the founder's equity:
+// capital going back, not an expense), never more than it still owes the card nor more than its current account holds.
+// «Return all» keeps 30 days of each company's expenses (from the stored daily closes) and is one command: every
+// transfer or none. The plan is read-only, for the page and for the command alike.
+const INVESTOR_CARD_KEEP_DAYS=30;
+function investorCardKeep(s,t){const rows=(s.finance.dailyCompanyReports||[]).slice(0,INVESTOR_CARD_KEEP_DAYS);if(!rows.length)return 0;const spent=rows.reduce((n,row)=>n+Math.max(0,num(t==='group'?row?.group?.overhead:row?.companies?.[t]?.expenses)),0);return Math.round(spent/rows.length*INVESTOR_CARD_KEEP_DAYS*100)/100;}
+function investorCardReturnPlan(s){
+ const card=s.finance.investorCard,legacy=card?null:legacyInvestorFunding(s),rows=[];
+ for(const t of companyIds(s)){const charged=num(card?card.charged?.[t]:legacy.byCompany.get(t)),returned=num(card?.returned?.[t]);if(charged<=0&&returned<=0)continue;
+  const owed=Math.max(0,Math.round((charged-returned)*100)/100),cash=Math.max(0,num(operating(s,t))),keep=investorCardKeep(s,t),available=Math.max(0,Math.floor(Math.min(owed,cash)*100)/100),availableAll=Math.max(0,Math.floor(Math.min(owed,cash-keep)*100)/100);
+  rows.push({company:t,name:companyName(s,t),charged,returned,owed,cash,keep,available,availableAll});}
+ const sum=key=>Math.round(rows.reduce((n,row)=>n+row[key],0)*100)/100;
+ return {rows,charged:sum('charged'),returned:sum('returned'),owed:sum('owed'),available:sum('available'),availableAll:sum('availableAll'),statement:(card?card.rows:legacy.total>0?[{kind:'legacy',day:null,company:'',amount:legacy.total,count:legacy.count,purposes:[]}]:[]).map(row=>({...row,purposes:[...(row.purposes||[])]})),investorMode:investorMode(s)};
+}
+function returnToInvestorCard(s,p){
+ const t=requireCompany(s,p.company),a=Math.round(num(p.amount)*100)/100,given=String(p.ref||''),prior=given?findTransferById(s,given)||s.treasury.ledger.find(x=>x.reference===given):null;
+ if(prior){if(prior.company!==t||Math.abs(num(prior.amount)-a)>.01)throw new Error('investor-card-return-reference-conflict');return {ref:given,amount:0,company:t,idempotent:true};}
+ if(!(a>0))throw new Error('invalid-amount');const current=s.finance.investorCard,owed=Math.max(0,current?num(current.charged?.[t])-num(current.returned?.[t]):num(legacyInvestorFunding(s).byCompany.get(t)));
+ if(a>owed+.005)throw new Error('investor-card-return-over-owed');if(a>operating(s,t)+.005)throw new Error('insufficient-cash');
+ investorCard(s);const ref=given||nextFinanceTransferReference(s,'INV-RET'),b=book(s,t),founder=s.profile?.founder||'المؤسس';b.accounts[0].balance-=a;
+ const transfer={id:ref,reference:ref,at:now(s),kind:'founder-withdrawal',label:'إرجاع إلى بطاقة المستثمر',from:companyName(s,t),fromAccount:b.accounts[0].id,to:`بطاقة المستثمر · ${founder}`,amount:a,company:t,status:'منفذة',note:'إرجاع رأس مال',purposeCategory:'إرجاع إلى بطاقة المستثمر',purposeDetail:'إرجاع رأس مال',paymentMethod:'حوالة صادرة إلى بطاقة المستثمر',fundingSource:'investor-card'};
+ protectDocument(s,transfer,'founder-withdrawal');insertFinanceTransfer(s,{...transfer});ledger(s,t,transfer);journal(s,t,`${ref} · إرجاع إلى بطاقة المستثمر`,[{account:'حقوق ملكية المؤسس',debit:a},{account:b.accounts[0].id,credit:a}],ref);noteInvestorCard(s,t,'return',a,'إرجاع رأس مال');reconcile(s);
+ return {ref,amount:a,company:t,owed:Math.max(0,owed-a),documentProofId:transfer.documentProofId,contentDigest:transfer.contentDigest};
+}
+function returnAllToInvestorCard(s,p={}){
+ const ref=String(p.ref||'')||nextFinanceTransferReference(s,'INV-RET'),rows=[];
+ for(const row of investorCardReturnPlan(s).rows)if(row.availableAll>0)rows.push(returnToInvestorCard(s,{company:row.company,amount:row.availableAll,ref:`${ref}-${row.company}`}));
+ return {ref,rows,amount:Math.round(rows.reduce((n,row)=>n+num(row.amount),0)*100)/100,companies:rows.filter(row=>row.amount>0).length};
+}
 function consumeBudget(s,t,a,l){const b=mutableBudget(s,t);a=num(a);if(b.enabled&&b.limit>0)b.spent+=a;if(l)b.spentByLine[l]=num(b.spentByLine[l])+a;} // Incurred expenses are liabilities, not discretionary cash spends. Reserve them for budget tracking even when cash or the budget cap is short.
 function reserveAccruedObligationBudget(s,t,a,l='other'){a=num(a);if(a<0)return null;const b=mutableBudget(s,t),totalRoom=!b.enabled||b.limit<=0?Infinity:Math.max(0,b.limit-b.spent-b.reserved),lineLimit=num(b.lines[l]),lineRoom=!b.enabled||lineLimit<=0?Infinity:Math.max(0,lineLimit-num(b.spentByLine[l])-num(b.reservedByLine[l])),reserved=Math.max(0,Math.min(a,totalRoom,lineRoom));if(b.enabled&&b.limit>0)b.reserved+=reserved;if(l)b.reservedByLine[l]=num(b.reservedByLine[l])+reserved;return {reserved,unbudgeted:Math.max(0,a-reserved)};}
 function reserveBudget(s,t,a,l='other'){a=num(a);if(!canSpend(s,t,a,l))return false;const b=mutableBudget(s,t);if(b.enabled&&b.limit>0)b.reserved+=a;b.reservedByLine[l]=num(b.reservedByLine[l])+a;return true;} function consumeReserved(s,t,a,l='other'){const b=mutableBudget(s,t),held=Math.min(num(a),num(b.reservedByLine[l]));b.reserved=Math.max(0,b.reserved-held);b.reservedByLine[l]=Math.max(0,num(b.reservedByLine[l])-held);consumeBudget(s,t,a,l);} function releaseReserved(s,t,a,l='other'){const b=mutableBudget(s,t),held=Math.min(num(a),num(b.reservedByLine[l]));b.reserved=Math.max(0,b.reserved-held);b.reservedByLine[l]=Math.max(0,num(b.reservedByLine[l])-held);return held;}
@@ -1047,6 +1077,8 @@ function execute(ctx,cmd,p={},meta={}){
    case'settle-cheque':return settleCheque(s,p);
    case'founder-investment':return founderInvestment(s,p);
    case'founder-withdrawal':return founderWithdrawal(s,p);
+   case'investor-card-return':return returnToInvestorCard(s,p);
+   case'investor-card-return-all':return returnAllToInvestorCard(s,p);
    case'set-budget':{const b=mutableBudget(s,p.company),limit=num(p.limit),lines={...b.lines,...(p.lines||{})};if(!p.resetSpent){if(limit>0&&limit<b.spent+b.reserved)throw new Error('budget-below-month-spend');for(const [line,value] of Object.entries(lines))if(num(value)>0&&num(value)<num(b.spentByLine[line])+num(b.reservedByLine[line]))throw new Error(`budget-line-below-month-spend:${line}`);}b.limit=limit;b.enabled=b.limit>0;b.lines=lines;if(p.resetSpent){b.spent=0;b.reserved=0;b.spentByLine={};b.reservedByLine={};}return clone(b);}
    case'reset-budget':{const b=mutableBudget(s,p.company);b.limit=0;b.spent=0;b.reserved=0;b.enabled=false;b.lines={};b.spentByLine={};b.reservedByLine={};return clone(b);}
    case'refresh-identity':return refreshIdentity(s,p);
@@ -1097,5 +1129,5 @@ const FINAL_DOCUMENT=Object.freeze({
 // company's ledger and the treasury ledger are sealed whole.
 for(const [root,keys] of [['finance',['journalEntries']],['companyFinance',['*.ledger']],['treasury',['ledger']]])(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys])))(root,keys);
 for(const [bucket,member] of Object.entries(FINAL_DOCUMENT))(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys,options)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys,options])))('finance',[bucket],{member});
-const API={VERSION,investorMode,investorCard:s=>{ensure(s);return investorCard(s);},transferByReference:findTransferByReference,takeOffCloseIntercompany,withSettlementBatch,invalidateSettlementBatch,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+const API={VERSION,investorMode,investorCardReturnPlan:s=>{ensure(s);return investorCardReturnPlan(s);},transferByReference:findTransferByReference,takeOffCloseIntercompany,withSettlementBatch,invalidateSettlementBatch,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "46f7dff36a3a6c3e33e743601e26098de25d3e40bcf615883d08dce3ee6913a0",
-  "webapp_tree_sha256": "ba65501dd031c4d1f7774dc117d8ee97b9c771873406292299cc21a3ce07a48c",
+  "source_tree_sha256": "1c111bf92e76454a0f260d48675b673a3132a3c0946a34769cc295e2c2cfd233",
+  "webapp_tree_sha256": "8c872043276657cdaef243c738ebb726ffb6119343ece19f6fe1268b6882cc1c",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3379,8 +3379,8 @@
       "sha256": "1b84d14765856e5c63a96a6d92a066ceeda1a78bd16f0525c3b565344c3a2c63"
     },
     "WebApp/business-world-core.js": {
-      "bytes": 59689,
-      "sha256": "1f9d54c7d19d281a8ae30994af4f5172772991ca3ff4acd05665edfb15f4fabc"
+      "bytes": 60133,
+      "sha256": "16dfd03e0f2cc9b560cf58bf7a8f6c005983ef96c2250a32764821b386b5964b"
     },
     "WebApp/capability-registry-core.js": {
       "bytes": 11311,
@@ -3495,8 +3495,8 @@
       "sha256": "7eecd848ab6d83132057f97ee046559394b24f5d44514d9f63e5e85ab75b1044"
     },
     "WebApp/finance-core.js": {
-      "bytes": 208548,
-      "sha256": "adcbfa581ba1c390643d3df87911a9b8b0a87dc9780a685fa74dc4edadc18d05"
+      "bytes": 213071,
+      "sha256": "3169e37d90ae0ce506b35fb4ecdc9055a22501be1fb99141de7577c3366301a5"
     },
     "WebApp/finance-presentation.css": {
       "bytes": 33498,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "4af5f955ac40d5b13e34d2c4a3aec5da4b5293c22f3151ddf926c100e07f6001"
+      "sha256": "bef8bcca19d63ade158704a36329c7195a26bb2ebf338aa95c817146bf1c38d7"
     },
     "BUILD": {
       "bytes": 4,

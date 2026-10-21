@@ -128,7 +128,7 @@ const NEWS_COMMANDS=Object.freeze({
  corporate:new Set(['found-group','open-company','rename-company','set-ipo','record-agm']),
  facilities:new Set(['create','expand','close','open-regional-hq']),
  procurement:new Set(['purchase-assets','award-construction','complete-construction']),
- finance:new Set(['issue-cheque','settle-cheque','settle-payable','pay-taxes','collect-receivable','collect-receivables-by-cheque','record-payroll-report','close-vat-period','founder-investment','founder-withdrawal']),
+ finance:new Set(['issue-cheque','settle-cheque','settle-payable','pay-taxes','collect-receivable','collect-receivables-by-cheque','record-payroll-report','close-vat-period','founder-investment','founder-withdrawal','investor-card-return','investor-card-return-all']),
  hr:new Set(['appoint-official-manager','appoint-all-official-managers','dismiss-official-manager','hire','hire-executive'])
 });
 // Completed sector decisions, not recurring ticks, price refreshes, pending offers or simulation telemetry.
@@ -190,6 +190,7 @@ function recordCommandNews(s,domain,name,p={},r,meta={},before){
   else if(name==='record-payroll-report'){title='اعتماد مسير رواتب المجموعة';company='group';detail='يتضمن المبلغ إجمالي المسير؛ تعرض صفحة المصدر المصروف والمستحق.';destination='labor';destinationId='payroll';}
   else if(name==='close-vat-period'){const periods=Array.isArray(r)?r.filter(row=>!before.priorPeriods?.has(row.id)):[];if(!periods.length)return null;company='group';count=periods.length;amount=periods.reduce((sum,row)=>sum+num(row.amount),0);title='إقفال الفترة الضريبية للمجموعة وشركاتها';detail=`${count} فترة شركة؛ المبلغ استحقاق ضريبي ولا يعني تنفيذه كدفعة.`;ref=periods[0].id;}
   else if(name==='founder-investment'||name==='founder-withdrawal'){if(!amount)return null;title=name==='founder-investment'?`تمويل ${companyName} من المؤسس`:`سحب معتمد للمؤسس من ${companyName}`;destination='treasury';destinationId='';}
+  else if(name==='investor-card-return'||name==='investor-card-return-all'){if(!amount)return null;if(name==='investor-card-return-all'){company='group';count=num(r?.companies)||1;}title=name==='investor-card-return'?`إرجاع من ${companyName} إلى بطاقة المستثمر`:'إرجاع الشركات إلى بطاقة المستثمر';destination='investorMode';destinationId='';}
  }
  if(!title){
   const sector=NEWS_SECTOR_ACTIONS[domain],action=sector?.actions[name];

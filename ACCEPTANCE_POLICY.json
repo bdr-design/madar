@@ -2858,6 +2858,10 @@
     [
       "node",
       "tests/build554-investor-card-funding.cjs"
+    ],
+    [
+      "node",
+      "tests/build555-investor-card-return.cjs"
     ]
   ]
 }
