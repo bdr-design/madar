@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "0152d6542dad6a202ff7adc1cc93c6d9fbd078f1f7c718c609423d07e63ac61a",
-  "webapp_tree_sha256": "51d065b5ecc5fc2b0d0b1c1285fb7521f6bf6ab6901851d2e00461087f8b4d4f",
+  "source_tree_sha256": "9e243293a23baa4c1b4eed00ff9ccf127c2c04db2294e00ad9319cddae83fa34",
+  "webapp_tree_sha256": "1033abe730877bac2b764d6b2edbf4225ef94443ec6a26e1a7bd7023e0ef7656",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3663,8 +3663,8 @@
       "sha256": "5c48240b88727c76ed048588b57b0d7da1b3295e57a0df9f3777f5f5521fb1cd"
     },
     "WebApp/integrity-core.js": {
-      "bytes": 35213,
-      "sha256": "579652b139d0433922e8d16bf05d6bf343a63aca421f104107758de0dd354ad0"
+      "bytes": 35877,
+      "sha256": "7e8f78220276e2202b0a7fc844663485146f64cf860c2dba7adb72f25ba5618f"
     },
     "WebApp/interaction-core.js": {
       "bytes": 4285,
@@ -4000,7 +4000,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "868004d702fe91f049a5fe4ae1fbb06e34bcd292a6247a62d3c23254985d04fe"
+      "sha256": "68524e4d85f7a6ffd4587ad3af7ae16d8411892289c79503e2d042f46085bc45"
     },
     "BUILD": {
       "bytes": 4,

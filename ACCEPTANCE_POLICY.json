@@ -2914,6 +2914,10 @@
     [
       "node",
       "tests/build568-budget-lapsed-cheques-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build569-company-evidence-pending.cjs"
     ]
   ]
 }
