@@ -19,39 +19,49 @@
 //     and keeps the display rate while the diagnostics recorder samples frames;
 //  5. paused, after a command the signature audit runs one whole cycle and then waits while nothing changes; the next
 //     command wakes it, and it runs on while the game plays.
-// Rates and wake-ups are compared with the source before on the same machine, so a runner with slower frames (CI run 83:
-// 116 ms apart in a busy close) holds them to its own display rate. Both sources are open side by side: playing is
-// measured on each in turn, twice, so a machine that slows down during the run weighs on both alike; then each source
-// alone is measured paused and waking while the other stays paused. Chromium on a desktop; not iPhone battery. The
-// loop's housekeeping (the save cap, map refresh) runs on each rested pass and is not measured here.
+// Rates are compared within the same seconds: the macOS runner's display rate drifts from one window to the next (build
+// 90: 33.9 to 46.5 frames a second for the source before, 26.6 to 43.3 for this one), and build 90 stopped at claim 3
+// on two sources measured in turn. Both sources are open side by side: playing, both are measured at once, twice; the
+// calendar advance runs on both at once; the recorder's frames are set against the source before's in the same window
+// (its loop never rests); the source before's own rates against its display rate, counted through the same window by a
+// frame callback of the test's own in its page (where its loop already asks for every frame), and its ticks against
+// its frames. Wake-ups are compared with the source before on the same machine, so a runner with slower frames (CI run
+// 83: 116 ms apart in a busy close) holds them to its own display rate; each source alone is measured paused and waking
+// while the other stays paused. Chromium on a desktop; not iPhone battery. The loop's housekeeping (the save cap, map
+// refresh) runs on each rested pass and is not measured here.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright');
 const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareCommandWorld}=require('./helpers/command-world-fixture.cjs');
 const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='6511258';
-const counters=()=>{window.__qaFrames=0;const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>raf(t=>{window.__qaFrames++;cb(t);});};
+const counters=()=>{window.__qaFrames=0;window.__qaDisplay=0;const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>raf(t=>{window.__qaFrames++;cb(t);});
+ // The display rate: a frame callback of the test's own, counted apart from the page's, only while asked.
+ window.__qaDisplayCount=on=>{const run=window.__qaDisplayRun=(window.__qaDisplayRun||0)+1;if(!on)return;const frame=()=>{if(window.__qaDisplayRun!==run)return;window.__qaDisplay++;raf(frame);};raf(frame);};};
 const CONFERENCE={year:2026,group:{name:'المجموعة',grossRevenue:500000,expenses:100000,net:400000,reportedDays:30,expectedDays:365,dataQuality:{status:'ok'}},companies:[],social:{}};
 async function boot(root){
  const browser=await chromium.launch({headless:true}),errors=[];let env;try{
   env=await bootAtOrigin({browser,root,errors,fleetWorker:true,viewport:{width:956,height:440},beforeScripts:{run:async page=>{await page.evaluate(installVault);await page.evaluate(counters);}}});const {page}=env;page.setDefaultTimeout(120000);
   await prepareCommandWorld(page,{count:2});const cdp=await page.context().newCDPSession(page);await cdp.send('Performance.enable');
   const busy=async()=>(await cdp.send('Performance.getMetrics')).metrics.find(m=>m.name==='TaskDuration').value*1000;
-  const sample=()=>page.evaluate(()=>({frames:window.__qaFrames,ticks:__AUDIT__.simulationRuntime.snapshot().ticks,sim:__GH_STATE__.simSeconds,at:performance.now()}));
-  const measure=async(ms=3000)=>{await page.waitForTimeout(1200);const a=await sample(),b0=await busy();await page.waitForTimeout(ms);const b=await sample(),b1=await busy(),s=(b.at-a.at)/1000;return {frames:(b.frames-a.frames)/s,ticks:(b.ticks-a.ticks)/s,sim:(b.sim-a.sim)/s,busy:(b1-b0)/s};};
+  const sample=()=>page.evaluate(()=>({frames:window.__qaFrames,display:window.__qaDisplay,ticks:__AUDIT__.simulationRuntime.snapshot().ticks,sim:__GH_STATE__.simSeconds,at:performance.now()}));
+  const measure=async(ms=3000)=>{await page.waitForTimeout(1200);const a=await sample(),b0=await busy();await page.waitForTimeout(ms);const b=await sample(),b1=await busy(),s=(b.at-a.at)/1000;return {frames:(b.frames-a.frames)/s,ticks:(b.ticks-a.ticks)/s,sim:(b.sim-a.sim)/s,busy:(b1-b0)/s,display:(b.display-a.display)/s};};
+  const displayCount=on=>page.evaluate(on=>window.__qaDisplayCount(on),on);
   const speed=v=>page.evaluate(v=>{const s=__GH_STATE__;if(v===0){if(s.speed>0)document.getElementById('speedToggle').click();}else{if(s.speed===0)document.getElementById('speedToggle').click();[...document.querySelectorAll('#speedMenu button[data-speed]')].find(b=>Number(b.dataset.speed)===v).click();}return s.speed;},v);
   await page.evaluate(()=>__AUDIT__.closeDrawer?.());
-  return {page,errors,sample,measure,speed,close:async()=>{await browser.close();await env?.closeOrigin?.();}};
+  return {page,errors,sample,measure,speed,displayCount,close:async()=>{await browser.close();await env?.closeOrigin?.();}};
  }catch(error){await browser.close();await env?.closeOrigin?.();throw error;}
 }
-async function alone(t,current){
- const {page,sample,measure,speed}=t,out={};
+async function alone(t,current,ref){
+ const {page,sample,measure,speed,displayCount}=t,out={};
  const audit=()=>page.evaluate(()=>{const i=window.__GH_APP_RUNTIME_INSTRUMENTATION__;return {checked:i.proofAudit?.totalChecked||0,cycles:i.proofAudit?.cycles||0,renders:i.simRender?.count||0};});
  const transfer=note=>page.evaluate(note=>__AUDIT__.runAuthorizedDomainCommand('finance','transfer',{from:'air',to:'sea',amount:1000,note},{silent:true}),note);
- await speed(0);out.paused=await measure();
+ // The source before's paused and conference windows count its display rate too (its loop asks for every frame anyway);
+ // this source's resting windows count nothing of the test's own.
+ await speed(0);if(!current)await displayCount(true);out.paused=await measure();if(!current)await displayCount(false);
  // 2: the conference opens with the game running, as in play, and is measured on both sources once the audit has ended
  // the cycle it was in, or has checked nothing through four render callbacks (it may rest at once: nothing changed
  // since the pause), at most 10 s; the proofs it checks through the window are counted.
  await speed(1);await page.evaluate(c=>GH_CONFERENCE_3D.launch({snapshot:c},{mode:'manual'}),CONFERENCE);
  {const start=await audit();let last=start;for(let i=0;i<20;i++){await page.waitForTimeout(500);const now=await audit();if(now.cycles>start.cycles)break;if(now.checked!==last.checked)last=now;else if(now.renders-last.renders>=4)break;}}
- const conferenceAudit=await audit();out.conference=await measure();out.conferenceAudit=(await audit()).checked-conferenceAudit.checked;
+ const conferenceAudit=await audit();if(!current)await displayCount(true);out.conference=await measure();out.conferenceAudit=(await audit()).checked-conferenceAudit.checked;if(!current)await displayCount(false);
  if(current){
   // 2: a command through the conference wakes the audit: it steps until its cycle ends (a resting audit takes no step,
   // so a cycle ending is the wake; it may end the cycle a speed change began), then waits again.
@@ -65,18 +75,24 @@ async function alone(t,current){
   // 4: waking. Each starts from a resting loop (a pass every 250 ms; the source before never rested) and times the
   // loop's next pass after the act; a pass that waited for the rest would take up to 250 ms more. The game time is read
   // 1.5 s later (the simulation advances in slices of at least one second).
-  const latency=kind=>page.evaluate(async kind=>{const f0=window.__qaFrames,t0=performance.now();
+  const latencyOn=(p,kind)=>p.evaluate(async kind=>{const f0=window.__qaFrames,t0=performance.now();
    if(kind==='resume')document.getElementById('speedToggle').click();else if(kind==='close')GH_CONFERENCE_3D.close();else if(kind==='release'){const map=__AUDIT__.leafletMap();map.fire('movestart');map.fire('moveend');}
    else if(kind==='calendar')__AUDIT__.requestCalendarAdvance(Math.floor(__GH_STATE__.simSeconds/86400+1)*86400,'qa-presentation-rest','QA');
-   while(window.__qaFrames===f0)await new Promise(r=>setTimeout(r,2));return performance.now()-t0;},kind);
+   while(window.__qaFrames===f0)await new Promise(r=>setTimeout(r,2));return performance.now()-t0;},kind),latency=kind=>latencyOn(page,kind);
   const timed=async(kind,before)=>{const runs=[];for(let i=0;i<5;i++){await before();await page.waitForTimeout(700);runs.push(await latency(kind));}return Math.max(...runs);};
   const simAfter=async()=>{const a=await sample();await page.waitForTimeout(1500);return (await sample()).sim-a.sim;};
   out.resumeMs=await timed('resume',()=>speed(0));out.resumeSim=await simAfter();
   out.closeMs=await timed('close',()=>page.evaluate(c=>GH_CONFERENCE_3D.launch({snapshot:c},{mode:'manual'}),CONFERENCE));out.closeSim=await simAfter();
   await speed(0);out.releaseMs=await timed('release',async()=>{});out.afterRelease=await measure(1500);
-  const a=await sample();out.calendarMs=await latency('calendar');await page.waitForTimeout(400);const b=await sample();out.calendar={frames:(b.frames-a.frames)/(b.at-a.at)*1000};
-  await page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:60000});out.afterCalendar=await measure(1500);
-  await page.evaluate(()=>GH_DIAGNOSTICS.recorderStart(__GH_STATE__,__AUDIT__.simulationEngine.snapshot()));out.recorder=await measure(1500);await page.evaluate(()=>GH_DIAGNOSTICS.recorderStop(__GH_STATE__,__AUDIT__.simulationEngine.snapshot()));
+  // With the source before at hand (ref), the calendar advance runs on both at once, the same work in the same seconds,
+  // and the recorder's frames are set against the source before's frames through the same window.
+  const calendarWindow=async p=>{const a=await p.sample(),ms=await latencyOn(p.page,'calendar');await p.page.waitForTimeout(400);const b=await p.sample();return {ms,frames:(b.frames-a.frames)/(b.at-a.at)*1000};};
+  const advanced=p=>p.page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:60000});
+  const [calendar,calendarReference]=await Promise.all([calendarWindow(t),ref&&calendarWindow(ref)]);out.calendarMs=calendar.ms;out.calendar={frames:calendar.frames};if(ref)out.calendarReference={frames:calendarReference.frames};
+  await Promise.all([advanced(t),ref&&advanced(ref)]);out.afterCalendar=await measure(1500);
+  await page.evaluate(()=>GH_DIAGNOSTICS.recorderStart(__GH_STATE__,__AUDIT__.simulationEngine.snapshot()));
+  const [recorder,recorderReference]=await Promise.all([measure(1500),ref&&ref.measure(1500)]);out.recorder=recorder;if(ref)out.recorderReference=recorderReference;
+  await page.evaluate(()=>GH_DIAGNOSTICS.recorderStop(__GH_STATE__,__AUDIT__.simulationEngine.snapshot()));
  }
  if(current){
   // 5: the audit, paused: one whole cycle, then nothing until a command; playing, it runs on.
@@ -90,15 +106,17 @@ async function alone(t,current){
 (async()=>{
  const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b576-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
   old=await boot(tree);now=await boot(SOURCE);
-  // 3: playing, both sources at once and measured in turn; a desktop's busy time varies by a third between windows, so
-  // each keeps the lighter of its two windows.
-  await old.speed(1);await now.speed(1);const plays=[[],[]];for(let k=0;k<2;k++)for(const [i,t] of [old,now].entries())plays[i].push(await t.measure());
-  const lighter=rows=>rows[0].busy<=rows[1].busy?rows[0]:rows[1];await old.speed(0);await now.speed(0);
-  // 1, 2, 4 and 5: each source alone, the other paused.
-  const before={play:lighter(plays[0]),...await alone(old,false)},after={play:lighter(plays[1]),...await alone(now,true)};
+  // 3: playing, both sources measured at once in the same two windows (the runner's rates and a desktop's busy time drift
+  // between windows, alike for both in the same seconds); each keeps its mean over the two.
+  await old.speed(1);await now.speed(1);const plays=[[],[]];for(let k=0;k<2;k++){const [a,b]=await Promise.all([old.measure(),now.measure()]);plays[0].push(a);plays[1].push(b);}
+  const mean=rows=>Object.fromEntries(Object.keys(rows[0]).map(k=>[k,(rows[0][k]+rows[1][k])/2]));await old.speed(0);await now.speed(0);
+  // 1, 2, 4 and 5: each source alone, the other paused; the source before is the reference for this one's calendar
+  // advance and recorder.
+  const before={play:mean(plays[0]),...await alone(old,false)},after={play:mean(plays[1]),...await alone(now,true,old)};
+  assert.deepEqual(old.errors,[],'the source before ran without errors as the reference');
   const r=v=>Math.round(v*10)/10,row=m=>Object.fromEntries(Object.entries(m).map(([k,v])=>[k,typeof v==='object'&&v?Object.fromEntries(Object.entries(v).map(([a,b])=>[a,r(b)])):v]));
   const report={before:row(before),after:row(after)},show=JSON.stringify(report);
-  assert(before.paused.frames>=before.play.frames*.8&&before.conference.frames>=before.play.frames*.8&&before.conference.ticks>=before.play.ticks*.8,`the loop and the ticks ran at the display rate before: ${show}`);
+  assert(before.paused.frames>=before.paused.display*.8&&before.conference.frames>=before.conference.display*.8&&before.conference.ticks>=before.conference.frames*.8,`the loop and the ticks ran at the display rate before: ${show}`);
   // 1
   assert(after.paused.frames<=8,`1: paused, the loop rests: ${show}`);assert(after.paused.busy<=before.paused.busy*.5,`1: paused, at most half the work: ${show}`);
   // 2
@@ -111,8 +129,8 @@ async function alone(t,current){
   assert(after.resumeMs<=before.resumeMs+50&&after.resumeSim>0,`4: resuming wakes the loop at once and the game runs: ${show}`);
   assert(after.closeMs<=before.closeMs+250+50&&after.closeSim>0,`4: closing the conference brings the loop and the game back within a rested pass: ${show}`);
   assert(after.releaseMs<=before.releaseMs+50,`4: letting go of the map wakes the loop at once: ${show}`);assert(after.afterRelease.frames<=8,`4: and it rests again once the map is still: ${show}`);
-  assert(after.calendarMs<=before.calendarMs+50&&after.calendar.frames>=before.calendar.frames*.8,`4: a calendar advance wakes the loop to the display rate: ${show}`);assert(after.afterCalendar.frames<=8,`4: and it rests again after: ${show}`);
-  assert(after.recorder.frames>=before.play.frames*.8,`4: the recorder keeps the display rate: ${show}`);
+  assert(after.calendarMs<=before.calendarMs+50&&after.calendar.frames>=after.calendarReference.frames*.8,`4: a calendar advance wakes the loop to the display rate: ${show}`);assert(after.afterCalendar.frames<=8,`4: and it rests again after: ${show}`);
+  assert(after.recorder.frames>=after.recorderReference.frames*.8,`4: the recorder keeps the display rate: ${show}`);
   // 5
   assert.equal(after.auditResting,0,`5: paused and unchanged, the audit waits: ${show}`);assert(after.auditAfterCommand>0,`5: a command wakes the audit: ${show}`);assert(after.auditPlaying>0,`5: playing, the audit runs on: ${show}`);
   console.log(JSON.stringify({suite:'build576-presentation-rest-browser',ok:true,previous:PREVIOUS,...report}));
