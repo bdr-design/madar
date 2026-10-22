@@ -12,8 +12,8 @@
 //     9.6 ms a second against 18.2: the audit went through every proof again and again through the conference, which
 //     suspends the game (158 proofs a second here); with frames and timers held to that rate here, 9.6 ms a second, and
 //     4.4 to 5.1 once the audit waits;
-//  3. playing is unchanged: frames at the display rate, the same ticks and game time per second, and no more work
-//     than before beyond a desktop's variation between windows;
+//  3. playing is unchanged: frames at the display rate, the same ticks for the page's timer rate and game time per
+//     second, and no more work than before beyond a desktop's variation between windows;
 //  4. the loop wakes at once when the game resumes, when the map is let go after a drag and for a calendar advance (as
 //     soon as the loop that never rested reached its next frame), within one rested pass when the conference closes,
 //     and keeps the display rate while the diagnostics recorder samples frames;
@@ -117,8 +117,14 @@ async function alone(t,current,ref){
  const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b576-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
   old=await boot(tree);now=await boot(SOURCE);
   // 3: playing, both sources measured at once in the same two windows (the runner's rates and a desktop's busy time drift
-  // between windows, alike for both in the same seconds); each keeps its mean over the two.
-  await old.speed(1);await now.speed(1);const plays=[[],[]];for(let k=0;k<2;k++){const [a,b]=await Promise.all([old.measure(),now.measure()]);plays[0].push(a);plays[1].push(b);}
+  // between windows, alike for both in the same seconds); each keeps its mean over the two. Each page also counts its
+  // display and a 16 ms timer (its simulation's live cadence) in those seconds: the runner gives each page a timer rate
+  // of its own (in the probe before build 93, 25.9 ticks a second for the source before against 29.2 for this one in
+  // the same windows, the frames 26.6 against 26.4; in six other runs within 4%), and a page's ticks follow its timer
+  // (through the conference, where its simulation never rests, the source before ticked 25.6 to 37.2 times a second,
+  // each run equal to its own timer's count).
+  await old.speed(1);await now.speed(1);await Promise.all([old.referenceCount(true),now.referenceCount(true)]);const plays=[[],[]];for(let k=0;k<2;k++){const [a,b]=await Promise.all([old.measure(),now.measure()]);plays[0].push(a);plays[1].push(b);}
+  await Promise.all([old.referenceCount(false),now.referenceCount(false)]);
   const mean=rows=>Object.fromEntries(Object.keys(rows[0]).map(k=>[k,(rows[0][k]+rows[1][k])/2]));await old.speed(0);await now.speed(0);
   // 1, 2, 4 and 5: each source alone, the other paused; the source before is the reference for this one's calendar
   // advance and recorder.
@@ -135,7 +141,8 @@ async function alone(t,current,ref){
   assert.equal(after.conferenceAudit,0,`2: through the conference, once it has gone through every proof, the audit waits: ${show}`);
   assert(after.conferenceCommandSaved&&after.conferenceAuditWoke&&after.conferenceAuditAfter===0,`2: a command through the conference wakes the audit until its cycle ends, then it waits again: ${show}`);
   // 3
-  assert(after.play.frames>=before.play.frames*.9&&Math.abs(after.play.ticks-before.play.ticks)<=before.play.ticks*.1,`3: playing keeps the display rate and the ticks: ${show}`);assert(Math.abs(after.play.sim-before.play.sim)<=before.play.sim*.1,`3: the same game time per second: ${show}`);assert(after.play.busy<=before.play.busy*1.5,`3: no more work playing (within a desktop's variation): ${show}`);
+  const per=(w,rate,reference)=>w[reference]>0?w[rate]/w[reference]:0,counted=w=>w.display>0&&w.timer>0;
+  assert(counted(before.play)&&counted(after.play)&&per(after.play,'frames','display')>=per(before.play,'frames','display')*.9&&Math.abs(per(after.play,'ticks','timer')-per(before.play,'ticks','timer'))<=per(before.play,'ticks','timer')*.1,`3: playing keeps the display rate and the ticks: ${show}`);assert(Math.abs(after.play.sim-before.play.sim)<=before.play.sim*.1,`3: the same game time per second: ${show}`);assert(after.play.busy<=before.play.busy*1.5,`3: no more work playing (within a desktop's variation): ${show}`);
   // 4
   assert(after.resumeMs<=before.resumeMs+50&&after.resumeSim>0,`4: resuming wakes the loop at once and the game runs: ${show}`);
   assert(after.closeMs<=before.closeMs+250+50&&after.closeSim>0,`4: closing the conference brings the loop and the game back within a rested pass: ${show}`);

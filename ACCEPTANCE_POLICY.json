@@ -3,6 +3,30 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build487-route-pages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build576-presentation-rest-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/lint.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-security-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-architecture-bootstrap.cjs"
+    ],
+    [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
       "tests/build558-investor-card-load-browser.cjs"
     ],
     [
@@ -20,22 +44,6 @@
     [
       "node",
       "tests/build359-sliced-save-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/lint.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-security-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build339-architecture-bootstrap.cjs"
-    ],
-    [
-      "python3",
-      "tests/acceptance-policy.py"
     ],
     [
       "node",
@@ -64,10 +72,6 @@
     [
       "node",
       "tests/build574-investor-budget-overrun.cjs"
-    ],
-    [
-      "node",
-      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -160,10 +164,6 @@
     [
       "node",
       "tests/build486-route-card-pages.cjs"
-    ],
-    [
-      "node",
-      "tests/build487-route-pages-browser.cjs"
     ],
     [
       "node",
