@@ -6,7 +6,12 @@
 // on the source before it (`6511258`, from its own tree):
 //  1. paused, with the map still, the loop runs about four passes a second instead of sixty, and the main thread works
 //     at most half as much as before;
-//  2. through the conference the loop and the simulation's ticks rest the same way, at most half the work;
+//  2. through the conference the loop, the simulation's ticks and, once it has gone through every proof, the signature
+//     audit rest the same way, at most half the work, and a command through the conference wakes the audit until its
+//     cycle ends, then it waits again. Build 89's macOS runner (31 frames and 29 ticks a second) found
+//     9.6 ms a second against 18.2: the audit went through every proof again and again through the conference, which
+//     suspends the game (158 proofs a second here); with frames and timers held to that rate here, 9.6 ms a second, and
+//     4.4 to 5.1 once the audit waits;
 //  3. playing is unchanged: frames at the display rate, the same ticks and game time per second, and no more work
 //     than before beyond a desktop's variation between windows;
 //  4. the loop wakes at once when the game resumes, when the map is let go after a drag and for a calendar advance (as
@@ -38,8 +43,24 @@ async function boot(root){
 }
 async function alone(t,current){
  const {page,sample,measure,speed}=t,out={};
+ const audit=()=>page.evaluate(()=>{const i=window.__GH_APP_RUNTIME_INSTRUMENTATION__;return {checked:i.proofAudit?.totalChecked||0,cycles:i.proofAudit?.cycles||0,renders:i.simRender?.count||0};});
+ const transfer=note=>page.evaluate(note=>__AUDIT__.runAuthorizedDomainCommand('finance','transfer',{from:'air',to:'sea',amount:1000,note},{silent:true}),note);
  await speed(0);out.paused=await measure();
- await speed(1);await page.evaluate(c=>GH_CONFERENCE_3D.launch({snapshot:c},{mode:'manual'}),CONFERENCE);out.conference=await measure();await page.evaluate(()=>GH_CONFERENCE_3D.close());
+ // 2: the conference opens with the game running, as in play, and is measured on both sources once the audit has ended
+ // the cycle it was in, or has checked nothing through four render callbacks (it may rest at once: nothing changed
+ // since the pause), at most 10 s; the proofs it checks through the window are counted.
+ await speed(1);await page.evaluate(c=>GH_CONFERENCE_3D.launch({snapshot:c},{mode:'manual'}),CONFERENCE);
+ {const start=await audit();let last=start;for(let i=0;i<20;i++){await page.waitForTimeout(500);const now=await audit();if(now.cycles>start.cycles)break;if(now.checked!==last.checked)last=now;else if(now.renders-last.renders>=4)break;}}
+ const conferenceAudit=await audit();out.conference=await measure();out.conferenceAudit=(await audit()).checked-conferenceAudit.checked;
+ if(current){
+  // 2: a command through the conference wakes the audit: it steps until its cycle ends (a resting audit takes no step,
+  // so a cycle ending is the wake; it may end the cycle a speed change began), then waits again.
+  const revision=await page.evaluate(()=>__GH_STATE__.saveRevision),woke0=await audit();await transfer('QA audit through the conference');
+  out.conferenceCommandSaved=await page.evaluate(r=>__GH_STATE__.saveRevision>r,revision);
+  out.conferenceAuditWoke=await page.waitForFunction(c=>(window.__GH_APP_RUNTIME_INSTRUMENTATION__.proofAudit?.cycles||0)>c,woke0.cycles,{timeout:60000}).then(()=>true,()=>false);
+  const woke1=await audit();out.conferenceAuditWokeChecked=woke1.checked-woke0.checked;await page.waitForTimeout(2500);out.conferenceAuditAfter=(await audit()).checked-woke1.checked;
+ }
+ await page.evaluate(()=>GH_CONFERENCE_3D.close());
  {
   // 4: waking. Each starts from a resting loop (a pass every 250 ms; the source before never rested) and times the
   // loop's next pass after the act; a pass that waited for the rest would take up to 250 ms more. The game time is read
@@ -59,8 +80,6 @@ async function alone(t,current){
  }
  if(current){
   // 5: the audit, paused: one whole cycle, then nothing until a command; playing, it runs on.
-  const audit=()=>page.evaluate(()=>({checked:window.__GH_APP_RUNTIME_INSTRUMENTATION__.proofAudit?.totalChecked||0,cycles:window.__GH_APP_RUNTIME_INSTRUMENTATION__.proofAudit?.cycles||0}));
-  const transfer=note=>page.evaluate(note=>__AUDIT__.runAuthorizedDomainCommand('finance','transfer',{from:'air',to:'sea',amount:1000,note},{silent:true}),note);
   await speed(0);await transfer('QA audit change');const cycles0=(await audit()).cycles;await page.waitForFunction(c=>(window.__GH_APP_RUNTIME_INSTRUMENTATION__.proofAudit?.cycles||0)>c,cycles0,{timeout:120000});
   const rest0=await audit();await page.waitForTimeout(2500);const rest1=await audit();out.auditResting=rest1.checked-rest0.checked;
   await transfer('QA audit resume');await page.waitForTimeout(2500);out.auditAfterCommand=(await audit()).checked-rest1.checked;
@@ -84,6 +103,8 @@ async function alone(t,current){
   assert(after.paused.frames<=8,`1: paused, the loop rests: ${show}`);assert(after.paused.busy<=before.paused.busy*.5,`1: paused, at most half the work: ${show}`);
   // 2
   assert(after.conference.frames<=8&&after.conference.ticks<=8,`2: through the conference the loop and the ticks rest: ${show}`);assert(after.conference.busy<=before.conference.busy*.5,`2: at most half the work: ${show}`);
+  assert.equal(after.conferenceAudit,0,`2: through the conference, once it has gone through every proof, the audit waits: ${show}`);
+  assert(after.conferenceCommandSaved&&after.conferenceAuditWoke&&after.conferenceAuditAfter===0,`2: a command through the conference wakes the audit until its cycle ends, then it waits again: ${show}`);
   // 3
   assert(after.play.frames>=before.play.frames*.9&&Math.abs(after.play.ticks-before.play.ticks)<=before.play.ticks*.1,`3: playing keeps the display rate and the ticks: ${show}`);assert(Math.abs(after.play.sim-before.play.sim)<=before.play.sim*.1,`3: the same game time per second: ${show}`);assert(after.play.busy<=before.play.busy*1.5,`3: no more work playing (within a desktop's variation): ${show}`);
   // 4

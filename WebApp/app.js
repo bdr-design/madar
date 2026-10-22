@@ -3608,11 +3608,12 @@
   const HEALTH_WORKER_WAITS=600,HEALTH_WORKER_RETRIES=4,FLEET_HEALTH_MAIN_ROWS=2048;
   const fleetRowsForHealth=()=>Math.max(0,Number(window.GH_FLEET_DATA?.size?.(state))||0);
   const mainFleetHealthAllowed=()=>fleetRowsForHealth()<=FLEET_HEALTH_MAIN_ROWS;
-  // Battery: with the game paused and nothing changed since the audit last went through every proof, another cycle would
-  // verify the same proofs again; the render callback's steps wait for a change or for the game to run. The maintenance
-  // pass's step and every verification on admission, load and import are unchanged.
+  // Battery: with the game paused, or through the conference (which suspends the simulation), and nothing changed since
+  // the audit last went through every proof, another cycle would verify the same proofs again; the render callback's
+  // steps wait for a change or for the game to run. The maintenance pass's step and every verification on admission,
+  // load and import are unchanged.
   const proofAuditMark=()=>`${state.saveRevision}|${state.controlPlane?.revision}|${state.simSeconds}`;
-  const proofAuditResting=()=>Number(state.speed)===0&&proofAudit?.state===state&&proofAudit.restMark===proofAuditMark();
+  const proofAuditResting=()=>(Number(state.speed)===0||window.GH_CONFERENCE?.isPresentationActive?.()===true)&&proofAudit?.state===state&&proofAudit.restMark===proofAuditMark();
   function proofAuditStep(budgetMs=PROOF_AUDIT_MS){
     const schema=window.GH_SAVE_SCHEMA;if(typeof schema?.createProofAudit!=='function')return null;
     if(!proofAudit||proofAudit.state!==state)proofAudit={state,audit:schema.createProofAudit()};

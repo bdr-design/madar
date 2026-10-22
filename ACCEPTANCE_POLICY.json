@@ -3,23 +3,7 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build558-investor-card-load-browser.cjs"
-    ],
-    [
-      "python3",
-      "tests/acceptance-policy.py"
-    ],
-    [
-      "node",
-      "tests/build572-fleet-premium-unpaid.cjs"
-    ],
-    [
-      "node",
-      "tests/build573-asset-sale-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build574-investor-budget-overrun.cjs"
+      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -27,7 +11,47 @@
     ],
     [
       "node",
-      "tests/build576-presentation-rest-browser.cjs"
+      "tests/build552-conference-hall-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build421-conference-recovery-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build368-approved-company-logos.cjs"
+    ],
+    [
+      "node",
+      "tests/build420-conference-durable-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-conference-large-fleet-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build553-conference-open-cost.cjs"
+    ],
+    [
+      "node",
+      "tests/lint.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-security-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-architecture-bootstrap.cjs"
+    ],
+    [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
+      "tests/build558-investor-card-load-browser.cjs"
     ],
     [
       "node",
@@ -51,7 +75,15 @@
     ],
     [
       "node",
-      "tests/build334-security-contract.cjs"
+      "tests/build572-fleet-premium-unpaid.cjs"
+    ],
+    [
+      "node",
+      "tests/build573-asset-sale-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build574-investor-budget-overrun.cjs"
     ],
     [
       "node",
@@ -367,19 +399,7 @@
     ],
     [
       "node",
-      "tests/build552-conference-hall-layout-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build419-document-drawer-work-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build420-conference-durable-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build421-conference-recovery-contract.cjs"
     ],
     [
       "node",
