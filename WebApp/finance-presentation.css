@@ -130,12 +130,12 @@
 .iv-parties span{display:block;font-size:.88em;color:#3d4a55}
 .iv-table{display:grid}.iv-row .bd-mono{white-space:nowrap;font-size:.92em}.iv-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto auto;gap:.6em;padding:.65em 1.4em;border-bottom:1px solid var(--rule);align-items:start}
 .iv-row>span:not(:first-child){text-align:left}.iv-th{background:var(--navy);color:#fff;font-size:.86em}.iv-th small{color:rgba(255,255,255,.7);font-size:.8em}
-.iv-foot{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.25fr);gap:1.1em;padding:1em 1.4em 1.2em;align-items:start}
+.iv-foot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:1.1em;padding:1em 1.4em 1.2em;align-items:start}
 .iv-pay span{display:block;font-size:.86em;color:#3d4a55}.iv-pay b{display:block}.iv-sign{margin-top:.4em}
 .iv-tot>div{display:flex;justify-content:space-between;gap:.8em;padding:.35em 0;border-bottom:1px solid var(--rule);white-space:nowrap}
 .iv-tot>div.invoice-total{font-size:1.12em;font-weight:600;color:var(--navy);border-bottom:.15em solid var(--navy)}
 .invoice-paper .bd-stamp{top:1.5em;left:33%}
-@container (max-width:460px){.tr-field{grid-template-columns:3em 7em minmax(0,1fr)}.bd-auth{grid-template-columns:1fr auto}.bd-auth>.bd-signatory{grid-column:1/-1;order:-1}.iv-foot{grid-template-columns:auto 1fr}.iv-tot{grid-column:1/-1}.iv-row{padding:.6em .9em;gap:.5em}.iv-row .bd-mono{font-size:.84em}.iv-meta>div{padding:.6em .9em}.iv-parties>div{padding:.7em .9em}}
+@container (max-width:460px){.tr-field{grid-template-columns:3em 7em minmax(0,1fr)}.bd-auth{grid-template-columns:1fr auto}.bd-auth>.bd-signatory{grid-column:1/-1;order:-1}.iv-foot{grid-template-columns:minmax(0,1fr)}.iv-tot{grid-column:1/-1}.iv-row{padding:.6em .9em;gap:.5em}.iv-row .bd-mono{font-size:.84em}.iv-meta>div{padding:.6em .9em}.iv-parties>div{padding:.7em .9em}}
 .cheque-viewer{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(5,10,14,.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .cheque-viewer .bank-doc-card{width:min(100%,calc((100dvh - 80px)*2.25),1100px);margin:0}.cheque-viewer .cheque-instrument{cursor:zoom-out}
 .cheque-viewer-close{position:absolute;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:20px}

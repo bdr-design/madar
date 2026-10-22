@@ -6,14 +6,17 @@
 //     and building it (the app's own 'ui.render' clock) costs at most half of what drawing its documents cost;
 //  2. opening one document from its row costs no more than drawing a page of documents did;
 //  3. reading the pages writes nothing.
-// Both sources are open side by side and each page is opened on each in turn, the cheapest of five kept, so a machine
-// that slows down during the run weighs on both alike. The processor runs at full speed: slowed four times, the
+// Both sources are open side by side and each page is opened on each in turn, the cheapest of ten kept; then the
+// opened document takes turns with the old page drawn again and is compared with those ten. A machine that slows down
+// during the run weighs on both alike. Ten, not five: a build of two milliseconds varies by half from one opening to
+// the next (the cheques list measured 1.9 to 3.5 ms in ten), and the cheques list builds 0.43 to 0.45 of the old
+// page here against a bound of a half. The processor runs at full speed: slowed four times, the
 // throttle's own pauses land at random in a build of a few milliseconds (the same cheques page measured 3.6 to 15 ms
 // from one opening to the next), and one source measured after the other failed the half once. Chromium on a desktop;
 // not iPhone performance.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright');
 const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareCommandWorld}=require('./helpers/command-world-fixture.cjs');
-const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='adb8b56',VIEWS=['transfers','cheques','invoices'];
+const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='adb8b56',VIEWS=['transfers','cheques','invoices'],ROUNDS=10;
 async function boot(root){
  const browser=await chromium.launch({headless:true}),errors=[];let env;try{
   env=await bootAtOrigin({browser,root,errors,fleetWorker:true,viewport:{width:956,height:440},beforeScripts:{fn:installVault}});const {page}=env;page.setDefaultTimeout(180000);await prepareCommandWorld(page,{count:2});
@@ -29,9 +32,13 @@ async function boot(root){
  const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b570-'));let current,old;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
   current=await boot(SOURCE);old=await boot(tree);
   for(const view of VIEWS){
-   const arg={company:'all',tab:'documents',view},runs=new Map([[current,[]],[old,[]]]);for(let i=0;i<5;i++)for(const t of [current,old])runs.get(t).push(await t.open(arg));
-   for(const t of [current,old]){const rows=runs.get(t),best=key=>Math.min(...rows.map(r=>r[key]));t.out[view]={render:best('render'),total:best('total'),nodes:rows[0].nodes,documents:rows[0].documents};
-    if(rows[0].firstRow){const doc=JSON.parse(rows[0].firstRow),one=[];for(let i=0;i<5;i++)one.push(await t.open(doc));t.out[view].opened={render:Math.min(...one.map(r=>r.render)),documents:one[0].documents};}}
+   const arg={company:'all',tab:'documents',view},runs=new Map([[current,[]],[old,[]]]);for(let i=0;i<ROUNDS;i++)for(const t of [current,old])runs.get(t).push(await t.open(arg));
+   // Then this source's first row opens its document, in turn with the source before drawing its page again; the opened
+   // document is compared with those pages, measured in the same minutes (the page rounds above stay one against one).
+   const first=runs.get(current)[0].firstRow,doc=first?JSON.parse(first):null,paired=new Map([[current,[]],[old,[]]]);
+   for(let i=0;i<ROUNDS;i++)for(const t of [current,old])paired.get(t).push(await t.open(t===current&&doc?doc:arg));
+   for(const t of [current,old]){const best=(rows,key)=>Math.min(...rows.map(r=>r[key])),rows=runs.get(t),again=paired.get(t);t.out[view]={render:best(rows,'render'),total:best(rows,'total'),nodes:rows[0].nodes,documents:rows[0].documents};
+    if(t===old)t.out[view].paired=best(again,'render');else if(doc)t.out[view].opened={render:best(again,'render'),documents:again[0].documents,doc:doc.doc};}
   }
   for(const t of [current,old]){t.out.unchanged=(await t.books())===t.initial;assert.deepEqual(t.errors,[]);}
   const now=current.out,before=old.out;
@@ -40,7 +47,7 @@ async function boot(root){
    assert.equal(n.documents,0,`1 ${view}: the list draws no full document`);assert(b.documents>0,`1 ${view}: the old page drew documents`);assert(n.nodes<b.nodes,`1 ${view}: fewer elements (${n.nodes} vs ${b.nodes})`);
    assert(n.render<=b.render*.5,`1 ${view}: building the page (${n.render.toFixed(1)} vs ${b.render.toFixed(1)} ms)`);
    // 2
-   assert(n.opened&&n.opened.documents===1,`2 ${view}: a row opens its one document`);assert(n.opened.render<=b.render*1.1+2,`2 ${view}: opening one document (${n.opened.render.toFixed(1)} ms) against a page of them (${b.render.toFixed(1)} ms)`);}
+   assert(n.opened&&n.opened.documents===1,`2 ${view}: a row opens its one document`);assert(n.opened.render<=b.paired*1.1+2,`2 ${view}: opening one document (${n.opened.render.toFixed(1)} ms) against a page of them drawn in the same minutes (${b.paired.toFixed(1)} ms)`);}
   // 3
   assert(now.unchanged&&before.unchanged,'3: reading the pages writes nothing');
   console.log(JSON.stringify({suite:'build570-documents-list-weight-browser',ok:true,environment:'Chromium desktop, full speed, the two sources in turn; not iPhone performance',now,before}));

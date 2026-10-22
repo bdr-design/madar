@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  // Build 358: QR codes on financial documents (transfer advice, cheque verification, ZATCA tax invoice).
+  // Build 358: QR codes on financial documents: the transfer advice (invoices carry none since 22 October, owner).
   // ISO/IEC 18004 byte mode, error correction level M, versions 1–20 (up to 666 bytes), all eight masks scored by the
   // standard penalty rules. Output is an SVG string with a four-module quiet zone; nothing is fetched.
   const VERSION='GH-QR-358.1.0';

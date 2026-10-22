@@ -5770,7 +5770,7 @@ ${page}</div>`;
   // Transfers read as a SWIFT MT103 payment advice (field tags, UETR, value date, tracker, maker and authorised
   // signatory), cheques follow the standard cheque layout (date boxes, payee line, amount box and words, A/C payee
   // crossing, signature over the drawer line, MICR band), invoices follow the ZATCA tax invoice (seller and buyer VAT
-  // numbers, line table, totals, phase-1 TLV QR). Bank codes, IBANs and VAT numbers are derived deterministically from
+  // numbers, line table, totals) without a QR code (owner, 22 October). Bank codes, IBANs and VAT numbers are derived deterministically from
   // the account or party they stand for, so a document always shows the same numbers.
   const MONTHS_EN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   function simStamp(seconds){const d=new Date(SIM_START+Math.max(0,Number(seconds)||0)*1000),p=n=>String(n).padStart(2,'0');return {date:`${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())}`,time:`${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`,swift:`${p(d.getUTCDate())} ${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}`,dmy:[p(d.getUTCDate()),p(d.getUTCMonth()+1),String(d.getUTCFullYear())],iso:d.toISOString().replace(/\.\d{3}Z$/,'Z')};}
@@ -5837,7 +5837,6 @@ ${page}</div>`;
     const seller=income?us:them,buyer=income?them:us,total=Number(d.total||0),tax=Number(d.tax||0),subtotal=Number(d.subtotal??Math.max(0,total-tax)),rate=d.taxCode==='mixed'?'حسب البند':`${Number(d.taxRate??(subtotal>0?tax/subtotal:0))*100}%`,stamp=simStamp(d.at);
     const lines=Array.isArray(d.lines)&&d.lines.length?d.lines:[{description:d.note||'خدمات',quantity:1,unitPrice:subtotal,taxable:subtotal,vat:tax,total}];
     const paid=['مسددة','محصلة','مدفوعة'].includes(d.status),bounced=d.status==='شيك مرتجع',bank=treasuryBank(),account=String(d.accountId||companyBook(company).accounts[0]?.id||i.account);
-    const qr=tax>0?docQr(window.GH_QR?.zatcaPayload?.({seller:seller.name,vatNumber:seller.vat,timestamp:stamp.iso,total:total.toFixed(2),vat:tax.toFixed(2)})||d.number,'رمز الفاتورة الإلكترونية'):docQr(`GHV1|INV|${d.number}|${total.toFixed(2)}`,'رمز التحقق');
     const signatureVisual=authorizationSignatureMarkup(d,{legacyLabel:'فاتورة سابقة لنظام التوقيع المرئي'});
     const partyBlock=(role,en,p)=>`<div><h5>${role} · ${en}</h5><div class="bd-party-head">${p.logo}<b><bdi>${esc(p.name)}</bdi></b></div><span>الرقم الضريبي ${mono(p.vat)}</span><span>السجل التجاري ${mono(p.cr)}</span><span>${esc(p.address)}</span></div>`;
     return `<div class="document-card bank-doc-card"><article class="bank-doc invoice-paper ${paid?'is-paid':''}">${paid?'<div class="bd-stamp paid">مدفوعة · PAID</div>':bounced?'<div class="bd-stamp returned">شيك مرتجع</div>':''}
@@ -5846,7 +5845,7 @@ ${page}</div>`;
       <div class="iv-parties">${partyBlock('المورد','Seller',seller)}${partyBlock('المشتري','Buyer',buyer)}</div>
       <div class="iv-table" role="table"><div class="iv-row iv-th" role="row"><span>الوصف<small>Description</small></span><span>الكمية<small>Qty</small></span><span>سعر الوحدة<small>Unit price</small></span><span>الضريبة ${rate}<small>VAT</small></span><span>الإجمالي<small>Total</small></span></div>
         ${lines.map(line=>`<div class="iv-row" role="row"><span>${esc(truncateText(line.description||line.note||'',80))}</span><span>${mono(DOCUMENT_ENGLISH_FORMAT.format(Number(line.quantity||1)))}</span><span>${mono(Number(line.unitPrice??line.taxable??0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.vat||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span><span>${mono(Number(line.total||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}</span></div>`).join('')}</div>
-      <footer class="iv-foot"><div class="iv-qr">${qr}</div><div class="iv-pay"><span>طريقة السداد</span><b>${esc(d.method||'تحويل بنكي')}</b><span>الحساب ${mono(bankIban(account))}</span><span>${esc(bank.name)}</span><div class="iv-sign">${companyStampMarkup(company)}${signatureVisual}</div></div>
+      <footer class="iv-foot"><div class="iv-pay"><span>طريقة السداد</span><b>${esc(d.method||'تحويل بنكي')}</b><span>الحساب ${mono(bankIban(account))}</span><span>${esc(bank.name)}</span><div class="iv-sign">${companyStampMarkup(company)}${signatureVisual}</div></div>
         <div class="iv-tot"><div><span>الإجمالي قبل الضريبة</span>${mono(money(subtotal))}</div><div><span>ضريبة القيمة المضافة ${rate}%</span>${mono(money(tax))}</div><div class="invoice-total"><span>الإجمالي شامل الضريبة</span>${mono(money(total))}</div></div></footer>
     </article></div>`;
   }
