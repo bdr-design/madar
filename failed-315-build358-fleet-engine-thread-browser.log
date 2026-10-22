@@ -1,0 +1,174 @@
+{
+ "setup": {
+  "size": 380
+ },
+ "calendar": {
+  "accepted": true,
+  "reached": true
+ },
+ "calendarHours": {
+  "accepted": true,
+  "reached": true
+ },
+ "live": {
+  "sim": 195300
+ },
+ "afterPurchase": {
+  "accepted": true,
+  "reached": true
+ },
+ "rowEdits": {
+  "accepted": true,
+  "reached": true,
+  "committed": true,
+  "edited": 5,
+  "rowsSent": 5,
+  "fullSyncs": 0,
+  "reasons": {
+   "stale": 1
+  },
+  "revision": 26527
+ },
+ "rollback": {
+  "committed": false,
+  "error": "build358-thread-injected-failure",
+  "pendingSeen": true,
+  "identical": false,
+  "diff": {
+   "roots": [
+    "diagnostics"
+   ],
+   "size": [
+    440,
+    440
+   ],
+   "detail": [
+    {
+     "root": "diagnostics",
+     "keys": [
+      "events",
+      "counters"
+     ]
+    }
+   ]
+  }
+ },
+ "cancelled": {
+  "cancelled": true,
+  "pendingSeen": true,
+  "identical": true
+ },
+ "afterRollback": {
+  "accepted": true,
+  "reached": true
+ },
+ "waited": {
+  "firstPending": true,
+  "busy": true,
+  "committed": true,
+  "resolvedWhileBusy": false,
+  "busyAfter": false
+ },
+ "checks": {
+  "steps": 285,
+  "applied": 285,
+  "mismatches": [],
+  "stats": {
+   "requests": 287,
+   "applied": 285,
+   "fallbacks": 0,
+   "windowBegins": 0,
+   "windowSteps": 0,
+   "windowCommits": 0,
+   "windowRollbacks": 0,
+   "windowFallbacks": 0,
+   "fullSyncs": 1,
+   "seedSyncs": 0,
+   "incrementalSyncs": 23,
+   "columnSyncs": 0,
+   "columnPlanSyncs": 4,
+   "compactions": 0,
+   "rowsSent": 1012,
+   "routeKeysAnswered": 0,
+   "deferredRequests": 0,
+   "windowDeferred": 0,
+   "replicaPrimeSlices": 0,
+   "replicaPrimeRestarts": 0,
+   "replicaPrimeFailures": 0,
+   "replicaPrimeRows": 0,
+   "replicaPrimeValues": 0,
+   "replicaPrimeExtras": 0,
+   "seedMetadataSlices": 0,
+   "lastReplicaPrimeSliceMs": 0,
+   "maxReplicaPrimeSliceMs": 0,
+   "lastWorkerMs": 1.3000000002793968,
+   "lastApplyMs": 0.20000000018626451,
+   "lastSyncMs": 0,
+   "maxWorkerMs": 5.899999999906868,
+   "maxApplyMs": 1.2999999998137355,
+   "maxSyncMs": 1.2999999998137355,
+   "maxFullSyncMs": 0.2999999998137355,
+   "maxSeedSyncMs": 0,
+   "maxRouteAnswerMs": 0.10000000009313226,
+   "slowSyncs": 0,
+   "lastReason": "",
+   "fullSyncReasons": {
+    "stale": 1
+   },
+   "queryRequests": 33,
+   "classRequests": 28,
+   "totalWorkerMs": 614.7000000053085,
+   "maxQueryWorkerMs": 12.700000000186265,
+   "lastClassesWorkerMs": 1.2000000001862645,
+   "maxClassesWorkerMs": 2.2000000001862645,
+   "mutationBegins": 4,
+   "mutationFlushes": 6,
+   "maxMutationRows": 150,
+   "mutationCommits": 4,
+   "replicaRefusals": {
+    "mutation-open": 2,
+    "step-not-replayed": 70
+   },
+   "dispatchPlanRequests": 3,
+   "lastDispatchWorkerMs": 9.200000000186265,
+   "maxDispatchWorkerMs": 36,
+   "lastSaveValidationWorkerMs": 1.2999999998137355,
+   "lastSaveValidationChunksChecked": 1,
+   "lastSaveValidationChunksReused": 0,
+   "saveValidationChunksChecked": 5,
+   "saveValidationChunksReused": 4,
+   "lastSaveValidationReset": "",
+   "lastSaveValidationMiss": {
+    "version": 1,
+    "bounds": 0,
+    "refs": 0,
+    "new": 0
+   },
+   "healthRequests": 10,
+   "lastHealthWorkerMs": 0.5,
+   "maxHealthWorkerMs": 2.3000000002793968,
+   "openSyncs": 6,
+   "disabled": null,
+   "pending": false,
+   "window": false,
+   "mutation": false,
+   "dispatchPending": 0,
+   "replicaPriming": false,
+   "replicaPrimeAttempt": 0
+  },
+  "size": 440,
+  "moving": 284
+ }
+}
+AssertionError [ERR_ASSERTION]: a failed slice restores the whole state exactly
+
+false !== true
+
+    at /Users/runner/work/madar/madar/tests/build358-fleet-engine-thread-browser.cjs:148:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
