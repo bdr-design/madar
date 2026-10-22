@@ -29,9 +29,13 @@ function vault(){
       const next=await GH_RUNTIME.exportDiagnostics();if(!next.exportPerformance.consistent)throw new Error('retry failed');return {case:'consistency protection and retry',rejected};
     }));
     // The actual bound export button must handle failures without an unhandled rejection.
-    await page.evaluate(()=>{window.__DIAG_ORIGINAL__=GH_DIAGNOSTICS;window.GH_DIAGNOSTICS={...GH_DIAGNOSTICS,exportBundleAsync:async()=>{throw new Error('injected-export-button-failure');}};__AUDIT__.openDrawer('diagnostics');});
-    await page.locator('[data-gh-action="diagnostics-export"]').first().click();await page.waitForTimeout(100);
-    assert.equal(await page.evaluate(()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__),false);
+    // It waits for the failing export itself instead of a fixed 100 ms (the button's export first yields for paints, which
+    // a slower runner's coalesced timers and frames can hold past 100 ms), then reads the lock at once: its release
+    // follows the failure in the same microtasks (withDiagnosticOperation's finally).
+    await page.evaluate(()=>{window.__DIAG_ORIGINAL__=GH_DIAGNOSTICS;window.__qaExportFailed=false;window.GH_DIAGNOSTICS={...GH_DIAGNOSTICS,exportBundleAsync:async()=>{window.__qaExportFailed=true;throw new Error('injected-export-button-failure');}};__AUDIT__.openDrawer('diagnostics');});
+    await page.locator('[data-gh-action="diagnostics-export"]').first().click();
+    await page.waitForFunction(()=>window.__qaExportFailed===true,null,{timeout:15000}).catch(()=>assert.fail('the export button did not reach the export'));
+    assert.equal(await page.evaluate(()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__),false,'the export lock leaked after a failed export');
     await page.evaluate(()=>{window.GH_DIAGNOSTICS=window.__DIAG_ORIGINAL__;});
     // NACK is completed evidence too: recovery export remains usable after it.
     results.push(await page.evaluate(async()=>{

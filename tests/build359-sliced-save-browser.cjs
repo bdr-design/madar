@@ -33,19 +33,24 @@ function installVault(){
 
     await test('Save Now commits once, as asked, over frames',async()=>{
       return page.evaluate(async()=>{
-        // The save yields through yieldForInteractivePaint: the next frame when the page paints, else a host task (a
-        // hidden page, or no frame within 80 ms; the macOS gate once saw no frame at all during the save). A host turn
-        // before it resolves is required always; a painted frame during it whenever the page is painting frames.
+        // The save yields through yieldForInteractivePaint: it asks for the next frame and waits for it, or for a host
+        // task when no frame comes within 80 ms (a hidden page, or frames held: the macOS gate once saw no frame at all
+        // during the save, and its frames came 116 ms apart in a busy close). A host turn before it resolves is required
+        // always, and a frame it asked for is waited for: painted before the save ends, or the save outlasts the 80 ms
+        // after asking. Counting painted frames instead failed with frames held 120 ms here (two runs in two): the save
+        // asked, waited the 80 ms and ended before the frame came.
         const live=await new Promise(resolve=>{let n=0;const f=()=>{if(++n>=2)resolve(!document.hidden);else requestAnimationFrame(f);};requestAnimationFrame(f);setTimeout(()=>resolve(false),500);});
         const s=__GH_STATE__,v=window.__VAULT__,before=v.commits.length,revision=s.saveRevision;s.qaMarker='asked';let frames=0,run=true,hostTurn=false;const tick=()=>{frames++;if(run)requestAnimationFrame(tick);};requestAnimationFrame(tick);
+        const raf=window.requestAnimationFrame,asked=[];window.requestAnimationFrame=function(callback){if(!/yieldForInteractivePaint/.test(new Error().stack||''))return raf.call(window,callback);const row={at:performance.now(),ran:null};asked.push(row);return raf.call(window,time=>{row.ran=performance.now();callback(time);});};
         const t=performance.now(),pending=__AUDIT__.saveNow(),syncMs=performance.now()-t;s.qaMarker='after';setTimeout(()=>{hostTurn=true;},0);
-        const ok=await pending;run=false;
+        let ok;try{ok=await pending;}finally{window.requestAnimationFrame=raf;}const ended=performance.now();run=false;
+        const waited=asked.filter(row=>(row.ran!==null&&row.ran<=ended)||ended-row.at>=75).length;
         if(ok!==true)throw new Error(`the save failed (${ok})`);if(v.commits.length!==before+1)throw new Error(`one commit (${v.commits.length-before})`);
         const commit=v.commits.at(-1);if(commit.marker!=='asked')throw new Error(`the save holds the state of the moment it was asked (${commit.marker})`);
         if(s.saveRevision!==revision+1||commit.saveRevision!==revision+1)throw new Error('the next revision');
         const timing=GH_PERSISTENCE.telemetry().timings.samples.filter(r=>r.kind==='sliced-save').at(-1);if(!timing?.ok)throw new Error('the sliced path ran');
-        if(!hostTurn)throw new Error('it gave the host a turn');if(live&&frames<1)throw new Error('it yielded to the frame');
-        return {syncMs:Math.round(syncMs),frames,live,hostTurn,cloneMs:Math.round(timing.cloneMs),validateMs:Math.round(timing.validateMs)};
+        if(!hostTurn)throw new Error('it gave the host a turn');if(live&&waited<1)throw new Error(`it yielded to the frame (${JSON.stringify({asked,ended,frames,live})})`);
+        return {syncMs:Math.round(syncMs),frames,live,hostTurn,asked:asked.length,waited,cloneMs:Math.round(timing.cloneMs),validateMs:Math.round(timing.validateMs)};
       });
     });
 

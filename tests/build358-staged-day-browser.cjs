@@ -51,6 +51,8 @@ const QTY=120;
       const TX=GH_TRANSACTION_CORE,s=()=>__GH_STATE__,startDay=s().lastFinancialDay,long=[],writes=[],frames=[];
       const write=localStorage.setItem;localStorage.setItem=function(key,value){writes.push({t:performance.now(),staged:TX.isStaged(s()),day:(()=>{try{return JSON.parse(value).lastFinancialDay;}catch{return null;}})()});return write.call(this,key,value);};
       const observer=new PerformanceObserver(list=>{for(const entry of list.getEntries())long.push({start:entry.startTime,duration:entry.duration});});observer.observe({entryTypes:['longtask']});
+      // Each simulation tick (the close's steps and its commit run in them), staged or not at its start and end.
+      const engine=__AUDIT__.simulationEngine,engineFrame=engine.frame,ticks=[];engine.frame=function(...args){const from=performance.now(),was=TX.isStaged(s());try{return engineFrame.apply(this,args);}finally{ticks.push({from,until:performance.now(),was,is:TX.isStaged(s())});}};
       let save=null,command=null,commandSettledAt=null,commandError=null,prev=performance.now();
       __AUDIT__.setSpeed(3);
       await new Promise(resolve=>{const tick=now=>{const staged=TX.isStaged(s());frames.push({t:now,gap:now-prev,staged});prev=now;
@@ -64,14 +66,20 @@ const QTY=120;
         requestAnimationFrame(tick);};requestAnimationFrame(tick);});
       __AUDIT__.setSpeed(0);
       const committed=await command;await new Promise(resolve=>setTimeout(resolve,400));
-      observer.disconnect();localStorage.setItem=write;
-      const staged=frames.filter(f=>f.staged),first=staged[0]?.t??0,end=staged.at(-1)?.t??0;
+      observer.disconnect();localStorage.setItem=write;engine.frame=engineFrame;
+      const staged=frames.filter(f=>f.staged),first=staged[0]?.t??0,end=staged.at(-1)?.t??0,commitTick=ticks.find(tick=>tick.was&&!tick.is);
       return {startDay,day:s().lastFinancialDay,stagedFrames:staged.length,stagedMs:end-first,maxGap:Math.max(0,...staged.map(f=>f.gap)),
-        longDuringClose:long.filter(task=>task.start+task.duration>=first&&task.start<=end+17),
+        // The close runs from its first staged frame to the end of the simulation tick that commits it (the tick that
+        // starts staged and ends not). It used to end a frame (17 ms) after the last staged frame, which took in what
+        // follows the close when it starts that soon: the save deferred during it, its own timer task once the state is
+        // no longer staged (with the processor slowed twice here, a 62 ms task 15 ms after the last staged frame, holding
+        // the save's write). That save and the day's compaction after the close are not bounded here.
+        longDuringClose:long.filter(task=>task.start+task.duration>=first&&task.start<=commitTick?.until),commitTick:!!commitTick,
         save,writes,commandIssuedWhileStaged:!!command,committed,commandError,commandSettledAt,stagedEnd:end,
         facility:(s().globalBases||[]).some(f=>f.id==='QA-air-OMAA'),deferredDiag:(s().diagnostics?.events||[]).some(e=>e.type==='SAVE_DEFERRED_STAGED')};
     });
     assert.equal(commit.day,commit.startDay+1,'the day close must commit');
+    assert.equal(commit.commitTick,true,'the close commits in a simulation tick');
     assert(commit.stagedFrames>=2,`the close must be staged across frames: ${JSON.stringify(commit)}`);
     assert.deepEqual(commit.longDuringClose,[],`no long task while the close runs: ${JSON.stringify(commit.longDuringClose)}`);
     assert.equal(commit.save?.result,true,'a save during the close is accepted (deferred), not dropped');

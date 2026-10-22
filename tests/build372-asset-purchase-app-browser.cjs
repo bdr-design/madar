@@ -56,11 +56,16 @@ function attribute(trace,slow){
 
     // A slow exchange is marked for the trace through the client's main-thread work hook (read at each call); the app
     // and the client run unchanged.
+    // A full or seed sync of a small store runs at the start of an exchange, before its incremental part, whose time
+    // then replaces lastSyncMs: an exchange in which the full or seed count moved is marked with that sync's time too.
+    // The counts are read after every fleet stage, so a staged replica's completion (in a 'fleet.replica-slice' stage)
+    // is never put on a later exchange.
     await page.evaluate(SLOW=>{
-      const real=window.GH_DIAGNOSTICS,slow=window.__QA_SLOW_SYNCS__=[];
+      const real=window.GH_DIAGNOSTICS,slow=window.__QA_SLOW_SYNCS__=[],seen=__AUDIT__.fleetEngineThreadClient()?.stats?.()||{},last={full:seen.fullSyncs||0,seed:seen.seedSyncs||0};
       window.GH_DIAGNOSTICS={...real,recordMainThreadWork(state,stage,start,end,...rest){
-        const ms=stage==='fleet.sync'?__AUDIT__.fleetEngineThreadClient()?.stats?.().lastSyncMs:0;
-        if(ms>SLOW){slow.push({syncMs:ms});try{performance.measure('qa-fleet-sync',{start,end});}catch{}}
+        const stats=String(stage).startsWith('fleet.')?__AUDIT__.fleetEngineThreadClient()?.stats?.():null;let ms=0,full=false;
+        if(stats){if(stage==='fleet.sync'){ms=stats.lastSyncMs;if(stats.fullSyncs>last.full){ms=Math.max(ms,stats.maxFullSyncMs);full=true;}if(stats.seedSyncs>last.seed){ms=Math.max(ms,stats.maxSeedSyncMs);full=true;}}last.full=stats.fullSyncs;last.seed=stats.seedSyncs;}
+        if(ms>SLOW){slow.push({syncMs:ms,full});try{performance.measure('qa-fleet-sync',{start,end});}catch{}}
         return real?.recordMainThreadWork?.(state,stage,start,end,...rest);
       }};
     },SLOW_MS);
@@ -95,7 +100,12 @@ function attribute(trace,slow){
     // A slowest exchange that was not marked (not an incremental, full or seed sync) keeps its wall time.
     const unmarked=large.stats.maxSyncMs>SLOW_MS&&slowest?.syncMs!==large.stats.maxSyncMs;
     assert(!unmarked||large.stats.maxSyncMs<20,`an unmarked exchange exceeded the owner 20 ms bound: ${large.stats.maxSyncMs} ${JSON.stringify(slowest)}`);
-    assert(Math.max(large.stats.maxFullSyncMs,large.stats.maxSeedSyncMs,large.stats.maxReplicaPrimeSliceMs||0)<20,`a full or seed sync slice exceeded the owner 20 ms bound: ${JSON.stringify(large.stats)}`);
+    // A full or seed sync, marked with its exchange, is held to the bound in main-thread time like the incremental ones
+    // (the 33.7 ms above was its run's only full sync, with no replica slice: CI run 39338896838; read in wall time, it
+    // fails both the unmarked-exchange check and this one). A staged replica's slices are not marked: their longest
+    // keeps its wall time.
+    const marked=ms=>ms>SLOW_MS?(slow.find(row=>row.full&&row.traced&&row.syncMs===ms)?.mainThreadMs??ms):ms;
+    assert(Math.max(marked(large.stats.maxFullSyncMs),marked(large.stats.maxSeedSyncMs),large.stats.maxReplicaPrimeSliceMs||0)<20,`a full or seed sync slice exceeded the owner 20 ms bound: ${JSON.stringify({...large.stats,slow})}`);
     assert(mainThreadMs<20,`a worker mutation sync exceeded the owner 20 ms bound in main-thread time: ${JSON.stringify(slow)}`);
 
     const stale=await page.evaluate(async()=>{

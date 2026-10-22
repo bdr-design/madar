@@ -59,11 +59,29 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). The gate that stopped CI build 89, then the gates the fix touches (those that open the conference, those
-# that read WebApp or its fingerprints, and this file, whose pinned list changed), then the other gates that stopped a CI
-# build since build 77 and passed after it, the latest first (builds 88, 87, 86, 85, 83, 78), then the gates CI reached
-# first in build 89, then the targeted save, failure-rollback, finance and layout set that passed.
+# (AGENTS.md). The gate that stopped CI build 92, then the gates the fixes touch (four whose tests changed, then those
+# that read the tests or their fingerprints, and this file, whose pinned list changed), then the other gates that stopped
+# a CI build since build 77 and passed after it, the latest first, and those first reached in build 89 (CI has reached
+# none of them on the game code since build 89's fix), then build576, which stopped builds 89 to 91 and passed in build
+# 92, and the gates that open the conference, which passed there, then the targeted save, failure-rollback, finance and
+# layout set that passed.
 expected_preflight=[
+    ['node', 'tests/build558-investor-card-load-browser.cjs'],
+    ['node', 'tests/build372-asset-purchase-app-browser.cjs'],
+    ['node', 'tests/build358-staged-day-browser.cjs'],
+    ['node', 'tests/build374-diagnostic-lifecycle-browser.cjs'],
+    ['node', 'tests/build359-sliced-save-browser.cjs'],
+    ['node', 'tests/lint.cjs'],
+    ['node', 'tests/build334-security-contract.cjs'],
+    ['node', 'tests/build339-architecture-bootstrap.cjs'],
+    ['python3', 'tests/acceptance-policy.py'],
+    ['node', 'tests/build571-tax-month-close-browser.cjs'],
+    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
+    ['node', 'tests/build375-compact-desks-browser.cjs'],
+    ['node', 'tests/build470-composite-notice-work.cjs'],
+    ['node', 'tests/build572-fleet-premium-unpaid.cjs'],
+    ['node', 'tests/build573-asset-sale-browser.cjs'],
+    ['node', 'tests/build574-investor-budget-overrun.cjs'],
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build552-conference-hall-layout-browser.cjs'],
@@ -72,22 +90,8 @@ expected_preflight=[
     ['node', 'tests/build420-conference-durable-browser.cjs'],
     ['node', 'tests/build373-conference-large-fleet-browser.cjs'],
     ['node', 'tests/build553-conference-open-cost.cjs'],
-    ['node', 'tests/lint.cjs'],
-    ['node', 'tests/build334-security-contract.cjs'],
-    ['node', 'tests/build339-architecture-bootstrap.cjs'],
-    ['python3', 'tests/acceptance-policy.py'],
-    ['node', 'tests/build558-investor-card-load-browser.cjs'],
-    ['node', 'tests/build571-tax-month-close-browser.cjs'],
-    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
-    ['node', 'tests/build375-compact-desks-browser.cjs'],
-    ['node', 'tests/build358-staged-day-browser.cjs'],
-    ['node', 'tests/build470-composite-notice-work.cjs'],
-    ['node', 'tests/build572-fleet-premium-unpaid.cjs'],
-    ['node', 'tests/build573-asset-sale-browser.cjs'],
-    ['node', 'tests/build574-investor-budget-overrun.cjs'],
     ['node', 'tests/build498-native-save-export-contract.cjs'],
     ['node', 'tests/build395-hospitality-edge-cases.cjs'],
-    ['node', 'tests/build372-asset-purchase-app-browser.cjs'],
     ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build497-route-preview-reuse.cjs'],
     ['node', 'tests/build492-manual-slot-slices-browser.cjs'],
