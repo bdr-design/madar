@@ -1,0 +1,8 @@
+preflight 1/602 0 tests/build558-investor-card-load-browser.cjs
+preflight 2/602 0 tests/acceptance-policy.py
+preflight 3/602 0 tests/build572-fleet-premium-unpaid.cjs
+preflight 4/602 0 tests/build573-asset-sale-browser.cjs
+preflight 5/602 0 tests/build574-investor-budget-overrun.cjs
+preflight 6/602 0 tests/build575-conference-keynote-weight-browser.cjs
+preflight 7/602 1 tests/build576-presentation-rest-browser.cjs
+EARLY_FAILURE tests/build576-presentation-rest-browser.cjs: stopping before remaining 595 gate(s)

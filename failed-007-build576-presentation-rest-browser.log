@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 2: at most half the work: {"before":{"play":{"frames":23.9,"ticks":28.2,"sim":29.9,"busy":21.8},"paused":{"frames":29.9,"ticks":3.7,"sim":0,"busy":43.8},"conference":{"frames":31.3,"ticks":28.9,"sim":0,"busy":18.2},"resumeMs":99,"resumeSim":30,"closeMs":50.5,"closeSim":30,"releaseMs":113.60000000003492,"afterRelease":{"frames":29.2,"ticks":3.3,"sim":0,"busy":15.3},"calendarMs":32.09999999997672,"calendar":{"frames":45.7},"afterCalendar":{"frames":33.2,"ticks":4,"sim":0,"busy":20.5},"recorder":{"frames":24.6,"ticks":3.3,"sim":0,"busy":25}},"after":{"play":{"frames":26,"ticks":25.3,"sim":30,"busy":21.7},"paused":{"frames":3.3,"ticks":3.3,"sim":0,"busy":8.3},"conference":{"frames":3,"ticks":3,"sim":0,"busy":9.6},"resumeMs":6.399999999906868,"resumeSim":30,"closeMs":208.59999999997672,"closeSim":30,"releaseMs":21.100000000093132,"afterRelease":{"frames":3.3,"ticks":3.3,"sim":0,"busy":2.7},"calendarMs":14.900000000023283,"calendar":{"frames":37.3},"afterCalendar":{"frames":2.7,"ticks":2.7,"sim":0,"busy":3},"recorder":{"frames":31.9,"ticks":4,"sim":0,"busy":17.6},"auditResting":0,"auditAfterCommand":104,"auditPlaying":936}}
+    at /Users/runner/work/madar/madar/tests/build576-presentation-rest-browser.cjs:86:130 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
