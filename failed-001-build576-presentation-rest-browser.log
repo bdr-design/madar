@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 3: playing keeps the display rate and the ticks: {"before":{"play":{"frames":40.9,"ticks":36.6,"sim":29.9,"busy":25.5},"paused":{"frames":35.3,"ticks":4,"sim":0,"busy":15.9},"conference":{"frames":33.9,"ticks":32.6,"sim":0,"busy":24.7},"conferenceAudit":1215,"resumeMs":27.10000000000582,"resumeSim":30,"closeMs":12,"closeSim":30,"releaseMs":17.5,"afterRelease":{"frames":41.9,"ticks":4,"sim":0,"busy":22.3},"calendarMs":37,"calendar":{"frames":38.4},"afterCalendar":{"frames":46.5,"ticks":4,"sim":0,"busy":23.9},"recorder":{"frames":44.5,"ticks":3.3,"sim":0,"busy":28.7}},"after":{"play":{"frames":35.6,"ticks":32.9,"sim":29.9,"busy":22.1},"paused":{"frames":3.7,"ticks":3.7,"sim":0,"busy":3.1},"conference":{"frames":3.3,"ticks":3.3,"sim":0,"busy":3.2},"conferenceAudit":0,"conferenceCommandSaved":true,"conferenceAuditWoke":true,"conferenceAuditWokeChecked":84,"conferenceAuditAfter":0,"resumeMs":9.700000000011642,"resumeSim":30,"closeMs":193.30000000004657,"closeSim":30,"releaseMs":7,"afterRelease":{"frames":3.3,"ticks":3.3,"sim":0,"busy":3.2},"calendarMs":7.7000000000116415,"calendar":{"frames":43.3},"afterCalendar":{"frames":2.6,"ticks":2.6,"sim":0,"busy":2.4},"recorder":{"frames":26.6,"ticks":4,"sim":0,"busy":13.6},"auditResting":0,"auditAfterCommand":107,"auditPlaying":535}}
+    at /Users/runner/work/madar/madar/tests/build576-presentation-rest-browser.cjs:109:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
