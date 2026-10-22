@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: the choice returns to the desk, marked
+
+false !== true
+
+    at /Users/runner/work/madar/madar/tests/build375-compact-desks-browser.cjs:56:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
