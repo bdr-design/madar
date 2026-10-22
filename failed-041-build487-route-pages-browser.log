@@ -1,0 +1,7 @@
+{"suite":"build487-route-pages-browser","engine":"chromium","viewport":{"width":956,"height":440},"cards":9,"pages":3,"overflow":false}
+{"suite":"build487-route-pages-browser","engine":"chromium","viewport":{"width":844,"height":390},"cards":9,"pages":3,"overflow":false}
+{"suite":"build487-route-pages-browser","engine":"chromium","viewport":{"width":667,"height":375},"cards":9,"pages":3,"overflow":false}
+page.waitForFunction: Timeout 60000ms exceeded.
+    at /Users/runner/work/madar/madar/tests/build487-route-pages-browser.cjs:3:1201 {
+  name: 'TimeoutError'
+}
