@@ -2,7 +2,13 @@
 // The investor card adds no weight to play (owner: «لاثقل على اللعبة … اختبارات صارمة جدًا لمعرفة اي اسباب ثقل»).
 // Measured in the real app with the processor slowed four times, on this source and on the source before the card (run
 // from its own tree), the same world with every company's current account emptied so that play needs the card:
-//  1. ten game days write as many founder transfers, signed documents and journal entries as before, and no bigger save;
+//  1. ten game days write as many founder transfers, signed documents and journal entries as before, and no bigger save.
+//     The save is weighed without the card's statement and without the app's diagnostics (its event log, counters, open
+//     issues and last health report), which record how the machine ran: the governor's events come from ten-second
+//     windows of wall time and carry the chunks' timings. With them, this source's save moved by up to 1,402 bytes from
+//     one run to the next here, and build 88's macOS runner found it 1,102 bytes bigger than the old source's; without
+//     them both are the same in every run (832,094 against 832,789 bytes here, frames held 80 ms or not). The card
+//     writes nothing there;
 //  2. those days take no longer than before (main-thread long tasks and wall time, with a margin for noise);
 //  3. opening the investor mode page (the card, its statement and every company's return) builds no more than opening the
 //     finance overview, and writes nothing: fewer elements, and no longer by the app's own clock of building a page and
@@ -22,7 +28,7 @@ async function measure(root){
   const settled=()=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked()&&!__AUDIT__.simulationEngine.snapshot().manualAdvance);
   await page.evaluate(()=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;for(const t of Object.keys(s.companyFinance))if(t!=='group'){F.book(s,t).accounts[0].balance=0;}F.reconcile(s);__AUDIT__.save?.();});await settled();
   const cdp=await page.context().newCDPSession(page);await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});
-  const counts=()=>page.evaluate(()=>{const s=__GH_STATE__;return {founder:s.finance.transfers.filter(t=>t.kind==='founder-investment').length,journal:s.finance.journalEntries.length,proofs:JSON.stringify(s.documentProofs||s.finance.documentProofs||{}).length,save:JSON.stringify(s).length-JSON.stringify(s.finance.investorCard||null).length};});
+  const counts=()=>page.evaluate(()=>{const s=__GH_STATE__;return {founder:s.finance.transfers.filter(t=>t.kind==='founder-investment').length,journal:s.finance.journalEntries.length,proofs:JSON.stringify(s.documentProofs||s.finance.documentProofs||{}).length,save:JSON.stringify(s).length-JSON.stringify(s.finance.investorCard||null).length-JSON.stringify(s.diagnostics||null).length};});
   const start=await counts();
   await page.evaluate(()=>{window.__qaLong=0;window.__qaObserver=new PerformanceObserver(list=>{for(const e of list.getEntries())window.__qaLong+=e.duration;});window.__qaObserver.observe({type:'longtask'});});
   const wall=await page.evaluate(async days=>{const t0=performance.now();for(let d=0;d<days;d++){const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+86400,{reason:'qa-investor-card-load',speed:300});if(!r.accepted)throw Error(JSON.stringify(r));await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});}return performance.now()-t0;},DAYS);

@@ -3,27 +3,11 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build571-tax-month-close-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build570-documents-list-weight-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build375-compact-desks-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-staged-day-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build558-investor-card-load-browser.cjs"
     ],
     [
-      "node",
-      "tests/build470-composite-notice-work.cjs"
+      "python3",
+      "tests/acceptance-policy.py"
     ],
     [
       "node",
@@ -47,11 +31,27 @@
     ],
     [
       "node",
-      "tests/build334-security-contract.cjs"
+      "tests/build571-tax-month-close-browser.cjs"
     ],
     [
-      "python3",
-      "tests/acceptance-policy.py"
+      "node",
+      "tests/build570-documents-list-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-compact-desks-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-staged-day-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build470-composite-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-security-contract.cjs"
     ],
     [
       "node",
