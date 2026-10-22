@@ -6,7 +6,8 @@
 //  - a save requested during the close is deferred (nothing is written until it ends), then written with the closed day;
 //  - a player command issued during the close waits for it and then commits;
 //  - pausing or hiding the app mid-close aborts the transaction and restores the state exactly (everything but the
-//    diagnostics log, which records the pause/hide itself and is never part of a transaction).
+//    diagnostics log, which records the pause/hide itself and is never part of a transaction, and the fleet store's
+//    cache epoch, which a rollback advances by design).
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
 const QTY=120;
@@ -100,6 +101,12 @@ const QTY=120;
         // Compared decoded (Build 358): a collection that reaches 64 rows (the diagnostics log, written by the hide save) is
         // shape-encoded and adds the codec's own 'stateCodec' metadata to the save text; neither is game state.
         const after=encode(),decode=text=>{const tree=GH_STATE_CODEC.decodeState(JSON.parse(text));delete tree.stateCodec;return tree;},A=decode(before),B=decode(after);
+        // The fleet store's revision is its cache epoch: a rollback advances it by design (fleet-store-core.js: "revision
+        // and structure only ever grow"), so no cache keyed by it mistakes the restored rows for the aborted ones. It
+        // moves whenever the close wrote fleet rows before the abort, which a slow runner reaches (CI run 83, frames 116 ms
+        // apart). Every row, value and the structure are still compared; the epoch is set aside once it is shown not to
+        // have gone back.
+        const epoch={before:A.fleet?.revision,after:B.fleet?.revision};if(A.fleet&&B.fleet){delete A.fleet.revision;delete B.fleet.revision;}
         // The diagnostics log records the pause/hide (and, timing-dependent, governor samples) outside any transaction.
         // Hiding the app also saves (setHidden -> onPersist) after the abort, which moves saveRevision.
         const volatile=how==='hide'?['saveRevision','diagnostics']:['diagnostics'];
@@ -110,12 +117,13 @@ const QTY=120;
         // Where a changed root differs (the first few paths), so a failure names the field (CI run 83: 'fleet' after hiding).
         const walk=(a,b,at)=>{if(paths.length>=8||JSON.stringify(a)===JSON.stringify(b))return;if(a&&b&&typeof a==='object'&&typeof b==='object'){for(const k of new Set([...Object.keys(a),...Object.keys(b)]))walk(a[k],b[k],`${at}.${k}`);}else paths.push(`${at}: ${String(JSON.stringify(a)).slice(0,80)} -> ${String(JSON.stringify(b)).slice(0,80)}`);};
         for(const k of changed)walk(A[k],B[k],k);
-        return {seen,stagedAfter,reason,identical:without(A,volatile)===without(B,volatile),appended,changed,paths,
+        return {seen,stagedAfter,reason,epochForward:!(Number(epoch.after)<Number(epoch.before)),identical:without(A,volatile)===without(B,volatile),appended,changed,paths,
           revisionStep:s().saveRevision-revision,day:s().lastFinancialDay,day0:day,sim:s().simSeconds,sim0:sim};
       },how);
       assert.equal(out.seen,true,`${how}: the close must have started`);
       assert.equal(out.stagedAfter,false,`${how}: the staged transaction must be aborted at once`);
       assert.equal(out.reason,how==='pause'?'user-speed-change':'hidden');
+      assert.equal(out.epochForward,true,`${how}: the fleet store's epoch never goes back`);
       assert.deepEqual(out.changed,[],`${how}: state restored exactly (diagnostics appended: ${JSON.stringify(out.appended)}; differs at ${JSON.stringify(out.paths)})`);
       assert.equal(out.day,out.day0);assert.equal(out.sim,out.sim0);
       if(how==='pause')assert.equal(out.identical,true,'pause: byte-for-byte identical apart from the diagnostics log');
