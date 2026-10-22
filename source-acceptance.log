@@ -1,0 +1,5 @@
+preflight 1/602 0 tests/build334-security-contract.cjs
+preflight 2/602 0 tests/acceptance-policy.py
+preflight 3/602 0 tests/build498-native-save-export-contract.cjs
+preflight 4/602 0 tests/build395-hospitality-edge-cases.cjs
+preflight 5/602 0 tests/build372-asset-purchase-app-browser.cjs
