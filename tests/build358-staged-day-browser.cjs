@@ -106,13 +106,17 @@ const QTY=120;
         // Collections of 64+ rows (the diagnostics events) are shape-encoded in the save text; read them decoded.
         const types=tree=>{const events=tree?.diagnostics?.events;return Array.isArray(events)?events.map(e=>e.type):[];},appended=types(B).slice(types(A).length);
         const without=(tree,keys)=>JSON.stringify(Object.fromEntries(Object.entries(tree).filter(([k])=>!keys.includes(k))));
-        return {seen,stagedAfter,reason,identical:without(A,volatile)===without(B,volatile),appended,changed:Object.keys({...A,...B}).filter(k=>JSON.stringify(A[k])!==JSON.stringify(B[k])&&!volatile.includes(k)),
+        const changed=Object.keys({...A,...B}).filter(k=>JSON.stringify(A[k])!==JSON.stringify(B[k])&&!volatile.includes(k)),paths=[];
+        // Where a changed root differs (the first few paths), so a failure names the field (CI run 83: 'fleet' after hiding).
+        const walk=(a,b,at)=>{if(paths.length>=8||JSON.stringify(a)===JSON.stringify(b))return;if(a&&b&&typeof a==='object'&&typeof b==='object'){for(const k of new Set([...Object.keys(a),...Object.keys(b)]))walk(a[k],b[k],`${at}.${k}`);}else paths.push(`${at}: ${String(JSON.stringify(a)).slice(0,80)} -> ${String(JSON.stringify(b)).slice(0,80)}`);};
+        for(const k of changed)walk(A[k],B[k],k);
+        return {seen,stagedAfter,reason,identical:without(A,volatile)===without(B,volatile),appended,changed,paths,
           revisionStep:s().saveRevision-revision,day:s().lastFinancialDay,day0:day,sim:s().simSeconds,sim0:sim};
       },how);
       assert.equal(out.seen,true,`${how}: the close must have started`);
       assert.equal(out.stagedAfter,false,`${how}: the staged transaction must be aborted at once`);
       assert.equal(out.reason,how==='pause'?'user-speed-change':'hidden');
-      assert.deepEqual(out.changed,[],`${how}: state restored exactly (diagnostics appended: ${JSON.stringify(out.appended)})`);
+      assert.deepEqual(out.changed,[],`${how}: state restored exactly (diagnostics appended: ${JSON.stringify(out.appended)}; differs at ${JSON.stringify(out.paths)})`);
       assert.equal(out.day,out.day0);assert.equal(out.sim,out.sim0);
       if(how==='pause')assert.equal(out.identical,true,'pause: byte-for-byte identical apart from the diagnostics log');
       else assert(out.revisionStep<=1,`hide: at most the one hide save: ${out.revisionStep}`);
