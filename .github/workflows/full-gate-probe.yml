@@ -1,0 +1,68 @@
+name: Full gate probe on macOS (diagnostic only)
+
+# The Build 362 workflow stops at its first failed gate, so each run showed one weakness and hid the next (builds 88 to
+# 92 each stopped at a different gate). This workflow runs every declared gate in CI's order (the preflight first) with
+# CI's 300 s timeout, on the same macOS runner and Node, without stopping at a failure, and prints every failure with the
+# end of its log and the slowest gates. It builds nothing and is not an acceptance gate.
+
+on:
+  # A workflow that is not on the default branch cannot be dispatched; a push that changes this file runs it.
+  push:
+    branches: ["claude/madar-ventora-handover-3.0.0-stg723"]
+    paths:
+      - .github/workflows/full-gate-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-gate-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: macos-15
+    timeout-minutes: 300
+    steps:
+      - name: Check out the branch
+        uses: actions/checkout@v4
+        with:
+          # The parity gates read earlier source files from Git history.
+          fetch-depth: 0
+
+      - name: Select Node 24
+        uses: actions/setup-node@v4
+        with:
+          # The Build 362 workflow's Node; 24.19.0 crashed on the arm64 runner (see node-crash-probe.yml).
+          node-version: "24.22.0"
+
+      - name: Install pinned test dependencies and browser engines
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci-output
+          node --version
+          npm install --no-save --package-lock=false --no-audit --no-fund
+          npx playwright install chromium webkit
+          npm run lint
+
+      - name: Run every declared gate in CI's order, without stopping
+        shell: bash
+        run: |
+          set -uo pipefail
+          OUT="$RUNNER_TEMP/full-gates"
+          python3 tools/run_acceptance.py --output "$OUT" --timeout 300 --preflight || true
+          python3 - "$OUT" <<'PY'
+          import json,sys
+          from pathlib import Path
+          base=Path(sys.argv[1]);rows=json.loads((base/'results.json').read_text())['tests']
+          failed=[row for row in rows if row['exit_code']!=0]
+          print(f'FULL PROBE: {len(rows)} gates run, {len(failed)} failed: {[row["argv"][1] for row in failed]}',flush=True)
+          for row in failed:
+              print(f'FAILED {row["log"]}: exit={row["exit_code"]} seconds={row["elapsed_seconds"]}',flush=True)
+              lines=(base/row['log']).read_text(errors='replace').splitlines()
+              for line in [line for line in lines if 'AssertionError' in line or 'Error:' in line][:6]+lines[-30:]:print('   '+line[:3000],flush=True)
+          print('SLOWEST:',json.dumps([[row['argv'][1],row['elapsed_seconds']] for row in sorted(rows,key=lambda row:-row['elapsed_seconds'])[:20]]),flush=True)
+          sys.exit(1 if failed else 0)
+          PY
