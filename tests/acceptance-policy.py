@@ -59,12 +59,16 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). The gate that stopped CI build 93 (build487), then build576, which failed the macOS probe beside it (both
-# changed), then those that read the tests or their fingerprints, and this file, whose pinned list changed, then the
-# gates build 93 passed, in its order (build558 and the four gates whose tests changed for it, then those that stopped a
-# CI build since build 77 and those first reached in build 89, then the gates that open the conference), then the
-# targeted save, failure-rollback, finance and layout set that passed.
+# (AGENTS.md). The gates that failed on the macOS runner since build 93, the latest first (build575 in the probe after
+# it, build570 in the full gate probe beside it; both changed), then those changed for build 93's failures, which passed
+# there since (build487, which stopped build 93, and build576), then those that read the tests or their fingerprints,
+# and this file, whose pinned list changed, then the gates build 93 passed, in its order (build558 and the four gates
+# whose tests changed for it, then those that stopped a CI build since build 77 and those first reached in build 89,
+# then the gates that open the conference), then the targeted save, failure-rollback, finance and layout set that
+# passed.
 expected_preflight=[
+    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
+    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build487-route-pages-browser.cjs'],
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/lint.cjs'],
@@ -77,13 +81,11 @@ expected_preflight=[
     ['node', 'tests/build374-diagnostic-lifecycle-browser.cjs'],
     ['node', 'tests/build359-sliced-save-browser.cjs'],
     ['node', 'tests/build571-tax-month-close-browser.cjs'],
-    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build375-compact-desks-browser.cjs'],
     ['node', 'tests/build470-composite-notice-work.cjs'],
     ['node', 'tests/build572-fleet-premium-unpaid.cjs'],
     ['node', 'tests/build573-asset-sale-browser.cjs'],
     ['node', 'tests/build574-investor-budget-overrun.cjs'],
-    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build552-conference-hall-layout-browser.cjs'],
     ['node', 'tests/build421-conference-recovery-contract.cjs'],
     ['node', 'tests/build368-approved-company-logos.cjs'],

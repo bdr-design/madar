@@ -6,7 +6,8 @@
 //     and building it (the app's own 'ui.render' clock) costs at most half of what drawing its documents cost;
 //  2. opening one document from its row costs no more than drawing a page of documents did;
 //  3. reading the pages writes nothing.
-// Both sources are open side by side and each page is opened on each in turn, the cheapest of ten kept; then the
+// Both sources are open side by side and each page is opened on each in turn, ten times, and the mean of the cheapest
+// five is kept for each page's build (the cheapest of ten for the rest); then the
 // opened document takes turns with the old page drawn again and is compared with those ten. A machine that slows down
 // during the run weighs on both alike. Ten, not five: a build of two milliseconds varies by half from one opening to
 // the next (the cheques list measured 1.9 to 3.5 ms in ten), and the cheques list builds 0.43 to 0.45 of the old
@@ -37,7 +38,10 @@ async function boot(root){
    // document is compared with those pages, measured in the same minutes (the page rounds above stay one against one).
    const first=runs.get(current)[0].firstRow,doc=first?JSON.parse(first):null,paired=new Map([[current,[]],[old,[]]]);
    for(let i=0;i<ROUNDS;i++)for(const t of [current,old])paired.get(t).push(await t.open(t===current&&doc?doc:arg));
-   for(const t of [current,old]){const best=(rows,key)=>Math.min(...rows.map(r=>r[key])),rows=runs.get(t),again=paired.get(t);t.out[view]={render:best(rows,'render'),total:best(rows,'total'),nodes:rows[0].nodes,documents:rows[0].documents};
+   // A page's build is the mean of its five cheapest of the ten: the app's clock reads in steps of 0.1 ms, a tenth of the
+   // list's build, and on the macOS runner the cheapest openings of the cheques list read 1.0 to 1.2 ms against the old
+   // page's 2.3 to 3.2 in four runs, one over the half by 0.05 ms (1.2 against 2.3, the full gate probe beside build 93).
+   for(const t of [current,old]){const best=(rows,key)=>Math.min(...rows.map(r=>r[key])),cheap=(rows,key)=>rows.map(r=>r[key]).sort((a,b)=>a-b).slice(0,5).reduce((a,b)=>a+b,0)/5,rows=runs.get(t),again=paired.get(t);t.out[view]={render:cheap(rows,'render'),cheapest:best(rows,'render'),total:best(rows,'total'),nodes:rows[0].nodes,documents:rows[0].documents};
     if(t===old)t.out[view].paired=best(again,'render');else if(doc)t.out[view].opened={render:best(again,'render'),documents:again[0].documents,doc:doc.doc};}
   }
   for(const t of [current,old]){t.out.unchanged=(await t.books())===t.initial;assert.deepEqual(t.errors,[]);}

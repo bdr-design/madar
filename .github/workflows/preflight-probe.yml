@@ -1,8 +1,9 @@
 name: Preflight probe on macOS (diagnostic only)
 
 # Builds 89, 90 and 91 each stopped at build576-presentation-rest-browser on a different claim, one claim a build,
-# build 92 at build558 and build 93 at build487: the Build 362 workflow stops at the first failed gate, so each run
-# showed one weakness and hid the next. This workflow runs the first 24 preflight gates of ACCEPTANCE_POLICY.json (the
+# build 92 at build558 and build 93 at build487 (the probes after it failed build575 and build570): the Build 362
+# workflow stops at the first failed gate, so each run showed one weakness and hid the next. This workflow runs the
+# first 24 preflight gates of ACCEPTANCE_POLICY.json (the
 # gates that failed, then those the latest fixes touch, then those that passed), the gates whose tests changed several
 # times each, on the same macOS runner and Node, without stopping at a failure, and prints every result with its
 # measurements. It builds nothing and is not an acceptance gate.
@@ -15,6 +16,8 @@ on:
       - .github/workflows/preflight-probe.yml
       - tests/build576-presentation-rest-browser.cjs
       - tests/build487-route-pages-browser.cjs
+      - tests/build575-conference-keynote-weight-browser.cjs
+      - tests/build570-documents-list-weight-browser.cjs
       - tests/build558-investor-card-load-browser.cjs
       - tests/build372-asset-purchase-app-browser.cjs
       - tests/build358-staged-day-browser.cjs
@@ -63,8 +66,8 @@ jobs:
           root=Path('.').resolve();sys.path.insert(0,str(root/'tools'))
           from acceptance_contract import contract
           pre=[list(row) for row in contract(root)['preflight_commands']]
-          if pre[0]!=['node','tests/build487-route-pages-browser.cjs']:raise SystemExit(f'unexpected first preflight gate: {pre[0]}')
-          repeat={'tests/build487-route-pages-browser.cjs':5,'tests/build576-presentation-rest-browser.cjs':3}
+          if pre[0]!=['node','tests/build575-conference-keynote-weight-browser.cjs']:raise SystemExit(f'unexpected first preflight gate: {pre[0]}')
+          repeat={'tests/build575-conference-keynote-weight-browser.cjs':3,'tests/build570-documents-list-weight-browser.cjs':5,'tests/build487-route-pages-browser.cjs':3,'tests/build576-presentation-rest-browser.cjs':2}
           jobs=[(f'{row[1]} run {i}' if repeat.get(row[1],1)>1 else row[1],row) for row in pre[:24] for i in range(1,repeat.get(row[1],1)+1)]
           failed=[]
           for label,argv in jobs:
