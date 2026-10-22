@@ -15,7 +15,8 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium,w
 // iPads, and both held upright.
 const SCREENS=[[956,440,[62,62,20,0]],[956,440,[0,0,0,0]],[932,430,[59,59,21,0]],[844,390,[47,47,21,0]],[667,375,[0,0,0,0]],[1180,820,[0,0,20,0]],[1366,1024,[0,0,20,0]],[390,844,[0,0,34,47]],[820,1180,[0,0,20,24]]];
 (async()=>{const results=[];for(const engine of [chromium,webkit]){
- const server=await serve(path.join(ROOT,'WebApp')),browser=await engine.launch({headless:true}),page=await browser.newPage({viewport:{width:956,height:440},locale:'ar-SA'}),errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));try{
+ // A browser that fails to start still closes the server, so the gate fails at once instead of waiting out its timeout.
+ const server=await serve(path.join(ROOT,'WebApp'));let browser;try{browser=await engine.launch({headless:true});const page=await browser.newPage({viewport:{width:956,height:440},locale:'ar-SA'}),errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
   await page.goto(server.baseURL);await page.waitForFunction(()=>window.GH_CONF_KEYNOTE&&window.GH_CONFERENCE_3D&&window.GH_CONFERENCE);
   await page.evaluate(()=>{
    const types=['air','sea','road','power','bank','mobility','insurance','realestate','telecom','dealership','hospitality'],seed={simSeconds:365*86400,openedCompanies:types,profile:{name:'مجموعة فنتورا العالمية',founder:'مؤسس المجموعة',reputation:75},hired:[],assets:[],globalBases:[],customHubs:[],branches:[],bank:{branches:32},energy:{solarMW:250},mobility:{vehicles:[]},companyRegistry:{}};
@@ -61,6 +62,6 @@ const SCREENS=[[956,440,[62,62,20,0]],[956,440,[0,0,0,0]],[932,430,[59,59,21,0]]
   await page.evaluate(()=>GH_CONFERENCE_3D.close());await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>GH_CONFERENCE_3D.launch({snapshot:qaSnapshot},{mode:'manual'}));await page.waitForFunction(()=>GH_CONFERENCE_3D.diagnostics().phase==='presenting');
   const running=await page.evaluate(()=>{GH_CONFERENCE_3D.go(3);return document.getAnimations().filter(a=>a.playState==='running').length;});assert.equal(running,0,'5: reduced motion runs no animation');
   await page.evaluate(()=>GH_CONFERENCE_3D.close());assert.equal(await page.locator('.ghc3').count(),0);assert.deepEqual(errors,[]);
- }finally{await browser.close();await server.close();}}
+ }finally{await browser?.close();await server.close();}}
  console.log(JSON.stringify({suite:'build552-conference-hall-layout-browser',ok:true,results}));
 })().catch(error=>{console.error(error);process.exitCode=1;});

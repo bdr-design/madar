@@ -53,7 +53,9 @@ const KINDS=['air','telecom','dealership','mobility'];
     const plans=await page.evaluate(()=>[...document.querySelectorAll('#drawerBody .pv-opt')].map(group=>group.querySelectorAll('[data-current="1"]').length));assert.deepEqual(plans,[1,1,1,1],'each plan marks its current price');
     await page.locator('#drawerBody [data-gh-action="telecom-set-price"][data-plan="home"]:not([disabled])').first().click();
     await page.waitForFunction(()=>Number(GH_TELECOM_MARKET.read(__GH_STATE__).pricing.home)!==1);await page.waitForFunction(()=>document.querySelector('#drawerBody .tab-btn.active[data-facility-tab="operations"]'));
-    assert.equal(await page.evaluate(()=>document.querySelectorAll('#drawerBody .pv-opt')[1].querySelector('[data-current="1"]').dataset.level!=='1'),true,'the choice returns to the desk, marked');
+    // The desk is drawn again once the command is stored (after the state changes), so wait for it rather than read the
+    // page in between (CI run 85 read it before the redraw on a slower runner).
+    assert.equal(await page.waitForFunction(()=>{const marked=document.querySelectorAll('#drawerBody .pv-opt')[1]?.querySelector('[data-current="1"]');return !!marked&&marked.dataset.level!=='1';},null,{timeout:10000}).then(()=>true,()=>false),true,'the choice returns to the desk, marked');
     // Showroom desk.
     await open(facilities.dealership);assert.match(await page.locator('#drawerBody .pv-hero').textContent(),/مبيعات الشهر/);
     await open(facilities.dealership,'operations');assert.equal(await page.locator('#drawerBody .pv-opt').count(),4,'price, stock cover, service plan and stock finance (Build 378)');assert.equal(await page.locator('#drawerBody [data-current="1"]').count(),4,'one current choice per row');

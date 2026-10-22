@@ -9,7 +9,10 @@
 //     its DOM (the two pages taken in turn, the fastest of five each). The whole open to the second frame is reported, not
 //     compared: its style, layout and paint depend on the machine's graphics (build 80's macOS runner painted the card's
 //     gradients slower than the finance overview's text, 87 against 65 ms, the reverse of here, 63 against 142 ms).
-// Desktop Chromium with CPU throttling; not iPhone performance.
+//     The pages are built at full speed: slowed four times, the throttle's own pauses land at random in a build of a few
+//     milliseconds (one documents page measured 3.6 to 15 ms from one opening to the next, build570). The floor under
+//     the finance overview's time is 1.25 ms, a quarter of the 5 ms it had slowed four times.
+// Desktop Chromium, the days with the CPU throttled 4x; not iPhone performance.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright');
 const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareCommandWorld}=require('./helpers/command-world-fixture.cjs');
 const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='65ee1eb',DAYS=10;
@@ -25,6 +28,7 @@ async function measure(root){
   const wall=await page.evaluate(async days=>{const t0=performance.now();for(let d=0;d<days;d++){const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+86400,{reason:'qa-investor-card-load',speed:300});if(!r.accepted)throw Error(JSON.stringify(r));await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});}return performance.now()-t0;},DAYS);
   await settled();const long=await page.evaluate(()=>{window.__qaObserver.disconnect();return window.__qaLong;}),end=await counts();
   // The app times each open's stages itself (GH_DIAGNOSTICS.recordMainThreadWork); 'ui.render' is building the page and its DOM.
+  await cdp.send('Emulation.setCPUThrottlingRate',{rate:1});
   await page.evaluate(()=>{const api=window.GH_DIAGNOSTICS;window.__qaStages=[];window.GH_DIAGNOSTICS={...api,recordMainThreadWork:(s,stage,from,to)=>{window.__qaStages.push([stage,to-from]);return api.recordMainThreadWork(s,stage,from,to);}};});
   const open=async panel=>{await page.evaluate(()=>__AUDIT__.closeDrawer?.());await page.waitForTimeout(100);return page.evaluate(async panel=>{window.__qaStages=[];const t0=performance.now();__AUDIT__.openDrawer(panel);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const stage=name=>window.__qaStages.filter(([k])=>k===name).reduce((n,[,v])=>n+v,0);return {render:stage('ui.render'),open:stage('ui.open'),total:performance.now()-t0,nodes:document.querySelectorAll('#drawerBody *').length};},panel);};
   const best=rows=>({render:Math.min(...rows.map(r=>r.render)),open:Math.min(...rows.map(r=>r.open)),total:Math.min(...rows.map(r=>r.total)),nodes:Math.max(...rows.map(r=>r.nodes))});
@@ -43,7 +47,7 @@ async function measure(root){
   assert(now.long<=before.long*1.25+150,`2: long tasks (${now.long.toFixed(0)} vs ${before.long.toFixed(0)} ms)`);assert(now.wall<=before.wall*1.25+300,`2: wall time (${now.wall.toFixed(0)} vs ${before.wall.toFixed(0)} ms)`);
   // 3
   assert(now.unchanged,'3: opening the pages writes nothing');assert(now.investorPage.nodes<=now.financePage.nodes,`3: the investor page builds ${now.investorPage.nodes} elements against the finance overview's ${now.financePage.nodes}`);
-  assert(now.investorPage.render>0&&now.investorPage.render<=Math.max(now.financePage.render,5)*1.2,`3: building the investor page (${now.investorPage.render.toFixed(1)} ms) against the finance overview (${now.financePage.render.toFixed(1)} ms)`);
-  console.log(JSON.stringify({suite:'build558-investor-card-load-browser',ok:true,environment:'Chromium desktop, CPU throttled 4x; not iPhone performance',now,before}));
+  assert(now.investorPage.render>0&&now.investorPage.render<=Math.max(now.financePage.render,1.25)*1.2,`3: building the investor page (${now.investorPage.render.toFixed(1)} ms) against the finance overview (${now.financePage.render.toFixed(1)} ms)`);
+  console.log(JSON.stringify({suite:'build558-investor-card-load-browser',ok:true,environment:'Chromium desktop, the days with the CPU throttled 4x, the pages at full speed; not iPhone performance',now,before}));
  }finally{fs.rmSync(tree,{recursive:true,force:true});}
 })().catch(error=>{console.error(error);process.exitCode=1;});
