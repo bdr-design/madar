@@ -3,6 +3,50 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build571-tax-month-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build570-documents-list-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-compact-desks-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-staged-day-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build558-investor-card-load-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build470-composite-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build572-fleet-premium-unpaid.cjs"
+    ],
+    [
+      "node",
+      "tests/build573-asset-sale-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build574-investor-budget-overrun.cjs"
+    ],
+    [
+      "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build576-presentation-rest-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build334-security-contract.cjs"
     ],
     [
@@ -108,10 +152,6 @@
     [
       "node",
       "tests/build469-app-notice-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build470-composite-notice-work.cjs"
     ],
     [
       "node",

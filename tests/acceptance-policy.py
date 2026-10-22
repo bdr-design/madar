@@ -58,7 +58,21 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
+# The owner: the gates that failed first, then those not yet tested, then the ones that passed. The gates that stopped a
+# CI build since build 77, the latest first (builds 87, 86, 85, 83, 80, 78), then the gates no CI build has reached
+# (after gate 597 in build 87), then the targeted save, failure-rollback, finance and layout set that passed.
 expected_preflight=[
+    ['node', 'tests/build571-tax-month-close-browser.cjs'],
+    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
+    ['node', 'tests/build375-compact-desks-browser.cjs'],
+    ['node', 'tests/build358-staged-day-browser.cjs'],
+    ['node', 'tests/build558-investor-card-load-browser.cjs'],
+    ['node', 'tests/build470-composite-notice-work.cjs'],
+    ['node', 'tests/build572-fleet-premium-unpaid.cjs'],
+    ['node', 'tests/build573-asset-sale-browser.cjs'],
+    ['node', 'tests/build574-investor-budget-overrun.cjs'],
+    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
+    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build334-security-contract.cjs'],
     ['python3', 'tests/acceptance-policy.py'],
     ['node', 'tests/build498-native-save-export-contract.cjs'],
@@ -86,7 +100,6 @@ expected_preflight=[
     ['node', 'tests/build467-directory-country-work.cjs'],
     ['node', 'tests/build468-summary-projection-browser.cjs'],
     ['node', 'tests/build469-app-notice-work.cjs'],
-    ['node', 'tests/build470-composite-notice-work.cjs'],
     ['node', 'tests/build471-company-notice-work.cjs'],
     ['node', 'tests/build472-all-company-operating-browser.cjs'],
     ['node', 'tests/build473-purchase-notice-work.cjs'],
@@ -194,7 +207,7 @@ expected_preflight=[
     ['node', 'tests/build499-purchase-append-views.cjs'],
     ['node', 'tests/build500-sale-navigation.cjs'],
 ]
-assert declared['preflight_commands']==expected_preflight,'preserve the targeted save, failure-rollback, finance, and layout preflight set'
+assert declared['preflight_commands']==expected_preflight,'run the gates that failed on CI first, then the gates CI has not reached, then the targeted save, failure-rollback, finance, and layout set'
 with tempfile.TemporaryDirectory(prefix='madar-acceptance-early-stop-') as tmp:
     base=Path(tmp);fake=base/'node';output=base/'evidence'
     fake.write_text("#!/usr/bin/env python3\nimport sys\nif sys.argv[1:]==['--version']:\n print('v24.0.0')\nelse:\n print('EARLY_STOP_SENTINEL '+ ' '.join(sys.argv[1:]))\n sys.exit(7)\n")

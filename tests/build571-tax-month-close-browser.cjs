@@ -1,5 +1,8 @@
 'use strict';
-// The owner: «الضريبة ماقدر اسددها ولاتنزل». A month of real play without investor mode, then the taxes page:
+// The owner: «الضريبة ماقدر اسددها ولاتنزل». January played without investor mode, then the taxes page. The group
+// plays its first 29 days before it opens its companies, then buys its fleet and plays the last two days, whose close
+// bills the month's premiums (day 30) and closes January. A day of the eleven-company world costs 4.4 s here and an
+// empty group's 0.6 s: the whole month in that world took 143 s here and passed 300 s on the macOS runner (build 87).
 //  1. a fleet company without the cash for its monthly internal insurance premium no longer stops the game on day 30
 //     (the payment threw inside the day's close and every retry failed, so the month never closed and its tax never
 //     became payable): the day closes, and that policy is recorded unpaid and moves no money (build572 proves a payer
@@ -14,14 +17,16 @@ const assert=require('node:assert/strict'),path=require('node:path'),{chromium}=
 const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareCommandWorld}=require('./helpers/command-world-fixture.cjs');
 const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
 (async()=>{const browser=await chromium.launch({headless:true}),errors=[];let env;try{
- env=await bootAtOrigin({browser,root:ROOT,errors,fleetWorker:true,viewport:{width:956,height:440},beforeScripts:{fn:installVault}});const {page}=env;page.setDefaultTimeout(600000);await prepareCommandWorld(page,{count:4});
+ env=await bootAtOrigin({browser,root:ROOT,errors,fleetWorker:true,viewport:{width:956,height:440},beforeScripts:{fn:installVault}});const {page}=env;page.setDefaultTimeout(600000);
+ await page.evaluate(async()=>{const r=__AUDIT__.simulationEngine.advanceTo(29*86400,{reason:'qa-tax-month-empty',speed:300});if(!r.accepted)throw Error(JSON.stringify(r));await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});});
+ await prepareCommandWorld(page,{count:4});
  await page.evaluate(()=>{window.__QA_NOTICES__=[];const shown=globalThis.GH_INTERACTION_NOTICE;globalThis.GH_INTERACTION_NOTICE=(t,k)=>{window.__QA_NOTICES__.push(String(t));return typeof shown==='function'?shown(t,k):undefined;};});
  const setup=await page.evaluate(async()=>{const s=__GH_STATE__,a=__AUDIT__,F=GH_FINANCE_CORE;s.godMoney=false;s.infiniteMoney=false;
   for(const company of ['group','sea','hospitality'])await a.runAuthorizedDomainCommand('finance','credit',{company,amount:5000000,note:'QA taxable sale',counterparty:'QA Customer',reference:`QA-VAT-${company}`,taxable:true},{silent:true});
   F.book(s,'air').accounts[0].balance=1000;F.reconcile(s);return {insurer:GH_COMPANY_PLATFORM.listInstances(s,{includeGroup:false}).some(row=>row.id==='insurance'&&row.operational)};});
  assert(setup.insurer,'the group has its own insurer');
- // 1 and 2: a month of play
- for(let d=0;d<31;d++){const r=await page.evaluate(async()=>{const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+86400,{reason:'qa-tax-month',speed:300});if(!r.accepted)return r;await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});return {accepted:true};});assert(r.accepted,JSON.stringify(r));}
+ // 1 and 2: the last two days of January
+ for(let d=0;d<2;d++){const r=await page.evaluate(async()=>{const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+86400,{reason:'qa-tax-month',speed:300});if(!r.accepted)return r;await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});return {accepted:true};});assert(r.accepted,JSON.stringify(r));}
  const month=await page.evaluate(()=>{const s=__GH_STATE__,policies=s.advanced.insurance.fleetPolicies||[];return {last:s.lastFinancialDay,fatal:(s.controlPlane?.incidents||[]).filter(i=>i.code==='SIM_FATAL_STATE').map(i=>i.detail),air:policies.filter(p=>p.company==='air'&&p.day===30).map(p=>({status:p.status,transfer:p.transferReference})),paid:policies.filter(p=>p.day===30&&p.company!=='air').map(p=>({status:p.status,transfer:Boolean(p.transferReference)})),premiumTransfers:s.finance.transfers.filter(t=>String(t.reference||'').startsWith('FLEET-POLICY-AIR-30')).length,due:(s.finance.periods||[]).filter(p=>p.status==='مستحق').map(p=>p.company).sort()};});
  assert(month.last>=31,`1: the clock went past day 30 (${month.last})`);assert.deepEqual(month.fatal,[],'1: no fatal simulation state');
  assert.deepEqual(month.air,[{status:'غير مسدد · لا سيولة أو ميزانية',transfer:null}],'1: the unaffordable premium is recorded unpaid');assert.equal(month.premiumTransfers,0,'1: and moves no money');
