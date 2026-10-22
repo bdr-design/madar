@@ -19,49 +19,59 @@
 //     and keeps the display rate while the diagnostics recorder samples frames;
 //  5. paused, after a command the signature audit runs one whole cycle and then waits while nothing changes; the next
 //     command wakes it, and it runs on while the game plays.
-// Rates are compared within the same seconds: the macOS runner's display rate drifts from one window to the next (build
-// 90: 33.9 to 46.5 frames a second for the source before, 26.6 to 43.3 for this one), and build 90 stopped at claim 3
-// on two sources measured in turn. Both sources are open side by side: playing, both are measured at once, twice; the
-// calendar advance runs on both at once; the recorder's frames are set against the source before's in the same window
-// (its loop never rests); the source before's own rates against its display rate, counted through the same window by a
-// frame callback of the test's own in its page (where its loop already asks for every frame), and its ticks against
-// its frames. Wake-ups are compared with the source before on the same machine, so a runner with slower frames (CI run
-// 83: 116 ms apart in a busy close) holds them to its own display rate; each source alone is measured paused and waking
-// while the other stays paused. Chromium on a desktop; not iPhone battery. The loop's housekeeping (the save cap, map
-// refresh) runs on each rested pass and is not measured here.
+// Frame and tick rates are compared within the same seconds: the macOS runner's display rate drifts from one window to
+// the next (build 90: 33.9 to 46.5 frames a second for the source before, 26.6 to 43.3 for this one), and build 90
+// stopped at claim 3 on two sources measured in turn. Both sources are open side by side: playing, both are measured
+// at once, twice; the calendar advance runs on both at once; the recorder's frames are set against the source before's
+// in the same window (its loop never rests); the source before's paused and conference frames against its display
+// rate, and its conference ticks against a 16 ms timer's rate (its simulation's live cadence), both counted by
+// callbacks of the test's own in a window of its own after its work windows. The work at rest is compared on each
+// source's lighter of two windows (claims 1 and 2), which count nothing of the test's own. Wake-ups are compared with
+// the source before on the same machine, so a runner with slower frames (CI run 83: 116 ms apart in a busy close)
+// holds them to its own display rate; each source alone is measured paused and waking while the other stays paused,
+// but for the calendar advance, which runs on both. Chromium on a desktop; not iPhone battery. The loop's housekeeping
+// (the save cap, map refresh) runs on each rested pass and is not measured here.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright');
 const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareCommandWorld}=require('./helpers/command-world-fixture.cjs');
 const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='6511258';
-const counters=()=>{window.__qaFrames=0;window.__qaDisplay=0;const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>raf(t=>{window.__qaFrames++;cb(t);});
- // The display rate: a frame callback of the test's own, counted apart from the page's, only while asked.
- window.__qaDisplayCount=on=>{const run=window.__qaDisplayRun=(window.__qaDisplayRun||0)+1;if(!on)return;const frame=()=>{if(window.__qaDisplayRun!==run)return;window.__qaDisplay++;raf(frame);};raf(frame);};};
+const counters=()=>{window.__qaFrames=0;window.__qaDisplay=0;window.__qaTimer=0;const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=cb=>raf(t=>{window.__qaFrames++;cb(t);});
+ // The display rate and a 16 ms timer's rate (the simulation's live cadence), counted by callbacks of the test's own,
+ // apart from the page's, only while asked.
+ window.__qaReferenceCount=on=>{const run=window.__qaReferenceRun=(window.__qaReferenceRun||0)+1;if(!on)return;const live=()=>window.__qaReferenceRun===run;
+  const frame=()=>{if(!live())return;window.__qaDisplay++;raf(frame);},timer=()=>{if(!live())return;window.__qaTimer++;setTimeout(timer,16);};raf(frame);setTimeout(timer,16);};};
 const CONFERENCE={year:2026,group:{name:'المجموعة',grossRevenue:500000,expenses:100000,net:400000,reportedDays:30,expectedDays:365,dataQuality:{status:'ok'}},companies:[],social:{}};
 async function boot(root){
  const browser=await chromium.launch({headless:true}),errors=[];let env;try{
   env=await bootAtOrigin({browser,root,errors,fleetWorker:true,viewport:{width:956,height:440},beforeScripts:{run:async page=>{await page.evaluate(installVault);await page.evaluate(counters);}}});const {page}=env;page.setDefaultTimeout(120000);
   await prepareCommandWorld(page,{count:2});const cdp=await page.context().newCDPSession(page);await cdp.send('Performance.enable');
   const busy=async()=>(await cdp.send('Performance.getMetrics')).metrics.find(m=>m.name==='TaskDuration').value*1000;
-  const sample=()=>page.evaluate(()=>({frames:window.__qaFrames,display:window.__qaDisplay,ticks:__AUDIT__.simulationRuntime.snapshot().ticks,sim:__GH_STATE__.simSeconds,at:performance.now()}));
-  const measure=async(ms=3000)=>{await page.waitForTimeout(1200);const a=await sample(),b0=await busy();await page.waitForTimeout(ms);const b=await sample(),b1=await busy(),s=(b.at-a.at)/1000;return {frames:(b.frames-a.frames)/s,ticks:(b.ticks-a.ticks)/s,sim:(b.sim-a.sim)/s,busy:(b1-b0)/s,display:(b.display-a.display)/s};};
-  const displayCount=on=>page.evaluate(on=>window.__qaDisplayCount(on),on);
+  const sample=()=>page.evaluate(()=>({frames:window.__qaFrames,display:window.__qaDisplay,timer:window.__qaTimer,ticks:__AUDIT__.simulationRuntime.snapshot().ticks,sim:__GH_STATE__.simSeconds,at:performance.now()}));
+  const measure=async(ms=3000)=>{await page.waitForTimeout(1200);const a=await sample(),b0=await busy();await page.waitForTimeout(ms);const b=await sample(),b1=await busy(),s=(b.at-a.at)/1000;return {frames:(b.frames-a.frames)/s,ticks:(b.ticks-a.ticks)/s,sim:(b.sim-a.sim)/s,busy:(b1-b0)/s,display:(b.display-a.display)/s,timer:(b.timer-a.timer)/s};};
+  const referenceCount=on=>page.evaluate(on=>window.__qaReferenceCount(on),on);
   const speed=v=>page.evaluate(v=>{const s=__GH_STATE__;if(v===0){if(s.speed>0)document.getElementById('speedToggle').click();}else{if(s.speed===0)document.getElementById('speedToggle').click();[...document.querySelectorAll('#speedMenu button[data-speed]')].find(b=>Number(b.dataset.speed)===v).click();}return s.speed;},v);
   await page.evaluate(()=>__AUDIT__.closeDrawer?.());
-  return {page,errors,sample,measure,speed,displayCount,close:async()=>{await browser.close();await env?.closeOrigin?.();}};
+  return {page,errors,sample,measure,speed,referenceCount,close:async()=>{await browser.close();await env?.closeOrigin?.();}};
  }catch(error){await browser.close();await env?.closeOrigin?.();throw error;}
 }
 async function alone(t,current,ref){
- const {page,sample,measure,speed,displayCount}=t,out={};
+ const {page,sample,measure,speed,referenceCount}=t,out={};
  const audit=()=>page.evaluate(()=>{const i=window.__GH_APP_RUNTIME_INSTRUMENTATION__;return {checked:i.proofAudit?.totalChecked||0,cycles:i.proofAudit?.cycles||0,renders:i.simRender?.count||0};});
  const transfer=note=>page.evaluate(note=>__AUDIT__.runAuthorizedDomainCommand('finance','transfer',{from:'air',to:'sea',amount:1000,note},{silent:true}),note);
- // The source before's paused and conference windows count its display rate too (its loop asks for every frame anyway);
- // this source's resting windows count nothing of the test's own.
- await speed(0);if(!current)await displayCount(true);out.paused=await measure();if(!current)await displayCount(false);
+ // Paused and through the conference, two windows each. The work compared is each source's lighter window: a desktop's
+ // work comes in bursts (a periodic check costs some 60 ms now and then, alike on both sources), and one 3 s window may
+ // catch a burst on one source and not the other, as build 91's did (8.9 ms a second against 8.5 on its faster runner,
+ // 3.2 on build 90's). The loop's and the ticks' rest must hold in both windows. These windows count nothing of the
+ // test's own; then the source before alone takes a third window counting its display rate and a 16 ms timer's rate,
+ // the references in the same seconds for its frames and ticks.
+ const twice=async()=>{const w=[await measure(),await measure()];return {busy:Math.min(w[0].busy,w[1].busy),busyMax:Math.max(w[0].busy,w[1].busy),frames:Math.max(w[0].frames,w[1].frames),ticks:Math.max(w[0].ticks,w[1].ticks),sim:Math.max(w[0].sim,w[1].sim)};};
+ const reference=async()=>{await referenceCount(true);const w=await measure();await referenceCount(false);return w;};
+ await speed(0);out.paused=await twice();if(!current)out.pausedReference=await reference();
  // 2: the conference opens with the game running, as in play, and is measured on both sources once the audit has ended
  // the cycle it was in, or has checked nothing through four render callbacks (it may rest at once: nothing changed
  // since the pause), at most 10 s; the proofs it checks through the window are counted.
  await speed(1);await page.evaluate(c=>GH_CONFERENCE_3D.launch({snapshot:c},{mode:'manual'}),CONFERENCE);
  {const start=await audit();let last=start;for(let i=0;i<20;i++){await page.waitForTimeout(500);const now=await audit();if(now.cycles>start.cycles)break;if(now.checked!==last.checked)last=now;else if(now.renders-last.renders>=4)break;}}
- const conferenceAudit=await audit();if(!current)await displayCount(true);out.conference=await measure();out.conferenceAudit=(await audit()).checked-conferenceAudit.checked;if(!current)await displayCount(false);
+ const conferenceAudit=await audit();out.conference=await twice();out.conferenceAudit=(await audit()).checked-conferenceAudit.checked;if(!current)out.conferenceReference=await reference();
  if(current){
   // 2: a command through the conference wakes the audit: it steps until its cycle ends (a resting audit takes no step,
   // so a cycle ending is the wake; it may end the cycle a speed change began), then waits again.
@@ -116,7 +126,8 @@ async function alone(t,current,ref){
   assert.deepEqual(old.errors,[],'the source before ran without errors as the reference');
   const r=v=>Math.round(v*10)/10,row=m=>Object.fromEntries(Object.entries(m).map(([k,v])=>[k,typeof v==='object'&&v?Object.fromEntries(Object.entries(v).map(([a,b])=>[a,r(b)])):v]));
   const report={before:row(before),after:row(after)},show=JSON.stringify(report);
-  assert(before.paused.frames>=before.paused.display*.8&&before.conference.frames>=before.conference.display*.8&&before.conference.ticks>=before.conference.frames*.8,`the loop and the ticks ran at the display rate before: ${show}`);
+  const kept=(w,rate,reference)=>w[reference]>0&&w[rate]>=w[reference]*.8;
+  assert(kept(before.pausedReference,'frames','display')&&kept(before.conferenceReference,'frames','display')&&kept(before.conferenceReference,'ticks','timer'),`the loop and the ticks ran at the display rate before: ${show}`);
   // 1
   assert(after.paused.frames<=8,`1: paused, the loop rests: ${show}`);assert(after.paused.busy<=before.paused.busy*.5,`1: paused, at most half the work: ${show}`);
   // 2

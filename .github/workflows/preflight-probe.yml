@@ -1,0 +1,74 @@
+name: Preflight probe on macOS (diagnostic only)
+
+# Builds 89, 90 and 91 each stopped at build576-presentation-rest-browser on a different claim, one claim a build: the
+# Build 362 workflow stops at the first failed gate, so each run showed one weakness and hid the next. This workflow
+# runs build576 five times, then the other preflight gates the latest fixes touch (the first 21 of
+# ACCEPTANCE_POLICY.json) once each, on the same macOS runner and Node, without stopping at a failure, and prints every
+# result with its measurements. It builds nothing and is not an acceptance gate.
+
+on:
+  # A workflow that is not on the default branch cannot be dispatched; a push that changes this file or build576 runs it.
+  push:
+    branches: ["claude/madar-ventora-handover-3.0.0-stg723"]
+    paths:
+      - .github/workflows/preflight-probe.yml
+      - tests/build576-presentation-rest-browser.cjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preflight-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Check out the branch
+        uses: actions/checkout@v4
+        with:
+          # build576 and other gates read earlier source files from Git history.
+          fetch-depth: 0
+
+      - name: Select Node 24
+        uses: actions/setup-node@v4
+        with:
+          # The Build 362 workflow's Node; 24.19.0 crashed on the arm64 runner (see node-crash-probe.yml).
+          node-version: "24.22.0"
+
+      - name: Install pinned test dependencies and browser engines
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          npm install --no-save --package-lock=false --no-audit --no-fund
+          npx playwright install chromium webkit
+
+      - name: Run build576 five times and the next preflight gates once, without stopping
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import subprocess,sys,time
+          from pathlib import Path
+          root=Path('.').resolve();sys.path.insert(0,str(root/'tools'))
+          from acceptance_contract import contract
+          pre=[list(row) for row in contract(root)['preflight_commands']]
+          if pre[0]!=['node','tests/build576-presentation-rest-browser.cjs']:raise SystemExit(f'unexpected first preflight gate: {pre[0]}')
+          jobs=[(f'build576 run {i}',pre[0]) for i in range(1,6)]+[(row[1],row) for row in pre[1:21]]
+          failed=[]
+          for label,argv in jobs:
+              started=time.monotonic()
+              try:
+                  run=subprocess.run(argv,cwd=root,capture_output=True,text=True,timeout=300);code=run.returncode;out=run.stdout+run.stderr
+              except subprocess.TimeoutExpired as error:
+                  code='timeout';out=error.stdout.decode(errors='replace') if isinstance(error.stdout,bytes) else (error.stdout or '')
+              if code!=0:failed.append(label)
+              print(f'PROBE {label}: exit={code} seconds={time.monotonic()-started:.1f}',flush=True)
+              for line in out.splitlines():
+                  if line.startswith('{"suite"') or 'AssertionError' in line or line.lstrip().startswith(('Error','TypeError','TimeoutError')):print('   '+line[:12000],flush=True)
+          print(f'PROBE DONE: {len(failed)} of {len(jobs)} failed: {failed}',flush=True)
+          sys.exit(1 if failed else 0)
+          PY
