@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 2: at most half the work: {"before":{"play":{"frames":28.1,"ticks":30.9,"sim":29.9,"busy":16,"display":0},"paused":{"frames":27.3,"ticks":3.7,"sim":0,"busy":7.7,"display":27.3},"conference":{"frames":26.6,"ticks":29.9,"sim":0,"busy":8.5,"display":26.6},"conferenceAudit":1296,"resumeMs":60.89999999999418,"resumeSim":30,"closeMs":63.10000000000582,"closeSim":30,"releaseMs":44.10000000000582,"afterRelease":{"frames":38.5,"ticks":4,"sim":0,"busy":16.5,"display":0},"calendarMs":6,"calendar":{"frames":34.2},"afterCalendar":{"frames":37.1,"ticks":4,"sim":0,"busy":21.9,"display":0},"recorder":{"frames":32.6,"ticks":4,"sim":0,"busy":33.2,"display":0}},"after":{"play":{"frames":28.3,"ticks":30.4,"sim":29.9,"busy":20.6,"display":0},"paused":{"frames":3.3,"ticks":3.3,"sim":0,"busy":1.8,"display":0},"conference":{"frames":3.7,"ticks":3.3,"sim":0,"busy":8.9,"display":0},"conferenceAudit":0,"conferenceCommandSaved":true,"conferenceAuditWoke":true,"conferenceAuditWokeChecked":84,"conferenceAuditAfter":0,"resumeMs":8.800000000017462,"resumeSim":30,"closeMs":201.20000000001164,"closeSim":30,"releaseMs":11.800000000017462,"afterRelease":{"frames":3.3,"ticks":3.3,"sim":0,"busy":5.1,"display":0},"calendarMs":8.700000000011642,"calendar":{"frames":51},"calendarReference":{"frames":46.9},"afterCalendar":{"frames":3.3,"ticks":3.3,"sim":0,"busy":5.8,"display":0},"recorder":{"frames":39.9,"ticks":4,"sim":0,"busy":15.4,"display":0},"recorderReference":{"frames":39.9,"ticks":3.3,"sim":0,"busy":16.3,"display":0},"auditResting":0,"auditAfterCommand":107,"auditPlaying":856}}
+    at /Users/runner/work/madar/madar/tests/build576-presentation-rest-browser.cjs:123:130 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

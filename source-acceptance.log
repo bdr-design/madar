@@ -1,0 +1,2 @@
+preflight 1/602 1 tests/build576-presentation-rest-browser.cjs
+EARLY_FAILURE tests/build576-presentation-rest-browser.cjs: stopping before remaining 601 gate(s)
