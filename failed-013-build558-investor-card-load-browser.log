@@ -1,0 +1,10 @@
+AssertionError [ERR_ASSERTION]: 2: long tasks (220 vs 0 ms)
+    at /Users/runner/work/madar/madar/tests/build558-investor-card-load-browser.cjs:53:3
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
