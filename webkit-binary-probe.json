@@ -1,0 +1,31 @@
+{
+  "base64-sent" : {
+    "error" : "RangeError: Maximum call stack size exceeded."
+  },
+  "bytes" : 4194304,
+  "completed" : true,
+  "download" : {
+    "bytes" : 4194304,
+    "ms" : 6,
+    "sha256" : "513fab63adf64b3fb0399b786e47f98f256631223c25cd5a4fa303035f4eb81c"
+  },
+  "downloadIntact" : true,
+  "expectedSha256" : "513fab63adf64b3fb0399b786e47f98f256631223c25cd5a4fa303035f4eb81c",
+  "message-sent" : {
+    "ms" : 3
+  },
+  "messageBufferType" : "__NSDictionaryM",
+  "page-hash" : {
+    "sha256" : "513fab63adf64b3fb0399b786e47f98f256631223c25cd5a4fa303035f4eb81c"
+  },
+  "upload" : {
+    "ms" : 38,
+    "received" : {
+      "bytes" : 4194304,
+      "sha256" : "513fab63adf64b3fb0399b786e47f98f256631223c25cd5a4fa303035f4eb81c"
+    },
+    "status" : 200
+  },
+  "uploadBodyIntact" : true,
+  "uploadVia" : "httpBody"
+}
