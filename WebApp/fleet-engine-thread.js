@@ -32,6 +32,12 @@
   function create({workerFactory,resolveRoute,catalogSpecs,routesRevision=()=>0,clock=()=>performance.now(),timeoutMs=15000,replicaRowSlice=4096,replicaValueSlice=512,replicaExtraSlice=256,replicaBudgetMs=4,onMainThreadWork=null}={}){
     let worker=null,disabled=null,nextId=1,needsFull=true,synced=null,routeTable=new Map(),routesAt=null,pending=null,windowSession=null,mutationSession=null,lastBudgetTime=Infinity,importId=0,routesReady=true,replicaBuild=null;
     const tickets=new Map(),waiters=[],inspections=new Map(),healthChecks=new Map(),classRequests=new Map(),queryRequests=new Map(),dispatchRequests=new Map(),stats={requests:0,applied:0,fallbacks:0,windowBegins:0,windowSteps:0,windowCommits:0,windowRollbacks:0,windowFallbacks:0,fullSyncs:0,seedSyncs:0,incrementalSyncs:0,columnSyncs:0,columnPlanSyncs:0,compactions:0,rowsSent:0,routeKeysAnswered:0,deferredRequests:0,windowDeferred:0,replicaPrimeSlices:0,replicaPrimeRestarts:0,replicaPrimeFailures:0,replicaPrimeRows:0,replicaPrimeValues:0,replicaPrimeExtras:0,seedMetadataSlices:0,lastReplicaPrimeSliceMs:0,maxReplicaPrimeSliceMs:0,lastWorkerMs:0,lastApplyMs:0,lastSyncMs:0,maxWorkerMs:0,maxApplyMs:0,maxSyncMs:0,maxFullSyncMs:0,maxSeedSyncMs:0,maxRouteAnswerMs:0,slowSyncs:0,lastReason:'',fullSyncReasons:{}};
+    // Evidence for a durable command's save validation, which waited up to 1.65 s on the iPhone while its own pass took
+    // 434 ms: a step discarded while the worker still runs it is timed when its result arrives (draining), and each
+    // validation keeps its round trip, the time beyond the worker's pass and what was ahead of it (the last 16).
+    // Constant work per message; no scan, copy or save write.
+    const draining=new Map(),validationLog=[],DRAINING_LIMIT=64,VALIDATION_LOG_LIMIT=16;
+    const noteDraining=ticket=>{if(ticket.status!=='pending'||ticket.deferred||ticket.deferredWindow||!worker||disabled)return;draining.set(ticket.id,clock());if(draining.size>DRAINING_LIMIT)draining.delete(draining.keys().next().value);};
     replicaRowSlice=Math.max(256,Math.floor(Number(replicaRowSlice)||4096));replicaValueSlice=Math.max(64,Math.floor(Number(replicaValueSlice)||512));replicaExtraSlice=Math.max(32,Math.floor(Number(replicaExtraSlice)||256));replicaBudgetMs=Math.max(1,Math.min(8,Number(replicaBudgetMs)||4));
     const scheduleReplica=fn=>typeof globalThis.requestAnimationFrame==='function'?{kind:'frame',id:globalThis.requestAnimationFrame(()=>fn())}:{kind:'timer',id:setTimeout(fn,0)};
     const cancelReplica=task=>{if(!task)return;if(task.kind==='frame'&&typeof globalThis.cancelAnimationFrame==='function')globalThis.cancelAnimationFrame(task.id);else clearTimeout(task.id);};
@@ -50,7 +56,7 @@
       // owner busy until that transaction settles; releasing it here would let
       // callers mistake a dead/speculative replica for a committed one.
       if(mutationSession){mutationSession.status='failed';mutationSession.reason=disabled;}
-      tickets.clear();pending=null;routesReady=true;for(const resolve of inspections.values())resolve(null);inspections.clear();for(const entry of healthChecks.values())entry.resolve(null);healthChecks.clear();for(const entry of classRequests.values())entry.resolve(null);classRequests.clear();for(const entry of queryRequests.values())entry.resolve(null);queryRequests.clear();for(const entry of dispatchRequests.values()){clearTimeout(entry.timer);entry.resolve(null);}dispatchRequests.clear();settleWaiters();
+      tickets.clear();draining.clear();pending=null;routesReady=true;for(const resolve of inspections.values())resolve(null);inspections.clear();for(const entry of healthChecks.values())entry.resolve(null);healthChecks.clear();for(const entry of classRequests.values())entry.resolve(null);classRequests.clear();for(const entry of queryRequests.values())entry.resolve(null);queryRequests.clear();for(const entry of dispatchRequests.values()){clearTimeout(entry.timer);entry.resolve(null);}dispatchRequests.clear();settleWaiters();
     }
     function ensureWorker(){
       if(disabled)return null;if(worker)return worker;
@@ -69,13 +75,13 @@
       if(message.type==='route-keys'){measuredWork('fleet.route-answers',()=>answerRouteKeys(message));return;}
       if(message.type==='health'){const entry=healthChecks.get(message.id);healthChecks.delete(message.id);if(entry){stats.lastHealthWorkerMs=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+stats.lastHealthWorkerMs;stats.maxHealthWorkerMs=Math.max(stats.maxHealthWorkerMs||0,stats.lastHealthWorkerMs);entry.resolve(message.unavailable||!Array.isArray(message.issues)?null:{...entry.tag,issues:message.issues});}return;}
       if(message.type==='classes'){const entry=classRequests.get(message.id);classRequests.delete(message.id);if(entry){stats.lastClassesWorkerMs=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+stats.lastClassesWorkerMs;stats.maxClassesWorkerMs=Math.max(stats.maxClassesWorkerMs||0,stats.lastClassesWorkerMs);entry.resolve(message.unavailable||!Array.isArray(message.rows)?null:{...entry.tag,rows:message.rows,ids:message.ids||null});}return;}
-      if(message.type==='query'){const entry=queryRequests.get(message.id);queryRequests.delete(message.id);if(entry){const ms=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+ms;stats.maxQueryWorkerMs=Math.max(stats.maxQueryWorkerMs||0,ms);if(message.validation&&typeof message.validation==='object'){stats.lastSaveValidationWorkerMs=ms;stats.lastSaveValidationChunksChecked=Number(message.validation.lastChecked)||0;stats.lastSaveValidationChunksReused=Number(message.validation.lastReused)||0;stats.saveValidationChunksChecked=Number(message.validation.chunksChecked)||0;stats.saveValidationChunksReused=Number(message.validation.chunksReused)||0;stats.lastSaveValidationReset=String(message.validation.lastReset||'');const miss=message.validation.lastMiss;stats.lastSaveValidationMiss=miss&&typeof miss==='object'?{version:Number(miss.version)||0,bounds:Number(miss.bounds)||0,refs:Number(miss.refs)||0,new:Number(miss.new)||0}:null;}entry.resolve(message.unavailable||!message.result||message.result.legacy?null:{...entry.tag,result:message.result});}return;}
+      if(message.type==='query'){const entry=queryRequests.get(message.id);queryRequests.delete(message.id);if(entry){const ms=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+ms;stats.maxQueryWorkerMs=Math.max(stats.maxQueryWorkerMs||0,ms);if(message.validation&&typeof message.validation==='object'){stats.lastSaveValidationWorkerMs=ms;stats.lastSaveValidationChunksChecked=Number(message.validation.lastChecked)||0;stats.lastSaveValidationChunksReused=Number(message.validation.lastReused)||0;stats.saveValidationChunksChecked=Number(message.validation.chunksChecked)||0;stats.saveValidationChunksReused=Number(message.validation.chunksReused)||0;stats.lastSaveValidationReset=String(message.validation.lastReset||'');const miss=message.validation.lastMiss;stats.lastSaveValidationMiss=miss&&typeof miss==='object'?{version:Number(miss.version)||0,bounds:Number(miss.bounds)||0,refs:Number(miss.refs)||0,new:Number(miss.new)||0}:null;if(Number.isFinite(entry.postedAt)){const roundTripMs=Math.max(0,clock()-entry.postedAt),queueMs=Math.max(0,roundTripMs-ms);stats.lastSaveValidationRoundTripMs=roundTripMs;stats.lastSaveValidationQueueMs=queueMs;stats.lastSaveValidationAhead=entry.ahead;validationLog.unshift({atMs:Date.now(),durable:entry.durable,workerMs:ms,roundTripMs,queueMs,checked:stats.lastSaveValidationChunksChecked,reused:stats.lastSaveValidationChunksReused,reset:stats.lastSaveValidationReset,miss:stats.lastSaveValidationMiss,ahead:entry.ahead});if(validationLog.length>VALIDATION_LOG_LIMIT)validationLog.length=VALIDATION_LOG_LIMIT;}}entry.resolve(message.unavailable||!message.result||message.result.legacy?null:{...entry.tag,result:message.result});}return;}
       if(message.type==='dispatch-plan'){
         const entry=dispatchRequests.get(message.id);dispatchRequests.delete(message.id);if(entry){clearTimeout(entry.timer);const ms=Number(message.ms)||0;stats.lastDispatchWorkerMs=ms;stats.totalWorkerMs=(stats.totalWorkerMs||0)+ms;stats.maxDispatchWorkerMs=Math.max(stats.maxDispatchWorkerMs||0,ms);const plan=message.plan,tag=plan?.tag,valid=!message.unavailable&&plan&&plan.indices instanceof Int32Array&&plan.bytes instanceof ArrayBuffer&&tag&&tag.revision===entry.tag.revision&&tag.structure===entry.tag.structure&&tag.length===entry.tag.length&&tag.valuesLength===entry.tag.valuesLength;if(!valid)stats.lastDispatchPlanRefusal=String(message.unavailable||(plan?'tag-mismatch':'no-plan')).slice(0,200);entry.resolve(valid?{...entry.tag,plan}:null);settleWaiters();}return;
       }
       if(message.type==='inspect'){const resolve=inspections.get(message.id);inspections.delete(message.id);resolve?.(message.missing?null:message);return;}
       if(message.type!=='result')return;
-      const ticket=tickets.get(message.id);if(!ticket)return;
+      const ticket=tickets.get(message.id);if(!ticket){if(draining.delete(message.id)){const ms=Number(message.ms)||0;stats.discardedSteps=(stats.discardedSteps||0)+1;stats.lastDiscardedWorkerMs=ms;stats.maxDiscardedWorkerMs=Math.max(stats.maxDiscardedWorkerMs||0,ms);stats.discardedWorkerMs=(stats.discardedWorkerMs||0)+ms;}return;}
       clearTimeout(ticket.timer);stats.lastWorkerMs=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+stats.lastWorkerMs;stats.maxWorkerMs=Math.max(stats.maxWorkerMs,stats.lastWorkerMs);
       if(message.fallback){
         ticket.status='fallback';ticket.reason=String(message.fallback);ticket.settled=true;tickets.delete(ticket.id);if(pending===ticket)pending=null;
@@ -358,7 +364,7 @@
     // Messages reach the worker in order, so a settle posted while its step still runs is handled right after it.
     function settle(ticket,outcome){
       if(!ticket||ticket.settled)return;ticket.settled=true;tickets.delete(ticket.id);clearTimeout(ticket.timer);
-      if(worker&&!disabled&&(ticket.status==='pending'||ticket.status==='ready'))post({type:'settle',id:ticket.id,outcome});
+      if(worker&&!disabled&&(ticket.status==='pending'||ticket.status==='ready')){noteDraining(ticket);post({type:'settle',id:ticket.id,outcome});}
       if(pending===ticket)pending=null;settleWaiters();
     }
     // The caller will not use this ticket (cancelled slice, or it runs the step itself): the worker rolls the step back,
@@ -369,7 +375,7 @@
     }
     function settleWindow(session,outcome){
       if(!session||session.settled)return;const failed=session.status==='failed';session.settled=true;session.status=outcome==='commit'?'committed':'rolled-back';
-      const active=pending?.window===session?pending:null;if(active){active.settled=true;clearTimeout(active.timer);tickets.delete(active.id);pending=null;}
+      const active=pending?.window===session?pending:null;if(active){noteDraining(active);active.settled=true;clearTimeout(active.timer);tickets.delete(active.id);pending=null;}
       for(const ticket of [...tickets.values()])if(ticket.window===session){ticket.settled=true;clearTimeout(ticket.timer);tickets.delete(ticket.id);}
       if(worker&&!disabled)try{post({type:'window-settle',id:session.id,outcome});}catch(_error){needsFull=true;}
       if(windowSession===session)windowSession=null;
@@ -564,7 +570,8 @@
       query(store,{name,params={},simSeconds=0}={}){
         const tag=replicaIsStore(store,{validation:name==='saveValidation'});if(!tag)return null;const id=nextId++;
         stats.queryRequests=(stats.queryRequests||0)+1;
-        return new Promise(resolve=>{queryRequests.set(id,{tag,resolve});post({type:'query',id,name:String(name),params,simSeconds:Number(simSeconds)||0});});
+        const entry={tag,resolve:null,name:String(name)};if(name==='saveValidation'){const names=[];for(const row of queryRequests.values()){if(names.length>=8)break;names.push(row.name);}entry.postedAt=clock();entry.durable=!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__;entry.ahead={steps:draining.size,open:pending?(pending.window?'window-step':'step'):windowSession?'window':mutationSession?'mutation':'',queries:queryRequests.size,names,classes:classRequests.size,health:healthChecks.size,dispatch:dispatchRequests.size};}
+        return new Promise(resolve=>{entry.resolve=resolve;queryRequests.set(id,entry);post({type:'query',id,name:String(name),params,simSeconds:Number(simSeconds)||0});});
       },
       // Send a completed day-column plan while its original buffers are still retained, before incidents/maintenance
       // write individual rows and invalidate it. The worker's existing open journal still owns commit and rollback.
@@ -594,7 +601,7 @@
       inspect(){if(disabled||!worker||replicaBuild)return Promise.resolve(null);const id=nextId++;return new Promise(resolve=>{inspections.set(id,resolve);post({type:'inspect',id});});},
       markStale(){needsFull=true;if(replicaBuild)abandonReplicaBuild(replicaBuild,'replica-marked-stale');},
       get busy(){return !!pending||!!windowSession||!!mutationSession||!!dispatchRequests.size||!!replicaBuild;},get disabled(){return disabled;},get available(){return !disabled&&typeof workerFactory==='function';},
-      budgetTime:()=>lastBudgetTime,stats:()=>({...stats,fullSyncReasons:{...stats.fullSyncReasons},disabled,pending:!!pending,window:!!windowSession,mutation:!!mutationSession,dispatchPending:dispatchRequests.size,replicaPriming:!!replicaBuild,replicaPrimeAttempt:replicaBuild?.attempt||0}),
+      budgetTime:()=>lastBudgetTime,stats:()=>({...stats,fullSyncReasons:{...stats.fullSyncReasons},lastSaveValidationMiss:stats.lastSaveValidationMiss?{...stats.lastSaveValidationMiss}:stats.lastSaveValidationMiss,lastSaveValidationAhead:stats.lastSaveValidationAhead?{...stats.lastSaveValidationAhead,names:[...stats.lastSaveValidationAhead.names]}:stats.lastSaveValidationAhead,stepsDraining:draining.size,saveValidationLog:validationLog.map(row=>({...row,miss:row.miss?{...row.miss}:null,ahead:row.ahead?{...row.ahead,names:[...row.ahead.names]}:null})),disabled,pending:!!pending,window:!!windowSession,mutation:!!mutationSession,dispatchPending:dispatchRequests.size,replicaPriming:!!replicaBuild,replicaPrimeAttempt:replicaBuild?.attempt||0}),
       terminate(reason='terminated'){disable(reason);}
     };
     // Non-enumerable by design: a decorator/proxy must explicitly preserve the

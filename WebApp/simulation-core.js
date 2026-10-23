@@ -301,12 +301,15 @@
       // Calendar advance gets a slightly larger cooperative budget so long jumps
       // finish promptly, but every task slice still yields back to WebKit. Live play
       // keeps the tighter budget to protect interaction and map presentation.
-      const baseBudget=manualAdvance?cfg.manualFrameBudgetMs:cfg.frameBudgetMs,governorFactor=health.governor==='RED'?.35:health.governor==='ORANGE'?.5:health.governor==='YELLOW'?.75:1,cadenceFactor=Math.max(.45,1-frameCadencePressure*.55);
+      // iPhone, day 59: a live day close of 1.3 s of work took 12.4 s at 2.9 ms a tick and held the game's clock 6.6 s. A
+      // live slice that ends on a day boundary takes the calendar's cooperative budget, under the same governor and cadence
+      // factors; every other live slice keeps the tighter one.
+      const liveDayClose=!manualAdvance&&!!job&&jobBoundary?.day!=null,baseBudget=manualAdvance||liveDayClose?cfg.manualFrameBudgetMs:cfg.frameBudgetMs,governorFactor=health.governor==='RED'?.35:health.governor==='ORANGE'?.5:health.governor==='YELLOW'?.75:1,cadenceFactor=Math.max(.45,1-frameCadencePressure*.55);
       // Calendar jumps used to ignore the governor and reserve 10 ms on every 16.7 ms iPhone frame even while
       // the engine reported pressure. Apply the same governor to manual work, with the configured cooperative
       // floor, so a year jump yields compositor time instead of sustaining visible cadence loss.
       const adaptiveBudget=Math.max(cfg.adaptiveFrameBudgetMinMs,Math.min(baseBudget,baseBudget*governorFactor*cadenceFactor));health.activeFrameBudgetMs=adaptiveBudget;
-      const deadline=pacing.executionDeadline(!!manualAdvance,adaptiveBudget);
+      const deadline=pacing.executionDeadline(!!manualAdvance||liveDayClose,adaptiveBudget);
       while(clock()<deadline){
         if(!job&&adapter.hasDeferredWork?.()===true)break;
         if(!job&&!startJob(speed))break;
@@ -397,7 +400,9 @@
         if(!health.maxFrame||stages.totalMs>health.maxFrame.totalMs)health.maxFrame=stages;
       }
     }
-    function noteFrameInterval(value){const interval=Number(value);if(!Number.isFinite(interval)||interval<=0||interval>250)return frameCadencePressure;const instant=interval<=18.5?0:Math.min(1,(interval-18.5)/30);frameCadencePressure=Math.max(instant,frameCadencePressure*.82);health.frameCadencePressure=Math.round(frameCadencePressure*1000)/1000;health.lastFrameIntervalMs=Math.round(interval*100)/100;return frameCadencePressure;}
+    // expectedIntervalMs: the display interval the host knows the device holds (iOS halves WebKit's frames in Low Power
+    // Mode and under serious heat, 33.3 ms); a frame is late past 1.056 times it, never before the 60 Hz bound of 18.5 ms.
+    function noteFrameInterval(value,expectedIntervalMs){const interval=Number(value);if(!Number.isFinite(interval)||interval<=0||interval>250)return frameCadencePressure;const floor=Math.max(18.5,(Number(expectedIntervalMs)||0)*1.056),instant=interval<=floor?0:Math.min(1,(interval-floor)/30);health.frameCadenceFloorMs=Math.round(floor*100)/100;frameCadencePressure=Math.max(instant,frameCadencePressure*.82);health.frameCadencePressure=Math.round(frameCadencePressure*1000)/1000;health.lastFrameIntervalMs=Math.round(interval*100)/100;return frameCadencePressure;}
     function frameBody(now){
       health.frames++;completeManualAdvance();
       if(manualAdvance?.cancelling){
@@ -426,7 +431,7 @@
         const observed=pacing.observeLiveFrame(now,speed,{suspended,paused:speed<=0});
         if(observed.droppedRealSeconds>0)health.droppedRealSeconds+=observed.droppedRealSeconds;
         if(observed.stalled)health.stallGaps=(health.stallGaps||0)+1;
-        if(observed.clamped)health.backlogClamps++;
+        if(observed.clamped){health.backlogClamps++;health.clampedSimSeconds=(Number(health.clampedSimSeconds)||0)+(Number(observed.clampedSimSeconds)||0);}
       }
       const hidden=pacing.snapshot().hidden;
       if(!hidden&&!suspended&&!job){

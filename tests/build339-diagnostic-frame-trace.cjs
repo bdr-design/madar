@@ -96,4 +96,36 @@ const genuineStall=conferenceSnapshot.events.find(row=>row.type==='SIM_PROGRESS_
 assert.ok(genuineStall,'stall detection must resume after the conference guard ends');
 assert.ok(genuineStall.detail.stalledMs>=6000,'the resumed detector must still enforce the full stall threshold');
 diag.clear(conferenceState);
-console.log(JSON.stringify({suite:'build339-diagnostic-frame-trace',passed:33,total:33,jankyFrames:summary.frameSummary.jankyFrames,frameCallbacks:summary.frameSummary.frameCallbacks,frameTrace:exported.faultRecorder.frameTrace.length,eventsExported:exported.faultRecorder.events.length,samplesExported:exported.faultRecorder.samples.length}));
+// The export keeps every retained diagnostic (240) and business-ledger (160) event: a list inside an event is still
+// bounded, the event list itself is not cut to the 30 a nested list keeps.
+const exportProbe=()=>{const st=minimal();st.assets=[];st.sectorProfitToday={};st.tripRevenueAccrued={};for(let i=0;i<300;i++)diag.record(st,'EXPORT_PROBE',{i,rows:Array.from({length:40},(_,k)=>k)});st.businessLedger={events:Array.from({length:200},(_,i)=>({id:`LEDGER-${i}`,detail:{list:Array.from({length:40},(_,k)=>k)}}))};st.dependencyGraph={edges:Array.from({length:250},(_,i)=>({id:`EDGE-${i}`}))};return st;};
+s.GH_UI_QUALITY={collectTasks:()=>Array.from({length:150},(_,i)=>({id:`TASK-${i}`}))};
+const checkEventExport=(out,label)=>{
+ assert.equal(out.events.length,240,`${label}: all retained diagnostic events`);assert.equal(out.events[0].detail.i,299,label);assert.equal(out.events[239].detail.i,60,label);assert.equal(out.events[0].detail.rows.length,30,`${label}: nested lists stay bounded`);
+ assert.equal(out.eventLedger.events.length,160,`${label}: all exported ledger events`);assert.equal(out.dependencies.length,220,`${label}: the dependency edges (220)`);assert.equal(out.actionCenter.tasks.length,120,`${label}: the action tasks (120)`);assert.equal(out.eventLedger.events[159].id,'LEDGER-159',label);assert.equal(out.eventLedger.events[0].detail.list.length,30,`${label}: nested lists stay bounded`);
+};
+checkEventExport(diag.exportBundle(exportProbe(),{appVersion:'3.0.0',saveSchemaVersion:'2.0.0',simulation:{}}),'sync export');
+(async()=>{
+ const probe=exportProbe(),async=await diag.exportBundleAsync(probe,{appVersion:'3.0.0',saveSchemaVersion:'2.0.0',simulation:{}});checkEventExport(async.bundle||async,'async export');
+ // The device state iOS reports (on page load and on each change, never polled) is exported with its last 8 changes.
+ const device=()=>diag.exportBundle(exportProbe(),{appVersion:'3.0.0',saveSchemaVersion:'2.0.0',simulation:{}}).environment.device;
+ assert.equal(device(),null,'no device state before iOS reports one');
+ for(let i=0;i<10;i++)s.dispatchEvent(new s.CustomEvent('gh-native-device-state',{detail:{lowPowerMode:i%2===1,thermalState:i===9?'serious':'injected',maximumFramesPerSecond:i===9?60:'x'}}));
+ const reported=device();assert.equal(reported.lowPowerMode,true);assert.equal(reported.thermalState,'serious');assert.equal(reported.maximumFramesPerSecond,60);
+ assert.equal(reported.changes.length,8,'the last 8 changes are kept');assert.equal(reported.changes[1].thermalState,'unknown','an unknown state is not passed through');assert.equal(reported.changes[1].maximumFramesPerSecond,0);
+ // Each recorder sample carries the simulation timer's ticks so far (the app passes them), so the export shows the ticks
+ // a second the device's timers delivered.
+ {const st=minimal();st.assets=[];st.sectorProfitToday={};st.tripRevenueAccrued={};diag.recorderStart(st,{speed:3,frames:0,slices:0,runtimeTicks:10},{nowMs:wall0,performanceNowMs:perf0});
+  diag.recorderSample(st,{speed:3,frames:30,slices:30,runtimeTicks:43},{nowMs:wall0+1000,forceSample:true});
+  const ticks=diag.exportBundle(st,{appVersion:'3.0.0',saveSchemaVersion:'2.0.0',simulation:{}}).faultRecorder.samples.map(row=>row.runtimeTicks);
+  assert.ok(ticks.includes(10)&&ticks.includes(43),`the samples carry the runtime ticks: ${ticks}`);diag.clear(st);}
+ assert.equal(diag.deviceState().thermalState,'serious','the last reported state is readable by a listener installed later (app.js)');
+ // A clamp event carries the game seconds its clamps dropped since the previous sample, and the running total.
+ {const st=minimal();st.assets=[];st.sectorProfitToday={};st.tripRevenueAccrued={};diag.recorderStart(st,{speed:3,frames:0,slices:0,backlogClamps:0,clampedSimSeconds:0},{nowMs:wall0,performanceNowMs:perf0});
+  diag.recorderSample(st,{speed:3,frames:10,slices:10,backlogClamps:1,clampedSimSeconds:100},{nowMs:wall0+1000,forceSample:true});
+  diag.recorderSample(st,{speed:3,frames:20,slices:20,backlogClamps:3,clampedSimSeconds:150},{nowMs:wall0+2000,forceSample:true});
+  const clamps=diag.exportBundle(st,{appVersion:'3.0.0',saveSchemaVersion:'2.0.0',simulation:{}}).faultRecorder.events.filter(e=>e.type==='LIVE_BACKLOG_CLAMP').map(e=>[e.detail.clampedSimSeconds,e.detail.clampedSimSecondsTotal]).sort((x,y)=>x[1]-y[1]);
+  assert.equal(JSON.stringify(clamps),'[[100,100],[50,150]]',`each clamp event: its own seconds and the total (${JSON.stringify(clamps)})`);diag.clear(st);}
+ const exportedDevice=(async.bundle||async).environment;assert.ok(Object.prototype.hasOwnProperty.call(exportedDevice,'device'),'the async export carries the device state too');
+ console.log(JSON.stringify({suite:'build339-diagnostic-frame-trace',passed:33,total:33,jankyFrames:summary.frameSummary.jankyFrames,frameCallbacks:summary.frameSummary.frameCallbacks,frameTrace:exported.faultRecorder.frameTrace.length,eventsExported:exported.faultRecorder.events.length,samplesExported:exported.faultRecorder.samples.length}));
+})().catch(error=>{console.error(error);process.exitCode=1;});

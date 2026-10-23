@@ -28,6 +28,28 @@ function vault(){
       if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__)throw new Error('snapshot lock leaked');
       const next=await GH_RUNTIME.exportDiagnostics();if(!next.exportPerformance.consistent)throw new Error('retry failed');return {case:'consistency protection and retry',rejected};
     }));
+    // A durable command's save is acknowledged while the command holds the live state: the ACK's record survives the
+    // command's publication (the publication used to replace it), and one that arrives during an export waits for its end.
+    results.push(await page.evaluate(async()=>{
+      const v=__DIAG_VAULT__,s=()=>__GH_STATE__,def=GH_COMPANY_PLATFORM.definitionFor(s(),'sea');v.hold=false;
+      // Each save is recorded twice: the native ACK (its request) and the durable commit it completes.
+      const acks=revision=>{const rows=s().controlPlane.events.filter(e=>e.type==='BRIDGE_SAVE_ACK'&&e.detail?.saveRevision===revision);return {native:rows.filter(e=>e.detail.action==='commitSave').length,durable:rows.filter(e=>e.detail.durable===true).length};};
+      const settled=async revision=>{let out=acks(revision);for(let i=0;i<250&&!(out.native&&out.durable);i++){await new Promise(r=>setTimeout(r,20));out=acks(revision);}return out;};
+      await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type:'sea',companyId:'sea',capital:Math.max(400000000,def.founding.minimumCapital),legalName:'QA ACK Record',formationContract:'QA-ACK-RECORD'},{silent:true});
+      const revision=s().saveRevision,found=await settled(revision);if(found.native!==1||found.durable!==1)throw new Error(`durable command ACK records: ${JSON.stringify(found)}`);
+      v.hold=true;return {case:'durable command ACK recorded after its publication',revision,acks:found};
+    }));
+    // A durable-command context left set with no command running (a past fault) cannot hold an ACK record in a loop of
+    // microtasks: timers keep running, and the record is written once, after the lifecycle settles (no command will
+    // publish over it).
+    results.push(await page.evaluate(async()=>{
+      window.__GH_DURABLE_COMMAND_CONTEXT__={draft:null};
+      window.dispatchEvent(new CustomEvent('gh-persistence-status',{detail:{ok:true,validated:true,durable:true,native:true,saveRevision:-374}}));
+      let ticks=0;const timer=setInterval(()=>ticks++,5);await new Promise(r=>setTimeout(r,150));clearInterval(timer);window.__GH_DURABLE_COMMAND_CONTEXT__=null;
+      const recorded=__GH_STATE__.controlPlane.events.filter(e=>e.type==='BRIDGE_SAVE_ACK'&&e.detail?.saveRevision===-374).length;
+      if(ticks<5)throw new Error(`timers starved while the record waited (${ticks} ticks)`);if(recorded!==1)throw new Error(`recorded ${recorded} times`);
+      return {case:'left-behind command context: timers run, one record',ticks,recorded};
+    }));
     // The actual bound export button must handle failures without an unhandled rejection.
     // It waits for the failing export itself instead of a fixed 100 ms (the button's export first yields for paints, which
     // a slower runner's coalesced timers and frames can hold past 100 ms), then reads the lock at once: its release

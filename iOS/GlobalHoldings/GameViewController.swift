@@ -107,6 +107,39 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     override func viewDidLoad() {
         super.viewDidLoad()
         initializeRuntime()
+        observeDeviceState()
+    }
+
+    // The device's power and heat state for the diagnostic export, sent to the page when it loads and when iOS reports a
+    // change, never polled: WebKit slows requestAnimationFrame in Low Power Mode and under thermal pressure, which the page
+    // cannot read itself.
+    private var deviceStateObservers: [NSObjectProtocol] = []
+
+    private func observeDeviceState() {
+        guard deviceStateObservers.isEmpty else { return }
+        for name in [ProcessInfo.thermalStateDidChangeNotification, Notification.Name.NSProcessInfoPowerStateDidChange] {
+            deviceStateObservers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                self?.reportDeviceState()
+            })
+        }
+    }
+
+    private func reportDeviceState() {
+        guard webView != nil else { return }
+        let thermalState: String
+        switch ProcessInfo.processInfo.thermalState {
+        case .nominal: thermalState = "nominal"
+        case .fair: thermalState = "fair"
+        case .serious: thermalState = "serious"
+        case .critical: thermalState = "critical"
+        @unknown default: thermalState = "unknown"
+        }
+        let detail: [String: Any] = [
+            "lowPowerMode": ProcessInfo.processInfo.isLowPowerModeEnabled,
+            "thermalState": thermalState,
+            "maximumFramesPerSecond": view.window?.windowScene?.screen.maximumFramesPerSecond ?? 0
+        ]
+        reportBridgeEvent("gh-native-device-state", detail: detail)
     }
 
     private func initializeRuntime() {
@@ -943,6 +976,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         if restorePendingSaveIfNeeded() { return }
         applyPendingNativeOperationsIfNeeded()
+        reportDeviceState()
         if recoveredWebProcess {
             recoveredWebProcess = false
             webView.evaluateJavaScript("window.dispatchEvent(new CustomEvent('gh-native-recovery',{detail:{source:'native-save-vault',paused:true}}));")

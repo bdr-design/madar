@@ -80,8 +80,18 @@ function installVault(){
       await new Promise(r=>setTimeout(r,2500));return {reached:s.simSeconds>=target-1,day:Math.floor(s.simSeconds/86400),saves:__VAULT__.commits.slice(before)};},days);
     const across=await advance(95-await page.evaluate(()=>Math.floor(__GH_STATE__.simSeconds/86400)));await settle();
     assert.equal(across.reached,true);assert.ok(across.day>=95,'past April 1');assert.deepEqual(across.saves,[],'an advance across April 1 saves nothing');
-    await page.evaluate(()=>window.__AGE__(25*60000));const overdue=await advance(3);await page.evaluate(()=>window.__AGE__(0));await settle();
-    assert.equal(overdue.reached,true);assert.deepEqual(overdue.saves.filter(row=>row.advancing),[],'an overdue cap does not save while the advance runs');
+    // An overdue cap at a stopped moment asks for a save, which waits for an idle moment; the advance begins right after
+    // that request (in a microtask), before the save runs. The save is then dropped: nothing is saved while the advance
+    // runs (the macOS gate once read a commit made in it). Its policy asks again once the advance is over.
+    const overdue=await page.evaluate(async()=>{const a=__AUDIT__,s=__GH_STATE__,target=(Math.floor(s.simSeconds/86400)+3)*86400,before=__VAULT__.commits.length,idle=window.requestIdleCallback;let asked=false;
+      const go=()=>a.simulationEngine.advanceTo(target,{speed:300,batchSeconds:3600,reason:'qa-save-policy',maxSeconds:400*86400});
+      window.requestIdleCallback=function(cb,options){const handle=idle.call(window,cb,options);if(!asked&&s.diagnostics?.events?.[0]?.type==='SAVE_CHECKPOINT'){asked=true;window.requestIdleCallback=idle;queueMicrotask(go);}return handle;};
+      window.__AGE__(25*60000);const until=performance.now()+10000;while(!asked&&performance.now()<until)await new Promise(r=>setTimeout(r,25));window.requestIdleCallback=idle;
+      for(let attempt=0;attempt<20&&s.simSeconds<target-1;attempt++){if(attempt||!asked)go();await new Promise(r=>setTimeout(r,0));while(a.simulationEngine.snapshot().manualAdvance||GH_TRANSACTION_CORE.isStaged(s))await new Promise(r=>setTimeout(r,25));}
+      await new Promise(r=>setTimeout(r,2500));return {asked,reached:s.simSeconds>=target-1,saves:__VAULT__.commits.slice(before)};});
+    await page.evaluate(()=>window.__AGE__(0));await settle();
+    assert.equal(overdue.asked,true,'the overdue cap asks for a save at a stopped moment');assert.equal(overdue.reached,true);
+    assert.deepEqual(overdue.saves.filter(row=>row.advancing),[],'an overdue cap does not save while the advance runs');
 
     // The cap: not while time runs; at the first stopped moment; regardless after the grace; never on "exit only".
     const capRun=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length;window.__AGE__(16*60000);a.setSpeed(2);await new Promise(r=>setTimeout(r,3000));const running=__VAULT__.commits.length-before;

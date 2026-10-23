@@ -494,17 +494,8 @@
     for(let i=0;i<members.length;i++)if(entry.members[i]!==members[i]||!sameMemberValues(members[i]))return null;
     return entry.text;
   }
-  function segmentBounds(value,policy=null){
-    const isArray=Array.isArray(value),keys=isArray?null:Object.keys(value),count=isArray?value.length:keys.length,ids=new Array(count),seen=new Set();let identified=true;
-    const floor=policy?policy.floor:SEGMENT_FLOOR,mask=policy?policy.mask:255,ceil=policy?policy.ceil:SEGMENT_CEIL,positional=policy?policy.floor*2:SEGMENT_ROWS;
-    for(let i=0;i<count&&identified;i++){const id=isArray?memberIdentity(value[i]):`k:${keys[i]}`;if(id===null||seen.has(id))identified=false;else{seen.add(id);ids[i]=id;}}
-    const out=[];
-    if(!identified){for(let start=0,index=0;start<count;start+=positional,index++)out.push({start,end:Math.min(count,start+positional),key:`#${index}`});return {keys,bounds:out};}
-    let start=0;
-    for(let i=0;i<count;i++){const length=i-start+1;if((length>=floor&&(identityHash(ids[i])&mask)===0)||length>=ceil){out.push({start,end:i+1,key:ids[start]});start=i+1;}}
-    if(start<count)out.push({start,end:count,key:ids[start]});
-    return {keys,bounds:out};
-  }
+  // One rule for the save (collectionLayoutSteps), encodeState and the adoption of chunk ids at load: the same steps.
+  function segmentBounds(value,policy=null){const isArray=Array.isArray(value);return drain(segmentBoundsSteps(isArray,isArray?null:Object.keys(value),isArray?value:null,policy));}
   function segmentSlices(value,layout=segmentBounds(value)){
     const isArray=Array.isArray(value),{keys,bounds}=layout;
     return bounds.map(({start,end})=>{if(isArray)return value.slice(start,end);const part={};for(let i=start;i<end;i++)part[keys[i]]=value[keys[i]];return part;});
@@ -518,33 +509,41 @@
   // Build 359: a sealed container (frozen whole, GH_TRANSACTION_CORE {container:true}) cannot change, so whether it is a
   // collection is answered once per container instead of inspecting every member on every save.
   const sealedContainer=value=>Object.isFrozen(value)&&globalThis.GH_TRANSACTION_CORE?.isSealed?.(value)===true,CANDIDATES=new WeakMap();
-  function collectionCandidate(value){
-    if(!sealedContainer(value))return memberCandidate(value);
-    let known=CANDIDATES.get(value);if(known===undefined){known=memberCandidate(value);CANDIDATES.set(value,known);}return known;
-  }
-  function memberCandidate(value){
-    if(Array.isArray(value)){
-      if(value.length<MIN_ROWS)return false;
-      for(let i=0;i<value.length;i++){const item=value[i];if(!isPlain(item)||typeof item.toJSON==='function')return false;}
-      return true;
-    }
-    if(!isPlain(value))return false;
-    const keys=Object.keys(value);if(keys.length<MIN_ROWS)return false;
-    for(const key of keys){const item=value[key];if(!isPlain(item)||typeof item.toJSON==='function')return false;}
+  // iPhone, 980,000 assets: every durable save held one 60-65 ms step, the fleet's extras map (75,963 members, never
+  // sealed) listed and walked whole several times inside one generator step. The scan keeps one count of the keys and
+  // members it reads, whatever the shape of the state, and yields every LAYOUT_STEP of them (a listing of LAYOUT_STEP
+  // keys or more is followed by a yield); a collection's members are read LAYOUT_STEP at a time (above every collection
+  // threshold, so a collection read whole is still read in one step). The synchronous callers drain the same steps, so
+  // the paths are those of the recursive scan, in the same order.
+  const LAYOUT_STEP=2048,drain=steps=>{let step;while(!(step=steps.next()).done){}return step.value;};
+  // Whether members [from,to) are plain rows; a key deleted while the scan yields is not a member any more.
+  function plainRows(value,keys,from,to){
+    for(let i=from;i<to;i++){const item=keys?value[keys[i]]:value[i];if(item===undefined&&keys&&!own(value,keys[i]))continue;if(!isPlain(item)||typeof item.toJSON==='function')return false;}
     return true;
   }
   // Deterministic discovery: the same state always yields the same ordered path list.
   function selectPaths(state){return scanPaths(state).paths;}
-  function scanPaths(state){
-    const paths=[],runs=[];
-    (function visit(node,path,depth){
-      for(const key of Object.keys(node)){
-        const value=node[key];if(value===null||typeof value!=='object')continue;
-        if(Array.isArray(value)&&value.length>=RUN_MIN){const run=idRun(value);if(run){runs.push({path:[...path,key],run});continue;}}
-        if(collectionCandidate(value)){paths.push([...path,key]);continue;}
-        if(depth<MAX_SCAN_DEPTH&&typeof value.toJSON!=='function'&&(isPlain(value)||Array.isArray(value)&&value.length<MIN_ROWS))visit(value,[...path,key],depth+1);
+  function scanPaths(state){return drain(scanPathsSteps(state));}
+  function* scanPathsSteps(state){
+    const paths=[],runs=[],stack=[];let work=0;
+    const enter=(node,path,depth)=>{const keys=Object.keys(node);work+=keys.length;stack.push({node,path,depth,keys,at:0});};
+    enter(state,[],1);
+    while(stack.length){
+      if(work>=LAYOUT_STEP){work=0;yield;}
+      const frame=stack[stack.length-1];if(frame.at>=frame.keys.length){stack.pop();continue;}
+      const key=frame.keys[frame.at++],value=frame.node[key];work++;if(value===null||typeof value!=='object')continue;
+      if(Array.isArray(value)&&value.length>=RUN_MIN){const run=idRun(value);if(run){runs.push({path:[...frame.path,key],run});continue;}}
+      // A sealed container is a collection or not once and for all: asked once (the answer kept only when complete).
+      const sealed=sealedContainer(value);let candidate=sealed?CANDIDATES.get(value):undefined;
+      if(candidate===undefined){
+        const isArray=Array.isArray(value),keys=isArray||!isPlain(value)?null:Object.keys(value);if(keys)work+=keys.length;
+        candidate=(isArray?value.length:keys?keys.length:0)>=MIN_ROWS;
+        for(let from=0;candidate&&from<(isArray?value.length:keys.length);from+=LAYOUT_STEP){if(work>=LAYOUT_STEP){work=0;yield;}const to=Math.min(isArray?value.length:keys.length,from+LAYOUT_STEP);candidate=plainRows(value,keys,from,to);work+=to-from;}
+        if(sealed)CANDIDATES.set(value,candidate);
       }
-    })(state,[],1);
+      if(candidate){paths.push([...frame.path,key]);continue;}
+      if(frame.depth<MAX_SCAN_DEPTH&&typeof value.toJSON!=='function'&&(isPlain(value)||Array.isArray(value)&&value.length<MIN_ROWS))enter(value,[...frame.path,key],frame.depth+1);
+    }
     return {paths,runs};
   }
   function readPath(root,path){let node=root;for(const key of path){if(node===null||typeof node!=='object'||!own(node,key))return undefined;node=node[key];}return node;}
@@ -766,7 +765,7 @@
   // sequence (and, for a map, its keys) is unchanged since the last save, the previous JSON text of the encoded
   // collection is reused. The output is byte-for-byte what JSON.stringify(encodeState(state)) produces.
   const COLLECTION_TEXT=new Map(),NONCE=`${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
-  let collectionCacheStats={hits:0,misses:0,open:0},layoutCacheStats={hits:0,misses:0};
+  let collectionCacheStats={hits:0,misses:0,open:0},layoutCacheStats={hits:0,misses:0};let lastRootChars=[];
   // The JSON text of a fragment token (JSON.stringify of `\u0000gh-codec:${NONCE}:${index}\u0000`).
   const FRAGMENT_TOKEN=new RegExp(`"\\\\u0000gh-codec:${NONCE}:(\\d+)\\\\u0000"`,'g');
   // Build 359 (a save hashed the identity of every member of every encoded collection to find its segments, sliced it
@@ -775,18 +774,52 @@
   // and keys are the same objects as at the last save reuses it after one identity comparison per member. Sealing is
   // permanent, so a segment found sealed stays sealed; one that was not is asked again.
   const PATH_LAYOUT=new Map();
-  function sameSequence(cached,value){
-    if(Array.isArray(value)){if(cached.keys||cached.members.length!==value.length)return false;for(let i=0;i<value.length;i++)if(cached.members[i]!==value[i])return false;return true;}
-    const keys=Object.keys(value);if(!cached.keys||cached.keys.length!==keys.length)return false;
-    for(let i=0;i<keys.length;i++)if(cached.keys[i]!==keys[i]||cached.members[i]!==value[keys[i]])return false;
-    return true;
-  }
-  function collectionLayout(key,value){
+  // The collection is read once (its keys, then its members, a step every LAYOUT_STEP members) and everything after works
+  // on that read: the comparison with the last save, the segment bounds and the parts, each in bounded steps. The entry
+  // is cached only once it is complete, so a save abandoned between steps keeps nothing. A collection under LAYOUT_STEP
+  // members takes one step, as before (its parts copied from the value itself, as before).
+  function* collectionLayoutSteps(key,value){
     // The same sealed container as at the last save has the same members: no member is compared.
-    const cached=PATH_LAYOUT.get(key);if(cached&&(cached.value===value&&sealedContainer(value)||sameSequence(cached,value))){cached.value=value;layoutCacheStats.hits++;return cached;}
-    const policy=TRACKED.get(key)||null,split=segmented(value,policy),layout=split?segmentBounds(value,policy):null,parts=split?segmentSlices(value,layout):[Array.isArray(value)?value.slice():{...value}],keys=Array.isArray(value)?null:Object.keys(value);
-    const entry={value,keys,members:keys?keys.map(name=>value[name]):value.slice(),split,layout,parts,sealed:new Array(parts.length).fill(null)};
+    const cached=PATH_LAYOUT.get(key);if(cached&&cached.value===value&&sealedContainer(value)){cached.value=value;layoutCacheStats.hits++;return cached;}
+    // A collection changed while it was read between steps (a fleet write; a command holds the rest of the game) is read
+    // again; the third read takes one step, as before, so the read is always one moment's collection.
+    const isArray=Array.isArray(value);let keys,count,members;
+    for(let attempt=0;;attempt++){
+      keys=isArray?null:Object.keys(value);count=isArray?value.length:keys.length;members=new Array(count);
+      const whole=attempt>=2,large=!whole&&count>=LAYOUT_STEP;if(large)yield;let changed=false;
+      for(let i=0;i<count;i++){if(!isArray&&!own(value,keys[i])){changed=true;break;}members[i]=isArray?value[i]:value[keys[i]];if(large&&i%LAYOUT_STEP===LAYOUT_STEP-1)yield;}
+      if(!changed&&(!isArray||value.length===count))break;
+    }
+    if(cached&&(isArray?!cached.keys:!!cached.keys)&&cached.members.length===count){
+      let same=true;for(let i=0;i<count&&same;i++){if(cached.members[i]!==members[i]||!isArray&&cached.keys[i]!==keys[i])same=false;if(i%LAYOUT_STEP===LAYOUT_STEP-1)yield;}
+      if(same){cached.value=value;layoutCacheStats.hits++;return cached;}
+    }
+    const policy=TRACKED.get(key)||null,split=count>=(policy?policy.min:SEGMENT_MIN);let layout=null,parts;
+    if(split){layout=yield* segmentBoundsSteps(isArray,keys,members,policy);parts=yield* segmentSlicesSteps(isArray,keys,members,layout);}
+    else parts=[isArray?value.slice():{...value}];
+    const entry={value,keys,members,split,layout,parts,sealed:new Array(parts.length).fill(null)};
     PATH_LAYOUT.set(key,entry);layoutCacheStats.misses++;return entry;
+  }
+  // The segment bounds of a collection already read (an array's members, or a map's keys), in bounded steps, and its
+  // parts (members read with the keys), as segmentSlices gives them for the same collection.
+  function* segmentBoundsSteps(isArray,keys,members,policy){
+    const count=isArray?members.length:keys.length,ids=new Array(count),seen=new Set();let identified=true;
+    const floor=policy?policy.floor:SEGMENT_FLOOR,mask=policy?policy.mask:255,ceil=policy?policy.ceil:SEGMENT_CEIL,positional=policy?policy.floor*2:SEGMENT_ROWS;
+    for(let i=0;i<count&&identified;i++){const id=isArray?memberIdentity(members[i]):`k:${keys[i]}`;if(id===null||seen.has(id))identified=false;else{seen.add(id);ids[i]=id;}if(i%LAYOUT_STEP===LAYOUT_STEP-1)yield;}
+    const out=[];
+    if(!identified){for(let start=0,index=0;start<count;start+=positional,index++)out.push({start,end:Math.min(count,start+positional),key:`#${index}`});return {keys,bounds:out};}
+    let start=0;
+    for(let i=0;i<count;i++){const length=i-start+1;if((length>=floor&&(identityHash(ids[i])&mask)===0)||length>=ceil){out.push({start,end:i+1,key:ids[start]});start=i+1;}if(i%LAYOUT_STEP===LAYOUT_STEP-1)yield;}
+    if(start<count)out.push({start,end:count,key:ids[start]});
+    return {keys,bounds:out};
+  }
+  function* segmentSlicesSteps(isArray,keys,members,layout){
+    const parts=[];let done=0;
+    for(const {start,end} of layout.bounds){
+      if(isArray)parts.push(members.slice(start,end));else{const part={};for(let i=start;i<end;i++)part[keys[i]]=members[i];parts.push(part);}
+      done+=end-start;if(done>=LAYOUT_STEP){done=0;yield;}
+    }
+    return parts;
   }
   function sealedMembers(value){
     const sealed=globalThis.GH_TRANSACTION_CORE?.isSealed;if(typeof sealed!=='function')return null;
@@ -884,11 +917,11 @@
       const token=`\u0000gh-codec:${NONCE}:${fragments.length}\u0000`,text=liveValues.size?`{"$ghValues":"segments-v1","length":${values.length},"parts":[${parts.join(',')}]}`:`[${parts.map(part=>part.slice(1,-1)).join(',')}]`;
       fragments.push({token:JSON.stringify(token),text});out=writePathCopy(out,['fleet','values'],token);valueTable=liveValues.size>0;
     }else if(textChunks&&rowsText!==null){VALUE_TEXT.clear();valueChars=0;}
-    const scan=scanPaths(out),paths=scan.paths;
+    const scan=yield* scanPathsSteps(out),paths=scan.paths;
     if(!paths.length&&!binaryPaths.length&&!scan.runs.length&&!cold.ids.length&&!cold.hasPages)return yield* stringifySteps(out);
     let segments=false;const livePaths=new Set(),liveTracked=new Set();
     for(const path of paths){
-      const value=readPath(out,path),key=JSON.stringify(path),shape=collectionLayout(key,value),split=shape.split;if(split)segments=true;livePaths.add(key);
+      const value=readPath(out,path),key=JSON.stringify(path),shape=yield* collectionLayoutSteps(key,value),split=shape.split;if(split)segments=true;livePaths.add(key);
       const layout=shape.layout,parts=shape.parts,texts=[],tracked=TRACKED.has(key);let cached=true;
       for(let index=0;index<parts.length;index++){
         const partKey=split?`${key}${layout.bounds[index].key.startsWith('#')?'':'@'}${layout.bounds[index].key}`:key;
@@ -930,7 +963,9 @@
     // Resolve fragments inside each root before the final join. Never scan/copy the complete save a second time.
     const found=new Array(fragments.length).fill(0);
     const replace=(match,index)=>{const at=Number(index),fragment=fragments[at];if(!fragment||fragment.token!==match)throw new Error('state-codec-fragment-token');found[at]++;return fragment.text;};
-    const members=[];for(const key of Object.keys(out)){let json=yield* stringifySteps(out[key]);if(json!==undefined){if(fragments.length)json=json.replace(FRAGMENT_TOKEN,replace);members.push(`${JSON.stringify(key)}:${json}`);}yield;}
+    // rootChars: each root's text length, the eight largest kept for the save's timing (what fills a save on the device).
+    const members=[],rootChars=[];for(const key of Object.keys(out)){let json=yield* stringifySteps(out[key]);if(json!==undefined){if(fragments.length)json=json.replace(FRAGMENT_TOKEN,replace);members.push(`${JSON.stringify(key)}:${json}`);rootChars.push({key,chars:json.length});}yield;}
+    lastRootChars=rootChars.sort((x,y)=>y.chars-x.chars).slice(0,8);
     if(found.some(count=>count!==1))throw new Error('state-codec-fragment-token');
     valueFresh();return `{${members.join(',')}}`;
   }
@@ -1160,7 +1195,7 @@
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 
-  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT},tracked:{...trackedStats,entries:TRACKED_TEXT.size,paths:TRACKED.size},sealedText:{...sealedTextStats}}),registerTrackedCollection,valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
+  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT},tracked:{...trackedStats,entries:TRACKED_TEXT.size,paths:TRACKED.size},sealedText:{...sealedTextStats},roots:lastRootChars.map(row=>({...row}))}),registerTrackedCollection,valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
   globalThis.GH_STATE_CODEC=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_STATE_CODEC=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

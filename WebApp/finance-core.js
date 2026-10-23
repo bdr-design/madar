@@ -327,11 +327,12 @@ function investorCardTransfer(s,t,a,account,purpose){
  const transfer={id,reference:id,at:now(s),kind:'founder-investment',label:'شحن من بطاقة المستثمر',from:`بطاقة المستثمر · ${founder}`,to:companyName(s,t),toAccount:acc.id,amount:a,company:t,beneficiaryCompany:t,status:'منفذة',note:purpose,fundingSource:'investor-card'};
  protectDocument(s,transfer,'founder-investment');insertFinanceTransfer(s,{...transfer});ledger(s,t,transfer);journal(s,t,`${id} · شحن من بطاقة المستثمر`,[{account:acc.id,debit:a},{account:'حقوق ملكية المؤسس',credit:a}],id);noteInvestorCard(s,t,'charge',a,purpose);reconcile(s);return transfer;
 }
-function coverFromInvestorCard(s,t,a,purpose='مصروف',account=0){
- if(!investorMode(s))return 0;const shortfall=Math.max(0,num(a)-num(book(s,t).accounts[account]?.balance));if(shortfall<=0)return 0;
+function investorCover(s,t,a,purpose='مصروف',account=0){
+ if(!investorMode(s))return null;const shortfall=Math.max(0,num(a)-num(book(s,t).accounts[account]?.balance));if(shortfall<=0)return null;
  const amount=Math.ceil((shortfall+Math.max(shortfall,INVESTOR_CARD_STEP*2.5))/INVESTOR_CARD_STEP)*INVESTOR_CARD_STEP;
- investorCardTransfer(s,t,amount,account,purpose);return amount;
+ return investorCardTransfer(s,t,amount,account,purpose);
 }
+function coverFromInvestorCard(s,t,a,purpose='مصروف',account=0){return investorCover(s,t,a,purpose,account)?.amount||0;}
 // Returns (owner: «خله يدوي انا ارجعه اذا بغيت»): only the player returns money to the card, never the game. A company
 // sends back what the card sent it by an outgoing transfer to the card (signed, journal against the founder's equity:
 // capital going back, not an expense), never more than it still owes the card nor more than its current account holds.
@@ -767,12 +768,20 @@ function issueCheque(s,p){
 }
 // Validate the forward posting, never recover a small movement by subtracting huge balances.
 // Called inside the financial transaction; evidence is bounded and allocated only on failure.
+// A receipt whose posting was funded first by the investor card (settle-daily-cash) carries the balance the caller saw,
+// the card's amount and its transfer: the caller's balance is then the one before the card, the card must be that
+// transfer into this account and the balance before the posting exactly the caller's plus the card's amount.
+function investorCoverHolds(s,receipt,company,account){
+ const cover=receipt.investorCover,seen=receipt.balanceBeforeCover;if(!Number.isFinite(cover)||!(cover>0)||!Number.isFinite(seen)||seen+cover!==receipt.balanceBefore)return false;
+ const row=findTransferByReference(s,String(receipt.investorCoverReference||''));
+ return !!row&&row.kind==='founder-investment'&&row.fundingSource==='investor-card'&&row.company===company&&row.toAccount===account.id&&row.amount===cover;
+}
 function assertAccountPosting(s,receipt,expected={}){
  const company=expected.company??receipt?.company,account=book(s,company).accounts[0],before=receipt?.balanceBefore,after=receipt?.balanceAfter,amount=receipt?.amount,actual=account.balance;
- const expectedAfter=before+amount;
- if(receipt?.company!==company||receipt?.accountId!==account.id||!String(receipt?.reference||'').trim()||expected.reference!==undefined&&receipt.reference!==expected.reference||expected.balanceBefore!==undefined&&before!==expected.balanceBefore||expected.amount!==undefined&&amount!==expected.amount||![before,after,amount,actual,expectedAfter].every(Number.isFinite)||after!==expectedAfter||actual!==after){
+ const expectedAfter=before+amount,covered=receipt?.investorCover!==undefined,seen=covered?receipt.balanceBeforeCover:before;
+ if(receipt?.company!==company||receipt?.accountId!==account.id||!String(receipt?.reference||'').trim()||expected.reference!==undefined&&receipt.reference!==expected.reference||covered&&!investorCoverHolds(s,receipt,company,account)||expected.balanceBefore!==undefined&&seen!==expected.balanceBefore||expected.amount!==undefined&&amount!==expected.amount||![before,after,amount,actual,expectedAfter].every(Number.isFinite)||after!==expectedAfter||actual!==after){
   const error=new Error(expected.code||`finance-account-posting-mismatch:${company}`);error.code='FINANCE_ACCOUNT_POSTING_MISMATCH';
-  error.postingEvidence={company:String(company).slice(0,120),accountId:String(account.id).slice(0,120),reference:String(receipt?.reference||'').slice(0,160),before,after,appliedAmount:amount,expectedAfter,actual,difference:actual-expectedAfter};throw error;
+  error.postingEvidence={company:String(company).slice(0,120),accountId:String(account.id).slice(0,120),reference:String(receipt?.reference||'').slice(0,160),before,after,appliedAmount:amount,expectedAfter,actual,difference:actual-expectedAfter,...(covered?{balanceBeforeCover:receipt.balanceBeforeCover,investorCover:receipt.investorCover,investorCoverReference:String(receipt.investorCoverReference||'').slice(0,160)}:{})};throw error;
  }
  return true;
 }
@@ -897,14 +906,14 @@ function settleDailyCash(s,p={}){
   if([p.grossAmount,p.deductions].some(value=>value!==undefined&&(!Number.isFinite(Number(value))||Number(value)<0)))throw new Error('invalid-settlement-breakdown');
   const settledDays=s.finance.dailySettlementDays||{};if(Number.isFinite(settledDays[t])&&day<=settledDays[t])return unchangedDailySettlement(s,t,reference,{idempotent:true,status:'منفذة سابقًا'});
   if(Math.abs(amount)<.005&&!(Number(p.grossAmount)>0))return unchangedDailySettlement(s,t,reference,{idempotent:false,status:'صفر'});
-  if(amount<0)coverFromInvestorCard(s,t,-amount,'تسوية عجز تشغيل يومي');
+  const balanceBeforeCover=num(book(s,t).accounts[0].balance),cover=amount<0?investorCover(s,t,-amount,'تسوية عجز تشغيل يومي'):null;
   const b=book(s,t),incoming=amount>=0,requested=Math.abs(amount),settled=incoming?requested:Math.min(requested,num(b.accounts[0].balance)),shortfall=Math.max(0,requested-settled),balanceBefore=num(b.accounts[0].balance);
   if(incoming)b.accounts[0].balance+=settled;else b.accounts[0].balance-=settled;const balanceAfter=num(b.accounts[0].balance);
   if(shortfall>0)s.finance.pendingDailyCash[t]=(Number(s.finance.pendingDailyCash[t])||0)-shortfall;
   const transfer={id:reference,reference,at:now(s),day,from:incoming?'مركز التسوية التشغيلية اليومية':b.accounts[0].id,to:incoming?b.accounts[0].id:'مركز التسوية التشغيلية اليومية',amount:settled,requestedAmount:requested,shortfall,carriedAdjustment:p.grossAmount===undefined?0:amount-(num(p.grossAmount)-num(p.deductions)),signedAmount:incoming?settled:-settled,netAmount:incoming?settled:-settled,note:String(p.note||`تسوية صافي رحلات اليوم ${day} · ${companyName(s,t)}`),purposeCategory:incoming?'وصول صافي التشغيل للحساب الجاري':'تسوية عجز تشغيل',purposeDetail:String(p.note||`صافي الحركة النقدية التشغيلية لليوم ${day}`),paymentMethod:'تسوية تشغيل يومية',company:t,kind:'daily-operating-settlement',label:incoming?'وصول صافي التشغيل للحساب الجاري':'تسوية عجز التشغيل',status:shortfall>0?'منفذة جزئيًا':'منفذة',accountBalanceBefore:balanceBefore,accountBalanceAfter:balanceAfter};
   const profile=collectionProfile(t,s);Object.assign(transfer,{collection:true,channel:profile.channel,service:profile.service,invoiceNumbers:(p.invoiceNumbers||[]).slice(0,20),grossAmount:num(p.grossAmount??Math.max(0,amount)),deductions:num(p.deductions),tripCount:Math.max(0,Math.floor(Number(p.tripCount)||0)),sourceRefs:[`TRIPS-${t}-${day}`]});if(incoming)transfer.from=profile.source;
   for(const number of transfer.invoiceNumbers){const doc=findFinanceDocument(s,'invoices','number',number,row=>row.company===t);if(doc&&doc.transferReference!==reference)amendInvoice(s,doc,'invoice-transfer-linked',row=>{row.transferReference=reference;});}
-  protectDocument(s,transfer,'daily-operating-settlement');s.finance.dailySettlementDays={...settledDays,[t]:day};insertFinanceTransfer(s,{...transfer});if(settled>0){ledger(s,t,transfer);journal(s,t,transfer.note,incoming?[{account:b.accounts[0].id,debit:settled},{account:'مركز التسوية التشغيلية اليومية',credit:settled}]:[{account:'مركز التسوية التشغيلية اليومية',debit:settled},{account:b.accounts[0].id,credit:settled}],reference);}reconcile(s);const result={company:t,amount:incoming?settled:-settled,reference,accountId:b.accounts[0].id,idempotent:false,status:transfer.status,shortfall,balanceBefore,balanceAfter,documentProofId:transfer.documentProofId,contentDigest:transfer.contentDigest};assertAccountPosting(s,result,{company:t,reference,code:`daily-profit-current-account-mismatch:${t}`});return result;
+  protectDocument(s,transfer,'daily-operating-settlement');s.finance.dailySettlementDays={...settledDays,[t]:day};insertFinanceTransfer(s,{...transfer});if(settled>0){ledger(s,t,transfer);journal(s,t,transfer.note,incoming?[{account:b.accounts[0].id,debit:settled},{account:'مركز التسوية التشغيلية اليومية',credit:settled}]:[{account:'مركز التسوية التشغيلية اليومية',debit:settled},{account:b.accounts[0].id,credit:settled}],reference);}reconcile(s);const result={company:t,amount:incoming?settled:-settled,reference,accountId:b.accounts[0].id,idempotent:false,status:transfer.status,shortfall,balanceBefore,balanceAfter,documentProofId:transfer.documentProofId,contentDigest:transfer.contentDigest,...(cover?{balanceBeforeCover,investorCover:cover.amount,investorCoverReference:cover.reference}:{})};assertAccountPosting(s,result,{company:t,reference,code:`daily-profit-current-account-mismatch:${t}`});return result;
 }
 
 function recordAssetFinance(s,p){

@@ -104,6 +104,36 @@ for(const stage of ['create','finish']){
   assert(out.lastError.includes('injected-chunk-failure'));assert.equal(s.cancels,1);assert.equal(s.speedWrites.length,0);
   results.push({name:'failed chunk',committedSeconds:s.sim,cancels:s.cancels});
 }
+// A display the host reports at 30 Hz (iOS Low Power Mode or serious heat) holds 33.3 ms frames without pressure, a frame
+// past 35.2 ms is still late; without the report, or at 60 Hz, the 18.5 ms bound is unchanged.
+{
+  const s=scenario({steps:10000});for(let i=0;i<50;i++)assert.equal(s.engine.noteFrameInterval(33.3,1000/30),0);
+  const held=s.tick();assert.equal(held.frameCadencePressure,0);assert.equal(held.activeFrameBudgetMs,10);assert.equal(held.frameCadenceFloorMs,35.2);
+  const late=s.engine.noteFrameInterval(48.5,1000/30);assert.ok(late>.44&&late<.45,`a late 30 Hz frame is pressure: ${late}`);
+  const t=scenario({steps:10000});assert.ok(t.engine.noteFrameInterval(33.3)>.48,'no report: 33.3 ms is pressure as before');assert.equal(t.engine.noteFrameInterval(48.5,0),1);assert.equal(t.engine.snapshot().frameCadenceFloorMs,18.5);
+  const u=scenario({steps:10000});assert.equal(u.engine.noteFrameInterval(48.5,1000/60),1,'60 Hz keeps the 18.5 ms bound');assert.equal(u.engine.snapshot().frameCadenceFloorMs,18.5);
+  results.push({name:'reported 30 Hz display',heldBudgetMs:held.activeFrameBudgetMs,latePressure:late});
+}
+
+// A live slice that ends on a day boundary (the day close) takes the calendar's cooperative budget, under the governor;
+// every other live slice keeps the live one. 1 real second of 300x backlog makes one 300 sim-s slice.
+function liveDayScenario(startSim){
+  let wall=0,sim=startSim;const chunks=[];
+  const engine=Core.create({getSimTime:()=>sim,setSimTime:v=>{sim=v;},getSpeed:()=>300,setSpeed:()=>{},
+    createSliceJob:(_slice,meta)=>{let i=0;return {runChunk(_items,{deadline}){const start=wall;do{wall+=.25;i++;}while(i<400&&wall<deadline);chunks.push({to:meta.to,start,deadline,budget:deadline-start});return i>=400;},finish(){sim=meta.to;return {committed:true};},cancel(){}};}
+  },{nowMs:()=>wall,allowedSpeeds:[0,30,120,300],fallbackSpeed:30,frameBudgetMs:4,manualFrameBudgetMs:10,cooldownAfterMs:0,minRealSliceSeconds:1});
+  engine.reset(0);for(let i=0;i<600&&sim<startSim+300;i++){wall+=16;engine.frame(wall);}
+  return {chunks,sim,engine};
+}
+{
+  const day=liveDayScenario(86400-300),hour=liveDayScenario(3600-300);
+  assert.equal(day.sim,86400,'the day slice commits');assert.equal(hour.sim,3600,'the hour slice commits');
+  const dayLater=day.chunks.filter(c=>c.to===86400).slice(1),hourLater=hour.chunks.filter(c=>c.to===3600).slice(1);assert.ok(dayLater.length&&hourLater.length);
+  assert.ok(dayLater.every(c=>c.budget>4.01&&c.budget<=10.01),`the day close takes the calendar budget: ${dayLater.map(c=>c.budget)}`);
+  assert.ok(hourLater.every(c=>c.budget<=4.01),`an hour slice keeps the live budget: ${hourLater.map(c=>c.budget)}`);
+  assert.ok(dayLater.length<hourLater.length,'the day close needs fewer ticks than the same work under the live budget');
+  results.push({name:'live day close budget',dayTicks:dayLater.length+1,hourTicks:hourLater.length+1});
+}
 assert.equal(Core.DEFAULTS.frameBudgetMs,5.5);assert.equal(Core.DEFAULTS.manualFrameBudgetMs,10);
 assert.equal(Core.DEFAULTS.longTaskWarnMs,28);assert.equal(Core.DEFAULTS.hardTaskMs,120);
 assert(!Object.hasOwn(Core.DEFAULTS,'governorRecoveryMs'));assert(!Object.hasOwn(Core.DEFAULTS,'governorRecoveryFrames'));assert(!Object.hasOwn(Core.DEFAULTS,'governorRecoveryRatio'));

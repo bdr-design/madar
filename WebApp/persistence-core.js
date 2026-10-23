@@ -185,13 +185,20 @@
   // The command holds the lifecycle lock, so nothing writes the state meanwhile; if the fleet records changed anyway
   // (their revision moved), take one fresh snapshot in slices; a second change refuses the save. Large native fleets use a
   // separate checksum worker; its immutable chunk snapshots are the uploads. The bytes match serializeNative + utf8.
+  // Once per durable save: what the codec reused and wrote afresh (counter deltas) and its largest roots in characters,
+  // so a device file shows what fills the save. Counter copies only, no extra serialization.
+  function codecCounters(){const c=stateCodec()?.cacheStats?.();if(!c)return null;return {collectionHits:c.hits,collectionMisses:c.misses,openHits:c.openChunks?.hits,openMisses:c.openChunks?.misses,openDeclined:c.openChunks?.declined,textNamed:c.text?.named,textReferenced:c.text?.referenced,sealedTextHits:c.sealedText?.hits,sealedTextStored:c.sealedText?.stored,roots:c.roots};}
+  function codecDelta(before,after){if(!before||!after)return null;const out={};for(const key of Object.keys(after)){if(key==='roots')continue;const a=Number(after[key]),b=Number(before[key]);if(Number.isFinite(a)&&Number.isFinite(b))out[key]=a-b;}if(Array.isArray(after.roots))out.roots=after.roots;return out;}
   const SLICE_MS=10;
+  // One save step that holds the main thread for 8 ms or more is reported to the frame recorder (the app installs the
+  // reporter; the recorder ignores it unless it is recording), so a frame it drops is named a save, not unattributed.
+  const SAVE_WORK_REPORT_MS=8,reportSaveWork=(start,end)=>{try{globalThis.GH_SAVE_WORK_REPORTER?.(start,end);}catch(_error){}};
   async function runSliced(steps,yieldToFrame,timing,checksumSession=null){
     let active=0,input,step,deferredAccounted=0;
     const accountDeferred=()=>{if(!checksumSession)return;const stats=checksumSession.stats(),extra=stats.deferredSubmitMs-deferredAccounted;timing.busyMs+=extra;deferredAccounted=stats.deferredSubmitMs;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,stats.maxDeferredSubmitMs);};
     for(;;){
       accountDeferred();
-      const start=clock();step=steps.next(input);input=undefined;const busy=clock()-start;active+=busy;timing.busyMs+=busy;
+      const start=clock();step=steps.next(input);input=undefined;const busy=clock()-start;active+=busy;timing.busyMs+=busy;if(busy>=SAVE_WORK_REPORT_MS)reportSaveWork(start,start+busy);
       timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,active);
       if(step.done)return step.value;
       if(step.value?.kind==='fleet-row-proof'){
@@ -315,9 +322,9 @@
     });
   }
   async function uploadChunks(uploads){
-    const started=clock();let bytes=0,wireBytes=0,encodingWorkerMs=0,compressedChunks=0;
-    for(const upload of uploads||[]){if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}const sent=await uploadChunk(upload.id,upload.bytes,upload.kind);vaultChunks.add(upload.id);bytes+=sent.bytes;wireBytes+=sent.wireBytes;encodingWorkerMs+=sent.workerMs;if(sent.encoding!=='identity')compressedChunks++;upload.bytes=null;}
-    if(uploads?.length)rememberTiming({kind:'chunk-upload',chunks:uploads.length,bytes,wireBytes,encodingWorkerMs,compressedChunks,ms:Math.max(0,clock()-started)});
+    const started=clock(),bytesByKind={};let bytes=0,wireBytes=0,encodingWorkerMs=0,compressedChunks=0;
+    for(const upload of uploads||[]){if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}const sent=await uploadChunk(upload.id,upload.bytes,upload.kind);vaultChunks.add(upload.id);bytes+=sent.bytes;wireBytes+=sent.wireBytes;encodingWorkerMs+=sent.workerMs;if(sent.encoding!=='identity')compressedChunks++;const kind=String(upload.kind||'chunk').slice(0,32);bytesByKind[kind]=(bytesByKind[kind]||0)+sent.bytes;upload.bytes=null;}
+    if(uploads?.length)rememberTiming({kind:'chunk-upload',chunks:uploads.length,bytes,bytesByKind,wireBytes,encodingWorkerMs,compressedChunks,ms:Math.max(0,clock()-started)});
   }
   // A commit refused for a missing chunk means vaultChunks was stale: forget it so the next save uploads its chunks.
   function noteNativeRefusal(error){if(/Missing save chunk/i.test(String(error?.message||'')))forgetVaultChunks();return error;}
@@ -472,7 +479,9 @@
       const awaitStaging=async(promise,key)=>{const waited=clock();const value=await Promise.resolve(promise).catch(()=>null),ms=Math.max(0,clock()-waited);durableTiming[key]=(durableTiming[key]||0)+ms;durableTiming.stagingWaitMs=(durableTiming.stagingWaitMs||0)+ms;return value;};
       if(staging&&!overlap)await awaitStaging(staging.settled,'stagingUploadWaitMs');
       const planned=overlap?await awaitStaging(staging.planned,'stagingPlanWaitMs'):null,trusting=planned instanceof Set&&planned.size?{has:id=>vaultChunks.has(id)||planned.has(id)}:null;
+      const codecBefore=codecCounters();
       let nativeSave=nativeBridge?(sliced?await serializeNativeSliced(state,yieldToFrame,sliced,{validatedFleetRevision,...(trusting?{knownChunkIds:trusting}:{})}):serializeNative(state)):null;
+      durableTiming.codec=codecDelta(codecBefore,codecCounters());
       if(overlap){await awaitStaging(staging.settled,'stagingUploadWaitMs');if(trusting&&nativeSave?.chunkIds?.some(id=>planned.has(id)&&!vaultChunks.has(id))){durableTiming.stagingRetakes=1;nativeSave=await serializeNativeSliced(state,yieldToFrame,sliced,{validatedFleetRevision});}}
       const json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
       if(nativeBridge){
@@ -483,11 +492,11 @@
           ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state),encoded});}catch(error){throw noteNativeRefusal(error);}ordinaryError=null;
         const cache=nativeSave?.chunked?{ok:false,reason:'chunked-native-save',previous:null,bypassed:true}:(measurement.utf8Bytes>PERSISTENCE_LIMITS.hardBytes||measurement.storageBytes>PERSISTENCE_LIMITS.hardBytes)?{ok:false,reason:'browser-cache-size-bypass',previous:null,bypassed:true}:writeJSON(storageKey,json,{...options,mirror:true},encoded);
         if(!cache.ok&&!nativeSave?.chunked)status({ok:true,warning:true,reason:'browser-cache-skipped',cacheReason:cache.reason,durable:true,utf8Bytes:measurement.utf8Bytes,mirror:true});
-        acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:0});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason,stagingWaitMs:durableTiming.stagingWaitMs||0};
+        acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:Math.max(0,clock()-syncStart)});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason,stagingWaitMs:durableTiming.stagingWaitMs||0};
       }
       written=writeJSON(storageKey,json,options);if(!written.ok)throw new Error(written.reason);
       const ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state)});ordinaryError=null;
-      acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:written.utf8Bytes,native:false,durationMs:0});status({ok:true,validated:true,durable:true,native:false,saveRevision:Number(state.saveRevision)||0});return {...written,ack,durable:true};
+      acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:written.utf8Bytes,native:false,durationMs:Math.max(0,clock()-syncStart)});status({ok:true,validated:true,durable:true,native:false,saveRevision:Number(state.saveRevision)||0});return {...written,ack,durable:true};
     }catch(error){
       if(written?.ok)try{if(localStorage.getItem(storageKey)===written.json)restoreRaw(storageKey,written.previous);}catch(rollbackError){error.rollbackError=String(rollbackError.message||rollbackError);}
       const uncertainNative=error.code==='ACK_TIMEOUT';if(error.rollbackError||uncertainNative){recoveryRequired=true;error.critical=true;}status({ok:false,reason:String(error.message||error),critical:!!error.critical,durable:true,requiresNativeReconciliation:uncertainNative,storageKey});throw error;

@@ -45,4 +45,45 @@ for(const company of ['group','air','sea','road','power','bank','mobility','insu
  }}),error=>error.code==='FINANCE_ACCOUNT_POSTING_MISMATCH'&&!!error.diagnostic.postingEvidence);
  assert.equal(JSON.stringify(st),stable,'financial fault must roll back balances, proofs and documents');checks++;
 }
-console.log(JSON.stringify({suite:'build379-financial-posting',ok:true,checks,companies:12,randomSettlements:540,negativeGuards:11,consolidatedGuardPreserved:true}));
+// Investor mode: a day's loss above the current account is funded first by the investor card. The day close reads the
+// balance before it dispatches the settlement and checks the receipt against it (app.js financialDayStages), so the
+// receipt names the balance before the card, the card's amount and its transfer, and the check proves each of them.
+let investorCases=0;
+{
+ const INVESTOR_STEP=10000000,code='daily-profit-current-account-mismatch:air',reference='DAY-CASH-air-1',mismatch=error=>error.code==='FINANCE_ACCOUNT_POSTING_MISMATCH';
+ const invest=balance=>{const state=fixture(balance);state.godMoney=true;state.infiniteMoney=true;return state;},cards=state=>state.finance.transfers.filter(row=>row.fundingSource==='investor-card');
+ for(const base of [0,100,5e13,2**47+.5,1.98e14]){
+  const state=invest(base),before=F.operating(state,'air'),loss=base+1000,out=F.execute({state},'settle-daily-cash',{company:'air',amount:-loss,day:1,reference});
+  assert.equal(F.assertAccountPosting(state,out,{company:'air',reference,balanceBefore:before,code}),true,'the day close check holds when the card funds the loss');
+  assert.equal(out.balanceBeforeCover,before);assert.ok(out.investorCover>0);assert.equal(out.balanceBefore,before+out.investorCover);assert.equal(out.amount,-loss);assert.equal(out.shortfall,0);
+  assert.equal(out.balanceAfter,out.balanceBefore-loss);assert.equal(F.operating(state,'air'),out.balanceAfter);assert.equal(Number(state.finance.pendingDailyCash?.air)||0,0);
+  assert.equal(cards(state).length,1);assert.equal(cards(state)[0].reference,out.investorCoverReference);assert.equal(cards(state)[0].amount,out.investorCover);
+  assert.equal(state.finance.transfers.filter(row=>row.reference===reference).length,1);
+  // The receipt before this build (no card fields) fails the same check: that is the day close that froze the game.
+  const {balanceBeforeCover:_seen,investorCover:_cover,investorCoverReference:_ref,...bare}=out;
+  for(const receipt of [bare,{...out,investorCover:out.investorCover+INVESTOR_STEP},{...out,investorCover:0},{...out,investorCoverReference:'INV-WRONG'},{...out,balanceBeforeCover:before+1},{...out,balanceBeforeCover:undefined}])
+   assert.throws(()=>F.assertAccountPosting(state,receipt,{company:'air',reference,balanceBefore:before,code}),mismatch);
+  assert.throws(()=>F.assertAccountPosting(state,out,{company:'air',reference,balanceBefore:before+1,code}),mismatch);
+  const row=state.finance.transfers.find(x=>x.reference===out.investorCoverReference);
+  for(const [key,value] of [['amount',row.amount+1],['toAccount','WRONG'],['fundingSource','god-mode-founder'],['company','sea'],['kind','transfer']]){const kept=row[key];row[key]=value;assert.throws(()=>F.assertAccountPosting(state,out,{company:'air',reference,balanceBefore:before,code}),mismatch,key);row[key]=kept;}
+  F.book(state,'air').accounts[0].balance+=.01;assert.throws(()=>F.assertAccountPosting(state,out,{company:'air',reference,balanceBefore:before,code}),mismatch);F.book(state,'air').accounts[0].balance-=.01;F.reconcile(state);
+  assert.equal(F.assertAccountPosting(state,out,{company:'air',reference,balanceBefore:before,code}),true);
+  const stable=F.operating(state,'air'),retry=F.execute({state},'settle-daily-cash',{company:'air',amount:-loss,day:1,reference});
+  assert.equal(retry.idempotent,true);assert.equal(retry.amount,0);assert.equal(retry.investorCover,undefined);assert.equal(cards(state).length,1,'a retry draws nothing more from the card');assert.equal(F.operating(state,'air'),stable);
+  assert.equal(F.assertAccountPosting(state,retry,{company:'air',reference,balanceBefore:stable,code}),true);investorCases++;
+ }
+ // A loss the account covers, a positive day and a loss with the mode off draw nothing from the card and carry no card fields.
+ for(const [mode,base,amount] of [[true,1e6,-1000],[true,100,5000],[false,100,-1000]]){
+  const state=mode?invest(base):fixture(base),before=F.operating(state,'air'),out=F.execute({state},'settle-daily-cash',{company:'air',amount,day:1,reference});
+  assert.equal(out.investorCover,undefined);assert.equal(out.balanceBeforeCover,undefined);assert.equal(cards(state).length,0);assert.equal(F.assertAccountPosting(state,out,{company:'air',reference,balanceBefore:before,code}),true);
+  if(!mode)assert.equal(state.finance.pendingDailyCash.air,-900);investorCases++;
+ }
+ // A fault after a card-funded settlement rolls back the card's transfer and charge with it.
+ const state=invest(100),stable=JSON.stringify(state);
+ assert.throws(()=>s.GH_TRANSACTION_CORE.execute(state,{label:'investor-cover-rollback',apply(){
+  const out=F.execute({state},'settle-daily-cash',{company:'air',amount:-1000,day:1,reference});assert.ok(out.investorCover>0);
+  F.book(state,'air').accounts[0].balance+=.01;F.assertAccountPosting(state,out,{company:'air',reference,balanceBefore:100,code});
+ }}),error=>error.code==='FINANCE_ACCOUNT_POSTING_MISMATCH'&&error.diagnostic?.postingEvidence?.investorCover>0);
+ assert.equal(JSON.stringify(state),stable,'the card transfer, its charge and the settlement roll back together');investorCases++;
+}
+console.log(JSON.stringify({suite:'build379-financial-posting',ok:true,checks,companies:12,randomSettlements:540,negativeGuards:11,consolidatedGuardPreserved:true,investorCases}));

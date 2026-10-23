@@ -81,4 +81,15 @@ assert.doesNotMatch(appSource,/state\.simulationKernel\s*=\s*\{\.\.\.\(state\.si
   assert.equal(state.simulationKernel.lastCompactDay,7);assert.equal(state.simulationKernel.boundaryRecovery.hour,83);
 }
 
+// 2b. The backlog cap counts the game time it drops (the iPhone day-59 close dropped about 2,250 s unrecorded); the cap
+// itself is unchanged.
+{
+  const sandbox={console,Math,Date};sandbox.globalThis=sandbox;sandbox.window=sandbox;vm.createContext(sandbox);vm.runInContext(pacingSource,sandbox,{filename:'simulation-pacing-core.js'});
+  const p=sandbox.GH_SIMULATION_PACING_CORE.create({nowMs:()=>0,isFast:()=>false,maxRealDelta:3,maxBacklogNormal:100,maxBacklogFast:100});p.reset(0);
+  assert.equal(p.observeLiveFrame(3000,30).clampedSimSeconds,0);assert.equal(p.observeLiveFrame(6000,30).clampedSimSeconds,0);
+  const clamped=p.observeLiveFrame(9000,30);assert.equal(clamped.clamped,true);assert.equal(clamped.backlog,180);assert.equal(clamped.clampedSimSeconds,90);
+  assert.equal(p.observeLiveFrame(12000,30).clampedSimSeconds,90);assert.equal(p.snapshot().clampedSimSeconds,180);assert.equal(p.snapshot().backlogClamps,2);
+  assert.equal(p.observeLiveFrame(15000,30,{paused:true}).clampedSimSeconds,0,'a paused frame drops nothing');assert.equal(p.snapshot().clampedSimSeconds,180);
+}
+
 console.log(JSON.stringify({suite:'build339-phase1bb-pacing-separation',passed:true,rates,contracts:['runtime-pacing-owner','variable-slices','background-resume','manual-anchor','non-persistence','legacy-runtime-cleanup']},null,2));

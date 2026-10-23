@@ -115,6 +115,26 @@
     ],
     "WebApp/simulation-core.js": [
       {
+        "before": "      const baseBudget=manualAdvance?cfg.manualFrameBudgetMs:cfg.frameBudgetMs,governorFactor=health.governor==='RED'?.35:health.governor==='ORANGE'?.5:health.governor==='YELLOW'?.75:1,cadenceFactor=Math.max(.45,1-frameCadencePressure*.55);",
+        "after": "      // iPhone, day 59: a live day close of 1.3 s of work took 12.4 s at 2.9 ms a tick and held the game's clock 6.6 s. A\n      // live slice that ends on a day boundary takes the calendar's cooperative budget, under the same governor and cadence\n      // factors; every other live slice keeps the tighter one.\n      const liveDayClose=!manualAdvance&&!!job&&jobBoundary?.day!=null,baseBudget=manualAdvance||liveDayClose?cfg.manualFrameBudgetMs:cfg.frameBudgetMs,governorFactor=health.governor==='RED'?.35:health.governor==='ORANGE'?.5:health.governor==='YELLOW'?.75:1,cadenceFactor=Math.max(.45,1-frameCadencePressure*.55);",
+        "sha256": "c6f0a5a7fefbdf1f6f1ed9c4585332e8b0183a4c3630f9f03238a78b3c6b08fe"
+      },
+      {
+        "before": "      const deadline=pacing.executionDeadline(!!manualAdvance,adaptiveBudget);",
+        "after": "      const deadline=pacing.executionDeadline(!!manualAdvance||liveDayClose,adaptiveBudget);",
+        "sha256": "b759e47a35432bb084cd68bfab295ff6006916aa63fe600866535e0f006a4f82"
+      },
+      {
+        "before": "    function noteFrameInterval(value){const interval=Number(value);if(!Number.isFinite(interval)||interval<=0||interval>250)return frameCadencePressure;const instant=interval<=18.5?0:Math.min(1,(interval-18.5)/30);frameCadencePressure=Math.max(instant,frameCadencePressure*.82);health.frameCadencePressure=Math.round(frameCadencePressure*1000)/1000;health.lastFrameIntervalMs=Math.round(interval*100)/100;return frameCadencePressure;}",
+        "after": "    // expectedIntervalMs: the display interval the host knows the device holds (iOS halves WebKit's frames in Low Power\n    // Mode and under serious heat, 33.3 ms); a frame is late past 1.056 times it, never before the 60 Hz bound of 18.5 ms.\n    function noteFrameInterval(value,expectedIntervalMs){const interval=Number(value);if(!Number.isFinite(interval)||interval<=0||interval>250)return frameCadencePressure;const floor=Math.max(18.5,(Number(expectedIntervalMs)||0)*1.056),instant=interval<=floor?0:Math.min(1,(interval-floor)/30);health.frameCadenceFloorMs=Math.round(floor*100)/100;frameCadencePressure=Math.max(instant,frameCadencePressure*.82);health.frameCadencePressure=Math.round(frameCadencePressure*1000)/1000;health.lastFrameIntervalMs=Math.round(interval*100)/100;return frameCadencePressure;}",
+        "sha256": "caf689266cc96582ca9a7a22d491252ff6035f4ecd74237dc8ee6f1ec4c370c8"
+      },
+      {
+        "before": "        if(observed.clamped)health.backlogClamps++;",
+        "after": "        if(observed.clamped){health.backlogClamps++;health.clampedSimSeconds=(Number(health.clampedSimSeconds)||0)+(Number(observed.clampedSimSeconds)||0);}",
+        "sha256": "30c55dd8441eb43b27ae9a5185f09c7265eda621939bdf004a8e2ef272a2c238"
+      },
+      {
         "before": "    // Build 359: where a simulation cycle spends its time (create, chunks, finish, maintenance and render callbacks),\n    // so a slow cycle names its stage in diagnostics. Measurement only; no decision reads it.\n    let frameStages=null,cooldownNext=false,frameCadencePressure=0;const addFrameStage=(key,ms)=>{if(frameStages)frameStages[key]+=Math.max(0,Number(ms)||0);};\n    let hardTaskStreak=0,conflictStreak=0,lastObservedSpeed=null,throttlePending=null;const durationSamples=[],workSamples=[];let lastGovernor='GREEN';\n    // boundaryAt treats a value within its relative epsilon as the boundary.\n    // Use the same rule for cumulative health counters so a grouped window\n    // reports every hour/day it actually crossed, rather than one counter tick\n",
         "after": "    // Build 359: where a simulation cycle spends its time (create, chunks, finish, maintenance and render callbacks),\n    // so a slow cycle names its stage in diagnostics. Measurement only; no decision reads it.\n    let frameStages=null,cooldownNext=false,frameCadencePressure=0;const addFrameStage=(key,ms)=>{if(frameStages)frameStages[key]+=Math.max(0,Number(ms)||0);};\n    let hardTaskStreak=0,conflictStreak=0,lastObservedSpeed=null,throttlePending=null;const durationSamples=[],workSamples=[],overrunSamples=[];let lastGovernor='GREEN';\n    // boundaryAt treats a value within its relative epsilon as the boundary.\n    // Use the same rule for cumulative health counters so a grouped window\n    // reports every hour/day it actually crossed, rather than one counter tick\n",
         "sha256": "5e1d9b3cc51ede7b18e01618d4a991c27b61e0d360a91efd3e71c8cb2b0fd3e0"
@@ -425,6 +445,15 @@
       "edits": {
         "WebApp/realism-core.js": 4
       }
+    },
+    "reviews_2026_10_23": {
+      "reason": "Owner-authorized 2026-10-23 («جميعها بدقه الان واختبارات صارمه»), from the build 95 iPhone diagnostic: a live slice ending on a day boundary takes the calendar cooperative budget under the same governor and cadence factors; the cadence floor follows the display interval the host reports (iOS Low Power Mode or serious heat: 30 Hz), 18.5 ms otherwise; the backlog clamp counts the game time it drops. No price, customer, money or stock rule changes.",
+      "tests": [
+        "tests/build426-governor-pressure.cjs",
+        "tests/governor-overrun-signal.cjs",
+        "tests/build358-staged-day-browser.cjs",
+        "tests/build339-phase1bb-pacing-separation.cjs"
+      ]
     }
   },
   "approved_financial_booking_edits": {

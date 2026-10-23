@@ -28,7 +28,7 @@
 
   function create(options={}){
     const cfg=normalizeConfig(options),clock=typeof options.nowMs==='function'?options.nowMs:systemNowMs;
-    let lastReal=clock(),backlog=0,lastRender=0,hidden=false,droppedRealSeconds=0,backlogClamps=0,stallGaps=0;
+    let lastReal=clock(),backlog=0,lastRender=0,hidden=false,droppedRealSeconds=0,backlogClamps=0,stallGaps=0,clampedSimSeconds=0;
     const fast=s=>!!options.isFast?.(s);
     const backlogCap=s=>Math.max(fast(s)?cfg.maxBacklogFast:cfg.maxBacklogNormal,Math.max(0,Number(s)||0)*cfg.maxRealDelta*2);
 
@@ -40,12 +40,13 @@
     function observeLiveFrame(now,speed,{suspended=false,paused=false}={}){
       const frameNow=Number(now),safeNow=Number.isFinite(frameNow)?frameNow:clock();let realDelta=(safeNow-lastReal)/1000;lastReal=safeNow;
       if(!Number.isFinite(realDelta)||realDelta<0)realDelta=0;
-      let dropped=0,clamped=false,stalled=false;
+      let dropped=0,clamped=false,stalled=false,excess=0;
       if(realDelta>cfg.maxRealDelta){dropped=realDelta;droppedRealSeconds+=realDelta;stallGaps++;realDelta=0;stalled=true;}
-      if(hidden||suspended||paused){backlog=0;return {realDelta,droppedRealSeconds:dropped,clamped,stalled,backlog};}
+      if(hidden||suspended||paused){backlog=0;return {realDelta,droppedRealSeconds:dropped,clamped,stalled,backlog,clampedSimSeconds:0};}
       backlog+=realDelta*Math.max(0,Number(speed)||0);
-      const cap=backlogCap(speed);if(backlog>cap){backlog=cap;backlogClamps++;clamped=true;}
-      return {realDelta,droppedRealSeconds:dropped,clamped,stalled,backlog};
+      // clampedSimSeconds: the game time the cap drops (counted only; the backlog is never authoritative economic time).
+      const cap=backlogCap(speed);if(backlog>cap){excess=backlog-cap;clampedSimSeconds+=excess;backlog=cap;backlogClamps++;clamped=true;}
+      return {realDelta,droppedRealSeconds:dropped,clamped,stalled,backlog,clampedSimSeconds:excess};
     }
     function setManualBacklog(seconds,now=clock()){const t=Number(now);lastReal=Number.isFinite(t)?t:clock();const n=Number(seconds);backlog=Number.isFinite(n)?Math.max(0,n):0;return backlog;}
     function limitBacklog(maximum){const n=Number(maximum);if(Number.isFinite(n)&&n>=0)backlog=Math.min(backlog,n);return backlog;}
@@ -53,7 +54,7 @@
     function clearBacklog(){backlog=0;return 0;}
     function executionDeadline(manual=false,budgetOverride=null){const fallback=manual?cfg.manualFrameBudgetMs:cfg.frameBudgetMs,value=Number(budgetOverride),budget=Number.isFinite(value)&&value>0?Math.min(fallback,value):fallback;return clock()+budget;}
     function shouldRender(now,speed){const every=fast(speed)?cfg.renderEveryFastMs:cfg.renderEveryNormalMs;if(Number(now)-lastRender<every)return false;lastRender=Number(now);return true;}
-    function snapshot(){return {version:VERSION,lastReal,backlog,hidden,lastRender,droppedRealSeconds,backlogClamps,stallGaps,config:{...cfg}};}
+    function snapshot(){return {version:VERSION,lastReal,backlog,hidden,lastRender,droppedRealSeconds,backlogClamps,stallGaps,clampedSimSeconds,config:{...cfg}};}
 
     return {version:VERSION,reset,setHidden,observeLiveFrame,setManualBacklog,limitBacklog,consume,clearBacklog,backlog:()=>backlog,executionDeadline,shouldRender,snapshot,config:()=>({...cfg})};
   }

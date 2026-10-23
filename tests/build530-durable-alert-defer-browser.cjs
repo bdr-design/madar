@@ -49,6 +49,30 @@ const idle=page=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__
     const immediate=await page.evaluate(text=>{document.querySelector('#simNextDay').click();return (__GH_STATE__.alerts||[]).filter(row=>String(row).includes(text)).length;},CALENDAR);
     assert.equal(immediate,now+1,'3: with no durable command the alert is written in the same task');
     await idle(page);assert.deepEqual(errors,[],'3: no page error');
+    // 4. A decision committed while a calendar advance runs holds the advance (it used to cancel it: the iPhone file lost
+    //    28 days of an advance to a command): the decision commits and the advance reaches its target.
+    const target=await page.evaluate(()=>(Math.floor(__GH_STATE__.simSeconds/86400)+7)*86400);
+    const hold=await page.evaluate(async()=>{
+      document.querySelector('[data-calendar-advance="7"]').click();
+      for(let i=0;i<2000&&!GH_SIM_KERNEL.snapshot().manualAdvance;i++)await new Promise(r=>setTimeout(r,0));
+      if(!GH_SIM_KERNEL.snapshot().manualAdvance)throw new Error('the advance did not start');
+      const out=await __AUDIT__.runAuthorizedDomainCommand('corporate','rename-company',{type:'group',legalName:'QA Hold Group'},{silent:true});
+      return {committed:!!out,advancing:!!GH_SIM_KERNEL.snapshot().manualAdvance};
+    });
+    assert.equal(hold.committed,true,'4: the decision commits');assert.equal(hold.advancing,true,'4: the advance is held through the decision, not cancelled');
+    await page.waitForFunction(()=>!GH_SIM_KERNEL.snapshot().manualAdvance,null,{timeout:120000});
+    assert.equal(await page.evaluate(()=>__GH_STATE__.simSeconds),target,'4: the advance reaches its target');
+    assert.equal(await page.evaluate(()=>__GH_STATE__.companyRegistry?.group?.legalName),'QA Hold Group','4: the decision is saved');
+    await idle(page);assert.deepEqual(errors,[],'4: no page error');
+    // 5. A recovery lock during an advance still cancels it at once (the runtime is owned by recovery).
+    const recovery=await page.evaluate(async()=>{
+      document.querySelector('[data-calendar-advance="7"]').click();
+      for(let i=0;i<2000&&!GH_SIM_KERNEL.snapshot().manualAdvance;i++)await new Promise(r=>setTimeout(r,0));
+      const started=!!GH_SIM_KERNEL.snapshot().manualAdvance;GH_PERSISTENCE.markRecoveryRequired('build530 recovery during an advance');
+      for(let i=0;i<200&&GH_SIM_KERNEL.snapshot().manualAdvance;i++)await new Promise(r=>setTimeout(r,10));
+      return {started,advancing:!!GH_SIM_KERNEL.snapshot().manualAdvance};
+    });
+    assert.equal(recovery.started,true);assert.equal(recovery.advancing,false,'5: recovery cancels the advance');
     console.log(JSON.stringify({suite:'build530-durable-alert-defer-browser',ok:true,race}));
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

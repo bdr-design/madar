@@ -772,7 +772,12 @@
   let simulationPersistenceTask=null;
   const runtimeInstrumentation={lastCompaction:null,lastSavePreparation:null,pendingCompaction:null,proofAudit:null,diagnosticExport:null,durable:{last:null,samples:[]},render:{lastFrame:null,lastTargetUpdate:null,lastMarkerAnimation:null,lastStructuralRender:null,maxFrameMs:0,maxTargetUpdateMs:0,maxMarkerAnimationMs:0,maxStructuralRenderMs:0,frameCounter:0,animationCounter:0,samples:[]},simRender:{last:null,max:{},count:0},maintenance:{last:{},max:{},runs:0,lastTask:'',pending:[]}};
   const appMetricClock=()=>globalThis.performance?.now?.()??Date.now();
+  // The recorder's view of the engine, with the simulation timer's ticks so far (runtimeTicks): two samples give the ticks a
+  // second the device delivered, from the start sample to the stop sample.
+  function recorderSimulation(){return {...simulationEngine.snapshot(),runtimeTicks:simulationRuntime.snapshot().ticks};}
   function traceMainThreadWork(stage,work){if(window.GH_DIAGNOSTICS?.recorderIsActive?.(state)!==true)return work();const started=appMetricClock();try{return work();}finally{window.GH_DIAGNOSTICS.recordMainThreadWork(state,stage,started,appMetricClock());}}
+  // A save step that holds the main thread 8 ms or more (persistence-core reports it) is named in the frame recorder.
+  window.GH_SAVE_WORK_REPORTER=(started,ended)=>window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'save.step',started,ended);
   function recordRenderMetric(kind,durationMs,detail={}){const render=runtimeInstrumentation.render,row={kind,durationMs:Math.max(0,Number(durationMs)||0),recordedAtMs:Date.now(),...detail};if(kind==='frame'){render.lastFrame=row;render.maxFrameMs=Math.max(render.maxFrameMs,row.durationMs);}else if(kind==='target-update'){render.lastTargetUpdate=row;render.maxTargetUpdateMs=Math.max(render.maxTargetUpdateMs,row.durationMs);}else if(kind==='marker-animation'){render.lastMarkerAnimation=row;render.maxMarkerAnimationMs=Math.max(render.maxMarkerAnimationMs,row.durationMs);}else if(kind==='structural-render'){render.lastStructuralRender=row;render.maxStructuralRenderMs=Math.max(render.maxStructuralRenderMs,row.durationMs);}render.samples.push(row);if(render.samples.length>120)render.samples.shift();return row;}
   function departurePerformanceSnapshot(startedAtMs,commandName){const endedAtMs=Date.now(),render=runtimeInstrumentation.render,samples=(render.samples||[]).filter(row=>Number(row.recordedAtMs)>=startedAtMs&&Number(row.recordedAtMs)<=endedAtMs),maxFor=kind=>Math.max(0,...samples.filter(row=>row.kind===kind).map(row=>Number(row.durationMs)||0)),frameSamples=samples.filter(row=>row.kind==='frame'),durable=runtimeInstrumentation.durable.last,matched=durable?.name===commandName?durable:null,faultRecorder=window.GH_DIAGNOSTICS?.recorderSnapshot?.(state)||null;return {startedAtMs,endedAtMs,wallMs:Math.max(0,endedAtMs-startedAtMs),renderWindow:{sampleCount:samples.length,frameCallbacks:frameSamples.length,slowFrameCallbacks:frameSamples.filter(row=>Number(row.durationMs)>=34).length,maxFrameCallbackMs:maxFor('frame'),maxTargetUpdateMs:maxFor('target-update'),maxMarkerAnimationMs:maxFor('marker-animation'),maxStructuralRenderMs:maxFor('structural-render'),ringCapacity:120,mayBeTruncated:samples.length===120||Boolean(render.samples?.[0]&&Number(render.samples[0].recordedAtMs)>startedAtMs)},faultRecorder:{active:faultRecorder?.active===true,frameSummary:faultRecorder?.frameSummary||null,frameTrace:Array.isArray(faultRecorder?.frameTrace)?faultRecorder.frameTrace.slice(-12):[]},durable:matched?{cloneMs:matched.cloneMs,prepareMs:matched.prepareMs,baselineIntegrityMs:matched.baselineIntegrityMs,applyMs:matched.applyMs,validateMs:matched.validateMs,integrityMs:matched.integrityMs,persistMs:matched.persistMs,publishMs:matched.publishMs,totalMs:matched.totalMs,committed:matched.committed}:null};}
   window.__GH_APP_RUNTIME_INSTRUMENTATION__=runtimeInstrumentation;
@@ -798,19 +803,23 @@
     stagedWaitTimer=setTimeout(poll,16);
   }
   function stagedStateSettled(){return stagedStateBusy()?new Promise(resolve=>afterStagedState(resolve)):Promise.resolve();}
-  let stagedSaveQueued=false;
+  let stagedSaveQueued=false,stagedSaveCheckpoint=false;
   function largeNativeSave(){return Boolean(window.webkit?.messageHandlers?.saveBridge)&&Number(window.GH_FLEET_DATA?.size?.(state))>(window.GH_FLEET_MAIN_THREAD_POLICY?.DEFAULT_ROW_LIMIT??2048);}
-  function scheduleSimulationPersistence(){
-    if(stagedStateBusy()){if(!stagedSaveQueued){stagedSaveQueued=true;afterStagedState(()=>{stagedSaveQueued=false;scheduleSimulationPersistence();});}return true;}
+  // checkpoint: asked for by the save policy at a quiet moment (maybeSaveCheckpoint). Such a save is dropped if a calendar
+  // advance has begun before it runs (nothing is saved while one runs; the policy asks again after it); any other
+  // request (hiding the app) keeps the save it joins.
+  function scheduleSimulationPersistence({checkpoint=false}={}){
+    if(stagedStateBusy()){if(!stagedSaveQueued){stagedSaveQueued=true;stagedSaveCheckpoint=checkpoint;afterStagedState(()=>{const asCheckpoint=stagedSaveCheckpoint;stagedSaveQueued=false;stagedSaveCheckpoint=false;scheduleSimulationPersistence({checkpoint:asCheckpoint});});}else if(!checkpoint)stagedSaveCheckpoint=false;return true;}
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__||window.GH_PERSISTENCE.isLocked())return false;
-    if(simulationPersistenceTask)return true;
-    const task={epoch:Number(state.resetEpoch)||0,idle:typeof window.requestIdleCallback==='function',handle:null};
+    if(simulationPersistenceTask){if(!checkpoint)simulationPersistenceTask.checkpoint=false;return true;}
+    const task={epoch:Number(state.resetEpoch)||0,idle:typeof window.requestIdleCallback==='function',handle:null,checkpoint};
     simulationPersistenceTask=task;
     const run=()=>{
       if(simulationPersistenceTask!==task)return;
       simulationPersistenceTask=null;
       if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__||window.GH_PERSISTENCE.isLocked()||(Number(state.resetEpoch)||0)!==task.epoch)return;
-      if(stagedStateBusy()){scheduleSimulationPersistence();return;}
+      if(task.checkpoint&&simulationEngine.snapshot().manualAdvance){lastCheckpointAttempt=null;return;}
+      if(stagedStateBusy()){scheduleSimulationPersistence({checkpoint:task.checkpoint});return;}
       try{
         const metricClock=()=>globalThis.performance?.now?.()??Date.now(),compactionStart=metricClock();compactSimulationState(false);
         const pending={durationMs:Math.max(0,metricClock()-compactionStart),simSeconds:Number(state.simSeconds)||0,saveRevision:Number(state.saveRevision)||0},sink=window.__GH_APP_RUNTIME_INSTRUMENTATION__;
@@ -845,7 +854,7 @@
     if(simulationEngine.snapshot().manualAdvance)return false;
     const reason=checkpointDue(nowMs);if(!reason)return false;
     lastCheckpointAttempt={atMs:nowMs,revision:Number(state.saveRevision)||0};diag('SAVE_CHECKPOINT',{reason,simSeconds:Number(state.simSeconds)||0,saveRevision:Number(state.saveRevision)||0});
-    return scheduleSimulationPersistence();
+    return scheduleSimulationPersistence({checkpoint:true});
   }
   // Save Now (settings): one ordinary save, right away (after the day close in progress, if any).
   function saveNow(){
@@ -4232,7 +4241,7 @@
   }
   function captureDiagnosticEvidence(options={}){
     const fleetAssetIssues=Array.isArray(options.fleetAssetIssues)?options.fleetAssetIssues:diagnosticFleetIssues();
-    return window.GH_DIAGNOSTICS.captureExportEvidence(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:options.simulation||simulationEngine.snapshot(),...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{})},{recordEvent:options.recordEvent===true,trackTransitions:options.trackTransitions===true,storeResult:options.storeResult===true});
+    return window.GH_DIAGNOSTICS.captureExportEvidence(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:options.simulation||window.GH_SIM_KERNEL?.snapshot?.()||simulationEngine.snapshot(),...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{})},{recordEvent:options.recordEvent===true,trackTransitions:options.trackTransitions===true,storeResult:options.storeResult===true});
   }
   async function diagnosticLifecycleSettled(){
     for(;;){
@@ -4279,7 +4288,7 @@
       // names what it spent its time on. Measurement only.
       const parts={},timed=(key,fn)=>{const started=appMetricClock();try{return fn();}finally{parts[key]=(parts[key]||0)+Math.max(0,appMetricClock()-started);}};
       if(now-lastUiRefreshMs>=500){lastUiRefreshMs=now;timed('kpisMs',()=>updateKpis());timed('mapStatusMs',()=>updateMapStatus());if(selectedAssetId&&!$('assetCard').classList.contains('hidden'))timed('assetCardMs',()=>refreshAssetCard(selectedAssetId));}
-      timed('recorderMs',()=>{try{window.GH_DIAGNOSTICS.recorderSample?.(state,simulationEngine.snapshot(),{nowMs:Date.now(),context:{governor:runtimeGovernor},fleetPhaseHint:mapStatusCache.countedAt?{assets:mapStatusCache.countedAssets,moving:mapStatusCache.moving}:null});}catch(error){console.warn('تعذر أخذ عينة مسجل عطل المحاكاة',error);}});
+      timed('recorderMs',()=>{try{window.GH_DIAGNOSTICS.recorderSample?.(state,recorderSimulation(),{nowMs:Date.now(),context:{governor:runtimeGovernor},fleetPhaseHint:mapStatusCache.countedAt?{assets:mapStatusCache.countedAssets,moving:mapStatusCache.moving}:null});}catch(error){console.warn('تعذر أخذ عينة مسجل عطل المحاكاة',error);}});
       // Build 359: the proof audit also takes a short step (PROOF_AUDIT_RENDER_MS) on a render callback while no slice job,
       // maintenance part, player command or save is in flight, so a cycle over every proof completes in minutes of play.
       if(!jobActive&&!maintenanceQueue.length&&!document.hidden&&!hardResetInProgress&&!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.GH_PERSISTENCE.isLocked()&&!stagedStateBusy()&&!proofAuditResting())timed('proofAuditMs',()=>proofAuditStep(PROOF_AUDIT_RENDER_MS));
@@ -4364,7 +4373,9 @@
   let savePressureNoticeShown=false;const savePressureReasonsLogged=new Set();
   window.addEventListener('gh-persistence-status',event=>{
     const detail=event.detail||{};
-    if(detail.validated)window.GH_CONTROL_PLANE.recordBridge(state,detail.ok?'SAVE_ACK':'SAVE_NACK',detail,detail.ok?'info':'critical');
+    // The ACK of a durable command's save arrives while the command holds the live state: recorded once it is published,
+    // unless a recovery lock owns the runtime by then (nothing is written after it, as for the committed event; build531).
+    if(detail.validated){if(detail.ok)afterLiveStateSettles('SAVE_ACK',()=>{if(window.GH_PERSISTENCE.telemetry?.().recoveryRequired!==true)window.GH_CONTROL_PLANE.recordBridge(state,'SAVE_ACK',detail,'info');});else window.GH_CONTROL_PLANE.recordBridge(state,'SAVE_NACK',detail,'critical');}
     if(detail.ok===false&&detail.requiresNativeReconciliation){
       const postAck=detail.durableCommitted===true||String(detail.reason||'').includes('publish-failed-after-ack'),incidentCode=postAck?'DURABLE_PUBLISH_FAILED_AFTER_ACK':'NATIVE_SAVE_ACK_UNCERTAIN';
       state.speed=0;window.GH_CONTROL_PLANE.incident(state,{fingerprint:incidentCode,severity:'critical',domain:'save',code:incidentCode,title:postAck?'حُفظت العملية وتعذر تحديث الذاكرة':'يلزم توفيق نسخة الحفظ الأصلية',detail:postAck?'وصل تأكيد الحفظ من الجهاز، لكن فشل نشر الحالة في الذاكرة. توقفت المحاكاة لمنع تكرار العملية.':'تعذر تأكيد الحفظ؛ توقفت المحاكاة وتتاح إعادة فتح آخر جيل مكتمل وتصدير سبب العطل.',evidence:detail});
@@ -4395,10 +4406,19 @@
   // (control-plane bridge entries, incidents, alerts) and saves then wait for it to settle: written at once they were
   // refused (pushAlert throws on a held state, losing the alert and the save) or erased by the command's commit. A stop
   // (speed 0) still applies at once (runDurableStateCommand carries it into the draft).
+  // A bridge event that arrives while a command, a staged slice or a reset holds the live state is recorded once it settles
+  // (its publication would replace the record), and not during a diagnostic export (which refuses a state changing under
+  // it): it waits for the export's end, then for the state again.
   function afterLiveStateSettles(label,fn){
     const run=()=>{try{fn();}catch(error){console.warn(`تعذر تسجيل حدث ${label}`,error);diag('BRIDGE_EVENT_RECORD_FAILED',{label,reason:String(error?.message||error).slice(0,240)},'warning');}};
-    if(!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!stagedStateBusy()&&!hardResetInProgress)return run();
-    diagnosticLifecycleSettled().then(run);
+    const busy=()=>durableCommandInProgress||!!window.__GH_DURABLE_COMMAND_CONTEXT__||stagedStateBusy()||hardResetInProgress;
+    if(!busy())return run();
+    // A settle that fails (a save error with no recovery to report) drops the record instead of an unhandled rejection.
+    // After the settle it waits again only for what the settle itself waits for (a command, a staged slice, a reset), a
+    // timer turn later: a durable-command context left behind cannot hold it in a loop of microtasks.
+    const settled=()=>diagnosticLifecycleSettled().then(later,()=>{}),holding=()=>durableCommandInProgress||stagedStateBusy()||hardResetInProgress;
+    const later=()=>{if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){diagnosticExportTail.then(later);return;}if(holding()){setTimeout(settled,16);return;}run();};
+    settled();
   }
   window.addEventListener('gh-native-recovery',()=>{state.speed=0;diag('WEBKIT_PROCESS_RECOVERY',{source:'native-save-vault'});afterLiveStateSettles('WEBKIT_RECOVERY',()=>{state.speed=0;window.GH_CONTROL_PLANE?.recordBridge?.(state,'WEBKIT_RECOVERY',{source:'native-save-vault'},'warning');pushAlert('تم استرداد آخر حفظ Native مكتمل بعد إعادة تشغيل محرك WebKit. المحاكاة متوقفة مؤقتًا للمراجعة.');save();});});
   window.addEventListener('gh-update-lifecycle',event=>{const detail=event.detail||{},phase=String(detail.phase||'LIFECYCLE'),severity=['BOOT_CONFIRM_FAILED','FAILED'].includes(phase)?'critical':['ROLLBACK_STARTED','ROLLED_BACK'].includes(phase)?'warning':'info';diag(`UPDATE_${phase}`,detail,severity);afterLiveStateSettles(`UPDATE_${phase}`,()=>{window.GH_CONTROL_PLANE?.recordBridge?.(state,`UPDATE_${phase}`,detail,severity);if(severity==='critical')window.GH_CONTROL_PLANE?.incident?.(state,{fingerprint:`UPDATE:${phase}`,severity:'critical',domain:'update',code:`UPDATE_${phase}`,title:'خلل في دورة التحديث',detail:String(detail.message||detail.reason||phase||'Update lifecycle failure'),evidence:detail});save();});});
@@ -4848,14 +4868,14 @@
   async function exportDiagnosticsFile(){return exportControlPlaneFile('diagnostic');}
   function startSimulationFaultRecorder(){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true)return null;
-    const out=window.GH_DIAGNOSTICS.recorderStart?.(state,simulationEngine.snapshot(),{nowMs:Date.now(),context:{appVersion:APP_VERSION,build:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION}})||null;
+    const out=window.GH_DIAGNOSTICS.recorderStart?.(state,recorderSimulation(),{nowMs:Date.now(),context:{appVersion:APP_VERSION,build:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION}})||null;
     if(out)diag('SIM_FAULT_RECORDER_STARTED',{simSeconds:state.simSeconds,speed:state.speed});
     return out;
   }
   function finishSimulationFaultRecorder(){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true)return null;
     const wasActive=window.GH_DIAGNOSTICS.recorderIsActive?.(state)===true;
-    const summary=window.GH_DIAGNOSTICS.recorderStop?.(state,simulationEngine.snapshot(),{nowMs:Date.now(),context:{appVersion:APP_VERSION,build:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION}})||null;
+    const summary=window.GH_DIAGNOSTICS.recorderStop?.(state,recorderSimulation(),{nowMs:Date.now(),context:{appVersion:APP_VERSION,build:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION}})||null;
     // The panel action that stops the recorder saves once (its refresh); the stop itself does not save again.
     if(summary&&wasActive)diag('SIM_FAULT_RECORDER_FINISHED',{status:summary.status,events:summary.events,samples:summary.samples,simDelta:summary.simDelta});
     return summary;
@@ -6849,12 +6869,22 @@ ${page}</div>`;
   // A hidden page takes no rested pass: the browser stops its frames until the page shows again.
   function nextLoopPass(rest){if(!rest||document.hidden){requestAnimationFrame(loop);return;}lastLoopRafTimestamp=null;if(!presentationRestTimer)presentationRestTimer=setTimeout(()=>{presentationRestTimer=0;requestAnimationFrame(loop);},PRESENTATION_REST_MS);}
   function wakePresentationLoop(){if(!presentationRestTimer)return false;clearTimeout(presentationRestTimer);presentationRestTimer=0;requestAnimationFrame(loop);return true;}
+  // iOS halves WebKit's frame rate in Low Power Mode and under serious heat (GameViewController reports both, on load and on
+  // each change): the governor then reads frame pressure against 30 Hz instead of 60. Unknown (a browser): 60 Hz.
+  // The state iOS reported before this listener existed (app.js boot waits for a chunked save) is read from diagnostics-core,
+  // whose listener is installed when it loads.
+  let deviceFrameIntervalMs=0;const applyDeviceState=d=>{deviceFrameIntervalMs=d?.lowPowerMode===true||d?.thermalState==='serious'||d?.thermalState==='critical'?1000/30:0;};
+  applyDeviceState(window.GH_DIAGNOSTICS?.deviceState?.());window.addEventListener('gh-native-device-state',event=>applyDeviceState(event.detail||{}));
   // What holds the loop (and resets the engine when it begins): the conference, a reset, a durable command or a save.
   function loopLockReason(){return window.GH_CONFERENCE?.isPresentationActive?.()?'conference-3d':hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()?'lifecycle-lock':'';}
   // A resting loop sees a lock that began meanwhile only at its next pass, and seeing it resets the engine, which cancels
   // a calendar advance accepted in between (build530: "+ day" pressed as the founding command publishes). The advance sees
   // the lock first, as the loop at the display rate did within a frame.
-  function observeLoopLock(){const lock=loopLockReason();if(!lock||lastLoopGuardReason===lock)return false;lastLoopGuardReason=lock;simulationEngine.reset(performance.now(),lock);simulationRuntime.wake();return true;}
+  // A player command or a save that begins during a calendar advance holds the advance instead of cancelling it (the
+  // engine pauses it while the host is suspended, slice cancelled, and resumes it after): the iPhone file lost 28 days of
+  // a requested advance to a command. A recovery or a reset still cancels it, as before.
+  function holdAdvanceThroughLock(lock){if(lock!=='lifecycle-lock'||hardResetInProgress||window.GH_PERSISTENCE.telemetry?.().recoveryRequired===true)return false;const advance=simulationEngine.snapshot().manualAdvance;return !!advance&&!advance.cancelling;}
+  function observeLoopLock(){const lock=loopLockReason();if(!lock||lastLoopGuardReason===lock)return false;lastLoopGuardReason=lock;if(!holdAdvanceThroughLock(lock))simulationEngine.reset(performance.now(),lock);simulationRuntime.wake();return true;}
   const latestSimulationTransaction=()=>window.GH_TRANSACTION_CORE?.telemetry?.()?.lastSimulation||null;
   function recordGuardedDiagnosticFrame(now,callbackStartMs,guardReason){const callbackEndMs=appMetricClock(),fleetSize=window.GH_FLEET_DATA.size(state)+(state.mobility?.vehicles?.length||0);window.GH_DIAGNOSTICS?.recorderFrame?.(state,{rafTimestampMs:Number(now),callbackStartMs,callbackEndMs,simSeconds:state.simSeconds,visible:!document.hidden,hidden:!!document.hidden,panel:activeDrawerPanel||'map',mapActive:!!map,fleetSize,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,simulationStage:guardReason,guardReason,simulationProgressExpected:false},{transactionProvider:latestSimulationTransaction});}
   function presentationFrameInterval(){const fleetSize=window.GH_FLEET_DATA.size(state),advancing=!!simulationEngine.snapshot().manualAdvance;if(document.hidden)return 1000;if(activeDrawerPanel||advancing)return fleetSize>2000?300:fleetSize>750?220:fleetSize>250?150:100;if(fleetSize>3000)return 220;if(fleetSize>1500)return 180;if(fleetSize>750)return 140;if(fleetSize>400)return 110;if(fleetSize>180)return 80;return 55;}
@@ -6862,7 +6892,7 @@ ${page}</div>`;
     const frameIntervalMs=lastLoopRafTimestamp===null?null:Math.max(0,now-lastLoopRafTimestamp);lastLoopRafTimestamp=now;
     const frameRecorderActive=window.GH_DIAGNOSTICS?.recorderIsActive?.(state)===true,recorderCallbackStartMs=frameRecorderActive?appMetricClock():0;
     const guardReason=loopLockReason()||(processOneRecoveryBoundary()?'boundary-recovery':'');
-    if(guardReason){if(lastLoopGuardReason!==guardReason){lastLoopGuardReason=guardReason;simulationEngine.reset(now,guardReason);simulationRuntime.wake();updateDayStepControl();}if(frameRecorderActive)recordGuardedDiagnosticFrame(now,recorderCallbackStartMs,guardReason);nextLoopPass(guardReason==='conference-3d'&&!frameRecorderActive);return;}
+    if(guardReason){if(lastLoopGuardReason!==guardReason){lastLoopGuardReason=guardReason;if(!holdAdvanceThroughLock(guardReason))simulationEngine.reset(now,guardReason);simulationRuntime.wake();updateDayStepControl();}if(frameRecorderActive)recordGuardedDiagnosticFrame(now,recorderCallbackStartMs,guardReason);nextLoopPass(guardReason==='conference-3d'&&!frameRecorderActive);return;}
     if(lastLoopGuardReason){lastLoopGuardReason='';simulationRuntime.wake();}
     const renderMetrics=runtimeInstrumentation.render,measureFrame=frameRecorderActive||(++renderMetrics.frameCounter%30)===0,frameStarted=measureFrame?appMetricClock():0;let simulationMs=0,simulationTaskMs=0,simulationTaskMaxMs=0,simulationTaskCount=0,simulationTaskFirstStartedAtMs=null,simulationTaskLastEndedAtMs=null,targetUpdateMs=0,markerAnimationMs=0,structuralRenderMs=0,targetUpdated=false,markerAnimated=false,structureRendered=false;
     // A staged transaction belongs to the slice handle, including audited jobs driven directly outside the scheduler.
@@ -6871,7 +6901,7 @@ ${page}</div>`;
     // The frame callback observes cadence and paints only. Simulation has one
     // owner (simulationRuntime) and executes in separate tasks, so an economic
     // close can never be nested inside WebKit's presentation callback.
-    simulationEngine.noteFrameInterval?.(frameIntervalMs);const simulationTaskWindow=simulationRuntime.drainWork?.()||{totalMs:simulationRuntime.drainWorkMs()};simulationTaskMs=Number(simulationTaskWindow.totalMs)||0;simulationTaskMaxMs=Number(simulationTaskWindow.maxTaskMs)||0;simulationTaskCount=Math.max(0,Math.floor(Number(simulationTaskWindow.taskCount)||0));simulationTaskFirstStartedAtMs=Number.isFinite(Number(simulationTaskWindow.firstTaskStartedAtMs))?Number(simulationTaskWindow.firstTaskStartedAtMs):null;simulationTaskLastEndedAtMs=Number.isFinite(Number(simulationTaskWindow.lastTaskEndedAtMs))?Number(simulationTaskWindow.lastTaskEndedAtMs):null;let stageStarted=measureFrame?appMetricClock():0;
+    simulationEngine.noteFrameInterval?.(frameIntervalMs,deviceFrameIntervalMs);const simulationTaskWindow=simulationRuntime.drainWork?.()||{totalMs:simulationRuntime.drainWorkMs()};simulationTaskMs=Number(simulationTaskWindow.totalMs)||0;simulationTaskMaxMs=Number(simulationTaskWindow.maxTaskMs)||0;simulationTaskCount=Math.max(0,Math.floor(Number(simulationTaskWindow.taskCount)||0));simulationTaskFirstStartedAtMs=Number.isFinite(Number(simulationTaskWindow.firstTaskStartedAtMs))?Number(simulationTaskWindow.firstTaskStartedAtMs):null;simulationTaskLastEndedAtMs=Number.isFinite(Number(simulationTaskWindow.lastTaskEndedAtMs))?Number(simulationTaskWindow.lastTaskEndedAtMs):null;let stageStarted=measureFrame?appMetricClock():0;
     // Build 358: a save checkpoint when the real-time cap has passed (GH_SAVE_POLICY).
     maybeSaveCheckpoint(now);
     // Presentation remains independent of simulation tasks. Expensive target
