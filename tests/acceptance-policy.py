@@ -59,22 +59,35 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). The gates that failed on the macOS runner since build 93, the latest first (build575 in the probe after
-# it, build570 in the full gate probe beside it; both changed), then those changed for build 93's failures, which passed
-# there since (build487, which stopped build 93, and build576), then those that read the tests or their fingerprints,
-# and this file, whose pinned list changed, then the gates build 93 passed, in its order (build558 and the four gates
-# whose tests changed for it, then those that stopped a CI build since build 77 and those first reached in build 89,
-# then the gates that open the conference), then the targeted save, failure-rollback, finance and layout set that
-# passed.
+# (AGENTS.md). build358-fleet-engine-thread, which stopped build 94's re-run; then the thirteen gates whose waits on the
+# machine were made deterministic, their claims unchanged (build487, which stopped build 93, and build359-save-policy,
+# which failed on the runner before, first); then those that read the tests or their fingerprints, and this file, whose
+# pinned list changed; then the gates build 94 passed, in its order (build575, build570 and build576, which failed on
+# the runner since build 93, then build558 and the gates whose tests changed for build 93, those that stopped a CI
+# build since build 77 and those first reached in build 89, then the gates that open the conference), then the
+# targeted save, failure-rollback, finance and layout set that passed.
 expected_preflight=[
-    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
-    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
+    ['node', 'tests/build358-fleet-engine-thread-browser.cjs'],
     ['node', 'tests/build487-route-pages-browser.cjs'],
-    ['node', 'tests/build576-presentation-rest-browser.cjs'],
+    ['node', 'tests/build359-save-policy-browser.cjs'],
+    ['node', 'tests/build376-cooperative-draft.cjs'],
+    ['node', 'tests/build520-map-aggregate-threshold-browser.cjs'],
+    ['node', 'tests/build530-durable-alert-defer-browser.cjs'],
+    ['node', 'tests/build531-durable-publish-no-late-write-browser.cjs'],
+    ['node', 'tests/build534-staged-save-overlap.cjs'],
+    ['node', 'tests/build340-durable-draft-restore.cjs'],
+    ['node', 'tests/build358-schema-sections.cjs'],
+    ['node', 'tests/build372-map-summary-worker-browser.cjs'],
+    ['node', 'tests/build372-proof-worker-browser.cjs'],
+    ['node', 'tests/build371-durable-fleet-isolation-browser.cjs'],
+    ['node', 'tests/build371-air-fleet-series-browser.cjs'],
     ['node', 'tests/lint.cjs'],
     ['node', 'tests/build334-security-contract.cjs'],
     ['node', 'tests/build339-architecture-bootstrap.cjs'],
     ['python3', 'tests/acceptance-policy.py'],
+    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
+    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
+    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build558-investor-card-load-browser.cjs'],
     ['node', 'tests/build372-asset-purchase-app-browser.cjs'],
     ['node', 'tests/build358-staged-day-browser.cjs'],
@@ -209,7 +222,6 @@ expected_preflight=[
     ['node', 'tests/save-checksum-worker-browser.cjs'],
     ['node', 'tests/save-pipeline-browser.cjs'],
     ['node', 'tests/native-save-worker-browser.cjs'],
-    ['node', 'tests/build359-save-policy-browser.cjs'],
     ['node', 'tests/build380-construction-acceleration-browser.cjs'],
     ['node', 'tests/build389-differential-browser.cjs'],
     ['node', 'tests/build394-hospitality-browser.cjs'],

@@ -117,14 +117,18 @@ async function heldStaging(){
   const source=fs.readFileSync(path.join(ROOT,'WebApp/transaction-core.js'),'utf8'),CURRENT="const stagingInPersist=!!staging?.settled&&typeof options.persist!=='function';";
   assert.equal(source.split(CURRENT).length,2,'the staging is handed to the default persistence');
   async function wiring(text,{custom=false}={}){
-    const {s:core}=harness(['transaction-core']);if(text)vm.runInContext(text,core);const t=core.GH_TRANSACTION_CORE,log=[];let open;
-    const gate=new Promise(resolve=>{open=resolve;});core.GH_FLEET_DATA={size:()=>0};
+    // The order follows from microtasks running before timers, not from timers racing: the fleet validation waits once
+    // (its answer comes in a microtask), and the staging settles on a timer set when validation ends, so a persistence
+    // called in the same microtasks starts before it settles, and one that waits for it starts after. (A gate opened by a
+    // 5 ms timer against a staging settled by a free 20 ms one let a stalled event loop put the settling first.)
+    const {s:core}=harness(['transaction-core']);if(text)vm.runInContext(text,core);const t=core.GH_TRANSACTION_CORE,log=[];let settle=null;
+    const gate=Promise.resolve();core.GH_FLEET_DATA={size:()=>0};
     core.GH_FLEET_VALIDATION_PROVIDER=(_draft,_params,{beforeAsync}={})=>{beforeAsync?.();return gate;};
-    core.GH_SAVE_SCHEMA={*validationSteps(draft,options){let done=false;options.fleetValidation(draft,{}).then(()=>{done=true;});while(!done)yield 'fleet-validation-wait';log.push('validated');return {ok:true,errors:[]};}};
+    core.GH_SAVE_SCHEMA={*validationSteps(draft,options){let done=false;options.fleetValidation(draft,{}).then(()=>{done=true;});while(!done)yield 'fleet-validation-wait';log.push('validated');setTimeout(()=>settle?.(),0);return {ok:true,errors:[]};}};
     const persist=async(_draft,meta)=>{log.push(`persist:${meta.staging?'staging':'none'}`);await meta.staging?.settled;return {ok:true,stagingWaitMs:7};};
     core.GH_PERSISTENCE={commitDurableState:persist};
-    const prestage=()=>{log.push('prestage');let finish;const settled=new Promise(resolve=>{finish=resolve;});setTimeout(()=>{log.push('prestage-settled');finish({ok:true,uploads:2,bytes:8,wallMs:3});},20);return {settled,planned:Promise.resolve(new Set()),release(){log.push('release');return settled;}};};
-    setTimeout(open,5);const live={saveRevision:1,cash:1};
+    const prestage=()=>{log.push('prestage');let finish;const settled=new Promise(resolve=>{finish=resolve;});settle=()=>{log.push('prestage-settled');finish({ok:true,uploads:2,bytes:8,wallMs:3});};return {settled,planned:Promise.resolve(new Set()),release(){log.push('release');return settled;}};};
+    const live={saveRevision:1,cash:1};
     const out=await t.executeDurable(live,{yieldToHost:()=>Promise.resolve(),prestage,apply:draft=>{draft.changed=true;},...(custom?{persist}:{})});
     return {committed:out.committed,log,timing:t.telemetry().lastDurable};
   }

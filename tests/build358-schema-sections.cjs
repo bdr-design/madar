@@ -30,12 +30,15 @@ const assertedWork=sample=>Object.values(sample.details.work).reduce((total,valu
 e.command('finance','issue-invoice',{kind:'مصروف',amount:1000,company:'air',counterparty:'Supplier LLC',note:'QA open payable'});
 const signed=()=>Proof.stateDocuments(state).find(row=>row?.documentProofId&&!TX.isSealed(row)&&Number(row.amount??row.total)>0);
 
+// The text and route checks also yield after 4 ms of real time (save-schema.js), in their own turns; the sections and
+// their order are compared without those, which come only on a slow or paused machine.
+const TIME_SLICES=new Set(['presentation-text','fleet-route-geometry']);
 // 1. Same result as validate(), section by section, valid and broken.
 {
   for(const trustVerified of [false,true]){
     const whole=Schema.validate(state,{trustVerified}),wholeMetric=Schema.telemetry().lastValidation,stepped=drain(state,{trustVerified}),steppedMetric=Schema.telemetry().lastValidation;
     assert.equal(whole.ok,true,`seeded state validates: ${whole.errors}`);assert.deepEqual(stepped.result,whole);
-    assert.deepEqual(stepped.sections,['fleet-routes','route-state','finance','books','authorization','document-proofs'],`sections in order: ${stepped.sections}`);
+    assert.deepEqual(stepped.sections.filter(name=>!TIME_SLICES.has(name)),['fleet-routes','route-state','finance','books','authorization','document-proofs'],`sections in order: ${stepped.sections}`);
     assert.deepEqual(Array.from(steppedMetric.sectionSamples,row=>row.name),sectionNames,'telemetry includes every executed section, including the final non-yielding section');
     assert.deepEqual(sectionWork(steppedMetric).filter(row=>!['authorization','document-proofs'].includes(row.name)),sectionWork(wholeMetric).filter(row=>!['authorization','document-proofs'].includes(row.name)),'sections without verification caches execute the same visits');
     for(const sample of steppedMetric.sectionSamples){assert.equal(Number.isFinite(sample.durationMs)&&sample.durationMs>=0,true,`${sample.name}: finite duration`);assert.equal(Number.isSafeInteger(sample.units)&&sample.units>=0,true,`${sample.name}: integer work units`);assert.equal(sample.units,assertedWork(sample),`${sample.name}: units are exactly the measured work breakdown`);}
@@ -112,7 +115,7 @@ const stagedRun=(mutate)=>{
   assert.equal(ok.handle.error,null,String(ok.handle.error));assert.equal(ok.handle.result?.committed,true);
   const tasks=ok.telemetry.postCommitCriticalTasks.map(row=>row.key);
   assert.deepEqual(tasks,['integrity-final-schema','integrity-final'],`one schema task then the business check: ${tasks}`);
-  const sectionSteps=ok.stages.filter(stage=>stage.startsWith('post-commit:'));
+  const sectionSteps=ok.stages.filter(stage=>stage.startsWith('post-commit:')&&!TIME_SLICES.has(stage.slice(12)));
   assert.deepEqual(sectionSteps,['post-commit:fleet-routes','post-commit:route-state','post-commit:finance','post-commit:books','post-commit:authorization','post-commit:document-proofs'],`one step per section: ${ok.stages}`);
   assert.ok(ok.telemetry.postCommitCriticalTasks.every(row=>row.ok&&Number.isFinite(row.durationMs)),'both tasks recorded');
   delete state.profile.qaSections;
@@ -129,13 +132,25 @@ const stagedRun=(mutate)=>{
   console.log('PASS a fault found by a late section rolls the staged transaction back exactly');
 }
 
+// Within their 4 ms budgets the text and route checks never yield: with the sandbox's clock frozen no slice is due, and the
+// sections come exactly as listed (the lists above leave those turns out, as a slow machine may add them).
+{
+  const clock=s.performance;s.performance={now:()=>0};
+  try{const frozen=drain(state,{trustVerified:false});assert.deepEqual(frozen.sections,['fleet-routes','route-state','finance','books','authorization','document-proofs'],`no time slice within the budget: ${frozen.sections}`);}
+  finally{s.performance=clock;}
+}
+
 // 4. Paused time between sections is not counted.
 {
-  const steps=Schema.validationSteps(state,{trustVerified:true});let step,waited=0;
-  while(!(step=steps.next()).done){const until=Date.now()+15;while(Date.now()<until){}waited+=15;}
+  // The published time may not exceed the loop's wall time less its pauses (each timed on the same clock): a time that
+  // counted the pauses would pass it by their 15 ms each, on any machine (a bound of the pauses alone failed whenever the
+  // sections' own work took longer).
+  const loopStart=performance.now(),steps=Schema.validationSteps(state,{trustVerified:true});let step,waited=0,paused=0;
+  while(!(step=steps.next()).done){const from=performance.now(),until=Date.now()+15;while(Date.now()<until){}paused+=performance.now()-from;waited+=15;}
+  const wall=performance.now()-loopStart;
   assert.equal(step.value.ok,true);
   const metric=Schema.telemetry().lastValidation;
-  assert.ok(metric.totalMs<waited,`published time ${metric.totalMs} ms excludes ${waited} ms of pauses`);
+  assert.ok(metric.totalMs<=wall-paused+0.5,`published time ${metric.totalMs} ms excludes ${paused.toFixed(1)} ms of pauses (wall ${wall.toFixed(1)} ms)`);
   assert.ok(Math.abs(metric.totalMs-(metric.authorizationMs+metric.documentProofMs+metric.companyPlatformMs+metric.otherMs))<0.5,'sections add up');
   assert.ok(Math.abs(metric.totalMs-metric.sectionSamples.reduce((total,row)=>total+row.durationMs,0))<0.5,'section samples add up to active validation time');
   console.log(`PASS validation time ${metric.totalMs.toFixed(2)} ms excludes ${waited} ms of pauses`);

@@ -21,7 +21,10 @@ const idle=page=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__
     const {page}=await boot({browser,errors,root:ROOT,found:false});page.setDefaultTimeout(120000);
     // 1. The gate's case: "+ day" in the task after the founding command publishes, before it settles.
     await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);
-    await page.evaluate(()=>{window.__RACE__=null;const poll=()=>{if(window.__GH_STATE__?.onboardingComplete){window.__RACE__={held:!!window.__GH_DURABLE_COMMAND_CONTEXT__,day:Math.floor(__GH_STATE__.simSeconds/86400)};document.querySelector('#simNextDay').click();return;}setTimeout(poll,0);};setTimeout(poll,0);});
+    // The first animation frame asked for once the state shows the group founded is the command's wait for a painted
+    // frame after it publishes; the press follows in a microtask, while the command holds the state. (A timer turn polled
+    // for the published state, and on a busy runner its next turn could come after that frame.)
+    await page.evaluate(()=>{window.__RACE__=null;const raf=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(window.__GH_STATE__?.onboardingComplete){window.requestAnimationFrame=raf;queueMicrotask(()=>{window.__RACE__={held:!!window.__GH_DURABLE_COMMAND_CONTEXT__,day:Math.floor(__GH_STATE__.simSeconds/86400)};document.querySelector('#simNextDay').click();});}return raf.call(window,cb);};});
     await page.locator('#founderForm button[type=submit]').click();
     await page.waitForFunction(()=>!!window.__RACE__);const race=await page.evaluate(()=>window.__RACE__);
     assert.equal(race.held,true,'1: the press lands while the founding command still holds the state');

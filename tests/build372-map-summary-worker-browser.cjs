@@ -33,7 +33,10 @@ const workerSource=require('./helpers/fleet-engine-worker').fleetEngineWorkerSou
     await page.waitForFunction(()=>GH_FLEET_DATA.filter(__GH_STATE__,row=>row.ownerCompanyId==='air').filter(row=>row.routeId).length>=40,null,{timeout:180000});
     await page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked(),null,{timeout:180000});
     await page.evaluate(()=>__AUDIT__.closeDrawer());
-    const play=async ms=>{await page.evaluate(()=>__AUDIT__.setSpeed(3));await page.waitForTimeout(ms);await page.evaluate(()=>__AUDIT__.setSpeed(0));await page.waitForFunction(()=>!window.__AUDIT__.fleetEngineThreadClient?.()?.busy&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked(),null,{timeout:60000});};
+    // Each play runs ms, and on until a slice has committed (the fleet's revision moved, nothing staged): at x300 the first
+    // slice waits a second of backlog, and pausing cancels one in flight, so 2.5 s alone left it about 1.5 s to commit.
+    const play=async ms=>{const from=await page.evaluate(()=>{__AUDIT__.setSpeed(3);return __GH_STATE__.fleet.revision;});await page.waitForTimeout(ms);
+      await page.waitForFunction(from=>__GH_STATE__.fleet.revision>from&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__),from,{timeout:60000,polling:50});await page.evaluate(()=>__AUDIT__.setSpeed(0));await page.waitForFunction(()=>!window.__AUDIT__.fleetEngineThreadClient?.()?.busy&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked(),null,{timeout:60000});};
     await play(2500);
     const compare=async label=>{
       // Ask until the summary is of the store's revision (no step in flight now).

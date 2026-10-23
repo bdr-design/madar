@@ -54,9 +54,14 @@ function installVault(){
     await page.evaluate(()=>{const P=window.GH_PERSISTENCE;let aged=null;window.__AGE__=ms=>{aged=ms>0?{atMs:P.saveCadence().lastSaveAtMs,ms}:null;};
       const wrapped={...P,saveCadence(){const c=P.saveCadence();return aged&&c.lastSaveAtMs===aged.atMs?{...c,lastSaveAtMs:c.lastSaveAtMs-aged.ms}:c;}};window.GH_PERSISTENCE=wrapped;globalThis.GH_PERSISTENCE=wrapped;});
     const commits=()=>page.evaluate(()=>window.__VAULT__.commits.length);
+    // Waits until the vault holds `count` commits (or `ms` pass), then 1.5 s more; returns how long the commit took.
+    await page.evaluate(()=>{window.__SAVED__=async(count,ms)=>{const from=performance.now(),until=from+ms;while(window.__VAULT__.commits.length<count&&performance.now()<until)await new Promise(r=>setTimeout(r,50));const took=performance.now()-from;await new Promise(r=>setTimeout(r,1500));return took;};});
     const settle=()=>page.evaluate(async()=>{const a=__AUDIT__,s=__GH_STATE__;for(let i=0;i<400&&(a.simulationEngine.snapshot().manualAdvance||GH_TRANSACTION_CORE.isStaged(s)||GH_PERSISTENCE.isLocked());i++)await new Promise(r=>setTimeout(r,25));await GH_PERSISTENCE.drain();});
-    // A first save establishes the cadence (as the founding command does in a real game).
-    await page.evaluate(()=>__AUDIT__.save());await settle();
+    // A first save establishes the cadence (as the founding command does in a real game). It is asked for once the game
+    // is idle and counted once committed: on the macOS runner a save asked for at once was refused or deferred, and the
+    // count read 0.
+    await page.evaluate(()=>__AUDIT__.whenStateIdle());await page.evaluate(()=>__AUDIT__.save());
+    await page.waitForFunction(()=>window.__VAULT__.commits.length>=1,null,{timeout:60000});await settle();
     const first=await commits();assert.equal(first,1,'one baseline save');
 
     // Live play at the top speed with map changes: no save. A live slice writes its time in its first stage and commits
@@ -64,7 +69,7 @@ function installVault(){
     // there and kept 3,600 s), so the crossing is read once committed.
     const live=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length,from=__GH_STATE__.simSeconds;a.setSpeed(3);
       for(const mode of ['network','expansion','operations']){document.querySelector(`.map-modes [data-map-mode="${mode}"]`)?.click();await new Promise(r=>setTimeout(r,1200));}
-      document.querySelector('#layerMenu button')?.click();const deadline=performance.now()+25000;while((__GH_STATE__.simSeconds<=from+3600||GH_TRANSACTION_CORE.isStaged(__GH_STATE__))&&performance.now()<deadline)await new Promise(r=>setTimeout(r,50));a.setSpeed(0);return {saves:__VAULT__.commits.length-before,sim:__GH_STATE__.simSeconds,advanced:__GH_STATE__.simSeconds-from};});
+      document.querySelector('#layerMenu button')?.click();const deadline=performance.now()+60000;while((__GH_STATE__.simSeconds<=from+3600||GH_TRANSACTION_CORE.isStaged(__GH_STATE__))&&performance.now()<deadline)await new Promise(r=>setTimeout(r,50));a.setSpeed(0);return {saves:__VAULT__.commits.length-before,sim:__GH_STATE__.simSeconds,advanced:__GH_STATE__.simSeconds-from};});
     await settle();
     assert.equal(live.saves,0,`live play with map changes does not save (${JSON.stringify(live)})`);assert.ok(live.advanced>3600,'time crosses an hour boundary at the supported maximum speed');
 
@@ -80,10 +85,14 @@ function installVault(){
 
     // The cap: not while time runs; at the first stopped moment; regardless after the grace; never on "exit only".
     const capRun=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length;window.__AGE__(16*60000);a.setSpeed(2);await new Promise(r=>setTimeout(r,3000));const running=__VAULT__.commits.length-before;
-      a.setSpeed(0);await new Promise(r=>setTimeout(r,2500));const stopped=__VAULT__.commits.length-before-running;window.__AGE__(0);return {running,stopped};});
-    await settle();assert.deepEqual(capRun,{running:0,stopped:1},'the cap waits for a stopped moment, then saves once');
-    const forced=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length;window.__AGE__(21*60000);a.setSpeed(2);await new Promise(r=>setTimeout(r,2500));const n=__VAULT__.commits.length-before;window.__AGE__(0);a.setSpeed(0);return n;});
-    await settle();assert.equal(forced,1,'after the grace the cap saves while time runs');
+      // The policy is checked at most once a second, and its save waits for an idle moment (up to 1.5 s): each save is
+      // waited for (up to 15 s), then the count is held 1.5 s more, so a second save would still be counted.
+      // Each save must also come promptly: within 6 s (the check is once a second and the save waits up to 1.5 s for an
+      // idle moment; a check every 10 s, or a save deferred several seconds, fails).
+      a.setSpeed(0);const took=await window.__SAVED__(before+running+1,15000);const stopped=__VAULT__.commits.length-before-running;window.__AGE__(0);return {running,stopped,prompt:took<=6000};});
+    await settle();assert.deepEqual(capRun,{running:0,stopped:1,prompt:true},'the cap waits for a stopped moment, then saves once, promptly');
+    const forced=await page.evaluate(async()=>{const a=__AUDIT__,before=__VAULT__.commits.length;window.__AGE__(21*60000);a.setSpeed(2);const took=await window.__SAVED__(before+1,15000);const n=__VAULT__.commits.length-before;window.__AGE__(0);a.setSpeed(0);return {n,prompt:took<=6000};});
+    await settle();assert.deepEqual(forced,{n:1,prompt:true},'after the grace the cap saves while time runs, promptly');
     await page.evaluate(async()=>{__AUDIT__.openDrawer('settings');await new Promise(r=>setTimeout(r,200));});
     const card=await page.evaluate(()=>{const c=document.querySelector('.save-policy-card');return c?{choices:[...c.querySelectorAll('[data-save-cap]')].map(b=>[b.dataset.saveCap,b.getAttribute('aria-pressed')]),saveNow:!!c.querySelector('.save-now-btn'),text:c.textContent}:null;});
     assert.ok(card,'the Settings card is shown');assert.deepEqual(card.choices,[['0','false'],['5','false'],['10','false'],['15','true'],['30','false']]);assert.equal(card.saveNow,true);assert.match(card.text,/مدة الأمان/);assert.doesNotMatch(card.text,/ربع/);
@@ -97,8 +106,8 @@ function installVault(){
 
     // Hiding the app saves.
     const hidden=await page.evaluate(async()=>{const before=__VAULT__.commits.length;Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));
-      await new Promise(r=>setTimeout(r,1500));const n=__VAULT__.commits.length-before;Object.defineProperty(document,'hidden',{configurable:true,get:()=>false});document.dispatchEvent(new Event('visibilitychange'));return n;});
-    assert.equal(hidden,1,'hiding the app saves');
+      const took=await window.__SAVED__(before+1,10000);const n=__VAULT__.commits.length-before;Object.defineProperty(document,'hidden',{configurable:true,get:()=>false});document.dispatchEvent(new Event('visibilitychange'));return {n,prompt:took<=4000};});
+    assert.deepEqual(hidden,{n:1,prompt:true},'hiding the app saves, within 4 s');
     assert.deepEqual(errors,[]);
     console.log(JSON.stringify({suite:'build359-save-policy-browser',live,across:{day:across.day,saves:across.saves.length},overdue:overdue.saves.length,capRun,forced,off,hidden},null,1));
     console.log('BUILD359_SAVE_POLICY_PASS');

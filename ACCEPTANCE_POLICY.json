@@ -3,11 +3,7 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build570-documents-list-weight-browser.cjs"
+      "tests/build358-fleet-engine-thread-browser.cjs"
     ],
     [
       "node",
@@ -15,7 +11,51 @@
     ],
     [
       "node",
-      "tests/build576-presentation-rest-browser.cjs"
+      "tests/build359-save-policy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-cooperative-draft.cjs"
+    ],
+    [
+      "node",
+      "tests/build520-map-aggregate-threshold-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build530-durable-alert-defer-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build531-durable-publish-no-late-write-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build534-staged-save-overlap.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-durable-draft-restore.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-schema-sections.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-map-summary-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-proof-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-durable-fleet-isolation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-air-fleet-series-browser.cjs"
     ],
     [
       "node",
@@ -32,6 +72,18 @@
     [
       "python3",
       "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build570-documents-list-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -568,10 +620,6 @@
     [
       "node",
       "tests/native-save-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-save-policy-browser.cjs"
     ],
     [
       "node",

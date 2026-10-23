@@ -16,7 +16,11 @@ assert.match(fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8'),/const MAP_
   env=await bootRenderApp({browser,root:ROOT,errors,beforeScripts:{fn:installVault}});const page=env.page;page.setDefaultTimeout(240000);
   const world=await prepare(page,{rows:1200});assert.equal(world.rows,1200);
   await page.evaluate(()=>__AUDIT__.dispatchSharedInternationalNetwork('air'));
-  await page.evaluate(()=>__AUDIT__.setSpeed(3));await page.waitForTimeout(2500);await page.evaluate(()=>__AUDIT__.setSpeed(0));await page.evaluate(()=>__AUDIT__.whenStateIdle());
+  // Play 2.5 s, and on until a committed slice has some dispatched aircraft moving while others stay parked, then pause:
+  // 2.5 s alone left the first slice about 1.5 s to commit after its second of backlog.
+  await page.evaluate(()=>__AUDIT__.setSpeed(3));await page.waitForTimeout(2500);
+  await page.waitForFunction(()=>{const s=__GH_STATE__,F=GH_FLEET_DATA;if(GH_TRANSACTION_CORE.isStaged(s))return false;let moving=0,parked=0;F.scan(s,['phase','routeId','simulationFault'],a=>{F.presentedPhase(s,a)==='moving'?moving++:parked++;});return moving>0&&parked>0;},null,{polling:100});
+  await page.evaluate(()=>__AUDIT__.setSpeed(0));await page.evaluate(()=>__AUDIT__.whenStateIdle());
   // The class summary comes from the fleet worker; the first render may ask for it and draw once it arrives.
   await page.evaluate(()=>__AUDIT__.renderMap());
   await page.waitForFunction(()=>__AUDIT__.mapMetrics().ownMarkers>0,null,{timeout:60000});

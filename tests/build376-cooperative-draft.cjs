@@ -20,7 +20,12 @@ const assert=require('node:assert/strict'),vm=require('node:vm'),{harness,minima
  const persist=async draft=>({ok:true,revision:draft.saveRevision});
  const result=await t.executeDurable(live,{yieldToHost:async()=>{pauses++;assert.equal(t.isDurableActive(live),true);assert.throws(()=>t.execute(live,{apply:()=>{live.bad=true;}}),/durable-live-state-transaction-blocked/);},apply:draft=>{draft.changed=true;},persist});
  assert.equal(result.committed,true);assert.ok(pauses>0);assert.equal(commits,1);assert.equal(rolled,0);assert.equal(live.changed,true);assert.equal(t.isDurableActive(live),false);
- const stable=JSON.stringify(live);await assert.rejects(t.executeDurable(live,{yieldToHost:async()=>{throw new Error('host-failed');},apply:()=>{throw new Error('must-not-apply');},persist}),/host-failed/);assert.equal(JSON.stringify(live),stable);assert.equal(rolled,1);assert.equal(t.isDurableActive(live),false);assert.equal(h.s.__GH_DURABLE_COMMAND_CONTEXT__,undefined);
+ // The host fails at the copy's first yield, which comes once a slice passes the 8 ms budget: the copy of these rows
+ // alone took longer on the macOS runner, but not by a known margin. The copy reads this clock, 9 ms a read, so it yields
+ // on any machine, before apply.
+ const stable=JSON.stringify(live),clock=h.s.performance;let now=0;h.s.performance={now:()=>(now+=9)};
+ try{await assert.rejects(t.executeDurable(live,{yieldToHost:async()=>{throw new Error('host-failed');},apply:()=>{throw new Error('must-not-apply');},persist}),/host-failed/);}finally{h.s.performance=clock;}
+ assert.equal(JSON.stringify(live),stable);assert.equal(rolled,1);assert.equal(t.isDurableActive(live),false);assert.equal(h.s.__GH_DURABLE_COMMAND_CONTEXT__,undefined);
  await assert.rejects(t.executeDurable(live,{yieldToHost:()=>Promise.resolve(),apply:draft=>{draft.changed='bad';throw new Error('apply-failed');},persist}),/apply-failed/);assert.equal(JSON.stringify(live),stable);assert.equal(rolled,2);
  console.log(JSON.stringify({suite:'build376-cooperative-draft',ok:true,rows:10000,yields,pauses,lockedDuringCopy:true,rollbackPaths:2,byteEquivalent:true,originalBytes:original.length}));
 })().catch(error=>{console.error(error);process.exitCode=1;});

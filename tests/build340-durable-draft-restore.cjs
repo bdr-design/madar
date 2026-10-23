@@ -67,10 +67,11 @@ function withDurable(draft,fn){const previous=globalThis.__GH_DURABLE_COMMAND_CO
   assert.throws(()=>TX.execute(live,{label:'ignored-outside-durable',discardableDraft:true,apply:()=>{live.n=99;live.rows.push(4);throw new Error('boom');}}),/boom/);
   assert.equal(live.n,1);assert.deepEqual(live.rows,[1,2,3],'no durable context => normal full rollback');assert.equal(lastTiming().rollbackStorage,'full-snapshot');
 }
-{ // durable draft: success takes no snapshot
-  const draft={n:1,rows:[1,2,3]};
+{ // durable draft: success takes no snapshot. A copy reads every field, so the draft counts the reads of one (a bound of
+  // 1 ms on the snapshot's time could not tell a copy of three numbers from none, and could fail on a pause of the machine).
+  const draft={n:1,rows:[1,2,3]};let reads=0;Object.defineProperty(draft,'probe',{enumerable:true,get(){reads++;return 1;}});
   withDurable(draft,context=>{const out=TX.execute(draft,{label:'durable-success',discardableDraft:true,apply:()=>{draft.n=2;return 'ok';}});
-    assert.equal(out.committed,true);assert.equal(out.value,'ok');assert.equal(draft.n,2);assert.equal(context.poisoned,undefined);assert.equal(lastTiming().rollbackStorage,'discardable-draft');assert.equal(lastTiming().fullSnapshot,false);assert.ok(lastTiming().snapshotMs<1,'no state clone is taken');});
+    assert.equal(out.committed,true);assert.equal(out.value,'ok');assert.equal(draft.n,2);assert.equal(context.poisoned,undefined);assert.equal(lastTiming().rollbackStorage,'discardable-draft');assert.equal(lastTiming().fullSnapshot,false);assert.equal(reads,0,'no state clone is taken');});
 }
 { // durable draft: failure poisons the command and does not pretend to restore
   const draft={n:1,rows:[1,2,3]};

@@ -52,10 +52,14 @@ async function setup(page){
   await page.locator('.dispatch-existing-network[data-company="road"]').first().click();await settled(page,'bulk-shared-departure:road');
   return page.evaluate(()=>{const counts={};GH_FLEET_DATA.forEach(__GH_STATE__,a=>{if((a.ownerCompanyId||a.companyId)==='road'&&a.routeId)counts[a.routeId]=(counts[a.routeId]||0)+1;});return Object.entries(counts).sort((x,y)=>y[1]-x[1])[0]?.[0];});
 }
-// Everything observable outside the fleet rows, the fleet rows by company, and the stored save.
-const OBSERVE=()=>{const s=__GH_STATE__,rows={};GH_FLEET_DATA.forEach(s,a=>{const company=a.ownerCompanyId||a.companyId;(rows[company]||(rows[company]=[])).push({id:a.id,routeId:a.routeId||null,phase:a.phase||null,departureScheduled:a.departureScheduled===true,distanceKm:a.distanceKm,tripSeconds:a.tripSeconds});});
+// Everything observable outside the fleet rows, the fleet rows by company, and the stored save. The diagnostics are
+// compared without the events (and their counts) that diagnostics-core records from the browser itself outside any
+// transaction: a task of 120 ms or more, a visibility change. A busy runner writes those at any time; every other
+// root, and every event the page records (its console warnings and errors among them), is compared.
+const OBSERVE=()=>{const s=__GH_STATE__,rows={},MACHINE=new Set(['LONG_TASK','VISIBILITY_CHANGE']);GH_FLEET_DATA.forEach(s,a=>{const company=a.ownerCompanyId||a.companyId;(rows[company]||(rows[company]=[])).push({id:a.id,routeId:a.routeId||null,phase:a.phase||null,departureScheduled:a.departureScheduled===true,distanceKm:a.distanceKm,tripSeconds:a.tripSeconds});});
   const stored=Array.from({length:localStorage.length},(_,i)=>{const key=localStorage.key(i);return key+'='+localStorage.getItem(key);}).sort().join('\n');let h=2166136261>>>0;for(let i=0;i<stored.length;i++){h^=stored.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
   const roots={};for(const key of Object.keys(s).sort())if(key!=='fleet')roots[key]=s[key];
+  if(s.diagnostics){const d=s.diagnostics,counters={};for(const type of Object.keys(d.counters||{}))if(!MACHINE.has(type))counters[type]=d.counters[type];roots.diagnostics={...d,events:(d.events||[]).filter(event=>!MACHINE.has(event?.type)),counters};}
   return {rows,roots:JSON.stringify(roots),storage:`${stored.length}:${h}`,simSeconds:s.simSeconds,saveRevision:s.saveRevision};};
 
 async function scenario(page,{roadRoute,interrupt}){

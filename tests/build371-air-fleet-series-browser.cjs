@@ -46,9 +46,10 @@ function installVault(){
     await page.evaluate(()=>__AUDIT__.openDrawer('routes','air'));
     const button=page.locator('.dispatch-international-network[data-company="air"]').first();
     await button.waitFor({state:'visible',timeout:30000});const started=Date.now();await button.click();
-    // The series is six commands; it is over when no command is in flight and every aircraft holds a route.
+    // The series is six commands; it is over when no command is in flight and every aircraft holds a route. A command
+    // has committed its save and run its after-commit work before it releases the state, so the state is read at once
+    // (a further 1.5 s pause only lengthened a gate that takes up to 176 s of its 300 s on the macOS runner).
     await page.waitForFunction(qty=>{if(window.__GH_DURABLE_COMMAND_CONTEXT__||GH_PERSISTENCE.isLocked())return false;const alerts=(__GH_STATE__.alerts||[]).map(a=>String(a?.text||a));return alerts.filter(t=>/وُزعت/.test(t)).length>=Math.ceil(qty/20000)||alerts.some(t=>/حصة المسارات|أُلغي الأمر/.test(t));},QTY,{timeout:0,polling:1000});
-    await page.waitForTimeout(1500);
     const dispatchMs=Date.now()-started;
     const state=await page.evaluate(()=>{
       const s=__GH_STATE__,F=GH_FLEET_DATA,routes=(s.customRoutes||[]).filter(r=>(r.routeMode||r.type)==='air'),users=new Map();let owned=0,routed=0,underway=0;
