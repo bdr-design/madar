@@ -26,7 +26,8 @@ let refs=0;
 for(const definition of P.listDefinitions())for(const [kind,id] of Object.entries(definition.adapters)){
   refs++;const adapter=R.getAdapter(kind,id,{required:true});assert.equal(adapter.supports(definition),true);assert.equal(adapter.assertAvailable(runtime),true);const resolved=adapter.resolve(runtime);assert.equal(resolved.kind,kind);assert.equal(typeof resolved.call,'function');assert.equal(typeof resolved.execute,'function');
 }
-assert.equal(refs,92);assert.equal(P.validateRegistry().ok,true);console.log('PASS all 92 built-in adapter references resolve to executable descriptors');
+// 92 for the twelve shipped definitions, 24 more for the four service companies of build 97 (six each).
+assert.equal(refs,116);assert.equal(P.validateRegistry().ok,true);console.log('PASS all 116 built-in adapter references resolve to executable descriptors');
 
 assert(Object.isFrozen(R.BUILTIN_CAPABILITIES));assert(R.BUILTIN_CAPABILITIES.every(Object.isFrozen));assert.throws(()=>P.installDefinition(futureDefinition(),{source:'future-fixture'}),/capability-unknown:hospitality\.operations/);
 const extensionCapability={schema:R.CAPABILITY_SCHEMA,id:'hospitality.operations',domain:'hospitality',description:'تشغيل الضيافة والفنادق'};R.registerCapability(extensionCapability);assert.equal(R.has('hospitality.operations'),true);assert.equal(R.get('hospitality.operations').domain,'hospitality');assert.throws(()=>R.registerCapability(extensionCapability),/capability-duplicate:hospitality\.operations/);assert.throws(()=>R.registerCapability({...extensionCapability,description:'وصف متعارض'}),/capability-conflict:hospitality\.operations/);assert.throws(()=>R.registerCapability({schema:'wrong',id:'bad id',domain:'',description:'<bad>'}),/capability-schema|capability-id|capability-domain|capability-description/);

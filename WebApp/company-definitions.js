@@ -25,14 +25,21 @@
     bank:'<path d="M16 39 48 20l32 19v8H16zM22 51h9v22h-9zm21 0h10v22H43zm22 0h9v22h-9zM16 77h64v8H16z" fill="#fff"/><circle cx="48" cy="35" r="6" fill="#e3bd67"/><path d="M21 43h54" stroke="#77dfd1" stroke-width="4"/>',
     mobility:'<path d="M48 16c-17 0-30 12-30 28 0 21 30 39 30 39s30-18 30-39c0-16-13-28-30-28z" fill="#fff"/><path d="M31 50h34l-4-13H35zM29 50h38v13H29z" fill="#1a9a6b"/><circle cx="37" cy="64" r="5" fill="#e5bc67"/><circle cx="59" cy="64" r="5" fill="#e5bc67"/><path d="M38 43h20" stroke="#8be6d9" stroke-width="4" stroke-linecap="round"/>',
     insurance:'<path d="M48 16 22 26v20c0 17 11 29 26 34 15-5 26-17 26-34V26z" fill="#fff"/><path d="m36 48 9 9 16-18" fill="none" stroke="#1f7a8c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 30h36" stroke="#e6bd65" stroke-width="4" stroke-linecap="round"/>',
-    realestate:'<path d="M18 80V44l18-12v48zM40 80V24l22-10v66zM66 80V40l14 8v32z" fill="#fff"/><path d="M47 30h8M47 42h8M47 54h8M47 66h8M24 52h6M24 64h6" stroke="#b5703a" stroke-width="4" stroke-linecap="round"/><path d="M14 82h68" stroke="#e7bd66" stroke-width="5" stroke-linecap="round"/>'});
+    realestate:'<path d="M18 80V44l18-12v48zM40 80V24l22-10v66zM66 80V40l14 8v32z" fill="#fff"/><path d="M47 30h8M47 42h8M47 54h8M47 66h8M24 52h6M24 64h6" stroke="#b5703a" stroke-width="4" stroke-linecap="round"/><path d="M14 82h68" stroke="#e7bd66" stroke-width="5" stroke-linecap="round"/>',
+    // Build 97: the four service companies (their approved symbols are the same marks, assets/identity/approved/*.svg).
+    media:'<path d="M22 42h52v28H22z" fill="#fff"/><path d="M21 31l50-9 2 10-50 9z" fill="#fff" opacity=".92"/><path d="M33 29l6 8M47 26l6 9M61 24l6 8" stroke="#7b3fa0" stroke-width="3"/><path d="M43 49l15 8-15 8z" fill="#7b3fa0"/>',
+    healthcare:'<circle cx="48" cy="46" r="25" fill="#fff"/><path d="M42 31h12v9h9v12h-9v9H42v-9h-9V40h9z" fill="#0f8b8d"/>',
+    education:'<path d="M48 24 15 38l33 14 33-14z" fill="#fff"/><path d="M28 46v11c0 6 9 11 20 11s20-5 20-11V46l-20 9z" fill="#fff" opacity=".9"/><path d="M78 39v16" stroke="#e3b55b" stroke-width="3" stroke-linecap="round"/><circle cx="78" cy="57" r="3" fill="#e3b55b"/>',
+    sports:'<circle cx="48" cy="46" r="25" fill="#fff"/><path d="M48 33l10 7-4 11H42l-4-11z" fill="#173f22"/><path d="M48 33V22M58 40l10-4M54 51l7 9M42 51l-7 9M38 40l-10-4" stroke="#173f22" stroke-width="3" stroke-linecap="round"/>'});
   // Build 358: how the group's name brands each subsidiary (GH_COMPANY_PLATFORM.brandedIdentity): «العساف» + «للطيران».
   const BRAND=Object.freeze({air:{ar:'للطيران',en:'Aviation',short:'AIR',glyph:GLYPH.air},sea:{ar:'للشحن البحري',en:'Marine',short:'MARINE',glyph:GLYPH.sea},road:{ar:'للنقل',en:'Logistics',short:'LOGISTICS',glyph:GLYPH.road},
     power:{ar:'للطاقة',en:'Energy',short:'ENERGY',glyph:GLYPH.power},bank:{prefix:'بنك',legalAr:'المصرفية',en:'Bank',short:'BANK',glyph:GLYPH.bank},mobility:{ar:'للتنقل الذكي',en:'Mobility',short:'MOBILITY',glyph:GLYPH.mobility},
     insurance:{ar:'للتأمين',en:'Insurance',short:'INSURANCE',glyph:GLYPH.insurance},realestate:{ar:'للتطوير العقاري',en:'Real Estate',short:'REAL ESTATE',glyph:GLYPH.realestate},
     // Build 375: telecom and the car dealership follow the group's name too («العساف للاتصالات»); no glyph, so their approved
     // logos stay.
-    telecom:{ar:'للاتصالات',en:'Telecom',short:'TEL',glyph:null},dealership:{ar:'لوكالات السيارات',en:'Auto',short:'AUTO',glyph:null},hospitality:{ar:'للفنادق والمنتجعات',en:'Hotels & Resorts',short:'HOTELS',glyph:null}});
+    telecom:{ar:'للاتصالات',en:'Telecom',short:'TEL',glyph:null},dealership:{ar:'لوكالات السيارات',en:'Auto',short:'AUTO',glyph:null},hospitality:{ar:'للفنادق والمنتجعات',en:'Hotels & Resorts',short:'HOTELS',glyph:null},
+    media:{ar:'للإعلام والإنتاج',en:'Media & Production',short:'MEDIA',glyph:GLYPH.media},healthcare:{ar:'للرعاية الصحية',en:'Healthcare',short:'HEALTH',glyph:GLYPH.healthcare},
+    education:{ar:'للتعليم',en:'Education',short:'EDUCATION',glyph:GLYPH.education},sports:{ar:'للأندية الرياضية',en:'Sports Club',short:'SPORTS',glyph:GLYPH.sports}});
   const subsidiary=(data)=>({
     ...data,identity:{...data.identity,brand:BRAND[data.id]||null},schema:FORMAT,definitionVersion:1,kind:'subsidiary',lifecycle:'active',
     instancePolicy:{mode:'multi',stateScope:'company',...(data.instancePolicy||{})},
@@ -216,6 +223,59 @@
       facilities:{directoryProviderIds:['world-hospitality'],allowedKinds:['hotel','resort'],primaryKind:'hotel',siteTemplate:{label:'فندق مدينة',facilityKind:'hotel',cost:25000000,dailyCost:2400,capacity:'100 غرفة · تشغيل وحجوزات مجمعة',deliveryCapacity:0,photo:'assets/identity/approved/hospitality-symbol.webp',iconKey:'house',groupValueFactor:.72}},
       ui:{extensions:['hospitality-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'hospitality'},
       conference:{providerId:'hospitality-company-v1'},adapters:{operations:'hospitality-stays-v1',facilities:'hospitality-facilities-v1',map:'company-map-v1',conference:'hospitality-company-v1'},
+      legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}
+    })
+    // Build 97 (owner): four service companies on one engine (service-companies-core.js), figures per facility as approved.
+    ,subsidiary({
+      id:'media',definitionId:'gh-media-v1',order:120,
+      identity:identity('شركة فنتورا للإعلام والإنتاج','Ventora Media & Production Company','فنتورا ميديا','VH MEDIA','VH MEDIA','assets/identity/approved/media-symbol.svg','#7b3fa0','#2e1a47','#7b3fa0','assets/images/company-system-v2.webp',[],'assets/identity/approved/media-symbol.svg'),
+      classification:{primarySectorId:'media',sectorIds:['media','production'],operationProfileId:'media-production-v1',assetClasses:[],routeModes:[]},
+      capabilities:['operations.media','operations.services','facility.media-studio'],
+      founding:{defaultCapital:40000000,minimumCapital:40000000,documentPrefix:'MEDIA'},
+      finance:{accountPrefix:'MEDIA',documentPrefix:'MEDIA',collectionProfileId:'media-revenue-v1'},
+      hr:{managerRoleProfileId:'ceo-media-v1',staffingProfileId:'media-production-v1'},
+      facilities:{directoryProviderIds:['world-capitals'],allowedKinds:['media-studio'],primaryKind:'media-studio',siteTemplate:{label:'استوديو إنتاج',facilityKind:'media-studio',cost:12000000,dailyCost:5500,capacity:'إنتاج 6 مشاريع شهريًا · تصوير ومونتاج وبث',deliveryCapacity:0,photo:'assets/images/company-system-v2.webp',iconKey:'media',groupValueFactor:.72}},
+      ui:{extensions:['service-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'media'},
+      conference:{providerId:'generic-company-v1'},adapters:{operations:'service-company-v1',conference:'generic-company-v1'},
+      legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}
+    })
+    ,subsidiary({
+      id:'healthcare',definitionId:'gh-healthcare-v1',order:130,
+      identity:identity('شركة فنتورا للرعاية الصحية','Ventora Healthcare Company','فنتورا الصحية','VH HEALTH','VH HEALTH','assets/identity/approved/healthcare-symbol.svg','#0f8b8d','#0b3c49','#0f8b8d','assets/images/company-system-v2.webp',[],'assets/identity/approved/healthcare-symbol.svg'),
+      classification:{primarySectorId:'healthcare',sectorIds:['healthcare'],operationProfileId:'healthcare-services-v1',assetClasses:[],routeModes:[]},
+      capabilities:['operations.healthcare','operations.services','facility.hospital'],
+      founding:{defaultCapital:120000000,minimumCapital:120000000,documentPrefix:'HEALTH'},
+      finance:{accountPrefix:'HEALTH',documentPrefix:'HEALTH',collectionProfileId:'healthcare-revenue-v1',vatEnabled:false},
+      hr:{managerRoleProfileId:'ceo-healthcare-v1',staffingProfileId:'healthcare-services-v1'},
+      facilities:{directoryProviderIds:['world-capitals'],allowedKinds:['hospital'],primaryKind:'hospital',siteTemplate:{label:'مستشفى عام',facilityKind:'hospital',cost:60000000,dailyCost:38000,capacity:'150 سريرًا · طوارئ وعيادات خارجية',deliveryCapacity:0,photo:'assets/images/company-system-v2.webp',iconKey:'healthcare',groupValueFactor:.72}},
+      ui:{extensions:['service-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'healthcare'},
+      conference:{providerId:'generic-company-v1'},adapters:{operations:'service-company-v1',conference:'generic-company-v1'},
+      legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}
+    })
+    ,subsidiary({
+      id:'education',definitionId:'gh-education-v1',order:140,
+      identity:identity('شركة فنتورا للتعليم','Ventora Education Company','فنتورا التعليمية','VH EDUCATION','VH EDU','assets/identity/approved/education-symbol.svg','#2f6fb5','#16325c','#2f6fb5','assets/images/company-system-v2.webp',[],'assets/identity/approved/education-symbol.svg'),
+      classification:{primarySectorId:'education',sectorIds:['education'],operationProfileId:'education-services-v1',assetClasses:[],routeModes:[]},
+      capabilities:['operations.education','operations.services','facility.school'],
+      founding:{defaultCapital:60000000,minimumCapital:60000000,documentPrefix:'EDU'},
+      finance:{accountPrefix:'EDU',documentPrefix:'EDU',collectionProfileId:'education-revenue-v1',vatEnabled:false},
+      hr:{managerRoleProfileId:'ceo-education-v1',staffingProfileId:'education-services-v1'},
+      facilities:{directoryProviderIds:['world-capitals'],allowedKinds:['school'],primaryKind:'school',siteTemplate:{label:'مدرسة دولية',facilityKind:'school',cost:35000000,dailyCost:9000,capacity:'1,200 طالب · رسوم سنوية على 10 أقساط',deliveryCapacity:0,photo:'assets/images/company-system-v2.webp',iconKey:'education',groupValueFactor:.72}},
+      ui:{extensions:['service-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'education'},
+      conference:{providerId:'generic-company-v1'},adapters:{operations:'service-company-v1',conference:'generic-company-v1'},
+      legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}
+    })
+    ,subsidiary({
+      id:'sports',definitionId:'gh-sports-v1',order:150,
+      identity:identity('شركة فنتورا للأندية الرياضية','Ventora Sports Club Company','نادي فنتورا','VH SPORTS','VH SPORTS','assets/identity/approved/sports-symbol.svg','#2e8b3e','#173f22','#2e8b3e','assets/images/company-system-v2.webp',[],'assets/identity/approved/sports-symbol.svg'),
+      classification:{primarySectorId:'sports',sectorIds:['sports'],operationProfileId:'sports-club-v1',assetClasses:[],routeModes:[]},
+      capabilities:['operations.sports','operations.services','facility.stadium'],
+      founding:{defaultCapital:150000000,minimumCapital:150000000,documentPrefix:'SPORT'},
+      finance:{accountPrefix:'SPORT',documentPrefix:'SPORT',collectionProfileId:'sports-revenue-v1'},
+      hr:{managerRoleProfileId:'ceo-sports-v1',staffingProfileId:'sports-club-v1'},
+      facilities:{directoryProviderIds:['world-capitals'],allowedKinds:['stadium'],primaryKind:'stadium',siteTemplate:{label:'نادٍ وملعب',facilityKind:'stadium',cost:90000000,dailyCost:25000,capacity:'25 ألف مقعد · مباريات وعضويات وبث',deliveryCapacity:0,photo:'assets/images/company-system-v2.webp',iconKey:'sports',groupValueFactor:.72}},
+      ui:{extensions:['service-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'sports'},
+      conference:{providerId:'generic-company-v1'},adapters:{operations:'service-company-v1',conference:'generic-company-v1'},
       legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}
     })
   ]);

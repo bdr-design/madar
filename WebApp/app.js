@@ -1627,7 +1627,7 @@
   }
   // ---- أيقونات منشآت حقيقية (مطار/ميناء/مركز لوجستي/طاقة/بنك/مقر) بدل رموز الإيموجي ----
   // Build 373: map facilities show the MADAR icons (madar-icons.css) in their real colours on the marker.
-  const FACILITY_ICON=Object.freeze({airport:'tower',port:'port',logistics:'warehouse',power:'bolt',bank:'bank',mobility:'fleet-car',telecom:'antenna',dealership:'showroom',insurance:'umbrella',realestate:'house',hospitality:'house',hq:'group'});
+  const FACILITY_ICON=Object.freeze({airport:'tower',port:'port',logistics:'warehouse',power:'bolt',bank:'bank',mobility:'fleet-car',telecom:'antenna',dealership:'showroom',insurance:'umbrella',realestate:'house',hospitality:'house',media:'news',healthcare:'safety',education:'research',sports:'performance',hq:'group'});
   const FACILITY_SVG=Object.freeze(Object.fromEntries(Object.entries(FACILITY_ICON).map(([kind,key])=>[kind,`<span class="facility-glyph mg ic-${key}" aria-hidden="true"></span>`])));
   const iconInline=(icon,type,fallback)=>window.GH_ICONS?.inline(icon,type,fallback)||'';
   function facilityKindKey(kind){
@@ -1642,10 +1642,14 @@
     if(kind==='insurance') return 'insurance';
     if(kind==='realestate') return 'realestate';
     if(kind==='hotel'||kind==='resort') return 'hospitality';
+    if(kind==='media-studio') return 'media';
+    if(kind==='hospital') return 'healthcare';
+    if(kind==='school') return 'education';
+    if(kind==='stadium') return 'sports';
     return 'hq'; // hq, office, acquired وأي نوع إداري آخر
   }
   function facilityMarkerHtml(f){
-    const key=facilityKindKey(f.kind),company=facilityOwnerCompanyId(f)||({airport:'air',port:'sea',logistics:'road',power:'power',bank:'bank',mobility:'mobility',telecom:'telecom',dealership:'dealership',insurance:'insurance',realestate:'realestate'}[key]||'group'),logo=window.GH_IDENTITY?.logo?.(state,company);
+    const key=facilityKindKey(f.kind),company=facilityOwnerCompanyId(f)||({airport:'air',port:'sea',logistics:'road',power:'power',bank:'bank',mobility:'mobility',telecom:'telecom',dealership:'dealership',insurance:'insurance',realestate:'realestate',media:'media',healthcare:'healthcare',education:'education',sports:'sports'}[key]||'group'),logo=window.GH_IDENTITY?.logo?.(state,company);
     return `<div class="marker-core facility-real ${key}" data-company="${esc(company)}">${FACILITY_SVG[key]}${logo?`<img class="facility-brand-logo" src="${esc(logo)}" alt="">`:''}</div>`;
   }
   function facilityVectorMarkup(kind,className='facility-inline-vector'){

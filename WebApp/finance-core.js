@@ -33,12 +33,12 @@ const COLLECTION_PROFILES=Object.freeze({
  realestate:{channel:'تحصيل مبيعات الوحدات والإيجارات',source:'مركز تحصيل العقارات · المشترون والمستأجرون',service:'وحدات مسلّمة وإيجارات شهرية'},
  telecom:{channel:'تحصيل فواتير الاتصالات الشهرية',source:'مركز تحصيل الاتصالات · المشتركين وشرائح السوق',service:'اشتراكات الجوال والإنترنت وخدمات الأعمال'},
   dealership:{channel:'تحصيل فواتير مبيعات المركبات والصيانة',source:'مركز تحصيل الوكالات · العملاء وممولو المركبات',service:'مركبات مباعة ومخزون وخدمات ما بعد البيع'},
-  hospitality:{channel:'تسوية حجوزات إقامة وخدمات مجمعة',source:'مركز تسوية حجوزات الفنادق والمنتجعات',service:'ليالي إقامة وخدمات منفذة؛ دورة تنتهي يوم 15'}
+  hospitality:{channel:'تسوية حجوزات إقامة وخدمات مجمعة',source:'مركز تسوية حجوزات الفنادق والمنتجعات',service:'ليالي إقامة وخدمات منفذة؛ دورة تنتهي يوم 15'},media:{channel:'تحصيل عقود الإنتاج والبث',source:'مركز تحصيل الإعلام · العملاء والقنوات والمنصات',service:'مشاريع إنتاج وتصوير ومونتاج وبث منجزة'},healthcare:{channel:'تحصيل خدمات الرعاية الصحية',source:'مركز تحصيل الرعاية · المرضى وشركات التأمين الصحي',service:'أيام تنويم ومراجعات عيادات خارجية'},education:{channel:'تحصيل الرسوم الدراسية',source:'مركز تحصيل التعليم · أولياء الأمور والجهات الراعية',service:'رسوم دراسية مكتسبة للطلاب المسجلين'},sports:{channel:'تحصيل التذاكر والعضويات وحقوق البث',source:'مركز تحصيل النادي · الجماهير والأعضاء والرعاة',service:'تذاكر مباريات وعضويات وحقوق بث ورعاية'}
 });
 const GENERIC_COLLECTION_PROFILE=Object.freeze({channel:'تحويل تحصيل مؤسسي',source:'مركز تحصيل العملاء المعتمدين',service:'خدمات تشغيلية مثبتة'});
 const COLLECTION_PROFILE_IDS=Object.freeze({
  'holding-revenue-v1':'group','aviation-revenue-v1':'air','marine-revenue-v1':'sea','logistics-revenue-v1':'road','energy-revenue-v1':'power','banking-revenue-v1':'bank','mobility-revenue-v1':'mobility','insurance-revenue-v1':'insurance','realestate-revenue-v1':'realestate'
- ,'telecom-revenue-v1':'telecom','dealership-revenue-v1':'dealership','hospitality-revenue-v1':'hospitality'
+ ,'telecom-revenue-v1':'telecom','dealership-revenue-v1':'dealership','hospitality-revenue-v1':'hospitality','media-revenue-v1':'media','healthcare-revenue-v1':'healthcare','education-revenue-v1':'education','sports-revenue-v1':'sports'
 });
 function collectionProfile(company,s=null){
  const platform=globalThis.GH_COMPANY_PLATFORM,definition=s?platform?.resolveCompany?.(s,company)?.definition:platform?.getDefinition?.(company),profileId=definition?.finance?.collectionProfileId,legacyId=COLLECTION_PROFILE_IDS[profileId];

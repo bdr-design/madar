@@ -51,10 +51,12 @@ const COUNT=30;
     // The all-company action must keep paying solvent companies when another company's cheque exceeds its budget
     // or cash. Neither skipped cheque may bounce, and both must remain payable on a later attempt.
     const budgetErrors=[],{page:multi}=await boot({browser,errors:budgetErrors});multi.setDefaultTimeout(60000);
-    await multi.evaluate(()=>{__GH_STATE__.godMoney=true;__GH_STATE__.infiniteMoney=true;__AUDIT__.openDrawer('companies','subs');});
-    await multi.locator('.open-all-companies').click();
-    await multi.locator('dialog.ui-confirm [data-confirm="accept"]').click();
-    await multi.waitForFunction(()=>GH_COMPANY_PLATFORM.listInstances(__GH_STATE__,{includeGroup:false}).every(row=>row.operational));
+    // The scale scenario is the eleven trading sectors at ten facilities each (110 facilities): the browser save (4 MB,
+    // no native vault) holds about 13.5k characters per facility, so ten for each of the fifteen sectors (build 97 adds
+    // four service companies, checked in build591) would exceed it. The open-all button is checked by other gates.
+    await multi.evaluate(async()=>{const s=__GH_STATE__;s.godMoney=true;s.infiniteMoney=true;const service=new Set(GH_SERVICE_COMPANIES_CORE?Object.keys(GH_SERVICE_COMPANIES_CORE.SECTORS):[]);
+      for(const d of GH_COMPANY_DEFINITIONS.list().filter(d=>d.kind!=='group'&&d.id!=='group'&&!service.has(d.id))){const type=d.id;await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type,companyId:type,capital:Math.max(900000000,d.founding.minimumCapital),legalName:`QA ${type}`,formationContract:`QA-SCALE-${type}`},{silent:true});}});
+    await multi.waitForFunction(()=>GH_COMPANY_PLATFORM.listInstances(__GH_STATE__,{includeGroup:false,openedOnly:true}).filter(row=>row.operational).length===11);
     await multi.evaluate(()=>__AUDIT__.openDrawer('network'));
     await multi.locator('#worldBulkCount').selectOption('10');
     assert.equal(Number(await multi.locator('.open-scope-facilities').getAttribute('data-count')),110,'the scale scenario opens ten facilities for each of eleven sectors');

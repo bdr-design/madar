@@ -3,8 +3,8 @@
 const M=globalThis.GH_CONF_MODEL,{esc,number,usable}=M;
 // The plan's scenes stay the archive's chapters (their hash is the record); each slide belongs to one scene, so a
 // resumed conference opens on its scene's first slide. The text and figures come from the same frozen snapshot.
-const PHOTO=Object.freeze({air:'air-widebody',sea:'ship-container',road:'truck-longhaul-v2',power:'company-energy-v2',bank:'company-bank-v2',telecom:'company-system-v2',insurance:'company-hq-v2',realestate:'company-hq-v2',mobility:'truck-urban',dealership:'truck-urban',hospitality:'company-hq-v2'});
-const SECTOR=Object.freeze({air:'الطيران',sea:'الشحن البحري',road:'النقل البري',power:'الطاقة',bank:'الخدمات المصرفية',mobility:'التنقل',insurance:'التأمين',realestate:'العقار',telecom:'الاتصالات',dealership:'الوكالات',hospitality:'الضيافة'});
+const PHOTO=Object.freeze({air:'air-widebody',sea:'ship-container',road:'truck-longhaul-v2',power:'company-energy-v2',bank:'company-bank-v2',telecom:'company-system-v2',insurance:'company-hq-v2',realestate:'company-hq-v2',mobility:'truck-urban',dealership:'truck-urban',hospitality:'company-hq-v2',media:'company-system-v2',healthcare:'company-hq-v2',education:'company-hq-v2',sports:'company-hq-v2'});
+const SECTOR=Object.freeze({air:'الطيران',sea:'الشحن البحري',road:'النقل البري',power:'الطاقة',bank:'الخدمات المصرفية',mobility:'التنقل',insurance:'التأمين',realestate:'العقار',telecom:'الاتصالات',dealership:'الوكالات',hospitality:'الضيافة',media:'الإعلام والإنتاج',healthcare:'الرعاية الصحية',education:'التعليم',sports:'الرياضة'});
 const GROUP_MARK='assets/identity/approved/group-symbol.webp',GROUP_GRADIENT='linear-gradient(100deg,#fff4dc,#e9c27a 45%,#c8963e)',GROUP_ACCENT='#c8963e';
 const photo=type=>`assets/images/${PHOTO[type]||'company-hq-v2'}.webp`;
 const ltr=value=>`<bdi dir="ltr">${esc(value)}</bdi>`,count=value=>Math.round(number(value)).toLocaleString('en-US');

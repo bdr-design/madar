@@ -47,7 +47,11 @@
     'ceo-mobility-v1':'التنقل الذكي والمنصات الرقمية',
     'ceo-insurance-v1':'الاكتتاب والتسعير وإدارة المطالبات',
     'ceo-realestate-v1':'التطوير العقاري والمبيعات والتأجير',
-    'ceo-hospitality-v1':'تشغيل الضيافة وتجربة النزيل'
+    'ceo-hospitality-v1':'تشغيل الضيافة وتجربة النزيل',
+    'ceo-media-v1':'الإنتاج الإعلامي والمحتوى والبث',
+    'ceo-healthcare-v1':'الرعاية الصحية وجودة الخدمة الطبية',
+    'ceo-education-v1':'التعليم والتسجيل والجودة الأكاديمية',
+    'ceo-sports-v1':'إدارة النادي والمباريات والرعاية'
   });
   const GENERATED_MANAGER_CANDIDATE_COUNT=2;
   const FACILITY_STANDARDS=Object.freeze({hq:42,office:18,'airport-base':36,'port-base':44,logistics:24,depot:20,'mobility-center':18,'telecom-branch':14,'dealership-branch':18,power:32,bank:16,insurance:14,realestate:12,hotel:60,resort:110,acquired:28});

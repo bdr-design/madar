@@ -25,6 +25,12 @@
     'operations.insurance':Object.freeze({id:'operations.insurance',domain:'operations',description:'الاكتتاب والتأمين وإدارة المطالبات'}),
     'operations.realestate':Object.freeze({id:'operations.realestate',domain:'operations',description:'التطوير العقاري والبيع والتأجير'}),
     'operations.telecom':Object.freeze({id:'operations.telecom',domain:'operations',description:'اشتراكات الاتصالات وخدمة العملاء والفوترة الشهرية'}),
+    // Build 97: the four service companies on one engine (service-companies-core).
+    'operations.services':Object.freeze({id:'operations.services',domain:'operations',description:'شركة خدمات تُشغّل منشآتها يوميًا وتُحصّل إيرادها عبر الإقفال'}),
+    'operations.media':Object.freeze({id:'operations.media',domain:'operations',description:'إنتاج إعلامي ومشاريع تصوير وبث'}),
+    'operations.healthcare':Object.freeze({id:'operations.healthcare',domain:'operations',description:'رعاية صحية وتنويم ومراجعات'}),
+    'operations.education':Object.freeze({id:'operations.education',domain:'operations',description:'تعليم وتسجيل طلاب ورسوم دراسية'}),
+    'operations.sports':Object.freeze({id:'operations.sports',domain:'operations',description:'نادٍ رياضي ومباريات وعضويات ورعاية'}),
     'operations.dealer':Object.freeze({id:'operations.dealer',domain:'operations',description:'وكالات السيارات والعملاء والمخزون وخدمات ما بعد البيع'}),
     'operations.hospitality':Object.freeze({id:'operations.hospitality',domain:'operations',description:'تشغيل الفنادق والمنتجعات والحجوزات والتسويات المجمعة'}),
     'asset.aircraft':Object.freeze({id:'asset.aircraft',domain:'assets',description:'امتلاك وتشغيل الطائرات'}),
@@ -43,6 +49,10 @@
     'facility.insurance':Object.freeze({id:'facility.insurance',domain:'facilities',description:'مكاتب تأمين ومراكز مطالبات'}),
     'facility.realestate':Object.freeze({id:'facility.realestate',domain:'facilities',description:'مكاتب بيع وتأجير عقاري'}),
     'facility.telecom':Object.freeze({id:'facility.telecom',domain:'facilities',description:'فروع اتصالات وخدمة مشتركين'}),
+    'facility.media-studio':Object.freeze({id:'facility.media-studio',domain:'facilities',description:'استوديوهات إنتاج وتصوير'}),
+    'facility.hospital':Object.freeze({id:'facility.hospital',domain:'facilities',description:'مستشفيات ومراكز رعاية'}),
+    'facility.school':Object.freeze({id:'facility.school',domain:'facilities',description:'مدارس ومجمعات تعليمية'}),
+    'facility.stadium':Object.freeze({id:'facility.stadium',domain:'facilities',description:'ملاعب ونوادٍ رياضية'}),
     'facility.dealership':Object.freeze({id:'facility.dealership',domain:'facilities',description:'وكالات سيارات ومبيعات وخدمة عملاء'}),
     'facility.hospitality':Object.freeze({id:'facility.hospitality',domain:'facilities',description:'فنادق ومنتجعات ذات سعة إقامة'})
   });

@@ -25,6 +25,7 @@
       'telecom-customer-v1':['GH_CUSTOMER_COMPANIES_CORE'],
       'dealership-retail-v1':['GH_CUSTOMER_COMPANIES_CORE']
       ,'hospitality-stays-v1':['GH_HOSPITALITY_CORE']
+      ,'service-company-v1':['GH_SERVICE_COMPANIES_CORE']
     }),
     finance:Object.freeze({
       'group-treasury-v1':['GH_FINANCE_CORE'],

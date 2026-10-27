@@ -65,6 +65,13 @@ function sectorEconomics(state,options={}){
     // Real estate may already have accrued this legal operator's rent. Its paired settlement owns that cash.
     companyRevenue[instance.id]=num(companyRevenue[instance.id])+num(row.revenue);companyExpense[instance.id]=num(companyExpense[instance.id])+num(row.expense);companyCashRevenue[instance.id]=num(companyCashRevenue[instance.id])+num(row.cashRevenue);companyCashExpense[instance.id]=num(companyCashExpense[instance.id])+num(row.cashExpense);companyFacilityVat[instance.id]=num(row.facilityVatAdjustment);
   }
+  // Build 97: the service companies (service-companies-core) report each day their engine closed for them.
+  const services=globalThis.GH_SERVICE_COMPANIES_CORE;
+  if(services)for(const instance of globalThis.GH_COMPANY_PLATFORM?.listInstances?.(state,{includeGroup:false,openedOnly:true,capability:'operations.services'})||[]){
+    if(!instance.operational||!services.read(state,instance.id))continue;
+    const row=services.dailyResult(state,requestedDay??Math.floor(num(state.simSeconds)/86400),instance.id);
+    companyRevenue[instance.id]=num(companyRevenue[instance.id])+num(row.revenue);companyExpense[instance.id]=num(companyExpense[instance.id])+num(row.expense);companyCashRevenue[instance.id]=num(companyCashRevenue[instance.id])+num(row.cashRevenue);companyCashExpense[instance.id]=num(companyCashExpense[instance.id])+num(row.cashExpense);
+  }
   return {power,powerFreeCash,bank,detail:{companyRevenue,companyCashRevenue,companyExpense,companyCashExpense,intercompanyRows,companyCashTaxExemptRevenue,companyFacilityVat,generation,revenue,gasFuel,carbon,storageMargin,ppaRevenue:num(energyDetail?.ppaRevenue),spotRevenue:num(energyDetail?.spotRevenue),ppaMWh:num(energyDetail?.ppaMWh),interestIncome,securityIncome,depositExpense,wholesaleInterestExpense,expectedLoss,bankProvisionExpense,powerRevenue,powerExpense,powerDebtPrincipal,powerDebtInterest,powerDebtService,bankRevenue,bankCashRevenueToPost,bankExpense,bankExpenseToPost,bankFacilityExpense,powerExpenseToPost,powerFacilityExpense,takeOrPayAccrued:num(energyClose?.takeOrPayAccrued),bankOpex,feeIncome,transactionFeeIncome,reportedFeeIncome,liquidityCarry}};
 }
 const API=Object.freeze({VERSION,sectorEconomics});globalThis.GH_ECONOMICS_CORE=API;if(globalThis.window&&window!==globalThis)window.GH_ECONOMICS_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
