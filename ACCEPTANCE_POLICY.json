@@ -7,19 +7,35 @@
     ],
     [
       "node",
-      "tests/build589-acceleration-immediate.cjs"
+      "tests/build590-bulk-acquisition.cjs"
     ],
     [
       "node",
-      "tests/build380-construction-acceleration.cjs"
+      "tests/operating-acquisitions.cjs"
     ],
     [
       "node",
-      "tests/build380-construction-acceleration-browser.cjs"
+      "tests/build334-bank-balance-sheet.cjs"
     ],
     [
       "node",
       "tests/build334-bank-energy-operating-costs.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-bank-fee-reporting.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-bank-projected-risk.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-bank-sector-concentration.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-bank-signed-income.cjs"
     ],
     [
       "node",
@@ -28,10 +44,6 @@
     [
       "node",
       "tests/build334-dynamic-company-consumers.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-energy-take-or-pay.cjs"
     ],
     [
       "node",
@@ -51,6 +63,10 @@
     ],
     [
       "node",
+      "tests/build339-accrued-obligation-cash-shortfall.cjs"
+    ],
+    [
+      "node",
       "tests/build339-day-boundary-write-map.cjs"
     ],
     [
@@ -59,7 +75,7 @@
     ],
     [
       "node",
-      "tests/build358-energy-market.cjs"
+      "tests/build358-bank-market.cjs"
     ],
     [
       "node",
@@ -71,7 +87,11 @@
     ],
     [
       "node",
-      "tests/build360-energy-debt-proof-recovery.cjs"
+      "tests/build360-customer-contract-engine.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-customer-ratings-conference.cjs"
     ],
     [
       "node",
@@ -79,7 +99,7 @@
     ],
     [
       "node",
-      "tests/build362-hospitality-staffing.cjs"
+      "tests/build360-operational-settlements.cjs"
     ],
     [
       "node",
@@ -87,7 +107,7 @@
     ],
     [
       "node",
-      "tests/build363-energy-health-contract.cjs"
+      "tests/build363-facility-scope-bank-browser.cjs"
     ],
     [
       "node",
@@ -99,15 +119,19 @@
     ],
     [
       "node",
-      "tests/build364-realestate-internal-leases.cjs"
+      "tests/build364-customer-companies-core.cjs"
     ],
     [
       "node",
-      "tests/build369-external-rent-monthly-ledger.cjs"
+      "tests/build365-official-news.cjs"
     ],
     [
       "node",
       "tests/build369-insurance-risk-batch.cjs"
+    ],
+    [
+      "node",
+      "tests/build369-market-reference.cjs"
     ],
     [
       "node",
@@ -123,11 +147,43 @@
     ],
     [
       "node",
-      "tests/build378-energy-blocks-ppa.cjs"
+      "tests/build374-customer-base-telecom-market.cjs"
     ],
     [
       "node",
-      "tests/build378-realestate-off-plan.cjs"
+      "tests/build374-dealer-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-bancassurance.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-bank-capital-conservation.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-customer-satisfaction.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-dealer-floor-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-telecom-network.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-campaign-decisions-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-company-campaigns.cjs"
     ],
     [
       "node",
@@ -135,23 +191,19 @@
     ],
     [
       "node",
-      "tests/build387-save-actions.cjs"
+      "tests/build385-bank-credit-browser.cjs"
     ],
     [
       "node",
-      "tests/build391-hospitality-core.cjs"
+      "tests/build387-save-once-browser.cjs"
     ],
     [
       "node",
-      "tests/build392-hospitality-links.cjs"
+      "tests/build393-hospitality-financial-safety.cjs"
     ],
     [
       "node",
-      "tests/build394-hospitality-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build395-hospitality-edge-cases.cjs"
+      "tests/build400-telecom-peer-index.cjs"
     ],
     [
       "node",
@@ -160,6 +212,10 @@
     [
       "node",
       "tests/build431-decision-notices.cjs"
+    ],
+    [
+      "node",
+      "tests/build441-bank-migration-work.cjs"
     ],
     [
       "node",
@@ -191,6 +247,126 @@
     ],
     [
       "node",
+      "tests/build477-bank-read-sync-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build539-intercompany-interest-pnl.cjs"
+    ],
+    [
+      "node",
+      "tests/build540-bank-fee-close-day.cjs"
+    ],
+    [
+      "node",
+      "tests/build541-bank-provision-cash.cjs"
+    ],
+    [
+      "node",
+      "tests/build546-sponsorship-revenue.cjs"
+    ],
+    [
+      "node",
+      "tests/build547-conference-customer-base.cjs"
+    ],
+    [
+      "node",
+      "tests/build555-investor-card-return.cjs"
+    ],
+    [
+      "node",
+      "tests/build572-fleet-premium-unpaid.cjs"
+    ],
+    [
+      "node",
+      "tests/business-options-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/core-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock.cjs"
+    ],
+    [
+      "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/tax-precision-and-routing-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build589-acceleration-immediate.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-energy-take-or-pay.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-energy-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-energy-debt-proof-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-hospitality-staffing.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-energy-health-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build364-realestate-internal-leases.cjs"
+    ],
+    [
+      "node",
+      "tests/build369-external-rent-monthly-ledger.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-energy-blocks-ppa.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-realestate-off-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-actions.cjs"
+    ],
+    [
+      "node",
+      "tests/build391-hospitality-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build392-hospitality-links.cjs"
+    ],
+    [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build395-hospitality-edge-cases.cjs"
+    ],
+    [
+      "node",
       "tests/build544-internal-rent-tenants.cjs"
     ],
     [
@@ -203,19 +379,11 @@
     ],
     [
       "node",
-      "tests/build555-investor-card-return.cjs"
-    ],
-    [
-      "node",
       "tests/build578-energy-history-compaction.cjs"
     ],
     [
       "node",
       "tests/build588-energy-ensure-rows.cjs"
-    ],
-    [
-      "node",
-      "tests/operating-acquisitions.cjs"
     ],
     [
       "node",
@@ -783,10 +951,6 @@
     ],
     [
       "node",
-      "tests/build375-group-news.cjs"
-    ],
-    [
-      "node",
       "tests/build375-large-fleet-background-save-browser.cjs"
     ],
     [
@@ -832,10 +996,6 @@
     [
       "node",
       "tests/build386-confirmation-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build387-save-once-browser.cjs"
     ],
     [
       "node",
@@ -1279,10 +1439,6 @@
     ],
     [
       "node",
-      "tests/fleet-business-boundary.cjs"
-    ],
-    [
-      "node",
       "tests/build374-daily-worker-integration.cjs"
     ],
     [
@@ -1335,10 +1491,6 @@
     ],
     [
       "node",
-      "tests/build363-facility-scope-bank-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build361-bulk-opening-browser.cjs"
     ],
     [
@@ -1387,10 +1539,6 @@
     ],
     [
       "node",
-      "tests/tax-precision-and-routing-browser.cjs"
-    ],
-    [
-      "node",
       "tests/tax-reload-regressions.cjs"
     ],
     [
@@ -1403,19 +1551,11 @@
     ],
     [
       "node",
-      "tests/build339-accrued-obligation-cash-shortfall.cjs"
-    ],
-    [
-      "node",
       "tests/build358-payment-terms.cjs"
     ],
     [
       "node",
       "tests/build567-budget-lapsed-reservation.cjs"
-    ],
-    [
-      "node",
-      "tests/core-regressions.cjs"
     ],
     [
       "node",
@@ -1444,22 +1584,6 @@
     [
       "node",
       "tests/review-regressions.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-bank-balance-sheet.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-bank-market.cjs"
-    ],
-    [
-      "node",
-      "tests/build369-market-reference.cjs"
-    ],
-    [
-      "node",
-      "tests/build539-intercompany-interest-pnl.cjs"
     ],
     [
       "node",
@@ -1555,10 +1679,6 @@
     ],
     [
       "node",
-      "tests/business-options-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build498-native-save-export-contract.cjs"
     ],
     [
@@ -1603,10 +1723,6 @@
     ],
     [
       "node",
-      "tests/build572-fleet-premium-unpaid.cjs"
-    ],
-    [
-      "node",
       "tests/build574-investor-budget-overrun.cjs"
     ],
     [
@@ -1647,10 +1763,6 @@
     ],
     [
       "node",
-      "tests/build477-bank-read-sync-work.cjs"
-    ],
-    [
-      "node",
       "tests/build481-diagnostic-fleet-proof.cjs"
     ],
     [
@@ -1672,10 +1784,6 @@
     [
       "node",
       "tests/build440-document-collection-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build441-bank-migration-work.cjs"
     ],
     [
       "node",
@@ -1724,10 +1832,6 @@
     [
       "node",
       "tests/build385-bank-credit-accounting.cjs"
-    ],
-    [
-      "node",
-      "tests/build400-telecom-peer-index.cjs"
     ],
     [
       "node",
@@ -2122,6 +2226,10 @@
     [
       "node",
       "tests/build589-acceleration-immediate.cjs"
+    ],
+    [
+      "node",
+      "tests/build590-bulk-acquisition.cjs"
     ],
     [
       "node",

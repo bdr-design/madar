@@ -670,7 +670,7 @@
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx,F=globalThis.GH_FINANCE_CORE,bank=ensure(state);if(!F)throw new Error('finance-core-missing');
-    if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'bank',p);
+    if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'bank',p);if(cmd==='acquire-operating-batch')return globalThis.GH_OPERATING_ACQUISITIONS.acquireBatch(state,'bank',p);
     if(cmd==='sync-corporate-clients')return syncCorporateClients(state,p,F);
     if(cmd==='set-deposit-pricing')return setDepositPricing(state,p);
     if(cmd==='set-risk-policy')return setRiskPolicy(state,p);

@@ -1,7 +1,7 @@
 /* Existing businesses are bought once, through their signed domain owner. Quotes and receipts are aggregate
    records; no customer, policy, unit or fleet scan is added to the simulation loop. */
 (()=>{'use strict';
-const COMPANIES=Object.freeze(['realestate','power','insurance','bank']),LIMIT=128;
+const COMPANIES=Object.freeze(['realestate','power','insurance','bank']),LIMIT=128,BATCH_LIMIT=24;
 const VARIANTS=Object.freeze({realestate:['office','residential'],power:['solar','wind'],insurance:['motor','property'],bank:['branch']});
 const num=x=>Math.max(0,Number(x)||0),day=s=>Math.floor(num(s.simSeconds)/86400);
 const base=()=>globalThis.GH_CUSTOMER_BASE,F=()=>globalThis.GH_FINANCE_CORE;
@@ -101,6 +101,15 @@ function acquire(s,c,p){
  const record={id:q.id,company:c,assetId:q.assetId,targetId:q.targetId,variant:q.variant,day:start,price:q.price,chequeId:payment.cheque.id,invoiceNumber:payment.invoice.number,legalDocumentId:legal.id,offer:{...q}};
  s.finance.operatingAcquisitions={...registry(s),[q.id]:record};return {...record,transferredCash:q.transferredCash,liabilities:q.liabilities};
 }
+// Owner (build 97): a bulk acquisition buys a page of offers in one signed command, one transaction and one save. Each
+// offer goes through acquire() as a single purchase would (its own quote check, cheque, transferred balances, contract and
+// receipt, the company's capital checks in order); any refusal rolls the whole batch back.
+function acquireBatch(s,c,p){
+ const items=Array.isArray(p?.items)?p.items:[];if(!items.length||items.length>BATCH_LIMIT)throw new Error('operating-batch-size');
+ const seen=new Set(),results=[];
+ for(const item of items){const key=receiptId(c,String(item?.targetId||''),String(item?.variant||''));if(seen.has(key))throw new Error('operating-batch-duplicate');seen.add(key);results.push(acquire(s,c,item));}
+ return {company:c,count:results.length,price:results.reduce((sum,row)=>sum+row.price,0),receipts:results.map(row=>row.id),transferredCash:results.reduce((sum,row)=>sum+row.transferredCash,0),liabilities:results.reduce((sum,row)=>sum+row.liabilities,0)};
+}
 function validRegistry(value){
  if(value==null)return true;if(typeof value!=='object'||Array.isArray(value))return false;let count=0;
  for(const id in value){if(!Object.prototype.hasOwnProperty.call(value,id))continue;if(++count>LIMIT)return false;
@@ -110,5 +119,5 @@ function validRegistry(value){
  }
  return true;
 }
-globalThis.GH_OPERATING_ACQUISITIONS=Object.freeze({COMPANIES,VARIANTS,LIMIT,targets,source,quote,acquire,validRegistry,receipts});
+globalThis.GH_OPERATING_ACQUISITIONS=Object.freeze({COMPANIES,VARIANTS,LIMIT,BATCH_LIMIT,targets,source,quote,acquire,acquireBatch,validRegistry,receipts});
 })();

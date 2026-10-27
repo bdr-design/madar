@@ -251,7 +251,7 @@
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx;
-    if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'insurance',p);if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='set-pricing')return setPricing(state,p);if(cmd==='set-reinsurance')return setReinsurance(state,p);if(cmd==='set-pricing-all')return setPricingAll(state,p);
+    if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'insurance',p);if(cmd==='acquire-operating-batch')return globalThis.GH_OPERATING_ACQUISITIONS.acquireBatch(state,'insurance',p);if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='set-pricing')return setPricing(state,p);if(cmd==='set-reinsurance')return setReinsurance(state,p);if(cmd==='set-pricing-all')return setPricingAll(state,p);
     if(cmd==='decide-risk')return decideRisk(state,p);if(cmd==='decide-risks-batch')return decideRisksBatch(state,p);if(cmd==='office-campaign')return officeCampaign(state,p);if(cmd==='office-campaigns')return officeCampaigns(state,p);if(cmd==='set-office-active')return setOfficeActive(state,p);
     throw new Error(`Unknown insurance command: ${cmd}`);
   }
