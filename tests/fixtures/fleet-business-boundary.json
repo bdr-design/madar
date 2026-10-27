@@ -294,6 +294,11 @@
     ],
     "WebApp/realism-core.js": [
       {
+        "before": "  function fleetDayWorkerParams(state){\n    const P=platform(),definitions=P?.listDefinitions?.()||[],candidates=new Set(['group',...Object.keys(state.companyRegistry||{})]),modes=new Set(LEGACY_TYPES);\n    for(const definition of definitions){\n      candidates.add(String(definition.id||''));candidates.add(String(definition.definitionId||''));\n      for(const alias of definition.legacy?.companyAliases||[])candidates.add(String(alias||''));\n      for(const mode of definition.legacy?.assetOwnerModes||[])modes.add(String(mode||''));\n    }\n    const knownCompanies=[];for(const id of [...candidates].filter(Boolean).sort())if(P?.resolveCompany?.(state,id)?.known)knownCompanies.push(id);\n",
+        "after": "  // The definition-derived names (each definition's id, definitionId and aliases) and legacy modes cannot change once\n  // the Company Platform is sealed: they are read once per sealed platform, not on each of the close's 3-6 calls. A name\n  // that is not 'group' nor a registry key and has no record resolves to its own sealed definition (known) without a\n  // platform call; 'group' and the registry keys are resolved on every call, as before. Unsealed: read on every call.\n  let fleetDayStatics=null;\n  function fleetDayStaticNames(P){\n    if(fleetDayStatics&&fleetDayStatics.platform===P)return fleetDayStatics;\n    const names=new Set(),modes=new Set(LEGACY_TYPES);\n    for(const definition of P?.listDefinitions?.()||[]){\n      names.add(String(definition.id||''));names.add(String(definition.definitionId||''));\n      for(const alias of definition.legacy?.companyAliases||[])names.add(String(alias||''));\n      for(const mode of definition.legacy?.assetOwnerModes||[])modes.add(String(mode||''));\n    }\n    const statics={platform:P,sealed:P?.isSealed?.()===true&&typeof P?.resolveCompany==='function',names:[...names],modes};if(statics.sealed)fleetDayStatics=statics;return statics;\n  }\n  function fleetDayWorkerParams(state){\n    const P=platform(),statics=fleetDayStaticNames(P),registry=state.companyRegistry||{},local=new Set(['group',...Object.keys(registry)]),candidates=new Set([...local,...statics.names]),modes=statics.modes;\n    const hasRecord=id=>{const row=state.companyRegistry?.[id];return !!row&&typeof row==='object'&&!Array.isArray(row);};\n    const knownCompanies=[];for(const id of [...candidates].filter(Boolean).sort())if(statics.sealed&&!local.has(id)&&!hasRecord(id)||P?.resolveCompany?.(state,id)?.known)knownCompanies.push(id);\n",
+        "sha256": "0eef9d1dd99cfd2548938a0b46b936959e669c397526534220057a6ccc68ddf2"
+      },
+      {
         "before": "  function* fleetDayFromWorker(state){\n",
         "after": "  // iPhone diagnostic DX-1792378248326 (980,000 assets): the close's first wait was the worker's day pass (1,576 ms),\n  // asked only when realism-close began, after 228-450 ms of financial stages that do not query the worker. The app asks\n  // for it as the financial day begins (prefetchFleetDay); realism-close uses that answer only if it was asked for the\n  // same staged state, simulation time and context and still matches the fleet (current()), else asks again as before.\n  // Nothing is applied early: the answer is read where it always was.\n  let fleetDayPrefetch=null;\n  function askFleetDay(state){\n",
         "sha256": "fc1e9dca81b766e94019d1f62113a70da23d1b758b4fbc98843c86c3ef180efc"
@@ -453,6 +458,15 @@
         "tests/governor-overrun-signal.cjs",
         "tests/build358-staged-day-browser.cjs",
         "tests/build339-phase1bb-pacing-separation.cjs"
+      ]
+    },
+    "reviews_2026_10_27_company_types": {
+      "reason": "Owner-authorized 2026-10-23/27 («نعالج الثقل اول شي», «اريد الثقل صفر فعليًا»): the fleet-day worker descriptor reads the sealed Company Platform's definition names once instead of a pass over every definition and two resolves per name on each of the day close's calls; the descriptor, its context key and every fleet result are unchanged. No price, customer, money or stock rule changes.",
+      "tests": [
+        "tests/build581-fleet-definition-weight.cjs",
+        "tests/build522-fleet-day-prefetch.cjs",
+        "tests/build372-fleet-day-core.cjs",
+        "tests/build358-staged-day-browser.cjs"
       ]
     }
   },

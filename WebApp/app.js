@@ -424,15 +424,6 @@
     {id:'CT-1',type:'road',icon:'🚛',name:'NorthStar 204',route:[[50.1109,8.6821],[50.0,7.0],[50.8,5.7],[51.2,4.5],[51.9244,4.4777]],progress:.36,speed:70,company:'NorthStar Logistics'}
   ];
 
-  const companies = COMPANY_PLATFORM.listDefinitions().map(definition=>({
-    id:definition.kind==='holding'?'holding':definition.id,
-    companyId:definition.id,
-    icon:definition.identity?.short||definition.id.toUpperCase(),
-    name:definition.identity?.legalDefault?.ar||definition.identity?.legalDefault?.en||definition.id,
-    sector:definition.identity?.trade?.ar||definition.classification?.primarySectorId||definition.id,
-    base:definition.kind==='holding'?'الرياض':'يحدد عند التأسيس'
-  }));
-
   const contracts = [
     {id:'K1',sector:'road',category:'تشغيل',name:'توزيع دوائي مبرد — الخليج',client:'MedAxis International',value:48000000,cost:31000000,termMonths:24,sla:'98.5%',penalty:'حتى 7% عند إخفاق SLA',capacity:'18 شاحنة مبردة',bidBase:1.00,region:'الخليج',payment:'شهري Net 30'},
     {id:'K2',sector:'sea',category:'شحن',name:'حاويات آسيا → البحر الأحمر',client:'Pacific Components',value:122000000,cost:83000000,termMonths:36,sla:'96.0%',penalty:'غرامة تأخير يومية',capacity:'2,400 TEU شهريًا',bidBase:.96,region:'آسيا/البحر الأحمر',payment:'شهري Net 45'},
@@ -620,10 +611,13 @@
   }
   function companyFinanceTypes(target=state,options={}){
     const books=target?.companyFinance&&typeof target.companyFinance==='object'?target.companyFinance:{};
-    const ids=COMPANY_PLATFORM.listInstances(target,{includeGroup:true,openedOnly:options.openedOnly===true,capability:'finance.book'}).filter(company=>(company.id==='group'||company.registered||company.opened)&&(options.operationalOnly!==true||company.operational)).map(company=>company.id);
+    // heldOnly: only the companies this world holds are resolved (the filter kept only those; it stays).
+    const ids=COMPANY_PLATFORM.listInstances(target,{includeGroup:true,openedOnly:options.openedOnly===true,heldOnly:true,capability:'finance.book'}).filter(company=>(company.id==='group'||company.registered||company.opened)&&(options.operationalOnly!==true||company.operational)).map(company=>company.id);
     return ids.includes('group')?['group',...ids.filter(id=>id!=='group')]:ids;
   }
-  const isCompanyType=(value,target=state,options={})=>companyTypes(target,options).includes(String(value||''));
+  // One id: the held pass with that id named finds the same row the full list holds (build579), without resolving
+  // every installed type.
+  const isCompanyType=(value,target=state,options={})=>{const id=String(value||'');return COMPANY_PLATFORM.listInstances(target,{includeGroup:false,openedOnly:options.openedOnly===true,heldOnly:true,alsoDefinitionIds:[id]}).some(company=>company.id===id&&(options.registeredOnly!==true||company.registered||company.opened)&&(options.operationalOnly!==true||company.operational));};
   const isFinanceCompany=(value,target=state,options={})=>companyFinanceTypes(target,options).includes(String(value||''));
   const operationalCompanyInstances=(target=state)=>COMPANY_PLATFORM.listInstances(target,{includeGroup:false,openedOnly:true}).filter(company=>company.operational);
   const operationalCompanyIds=(target=state)=>operationalCompanyInstances(target).map(company=>company.id);
@@ -990,9 +984,11 @@
   // callers cannot wait for worker validation. The last answer is kept (one reference, no copy); Save Schema accepts it only
   // while current() holds (the same store at the same revision) and the context token matches, else it fails closed.
   let lastFleetValidation=null,pendingFleetValidation=null;
-  const companyFleetEvidence=new WeakMap(),companyEvidenceNoRoutes=new Set();
+  const companyFleetEvidence=new WeakMap(),companyEvidenceNoRoutes=new Set(),companyEvidenceTails=new WeakMap();
   const companyEvidenceParams=s=>window.GH_SAVE_SCHEMA.fleetValidationParams(s,[],companyEvidenceNoRoutes);
-  const companyEvidenceToken=params=>JSON.stringify([params.companyReferenceCompanies||params.registryCompanies||[],params.definitionCompanies||[],params.legacyAssetOwners||{}]);
+  // The definition names and legacy owners of a sealed platform are one frozen pair (save-schema fleetValidationParams):
+  // their JSON is kept with the pair. The token is the same string as JSON.stringify of the three parts.
+  const companyEvidenceToken=params=>{const names=params.definitionCompanies||[],owners=params.legacyAssetOwners||{},fixed=Array.isArray(names)&&Object.isFrozen(names)&&owners&&typeof owners==='object'&&Object.isFrozen(owners);let tail=fixed?companyEvidenceTails.get(names):null;if(!tail||tail.owners!==owners){tail={owners,text:JSON.stringify(names)+','+JSON.stringify(owners)};if(fixed)companyEvidenceTails.set(names,tail);}return '['+JSON.stringify(params.companyReferenceCompanies||params.registryCompanies||[])+','+tail.text+']';};
   function rememberCompanyFleetEvidence(s,result,params){const core=window.GH_FLEET_STORE;companyFleetEvidence.set(s,{result,token:companyEvidenceToken(params),snapshot:core.identitySnapshot(s.fleet)});}
   // A synchronous integrity reader only consumes an already verified worker result. Preparing a missing answer is
   // explicit staged work; neither a busy worker nor an expired answer can start a whole-fleet pass on the UI thread.
@@ -2113,7 +2109,35 @@
   // policy Fleet Core needs, and bind that policy (plus the catalog snapshot) into both the worker request and the one
   // signed legal intent.  Instance ids matter here: a dynamic fleet company can share a definition with another
   // instance while retaining its own operational state and ownership id.
+  // A definition id that is not 'group', not a registry key and not opened, with no record, resolves to its own sealed
+  // definition and is never operational: its row depends on the sealed definitions alone and is built once. 'group',
+  // the registry keys and the opened ids are resolved on every call, as before. If one of them uses a definition other
+  // than its own id's, a definition id has a record outside the registry's keys, openedCompanies is not an array, or the
+  // platform is not sealed, the snapshot is read from listInstances as before. The digest sorts keys, so the order of
+  // the rows does not reach the signed intent; the worker reads them by key.
+  let fleetDispatchOwnershipStatic=null;
+  function fleetDispatchOwnershipRow(company){const definition=company.definition,classification=definition.classification||{};return {operational:company.operational===true,capabilities:Array.isArray(definition.capabilities)?[...definition.capabilities]:[],classification:{assetClasses:[...(classification.assetClasses||[])],routeModes:[...(classification.routeModes||[])]}};}
+  function fleetDispatchModesOf(definition,modes){const classification=definition.classification||{},legacy=definition.legacy||{};for(const mode of [...(classification.routeModes||[]),...(legacy.assetOwnerModes||[]),...(legacy.routeOwnerModes||[])])modes.add(String(mode));for(const mode of Object.keys(legacy.assetClassByMode||{}))modes.add(String(mode));return modes;}
+  function fleetDispatchModeOwners(modes,out){for(const mode of modes){const assetOwner=COMPANY_PLATFORM.ownerForLegacyAssetMode?.(mode),routeOwner=COMPANY_PLATFORM.ownerForLegacyRouteMode?.(mode),assetClass=COMPANY_PLATFORM.assetClassForLegacyMode?.(mode);if(assetOwner)out.assetOwners[mode]=String(assetOwner);if(routeOwner)out.routeOwners[mode]=String(routeOwner);if(assetClass)out.assetClasses[mode]=String(assetClass);}return out;}
+  function fleetDispatchStaticOwnership(){
+    if(fleetDispatchOwnershipStatic?.platform===COMPANY_PLATFORM)return fleetDispatchOwnershipStatic;if(COMPANY_PLATFORM.isSealed?.()!==true)return null;
+    const rows=new Map(),modes=new Set(['air','sea','road']),deepFreeze=value=>{Object.freeze(value);for(const child of Object.values(value))if(child&&typeof child==='object'&&!Object.isFrozen(child))deepFreeze(child);return value;};
+    for(const definition of COMPANY_PLATFORM.listDefinitions({includeGroup:false})){rows.set(definition.id,{definition,row:deepFreeze(fleetDispatchOwnershipRow({definition,operational:false}))});fleetDispatchModesOf(definition,modes);}
+    return fleetDispatchOwnershipStatic={platform:COMPANY_PLATFORM,rows,modes,maps:fleetDispatchModeOwners(modes,{assetOwners:{},routeOwners:{},assetClasses:{}})};
+  }
   function fleetDispatchOwnershipSnapshot(target){
+    const statics=target&&(target.openedCompanies==null||Array.isArray(target.openedCompanies))?fleetDispatchStaticOwnership():null;
+    if(statics){
+      const registry=target.companyRegistry&&typeof target.companyRegistry==='object'&&!Array.isArray(target.companyRegistry)?target.companyRegistry:{},hasRecord=id=>{const row=target.companyRegistry?.[id];return !!row&&typeof row==='object'&&!Array.isArray(row);};
+      const local=new Set(['group',...Object.keys(registry),...(target.openedCompanies||[]).map(String)]),resolved=[];let own=true;
+      for(const id of local){const company=COMPANY_PLATFORM.resolveCompany(target,id);if(!company?.id)continue;const fixed=statics.rows.get(company.id);if(fixed&&company.definition!==fixed.definition){own=false;break;}if(company.definition)resolved.push(company);}
+      if(own)for(const id of statics.rows.keys())if(!local.has(id)&&hasRecord(id)){own=false;break;}
+      if(own){
+        const definitions={},extra=new Set();for(const [id,{row}] of statics.rows)definitions[id]=row;
+        for(const company of resolved){definitions[company.id]=fleetDispatchOwnershipRow(company);for(const mode of fleetDispatchModesOf(company.definition,new Set()))if(!statics.modes.has(mode))extra.add(mode);}
+        return {definitions,...fleetDispatchModeOwners(extra,{assetOwners:{...statics.maps.assetOwners},routeOwners:{...statics.maps.routeOwners},assetClasses:{...statics.maps.assetClasses}})};
+      }
+    }
     const definitions={},assetOwners={},routeOwners={},assetClasses={},modes=new Set(['air','sea','road']);
     for(const company of COMPANY_PLATFORM.listInstances(target,{includeGroup:true})){
       const definition=company?.definition;if(!company?.id||!definition)continue;
@@ -4494,7 +4518,9 @@
   function cancelDrawerSearch(){if(worldSearchTimer!==null)clearTimeout(worldSearchTimer);worldSearchTimer=null;drawerSearchRevision++;}
   function scheduleDrawerSearch(panel,apply,delay=180){cancelDrawerSearch();const revision=drawerSearchRevision;worldSearchTimer=setTimeout(()=>{worldSearchTimer=null;if(revision===drawerSearchRevision&&activeDrawerPanel===panel&&$('drawer').getAttribute('aria-hidden')==='false')apply();},delay);}
   function directoryCompanyRows(target=state){return COMPANY_PLATFORM.listInstances(target,{includeGroup:false}).filter(company=>company.definition?.facilities?.directoryProviderIds?.length).map(company=>{const identity=COMPANY_PLATFORM.resolveIdentity(target,company.id),providers=company.definition.facilities.directoryProviderIds;return {id:company.id,opened:company.opened,operational:company.operational,code:identity?.shortName||company.definition.identity?.short||company.id,label:identity?.tradeName||identity?.legalName||company.id,providers:[...providers],kind:company.definition.facilities.primaryKind};});}
-  const isDirectoryCompany=(value,target=state)=>directoryCompanyRows(target).some(company=>company.id===String(value||''));
+  const directoryProvidersOf=company=>company?.definition?.facilities?.directoryProviderIds||[];
+  const directoryCompanyRow=(value,target=state)=>{const id=String(value||'');return COMPANY_PLATFORM.listInstances(target,{includeGroup:false,heldOnly:true,alsoDefinitionIds:[id]}).find(company=>company.id===id&&directoryProvidersOf(company).length)||null;};
+  const isDirectoryCompany=(value,target=state)=>Boolean(directoryCompanyRow(value,target));
   function setDirectoryCompany(kind,intent={}){cancelDrawerSearch();worldKind=isDirectoryCompany(kind)?String(kind):'all';worldRegion='';worldCountry='';worldCity='';worldPage=0;worldQuery='';worldDirectoryIntent=worldKind==='power'?{energyKind:ENERGY_PROJECTS[intent.energyKind]?intent.energyKind:'solar'}:{};}
   function openWorldDirectory(kind='all',intent={}){setDirectoryCompany(kind,intent);openDrawer('network');$('drawerBody').scrollTop=0;}
   function facilityDirectoryIndex(){if(!directoryIndex)directoryIndex=window.GH_DIRECTORY_CORE.create({airports:WORLD.airports,ports:WORLD.ports,capitals:window.GH_MOBILITY_CORE.CAPITALS});return directoryIndex;}
@@ -4544,7 +4570,11 @@
   }
   function facilityScopePlan(target=state,count=worldBulkCount,energyKind=worldBulkEnergyKind,selection={}){
     const requested=Math.max(1,Math.min(10,Math.trunc(Number(count))||1)),companyId=isDirectoryCompany(selection.company??worldKind,target)?String(selection.company??worldKind):'all',regionId=String((selection.region??worldRegion)||''),countryId=String((selection.country??worldCountry)||''),items=[],skipped=[],companyTotals={};
-    const companies=directoryCompanyRows(target).filter(company=>companyId==='all'||company.id===companyId),region=window.GH_DIRECTORY_CORE.REGIONS.find(row=>row.id===regionId),scopeLabel=countryId?facilityDirectoryIndex().countryMetadata(countryId).label:region?.label||'جميع دول العالم';
+    // The command's own check (operationalOnly) reads only the operational companies: a company that is not adds only a
+    // skipped note, which the command does not read and the ownership snapshot ignores; the page reads every one (and so
+    // does a save whose openedCompanies is not an array, which the full list reads as text). So the command's skipped notes
+    // name only operational companies; the command returns them and nothing reads or saves them.
+    const companies=(selection.operationalOnly===true&&(target?.openedCompanies==null||Array.isArray(target.openedCompanies))?COMPANY_PLATFORM.listInstances(target,{includeGroup:false,openedOnly:true}).filter(company=>company.operational&&directoryProvidersOf(company).length).map(company=>({id:company.id,operational:true,providers:[...directoryProvidersOf(company)]})):directoryCompanyRows(target)).filter(company=>companyId==='all'||company.id===companyId),region=window.GH_DIRECTORY_CORE.REGIONS.find(row=>row.id===regionId),scopeLabel=countryId?facilityDirectoryIndex().countryMetadata(countryId).label:region?.label||'جميع دول العالم';
     let ownership=null;
     for(const company of companies){
       if(!company.operational){skipped.push({company:company.id,reason:'الشركة غير مؤسسة'});continue;}
@@ -4565,12 +4595,17 @@
     if(entity?.kind==='company-site')return isDirectoryCompany(entity.company,target)?[entity.company]:[];const provider=entity?.kind==='airport'?'world-airports':entity?.kind==='port'?'world-ports':null;if(!provider)return [];
     return directoryCompanyRows(target).filter(company=>company.providers.includes(provider)&&(!operationalOnly||company.operational)).map(company=>company.id);
   }
+  // worldEntityCompanyCandidates(entity,target).includes(companyId), for one company: no list of every type.
+  function directoryCandidate(entity,companyId,target=state){
+    if(entity?.kind==='company-site')return entity.company===companyId&&isDirectoryCompany(entity.company,target);const provider=entity?.kind==='airport'?'world-airports':entity?.kind==='port'?'world-ports':null;if(!provider)return false;
+    return directoryProvidersOf(directoryCompanyRow(companyId,target)).includes(provider);
+  }
   function directoryEntityByKey(key,companyId,target=state,options={}){
     key=String(key||'');companyId=String(companyId||'');const parts=key.split(':'),capital=parts[0]==='site'&&parts[1]===companyId?(isHospitalityDirectoryCompany(companyId,target)?window.GH_HOSPITALITY_CORE.destinationMeta(parts[2]):mobilityCapital(parts[2])):null,entity=capital?directorySiteEntity(capital,companyId,{...options,target}):worldEntityByKey(key);if(!entity)return null;if(entity.kind==='company-site')return entity.company===companyId?entity:null;
-    if(!worldEntityCompanyCandidates(entity,target).includes(companyId))return null;const definition=COMPANY_PLATFORM.definitionFor(target,companyId),kind=definition?.facilities?.primaryKind;if(!kind||!definition.facilities.allowedKinds.includes(kind))return null;return {...entity,company:companyId,ownerCompanyId:companyId,facilityKind:kind};
+    if(!directoryCandidate(entity,companyId,target))return null;const definition=COMPANY_PLATFORM.definitionFor(target,companyId),kind=definition?.facilities?.primaryKind;if(!kind||!definition.facilities.allowedKinds.includes(kind))return null;return {...entity,company:companyId,ownerCompanyId:companyId,facilityKind:kind};
   }
   function directoryOffer(entity){
-    const company=String(entity?.company||entity?.ownerCompanyId||''),kind=entity?.facilityKind;if(!company||!kind||!worldEntityCompanyCandidates(entity).includes(company))return {company:null,kind:null,daily:0,quote:0};
+    const company=String(entity?.company||entity?.ownerCompanyId||''),kind=entity?.facilityKind;if(!company||!kind||!directoryCandidate(entity,company))return {company:null,kind:null,daily:0,quote:0};
     const cost=entity.kind==='company-site'?entity.cost:facilityPrice(entity),daily=entity.kind==='company-site'?entity.dailyCost:facilityDailyCost(entity);
     return {company,kind,daily,quote:isHospitalityDirectoryCompany(company)?cost:constructionBid(company,kind,cost,entity.name).winner?.quote||0};
   }
@@ -4678,7 +4713,7 @@
     const confirmed=await window.GH_INTERFACE.confirm(`فتح ${fmtNumber(plan.items.length)} منشأة ضمن ${plan.scopeLabel}؟\n\n${byCompany}\n\nإجمالي العقود: ${fmtMoney(plan.total)}.${skipped}\n\nستنفذ كعملية واحدة؛ إذا فشل عقد أو تمويل فلن تُفتح أي منشأة.`,{title:'اعتماد منشآت النطاق',accept:'فتح المنشآت المعروضة',state,action:'open-facilities-by-scope',risk:'high'});if(!confirmed)return false;
     const fingerprint=plan.items.map(row=>`${row.company}:${row.key}:${row.energyKind||''}:${row.quote}`).join('|');
     const result=await runAuthorizedCompositeCommand('open-facilities-by-scope',async({state:draft,dispatch,recordAlert})=>{
-      const fresh=facilityScopePlan(draft,plan.requested,plan.energyKind,selection),freshFingerprint=fresh.items.map(row=>`${row.company}:${row.key}:${row.energyKind||''}:${row.quote}`).join('|');if(fresh.scopeKey!==plan.scopeKey||freshFingerprint!==fingerprint||fresh.shortfall>0)throw new Error('facility-scope-plan-changed');
+      const fresh=facilityScopePlan(draft,plan.requested,plan.energyKind,{...selection,operationalOnly:true}),freshFingerprint=fresh.items.map(row=>`${row.company}:${row.key}:${row.energyKind||''}:${row.quote}`).join('|');if(fresh.scopeKey!==plan.scopeKey||freshFingerprint!==fingerprint||fresh.shortfall>0)throw new Error('facility-scope-plan-changed');
       const opened=[];for(let index=0;index<fresh.items.length;index++){opened.push(applyDirectoryFacilityDraft(draft,dispatch,recordAlert,fresh.items[index]));if(index%2===1&&index+1<fresh.items.length)await yieldForInteractivePaint();}
       recordAlert(`اكتمل اعتماد فتح ${opened.length} منشأة ضمن ${fresh.scopeLabel}. إجمالي العقود ${fmtMoney(fresh.total)}.`,'facility');return {count:opened.length,companyIds:[...new Set(opened.map(row=>row.company))],facilityIds:opened.map(row=>row.id),scopeLabel:fresh.scopeLabel,total:fresh.total,skipped:fresh.skipped};
     },{silent:true,afterCommit:()=>{updateKpis();renderMap();renderWorldNetworkInto();}});
@@ -5237,13 +5272,21 @@ ${terms.ready?`<div class="pv-optrow"><span>نسبة الطرح</span><div class
     if(legacyClass&&assetClasses.includes(legacyClass))return legacyClass;
     return assetClasses.length===1?assetClasses[0]:null;
   }
+  // The asset catalogs come from the definitions that have asset classes: a definition-only row (no record, not opened)
+  // without them is skipped below, so once the platform is sealed only the held instances and those definitions are
+  // resolved, not every installed type.
+  let assetCatalogDefinitionIds=null;
+  function assetCatalogInstances(target){
+    if(!assetCatalogDefinitionIds&&COMPANY_PLATFORM.isSealed?.()===true)assetCatalogDefinitionIds=Object.freeze(COMPANY_PLATFORM.listDefinitions({includeGroup:false}).filter(definition=>definition.classification?.assetClasses?.length).map(definition=>definition.id));
+    return COMPANY_PLATFORM.listInstances(target,assetCatalogDefinitionIds?{includeGroup:false,heldOnly:true,alsoDefinitionIds:assetCatalogDefinitionIds}:{includeGroup:false});
+  }
   function assetMarketCatalogs(target=state){
     const catalogs=new Map(),adapters=window.GH_COMPANY_ADAPTERS;
     if(!adapters?.resolveAdapter||!adapters?.invokeAdapter)return [];
     // Catalog visibility comes from active definitions and their operations
     // providers, not from the player's funded/opened-company collection.
     // Purchase eligibility remains a separate, owner-scoped transaction check.
-    for(const company of COMPANY_PLATFORM.listInstances(target,{includeGroup:false})){
+    for(const company of assetCatalogInstances(target)){
       if(!company.known||company.definition?.lifecycle!=='active'||!company.definition?.classification?.assetClasses?.length)continue;
       const binding=adapters.resolveAdapter(target,company.id,'operations',{registered:false});
       if(!Object.values(binding.engines).some(engine=>typeof engine.purchaseCatalogs==='function'))continue;

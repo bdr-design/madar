@@ -24,9 +24,19 @@
   const safeAttribute=(value,maximum,{allowEmpty=false}={})=>safeText(value,maximum,{allowEmpty})&&!/"/.test(String(value??''));
   const safeImage=value=>{const text=String(value||'');return /^assets\/[a-zA-Z0-9_.\/-]+\.(?:svg|png|jpe?g|webp)$/i.test(text)&&!text.split('/').includes('..');};
   const modeOf=row=>String(row?.assetMode||row?.type||''),ownerOf=row=>String(row?.ownerCompanyId||row?.companyId||'');
+  // The definition names and legacy owners of a sealed platform are one frozen pair shared by every params object
+  // (save-schema fleetValidationParams): their part of the token is kept with the pair. The token is the same string as
+  // JSON.stringify of the six parts.
+  const STATIC_TOKEN_TAILS=new WeakMap();
+  function staticTokenTail(params){
+    const names=params.definitionCompanies,owners=params.legacyAssetOwners,fixed=Array.isArray(names)&&Object.isFrozen(names)&&object(owners)&&Object.isFrozen(owners);
+    let tail=fixed?STATIC_TOKEN_TAILS.get(names):null;if(tail&&tail.owners===owners)return tail.text;
+    const definitionCompanies=(Array.isArray(names)?names:[]).map(String),legacyAssetOwners=Object.fromEntries(Object.entries(object(owners)?owners:{}).map(([mode,owner])=>[String(mode),String(owner||'')]));
+    tail={owners,text:JSON.stringify(definitionCompanies)+','+JSON.stringify(legacyAssetOwners)};if(fixed)STATIC_TOKEN_TAILS.set(names,tail);return tail.text;
+  }
   function contextToken(params={}){
-    const routeIds=Array.isArray(params.routeIds)?params.routeIds:[],routes=(Array.isArray(params.routes)?params.routes:[]).filter(Array.isArray).map(row=>[row[0],String(row[1]||''),String(row[2]||''),Number.isSafeInteger(row[3])?row[3]:null]),registryCompanies=(Array.isArray(params.registryCompanies)?params.registryCompanies:[]).map(String),companyReferenceCompanies=(Array.isArray(params.companyReferenceCompanies)?params.companyReferenceCompanies:params.registryCompanies||[]).map(String),definitionCompanies=(Array.isArray(params.definitionCompanies)?params.definitionCompanies:[]).map(String),legacyAssetOwners=Object.fromEntries(Object.entries(object(params.legacyAssetOwners)?params.legacyAssetOwners:{}).map(([mode,owner])=>[String(mode),String(owner||'')]));
-    return JSON.stringify([routeIds,routes,registryCompanies,companyReferenceCompanies,definitionCompanies,legacyAssetOwners]);
+    const routeIds=Array.isArray(params.routeIds)?params.routeIds:[],routes=(Array.isArray(params.routes)?params.routes:[]).filter(Array.isArray).map(row=>[row[0],String(row[1]||''),String(row[2]||''),Number.isSafeInteger(row[3])?row[3]:null]),registryCompanies=(Array.isArray(params.registryCompanies)?params.registryCompanies:[]).map(String),companyReferenceCompanies=(Array.isArray(params.companyReferenceCompanies)?params.companyReferenceCompanies:params.registryCompanies||[]).map(String);
+    return '['+JSON.stringify(routeIds)+','+JSON.stringify(routes)+','+JSON.stringify(registryCompanies)+','+JSON.stringify(companyReferenceCompanies)+','+staticTokenTail(params)+']';
   }
   function normalizedParams(params={}){
     const routeIds=new Set(Array.isArray(params.routeIds)?params.routeIds:[]),routes=new Map();

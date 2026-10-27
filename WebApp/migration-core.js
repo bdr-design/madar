@@ -169,7 +169,9 @@
   function canonicalMetricInstances(state,companyPlatform){
     if(companyPlatform?.listInstances){
       const books=state.companyFinance&&typeof state.companyFinance==='object'&&!Array.isArray(state.companyFinance)?state.companyFinance:{};
-      return companyPlatform.listInstances(state,{includeGroup:false}).filter(instance=>instance?.known&&instance.definition?.capabilities?.includes('finance.book')&&(instance.registered===true||instance.opened===true||Object.prototype.hasOwnProperty.call(books,instance.id)));
+      // Held instances and the books' companies: the rows the full pass adds beyond these are definition-only rows, which
+      // the filter below drops (no record, not opened, no book).
+      return companyPlatform.listInstances(state,{includeGroup:false,heldOnly:true,alsoDefinitionIds:Object.keys(books)}).filter(instance=>instance?.known&&instance.definition?.capabilities?.includes('finance.book')&&(instance.registered===true||instance.opened===true||Object.prototype.hasOwnProperty.call(books,instance.id)));
     }
     const ids=[...(Array.isArray(state.openedCompanies)?state.openedCompanies:[]),...Object.keys(state.companyRegistry||{}),...Object.keys(state.companyFinance||{})].map(String).filter(id=>id&&id!=='group');
     return [...new Set(ids)].map(id=>({id,known:true,registered:true,definition:null}));

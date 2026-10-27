@@ -3,7 +3,9 @@
   const VERSION='3.0.0';
   const compareLabels=new Intl.Collator('ar').compare;
   const platform=()=>globalThis.GH_COMPANY_PLATFORM||null;
-  const COMPANIES=Object.freeze(platform()?.listDefinitions?.({includeGroup:false}).filter(definition=>definition.facilities?.directoryProviderIds?.length).map(definition=>definition.id)||['air','sea','road','power','bank','mobility']);
+  // Built at first read (the no-state fallback and the API), not at load.
+  let companiesCache=null;
+  const companies=()=>companiesCache||(companiesCache=Object.freeze(platform()?.listDefinitions?.({includeGroup:false}).filter(definition=>definition.facilities?.directoryProviderIds?.length).map(definition=>definition.id)||['air','sea','road','power','bank','mobility']));
   // CLDR territory aliases are not independent countries. Some WebKit versions
   // preserve these in Intl.Locale.region, so runtime canonicalization is unsafe.
   // Source: unicode-org/cldr, common/supplemental/supplementalMetadata.xml.
@@ -142,7 +144,7 @@
     function modelFor(provider){if(models.has(provider))return models.get(provider);const rows=sources.get(provider);if(!rows)return null;const model=buildModel(provider,rows);models.set(provider,model);return model;}
     const definitionFor=(state,companyId)=>state?platform()?.definitionFor?.(state,companyId):platform()?.getDefinition?.(companyId);
     function companyIds(state){
-      if(!state||typeof platform()?.listInstances!=='function')return [...COMPANIES];
+      if(!state||typeof platform()?.listInstances!=='function')return [...companies()];
       const ids=[];
       for(const company of platform().listInstances(state,{includeGroup:false})){
         if(!company?.definition?.facilities?.directoryProviderIds?.length||ids.includes(company.id))continue;
@@ -259,7 +261,7 @@
     }
     function search({state=null,company='all',companyId='',region='',country='',city='',text='',page=0,pageSize=24}={}){
       region=REGION_IDS.has(String(region||''))?String(region):'';
-      const explicit=String(companyId||company||'all').trim()||'all',segments=segmentsFor(state,explicit),tokens=normalize(text).split(' ').filter(Boolean),views=segments.map(segment=>viewFor(segment,country,city,tokens,region)),total=views.reduce((sum,view)=>sum+view.total,0),size=Math.max(1,Math.min(24,Math.trunc(Number(pageSize))||24)),pages=Math.ceil(total/size),current=Math.min(Math.max(0,Math.trunc(Number(page))||0),Math.max(0,pages-1)),start=current*size,end=Math.min(total,start+size),rows=[];
+      const explicit=String(companyId||company||'all').trim()||'all',segments=segmentsFor(state,explicit),tokens=normalize(text).split(' ').filter(Boolean),shared=new Map(),views=segments.map(segment=>{/* a view reads only its segment's model and the filters: segments that share a model (every world-capitals company) share its matches */const hit=shared.get(segment.model);if(hit)return {segment,total:hit.total,indexAt:hit.indexAt};const view=viewFor(segment,country,city,tokens,region);shared.set(segment.model,view);return view;}),total=views.reduce((sum,view)=>sum+view.total,0),size=Math.max(1,Math.min(24,Math.trunc(Number(pageSize))||24)),pages=Math.ceil(total/size),current=Math.min(Math.max(0,Math.trunc(Number(page))||0),Math.max(0,pages-1)),start=current*size,end=Math.min(total,start+size),rows=[];
       let offset=0;for(const view of views){const localStart=Math.max(0,start-offset),localEnd=Math.min(view.total,end-offset);if(localStart<localEnd)for(let position=localStart;position<localEnd;position++){const row=materialize(view.segment.model,view.indexAt(position));rows.push(project(row,view.segment.companyId,view.segment.definition));}offset+=view.total;if(offset>=end)break;}
       const allCountries=countriesFor(segments);
       return {rows,total,page:current,pages,region,regions:regionsFor(segments),countries:region?Object.freeze(allCountries.filter(row=>row.region===region)):allCountries,get cities(){return citiesFor(segments,country);}};
@@ -278,7 +280,7 @@
     const countryMetadata=value=>{const country=countries.resolve(value);return Object.freeze({id:country.id,label:country.label});};
     return Object.freeze({search,scopeRows,rowsFor,get stats(){return statsFor(null,'all');},statsFor,countryMetadata,providers:Object.freeze([...sources.keys()])});
   }
-  const API=Object.freeze({VERSION,COMPANIES,REGIONS,create,normalize});
+  const API=Object.freeze({VERSION,get COMPANIES(){return companies();},REGIONS,create,normalize});
   globalThis.GH_DIRECTORY_CORE=API;
   if(globalThis.window&&window!==globalThis)window.GH_DIRECTORY_CORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

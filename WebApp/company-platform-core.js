@@ -18,6 +18,9 @@
 
   const definitionsById=new Map(),definitionsByDefinitionId=new Map(),aliases=new Map(),sectorAliases=new Map(),origins=new Map();
   let sealed=false,definitionEpoch=0;
+  // The company types shipped before types became data rows. A new world records their definition versions, as it
+  // always has; a later type's version is recorded once the world holds an instance of it (migrateState).
+  const BASELINE_COMPANY_IDS=Object.freeze(['group','air','sea','road','power','bank','mobility','insurance','realestate','telecom','dealership','hospitality']);
   const verifiedFleetEvidence=new WeakMap();
   const object=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   const clone=value=>{
@@ -114,7 +117,7 @@
     const candidateAliases=unique(definition.legacy?.companyAliases),candidateSectorAliases=unique(definition.legacy?.sectorAliases);
     for(const alias of candidateAliases)if(aliases.has(alias)||definitionsById.has(alias)||definitionsByDefinitionId.has(alias))throw new Error(`company-alias-duplicate:${alias}`);
     for(const alias of candidateSectorAliases){const owner=sectorAliases.get(alias);if(owner&&owner!==definition.classification.primarySectorId)throw new Error(`sector-alias-duplicate:${alias}`);}
-    const frozen=deepFreeze(definition);definitionsById.set(frozen.id,frozen);definitionsByDefinitionId.set(frozen.definitionId,frozen);origins.set(frozen.id,String(options.source||'extension'));definitionEpoch++;
+    const frozen=deepFreeze(definition);definitionEpoch++;definitionsById.set(frozen.id,frozen);definitionsByDefinitionId.set(frozen.definitionId,frozen);origins.set(frozen.id,String(options.source||'extension'));
     for(const alias of candidateAliases)aliases.set(alias,frozen.id);
     for(const alias of candidateSectorAliases)sectorAliases.set(alias,frozen.classification.primarySectorId);
     return frozen;
@@ -124,8 +127,12 @@
     const before={definitionsById:[...definitionsById],definitionsByDefinitionId:[...definitionsByDefinitionId],aliases:[...aliases],sectorAliases:[...sectorAliases],origins:[...origins]};
     try{return rows.map(row=>installDefinition(row,options));}
     catch(error){
+      // A row installed before the failure moved the epoch; the restore moves it once more, so nothing built meanwhile is
+      // kept. A refusal that installed nothing (after the seal, or a first row that fails) leaves the epoch, and so the
+      // fleet evidence and the lookups, as they were.
+      const installed=definitionsById.size!==before.definitionsById.length;
       for(const [target,entries] of [[definitionsById,before.definitionsById],[definitionsByDefinitionId,before.definitionsByDefinitionId],[aliases,before.aliases],[sectorAliases,before.sectorAliases],[origins,before.origins]]){target.clear();for(const [key,value] of entries)target.set(key,value);}
-      throw error;
+      if(installed)definitionEpoch++;throw error;
     }
   }
   function listDefinitions(options={}){
@@ -142,9 +149,19 @@
   function companyIds(options={}){return listDefinitions(options).map(definition=>definition.id);}
   function listByCapability(capabilityId,options={}){return listDefinitions(options).filter(definition=>definition.capabilities.includes(String(capabilityId||'')));}
   function isKnownCompany(companyId,state=null){return !!(state?definitionFor(state,companyId):getDefinition(companyId));}
-  function isKnownSector(sectorId){sectorId=normalizeSectorId(sectorId);return listDefinitions().some(definition=>definition.classification.sectorIds.includes(sectorId));}
-  function isKnownRouteMode(routeMode){routeMode=String(routeMode||'');return listDefinitions().some(definition=>definition.classification.routeModes.includes(routeMode));}
-  function isKnownAssetClass(assetClassId){assetClassId=String(assetClassId||'');return listDefinitions().some(definition=>definition.classification.assetClasses.includes(assetClassId));}
+  // One pass over the definitions answers the sector, route-mode, asset-class and legacy-owner questions until a
+  // definition is installed (definitionEpoch moves with every write to the registry, before the write and after a
+  // rolled-back install), instead of a copy and sort of every definition per question; each answer is the full pass's.
+  let lookupEpoch=-1,knownSectors=null,knownRouteModes=null,knownAssetClasses=null;const legacyOwnerMemo={asset:new Map(),route:new Map()};
+  function lookups(){
+    if(lookupEpoch===definitionEpoch)return;
+    knownSectors=new Set();knownRouteModes=new Set();knownAssetClasses=new Set();legacyOwnerMemo.asset.clear();legacyOwnerMemo.route.clear();
+    for(const definition of definitionsById.values()){const classification=definition.classification;for(const id of classification.sectorIds)knownSectors.add(id);for(const id of classification.routeModes)knownRouteModes.add(id);for(const id of classification.assetClasses)knownAssetClasses.add(id);}
+    lookupEpoch=definitionEpoch;
+  }
+  function isKnownSector(sectorId){sectorId=normalizeSectorId(sectorId);lookups();return knownSectors.has(sectorId);}
+  function isKnownRouteMode(routeMode){routeMode=String(routeMode||'');lookups();return knownRouteModes.has(routeMode);}
+  function isKnownAssetClass(assetClassId){assetClassId=String(assetClassId||'');lookups();return knownAssetClasses.has(assetClassId);}
   function recordFor(state,companyId){
     if(!object(state))return null;companyId=String(companyId||'');
     if(object(state.companyRegistry?.[companyId]))return state.companyRegistry[companyId];
@@ -172,10 +189,22 @@
     if(options.capability&&!company.definition.capabilities.includes(options.capability))throw new Error(`company-capability-missing:${company.id}:${options.capability}`);
     return company;
   }
+  // heldOnly: the definition pass visits only the definitions this world holds (a registry key or an opened id that
+  // names one) and those named in alsoDefinitionIds, not every installed definition. The rows it leaves out are
+  // definition-only rows (no record, not opened), which every caller of the option drops; the ids kept enter in the
+  // order of the full pass, so the rows are the full pass's rows without those. An openedCompanies that is not an
+  // array (rejected at load) takes the full pass, whose `includes` reads it as text.
+  const definitionOrder=(a,b)=>Number(a.order)-Number(b.order)||a.id.localeCompare(b.id);
+  function heldDefinitions(state,options){
+    const held=new Set(Object.keys(object(state?.companyRegistry)?state.companyRegistry:{}));
+    for(const id of Array.isArray(state?.openedCompanies)?state.openedCompanies:[])held.add(String(id));
+    for(const id of Array.isArray(options.alsoDefinitionIds)?options.alsoDefinitionIds:[])held.add(String(id));
+    return [...held].map(id=>definitionsById.get(id)).filter(definition=>definition&&definition.kind!=='holding').sort(definitionOrder);
+  }
   function listInstances(state,options={}){
-    const ids=new Set();
+    const ids=new Set(),heldOnly=options.heldOnly===true&&(state?.openedCompanies==null||Array.isArray(state.openedCompanies));
     if(options.includeGroup!==false)ids.add('group');
-    if(options.openedOnly!==true)for(const definition of listDefinitions({includeGroup:false}))ids.add(definition.id);
+    if(options.openedOnly!==true)for(const definition of heldOnly?heldDefinitions(state,options):listDefinitions({includeGroup:false}))ids.add(definition.id);
     for(const id of Object.keys(object(state?.companyRegistry)?state.companyRegistry:{}))if(id!=='group'||options.includeGroup!==false)ids.add(id);
     for(const id of Array.isArray(state?.openedCompanies)?state.openedCompanies:[])ids.add(String(id));
     return [...ids].map(id=>resolveCompany(state,id)).filter(Boolean).filter(company=>(options.openedOnly!==true||company.opened)&&(options.capability?Boolean(company.definition?.capabilities.includes(options.capability)):true)).sort((a,b)=>(Number(a.definition?.order)||9999)-(Number(b.definition?.order)||9999)||a.id.localeCompare(b.id));
@@ -230,8 +259,10 @@
     return {...identity,documentPrefix,accountPrefix,authorizedSignatory:String(record.authorizedSignatory||state?.profile?.founder||'').trim()||null,operational:company.operational};
   }
   function definitionByLegacyOwner(kind,mode){
-    mode=String(mode||'');const key=kind==='route'?'routeOwnerModes':'assetOwnerModes',matches=listDefinitions({includeGroup:false}).filter(definition=>definition.legacy[key].includes(mode));
-    return matches.length===1?matches[0]:null;
+    // Every owner mode passed validDataId at install, so a mode that does not cannot name one (and is not remembered).
+    mode=String(mode||'');if(!validDataId(mode))return null;lookups();const memo=legacyOwnerMemo[kind==='route'?'route':'asset'];if(memo.has(mode))return memo.get(mode);
+    const key=kind==='route'?'routeOwnerModes':'assetOwnerModes',matches=listDefinitions({includeGroup:false}).filter(definition=>definition.legacy[key].includes(mode)),found=matches.length===1?matches[0]:null;
+    if(memo.size<256)memo.set(mode,found);return found;
   }
   function ownerForLegacyAssetMode(mode){return definitionByLegacyOwner('asset',mode)?.id||null;}
   function ownerForLegacyRouteMode(mode){return definitionByLegacyOwner('route',mode)?.id||null;}
@@ -297,10 +328,11 @@
     state.companyRegistry=object(state.companyRegistry)?state.companyRegistry:{};state.companyModules=object(state.companyModules)?state.companyModules:{};
     state.openedCompanies=unique(state.openedCompanies);state.unlockedSectors=unique(unique(state.unlockedSectors).map(normalizeSectorId));
     const ids=new Set([...Object.keys(state.companyRegistry),...state.openedCompanies]);if(state.onboardingComplete||state.companyRegistry.group)ids.add('group');
+    const recorded=new Set(BASELINE_COMPANY_IDS.map(id=>definitionsById.get(id)?.definitionId).filter(Boolean));
     for(const companyId of ids){
       if(!validId(companyId))continue;
       state.companyRegistry[companyId]=enrichRecord(state,companyId,state.companyRegistry[companyId]);
-      const definition=definitionFor(state,companyId);if(definition)for(const sectorId of definition.classification.sectorIds)if(!state.unlockedSectors.includes(sectorId)&&state.openedCompanies.includes(companyId))state.unlockedSectors.push(sectorId);
+      const definition=definitionFor(state,companyId);if(definition){recorded.add(definition.definitionId);for(const sectorId of definition.classification.sectorIds)if(!state.unlockedSectors.includes(sectorId)&&state.openedCompanies.includes(companyId))state.unlockedSectors.push(sectorId);}
     }
     renameLegacyGroup(state);syncBrandedNames(state);
     // The migration already visits every legacy asset to add canonical owner
@@ -320,7 +352,7 @@
       }
     }
     const previous=object(state.companyPlatform)?state.companyPlatform:{},definitionVersions=object(previous.definitionVersions)?{...previous.definitionVersions}:{},features=unique(previous.features),components=object(previous.components)?{...previous.components}:{};
-    for(const definition of listDefinitions())definitionVersions[definition.definitionId]=Math.max(Number(definitionVersions[definition.definitionId])||0,definition.definitionVersion);
+    for(const definition of [...recorded].map(id=>definitionsByDefinitionId.get(id)).filter(Boolean).sort(definitionOrder))definitionVersions[definition.definitionId]=Math.max(Number(definitionVersions[definition.definitionId])||0,definition.definitionVersion);
     const builtins=new Set(source.BUILTIN_COMPANY_IDS||[]),dynamic=[...ids].some(id=>id!=='group'&&!builtins.has(id)),separated=(state.customRoutes||[]).some(route=>route.ownerCompanyId&&route.routeMode&&route.ownerCompanyId!==ownerForLegacyRouteMode(route.routeMode))||separatedAssets;
     if(dynamic&&!features.includes('dynamic-company-instances-v1'))features.push('dynamic-company-instances-v1');if(separated&&!features.includes('separated-company-ownership-v1'))features.push('separated-company-ownership-v1');features.sort();
     state.companyPlatform={...previous,schema:STATE_SCHEMA,schemaVersion:STATE_SCHEMA_VERSION,components:{...components,registry:1,ownership:1,modules:1},definitionVersions,features};if(dynamic||separated)state.companyPlatform.minimumReaderBuild=Math.max(MINIMUM_DYNAMIC_COMPANY_BUILD,Number(previous.minimumReaderBuild)||0);

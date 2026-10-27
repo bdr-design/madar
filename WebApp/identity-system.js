@@ -107,8 +107,12 @@ function companyOf(entity={},state=null){const explicit=String(entity.ownerCompa
 function diagnostics(){const snapshot=PLATFORM.snapshot?.()||{};return Object.freeze({version:REGISTRY_VERSION,sealed:Boolean(snapshot.sealed),count:Number(snapshot.definitions)||list().length,ids:Object.freeze(list().map(row=>row.id)),sourceVersion:SOURCE.VERSION,platformVersion:PLATFORM.VERSION});}
 
 function legacyBrand(row){return Object.freeze({short:row.labels.ar.short,display:row.labels.ar.display,legal:row.labels.ar.legal,logo:row.identity.logos.symbol,logos:row.identity.logos,accent:row.identity.accent,secondary:row.identity.secondary,route:row.identity.route,known:row.known});}
-const BRANDS=Object.freeze(Object.fromEntries([GAME_DEFINITION,...list()].map(row=>[row.id,legacyBrand(row)])));
-const LEGACY_NAMES=Object.freeze(Object.fromEntries(list().filter(row=>row.legacyNames.length).map(row=>[row.id,Object.freeze([...row.legacyNames])])));
+// Built at first read, not at load (two passes over every definition, each adapted and deep-frozen, at every boot).
+// The definitions are installed before this module loads and sealed before anything could read these, so the value is
+// the one load would build. Nothing in the app reads them; they stay for the legacy API.
+let brandsCache=null,legacyNamesCache=null;
+function brands(){return brandsCache||(brandsCache=Object.freeze(Object.fromEntries([GAME_DEFINITION,...list()].map(row=>[row.id,legacyBrand(row)]))));}
+function legacyNames(){return legacyNamesCache||(legacyNamesCache=Object.freeze(Object.fromEntries(list().filter(row=>row.legacyNames.length).map(row=>[row.id,Object.freeze([...row.legacyNames])]))));}
 function brand(type='group',state=null){return legacyBrand(definition(type,state));}
 function record(state,type){if(type!=='group')return state?.companyRegistry?.[type]||{};const registered=state?.companyRegistry?.group||{},profile=state?.profile||{};return {...registered,...profile,identity:{...(registered.identity||{}),...(profile.identity||{})}};}
 function isLegacyDefault(type,value,state=null){return definition(type,state).legacyNames.includes(String(value||'').trim());}
@@ -161,9 +165,11 @@ function resolve(state,type='group',options={}){
 }
 function logo(state,type='group',usage='symbol'){const options=typeof usage==='object'?usage:{usage};return resolve(state,type,options).logo;}
 function cssTokens(state,type='group'){const current=resolve(state,type);return Object.freeze({'--company-accent':current.accent,'--company-secondary':current.secondary,'--company-route':current.route});}
-function logoMarkup(state,type='group',sizeOrOptions='normal',legacyClassName='company-logo-badge'){
-  const modern=sizeOrOptions&&typeof sizeOrOptions==='object',options=modern?{...sizeOrOptions}:{size:sizeOrOptions,className:legacyClassName,element:'badge'},current=resolve(state,type,options),size=['small','tiny'].includes(options.size)?options.size:'normal';
-  const alt=options.decorative?'':cleanText(options.alt,`شعار ${current.legal}`,160),aria=options.decorative?' aria-hidden="true"':'',imgClass=cleanText(options.imageClass||(!modern?'':options.className),'',80),img=`<img${imgClass?` class="${esc(imgClass)}"`:''} src="${esc(current.logo)}" alt="${esc(alt)}"${aria} data-logo-usage="${esc(current.usage)}">`;
+// lazy (an option, or a fifth argument on the legacy call): the image is fetched when it nears the screen. No caller
+// passes it but the companies page's list of unopened companies, so every other badge is the same text.
+function logoMarkup(state,type='group',sizeOrOptions='normal',legacyClassName='company-logo-badge',legacyOptions=null){
+  const modern=sizeOrOptions&&typeof sizeOrOptions==='object',options=modern?{...sizeOrOptions}:{size:sizeOrOptions,className:legacyClassName,element:'badge',lazy:legacyOptions?.lazy===true},current=resolve(state,type,options),size=['small','tiny'].includes(options.size)?options.size:'normal';
+  const alt=options.decorative?'':cleanText(options.alt,`شعار ${current.legal}`,160),aria=options.decorative?' aria-hidden="true"':'',imgClass=cleanText(options.imageClass||(!modern?'':options.className),'',80),img=`<img${imgClass?` class="${esc(imgClass)}"`:''} src="${esc(current.logo)}" alt="${esc(alt)}"${aria}${options.lazy===true?' loading="lazy" decoding="async"':''} data-logo-usage="${esc(current.usage)}">`;
   if(modern&&options.element!=='badge'&&options.wrapper!==true)return img;
   const className=cleanText(options.className,'company-logo-badge',80),sizeClass=size==='normal'?'':` ${size}`;
   return `<div class="${esc(className)}${sizeClass}" data-company="${esc(type)}" data-custom="${current.customLogo?'true':'false'}" data-known="${current.known?'true':'false'}">${img}</div>`;
@@ -175,7 +181,7 @@ function applyDocument(state){
   if(mark&&mark.dataset.logo!==current.logo){mark.replaceChildren();const img=document.createElement('img');img.src=current.logo;img.alt='';mark.append(img);mark.dataset.logo=current.logo;}return true;
 }
 const COMPANY_API=Object.freeze({VERSION:REGISTRY_VERSION,register,registerBundle,seal,definition,list,has,hasCapability,companyOf,diagnostics});
-const API=Object.freeze({VERSION,REGISTRY_VERSION,LOGO_USAGES,CUSTOM_LOGO_LIMITS,UNKNOWN_LOGO,BRANDS,LEGACY_NAMES,brand,definition,familyLogo,listDefinitions:list,registerDefinition:register,registerDefinitions:registerBundle,sealRegistry:seal,legalName,shortName,displayName,logo,logoMarkup,resolve,cssTokens,applyDocument,isLegacyDefault,inspectPlainText,validPlainText,inspectImageBytes,inspectCustomLogo,inspectLogoFile,validCustomLogo});
+const API=Object.freeze({VERSION,REGISTRY_VERSION,LOGO_USAGES,CUSTOM_LOGO_LIMITS,UNKNOWN_LOGO,get BRANDS(){return brands();},get LEGACY_NAMES(){return legacyNames();},brand,definition,familyLogo,listDefinitions:list,registerDefinition:register,registerDefinitions:registerBundle,sealRegistry:seal,legalName,shortName,displayName,logo,logoMarkup,resolve,cssTokens,applyDocument,isLegacyDefault,inspectPlainText,validPlainText,inspectImageBytes,inspectCustomLogo,inspectLogoFile,validCustomLogo});
 globalThis.GH_COMPANY_REGISTRY=COMPANY_API;globalThis.GH_IDENTITY=API;
 if(globalThis.window&&window!==globalThis){window.GH_COMPANY_REGISTRY=COMPANY_API;window.GH_IDENTITY=API;}
 installLogoUploadGuard();

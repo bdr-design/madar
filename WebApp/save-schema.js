@@ -178,13 +178,24 @@
   // The route ids are listed once each, in first-seen order, exactly as the route section's Set (built-in routes, then
   // custom ids): a repeated custom id made the two lists, and so the context tokens, differ, and the save failed with
   // fleet-validation-unavailable instead of reporting the duplicate route (iPhone diagnostic review, A2).
-  function fleetValidationParams(state,routes=null,routeIds=null){
-    const platform=globalThis.GH_COMPANY_PLATFORM,definitions=typeof platform?.listDefinitions==='function'?platform.listDefinitions():[],legacyModes=new Set();
+  // The definition-derived part of this context (every definition's names, the legacy owner of each mode) cannot change
+  // once the Company Platform is sealed (no install after the seal; definitions are deep-frozen): it is built once per
+  // sealed platform and shared, frozen, instead of a pass over every definition per call. Unsealed, it is read per call.
+  let fleetValidationStatics=null;
+  function fleetValidationStaticParams(platform){
+    if(fleetValidationStatics&&fleetValidationStatics.platform===platform)return fleetValidationStatics;
+    const definitions=typeof platform?.listDefinitions==='function'?platform.listDefinitions():[],legacyModes=new Set();
     for(const mode of ROUTE_TYPES)legacyModes.add(mode);
     for(const definition of definitions)for(const mode of definition?.legacy?.assetOwnerModes||[])legacyModes.add(String(mode));
     const legacyAssetOwners={};for(const mode of legacyModes){const owner=platform?.ownerForLegacyAssetMode?.(mode);if(owner)legacyAssetOwners[mode]=String(owner);}
+    const definitionCompanies=[...new Set(definitions.flatMap(definition=>[definition?.id,definition?.definitionId,...(definition?.legacy?.companyAliases||[])]).map(value=>String(value||'').trim()).filter(Boolean))],statics={platform,definitionCompanies,legacyAssetOwners};
+    if(platform?.isSealed?.()===true){Object.freeze(definitionCompanies);Object.freeze(legacyAssetOwners);fleetValidationStatics=statics;}
+    return statics;
+  }
+  function fleetValidationParams(state,routes=null,routeIds=null){
+    const {definitionCompanies,legacyAssetOwners}=fleetValidationStaticParams(globalThis.GH_COMPANY_PLATFORM);
     const custom=Array.isArray(routes)?routes:Array.isArray(state?.customRoutes)?state.customRoutes:[],known=routeIds instanceof Set?[...routeIds]:[...new Set([...BUILTIN_ROUTES,...custom.map(route=>route?.id).filter(Boolean)])],registry=object(state?.companyRegistry)?state.companyRegistry:{};
-    const params={routeIds:known,routes:custom.filter(route=>route?.id).map(route=>[route.id,routeMode(route),routeOwner(route),routeCapacity(route,routeMode(route))]),registryCompanies:Object.entries(registry).filter(([,record])=>object(record)).map(([id])=>id),companyReferenceCompanies:Object.entries(registry).filter(([,record])=>Boolean(record)).map(([id])=>id),definitionCompanies:[...new Set(definitions.flatMap(definition=>[definition?.id,definition?.definitionId,...(definition?.legacy?.companyAliases||[])]).map(value=>String(value||'').trim()).filter(Boolean))],legacyAssetOwners};
+    const params={routeIds:known,routes:custom.filter(route=>route?.id).map(route=>[route.id,routeMode(route),routeOwner(route),routeCapacity(route,routeMode(route))]),registryCompanies:Object.entries(registry).filter(([,record])=>object(record)).map(([id])=>id),companyReferenceCompanies:Object.entries(registry).filter(([,record])=>Boolean(record)).map(([id])=>id),definitionCompanies,legacyAssetOwners};
     params.contextToken=fleetSaveValidation()?.contextToken?.(params)||'';return params;
   }
   function clearLegacyRouteAssignment(asset){asset.routeId=null;asset.routeSignature=null;asset.routeSlot=null;asset.departureScheduled=false;delete asset.departureScheduledAt;asset.releaseExclusiveRouteOnArrival=false;asset.phase='idle';asset.progress=0;asset.dwellRemaining=0;asset.reverse=false;}

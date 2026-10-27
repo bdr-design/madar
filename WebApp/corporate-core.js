@@ -6,7 +6,8 @@
   const object=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   const platform=()=>{const api=globalThis.GH_COMPANY_PLATFORM;if(!api?.requireCompany)throw new Error('company-platform-missing');return api;};
   const identity=()=>globalThis.GH_IDENTITY||null;
-  const COMPANY_TYPES=Object.freeze(platform().companyIds({includeGroup:false}));
+  // Built at first read (nothing in the app reads it), not at load; the platform is still required at load.
+  platform();let companyTypesCache=null;const companyTypes=()=>companyTypesCache||(companyTypesCache=Object.freeze(platform().companyIds({includeGroup:false})));
 
   function checkedText(value,code,maximum,{minimum=1,allowEmpty=false}={}){
     const raw=typeof value==='string'?value:String(value??''),inspected=identity()?.inspectPlainText?.(raw,{minimum,maximum,allowEmpty});
@@ -255,7 +256,7 @@
     throw new Error(`Unknown corporate command: ${command}`);
   }
 
-  const API=Object.freeze({VERSION,COMPANY_TYPES,IPO_FLOATS,DIVIDEND_PAYOUTS,FACILITY_DEPRECIATION,FRESH_CAPITAL_DAYS,dividendPlan,SHARE_MOOD:Object.freeze({min:MOOD_MIN,max:MOOD_MAX,daily:MOOD_DAILY,agm:MOOD_AGM}),ensure,model,planOpenCompany,validate,execute,ipoTerms,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
+  const API=Object.freeze({VERSION,get COMPANY_TYPES(){return companyTypes();},IPO_FLOATS,DIVIDEND_PAYOUTS,FACILITY_DEPRECIATION,FRESH_CAPITAL_DAYS,dividendPlan,SHARE_MOOD:Object.freeze({min:MOOD_MIN,max:MOOD_MAX,daily:MOOD_DAILY,agm:MOOD_AGM}),ensure,model,planOpenCompany,validate,execute,ipoTerms,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
   globalThis.GH_CORPORATE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('corporate',API);
   if(globalThis.window&&window!==globalThis)globalThis.window.GH_CORPORATE_CORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

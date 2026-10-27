@@ -575,14 +575,25 @@
   function fleetWear(state,companyId){const avg=Number(state.realism?.maintenance?.companies?.[companyId]?.avgCondition);return Number.isFinite(avg)?clamp((100-avg)/100,0,.45):0;}
   const FLEET_DAY_FIELDS=Object.freeze([...new Set(['id',...OWNER_TOTAL_FIELDS,...OPS_FIELDS])]);
   const FLEET_DAY_WAITS=600,FLEET_DAY_APPLY_ROWS=1024,FLEET_DAY_SCHEMA='gh-fleet-day-v1';
-  function fleetDayWorkerParams(state){
-    const P=platform(),definitions=P?.listDefinitions?.()||[],candidates=new Set(['group',...Object.keys(state.companyRegistry||{})]),modes=new Set(LEGACY_TYPES);
-    for(const definition of definitions){
-      candidates.add(String(definition.id||''));candidates.add(String(definition.definitionId||''));
-      for(const alias of definition.legacy?.companyAliases||[])candidates.add(String(alias||''));
+  // The definition-derived names (each definition's id, definitionId and aliases) and legacy modes cannot change once
+  // the Company Platform is sealed: they are read once per sealed platform, not on each of the close's 3-6 calls. A name
+  // that is not 'group' nor a registry key and has no record resolves to its own sealed definition (known) without a
+  // platform call; 'group' and the registry keys are resolved on every call, as before. Unsealed: read on every call.
+  let fleetDayStatics=null;
+  function fleetDayStaticNames(P){
+    if(fleetDayStatics&&fleetDayStatics.platform===P)return fleetDayStatics;
+    const names=new Set(),modes=new Set(LEGACY_TYPES);
+    for(const definition of P?.listDefinitions?.()||[]){
+      names.add(String(definition.id||''));names.add(String(definition.definitionId||''));
+      for(const alias of definition.legacy?.companyAliases||[])names.add(String(alias||''));
       for(const mode of definition.legacy?.assetOwnerModes||[])modes.add(String(mode||''));
     }
-    const knownCompanies=[];for(const id of [...candidates].filter(Boolean).sort())if(P?.resolveCompany?.(state,id)?.known)knownCompanies.push(id);
+    const statics={platform:P,sealed:P?.isSealed?.()===true&&typeof P?.resolveCompany==='function',names:[...names],modes};if(statics.sealed)fleetDayStatics=statics;return statics;
+  }
+  function fleetDayWorkerParams(state){
+    const P=platform(),statics=fleetDayStaticNames(P),registry=state.companyRegistry||{},local=new Set(['group',...Object.keys(registry)]),candidates=new Set([...local,...statics.names]),modes=statics.modes;
+    const hasRecord=id=>{const row=state.companyRegistry?.[id];return !!row&&typeof row==='object'&&!Array.isArray(row);};
+    const knownCompanies=[];for(const id of [...candidates].filter(Boolean).sort())if(statics.sealed&&!local.has(id)&&!hasRecord(id)||P?.resolveCompany?.(state,id)?.known)knownCompanies.push(id);
     const legacyOwners=[];for(const mode of [...modes].filter(Boolean).sort()){const owner=P?.ownerForLegacyAssetMode?.(mode)||(!P?mode:'');if(owner)legacyOwners.push([mode,String(owner)]);}
     const maintenancePolicies=Object.entries(state.advanced?.companies||{}).map(([owner,row])=>[String(owner),row?.maintenancePolicy]).sort((a,b)=>a[0].localeCompare(b[0]));
     const economy=state.realism?.economy||{};
