@@ -13,11 +13,14 @@
   // Contracts are priced from the market (GH_REALISM forwards, GH_FINANCE_CORE debt rates), never typed in.
   const FUEL_TERMS=Object.freeze([365,730,1095]),FUEL_MARGIN=.02,TAKE_OR_PAY=.75,PROJECT_PREMIUM=.015,PROJECT_LEVERAGE=.75;
   // One paid acceleration per construction contract. The original timeline remains available for historical output.
+  // Owner (build 97): a paid acceleration finishes the plant at once: it is commissioned when the fee clears, by the same
+  // owners the daily close uses (realism-core updateProjects), which then finds it commissioned and leaves it. The fee is
+  // unchanged. An acceleration saved before (half the remaining time) keeps its timeline.
   const CONSTRUCTION_ACCELERATION_RATE=.10;
   function constructionProgress(contract,day){
     const start=Math.floor(num(contract?.awardedAt)/86400),lead=Math.max(1,num(contract?.leadDays)||180),a=contract?.constructionAcceleration;
     if(!a)return clamp((day-start)/lead,0,1);
-    if(day>=start+lead)return 1;
+    if(day>=start+lead||Number(a.completeDay)===Number(a.day)&&day>=Number(a.day))return 1;
     const originalLead=Math.max(1,Number(a.originalCompleteDay)-start),prior=clamp((Number(a.day)-start)/originalLead,0,1);
     return day<=Number(a.day)?clamp((day-start)/originalLead,0,1):clamp(prior+(1-prior)*(day-Number(a.day))/Math.max(1,start+lead-Number(a.day)),0,1);
   }
@@ -28,7 +31,7 @@
     if(!facility||facility.owned!==true||facility.kind!=='power'||String(facility.ownerCompanyId||facility.companyId||facility.company)!=='power'||facility.commissioned)return null;
     const day=Math.floor(now(state)/86400),start=Math.floor(num(contract.awardedAt)/86400),lead=Math.max(1,num(contract.leadDays)||180),originalCompleteDay=start+lead,remaining=originalCompleteDay-day;
     if(remaining<=1||day<start||!Number.isFinite(Number(contract.amount))||Number(contract.amount)<=0)return null;
-    const completeDay=day+Math.ceil(remaining/2),fee=Math.round(Number(contract.amount)*(remaining/lead)*CONSTRUCTION_ACCELERATION_RATE);
+    const completeDay=day,fee=Math.round(Number(contract.amount)*(remaining/lead)*CONSTRUCTION_ACCELERATION_RATE);
     return fee>0?{contractId:contract.id,facilityId:facility.id,day,originalCompleteDay,completeDay,daysSaved:originalCompleteDay-completeDay,fee}:null;
   }
   function accelerateConstruction(state,p={}){
@@ -45,7 +48,19 @@
     contract.constructionAcceleration={...quote,chequeId:paid.cheque.id,invoiceNumber:paid.invoice.number,legalDocumentId:legal.id};contract.leadDays=quote.completeDay-Math.floor(num(contract.awardedAt)/86400);
     const facility=(state.customHubs||[]).find(row=>row.id===quote.facilityId);facility.cost=num(facility.cost)+quote.fee;
     const site=(state.energy?.sites||[]).find(row=>row.facilityId===facility.id);if(site)site.capex=num(site.capex)+quote.fee;
+    commissionNow(state,contract,facility);
     return clone(contract.constructionAcceleration);
+  }
+  // The daily close's commissioning of a finished plant (realism-core updateProjects), for an acceleration's plant at once.
+  function commissionNow(state,contract,facility){
+    if(contract.commissioned||!contract.capacityKey||!contract.capacityAmount)return false;
+    const commands=globalThis.GH_DOMAIN_COMMANDS;if(!commands?.dispatchSystem)throw new Error('project-commissioning-command-owner-missing');
+    const commissioned=commands.dispatchSystem({state},'facilities','commission-energy',{key:contract.capacityKey,amount:Number(contract.capacityAmount)||0,ownerCompanyId:'power'},{actor:'project-commissioning'});if(!commissioned?.ok)throw new Error('project-commissioning-rejected');
+    globalThis.GH_PROCUREMENT_CORE?.execute?.({state},'complete-construction',{id:contract.id,status:'مكتمل / مشغل'});
+    if(facility){facility.commissioned=true;facility.status='تشغيل تجاري';facility.dailyCost=Number(facility.plannedDailyCost)||Number(facility.dailyCost)||0;facility.capacity=`مشغل · ${Number(contract.capacityAmount)||0} ${contract.capacityKey==='storageMWh'?'MWh':'MW'}`;}
+    const adjusted=commands.dispatchSystem({state},'corporate','adjust-group-value',{delta:(Number(contract.amount)||0)*.44},{actor:'project-commissioning'});if(!adjusted?.ok)throw new Error('project-value-owner-rejected');
+    const alert=commands.dispatchSystem({state},'operations','record-alert',{text:`اكتمل Commissioning لمشروع ${contract.siteName||contract.facilityKind}. أضيفت القدرة الجديدة إلى التشغيل الفعلي.`,type:'commissioning'},{actor:'project-commissioning'});if(!alert?.ok)throw new Error('project-alert-owner-rejected');
+    ensure(state);return true;
   }
   function hash(text){let h=2166136261>>>0;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
   function deterministic(seed,min,max){return min+(hash(seed)/4294967295)*(max-min);}

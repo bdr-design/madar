@@ -3,16 +3,16 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "ab71d2c72d7800fe80f4989ec2d00ae74f9ce1a0699da567043f19a5fb26ce29",
-  "webapp_tree_sha256": "7a75521432508ad5d6c93554fd7062e37c5bc34f60c2bfe381140541c2bbca43",
+  "source_tree_sha256": "b655e3f3a81ae3d6d05626e1c59608c866e25bfffa21b6cf8c05cac28b4c1d6a",
+  "webapp_tree_sha256": "7b6e1238ac669a98fd5e7b2b6e9317e37e2cbf3b0dab8d1d06b6d3f570492ac9",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
       "sha256": "ddfc582b5ce53a62686684a8232f5c3a84e44e3dcef36ec88ac125a16c919971"
     },
     "WebApp/advanced-core.js": {
-      "bytes": 376412,
-      "sha256": "b98a4115ca871a17ee0fe0da4ce237f104d96e5e103be6b1dfafea42f716af0e"
+      "bytes": 376931,
+      "sha256": "5c05a79676946134753f5e2b0b36eeca44628f7a41fc0af0b384db24b7c46c5b"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -3475,8 +3475,8 @@
       "sha256": "30cd0fb82389fd99dc3bb15233ddc84c56050c037e46b15cbb9fb57a123b7a11"
     },
     "WebApp/energy-core.js": {
-      "bytes": 67522,
-      "sha256": "04bebd5b0119a7d99af987564689730ec0916cd3ed7e5cb1430672948452ab72"
+      "bytes": 69671,
+      "sha256": "3c82bb6980e2dcc0b45dfe5a0522331ec1874c514ffcf399518e9f359f133338"
     },
     "WebApp/event-ledger-core.js": {
       "bytes": 1989,
@@ -3795,8 +3795,8 @@
       "sha256": "f5884430a82700ba4e9aef0aadf8e85a4525bed1a4ef20844a5a2e32c6d5d018"
     },
     "WebApp/realestate-core.js": {
-      "bytes": 59306,
-      "sha256": "41cbd6a7bb6e591f077c019ca6c21e6d8325376c0b1e6ccd4dc548d9bb992106"
+      "bytes": 61932,
+      "sha256": "8a2b620a2932dfade05587b008849edb8e1ec88f47a8fe752f9e808c52af162f"
     },
     "WebApp/realism-core.js": {
       "bytes": 122424,
@@ -3992,7 +3992,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "52835cb4e0fc8b23134c635276c50095e427eeefe2aef0870fe0f3dfe628a358"
+      "sha256": "81f0f19039c3865de6b385625a9aae4c15d54573fd06977cc7b18fd6881af1fe"
     },
     "BUILD": {
       "bytes": 4,

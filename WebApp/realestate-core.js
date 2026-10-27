@@ -124,7 +124,7 @@
     if(!project||project.status!=='قيد الإنشاء'||project.constructionAcceleration||![1,2].includes(project.milestonesPaid))return null;
     const day=Math.floor(now(state)/86400),remaining=Number(project.completeDay)-day,span=Number(project.completeDay)-Number(project.startDay);
     if(remaining<=1||span<=0||day<Number(project.startDay)||!Number.isFinite(remaining)||!Number.isFinite(Number(project.buildCost)))return null;
-    const completeDay=day+Math.ceil(remaining/2),fee=Math.round(num(project.buildCost)*(remaining/span)*CONSTRUCTION_ACCELERATION_RATE);
+    const completeDay=day,fee=Math.round(num(project.buildCost)*(remaining/span)*CONSTRUCTION_ACCELERATION_RATE);
     return fee>0?{projectId:project.id,day,originalCompleteDay:Number(project.completeDay),completeDay,daysSaved:Number(project.completeDay)-completeDay,fee}:null;
   }
   function accelerateConstruction(state,p={}){
@@ -138,6 +138,12 @@
     project.constructionAcceleration={...quote,chequeId,legalDocumentId:legal.id};project.completeDay=quote.completeDay;project.cheques.push(chequeId);
     project.accelerationCost=quote.fee;project.unitCost=Math.round((num(project.landCost)+num(project.buildCost)+num(project.overrun)+quote.fee)/project.units);
     if(project.offPlan)project.offPlan.cost=num(project.offPlan.units)*project.unitCost;
+    // Finished at once: its milestones and handover now (with the company's cash; without it, it waits as a due milestone
+    // does), their totals in the next close.
+    re.mortgagePending=re.mortgagePending&&typeof re.mortgagePending==='object'&&!Array.isArray(re.mortgagePending)?re.mortgagePending:{};
+    const acc={capex:0,sales:0,costOfSales:0,offPlanRevenue:0,offPlanCash:0,commission:0,completed:[]},today={sales:0},offPlan=project.mode==='sale'?offPlanOf(project,TYPES[project.type]):null;if(offPlan)acc.commission+=offPlan.commission;
+    constructionStep(state,re,project,quote.day,acc,offPlan,today);
+    if(acc.capex||acc.commission||acc.completed.length)re.pendingConstruction=[...(Array.isArray(re.pendingConstruction)?re.pendingConstruction:[]),{projectId:project.id,day:quote.day,...acc,todaySales:today.sales}];
     return clone(project.constructionAcceleration);
   }
   function offPlanOf(project,type){
@@ -302,10 +308,24 @@
   function externalRentBilling(state,{project,leaseId,tenant,period,amount,day}){
     return issueExternalRentInvoice(state,{project,leaseId,tenant,period,amount,day});
   }
+  function manageUnits(re,project,units){re.serviceChargeRoll=num(re.serviceChargeRoll)+num(units)*(SERVICE_CHARGE[project.type]||0)*local(project);}
+  function financeHomesOf(re,project,units,revenue){if(TYPES[project.type]?.buyers!=='household'||!(revenue>0))return;const row=re.mortgagePending[project.country]||(re.mortgagePending[project.country]={units:0,amount:0});row.units+=units;row.amount+=revenue*MORTGAGE_SHARE*MORTGAGE_LTV;}
+  // A project under construction on `day`: its milestones, its completion and its off-plan handover, the close's totals in
+  // acc. The daily close runs it; a paid acceleration runs it at once (owner, build 97: the project is finished when the
+  // fee clears) and its totals join the next close (re.pendingConstruction), as a fund sale's do. An immediate
+  // acceleration has no random delay: the contractor delivers on the day it is paid for.
+  function constructionStep(state,re,project,day,acc,offPlan,today){
+        const acceleration=project.constructionAcceleration,immediate=!!acceleration&&Number(acceleration.completeDay)===Number(acceleration.day);
+        const half=project.startDay+Math.floor((project.completeDay-project.startDay)/2);
+        if(project.milestonesPaid===1&&(acceleration?projectProgress(project,day)>=.5:day>=half)){const amount=project.buildCost*MILESTONES[1];if(payMilestone(state,project,amount,'منتصف الإنشاء')){project.milestonesPaid=2;acc.capex+=amount;if(!immediate&&project.risk===1&&!project.delayDays&&deterministic(`${project.id}:delay`,0,1)<DELAY_CHANCE){const delay=Math.max(1,Math.round(((acceleration?.originalCompleteDay??project.completeDay)-project.startDay)*deterministic(`${project.id}:delay-days`,.02,MAX_DELAY)));project.completeDay+=delay;project.delayDays=delay;}}}
+        if(project.milestonesPaid===2&&day>=project.completeDay&&payMilestone(state,project,finalPayment(project),'التسليم')){const amount=finalPayment(project),overrun=amount-num(project.buildCost)*MILESTONES[2];if(overrun>.5){project.overrun=overrun;project.unitCost=Math.round((num(project.landCost)+num(project.buildCost)+overrun+num(project.accelerationCost))/project.units);if(project.offPlan)project.offPlan.cost=num(project.offPlan.units)*project.unitCost;}project.milestonesPaid=3;acc.capex+=amount;project.status='مكتمل';acc.completed.push(project.id);
+          // Off-plan units are handed over now: the rest of their revenue and cost, and the last 30% of their price.
+          if(offPlan){const plan=offPlan.plan,revenue=cents(plan.value-plan.recognized),cost=cents(plan.cost-plan.recognizedCost),cash=Math.max(0,cents(plan.value-plan.collected));acc.sales+=revenue;acc.costOfSales+=cost;acc.offPlanRevenue+=revenue;acc.offPlanCash+=cash;project.salesRevenue+=revenue;today.sales+=revenue;financeHomesOf(re,project,project.presold,plan.value);project.sold+=project.presold;project.handedOver+=project.presold;manageUnits(re,project,project.presold);project.presold=0;project.offPlan=null;}}
+  }
   function tickDay(state,p={}){
     const re=ensure(state),day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(state)/86400)));if(re.lastProcessedDay===day)return re.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
     re.mortgagePending=re.mortgagePending&&typeof re.mortgagePending==='object'&&!Array.isArray(re.mortgagePending)?re.mortgagePending:{};
-    const manage=(project,units)=>{re.serviceChargeRoll=num(re.serviceChargeRoll)+num(units)*(SERVICE_CHARGE[project.type]||0)*local(project);},financeHomes=(project,units,revenue)=>{if(TYPES[project.type]?.buyers!=='household'||!(revenue>0))return;const row=re.mortgagePending[project.country]||(re.mortgagePending[project.country]={units:0,amount:0});row.units+=units;row.amount+=revenue*MORTGAGE_SHARE*MORTGAGE_LTV;};
+    const manage=(project,units)=>manageUnits(re,project,units),financeHomes=(project,units,revenue)=>financeHomesOf(re,project,units,revenue);
     const valueToday=marketValue(state);for(const project of re.projects)if(!(Number(project.marketAtStart)>0))project.marketAtStart=Math.round(valueToday*10000)/10000;
     // Build 377: buyers and tenants compare the price with the city's rival developer (customer-base-core rivalPrice): the
     // same price sensitivity as the group's own price level, bounded at +-20%.
@@ -317,21 +337,16 @@
     let sales=0,rent=0,cashTaxExemptRevenue=0,internalRentRevenue=0,externalRentRevenue=0,costOfSales=0,opex=0,commission=0,capex=0,newBuyers=0,newTenants=0,vacated=0,offPlanRevenue=0,offPlanCash=0,depreciation=0;const completed=[],internalRentByCompany=new Map(),rentInvoices=[];
     // Build 374: buildings sold to a property fund since the last close are that close's sales.
     const fundSales=Array.isArray(re.pendingFundSales)?re.pendingFundSales:[];for(const row of fundSales){sales+=num(row.amount);costOfSales+=num(row.cost);commission+=num(row.amount)*SALES_COMMISSION;}re.pendingFundSales=[];
+    // A project an acceleration finished since the last close: its milestones, handover and commission are this close's.
+    const pendingBuild=Array.isArray(re.pendingConstruction)?re.pendingConstruction:[],pendingSales=new Map();for(const row of pendingBuild){capex+=num(row.capex);sales+=num(row.sales);costOfSales+=num(row.costOfSales);offPlanRevenue+=num(row.offPlanRevenue);offPlanCash+=num(row.offPlanCash);commission+=num(row.commission);for(const id of row.completed||[])completed.push(id);pendingSales.set(row.projectId,num(pendingSales.get(row.projectId))+num(row.todaySales));}if(re.pendingConstruction!==undefined)delete re.pendingConstruction;
     const activeOfficePeers=new Map(),officeById=new Map();for(const office of re.offices){if(!officeById.has(office.id))officeById.set(office.id,office);if(office.active)activeOfficePeers.set(office.country,(activeOfficePeers.get(office.country)||0)+1);}
     for(const project of re.projects){
-      const office=officeById.get(project.officeId),type=TYPES[project.type],today={day,sold:0,leased:0,vacated:0,rent:0,sales:0};
+      const office=officeById.get(project.officeId),type=TYPES[project.type],today={day,sold:0,leased:0,vacated:0,rent:0,sales:pendingSales.get(project.id)||0};
       const acceleration=project.constructionAcceleration;if(acceleration&&acceleration.reportedDay==null){capex+=num(acceleration.fee);acceleration.reportedDay=day;}
       const offPlan=project.mode==='sale'&&project.status==='قيد الإنشاء'?offPlanOf(project,type):null;if(offPlan)commission+=offPlan.commission;
       // Construction milestones and completion.
-      if(project.status==='قيد الإنشاء'){
-        const half=project.startDay+Math.floor((project.completeDay-project.startDay)/2);
-        if(project.milestonesPaid===1&&(acceleration?projectProgress(project,day)>=.5:day>=half)){const amount=project.buildCost*MILESTONES[1];if(payMilestone(state,project,amount,'منتصف الإنشاء')){project.milestonesPaid=2;capex+=amount;if(project.risk===1&&!project.delayDays&&deterministic(`${project.id}:delay`,0,1)<DELAY_CHANCE){const delay=Math.max(1,Math.round(((acceleration?.originalCompleteDay??project.completeDay)-project.startDay)*deterministic(`${project.id}:delay-days`,.02,MAX_DELAY)));project.completeDay+=delay;project.delayDays=delay;}}}
-        if(project.milestonesPaid===2&&day>=project.completeDay&&payMilestone(state,project,finalPayment(project),'التسليم')){const amount=finalPayment(project),overrun=amount-num(project.buildCost)*MILESTONES[2];if(overrun>.5){project.overrun=overrun;project.unitCost=Math.round((num(project.landCost)+num(project.buildCost)+overrun+num(project.accelerationCost))/project.units);if(project.offPlan)project.offPlan.cost=num(project.offPlan.units)*project.unitCost;}project.milestonesPaid=3;capex+=amount;project.status='مكتمل';completed.push(project.id);
-          // Off-plan units are handed over now: the rest of their revenue and cost, and the last 30% of their price.
-          if(offPlan){const plan=offPlan.plan,revenue=cents(plan.value-plan.recognized),cost=cents(plan.cost-plan.recognizedCost),cash=Math.max(0,cents(plan.value-plan.collected));sales+=revenue;costOfSales+=cost;offPlanRevenue+=revenue;offPlanCash+=cash;project.salesRevenue+=revenue;today.sales+=revenue;financeHomes(project,project.presold,plan.value);project.sold+=project.presold;project.handedOver+=project.presold;manage(project,project.presold);project.presold=0;project.offPlan=null;}}
-      }
-      if(office&&office.active){
-        const arriving=roundDraw(arrivals(re,project,office,(project.mode==='sale'?saleDemand:leaseDemand)*rivalDemand(office.country)*groupReach(office.country,TYPES[project.type]?.buyers==='business'?'businesses':'households'),Math.max(1,activeOfficePeers.get(office.country)||0)),`${project.id}:${day}:arrivals`),free=Math.max(0,project.units-project.sold-project.presold-project.leased),take=Math.min(free,arriving);
+      if(project.status==='قيد الإنشاء'){const acc={capex,sales,costOfSales,offPlanRevenue,offPlanCash,completed};constructionStep(state,re,project,day,acc,offPlan,today);capex=acc.capex;sales=acc.sales;costOfSales=acc.costOfSales;offPlanRevenue=acc.offPlanRevenue;offPlanCash=acc.offPlanCash;}
+      if(office&&office.active){        const arriving=roundDraw(arrivals(re,project,office,(project.mode==='sale'?saleDemand:leaseDemand)*rivalDemand(office.country)*groupReach(office.country,TYPES[project.type]?.buyers==='business'?'businesses':'households'),Math.max(1,activeOfficePeers.get(office.country)||0)),`${project.id}:${day}:arrivals`),free=Math.max(0,project.units-project.sold-project.presold-project.leased),take=Math.min(free,arriving);
         if(take>0&&project.mode==='sale'){
           if(project.status==='مكتمل'){const revenue=take*Math.round(type.price*local(project)*marketMove(project,valueToday)*project.priceLevel);sales+=revenue;costOfSales+=take*num(project.unitCost);commission+=revenue*SALES_COMMISSION;project.salesRevenue+=revenue;financeHomes(project,take,revenue);project.sold+=take;project.handedOver+=take;manage(project,take);today.sales+=revenue;}
           else{const plan=offPlan.plan,value=take*offPlanUnitPrice(type,project);project.presold+=take;plan.units+=take;plan.value+=value;plan.cost+=take*num(project.unitCost);commission+=value*SALES_COMMISSION;}

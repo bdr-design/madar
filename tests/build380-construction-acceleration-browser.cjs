@@ -17,7 +17,7 @@ const out=process.env.GH_CONSTRUCTION_ARTIFACTS||null,results=[];
    const project=get().realEstate.projects.find(p=>p.id===projectId);project.completeDay=4;delete project.risk;
    return {contractId,projectId};
   });
-  const balance=company=>page.evaluate(c=>({balance:GH_FINANCE_CORE.operating(__GH_STATE__,c),cheques:__GH_STATE__.finance.cheques.length,saveRevision:__GH_STATE__.saveRevision}),company);
+  const balance=company=>page.evaluate(c=>({balance:GH_FINANCE_CORE.operating(__GH_STATE__,c),cheques:__GH_STATE__.finance.cheques.length,saveRevision:__GH_STATE__.saveRevision,ids:__GH_STATE__.finance.cheques.map(c=>c.id)}),company);
   for(const [panel,id,company]of [['energy','energy-accelerate-construction','power'],['realestate','realestate-accelerate-construction','realestate']]){
    await page.evaluate(panel=>__AUDIT__.openDrawer(panel,{tab:'projects'}),panel);const button=page.locator(`[data-gh-action="${id}"]`).first();assert.equal(await button.count(),1,'newly built facilities show acceleration before first day refresh');
    for(const size of [{width:568,height:320},{width:440,height:956},{width:956,height:440}]){await page.setViewportSize(size);await button.scrollIntoViewIfNeeded();const b=await button.boundingBox();assert.ok(b&&b.x>=0&&b.y>=0&&b.x+b.width<=size.width+1&&b.y+b.height<=size.height+1,`acceleration button fits ${size.width}x${size.height}`);}
@@ -27,14 +27,16 @@ const out=process.env.GH_CONSTRUCTION_ARTIFACTS||null,results=[];
    const frames=await page.evaluate(()=>new Promise(resolve=>{let count=0;const next=()=>{if(++count===4)resolve(count);else requestAnimationFrame(next);};requestAnimationFrame(next);}));assert.equal(frames,4,'confirmation must let the host render');
    await page.locator('.ui-confirm [data-confirm="cancel"]').tap();assert.deepEqual(await balance(company),before,'cancel has no financial or save effect');
    await button.tap();await page.locator('.ui-confirm [data-confirm="accept"]').tap();await page.waitForFunction(({energy,fixture})=>{const st=__GH_STATE__,row=energy?st.constructionContracts.find(c=>c.id===fixture.contractId):st.realEstate.projects.find(p=>p.id===fixture.projectId);return !!row?.constructionAcceleration&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked();},{energy:panel==='energy',fixture});
-   const after=await balance(company);assert.ok(Math.abs(before.balance-after.balance-fee)<.02,'actual company current account is debited');assert.equal(after.cheques,before.cheques+1);assert.equal(await page.locator(`[data-gh-action="${id}"]`).count(),0,'one-time acceleration cannot be bought twice');
+   const after=await balance(company),fresh=after.ids.filter(id=>!before.ids.includes(id)),built=await page.evaluate(({ids,energy,fixture})=>{const st=__GH_STATE__,row=energy?st.constructionContracts.find(c=>c.id===fixture.contractId):st.realEstate.projects.find(p=>p.id===fixture.projectId);return st.finance.cheques.filter(c=>ids.includes(c.id)&&c.id!==row.constructionAcceleration.chequeId).reduce((sum,c)=>sum+Number(c.amount),0);},{ids:fresh,energy:panel==='energy',fixture});
+   // Owner (build 97): the plant or project is finished when the fee clears; a project pays its two remaining milestones then.
+   assert.ok(Math.abs(before.balance-after.balance-fee-built)<.02,'actual company current account is debited');assert.equal(after.cheques,before.cheques+(panel==='energy'?1:3));assert.equal(await page.locator(`[data-gh-action="${id}"]`).count(),0,'one-time acceleration cannot be bought twice');
    if(panel==='realestate')assert.ok(await page.locator('[data-gh-action="realestate-set-price"]').count(),'existing price control is preserved');
    assert.equal(after.saveRevision,before.saveRevision+1,'acceleration commits once; reopening its view must not save again');
    const instant=await page.evaluate(({energy,fixture})=>{const st=__GH_STATE__,row=energy?st.constructionContracts.find(c=>c.id===fixture.contractId):st.realEstate.projects.find(p=>p.id===fixture.projectId),a=row.constructionAcceleration;return {day:Math.floor(st.simSeconds/86400),originalCompleteDay:a.originalCompleteDay,completeDay:a.completeDay,finished:energy?row.commissioned===true:row.status==='مكتمل',progress:energy?GH_ENERGY_CORE.constructionProgress(row,0):GH_REALESTATE_CORE.projectProgress(row,0)};},{energy:panel==='energy',fixture});
-   assert.equal(instant.day,0);assert.equal(instant.originalCompleteDay,4);assert.equal(instant.completeDay,2);assert.equal(instant.finished,false);assert.equal(instant.progress,0,'payment does not fabricate completed work');
+   assert.equal(instant.day,0);assert.equal(instant.originalCompleteDay,4);assert.equal(instant.completeDay,0);assert.equal(instant.finished,true,'the plant runs or the project is handed over when the fee clears');assert.equal(instant.progress,1);
    results.push({engine:engine.name(),panel,fee,debited:before.balance-after.balance,saveRevisionDelta:after.saveRevision-before.saveRevision,instant});
   }
-  // The full app's day close must carry both owners' revenues into finance, after the shortened construction.
+  // The full app's day close must carry both owners' revenues into finance, after the construction finished at once.
   await page.evaluate(()=>__AUDIT__.closeDrawer());await page.evaluate(()=>GH_PERSISTENCE.drain());
   const request=await page.evaluate(()=>__AUDIT__.simulationEngine.advanceTo(2*86400+1,{reason:'qa-construction-income'}));assert.equal(request.accepted,true,JSON.stringify(request));await page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:90000});
   const revenue=await page.evaluate(({contractId,projectId})=>{

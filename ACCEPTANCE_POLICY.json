@@ -7,15 +7,223 @@
     ],
     [
       "node",
+      "tests/build589-acceleration-immediate.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-bank-energy-operating-costs.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-calendar-safety-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-dynamic-company-consumers.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-energy-take-or-pay.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r4-recovery-integration.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-tabs-component.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-tabs-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-xss-logo-security.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-day-boundary-write-map.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-hour-boundary-write-map.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-energy-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-management-effects.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-sea-cii-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-energy-debt-proof-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-iphone-failure-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-hospitality-staffing.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-company-economics-balance.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-energy-health-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-runtime-diagnostics-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build364-company-overview-summary.cjs"
+    ],
+    [
+      "node",
+      "tests/build364-realestate-internal-leases.cjs"
+    ],
+    [
+      "node",
+      "tests/build369-external-rent-monthly-ledger.cjs"
+    ],
+    [
+      "node",
+      "tests/build369-insurance-risk-batch.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-interactive-summary-consumers.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-conference-large-fleet-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-company-options-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-energy-blocks-ppa.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-realestate-off-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-runtime-removal.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-actions.cjs"
+    ],
+    [
+      "node",
+      "tests/build391-hospitality-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build392-hospitality-links.cjs"
+    ],
+    [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build395-hospitality-edge-cases.cjs"
+    ],
+    [
+      "node",
+      "tests/build402-company-daily-indexes.cjs"
+    ],
+    [
+      "node",
+      "tests/build431-decision-notices.cjs"
+    ],
+    [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build448-labor-tab-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build450-other-section-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build451-hr-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build453-section-projections.cjs"
+    ],
+    [
+      "node",
+      "tests/build455-cii-preview-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build471-company-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build544-internal-rent-tenants.cjs"
+    ],
+    [
+      "node",
+      "tests/build545-power-finance-interest.cjs"
+    ],
+    [
+      "node",
+      "tests/build548-group-intercompany-elimination.cjs"
+    ],
+    [
+      "node",
+      "tests/build555-investor-card-return.cjs"
+    ],
+    [
+      "node",
+      "tests/build578-energy-history-compaction.cjs"
+    ],
+    [
+      "node",
+      "tests/build588-energy-ensure-rows.cjs"
+    ],
+    [
+      "node",
+      "tests/operating-acquisitions.cjs"
+    ],
+    [
+      "node",
       "tests/build586-value-pages-reuse.cjs"
     ],
     [
       "node",
       "tests/build587-fleet-extras-reuse.cjs"
-    ],
-    [
-      "node",
-      "tests/build588-energy-ensure-rows.cjs"
     ],
     [
       "node",
@@ -43,38 +251,6 @@
     ],
     [
       "node",
-      "tests/build358-energy-market.cjs"
-    ],
-    [
-      "node",
-      "tests/build360-energy-debt-proof-recovery.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-energy-take-or-pay.cjs"
-    ],
-    [
-      "node",
-      "tests/build378-energy-blocks-ppa.cjs"
-    ],
-    [
-      "node",
-      "tests/build578-energy-history-compaction.cjs"
-    ],
-    [
-      "node",
-      "tests/build545-power-finance-interest.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-bank-energy-operating-costs.cjs"
-    ],
-    [
-      "node",
-      "tests/build363-company-economics-balance.cjs"
-    ],
-    [
-      "node",
       "tests/build334-600-air-calendar-regression.cjs"
     ],
     [
@@ -84,10 +260,6 @@
     [
       "node",
       "tests/build334-durable-publication-recovery.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-dynamic-company-consumers.cjs"
     ],
     [
       "node",
@@ -123,19 +295,11 @@
     ],
     [
       "node",
-      "tests/build334-r4-recovery-integration.cjs"
-    ],
-    [
-      "node",
       "tests/build334-simulation-fault-isolation.cjs"
     ],
     [
       "node",
       "tests/build334-simulation-slice-atomic.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-xss-logo-security.cjs"
     ],
     [
       "node",
@@ -327,10 +491,6 @@
     ],
     [
       "node",
-      "tests/build359-management-effects.cjs"
-    ],
-    [
-      "node",
       "tests/build359-map-modes-browser.cjs"
     ],
     [
@@ -352,10 +512,6 @@
     [
       "node",
       "tests/build360-cold-archive.cjs"
-    ],
-    [
-      "node",
-      "tests/build360-iphone-failure-recovery.cjs"
     ],
     [
       "node",
@@ -515,10 +671,6 @@
     ],
     [
       "node",
-      "tests/build372-interactive-summary-consumers.cjs"
-    ],
-    [
-      "node",
       "tests/build372-journal-pool.cjs"
     ],
     [
@@ -615,10 +767,6 @@
     ],
     [
       "node",
-      "tests/build373-conference-large-fleet-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build373-large-fleet-hour-boundary-browser.cjs"
     ],
     [
@@ -704,14 +852,6 @@
     [
       "node",
       "tests/build390-snapshot-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build394-hospitality-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build395-hospitality-edge-cases.cjs"
     ],
     [
       "node",
@@ -1083,15 +1223,7 @@
     ],
     [
       "node",
-      "tests/build453-section-projections.cjs"
-    ],
-    [
-      "node",
       "tests/build462-market-summary-refresh.cjs"
-    ],
-    [
-      "node",
-      "tests/build451-hr-notice-work.cjs"
     ],
     [
       "node",
@@ -1100,10 +1232,6 @@
     [
       "node",
       "tests/build461-market-render-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build387-save-actions.cjs"
     ],
     [
       "node",
@@ -1343,14 +1471,6 @@
     ],
     [
       "node",
-      "tests/build380-construction-acceleration.cjs"
-    ],
-    [
-      "node",
-      "tests/build548-group-intercompany-elimination.cjs"
-    ],
-    [
-      "node",
       "tests/build334-company-platform-orphan-contract.cjs"
     ],
     [
@@ -1387,15 +1507,7 @@
     ],
     [
       "node",
-      "tests/build334-calendar-safety-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build334-market-discovery-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build339-day-boundary-write-map.cjs"
     ],
     [
       "node",
@@ -1407,27 +1519,11 @@
     ],
     [
       "node",
-      "tests/build555-investor-card-return.cjs"
-    ],
-    [
-      "node",
       "tests/build501-schema-text-slices.cjs"
     ],
     [
       "node",
       "tests/build368-approved-company-logos.cjs"
-    ],
-    [
-      "node",
-      "tests/build443-company-review-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-tabs-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build364-company-overview-summary.cjs"
     ],
     [
       "node",
@@ -1460,14 +1556,6 @@
     [
       "node",
       "tests/business-options-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build380-construction-acceleration-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build402-company-daily-indexes.cjs"
     ],
     [
       "node",
@@ -1555,10 +1643,6 @@
     ],
     [
       "node",
-      "tests/build471-company-notice-work.cjs"
-    ],
-    [
-      "node",
       "tests/build473-purchase-notice-work.cjs"
     ],
     [
@@ -1572,18 +1656,6 @@
     [
       "node",
       "tests/build457-canvas-idle-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build448-labor-tab-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build450-other-section-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build455-cii-preview-work.cjs"
     ],
     [
       "node",
@@ -1604,10 +1676,6 @@
     [
       "node",
       "tests/build441-bank-migration-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build431-decision-notices.cjs"
     ],
     [
       "node",
@@ -1656,10 +1724,6 @@
     [
       "node",
       "tests/build385-bank-credit-accounting.cjs"
-    ],
-    [
-      "node",
-      "tests/build363-energy-health-contract.cjs"
     ],
     [
       "node",
@@ -2054,6 +2118,10 @@
     [
       "node",
       "tests/build588-energy-ensure-rows.cjs"
+    ],
+    [
+      "node",
+      "tests/build589-acceleration-immediate.cjs"
     ],
     [
       "node",
