@@ -7,11 +7,75 @@
     ],
     [
       "node",
-      "tests/build585-save-upload-block-accounting.cjs"
+      "tests/build586-value-pages-reuse.cjs"
     ],
     [
       "node",
-      "tests/build584-summary-one-in-flight.cjs"
+      "tests/build587-fleet-extras-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build588-energy-ensure-rows.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-fleet-chunk-manifest.cjs"
+    ],
+    [
+      "node",
+      "tests/build577-save-layout-steps.cjs"
+    ],
+    [
+      "node",
+      "tests/build413-fleet-value-chunks.cjs"
+    ],
+    [
+      "node",
+      "tests/build411-command-row-patch-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build418-command-phase-trace-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build445-document-pages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-energy-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-energy-debt-proof-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-energy-take-or-pay.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-energy-blocks-ppa.cjs"
+    ],
+    [
+      "node",
+      "tests/build578-energy-history-compaction.cjs"
+    ],
+    [
+      "node",
+      "tests/build545-power-finance-interest.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-bank-energy-operating-costs.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-company-economics-balance.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-600-air-calendar-regression.cjs"
     ],
     [
       "node",
@@ -23,6 +87,14 @@
     ],
     [
       "node",
+      "tests/build334-dynamic-company-consumers.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-map-pressure-contract.cjs"
+    ],
+    [
+      "node",
       "tests/build334-native-snapshot-queue.cjs"
     ],
     [
@@ -31,7 +103,35 @@
     ],
     [
       "node",
+      "tests/build334-presentation-work-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-purchase-delivery-pressure.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r2-delivery-lazy-index.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r2-map-local-dom.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r2-snapshot-budget.cjs"
+    ],
+    [
+      "node",
       "tests/build334-r4-recovery-integration.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-fault-isolation.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-slice-atomic.cjs"
     ],
     [
       "node",
@@ -43,11 +143,35 @@
     ],
     [
       "node",
+      "tests/build336-proof-ledger-compaction-regression.cjs"
+    ],
+    [
+      "node",
+      "tests/build336-state-byte-attribution-pressure.cjs"
+    ],
+    [
+      "node",
       "tests/build337-instrumentation-baseline.cjs"
     ],
     [
       "node",
       "tests/build339-phase1c-adversarial-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-map-status-cache.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-map-structure-revision.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-route-center-index.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-simulation-transaction-worker.cjs"
     ],
     [
       "node",
@@ -59,7 +183,67 @@
     ],
     [
       "node",
+      "tests/build350-state-codec.cjs"
+    ],
+    [
+      "node",
       "tests/build353-persistence-pacing.cjs"
+    ],
+    [
+      "node",
+      "tests/build353-steady-slice-rollback.cjs"
+    ],
+    [
+      "node",
+      "tests/build355-fleet-access.cjs"
+    ],
+    [
+      "node",
+      "tests/build356-fleet-events.cjs"
+    ],
+    [
+      "node",
+      "tests/build356-fleet-store.cjs"
+    ],
+    [
+      "node",
+      "tests/build357-fleet-journal.cjs"
+    ],
+    [
+      "node",
+      "tests/build357-fleet-migration.cjs"
+    ],
+    [
+      "node",
+      "tests/build357-fleet-profile-aggregation.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-air-sea-dispatch-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-codec-id-runs.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-codec-segments.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-delivery-due-slices.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-fleet-engine-thread-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-fleet-purchase-vat.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-fleet-row-codec-cache.cjs"
     ],
     [
       "node",
@@ -68,6 +252,18 @@
     [
       "node",
       "tests/build358-fleet-scan.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-heaviness.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-large-fleet-dispatch-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-maintenance.cjs"
     ],
     [
       "node",
@@ -83,7 +279,31 @@
     ],
     [
       "node",
+      "tests/build358-route-capacity.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-row-snapshot-rollback.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-schema-sections.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-staged-day-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build358-validation-classes.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-archive-seal.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-archived-proofs.cjs"
     ],
     [
       "node",
@@ -91,7 +311,223 @@
     ],
     [
       "node",
+      "tests/build359-compact-records.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-container-seal.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-document-seal.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-fleet-list-query.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-management-effects.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-map-modes-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-proof-checkpoints.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-recorder-signal.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-road-dispatch-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-sim-smoothness.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-cold-archive.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-iphone-failure-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-bulk-asset-purchase-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-calendar-window-equivalence.cjs"
+    ],
+    [
+      "node",
       "tests/build362-durable-prestage.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-empty-calendar-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-fleet-window-session.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-save-validation-chunks.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-air-destination-pool-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-air-destination-pool-riyadh-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-air-fleet-series-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-custom-road-geometry-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-durable-fleet-isolation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-old-save-trip-correction-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-reload-trip-speed-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-route-holder-scan.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-sea-dispatch-lifecycle-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-app-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-apply.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-order.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-compact-save-validation.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-depart-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-dispatch-app-integration.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-field-classes-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-finance-initial-allocation.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-exceptional.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-slice-parity.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-worker.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-dispatch-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-dispatch-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-health-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-query-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-reference-query.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-sale-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-ui-summary.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-global-route-candidates.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-insurance-condition-worker.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-interactive-summary-consumers.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-journal-pool.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-large-fleet-fallback-guards-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-large-health-fallback-browser.cjs"
     ],
     [
       "node",
@@ -99,7 +535,147 @@
     ],
     [
       "node",
+      "tests/build372-legacy-route-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-legacy-route-repair-index.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-maintenance-health-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-manual-departure-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-map-summary-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-native-migration-chunk-adoption.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-native-seed-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-owner-totals-cache.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-replica-log-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-replica-value-log.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-route-normalization-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-route-reference-proof.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-route-tier.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-save-validation-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-staffing-reconcile-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-staged-replica-prime-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-startup-normalization-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-startup-staffing-classes.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-startup-staffing-worker-apply.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-store-maintenance-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-conference-large-fleet-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-large-fleet-hour-boundary-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-cheque-payable-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-route-capacity-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build374-save-slice-telemetry.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-large-fleet-background-save-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-seed-metadata-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-cheque-ui-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-command-validation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-financial-posting-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-mutation-validation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-realism-identity.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-recovery-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-validation-slices.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-navigation-browser.cjs"
     ],
     [
       "node",
@@ -107,7 +683,231 @@
     ],
     [
       "node",
+      "tests/build386-confirmation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-once-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build389-differential-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build389-differential-collections.cjs"
+    ],
+    [
+      "node",
+      "tests/build390-cooperative-snapshot.cjs"
+    ],
+    [
+      "node",
+      "tests/build390-snapshot-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build395-hospitality-edge-cases.cjs"
+    ],
+    [
+      "node",
+      "tests/build396-hospitality-budgets.cjs"
+    ],
+    [
+      "node",
+      "tests/build401-mobility-batching-and-indexes.cjs"
+    ],
+    [
+      "node",
+      "tests/build404-worker-close-read-models.cjs"
+    ],
+    [
+      "node",
+      "tests/build405-worker-close-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build409-compressed-persistence.cjs"
+    ],
+    [
+      "node",
+      "tests/build410-fleet-save-row-patches.cjs"
+    ],
+    [
+      "node",
+      "tests/build412-live-validation-predicates.cjs"
+    ],
+    [
+      "node",
+      "tests/build423-worker-sync-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build424-dense-fleet-pages.cjs"
+    ],
+    [
+      "node",
+      "tests/build425-validation-dependencies.cjs"
+    ],
+    [
+      "node",
+      "tests/build427-day-profile-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build428-worker-value-collection.cjs"
+    ],
+    [
+      "node",
+      "tests/build429-worker-value-collection-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build430-legacy-fleet-pages.cjs"
+    ],
+    [
+      "node",
+      "tests/build432-ready-fleet-validation.cjs"
+    ],
+    [
+      "node",
+      "tests/build433-request-decisions-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build434-service-panel-fleet-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build435-conditional-prestage.cjs"
+    ],
+    [
+      "node",
+      "tests/build436-save-work-removal.cjs"
+    ],
+    [
+      "node",
+      "tests/build437-adoption-patch-lineage.cjs"
+    ],
+    [
+      "node",
+      "tests/build438-day-scratch-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build439-summary-single-request.cjs"
+    ],
+    [
+      "node",
+      "tests/build442-fleet-review-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build449-asset-capacity-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build452-section-review-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build458-stable-ui-writes.cjs"
+    ],
+    [
+      "node",
+      "tests/build463-ui-summary-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/build464-summary-projection-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build468-summary-projection-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build469-app-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build472-all-company-operating-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build474-event-trace-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build475-replay-row-ranges.cjs"
+    ],
+    [
+      "node",
+      "tests/build476-staged-worker-replay.cjs"
+    ],
+    [
+      "node",
+      "tests/build480-journal-reserve-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build482-worker-route-conflicts.cjs"
+    ],
+    [
+      "node",
+      "tests/build483-large-panel-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build484-operating-vault-bootstrap-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build485-cold-validation-query.cjs"
+    ],
+    [
+      "node",
+      "tests/build488-route-preview-payload.cjs"
+    ],
+    [
+      "node",
+      "tests/build489-stored-lane-containers.cjs"
+    ],
+    [
+      "node",
+      "tests/build491-stored-containers-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build493-backup-export-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build494-export-worker-protocol.cjs"
+    ],
+    [
+      "node",
+      "tests/build495-large-reset-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build497-route-preview-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build499-purchase-append-views.cjs"
+    ],
+    [
+      "node",
+      "tests/build500-sale-navigation.cjs"
     ],
     [
       "node",
@@ -115,7 +915,75 @@
     ],
     [
       "node",
+      "tests/build505-fleet-maintenance-guard.cjs"
+    ],
+    [
+      "node",
+      "tests/build507-encode-rows-steps.cjs"
+    ],
+    [
+      "node",
+      "tests/build508-presentation-index-saves.cjs"
+    ],
+    [
+      "node",
+      "tests/build510-validation-cache-reasons.cjs"
+    ],
+    [
+      "node",
+      "tests/build512-deferred-mobility-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build513-published-command-wait-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build514-map-summary-cadence-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build516-tracked-collections.cjs"
+    ],
+    [
+      "node",
+      "tests/build517-hr-hire-view-facilities-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build518-maintenance-worst-first.cjs"
+    ],
+    [
+      "node",
+      "tests/build519-idempotency-tracked.cjs"
+    ],
+    [
+      "node",
+      "tests/build520-map-aggregate-threshold-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build521-static-validation-groups.cjs"
+    ],
+    [
+      "node",
+      "tests/build522-fleet-day-prefetch.cjs"
+    ],
+    [
+      "node",
+      "tests/build523-proofs-commands-tracked.cjs"
+    ],
+    [
+      "node",
+      "tests/build524-sealed-text-reuse.cjs"
+    ],
+    [
+      "node",
       "tests/build526-prestage-fleet-chunks-only.cjs"
+    ],
+    [
+      "node",
+      "tests/build532-map-loop-single-render.cjs"
     ],
     [
       "node",
@@ -127,6 +995,22 @@
     ],
     [
       "node",
+      "tests/build535-staged-save-retake-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build559-share-value-fixes-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build569-company-evidence-pending.cjs"
+    ],
+    [
+      "node",
+      "tests/build573-asset-sale-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build579-defined-types-platform-weight.cjs"
     ],
     [
@@ -135,19 +1019,27 @@
     ],
     [
       "node",
+      "tests/build584-summary-one-in-flight.cjs"
+    ],
+    [
+      "node",
+      "tests/build585-save-upload-block-accounting.cjs"
+    ],
+    [
+      "node",
       "tests/company-platform-regressions.cjs"
     ],
     [
       "node",
-      "tests/persistence-regressions.cjs"
+      "tests/fleet-regressions.cjs"
     ],
     [
       "node",
-      "tests/build359-sliced-save-browser.cjs"
+      "tests/fleet-save-slicing.cjs"
     ],
     [
       "node",
-      "tests/save-pipeline-browser.cjs"
+      "tests/fleet-validation-reuse-browser.cjs"
     ],
     [
       "node",
@@ -155,7 +1047,7 @@
     ],
     [
       "node",
-      "tests/build389-differential-browser.cjs"
+      "tests/persistence-regressions.cjs"
     ],
     [
       "node",
@@ -163,47 +1055,19 @@
     ],
     [
       "node",
+      "tests/save-pipeline-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-sliced-save-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build374-diagnostic-lifecycle-browser.cjs"
     ],
     [
       "node",
-      "tests/build360-iphone-failure-recovery.cjs"
-    ],
-    [
-      "node",
       "tests/build338-idempotency-save-lag-root.cjs"
-    ],
-    [
-      "node",
-      "tests/build436-save-work-removal.cjs"
-    ],
-    [
-      "node",
-      "tests/build410-fleet-save-row-patches.cjs"
-    ],
-    [
-      "node",
-      "tests/build424-dense-fleet-pages.cjs"
-    ],
-    [
-      "node",
-      "tests/build437-adoption-patch-lineage.cjs"
-    ],
-    [
-      "node",
-      "tests/build489-stored-lane-containers.cjs"
-    ],
-    [
-      "node",
-      "tests/build396-hospitality-budgets.cjs"
-    ],
-    [
-      "node",
-      "tests/build413-fleet-value-chunks.cjs"
-    ],
-    [
-      "node",
-      "tests/build577-save-layout-steps.cjs"
     ],
     [
       "node",
@@ -219,23 +1083,11 @@
     ],
     [
       "node",
-      "tests/build439-summary-single-request.cjs"
-    ],
-    [
-      "node",
-      "tests/build464-summary-projection-boundary.cjs"
-    ],
-    [
-      "node",
       "tests/build453-section-projections.cjs"
     ],
     [
       "node",
       "tests/build462-market-summary-refresh.cjs"
-    ],
-    [
-      "node",
-      "tests/build449-asset-capacity-work.cjs"
     ],
     [
       "node",
@@ -255,59 +1107,11 @@
     ],
     [
       "node",
-      "tests/build468-summary-projection-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build373-conference-large-fleet-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build433-request-decisions-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build495-large-reset-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build336-proof-ledger-compaction-regression.cjs"
-    ],
-    [
-      "node",
       "tests/build336-hour83-calendar-proof-regression.cjs"
     ],
     [
       "node",
-      "tests/build372-native-migration-chunk-adoption.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-dynamic-company-consumers.cjs"
-    ],
-    [
-      "node",
       "tests/build334-archive-integrity-r2.cjs"
-    ],
-    [
-      "node",
-      "tests/build357-fleet-migration.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-codec-id-runs.cjs"
-    ],
-    [
-      "node",
-      "tests/build401-mobility-batching-and-indexes.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-native-seed-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build484-operating-vault-bootstrap-browser.cjs"
     ],
     [
       "node",
@@ -351,59 +1155,7 @@
     ],
     [
       "node",
-      "tests/build522-fleet-day-prefetch.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-worker.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-exceptional.cjs"
-    ],
-    [
-      "node",
       "tests/build374-daily-worker-integration.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-insurance-condition-worker.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-owner-totals-cache.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-realism-identity.cjs"
-    ],
-    [
-      "node",
-      "tests/build404-worker-close-read-models.cjs"
-    ],
-    [
-      "node",
-      "tests/build427-day-profile-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build438-day-scratch-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build432-ready-fleet-validation.cjs"
-    ],
-    [
-      "node",
-      "tests/build485-cold-validation-query.cjs"
-    ],
-    [
-      "node",
-      "tests/build569-company-evidence-pending.cjs"
     ],
     [
       "node",
@@ -411,63 +1163,11 @@
     ],
     [
       "node",
-      "tests/build412-live-validation-predicates.cjs"
-    ],
-    [
-      "node",
-      "tests/build425-validation-dependencies.cjs"
-    ],
-    [
-      "node",
-      "tests/build521-static-validation-groups.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-schema-sections.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-dispatch-plan.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-dispatch-app-integration.cjs"
-    ],
-    [
-      "node",
       "tests/build359-corridor-index.cjs"
     ],
     [
       "node",
-      "tests/build405-worker-close-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-dispatch-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build571-tax-month-close-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-air-sea-dispatch-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-large-fleet-dispatch-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-road-dispatch-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-sea-dispatch-lifecycle-browser.cjs"
     ],
     [
       "node",
@@ -543,10 +1243,6 @@
     ],
     [
       "node",
-      "tests/build379-financial-posting-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build334-dynamic-finance-company-ids.cjs"
     ],
     [
@@ -560,10 +1256,6 @@
     [
       "node",
       "tests/build502-consolidated-cash-order.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-finance-initial-allocation.cjs"
     ],
     [
       "node",
@@ -591,10 +1283,6 @@
     ],
     [
       "node",
-      "tests/build374-cheque-payable-lifecycle.cjs"
-    ],
-    [
-      "node",
       "tests/build567-budget-lapsed-reservation.cjs"
     ],
     [
@@ -608,10 +1296,6 @@
     [
       "node",
       "tests/build368-hr-payroll-parity.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-management-effects.cjs"
     ],
     [
       "node",
@@ -659,35 +1343,7 @@
     ],
     [
       "node",
-      "tests/build545-power-finance-interest.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-energy-market.cjs"
-    ],
-    [
-      "node",
-      "tests/build360-energy-debt-proof-recovery.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-energy-take-or-pay.cjs"
-    ],
-    [
-      "node",
-      "tests/build378-energy-blocks-ppa.cjs"
-    ],
-    [
-      "node",
-      "tests/build363-company-economics-balance.cjs"
-    ],
-    [
-      "node",
       "tests/build380-construction-acceleration.cjs"
-    ],
-    [
-      "node",
-      "tests/build395-hospitality-edge-cases.cjs"
     ],
     [
       "node",
@@ -755,19 +1411,7 @@
     ],
     [
       "node",
-      "tests/build372-compact-save-validation.cjs"
-    ],
-    [
-      "node",
-      "tests/build362-save-validation-chunks.cjs"
-    ],
-    [
-      "node",
       "tests/build501-schema-text-slices.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-staged-day-browser.cjs"
     ],
     [
       "node",
@@ -784,14 +1428,6 @@
     [
       "node",
       "tests/build364-company-overview-summary.cjs"
-    ],
-    [
-      "node",
-      "tests/build578-energy-history-compaction.cjs"
-    ],
-    [
-      "node",
-      "tests/build510-validation-cache-reasons.cjs"
     ],
     [
       "node",
@@ -819,55 +1455,7 @@
     ],
     [
       "node",
-      "tests/build372-replica-value-log.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-sim-smoothness.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-query-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-health-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-replica-log-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/fleet-validation-reuse-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-command-validation-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build339-diagnostic-frame-trace.cjs"
-    ],
-    [
-      "node",
-      "tests/build507-encode-rows-steps.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-container-seal.cjs"
-    ],
-    [
-      "node",
-      "tests/build389-differential-collections.cjs"
-    ],
-    [
-      "node",
-      "tests/build516-tracked-collections.cjs"
-    ],
-    [
-      "node",
-      "tests/build350-state-codec.cjs"
     ],
     [
       "node",
@@ -891,59 +1479,7 @@
     ],
     [
       "node",
-      "tests/build494-export-worker-protocol.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-compact-records.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-fleet-row-codec-cache.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-codec-segments.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-save-validation-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-mutation-validation-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build362-fleet-window-session.cjs"
-    ],
-    [
-      "node",
-      "tests/build362-calendar-window-equivalence.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-staged-replica-prime-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build476-staged-worker-replay.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-bank-energy-operating-costs.cjs"
-    ],
-    [
-      "node",
       "tests/build358-staged-full-scope.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-row-snapshot-rollback.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-fleet-engine-thread-browser.cjs"
     ],
     [
       "node",
@@ -959,23 +1495,7 @@
     ],
     [
       "node",
-      "tests/build520-map-aggregate-threshold-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build340-durable-draft-restore.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-map-summary-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-durable-fleet-isolation-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-air-fleet-series-browser.cjs"
     ],
     [
       "node",
@@ -984,10 +1504,6 @@
     [
       "node",
       "tests/build558-investor-card-load-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-asset-purchase-app-browser.cjs"
     ],
     [
       "node",
@@ -1000,10 +1516,6 @@
     [
       "node",
       "tests/build572-fleet-premium-unpaid.cjs"
-    ],
-    [
-      "node",
-      "tests/build573-asset-sale-browser.cjs"
     ],
     [
       "node",
@@ -1031,18 +1543,6 @@
     ],
     [
       "node",
-      "tests/build497-route-preview-reuse.cjs"
-    ],
-    [
-      "node",
-      "tests/build492-manual-slot-slices-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build493-backup-export-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build496-world-query-reset.cjs"
     ],
     [
@@ -1051,23 +1551,7 @@
     ],
     [
       "node",
-      "tests/build491-stored-containers-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build488-route-preview-payload.cjs"
-    ],
-    [
-      "node",
       "tests/build486-route-card-pages.cjs"
-    ],
-    [
-      "node",
-      "tests/build463-ui-summary-projection.cjs"
-    ],
-    [
-      "node",
-      "tests/build469-app-notice-work.cjs"
     ],
     [
       "node",
@@ -1075,19 +1559,7 @@
     ],
     [
       "node",
-      "tests/build472-all-company-operating-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build473-purchase-notice-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build474-event-trace-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build475-replay-row-ranges.cjs"
     ],
     [
       "node",
@@ -1095,27 +1567,11 @@
     ],
     [
       "node",
-      "tests/build480-journal-reserve-work.cjs"
-    ],
-    [
-      "node",
       "tests/build481-diagnostic-fleet-proof.cjs"
     ],
     [
       "node",
-      "tests/build482-worker-route-conflicts.cjs"
-    ],
-    [
-      "node",
-      "tests/build483-large-panel-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build457-canvas-idle-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build458-stable-ui-writes.cjs"
     ],
     [
       "node",
@@ -1127,10 +1583,6 @@
     ],
     [
       "node",
-      "tests/build452-section-review-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build455-cii-preview-work.cjs"
     ],
     [
@@ -1139,15 +1591,7 @@
     ],
     [
       "node",
-      "tests/build442-fleet-review-work.cjs"
-    ],
-    [
-      "node",
       "tests/build444-document-pages.cjs"
-    ],
-    [
-      "node",
-      "tests/build445-document-pages-browser.cjs"
     ],
     [
       "node",
@@ -1167,30 +1611,6 @@
     ],
     [
       "node",
-      "tests/build434-service-panel-fleet-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build435-conditional-prestage.cjs"
-    ],
-    [
-      "node",
-      "tests/build430-legacy-fleet-pages.cjs"
-    ],
-    [
-      "node",
-      "tests/build428-worker-value-collection.cjs"
-    ],
-    [
-      "node",
-      "tests/build429-worker-value-collection-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build423-worker-sync-work.cjs"
-    ],
-    [
-      "node",
       "tests/build419-document-drawer-work-browser.cjs"
     ],
     [
@@ -1203,19 +1623,11 @@
     ],
     [
       "node",
-      "tests/build418-command-phase-trace-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build414-command-preparation.cjs"
     ],
     [
       "node",
       "tests/build415-route-publication-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build411-command-row-patch-browser.cjs"
     ],
     [
       "node",
@@ -1243,10 +1655,6 @@
     ],
     [
       "node",
-      "tests/build372-store-maintenance-stages.cjs"
-    ],
-    [
-      "node",
       "tests/build385-bank-credit-accounting.cjs"
     ],
     [
@@ -1263,35 +1671,11 @@
     ],
     [
       "node",
-      "tests/build360-cold-archive.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-fleet-chunk-manifest.cjs"
-    ],
-    [
-      "node",
-      "tests/fleet-save-slicing.cjs"
-    ],
-    [
-      "node",
-      "tests/build394-hospitality-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build397-management-flow-layout-browser.cjs"
     ],
     [
       "node",
       "tests/build399-bank-prudential-summary-layout-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build499-purchase-append-views.cjs"
-    ],
-    [
-      "node",
-      "tests/build500-sale-navigation.cjs"
     ]
   ],
   "required_commands": [
@@ -1658,6 +2042,18 @@
     [
       "node",
       "tests/build585-save-upload-block-accounting.cjs"
+    ],
+    [
+      "node",
+      "tests/build586-value-pages-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build587-fleet-extras-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build588-energy-ensure-rows.cjs"
     ],
     [
       "node",

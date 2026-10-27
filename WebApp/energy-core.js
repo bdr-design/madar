@@ -71,10 +71,13 @@
     for(const row of energy.outages)if(row.siteId&&row.status==='نشط'&&day>=row.startDay&&day<row.endDay&&!availabilityOutageBySite.has(row.siteId))availabilityOutageBySite.set(row.siteId,row);
     return {projectFinanceBySite,ppaContractsBySite,activeFuelById,maintenanceBySite,availabilityOutageBySite};
   }
+  // ensure() runs on every energy page and plant desk render. It copied each of its 13 arrays (and the offers) on every
+  // call; an array with nothing to drop is now kept (the same rows, so the same result), a frozen one still copied.
+  function keptRows(list){return Array.isArray(list)?(!Object.isFrozen(list)&&list.every(Boolean)?list:list.filter(Boolean)):[];}
   function ensure(state){
     const energy=state.energy=state.energy&&typeof state.energy==='object'?state.energy:{};
     const availabilityInitialized=energy.availabilityInitialized===true;for(const key of ['gasMW','solarMW','windMW','storageMWh','availability'])energy[key]=num(energy[key]);
-    for(const key of ['sites','ppaOffers','ppaContracts','dailyHistory','outages','maintenancePlans','fuelContracts','gridAgreements','projectFinance','dispatchInstructions','renewableCertificates'])energy[key]=Array.isArray(energy[key])?energy[key].filter(Boolean):[];delete energy.regionalOffices;delete energy.gridAgreements;
+    for(const key of ['sites','ppaOffers','ppaContracts','dailyHistory','outages','maintenancePlans','fuelContracts','gridAgreements','projectFinance','dispatchInstructions','renewableCertificates'])energy[key]=keptRows(energy[key]);delete energy.regionalOffices;delete energy.gridAgreements;
     energy.sequence=Math.max(0,Math.floor(Number(energy.sequence)||0));syncSites(state,energy);const generationMW=energy.gasMW+energy.solarMW+energy.windMW+energy.sites.filter(site=>site.commissioned===true&&site.kind!=='storage').reduce((sum,site)=>sum+num(site.capacity),0),storageMWh=energy.storageMWh+energy.sites.filter(site=>site.commissioned===true&&site.kind==='storage').reduce((sum,site)=>sum+num(site.capacity),0),operatingCapacity=generationMW+storageMWh;if(!availabilityInitialized&&operatingCapacity>0&&energy.availability===0)energy.availability=90;if(availabilityInitialized||energy.availability>0||operatingCapacity>0)energy.availabilityInitialized=true;for(const site of energy.sites){site.gridExportLimitMW=num(site.capacity);site.gridLossRate=.02;}
     const siteById=firstBy(energy.sites,row=>row.id);for(const facility of energy.projectFinance){
       const site=siteById.get(facility.siteId),startDay=Math.max(0,Math.floor(Number(facility.startDay)||0)),termDays=Math.max(365,Math.floor(Number(facility.termDays)||3650));
@@ -90,8 +93,8 @@
     if(Number(energy.debtBalanceMigrationVersion)<1){const F=globalThis.GH_FINANCE_CORE;if(!energy.projectFinance.length)energy.debtBalanceMigrationVersion=1;else if(F?.reconcileDebtBalances){F.reconcileDebtBalances(state,{company:'power',balancesById:Object.fromEntries(energy.projectFinance.map(row=>[row.id,num(row.outstanding)]))});energy.debtBalanceMigrationVersion=1;}}
     // Build 358: buyers no longer leave three standing offers per plant; they open tenders the player bids on (below).
     // Offers already in a save stay acceptable.
-    for(const key of ['tenders','tenderHistory'])energy[key]=Array.isArray(energy[key])?energy[key].filter(Boolean):[];
-    energy.ppaOffers=energy.ppaOffers.slice(-240);return energy;
+    for(const key of ['tenders','tenderHistory'])energy[key]=keptRows(energy[key]);
+    if(energy.ppaOffers.length>240||Object.isFrozen(energy.ppaOffers))energy.ppaOffers=energy.ppaOffers.slice(-240);return energy;
   }
   // Tenders (owner review, Build 358: the energy company ran itself). A buyer asks for capacity from one of the
   // player's operating plants for a term at its reference price; the player bids low, at the reference or high. A lower

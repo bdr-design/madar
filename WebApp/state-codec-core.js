@@ -474,6 +474,18 @@
   // `rows` members), and a segment whose members are the same objects holding the same top-level values as when its text
   // was made reuses that text (and its chunk). The text is the one a fresh encoding gives; decoding is unchanged.
   const TRACKED=new Map(),TRACKED_TEXT=new Map(),MEMBER_VALUES=new WeakMap(),TRACKED_CHUNK_MIN=512,trackedStats={reused:0,encoded:0,members:0};
+  // iPhone diagnostic (build 95): the fleet's extras (75,963 rows, 2.9 MB) were listed twice, compared member by member
+  // and encoded afresh on every save, about 2 MB of it inline (segments of about 256 rows, under TEXT_CHUNK_MIN). The
+  // fleet store replaces a row's extras object on every write and never edits one in place (fleet-store-core.js
+  // setExtra); its rows are sealed here before their text is written, so a segment of the same sealed rows reuses its
+  // text and chunk, and an edit in place throws instead of going unsaved. Its segments hold about 1,024 rows (each about
+  // 40 KB, its own chunk). The store moves extrasVersion on every write of the container, so an unchanged container is
+  // not listed again.
+  const EXTRAS_KEY=JSON.stringify(['fleet','extras']),EXTRAS_POLICY=Object.freeze({floor:512,mask:1023,ceil:4096,min:1024});
+  // The larger extras segments are for a fleet store's extras in the native chunked save (and its adoption at load) only:
+  // serialize stays JSON.stringify(encodeState(state)), and a plain object at that path is segmented as before.
+  function segmentPolicy(key,chunked=true){return TRACKED.get(key)||(chunked&&key===EXTRAS_KEY?EXTRAS_POLICY:null);}
+  const VERSIONED_CANDIDATES=new WeakMap(),extrasStats={layoutReused:0,rowsSealed:0};
   function registerTrackedCollection(path,{rows=32}={}){
     if(!Array.isArray(path)||!path.length||path.some(key=>typeof key!=='string'||!key))throw new TypeError('state-codec-tracked-path-invalid');
     const size=Math.max(8,Math.min(256,2**Math.round(Math.log2(Number(rows)||32))));TRACKED.set(JSON.stringify(path),Object.freeze({floor:size/2,mask:size/2-1,ceil:size*4,min:size*2}));return true;
@@ -524,7 +536,7 @@
   // Deterministic discovery: the same state always yields the same ordered path list.
   function selectPaths(state){return scanPaths(state).paths;}
   function scanPaths(state){return drain(scanPathsSteps(state));}
-  function* scanPathsSteps(state){
+  function* scanPathsSteps(state,versionOf=null){
     const paths=[],runs=[],stack=[];let work=0;
     const enter=(node,path,depth)=>{const keys=Object.keys(node);work+=keys.length;stack.push({node,path,depth,keys,at:0});};
     enter(state,[],1);
@@ -534,12 +546,13 @@
       const key=frame.keys[frame.at++],value=frame.node[key];work++;if(value===null||typeof value!=='object')continue;
       if(Array.isArray(value)&&value.length>=RUN_MIN){const run=idRun(value);if(run){runs.push({path:[...frame.path,key],run});continue;}}
       // A sealed container is a collection or not once and for all: asked once (the answer kept only when complete).
-      const sealed=sealedContainer(value);let candidate=sealed?CANDIDATES.get(value):undefined;
+      const sealed=sealedContainer(value),version=sealed?undefined:versionOf?.(value);let candidate=sealed?CANDIDATES.get(value):undefined;
+      if(candidate===undefined&&version!==undefined){const known=VERSIONED_CANDIDATES.get(value);if(known?.version===version)candidate=known.candidate;}
       if(candidate===undefined){
         const isArray=Array.isArray(value),keys=isArray||!isPlain(value)?null:Object.keys(value);if(keys)work+=keys.length;
         candidate=(isArray?value.length:keys?keys.length:0)>=MIN_ROWS;
         for(let from=0;candidate&&from<(isArray?value.length:keys.length);from+=LAYOUT_STEP){if(work>=LAYOUT_STEP){work=0;yield;}const to=Math.min(isArray?value.length:keys.length,from+LAYOUT_STEP);candidate=plainRows(value,keys,from,to);work+=to-from;}
-        if(sealed)CANDIDATES.set(value,candidate);
+        if(sealed)CANDIDATES.set(value,candidate);else if(version!==undefined)VERSIONED_CANDIDATES.set(value,{version,candidate});
       }
       if(candidate){paths.push([...frame.path,key]);continue;}
       if(frame.depth<MAX_SCAN_DEPTH&&typeof value.toJSON!=='function'&&(isPlain(value)||Array.isArray(value)&&value.length<MIN_ROWS))enter(value,[...frame.path,key],frame.depth+1);
@@ -574,14 +587,26 @@
   }
 
   // Native-only value-table pages. The table is heterogeneous and the ordinary collection encoder leaves it inline.
-  // Compare exact JSON text on each save, including unknown direct edits; no writer/version trust or gameplay scan.
+  // Compare exact JSON text on each save; no writer/version trust or gameplay scan.
+  // iPhone diagnostic (build 95): every save stringified the whole table again (6.24 MB, 88 pages) to find the few pages
+  // that changed. The fleet store interns each value once and never edits it in place (fleet-store-core.js: it writes a
+  // new value and points the row at it), so a page is sealed before its text is written (GH_TRANSACTION_CORE.sealValue,
+  // as the first save seals the proof stores): an edit in place of a sealed value throws instead of going unsaved, and a
+  // page whose slots hold the same sealed values (or the same strings, numbers and nulls) as at its last text reuses it.
   const VALUE_TEXT=new Map(),VALUE_CACHE_CHARS=8*1024*1024,VALUE_PART_CHARS=512*1024,VALUE_ROWS=256;let valueChars=0,valueSequence=0;
   function forgetValueText(key){const old=VALUE_TEXT.get(key);if(old){valueChars-=old.text.length;VALUE_TEXT.delete(key);}}
-  function rememberValueText(key,text,chunk){forgetValueText(key);if(text.length>VALUE_PART_CHARS||valueChars+text.length>VALUE_CACHE_CHARS)return false;VALUE_TEXT.set(key,{text,chunk});valueChars+=text.length;return true;}
-  function* valueTextPart(text,key,count){
-    const old=VALUE_TEXT.get(key);if(old?.text===text)return old.chunk;
+  function rememberValueText(key,text,chunk,members=null){forgetValueText(key);if(text.length>VALUE_PART_CHARS||valueChars+text.length>VALUE_CACHE_CHARS)return false;VALUE_TEXT.set(key,{text,chunk,members});valueChars+=text.length;return true;}
+  const valuePartStats={reused:0,written:0};
+  // Seal the page's objects; null when one cannot be sealed (not plain data) or there is no sealer: its text is not reused.
+  function sealedValueSlots(values,start,count){
+    const seal=globalThis.GH_TRANSACTION_CORE?.sealValue;if(typeof seal!=='function')return null;const members=values.slice(start,start+count);
+    for(const member of members)if(member&&typeof member==='object'&&!seal(member))return null;return members;
+  }
+  function sameValueSlots(members,values,start,count){if(!members||members.length!==count)return false;for(let i=0;i<count;i++)if(!Object.is(members[i],values[start+i]))return false;return true;}
+  function* valueTextPart(text,key,count,members=null){
+    const old=VALUE_TEXT.get(key);if(old?.text===text){old.members=members;return old.chunk;}
     if(text.length>VALUE_PART_CHARS||valueChars-(old?.text.length||0)+text.length>VALUE_CACHE_CHARS){forgetValueText(key);return null;}
-    const chunk={id:`${NONCE}.v.${(++valueSequence).toString(36)}`,bytes:yield* utf8LengthSteps(text),count};return rememberValueText(key,text,chunk)?chunk:null;
+    const chunk={id:`${NONCE}.v.${(++valueSequence).toString(36)}`,bytes:yield* utf8LengthSteps(text),count};return rememberValueText(key,text,chunk,members)?chunk:null;
   }
   function resolveValueTable(marker,pending,options){
     if(!isPlain(marker)||marker.$ghValues!=='segments-v1'||!Number.isSafeInteger(marker.length)||marker.length<1||marker.length>4194304||!Array.isArray(marker.parts)||marker.parts.length!==Math.ceil(marker.length/VALUE_ROWS))throw corrupt('value-table');
@@ -625,7 +650,15 @@
         const resolved=node.g.map(part=>{const decoded=decodeSegment(node.a,text(part,null)),adopted=isTextMarker(part)?ADOPTED_TEXT.get(null):null;ADOPTED_TEXT.delete(null);return {decoded,adopted};});
         const combined=combineSegments(node.a,resolved.map(row=>row.decoded));
         if(resolved.some(row=>row.adopted)){
-          const layout=segmentBounds(combined,TRACKED.get(key)||null),byStart=new Map(layout.bounds.map(bound=>[bound.start,bound]));let start=0;
+          // A save names the extras segments by the larger layout when they were a fleet store's, by the ordinary one
+          // otherwise: the layout whose bounds are the saved segments' is the one their ids are adopted by.
+          let layout=null,byStart=null;
+          for(const policy of key===EXTRAS_KEY&&!TRACKED.has(key)?[EXTRAS_POLICY,null]:[segmentPolicy(key,false)]){
+            layout=segmentBounds(combined,policy);byStart=new Map(layout.bounds.map(bound=>[bound.start,bound]));let at=0,fits=true;
+            for(const row of resolved){const length=node.a?row.decoded.length:Object.keys(row.decoded).length,bound=byStart.get(at);if(!bound||bound.end!==at+length){fits=false;break;}at+=length;}
+            if(fits)break;
+          }
+          let start=0;
           for(const row of resolved){const length=node.a?row.decoded.length:Object.keys(row.decoded).length,bound=byStart.get(start);if(row.adopted&&bound&&bound.end===start+length)ADOPTED_TEXT.set(`${key}${bound.key.startsWith('#')?'':'@'}${bound.key}`,row.adopted);start+=length;}
         }
         out=writePathCopy(out,path,combined);continue;
@@ -778,9 +811,11 @@
   // on that read: the comparison with the last save, the segment bounds and the parts, each in bounded steps. The entry
   // is cached only once it is complete, so a save abandoned between steps keeps nothing. A collection under LAYOUT_STEP
   // members takes one step, as before (its parts copied from the value itself, as before).
-  function* collectionLayoutSteps(key,value){
-    // The same sealed container as at the last save has the same members: no member is compared.
-    const cached=PATH_LAYOUT.get(key);if(cached&&cached.value===value&&sealedContainer(value)){cached.value=value;layoutCacheStats.hits++;return cached;}
+  function* collectionLayoutSteps(key,value,version,chunked=false){
+    const policy=segmentPolicy(key,chunked);
+    // The same sealed container as at the last save has the same members: no member is compared. So has the store's extras
+    // container at the same extrasVersion (read before its members, so a write while they are read is a change next time).
+    const cached=PATH_LAYOUT.get(key)?.policy===policy?PATH_LAYOUT.get(key):null;if(cached&&cached.value===value&&(sealedContainer(value)||version!==undefined&&cached.version===version)){cached.value=value;layoutCacheStats.hits++;if(version!==undefined)extrasStats.layoutReused++;return cached;}
     // A collection changed while it was read between steps (a fleet write; a command holds the rest of the game) is read
     // again; the third read takes one step, as before, so the read is always one moment's collection.
     const isArray=Array.isArray(value);let keys,count,members;
@@ -792,12 +827,12 @@
     }
     if(cached&&(isArray?!cached.keys:!!cached.keys)&&cached.members.length===count){
       let same=true;for(let i=0;i<count&&same;i++){if(cached.members[i]!==members[i]||!isArray&&cached.keys[i]!==keys[i])same=false;if(i%LAYOUT_STEP===LAYOUT_STEP-1)yield;}
-      if(same){cached.value=value;layoutCacheStats.hits++;return cached;}
+      if(same){cached.value=value;cached.version=version;layoutCacheStats.hits++;return cached;}
     }
-    const policy=TRACKED.get(key)||null,split=count>=(policy?policy.min:SEGMENT_MIN);let layout=null,parts;
+    const split=count>=(policy?policy.min:SEGMENT_MIN);let layout=null,parts;
     if(split){layout=yield* segmentBoundsSteps(isArray,keys,members,policy);parts=yield* segmentSlicesSteps(isArray,keys,members,layout);}
     else parts=[isArray?value.slice():{...value}];
-    const entry={value,keys,members,split,layout,parts,sealed:new Array(parts.length).fill(null)};
+    const entry={value,version,policy,keys,members,split,layout,parts,sealed:new Array(parts.length).fill(null)};
     PATH_LAYOUT.set(key,entry);layoutCacheStats.misses++;return entry;
   }
   // The segment bounds of a collection already read (an array's members, or a map's keys), in bounded steps, and its
@@ -821,6 +856,7 @@
     }
     return parts;
   }
+  function sealExtrasRows(part){const seal=globalThis.GH_TRANSACTION_CORE?.sealValue;if(typeof seal!=='function')return;for(const key of Object.keys(part)){const row=part[key];if(row&&typeof row==='object'&&!globalThis.GH_TRANSACTION_CORE.isSealed(row)&&seal(row))extrasStats.rowsSealed++;}}
   function sealedMembers(value){
     const sealed=globalThis.GH_TRANSACTION_CORE?.isSealed;if(typeof sealed!=='function')return null;
     const keys=Array.isArray(value)?null:Object.keys(value),members=keys?keys.map(key=>value[key]):value.slice();
@@ -908,7 +944,10 @@
       const store=state.fleet,values=store.values,originalLength=values.length,owner=globalThis.GH_FLEET_STORE,valueRevision=owner?.valueRevision?.(store),parts=[],liveValues=new Set();
       valueFresh=()=>{if(state.fleet!==store||store.values!==values||values.length!==originalLength||owner?.valueRevision?.(store)!==valueRevision)throw new Error('state-codec-fleet-changed-during-save');};
       for(let index=0,start=0;start<values.length;index++,start+=VALUE_ROWS){
-        const rows=values.slice(start,start+VALUE_ROWS),text=yield* stringifySteps(rows);valueFresh();const chunk=yield* valueTextPart(text,index,rows.length);valueFresh();
+        const count=Math.min(VALUE_ROWS,values.length-start),old=VALUE_TEXT.get(index);let text,members;
+        if(old?.chunk&&sameValueSlots(old.members,values,start,count)){text=old.text;members=old.members;valuePartStats.reused++;}
+        else{members=sealedValueSlots(values,start,count);text=yield* stringifySteps(members||values.slice(start,start+count));valuePartStats.written++;}
+        valueFresh();const chunk=yield* valueTextPart(text,index,count,members);valueFresh();
         if(chunk){liveValues.add(index);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text:VALUE_TEXT.get(index)?.text||text});parts.push(JSON.stringify({$ghValuesPart:1,...chunk}));}
         else parts.push(text);yield 'fleet-values-part';valueFresh();
       }
@@ -917,15 +956,17 @@
       const token=`\u0000gh-codec:${NONCE}:${fragments.length}\u0000`,text=liveValues.size?`{"$ghValues":"segments-v1","length":${values.length},"parts":[${parts.join(',')}]}`:`[${parts.map(part=>part.slice(1,-1)).join(',')}]`;
       fragments.push({token:JSON.stringify(token),text});out=writePathCopy(out,['fleet','values'],token);valueTable=liveValues.size>0;
     }else if(textChunks&&rowsText!==null){VALUE_TEXT.clear();valueChars=0;}
-    const scan=yield* scanPathsSteps(out),paths=scan.paths;
+    const fleetOwner=globalThis.GH_FLEET_STORE,extrasStore=typeof fleetOwner?.extrasVersion==='function'&&fleetOwner.isStore?.(state.fleet)?state.fleet:null;
+    const versionOf=value=>extrasStore&&value===extrasStore.extras?fleetOwner.extrasVersion(extrasStore):undefined;
+    const scan=yield* scanPathsSteps(out,versionOf),paths=scan.paths;
     if(!paths.length&&!binaryPaths.length&&!scan.runs.length&&!cold.ids.length&&!cold.hasPages)return yield* stringifySteps(out);
     let segments=false;const livePaths=new Set(),liveTracked=new Set();
     for(const path of paths){
-      const value=readPath(out,path),key=JSON.stringify(path),shape=yield* collectionLayoutSteps(key,value),split=shape.split;if(split)segments=true;livePaths.add(key);
+      const value=readPath(out,path),key=JSON.stringify(path),version=key===EXTRAS_KEY?versionOf(value):undefined,shape=yield* collectionLayoutSteps(key,value,version,!!textChunks&&version!==undefined),split=shape.split;if(split)segments=true;livePaths.add(key);
       const layout=shape.layout,parts=shape.parts,texts=[],tracked=TRACKED.has(key);let cached=true;
       for(let index=0;index<parts.length;index++){
         const partKey=split?`${key}${layout.bounds[index].key.startsWith('#')?'':'@'}${layout.bounds[index].key}`:key;
-        let current=shape.sealed[index];if(!current){current=sealedMembers(parts[index]);if(current)shape.sealed[index]=current;}
+        let current=shape.sealed[index];if(!current&&version!==undefined)sealExtrasRows(parts[index]);if(!current){current=sealedMembers(parts[index]);if(current)shape.sealed[index]=current;}
         // Build 359: a segment with a member that is not sealed (an open finance document) is encoded afresh, inline;
         // the sealed segments beside it keep their cached text (the text is the same as encodeCollection's).
         if(!current){
@@ -1195,7 +1236,7 @@
     return {text,chunks:[...manifest.chunks,...textChunks,...coldChunks]};
   }
 
-  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT},tracked:{...trackedStats,entries:TRACKED_TEXT.size,paths:TRACKED.size},sealedText:{...sealedTextStats},roots:lastRootChars.map(row=>({...row}))}),registerTrackedCollection,valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
+  const API=Object.freeze({VERSION,MIN_ROWS,chunkChecksum,recordFleetRows,beginFleetOverlay,endFleetOverlay,fleetRowChecksum,isPreparedChunk:chunk=>preparedChunkSnapshots.has(chunk),encodeState,decodeState,serialize,serializeSteps,deserialize,selectPaths,serializeChunked,serializeChunkedSteps,adoptChunkIds,inheritFleetChunkCache,createColdArchivePage,coldArchiveRows,validateColdArchive,coldArchiveStats,inheritColdArchive,bytesToBase64:bytes=>{chunkCacheStats.base64Calls++;return base64Encode(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes));},cacheStats:()=>({...collectionCacheStats,layout:{...layoutCacheStats,entries:PATH_LAYOUT.size},entries:COLLECTION_TEXT.size,rows:{...rowCacheStats},chunks:{...chunkCacheStats},text:{...textChunkStats,adoptable:ADOPTED_TEXT.size},openChunks:{...openChunkStats,entries:OPEN_TEXT.size,limitChars:OPEN_TEXT_LIMIT},tracked:{...trackedStats,entries:TRACKED_TEXT.size,paths:TRACKED.size},sealedText:{...sealedTextStats},roots:lastRootChars.map(row=>({...row}))}),registerTrackedCollection,extrasStats:()=>({...extrasStats}),valueChunkStats:()=>({entries:VALUE_TEXT.size,chars:valueChars,limitChars:VALUE_CACHE_CHARS,...valuePartStats}),textChunkMin:TEXT_CHUNK_MIN,isEncoded:tree=>isPlain(tree)&&own(tree,'stateCodec')});
   globalThis.GH_STATE_CODEC=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_STATE_CODEC=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;
