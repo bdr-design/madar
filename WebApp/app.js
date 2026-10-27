@@ -1065,9 +1065,13 @@
     if(fleetUiSummaryCacheStore!==store){fleetUiSummaryCache.clear();fleetUiSummaryCacheStore=store;fleetUiSummaryProjectSource=null;}
     const options=fleetUiSummaryOptions(facilities),key=core.requestKey(options),client=fleetEngineThreadClient,revision=window.GH_FLEET_DATA.revision(state);let entry=fleetUiSummaryCache.get(key);
     if(entry&&entry.store===store&&entry.revision===revision&&entry.found&&client?.current?.(entry.found,store)&&(!dynamic||Number(entry.result?.asOfSimSeconds)===Number(state.simSeconds)))return {result:entry.result,lookup:core.lookup(entry.result)};
-    if(!entry||entry.store!==store||entry.revision!==revision){entry={store,revision,asking:null,found:null,result:null};fleetUiSummaryCache.set(key,entry);}
+    // iPhone diagnostic (build 95): a revision that moved while this key's query was still on the worker posted another
+    // whole-fleet pass behind it on the same queue (ahead of the save validation). The newer entry now waits on the query
+    // in flight; when that answers, the entry it no longer fits asks once for the current revision.
+    if(!entry||entry.store!==store||entry.revision!==revision){const carried=entry?.store===store?entry.asking:null;entry={store,revision,asking:carried,carried:!!carried,found:null,result:null};fleetUiSummaryCache.set(key,entry);}
+    entry.facilities=facilities;entry.dynamic=dynamic;
     const previous=fleetUiSummaryProjectSource;
-    if(!entry.asking&&previous?.store===store&&previous.revision===revision&&client&&!client.disabled&&client.current(previous.found,store)&&Number(previous.result?.asOfSimSeconds)===Number(state.simSeconds)){
+    if((!entry.asking||entry.carried)&&previous?.store===store&&previous.revision===revision&&client&&!client.disabled&&client.current(previous.found,store)&&Number(previous.result?.asOfSimSeconds)===Number(state.simSeconds)){
       const result=core.project?.(previous.result,previous.options,options);if(result){entry.found={...previous.found,result};entry.result=result;entry.revision=previous.found.revision;return {result,lookup:core.lookup(result)};}
     }
     // Tiny development/new-game fleets stay responsive without requiring Worker support.  The threshold is the same
@@ -1075,7 +1079,7 @@
     if(window.GH_FLEET_DATA.size(state)<FLEET_THREAD_EARLY_ROWS&&(!client||client.disabled)){const result=core.compute(state,window.GH_FLEET_DATA,options);return result.legacy?null:{result,lookup:core.lookup(result)};}
     if(!entry.asking&&client&&!client.disabled&&typeof client.query==='function'){
       const asked=client.query(store,{name:'uiSummary',params:options,simSeconds:state.simSeconds});
-      if(asked){const token=entry.asking={promise:null};token.promise=asked.then(found=>{if(entry.asking!==token)return null;entry.asking=null;if(fleetUiSummaryCache.get(key)!==entry||state.fleet!==store)return null;if(!found||!client.current(found,store)||found.result?.requestKey!==key||found.result?.legacy){scheduleFleetUiSummaryPrime();return null;}entry.found=found;entry.result=found.result;entry.revision=found.revision;fleetUiSummaryProjectSource={store,revision:found.revision,found,result:found.result,options};scheduleFleetUiSummaryRefresh();return found;},()=>{if(entry.asking===token){entry.asking=null;if(fleetUiSummaryCache.get(key)===entry&&state.fleet===store)scheduleFleetUiSummaryPrime();}return null;});}else scheduleFleetUiSummaryPrime();
+      if(asked){const token=entry.asking={promise:null},handOn=()=>{const next=fleetUiSummaryCache.get(key);if(next&&next!==entry&&next.asking===token){next.asking=null;next.carried=false;if(state.fleet===next.store)try{fleetUiSummary(next.facilities,{dynamic:next.dynamic});}catch(_error){}}};token.promise=asked.then(found=>{handOn();if(entry.asking!==token)return null;entry.asking=null;if(fleetUiSummaryCache.get(key)!==entry||state.fleet!==store)return null;if(!found||!client.current(found,store)||found.result?.requestKey!==key||found.result?.legacy){scheduleFleetUiSummaryPrime();return null;}entry.found=found;entry.result=found.result;entry.revision=found.revision;fleetUiSummaryProjectSource={store,revision:found.revision,found,result:found.result,options};scheduleFleetUiSummaryRefresh();return found;},()=>{handOn();if(entry.asking===token){entry.asking=null;if(fleetUiSummaryCache.get(key)===entry&&state.fleet===store)scheduleFleetUiSummaryPrime();}return null;});}else scheduleFleetUiSummaryPrime();
     }else if(!client)scheduleFleetUiSummaryPrime();
     return null;
   }
@@ -1098,7 +1102,9 @@
       if(client&&!client.disabled&&typeof client.query==='function'){
         const options=fleetUiSummaryOptions(facilities),key=core.requestKey(options),simSeconds=state.simSeconds,asked=fleetUiSummaryCache.get(key)?.asking?.promise;
         // currentFleetUiSummary already starts the exact request. Await that work instead of queueing another full pass.
-        if(asked){const found=await asked;if(found&&state.fleet===store&&client.current(found,store)&&found.result?.requestKey===key&&!found.result?.legacy&&(!dynamic||Number(found.result.asOfSimSeconds)===Number(simSeconds)&&Number(state.simSeconds)===Number(simSeconds)))return {result:found.result,lookup:core.lookup(found.result),current:target=>(target===state||window.__GH_DURABLE_COMMAND_CONTEXT__?.liveState===state&&window.__GH_DURABLE_COMMAND_CONTEXT__?.draft===target)&&target.fleet===store&&client.current(found,store)&&(!dynamic||Number(target.simSeconds)===Number(simSeconds))};}
+        if(asked){const found=await asked;if(found&&state.fleet===store&&client.current(found,store)&&found.result?.requestKey===key&&!found.result?.legacy&&(!dynamic||Number(found.result.asOfSimSeconds)===Number(simSeconds)&&Number(state.simSeconds)===Number(simSeconds)))return {result:found.result,lookup:core.lookup(found.result),current:target=>(target===state||window.__GH_DURABLE_COMMAND_CONTEXT__?.liveState===state&&window.__GH_DURABLE_COMMAND_CONTEXT__?.draft===target)&&target.fleet===store&&client.current(found,store)&&(!dynamic||Number(target.simSeconds)===Number(simSeconds))};
+          // A newer entry that waited on that query has asked for the current revision: wait for it, as for its own query.
+          const next=fleetUiSummaryCache.get(key)?.asking?.promise;if(next&&next!==asked)continue;}
         else try{primeFleetThreadAfterCommand();}catch(_error){}
       }else if(!client)return null;
       if(performance.now()>=deadline)return null;

@@ -120,6 +120,13 @@
       // cloned/stringified/scanned the whole legacy fleet a second time.
       companyUpgrade=currentFleet||hasSchemaMigrator?{state:schemaUpgrade.state,changed:false}:migrateCompanyPlatform(schemaUpgrade.state),
       fleetUpgrade=migrateFleet(companyUpgrade.state),legacyUpgrade={state:fleetUpgrade.state,changed:schemaUpgrade.changed===true||companyUpgrade.changed===true||fleetUpgrade.changed===true};saved=legacyUpgrade.state;
+    // iPhone diagnostic (build 95): the boot verified every proof twice, here and at the boot confirmation (590 ms, 4,395
+    // authorization proofs and about 4,750 documents again). The two proof stores are sealed here, before the full check,
+    // as the first save (persistence) and the first draft (transaction core) would seal them: their rows are never edited
+    // in place. A later full check of the same frozen rows in this session reuses each row's own digest and still checks
+    // its seal, mandate, chain and references on every pass. Finance is not sealed here (its boot-time writers of final
+    // documents are not audited).
+    try{globalThis.GH_TRANSACTION_CORE?.sealCollections?.({authorization:saved?.authorization,documentProofs:saved?.documentProofs});}catch(_error){/* the seal only saves work: the full check below decides */}
     const validation=saveSchema.validate(saved);
     if(!validation.ok)throw new Error(`MIGRATION_SAVE_REJECTED:${validation.errors.join(',')}`);
     // Native Save Vault already enforces resetEpoch/revision ordering. The browser

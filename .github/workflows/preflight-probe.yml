@@ -7,8 +7,9 @@ name: Preflight probe on macOS (diagnostic only)
 # first 24 preflight gates of ACCEPTANCE_POLICY.json (the
 # gates that failed, then those the latest fixes touch, then those that passed), the gates whose tests changed several
 # times each, on the same macOS runner and Node, without stopping at a failure, and prints every result with its
-# measurements. It builds nothing and is not an acceptance gate. Since build 96 it runs the browser gates (and the four
-# company-type weight gates) of the preflight's front instead of its first 24 gates, which are now Node gates.
+# measurements. It builds nothing and is not an acceptance gate. Since build 96 it runs the browser gates (and the gates
+# that read Git history: the four company-type weight gates, build584 and build585) of the preflight's front instead of
+# its first 24 gates, which are now Node gates.
 
 on:
   # A workflow that is not on the default branch cannot be dispatched; a push that changes this file or build576 runs it.
@@ -33,6 +34,8 @@ on:
       - tests/build580-company-types-money-weight.cjs
       - tests/build581-fleet-definition-weight.cjs
       - tests/build582-directory-type-weight.cjs
+      - tests/build584-summary-one-in-flight.cjs
+      - tests/build585-save-upload-block-accounting.cjs
   workflow_dispatch:
 
 permissions:
@@ -78,13 +81,13 @@ jobs:
           pre=[list(row) for row in contract(root)['preflight_commands']]
           # The preflight's front holds the gates the latest changes added or touched, up to build358-fleet-engine-thread
           # (touched by build 96, failed before build 95). Its browser gates are the ones the macOS runner and WebKit can
-          # fail where this machine cannot; the four company-type weight gates read Git history. Each runs once, the
+          # fail where this machine cannot; the four company-type weight gates, build584 and build585 read Git history. Each runs once, the
           # browser gates whose tests build 96 changed twice.
           last=['node','tests/build358-fleet-engine-thread-browser.cjs']
           if last not in pre:raise SystemExit('build358-fleet-engine-thread-browser left the preflight')
           front=pre[:pre.index(last)+1]
-          picked=[row for row in front if row[1].endswith('-browser.cjs') or row[1] in ('tests/build579-defined-types-platform-weight.cjs','tests/build580-company-types-money-weight.cjs','tests/build581-fleet-definition-weight.cjs','tests/build582-directory-type-weight.cjs')]
-          repeat={'tests/build379-financial-posting-browser.cjs':2,'tests/build530-durable-alert-defer-browser.cjs':2,'tests/build374-diagnostic-lifecycle-browser.cjs':2,'tests/build359-save-policy-browser.cjs':2,'tests/build358-fleet-engine-thread-browser.cjs':2}
+          picked=[row for row in front if row[1].endswith('-browser.cjs') or row[1] in ('tests/build579-defined-types-platform-weight.cjs','tests/build580-company-types-money-weight.cjs','tests/build581-fleet-definition-weight.cjs','tests/build582-directory-type-weight.cjs','tests/build584-summary-one-in-flight.cjs','tests/build585-save-upload-block-accounting.cjs')]
+          repeat={'tests/build570-documents-list-weight-browser.cjs':3,'tests/build379-financial-posting-browser.cjs':2,'tests/build530-durable-alert-defer-browser.cjs':2,'tests/build374-diagnostic-lifecycle-browser.cjs':2,'tests/build359-save-policy-browser.cjs':2,'tests/build358-fleet-engine-thread-browser.cjs':2}
           jobs=[(f'{row[1]} run {i}' if repeat.get(row[1],1)>1 else row[1],row) for row in picked for i in range(1,repeat.get(row[1],1)+1)]
           print(f'PROBE PLAN: {len(jobs)} runs of {len(picked)} gates from the first {len(front)} preflight gates',flush=True)
           failed=[]

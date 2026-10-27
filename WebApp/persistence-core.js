@@ -193,6 +193,11 @@
   // One save step that holds the main thread for 8 ms or more is reported to the frame recorder (the app installs the
   // reporter; the recorder ignores it unless it is recording), so a frame it drops is named a save, not unattributed.
   const SAVE_WORK_REPORT_MS=8,reportSaveWork=(start,end)=>{try{globalThis.GH_SAVE_WORK_REPORTER?.(start,end);}catch(_error){}};
+  // The main-thread time since runSliced's last yield to a frame when it returned (it returns without yielding).
+  // Kept per timing object, so a concurrent save path's runSliced (prestage, snapshots) cannot overwrite another's.
+  const SLICED_TAIL=new WeakMap();
+  // The same when serializeNativeSliced returned through the codec ({ms, at}): the caller's envelope encode continues it.
+  const NATIVE_OPEN=new WeakMap();
   async function runSliced(steps,yieldToFrame,timing,checksumSession=null){
     let active=0,input,step,deferredAccounted=0;
     const accountDeferred=()=>{if(!checksumSession)return;const stats=checksumSession.stats(),extra=stats.deferredSubmitMs-deferredAccounted;timing.busyMs+=extra;deferredAccounted=stats.deferredSubmitMs;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,stats.maxDeferredSubmitMs);};
@@ -200,7 +205,7 @@
       accountDeferred();
       const start=clock();step=steps.next(input);input=undefined;const busy=clock()-start;active+=busy;timing.busyMs+=busy;if(busy>=SAVE_WORK_REPORT_MS)reportSaveWork(start,start+busy);
       timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,active);
-      if(step.done)return step.value;
+      if(step.done){SLICED_TAIL.set(timing,active);return step.value;}
       if(step.value?.kind==='fleet-row-proof'){
         const provider=globalThis.GH_FLEET_QUERY_PROVIDER,asked=typeof provider==='function'?provider({fleet:step.value.store,simSeconds:0},'saveChunkProof',{index:step.value.index,totalByteLength:step.value.totalByteLength}):null;
         input=await asked;
@@ -232,15 +237,15 @@
   // blocked by the lifecycle lock, and a chunk staging may overlap the validation) takes the same fresh, validated retake
   // as a write during serialization, so a save never lists rows newer than its proof.
   async function serializeNativeSliced(state,yieldToFrame,timing,{retake=true,validatedFleetRevision=null,knownChunkIds=vaultChunks,forceChunked=false,fleetChunksOnly=false}={}){
-    const codec=stateCodec();if(!chunkedNative(state)&&!forceChunked)return typeof codec?.serializeSteps==='function'?{json:await runSliced(codec.serializeSteps(state),yieldToFrame,timing),uploads:[],chunked:false}:serializeNative(state);
+    const codec=stateCodec();NATIVE_OPEN.delete(timing);if(!chunkedNative(state)&&!forceChunked){if(typeof codec?.serializeSteps!=='function')return serializeNative(state);const json=await runSliced(codec.serializeSteps(state),yieldToFrame,timing);NATIVE_OPEN.set(timing,{ms:SLICED_TAIL.get(timing)||0,at:clock()});return {json,uploads:[],chunked:false};}
     if(typeof codec.serializeChunkedSteps!=='function')return serializeNative(state);
-    const externalChecksums=typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER==='function'&&Number(state.fleet?.length)>FLEET_MAIN_THREAD_ROWS;let out;
+    const externalChecksums=typeof globalThis.GH_SAVE_CHECKSUM_PROVIDER==='function'&&Number(state.fleet?.length)>FLEET_MAIN_THREAD_ROWS;let out,openMs=0;
     for(let attempt=0;;attempt++){
       const staleProof=attempt===0&&validatedFleetRevision!=null&&state.fleet?.revision!==validatedFleetRevision;
       const store=state.fleet,revision=store?.revision,buffer=store?.rows,session=externalChecksums&&typeof globalThis.GH_SAVE_CHECKSUM_THREAD?.createSession==='function'?globalThis.GH_SAVE_CHECKSUM_THREAD.createSession({current:()=>state.fleet===store&&store.revision===revision&&store.rows===buffer,submit:globalThis.GH_SAVE_CHECKSUM_PROVIDER}):null;
       try{
         if(staleProof)throw new Error('state-codec-fleet-changed-during-save');
-        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,externalEncoding:externalChecksums&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function',knownChunkIds,allowRowPatches:globalThis.GH_NATIVE_ROW_PATCHES===1&&typeof globalThis.GH_FLEET_QUERY_PROVIDER==='function',fleetChunksOnly}),yieldToFrame,timing,session);
+        out=await runSliced(codec.serializeChunkedSteps(state,{externalChecksums,externalEncoding:externalChecksums&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function',knownChunkIds,allowRowPatches:globalThis.GH_NATIVE_ROW_PATCHES===1&&typeof globalThis.GH_FLEET_QUERY_PROVIDER==='function',fleetChunksOnly}),yieldToFrame,timing,session);openMs=session?0:SLICED_TAIL.get(timing)||0;
         if(state.fleet?.revision!==revision)throw new Error('state-codec-fleet-changed-during-save');
         break;
       }catch(error){
@@ -251,15 +256,18 @@
         if(!check?.ok)throw new Error(`invalid-save:${(check?.errors||['save-schema-unavailable']).join(',')}`);
       }finally{await session?.close();}
     }
-    const uploads=[];let uploadCopyStarted=clock();for(const chunk of out.chunks)if(!knownChunkIds.has(chunk.id)){
+    // iPhone diagnostic (build 95) review: the codec's last steps and every text encode that finishes in one step run
+    // without a yield to a frame, and each was measured alone, so maxBusySliceMs never saw the block they make together.
+    // openMs is the main-thread time since the last yield, carried across them (accounting only: the yields are as before).
+    const uploads=[],note=busy=>{openMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,openMs);};let uploadCopyStarted=clock();for(const chunk of out.chunks)if(!knownChunkIds.has(chunk.id)){
       if(externalChecksums&&['lane','lane-container'].includes(chunk.kind)&&!codec.isPreparedChunk?.(chunk))throw new Error('save-worker-snapshot-missing');
       let bytes;
-      if(typeof chunk.text==='string'){const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,busy);bytes=await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing);uploadCopyStarted=clock();}
+      if(typeof chunk.text==='string'){const busy=clock()-uploadCopyStarted,slices=timing.slices;timing.busyMs+=busy;note(busy);bytes=await runSliced(utf8Steps(chunk.text,{chunk:true}),yieldToFrame,timing);if(timing.slices!==slices)openMs=0;note(SLICED_TAIL.get(timing)||0);uploadCopyStarted=clock();}
       else bytes=copyChunkBytes(state,chunk);
       uploads.push({id:chunk.id,kind:chunk.kind,bytes});
-      if(clock()-uploadCopyStarted>=4){const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,busy);timing.slices++;await yieldToFrame();uploadCopyStarted=clock();}
+      if(clock()-uploadCopyStarted>=4){const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;note(busy);timing.slices++;await yieldToFrame();openMs=0;uploadCopyStarted=clock();}
     }
-    {const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;timing.maxBusySliceMs=Math.max(timing.maxBusySliceMs||0,busy);}
+    {const busy=clock()-uploadCopyStarted;timing.busyMs+=busy;note(busy);}NATIVE_OPEN.set(timing,{ms:openMs,at:clock()});
     return {json:out.text,uploads,chunked:true,chunkIds:out.chunks.map(chunk=>chunk.id)};
   }
   // Encode once in bounded pieces, then join into one exact-size buffer. Never split a surrogate pair.
@@ -485,7 +493,7 @@
       if(overlap){await awaitStaging(staging.settled,'stagingUploadWaitMs');if(trusting&&nativeSave?.chunkIds?.some(id=>planned.has(id)&&!vaultChunks.has(id))){durableTiming.stagingRetakes=1;nativeSave=await serializeNativeSliced(state,yieldToFrame,sliced,{validatedFleetRevision});}}
       const json=nativeSave?nativeSave.json:serializeState(state);durableTiming.stringifyMs=sliced?sliced.busyMs:Math.max(0,clock()-stageStart);durableTiming.chunkUploads=nativeSave?.uploads.length||0;lastSaveAtMs=clock();
       if(nativeBridge){
-        stageStart=clock();const encodeBusy=sliced?sliced.busyMs:0,encoded=sliced?await runSliced(utf8Steps(json),yieldToFrame,sliced):utf8(json),measurement=inspectNativeJSON(json,encoded);durableTiming.measurementMs=sliced?sliced.busyMs-encodeBusy:Math.max(0,clock()-stageStart);durableTiming.utf8Bytes=measurement.utf8Bytes;durableTiming.totalSyncMs=sliced?durableTiming.schemaMs+sliced.busyMs:Math.max(0,clock()-syncStart);if(sliced){durableTiming.slices=sliced.slices;durableTiming.maxBusySliceMs=sliced.maxBusySliceMs||0;durableTiming.checksumRequests=sliced.checksumRequests||0;durableTiming.checksumWorkerMs=sliced.checksumWorkerMs||0;durableTiming.retakes=sliced.retakes;durableTiming.wallMs=Math.max(0,clock()-syncStart);}durableTiming.ok=true;rememberTiming(durableTiming);let ack;try{await uploadChunks(nativeSave?.uploads);
+        stageStart=clock();const open=sliced&&nativeSave&&!overlap?NATIVE_OPEN.get(sliced):null,carried=open?open.ms+Math.max(0,stageStart-open.at):0,slicesBefore=sliced?.slices,encodeBusy=sliced?sliced.busyMs:0,encoded=sliced?await runSliced(utf8Steps(json),yieldToFrame,sliced):utf8(json),measurement=inspectNativeJSON(json,encoded);if(carried&&sliced.slices===slicesBefore)sliced.maxBusySliceMs=Math.max(sliced.maxBusySliceMs||0,carried+(SLICED_TAIL.get(sliced)||0));durableTiming.measurementMs=sliced?sliced.busyMs-encodeBusy:Math.max(0,clock()-stageStart);durableTiming.utf8Bytes=measurement.utf8Bytes;durableTiming.totalSyncMs=sliced?durableTiming.schemaMs+sliced.busyMs:Math.max(0,clock()-syncStart);if(sliced){durableTiming.slices=sliced.slices;durableTiming.maxBusySliceMs=sliced.maxBusySliceMs||0;durableTiming.checksumRequests=sliced.checksumRequests||0;durableTiming.checksumWorkerMs=sliced.checksumWorkerMs||0;durableTiming.retakes=sliced.retakes;durableTiming.wallMs=Math.max(0,clock()-syncStart);}durableTiming.ok=true;rememberTiming(durableTiming);let ack;try{await uploadChunks(nativeSave?.uploads);
           // Every chunk the save lists is one this session uploaded or the vault reported: a commit never reaches the vault
           // listing one it may lack (the vault would refuse it; this refuses it first, with nothing saved).
           const absent=nativeSave?.chunked?nativeSave.chunkIds.find(id=>!vaultChunks.has(id)):null;if(absent)throw new Error(`save-chunk-not-uploaded:${absent}`);

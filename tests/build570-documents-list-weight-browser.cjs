@@ -6,9 +6,11 @@
 //     and building it (the app's own 'ui.render' clock) costs at most half of what drawing its documents cost;
 //  2. opening one document from its row costs no more than drawing a page of documents did;
 //  3. reading the pages writes nothing.
-// Both sources are open side by side and each page is opened on each in turn, ten times, and the mean of the cheapest
-// five is kept for each page's build (the cheapest of ten for the rest); then the
-// opened document takes turns with the old page drawn again and is compared with those ten. A machine that slows down
+// Both sources are open side by side and each page is opened on each in turn, twenty times, and the mean of the
+// cheapest five is kept for each page's build (the cheapest of twenty for the rest); then the
+// opened document takes turns with the old page drawn again and is compared with those twenty. Twenty, not ten (build
+// 96 on the macOS runner: the cheques list read 1.8 against the old page's 3.4 ms, 0.53 of it, where this machine reads
+// 0.34 to 0.44 on this source and on the source before it alike): the bound stays a half. A machine that slows down
 // during the run weighs on both alike. Ten, not five: a build of two milliseconds varies by half from one opening to
 // the next (the cheques list measured 1.9 to 3.5 ms in ten), and the cheques list builds 0.43 to 0.45 of the old
 // page here against a bound of a half. The processor runs at full speed: slowed four times, the
@@ -17,7 +19,7 @@
 // not iPhone performance.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright');
 const {bootAtOrigin,installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareCommandWorld}=require('./helpers/command-world-fixture.cjs');
-const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='adb8b56',VIEWS=['transfers','cheques','invoices'],ROUNDS=10;
+const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='adb8b56',VIEWS=['transfers','cheques','invoices'],ROUNDS=20;
 async function boot(root){
  const browser=await chromium.launch({headless:true}),errors=[];let env;try{
   env=await bootAtOrigin({browser,root,errors,fleetWorker:true,viewport:{width:956,height:440},beforeScripts:{fn:installVault}});const {page}=env;page.setDefaultTimeout(180000);await prepareCommandWorld(page,{count:2});
