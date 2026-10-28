@@ -1,0 +1,68 @@
+{"suite":"build460-render-idle-browser","engine":"chromium","viewport":{"width":956,"height":440},"world":{"rows":4400,"companies":11},"canvasPaints":0,"pixelsUnchanged":true,"drawn":1,"count":1,"canvasCount":1,"logicalWidth":956,"logicalHeight":440,"mapWidth":956,"mapHeight":440,"pan":{"painted":true,"changed":true,"shiftX":-40,"shiftY":0,"beforeHit":"fleet:N-AIR-00000001","afterHit":"fleet:N-AIR-00000001","id":"fleet:N-AIR-00000001"},"drawerIdle":{"writes":{},"paints":0},"marketModels":26}
+{"suite":"build460-render-idle-browser","engine":"chromium","viewport":{"width":844,"height":390},"world":{"rows":4400,"companies":11},"canvasPaints":0,"pixelsUnchanged":true,"drawn":1,"count":1,"canvasCount":1,"logicalWidth":844,"logicalHeight":390,"mapWidth":844,"mapHeight":390,"pan":{"painted":true,"changed":true,"shiftX":-40,"shiftY":0,"beforeHit":"fleet:N-AIR-00000001","afterHit":"fleet:N-AIR-00000001","id":"fleet:N-AIR-00000001"},"drawerIdle":{"writes":{},"paints":0},"marketModels":26}
+{"suite":"build460-render-idle-browser","engine":"chromium","viewport":{"width":667,"height":375},"world":{"rows":4400,"companies":11},"canvasPaints":0,"pixelsUnchanged":true,"drawn":1,"count":1,"canvasCount":1,"logicalWidth":667,"logicalHeight":375,"mapWidth":667,"mapHeight":375,"pan":{"painted":true,"changed":true,"shiftX":-40,"shiftY":0,"beforeHit":"fleet:N-AIR-00000001","afterHit":"fleet:N-AIR-00000001","id":"fleet:N-AIR-00000001"},"drawerIdle":{"writes":{},"paints":0},"marketModels":26}
+{"suite":"build460-live-movement","engine":"chromium","live":{"committedSlices":1,"committedSeconds":300,"simProgress":300,"positionsChanged":true,"painted":true,"changed":true}}
+AssertionError [ERR_ASSERTION]: real page buttons expose every model once in original order
++ actual - expected
+
+  [
+    'A-ATR42',
+    'A-ATR72',
+    'A-Q400',
+    'A-E175',
++   'A-ATR42',
++   'A-ATR72',
++   'A-Q400',
++   'A-E175',
+    'A-E195E2',
+    'A-A220',
+    'A-A320N',
+    'A-B38M',
++   'A-E195E2',
++   'A-A220',
++   'A-A320N',
++   'A-B38M',
+    'A-A321N',
+    'A-A321XLR',
+    'A-A339',
+    'A-B789',
++   'A-A321N',
++   'A-A321XLR',
++   'A-A339',
++   'A-B789',
+    'A-B78X',
+    'A-A359',
+    'A-A35K',
+    'A-B779',
++   'A-B78X',
++   'A-A359',
++   'A-A35K',
++   'A-B779',
+    'A-AT7F',
+    'A-B763F',
+    'A-B77F',
+    'A-A35F',
++   'A-AT7F',
++   'A-B763F',
++   'A-B77F',
++   'A-A35F',
+    'A-B778F',
+    'A-PH300',
+    'A-CL350',
+    'A-G650',
++   'A-B778F',
++   'A-PH300',
++   'A-CL350',
++   'A-G650',
+    'A-G7500',
+    'A-ACJ'
+  ]
+
+    at /Users/runner/work/madar/madar/tests/build460-render-idle-browser.cjs:9:2208 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [Array],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
