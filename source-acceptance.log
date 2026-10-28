@@ -1,0 +1,2 @@
+preflight 1/629 1 tests/build593-bulk-acquisition-frames-browser.cjs
+EARLY_FAILURE tests/build593-bulk-acquisition-frames-browser.cjs: stopping before remaining 628 gate(s)

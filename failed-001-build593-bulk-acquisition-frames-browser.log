@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 2: no part of the purchase holds the main thread half as long as the single batch before: 56.2 ms against 53.1 ms
+    at /Users/runner/work/madar/madar/tests/build593-bulk-acquisition-frames-browser.cjs:68:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
