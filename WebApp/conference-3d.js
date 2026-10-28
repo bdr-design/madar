@@ -71,7 +71,11 @@ class ConferenceSession{
    if(this.disposed)return;this.assetsReady=true;this.frames++;this.root.querySelector('.ghc3-loading')?.remove();this.setPhase('presenting',this.config.live&&this.resumePhase!=='presenting');this.persistProgress();if(this.mode!=='manual')this.play();
   }catch(error){if(!this.disposed)this.fail(error);}}
  show(persist=true){if(this.disposed)return;const slide=this.slides[this.slide],scene=slide.scene,changed=scene!==this.index;this.index=scene;this.frames++;
-  this.root.style.setProperty('--grad',slide.gradient);this.root.style.setProperty('--accent',slide.accent);this.root.style.setProperty('--glow',accentMix(slide.accent,.2));this.root.style.setProperty('--ring',accentMix(slide.accent,.75));
+  // Only what changed is written (owner, build 98: «كمل الباقي بدقه»; each write restyles the presentation, and a slide of
+  // the same chapter keeps the colours of the one before).
+  const written=this.written||(this.written={}),write=(node,key,value,apply)=>{if(written[key]===value)return;written[key]=value;apply(node,value);};
+  write(this.root,'grad',slide.gradient,(node,value)=>node.style.setProperty('--grad',value));
+  if(written.accent!==slide.accent){written.accent=slide.accent;this.root.style.setProperty('--accent',slide.accent);this.root.style.setProperty('--glow',accentMix(slide.accent,.2));this.root.style.setProperty('--ring',accentMix(slide.accent,.75));}
   // A hero slide's photograph fills the LED screen behind the stage; the same photograph is not drawn again.
   if((this.led.dataset.photo||'')!==slide.photo){this.led.dataset.photo=slide.photo;this.led.querySelector(':scope>.ghc3-photo')?.remove();if(slide.photo)this.stage.insertAdjacentHTML('beforebegin',`<div class="ghc3-photo" style="--img:url('${esc(slide.photo)}')"></div>`);}
   this.stage.innerHTML=`<div class="ghc3-beat${slide.layout?` ghc3-${slide.layout}`:''}">${slide.html}</div>`;
@@ -82,7 +86,7 @@ class ConferenceSession{
   const next=this.slides[this.slide+1];if(next?.photo)new Image().src=next.photo;
   this.root.querySelector('.ghc3-count').innerHTML=`${esc(slide.chapter)} <small>· <bdi dir="ltr">${this.slide+1}</bdi> من <bdi dir="ltr">${this.slides.length}</bdi></small>`;
   this.root.querySelector('[data-c3="prev"]').disabled=this.slide===0;this.root.querySelector('[data-c3="next"]').disabled=this.slide===this.slides.length-1;this.root.querySelector('[data-c3="finish"]').hidden=!this.config.live||this.slide!==this.slides.length-1;
-  const progress=this.root.querySelector('.ghc3-progress');progress.style.setProperty('--done',`${(this.slide+1)/this.slides.length*100}%`);progress.setAttribute('aria-valuemin','1');progress.setAttribute('aria-valuemax',String(this.slides.length));progress.setAttribute('aria-valuenow',String(this.slide+1));
+  const progress=this.root.querySelector('.ghc3-progress');write(progress,'done',`${(this.slide+1)/this.slides.length*100}%`,(node,value)=>node.style.setProperty('--done',value));write(progress,'max',String(this.slides.length),(node,value)=>{node.setAttribute('aria-valuemin','1');node.setAttribute('aria-valuemax',value);});progress.setAttribute('aria-valuenow',String(this.slide+1));
   if(persist&&changed)this.persistProgress();}
  persistProgress(){const rejected=error=>{if(this.disposed)return;this.pause();this.config.onError?.(error);};try{const pending=this.config.onProgress?.({mode:this.mode,index:this.index,sceneId:this.scenes[this.index].id});if(pending?.then)pending.catch(rejected);}catch(error){rejected(error);}}
  go(slide){if(this.disposed||this.failed)return;const next=Math.max(0,Math.min(this.slides.length-1,slide));if(next===this.slide)return;this.slide=next;this.show();if(this.playing)this.schedule();}

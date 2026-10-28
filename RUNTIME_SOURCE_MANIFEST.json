@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "fa6e765242ac6d17784b31ea0a8b7f8de040a821bc039ec93e1d8ebb7c7dc6bc",
-  "webapp_tree_sha256": "e14c9ec3772d054ddedd6cccba5141668fa00fd01058f64249a76951491a817d",
+  "source_tree_sha256": "80c4fdd6ce96effb6fc10627f52b2aabbae332240abca536de0e8f5fb6d94677",
+  "webapp_tree_sha256": "82c76ff8f895c10c8e535118e2ab36f0b1e43630c988167c4a8851c763e83d39",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3431,8 +3431,8 @@
       "sha256": "98e9c5d1fda435a9a28ff7725bea659e96faafdc8d09a0652ea4c12201ae4639"
     },
     "WebApp/conference-3d.js": {
-      "bytes": 19638,
-      "sha256": "5da17cbc2e4ded4e2b7b40b616de3944a90eacd09f9ba07053ab43889a5b0544"
+      "bytes": 20168,
+      "sha256": "71d2185fcb13c03f2f733969bc391df11d42ef7dd60d7524747b095c8becfe6b"
     },
     "WebApp/conference-core.js": {
       "bytes": 88890,
@@ -4028,7 +4028,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "2a17f49603e152bf2a2fcc957db7cf26d0690f0fd02dd79e2cd999e3ca5a8dc6"
+      "sha256": "8d4b1f3a72101bdebeab2676ac150dc366294ab3815c8423d98d2418fd9dc208"
     },
     "BUILD": {
       "bytes": 4,
