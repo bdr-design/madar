@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "80c4fdd6ce96effb6fc10627f52b2aabbae332240abca536de0e8f5fb6d94677",
-  "webapp_tree_sha256": "82c76ff8f895c10c8e535118e2ab36f0b1e43630c988167c4a8851c763e83d39",
+  "source_tree_sha256": "5540e9b10821a84689d46aeef94590481a48d3242380bc4ffa4ce87aa09ca139",
+  "webapp_tree_sha256": "ea488729aa2a5f5a2f55bc387f451c7910169e969ae1a73bc6d5879d410a6afb",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3391,12 +3391,12 @@
       "sha256": "0232535619501646f856d8f9d1124c78605e895110a8bea851d67477adfcca14"
     },
     "WebApp/business-options-ui.js": {
-      "bytes": 15147,
-      "sha256": "c81b97d2c0b24cba406e6370f31e3344a5d04fe560baf69a305b50033be07c47"
+      "bytes": 15167,
+      "sha256": "1f0d38d0d4dd7431b9f57477756a52ce3ad1791c8d920bb51afb5c0e1cb9bfb9"
     },
     "WebApp/business-options.css": {
-      "bytes": 297,
-      "sha256": "f7ee5e38c48fea21131e61da52e50095031fa14b8a3caed3af4f9f0985aa5b43"
+      "bytes": 501,
+      "sha256": "0ddaf5f72a3154b17f9762f82e977701b3119f199257a059e9fb3872e9aa5af3"
     },
     "WebApp/business-world-core.js": {
       "bytes": 60418,
@@ -4028,7 +4028,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "8d4b1f3a72101bdebeab2676ac150dc366294ab3815c8423d98d2418fd9dc208"
+      "sha256": "0f3c826aa5e3a096111115e06ff60daf5806bf564ee56f0a9a4fb87045d8f35c"
     },
     "BUILD": {
       "bytes": 4,

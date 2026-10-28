@@ -58,6 +58,7 @@ const COMPANIES=['realestate','power','insurance','bank','telecom','dealership']
    for(const c of ['realestate','power','insurance','bank']){
     await settled(page);await page.evaluate(c=>__AUDIT__.openDrawer('company',c),c);await tapTile(page,'buy-working','operatingAssetMarket');
     assert.equal(await page.evaluate(()=>__AUDIT__.currentPanel()),'operatingAssetMarket');
+    assert.equal(await page.evaluate(()=>{const card=document.querySelector('#drawerBody .business-offer-card');return Boolean(card)&&(!CSS.supports('content-visibility','auto')||getComputedStyle(card).contentVisibility==='auto');}),true,'an offer card off screen is neither laid out nor painted');
     const review=page.locator('[data-gh-action="operating-review"]').first();assert.equal(await review.count(),1,c);
     const key=await review.getAttribute('data-target'),variant=await review.getAttribute('data-variant');
     const quote=await page.evaluate(([c,t,v])=>GH_OPERATING_ACQUISITIONS.quote(__GH_STATE__,c,t,v),[c,key,variant]);

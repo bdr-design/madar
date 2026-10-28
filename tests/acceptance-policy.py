@@ -59,7 +59,11 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build576, which failed in build 104 (macOS: 16.9 frames a second through a calendar advance against
+# (AGENTS.md). First build460-render-idle-browser, which failed in build 105 (macOS WebKit: every asset market page was read
+# twice, every other click on its next button missed; the business offers' content-visibility rule had reached the asset
+# market's cards, which share their class, so the cards below grew as they came into view and moved the button; the rule now
+# names the offer cards only, and the gate checks the market's cards are laid out whole), then business-options-browser
+# (the offer cards keep that rule). Then build576, which failed in build 104 (macOS: 16.9 frames a second through a calendar advance against
 # the reference's 22.4 over 400 ms, seven to nine frames there; passed in build 103 with the same app; it counts 1.5 s of the
 # advance now) and in build 103 (the audit's cycle did not finish in 120 s while paused, 0.3 s here; it finished in build
 # 104; the timeout now reports what holds the audit). Then build575, which failed in build 101 (macOS: the source before's fastest of three openings 51 ms, ours
@@ -117,6 +121,8 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build460-render-idle-browser.cjs'],
+    ['node', 'tests/business-options-browser.cjs'],
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
@@ -243,7 +249,6 @@ expected_preflight=[
     ['node', 'tests/build547-conference-customer-base.cjs'],
     ['node', 'tests/build551-conference-keynote-slides.cjs'],
     ['node', 'tests/build555-investor-card-return.cjs'],
-    ['node', 'tests/business-options-browser.cjs'],
     ['node', 'tests/governor-overrun-signal.cjs'],
     ['node', 'tests/review-regressions.cjs'],
     ['node', 'tests/build334-company-adapters.cjs'],
@@ -611,7 +616,6 @@ expected_preflight=[
     ['node', 'tests/build375-compact-desks-browser.cjs'],
     ['node', 'tests/build470-composite-notice-work.cjs'],
     ['node', 'tests/build574-investor-budget-overrun.cjs'],
-    ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build496-world-query-reset.cjs'],
     ['node', 'tests/build490-container-compression.cjs'],
     ['node', 'tests/build486-route-card-pages.cjs'],

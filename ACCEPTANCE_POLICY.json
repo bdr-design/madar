@@ -3,6 +3,14 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build460-render-idle-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/business-options-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build576-presentation-rest-browser.cjs"
     ],
     [
@@ -504,10 +512,6 @@
     [
       "node",
       "tests/build555-investor-card-return.cjs"
-    ],
-    [
-      "node",
-      "tests/business-options-browser.cjs"
     ],
     [
       "node",
@@ -1976,10 +1980,6 @@
     [
       "node",
       "tests/build574-investor-budget-overrun.cjs"
-    ],
-    [
-      "node",
-      "tests/build460-render-idle-browser.cjs"
     ],
     [
       "node",

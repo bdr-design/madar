@@ -1,3 +1,5 @@
 /* The market page of operating businesses (business-options-ui.js). Owner (build 98 diagnostic): an offer card off screen
-   is neither laid out nor painted (a page holds up to 48); its size is kept for the scroll. */
-.asset-market-card{content-visibility:auto;contain-intrinsic-size:auto 460px}
+   is neither laid out nor painted (a page holds up to 48); its size is kept for the scroll. Only these cards: the asset
+   market's cards share .asset-market-card, and its page buttons below four cards must not move as they come into view
+   (build 105, WebKit: every other page click missed). */
+.business-offer-card{content-visibility:auto;contain-intrinsic-size:auto 460px}
