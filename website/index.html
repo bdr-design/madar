@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>فنتورا وصقر الوادي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="لعبتان عربيتان: فنتورا لإدارة مجموعة قابضة حول العالم، وصقر الوادي لمقعد المدفعي في الأباتشي وضابط الأسلحة في F-15SA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@600;800&display=swap">
+<style>
+/* Layout: two seats. Gold boardroom (VENTORA) on the right, green HUD cockpit (Saqr) on the left;
+   each game section is framed like a screen from that game. One committed dark look, as both games are. */
+:root{
+  color-scheme:dark;
+  --ink:#0B1218;        /* VENTORA ground */
+  --ink-2:#0F1820;
+  --panel:#121C24;
+  --panel-2:#1A2631;
+  --line:#263644;
+  --line-strong:#36495A;
+  --text:#EAF0F4;
+  --muted:#A9B7C3;
+  --faint:#8195A5;
+  --gold:#E3B55B;       /* VENTORA accent */
+  --gold-2:#F3CD84;
+  --gold-ink:#1A1407;
+  --gold-soft:rgba(227,181,91,.14);
+  --hud:#93F0B4;        /* Saqr TEDAC symbology */
+  --hud-dim:rgba(147,240,180,.55);
+  --hud-soft:rgba(147,240,180,.12);
+  --sand:#E9A15C;       /* desert dusk from the Saqr menu art */
+  --air:#6EA8FE; --sea:#3CCFCF; --road:#F4A261; --power:#FF7A59; --bank:#34D399; --mobility:#C08CFA;
+  --shade:rgba(5,9,13,.72);
+  --font-display:'Noto Kufi Arabic','IBM Plex Sans Arabic',Tahoma,sans-serif;
+  --font-body:'IBM Plex Sans Arabic',-apple-system,'Segoe UI',Tahoma,sans-serif;
+  --font-hud:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --step--1:clamp(.78rem,.76rem + .1vw,.84rem);
+  --step-0:clamp(.95rem,.92rem + .15vw,1.03rem);
+  --step-1:clamp(1.12rem,1.05rem + .35vw,1.3rem);
+  --step-2:clamp(1.4rem,1.2rem + .9vw,1.95rem);
+  --step-3:clamp(1.9rem,1.4rem + 2.2vw,3.1rem);
+  --step-4:clamp(2.5rem,1.6rem + 4vw,4.6rem);
+  --r:14px;
+  --wrap:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ink);color:var(--text);font:400 var(--step-0)/1.75 var(--font-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+img{max-width:100%;display:block}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;line-height:1.35}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold-2);outline-offset:3px;border-radius:6px}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hero-copy,.head,.seat-label,.form,.readout,.feats div,.mapc figcaption,.sign{grid-template-columns:minmax(0,1fr)}
+h1,h2,h3,p{overflow-wrap:anywhere}
+.nw{white-space:nowrap}
+.latin{font-family:var(--font-hud);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(11,18,24,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:800 var(--step-0)/1 var(--font-display);white-space:nowrap}
+.mark i{display:block;width:22px;height:22px;border-radius:50%;border:2px solid var(--gold);position:relative}
+.mark i::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--hud)}
+.nav{display:flex;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{text-decoration:none;color:var(--muted);font-size:var(--step--1);font-weight:500;padding:8px 12px;border-radius:999px;white-space:nowrap;transition:color .15s,background .15s}
+.nav a:hover{color:var(--text);background:var(--panel-2)}
+@media (max-width:560px){.mark span{display:none}.nav a{padding:8px 8px}.top .wrap{gap:8px}}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(28px,5vw,64px) clamp(24px,4vw,48px)}
+.hero-copy{display:grid;gap:14px;max-width:46rem;margin-bottom:clamp(22px,3.5vw,40px)}
+.eyebrow{font-size:var(--step--1);color:var(--muted);font-weight:500;letter-spacing:.02em}
+.hero h1{font-size:var(--step-4);font-weight:800;line-height:1.2}
+.hero h1 b{color:var(--gold);font-weight:800}
+.hero h1 em{font-style:normal;color:var(--hud)}
+.hero-copy p{font-size:var(--step-1);color:var(--muted);max-width:40rem}
+.seats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:820px){.seats{grid-template-columns:1fr}}
+.seat{position:relative;display:block;min-width:0;border-radius:var(--r);overflow:hidden;aspect-ratio:16/11;max-width:100%;text-decoration:none;border:1px solid var(--line);background:var(--panel);isolation:isolate;transition:border-color .2s,transform .25s}
+.seat:hover{transform:translateY(-3px)}
+.seat.v:hover{border-color:var(--gold)}
+.seat.s:hover{border-color:var(--hud)}
+.seat canvas,.seat > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.seat.s > img{object-position:30% 50%}
+.seat-label{position:absolute;inset:auto 0 0 0;padding:clamp(16px,2.4vw,26px);display:grid;gap:6px;background:linear-gradient(to top,rgba(6,10,14,.92) 10%,rgba(6,10,14,.55) 60%,transparent);z-index:2}
+.seat-label .latin{font-size:.72rem;color:var(--muted)}
+.seat-label h2{font-size:var(--step-2);font-weight:800}
+.seat-label p{color:var(--muted);font-size:var(--step--1);max-width:30rem}
+.seat-go{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-weight:600;font-size:var(--step--1)}
+.seat.v .seat-go{color:var(--gold-2)}
+.seat.s .seat-go{color:var(--hud)}
+.seat-tag{position:absolute;top:14px;right:14px;z-index:2;font-size:.72rem;padding:4px 10px;border-radius:999px;background:var(--shade);border:1px solid var(--line-strong);color:var(--text)}
+.seat .map-legend{position:absolute;top:14px;left:14px;z-index:2;display:flex;flex-wrap:wrap;gap:6px;max-width:60%}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;padding:3px 9px;border-radius:999px;background:var(--shade);border:1px solid var(--line);color:var(--text);white-space:nowrap}
+.chip i{width:7px;height:7px;border-radius:50%;background:var(--c,var(--gold))}
+
+/* ---------- section scaffolding ---------- */
+section.band{padding-block:clamp(48px,7vw,96px)}
+.band.v{background:linear-gradient(180deg,var(--ink) 0,var(--ink-2) 100%);border-top:1px solid var(--line)}
+.band.s{background:#0A0F0C;border-top:1px solid #1E2A23}
+.head{display:grid;gap:12px;max-width:44rem;margin-bottom:clamp(26px,4vw,44px)}
+.head .latin{font-size:.75rem}
+.band.v .head .latin{color:var(--gold)}
+.band.s .head .latin{color:var(--hud)}
+.head h2{font-size:var(--step-3);font-weight:800}
+.head p{color:var(--muted);font-size:var(--step-1)}
+.sub{font:600 var(--step-1)/1.4 var(--font-display);margin-bottom:16px}
+.block{margin-top:clamp(40px,6vw,72px)}
+.note{color:var(--faint);font-size:var(--step--1)}
+
+/* ---------- VENTORA: founding ---------- */
+.found{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(16px,3vw,32px);align-items:start}
+@media (max-width:860px){.found{grid-template-columns:1fr}}
+.form{display:grid;gap:14px;padding:clamp(18px,2.4vw,26px);border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.form label{display:grid;gap:6px;font-size:var(--step--1);color:var(--muted);font-weight:500}
+.form input,.form select{width:100%;min-height:46px;padding:0 14px;border-radius:10px;border:1px solid var(--line-strong);background:var(--ink);color:var(--text);font-size:var(--step-0)}
+.form input:focus,.form select:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px var(--gold-soft)}
+.form small{color:var(--faint);font-size:.78rem;font-weight:400}
+.contract{position:relative;padding:clamp(20px,3vw,34px);border-radius:var(--r);background:#F4EEE1;color:#1E1A12;box-shadow:0 22px 50px rgba(0,0,0,.45);overflow:hidden}
+.contract::before{content:"";position:absolute;inset:10px;border:1px solid rgba(160,120,40,.45);border-radius:8px;pointer-events:none}
+.c-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid rgba(160,120,40,.4);padding-bottom:14px;margin-bottom:14px}
+.c-head .latin{font-size:.68rem;color:#8A6A2A}
+.c-head h3{font-size:var(--step-1);font-weight:800}
+.c-logo{flex:0 0 auto;width:52px;height:52px;border-radius:12px;display:grid;place-items:center;background:#1A2631;color:var(--gold);font:800 1rem/1 var(--font-display)}
+.contract ol{margin:0;padding-inline-start:1.2em;display:grid;gap:8px;font-size:var(--step--1);line-height:1.8}
+.contract ol b{font-weight:600}
+.sign{margin-top:18px;display:grid;gap:8px}
+.sign-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.78rem;color:#6A5A3A}
+.sign-row button{border:1px solid rgba(120,90,30,.4);background:transparent;border-radius:8px;padding:4px 12px;color:#5A4520;cursor:pointer}
+#sigPad{width:100%;height:110px;border-radius:10px;background:repeating-linear-gradient(0deg,transparent 0 78px,rgba(120,90,30,.35) 78px 79px,transparent 79px 110px),#FBF7EE;touch-action:none;cursor:crosshair;display:block}
+.stamp{position:absolute;bottom:26px;left:26px;width:96px;height:96px;border-radius:50%;border:3px double #B0352A;color:#B0352A;display:grid;place-items:center;text-align:center;font:800 .78rem/1.3 var(--font-display);transform:rotate(-14deg) scale(.6);opacity:0;transition:opacity .3s,transform .35s cubic-bezier(.2,1.6,.4,1);pointer-events:none}
+.stamp.on{opacity:.85;transform:rotate(-14deg) scale(1)}
+
+/* ---------- VENTORA: map + companies ---------- */
+.world{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);aspect-ratio:2/1;max-width:100%;background:#B9D8DF}
+.world canvas{position:absolute;inset:0;width:100%;height:100%}
+@media (max-width:560px){.world{aspect-ratio:4/3}}
+.world-bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.world-bar .clock{margin-inline-start:auto;font-size:var(--step--1);color:var(--muted)}
+.cos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media (max-width:980px){.cos{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.cos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.co{margin:0;border-radius:12px;overflow:hidden;background:var(--panel);border:1px solid var(--line)}
+.co img{aspect-ratio:16/10;width:100%;object-fit:cover}
+.co figcaption{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:var(--step--1);font-weight:600}
+.co figcaption i{flex:0 0 8px;height:8px;border-radius:50%;background:var(--c)}
+.services{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.services .chip{font-size:var(--step--1);padding:6px 12px;background:var(--panel)}
+.services > span{color:var(--muted);font-size:var(--step--1);margin-inline-end:4px}
+.ledger-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.ledger{width:100%;border-collapse:collapse;min-width:560px}
+.ledger th,.ledger td{text-align:start;padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top;font-size:var(--step--1)}
+.ledger tr:last-child td{border-bottom:0}
+.ledger th{color:var(--faint);font-weight:500;font-size:.75rem;background:var(--ink-2)}
+.ledger td:first-child{font-weight:600;white-space:nowrap}
+.ledger td:last-child{color:var(--gold-2);white-space:nowrap}
+
+/* ---------- SAQR ---------- */
+.tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;border:1px solid #24342B;background:#0F1612;margin-bottom:18px}
+.tabs button{border:0;background:transparent;padding:8px 18px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:600;font-size:var(--step--1)}
+.tabs button[aria-selected="true"]{background:var(--hud);color:#06140B}
+.craft{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(16px,3vw,32px);align-items:start}
+@media (max-width:860px){.craft{grid-template-columns:1fr}}
+.craft-img{border-radius:var(--r);overflow:hidden;border:1px solid #24342B;aspect-ratio:21/9;max-width:100%}
+.craft-img img{width:100%;height:100%;object-fit:cover}
+.spec{display:grid;gap:0;margin:0}
+.spec div{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:12px;padding:11px 0;border-bottom:1px solid #1E2A23}
+.spec dt{color:var(--faint);font-size:var(--step--1)}
+.spec dd{margin:0;font-size:var(--step--1)}
+@media (max-width:420px){.spec div{grid-template-columns:1fr;gap:2px}}
+.weap{display:flex;flex-wrap:wrap;gap:6px}
+.weap span{font-size:.78rem;padding:2px 9px;border-radius:6px;border:1px solid #2C4235;color:var(--hud)}
+
+.pod{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(16px,3vw,28px);align-items:start}
+@media (max-width:900px){.pod{grid-template-columns:1fr}}
+.screen{position:relative;border-radius:18px;padding:12px;background:linear-gradient(#1B211D,#121713);border:1px solid #2B342E;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 20px 40px rgba(0,0,0,.4)}
+.screen-in{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/10;max-width:100%;background:#000}
+#pod{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;transition:filter .25s}
+.osd{position:absolute;font:600 .72rem/1.2 var(--font-hud);color:var(--hud);text-shadow:0 0 3px #000,0 1px 2px #000;pointer-events:none;direction:ltr;letter-spacing:.06em}
+.osd.tl{top:10px;left:12px}.osd.tr{top:10px;right:12px;text-align:right}.osd.bl{bottom:10px;left:12px}.osd.br{bottom:10px;right:12px;text-align:right}
+.osd.tl b{font-family:var(--font-body);font-weight:600;letter-spacing:0}
+.bezel{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:space-between}
+.bezel .grp{display:flex;gap:6px;flex-wrap:wrap}
+.bk{min-width:48px;min-height:36px;padding:0 10px;border-radius:6px;border:1px solid #39443C;background:#232A25;color:#C9D6CC;font:600 .74rem/1 var(--font-hud);letter-spacing:.06em;cursor:pointer;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35)}
+.bk[aria-pressed="true"]{color:#06140B;background:var(--hud);border-color:var(--hud)}
+.bk:active{transform:translateY(1px)}
+.readout{display:grid;gap:12px}
+.readout dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#1E2A23;border:1px solid #1E2A23;border-radius:12px;overflow:hidden}
+.readout dl div{background:#0F1612;padding:12px 14px;display:grid;gap:2px}
+.readout dt{font-size:.74rem;color:var(--faint)}
+.readout dd{margin:0;font:600 var(--step-1)/1.3 var(--font-body);color:var(--hud)}
+.readout p{color:var(--muted);font-size:var(--step--1)}
+.howto{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:var(--step--1);color:var(--muted)}
+.howto b{color:var(--text);font-weight:600}
+
+.cockpit{margin:0;border-radius:var(--r);overflow:hidden;border:1px solid #24342B}
+.cockpit img{width:100%}
+.cockpit figcaption{padding:10px 14px;font-size:var(--step--1);color:var(--muted);background:#0F1612}
+
+.maps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.maps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mapc{margin:0;position:relative;border-radius:12px;overflow:hidden;border:1px solid #24342B;background:#0F1612}
+.mapc img{width:100%;aspect-ratio:3/1.05;object-fit:cover}
+.mapc figcaption{padding:10px 12px;display:grid;gap:2px}
+.mapc figcaption b{font:600 var(--step-0)/1.4 var(--font-display)}
+.mapc figcaption span{color:var(--faint);font-size:.78rem}
+.missions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.missions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.missions{grid-template-columns:1fr}}
+.mis{position:relative;margin:0;border-radius:12px;overflow:hidden;border:1px solid #24342B;min-height:120px;display:flex;align-items:flex-end}
+.mis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mis figcaption{position:relative;width:100%;padding:28px 14px 12px;background:linear-gradient(to top,rgba(5,9,7,.92),transparent);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.mis b{font:800 var(--step-1)/1.3 var(--font-display)}
+.mis .latin{font-size:.66rem;color:var(--hud)}
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#1E2A23;border:1px solid #1E2A23;border-radius:var(--r);overflow:hidden}
+@media (max-width:860px){.feats{grid-template-columns:1fr}}
+.feats div{background:#0C120E;padding:18px 18px 20px;display:grid;gap:6px;align-content:start}
+.feats h3{font-size:var(--step-0);font-weight:600}
+.feats p{color:var(--muted);font-size:var(--step--1)}
+
+/* ---------- compare ---------- */
+.cmp-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--line)}
+.cmp{width:100%;border-collapse:collapse;min-width:620px;background:var(--panel)}
+.cmp th,.cmp td{padding:14px 18px;text-align:start;border-bottom:1px solid var(--line);font-size:var(--step--1);vertical-align:top}
+.cmp thead th{font:800 var(--step-1)/1.3 var(--font-display);background:var(--ink-2)}
+.cmp thead th:nth-child(2){color:var(--gold)}
+.cmp thead th:nth-child(3){color:var(--hud)}
+.cmp tbody th{color:var(--faint);font-weight:500;white-space:nowrap;width:9rem}
+.cmp tr:last-child td,.cmp tr:last-child th{border-bottom:0}
+footer{border-top:1px solid var(--line);padding-block:28px 40px;color:var(--faint);font-size:var(--step--1)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
+footer code{font-family:var(--font-hud);font-size:.74rem;color:var(--muted);overflow-wrap:anywhere}
+@media (prefers-reduced-motion:reduce){.seat,.stamp,#pod{transition:none}.seat:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="العودة للأعلى"><i aria-hidden="true"></i><span>فنتورا · صقر الوادي</span></a>
+    <nav class="nav" aria-label="أقسام الصفحة">
+      <a href="#ventora">فنتورا</a>
+      <a href="#saqr">صقر الوادي</a>
+      <a href="#compare">أيّ مقعد لك؟</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">لعبتان عربيتان للآيفون والويب · اختر مقعدك</p>
+        <h1><b>رأس الطاولة</b>، أو <em>مقعد المدفعي</em>.</h1>
+        <p>في فنتورا تؤسس مجموعة قابضة باسمك وتدير شركاتها حول العالم. وفي صقر الوادي تجلس في أباتشي أو <span class="nw">F-15SA</span> فوق أرض حقيقية، والهدف على شاشتك.</p>
+      </div>
+      <div class="seats">
+        <a class="seat v" href="#ventora">
+          <canvas id="heroMap" aria-label="خريطة العالم ومسارات الطائرات والسفن والشاحنات من الرياض" role="img"></canvas>
+          <span class="seat-tag">مدار سابقًا</span>
+          <div class="seat-label">
+            <span class="latin">VENTORA · BUSINESS SIMULATOR</span>
+            <h2>فنتورا</h2>
+            <p>مقعد الرئيس: طيران وشحن بحري ونقل وطاقة وبنك وعقار، من مقرّك في الرياض.</p>
+            <span class="seat-go">ادخل مجلس الإدارة <span aria-hidden="true">←</span></span>
+          </div>
+        </a>
+        <a class="seat s" href="#saqr">
+          <img src="assets/s_hero_ah64.webp" alt="أباتشي AH-64 تحلّق فوق وادٍ جبلي وقت العصر" width="1280" height="548">
+          <span class="seat-tag">AH-64 · <span class="nw">F-15SA</span></span>
+          <div class="seat-label">
+            <span class="latin">SAQR AL-WADI · GUNNER SIM</span>
+            <h2>صقر الوادي</h2>
+            <p>مقعد المدفعي في الأباتشي، أو ضابط الأسلحة خلف طيار الـ <span class="nw">F-15SA</span>. الكاميرا بصري وحراري.</p>
+            <span class="seat-go">اركب الطائرة <span aria-hidden="true">←</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= VENTORA ================= -->
+  <section class="band v" id="ventora">
+    <div class="wrap">
+      <div class="head">
+        <span class="latin">VENTORA</span>
+        <h2>مجموعة قابضة تحمل اسمك</h2>
+        <p>تبدأ برأس مال يُودع في حساب القابضة، ومنه تموّل شركاتك التابعة. تشتري الطائرات والسفن والشاحنات، وتفتح المحطات والفروع، وتتابع كل ريال في التقارير.</p>
+      </div>
+
+      <div class="found">
+        <form class="form" id="founder" autocomplete="off">
+          <p class="sub">مكتب تأسيس المجموعات</p>
+          <label for="fName">اسم المجموعة
+            <input id="fName" maxlength="42" value="فنتورا القابضة">
+          </label>
+          <label for="fOwner">اسم المؤسس
+            <input id="fOwner" maxlength="32" value="المؤسس">
+          </label>
+          <label for="fCap">رأس المال الافتتاحي
+            <select id="fCap">
+              <option value="50 مليون دولار">50 مليون دولار</option>
+              <option value="250 مليون دولار">250 مليون دولار</option>
+              <option value="مليار دولار">مليار دولار</option>
+            </select>
+            <small>يُودع في الحساب الجاري للقابضة.</small>
+          </label>
+          <label for="fShort">اختصار المجموعة
+            <input id="fShort" maxlength="4" value="VH" dir="auto">
+            <small>يظهر في الشعار حتى ترفع شعارك داخل اللعبة.</small>
+          </label>
+          <p class="note">هذه نسخة مصغّرة من شاشة التأسيس في اللعبة: العقد يُكتب أمامك وأنت تملأ البيانات، ثم توقّع.</p>
+        </form>
+
+        <article class="contract" aria-live="polite">
+          <div class="c-head">
+            <div>
+              <span class="latin">ARTICLES OF INCORPORATION</span>
+              <h3>عقد تأسيس <span id="cName">فنتورا القابضة</span></h3>
+            </div>
+            <div class="c-logo" id="cLogo" dir="ltr">VH</div>
+          </div>
+          <ol>
+            <li>تؤسَّس <b id="cName2">فنتورا القابضة</b> شركةً قابضة، مقرها الرئيسي <b>الرياض · السعودية</b>، ويقام مبنى المقر في هذه المدينة على الخريطة.</li>
+            <li>رأس المال الافتتاحي <b id="cCap">50 مليون دولار</b>، يُودع في الحساب الجاري للقابضة، ومنه تُموَّل الشركات التابعة.</li>
+            <li>يحق للمجموعة تأسيس شركات تابعة في خمسة عشر نشاطًا، منها الطيران والشحن البحري والنقل والطاقة والبنك.</li>
+            <li>المؤسس <b id="cOwner">المؤسس</b> رئيسٌ لمجلس الإدارة، ويوقّع على هذا العقد.</li>
+          </ol>
+          <div class="sign">
+            <div class="sign-row"><span>توقيع المؤسس: ارسم توقيعك بالإصبع أو الفأرة</span><button type="button" id="sigClear">امسح</button></div>
+            <canvas id="sigPad" aria-label="مساحة التوقيع"></canvas>
+          </div>
+          <div class="stamp" id="stamp" aria-hidden="true">مُعتمد<br>VENTORA</div>
+        </article>
+      </div>
+
+      <div class="block">
+        <p class="sub">شركاتك على الخريطة</p>
+        <div class="world">
+          <canvas id="worldMap" role="img" aria-label="خريطة العالم وعليها رحلات جوية وسفن وشاحنات تتحرك من الرياض وجدة والدمام"></canvas>
+        </div>
+        <div class="world-bar">
+          <span class="chip" style="--c:var(--air)"><i></i>رحلات جوية</span>
+          <span class="chip" style="--c:var(--sea)"><i></i>سفن</span>
+          <span class="chip" style="--c:var(--road)"><i></i>شاحنات</span>
+          <span class="chip" style="--c:var(--gold)"><i></i>المقر</span>
+          <span class="clock num" id="simClock">اليوم 1</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="sub">خمسة عشر نوعًا من الشركات</p>
+        <div class="cos">
+          <figure class="co"><img src="assets/v_air-widebody.webp" alt="طائرة عريضة البدن على المدرج" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--air)"></i>الطيران</figcaption></figure>
+          <figure class="co"><img src="assets/v_ship-container.webp" alt="سفينة حاويات تغادر الميناء" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--sea)"></i>الشحن البحري</figcaption></figure>
+          <figure class="co"><img src="assets/v_truck-longhaul.webp" alt="شاحنة نقل طويل" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--road)"></i>النقل</figcaption></figure>
+          <figure class="co"><img src="assets/v_energy-solar.webp" alt="محطة طاقة شمسية وقت الغروب" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--power)"></i>الطاقة</figcaption></figure>
+          <figure class="co"><img src="assets/v_bank-vault.webp" alt="خزنة بنك" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--bank)"></i>البنك</figcaption></figure>
+          <figure class="co"><img src="assets/v_insurance-hero.webp" alt="مقر شركة تأمين" loading="lazy" width="640" height="360"><figcaption><i style="--c:#7FB2F0"></i>التأمين</figcaption></figure>
+          <figure class="co"><img src="assets/v_realestate-hero.webp" alt="أبراج قيد الإنشاء" loading="lazy" width="640" height="360"><figcaption><i style="--c:#E58A6B"></i>التطوير العقاري</figcaption></figure>
+          <figure class="co"><img src="assets/v_telecom-hero.webp" alt="برج اتصالات فوق المدينة" loading="lazy" width="640" height="360"><figcaption><i style="--c:#5B8DEF"></i>الاتصالات</figcaption></figure>
+          <figure class="co"><img src="assets/v_mobility-hero.webp" alt="سيارة كهربائية في المدينة ليلًا" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--mobility)"></i>التنقل الذكي</figcaption></figure>
+          <figure class="co"><img src="assets/v_auto-hero.webp" alt="معرض وكالة سيارات" loading="lazy" width="640" height="360"><figcaption><i style="--c:#D7C49E"></i>وكالات السيارات</figcaption></figure>
+        </div>
+        <div class="services">
+          <span>وشركات خدمات على محرك واحد:</span>
+          <span class="chip">الفنادق والمنتجعات</span>
+          <span class="chip">الإعلام والإنتاج</span>
+          <span class="chip">الرعاية الصحية</span>
+          <span class="chip">التعليم</span>
+          <span class="chip">الأندية الرياضية</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="sub">اقتصاد بقواعد حقيقية</p>
+        <div class="ledger-wrap">
+          <table class="ledger">
+            <thead><tr><th scope="col">القسم</th><th scope="col">القاعدة في اللعبة</th><th scope="col">الرقم</th></tr></thead>
+            <tbody>
+              <tr><td>العقار</td><td>البيع على الخارطة: دفعة يوم التوقيع، ثم أقساط مع الإنجاز، والباقي عند التسليم</td><td class="num">20% · 70% · 30%</td></tr>
+              <tr><td>البنك</td><td>لا يوزّع نقدًا على المجموعة إذا نزلت نسبة رأس المال الأساسي CET1 تحت الحد</td><td class="num">7%</td></tr>
+              <tr><td>الطاقة</td><td>المحطة الشمسية تعمل على كتل، وكل كتلة تبيع طاقة اختبار بسعر أقل لمدة 14 يومًا</td><td class="num">4 كتل · 70%</td></tr>
+              <tr><td>وكالات السيارات</td><td>تمويل المخزون من بنك المجموعة بالفائدة الأساسية + 1.5%</td><td class="num">180 يومًا</td></tr>
+              <tr><td>الأسطول</td><td>اختُبرت الحركة والمسارات والحفظ بأسطول كبير</td><td class="num">20,000 أصل</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SAQR ================= -->
+  <section class="band s" id="saqr">
+    <div class="wrap">
+      <div class="head">
+        <span class="latin">SAQR AL-WADI</span>
+        <h2>صقر الوادي: الهدف على شاشتك</h2>
+        <p>محاكاة مقعد المدفعي فوق أرض مأخوذة من صور حقيقية. رتل يسير على الطريق بفيزياء، وقمرة كل شاشاتها تعمل، ولاسلكي بأصوات مسجّلة بالعربي والإنجليزي.</p>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="اختر الطائرة">
+        <button role="tab" id="tabAh" aria-selected="true" aria-controls="craftPanel" data-c="ah">أباتشي AH-64</button>
+        <button role="tab" id="tabF15" aria-selected="false" aria-controls="craftPanel" data-c="f15"><span class="nw">F-15SA</span></button>
+      </div>
+      <div class="craft" id="craftPanel" role="tabpanel" aria-labelledby="tabAh">
+        <div class="craft-img"><img id="craftImg" src="assets/s_hangar_ah64.webp" alt="أباتشي على المنصة وقت الغسق" width="1280" height="548"></div>
+        <dl class="spec" id="craftSpec"></dl>
+      </div>
+
+      <div class="block">
+        <p class="sub">جرّب كاميرا الاستهداف</p>
+        <div class="pod">
+          <div class="screen">
+            <div class="screen-in">
+              <canvas id="pod" aria-label="كاميرا الاستهداف فوق خريطة الوادي، ورتل من خمس مركبات يسير على الطريق"></canvas>
+              <span class="osd tl"><b>محاكاة</b> SIM</span>
+              <span class="osd tr" id="osdMode">TV&nbsp;&nbsp;×4</span>
+              <span class="osd bl" id="osdTrk">TRK</span>
+              <span class="osd br" id="osdRng">RNG 0000</span>
+            </div>
+            <div class="bezel">
+              <div class="grp" role="group" aria-label="المستشعر">
+                <button class="bk" data-mode="tv" aria-pressed="true">TV</button>
+                <button class="bk" data-mode="whot" aria-pressed="false">WHOT</button>
+                <button class="bk" data-mode="bhot" aria-pressed="false">BHOT</button>
+              </div>
+              <div class="grp" role="group" aria-label="التكبير">
+                <button class="bk" data-z="1" aria-pressed="false">×1</button>
+                <button class="bk" data-z="2" aria-pressed="false">×2</button>
+                <button class="bk" data-z="4" aria-pressed="true">×4</button>
+                <button class="bk" data-z="8" aria-pressed="false">×8</button>
+              </div>
+              <div class="grp">
+                <button class="bk" id="nextTgt">NEXT</button>
+              </div>
+            </div>
+          </div>
+          <div class="readout">
+            <dl>
+              <div><dt>الهدف</dt><dd id="rTgt">—</dd></div>
+              <div><dt>السرعة</dt><dd class="num" id="rSpd">—</dd></div>
+              <div><dt>على الطريق</dt><dd class="num" id="rRoad">—</dd></div>
+              <div><dt>المستشعر</dt><dd id="rMode">بصري</dd></div>
+            </dl>
+            <ul class="howto">
+              <li><b>انقر على مركبة</b> لتثبيت التتبع عليها، أو اضغط NEXT.</li>
+              <li><b>اسحب الصورة</b> لتحريك المستشعر بنفسك.</li>
+              <li><b>WHOT وBHOT</b> وضعا الحراري: الساخن أبيض أو أسود.</li>
+            </ul>
+            <p>الخريطة نفسها التي في اللعبة، والطريق مستخرج منها: 526 نقطة بطول نحو 894 م، والمقياس 0.85 م لكل بكسل.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <figure class="cockpit">
+          <img src="assets/s_cockpit.jpg" alt="قمرة الأباتشي وعليها شاشة TEDAC في الوسط وشاشة الأسلحة يمينًا، مع شرح أزرار التسليح والإطلاق" loading="lazy" width="1200" height="555">
+          <figcaption>القمرة من داخل اللعبة: تختار السلاح من أزرار TEDAC، وتسلّح، ثم تطلق بالمقبض الأيمن. لا شيء مكتوب فوق المنظر؛ كل شيء بأزرار الطائرة.</figcaption>
+        </figure>
+      </div>
+
+      <div class="block">
+        <p class="sub">أربع خرائط</p>
+        <div class="maps">
+          <figure class="mapc"><img src="assets/s_map_wadi.webp" alt="وادٍ جاف بين جبال صخرية" loading="lazy" width="479" height="165"><figcaption><b>الوادي</b><span>طريق الرتل بين الجبال</span></figcaption></figure>
+          <figure class="mapc"><img src="assets/s_map_desert.webp" alt="كثبان رملية وسبخة" loading="lazy" width="476" height="165"><figcaption><b>الصحراء</b><span>كثبان مفتوحة</span></figcaption></figure>
+          <figure class="mapc"><img src="assets/s_map_port.webp" alt="ميناء ومعسكر على البحر" loading="lazy" width="476" height="165"><figcaption><b>الميناء والمعسكر</b><span>أهداف بحرية وبرية</span></figcaption></figure>
+          <figure class="mapc"><img src="assets/s_map_theater.webp" alt="المسرح الكامل بين الساحل والجبال وقاعدة جوية" loading="lazy" width="480" height="165"><figcaption><b>المسرح الكامل</b><span>أرض حقيقية حتى 33 كم</span></figcaption></figure>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="sub">المهام، وحملة من خمس طلعات</p>
+        <div class="missions">
+          <figure class="mis"><img src="assets/s_k_strike.webp" alt="" loading="lazy"><figcaption><b>ضربة</b><span class="latin">STRIKE</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_tic.webp" alt="" loading="lazy"><figcaption><b>إسناد قوات</b><span class="latin">TIC</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_convoy.webp" alt="" loading="lazy"><figcaption><b>اعتراض رتل</b><span class="latin">CONVOY</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_escort.webp" alt="" loading="lazy"><figcaption><b>مرافقة</b><span class="latin">ESCORT</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_def.webp" alt="" loading="lazy"><figcaption><b>دفاع</b><span class="latin">DEFENCE</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_op.webp" alt="" loading="lazy"><figcaption><b>عملية</b><span class="latin">OPERATION</span></figcaption></figure>
+        </div>
+        <p class="note" style="margin-top:12px">في الحملة، ما يفلت من طلعة يظهر في التي بعدها، والطلعة الخاسرة تُعاد، والإصابات المدنية تُذكر في الإيجاز.</p>
+      </div>
+
+      <div class="block">
+        <div class="feats">
+          <div><h3>لاسلكي بالسعودي</h3><p>نداءات الطاقم بالعربي أو بالإنجليزي، تختارها من الإعدادات.</p></div>
+          <div><h3>نهار، غروب، ليل</h3><p>والجو صافٍ أو غبار. الغبار يغسل البصري ويترك الحراري أوضح.</p></div>
+          <div><h3>شريط الحاضنة</h3><p>لقطة عند الإطلاق والوصول والنتيجة، تراها في بطاقة نهاية المهمة.</p></div>
+          <div><h3>الدخان يحجب الليزر</h3><p>القنبلة الموجهة تفقد البقعة، والإطلاق يُرفض والهدف تحت الدخان.</p></div>
+          <div><h3>تحقق قبل الإطلاق</h3><p>مدنيون قرب الهدف، وقوارب صيد، وقوة صديقة. تأكد قبل أن تضغط.</p></div>
+          <div><h3>مهمة تدريب</h3><p>الطيار يشرح خطوة خطوة، والزر المطلوب يضيء في القمرة.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COMPARE ================= -->
+  <section class="band v" id="compare">
+    <div class="wrap">
+      <div class="head">
+        <span class="latin">CHOOSE YOUR SEAT</span>
+        <h2>أيّ مقعد لك؟</h2>
+        <p>لعبة تفكير طويلة النفَس، أو مهمة قصيرة تحتاج يدًا ثابتة.</p>
+      </div>
+      <div class="cmp-wrap">
+        <table class="cmp">
+          <thead><tr><th scope="col"><span class="note">المقارنة</span></th><th scope="col">فنتورا</th><th scope="col">صقر الوادي</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">دورك</th><td>مؤسس مجموعة قابضة ورئيس مجلس إدارتها</td><td>مدفعي الأباتشي أو ضابط أسلحة الـ <span class="nw">F-15SA</span></td></tr>
+            <tr><th scope="row">ما تراه</th><td>خريطة العالم، والشركات، والتقارير المالية</td><td>القمرة، وشاشة الاستهداف بصري وحراري</td></tr>
+            <tr><th scope="row">الإيقاع</th><td>أيام وسنوات محاكاة، تسرّعها أو توقفها</td><td>مهمة بدقائق، وحملة من خمس طلعات</td></tr>
+            <tr><th scope="row">أهم قرار</th><td>أين تضع رأس المال القادم</td><td>متى تضغط زر الإطلاق</td></tr>
+            <tr><th scope="row">التشغيل</th><td>تطبيق آيفون</td><td>المتصفح وتطبيق آيفون</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>فنتورا (مدار سابقًا) وصقر الوادي. الصور من أصول اللعبتين.</span>
+    <span>المحتوى من أحدث الفروع: <code>madar-ventora-handover</code> و<code>f15-cockpit-clarity</code></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function $(s){return document.querySelector(s)}
+function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src})}
+function fit(cv){var r=cv.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);var w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}return {w:w,h:h,d:d}}
+function visible(el,cb){if(!('IntersectionObserver' in window)){cb(true);return}new IntersectionObserver(function(es){cb(es[0].isIntersecting)}).observe(el)}
+
+/* ================= VENTORA world map ================= */
+var CITY={RUH:[24.71,46.68,'الرياض'],JED:[21.48,39.17,'جدة'],DMM:[26.43,50.10,'الدمام'],DXB:[25.25,55.36,'دبي'],LHR:[51.47,-0.45,'لندن'],SIN:[1.36,103.99,'سنغافورة'],HKG:[22.31,113.92,'هونغ كونغ'],RTM:[51.95,4.14,'روتردام'],SHA:[31.23,121.47,'شنغهاي'],CAI:[30.04,31.24,'القاهرة'],BOM:[19.09,72.87,'مومباي']};
+var ROUTES=[
+  {k:'air',pts:[CITY.RUH,CITY.LHR],arc:1,n:2,sp:.055},
+  {k:'air',pts:[CITY.RUH,CITY.SIN],arc:1,n:2,sp:.05},
+  {k:'air',pts:[CITY.RUH,CITY.HKG],arc:1,n:1,sp:.045},
+  {k:'air',pts:[CITY.RUH,CITY.CAI],arc:1,n:1,sp:.09},
+  {k:'air',pts:[CITY.RUH,CITY.BOM],arc:1,n:1,sp:.07},
+  {k:'sea',pts:[CITY.JED,[27.2,34.2],[29.9,32.6],[31.6,32.3],[33.6,24],[36.0,12.5],[37.2,1],[36.0,-5.8],[37.0,-9.6],[43.5,-9.6],[48.6,-5.4],[50.2,-1],[51.95,4.14]],n:2,sp:.012},
+  {k:'sea',pts:[CITY.DMM,[26.8,52.5],[26.4,56.4],[24.0,59.5],[14,64],[7,77],[5.8,80.6],[6.2,94],[3.2,100.4],[1.26,103.8],[5,106],[12,110],[21.5,116],[25.5,120.5],[31.0,122.4]],n:2,sp:.009},
+  {k:'road',pts:[CITY.RUH,[25.4,49.0],CITY.DMM],n:1,sp:.12},
+  {k:'road',pts:[CITY.RUH,[23.4,43.0],CITY.JED],n:1,sp:.08},
+  {k:'road',pts:[CITY.RUH,[24.6,50.9],[24.4,54.4],CITY.DXB],n:1,sp:.07}
+];
+var COL={air:'#3B7BDB',sea:'#0E9A9A',road:'#D9782E'};
+function merc(lat,lon){var p=lat*Math.PI/180;return [(lon+180)/360*1024,(1-Math.log(Math.tan(Math.PI/4+p/2))/Math.PI)/2*1024-150]}
+function prepRoute(r){
+  var P=r.pts.map(function(c){return merc(c[0],c[1])}),out=[];
+  if(r.arc){var a=P[0],b=P[1],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),h=L*.18;var cx=mx+dy/L*h*(dx>0?-1:1),cy=my-Math.abs(dx/L*h)-h*.4;
+    for(var i=0;i<=40;i++){var t=i/40;out.push([(1-t)*(1-t)*a[0]+2*(1-t)*t*cx+t*t*b[0],(1-t)*(1-t)*a[1]+2*(1-t)*t*cy+t*t*b[1]])}}
+  else out=P;
+  var S=[0];for(var j=1;j<out.length;j++)S.push(S[j-1]+Math.hypot(out[j][0]-out[j-1][0],out[j][1]-out[j-1][1]));
+  r.P=out;r.S=S;r.L=S[S.length-1];r.ph=[];for(var k=0;k<r.n;k++)r.ph.push(k/r.n+Math.random()*.2);
+}
+ROUTES.forEach(prepRoute);
+function along(r,t){var s=t*r.L,i=1;while(i<r.S.length-1&&r.S[i]<s)i++;var a=r.P[i-1],b=r.P[i],u=(s-r.S[i-1])/Math.max(1e-6,r.S[i]-r.S[i-1]);return [a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,Math.atan2(b[1]-a[1],b[0]-a[0])]}
+
+function WorldMap(cv,opt){
+  this.cv=cv;this.ctx=cv.getContext('2d');this.opt=opt;this.on=true;this.t=0;
+}
+WorldMap.prototype.view=function(w,h){
+  // centre on the Gulf, zoomed so Europe and East Asia both show
+  var o=this.opt,cx=merc(o.lat,o.lon),s=Math.max(w/1024,h/550)*o.zoom;
+  var ox=w/2-cx[0]*s,oy=h/2-cx[1]*s;
+  ox=Math.min(0,Math.max(w-1024*s,ox));oy=Math.min(0,Math.max(h-550*s,oy));
+  return {s:s,ox:ox,oy:oy};
+};
+WorldMap.prototype.draw=function(img,dt){
+  var f=fit(this.cv),w=f.w,h=f.h,c=this.ctx,v=this.view(w,h),d=f.d;
+  this.t+=dt;
+  c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,w,h);
+  if(img)c.drawImage(img,v.ox,v.oy,1024*v.s,550*v.s);
+  c.fillStyle=this.opt.dim||'rgba(0,0,0,0)';c.fillRect(0,0,w,h);
+  function X(p){return [v.ox+p[0]*v.s,v.oy+p[1]*v.s]}
+  var self=this;
+  ROUTES.forEach(function(r){
+    c.beginPath();r.P.forEach(function(p,i){var q=X(p);i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])});
+    c.strokeStyle=COL[r.k];c.globalAlpha=.55;c.lineWidth=(r.k==='air'?1.2:1.6)*d;c.setLineDash(r.k==='air'?[4*d,4*d]:[]);c.stroke();c.setLineDash([]);c.globalAlpha=1;
+    r.ph.forEach(function(ph){
+      var t=(ph+self.t*r.sp)%1,p=along(r,t),q=X(p);
+      c.save();c.translate(q[0],q[1]);c.rotate(p[2]);
+      c.fillStyle='#fff';c.strokeStyle=COL[r.k];c.lineWidth=1.6*d;
+      if(r.k==='air'){c.beginPath();c.moveTo(6*d,0);c.lineTo(-4*d,-4*d);c.lineTo(-2*d,0);c.lineTo(-4*d,4*d);c.closePath();c.fill();c.stroke();}
+      else if(r.k==='sea'){c.beginPath();c.moveTo(6*d,0);c.lineTo(2*d,-3*d);c.lineTo(-5*d,-3*d);c.lineTo(-5*d,3*d);c.lineTo(2*d,3*d);c.closePath();c.fill();c.stroke();}
+      else {c.beginPath();c.rect(-4*d,-2.6*d,8*d,5.2*d);c.fill();c.stroke();}
+      c.restore();
+    });
+  });
+  // cities
+  c.font=(600*0+11)*d+'px "IBM Plex Sans Arabic",Tahoma,sans-serif';c.textAlign='center';
+  Object.keys(CITY).forEach(function(k){
+    var C=CITY[k],q=X(merc(C[0],C[1]));if(q[0]<-20||q[0]>w+20||q[1]<-20||q[1]>h+20)return;
+    var hq=k==='RUH';
+    if(hq){var pulse=RM?0:(Math.sin(self.t*2.4)+1)/2;c.beginPath();c.arc(q[0],q[1],(7+pulse*7)*d,0,7);c.fillStyle='rgba(227,181,91,'+(.35-pulse*.3)+')';c.fill();}
+    c.beginPath();c.arc(q[0],q[1],(hq?5:3)*d,0,7);c.fillStyle=hq?'#E3B55B':'#0B1218';c.fill();c.lineWidth=1.5*d;c.strokeStyle=hq?'#1A1407':'#fff';c.stroke();
+    if(self.opt.labels){c.lineWidth=3*d;c.strokeStyle='rgba(255,255,255,.85)';c.strokeText(C[2],q[0],q[1]-9*d);c.fillStyle='#16324A';c.fillText(C[2],q[0],q[1]-9*d)}
+  });
+};
+
+var worldImg=null;
+loadImg('assets/world.webp').then(function(i){worldImg=i});
+var maps=[];
+var hm=$('#heroMap');if(hm){var m1=new WorldMap(hm,{lat:30,lon:52,zoom:2.1,labels:false,dim:'rgba(8,18,26,.30)'});maps.push(m1);visible(hm,function(v){m1.on=v})}
+var wm=$('#worldMap');if(wm){var m2=new WorldMap(wm,{lat:28,lon:58,zoom:1.55,labels:true});maps.push(m2);visible(wm,function(v){m2.on=v})}
+var day=1,dayAcc=0,clock=$('#simClock');
+
+/* ================= founder contract ================= */
+function bind(id,targets,fmt){var el=$(id);if(!el)return;function u(){var v=el.value.trim()||el.defaultValue;targets.forEach(function(t){var n=$(t);if(n)n.textContent=fmt?fmt(v):v})}el.addEventListener('input',u);el.addEventListener('change',u);u()}
+bind('#fName',['#cName','#cName2']);
+bind('#fOwner',['#cOwner']);
+bind('#fCap',['#cCap']);
+bind('#fShort',['#cLogo'],function(v){return v.toUpperCase()});
+$('#founder').addEventListener('submit',function(e){e.preventDefault()});
+
+var pad=$('#sigPad'),pc=pad.getContext('2d'),drawing=false,inked=0,last=null;
+function padFit(){var f=fit(pad);pc.setTransform(f.d,0,0,f.d,0,0);pc.lineCap='round';pc.lineJoin='round';pc.strokeStyle='#1D2C55';pc.lineWidth=2.2}
+padFit();
+function pt(e){var r=pad.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
+pad.addEventListener('pointerdown',function(e){drawing=true;last=pt(e);pad.setPointerCapture(e.pointerId)});
+pad.addEventListener('pointermove',function(e){if(!drawing)return;var p=pt(e);pc.beginPath();pc.moveTo(last[0],last[1]);pc.lineTo(p[0],p[1]);pc.stroke();inked+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;if(inked>120)$('#stamp').classList.add('on')});
+['pointerup','pointercancel','pointerleave'].forEach(function(t){pad.addEventListener(t,function(){drawing=false})});
+$('#sigClear').addEventListener('click',function(){pc.clearRect(0,0,pad.width,pad.height);inked=0;$('#stamp').classList.remove('on')});
+
+/* ================= Saqr aircraft tabs ================= */
+var CRAFT={
+  ah:{img:'assets/s_hangar_ah64.webp',alt:'أباتشي على المنصة وقت الغسق',rows:[
+    ['مقعدك','المدفعي، في المقعد الأمامي'],
+    ['الشاشة','TEDAC: بصري وحراري WHOT/BHOT، تكبير ×1 إلى ×12'],
+    ['الأسلحة','<div class="weap"><span>HELLFIRE</span><span>HYDRA 70</span><span>APKWS</span><span>M230 30mm</span></div>'],
+    ['الهيلفاير','بالليزر، أو بالرادار بعد مسح FCR'],
+    ['الهايدرا','متفجرة، ومسامير، وإنارة، وموجّهة APKWS'],
+    ['ملاحظة','الأباتشي بلا قنابل. التسليح يُختار قبل المهمة']]},
+  f15:{img:'assets/s_hangar_f15.webp',alt:'F-15SA في الملجأ وقت الغسق',rows:[
+    ['مقعدك','ضابط الأسلحة، في المقعد الخلفي'],
+    ['المدار','5 كم على 15,000 قدم بسرعة 300 عقدة'],
+    ['الأسلحة','<div class="weap"><span>LGB</span><span>JDAM</span><span>MAVERICK</span></div>'],
+    ['الطيار','يستأذنك قبل ممر القنبلة، وتوافق من شاشة UFC أو بزر الإطلاق'],
+    ['التوقيت','قنبلة الليزر تصيب بعد نحو 110 ث من الموافقة، والـ JDAM بعد 45 إلى 70 ث'],
+    ['الخطر','دفاع جوي SA-8، وحد الوقود، والهدف الطارئ']]}
+};
+function showCraft(k){
+  var c=CRAFT[k];$('#craftImg').src=c.img;$('#craftImg').alt=c.alt;
+  $('#craftSpec').innerHTML=c.rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></div>'}).join('');
+  document.querySelectorAll('.tabs button').forEach(function(b){var on=b.dataset.c===k;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on)$('#craftPanel').setAttribute('aria-labelledby',b.id)});
+}
+document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){showCraft(b.dataset.c)});b.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){var o=b.dataset.c==='ah'?'f15':'ah';showCraft(o);document.querySelector('.tabs [data-c="'+o+'"]').focus()}})});
+showCraft('ah');
+
+/* ================= Saqr targeting pod ================= */
+var ROAD=[899.0,2.0,898.1,3.7,897.1,5.5,896.1,7.2,895.2,9.0,894.2,10.7,893.2,12.5,892.2,14.2,891.3,16.0,890.2,17.7,889.2,19.4,888.1,21.0,887.0,22.7,885.9,24.4,884.8,26.1,883.7,27.7,882.6,29.4,881.5,31.1,880.3,32.7,879.2,34.3,878.0,36.0,876.9,37.6,875.7,39.2,874.5,40.9,873.4,42.5,872.2,44.1,871.0,45.7,869.8,47.3,868.5,48.9,867.3,50.4,866.0,52.0,864.8,53.6,863.5,55.1,862.3,56.7,861.1,58.2,859.8,59.8,858.6,61.4,857.3,62.9,856.1,64.5,854.8,66.1,853.6,67.6,852.3,69.2,851.1,70.8,849.9,72.4,848.7,74.0,847.5,75.5,846.3,77.2,845.1,78.8,843.9,80.4,842.8,82.0,841.7,83.7,840.6,85.3,839.5,87.0,838.4,88.7,837.4,90.5,836.5,92.2,835.5,94.0,834.6,95.8,833.7,97.5,832.9,99.4,832.0,101.2,831.3,103.0,830.5,104.9,829.9,106.8,829.2,108.7,828.7,110.6,828.2,112.5,827.8,114.5,827.4,116.4,827.0,118.4,826.7,120.4,826.6,122.4,826.5,124.4,826.4,126.4,826.3,128.4,826.2,130.4,826.3,132.4,826.3,134.4,826.5,136.4,826.6,138.4,826.8,140.3,827.1,142.3,827.4,144.3,827.7,146.3,828.1,148.2,828.5,150.2,829.0,152.2,829.4,154.1,830.0,156.0,830.6,157.9,831.2,159.8,831.9,161.7,832.6,163.6,833.3,165.4,834.0,167.3,834.7,169.2,835.4,171.1,836.2,172.9,837.0,174.7,837.9,176.5,838.7,178.3,839.6,180.1,840.5,181.9,841.4,183.7,842.3,185.5,843.3,187.2,844.3,189.0,845.3,190.7,846.3,192.4,847.4,194.1,848.5,195.8,849.6,197.5,850.7,199.1,851.8,200.8,852.9,202.5,854.0,204.1,855.1,205.8,856.2,207.4,857.4,209.1,858.5,210.7,859.6,212.4,860.8,214.0,861.9,215.7,863.1,217.3,864.2,218.9,865.4,220.6,866.6,222.2,867.7,223.8,868.9,225.4,870.1,227.0,871.3,228.7,872.4,230.3,873.6,231.9,874.8,233.5,875.9,235.2,877.0,236.8,878.2,238.5,879.3,240.1,880.4,241.8,881.4,243.5,882.5,245.2,883.5,246.9,884.5,248.6,885.5,250.3,886.5,252.1,887.5,253.8,888.5,255.6,889.5,257.3,890.5,259.1,891.4,260.8,892.3,262.6,893.1,264.4,894.0,266.2,894.8,268.1,895.5,269.9,896.2,271.8,896.9,273.7,897.6,275.6,898.2,277.5,898.8,279.4,899.4,281.3,900.0,283.2,900.5,285.1,901.0,287.1,901.5,289.0,902.0,290.9,902.5,292.9,903.1,294.8,903.6,296.7,904.0,298.7,904.5,300.6,905.0,302.6,905.5,304.5,906.0,306.4,906.5,308.4,907.1,310.3,907.6,312.2,908.2,314.1,908.8,316.1,909.3,318.0,909.9,319.9,910.5,321.8,911.1,323.7,911.8,325.6,912.4,327.5,913.1,329.4,913.7,331.2,914.4,333.1,915.1,335.0,915.7,336.9,916.3,338.8,916.9,340.7,917.5,342.6,918.1,344.5,918.8,346.4,919.4,348.3,920.1,350.2,920.8,352.1,921.5,354.0,922.2,355.8,922.9,357.7,923.6,359.6,924.4,361.4,925.1,363.3,925.9,365.1,926.7,366.9,927.5,368.8,928.3,370.6,929.2,372.4,930.0,374.2,930.8,376.1,931.7,377.9,932.5,379.7,933.4,381.5,934.3,383.3,935.1,385.1,936.1,386.9,937.0,388.6,937.9,390.4,938.8,392.2,939.8,393.9,940.7,395.7,941.6,397.5,942.5,399.3,943.5,401.0,944.4,402.8,945.3,404.6,946.2,406.4,947.1,408.1,948.0,409.9,948.9,411.7,949.7,413.6,950.6,415.4,951.4,417.2,952.2,419.0,953.0,420.8,953.9,422.6,954.8,424.4,955.6,426.3,956.4,428.1,957.3,429.9,958.1,431.7,958.9,433.6,959.6,435.4,960.4,437.3,961.1,439.1,961.8,441.0,962.5,442.9,963.0,444.8,963.6,446.7,964.1,448.6,964.6,450.6,965.0,452.6,965.4,454.5,965.7,456.5,966.0,458.5,966.3,460.4,966.6,462.4,966.9,464.4,967.1,466.4,967.3,468.4,967.4,470.4,967.5,472.4,967.6,474.4,967.6,476.4,967.6,478.4,967.6,480.4,967.6,482.4,967.6,484.4,967.5,486.4,967.4,488.4,967.3,490.4,967.1,492.4,967.0,494.4,967.0,496.4,967.0,498.4,966.9,500.4,966.7,502.3,966.5,504.3,966.2,506.3,965.9,508.3,965.4,510.2,964.9,512.2,964.3,514.1,963.7,516.0,963.0,517.9,962.3,519.7,961.6,521.6,960.8,523.4,959.9,525.2,959.0,527.0,958.0,528.7,956.9,530.4,955.6,532.0,954.4,533.5,953.2,535.1,952.0,536.7,950.7,538.3,949.5,539.8,948.1,541.3,946.8,542.8,945.4,544.2,944.1,545.8,942.8,547.2,941.4,548.7,940.0,550.1,938.6,551.6,937.2,553.0,935.8,554.4,934.5,555.9,933.1,557.4,931.8,558.9,930.5,560.4,929.1,561.9,927.5,563.1,926.0,564.3,924.4,565.5,922.8,566.7,921.2,567.9,919.6,569.1,918.2,570.5,916.8,572.0,915.4,573.4,914.0,574.9,912.6,576.2,911.1,577.6,909.7,579.0,908.2,580.4,906.8,581.7,905.3,583.1,903.9,584.6,902.6,586.0,901.2,587.5,899.8,588.9,898.5,590.4,897.2,592.0,896.2,593.6,895.1,595.4,894.1,597.1,893.1,598.8,892.2,600.6,891.2,602.4,890.1,604.0,888.9,605.6,887.8,607.3,886.8,609.0,885.9,610.8,885.0,612.5,884.0,614.3,883.1,616.1,882.2,617.9,881.4,619.7,880.4,621.5,879.6,623.3,878.8,625.1,878.1,627.0,877.3,628.8,876.5,630.6,875.8,632.5,875.1,634.4,874.5,636.3,874.0,638.2,873.5,640.2,873.0,642.1,872.6,644.1,872.3,646.0,872.1,648.0,871.8,650.0,871.6,652.0,871.3,654.0,871.3,656.0,871.3,658.0,871.4,660.0,871.5,662.0,871.7,664.0,871.9,666.0,872.2,668.0,872.5,669.9,872.9,671.9,873.3,673.8,873.8,675.8,874.4,677.7,875.0,679.6,875.6,681.5,876.3,683.4,877.0,685.2,877.8,687.1,878.6,688.9,879.4,690.7,880.3,692.5,881.3,694.3,882.2,696.0,883.2,697.8,884.2,699.5,885.2,701.2,886.2,703.0,887.1,704.8,888.0,706.6,888.9,708.4,889.8,710.1,890.5,712.0,891.3,713.8,892.0,715.7,892.6,717.6,893.2,719.5,893.8,721.4,894.5,723.3,895.0,725.2,895.4,727.2,895.6,729.2,895.7,731.2,895.8,733.2,896.0,735.2,896.1,737.2,896.1,739.2,896.1,741.2,896.1,743.2,895.9,745.1,895.7,747.1,895.4,749.1,895.1,751.1,894.7,753.0,894.3,755.0,893.8,757.0,893.2,758.8,892.5,760.7,891.7,762.6,891.0,764.4,890.3,766.3,889.6,768.2,889.0,770.1,888.5,772.0,887.8,773.9,887.0,775.7,886.1,777.5,885.2,779.3,884.2,781.0,883.1,782.7,882.1,784.4,881.0,786.1,880.0,787.8,878.9,789.5,877.8,791.2,876.8,792.9,875.7,794.6,874.6,796.2,873.4,797.9,872.4,799.6,871.4,801.3,870.4,803.1,869.5,804.9,868.4,806.5,867.0,808.0,865.6,809.4,864.2,810.7,862.7,812.1,861.4,813.6,860.2,815.2,859.1,816.9,858.0,818.5,856.9,820.2,855.7,821.8,854.5,823.4,853.2,825.0,852.0,826.5,851.0,828.3,850.1,830.0,848.9,831.6,847.7,833.2,846.3,834.7,845.0,836.2,843.6,837.6,842.2,839.0,841.1,840.7,840.0,842.4,839.0,844.1,838.0,845.9,837.1,847.7,836.2,849.5,835.2,851.1,834.1,852.8,833.0,854.5,832.0,856.2,831.1,858.0,830.3,859.8,829.5,861.7,828.8,863.5,828.1,865.4,827.1,867.2,826.2,869.0,825.6,870.8,825.0,872.8,824.4,874.6,823.7,876.5,823.0,878.4,822.4,880.3,821.8,882.2,821.4,884.2,820.9,886.1,820.5,888.1,820.2,890.1,819.8,892.0,819.5,894.0,819.2,896.0,818.9,898.0,818.6,899.9,818.4,901.9,818.1,903.9,817.9,905.9,817.5,907.9,817.1,909.8,816.6,911.8,816.2,913.7,815.8,915.7,815.4,917.6,815.1,919.6,814.9,921.6,814.7,923.6,814.3,925.5,813.8,927.5,813.3,929.4,812.7,931.3,812.2,933.3,811.8,935.2,811.4,937.2,810.9,939.1];
+var MPP=0.85, MAPW=1672, MAPH=941;
+var RN=ROAD.length/2,RX=[],RY=[],RS=[0];
+for(var i=0;i<RN;i++){RX.push(ROAD[2*i]);RY.push(ROAD[2*i+1]);if(i)RS.push(RS[i-1]+Math.hypot(RX[i]-RX[i-1],RY[i]-RY[i-1])*MPP)}
+var ROADLEN=RS[RN-1];
+function roadAt(s){s=((s%ROADLEN)+ROADLEN)%ROADLEN;var lo=0,hi=RN-1;while(hi-lo>1){var m=(lo+hi)>>1;if(RS[m]<=s)lo=m;else hi=m}var u=(s-RS[lo])/Math.max(1e-6,RS[hi]-RS[lo]);return {x:RX[lo]+(RX[hi]-RX[lo])*u,y:RY[lo]+(RY[hi]-RY[lo])*u,a:Math.atan2(RY[hi]-RY[lo],RX[hi]-RX[lo])}}
+var VEH=[
+  {k:'lc79',ar:'فني لاندكروزر',len:5.2},
+  {k:'hilux',ar:'فني هايلكس',len:5.3},
+  {k:'suv',ar:'جيب',len:4.9},
+  {k:'cargo',ar:'شاحنة نقل',len:8.6},
+  {k:'tanker',ar:'صهريج وقود',len:10.2}
+];
+var LEAD0=170, GAP=24, SPEED=7.5; // metres, metres, m/s
+VEH.forEach(function(v,i){v.s=LEAD0-i*GAP;v.v=SPEED;v.phase=Math.random()*6});
+var pod=$('#pod'),pctx=pod.getContext('2d');
+var valley=null,sprites={},hot={};
+loadImg('assets/valley.jpg').then(function(i){valley=i});
+VEH.forEach(function(v){loadImg('assets/car_'+v.k+'.png').then(function(im){if(!im)return;sprites[v.k]=im;
+  var c=document.createElement('canvas');c.width=im.width;c.height=im.height;var x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.fillStyle='rgba(250,250,250,.92)';x.fillRect(0,0,c.width,c.height);
+  var g=x.createRadialGradient(c.width/2,c.height*.3,0,c.width/2,c.height*.3,c.width*.6);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(200,200,200,0)');x.fillStyle=g;x.fillRect(0,0,c.width,c.height);hot[v.k]=c})});
+var P={mode:'tv',zoom:4,lock:0,cx:0,cy:0,drag:null,on:true,painted:false};
+(function(){var p=roadAt(VEH[0].s);P.cx=p.x;P.cy=p.y})();
+var FILT={tv:'saturate(.9) contrast(1.06)',whot:'grayscale(1) contrast(1.25)',bhot:'grayscale(1) contrast(1.25) invert(1)'};
+var MODEAR={tv:'بصري',whot:'حراري · الساخن أبيض',bhot:'حراري · الساخن أسود'};
+function setMode(m){P.mode=m;pod.style.filter=FILT[m];document.querySelectorAll('[data-mode]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.mode===m)});$('#rMode').textContent=MODEAR[m];osd()}
+function setZoom(z){P.zoom=z;document.querySelectorAll('[data-z]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.z===z)});osd()}
+function osd(){$('#osdMode').textContent=(P.mode==='tv'?'TV':P.mode.toUpperCase())+'  ×'+P.zoom}
+document.querySelectorAll('[data-mode]').forEach(function(b){b.addEventListener('click',function(){setMode(b.dataset.mode)})});
+document.querySelectorAll('[data-z]').forEach(function(b){b.addEventListener('click',function(){setZoom(+b.dataset.z)})});
+$('#nextTgt').addEventListener('click',function(){P.lock=P.lock<0?0:(P.lock+1)%VEH.length});
+setMode('tv');
+
+function podView(w,h){var vw=560/P.zoom,s=w/vw,vh=h/s;var cx=Math.min(MAPW-vw/2,Math.max(vw/2,P.cx)),cy=Math.min(MAPH-vh/2,Math.max(vh/2,P.cy));return {s:s,vw:vw,vh:vh,x0:cx-vw/2,y0:cy-vh/2}}
+function vehPos(v){var p=roadAt(v.s);return p}
+pod.addEventListener('pointerdown',function(e){var r=pod.getBoundingClientRect();P.drag={x:e.clientX,y:e.clientY,cx:P.cx,cy:P.cy,moved:0,rx:e.clientX-r.left,ry:e.clientY-r.top};pod.setPointerCapture(e.pointerId)});
+pod.addEventListener('pointermove',function(e){if(!P.drag)return;var r=pod.getBoundingClientRect(),vw=560/P.zoom,k=vw/r.width;var dx=e.clientX-P.drag.x,dy=e.clientY-P.drag.y;P.drag.moved=Math.max(P.drag.moved,Math.hypot(dx,dy));if(P.drag.moved>6){P.lock=-1;P.cx=P.drag.cx-dx*k;P.cy=P.drag.cy-dy*k}});
+pod.addEventListener('pointerup',function(e){if(!P.drag)return;var d=P.drag;P.drag=null;if(d.moved>6)return;
+  var r=pod.getBoundingClientRect(),v=podView(r.width,r.height),best=-1,bd=34;
+  VEH.forEach(function(vh,i){var p=vehPos(vh),sx=(p.x-v.x0)*v.s,sy=(p.y-v.y0)*v.s,dd=Math.hypot(sx-d.rx,sy-d.ry);if(dd<bd){bd=dd;best=i}});
+  if(best>=0)P.lock=best});
+pod.addEventListener('pointercancel',function(){P.drag=null});
+
+function drawPod(dt){
+  var f=fit(pod),w=f.w,h=f.h,c=pctx,d=f.d;
+  // move the convoy: slow in bends, keep spacing
+  VEH.forEach(function(v,i){
+    var a=roadAt(v.s+6),b=roadAt(v.s-6),bend=Math.abs(Math.atan2(Math.sin(a.a-b.a),Math.cos(a.a-b.a)));
+    var target=SPEED*(1-Math.min(.55,bend*1.6));
+    if(i>0){var gap=VEH[i-1].s-v.s;if(gap<GAP-4)target*=.5;else if(gap>GAP+6)target*=1.2}
+    v.v+=(target-v.v)*Math.min(1,dt*1.5);v.s+=v.v*dt;
+  });
+  if(VEH[VEH.length-1].s>ROADLEN-20){VEH.forEach(function(v,i){v.s=LEAD0-i*GAP})}
+  if(P.lock>=0){var t=vehPos(VEH[P.lock]),k=Math.min(1,dt*1.6);P.cx+=(t.x-P.cx)*k;P.cy+=(t.y-P.cy)*k}
+  var v=podView(w/d,h/d);var S=v.s*d;
+  c.setTransform(1,0,0,1,0,0);c.fillStyle='#000';c.fillRect(0,0,w,h);
+  if(valley&&Object.keys(sprites).length===VEH.length)P.painted=true;
+  if(valley){var kx=valley.width/MAPW;c.imageSmoothingQuality='high';c.drawImage(valley,v.x0*kx,v.y0*kx,v.vw*kx,v.vh*kx,0,0,w,h)}
+  var th=P.mode!=='tv';
+  if(th){c.fillStyle=P.mode==='whot'?'rgba(0,0,0,.5)':'rgba(0,0,0,.28)';c.fillRect(0,0,w,h)}
+  VEH.forEach(function(vh){
+    var im=th?hot[vh.k]:sprites[vh.k];if(!im)return;var p=vehPos(vh);
+    var sx=(p.x-v.x0)*S,sy=(p.y-v.y0)*S;if(sx<-60||sy<-60||sx>w+60||sy>h+60)return;
+    var L=vh.len/MPP*S,W=L*im.width/im.height;
+    c.save();c.translate(sx,sy);c.rotate(p.a+Math.PI/2);
+    if(!th){c.shadowColor='rgba(0,0,0,.55)';c.shadowBlur=3*d;c.shadowOffsetX=2*d;c.shadowOffsetY=2*d}
+    else {c.shadowColor='rgba(255,255,255,.7)';c.shadowBlur=Math.max(2,L*.25)}
+    c.drawImage(im,-W/2,-L/2,W,L);c.restore();
+  });
+  // TEDAC symbology: centre cross with a gap, and corner brackets on the tracked target
+  var g='rgba(147,240,180,.9)';c.strokeStyle=g;c.lineWidth=1.3*d;var cx=w/2,cy=h/2,gp=16*d,arm=Math.min(w,h)*.42;
+  c.beginPath();c.moveTo(cx-arm,cy);c.lineTo(cx-gp,cy);c.moveTo(cx+gp,cy);c.lineTo(cx+arm,cy);c.moveTo(cx,cy-arm);c.lineTo(cx,cy-gp);c.moveTo(cx,cy+gp);c.lineTo(cx,cy+arm);c.stroke();
+  if(P.lock>=0){var tv=VEH[P.lock],tp=vehPos(tv),tx=(tp.x-v.x0)*S,ty=(tp.y-v.y0)*S,bs=Math.max(18*d,tv.len/MPP*S*.75),q=bs*.38;
+    c.strokeStyle=g;c.lineWidth=1.8*d;c.beginPath();
+    [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(function(o){var X=tx+o[0]*bs,Y=ty+o[1]*bs;c.moveTo(X,Y-o[1]*q);c.lineTo(X,Y);c.lineTo(X-o[0]*q,Y)});c.stroke();
+    $('#rTgt').textContent=tv.ar;$('#rSpd').textContent=Math.round(tv.v*3.6)+' كم/س';$('#rRoad').textContent=Math.round(Math.max(0,tv.s))+' م';$('#osdTrk').textContent='TRK  '+String(P.lock+1).padStart(2,'0');
+    $('#osdRng').textContent='RNG '+String(Math.round(1850+Math.sin(performance.now()/9000)*240)).padStart(4,'0');
+  } else {$('#rTgt').textContent='بلا تتبع';$('#rSpd').textContent='—';$('#rRoad').textContent='—';$('#osdTrk').textContent='MAN';}
+}
+visible(pod,function(v){P.on=v});
+
+/* ================= loop ================= */
+var lastT=performance.now();
+function loop(now){
+  var dt=Math.min(.1,(now-lastT)/1000);lastT=now;
+  if(RM)dt=0;
+  maps.forEach(function(m){if(m.on||(!m.painted&&worldImg)){m.draw(worldImg,dt);if(worldImg)m.painted=true}});
+  if(P.on||!P.painted)drawPod(RM?0:dt);
+  dayAcc+=dt;if(dayAcc>1.2){dayAcc=0;day++;if(clock)clock.textContent='اليوم '+day.toLocaleString('ar-SA')}
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+var padW=pad.getBoundingClientRect().width;
+window.addEventListener('resize',function(){var nw=pad.getBoundingClientRect().width;if(Math.abs(nw-padW)>1){padW=nw;padFit();inked=0;$('#stamp').classList.remove('on')}});
+})();
+</script>
+
+</body>
+</html>
