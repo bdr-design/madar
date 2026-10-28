@@ -59,7 +59,8 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build575, which failed in build 101 (macOS: the source before's fastest of three openings 51 ms, ours
+# (AGENTS.md). First build576, which failed in build 103 (macOS: the audit's cycle did not finish in 120 s while paused,
+# 0.3 s here; it now reports what holds the audit with the timeout). Then build575, which failed in build 101 (macOS: the source before's fastest of three openings 51 ms, ours
 # 131, where build 100 had 137 against 95; the median of seven openings is compared now, and twelve showings per slide; the
 # LED glow and the number ring take a colour worked out once per accent instead of color-mix on every slide). Then build593,
 # which failed in build 100's re-run (macOS: one call of twenty, 56 ms, over the batch's 53 ms;
@@ -114,6 +115,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
     ['node', 'tests/build552-conference-hall-layout-browser.cjs'],
@@ -207,7 +209,6 @@ expected_preflight=[
     ['node', 'tests/build591-service-companies-browser.cjs'],
     ['node', 'tests/fleet-business-boundary.cjs'],
     ['node', 'tests/build420-conference-durable-browser.cjs'],
-    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build590-bulk-acquisition.cjs'],
     ['node', 'tests/build592-service-companies-engine.cjs'],
     ['node', 'tests/build334-600-air-calendar-regression.cjs'],

@@ -106,7 +106,10 @@ async function alone(t,current,ref){
  }
  if(current){
   // 5: the audit, paused: one whole cycle, then nothing until a command; playing, it runs on.
-  await speed(0);await transfer('QA audit change');const cycles0=(await audit()).cycles;await page.waitForFunction(c=>(window.__GH_APP_RUNTIME_INSTRUMENTATION__.proofAudit?.cycles||0)>c,cycles0,{timeout:120000});
+  await speed(0);await transfer('QA audit change');const cycles0=(await audit()).cycles;
+  // Build 103 (macOS) timed out here; what holds the audit is reported with the timeout (the claim is unchanged).
+  try{await page.waitForFunction(c=>(window.__GH_APP_RUNTIME_INSTRUMENTATION__.proofAudit?.cycles||0)>c,cycles0,{timeout:120000});}
+  catch(error){const held=await page.evaluate(async()=>{const i=window.__GH_APP_RUNTIME_INSTRUMENTATION__,s=__GH_STATE__,renders0=i.simRender?.count||0;await new Promise(r=>setTimeout(r,3000));return {speed:s.speed,conference:window.GH_CONFERENCE?.isPresentationActive?.()===true,locked:GH_PERSISTENCE.isLocked(),durable:!!window.__GH_DURABLE_COMMAND_CONTEXT__,hidden:document.hidden,sim:__AUDIT__.simulationEngine.snapshot(),audit:i.proofAudit,renders:[renders0,i.simRender?.count||0],saveRevision:s.saveRevision,events:(s.diagnostics?.events||[]).slice(0,8).map(e=>[e.type,e.severity])};}).catch(e=>String(e));throw new Error(`5: the audit's cycle did not finish while paused: ${JSON.stringify(held).slice(0,3000)} (${error.message.split('\n')[0]})`);}
   const rest0=await audit();await page.waitForTimeout(2500);const rest1=await audit();out.auditResting=rest1.checked-rest0.checked;
   await transfer('QA audit resume');await page.waitForTimeout(2500);out.auditAfterCommand=(await audit()).checked-rest1.checked;
   await speed(1);const play0=await audit();await page.waitForTimeout(2500);out.auditPlaying=(await audit()).checked-play0.checked;

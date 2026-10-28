@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build576-presentation-rest-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
@@ -372,10 +376,6 @@
     [
       "node",
       "tests/build420-conference-durable-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
