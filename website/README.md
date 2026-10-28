@@ -1,6 +1,6 @@
 # موقع فنتورا وصقر الوادي
 
-صفحة تعريفية واحدة للعبتين: **فنتورا** (مدار سابقًا) و**صقر الوادي**. المحتوى والصور مأخوذة من أحدث فروع اللعبتين:
+صفحة رسمية واحدة للعبتين، بالعربية والإنجليزية (زر EN / عربي أعلى الصفحة، ويُحفظ الاختيار في المتصفح). المحتوى والصور من أحدث فروع اللعبتين:
 
 - فنتورا: `bdr-design/madar`، الفرع `claude/madar-ventora-handover-3.0.0-stg723`
 - صقر الوادي: `bdr-design/saqr-alwadi`، الفرع `claude/f15-cockpit-clarity-fyvgd7`
@@ -12,21 +12,26 @@ cd website
 python3 -m http.server 8000     # ثم افتح http://localhost:8000
 ```
 
-الصفحة لا تحتاج بناء. الخطوط من Google Fonts، وكل شيء آخر داخل `index.html` و`assets/`.
+لا تحتاج الصفحة إلى بناء. الخطوط من Google Fonts، وبقية الملفات في `index.html` و`assets/`.
 
-## ما فيها
+## إضافة طائرة إلى الحظيرة
 
-- **خريطة العالم** (فنتورا): رحلات جوية وسفن وشاحنات تتحرك من الرياض وجدة والدمام، على بلاطات `ne2-fresh` من اللعبة.
-- **عقد التأسيس**: الاسم ورأس المال والاختصار تُكتب في العقد مباشرة، ومساحة توقيع بالإصبع.
-- **كاميرا الاستهداف** (صقر الوادي): خريطة الوادي نفسها، ورتل من خمس مركبات يسير على الطريق المستخرج (`data/road.json`، 526 نقطة، 0.85 م/بكسل). أوضاع TV وWHOT وBHOT، وتكبير ×1 إلى ×8، وقفل التتبع بالنقر. شارة «محاكاة SIM» ظاهرة دائمًا.
-- **الطائرتان** (أباتشي AH-64 وF-15SA)، والخرائط الأربع، وأنواع المهام.
+أضف عنصرًا إلى المصفوفة `AIRCRAFT` في `index.html`، وحدد `cat: 'rotary'` للعمودي أو `cat: 'jet'` للنفاث. يُكتب لكل طائرة الاسم والصور والمقاعد (`soon: true` للمقعد القادم) والمواصفات بالعربية والإنجليزية.
+
+## الترجمة
+
+كل نص عربي في الصفحة يحمل ترجمته في `data-en`، والنص البديل للصور في `data-en-alt`، ووصف العناصر في `data-en-aria`. النصوص التي يكتبها السكربت في القاموس `T`.
 
 ## الصور
 
 | الملف | المصدر |
 |---|---|
-| `assets/v_*.webp` | `WebApp/assets/images/ui/` في فنتورا (640 بكسل) |
-| `assets/world.webp` | بلاطات `WebApp/assets/maps/ne2-fresh/2/` مدموجة ومقصوصة |
-| `assets/s_*.webp` | `sprites/menu/` في صقر الوادي، و`docs/img/weapons-1-cockpit.jpg` |
-| `assets/valley.jpg` | `tiles/0/` مدموجة (1672 × 941) ومصغّرة إلى 1400 بكسل |
-| `assets/car_*.png` | `sprites/` في صقر الوادي بارتفاع 96 بكسل |
+| `assets/ventora_key*.webp` و`ventora_logo.webp` و`ventora_icon.webp` | `Release/` في فنتورا (صورة الإطلاق والشعار والأيقونة) |
+| `assets/v_*.webp` | `WebApp/assets/images/ui/` في فنتورا |
+| `assets/world.webp` | بلاطات `ne2-fresh/3` مدموجة ومقصوصة |
+| `assets/s_key_*.webp` و`s_ah64_*` و`s_f15_shelter.webp` | `assets/originals/menu/` في صقر الوادي، بدقتها الأصلية |
+| `assets/s_f15_cockpit*.webp` | `assets/originals/cockpit/f15ex_day_2x.png` بعد إزالة الخلفية الوردية والخضراء |
+| `assets/s_tedac.webp` | `docs/img/weapons-2-tedac.jpg` |
+| `assets/s_map_*` و`s_k_*` | `sprites/menu/` في صقر الوادي |
+| `assets/valley.jpg` | `tiles/1/` مدموجة (×2) ومصغّرة إلى 2600 بكسل |
+| `assets/car_*.png` | `sprites/` في صقر الوادي |

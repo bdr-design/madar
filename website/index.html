@@ -4,254 +4,348 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>فنتورا وصقر الوادي</title>
+<script>(function(){var l='ar';try{l=localStorage.getItem('site-lang')||'ar'}catch(e){}document.documentElement.lang=l==='en'?'en':'ar';document.documentElement.dir=l==='en'?'ltr':'rtl'})()</script>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="لعبتان عربيتان: فنتورا لإدارة مجموعة قابضة حول العالم، وصقر الوادي لمقعد المدفعي في الأباتشي وضابط الأسلحة في F-15SA.">
+<meta name="description" content="فنتورا: محاكاة أعمال لإدارة مجموعة قابضة عالمية. صقر الوادي: محاكاة طيران قتالي بالمروحيات والطائرات النفاثة. لأجهزة iPhone والمتصفح، وقريبًا على Android.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
 <style>
-/* Layout: two seats. Gold boardroom (VENTORA) on the right, green HUD cockpit (Saqr) on the left;
-   each game section is framed like a screen from that game. One committed dark look, as both games are. */
+/* Layout: a game launcher on white paper. Ocean blue belongs to Ventora (from its launch art),
+   afterburner orange to Saqr Al-Wadi (from its dusk key art); device screens stay dark like the games' own. */
 :root{
-  color-scheme:dark;
-  --ink:#0B1218;        /* VENTORA ground */
-  --ink-2:#0F1820;
-  --panel:#121C24;
-  --panel-2:#1A2631;
-  --line:#263644;
-  --line-strong:#36495A;
-  --text:#EAF0F4;
-  --muted:#A9B7C3;
-  --faint:#8195A5;
-  --gold:#E3B55B;       /* VENTORA accent */
-  --gold-2:#F3CD84;
-  --gold-ink:#1A1407;
-  --gold-soft:rgba(227,181,91,.14);
-  --hud:#93F0B4;        /* Saqr TEDAC symbology */
-  --hud-dim:rgba(147,240,180,.55);
-  --hud-soft:rgba(147,240,180,.12);
-  --sand:#E9A15C;       /* desert dusk from the Saqr menu art */
-  --air:#6EA8FE; --sea:#3CCFCF; --road:#F4A261; --power:#FF7A59; --bank:#34D399; --mobility:#C08CFA;
-  --shade:rgba(5,9,13,.72);
-  --font-display:'Noto Kufi Arabic','IBM Plex Sans Arabic',Tahoma,sans-serif;
+  color-scheme:light;
+  --paper:#FFFFFF;
+  --mist:#F4F7FB;
+  --mist-2:#EAF0F7;
+  --line:#DCE3EC;
+  --ink:#0B1526;
+  --ink-2:#2E3A4E;
+  --muted:#5E6B80;
+  --vent:#0B7DB5;
+  --vent-2:#19B8DD;
+  --vent-ink:#075A86;
+  --vent-soft:#E4F4FB;
+  --saqr:#E2561A;
+  --saqr-2:#FFA634;
+  --saqr-ink:#B23E0C;
+  --saqr-soft:#FFF1E7;
+  --hud:#93F0B4;
+  --screen:#0A0F0C;
+  --ok:#0F9D58;
+  --air:#2F7BE0; --sea:#0E9AA0; --road:#E07A2B; --power:#E8553A; --bank:#14A06A; --mobility:#8E5BE0;
+  --font-display:'Alexandria','IBM Plex Sans Arabic',Tahoma,sans-serif;
   --font-body:'IBM Plex Sans Arabic',-apple-system,'Segoe UI',Tahoma,sans-serif;
   --font-hud:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
-  --step--1:clamp(.78rem,.76rem + .1vw,.84rem);
-  --step-0:clamp(.95rem,.92rem + .15vw,1.03rem);
+  --step--1:clamp(.8rem,.78rem + .1vw,.86rem);
+  --step-0:clamp(.96rem,.93rem + .15vw,1.04rem);
   --step-1:clamp(1.12rem,1.05rem + .35vw,1.3rem);
-  --step-2:clamp(1.4rem,1.2rem + .9vw,1.95rem);
-  --step-3:clamp(1.9rem,1.4rem + 2.2vw,3.1rem);
-  --step-4:clamp(2.5rem,1.6rem + 4vw,4.6rem);
-  --r:14px;
-  --wrap:1180px;
+  --step-2:clamp(1.35rem,1.15rem + .9vw,1.9rem);
+  --step-3:clamp(1.8rem,1.3rem + 2.2vw,3rem);
+  --step-4:clamp(2.3rem,1.5rem + 3.6vw,4.2rem);
+  --r:18px;
+  --wrap:1240px;
+  --shadow:0 1px 2px rgba(11,21,38,.05),0 10px 30px rgba(11,21,38,.08);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+html{scroll-behavior:smooth;scroll-padding-top:calc(76px + env(safe-area-inset-top,0px))}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--ink);color:var(--text);font:400 var(--step-0)/1.75 var(--font-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
-img{max-width:100%;display:block}
-h1,h2,h3,p{margin:0}
-h1,h2,h3{font-family:var(--font-display);text-wrap:balance;line-height:1.35}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 var(--step-0)/1.75 var(--font-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+img{max-width:100%;height:auto;display:block}
+h1,h2,h3,p{margin:0;overflow-wrap:anywhere}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;line-height:1.3;letter-spacing:-.01em}
 a{color:inherit}
 button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--gold-2);outline-offset:3px;border-radius:6px}
+:focus-visible{outline:3px solid var(--vent-2);outline-offset:3px;border-radius:8px}
 .wrap{max-width:var(--wrap);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.hero-copy,.head,.seat-label,.form,.readout,.feats div,.mapc figcaption,.sign{grid-template-columns:minmax(0,1fr)}
-h1,h2,h3,p{overflow-wrap:anywhere}
-.nw{white-space:nowrap}
-.latin{font-family:var(--font-hud);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.latin{font-family:var(--font-hud);letter-spacing:.1em;font-size:.72rem;font-weight:600;text-transform:uppercase}
 .num{font-variant-numeric:tabular-nums}
+.nw{white-space:nowrap}
+.hero-copy,.head,.form,.readout,.hc-body,.craft-info,.fx div,.mapc figcaption{display:grid;grid-template-columns:minmax(0,1fr)}
 
 /* ---------- header ---------- */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(11,18,24,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px}
-.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:800 var(--step-0)/1 var(--font-display);white-space:nowrap}
-.mark i{display:block;width:22px;height:22px;border-radius:50%;border:2px solid var(--gold);position:relative}
-.mark i::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--hud)}
-.nav{display:flex;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;min-height:64px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 var(--step-0)/1 var(--font-display);white-space:nowrap;margin-inline-end:auto;min-width:0}
+.mark img{width:32px;height:32px;border-radius:9px;box-shadow:0 2px 6px rgba(11,125,181,.25)}
+.nav{display:flex;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
-.nav a{text-decoration:none;color:var(--muted);font-size:var(--step--1);font-weight:500;padding:8px 12px;border-radius:999px;white-space:nowrap;transition:color .15s,background .15s}
-.nav a:hover{color:var(--text);background:var(--panel-2)}
-@media (max-width:560px){.mark span{display:none}.nav a{padding:8px 8px}.top .wrap{gap:8px}}
+.nav a{text-decoration:none;color:var(--ink-2);font-size:var(--step--1);font-weight:500;padding:8px 12px;border-radius:999px;white-space:nowrap;transition:background .15s,color .15s}
+.nav a:hover{background:var(--mist-2);color:var(--ink)}
+.lang{flex:0 0 auto;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 14px;font:600 var(--step--1)/1 var(--font-body);cursor:pointer;transition:border-color .15s,background .15s}
+.lang:hover{border-color:var(--vent);background:var(--vent-soft)}
+@media (max-width:640px){.mark span{display:none}.nav a{padding:8px 8px}.top .wrap{gap:8px}}
 
 /* ---------- hero ---------- */
-.hero{padding-block:clamp(28px,5vw,64px) clamp(24px,4vw,48px)}
-.hero-copy{display:grid;gap:14px;max-width:46rem;margin-bottom:clamp(22px,3.5vw,40px)}
-.eyebrow{font-size:var(--step--1);color:var(--muted);font-weight:500;letter-spacing:.02em}
-.hero h1{font-size:var(--step-4);font-weight:800;line-height:1.2}
-.hero h1 b{color:var(--gold);font-weight:800}
-.hero h1 em{font-style:normal;color:var(--hud)}
-.hero-copy p{font-size:var(--step-1);color:var(--muted);max-width:40rem}
-.seats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media (max-width:820px){.seats{grid-template-columns:1fr}}
-.seat{position:relative;display:block;min-width:0;border-radius:var(--r);overflow:hidden;aspect-ratio:16/11;max-width:100%;text-decoration:none;border:1px solid var(--line);background:var(--panel);isolation:isolate;transition:border-color .2s,transform .25s}
-.seat:hover{transform:translateY(-3px)}
-.seat.v:hover{border-color:var(--gold)}
-.seat.s:hover{border-color:var(--hud)}
-.seat canvas,.seat > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.seat.s > img{object-position:30% 50%}
-.seat-label{position:absolute;inset:auto 0 0 0;padding:clamp(16px,2.4vw,26px);display:grid;gap:6px;background:linear-gradient(to top,rgba(6,10,14,.92) 10%,rgba(6,10,14,.55) 60%,transparent);z-index:2}
-.seat-label .latin{font-size:.72rem;color:var(--muted)}
-.seat-label h2{font-size:var(--step-2);font-weight:800}
-.seat-label p{color:var(--muted);font-size:var(--step--1);max-width:30rem}
-.seat-go{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-weight:600;font-size:var(--step--1)}
-.seat.v .seat-go{color:var(--gold-2)}
-.seat.s .seat-go{color:var(--hud)}
-.seat-tag{position:absolute;top:14px;right:14px;z-index:2;font-size:.72rem;padding:4px 10px;border-radius:999px;background:var(--shade);border:1px solid var(--line-strong);color:var(--text)}
-.seat .map-legend{position:absolute;top:14px;left:14px;z-index:2;display:flex;flex-wrap:wrap;gap:6px;max-width:60%}
-.chip{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;padding:3px 9px;border-radius:999px;background:var(--shade);border:1px solid var(--line);color:var(--text);white-space:nowrap}
-.chip i{width:7px;height:7px;border-radius:50%;background:var(--c,var(--gold))}
+.hero{padding-block:clamp(24px,4vw,48px) clamp(28px,4vw,56px)}
+.hero-copy{gap:12px;margin-bottom:clamp(18px,3vw,30px);max-width:52rem}
+.eyebrow{font-size:var(--step--1);color:var(--muted);font-weight:500}
+.hero h1{font-size:var(--step-4);font-weight:800;line-height:1.15}
+.hero h1 .v{color:var(--vent)}
+.hero h1 .s{color:var(--saqr)}
+.hero-copy p{font-size:var(--step-1);color:var(--ink-2);max-width:44rem}
+.stage{position:relative;border-radius:calc(var(--r) + 6px);overflow:hidden;aspect-ratio:1846/852;max-width:100%;background:var(--mist-2);box-shadow:var(--shadow);isolation:isolate}
+@media (max-width:760px){.stage{aspect-ratio:4/3.4}}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity .8s ease;pointer-events:none}
+.slide.on{opacity:1;pointer-events:auto}
+.slide img{width:100%;height:100%;object-fit:cover}
+.slide.v img{object-position:58% 50%}
+.slide.s img{object-position:30% 50%}
+.slide-copy{position:absolute;z-index:2;display:grid;gap:10px;max-width:min(30rem,82%)}
+.slide.v .slide-copy{top:clamp(18px,4vw,48px);left:clamp(18px,4vw,52px);color:var(--ink)}
+.slide.v .slide-copy p{color:var(--ink-2)}
+.slide.v::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(255,255,255,.72),rgba(255,255,255,0) 52%)}
+.slide.s .slide-copy{bottom:clamp(18px,4vw,48px);right:clamp(18px,4vw,52px);color:#fff}
+.slide.s .slide-copy p{color:rgba(255,255,255,.88)}
+.slide.s::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(10,8,6,.78),rgba(10,8,6,.15) 55%,transparent)}
+.slide-copy h2{font-size:var(--step-3);font-weight:800}
+.slide-copy p{font-size:var(--step-0);max-width:28rem}
+.cta{display:inline-flex;align-items:center;gap:10px;justify-self:start;text-decoration:none;font-weight:600;font-size:var(--step--1);padding:11px 20px;border-radius:999px;transition:transform .15s,box-shadow .15s}
+.cta:hover{transform:translateY(-1px)}
+.cta.v{background:var(--vent);color:#fff;box-shadow:0 8px 20px rgba(11,125,181,.3)}
+.cta.s{background:var(--saqr);color:#fff;box-shadow:0 8px 20px rgba(226,86,26,.35)}
+@media (max-width:760px){.slide-copy p{display:none}.slide.v .slide-copy{max-width:90%}}
+.switch{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.sw{position:relative;display:flex;align-items:center;gap:14px;padding:12px;border-radius:var(--r);border:1px solid var(--line);background:var(--paper);cursor:pointer;text-align:start;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.sw img{flex:0 0 auto;width:clamp(64px,10vw,110px);aspect-ratio:16/10;border-radius:10px;object-fit:cover}
+.sw .hc-body{gap:2px;min-width:0}
+.sw b{font:700 var(--step-0)/1.35 var(--font-display)}
+.sw small{color:var(--muted);font-size:var(--step--1);line-height:1.5}
+.sw[aria-pressed="true"]{box-shadow:var(--shadow)}
+.sw.v[aria-pressed="true"]{border-color:var(--vent)}
+.sw.s[aria-pressed="true"]{border-color:var(--saqr)}
+.sw .bar{position:absolute;inset:auto 0 0 0;height:3px;background:transparent}
+.sw .bar i{display:block;height:100%;width:0}
+.sw.v .bar i{background:var(--vent)}
+.sw.s .bar i{background:var(--saqr)}
+.sw[aria-pressed="true"] .bar i{animation:fill 7s linear forwards}
+.stage.paused + .switch .bar i,.switch.paused .bar i{animation-play-state:paused}
+@keyframes fill{to{width:100%}}
+@media (max-width:560px){.sw small{display:none}.sw{gap:10px;padding:10px}}
+.plat{display:flex;flex-wrap:wrap;gap:6px}
+.pb{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:600;padding:4px 11px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink-2);white-space:nowrap}
+.pb.soon{border-style:dashed;color:var(--muted)}
+.pb svg{width:13px;height:13px;fill:currentColor}
+.slide .pb{background:rgba(255,255,255,.9);border-color:rgba(255,255,255,.9);color:var(--ink)}
+.slide .pb.soon{background:rgba(255,255,255,.7)}
 
-/* ---------- section scaffolding ---------- */
-section.band{padding-block:clamp(48px,7vw,96px)}
-.band.v{background:linear-gradient(180deg,var(--ink) 0,var(--ink-2) 100%);border-top:1px solid var(--line)}
-.band.s{background:#0A0F0C;border-top:1px solid #1E2A23}
-.head{display:grid;gap:12px;max-width:44rem;margin-bottom:clamp(26px,4vw,44px)}
-.head .latin{font-size:.75rem}
-.band.v .head .latin{color:var(--gold)}
-.band.s .head .latin{color:var(--hud)}
+/* ---------- sections ---------- */
+section.band{padding-block:clamp(56px,8vw,112px)}
+.band.alt{background:var(--mist)}
+.head{gap:14px;max-width:46rem;margin-bottom:clamp(28px,4vw,48px)}
+.head .latin{display:inline-flex;align-items:center;gap:8px}
+.head .latin::before{content:"";width:22px;height:3px;border-radius:3px;background:currentColor}
+#ventora .head .latin{color:var(--vent)}
+#saqr .head .latin,#saqr-try .head .latin{color:var(--saqr)}
+#platforms .head .latin{color:var(--ink-2)}
 .head h2{font-size:var(--step-3);font-weight:800}
-.head p{color:var(--muted);font-size:var(--step-1)}
-.sub{font:600 var(--step-1)/1.4 var(--font-display);margin-bottom:16px}
-.block{margin-top:clamp(40px,6vw,72px)}
-.note{color:var(--faint);font-size:var(--step--1)}
+.head p{color:var(--ink-2);font-size:var(--step-1)}
+.sub{font:700 var(--step-1)/1.4 var(--font-display);margin-bottom:18px}
+.block{margin-top:clamp(44px,6vw,80px)}
+.note{color:var(--muted);font-size:var(--step--1)}
+.legal-note{margin-top:12px;color:var(--muted);font-size:.8rem;line-height:1.7}
 
-/* ---------- VENTORA: founding ---------- */
+/* ---------- VENTORA ---------- */
+.v-intro{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(20px,4vw,56px);align-items:center}
+@media (max-width:860px){.v-intro{grid-template-columns:1fr}}
+.v-intro .head{margin-bottom:0}
+.v-logo{justify-self:center;width:min(100%,380px)}
+@media (max-width:860px){.v-logo{width:min(70%,260px)}}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:clamp(28px,4vw,44px)}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stats div{background:var(--paper);padding:18px 20px;display:grid;gap:2px}
+.stats b{font:800 var(--step-2)/1.2 var(--font-display);color:var(--vent-ink)}
+.stats span{font-size:var(--step--1);color:var(--muted)}
 .found{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(16px,3vw,32px);align-items:start}
 @media (max-width:860px){.found{grid-template-columns:1fr}}
-.form{display:grid;gap:14px;padding:clamp(18px,2.4vw,26px);border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
-.form label{display:grid;gap:6px;font-size:var(--step--1);color:var(--muted);font-weight:500}
-.form input,.form select{width:100%;min-height:46px;padding:0 14px;border-radius:10px;border:1px solid var(--line-strong);background:var(--ink);color:var(--text);font-size:var(--step-0)}
-.form input:focus,.form select:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px var(--gold-soft)}
-.form small{color:var(--faint);font-size:.78rem;font-weight:400}
-.contract{position:relative;padding:clamp(20px,3vw,34px);border-radius:var(--r);background:#F4EEE1;color:#1E1A12;box-shadow:0 22px 50px rgba(0,0,0,.45);overflow:hidden}
-.contract::before{content:"";position:absolute;inset:10px;border:1px solid rgba(160,120,40,.45);border-radius:8px;pointer-events:none}
-.c-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid rgba(160,120,40,.4);padding-bottom:14px;margin-bottom:14px}
-.c-head .latin{font-size:.68rem;color:#8A6A2A}
-.c-head h3{font-size:var(--step-1);font-weight:800}
-.c-logo{flex:0 0 auto;width:52px;height:52px;border-radius:12px;display:grid;place-items:center;background:#1A2631;color:var(--gold);font:800 1rem/1 var(--font-display)}
-.contract ol{margin:0;padding-inline-start:1.2em;display:grid;gap:8px;font-size:var(--step--1);line-height:1.8}
+.form{gap:14px;padding:clamp(18px,2.6vw,28px);border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.form label{display:grid;gap:6px;font-size:var(--step--1);color:var(--ink-2);font-weight:500}
+.form input,.form select{width:100%;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--mist);color:var(--ink);font-size:var(--step-0)}
+.form input:focus,.form select:focus{border-color:var(--vent);outline:none;box-shadow:0 0 0 4px var(--vent-soft);background:var(--paper)}
+.form small{color:var(--muted);font-size:.78rem;font-weight:400}
+.contract{position:relative;padding:clamp(22px,3vw,36px);border-radius:var(--r);background:#FFFDF8;color:#1E1A12;box-shadow:var(--shadow);border:1px solid #EFE6D3;overflow:hidden}
+.contract::before{content:"";position:absolute;inset:10px;border:1px solid rgba(11,125,181,.25);border-radius:10px;pointer-events:none}
+.c-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid rgba(11,125,181,.25);padding-bottom:14px;margin-bottom:14px}
+.c-head .latin{color:var(--vent)}
+.c-head h3{font-size:var(--step-1);font-weight:700}
+.c-logo{flex:0 0 auto;width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--vent),var(--vent-2));color:#fff;font:800 1rem/1 var(--font-display)}
+.contract ol{margin:0;padding-inline-start:1.3em;display:grid;gap:8px;font-size:var(--step--1);line-height:1.85}
 .contract ol b{font-weight:600}
 .sign{margin-top:18px;display:grid;gap:8px}
 .sign-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.78rem;color:#6A5A3A}
-.sign-row button{border:1px solid rgba(120,90,30,.4);background:transparent;border-radius:8px;padding:4px 12px;color:#5A4520;cursor:pointer}
-#sigPad{width:100%;height:110px;border-radius:10px;background:repeating-linear-gradient(0deg,transparent 0 78px,rgba(120,90,30,.35) 78px 79px,transparent 79px 110px),#FBF7EE;touch-action:none;cursor:crosshair;display:block}
-.stamp{position:absolute;bottom:26px;left:26px;width:96px;height:96px;border-radius:50%;border:3px double #B0352A;color:#B0352A;display:grid;place-items:center;text-align:center;font:800 .78rem/1.3 var(--font-display);transform:rotate(-14deg) scale(.6);opacity:0;transition:opacity .3s,transform .35s cubic-bezier(.2,1.6,.4,1);pointer-events:none}
-.stamp.on{opacity:.85;transform:rotate(-14deg) scale(1)}
-
-/* ---------- VENTORA: map + companies ---------- */
-.world{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);aspect-ratio:2/1;max-width:100%;background:#B9D8DF}
+.sign-row button{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:4px 12px;cursor:pointer}
+#sigPad{width:100%;height:110px;border-radius:12px;background:repeating-linear-gradient(0deg,transparent 0 78px,rgba(11,125,181,.3) 78px 79px,transparent 79px 110px),#FFFFFF;border:1px dashed #D6CCB6;touch-action:none;cursor:crosshair;display:block}
+.c-legal{margin-top:12px;font-size:.74rem;color:#7A6E58}
+.stamp{position:absolute;bottom:56px;inset-inline-end:28px;width:98px;height:98px;border-radius:50%;border:3px double var(--vent);color:var(--vent);display:grid;place-items:center;text-align:center;font:800 .76rem/1.3 var(--font-display);transform:rotate(-14deg) scale(.6);opacity:0;transition:opacity .3s,transform .35s cubic-bezier(.2,1.6,.4,1);pointer-events:none;background:rgba(255,255,255,.6)}
+.stamp.on{opacity:.9;transform:rotate(-14deg) scale(1)}
+.world{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);aspect-ratio:2.2/1;max-width:100%;background:#B9D8DF;box-shadow:var(--shadow)}
 .world canvas{position:absolute;inset:0;width:100%;height:100%}
 @media (max-width:560px){.world{aspect-ratio:4/3}}
 .world-bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
-.world-bar .clock{margin-inline-start:auto;font-size:var(--step--1);color:var(--muted)}
-.cos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
-@media (max-width:980px){.cos{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.world-bar .clock{margin-inline-start:auto;font:600 var(--step--1)/1 var(--font-hud);color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;padding:5px 12px;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--vent))}
+.cos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media (max-width:1000px){.cos{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:560px){.cos{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.co{margin:0;border-radius:12px;overflow:hidden;background:var(--panel);border:1px solid var(--line)}
+.co{margin:0;border-radius:14px;overflow:hidden;background:var(--paper);border:1px solid var(--line);transition:transform .2s,box-shadow .2s}
+.co:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
 .co img{aspect-ratio:16/10;width:100%;object-fit:cover}
-.co figcaption{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:var(--step--1);font-weight:600}
-.co figcaption i{flex:0 0 8px;height:8px;border-radius:50%;background:var(--c)}
-.services{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
-.services .chip{font-size:var(--step--1);padding:6px 12px;background:var(--panel)}
-.services > span{color:var(--muted);font-size:var(--step--1);margin-inline-end:4px}
-.ledger-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
-.ledger{width:100%;border-collapse:collapse;min-width:560px}
-.ledger th,.ledger td{text-align:start;padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top;font-size:var(--step--1)}
+.co figcaption{display:flex;align-items:center;gap:8px;padding:11px 13px;font-size:var(--step--1);font-weight:600}
+.co figcaption i{flex:0 0 9px;height:9px;border-radius:50%;background:var(--c)}
+.services{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+.services > span:first-child{color:var(--muted);font-size:var(--step--1);margin-inline-end:4px}
+.ledger-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.ledger{width:100%;border-collapse:collapse;min-width:600px}
+.ledger th,.ledger td{text-align:start;padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top;font-size:var(--step--1)}
 .ledger tr:last-child td{border-bottom:0}
-.ledger th{color:var(--faint);font-weight:500;font-size:.75rem;background:var(--ink-2)}
+.ledger th{color:var(--muted);font-weight:500;font-size:.76rem;background:var(--mist)}
 .ledger td:first-child{font-weight:600;white-space:nowrap}
-.ledger td:last-child{color:var(--gold-2);white-space:nowrap}
+.ledger td:last-child{color:var(--vent-ink);font-weight:600;white-space:nowrap}
 
 /* ---------- SAQR ---------- */
-.tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;border:1px solid #24342B;background:#0F1612;margin-bottom:18px}
-.tabs button{border:0;background:transparent;padding:8px 18px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:600;font-size:var(--step--1)}
-.tabs button[aria-selected="true"]{background:var(--hud);color:#06140B}
-.craft{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(16px,3vw,32px);align-items:start}
-@media (max-width:860px){.craft{grid-template-columns:1fr}}
-.craft-img{border-radius:var(--r);overflow:hidden;border:1px solid #24342B;aspect-ratio:21/9;max-width:100%}
+.banner{position:relative;border-radius:calc(var(--r) + 6px);overflow:hidden;aspect-ratio:1916/821;max-width:100%;box-shadow:var(--shadow);margin-bottom:clamp(28px,4vw,48px)}
+@media (max-width:760px){.banner{aspect-ratio:16/10}}
+.banner img{width:100%;height:100%;object-fit:cover;object-position:30% 50%}
+.banner::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,8,6,.75),transparent 60%)}
+.banner .b-copy{position:absolute;inset-inline-start:clamp(18px,4vw,48px);inset-block-end:clamp(16px,3.5vw,40px);z-index:1;color:#fff;display:grid;gap:6px;max-width:min(36rem,88%)}
+.banner .latin{color:var(--saqr-2)}
+.banner h2{font-size:var(--step-3);font-weight:800}
+.banner p{color:rgba(255,255,255,.88);font-size:var(--step-0)}
+@media (max-width:560px){.banner p{display:none}}
+.filters{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--mist-2);margin-bottom:18px}
+.filters button{border:0;background:transparent;padding:8px 18px;border-radius:999px;cursor:pointer;font-weight:600;font-size:var(--step--1);color:var(--ink-2)}
+.filters button[aria-pressed="true"]{background:var(--paper);color:var(--saqr-ink);box-shadow:0 1px 3px rgba(11,21,38,.12)}
+.roster{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.roster{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.roster{grid-template-columns:1fr}}
+.ac{position:relative;display:grid;text-align:start;padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s}
+.ac:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.ac[aria-pressed="true"]{border-color:var(--saqr);box-shadow:0 0 0 3px var(--saqr-soft),var(--shadow)}
+.ac img{width:100%;aspect-ratio:16/8;object-fit:cover}
+.ac .hc-body{padding:14px 16px 16px;gap:6px}
+.ac .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ac b{font:700 var(--step-1)/1.3 var(--font-display)}
+.cat{font:600 .68rem/1 var(--font-hud);letter-spacing:.1em;padding:5px 9px;border-radius:999px;background:var(--saqr-soft);color:var(--saqr-ink);white-space:nowrap}
+.cat.jet{background:#E8EEFF;color:#2A49B8}
+.ac small{color:var(--muted);font-size:var(--step--1)}
+.ac.more{display:grid;place-items:center;min-height:220px;border-style:dashed;background:var(--mist);cursor:default;text-align:center;padding:20px}
+.ac.more:hover{transform:none;box-shadow:none}
+.ac.more b{font-size:var(--step-0);color:var(--ink-2)}
+.plus{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;margin:0 auto 10px;border:1px dashed var(--muted);color:var(--muted);font:500 1.4rem/1 var(--font-body)}
+.craft{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(18px,3vw,36px);align-items:start;margin-top:18px;padding:clamp(14px,2vw,20px);border:1px solid var(--line);border-radius:calc(var(--r) + 4px);background:var(--paper)}
+@media (max-width:900px){.craft{grid-template-columns:1fr}}
+.craft-img{border-radius:var(--r);overflow:hidden;aspect-ratio:1916/821;max-width:100%}
 .craft-img img{width:100%;height:100%;object-fit:cover}
-.spec{display:grid;gap:0;margin:0}
-.spec div{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:12px;padding:11px 0;border-bottom:1px solid #1E2A23}
-.spec dt{color:var(--faint);font-size:var(--step--1)}
+.craft-info{gap:12px}
+.craft-info h3{font-size:var(--step-2);font-weight:800}
+.seats{display:flex;flex-wrap:wrap;gap:6px}
+.seat{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--saqr-soft);color:var(--saqr-ink)}
+.seat.soon{background:var(--mist-2);color:var(--muted)}
+.seat em{font-style:normal;font-weight:500;font-size:.72rem;opacity:.85}
+.spec{display:grid;margin:0}
+.spec div{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.spec div:last-child{border-bottom:0}
+.spec dt{color:var(--muted);font-size:var(--step--1)}
 .spec dd{margin:0;font-size:var(--step--1)}
 @media (max-width:420px){.spec div{grid-template-columns:1fr;gap:2px}}
 .weap{display:flex;flex-wrap:wrap;gap:6px}
-.weap span{font-size:.78rem;padding:2px 9px;border-radius:6px;border:1px solid #2C4235;color:var(--hud)}
+.weap span{font:600 .72rem/1 var(--font-hud);letter-spacing:.06em;padding:6px 9px;border-radius:7px;border:1px solid var(--line);background:var(--mist);color:var(--ink-2)}
 
-.pod{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(16px,3vw,28px);align-items:start}
-@media (max-width:900px){.pod{grid-template-columns:1fr}}
-.screen{position:relative;border-radius:18px;padding:12px;background:linear-gradient(#1B211D,#121713);border:1px solid #2B342E;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 20px 40px rgba(0,0,0,.4)}
-.screen-in{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/10;max-width:100%;background:#000}
-#pod{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;transition:filter .25s}
-.osd{position:absolute;font:600 .72rem/1.2 var(--font-hud);color:var(--hud);text-shadow:0 0 3px #000,0 1px 2px #000;pointer-events:none;direction:ltr;letter-spacing:.06em}
-.osd.tl{top:10px;left:12px}.osd.tr{top:10px;right:12px;text-align:right}.osd.bl{bottom:10px;left:12px}.osd.br{bottom:10px;right:12px;text-align:right}
+/* cockpit + live sensor */
+.ck-wrap{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:clamp(16px,3vw,28px);align-items:start}
+@media (max-width:980px){.ck-wrap{grid-template-columns:1fr}}
+.ck{position:relative;border-radius:calc(var(--r) + 4px);overflow:hidden;aspect-ratio:2400/1351;max-width:100%;background:linear-gradient(180deg,#5F8FC2 0%,#9DBFDD 34%,#E9D3B0 52%,#B49572 60%,#3C3328 100%);box-shadow:var(--shadow);direction:ltr}
+.ck .ckimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;transition:opacity .35s}
+.ck .disp{position:absolute;left:36.9%;top:52.28%;width:26.2%;height:20.57%;z-index:1;background:#000;overflow:hidden;transition:all .35s ease}
+.ck .mini{position:absolute;left:45.96%;top:42.35%;width:6.91%;height:6.8%;z-index:1;background:#020503}
+.ck canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#pod{touch-action:none;cursor:crosshair;transition:filter .25s}
+.ck.full .ckimg,.ck.full .mini{opacity:0;pointer-events:none}
+.ck.full .disp{left:0;top:0;width:100%;height:100%;z-index:3}
+.osd{position:absolute;z-index:4;font:600 .72rem/1.2 var(--font-hud);color:var(--hud);text-shadow:0 0 3px #000,0 1px 2px #000;pointer-events:none;letter-spacing:.06em;opacity:0;transition:opacity .2s}
+.ck.full .osd{opacity:1}
+.osd.tl{top:12px;left:14px}.osd.tr{top:12px;right:14px;text-align:right}.osd.bl{bottom:12px;left:14px}.osd.br{bottom:12px;right:14px;text-align:right}
 .osd.tl b{font-family:var(--font-body);font-weight:600;letter-spacing:0}
-.bezel{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:space-between}
+.ck-hint{position:absolute;z-index:5;left:50%;bottom:4%;transform:translateX(-50%);font-size:.74rem;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.9);color:var(--ink);white-space:nowrap;direction:rtl}
+:root[dir="ltr"] .ck-hint{direction:ltr}
+.ck.full .ck-hint{display:none}
+.bezel{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:space-between}
 .bezel .grp{display:flex;gap:6px;flex-wrap:wrap}
-.bk{min-width:48px;min-height:36px;padding:0 10px;border-radius:6px;border:1px solid #39443C;background:#232A25;color:#C9D6CC;font:600 .74rem/1 var(--font-hud);letter-spacing:.06em;cursor:pointer;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35)}
-.bk[aria-pressed="true"]{color:#06140B;background:var(--hud);border-color:var(--hud)}
-.bk:active{transform:translateY(1px)}
-.readout{display:grid;gap:12px}
-.readout dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#1E2A23;border:1px solid #1E2A23;border-radius:12px;overflow:hidden}
-.readout dl div{background:#0F1612;padding:12px 14px;display:grid;gap:2px}
-.readout dt{font-size:.74rem;color:var(--faint)}
-.readout dd{margin:0;font:600 var(--step-1)/1.3 var(--font-body);color:var(--hud)}
+.bk{min-width:48px;min-height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink-2);font:600 .74rem/1 var(--font-hud);letter-spacing:.06em;cursor:pointer;transition:background .15s,border-color .15s}
+.bk:hover{border-color:var(--ink-2)}
+.bk[aria-pressed="true"]{color:#fff;background:var(--ink);border-color:var(--ink)}
+.bk.wide{font-family:var(--font-body);letter-spacing:0;font-size:var(--step--1)}
+.readout{gap:14px}
+.readout dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.readout dl div{background:var(--paper);padding:13px 15px;display:grid;gap:2px}
+.readout dt{font-size:.76rem;color:var(--muted)}
+.readout dd{margin:0;font:700 var(--step-1)/1.3 var(--font-display);color:var(--ink)}
 .readout p{color:var(--muted);font-size:var(--step--1)}
-.howto{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:var(--step--1);color:var(--muted)}
-.howto b{color:var(--text);font-weight:600}
-
-.cockpit{margin:0;border-radius:var(--r);overflow:hidden;border:1px solid #24342B}
-.cockpit img{width:100%}
-.cockpit figcaption{padding:10px 14px;font-size:var(--step--1);color:var(--muted);background:#0F1612}
-
-.maps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.howto{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:var(--step--1);color:var(--ink-2)}
+.howto li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px}
+.howto li::before{content:"";width:8px;height:8px;margin-top:.62em;border-radius:50%;background:var(--saqr);justify-self:center}
+.howto b{font-weight:600;color:var(--ink)}
+.tedac{margin:0;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--paper)}
+.tedac img{width:100%}
+.tedac figcaption{padding:12px 16px;font-size:var(--step--1);color:var(--ink-2)}
+.maps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 @media (max-width:860px){.maps{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.mapc{margin:0;position:relative;border-radius:12px;overflow:hidden;border:1px solid #24342B;background:#0F1612}
-.mapc img{width:100%;aspect-ratio:3/1.05;object-fit:cover}
-.mapc figcaption{padding:10px 12px;display:grid;gap:2px}
-.mapc figcaption b{font:600 var(--step-0)/1.4 var(--font-display)}
-.mapc figcaption span{color:var(--faint);font-size:.78rem}
-.missions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-@media (max-width:860px){.missions{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:480px){.missions{grid-template-columns:1fr}}
-.mis{position:relative;margin:0;border-radius:12px;overflow:hidden;border:1px solid #24342B;min-height:120px;display:flex;align-items:flex-end}
-.mis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.mis figcaption{position:relative;width:100%;padding:28px 14px 12px;background:linear-gradient(to top,rgba(5,9,7,.92),transparent);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.mis b{font:800 var(--step-1)/1.3 var(--font-display)}
-.mis .latin{font-size:.66rem;color:var(--hud)}
-.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#1E2A23;border:1px solid #1E2A23;border-radius:var(--r);overflow:hidden}
-@media (max-width:860px){.feats{grid-template-columns:1fr}}
-.feats div{background:#0C120E;padding:18px 18px 20px;display:grid;gap:6px;align-content:start}
-.feats h3{font-size:var(--step-0);font-weight:600}
-.feats p{color:var(--muted);font-size:var(--step--1)}
+.mapc{margin:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--paper)}
+.mapc img{width:100%;aspect-ratio:3/1.4;object-fit:cover}
+.mapc figcaption{padding:11px 13px;gap:2px}
+.mapc figcaption b{font:700 var(--step-0)/1.4 var(--font-display)}
+.mapc figcaption span{color:var(--muted);font-size:.8rem}
+.missions{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.missions{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.missions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mis{margin:0;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--paper)}
+.mis img{width:100%;aspect-ratio:16/9;object-fit:cover}
+.mis figcaption{padding:10px 12px;display:grid;gap:2px}
+.mis b{font:700 var(--step--1)/1.4 var(--font-display)}
+.mis .latin{color:var(--saqr-ink);font-size:.62rem}
+.fx{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:860px){.fx{grid-template-columns:1fr}}
+.fx div{gap:6px;padding:20px;border-radius:var(--r);background:var(--paper);border:1px solid var(--line);align-content:start}
+.fx h3{font-size:var(--step-0);font-weight:700}
+.fx p{color:var(--ink-2);font-size:var(--step--1)}
 
-/* ---------- compare ---------- */
-.cmp-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--line)}
-.cmp{width:100%;border-collapse:collapse;min-width:620px;background:var(--panel)}
-.cmp th,.cmp td{padding:14px 18px;text-align:start;border-bottom:1px solid var(--line);font-size:var(--step--1);vertical-align:top}
-.cmp thead th{font:800 var(--step-1)/1.3 var(--font-display);background:var(--ink-2)}
-.cmp thead th:nth-child(2){color:var(--gold)}
-.cmp thead th:nth-child(3){color:var(--hud)}
-.cmp tbody th{color:var(--faint);font-weight:500;white-space:nowrap;width:9rem}
+/* ---------- platforms ---------- */
+.cmp-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--line);background:var(--paper)}
+.cmp{width:100%;border-collapse:collapse;min-width:640px}
+.cmp th,.cmp td{padding:15px 20px;text-align:start;border-bottom:1px solid var(--line);font-size:var(--step--1);vertical-align:top}
+.cmp thead th{font:800 var(--step-1)/1.3 var(--font-display);background:var(--mist)}
+.cmp thead th:nth-child(2){color:var(--vent)}
+.cmp thead th:nth-child(3){color:var(--saqr)}
+.cmp tbody th{color:var(--muted);font-weight:500;white-space:nowrap;width:10rem}
 .cmp tr:last-child td,.cmp tr:last-child th{border-bottom:0}
-footer{border-top:1px solid var(--line);padding-block:28px 40px;color:var(--faint);font-size:var(--step--1)}
-footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
-footer code{font-family:var(--font-hud);font-size:.74rem;color:var(--muted);overflow-wrap:anywhere}
-@media (prefers-reduced-motion:reduce){.seat,.stamp,#pod{transition:none}.seat:hover{transform:none}}
+footer{background:var(--ink);color:#C9D2DE;padding-block:44px 52px;font-size:var(--step--1)}
+footer .wrap{display:grid;gap:22px}
+.f-top{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;justify-content:space-between}
+.f-top b{font:700 var(--step-1)/1.3 var(--font-display);color:#fff}
+.f-legal{display:grid;gap:8px;max-width:72rem;font-size:.8rem;line-height:1.8;color:#9FAABA;border-top:1px solid #23314A;padding-top:22px}
+.f-legal h2{font:700 var(--step-0)/1.4 var(--font-display);color:#fff;margin-bottom:4px}
+@media (prefers-reduced-motion:reduce){.slide,.co,.ac,.ck .ckimg,.ck .disp,.stamp{transition:none}.sw .bar i{animation:none}}
 </style>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-apple" viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.5 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.1 2.5-1.8 3.1-.5 7.6 1.3 10.1.8 1.2 1.8 2.6 3.1 2.5 1.3 0 1.7-.8 3.3-.8 1.5 0 1.9.8 3.3.8 1.4 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-4.2zM14 5.3c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></symbol>
+  <symbol id="i-android" viewBox="0 0 24 24"><path d="M17.5 9.4l1.6-2.8a.4.4 0 0 0-.7-.4l-1.6 2.8a9.7 9.7 0 0 0-9.6 0L5.6 6.2a.4.4 0 0 0-.7.4l1.6 2.8A9 9 0 0 0 2 16.5h20a9 9 0 0 0-4.5-7.1zM7.5 14a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm9 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-3a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4c.8 1.2 1.5 2.5 1.9 4h-3.8c.4-1.5 1.1-2.8 1.9-4zM4.3 14a8.2 8.2 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4H4.3zm.8 2h3a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16zm3-8h-3a8 8 0 0 1 4.4-3.6C8 5.5 7.6 6.7 8.1 8zM12 20c-.8-1.2-1.5-2.5-1.9-4h3.8c-.4 1.5-1.1 2.8-1.9 4zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4zm.3 5.6c.6-1.1 1.1-2.3 1.4-3.6h3a8 8 0 0 1-4.4 3.6zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8.2 8.2 0 0 1 0 4h-3.4z"/></symbol>
+</svg>
+
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="#top" aria-label="العودة للأعلى"><i aria-hidden="true"></i><span>فنتورا · صقر الوادي</span></a>
-    <nav class="nav" aria-label="أقسام الصفحة">
-      <a href="#ventora">فنتورا</a>
-      <a href="#saqr">صقر الوادي</a>
-      <a href="#compare">أيّ مقعد لك؟</a>
+    <a class="mark" href="#top" aria-label="العودة إلى أعلى الصفحة" data-en-aria="Back to top"><img src="assets/ventora_icon.webp" alt="" width="32" height="32"><span data-en="Ventora · Saqr Al-Wadi">فنتورا · صقر الوادي</span></a>
+    <nav class="nav" aria-label="أقسام الصفحة" data-en-aria="Page sections">
+      <a href="#ventora" data-en="Ventora">فنتورا</a>
+      <a href="#saqr" data-en="Saqr Al-Wadi">صقر الوادي</a>
+      <a href="#platforms" data-en="Platforms">المنصات</a>
     </nav>
+    <button class="lang" id="langBtn" type="button">EN</button>
   </div>
 </header>
 
@@ -259,269 +353,320 @@ footer code{font-family:var(--font-hud);font-size:.74rem;color:var(--muted);over
   <section class="hero">
     <div class="wrap">
       <div class="hero-copy">
-        <p class="eyebrow">لعبتان عربيتان للآيفون والويب · اختر مقعدك</p>
-        <h1><b>رأس الطاولة</b>، أو <em>مقعد المدفعي</em>.</h1>
-        <p>في فنتورا تؤسس مجموعة قابضة باسمك وتدير شركاتها حول العالم. وفي صقر الوادي تجلس في أباتشي أو <span class="nw">F-15SA</span> فوق أرض حقيقية، والهدف على شاشتك.</p>
+        <p class="eyebrow" data-en="Two Arabic games for iPhone and the web, coming soon to Android">لعبتان عربيتان لأجهزة iPhone والمتصفح، وقريبًا على Android</p>
+        <h1 data-en="Run a &lt;span class=&quot;v&quot;&gt;global group&lt;/span&gt;, or take the controls of a &lt;span class=&quot;s&quot;&gt;combat aircraft&lt;/span&gt;.">أدِر <span class="v">مجموعة عالمية</span>، أو تولَّ قيادة <span class="s">طائرة قتالية</span>.</h1>
+        <p data-en="Ventora is a business simulator in which you found and manage a holding group. Saqr Al-Wadi is a combat flight simulator with helicopters and jets, played from the pilot’s or the weapons officer’s seat.">فنتورا محاكاة أعمال تؤسس فيها مجموعة قابضة وتديرها. وصقر الوادي محاكاة طيران قتالي تضم مروحيات وطائرات نفاثة، تخوضها من مقعد الطيار أو مقعد ضابط الأسلحة.</p>
       </div>
-      <div class="seats">
-        <a class="seat v" href="#ventora">
-          <canvas id="heroMap" aria-label="خريطة العالم ومسارات الطائرات والسفن والشاحنات من الرياض" role="img"></canvas>
-          <span class="seat-tag">مدار سابقًا</span>
-          <div class="seat-label">
-            <span class="latin">VENTORA · BUSINESS SIMULATOR</span>
-            <h2>فنتورا</h2>
-            <p>مقعد الرئيس: طيران وشحن بحري ونقل وطاقة وبنك وعقار، من مقرّك في الرياض.</p>
-            <span class="seat-go">ادخل مجلس الإدارة <span aria-hidden="true">←</span></span>
+
+      <div class="stage" id="stage">
+        <div class="slide v on" data-slide="0">
+          <picture>
+            <source srcset="assets/ventora_key_m.webp 1000w, assets/ventora_key.webp 1846w" sizes="(max-width:1240px) 100vw, 1240px" type="image/webp">
+            <img src="assets/ventora_key.webp" alt="لوحة فنتورا الرسمية: جزيرة على هيئة حرف V تضم ميناءً وأبراجًا ومطارًا وشاحنة" data-en-alt="Ventora key art: a V-shaped island with a port, towers, an airport and a truck" width="1846" height="852" fetchpriority="high">
+          </picture>
+          <div class="slide-copy">
+            <span class="latin" style="color:var(--vent)">VENTORA · BUSINESS SIMULATOR</span>
+            <h2 data-en="Ventora">فنتورا</h2>
+            <p data-en="Found your holding group and run its airlines, shipping lines, energy plants and bank around the world.">أسّس مجموعتك القابضة، وأدِر شركات الطيران والشحن والطاقة والبنك التابعة لها حول العالم.</p>
+            <div class="plat"><span class="pb"><svg aria-hidden="true"><use href="#i-apple"/></svg>iPhone</span><span class="pb soon"><svg aria-hidden="true"><use href="#i-android"/></svg>Android · <span data-en="Coming soon">قريبًا</span></span></div>
+            <a class="cta v" href="#ventora"><span data-en="Discover Ventora">اكتشف فنتورا</span></a>
           </div>
-        </a>
-        <a class="seat s" href="#saqr">
-          <img src="assets/s_hero_ah64.webp" alt="أباتشي AH-64 تحلّق فوق وادٍ جبلي وقت العصر" width="1280" height="548">
-          <span class="seat-tag">AH-64 · <span class="nw">F-15SA</span></span>
-          <div class="seat-label">
-            <span class="latin">SAQR AL-WADI · GUNNER SIM</span>
-            <h2>صقر الوادي</h2>
-            <p>مقعد المدفعي في الأباتشي، أو ضابط الأسلحة خلف طيار الـ <span class="nw">F-15SA</span>. الكاميرا بصري وحراري.</p>
-            <span class="seat-go">اركب الطائرة <span aria-hidden="true">←</span></span>
+        </div>
+        <div class="slide s" data-slide="1" aria-hidden="true">
+          <picture>
+            <source srcset="assets/s_key_ah64_m.webp 960w, assets/s_key_ah64.webp 1915w" sizes="(max-width:1240px) 100vw, 1240px" type="image/webp">
+            <img src="assets/s_key_ah64.webp" alt="مروحية أباتشي تقلع وسط الغبار عند الغروب" data-en-alt="An Apache helicopter lifting off through dust at sunset" width="1915" height="821" loading="lazy">
+          </picture>
+          <div class="slide-copy">
+            <span class="latin" style="color:var(--saqr-2)">SAQR AL-WADI · COMBAT FLIGHT SIM</span>
+            <h2 data-en="Saqr Al-Wadi">صقر الوادي</h2>
+            <p data-en="Helicopters and jets over terrain built from real imagery, with daylight and thermal targeting sensors.">مروحيات وطائرات نفاثة فوق أرض مبنية من صور حقيقية، مع مستشعرات استهداف بصرية وحرارية.</p>
+            <div class="plat"><span class="pb"><svg aria-hidden="true"><use href="#i-web"/></svg><span data-en="Browser">المتصفح</span></span><span class="pb"><svg aria-hidden="true"><use href="#i-apple"/></svg>iPhone</span><span class="pb soon"><svg aria-hidden="true"><use href="#i-android"/></svg>Android · <span data-en="Coming soon">قريبًا</span></span></div>
+            <a class="cta s" href="#saqr"><span data-en="Discover Saqr Al-Wadi">اكتشف صقر الوادي</span></a>
           </div>
-        </a>
+        </div>
+      </div>
+      <div class="switch" id="switch">
+        <button class="sw v" type="button" aria-pressed="true" data-go="0"><img src="assets/ventora_key_m.webp" alt="" width="1000" height="462"><span class="hc-body"><b data-en="Ventora">فنتورا</b><small data-en="Business simulator">محاكاة أعمال</small></span><span class="bar"><i></i></span></button>
+        <button class="sw s" type="button" aria-pressed="false" data-go="1"><img src="assets/s_key_ah64_m.webp" alt="" width="960" height="411"><span class="hc-body"><b data-en="Saqr Al-Wadi">صقر الوادي</b><small data-en="Combat flight simulator">محاكاة طيران قتالي</small></span><span class="bar"><i></i></span></button>
       </div>
     </div>
   </section>
 
   <!-- ================= VENTORA ================= -->
-  <section class="band v" id="ventora">
+  <section class="band alt" id="ventora">
     <div class="wrap">
-      <div class="head">
-        <span class="latin">VENTORA</span>
-        <h2>مجموعة قابضة تحمل اسمك</h2>
-        <p>تبدأ برأس مال يُودع في حساب القابضة، ومنه تموّل شركاتك التابعة. تشتري الطائرات والسفن والشاحنات، وتفتح المحطات والفروع، وتتابع كل ريال في التقارير.</p>
+      <div class="v-intro">
+        <div class="head">
+          <span class="latin">VENTORA</span>
+          <h2 data-en="A holding group bearing your name">مجموعة قابضة تحمل اسمك</h2>
+          <p data-en="Your opening capital is deposited in the holding company’s account and finances its subsidiaries. You acquire aircraft, vessels and trucks, open plants and branches, and review every transaction in the financial reports.">يُودَع رأس المال الافتتاحي في حساب الشركة القابضة، ومنه تُموَّل الشركات التابعة. تقتني الطائرات والسفن والشاحنات، وتفتتح المحطات والفروع، وتراجع كل عملية في التقارير المالية.</p>
+        </div>
+        <img class="v-logo" src="assets/ventora_logo.webp" alt="شعار فنتورا، محاكي الأعمال" data-en-alt="Ventora Business Simulator logo" width="760" height="760" loading="lazy">
       </div>
-
-      <div class="found">
-        <form class="form" id="founder" autocomplete="off">
-          <p class="sub">مكتب تأسيس المجموعات</p>
-          <label for="fName">اسم المجموعة
-            <input id="fName" maxlength="42" value="فنتورا القابضة">
-          </label>
-          <label for="fOwner">اسم المؤسس
-            <input id="fOwner" maxlength="32" value="المؤسس">
-          </label>
-          <label for="fCap">رأس المال الافتتاحي
-            <select id="fCap">
-              <option value="50 مليون دولار">50 مليون دولار</option>
-              <option value="250 مليون دولار">250 مليون دولار</option>
-              <option value="مليار دولار">مليار دولار</option>
-            </select>
-            <small>يُودع في الحساب الجاري للقابضة.</small>
-          </label>
-          <label for="fShort">اختصار المجموعة
-            <input id="fShort" maxlength="4" value="VH" dir="auto">
-            <small>يظهر في الشعار حتى ترفع شعارك داخل اللعبة.</small>
-          </label>
-          <p class="note">هذه نسخة مصغّرة من شاشة التأسيس في اللعبة: العقد يُكتب أمامك وأنت تملأ البيانات، ثم توقّع.</p>
-        </form>
-
-        <article class="contract" aria-live="polite">
-          <div class="c-head">
-            <div>
-              <span class="latin">ARTICLES OF INCORPORATION</span>
-              <h3>عقد تأسيس <span id="cName">فنتورا القابضة</span></h3>
-            </div>
-            <div class="c-logo" id="cLogo" dir="ltr">VH</div>
-          </div>
-          <ol>
-            <li>تؤسَّس <b id="cName2">فنتورا القابضة</b> شركةً قابضة، مقرها الرئيسي <b>الرياض · السعودية</b>، ويقام مبنى المقر في هذه المدينة على الخريطة.</li>
-            <li>رأس المال الافتتاحي <b id="cCap">50 مليون دولار</b>، يُودع في الحساب الجاري للقابضة، ومنه تُموَّل الشركات التابعة.</li>
-            <li>يحق للمجموعة تأسيس شركات تابعة في خمسة عشر نشاطًا، منها الطيران والشحن البحري والنقل والطاقة والبنك.</li>
-            <li>المؤسس <b id="cOwner">المؤسس</b> رئيسٌ لمجلس الإدارة، ويوقّع على هذا العقد.</li>
-          </ol>
-          <div class="sign">
-            <div class="sign-row"><span>توقيع المؤسس: ارسم توقيعك بالإصبع أو الفأرة</span><button type="button" id="sigClear">امسح</button></div>
-            <canvas id="sigPad" aria-label="مساحة التوقيع"></canvas>
-          </div>
-          <div class="stamp" id="stamp" aria-hidden="true">مُعتمد<br>VENTORA</div>
-        </article>
+      <div class="stats">
+        <div><b class="num">15</b><span data-en="types of company">نوعًا من الشركات</span></div>
+        <div><b class="num" data-en="$50M – $1B">50 مليون – 1 مليار</b><span data-en="opening capital in US dollars, three options">رأس مال افتتاحي بالدولار الأمريكي، بثلاثة خيارات</span></div>
+        <div><b class="num">20,000</b><span data-en="assets in performance testing">أصل في اختبارات الأداء</span></div>
+        <div><b data-en="Riyadh">الرياض</b><span data-en="group headquarters">المقر الرئيسي للمجموعة</span></div>
       </div>
 
       <div class="block">
-        <p class="sub">شركاتك على الخريطة</p>
+        <p class="sub" data-en="Incorporate your group">تأسيس المجموعة</p>
+        <div class="found">
+          <form class="form" id="founder" autocomplete="off">
+            <label for="fName"><span data-en="Group name">اسم المجموعة</span>
+              <input id="fName" maxlength="42" value="فنتورا القابضة" data-en-value="Ventora Holdings">
+            </label>
+            <label for="fOwner"><span data-en="Founder’s name">اسم المؤسس</span>
+              <input id="fOwner" maxlength="32" value="المؤسس" data-en-value="The Founder">
+            </label>
+            <label for="fCap"><span data-en="Opening capital">رأس المال الافتتاحي</span>
+              <select id="fCap">
+                <option value="50" data-en="USD 50 million">50 مليون دولار أمريكي</option>
+                <option value="250" data-en="USD 250 million">250 مليون دولار أمريكي</option>
+                <option value="1000" data-en="USD 1 billion">مليار دولار أمريكي</option>
+              </select>
+              <small data-en="Deposited in the holding company’s current account.">يُودَع في الحساب الجاري للشركة القابضة.</small>
+            </label>
+            <label for="fShort"><span data-en="Group initials">اختصار المجموعة</span>
+              <input id="fShort" maxlength="4" value="VH" dir="auto">
+              <small data-en="Used as the group’s mark until a logo is uploaded in the game.">يُستخدم شعارًا للمجموعة إلى أن يُرفع شعار داخل اللعبة.</small>
+            </label>
+            <p class="note" data-en="An interactive example of the incorporation screen in the game. The contract updates as the details are entered.">نموذج تفاعلي من شاشة التأسيس في اللعبة، ويُحدَّث العقد تلقائيًا عند إدخال البيانات.</p>
+          </form>
+          <article class="contract" aria-live="polite">
+            <div class="c-head">
+              <div>
+                <span class="latin">ARTICLES OF INCORPORATION</span>
+                <h3><span data-en="Articles of Incorporation:">عقد تأسيس:</span> <span id="cName">فنتورا القابضة</span></h3>
+              </div>
+              <div class="c-logo" id="cLogo" dir="ltr">VH</div>
+            </div>
+            <ol>
+              <li><span data-en="">تُؤسَّس</span> <b class="cName2">فنتورا القابضة</b> <span data-en="as a holding company, with its head office in &lt;b&gt;Riyadh, Kingdom of Saudi Arabia&lt;/b&gt;, where its headquarters building is placed on the map.">شركةً قابضة، ويكون مركزها الرئيسي في <b>مدينة الرياض بالمملكة العربية السعودية</b>، ويُقام مبنى المقر فيها على الخريطة.</span></li>
+              <li><span data-en="The opening capital is">يبلغ رأس المال الافتتاحي</span> <b id="cCap">50 مليون دولار أمريكي</b><span data-en=", deposited in the holding company’s current account for the financing of its subsidiaries.">، ويُودَع في الحساب الجاري للشركة القابضة لتمويل الشركات التابعة.</span></li>
+              <li data-en="The group may establish subsidiaries in fifteen business activities, including aviation, maritime shipping, land transport, energy and banking.">يجوز للمجموعة تأسيس شركات تابعة في خمسة عشر نشاطًا، منها الطيران والشحن البحري والنقل البري والطاقة والخدمات المصرفية.</li>
+              <li><span data-en="The founder,">يتولى المؤسس</span> <b id="cOwner">المؤسس</b><span data-en=", shall chair the board of directors and signs these articles.">رئاسة مجلس الإدارة، ويوقّع على هذا العقد.</span></li>
+            </ol>
+            <div class="sign">
+              <div class="sign-row"><span data-en="Founder’s signature (draw with a finger or mouse)">توقيع المؤسس (بالإصبع أو الفأرة)</span><button type="button" id="sigClear" data-en="Clear">مسح</button></div>
+              <canvas id="sigPad" aria-label="مساحة التوقيع" data-en-aria="Signature pad"></canvas>
+            </div>
+            <p class="c-legal" data-en="Illustrative in-game document with no legal effect.">مستند توضيحي داخل اللعبة، وليس له أي أثر قانوني.</p>
+            <div class="stamp" id="stamp" aria-hidden="true"><span data-en="APPROVED">مُعتمد</span><br>VENTORA</div>
+          </article>
+        </div>
+      </div>
+
+      <div class="block">
+        <p class="sub" data-en="Operations on the world map">العمليات على خريطة العالم</p>
         <div class="world">
-          <canvas id="worldMap" role="img" aria-label="خريطة العالم وعليها رحلات جوية وسفن وشاحنات تتحرك من الرياض وجدة والدمام"></canvas>
+          <canvas id="worldMap" role="img" aria-label="خريطة العالم وعليها رحلات جوية وسفن وشاحنات تنطلق من الرياض وجدة والدمام" data-en-aria="World map with flights, ships and trucks departing Riyadh, Jeddah and Dammam"></canvas>
         </div>
         <div class="world-bar">
-          <span class="chip" style="--c:var(--air)"><i></i>رحلات جوية</span>
-          <span class="chip" style="--c:var(--sea)"><i></i>سفن</span>
-          <span class="chip" style="--c:var(--road)"><i></i>شاحنات</span>
-          <span class="chip" style="--c:var(--gold)"><i></i>المقر</span>
-          <span class="clock num" id="simClock">اليوم 1</span>
+          <span class="chip" style="--c:var(--air)"><i></i><span data-en="Flights">رحلات جوية</span></span>
+          <span class="chip" style="--c:var(--sea)"><i></i><span data-en="Vessels">سفن</span></span>
+          <span class="chip" style="--c:var(--road)"><i></i><span data-en="Trucks">شاحنات</span></span>
+          <span class="chip" style="--c:var(--vent)"><i></i><span data-en="Headquarters">المقر الرئيسي</span></span>
+          <span class="clock num" id="simClock">DAY 1</span>
         </div>
       </div>
 
       <div class="block">
-        <p class="sub">خمسة عشر نوعًا من الشركات</p>
+        <p class="sub" data-en="Fifteen types of company">خمسة عشر نوعًا من الشركات</p>
         <div class="cos">
-          <figure class="co"><img src="assets/v_air-widebody.webp" alt="طائرة عريضة البدن على المدرج" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--air)"></i>الطيران</figcaption></figure>
-          <figure class="co"><img src="assets/v_ship-container.webp" alt="سفينة حاويات تغادر الميناء" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--sea)"></i>الشحن البحري</figcaption></figure>
-          <figure class="co"><img src="assets/v_truck-longhaul.webp" alt="شاحنة نقل طويل" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--road)"></i>النقل</figcaption></figure>
-          <figure class="co"><img src="assets/v_energy-solar.webp" alt="محطة طاقة شمسية وقت الغروب" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--power)"></i>الطاقة</figcaption></figure>
-          <figure class="co"><img src="assets/v_bank-vault.webp" alt="خزنة بنك" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--bank)"></i>البنك</figcaption></figure>
-          <figure class="co"><img src="assets/v_insurance-hero.webp" alt="مقر شركة تأمين" loading="lazy" width="640" height="360"><figcaption><i style="--c:#7FB2F0"></i>التأمين</figcaption></figure>
-          <figure class="co"><img src="assets/v_realestate-hero.webp" alt="أبراج قيد الإنشاء" loading="lazy" width="640" height="360"><figcaption><i style="--c:#E58A6B"></i>التطوير العقاري</figcaption></figure>
-          <figure class="co"><img src="assets/v_telecom-hero.webp" alt="برج اتصالات فوق المدينة" loading="lazy" width="640" height="360"><figcaption><i style="--c:#5B8DEF"></i>الاتصالات</figcaption></figure>
-          <figure class="co"><img src="assets/v_mobility-hero.webp" alt="سيارة كهربائية في المدينة ليلًا" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--mobility)"></i>التنقل الذكي</figcaption></figure>
-          <figure class="co"><img src="assets/v_auto-hero.webp" alt="معرض وكالة سيارات" loading="lazy" width="640" height="360"><figcaption><i style="--c:#D7C49E"></i>وكالات السيارات</figcaption></figure>
+          <figure class="co"><img src="assets/v_air-widebody.webp" alt="طائرة عريضة البدن على المدرج" data-en-alt="A widebody airliner on the apron" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--air)"></i><span data-en="Aviation">الطيران</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_ship-container.webp" alt="سفينة حاويات تغادر الميناء" data-en-alt="A container ship leaving port" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--sea)"></i><span data-en="Maritime shipping">الشحن البحري</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_truck-longhaul.webp" alt="شاحنة للنقل لمسافات طويلة" data-en-alt="A long-haul truck" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--road)"></i><span data-en="Land transport">النقل البري</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_energy-solar.webp" alt="محطة طاقة شمسية عند الغروب" data-en-alt="A solar plant at sunset" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--power)"></i><span data-en="Energy">الطاقة</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_bank-vault.webp" alt="خزنة مصرفية" data-en-alt="A bank vault" loading="lazy" width="640" height="360"><figcaption><i style="--c:var(--bank)"></i><span data-en="Banking">الخدمات المصرفية</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_insurance-hero.webp" alt="مقر شركة تأمين" data-en-alt="An insurance company headquarters" loading="lazy" width="960" height="540"><figcaption><i style="--c:#3D8BE0"></i><span data-en="Insurance">التأمين</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_realestate-hero.webp" alt="أبراج قيد الإنشاء" data-en-alt="Towers under construction" loading="lazy" width="960" height="540"><figcaption><i style="--c:#D9654A"></i><span data-en="Real estate development">التطوير العقاري</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_telecom-hero.webp" alt="برج اتصالات فوق المدينة" data-en-alt="A telecom mast above the city" loading="lazy" width="960" height="540"><figcaption><i style="--c:#4A6FE0"></i><span data-en="Telecommunications">الاتصالات</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_mobility-hero.webp" alt="سيارة كهربائية في المدينة ليلًا" data-en-alt="An electric car in the city at night" loading="lazy" width="960" height="540"><figcaption><i style="--c:var(--mobility)"></i><span data-en="Smart mobility">التنقل الذكي</span></figcaption></figure>
+          <figure class="co"><img src="assets/v_auto-hero.webp" alt="معرض وكالة سيارات" data-en-alt="A car dealership showroom" loading="lazy" width="960" height="540"><figcaption><i style="--c:#B8944A"></i><span data-en="Car dealerships">وكالات السيارات</span></figcaption></figure>
         </div>
         <div class="services">
-          <span>وشركات خدمات على محرك واحد:</span>
-          <span class="chip">الفنادق والمنتجعات</span>
-          <span class="chip">الإعلام والإنتاج</span>
-          <span class="chip">الرعاية الصحية</span>
-          <span class="chip">التعليم</span>
-          <span class="chip">الأندية الرياضية</span>
+          <span data-en="Plus service companies running on a shared engine:">إضافةً إلى شركات خدمات تعمل على محرك موحّد:</span>
+          <span class="chip" data-en="Hotels &amp; resorts">الفنادق والمنتجعات</span>
+          <span class="chip" data-en="Media &amp; production">الإعلام والإنتاج</span>
+          <span class="chip" data-en="Healthcare">الرعاية الصحية</span>
+          <span class="chip" data-en="Education">التعليم</span>
+          <span class="chip" data-en="Sports clubs">الأندية الرياضية</span>
         </div>
       </div>
 
       <div class="block">
-        <p class="sub">اقتصاد بقواعد حقيقية</p>
+        <p class="sub" data-en="Economic systems modelled on real-world practice">أنظمة اقتصادية مستوحاة من الممارسات الفعلية</p>
         <div class="ledger-wrap">
           <table class="ledger">
-            <thead><tr><th scope="col">القسم</th><th scope="col">القاعدة في اللعبة</th><th scope="col">الرقم</th></tr></thead>
+            <thead><tr><th scope="col" data-en="Sector">القطاع</th><th scope="col" data-en="Rule applied in the game">القاعدة المطبّقة في اللعبة</th><th scope="col" data-en="Value">القيمة</th></tr></thead>
             <tbody>
-              <tr><td>العقار</td><td>البيع على الخارطة: دفعة يوم التوقيع، ثم أقساط مع الإنجاز، والباقي عند التسليم</td><td class="num">20% · 70% · 30%</td></tr>
-              <tr><td>البنك</td><td>لا يوزّع نقدًا على المجموعة إذا نزلت نسبة رأس المال الأساسي CET1 تحت الحد</td><td class="num">7%</td></tr>
-              <tr><td>الطاقة</td><td>المحطة الشمسية تعمل على كتل، وكل كتلة تبيع طاقة اختبار بسعر أقل لمدة 14 يومًا</td><td class="num">4 كتل · 70%</td></tr>
-              <tr><td>وكالات السيارات</td><td>تمويل المخزون من بنك المجموعة بالفائدة الأساسية + 1.5%</td><td class="num">180 يومًا</td></tr>
-              <tr><td>الأسطول</td><td>اختُبرت الحركة والمسارات والحفظ بأسطول كبير</td><td class="num">20,000 أصل</td></tr>
+              <tr><td data-en="Real estate">العقار</td><td data-en="Off-plan sales: a down payment on signing, instalments tied to construction progress, and the balance on handover.">البيع على الخارطة: دفعة مقدمة عند التوقيع، وأقساط مرتبطة بنسبة الإنجاز، والرصيد المتبقي عند التسليم.</td><td class="num">20% · 70% · 30%</td></tr>
+              <tr><td data-en="Banking">المصارف</td><td data-en="Cash distributions to the group are suspended when the CET1 capital ratio falls below the threshold.">تُوقَف التوزيعات النقدية للمجموعة إذا انخفضت نسبة رأس المال الأساسي CET1 عن الحد المقرر.</td><td class="num">7%</td></tr>
+              <tr><td data-en="Energy">الطاقة</td><td data-en="Solar plants are commissioned in blocks; each block sells test energy at a reduced price for 14 days.">تُشغَّل محطات الطاقة الشمسية على مراحل، وتبيع كل مرحلة طاقة تشغيل تجريبي بسعر مخفّض لمدة 14 يومًا.</td><td class="num" data-en="4 blocks · 70%">4 مراحل · 70%</td></tr>
+              <tr><td data-en="Car dealerships">وكالات السيارات</td><td data-en="Inventory floor-plan financing from the group’s bank at the base rate plus 1.5%.">تمويل المخزون من مصرف المجموعة بسعر الفائدة الأساسي مضافًا إليه 1.5%.</td><td class="num" data-en="180 days">180 يومًا</td></tr>
+              <tr><td data-en="Fleet">الأسطول</td><td data-en="Movement, routing and saving tested at large fleet sizes.">اختُبرت الحركة والمسارات وحفظ البيانات بأساطيل كبيرة.</td><td class="num" data-en="20,000 assets">20,000 أصل</td></tr>
             </tbody>
           </table>
         </div>
+        <p class="legal-note" data-en="All figures, prices and financial results in Ventora are fictional and serve the simulation only. They do not constitute financial, investment or legal advice.">جميع الأرقام والأسعار والنتائج المالية في فنتورا افتراضية لأغراض المحاكاة فقط، ولا تُعد استشارة مالية أو استثمارية أو قانونية.</p>
       </div>
     </div>
   </section>
 
   <!-- ================= SAQR ================= -->
-  <section class="band s" id="saqr">
+  <section class="band" id="saqr">
+    <div class="wrap">
+      <div class="banner">
+        <picture>
+          <source srcset="assets/s_key_f15_m.webp 960w, assets/s_key_f15.webp 1916w" sizes="(max-width:1240px) 100vw, 1240px" type="image/webp">
+          <img src="assets/s_key_f15.webp" alt="طائرة F-15SA تقلع بالحارق اللاحق عند الغروب" data-en-alt="An F-15SA taking off on afterburner at sunset" width="1916" height="821" loading="lazy">
+        </picture>
+        <div class="b-copy">
+          <span class="latin">SAQR AL-WADI</span>
+          <h2 data-en="Saqr Al-Wadi">صقر الوادي</h2>
+          <p data-en="A realistic combat flight simulator. Choose the aircraft, then take the pilot’s or the weapons officer’s seat.">محاكاة واقعية للطيران القتالي. اختر الطائرة، ثم اتخذ مقعد الطيار أو مقعد ضابط الأسلحة.</p>
+        </div>
+      </div>
+
+      <div class="head">
+        <span class="latin">THE HANGAR</span>
+        <h2 data-en="Rotary-wing and jet aircraft">طائرات عمودية ونفاثة</h2>
+        <p data-en="The hangar is expanding with further helicopters and jets. Each aircraft carries its own sensors, weapons and crew procedures.">تتوسع الحظيرة لتشمل مزيدًا من المروحيات والطائرات النفاثة، ولكل طائرة مستشعراتها وتسليحها وإجراءات طاقمها.</p>
+      </div>
+      <div class="filters" role="group" aria-label="تصنيف الطائرات" data-en-aria="Aircraft category">
+        <button type="button" data-f="all" aria-pressed="true" data-en="All">الكل</button>
+        <button type="button" data-f="rotary" aria-pressed="false" data-en="Rotary-wing">عمودي</button>
+        <button type="button" data-f="jet" aria-pressed="false" data-en="Jet">نفاث</button>
+      </div>
+      <div class="roster" id="roster"></div>
+      <div class="craft" id="craftPanel" aria-live="polite">
+        <div class="craft-img"><img id="craftImg" src="assets/s_ah64_pad.webp" alt="" width="1916" height="821"></div>
+        <div class="craft-info" id="craftInfo"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="saqr-try">
     <div class="wrap">
       <div class="head">
-        <span class="latin">SAQR AL-WADI</span>
-        <h2>صقر الوادي: الهدف على شاشتك</h2>
-        <p>محاكاة مقعد المدفعي فوق أرض مأخوذة من صور حقيقية. رتل يسير على الطريق بفيزياء، وقمرة كل شاشاتها تعمل، ولاسلكي بأصوات مسجّلة بالعربي والإنجليزي.</p>
+        <span class="latin">LIVE SENSOR</span>
+        <h2 data-en="Try the targeting sensor">جرّب مستشعر الاستهداف</h2>
+        <p data-en="The main display in the F-15SA rear cockpit shows the sensor feed live over the valley map from the game. Select a vehicle to track it, or expand the display to full screen.">تعرض الشاشة الرئيسية في المقعد الخلفي لطائرة F-15SA صورة المستشعر مباشرةً فوق خريطة الوادي من اللعبة. اختر مركبة لتتبّعها، أو كبّر الشاشة إلى العرض الكامل.</p>
       </div>
-
-      <div class="tabs" role="tablist" aria-label="اختر الطائرة">
-        <button role="tab" id="tabAh" aria-selected="true" aria-controls="craftPanel" data-c="ah">أباتشي AH-64</button>
-        <button role="tab" id="tabF15" aria-selected="false" aria-controls="craftPanel" data-c="f15"><span class="nw">F-15SA</span></button>
-      </div>
-      <div class="craft" id="craftPanel" role="tabpanel" aria-labelledby="tabAh">
-        <div class="craft-img"><img id="craftImg" src="assets/s_hangar_ah64.webp" alt="أباتشي على المنصة وقت الغسق" width="1280" height="548"></div>
-        <dl class="spec" id="craftSpec"></dl>
-      </div>
-
-      <div class="block">
-        <p class="sub">جرّب كاميرا الاستهداف</p>
-        <div class="pod">
-          <div class="screen">
-            <div class="screen-in">
-              <canvas id="pod" aria-label="كاميرا الاستهداف فوق خريطة الوادي، ورتل من خمس مركبات يسير على الطريق"></canvas>
-              <span class="osd tl"><b>محاكاة</b> SIM</span>
-              <span class="osd tr" id="osdMode">TV&nbsp;&nbsp;×4</span>
-              <span class="osd bl" id="osdTrk">TRK</span>
-              <span class="osd br" id="osdRng">RNG 0000</span>
+      <div class="ck-wrap">
+        <div>
+          <div class="ck" id="ck">
+            <div class="disp"><canvas id="pod" aria-label="مستشعر الاستهداف فوق خريطة الوادي، وفيه رتل من خمس مركبات يسير على الطريق" data-en-aria="Targeting sensor over the valley map, with a five-vehicle convoy on the road"></canvas></div>
+            <div class="mini"><canvas id="tsd" aria-hidden="true"></canvas></div>
+            <picture>
+              <source srcset="assets/s_f15_cockpit_m.webp 1200w, assets/s_f15_cockpit.webp 2400w" sizes="(max-width:980px) 100vw, 780px" type="image/webp">
+              <img class="ckimg" src="assets/s_f15_cockpit.webp" alt="المقعد الخلفي في طائرة F-15SA بشاشاته وعصيّ التحكم" data-en-alt="The F-15SA rear cockpit with its displays and hand controllers" width="2400" height="1351" loading="lazy">
+            </picture>
+            <span class="osd tl"><b data-en="SIM">محاكاة</b> <span data-en="">SIM</span></span>
+            <span class="osd tr" id="osdMode">TV&nbsp;&nbsp;×4</span>
+            <span class="osd bl" id="osdTrk">TRK</span>
+            <span class="osd br" id="osdRng">RNG 0000</span>
+            <span class="ck-hint" data-en="Tap the display, or press “Expand display”">انقر على الشاشة، أو اضغط «تكبير الشاشة»</span>
+          </div>
+          <div class="bezel">
+            <div class="grp" role="group" aria-label="المستشعر" data-en-aria="Sensor">
+              <button class="bk" data-mode="tv" aria-pressed="true">TV</button>
+              <button class="bk" data-mode="whot" aria-pressed="false">WHOT</button>
+              <button class="bk" data-mode="bhot" aria-pressed="false">BHOT</button>
             </div>
-            <div class="bezel">
-              <div class="grp" role="group" aria-label="المستشعر">
-                <button class="bk" data-mode="tv" aria-pressed="true">TV</button>
-                <button class="bk" data-mode="whot" aria-pressed="false">WHOT</button>
-                <button class="bk" data-mode="bhot" aria-pressed="false">BHOT</button>
-              </div>
-              <div class="grp" role="group" aria-label="التكبير">
-                <button class="bk" data-z="1" aria-pressed="false">×1</button>
-                <button class="bk" data-z="2" aria-pressed="false">×2</button>
-                <button class="bk" data-z="4" aria-pressed="true">×4</button>
-                <button class="bk" data-z="8" aria-pressed="false">×8</button>
-              </div>
-              <div class="grp">
-                <button class="bk" id="nextTgt">NEXT</button>
-              </div>
+            <div class="grp" role="group" aria-label="التكبير" data-en-aria="Zoom">
+              <button class="bk" data-z="1" aria-pressed="false">×1</button>
+              <button class="bk" data-z="2" aria-pressed="false">×2</button>
+              <button class="bk" data-z="4" aria-pressed="true">×4</button>
+              <button class="bk" data-z="8" aria-pressed="false">×8</button>
+            </div>
+            <div class="grp">
+              <button class="bk" id="nextTgt">NEXT</button>
+              <button class="bk wide" id="fullBtn" aria-pressed="false">تكبير الشاشة</button>
             </div>
           </div>
-          <div class="readout">
-            <dl>
-              <div><dt>الهدف</dt><dd id="rTgt">—</dd></div>
-              <div><dt>السرعة</dt><dd class="num" id="rSpd">—</dd></div>
-              <div><dt>على الطريق</dt><dd class="num" id="rRoad">—</dd></div>
-              <div><dt>المستشعر</dt><dd id="rMode">بصري</dd></div>
-            </dl>
-            <ul class="howto">
-              <li><b>انقر على مركبة</b> لتثبيت التتبع عليها، أو اضغط NEXT.</li>
-              <li><b>اسحب الصورة</b> لتحريك المستشعر بنفسك.</li>
-              <li><b>WHOT وBHOT</b> وضعا الحراري: الساخن أبيض أو أسود.</li>
-            </ul>
-            <p>الخريطة نفسها التي في اللعبة، والطريق مستخرج منها: 526 نقطة بطول نحو 894 م، والمقياس 0.85 م لكل بكسل.</p>
-          </div>
+        </div>
+        <div class="readout">
+          <dl>
+            <div><dt data-en="Target">الهدف</dt><dd id="rTgt">—</dd></div>
+            <div><dt data-en="Speed">السرعة</dt><dd class="num" id="rSpd">—</dd></div>
+            <div><dt data-en="Distance along road">المسافة على الطريق</dt><dd class="num" id="rRoad">—</dd></div>
+            <div><dt data-en="Sensor mode">وضع المستشعر</dt><dd id="rMode">—</dd></div>
+          </dl>
+          <ul class="howto">
+            <li data-en="&lt;span&gt;&lt;b&gt;Select a vehicle&lt;/b&gt; to lock the track, or press NEXT.&lt;/span&gt;"><span><b>اختر مركبة</b> لتثبيت التتبع عليها، أو اضغط NEXT.</span></li>
+            <li data-en="&lt;span&gt;&lt;b&gt;Drag the image&lt;/b&gt; to slew the sensor manually.&lt;/span&gt;"><span><b>اسحب الصورة</b> لتوجيه المستشعر يدويًا.</span></li>
+            <li data-en="&lt;span&gt;&lt;b&gt;WHOT and BHOT&lt;/b&gt; are thermal modes that show heat as white or black.&lt;/span&gt;"><span><b>WHOT وBHOT</b> وضعان حراريان يظهر فيهما الجسم الساخن أبيض أو أسود.</span></li>
+          </ul>
+          <p data-en="The valley map is the one used in the game. The road was extracted from it as 526 points over about 894 m, at a scale of 0.85 m per pixel.">خريطة الوادي هي المستخدمة في اللعبة، والطريق مستخرج منها: 526 نقطة بطول يقارب 894 مترًا، بمقياس 0.85 متر لكل بكسل.</p>
         </div>
       </div>
 
       <div class="block">
-        <figure class="cockpit">
-          <img src="assets/s_cockpit.jpg" alt="قمرة الأباتشي وعليها شاشة TEDAC في الوسط وشاشة الأسلحة يمينًا، مع شرح أزرار التسليح والإطلاق" loading="lazy" width="1200" height="555">
-          <figcaption>القمرة من داخل اللعبة: تختار السلاح من أزرار TEDAC، وتسلّح، ثم تطلق بالمقبض الأيمن. لا شيء مكتوب فوق المنظر؛ كل شيء بأزرار الطائرة.</figcaption>
+        <figure class="tedac">
+          <img src="assets/s_tedac.webp" alt="شاشة TEDAC في قمرة الأباتشي داخل اللعبة، مع توضيح أزرار اختيار السلاح والتسليح والإطلاق" data-en-alt="The TEDAC display in the in-game Apache cockpit, with the weapon select, arming and firing controls labelled" loading="lazy" width="1600" height="739">
+          <figcaption data-en="Apache cockpit, in-game capture: weapons are selected from the TEDAC bezel keys, then armed and released from the hand grips. All functions are operated through the aircraft’s own controls.">قمرة الأباتشي، لقطة من داخل اللعبة: يُختار السلاح من أزرار إطار شاشة TEDAC، ثم يُسلَّح ويُطلق من مقبضي التحكم. تُشغَّل جميع الوظائف من أزرار الطائرة نفسها.</figcaption>
         </figure>
       </div>
 
       <div class="block">
-        <p class="sub">أربع خرائط</p>
+        <p class="sub" data-en="Four theatres of operation">أربع خرائط للعمليات</p>
         <div class="maps">
-          <figure class="mapc"><img src="assets/s_map_wadi.webp" alt="وادٍ جاف بين جبال صخرية" loading="lazy" width="479" height="165"><figcaption><b>الوادي</b><span>طريق الرتل بين الجبال</span></figcaption></figure>
-          <figure class="mapc"><img src="assets/s_map_desert.webp" alt="كثبان رملية وسبخة" loading="lazy" width="476" height="165"><figcaption><b>الصحراء</b><span>كثبان مفتوحة</span></figcaption></figure>
-          <figure class="mapc"><img src="assets/s_map_port.webp" alt="ميناء ومعسكر على البحر" loading="lazy" width="476" height="165"><figcaption><b>الميناء والمعسكر</b><span>أهداف بحرية وبرية</span></figcaption></figure>
-          <figure class="mapc"><img src="assets/s_map_theater.webp" alt="المسرح الكامل بين الساحل والجبال وقاعدة جوية" loading="lazy" width="480" height="165"><figcaption><b>المسرح الكامل</b><span>أرض حقيقية حتى 33 كم</span></figcaption></figure>
+          <figure class="mapc"><img src="assets/s_map_wadi.webp" alt="وادٍ جاف بين جبال صخرية" data-en-alt="A dry wadi between rocky mountains" loading="lazy" width="479" height="165"><figcaption><b data-en="The Valley">الوادي</b><span data-en="A convoy route through the mountains">طريق رتل عبر الجبال</span></figcaption></figure>
+          <figure class="mapc"><img src="assets/s_map_desert.webp" alt="كثبان رملية وسبخة" data-en-alt="Sand dunes and a salt flat" loading="lazy" width="476" height="165"><figcaption><b data-en="The Desert">الصحراء</b><span data-en="Open dune terrain">كثبان رملية مفتوحة</span></figcaption></figure>
+          <figure class="mapc"><img src="assets/s_map_port.webp" alt="ميناء ومعسكر على الساحل" data-en-alt="A port and camp on the coast" loading="lazy" width="476" height="165"><figcaption><b data-en="Port and Camp">الميناء والمعسكر</b><span data-en="Maritime and land targets">أهداف بحرية وبرية</span></figcaption></figure>
+          <figure class="mapc"><img src="assets/s_map_theater.webp" alt="المسرح الكامل بين الساحل والجبال وقاعدة جوية" data-en-alt="The full theatre between the coast, the mountains and an air base" loading="lazy" width="480" height="165"><figcaption><b data-en="Full Theatre">المسرح الكامل</b><span data-en="Real terrain out to 33 km">تضاريس حقيقية حتى 33 كم</span></figcaption></figure>
         </div>
       </div>
 
       <div class="block">
-        <p class="sub">المهام، وحملة من خمس طلعات</p>
+        <p class="sub" data-en="Mission types and a five-sortie campaign">أنواع المهام وحملة من خمس طلعات</p>
         <div class="missions">
-          <figure class="mis"><img src="assets/s_k_strike.webp" alt="" loading="lazy"><figcaption><b>ضربة</b><span class="latin">STRIKE</span></figcaption></figure>
-          <figure class="mis"><img src="assets/s_k_tic.webp" alt="" loading="lazy"><figcaption><b>إسناد قوات</b><span class="latin">TIC</span></figcaption></figure>
-          <figure class="mis"><img src="assets/s_k_convoy.webp" alt="" loading="lazy"><figcaption><b>اعتراض رتل</b><span class="latin">CONVOY</span></figcaption></figure>
-          <figure class="mis"><img src="assets/s_k_escort.webp" alt="" loading="lazy"><figcaption><b>مرافقة</b><span class="latin">ESCORT</span></figcaption></figure>
-          <figure class="mis"><img src="assets/s_k_def.webp" alt="" loading="lazy"><figcaption><b>دفاع</b><span class="latin">DEFENCE</span></figcaption></figure>
-          <figure class="mis"><img src="assets/s_k_op.webp" alt="" loading="lazy"><figcaption><b>عملية</b><span class="latin">OPERATION</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_strike.webp" alt="" loading="lazy"><figcaption><b data-en="Strike">ضربة</b><span class="latin">STRIKE</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_tic.webp" alt="" loading="lazy"><figcaption><b data-en="Troops in contact">إسناد القوات</b><span class="latin">TIC</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_convoy.webp" alt="" loading="lazy"><figcaption><b data-en="Convoy interdiction">اعتراض رتل</b><span class="latin">CONVOY</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_escort.webp" alt="" loading="lazy"><figcaption><b data-en="Escort">مرافقة</b><span class="latin">ESCORT</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_def.webp" alt="" loading="lazy"><figcaption><b data-en="Base defence">دفاع</b><span class="latin">DEFENCE</span></figcaption></figure>
+          <figure class="mis"><img src="assets/s_k_op.webp" alt="" loading="lazy"><figcaption><b data-en="Combined operation">عملية مشتركة</b><span class="latin">OPERATION</span></figcaption></figure>
         </div>
-        <p class="note" style="margin-top:12px">في الحملة، ما يفلت من طلعة يظهر في التي بعدها، والطلعة الخاسرة تُعاد، والإصابات المدنية تُذكر في الإيجاز.</p>
+        <p class="note" style="margin-top:14px" data-en="In the campaign, targets that survive a sortie reappear in the next one, a failed sortie must be flown again, and any civilian casualties are reported in the debrief.">في الحملة، تظهر الأهداف التي تنجو من طلعة في الطلعة التالية، وتُعاد الطلعة غير الناجحة، وتُذكر أي إصابات بين المدنيين في تقرير ما بعد المهمة.</p>
       </div>
 
       <div class="block">
-        <div class="feats">
-          <div><h3>لاسلكي بالسعودي</h3><p>نداءات الطاقم بالعربي أو بالإنجليزي، تختارها من الإعدادات.</p></div>
-          <div><h3>نهار، غروب، ليل</h3><p>والجو صافٍ أو غبار. الغبار يغسل البصري ويترك الحراري أوضح.</p></div>
-          <div><h3>شريط الحاضنة</h3><p>لقطة عند الإطلاق والوصول والنتيجة، تراها في بطاقة نهاية المهمة.</p></div>
-          <div><h3>الدخان يحجب الليزر</h3><p>القنبلة الموجهة تفقد البقعة، والإطلاق يُرفض والهدف تحت الدخان.</p></div>
-          <div><h3>تحقق قبل الإطلاق</h3><p>مدنيون قرب الهدف، وقوارب صيد، وقوة صديقة. تأكد قبل أن تضغط.</p></div>
-          <div><h3>مهمة تدريب</h3><p>الطيار يشرح خطوة خطوة، والزر المطلوب يضيء في القمرة.</p></div>
+        <div class="fx">
+          <div><h3 data-en="Radio in Saudi Arabic">اتصالات لاسلكية باللهجة السعودية</h3><p data-en="Crew and controller calls are recorded in Arabic and English, selectable in the settings.">نداءات الطاقم والمراقبة مسجّلة بالعربية والإنجليزية، ويُختار أحدهما من الإعدادات.</p></div>
+          <div><h3 data-en="Time of day and weather">الوقت والأحوال الجوية</h3><p data-en="Day, dusk or night, in clear air or dust. Dust degrades the daylight sensor more than the thermal one.">نهار أو غروب أو ليل، في جو صافٍ أو مُغبر. ويؤثر الغبار في المستشعر البصري أكثر من الحراري.</p></div>
+          <div><h3 data-en="Sensor tape">تسجيل المستشعر</h3><p data-en="Frames are captured at release, impact and assessment, and shown on the mission summary card.">تُلتقط صور عند الإطلاق والإصابة وتقييم النتيجة، وتُعرض في بطاقة ملخص المهمة.</p></div>
+          <div><h3 data-en="Smoke obscures the laser">الدخان يحجب الليزر</h3><p data-en="A laser-guided weapon loses its spot in smoke, and release is denied while the target is obscured.">تفقد الذخيرة الموجهة بالليزر البقعة داخل الدخان، ويُرفض الإطلاق ما دام الهدف محجوبًا.</p></div>
+          <div><h3 data-en="Positive identification">التحقق قبل الإطلاق</h3><p data-en="Civilians near targets, fishing vessels and friendly forces require positive identification before every release.">وجود مدنيين قرب الأهداف وقوارب صيد وقوات صديقة يستلزم التحقق من الهدف قبل كل إطلاق.</p></div>
+          <div><h3 data-en="Training mission">مهمة تدريبية</h3><p data-en="The pilot explains each step, and the required control is highlighted in the cockpit.">يشرح الطيار كل خطوة، ويُضاء الزر المطلوب في القمرة.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ================= COMPARE ================= -->
-  <section class="band v" id="compare">
+  <!-- ================= PLATFORMS ================= -->
+  <section class="band" id="platforms">
     <div class="wrap">
       <div class="head">
-        <span class="latin">CHOOSE YOUR SEAT</span>
-        <h2>أيّ مقعد لك؟</h2>
-        <p>لعبة تفكير طويلة النفَس، أو مهمة قصيرة تحتاج يدًا ثابتة.</p>
+        <span class="latin">PLATFORMS</span>
+        <h2 data-en="Platforms and comparison">المنصات والمقارنة</h2>
+        <p data-en="Both games are designed for mobile devices. Android versions are in development, and release dates will be announced in due course.">صُممت اللعبتان للأجهزة المحمولة، ونسخ Android قيد التطوير، وستُعلن مواعيد الإصدار في حينها.</p>
       </div>
       <div class="cmp-wrap">
         <table class="cmp">
-          <thead><tr><th scope="col"><span class="note">المقارنة</span></th><th scope="col">فنتورا</th><th scope="col">صقر الوادي</th></tr></thead>
+          <thead><tr><th scope="col"><span class="note" data-en="Item">البند</span></th><th scope="col" data-en="Ventora">فنتورا</th><th scope="col" data-en="Saqr Al-Wadi">صقر الوادي</th></tr></thead>
           <tbody>
-            <tr><th scope="row">دورك</th><td>مؤسس مجموعة قابضة ورئيس مجلس إدارتها</td><td>مدفعي الأباتشي أو ضابط أسلحة الـ <span class="nw">F-15SA</span></td></tr>
-            <tr><th scope="row">ما تراه</th><td>خريطة العالم، والشركات، والتقارير المالية</td><td>القمرة، وشاشة الاستهداف بصري وحراري</td></tr>
-            <tr><th scope="row">الإيقاع</th><td>أيام وسنوات محاكاة، تسرّعها أو توقفها</td><td>مهمة بدقائق، وحملة من خمس طلعات</td></tr>
-            <tr><th scope="row">أهم قرار</th><td>أين تضع رأس المال القادم</td><td>متى تضغط زر الإطلاق</td></tr>
-            <tr><th scope="row">التشغيل</th><td>تطبيق آيفون</td><td>المتصفح وتطبيق آيفون</td></tr>
+            <tr><th scope="row" data-en="Platforms">المنصات</th>
+              <td><div class="plat"><span class="pb"><svg aria-hidden="true"><use href="#i-apple"/></svg>iPhone</span><span class="pb soon"><svg aria-hidden="true"><use href="#i-android"/></svg>Android · <span data-en="Coming soon">قريبًا</span></span></div></td>
+              <td><div class="plat"><span class="pb"><svg aria-hidden="true"><use href="#i-web"/></svg><span data-en="Browser">المتصفح</span></span><span class="pb"><svg aria-hidden="true"><use href="#i-apple"/></svg>iPhone</span><span class="pb soon"><svg aria-hidden="true"><use href="#i-android"/></svg>Android · <span data-en="Coming soon">قريبًا</span></span></div></td></tr>
+            <tr><th scope="row" data-en="Genre">النوع</th><td data-en="Business management simulator">محاكاة إدارة أعمال</td><td data-en="Combat flight simulator">محاكاة طيران قتالي</td></tr>
+            <tr><th scope="row" data-en="Your role">دور اللاعب</th><td data-en="Founder and chair of a holding group">مؤسس مجموعة قابضة ورئيس مجلس إدارتها</td><td data-en="Pilot or weapons officer in helicopters and jets">طيار أو ضابط أسلحة في المروحيات والطائرات النفاثة</td></tr>
+            <tr><th scope="row" data-en="Pace">الإيقاع</th><td data-en="Simulated days and years, with speed and pause controls">أيام وسنوات افتراضية، مع التحكم في السرعة والإيقاف المؤقت</td><td data-en="Missions measured in minutes, and a five-sortie campaign">مهام بالدقائق، وحملة من خمس طلعات</td></tr>
+            <tr><th scope="row" data-en="Languages">اللغات</th><td data-en="Arabic">العربية</td><td data-en="Arabic interface, Arabic and English radio">واجهة عربية، واتصالات بالعربية والإنجليزية</td></tr>
           </tbody>
         </table>
       </div>
@@ -531,22 +676,71 @@ footer code{font-family:var(--font-hud);font-size:.74rem;color:var(--muted);over
 
 <footer>
   <div class="wrap">
-    <span>فنتورا (مدار سابقًا) وصقر الوادي. الصور من أصول اللعبتين.</span>
-    <span>المحتوى من أحدث الفروع: <code>madar-ventora-handover</code> و<code>f15-cockpit-clarity</code></span>
+    <div class="f-top">
+      <b data-en="Ventora · Saqr Al-Wadi">فنتورا · صقر الوادي</b>
+      <span data-en="© 2026. All rights reserved.">© 2026. جميع الحقوق محفوظة.</span>
+    </div>
+    <div class="f-legal">
+      <h2 data-en="Legal notice">إشعار قانوني</h2>
+      <p data-en="Saqr Al-Wadi is a fictional simulation intended for entertainment. It does not represent, and is not affiliated with or endorsed by, any military, governmental or official body.">صقر الوادي محاكاة خيالية لأغراض الترفيه، ولا تمثّل أي جهة عسكرية أو حكومية أو رسمية، ولا ترتبط بها، ولا تحظى بتأييدها.</p>
+      <p data-en="Aircraft, system and weapon designations shown on this page, such as AH-64, F-15, Hellfire, Hydra, Maverick and JDAM, are trademarks or designations of their respective owners. They are used for identification only, and their use implies no sponsorship, partnership or endorsement.">أسماء الطائرات والأنظمة والذخائر الواردة في هذه الصفحة، مثل AH-64 وF-15 وHellfire وHydra وMaverick وJDAM، علامات تجارية أو تسميات مملوكة لأصحابها، وتُذكر لأغراض التعريف فقط، ولا يعني ذكرها وجود رعاية أو شراكة أو تأييد.</p>
+      <p data-en="Ventora is a fictional economic simulation. All companies, prices and financial results in it are hypothetical and do not constitute financial, investment or legal advice.">فنتورا محاكاة اقتصادية خيالية، وجميع الشركات والأسعار والنتائج المالية فيها افتراضية، ولا تُعد استشارة مالية أو استثمارية أو قانونية.</p>
+      <p data-en="Apple and iPhone are trademarks of Apple Inc. Android is a trademark of Google LLC.">Apple وiPhone علامتان تجاريتان لشركة Apple Inc.، وAndroid علامة تجارية لشركة Google LLC.</p>
+      <p data-en="Images on this page are taken from the games’ assets and may differ from the final release. Features, platforms and availability are subject to change without notice.">الصور المعروضة مأخوذة من أصول اللعبتين، وقد تختلف عن النسخة النهائية. الميزات والمنصات ومواعيد التوفر قابلة للتغيير دون إشعار مسبق.</p>
+    </div>
   </div>
 </footer>
 
 <script>
 (function(){
 'use strict';
-var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function $(s){return document.querySelector(s)}
+function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
 function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src})}
 function fit(cv){var r=cv.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);var w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}return {w:w,h:h,d:d}}
 function visible(el,cb){if(!('IntersectionObserver' in window)){cb(true);return}new IntersectionObserver(function(es){cb(es[0].isIntersecting)}).observe(el)}
 
+/* ================= language ================= */
+var LANG=document.documentElement.lang==='en'?'en':'ar';
+var T={
+  ar:{day:'اليوم',kmh:'كم/س',m:'م',notrk:'بلا تتبع',modes:{tv:'بصري',whot:'حراري (أبيض)',bhot:'حراري (أسود)'},
+      veh:['مركبة لاندكروزر مسلحة','مركبة هايلكس مسلحة','مركبة رياضية','شاحنة نقل','صهريج وقود'],
+      soon:'قريبًا',rotary:'عمودي',jet:'نفاث',seats:'المقاعد',full:'عرض القمرة',expand:'تكبير الشاشة',
+      moreRot:'مروحيات إضافية قيد التطوير',moreAll:'طائرات عمودية ونفاثة إضافية قيد التطوير',moreJet:'طائرات نفاثة إضافية قيد التطوير',moreSub:'ستُعلن الطرازات الجديدة عند جاهزيتها.',
+      langBtn:'EN',langAria:'Switch to English'},
+  en:{day:'Day',kmh:'km/h',m:'m',notrk:'No track',modes:{tv:'Daylight',whot:'Thermal (white-hot)',bhot:'Thermal (black-hot)'},
+      veh:['Armed Land Cruiser','Armed Hilux','SUV','Cargo truck','Fuel tanker'],
+      soon:'Coming soon',rotary:'Rotary-wing',jet:'Jet',seats:'Crew seats',full:'Cockpit view',expand:'Expand display',
+      moreRot:'More helicopters in development',moreAll:'More helicopters and jets in development',moreJet:'More jets in development',moreSub:'New aircraft will be announced when ready.',
+      langBtn:'عربي',langAria:'التبديل إلى العربية'}
+};
+function tr(k){return T[LANG][k]}
+function applyLang(){
+  var en=LANG==='en';
+  document.documentElement.lang=en?'en':'ar';document.documentElement.dir=en?'ltr':'rtl';
+  $$('[data-en]').forEach(function(el){if(el._ar===undefined)el._ar=el.innerHTML;el.innerHTML=en?el.getAttribute('data-en'):el._ar});
+  $$('[data-en-alt]').forEach(function(el){if(el._arAlt===undefined)el._arAlt=el.alt;el.alt=en?el.getAttribute('data-en-alt'):el._arAlt});
+  $$('[data-en-aria]').forEach(function(el){if(el._arAria===undefined)el._arAria=el.getAttribute('aria-label');el.setAttribute('aria-label',en?el.getAttribute('data-en-aria'):el._arAria)});
+  $$('[data-en-value]').forEach(function(el){if(el._arVal===undefined)el._arVal=el.defaultValue;var from=en?el._arVal:el.getAttribute('data-en-value'),to=en?el.getAttribute('data-en-value'):el._arVal;if(el.value===from||!el.value)el.value=to;el.dispatchEvent(new Event('input'))});
+  var lb=$('#langBtn');lb.textContent=tr('langBtn');lb.setAttribute('aria-label',tr('langAria'));lb.lang=en?'ar':'en';
+  $('#fCap').dispatchEvent(new Event('change'));
+  renderRoster();showCraft(CUR);setMode(P.mode);syncFull();
+}
+$('#langBtn').addEventListener('click',function(){LANG=LANG==='en'?'ar':'en';try{localStorage.setItem('site-lang',LANG)}catch(e){}applyLang()});
+
+/* ================= hero switcher ================= */
+var slides=$$('.slide'),sws=$$('.sw'),cur=0,timer=null,paused=false;
+function go(i){cur=i;slides.forEach(function(s,k){s.classList.toggle('on',k===i);s.setAttribute('aria-hidden',k!==i)});sws.forEach(function(b,k){b.setAttribute('aria-pressed',k===i);var bar=b.querySelector('.bar i');bar.style.animation='none';void bar.offsetWidth;bar.style.animation=''});arm()}
+function arm(){clearTimeout(timer);if(RM||paused)return;timer=setTimeout(function(){go((cur+1)%slides.length)},7000)}
+sws.forEach(function(b){b.addEventListener('click',function(){go(+b.dataset.go)})});
+var stage=$('#stage'),swEl=$('#switch');
+[stage,swEl].forEach(function(el){el.addEventListener('mouseenter',function(){paused=true;swEl.classList.add('paused');clearTimeout(timer)});el.addEventListener('mouseleave',function(){paused=false;swEl.classList.remove('paused');go(cur)});el.addEventListener('focusin',function(){paused=true;swEl.classList.add('paused');clearTimeout(timer)})});
+arm();
+
 /* ================= VENTORA world map ================= */
-var CITY={RUH:[24.71,46.68,'الرياض'],JED:[21.48,39.17,'جدة'],DMM:[26.43,50.10,'الدمام'],DXB:[25.25,55.36,'دبي'],LHR:[51.47,-0.45,'لندن'],SIN:[1.36,103.99,'سنغافورة'],HKG:[22.31,113.92,'هونغ كونغ'],RTM:[51.95,4.14,'روتردام'],SHA:[31.23,121.47,'شنغهاي'],CAI:[30.04,31.24,'القاهرة'],BOM:[19.09,72.87,'مومباي']};
+var MW=2048,MH=1100,MY0=300;
+var CITY={RUH:[24.71,46.68,'الرياض','Riyadh'],JED:[21.48,39.17,'جدة','Jeddah'],DMM:[26.43,50.10,'الدمام','Dammam'],DXB:[25.25,55.36,'دبي','Dubai'],LHR:[51.47,-0.45,'لندن','London'],SIN:[1.36,103.99,'سنغافورة','Singapore'],HKG:[22.31,113.92,'هونغ كونغ','Hong Kong'],RTM:[51.95,4.14,'روتردام','Rotterdam'],SHA:[31.23,121.47,'شنغهاي','Shanghai'],CAI:[30.04,31.24,'القاهرة','Cairo'],BOM:[19.09,72.87,'مومباي','Mumbai']};
 var ROUTES=[
   {k:'air',pts:[CITY.RUH,CITY.LHR],arc:1,n:2,sp:.055},
   {k:'air',pts:[CITY.RUH,CITY.SIN],arc:1,n:2,sp:.05},
@@ -559,8 +753,8 @@ var ROUTES=[
   {k:'road',pts:[CITY.RUH,[23.4,43.0],CITY.JED],n:1,sp:.08},
   {k:'road',pts:[CITY.RUH,[24.6,50.9],[24.4,54.4],CITY.DXB],n:1,sp:.07}
 ];
-var COL={air:'#3B7BDB',sea:'#0E9A9A',road:'#D9782E'};
-function merc(lat,lon){var p=lat*Math.PI/180;return [(lon+180)/360*1024,(1-Math.log(Math.tan(Math.PI/4+p/2))/Math.PI)/2*1024-150]}
+var COL={air:'#2F7BE0',sea:'#0E9AA0',road:'#E07A2B'};
+function merc(lat,lon){var p=lat*Math.PI/180;return [(lon+180)/360*MW,(1-Math.log(Math.tan(Math.PI/4+p/2))/Math.PI)/2*MW-MY0]}
 function prepRoute(r){
   var P=r.pts.map(function(c){return merc(c[0],c[1])}),out=[];
   if(r.arc){var a=P[0],b=P[1],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),h=L*.18;var cx=mx+dy/L*h*(dx>0?-1:1),cy=my-Math.abs(dx/L*h)-h*.4;
@@ -571,193 +765,191 @@ function prepRoute(r){
 }
 ROUTES.forEach(prepRoute);
 function along(r,t){var s=t*r.L,i=1;while(i<r.S.length-1&&r.S[i]<s)i++;var a=r.P[i-1],b=r.P[i],u=(s-r.S[i-1])/Math.max(1e-6,r.S[i]-r.S[i-1]);return [a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,Math.atan2(b[1]-a[1],b[0]-a[0])]}
-
-function WorldMap(cv,opt){
-  this.cv=cv;this.ctx=cv.getContext('2d');this.opt=opt;this.on=true;this.t=0;
-}
-WorldMap.prototype.view=function(w,h){
-  // centre on the Gulf, zoomed so Europe and East Asia both show
-  var o=this.opt,cx=merc(o.lat,o.lon),s=Math.max(w/1024,h/550)*o.zoom;
-  var ox=w/2-cx[0]*s,oy=h/2-cx[1]*s;
-  ox=Math.min(0,Math.max(w-1024*s,ox));oy=Math.min(0,Math.max(h-550*s,oy));
-  return {s:s,ox:ox,oy:oy};
-};
-WorldMap.prototype.draw=function(img,dt){
-  var f=fit(this.cv),w=f.w,h=f.h,c=this.ctx,v=this.view(w,h),d=f.d;
-  this.t+=dt;
+var W={cv:$('#worldMap'),t:0,on:true,painted:false,img:null};W.ctx=W.cv.getContext('2d');
+loadImg('assets/world.webp').then(function(i){W.img=i});
+function drawWorld(dt){
+  var f=fit(W.cv),w=f.w,h=f.h,c=W.ctx,d=f.d;W.t+=dt;
+  var cxy=merc(28,58),s=Math.max(w/MW,h/MH)*1.55,ox=w/2-cxy[0]*s,oy=h/2-cxy[1]*s;
+  ox=Math.min(0,Math.max(w-MW*s,ox));oy=Math.min(0,Math.max(h-MH*s,oy));
   c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,w,h);
-  if(img)c.drawImage(img,v.ox,v.oy,1024*v.s,550*v.s);
-  c.fillStyle=this.opt.dim||'rgba(0,0,0,0)';c.fillRect(0,0,w,h);
-  function X(p){return [v.ox+p[0]*v.s,v.oy+p[1]*v.s]}
-  var self=this;
+  if(W.img){c.imageSmoothingQuality='high';c.drawImage(W.img,ox,oy,MW*s,MH*s)}
+  function X(p){return [ox+p[0]*s,oy+p[1]*s]}
   ROUTES.forEach(function(r){
     c.beginPath();r.P.forEach(function(p,i){var q=X(p);i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])});
-    c.strokeStyle=COL[r.k];c.globalAlpha=.55;c.lineWidth=(r.k==='air'?1.2:1.6)*d;c.setLineDash(r.k==='air'?[4*d,4*d]:[]);c.stroke();c.setLineDash([]);c.globalAlpha=1;
+    c.strokeStyle=COL[r.k];c.globalAlpha=.7;c.lineWidth=(r.k==='air'?1.4:1.8)*d;c.setLineDash(r.k==='air'?[5*d,4*d]:[]);c.stroke();c.setLineDash([]);c.globalAlpha=1;
     r.ph.forEach(function(ph){
-      var t=(ph+self.t*r.sp)%1,p=along(r,t),q=X(p);
-      c.save();c.translate(q[0],q[1]);c.rotate(p[2]);
-      c.fillStyle='#fff';c.strokeStyle=COL[r.k];c.lineWidth=1.6*d;
-      if(r.k==='air'){c.beginPath();c.moveTo(6*d,0);c.lineTo(-4*d,-4*d);c.lineTo(-2*d,0);c.lineTo(-4*d,4*d);c.closePath();c.fill();c.stroke();}
-      else if(r.k==='sea'){c.beginPath();c.moveTo(6*d,0);c.lineTo(2*d,-3*d);c.lineTo(-5*d,-3*d);c.lineTo(-5*d,3*d);c.lineTo(2*d,3*d);c.closePath();c.fill();c.stroke();}
-      else {c.beginPath();c.rect(-4*d,-2.6*d,8*d,5.2*d);c.fill();c.stroke();}
+      var t=(ph+W.t*r.sp)%1,p=along(r,t),q=X(p);
+      c.save();c.translate(q[0],q[1]);c.rotate(p[2]);c.fillStyle='#fff';c.strokeStyle=COL[r.k];c.lineWidth=1.8*d;
+      if(r.k==='air'){c.beginPath();c.moveTo(7*d,0);c.lineTo(-5*d,-5*d);c.lineTo(-2*d,0);c.lineTo(-5*d,5*d);c.closePath();c.fill();c.stroke()}
+      else if(r.k==='sea'){c.beginPath();c.moveTo(7*d,0);c.lineTo(2*d,-3.5*d);c.lineTo(-6*d,-3.5*d);c.lineTo(-6*d,3.5*d);c.lineTo(2*d,3.5*d);c.closePath();c.fill();c.stroke()}
+      else{c.beginPath();c.rect(-5*d,-3*d,10*d,6*d);c.fill();c.stroke()}
       c.restore();
     });
   });
-  // cities
-  c.font=(600*0+11)*d+'px "IBM Plex Sans Arabic",Tahoma,sans-serif';c.textAlign='center';
+  c.font='600 '+(11*d)+'px "IBM Plex Sans Arabic",Tahoma,sans-serif';c.textAlign='center';
   Object.keys(CITY).forEach(function(k){
     var C=CITY[k],q=X(merc(C[0],C[1]));if(q[0]<-20||q[0]>w+20||q[1]<-20||q[1]>h+20)return;
     var hq=k==='RUH';
-    if(hq){var pulse=RM?0:(Math.sin(self.t*2.4)+1)/2;c.beginPath();c.arc(q[0],q[1],(7+pulse*7)*d,0,7);c.fillStyle='rgba(227,181,91,'+(.35-pulse*.3)+')';c.fill();}
-    c.beginPath();c.arc(q[0],q[1],(hq?5:3)*d,0,7);c.fillStyle=hq?'#E3B55B':'#0B1218';c.fill();c.lineWidth=1.5*d;c.strokeStyle=hq?'#1A1407':'#fff';c.stroke();
-    if(self.opt.labels){c.lineWidth=3*d;c.strokeStyle='rgba(255,255,255,.85)';c.strokeText(C[2],q[0],q[1]-9*d);c.fillStyle='#16324A';c.fillText(C[2],q[0],q[1]-9*d)}
+    if(hq){var pulse=RM?0:(Math.sin(W.t*2.4)+1)/2;c.beginPath();c.arc(q[0],q[1],(8+pulse*8)*d,0,7);c.fillStyle='rgba(11,125,181,'+(.35-pulse*.3)+')';c.fill()}
+    c.beginPath();c.arc(q[0],q[1],(hq?6:3.5)*d,0,7);c.fillStyle=hq?'#0B7DB5':'#fff';c.fill();c.lineWidth=1.8*d;c.strokeStyle=hq?'#fff':'#0B1526';c.stroke();
+    var label=LANG==='en'?C[3]:C[2];c.lineWidth=3.5*d;c.strokeStyle='rgba(255,255,255,.92)';c.strokeText(label,q[0],q[1]-10*d);c.fillStyle='#0B1526';c.fillText(label,q[0],q[1]-10*d);
   });
-};
-
-var worldImg=null;
-loadImg('assets/world.webp').then(function(i){worldImg=i});
-var maps=[];
-var hm=$('#heroMap');if(hm){var m1=new WorldMap(hm,{lat:30,lon:52,zoom:2.1,labels:false,dim:'rgba(8,18,26,.30)'});maps.push(m1);visible(hm,function(v){m1.on=v})}
-var wm=$('#worldMap');if(wm){var m2=new WorldMap(wm,{lat:28,lon:58,zoom:1.55,labels:true});maps.push(m2);visible(wm,function(v){m2.on=v})}
+}
+visible(W.cv,function(v){W.on=v});
 var day=1,dayAcc=0,clock=$('#simClock');
 
 /* ================= founder contract ================= */
-function bind(id,targets,fmt){var el=$(id);if(!el)return;function u(){var v=el.value.trim()||el.defaultValue;targets.forEach(function(t){var n=$(t);if(n)n.textContent=fmt?fmt(v):v})}el.addEventListener('input',u);el.addEventListener('change',u);u()}
-bind('#fName',['#cName','#cName2']);
-bind('#fOwner',['#cOwner']);
-bind('#fCap',['#cCap']);
-bind('#fShort',['#cLogo'],function(v){return v.toUpperCase()});
+function bind(id,sel,fmt){var el=$(id);function u(){var v=el.tagName==='SELECT'?el.options[el.selectedIndex].text:(el.value.trim()||el.defaultValue);$$(sel).forEach(function(n){n.textContent=fmt?fmt(v):v})}el.addEventListener('input',u);el.addEventListener('change',u);u()}
+bind('#fName','#cName,.cName2');bind('#fOwner','#cOwner');bind('#fCap','#cCap');bind('#fShort','#cLogo',function(v){return v.toUpperCase()});
 $('#founder').addEventListener('submit',function(e){e.preventDefault()});
-
 var pad=$('#sigPad'),pc=pad.getContext('2d'),drawing=false,inked=0,last=null;
-function padFit(){var f=fit(pad);pc.setTransform(f.d,0,0,f.d,0,0);pc.lineCap='round';pc.lineJoin='round';pc.strokeStyle='#1D2C55';pc.lineWidth=2.2}
+function padFit(){var f=fit(pad);pc.setTransform(f.d,0,0,f.d,0,0);pc.lineCap='round';pc.lineJoin='round';pc.strokeStyle='#0A3A66';pc.lineWidth=2.2}
 padFit();
 function pt(e){var r=pad.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
 pad.addEventListener('pointerdown',function(e){drawing=true;last=pt(e);pad.setPointerCapture(e.pointerId)});
 pad.addEventListener('pointermove',function(e){if(!drawing)return;var p=pt(e);pc.beginPath();pc.moveTo(last[0],last[1]);pc.lineTo(p[0],p[1]);pc.stroke();inked+=Math.hypot(p[0]-last[0],p[1]-last[1]);last=p;if(inked>120)$('#stamp').classList.add('on')});
 ['pointerup','pointercancel','pointerleave'].forEach(function(t){pad.addEventListener(t,function(){drawing=false})});
 $('#sigClear').addEventListener('click',function(){pc.clearRect(0,0,pad.width,pad.height);inked=0;$('#stamp').classList.remove('on')});
+var padW=pad.getBoundingClientRect().width;
+window.addEventListener('resize',function(){var nw=pad.getBoundingClientRect().width;if(Math.abs(nw-padW)>1){padW=nw;padFit();inked=0;$('#stamp').classList.remove('on')}});
 
-/* ================= Saqr aircraft tabs ================= */
-var CRAFT={
-  ah:{img:'assets/s_hangar_ah64.webp',alt:'أباتشي على المنصة وقت الغسق',rows:[
-    ['مقعدك','المدفعي، في المقعد الأمامي'],
-    ['الشاشة','TEDAC: بصري وحراري WHOT/BHOT، تكبير ×1 إلى ×12'],
-    ['الأسلحة','<div class="weap"><span>HELLFIRE</span><span>HYDRA 70</span><span>APKWS</span><span>M230 30mm</span></div>'],
-    ['الهيلفاير','بالليزر، أو بالرادار بعد مسح FCR'],
-    ['الهايدرا','متفجرة، ومسامير، وإنارة، وموجّهة APKWS'],
-    ['ملاحظة','الأباتشي بلا قنابل. التسليح يُختار قبل المهمة']]},
-  f15:{img:'assets/s_hangar_f15.webp',alt:'F-15SA في الملجأ وقت الغسق',rows:[
-    ['مقعدك','ضابط الأسلحة، في المقعد الخلفي'],
-    ['المدار','5 كم على 15,000 قدم بسرعة 300 عقدة'],
-    ['الأسلحة','<div class="weap"><span>LGB</span><span>JDAM</span><span>MAVERICK</span></div>'],
-    ['الطيار','يستأذنك قبل ممر القنبلة، وتوافق من شاشة UFC أو بزر الإطلاق'],
-    ['التوقيت','قنبلة الليزر تصيب بعد نحو 110 ث من الموافقة، والـ JDAM بعد 45 إلى 70 ث'],
-    ['الخطر','دفاع جوي SA-8، وحد الوقود، والهدف الطارئ']]}
-};
-function showCraft(k){
-  var c=CRAFT[k];$('#craftImg').src=c.img;$('#craftImg').alt=c.alt;
-  $('#craftSpec').innerHTML=c.rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></div>'}).join('');
-  document.querySelectorAll('.tabs button').forEach(function(b){var on=b.dataset.c===k;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on)$('#craftPanel').setAttribute('aria-labelledby',b.id)});
+/* ================= Saqr hangar ================= */
+// Add an aircraft by adding one entry here (cat: 'rotary' or 'jet').
+var AIRCRAFT=[
+  {id:'ah64',cat:'rotary',name:'AH-64 Apache',card:'assets/s_ah64_flight_m.webp',img:'assets/s_ah64_pad.webp',
+   alt:{ar:'مروحية أباتشي على مهبط عند الغسق',en:'An Apache on the pad at dusk'},
+   role:{ar:'مروحية هجومية',en:'Attack helicopter'},
+   seats:[{ar:'الطيار',en:'Pilot',soon:true},{ar:'المدفعي',en:'Gunner'}],
+   weap:['HELLFIRE','HYDRA 70','APKWS','M230 30mm'],
+   rows:{ar:[['مستشعر الاستهداف','شاشة TEDAC بصرية وحرارية (WHOT/BHOT)، وتكبير من ×1 إلى ×12'],['Hellfire','توجيه ليزري، أو راداري بعد المسح بالرادار FCR'],['Hydra 70','رؤوس شديدة الانفجار ومسمارية ومضيئة، وموجّهة APKWS'],['التجهيز','يُحدَّد التسليح قبل بدء المهمة، ولا تحمل المروحية قنابل']],
+         en:[['Targeting sensor','TEDAC display in daylight and thermal (WHOT/BHOT), zoom ×1 to ×12'],['Hellfire','Laser guidance, or radar guidance after an FCR scan'],['Hydra 70','High-explosive, flechette and illumination rockets, plus guided APKWS'],['Loadout','Selected before the mission; the helicopter carries no bombs']]}},
+  {id:'f15',cat:'jet',name:'F-15SA',card:'assets/s_key_f15_m.webp',img:'assets/s_f15_shelter.webp',
+   alt:{ar:'طائرة F-15SA في ملجأ محصّن عند الغسق',en:'An F-15SA in a hardened shelter at dusk'},
+   role:{ar:'مقاتلة متعددة المهام',en:'Multirole fighter'},
+   seats:[{ar:'الطيار',en:'Pilot',soon:true},{ar:'ضابط أنظمة الأسلحة',en:'Weapon systems officer'}],
+   weap:['LGB','JDAM','MAVERICK'],
+   rows:{ar:[['نمط الطيران','مدار نصف قطره 5 كم على ارتفاع 15,000 قدم بسرعة 300 عقدة'],['إجراءات الطاقم','يطلب الطيار موافقة ضابط الأنظمة قبل ممر الهجوم'],['زمن الإصابة','نحو 110 ثوانٍ للقنبلة الموجهة بالليزر، و45 إلى 70 ثانية لقنبلة JDAM'],['التهديدات','منظومة دفاع جوي SA-8، وحدود الوقود، والأهداف الطارئة']],
+         en:[['Flight pattern','A 5 km orbit at 15,000 ft and 300 knots'],['Crew procedure','The pilot requests the WSO’s consent before the attack run'],['Time to impact','About 110 s for a laser-guided bomb, 45 to 70 s for a JDAM'],['Threats','SA-8 air defence, fuel limits and time-sensitive targets']]}}
+];
+var FILTER='all',CUR='ah64';
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function seatHtml(a){return '<span class="seats">'+a.seats.map(function(s){return '<span class="seat'+(s.soon?' soon':'')+'">'+esc(s[LANG])+(s.soon?' <em>· '+esc(tr('soon'))+'</em>':'')+'</span>'}).join('')+'</span>'}
+function renderRoster(){
+  var html='';
+  AIRCRAFT.forEach(function(a){if(FILTER!=='all'&&a.cat!==FILTER)return;
+    html+='<button type="button" class="ac" data-id="'+a.id+'" aria-pressed="'+(a.id===CUR)+'"><img src="'+a.card+'" alt="" loading="lazy" width="960" height="411"><span class="hc-body"><span class="row"><b>'+esc(a.name)+'</b><span class="cat'+(a.cat==='jet'?' jet':'')+'">'+esc(tr(a.cat))+'</span></span><small>'+esc(a.role[LANG])+'</small>'+seatHtml(a)+'</span></button>'});
+  var mk=FILTER==='all'?'moreAll':FILTER==='rotary'?'moreRot':'moreJet';
+  html+='<div class="ac more"><div><div class="plus" aria-hidden="true">+</div><b>'+esc(tr(mk))+'</b><p class="note">'+esc(tr('moreSub'))+'</p></div></div>';
+  $('#roster').innerHTML=html;
+  $$('#roster .ac[data-id]').forEach(function(b){b.addEventListener('click',function(){showCraft(b.dataset.id);$$('#roster .ac[data-id]').forEach(function(x){x.setAttribute('aria-pressed',x===b)})})});
 }
-document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){showCraft(b.dataset.c)});b.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){var o=b.dataset.c==='ah'?'f15':'ah';showCraft(o);document.querySelector('.tabs [data-c="'+o+'"]').focus()}})});
-showCraft('ah');
+function showCraft(id){
+  CUR=id;var a=AIRCRAFT.filter(function(x){return x.id===id})[0];
+  $('#craftImg').src=a.img;$('#craftImg').alt=a.alt[LANG];
+  $('#craftInfo').innerHTML='<span class="cat'+(a.cat==='jet'?' jet':'')+'" style="justify-self:start">'+esc(tr(a.cat))+' · '+esc(a.role[LANG])+'</span><h3>'+esc(a.name)+'</h3>'+
+    '<dl class="spec"><div><dt>'+esc(tr('seats'))+'</dt><dd>'+seatHtml(a)+'</dd></div>'+
+    a.rows[LANG].map(function(r){return '<div><dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd></div>'}).join('')+
+    '<div><dt>'+(LANG==='en'?'Weapons':'التسليح')+'</dt><dd><div class="weap">'+a.weap.map(function(w){return '<span>'+esc(w)+'</span>'}).join('')+'</div></dd></div></dl>';
+}
+$$('.filters button').forEach(function(b){b.addEventListener('click',function(){FILTER=b.dataset.f;$$('.filters button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});renderRoster()})});
 
-/* ================= Saqr targeting pod ================= */
+/* ================= Saqr targeting sensor ================= */
 var ROAD=[899.0,2.0,898.1,3.7,897.1,5.5,896.1,7.2,895.2,9.0,894.2,10.7,893.2,12.5,892.2,14.2,891.3,16.0,890.2,17.7,889.2,19.4,888.1,21.0,887.0,22.7,885.9,24.4,884.8,26.1,883.7,27.7,882.6,29.4,881.5,31.1,880.3,32.7,879.2,34.3,878.0,36.0,876.9,37.6,875.7,39.2,874.5,40.9,873.4,42.5,872.2,44.1,871.0,45.7,869.8,47.3,868.5,48.9,867.3,50.4,866.0,52.0,864.8,53.6,863.5,55.1,862.3,56.7,861.1,58.2,859.8,59.8,858.6,61.4,857.3,62.9,856.1,64.5,854.8,66.1,853.6,67.6,852.3,69.2,851.1,70.8,849.9,72.4,848.7,74.0,847.5,75.5,846.3,77.2,845.1,78.8,843.9,80.4,842.8,82.0,841.7,83.7,840.6,85.3,839.5,87.0,838.4,88.7,837.4,90.5,836.5,92.2,835.5,94.0,834.6,95.8,833.7,97.5,832.9,99.4,832.0,101.2,831.3,103.0,830.5,104.9,829.9,106.8,829.2,108.7,828.7,110.6,828.2,112.5,827.8,114.5,827.4,116.4,827.0,118.4,826.7,120.4,826.6,122.4,826.5,124.4,826.4,126.4,826.3,128.4,826.2,130.4,826.3,132.4,826.3,134.4,826.5,136.4,826.6,138.4,826.8,140.3,827.1,142.3,827.4,144.3,827.7,146.3,828.1,148.2,828.5,150.2,829.0,152.2,829.4,154.1,830.0,156.0,830.6,157.9,831.2,159.8,831.9,161.7,832.6,163.6,833.3,165.4,834.0,167.3,834.7,169.2,835.4,171.1,836.2,172.9,837.0,174.7,837.9,176.5,838.7,178.3,839.6,180.1,840.5,181.9,841.4,183.7,842.3,185.5,843.3,187.2,844.3,189.0,845.3,190.7,846.3,192.4,847.4,194.1,848.5,195.8,849.6,197.5,850.7,199.1,851.8,200.8,852.9,202.5,854.0,204.1,855.1,205.8,856.2,207.4,857.4,209.1,858.5,210.7,859.6,212.4,860.8,214.0,861.9,215.7,863.1,217.3,864.2,218.9,865.4,220.6,866.6,222.2,867.7,223.8,868.9,225.4,870.1,227.0,871.3,228.7,872.4,230.3,873.6,231.9,874.8,233.5,875.9,235.2,877.0,236.8,878.2,238.5,879.3,240.1,880.4,241.8,881.4,243.5,882.5,245.2,883.5,246.9,884.5,248.6,885.5,250.3,886.5,252.1,887.5,253.8,888.5,255.6,889.5,257.3,890.5,259.1,891.4,260.8,892.3,262.6,893.1,264.4,894.0,266.2,894.8,268.1,895.5,269.9,896.2,271.8,896.9,273.7,897.6,275.6,898.2,277.5,898.8,279.4,899.4,281.3,900.0,283.2,900.5,285.1,901.0,287.1,901.5,289.0,902.0,290.9,902.5,292.9,903.1,294.8,903.6,296.7,904.0,298.7,904.5,300.6,905.0,302.6,905.5,304.5,906.0,306.4,906.5,308.4,907.1,310.3,907.6,312.2,908.2,314.1,908.8,316.1,909.3,318.0,909.9,319.9,910.5,321.8,911.1,323.7,911.8,325.6,912.4,327.5,913.1,329.4,913.7,331.2,914.4,333.1,915.1,335.0,915.7,336.9,916.3,338.8,916.9,340.7,917.5,342.6,918.1,344.5,918.8,346.4,919.4,348.3,920.1,350.2,920.8,352.1,921.5,354.0,922.2,355.8,922.9,357.7,923.6,359.6,924.4,361.4,925.1,363.3,925.9,365.1,926.7,366.9,927.5,368.8,928.3,370.6,929.2,372.4,930.0,374.2,930.8,376.1,931.7,377.9,932.5,379.7,933.4,381.5,934.3,383.3,935.1,385.1,936.1,386.9,937.0,388.6,937.9,390.4,938.8,392.2,939.8,393.9,940.7,395.7,941.6,397.5,942.5,399.3,943.5,401.0,944.4,402.8,945.3,404.6,946.2,406.4,947.1,408.1,948.0,409.9,948.9,411.7,949.7,413.6,950.6,415.4,951.4,417.2,952.2,419.0,953.0,420.8,953.9,422.6,954.8,424.4,955.6,426.3,956.4,428.1,957.3,429.9,958.1,431.7,958.9,433.6,959.6,435.4,960.4,437.3,961.1,439.1,961.8,441.0,962.5,442.9,963.0,444.8,963.6,446.7,964.1,448.6,964.6,450.6,965.0,452.6,965.4,454.5,965.7,456.5,966.0,458.5,966.3,460.4,966.6,462.4,966.9,464.4,967.1,466.4,967.3,468.4,967.4,470.4,967.5,472.4,967.6,474.4,967.6,476.4,967.6,478.4,967.6,480.4,967.6,482.4,967.6,484.4,967.5,486.4,967.4,488.4,967.3,490.4,967.1,492.4,967.0,494.4,967.0,496.4,967.0,498.4,966.9,500.4,966.7,502.3,966.5,504.3,966.2,506.3,965.9,508.3,965.4,510.2,964.9,512.2,964.3,514.1,963.7,516.0,963.0,517.9,962.3,519.7,961.6,521.6,960.8,523.4,959.9,525.2,959.0,527.0,958.0,528.7,956.9,530.4,955.6,532.0,954.4,533.5,953.2,535.1,952.0,536.7,950.7,538.3,949.5,539.8,948.1,541.3,946.8,542.8,945.4,544.2,944.1,545.8,942.8,547.2,941.4,548.7,940.0,550.1,938.6,551.6,937.2,553.0,935.8,554.4,934.5,555.9,933.1,557.4,931.8,558.9,930.5,560.4,929.1,561.9,927.5,563.1,926.0,564.3,924.4,565.5,922.8,566.7,921.2,567.9,919.6,569.1,918.2,570.5,916.8,572.0,915.4,573.4,914.0,574.9,912.6,576.2,911.1,577.6,909.7,579.0,908.2,580.4,906.8,581.7,905.3,583.1,903.9,584.6,902.6,586.0,901.2,587.5,899.8,588.9,898.5,590.4,897.2,592.0,896.2,593.6,895.1,595.4,894.1,597.1,893.1,598.8,892.2,600.6,891.2,602.4,890.1,604.0,888.9,605.6,887.8,607.3,886.8,609.0,885.9,610.8,885.0,612.5,884.0,614.3,883.1,616.1,882.2,617.9,881.4,619.7,880.4,621.5,879.6,623.3,878.8,625.1,878.1,627.0,877.3,628.8,876.5,630.6,875.8,632.5,875.1,634.4,874.5,636.3,874.0,638.2,873.5,640.2,873.0,642.1,872.6,644.1,872.3,646.0,872.1,648.0,871.8,650.0,871.6,652.0,871.3,654.0,871.3,656.0,871.3,658.0,871.4,660.0,871.5,662.0,871.7,664.0,871.9,666.0,872.2,668.0,872.5,669.9,872.9,671.9,873.3,673.8,873.8,675.8,874.4,677.7,875.0,679.6,875.6,681.5,876.3,683.4,877.0,685.2,877.8,687.1,878.6,688.9,879.4,690.7,880.3,692.5,881.3,694.3,882.2,696.0,883.2,697.8,884.2,699.5,885.2,701.2,886.2,703.0,887.1,704.8,888.0,706.6,888.9,708.4,889.8,710.1,890.5,712.0,891.3,713.8,892.0,715.7,892.6,717.6,893.2,719.5,893.8,721.4,894.5,723.3,895.0,725.2,895.4,727.2,895.6,729.2,895.7,731.2,895.8,733.2,896.0,735.2,896.1,737.2,896.1,739.2,896.1,741.2,896.1,743.2,895.9,745.1,895.7,747.1,895.4,749.1,895.1,751.1,894.7,753.0,894.3,755.0,893.8,757.0,893.2,758.8,892.5,760.7,891.7,762.6,891.0,764.4,890.3,766.3,889.6,768.2,889.0,770.1,888.5,772.0,887.8,773.9,887.0,775.7,886.1,777.5,885.2,779.3,884.2,781.0,883.1,782.7,882.1,784.4,881.0,786.1,880.0,787.8,878.9,789.5,877.8,791.2,876.8,792.9,875.7,794.6,874.6,796.2,873.4,797.9,872.4,799.6,871.4,801.3,870.4,803.1,869.5,804.9,868.4,806.5,867.0,808.0,865.6,809.4,864.2,810.7,862.7,812.1,861.4,813.6,860.2,815.2,859.1,816.9,858.0,818.5,856.9,820.2,855.7,821.8,854.5,823.4,853.2,825.0,852.0,826.5,851.0,828.3,850.1,830.0,848.9,831.6,847.7,833.2,846.3,834.7,845.0,836.2,843.6,837.6,842.2,839.0,841.1,840.7,840.0,842.4,839.0,844.1,838.0,845.9,837.1,847.7,836.2,849.5,835.2,851.1,834.1,852.8,833.0,854.5,832.0,856.2,831.1,858.0,830.3,859.8,829.5,861.7,828.8,863.5,828.1,865.4,827.1,867.2,826.2,869.0,825.6,870.8,825.0,872.8,824.4,874.6,823.7,876.5,823.0,878.4,822.4,880.3,821.8,882.2,821.4,884.2,820.9,886.1,820.5,888.1,820.2,890.1,819.8,892.0,819.5,894.0,819.2,896.0,818.9,898.0,818.6,899.9,818.4,901.9,818.1,903.9,817.9,905.9,817.5,907.9,817.1,909.8,816.6,911.8,816.2,913.7,815.8,915.7,815.4,917.6,815.1,919.6,814.9,921.6,814.7,923.6,814.3,925.5,813.8,927.5,813.3,929.4,812.7,931.3,812.2,933.3,811.8,935.2,811.4,937.2,810.9,939.1];
-var MPP=0.85, MAPW=1672, MAPH=941;
+var MPP=0.85,MAPW=1672,MAPH=941;
 var RN=ROAD.length/2,RX=[],RY=[],RS=[0];
 for(var i=0;i<RN;i++){RX.push(ROAD[2*i]);RY.push(ROAD[2*i+1]);if(i)RS.push(RS[i-1]+Math.hypot(RX[i]-RX[i-1],RY[i]-RY[i-1])*MPP)}
 var ROADLEN=RS[RN-1];
 function roadAt(s){s=((s%ROADLEN)+ROADLEN)%ROADLEN;var lo=0,hi=RN-1;while(hi-lo>1){var m=(lo+hi)>>1;if(RS[m]<=s)lo=m;else hi=m}var u=(s-RS[lo])/Math.max(1e-6,RS[hi]-RS[lo]);return {x:RX[lo]+(RX[hi]-RX[lo])*u,y:RY[lo]+(RY[hi]-RY[lo])*u,a:Math.atan2(RY[hi]-RY[lo],RX[hi]-RX[lo])}}
-var VEH=[
-  {k:'lc79',ar:'فني لاندكروزر',len:5.2},
-  {k:'hilux',ar:'فني هايلكس',len:5.3},
-  {k:'suv',ar:'جيب',len:4.9},
-  {k:'cargo',ar:'شاحنة نقل',len:8.6},
-  {k:'tanker',ar:'صهريج وقود',len:10.2}
-];
-var LEAD0=170, GAP=24, SPEED=7.5; // metres, metres, m/s
-VEH.forEach(function(v,i){v.s=LEAD0-i*GAP;v.v=SPEED;v.phase=Math.random()*6});
-var pod=$('#pod'),pctx=pod.getContext('2d');
+var VEH=[{k:'lc79',len:5.2},{k:'hilux',len:5.3},{k:'suv',len:4.9},{k:'cargo',len:8.6},{k:'tanker',len:10.2}];
+var LEAD0=170,GAP=24,SPEED=7.5;
+VEH.forEach(function(v,i){v.s=LEAD0-i*GAP;v.v=SPEED});
+var pod=$('#pod'),pctx=pod.getContext('2d'),tsd=$('#tsd'),tctx=tsd.getContext('2d'),ck=$('#ck');
 var valley=null,sprites={},hot={};
 loadImg('assets/valley.jpg').then(function(i){valley=i});
 VEH.forEach(function(v){loadImg('assets/car_'+v.k+'.png').then(function(im){if(!im)return;sprites[v.k]=im;
-  var c=document.createElement('canvas');c.width=im.width;c.height=im.height;var x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.fillStyle='rgba(250,250,250,.92)';x.fillRect(0,0,c.width,c.height);
-  var g=x.createRadialGradient(c.width/2,c.height*.3,0,c.width/2,c.height*.3,c.width*.6);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(200,200,200,0)');x.fillStyle=g;x.fillRect(0,0,c.width,c.height);hot[v.k]=c})});
+  var c=document.createElement('canvas');c.width=im.width;c.height=im.height;var x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.fillStyle='rgba(250,250,250,.92)';x.fillRect(0,0,c.width,c.height);hot[v.k]=c})});
 var P={mode:'tv',zoom:4,lock:0,cx:0,cy:0,drag:null,on:true,painted:false};
 (function(){var p=roadAt(VEH[0].s);P.cx=p.x;P.cy=p.y})();
-var FILT={tv:'saturate(.9) contrast(1.06)',whot:'grayscale(1) contrast(1.25)',bhot:'grayscale(1) contrast(1.25) invert(1)'};
-var MODEAR={tv:'بصري',whot:'حراري · الساخن أبيض',bhot:'حراري · الساخن أسود'};
-function setMode(m){P.mode=m;pod.style.filter=FILT[m];document.querySelectorAll('[data-mode]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.mode===m)});$('#rMode').textContent=MODEAR[m];osd()}
-function setZoom(z){P.zoom=z;document.querySelectorAll('[data-z]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.z===z)});osd()}
+var FILT={tv:'saturate(.95) contrast(1.05)',whot:'grayscale(1) contrast(1.25)',bhot:'grayscale(1) contrast(1.25) invert(1)'};
 function osd(){$('#osdMode').textContent=(P.mode==='tv'?'TV':P.mode.toUpperCase())+'  ×'+P.zoom}
-document.querySelectorAll('[data-mode]').forEach(function(b){b.addEventListener('click',function(){setMode(b.dataset.mode)})});
-document.querySelectorAll('[data-z]').forEach(function(b){b.addEventListener('click',function(){setZoom(+b.dataset.z)})});
+function setMode(m){P.mode=m;pod.style.filter=FILT[m];$$('[data-mode]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.mode===m)});$('#rMode').textContent=T[LANG].modes[m];osd()}
+function setZoom(z){P.zoom=z;$$('[data-z]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.z===z)});osd()}
+var FULL=window.innerWidth<700;
+function syncFull(){ck.classList.toggle('full',FULL);var b=$('#fullBtn');b.setAttribute('aria-pressed',FULL);b.textContent=FULL?tr('full'):tr('expand')}
+$('#fullBtn').addEventListener('click',function(){FULL=!FULL;syncFull()});
+$$('[data-mode]').forEach(function(b){b.addEventListener('click',function(){setMode(b.dataset.mode)})});
+$$('[data-z]').forEach(function(b){b.addEventListener('click',function(){setZoom(+b.dataset.z)})});
 $('#nextTgt').addEventListener('click',function(){P.lock=P.lock<0?0:(P.lock+1)%VEH.length});
-setMode('tv');
-
 function podView(w,h){var vw=560/P.zoom,s=w/vw,vh=h/s;var cx=Math.min(MAPW-vw/2,Math.max(vw/2,P.cx)),cy=Math.min(MAPH-vh/2,Math.max(vh/2,P.cy));return {s:s,vw:vw,vh:vh,x0:cx-vw/2,y0:cy-vh/2}}
-function vehPos(v){var p=roadAt(v.s);return p}
 pod.addEventListener('pointerdown',function(e){var r=pod.getBoundingClientRect();P.drag={x:e.clientX,y:e.clientY,cx:P.cx,cy:P.cy,moved:0,rx:e.clientX-r.left,ry:e.clientY-r.top};pod.setPointerCapture(e.pointerId)});
-pod.addEventListener('pointermove',function(e){if(!P.drag)return;var r=pod.getBoundingClientRect(),vw=560/P.zoom,k=vw/r.width;var dx=e.clientX-P.drag.x,dy=e.clientY-P.drag.y;P.drag.moved=Math.max(P.drag.moved,Math.hypot(dx,dy));if(P.drag.moved>6){P.lock=-1;P.cx=P.drag.cx-dx*k;P.cy=P.drag.cy-dy*k}});
-pod.addEventListener('pointerup',function(e){if(!P.drag)return;var d=P.drag;P.drag=null;if(d.moved>6)return;
+pod.addEventListener('pointermove',function(e){if(!P.drag||!FULL)return;var r=pod.getBoundingClientRect(),k=(560/P.zoom)/r.width;var dx=e.clientX-P.drag.x,dy=e.clientY-P.drag.y;P.drag.moved=Math.max(P.drag.moved,Math.hypot(dx,dy));if(P.drag.moved>6){P.lock=-1;P.cx=P.drag.cx-dx*k;P.cy=P.drag.cy-dy*k}});
+pod.addEventListener('pointerup',function(){if(!P.drag)return;var d=P.drag;P.drag=null;if(d.moved>6)return;
+  if(!FULL){FULL=true;syncFull();return}
   var r=pod.getBoundingClientRect(),v=podView(r.width,r.height),best=-1,bd=34;
-  VEH.forEach(function(vh,i){var p=vehPos(vh),sx=(p.x-v.x0)*v.s,sy=(p.y-v.y0)*v.s,dd=Math.hypot(sx-d.rx,sy-d.ry);if(dd<bd){bd=dd;best=i}});
+  VEH.forEach(function(vh,i){var p=roadAt(vh.s),sx=(p.x-v.x0)*v.s,sy=(p.y-v.y0)*v.s,dd=Math.hypot(sx-d.rx,sy-d.ry);if(dd<bd){bd=dd;best=i}});
   if(best>=0)P.lock=best});
 pod.addEventListener('pointercancel',function(){P.drag=null});
 
-function drawPod(dt){
-  var f=fit(pod),w=f.w,h=f.h,c=pctx,d=f.d;
-  // move the convoy: slow in bends, keep spacing
+function stepConvoy(dt){
   VEH.forEach(function(v,i){
     var a=roadAt(v.s+6),b=roadAt(v.s-6),bend=Math.abs(Math.atan2(Math.sin(a.a-b.a),Math.cos(a.a-b.a)));
     var target=SPEED*(1-Math.min(.55,bend*1.6));
     if(i>0){var gap=VEH[i-1].s-v.s;if(gap<GAP-4)target*=.5;else if(gap>GAP+6)target*=1.2}
     v.v+=(target-v.v)*Math.min(1,dt*1.5);v.s+=v.v*dt;
   });
-  if(VEH[VEH.length-1].s>ROADLEN-20){VEH.forEach(function(v,i){v.s=LEAD0-i*GAP})}
-  if(P.lock>=0){var t=vehPos(VEH[P.lock]),k=Math.min(1,dt*1.6);P.cx+=(t.x-P.cx)*k;P.cy+=(t.y-P.cy)*k}
-  var v=podView(w/d,h/d);var S=v.s*d;
+  if(VEH[VEH.length-1].s>ROADLEN-20)VEH.forEach(function(v,i){v.s=LEAD0-i*GAP});
+}
+function drawPod(dt){
+  var f=fit(pod),w=f.w,h=f.h,c=pctx,d=f.d;
+  if(P.lock>=0){var t=roadAt(VEH[P.lock].s),k=Math.min(1,dt*1.6);P.cx+=(t.x-P.cx)*k;P.cy+=(t.y-P.cy)*k}
+  var v=podView(w/d,h/d),S=v.s*d;
   c.setTransform(1,0,0,1,0,0);c.fillStyle='#000';c.fillRect(0,0,w,h);
   if(valley&&Object.keys(sprites).length===VEH.length)P.painted=true;
   if(valley){var kx=valley.width/MAPW;c.imageSmoothingQuality='high';c.drawImage(valley,v.x0*kx,v.y0*kx,v.vw*kx,v.vh*kx,0,0,w,h)}
   var th=P.mode!=='tv';
   if(th){c.fillStyle=P.mode==='whot'?'rgba(0,0,0,.5)':'rgba(0,0,0,.28)';c.fillRect(0,0,w,h)}
   VEH.forEach(function(vh){
-    var im=th?hot[vh.k]:sprites[vh.k];if(!im)return;var p=vehPos(vh);
+    var im=th?hot[vh.k]:sprites[vh.k];if(!im)return;var p=roadAt(vh.s);
     var sx=(p.x-v.x0)*S,sy=(p.y-v.y0)*S;if(sx<-60||sy<-60||sx>w+60||sy>h+60)return;
-    var L=vh.len/MPP*S,W=L*im.width/im.height;
+    var L=vh.len/MPP*S,Wd=L*im.width/im.height;
     c.save();c.translate(sx,sy);c.rotate(p.a+Math.PI/2);
-    if(!th){c.shadowColor='rgba(0,0,0,.55)';c.shadowBlur=3*d;c.shadowOffsetX=2*d;c.shadowOffsetY=2*d}
-    else {c.shadowColor='rgba(255,255,255,.7)';c.shadowBlur=Math.max(2,L*.25)}
-    c.drawImage(im,-W/2,-L/2,W,L);c.restore();
+    if(!th){c.shadowColor='rgba(0,0,0,.55)';c.shadowBlur=3*d;c.shadowOffsetX=2*d;c.shadowOffsetY=2*d}else{c.shadowColor='rgba(255,255,255,.7)';c.shadowBlur=Math.max(2,L*.25)}
+    c.drawImage(im,-Wd/2,-L/2,Wd,L);c.restore();
   });
-  // TEDAC symbology: centre cross with a gap, and corner brackets on the tracked target
-  var g='rgba(147,240,180,.9)';c.strokeStyle=g;c.lineWidth=1.3*d;var cx=w/2,cy=h/2,gp=16*d,arm=Math.min(w,h)*.42;
+  var g='rgba(147,240,180,.92)';c.strokeStyle=g;c.lineWidth=Math.max(1,1.3*d);var cx=w/2,cy=h/2,gp=Math.min(16*d,h*.06),arm=Math.min(w,h)*.42;
   c.beginPath();c.moveTo(cx-arm,cy);c.lineTo(cx-gp,cy);c.moveTo(cx+gp,cy);c.lineTo(cx+arm,cy);c.moveTo(cx,cy-arm);c.lineTo(cx,cy-gp);c.moveTo(cx,cy+gp);c.lineTo(cx,cy+arm);c.stroke();
-  if(P.lock>=0){var tv=VEH[P.lock],tp=vehPos(tv),tx=(tp.x-v.x0)*S,ty=(tp.y-v.y0)*S,bs=Math.max(18*d,tv.len/MPP*S*.75),q=bs*.38;
-    c.strokeStyle=g;c.lineWidth=1.8*d;c.beginPath();
+  var L=T[LANG];
+  if(P.lock>=0){var tv=VEH[P.lock],tp=roadAt(tv.s),tx=(tp.x-v.x0)*S,ty=(tp.y-v.y0)*S,bs=Math.max(12*d,tv.len/MPP*S*.75),q=bs*.38;
+    c.lineWidth=Math.max(1.2,1.8*d);c.beginPath();
     [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(function(o){var X=tx+o[0]*bs,Y=ty+o[1]*bs;c.moveTo(X,Y-o[1]*q);c.lineTo(X,Y);c.lineTo(X-o[0]*q,Y)});c.stroke();
-    $('#rTgt').textContent=tv.ar;$('#rSpd').textContent=Math.round(tv.v*3.6)+' كم/س';$('#rRoad').textContent=Math.round(Math.max(0,tv.s))+' م';$('#osdTrk').textContent='TRK  '+String(P.lock+1).padStart(2,'0');
+    $('#rTgt').textContent=L.veh[P.lock];$('#rSpd').textContent=Math.round(tv.v*3.6)+' '+L.kmh;$('#rRoad').textContent=Math.round(Math.max(0,tv.s))+' '+L.m;$('#osdTrk').textContent='TRK  '+String(P.lock+1).padStart(2,'0');
     $('#osdRng').textContent='RNG '+String(Math.round(1850+Math.sin(performance.now()/9000)*240)).padStart(4,'0');
-  } else {$('#rTgt').textContent='بلا تتبع';$('#rSpd').textContent='—';$('#rRoad').textContent='—';$('#osdTrk').textContent='MAN';}
+  }else{$('#rTgt').textContent=L.notrk;$('#rSpd').textContent='—';$('#rRoad').textContent='—';$('#osdTrk').textContent='MAN'}
 }
-visible(pod,function(v){P.on=v});
+function drawTsd(){
+  if(FULL)return;var f=fit(tsd),w=f.w,h=f.h,c=tctx;
+  c.setTransform(1,0,0,1,0,0);c.fillStyle='#020503';c.fillRect(0,0,w,h);
+  var x0=780,x1=1000,y0=0,y1=941,s=Math.min(w/(x1-x0),h/(y1-y0))*.92,ox=(w-(x1-x0)*s)/2-x0*s,oy=(h-(y1-y0)*s)/2;
+  c.strokeStyle='rgba(147,240,180,.55)';c.lineWidth=Math.max(1,w/120);c.beginPath();
+  for(var i=0;i<RN;i+=4){var X=ox+RX[i]*s,Y=oy+RY[i]*s;i?c.lineTo(X,Y):c.moveTo(X,Y)}c.stroke();
+  c.fillStyle='#FFB23E';VEH.forEach(function(v){var p=roadAt(v.s);c.fillRect(ox+p.x*s-1.5,oy+p.y*s-1.5,3,3)});
+}
+visible(ck,function(v){P.on=v});
 
 /* ================= loop ================= */
 var lastT=performance.now();
 function loop(now){
-  var dt=Math.min(.1,(now-lastT)/1000);lastT=now;
-  if(RM)dt=0;
-  maps.forEach(function(m){if(m.on||(!m.painted&&worldImg)){m.draw(worldImg,dt);if(worldImg)m.painted=true}});
-  if(P.on||!P.painted)drawPod(RM?0:dt);
-  dayAcc+=dt;if(dayAcc>1.2){dayAcc=0;day++;if(clock)clock.textContent='اليوم '+day.toLocaleString('ar-SA')}
+  var dt=Math.min(.1,(now-lastT)/1000);lastT=now;if(RM)dt=0;
+  if(W.on||(!W.painted&&W.img)){drawWorld(dt);if(W.img)W.painted=true}
+  stepConvoy(dt);
+  if(P.on||!P.painted){drawPod(dt);drawTsd()}
+  dayAcc+=dt;if(dayAcc>1.2){dayAcc=0;day++}
+  clock.textContent=(LANG==='en'?'Day ':'اليوم ')+day;
   requestAnimationFrame(loop);
 }
+renderRoster();showCraft(CUR);setMode('tv');syncFull();
+if(LANG==='en')applyLang();else{var lb=$('#langBtn');lb.textContent=tr('langBtn');lb.setAttribute('aria-label',tr('langAria'));lb.lang='en'}
 requestAnimationFrame(loop);
-var padW=pad.getBoundingClientRect().width;
-window.addEventListener('resize',function(){var nw=pad.getBoundingClientRect().width;if(Math.abs(nw-padW)>1){padW=nw;padFit();inked=0;$('#stamp').classList.remove('on')}});
 })();
 </script>
 
