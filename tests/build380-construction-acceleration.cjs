@@ -16,7 +16,7 @@ const run=(state,domain,id,key)=>{const owner=domain==='energy'?E:RE,quote=owner
 function check(name,fn){fn();results.push(name);}
 // Owner (build 97): a paid acceleration finishes the plant or the project on the day its fee clears (it used to halve
 // the remaining time). The fee is unchanged.
-check('fee is debited once, VAT and proofs are preserved, the plant or project is finished at once',()=>{
+check('fee is debited once, VAT as the owner set it (a plant\'s construction zero-rated, a project taxed) and proofs are preserved, the plant or project is finished at once',()=>{
  const {state,contractId,projectId}=setup();state.simSeconds=30*86400;
  const original=state.finance.commercialContracts.find(row=>row.id===state.realEstate.projects[0].legalDocumentId),originalJSON=JSON.stringify(original);
  for(const [domain,id,company]of [['energy',contractId,'power'],['realestate',projectId,'realestate']]){
@@ -25,7 +25,7 @@ check('fee is debited once, VAT and proofs are preserved, the plant or project i
   assert.equal(quote.completeDay,30,'finished on the day the fee clears');
   // The fee once; a real-estate project also pays its remaining construction milestones now (due at its completion).
   assert.equal(paid.length-built.length,1);assert.equal(built.length,domain==='energy'?0:2);near(before-F.operating(state,company),quote.fee+built.reduce((sum,c)=>sum+Number(c.amount),0));const cheque=state.finance.cheques.find(c=>c.id===result.chequeId),invoice=state.finance.invoices.find(i=>i.number===cheque.invoiceNumber),doc=state.finance.commercialContracts.find(c=>c.id===result.legalDocumentId);
-  assert.equal(cheque.status,'مصروف');assert.equal(invoice.status,'مسددة');assert.equal(invoice.company,company);assert.ok(invoice.tax>0);for(const record of [cheque,invoice,doc])assert.equal(s.GH_DOCUMENT_PROOF.verifyDocument(state,record).ok,true);
+  assert.equal(cheque.status,'مصروف');assert.equal(invoice.status,'مسددة');assert.equal(invoice.company,company);if(domain==='energy')assert.equal(Number(invoice.tax)||0,0,'a plant\'s construction acceleration is zero-rated (owner, build 98: construction carries no input VAT)');else assert.ok(invoice.tax>0,'a real-estate project\'s acceleration keeps its VAT');for(const record of [cheque,invoice,doc])assert.equal(s.GH_DOCUMENT_PROOF.verifyDocument(state,record).ok,true);
   const after=F.operating(state,company),count=state.finance.cheques.length;s.GH_DOMAIN_COMMANDS.dispatch({state},domain,'accelerate-construction',payload,{idempotencyKey:`${domain}-acceleration`});s.GH_DOMAIN_COMMANDS.dispatch({state},domain,'accelerate-construction',payload,{idempotencyKey:`${domain}-different-key`});near(F.operating(state,company),after);assert.equal(state.finance.cheques.length,count);
   assert.equal(domain==='energy'?E.constructionProgress(state.constructionContracts[0],30):RE.projectProgress(state.realEstate.projects[0],30),1,'finished at once');void progress;
   if(domain==='energy')assert.equal(state.constructionContracts[0].commissioned,true,'the plant is commissioned when the fee clears');else assert.equal(state.realEstate.projects[0].status,'مكتمل','the project is handed over when the fee clears');

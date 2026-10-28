@@ -474,7 +474,7 @@
     return target;
   }
   function isActive(){return !!activeContext;}
-  function isActiveFor(target){return !!activeContext&&activeContext.target===target;}
+  function isActiveFor(target){return !!activeContext&&activeContext.target===target;}function activeLabel(){return activeContext?String(activeContext.label||''):'';}
   // Fleet Core v4: an owner that journals its own writes registers an undo (run
   // after the snapshot restore on rollback, newest first) and a release (run once
   // the transaction has committed and its critical hooks succeeded).
@@ -1010,5 +1010,5 @@
       throw error;
     }finally{if(!durableCommitted&&rootSessions.length)try{rollbackJournaledRoots(rootSessions);}catch{}if(globalThis.__GH_DURABLE_COMMAND_CONTEXT__===context)delete globalThis.__GH_DURABLE_COMMAND_CONTEXT__;durableTargets.delete(liveState);}
   }
-  const API=Object.freeze({VERSION,DURABLE_CLONE_SLICE_MS,DURABLE_DEFERRED_ROOTS,durableDeferredRoots,settleDeferredRoots,changeTracking:changeState.api,moneyGuard:MONEY_GUARD,validateSchemaInSlices,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,DURABLE_CLONE_SLICE_MS,DURABLE_DEFERRED_ROOTS,durableDeferredRoots,settleDeferredRoots,changeTracking:changeState.api,moneyGuard:MONEY_GUARD,validateSchemaInSlices,deepClone,deepCloneInSlices,restoreObject,publishObject,registerStateReplacementObserver,beginStaged,isStaged:target=>target?stagedTargets.has(target):stagedTargets.size>0,abortStaged:(target,reason)=>stagedTargets.get(target)?.abort?.(reason)===true,registerJournaledRoot,registerSealedCollections,registerSealedRoot,isSealed,sealValue,sealCollections,deriveContainer,containerChanges,beginJournaledRoots,commitJournaledRoots,rollbackJournaledRoots,execute,join,extendScope,executeDurable,isActive,activeLabel,isActiveFor,registerUndo,isDurableActive:target=>target?durableTargets.has(target):!!globalThis.__GH_DURABLE_COMMAND_CONTEXT__,revision,afterCommit,transactionMemo,transactionMemoGet,transactionMemoSet,resetProfileTelemetry,telemetry:telemetrySnapshot});globalThis.GH_TRANSACTION_CORE=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_TRANSACTION_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

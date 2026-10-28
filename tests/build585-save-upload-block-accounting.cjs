@@ -10,7 +10,8 @@
 //  1. maxBusySliceMs is the longest run of work between two yields, measured from the clock itself (the previous source
 //     reported less than that run);
 //  2. nothing else changes: the same yields at the same points, the same busy total, the same chunks uploaded with the
-//     same bytes, the same committed text (the session's random chunk-id prefix aside);
+//     same bytes, the same committed text (the session's random chunk-id prefix aside, in its hash and in its length: the
+//     prefix's length varies from session to session, and three runs in four failed on it when its length differed);
 //  3. a save with nothing to upload reports its longest run too (the envelope encode continues the codec's last step;
 //     the previous source reported that step alone).
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process');
@@ -34,7 +35,7 @@ if(process.argv[2]==='--measure'){
     const subtle=s.crypto.subtle,digest=subtle.digest.bind(subtle);s.crypto={...s.crypto,subtle:Object.assign(Object.create(subtle),{digest:(...args)=>digest(...args).then(value=>{boundary();return value;})}),getRandomValues:s.crypto.getRandomValues?.bind(s.crypto)};
     s.webkit={messageHandlers:{saveBridge:{postMessage(m){
       if(m.action==='storeSaveChunk'){nonce=nonce||String(m.id).split('.')[0];uploads.push({id:String(m.id).split(nonce).join('N'),sha:crypto.createHash('sha256').update(Buffer.from(m.base64,'base64')).digest('hex')});return deliver('gh-native-chunk-ack',{requestId:m.requestId,id:m.id,success:true});}
-      if(m.action==='commitSave'){commits.push({sha:crypto.createHash('sha256').update(nonce?String(m.saveJSON).split(nonce).join('N'):String(m.saveJSON)).digest('hex'),bytes:Buffer.byteLength(String(m.saveJSON))});return deliver('gh-native-save-ack',{requestId:m.requestId,action:m.action,saveRevision:m.saveRevision,resetEpoch:m.resetEpoch,saveSchemaVersion:m.saveSchemaVersion,saveHash:m.saveHash,success:true,generation:commits.length});}
+      if(m.action==='commitSave'){{const text=nonce?String(m.saveJSON).split(nonce).join('N'):String(m.saveJSON);commits.push({sha:crypto.createHash('sha256').update(text).digest('hex'),bytes:Buffer.byteLength(text)});}return deliver('gh-native-save-ack',{requestId:m.requestId,action:m.action,saveRevision:m.saveRevision,resetEpoch:m.resetEpoch,saveSchemaVersion:m.saveSchemaVersion,saveHash:m.saveHash,success:true,generation:commits.length});}
     }}}};s.GH_NATIVE_BUILD=358;s.GH_CONTROL_PLANE=s.GH_CONTROL_PLANE||{};
     const save=async()=>{work=0;maxRun=0;since=0;trace.length=0;
       await s.GH_PERSISTENCE.commitDurableState(state,{yieldToFrame:async()=>{boundary();yields.push(work);clock+=100;},prevalidated:true});boundary();

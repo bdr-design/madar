@@ -639,6 +639,11 @@
     }
     if(!record.authorizationProofId)return {ok:true};const authorization=globalThis.GH_AUTHORIZATION?.verifyProof?.(state,record.authorizationProofId,cache?.authorization);if(!authorization?.ok)return {ok:false,reason:`authorization-${authorization?.reason||'unavailable'}`};if(!authorization.proof.documentDigests.includes(record.contentDigest)||!authorization.proof.documentIds.includes(record.documentId))return {ok:false,reason:'authorization-document-reference-missing'};return {ok:true};}
   const SEALED_RECORD_CONTENT=new WeakMap();
+  // A sealed whole record whose issuer and counterparty snapshots matched its signed content once always match it (all of
+  // it is frozen): the comparison, two canonical texts each, is made once per record (owner, build 98: «صلحها على دفعات
+  // دقيقه جدًا»; with the signature digests below, the proof audit's allocation per item during play went from 24 KB to
+  // 13 KB). Its content digest, authorization and chain are still checked on every call.
+  const SEALED_SNAPSHOTS_MATCH=new WeakSet();
   // A verification result carries a private copy of the record. For a sealed record (it cannot change) the copy is made
   // on first read instead of on every verification; it is the same copy on every read, as before.
   function withRecordCopy(out,record){
@@ -669,11 +674,16 @@
   const WORKER_ARCHIVED_CONTENT=new WeakMap(),WORKER_SIGNATURE_DIGESTS=new WeakMap();
   const sealedValue=value=>globalThis.GH_TRANSACTION_CORE?.isSealed?.(value)===true;
   const activePair=(document,record)=>ACTIVE_ARCHIVED_HASHES?.pairs?.get(record)?.document===document?ACTIVE_ARCHIVED_HASHES.pairs.get(record):null;
+  // A sealed signature snapshot (frozen with everything in it) has one digest: it is computed once (owner, build 98:
+  // «صلحها على دفعات دقيقه جدًا»; the proof audit hashed the same snapshots again on every pass). The digest is still
+  // compared with the record's on every check.
+  const SEALED_SIGNATURE_DIGESTS=new WeakMap();
   function signatureDigestOf(snapshot){
     if(!snapshot||typeof snapshot!=='object')return null;
     const active=ACTIVE_ARCHIVED_HASHES?.signatures?.get(snapshot);if(active!==undefined)return active;
     const known=WORKER_SIGNATURE_DIGESTS.get(snapshot);if(known!==undefined&&sealedValue(snapshot))return known;
-    return digest(stable(snapshot));
+    const sealed=sealedValue(snapshot),kept=sealed?SEALED_SIGNATURE_DIGESTS.get(snapshot):undefined;if(kept!==undefined)return kept;
+    const value=digest(stable(snapshot));if(sealed)SEALED_SIGNATURE_DIGESTS.set(snapshot,value);return value;
   }
   // What the document itself must carry for an archived-form record (the envelope a whole record checks against its copies).
   function archivedEnvelope(document,record){
@@ -777,7 +787,7 @@
       const certifiedRecord=ACTIVE_ARCHIVED_HASHES?.records?.get(proofRecord),sealedContent=SEALED_RECORD_CONTENT.get(proofRecord);let signedContentStable=sealedContent??cache?.signedContentStable?.get(proofId)??certifiedRecord?.stable;if(signedContentStable===undefined){signedContentStable=stable(proofRecord.signedContent);}cache?.signedContentStable?.set(proofId,signedContentStable);if(sealedContent===undefined){if((certifiedRecord?.digest??digest(signedContentStable))!==proofRecord.contentDigest)return {ok:false,reason:'document-proof-record-tampered'};if(globalThis.GH_TRANSACTION_CORE?.isSealed?.(proofRecord))SEALED_RECORD_CONTENT.set(proofRecord,signedContentStable);}const authorization=verifyAuthorizationReference(state,proofRecord,cache);if(!authorization.ok)return authorization;
       if(Number(proofRecord.version)===2&&proofRecord.signedContent?.schema==='gh-signed-document-content-v2')return {ok:false,legacy:true,readOnly:true,recordIntegrity:true,modern:false,reason:'document-proof-v2-legacy-read-only',record:clone(proofRecord)};
       if(Number(proofRecord.version)!==RECORD_VERSION||proofRecord.signedContent?.schema!==CONTENT_SCHEMA)return {ok:false,reason:'document-proof-version-unsupported'};let profile;try{profile=profileFor(proofRecord.documentType);}catch(error){return {ok:false,reason:String(error?.message||error)};}
-      if(proofRecord.materialProfile!==profile||proofRecord.signedContent?.material?.profile!==profile)return {ok:false,reason:'document-material-profile-mismatch'};if(proofRecord.signedContent.documentId!==proofRecord.documentId||proofRecord.signedContent.documentType!==proofRecord.documentType)return {ok:false,reason:'document-proof-record-envelope-mismatch'};if(stable(proofRecord.signedContent.issuer)!==stable(proofRecord.issuerSnapshot)||stable(proofRecord.signedContent.recipient)!==stable(proofRecord.counterpartySnapshot))return {ok:false,reason:'document-proof-record-snapshot-mismatch'};
+      if(proofRecord.materialProfile!==profile||proofRecord.signedContent?.material?.profile!==profile)return {ok:false,reason:'document-material-profile-mismatch'};if(proofRecord.signedContent.documentId!==proofRecord.documentId||proofRecord.signedContent.documentType!==proofRecord.documentType)return {ok:false,reason:'document-proof-record-envelope-mismatch'};if(!SEALED_SNAPSHOTS_MATCH.has(proofRecord)){if(stable(proofRecord.signedContent.issuer)!==stable(proofRecord.issuerSnapshot)||stable(proofRecord.signedContent.recipient)!==stable(proofRecord.counterpartySnapshot))return {ok:false,reason:'document-proof-record-snapshot-mismatch'};if(globalThis.GH_TRANSACTION_CORE?.isSealed?.(proofRecord))SEALED_SNAPSHOTS_MATCH.add(proofRecord);}
       const chainError=chainFailure(state,proofRecord,proofRecord.signedContent.chain,seen,cache);if(chainError)return chainError;
       const verified=withRecordCopy({ok:true,modern:true},proofRecord);cache?.records?.set(proofId,verified);return verified;
     }finally{seen.delete(proofId);}

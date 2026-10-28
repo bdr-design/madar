@@ -1,8 +1,10 @@
 'use strict';
-// The full-screen keynote is no heavier than the hall it replaces (owner: «انتبه من الثقل»). Measured on this source and
-// on the source before it (`f474908`, run from its own tree), the same eleven-company conference, at 956×440 with three
-// device pixels per point, the processor slowed four times:
-//  1. opening the conference loads no hall photograph and reaches its first slide no slower than before;
+// The keynote in the owner's hall, with the modern slides on its LED screen (owner: «القاعة غير موجوده فقط شاشة»), is no
+// heavier than the hall keynote before the full-screen one (owner: «انتبه من الثقل»). Measured on this source and on that
+// source (`f474908`, run from its own tree), the same eleven-company conference, at 956×440 with three device pixels per
+// point, the processor slowed four times:
+//  1. opening the conference loads the one hall photograph as before and no other conference image, and reaches its
+//     first slide no slower than before;
 //  2. showing the slides, each through the end of its motion, costs no more main-thread work than before (the
 //     browser's own task, style and layout clocks over all the slides); building and laying out a slide costs no more
 //     than before (all the slides, and the dearest), and no showing stalls the screen (100 ms) or runs longer than
@@ -71,7 +73,7 @@ async function result(t){
   const before=await result(old),after=await result(now),r=v=>Math.round(v*10)/10;
   const row=m=>({open:r(m.open),slides:m.slides,task:r(m.task),style:r(m.style),layout:r(m.layout),script:r(m.script),passLongest:r(m.passLongest),passLongTasks:m.passLongTasks,sync:r(m.sync),worst:r(m.worst),longest:r(m.longest),halves:m.halves.map(r),longTasks:m.longTasks,nodes:m.nodes,images:m.openImages}),report={before:row(before),after:row(after)};
   assert(before.openImages.some(url=>/assets\/conference\/hall-dark\.webp/.test(url)),`the hall loaded its photograph before: ${JSON.stringify(before.openImages)}`);
-  assert(!after.openImages.some(url=>/assets\/conference\//.test(url)),`1: no hall photograph is loaded: ${JSON.stringify(after.openImages)}`);
+  assert.equal(after.openImages.filter(url=>/assets\/conference\//.test(url)).join(),'assets/conference/hall-dark.webp',`1: the one hall photograph is loaded, as before, and no other conference image: ${JSON.stringify(after.openImages)}`);
   assert(after.open<=before.open*1.1+2,`1: the first slide is on screen no slower than before: ${JSON.stringify(report)}`);
   assert(after.task<=before.task*1.15&&after.style+after.layout<=(before.style+before.layout)*1.15,`2: the slides cost no more main-thread work in total than before: ${JSON.stringify(report)}`);
   assert(after.sync<=before.sync*1.15,`2: building and laying out the slides costs no more than before: ${JSON.stringify(report)}`);

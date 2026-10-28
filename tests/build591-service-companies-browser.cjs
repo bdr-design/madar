@@ -5,8 +5,9 @@
 //  1. the engine's day for the company is the finance close's: the company's daily report carries the same revenue, a
 //     protected collection invoice carries the cash revenue, and the facility's running cost is in its expenses;
 //  2. healthcare and education charge no VAT (exempt), media and the club do;
-//  3. the company's page shows its facility, its utilization and its revenue; a price level is a signed command that
-//     commits once;
+//  3. the company's page shows its facility, its utilization and its revenue in the app's own components (six figures in
+//     two columns, each label above its value, inside the page), the price level as a choice (the current level the one
+//     primary button); a price level is a signed command that commits once, and the page then shows it as current;
 //  4. its logo is its approved mark; its facility shows on the map with the company's logo;
 //  5. nothing is rolled back and no error is logged.
 const assert=require('node:assert/strict');
@@ -53,13 +54,19 @@ const COMPANIES=['media','healthcare','education','sports'];
     // 3. The page and a price level.
     for(const company of COMPANIES){
       await page.evaluate(c=>__AUDIT__.openDrawer('serviceCompany',{company:c}),company);
-      await page.locator('#drawerBody .metric-grid').waitFor();const text=await page.locator('#drawerBody').innerText();
+      await page.locator('#drawerBody .metric-row').waitFor();const text=await page.locator('#drawerBody').innerText();
       assert.ok(/%/.test(text)&&!/لا منشآت بعد/.test(text),`3: ${company}: the page shows its facility and utilization`);
+      const layout=await page.evaluate(()=>{const body=document.querySelector('#drawerBody').getBoundingClientRect(),tiles=[...document.querySelectorAll('#drawerBody .metric-row>div')].map(t=>{const r=t.getBoundingClientRect(),label=t.querySelector('span').getBoundingClientRect(),value=t.querySelector('b').getBoundingClientRect();return {x:Math.round(r.left),w:Math.round(r.width),labelAbove:label.bottom<=value.top+1,inside:r.left>=body.left-1&&r.right<=body.right+1};});
+        return {tiles,columns:new Set(tiles.map(t=>t.x)).size,widths:new Set(tiles.map(t=>t.w)).size,levels:[...document.querySelectorAll('#drawerBody [data-gh-action="service-price-level"]')].map(b=>[b.dataset.level,b.classList.contains('primary-btn')])};});
+      assert.equal(layout.tiles.length,6,`3: ${company}: six figures`);assert.equal(layout.columns,2,`3: ${company}: in two columns`);assert.equal(layout.widths,1,`3: ${company}: of one width`);assert.ok(layout.tiles.every(t=>t.labelAbove&&t.inside),`3: ${company}: each label above its value, inside the page: ${JSON.stringify(layout.tiles)}`);
+      assert.deepEqual(layout.levels,[['low',false],['market',true],['high',false]],`3: ${company}: the current price level is the one primary button`);
     }
     const revision=await page.evaluate(()=>__GH_STATE__.saveRevision);
     await page.evaluate(()=>__AUDIT__.openDrawer('serviceCompany',{company:'healthcare'}));await page.locator('#drawerBody [data-gh-action="service-price-level"][data-level="high"]').click();
     await page.waitForFunction(()=>GH_SERVICE_COMPANIES_CORE.read(__GH_STATE__,'healthcare')?.priceLevel==='high'&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked());
     assert.equal(await page.evaluate(()=>__GH_STATE__.saveRevision),revision+1,'3: a price level commits once');
+    await page.locator('#drawerBody [data-gh-action="service-price-level"][data-level="high"].primary-btn').waitFor();
+    assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('#drawerBody [data-gh-action="service-price-level"]')].map(b=>b.classList.contains('primary-btn'))),[false,false,true],'3: the page then shows the new level as current');
     // 4. The map marker carries the company's logo.
     const marker=await page.evaluate(()=>{const f=(__GH_STATE__.customHubs||[]).find(x=>x.kind==='stadium');return !!f;});assert.ok(marker);
     // 5.

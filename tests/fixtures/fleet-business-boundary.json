@@ -121,6 +121,14 @@
         "after": "    ,subsidiary({\n      id:'hospitality',definitionId:'gh-hospitality-v1',order:110,\n      identity:identity('شركة الفنادق والمنتجعات','Hotels and Resorts Company','الفنادق والمنتجعات','Hotels & Resorts','HOTELS','assets/identity/approved/hospitality-symbol.webp','#176b70','#16344b','#bd985b','assets/identity/approved/hospitality-symbol.webp',[],'assets/identity/approved/hospitality-symbol.webp'),\n      classification:{primarySectorId:'hospitality',sectorIds:['hospitality'],operationProfileId:'hospitality-stays-v1',assetClasses:[],routeModes:[]},\n      capabilities:['operations.hospitality','facility.hospitality'],\n      founding:{defaultCapital:80000000,minimumCapital:80000000,documentPrefix:'HOTEL'},\n      finance:{accountPrefix:'HOTEL',documentPrefix:'HOTEL',collectionProfileId:'hospitality-revenue-v1'},\n      hr:{managerRoleProfileId:'ceo-hospitality-v1',staffingProfileId:'hospitality-services-v1',facilityMonthlySalary:1800},\n      facilities:{directoryProviderIds:['world-hospitality'],allowedKinds:['hotel','resort'],primaryKind:'hotel',siteTemplate:{label:'فندق مدينة',facilityKind:'hotel',cost:25000000,dailyCost:2400,capacity:'100 غرفة · تشغيل وحجوزات مجمعة',deliveryCapacity:0,photo:'assets/identity/approved/hospitality-symbol.webp',iconKey:'house',groupValueFactor:.72}},\n      ui:{extensions:['hospitality-company']},map:{layerProviderIds:['company-facilities'],filterGroup:'services',markerProfileId:'hospitality'},\n      conference:{providerId:'hospitality-company-v1'},adapters:{operations:'hospitality-stays-v1',facilities:'hospitality-facilities-v1',map:'company-map-v1',conference:'hospitality-company-v1'},\n      legacy:{companyAliases:[],sectorAliases:[],assetOwnerModes:[],routeOwnerModes:[],assetClassByMode:{}}\n    })\n",
         "sha256": "45c5b6e976cfca60c0337977b0b2ef81b31a272663d8646d1d2b2e791e53de40"
       }
+    ],
+    "WebApp/procurement-core.js": [
+      {
+        "reason": "Owner (build 98: «الشركات لاتسجل ضرائب», option chosen: zero-rate construction): a facility's construction payment carries no input VAT, as the fleet's purchases (build 358); the amount paid, the supplier, the tender and the fleet's prices are unchanged.",
+        "before": "payment=execute({state:s},'supplier-payment',{ownerCompanyId,amount:num(bid.quote),supplier:bid.supplier,note:`دفعة إنشاء وتسليم · ${p.siteName}`,method:'شيك مصدق',budgetLine:'capex'});",
+        "after": "payment=execute({state:s},'supplier-payment',{ownerCompanyId,amount:num(bid.quote),supplier:bid.supplier,note:`دفعة إنشاء وتسليم · ${p.siteName}`,method:'شيك مصدق',budgetLine:'capex',taxable:false/* owner (build 98): a facility's construction is zero-rated, as the fleet's purchases (build 358): its input VAT exceeded months of sales VAT and the tax never fell due */});",
+        "sha256": "09566a6502465d768255239c91bf9934761127e462adaa0fcd1ea0d2b9e6fe44"
+      }
     ]
   },
   "approved_runtime_performance_edits": {
@@ -132,6 +140,12 @@
       }
     ],
     "WebApp/simulation-core.js": [
+      {
+        "reason": "Build 98 iPhone diagnostic (garbage collection during play): two read-only accessors for the frame loop's per-frame checks (an advance in progress, a slice job open), the same values snapshot() reports, without building the snapshot object; no simulation, timing or economic rule changes.",
+        "before": "    return {version:VERSION,frame,noteFrameInterval,reset,setHidden,advanceTo,cancelAdvance,snapshot,health:()=>({...health}),",
+        "after": "    // Two reads the frame loop takes every frame: snapshot() builds a new object (the health counters, pacing and config\n    // copies) and was called several times a frame for one of these booleans (owner, build 98 diagnostic: garbage).\n    const manualActive=()=>!!manualAdvance,jobActive=()=>!!job;\n    return {version:VERSION,frame,noteFrameInterval,reset,setHidden,advanceTo,cancelAdvance,snapshot,manualActive,jobActive,health:()=>({...health}),",
+        "sha256": "420fa2f316a3c4fb6bc9bbd684d8c356a8ca3279de4934b9ff34fe7b8c7ea468"
+      },
       {
         "before": "      const baseBudget=manualAdvance?cfg.manualFrameBudgetMs:cfg.frameBudgetMs,governorFactor=health.governor==='RED'?.35:health.governor==='ORANGE'?.5:health.governor==='YELLOW'?.75:1,cadenceFactor=Math.max(.45,1-frameCadencePressure*.55);",
         "after": "      // iPhone, day 59: a live day close of 1.3 s of work took 12.4 s at 2.9 ms a tick and held the game's clock 6.6 s. A\n      // live slice that ends on a day boundary takes the calendar's cooperative budget, under the same governor and cadence\n      // factors; every other live slice keeps the tighter one.\n      const liveDayClose=!manualAdvance&&!!job&&jobBoundary?.day!=null,baseBudget=manualAdvance||liveDayClose?cfg.manualFrameBudgetMs:cfg.frameBudgetMs,governorFactor=health.governor==='RED'?.35:health.governor==='ORANGE'?.5:health.governor==='YELLOW'?.75:1,cadenceFactor=Math.max(.45,1-frameCadencePressure*.55);",

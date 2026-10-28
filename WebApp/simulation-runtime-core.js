@@ -18,8 +18,8 @@
 
     function delay(){
       if(isHidden())return intervals.hidden;
-      const snapshot=engine.snapshot();
-      if(snapshot.manualAdvance||snapshot.jobActive)return intervals.manual;
+      // Every tick: the engine's two reads, not a whole snapshot (an engine without them gives its snapshot, as before).
+      if(typeof engine.manualActive==='function'&&typeof engine.jobActive==='function'?engine.manualActive()||engine.jobActive():(snapshot=>snapshot.manualAdvance||snapshot.jobActive)(engine.snapshot()))return intervals.manual;
       if(Number(getSpeed())>0)return intervals.live;
       return hasDeferredWork()?intervals.deferred:intervals.paused;
     }

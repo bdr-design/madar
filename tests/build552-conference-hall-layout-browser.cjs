@@ -1,15 +1,17 @@
 'use strict';
-// The conference keynote, full screen, on every screen the game runs on (owner: «المؤتمر لايعجبني تصميمه سوي تصميم
-// عصري ... اهم شي ابعاد الشاشة»; the old hall photograph showed the slide on 63% of a 956×440 iPhone, its controls over
-// the audience). Proven with the shipped page and fonts, on a conference snapshot from the real finance and conference
-// owners, at iPhone and iPad sizes in both orientations, with and without the iPhone's safe-area insets:
-//  1. the slide fills the screen: the backdrop covers it, and the stage is the whole screen less the safe areas, the top
-//     controls and, in landscape, the arrows at the sides (on a 956×440 iPhone 680×330 instead of the hall's 601×278);
+// The conference keynote in the owner's hall, on every screen the game runs on (owner: «المؤتمر لايعجبني تصميمه سوي
+// تصميم عصري ... اهم شي ابعاد الشاشة», then «القاعة غير موجوده فقط شاشة»: the modern slides stay, on the hall's LED
+// screen). Proven with the shipped page and fonts, on a conference snapshot from the real finance and conference owners,
+// at iPhone and iPad sizes in both orientations, with and without the iPhone's safe-area insets:
+//  1. the hall photograph covers the screen in landscape (upright, the LED screen is whole and the hall leaves black
+//     above and below it); the LED screen is always whole on the screen and the stage lies inside it; on a 956×440
+//     iPhone the LED screen takes at least 70% of the width and the slide is larger than the old hall's 601×278;
 //  2. every slide's content stays on the stage, a figure stays inside its tile, and nothing lies under a control;
 //  3. no text is smaller than 12 px;
-//  4. the controls are at least 44 px and inside the safe area; the arrows sit at the sides in landscape and below the
-//     slide in portrait; the page does not scroll;
-//  5. nothing of the old hall is loaded or drawn, and with reduced motion a slide runs no animation.
+//  4. the controls are at least 44 px and inside the safe area; the arrows sit at the sides, level with the LED screen,
+//     in landscape and below it upright; the page does not scroll;
+//  5. on a landscape iPhone from 844 points wide both side screens show, each with the speaker's mark, clear of the arrows; the hall
+//     photograph is loaded once, and with reduced motion a slide runs no animation.
 const assert=require('node:assert/strict'),path=require('node:path'),{chromium,webkit}=require('playwright'),{serve}=require('./helpers/web-server'),ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
 // [width, height, [safe left, right, bottom, top]]: iPhone 16/17 Pro Max, iPhone 15 Pro Max, iPhone 14, iPhone SE,
 // iPads, and both held upright.
@@ -41,24 +43,29 @@ const SCREENS=[[956,440,[62,62,20,0]],[956,440,[0,0,0,0]],[932,430,[59,59,21,0]]
       for(const c of controls)if(over(b,c.rect))covered.push(`${i}:${el.className}:${c.name}`);
       if([...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())){const f=parseFloat(getComputedStyle(el).fontSize);if(f<smallest){smallest=f;smallestAt=`${i}:${el.className}:${el.textContent.slice(0,20)}`;}}}
      for(const t of document.querySelectorAll('.ghc3-trio>div,.ghc3-list>div,.ghc3-parts>div')){const tb=R(t);for(const el of t.querySelectorAll('*')){const b=R(el);if(b.width&&(b.left<tb.left-1||b.right>tb.right+1||b.top<tb.top-1||b.bottom>tb.bottom+1))untiled.push(`${i}:${el.tagName}:${el.textContent.slice(0,20)}`);}}}
-    GH_CONFERENCE_3D.go(0);const stage=R(document.querySelector('.ghc3-stage')),backdrop=R(document.querySelector('.ghc3-backdrop')),arrows=['prev','next'].map(n=>R(document.querySelector(`[data-c3="${n}"]`)));
+    GH_CONFERENCE_3D.go(0);const stage=R(document.querySelector('.ghc3-stage')),led=R(document.querySelector('.ghc3-led')),arrows=['prev','next'].map(n=>R(document.querySelector(`[data-c3="${n}"]`)));
+    // The hall photograph is the viewport's background: 1832 × 859 photograph pixels at --k, placed at --x, --y. A side
+    // screen's mark (the compact marks are square) is 61.6 photograph pixels wide, 20% down its free height.
+    const css=getComputedStyle(document.querySelector('.ghc3')),k=parseFloat(css.getPropertyValue('--k')),hx=parseFloat(css.getPropertyValue('--x')),hy=parseFloat(css.getPropertyValue('--y')),hall={left:hx,top:hy,right:hx+1832*k,bottom:hy+859*k},sides=[...document.querySelectorAll('.ghc3-side')].map(e=>{const r=R(e),w=61.6*k,t=r.top+(r.height-w)*.2;return {shown:getComputedStyle(e).visibility!=='hidden',logo:{left:r.left+(r.width-w)/2,right:r.left+(r.width+w)/2,top:t,bottom:t+w},src:e.dataset.logo||''};});
     const unsafe=controls.filter(({rect:r,name})=>r.left<sl-1||r.right>W-sr+1||r.top<st-1||r.bottom>H-sb+1||(name!=='ghc3-chip'&&(r.width<44||r.height<44))).map(c=>c.name);
-    return {slides:count,stage:{x:stage.left,y:stage.top,w:stage.width,h:stage.height},covers:backdrop.left<=.5&&backdrop.top<=.5&&backdrop.right>=W-.5&&backdrop.bottom>=H-.5,
+    const inside=(a,b)=>a.left>=b.left-1&&a.right<=b.right+1&&a.top>=b.top-1&&a.bottom<=b.bottom+1;
+    return {slides:count,stage:{x:stage.left,y:stage.top,w:stage.width,h:stage.height},led:{x:led.left,y:led.top,w:led.width,h:led.height},covers:hall.left<=.5&&hall.top<=.5&&hall.right>=W-.5&&hall.bottom>=H-.5,
+     ledWhole:led.left>=-.5&&led.top>=-.5&&led.right<=W+.5&&led.bottom<=H+.5,stageInLed:inside(stage,led),logo:document.querySelector('.ghc3-brand').dataset.logo||'',
+     sides:sides.map(x=>({shown:x.shown,src:x.src,clear:arrows.every(a=>!over(a,x.logo))})),
      arrows:arrows.map(r=>({x:r.left,y:r.top,cy:r.top+r.height/2})),off:off.slice(0,6),offCount:off.length,untiled:untiled.slice(0,6),untiledCount:untiled.length,covered:[...new Set(covered)].slice(0,6),coveredCount:covered.length,smallest,smallestAt,unsafe,
-     scroll:document.documentElement.scrollWidth>W||document.querySelector('.ghc3').scrollWidth>W,hall:document.querySelectorAll('.ghc3-hall,.ghc3-led,.ghc3-side').length};},[left,right,bottom,top]);
+     scroll:document.documentElement.scrollWidth>W||document.querySelector('.ghc3').scrollWidth>W};},[left,right,bottom,top]);
    const landscape=width>height,near=(a,b)=>Math.abs(a-b)<=1;
-   assert(m.covers,`1: the slide's backdrop covers the screen at ${label}`);
-   assert(near(m.stage.y,top+64)&&near(m.stage.y+m.stage.h,height-bottom-(landscape?26:84)),`1: the stage runs from below the top controls to the bottom at ${label}: ${JSON.stringify(m.stage)}`);
-   assert(near(m.stage.x,left+(landscape?76:20))&&near(m.stage.x+m.stage.w,width-right-(landscape?76:20)),`1: the stage spans the screen between the arrows at ${label}: ${JSON.stringify(m.stage)}`);
+   if(landscape)assert(m.covers,`1: the hall photograph covers the screen at ${label}`);
+   assert(m.ledWhole,`1: the LED screen is whole on the screen at ${label}: ${JSON.stringify(m.led)}`);assert(m.stageInLed,`1: the stage lies inside the LED screen at ${label}: ${JSON.stringify({stage:m.stage,led:m.led})}`);
    assert.equal(m.offCount,0,`2: every slide stays on the stage at ${label}: ${JSON.stringify(m.off)}`);assert.equal(m.untiledCount,0,`2: every figure stays in its tile at ${label}: ${JSON.stringify(m.untiled)}`);assert.equal(m.coveredCount,0,`2: no slide content under a control at ${label}: ${JSON.stringify(m.covered)}`);
    assert(m.smallest>=12,`3: no text under 12 px at ${label} (${m.smallest} ${m.smallestAt})`);
    assert.deepEqual(m.unsafe,[],`4: controls of 44 px inside the safe area at ${label}`);assert.equal(m.scroll,false,`4: no page scroll at ${label}`);
-   if(landscape){const [prev,next]=m.arrows;assert(prev.x>width/2&&next.x<width/2&&near(prev.cy,m.stage.y+m.stage.h/2)&&near(next.cy,m.stage.y+m.stage.h/2),`4: the arrows sit at the sides, level with the slide, at ${label}: ${JSON.stringify(m.arrows)}`);}
-   else assert(m.arrows.every(a=>a.y>m.stage.y+m.stage.h),`4: upright, the arrows sit below the slide at ${label}`);
-   assert.equal(m.hall,0,`5: nothing of the old hall is drawn at ${label}`);
-   if(width===956&&left===62)assert(m.stage.w*m.stage.h>601*278*1.3,`1: a larger slide than the hall's LED screen at ${label}: ${m.stage.w}×${m.stage.h}`);
-   results.push({engine:engine.name(),screen:label,slides:m.slides,stage:`${Math.round(m.stage.w)}×${Math.round(m.stage.h)}`,smallest:m.smallest});}
-  assert(!requests.some(url=>/assets\/conference\//.test(url)),'5: the old hall photograph is not loaded');
+   if(landscape){const [prev,next]=m.arrows;assert(prev.x>width/2&&next.x<width/2&&[prev,next].every(a=>a.cy>m.led.y&&a.cy<m.led.y+m.led.h),`4: the arrows sit at the sides, level with the LED screen, at ${label}: ${JSON.stringify({arrows:m.arrows,led:m.led})}`);}
+   else assert(m.arrows.every(a=>a.y>m.led.y+m.led.h),`4: upright, the arrows sit below the LED screen at ${label}`);
+   if(width===956){assert(m.led.w>=width*.7,`1: the LED screen takes at least 70% of the width at ${label}: ${m.led.w}`);assert(m.stage.w*m.stage.h>601*278,`1: a larger slide than the old hall's 601×278 at ${label}: ${m.stage.w}×${m.stage.h}`);}
+   if(landscape&&height<=440&&width>=844)assert(m.sides.every(x=>x.shown&&x.src&&x.src===m.logo&&x.clear),`5: both side screens show the speaker's mark, clear of the arrows, at ${label}: ${JSON.stringify(m.sides)}`);
+   results.push({engine:engine.name(),screen:label,slides:m.slides,led:`${Math.round(m.led.w)}×${Math.round(m.led.h)}`,stage:`${Math.round(m.stage.w)}×${Math.round(m.stage.h)}`,smallest:m.smallest});}
+  assert.equal(requests.filter(url=>/assets\/conference\/hall-dark\.webp/.test(url)).length,1,'5: the hall photograph is loaded once');assert(!requests.some(url=>/assets\/conference\/(?!hall-dark\.webp)/.test(url)),'5: no other conference image is loaded');
   await page.evaluate(()=>GH_CONFERENCE_3D.close());await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>GH_CONFERENCE_3D.launch({snapshot:qaSnapshot},{mode:'manual'}));await page.waitForFunction(()=>GH_CONFERENCE_3D.diagnostics().phase==='presenting');
   const running=await page.evaluate(()=>{GH_CONFERENCE_3D.go(3);return document.getAnimations().filter(a=>a.playState==='running').length;});assert.equal(running,0,'5: reduced motion runs no animation');
   await page.evaluate(()=>GH_CONFERENCE_3D.close());assert.equal(await page.locator('.ghc3').count(),0);assert.deepEqual(errors,[]);

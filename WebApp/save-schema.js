@@ -326,6 +326,7 @@
     globalThis.GH_HR_CORE?.migrateFacilityStaffing?.(s);
     // Build 358: fleet purchases are zero-rated; reverse the input VAT older saves carried for them (once, see finance-core).
     if(object(s.finance)&&object(s.companyFinance))globalThis.GH_FINANCE_CORE?.zeroRateFleetPurchaseVat?.(s);
+    if(object(s.finance)&&object(s.companyFinance))globalThis.GH_FINANCE_CORE?.zeroRateConstructionVat?.(s);
     // Build 358: delivered receipts saved with full asset copies are stored compactly (lossless, see fleet-access-core).
     for(const delivery of Array.isArray(s.realism?.procurement?.deliveries)?s.realism.procurement.deliveries:[])fleetData().compactReceipt(delivery);
     return s;

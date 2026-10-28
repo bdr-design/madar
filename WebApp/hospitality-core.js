@@ -58,7 +58,7 @@
     if(Number(p.expectedCost)!==quote.cost)throw new Error('hospitality-build-quote-changed');
     if(p.name!==undefined&&!plain(p.name))throw new Error('hospitality-property-name-invalid');
     const ref=`HOSP-PROPERTY-${token(id)}-${++root.sequence}`,type=TYPES[quote.kind],day=today(s),name=p.name||`${type.name} · ${quote.city} ${root.sequence}`;
-    const paid=F().execute({state:s},'pay-by-cheque',{company:id,amount:quote.cost,line:'capex',requestRef:ref,beneficiary:'مقاول إنشاء وتجهيز منشآت الضيافة',note:`إنشاء وتجهيز ${name}`},meta);
+    const paid=F().execute({state:s},'pay-by-cheque',{company:id,amount:quote.cost,line:'capex',taxable:false,requestRef:ref,beneficiary:'مقاول إنشاء وتجهيز منشآت الضيافة',note:`إنشاء وتجهيز ${name}`},meta);
     if(paid?.cheque?.status!=='مصروف')throw new Error('hospitality-construction-payment-failed');
     const capitalized=Number(paid.invoice?.subtotal??quote.cost);F().journal(s,id,'رسملة تكلفة إنشاء وتجهيز ضيافة',[{account:'منشآت ضيافة تحت الإنشاء',debit:capitalized},{account:'مصروف تشغيلي',credit:capitalized}],ref);
     const legal=F().execute({state:s},'register-commercial-contract',{company:id,id:`LEGAL-${ref}`,contractType:'إنشاء وتجهيز منشأة ضيافة',counterparty:'مقاول إنشاء وتجهيز منشآت الضيافة',amount:quote.cost,startDay:day,endDay:day+quote.days,title:name,terms:{kind:quote.kind,rooms:quote.rooms,totalPaid:quote.cost,completionDay:day+quote.days},sourceRefs:[ref,paid.cheque.id]},meta);
@@ -87,7 +87,7 @@
   function accelerate(s,p,meta){
     const id=String(p.companyId||''),root=ensure(s,id),property=findProperty(root,p.propertyId);if(property.accelerated)return {...copy(property.accelerated),idempotent:true};
     const quote=accelerationQuote(s,id,property.id);if(!quote||p.expectedFee!==quote.fee||p.expectedCompleteDay!==quote.completeDay)throw new Error('hospitality-acceleration-quote-changed');
-    const result=F().execute({state:s},'pay-by-cheque',{company:id,amount:quote.fee,line:'capex',requestRef:`HOSP-ACCEL-${property.id}`,beneficiary:'مقاول إنشاء وتجهيز منشآت الضيافة',note:`تسريع إنجاز ${property.name}`},meta);if(result.cheque?.status!=='مصروف')throw new Error('hospitality-acceleration-unpaid');
+    const result=F().execute({state:s},'pay-by-cheque',{company:id,amount:quote.fee,line:'capex',taxable:false,requestRef:`HOSP-ACCEL-${property.id}`,beneficiary:'مقاول إنشاء وتجهيز منشآت الضيافة',note:`تسريع إنجاز ${property.name}`},meta);if(result.cheque?.status!=='مصروف')throw new Error('hospitality-acceleration-unpaid');
     const extra=Number(result.invoice.subtotal);F().journal(s,id,'رسملة تسريع إنشاء منشأة ضيافة',[{account:'منشآت ضيافة تحت الإنشاء',debit:extra},{account:'مصروف تشغيلي',credit:extra}],`HOSP-ACCEL-${property.id}`);property.capitalized+=amount(extra);
     property.completeDay=quote.completeDay;property.accelerated={...quote,chequeId:result.cheque.id};commission(s,property,quote.completeDay);return copy(property.accelerated);
   }
@@ -272,7 +272,7 @@
       if(findProperty(ensure(s,id),p.propertyId).ownership==='leased')throw new Error('hospitality-leased-building-expansion-forbidden');
       const property=findProperty(ensure(s,id),p.propertyId);if(property.status!=='operating'||property.expansion||property.rooms.some(n=>n+Math.max(1,Math.floor(n*.4))>10000))throw new Error('hospitality-expansion-unavailable');
       const cost=Math.round(property.constructionCost*.4*property.rooms.reduce((a,b)=>a+b,0)/TYPES[property.kind].rooms.reduce((a,b)=>a+b,0));if(p.expectedCost!==cost)throw new Error('hospitality-expansion-quote-changed');
-      const paid=F().execute({state:s},'pay-by-cheque',{company:id,amount:cost,line:'capex',requestRef:`HOSP-EXPAND-${property.id}-${today(s)}`,beneficiary:'مقاول توسعات الضيافة',note:`توسعة ${property.name}`},meta);if(paid.cheque?.status!=='مصروف')throw new Error('hospitality-expansion-unpaid');
+      const paid=F().execute({state:s},'pay-by-cheque',{company:id,amount:cost,line:'capex',taxable:false,requestRef:`HOSP-EXPAND-${property.id}-${today(s)}`,beneficiary:'مقاول توسعات الضيافة',note:`توسعة ${property.name}`},meta);if(paid.cheque?.status!=='مصروف')throw new Error('hospitality-expansion-unpaid');
       const net=amount(paid.invoice.subtotal);F().journal(s,id,'رسملة إنشاء توسعة ضيافة',[{account:'منشآت ضيافة تحت الإنشاء',debit:money(net)},{account:'مصروف تشغيلي',credit:money(net)}],paid.cheque.id);
       property.expansion={startDay:today(s),completeDay:today(s)+90,capitalized:net,rooms:property.rooms.map(n=>Math.max(1,Math.floor(n*.4))),chequeId:paid.cheque.id};return copy(property.expansion);
     }

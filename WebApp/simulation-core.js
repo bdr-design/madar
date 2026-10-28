@@ -452,7 +452,10 @@
     function setHidden(v){const hidden=!!v;reset(clock(),hidden?'hidden':'visible');pacing.setHidden(hidden,clock());if(hidden){try{adapter.onPersist?.({reason:'hidden',speed:getSpeed()});}catch(error){report('persist-hidden',error,false);}}}
     function snapshot(){const pace=pacing.snapshot();return {...health,simSeconds:simNow(),speed:getSpeed(),backlog:pace.backlog,jobActive:!!job,jobReadyToFinish,jobSlice,jobSpeed,hidden:pace.hidden,manualAdvance:manualSnapshot(),pacing:pace,config:{...cfg,allowedSpeeds:[...cfg.allowedSpeeds],nowMs:undefined}};}
 
-    return {version:VERSION,frame,noteFrameInterval,reset,setHidden,advanceTo,cancelAdvance,snapshot,health:()=>({...health}),config:()=>({...cfg,allowedSpeeds:[...cfg.allowedSpeeds],nowMs:undefined})};
+    // Two reads the frame loop takes every frame: snapshot() builds a new object (the health counters, pacing and config
+    // copies) and was called several times a frame for one of these booleans (owner, build 98 diagnostic: garbage).
+    const manualActive=()=>!!manualAdvance,jobActive=()=>!!job;
+    return {version:VERSION,frame,noteFrameInterval,reset,setHidden,advanceTo,cancelAdvance,snapshot,manualActive,jobActive,health:()=>({...health}),config:()=>({...cfg,allowedSpeeds:[...cfg.allowedSpeeds],nowMs:undefined})};
   }
 
   const API=Object.freeze({VERSION,DEFAULTS,normalizeConfig,create});

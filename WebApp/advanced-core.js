@@ -956,14 +956,18 @@
       const targetId=String(btn.dataset.target||''),variant=String(btn.dataset.variant||'');
       if(id==='operating-review'){ctx.openDrawer('operatingAssetMarket',{company:c,page,review:{targetId,variant}});return;}
       if(id==='operating-buy-all'){
-        // Every offer of this kind on the page, quoted afresh, in one signed command (one transaction, one save).
+        // Every offer of this kind on the page, quoted afresh, each through the single purchase's signed command, all in one
+        // durable command (one save; a refusal at any offer keeps none), the frame painting between offers.
         try{
           const A=globalThis.GH_OPERATING_ACQUISITIONS,items=[];let total=0,liabilities=0,cash=0;
           for(const target of A.targets(ctx.state,c,page)){let q;try{q=A.quote(ctx.state,c,target.id,variant);}catch(_error){continue;}if(q.owned)continue;items.push({targetId:q.targetId,variant,quoteKey:q.quoteKey});total+=q.price;liabilities+=q.liabilities;cash+=q.transferredCash;if(items.length>=A.BATCH_LIMIT)break;}
           if(!items.length)throw new Error('operating-batch-size');
           if(!await confirmDecision(ctx,`شراء ${ctx.fmtNumber(items.length)} عملًا قائمًا دفعة واحدة بمبلغ ${ctx.fmtMoney(total)} بشيكات، ونقل التزامات ${ctx.fmtMoney(liabilities)} مع نقد ${ctx.fmtMoney(cash)}؟`,'financial'))return;
-          const domain={bank:'banking',power:'energy',insurance:'insurance',realestate:'realestate'}[c],ids=items.map(row=>`${row.targetId}:${row.variant}`).join('|');let h=2166136261>>>0;for(let i=0;i<ids.length;i++){h^=ids.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
-          await signedDomainCommand(ctx,domain,'acquire-operating-batch',{items},{idempotencyKey:`OA-BATCH:${c}:${variant}:${items.length}:${h.toString(36)}`,subjectId:c,successNotice:result=>({text:`تم شراء ${ctx.fmtNumber(result?.count||items.length)} عملًا وصرف الشيكات ونقل الأرصدة وحفظ العقود.`,kind:'success',panel:ctx.currentPanel})});
+          const domain={bank:'banking',power:'energy',insurance:'insurance',realestate:'realestate'}[c];
+          if(typeof ctx.runAuthorizedSteps!=='function')throw new Error('خدمة التفويض والحفظ الدائم غير متاحة');
+          const done=await ctx.runAuthorizedSteps(`operating-buy-all:${c}`,items.map(item=>({domain,name:'acquire-operating',payload:item,idempotencyKey:`OA:${c}:${item.targetId}:${item.variant}`})),{silent:true});
+          if(!Array.isArray(done)||done.length!==items.length)throw new Error('فشل اعتماد الشراء الجماعي أو حفظه الدائم');
+          notify(ctx,`تم شراء ${ctx.fmtNumber(done.length)} عملًا وصرف الشيكات ونقل الأرصدة وحفظ العقود.`,'success');
           ctx.updateKpis();
         }catch(error){notify(ctx,`تعذر الشراء الجماعي: ${reasonOf(error)}`);}
         ctx.openDrawer('operatingAssetMarket',{company:c,page});return;

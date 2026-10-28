@@ -84,6 +84,25 @@
   function createVisualSeal(state,input={}){
     const auth=ensure(state),ownerPersonId=clean(input.ownerPersonId||input.personId,80),person=auth.peopleById[ownerPersonId];if(!person||person.status!=='active')throw new Error('signature-owner-unavailable');compact(state,{visualSeals:LIMITS.visualSeals-1,visualSealsPerPerson:LIMITS.visualSealsPerPerson-1});const ownerRows=Object.values(auth.signatureAssetsById).filter(row=>row.ownerPersonId===ownerPersonId);if(ownerRows.length>=LIMITS.visualSealsPerPerson||Object.keys(auth.signatureAssetsById).length>=LIMITS.visualSeals)throw new Error('visual-seal-store-full');const strokes=normalizeStrokes(input.strokes),versions=ownerRows.map(row=>Number(row.version)||0),version=Math.max(0,...versions)+1,id=clean(input.id,100)||`SIG-${ownerPersonId.replace(/[^a-z0-9_-]/gi,'_')}-V${version}`,width=Math.max(1,Math.min(4096,Math.floor(Number(input.width)||640))),height=Math.max(1,Math.min(2048,Math.floor(Number(input.height)||220))),ink=/^#[0-9a-f]{6}$/i.test(String(input.ink||''))?String(input.ink).toLowerCase():'#123248',createdAtSim=now(state),signatureDigest=digest({format:'normalized-strokes-v1',ownerPersonId,version,strokes,width,height,ink});if(auth.signatureAssetsById[id])throw new Error('signature-id-conflict');const row={id,ownerPersonId,ownerNameSnapshot:person.legalName,version,kind:'visual-authorization-seal',format:'normalized-strokes-v1',strokes,width,height,ink,digest:signatureDigest,createdAtSim,status:'active'};auth.signatureAssetsById[id]=row;const previous=auth.activeSignatureByPerson[ownerPersonId];if(previous&&auth.signatureAssetsById[previous])auth.signatureAssetsById[previous].status='superseded';auth.activeSignatureByPerson[ownerPersonId]=id;return clone(row);
   }
+  // Strokes already in the form normalizeStrokes gives (each point a plain object of exactly x and y, or x, y and pressure,
+  // numbers already rounded and in range; stroke and point counts within limits; the canonical text certainly within the
+  // byte limit) are checked in place: their point count, or null for anything else, which takes normalizeStrokes and the
+  // comparison of the two canonical texts as before (owner, build 98: «كمل الباقي بدقه»; the proof audit normalized and
+  // encoded every seal's strokes twice on every step). For such strokes the two texts are equal, so the answer is the same.
+  function canonicalStrokePoints(strokes){
+    if(!Array.isArray(strokes)||!strokes.length||strokes.length>64)return null;let points=0,bound=2;
+    for(let i=0;i<strokes.length;i++){
+      const stroke=strokes[i];if(!Array.isArray(stroke)||stroke.length<2||stroke.length>2048)return null;bound+=3;
+      for(let j=0;j<stroke.length;j++){
+        const point=stroke[j];if(!point||typeof point!=='object'||Array.isArray(point)||Object.getPrototypeOf(point)!==Object.prototype||Object.prototype.toString.call(point)!=='[object Object]'||Object.getOwnPropertySymbols(point).length)return null;
+        let keys=0,pressure=false;for(const key in point){if(key==='x'||key==='y')keys++;else if(key==='pressure')pressure=true;else return null;}if(keys!==2||!Object.prototype.hasOwnProperty.call(point,'x')||!Object.prototype.hasOwnProperty.call(point,'y'))return null;
+        const x=point.x,y=point.y;if(typeof x!=='number'||typeof y!=='number'||!(x>=0&&x<=1&&y>=0&&y<=1)||Math.round(x*10000)/10000!==x||Math.round(y*10000)/10000!==y)return null;
+        if(pressure){const p=point.pressure;if(!Object.prototype.hasOwnProperty.call(point,'pressure')||typeof p!=='number'||!Number.isFinite(p)||Math.round(Math.max(0,Math.min(1,p))*1000)/1000!==p)return null;}
+        points++;bound+=pressure?41:24;
+      }
+    }
+    return points<=8192&&bound<=MAX_SIGNATURE_BYTES?points:null;
+  }
   function validateVisualSeal(row){
     try{
       if(!row||typeof row!=='object'||Array.isArray(row)||!clean(row.id,100)||!clean(row.ownerPersonId,80))throw new Error('signature-shape-invalid');
@@ -92,9 +111,10 @@
       if(!Number.isInteger(Number(row.width))||row.width<1||row.width>4096||!Number.isInteger(Number(row.height))||row.height<1||row.height>2048)throw new Error('signature-dimensions-invalid');
       if(!/^#[0-9a-f]{6}$/i.test(String(row.ink||'')))throw new Error('signature-ink-invalid');
       if(!['active','superseded','revoked'].includes(row.status))throw new Error('signature-status-invalid');
-      const normalized=normalizeStrokes(row.strokes);if(stable(normalized)!==stable(row.strokes))throw new Error('signature-strokes-noncanonical');
-      const expected=digest({format:row.format,ownerPersonId:row.ownerPersonId,version:row.version,strokes:normalized,width:row.width,height:row.height,ink:String(row.ink).toLowerCase()});if(expected!==row.digest)throw new Error('signature-digest-invalid');
-      return {ok:true,digest:expected,points:normalized.reduce((sum,stroke)=>sum+stroke.length,0)};
+      let strokes=row.strokes,points=canonicalStrokePoints(row.strokes);
+      if(points===null){const normalized=normalizeStrokes(row.strokes);if(stable(normalized)!==stable(row.strokes))throw new Error('signature-strokes-noncanonical');strokes=normalized;points=normalized.reduce((sum,stroke)=>sum+stroke.length,0);}
+      const expected=digest({format:row.format,ownerPersonId:row.ownerPersonId,version:row.version,strokes,width:row.width,height:row.height,ink:String(row.ink).toLowerCase()});if(expected!==row.digest)throw new Error('signature-digest-invalid');
+      return {ok:true,digest:expected,points};
     }catch(error){return {ok:false,reason:String(error?.message||error)};}
   }
   const createSignature=createVisualSeal;
@@ -195,8 +215,10 @@
     if(!digestOk)result={ok:false,reason:'proof-digest-mismatch'};
     else{
       const sealId=signature?.id||proof.visualSealAssetId||proof.signatureAssetId,sealVersion=signature?.version??0,sealKey=`${sealId}:${sealVersion}:${signature?.digest||''}`,sealCache=cache?.sealDigests;let currentSealDigest=sealCache?.get(sealKey);
+      // A valid seal whose ink is already lower case was just hashed by its check over the same fields and strokes (equal
+      // canonical text): that digest is the seal digest, so it is not computed a second time.
+      let sealCheck=cache?.sealChecks?.get(signature);if(signature&&sealCheck===undefined){const check=validateVisualSeal(signature);sealCheck=check.ok===true;if(sealCheck&&currentSealDigest===undefined&&typeof signature.ink==='string'&&signature.ink===signature.ink.toLowerCase()){currentSealDigest=check.digest;sealCache?.set(sealKey,currentSealDigest);}if(cache){cache.sealChecks=cache.sealChecks||new WeakMap();cache.sealChecks.set(signature,sealCheck);}}
       if(signature&&currentSealDigest===undefined){currentSealDigest=sealDigest(signature);sealCache?.set(sealKey,currentSealDigest);}
-      let sealCheck=cache?.sealChecks?.get(signature);if(signature&&sealCheck===undefined){sealCheck=validateVisualSeal(signature).ok===true;if(cache){cache.sealChecks=cache.sealChecks||new WeakMap();cache.sealChecks.set(signature,sealCheck);}}
       if(!signature||!sealCheck||signature.version!==(proof.visualSealVersion??proof.signatureVersion)||signature.digest!==(proof.visualSealDigest||proof.signatureDigest)||currentSealDigest!==(proof.visualSealDigest||proof.signatureDigest))result={ok:false,reason:'proof-visual-seal-mismatch'};
       else if(!mandate||mandate.version!==proof.mandateVersion||mandate.principalId!==proof.signerPersonId)result={ok:false,reason:'proof-mandate-mismatch'};
       else{

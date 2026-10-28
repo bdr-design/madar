@@ -812,7 +812,7 @@
       if(simulationPersistenceTask!==task)return;
       simulationPersistenceTask=null;
       if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__||window.GH_PERSISTENCE.isLocked()||(Number(state.resetEpoch)||0)!==task.epoch)return;
-      if(task.checkpoint&&simulationEngine.snapshot().manualAdvance){lastCheckpointAttempt=null;return;}
+      if(task.checkpoint&&simulationManualActive()){lastCheckpointAttempt=null;return;}
       if(stagedStateBusy()){scheduleSimulationPersistence({checkpoint:task.checkpoint});return;}
       try{
         const metricClock=()=>globalThis.performance?.now?.()??Date.now(),compactionStart=metricClock();compactSimulationState(false);
@@ -836,7 +836,7 @@
   // The last checkpoint attempt; its retry spacing applies only while no save has happened since (the revision held).
   let lastCheckpointAttempt=null,lastCheckpointCheckMs=-Infinity;
   function lastSaveAtMs(){const at=window.GH_PERSISTENCE?.saveCadence?.()?.lastSaveAtMs;return at==null?saveBaselineAtMs:Number(at);}
-  function checkpointQuiet(){return !(Number(state.speed)>0)&&!simulationEngine.snapshot().manualAdvance&&!stagedStateBusy();}
+  function checkpointQuiet(){return !(Number(state.speed)>0)&&!simulationManualActive()&&!stagedStateBusy();}
   function checkpointDue(nowMs){
     const policy=window.GH_SAVE_POLICY;if(!policy)return null;
     return policy.due({nowMs,lastSaveAtMs:lastSaveAtMs(),capMinutes:policy.capMinutes(state),quiet:checkpointQuiet,lastAttemptAtMs:lastCheckpointAttempt&&(Number(state.saveRevision)||0)<=lastCheckpointAttempt.revision?lastCheckpointAttempt.atMs:null});
@@ -845,7 +845,7 @@
     if(nowMs-lastCheckpointCheckMs<1000)return false;lastCheckpointCheckMs=nowMs;
     if(document.hidden||window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||simulationPersistenceTask||window.GH_PERSISTENCE.isLocked())return false;
     // The owner's choice: no checkpoint while a calendar advance runs.
-    if(simulationEngine.snapshot().manualAdvance)return false;
+    if(simulationManualActive())return false;
     const reason=checkpointDue(nowMs);if(!reason)return false;
     lastCheckpointAttempt={atMs:nowMs,revision:Number(state.saveRevision)||0};diag('SAVE_CHECKPOINT',{reason,simSeconds:Number(state.simSeconds)||0,saveRevision:Number(state.saveRevision)||0});
     return scheduleSimulationPersistence({checkpoint:true});
@@ -989,20 +989,31 @@
   // The definition names and legacy owners of a sealed platform are one frozen pair (save-schema fleetValidationParams):
   // their JSON is kept with the pair. The token is the same string as JSON.stringify of the three parts.
   const companyEvidenceToken=params=>{const names=params.definitionCompanies||[],owners=params.legacyAssetOwners||{},fixed=Array.isArray(names)&&Object.isFrozen(names)&&owners&&typeof owners==='object'&&Object.isFrozen(owners);let tail=fixed?companyEvidenceTails.get(names):null;if(!tail||tail.owners!==owners){tail={owners,text:JSON.stringify(names)+','+JSON.stringify(owners)};if(fixed)companyEvidenceTails.set(names,tail);}return '['+JSON.stringify(params.companyReferenceCompanies||params.registryCompanies||[])+','+tail.text+']';};
+  // The token names only the companies of the registry (those with a record) and the platform's frozen definition pair, so
+  // while the same state holds the same registry with the same companies in the same order under the same sealed platform,
+  // it is the token computed last; anything else computes it again (owner, build 98: «صلحها على دفعات دقيقه جدًا»; each
+  // slice computed the whole parameter set twice, its routes and context token included, to compare this token).
+  const companyEvidenceTokenMemo=new WeakMap();
+  function companyEvidenceTokenNow(s){
+    const registry=s?.companyRegistry&&typeof s.companyRegistry==='object'&&!Array.isArray(s.companyRegistry)?s.companyRegistry:null,memo=s&&typeof s==='object'?companyEvidenceTokenMemo.get(s):null;
+    if(memo&&memo.registry===registry&&memo.platform===globalThis.GH_COMPANY_PLATFORM){let i=0,same=true;if(registry)for(const id in registry){if(!Object.prototype.hasOwnProperty.call(registry,id)||!registry[id])continue;if(id!==memo.ids[i++]){same=false;break;}}if(same&&i===memo.ids.length)return memo.token;}
+    const params=companyEvidenceParams(s),token=companyEvidenceToken(params),fixed=Array.isArray(params.definitionCompanies)&&Object.isFrozen(params.definitionCompanies)&&Object.isFrozen(params.legacyAssetOwners)&&Array.isArray(params.companyReferenceCompanies);
+    if(s&&typeof s==='object'){if(fixed)companyEvidenceTokenMemo.set(s,{registry,platform:globalThis.GH_COMPANY_PLATFORM,ids:params.companyReferenceCompanies,token});else companyEvidenceTokenMemo.delete(s);}return token;
+  }
   function rememberCompanyFleetEvidence(s,result,params){const core=window.GH_FLEET_STORE;companyFleetEvidence.set(s,{result,token:companyEvidenceToken(params),snapshot:core.identitySnapshot(s.fleet)});}
   // A synchronous integrity reader only consumes an already verified worker result. Preparing a missing answer is
   // explicit staged work; neither a busy worker nor an expired answer can start a whole-fleet pass on the UI thread.
   globalThis.GH_COMPANY_FLEET_VALIDATION_PROVIDER=(s,{syncOnly=false}={})=>{
     const store=s?.fleet,core=window.GH_FLEET_STORE,client=fleetEngineThreadClient;if(!core?.isStore?.(store)||!client||client.disabled)return null;
-    const params=companyEvidenceParams(s),token=companyEvidenceToken(params);
+    const token=companyEvidenceTokenNow(s);let params=null;const paramsNow=()=>params||(params=companyEvidenceParams(s));
     const current=entry=>core.isStore(s.fleet)&&entry.token===token&&core.identityCurrent(s.fleet,entry.snapshot);
-    const wrap=entry=>({result:entry.result,current:()=>current(entry)&&companyEvidenceToken(companyEvidenceParams(s))===entry.token});
+    const wrap=entry=>({result:entry.result,current:()=>current(entry)&&companyEvidenceTokenNow(s)===entry.token});
     let entry=companyFleetEvidence.get(s);if(entry&&current(entry))return syncOnly?wrap(entry):Promise.resolve(wrap(entry));
     const bootEvidence=COMPANY_PLATFORM.fleetEvidence?.(s);if(bootEvidence?.current?.()===true)return syncOnly?bootEvidence:Promise.resolve(bootEvidence);
-    const last=lastFleetValidation;if(last?.client===client&&last.store===store&&last.companyToken===token&&client.current(last.found,store)){rememberCompanyFleetEvidence(s,last.found.result.companyPlatform,params);entry=companyFleetEvidence.get(s);return syncOnly?wrap(entry):Promise.resolve(wrap(entry));}
+    const last=lastFleetValidation;if(last?.client===client&&last.store===store&&last.companyToken===token&&client.current(last.found,store)){rememberCompanyFleetEvidence(s,last.found.result.companyPlatform,paramsNow());entry=companyFleetEvidence.get(s);return syncOnly?wrap(entry):Promise.resolve(wrap(entry));}
     if(syncOnly)return null;
-    const asked=client.query(store,{name:'companyValidation',params,simSeconds:s.simSeconds});if(!asked)return null;
-    return asked.then(found=>{if(!found||s.fleet!==store||!client.current(found,store)||companyEvidenceToken(companyEvidenceParams(s))!==token)return null;rememberCompanyFleetEvidence(s,found.result,params);return wrap(companyFleetEvidence.get(s));});
+    const asked=client.query(store,{name:'companyValidation',params:paramsNow(),simSeconds:s.simSeconds});if(!asked)return null;
+    return asked.then(found=>{if(!found||s.fleet!==store||!client.current(found,store)||companyEvidenceTokenNow(s)!==token)return null;rememberCompanyFleetEvidence(s,found.result,paramsNow());return wrap(companyFleetEvidence.get(s));});
   };
   function* prepareCompanyFleetEvidenceStages(){
     if(window.GH_FLEET_DATA.size(state)<=2048)return;
@@ -1307,6 +1318,13 @@
     if(String(name).startsWith('bulk-shared-departure:')&&result?.departed){const type=String(result.type||name.split(':').at(-1)||'unknown'),attempts=Number(result.departed)||0,scheduled=Math.max(0,Number(result.scheduled)||0),moving=Math.max(0,Number(result.moving??(attempts-scheduled))||0);recordAssetDepartureTrace({source:'automatic-network-dispatch',attempts,departed:moving,scheduled,modeCounts:{[type]:attempts},reasonCounts:{'departure-accepted':attempts},routeIds:Array.isArray(result.routeIds)?result.routeIds.slice(0,12):[],planner:result.planner||undefined,performance:departurePerformanceSnapshot(startedAtMs,commandName),simSeconds:Number(state.simSeconds)||0});}
     else if(result===false&&String(name).startsWith('bulk-shared-departure:'))window.GH_DIAGNOSTICS?.annotateLastAssetDepartureTrace?.(state,commandName,{performance:departurePerformanceSnapshot(startedAtMs,commandName)});
     return result;}catch(error){if(String(name).startsWith('bulk-shared-departure:')){const companyId=String(name.split(':').at(-1)||''),type=companyRouteModes(companyId).find(value=>['air','sea','road'].includes(value))||'unknown',code=String(error?.code||error?.message||'automatic-dispatch-rejected').slice(0,120),planner=error?.assetDepartureTrace?.planner;recordAssetDepartureTrace({source:'automatic-network-planning',blocked:1,reasonCounts:{[code]:1},modeCounts:{[type]:1},error:code,planner,performance:departurePerformanceSnapshot(startedAtMs,commandName),samples:[{outcome:'blocked',mode:type,reasonCode:code,planner,commandName,performance:departurePerformanceSnapshot(startedAtMs,commandName)}],simSeconds:Number(state.simSeconds)||0});}throw error;}
+  }
+  // Several signed commands as one durable command: one save, and a refusal at any step discards the draft whole. Between
+  // steps the frame paints, so no step blocks it for longer than itself (owner, build 98 diagnostic: a bulk purchase held
+  // the main thread 67-95 ms in one block).
+  async function runAuthorizedSteps(name,steps,options={}){
+    const rows=Array.isArray(steps)?steps:[];if(!rows.length)throw new Error('authorized-steps-empty');
+    return runAuthorizedCompositeCommand(name,async({dispatch})=>{const results=[];for(let index=0;index<rows.length;index++){const row=rows[index];results.push(dispatch(row.domain,row.name,row.payload||{},row.idempotencyKey?{idempotencyKey:row.idempotencyKey}:{}));if(index+1<rows.length)await yieldForInteractivePaint();}return results;},options);
   }
   const deferredStagedAlerts=new Set();let deferredStagedAlertFlush=false;const deferredDurableAlerts=[];let deferredDurableAlertFlush=false;
   function pushAlert(text){
@@ -3647,7 +3665,7 @@
   // cycling over every authorization proof, proof record, document, checkpoint period and seal. A fault it finds is
   // confirmed by a full validation (only then, in that frame); a confirmed fault is reported, stops the simulation and
   // makes every recurring save validate in full (GH_PERSISTENCE.requireFullValidation), as a failed full pass did.
-  const PROOF_AUDIT_ITEMS=1000,PROOF_AUDIT_MS=8,PROOF_AUDIT_RENDER_MS=4;let proofAudit=null;
+  const PROOF_AUDIT_ITEMS=1000,PROOF_AUDIT_MS=8,PROOF_AUDIT_RENDER_MS=4,PROOF_AUDIT_PLAY_REST_MS=30000;let proofAudit=null;
   const HEALTH_WORKER_WAITS=600,HEALTH_WORKER_RETRIES=4,FLEET_HEALTH_MAIN_ROWS=2048;
   const fleetRowsForHealth=()=>Math.max(0,Number(window.GH_FLEET_DATA?.size?.(state))||0);
   const mainFleetHealthAllowed=()=>fleetRowsForHealth()<=FLEET_HEALTH_MAIN_ROWS;
@@ -3656,12 +3674,15 @@
   // steps wait for a change or for the game to run. The maintenance pass's step and every verification on admission,
   // load and import are unchanged.
   const proofAuditMark=()=>`${state.saveRevision}|${state.controlPlane?.revision}|${state.simSeconds}`;
-  const proofAuditResting=()=>(Number(state.speed)===0||window.GH_CONFERENCE?.isPresentationActive?.()===true)&&proofAudit?.state===state&&proofAudit.restMark===proofAuditMark();
+  // Playing (owner, build 98 diagnostic: garbage collection pauses during play): a cycle that ends while the game runs is
+  // followed by PROOF_AUDIT_PLAY_REST_MS before the render callback's steps begin the next one, so every proof is still
+  // verified again at least that often, instead of the audit restarting at once, over and over, for the whole session.
+  const proofAuditResting=()=>proofAudit?.state===state&&((Number(state.speed)===0||window.GH_CONFERENCE?.isPresentationActive?.()===true)&&proofAudit.restMark===proofAuditMark()||Number(state.speed)>0&&appMetricClock()<(proofAudit.playRestUntil||0));
   function proofAuditStep(budgetMs=PROOF_AUDIT_MS){
     const schema=window.GH_SAVE_SCHEMA;if(typeof schema?.createProofAudit!=='function')return null;
     if(!proofAudit||proofAudit.state!==state)proofAudit={state,audit:schema.createProofAudit()};
     const out=proofAudit.audit.step(state,{maxItems:PROOF_AUDIT_ITEMS,budgetMs});runtimeInstrumentation.proofAudit={...out,...proofAudit.audit.status()};
-    if(out.ok){if(out.cycleDone)proofAudit.restMark=proofAuditMark();return out;}
+    if(out.ok){if(out.cycleDone){proofAudit.restMark=proofAuditMark();proofAudit.playRestUntil=Number(state.speed)>0?appMetricClock()+PROOF_AUDIT_PLAY_REST_MS:0;}return out;}
     const full=schema.validate(state);
     if(full.ok){diag('PROOF_AUDIT_UNCONFIRMED',{errors:out.errors.join(',').slice(0,240)},'info');return out;}
     const reason=full.errors?.join(',')||out.errors.join(',');diag('SAVE_SCHEMA_INTEGRITY',{reason:String(reason).slice(0,240),source:'proof-audit'},'critical');
@@ -3845,10 +3866,19 @@
   // - hourly cycle, continued: GH_ADVANCED's market hour assigns fields of advanced.economy; the routes and their
   //   endpoints are not written (write-set audit), yet stay in scope at row level. Deep-copied, the 960-route
   //   registry (1.6 MB, its geometry in small arrays) made every hour slice cost 22-25 ms on iPhone.
-  // tests/build358-row-snapshot-rollback.cjs fails these slices mid-way and requires the whole state to come back exact.
+  // - steady and hourly slices, diagnostics (owner, build 98: «صلحها على دفعات دقيقه جدًا»; deep-copied, its 240 events and
+  //   the last health report were the largest copy of every slice): GH_DIAGNOSTICS alone writes it, and only adds or
+  //   trims events and resolved issues, counts event types, and replaces the active issues and the last report whole.
+  // - steady and hourly slices, the simulated world: the competitors' price and their assets' progress are fields of rows.
+  // - steady and hourly slices, the event log and the alerts (owner, build 98: «كمل الباقي بدقه»; deep-copied on every slice,
+  //   up to 400 events and 40 alerts): their writers only add an entry at the front, trim, or put a shorter list in place;
+  //   an event (made whole) and an alert (text) are never edited, so the list itself is captured (level 'root').
+  // tests/build358-row-snapshot-rollback.cjs, tests/build599-diagnostics-world-row-rollback-browser.cjs and
+  // tests/build604-event-log-alerts-row-rollback-browser.cjs fail these slices mid-way and require the whole state to come
+  // back exact.
   function simulationRowRoots(kind){
     const rows={},mobility=window.GH_MOBILITY_CORE?.ROLLBACK_POLICY;if(mobility)rows.mobility=mobility;
-    if(kind==='steady'||kind==='hour'){rows.finance={level:'containers'};rows.treasury={level:'containers'};}
+    if(kind==='steady'||kind==='hour'){rows.finance={level:'containers'};rows.treasury={level:'containers'};rows.diagnostics={level:'containers'};rows.simulationWorld={level:'rows'};rows.eventLog={level:'root'};rows.alerts={level:'root'};}
     if(kind==='hour'){rows.domainRuntime={level:'containers'};rows.controlPlane={level:'rows'};rows.market={level:'rows'};rows.realism={level:'rows'};rows.advanced={level:'rows'};rows.customRoutes={level:'rows'};rows.routeEndpoints={level:'rows'};}
     return rows;
   }
@@ -3890,7 +3920,7 @@
   // As the idle render callback primes it: only while nothing holds the state, and the client is made only for a replica
   // worth keeping (a native save's seed, or FLEET_THREAD_EARLY_ROWS rows).
   function primeFleetThreadAfterCommand(){
-    const sim=simulationEngine.snapshot();if(sim.jobActive||sim.manualAdvance||stagedStateBusy()||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__||window.GH_PERSISTENCE.isLocked())return;
+    if(simulationJobActive()||simulationManualActive()||stagedStateBusy()||hardResetInProgress||durableCommandInProgress||window.__GH_DURABLE_COMMAND_CONTEXT__||window.GH_PERSISTENCE.isLocked())return;
     if(!window.GH_FLEET_STORE?.isStore?.(state.fleet)||!window.GH_FLEET_DATA.size(state))return;
     if(!fleetEngineThreadClient&&!(window.GH_FLEET_STORE.hasReplicaSeed?.(state.fleet)||state.fleet.length>=FLEET_THREAD_EARLY_ROWS))return;
     try{fleetEngineThread()?.prime?.(state.fleet);}catch(error){console.warn('fleet thread prime after command',error);}
@@ -4222,7 +4252,7 @@
   if(!window.GH_SIMULATION_RUNTIME_CORE?.create)throw new Error('Simulation Runtime Core failed to load before app.js');
   let lastRealtimeHealthMs=0,lastUiRefreshMs=0,lastRealtimeHealthCostMs=0,realtimeHealthPending=false;
   // The periodic health check may write the state's diagnostics only outside every slice, command, staged state and save.
-  function realtimeHealthAllowed(){const sim=simulationEngine.snapshot();return !sim.jobActive&&!sim.manualAdvance&&!fleetEngineThreadClient?.busy&&!stagedStateBusy()&&!document.hidden&&!hardResetInProgress&&!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.GH_PERSISTENCE.isLocked();}
+  function realtimeHealthAllowed(){return !simulationJobActive()&&!simulationManualActive()&&!fleetEngineThreadClient?.busy&&!stagedStateBusy()&&!document.hidden&&!hardResetInProgress&&!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.GH_PERSISTENCE.isLocked();}
   // fleetAssetIssues: the worker's (fleet-health-core rows), or undefined to find them here.
   function runRealtimeHealth(fleetAssetIssues){
     if(!Array.isArray(fleetAssetIssues)&&!mainFleetHealthAllowed()){
@@ -4330,7 +4360,7 @@
       // slice, including the short interval while an independently-driven slice waits for its fleet-thread result.
       // Build 371: nor while a durable command holds the state (its draft shares the fleet root, so the health check read
       // its uncommitted rows and recorded issue transitions a rollback kept; the street hydration's writes were refused).
-      if(!jobActive&&!simulationEngine.snapshot().manualAdvance&&!fleetEngineThreadClient?.busy&&!stagedStateBusy()&&!document.hidden&&!hardResetInProgress&&!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.GH_PERSISTENCE.isLocked()){
+      if(!jobActive&&!simulationManualActive()&&!fleetEngineThreadClient?.busy&&!stagedStateBusy()&&!document.hidden&&!hardResetInProgress&&!durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!window.GH_PERSISTENCE.isLocked()){
         const now=performance.now();
         // Build 372: the engine thread's replica follows the store between steps (its first replica, the seed of a
         // native save, moves to the worker here, right after load), so a step only sends what changed since.
@@ -4929,7 +4959,7 @@
 
   function advancedContext(){
     return {state,getState:()=>state,saveManualSlot,exportBackup,fleetUiSummary:currentFleetUiSummary,requireFleetUiSummary,fmtMoney,fmtNumber,formatDuration,esc,typeName,facilityKind,findFacility,competitors,assetCatalog,WORLD,storageKey,
-    getDynamicFacilities,strategicPartners,supplierFor,awardConstruction,payNamedSupplier,canSpend,spend,canCompanySpend,spendCompany,companyOperatingBalance,companyTotalBalance,companyBudget,companyBudgetRemaining,transferBetweenCompanies,bulkTransferFromGroup,transferWithinCompany,creditCompany,companyPerformance:(type,days=30)=>window.GH_FINANCE_CORE.performance(state,type,days),companyFleetStats:id=>{const summary=fleetUiSummary([],{dynamic:true}),owned=summary?.lookup.owner(id);return owned?{total:Number(owned.total)||0,moving:Number(owned.moving)||0,service:Number(owned.needsService)||0}:null;},pushAlert,save,savePolicyStatus,refreshRouteRuntime,runDurableStateCommand,runAuthorizedDomainCommand,dispatchAuthorizedDomain:runAuthorizedDomainCommand,dispatchSystemCommand,authorizationSignatureMarkup,openSignatureDialog,activeAuthorization:()=>clone(founderAuthorization(state)),signatureStatus:()=>{const authority=founderAuthorization(state);return {principalId:FOUNDER_PRINCIPAL_ID,ready:Boolean(authority.signature&&authority.mandate),signatureId:authority.signature?.id||null,signatureVersion:authority.signature?.version||null,mandateId:authority.mandate?.id||null,mandateVersion:authority.mandate?.version||null};},updateKpis,renderMap,panMapTo,openDrawer,navigationRevision:()=>drawerNavigationRevision,openWorldDirectory,buyAsset,routeRuntimeSnapshot:()=>clone(routeTemplates),restoreRouteRuntime:snapshot=>{for(const key of Object.keys(routeTemplates))delete routeTemplates[key];Object.assign(routeTemplates,clone(snapshot||{}));state.routesRevision=(Math.max(0,Math.floor(Number(state.routesRevision)||0))+1);},assignRoute,ensureFacilityWorkforce,bankCorporateClientView,bankLiquidityMetrics,bankReviewCorporateLimits,bankDrawCorporateFacility,bankIssueTradeInstrument,bankCashSweep,hardResetGame,worldEntityByKey,appVersion:APP_VERSION,runtimeBuild:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION,runDiagnostics:runFullDiagnostics,exportDiagnostics:exportDiagnosticsFile,startFaultRecorder:startSimulationFaultRecorder,finishFaultRecorder:finishSimulationFaultRecorder,faultRecorder:simulationFaultRecorder,exportControlPlane:exportControlPlaneFile,controlPlane:()=>window.GH_CONTROL_PLANE?.ensure?.(state),controlHealth:()=>window.GH_CONTROL_PLANE?.check?.(state,{evidence:captureDiagnosticEvidence()}),controlTrace:id=>window.GH_CONTROL_PLANE?.trace?.(state,id),clearDiagnostics:clearDiagnosticsState,diagnostics:()=>state.diagnostics,businessIntegrity:()=>window.GH_INTEGRITY_CORE.check(state),businessLedger:()=>window.GH_EVENT_LEDGER.summary(state),deliveryClosure:()=>window.GH_DELIVERY_MONITOR.reconcile(state),dependencyGraph:()=>state.dependencyGraph,getSimulationSpeed:()=>state.speed,setSimulationSpeed:value=>setSpeed(value),currentPanel:activeDrawerPanel,currentArg:activeDrawerArg};
+    getDynamicFacilities,strategicPartners,supplierFor,awardConstruction,payNamedSupplier,canSpend,spend,canCompanySpend,spendCompany,companyOperatingBalance,companyTotalBalance,companyBudget,companyBudgetRemaining,transferBetweenCompanies,bulkTransferFromGroup,transferWithinCompany,creditCompany,companyPerformance:(type,days=30)=>window.GH_FINANCE_CORE.performance(state,type,days),companyFleetStats:id=>{const summary=fleetUiSummary([],{dynamic:true}),owned=summary?.lookup.owner(id);return owned?{total:Number(owned.total)||0,moving:Number(owned.moving)||0,service:Number(owned.needsService)||0}:null;},pushAlert,save,savePolicyStatus,refreshRouteRuntime,runDurableStateCommand,runAuthorizedDomainCommand,runAuthorizedSteps,dispatchAuthorizedDomain:runAuthorizedDomainCommand,dispatchSystemCommand,authorizationSignatureMarkup,openSignatureDialog,activeAuthorization:()=>clone(founderAuthorization(state)),signatureStatus:()=>{const authority=founderAuthorization(state);return {principalId:FOUNDER_PRINCIPAL_ID,ready:Boolean(authority.signature&&authority.mandate),signatureId:authority.signature?.id||null,signatureVersion:authority.signature?.version||null,mandateId:authority.mandate?.id||null,mandateVersion:authority.mandate?.version||null};},updateKpis,renderMap,panMapTo,openDrawer,navigationRevision:()=>drawerNavigationRevision,openWorldDirectory,buyAsset,routeRuntimeSnapshot:()=>clone(routeTemplates),restoreRouteRuntime:snapshot=>{for(const key of Object.keys(routeTemplates))delete routeTemplates[key];Object.assign(routeTemplates,clone(snapshot||{}));state.routesRevision=(Math.max(0,Math.floor(Number(state.routesRevision)||0))+1);},assignRoute,ensureFacilityWorkforce,bankCorporateClientView,bankLiquidityMetrics,bankReviewCorporateLimits,bankDrawCorporateFacility,bankIssueTradeInstrument,bankCashSweep,hardResetGame,worldEntityByKey,appVersion:APP_VERSION,runtimeBuild:RUNTIME_BUILD,saveSchemaVersion:SAVE_SCHEMA_VERSION,runDiagnostics:runFullDiagnostics,exportDiagnostics:exportDiagnosticsFile,startFaultRecorder:startSimulationFaultRecorder,finishFaultRecorder:finishSimulationFaultRecorder,faultRecorder:simulationFaultRecorder,exportControlPlane:exportControlPlaneFile,controlPlane:()=>window.GH_CONTROL_PLANE?.ensure?.(state),controlHealth:()=>window.GH_CONTROL_PLANE?.check?.(state,{evidence:captureDiagnosticEvidence()}),controlTrace:id=>window.GH_CONTROL_PLANE?.trace?.(state,id),clearDiagnostics:clearDiagnosticsState,diagnostics:()=>state.diagnostics,businessIntegrity:()=>window.GH_INTEGRITY_CORE.check(state),businessLedger:()=>window.GH_EVENT_LEDGER.summary(state),deliveryClosure:()=>window.GH_DELIVERY_MONITOR.reconcile(state),dependencyGraph:()=>state.dependencyGraph,getSimulationSpeed:()=>state.speed,setSimulationSpeed:value=>setSpeed(value),currentPanel:activeDrawerPanel,currentArg:activeDrawerArg};
   }
 
   // Native imports arrive after iOS has already validated and atomically
@@ -6938,9 +6968,12 @@ ${page}</div>`;
   // a requested advance to a command. A recovery or a reset still cancels it, as before.
   function holdAdvanceThroughLock(lock){if(lock!=='lifecycle-lock'||hardResetInProgress||window.GH_PERSISTENCE.telemetry?.().recoveryRequired===true)return false;const advance=simulationEngine.snapshot().manualAdvance;return !!advance&&!advance.cancelling;}
   function observeLoopLock(){const lock=loopLockReason();if(!lock||lastLoopGuardReason===lock)return false;lastLoopGuardReason=lock;if(!holdAdvanceThroughLock(lock))simulationEngine.reset(performance.now(),lock);simulationRuntime.wake();return true;}
+  // The engine's two reads without its snapshot object; an engine without them (a test's stand-in) gives its snapshot.
+  function simulationManualActive(){return typeof simulationEngine.manualActive==='function'?simulationEngine.manualActive():!!simulationEngine.snapshot().manualAdvance;}
+  function simulationJobActive(){return typeof simulationEngine.jobActive==='function'?simulationEngine.jobActive():!!simulationEngine.snapshot().jobActive;}
   const latestSimulationTransaction=()=>window.GH_TRANSACTION_CORE?.telemetry?.()?.lastSimulation||null;
   function recordGuardedDiagnosticFrame(now,callbackStartMs,guardReason){const callbackEndMs=appMetricClock(),fleetSize=window.GH_FLEET_DATA.size(state)+(state.mobility?.vehicles?.length||0);window.GH_DIAGNOSTICS?.recorderFrame?.(state,{rafTimestampMs:Number(now),callbackStartMs,callbackEndMs,simSeconds:state.simSeconds,visible:!document.hidden,hidden:!!document.hidden,panel:activeDrawerPanel||'map',mapActive:!!map,fleetSize,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,simulationStage:guardReason,guardReason,simulationProgressExpected:false},{transactionProvider:latestSimulationTransaction});}
-  function presentationFrameInterval(){const fleetSize=window.GH_FLEET_DATA.size(state),advancing=!!simulationEngine.snapshot().manualAdvance;if(document.hidden)return 1000;if(activeDrawerPanel||advancing)return fleetSize>2000?300:fleetSize>750?220:fleetSize>250?150:100;if(fleetSize>3000)return 220;if(fleetSize>1500)return 180;if(fleetSize>750)return 140;if(fleetSize>400)return 110;if(fleetSize>180)return 80;return 55;}
+  function presentationFrameInterval(){const fleetSize=window.GH_FLEET_DATA.size(state),advancing=typeof simulationEngine.manualActive==='function'?simulationEngine.manualActive():!!simulationEngine.snapshot().manualAdvance;if(document.hidden)return 1000;if(activeDrawerPanel||advancing)return fleetSize>2000?300:fleetSize>750?220:fleetSize>250?150:100;if(fleetSize>3000)return 220;if(fleetSize>1500)return 180;if(fleetSize>750)return 140;if(fleetSize>400)return 110;if(fleetSize>180)return 80;return 55;}
   function loop(now){
     const frameIntervalMs=lastLoopRafTimestamp===null?null:Math.max(0,now-lastLoopRafTimestamp);lastLoopRafTimestamp=now;
     const frameRecorderActive=window.GH_DIAGNOSTICS?.recorderIsActive?.(state)===true,recorderCallbackStartMs=frameRecorderActive?appMetricClock():0;
@@ -6969,7 +7002,7 @@ ${page}</div>`;
     const simulationSnapshot=frameRecorderActive?simulationEngine.snapshot():null,callbackEndMs=measureFrame?appMetricClock():0,frameWorkMs=measureFrame?Math.max(0,callbackEndMs-frameStarted):0;
     if(measureFrame)recordRenderMetric('frame',frameWorkMs,{frameIntervalMs,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});
     if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});
-    nextLoopPass(state.speed===0&&!simulationEngine.snapshot().manualAdvance&&!markerMotionPending&&!mapLoopRenderDeferredAt&&!frameRecorderActive);
+    nextLoopPass(state.speed===0&&!simulationManualActive()&&!markerMotionPending&&!mapLoopRenderDeferredAt&&!frameRecorderActive);
   }
   simulationEngine.reset(performance.now());
   simulationRuntime.start();
