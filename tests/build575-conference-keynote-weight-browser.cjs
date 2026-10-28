@@ -36,7 +36,7 @@ async function boot(root){
 // a quiet machine.
 async function open(t,run){
  t.images.length=0;t.opens.push(await t.page.evaluate(async()=>{const t0=performance.now();GH_CONFERENCE_3D.launch({snapshot:qaSnapshot},{mode:'manual'});while(GH_CONFERENCE_3D.diagnostics().phase!=='presenting')await new Promise(r=>setTimeout(r,4));await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)));const ms=performance.now()-t0;for(const a of document.getAnimations())a.finish();return ms;}));
- if(run===0)t.openImages=[...t.images];if(run<2)await t.page.evaluate(()=>GH_CONFERENCE_3D.close());
+ if(run===0)t.openImages=[...t.images];if(run<6)await t.page.evaluate(()=>GH_CONFERENCE_3D.close());
 }
 // 2-3: every slide in order on both sources at once, each shown through the end of its entrance motion (1.4 s), the
 // processor slowed four times; each browser's own clocks cover its whole pass. Showing the two together halves the
@@ -53,28 +53,32 @@ async function pass(sources){
 const again=(t,i)=>t.page.evaluate(i=>{GH_CONFERENCE_3D.go(i===0?1:0);document.body.getBoundingClientRect();const t0=performance.now();GH_CONFERENCE_3D.go(i);document.querySelector('.ghc3-beat').getBoundingClientRect();const ms=performance.now()-t0;for(const a of document.getAnimations())a.finish();return ms;},i);
 async function result(t){
  const shown=await t.page.evaluate(()=>window.qaShown.slice());await t.page.evaluate(()=>GH_CONFERENCE_3D.close());assert.deepEqual(t.errors,[]);const cost=t.cost;
- const halves=[0,0];for(const [at,ms] of shown){const round=t.rounds.filter(start=>start<=at).length-1;halves[round<4?0:1]=Math.max(halves[round<4?0:1],ms);}
- return {open:Math.min(...t.opens),openImages:t.openImages,slides:t.slides,cost,sync:cost.reduce((a,b)=>a+b,0),worst:Math.max(...cost),task:t.spent('TaskDuration'),style:t.spent('RecalcStyleDuration'),layout:t.spent('LayoutDuration'),script:t.spent('ScriptDuration'),longest:Math.min(...halves),halves,longTasks:shown.length,passLongest:Math.max(0,...t.passLong),passLongTasks:t.passLong.length,nodes:Math.max(...t.nodes)};
+ const halves=[0,0];for(const [at,ms] of shown){const round=t.rounds.filter(start=>start<=at).length-1;halves[round<6?0:1]=Math.max(halves[round<6?0:1],ms);}
+ const opens=t.opens.slice().sort((a,b)=>a-b);
+ return {open:opens[Math.floor(opens.length/2)],fastestOpen:opens[0],openImages:t.openImages,slides:t.slides,cost,sync:cost.reduce((a,b)=>a+b,0),worst:Math.max(...cost),task:t.spent('TaskDuration'),style:t.spent('RecalcStyleDuration'),layout:t.spent('LayoutDuration'),script:t.spent('ScriptDuration'),longest:Math.min(...halves),halves,longTasks:shown.length,passLongest:Math.max(0,...t.passLong),passLongTasks:t.passLong.length,nodes:Math.max(...t.nodes)};
 }
 (async()=>{
  const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b575-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
   old=await boot(tree);now=await boot(SOURCE);
-  for(let run=0;run<3;run++)for(const t of [old,now])await open(t,run);
+  // Seven openings each, taking turns; the median is compared (builds 100 and 101, macOS: the source before's fastest of
+  // three opened in 137 ms in one run and 51 ms in the next, the same code; here five builds of the same source, the hall
+  // taken out piece by piece, had fastest openings from 113 to 140 ms and medians from 150 to 171 ms).
+  for(let run=0;run<7;run++)for(const t of [old,now])await open(t,run);
   await pass([old,now]);
   assert.equal(now.slides,old.slides,'the same slides are shown');
-  // Each slide's synchronous cost is the cheapest of eight showings at full speed, the two sources taking turns slide by
+  // Each slide's synchronous cost is the cheapest of twelve showings at full speed (eight before builds 100 and 101), the two sources taking turns slide by
   // slide (six left the sum within 0.92 to 1.07 of the source before under a machine running three other gates); a
   // task of the showings over 50 ms is a long task.
   // Each long task of the showings is placed in its round; a showing that stalls the screen does so in every round, so
-  // the longest is taken in the lighter half of the eight rounds (one macOS probe run saw three long tasks on each
+  // the longest is taken in the lighter half of the twelve rounds (one macOS probe run saw three long tasks on each
   // source, the longest 84 and 111 ms; the two probe runs before it saw none).
   for(const t of [old,now]){await t.cdp.send('Emulation.setCPUThrottlingRate',{rate:1});await t.page.evaluate(()=>{window.qaLong=[];window.qaShown=[];new PerformanceObserver(list=>{for(const e of list.getEntries())window.qaShown.push([e.startTime,e.duration]);}).observe({type:'longtask'});});t.rounds=[];}
-  for(let k=0;k<8;k++){for(const t of [old,now])t.rounds.push(await t.page.evaluate(()=>performance.now()));for(let i=old.slides-1;i>=0;i--)for(const t of [old,now])t.cost[i]=Math.min(t.cost[i]??Infinity,await again(t,i));}
+  for(let k=0;k<12;k++){for(const t of [old,now])t.rounds.push(await t.page.evaluate(()=>performance.now()));for(let i=old.slides-1;i>=0;i--)for(const t of [old,now])t.cost[i]=Math.min(t.cost[i]??Infinity,await again(t,i));}
   const before=await result(old),after=await result(now),r=v=>Math.round(v*10)/10;
-  const row=m=>({open:r(m.open),slides:m.slides,task:r(m.task),style:r(m.style),layout:r(m.layout),script:r(m.script),passLongest:r(m.passLongest),passLongTasks:m.passLongTasks,sync:r(m.sync),worst:r(m.worst),longest:r(m.longest),halves:m.halves.map(r),longTasks:m.longTasks,nodes:m.nodes,images:m.openImages}),report={before:row(before),after:row(after)};
+  const row=m=>({open:r(m.open),fastestOpen:r(m.fastestOpen),slides:m.slides,task:r(m.task),style:r(m.style),layout:r(m.layout),script:r(m.script),passLongest:r(m.passLongest),passLongTasks:m.passLongTasks,sync:r(m.sync),worst:r(m.worst),longest:r(m.longest),halves:m.halves.map(r),longTasks:m.longTasks,nodes:m.nodes,images:m.openImages}),report={before:row(before),after:row(after)};
   assert(before.openImages.some(url=>/assets\/conference\/hall-dark\.webp/.test(url)),`the hall loaded its photograph before: ${JSON.stringify(before.openImages)}`);
   assert.equal(after.openImages.filter(url=>/assets\/conference\//.test(url)).join(),'assets/conference/hall-dark.webp',`1: the one hall photograph is loaded, as before, and no other conference image: ${JSON.stringify(after.openImages)}`);
-  assert(after.open<=before.open*1.1+2,`1: the first slide is on screen no slower than before: ${JSON.stringify(report)}`);
+  assert(after.open<=before.open*1.1+2,`1: the first slide is on screen no slower than before (the median of seven openings): ${JSON.stringify(report)}`);
   assert(after.task<=before.task*1.15&&after.style+after.layout<=(before.style+before.layout)*1.15,`2: the slides cost no more main-thread work in total than before: ${JSON.stringify(report)}`);
   assert(after.sync<=before.sync*1.15,`2: building and laying out the slides costs no more than before: ${JSON.stringify(report)}`);
   // One slide's few milliseconds vary from run to run on a desktop; the dearest slide is compared, not each slide.

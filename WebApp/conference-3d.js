@@ -10,6 +10,12 @@ const ICON={close:'<path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/>',next:'<path d="M10 3.
 const icon=name=>`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
 const PLAY='<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z"/></svg>',PAUSE='<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="4" y="3" width="2.6" height="10" rx="1"/><rect x="9.4" y="3" width="2.6" height="10" rx="1"/></svg>';
 // A CSS url() from a logo path or data URI: quotes, backslashes and line breaks are escaped as CSS string escapes.
+// A slide's accent mixed with transparent at a weight, as color-mix(in srgb, accent w, transparent) gives it (the colour
+// itself at that share of its alpha), worked out once per accent (owner, build 98: «كمل الباقي بدقه»; the LED screen's glow
+// and the number ring evaluated color-mix again on every slide, a fifth of a slide's style work). Anything but a hex colour
+// keeps color-mix.
+const ACCENT_MIX=new Map();
+const accentMix=(accent,weight)=>{const key=`${accent}|${weight}`;let out=ACCENT_MIX.get(key);if(out)return out;const hex=/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(String(accent||''))?.[1];if(hex){const full=hex.length<=4?[...hex].map(c=>c+c).join(''):hex,channel=i=>parseInt(full.slice(i*2,i*2+2),16),alpha=full.length===8?channel(3)/255:1;out=`rgba(${channel(0)},${channel(1)},${channel(2)},${Math.round(alpha*weight*10000)/10000})`;}else out=`color-mix(in srgb,${accent} ${Math.round(weight*100)}%,transparent)`;if(ACCENT_MIX.size<64)ACCENT_MIX.set(key,out);return out;};
 const cssUrl=value=>value?`url("${String(value).replace(/["\\\n\r]/g,c=>`\\${c.charCodeAt(0).toString(16)} `)}")`:'none';
 let active=null,lastDiagnostics=null;
 class ConferenceSession{
@@ -65,7 +71,7 @@ class ConferenceSession{
    if(this.disposed)return;this.assetsReady=true;this.frames++;this.root.querySelector('.ghc3-loading')?.remove();this.setPhase('presenting',this.config.live&&this.resumePhase!=='presenting');this.persistProgress();if(this.mode!=='manual')this.play();
   }catch(error){if(!this.disposed)this.fail(error);}}
  show(persist=true){if(this.disposed)return;const slide=this.slides[this.slide],scene=slide.scene,changed=scene!==this.index;this.index=scene;this.frames++;
-  this.root.style.setProperty('--grad',slide.gradient);this.root.style.setProperty('--accent',slide.accent);
+  this.root.style.setProperty('--grad',slide.gradient);this.root.style.setProperty('--accent',slide.accent);this.root.style.setProperty('--glow',accentMix(slide.accent,.2));this.root.style.setProperty('--ring',accentMix(slide.accent,.75));
   // A hero slide's photograph fills the LED screen behind the stage; the same photograph is not drawn again.
   if((this.led.dataset.photo||'')!==slide.photo){this.led.dataset.photo=slide.photo;this.led.querySelector(':scope>.ghc3-photo')?.remove();if(slide.photo)this.stage.insertAdjacentHTML('beforebegin',`<div class="ghc3-photo" style="--img:url('${esc(slide.photo)}')"></div>`);}
   this.stage.innerHTML=`<div class="ghc3-beat${slide.layout?` ghc3-${slide.layout}`:''}">${slide.html}</div>`;

@@ -3,11 +3,27 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build593-bulk-acquisition-frames-browser.cjs"
     ],
     [
       "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
+      "tests/build552-conference-hall-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build553-conference-open-cost.cjs"
+    ],
+    [
+      "node",
+      "tests/build536-conference-progress-cost.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-conference-thermal.cjs"
     ],
     [
       "node",
@@ -343,14 +359,6 @@
     ],
     [
       "node",
-      "tests/build552-conference-hall-layout-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-conference-thermal.cjs"
-    ],
-    [
-      "node",
       "tests/build368-approved-company-logos.cjs"
     ],
     [
@@ -479,10 +487,6 @@
     ],
     [
       "node",
-      "tests/build536-conference-progress-cost.cjs"
-    ],
-    [
-      "node",
       "tests/build537-conference-copy.cjs"
     ],
     [
@@ -496,10 +500,6 @@
     [
       "node",
       "tests/build551-conference-keynote-slides.cjs"
-    ],
-    [
-      "node",
-      "tests/build553-conference-open-cost.cjs"
     ],
     [
       "node",
