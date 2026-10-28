@@ -1,0 +1,5 @@
+page.waitForFunction: Timeout 120000ms exceeded.
+    at alone (/Users/runner/work/madar/madar/tests/build576-presentation-rest-browser.cjs:109:100)
+    at async /Users/runner/work/madar/madar/tests/build576-presentation-rest-browser.cjs:131:94 {
+  name: 'TimeoutError'
+}

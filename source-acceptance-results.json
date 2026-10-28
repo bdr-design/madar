@@ -1,0 +1,886 @@
+{
+  "completed": false,
+  "all_tests_passed": false,
+  "runtime_unchanged": true,
+  "gates_unchanged": true,
+  "verification_error": null,
+  "gates_verification_error": null,
+  "acceptance_contract_sha256": "7bc4ebfce846bebf4ce53955b11c008cf6bdb5cc3fda2e277871e9ebe3256348",
+  "runtime_source": {
+    "verified": true,
+    "files": 1008,
+    "source_tree_sha256": "80c4fdd6ce96effb6fc10627f52b2aabbae332240abca536de0e8f5fb6d94677",
+    "version": "3.0.0",
+    "build": 362,
+    "save_schema": "3.0.0",
+    "release_approved": false,
+    "blocking_issues": [
+      "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
+      "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
+      "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
+      "Historical desktop measurements from an earlier 600x source: Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+      "A fully moving fleet still needs fresh complete validation after writes. Coalesced validation and chunk-checksum workers have targeted desktop coverage; iPhone profiling of ordinary saves, background saves, startup, manual slots, reset and large text chunks remains unverified for this candidate.",
+      "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
+      "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
+      "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
+      "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
+      "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
+      "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
+      "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
+      "Current all-sections candidate: 530 mandatory gates / 134 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
+    ]
+  },
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/build575-conference-keynote-weight-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 85.327,
+      "log": "001-build575-conference-keynote-weight-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build593-bulk-acquisition-frames-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.009,
+      "log": "002-build593-bulk-acquisition-frames-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build552-conference-hall-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.084,
+      "log": "003-build552-conference-hall-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build553-conference-open-cost.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.889,
+      "log": "004-build553-conference-open-cost.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build536-conference-progress-cost.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.526,
+      "log": "005-build536-conference-progress-cost.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-conference-thermal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.071,
+      "log": "006-build359-conference-thermal.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build604-event-log-alerts-row-rollback-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.462,
+      "log": "007-build604-event-log-alerts-row-rollback-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build603-visual-seal-check-in-place.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.818,
+      "log": "008-build603-visual-seal-check-in-place.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-signature-pad.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "009-build334-signature-pad.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-durable-authorization-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.199,
+      "log": "010-build334-durable-authorization-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-app-platform-authorization.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.073,
+      "log": "011-build334-app-platform-authorization.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-authorization-release.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.58,
+      "log": "012-build359-authorization-release.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-identity-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "013-build334-identity-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build365-official-news.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.865,
+      "log": "014-build365-official-news.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-group-news.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.53,
+      "log": "015-build375-group-news.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build370-official-news-pagination.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.372,
+      "log": "016-build370-official-news-pagination.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build601-finance-company-ids-kept.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.456,
+      "log": "017-build601-finance-company-ids-kept.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build594-finance-company-ids-memo.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.218,
+      "log": "018-build594-finance-company-ids-memo.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build597-finance-metric-maps-in-place.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.684,
+      "log": "019-build597-finance-metric-maps-in-place.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/company-platform-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.274,
+      "log": "020-company-platform-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-singleton-company-boundaries.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.335,
+      "log": "021-build334-singleton-company-boundaries.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-dynamic-company-consumers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.229,
+      "log": "022-build334-dynamic-company-consumers.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build600-proof-audit-sealed-checks.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.024,
+      "log": "023-build600-proof-audit-sealed-checks.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build599-diagnostics-world-row-rollback-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.853,
+      "log": "024-build599-diagnostics-world-row-rollback-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build598-company-evidence-token-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.848,
+      "log": "025-build598-company-evidence-token-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build583-boot-proof-single-hash.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.908,
+      "log": "026-build583-boot-proof-single-hash.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-audit-walk.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.551,
+      "log": "027-build359-audit-walk.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-proof-checkpoints.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.282,
+      "log": "028-build359-proof-checkpoints.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-archived-proofs.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.944,
+      "log": "029-build359-archived-proofs.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-document-proof-v3-security.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.121,
+      "log": "030-build334-document-proof-v3-security.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build350-proof-ledger.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.892,
+      "log": "031-build350-proof-ledger.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-document-seal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.879,
+      "log": "032-build359-document-seal.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build524-sealed-text-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.085,
+      "log": "033-build524-sealed-text-reuse.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r4-proof-archive.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.873,
+      "log": "034-build334-r4-proof-archive.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-proof-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.883,
+      "log": "035-build372-proof-worker.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-proof-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.688,
+      "log": "036-build372-proof-worker-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build417-document-amendment-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.464,
+      "log": "037-build417-document-amendment-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-real-proof-compaction-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.878,
+      "log": "038-build336-real-proof-compaction-pressure.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sealed-flows.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.272,
+      "log": "039-build359-sealed-flows.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-archived-proof-retention-open.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.123,
+      "log": "040-build334-archived-proof-retention-open.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-energy-debt-proof-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.627,
+      "log": "041-build360-energy-debt-proof-recovery.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-cheque-archived-invoice.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.056,
+      "log": "042-build359-cheque-archived-invoice.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-row-snapshot-rollback.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.3,
+      "log": "043-build358-row-snapshot-rollback.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-simulation-write-set-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.399,
+      "log": "044-build339-simulation-write-set-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-transaction-write-set-audit.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.103,
+      "log": "045-build339-transaction-write-set-audit.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-hour-boundary-write-map.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.32,
+      "log": "046-build339-hour-boundary-write-map.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-day-boundary-write-map.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.05,
+      "log": "047-build339-day-boundary-write-map.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-steady-slice-rollback.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.487,
+      "log": "048-build353-steady-slice-rollback.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-simulation-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.193,
+      "log": "049-build379-simulation-recovery.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-transaction-row-snapshots.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.143,
+      "log": "050-build358-transaction-row-snapshots.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-calendar-window-equivalence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.418,
+      "log": "051-build362-calendar-window-equivalence.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sim-smoothness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.767,
+      "log": "052-build359-sim-smoothness.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-slice-atomic.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.378,
+      "log": "053-build334-simulation-slice-atomic.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-fault-isolation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.305,
+      "log": "054-build334-simulation-fault-isolation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build569-company-evidence-pending.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.296,
+      "log": "055-build569-company-evidence-pending.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build404-worker-close-read-models.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.813,
+      "log": "056-build404-worker-close-read-models.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build405-worker-close-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.938,
+      "log": "057-build405-worker-close-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-large-fleet-main-thread-policy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.73,
+      "log": "058-build372-large-fleet-main-thread-policy-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-large-fleet-fallback-guards-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.422,
+      "log": "059-build372-large-fleet-fallback-guards-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-company-platform-orphan-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.084,
+      "log": "060-build334-company-platform-orphan-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build554-investor-card-funding.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.25,
+      "log": "061-build554-investor-card-funding.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-dynamic-finance-company-ids.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.101,
+      "log": "062-build334-dynamic-finance-company-ids.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-finance-settlement-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.096,
+      "log": "063-build334-finance-settlement-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-financial-posting.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.928,
+      "log": "064-build379-financial-posting.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-money-guard.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.075,
+      "log": "065-build376-money-guard.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build317-finance-depth-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "066-build317-finance-depth-test.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-accrual-cash-separation-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "067-build334-accrual-cash-separation-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build539-intercompany-interest-pnl.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.692,
+      "log": "068-build539-intercompany-interest-pnl.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build548-group-intercompany-elimination.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.607,
+      "log": "069-build548-group-intercompany-elimination.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/core-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.393,
+      "log": "070-core-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-heaviness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.483,
+      "log": "071-build358-heaviness.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build596-construction-vat-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 47.705,
+      "log": "072-build596-construction-vat-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build595-construction-zero-rated.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.294,
+      "log": "073-build595-construction-zero-rated.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-precision-and-routing-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 97.625,
+      "log": "074-tax-precision-and-routing-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build380-construction-acceleration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.749,
+      "log": "075-build380-construction-acceleration.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-purchase-vat.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.485,
+      "log": "076-build358-fleet-purchase-vat.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-purchase-caps.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.489,
+      "log": "077-build358-purchase-caps.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-tax-pay-all-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.606,
+      "log": "078-build359-tax-pay-all-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build380-construction-acceleration-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.784,
+      "log": "079-build380-construction-acceleration-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build391-hospitality-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.88,
+      "log": "080-build391-hospitality-core.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build393-hospitality-financial-safety.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.86,
+      "log": "081-build393-hospitality-financial-safety.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build395-hospitality-edge-cases.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.153,
+      "log": "082-build395-hospitality-edge-cases.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build589-acceleration-immediate.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.51,
+      "log": "083-build589-acceleration-immediate.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-validation-reuse-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.202,
+      "log": "084-fleet-validation-reuse-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-precision-and-routing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.752,
+      "log": "085-tax-precision-and-routing.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-reload-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.153,
+      "log": "086-tax-reload-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build585-save-upload-block-accounting.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.047,
+      "log": "087-build585-save-upload-block-accounting.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-structure-revision.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.046,
+      "log": "088-build340-map-structure-revision.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 224.02,
+      "log": "089-phone-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build368-approved-company-logos.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.443,
+      "log": "090-build368-approved-company-logos.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build591-service-companies-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.618,
+      "log": "091-build591-service-companies-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-business-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "092-fleet-business-boundary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build420-conference-durable-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.623,
+      "log": "093-build420-conference-durable-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build576-presentation-rest-browser.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 259.548,
+      "log": "094-build576-presentation-rest-browser.log"
+    }
+  ],
+  "total": 629,
+  "passed": 93,
+  "ipa_built": false,
+  "device_tested": false,
+  "failed_early": "tests/build576-presentation-rest-browser.cjs"
+}
