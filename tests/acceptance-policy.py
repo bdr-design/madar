@@ -59,7 +59,8 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). Build 98 passed every gate. First batch F (owner: «صلحها على دفعات دقيقه جدًا», play's allocations traced
+# (AGENTS.md). First build593, which failed in build 99 (macOS): the longest frame there was the durable command's commit,
+# the same in both sources (116.6 ms); it now times the purchase's own work, each call to the acquisition owner. Then batch F (owner: «صلحها على دفعات دقيقه جدًا», play's allocations traced
 # and cut, none of it reached by a build): build604 (the event log and the alerts captured themselves in steady and hourly
 # slices), build603 (a canonical visual seal checked in place, its digest reused), build601 (finance's list of held companies kept per state while its inputs
 # hold, checked in place), build600 (the proof audit works out a sealed record's snapshot match and a
@@ -108,6 +109,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
     ['node', 'tests/build604-event-log-alerts-row-rollback-browser.cjs'],
     ['node', 'tests/build603-visual-seal-check-in-place.cjs'],
     ['node', 'tests/build334-signature-pad.cjs'],
@@ -191,7 +193,6 @@ expected_preflight=[
     ['node', 'tests/build585-save-upload-block-accounting.cjs'],
     ['node', 'tests/build340-map-structure-revision.cjs'],
     ['node', 'tests/phone-layout-browser.cjs'],
-    ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
     ['node', 'tests/build552-conference-hall-layout-browser.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build359-conference-thermal.cjs'],

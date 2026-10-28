@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build593-bulk-acquisition-frames-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build604-event-log-alerts-row-rollback-browser.cjs"
     ],
     [
@@ -332,10 +336,6 @@
     [
       "node",
       "tests/phone-layout-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build593-bulk-acquisition-frames-browser.cjs"
     ],
     [
       "node",
