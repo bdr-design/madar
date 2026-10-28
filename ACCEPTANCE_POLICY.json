@@ -7,6 +7,10 @@
     ],
     [
       "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build604-event-log-alerts-row-rollback-browser.cjs"
     ],
     [
@@ -340,10 +344,6 @@
     [
       "node",
       "tests/build552-conference-hall-layout-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
       "node",

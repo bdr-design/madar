@@ -59,8 +59,11 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build593, which failed in build 99 (macOS): the longest frame there was the durable command's commit,
-# the same in both sources (116.6 ms); it now times the purchase's own work, each call to the acquisition owner. Then batch F (owner: «صلحها على دفعات دقيقه جدًا», play's allocations traced
+# (AGENTS.md). First build593, which failed in build 100's re-run (macOS: one call of twenty, 56 ms, over the batch's 53 ms;
+# the third longest call is now compared) and in build 99 (the longest frame was the durable command's commit, the same in
+# both sources; it times the purchase's own work, each call to the acquisition owner). Then build575, which failed in build
+# 100 (macOS: the slides' synchronous cost 1.32 times the source before; here 1.005 to 1.07; its re-run stopped at build593
+# before reaching it). Then batch F (owner: «صلحها على دفعات دقيقه جدًا», play's allocations traced
 # and cut, none of it reached by a build): build604 (the event log and the alerts captured themselves in steady and hourly
 # slices), build603 (a canonical visual seal checked in place, its digest reused), build601 (finance's list of held companies kept per state while its inputs
 # hold, checked in place), build600 (the proof audit works out a sealed record's snapshot match and a
@@ -110,6 +113,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
     ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
+    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build604-event-log-alerts-row-rollback-browser.cjs'],
     ['node', 'tests/build603-visual-seal-check-in-place.cjs'],
     ['node', 'tests/build334-signature-pad.cjs'],
@@ -194,7 +198,6 @@ expected_preflight=[
     ['node', 'tests/build340-map-structure-revision.cjs'],
     ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build552-conference-hall-layout-browser.cjs'],
-    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build359-conference-thermal.cjs'],
     ['node', 'tests/build368-approved-company-logos.cjs'],
     ['node', 'tests/build591-service-companies-browser.cjs'],
