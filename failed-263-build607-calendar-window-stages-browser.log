@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 2: no frame waits more than 50 ms (100.0)
+    at /Users/runner/work/madar/madar/tests/build607-calendar-window-stages-browser.cjs:67:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
