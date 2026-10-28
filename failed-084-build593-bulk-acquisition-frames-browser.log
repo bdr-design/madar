@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 2: no frame of the purchase waits half as long as the single block before: 116.6 ms against 116.6 ms
+    at /Users/runner/work/madar/madar/tests/build593-bulk-acquisition-frames-browser.cjs:60:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
