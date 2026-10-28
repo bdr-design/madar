@@ -96,7 +96,10 @@ async function alone(t,current,ref){
   await speed(0);out.releaseMs=await timed('release',async()=>{});out.afterRelease=await measure(1500);
   // With the source before at hand (ref), the calendar advance runs on both at once, the same work in the same seconds,
   // and the recorder's frames are set against the source before's frames through the same window.
-  const calendarWindow=async p=>{const a=await p.sample(),ms=await latencyOn(p.page,'calendar');await p.page.waitForTimeout(400);const b=await p.sample();return {ms,frames:(b.frames-a.frames)/(b.at-a.at)*1000};};
+  // The display rate through the advance is counted over 1.5 s of it, or to its end if sooner (builds 103 and 104, macOS,
+  // the same app: 400 ms, seven to nine frames there, met the advance's day close in one run and not in the other; the
+  // advance lasts about 3.9 s here on either source).
+  const calendarWindow=async p=>{const a=await p.sample(),ms=await latencyOn(p.page,'calendar');await p.page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:1500,polling:50}).catch(()=>{});const b=await p.sample();return {ms,frames:(b.frames-a.frames)/(b.at-a.at)*1000};};
   const advanced=p=>p.page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:60000});
   const [calendar,calendarReference]=await Promise.all([calendarWindow(t),ref&&calendarWindow(ref)]);out.calendarMs=calendar.ms;out.calendar={frames:calendar.frames};if(ref)out.calendarReference={frames:calendarReference.frames};
   await Promise.all([advanced(t),ref&&advanced(ref)]);out.afterCalendar=await measure(1500);

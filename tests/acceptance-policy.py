@@ -59,8 +59,10 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build576, which failed in build 103 (macOS: the audit's cycle did not finish in 120 s while paused,
-# 0.3 s here; it now reports what holds the audit with the timeout). Then build575, which failed in build 101 (macOS: the source before's fastest of three openings 51 ms, ours
+# (AGENTS.md). First build576, which failed in build 104 (macOS: 16.9 frames a second through a calendar advance against
+# the reference's 22.4 over 400 ms, seven to nine frames there; passed in build 103 with the same app; it counts 1.5 s of the
+# advance now) and in build 103 (the audit's cycle did not finish in 120 s while paused, 0.3 s here; it finished in build
+# 104; the timeout now reports what holds the audit). Then build575, which failed in build 101 (macOS: the source before's fastest of three openings 51 ms, ours
 # 131, where build 100 had 137 against 95; the median of seven openings is compared now, and twelve showings per slide; the
 # LED glow and the number ring take a colour worked out once per accent instead of color-mix on every slide). Then build593,
 # which failed in build 100's re-run (macOS: one call of twenty, 56 ms, over the batch's 53 ms;
