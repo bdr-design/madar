@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 1 cheques: building the page (2.1 vs 3.6 ms)
+    at /Users/runner/work/madar/madar/tests/build570-documents-list-weight-browser.cjs:54:4 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

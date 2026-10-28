@@ -1,0 +1,9 @@
+EXPORT_CASE trusted-main-source-only PASS
+EXPORT_CASE filename-and-size-guards PASS
+EXPORT_CASE worker-blob-streams-to-exact-native-file PASS
+EXPORT_CASE url-lease-cleanup-only-owned-files PASS
+EXPORT_CASE diagnostic-blob-uses-same-native-download PASS
+EXPORT_CASE unsupported-extension-refuses-and-releases PASS
+EXPORT_CASE cancel-is-bounded-and-retry-is-exact PASS
+EXPORT_CASE document-survives-and-no-script-errors PASS
+NATIVE_SAVE_EXPORT 8/8
