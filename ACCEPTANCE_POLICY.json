@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build570-documents-list-weight-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build596-construction-vat-browser.cjs"
     ],
     [
@@ -360,10 +364,6 @@
     [
       "node",
       "tests/build568-budget-lapsed-cheques-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build570-documents-list-weight-browser.cjs"
     ],
     [
       "node",

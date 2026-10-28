@@ -59,7 +59,10 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First the gates that failed here on the panel review's related runs (owner: «راجع كل لوحات الشركات وكل خيار
+# (AGENTS.md). First build570-documents-list-weight-browser, which failed in build 107 (macOS: the cheques list built in
+# 2.1 ms against the old page's 3.6, 0.58 of it, over the half; here it reads 0.40 to 0.43 on this source and on
+# 1d7dce1 alike, two runs each, so the panel review added nothing to that page; the claim is unchanged). Then the gates
+# that failed here on the panel review's related runs (owner: «راجع كل لوحات الشركات وكل خيار
 # داخلي فيها وشوف تناسق الكلام والمربعات ... صلحها»; none reached by a build), newest first: build596, build571 and build394
 # (the company autopilot pays a covered VAT and accepts the hotel market's offers by itself, before these gates read the
 # player's own taxes page and booking; they set the autopilot aside, which build612 and build613 prove), build359-sim-
@@ -149,6 +152,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build596-construction-vat-browser.cjs'],
     ['node', 'tests/build359-sim-smoothness.cjs'],
     ['node', 'tests/build334-600-air-calendar-regression.cjs'],
@@ -239,7 +243,6 @@ expected_preflight=[
     ['node', 'tests/build561-ipo-offering-browser.cjs'],
     ['node', 'tests/build565-group-dividends-browser.cjs'],
     ['node', 'tests/build568-budget-lapsed-cheques-browser.cjs'],
-    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build573-asset-sale-browser.cjs'],
     ['node', 'tests/build591-service-companies-browser.cjs'],
     ['node', 'tests/business-options-browser.cjs'],
