@@ -53,7 +53,6 @@ function createFeature(input={},defaults={}){
   const feature={id,layerId,key:`${layerId}:${id}`,category,companyId,geometry,revision,status:String(input.status||''),selected:Boolean(input.selected),priority:Number.isFinite(Number(input.priority))?Number(input.priority):0,label:String(input.label||''),a11yLabel:String(input.a11yLabel||input.label||''),styleToken:String(input.styleToken||''),dataRef:input.dataRef==null?null:String(input.dataRef)};
   return Object.freeze(feature);
 }
-function featureKey(feature){return `${safeId(feature?.layerId,'layer-id')}:${safeId(feature?.id,'id')}`;}
 function featureIndex(features){
   const index=new Map();for(const input of Array.isArray(features)?features:[]){const feature=input?.key?input:createFeature(input);if(index.has(feature.key))throw new Error(`map-feature-duplicate:${feature.key}`);index.set(feature.key,feature);}return index;
 }
@@ -133,6 +132,6 @@ class SpatialGridIndex{
 }
 function createSpatialIndex(features=[],options={}){return new SpatialGridIndex(options).load(features);}
 
-const API=Object.freeze({VERSION,FILTER_STATE_VERSION,GEOMETRY_TYPES,BASE_CATEGORIES,MARKER_GEOMETRY,DEFAULT_FILTER_STATE,normalizeLongitude,normalizeGeometry,zoomBand,markerGeometry,createFeature,featureKey,featureIndex,diffFeatures,configuredCompanyIds,knownCompany,normalizeFilterState,legacyFilterState,companyVisible,categoryVisible,layerVisible,featureVisible,SpatialGridIndex,createSpatialIndex});
+const API=Object.freeze({VERSION,FILTER_STATE_VERSION,GEOMETRY_TYPES,BASE_CATEGORIES,MARKER_GEOMETRY,DEFAULT_FILTER_STATE,normalizeLongitude,normalizeGeometry,zoomBand,markerGeometry,createFeature,featureIndex,diffFeatures,configuredCompanyIds,knownCompany,normalizeFilterState,legacyFilterState,companyVisible,categoryVisible,layerVisible,featureVisible,SpatialGridIndex,createSpatialIndex});
 globalThis.GH_MAP_FEATURE_CORE=API;if(globalThis.window&&window!==globalThis)window.GH_MAP_FEATURE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

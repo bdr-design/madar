@@ -140,7 +140,7 @@ const app=fs.readFileSync(path.join(WEB,'app.js'),'utf8');
   assert.match(app,/rowRoots:PROOF_MAINTENANCE_ROLLBACK/,'the proof passes use the root copy-on-write rollback policy');
   assert.match(app,/entry\.task==='proof-audit'\)\{if\(!advanceArchivedProofValidation\(entry\)\)return false;/,'the bounded proof audit prepares archived hashes on the worker too');
   assert.match(app,/GH_FLEET_DATA\.maintainStages\?\.\(state,entry\.day\)/,'fleet value collection is resumed across maintenance frames with its committed day');
-  assert.match(app,/if\(completedBoundary\.day!==null\)queueFleetMaintenance\(completedBoundary\.day\)/,'a committed day queues staged fleet maintenance');
+  assert.match(app,/if\(completedBoundary\.day!==null\)\{queueFleetMaintenance\(completedBoundary\.day\);queueCompanyAutopilot\(completedBoundary\.day\);\}/,'a committed day queues staged fleet maintenance and the company autopilot');
   assert.ok(!/GH_FLEET_DATA\.maintain\(state,completedBoundary\.day\)/.test(app),'the simulation completion path never drains fleet GC synchronously');
   assert.match(app,/step\.value\?\.stage==='compact'.*GH_MAP_STRUCTURE_REVISION/,'the map revision moves only after staged compaction publishes');
   assert.match(app,/function recordGuardedDiagnosticFrame\([^\n]*simulationProgressExpected:false/,'guarded frames tell diagnostics that simulation progress is intentionally paused');

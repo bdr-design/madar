@@ -765,9 +765,14 @@
   }
   // Bulk writers consume only success. Do not allocate an unused read-only
   // proxy (or a default options object) for every appended row.
+  // Owner (build 106 iPhone diagnostic: a purchase of 150,000 assets took 5-9 s, its rows copied twice): a writer that
+  // built the row for this call alone and keeps no reference to it passes {fresh:true}. The store copies every value it
+  // keeps (each object through JSON), so the JSON copy here only changes a top-level number that is not finite or is
+  // -0, or a row JSON would rewrite as a whole; such a row is still copied.
+  const freshRow=value=>{const proto=Object.getPrototypeOf(value);if(proto!==null&&Object.getPrototypeOf(proto)!==null||typeof value.toJSON==='function')return false;for(const key in value){const v=value[key];if(typeof v==='number'&&(!Number.isFinite(v)||Object.is(v,-0)))return false;}return true;};
   function add(state,asset,options){
     if(!isObject(asset))throw new TypeError('fleet-add-asset-object-required');
-    const store=storeOf(state),value=store?jsonCopy(asset):copyValue(asset);
+    const store=storeOf(state),value=store?(options?.fresh===true&&freshRow(asset)?asset:jsonCopy(asset)):copyValue(asset);
     if(store){const index=STORE.add(store,value,{at:timeOf(state)});return options?.returnView===false?true:viewAt(state,index);}
     ensure(state);const assets=arrayOf(state);invalidateArrayIndex(assets);assets.push(value);return options?.returnView===false?true:nested(value);
   }

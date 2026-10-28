@@ -62,11 +62,6 @@
     const label=String(options.label||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     return `<svg class="${options.className?String(options.className).replace(/[^a-z0-9 _-]/gi,''):'gh-qr'}" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges" role="img"${label?` aria-label="${label}"`:''}><rect width="${total}" height="${total}" fill="#ffffff"/><path d="${path}" fill="${ink}"/></svg>`;
   }
-  // ZATCA phase-1 QR: TLV (tag, length, UTF-8 value) of seller, VAT number, timestamp, total with VAT, VAT, in Base64.
-  function zatcaPayload({seller,vatNumber,timestamp,total,vat}){
-    const bytes=[];[[1,seller],[2,vatNumber],[3,timestamp],[4,total],[5,vat]].forEach(([tag,value])=>{const data=utf8(value);if(data.length>255)throw new Error('qr-tlv-too-long');bytes.push(tag,data.length,...data);});
-    let binary='';for(const byte of bytes)binary+=String.fromCharCode(byte);return typeof btoa==='function'?btoa(binary):Buffer.from(binary,'binary').toString('base64');
-  }
-  const API=Object.freeze({VERSION,MAX_VERSION,matrix,svg,zatcaPayload});
+  const API=Object.freeze({VERSION,MAX_VERSION,matrix,svg});
   globalThis.GH_QR=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

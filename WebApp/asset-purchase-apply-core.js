@@ -17,7 +17,7 @@
   const object=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   const clone=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
   const own=(value,key)=>Object.prototype.hasOwnProperty.call(value,key);
-  const APPEND_ONLY=Object.freeze({returnView:false});
+  const APPEND_ONLY=Object.freeze({returnView:false,fresh:true});
 
   function addCrew(counts,staffing,times){
     if(staffing?.mode!=='automatic-fixed'||staffing.ready!==true)return;

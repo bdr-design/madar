@@ -40,6 +40,7 @@ function createSimulationAdapter({from=7200,assets=null,routeOverrides={},financ
     catalogItem:()=>null,queueAssetSaleFinalize:()=>{},
     // Build 371: a committed day queues the staged fleet maintenance owner (runDeferredMaintenance in app.js).
     queueFleetMaintenance:day=>{s.__fleetMaintenanceDays.push(day);},
+    queueCompanyAutopilot:day=>{(s.__companyAutopilotDays||(s.__companyAutopilotDays=[])).push(day);},
     processFinancialDay:day=>{s.__financialDays.push(day);state.lastFinancialDay=day;},
     processMarket:hour=>{s.__marketHours.push(hour);state.lastMarketHour=hour;},
     diag:()=>{},pushAlert:()=>{},routeDistance:()=>0,

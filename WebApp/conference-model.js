@@ -10,7 +10,7 @@ const growth=value=>value==null?'غير متاح':`${number(value)>0?'+':''}${nu
 const freeze=value=>{if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.freeze(value);Object.values(value).forEach(freeze);}return value;};
 const usable=row=>row?.reportedDays>0&&!['error','warning','empty'].includes(row?.dataQuality?.status);
 const annualGrowth=(row,key,year)=>{const days=y=>(Date.UTC(y+1,0,1)-Date.UTC(y,0,1))/86400000;return row?.reportedDays===days(Number(year))&&row?.prior?.reportedDays===days(Number(year)-1)?row.growth?.[key]:null;};
-const coverage=row=>`${int(row?.reportedDays)} يومًا مسجلًا${row?.complete?' · سنة مكتملة':' · فترة غير مكتملة؛ لا تعرض مقارنة نمو سنوية'}`;
+const coverage=row=>`الأيام المسجلة ${int(row?.reportedDays)}${row?.complete?' · سنة مكتملة':' · فترة غير مكتملة؛ لا تعرض مقارنة نمو سنوية'}`;
 const metric=(label,value,id='')=>({id:String(id||label),label:String(label),value:String(value)});
 const cleanText=(value,max=420)=>String(value??'').trim().replace(/\s+/g,' ').slice(0,max);
 const stable=value=>{if(value===null||typeof value!=='object')return JSON.stringify(value);if(Array.isArray(value))return`[${value.map(stable).join(',')}]`;return`{${Object.keys(value).sort().map(key=>`${JSON.stringify(key)}:${stable(value[key])}`).join(',')}}`;};

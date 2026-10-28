@@ -203,6 +203,10 @@
   // apply as for any loan; rejecting or letting it lapse costs only the business. Load: at most 5 open requests, one new
   // request a day at most, 7 days to decide, 40 decisions kept.
   const MAX_OPEN_REQUESTS=5,REQUEST_DAYS=7,REQUEST_HISTORY=40;
+  // A consumer loan's borrower is the retail book; a company loan goes to one of the sector's companies (a consumer loan
+  // named after a hotel company read as a retail loan to a company). The draw keeps the same seed.
+  const RETAIL_BORROWER='محفظة تمويل الأفراد';
+  function requestBorrower(group,productId,draw){const names=group.names.filter(name=>name!==RETAIL_BORROWER);if(productId==='consumer')return RETAIL_BORROWER;const pool=names.length?names:group.names;return pool[Math.floor(draw*pool.length)%pool.length];}
   const REQUEST_SECTORS=Object.freeze([
     {sector:'real-estate',products:['mortgage','project'],names:['شركة الأفق للتطوير العقاري','دار المسكن للاستثمار','مجموعة الواحة السكنية','بيوت الخليج للتطوير']},
     {sector:'industrial',products:['corporate','project'],names:['مصانع النخبة للصناعات المعدنية','شركة الصناعات البلاستيكية المتقدمة','مجمع البناء للأسمنت','شركة الأغذية الوطنية']},
@@ -221,7 +225,7 @@
     if(deterministic(`${day}:loan-request`,0,1)>=Math.min(.7,.15+.10*branches.length))return null;
     const seed=`${day}:loan-request`,group=REQUEST_SECTORS[Math.floor(deterministic(`${seed}:sector`,0,REQUEST_SECTORS.length))%REQUEST_SECTORS.length],productId=group.products[Math.floor(deterministic(`${seed}:product`,0,group.products.length))%group.products.length],product=PRODUCTS[productId],branch=branches[Math.floor(deterministic(`${seed}:branch`,0,branches.length))%branches.length];
     const amount=Math.round(requestBase(product)*deterministic(`${seed}:amount`,1,15)/100000)*100000,riskGrade=pickGrade(deterministic(`${seed}:grade`,0,1)),collateralCoverage=Math.round(deterministic(`${seed}:collateral`,0,1.6)*10)/10;
-    const request={id:`REQ-${++bank.sequence}`,day,expiresDay:day+REQUEST_DAYS,borrower:group.names[Math.floor(deterministic(`${seed}:name`,0,group.names.length))%group.names.length],sector:group.sector,product:productId,amount,termDays:product.termDays,riskGrade,collateralCoverage,branchId:branch.id,branchName:`${branch.city} · ${branch.country}`,status:'بانتظار القرار'};
+    const request={id:`REQ-${++bank.sequence}`,day,expiresDay:day+REQUEST_DAYS,borrower:requestBorrower(group,productId,deterministic(`${seed}:name`,0,1)),sector:group.sector,product:productId,amount,termDays:product.termDays,riskGrade,collateralCoverage,branchId:branch.id,branchName:`${branch.city} · ${branch.country}`,status:'بانتظار القرار'};
     bank.loanRequests.push(request);return request;
   }
   // What a request would earn and risk if approved today (read-only, for the decision card).

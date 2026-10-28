@@ -31,6 +31,9 @@ const results=[];
   results.push({engine:engine.name(),case:'acceleration finishes the actual building and hiring uses one saved command'});
   await open('reservations');await page.fill('#hospCustomer','شركة حجز المتصفح');await page.fill('#hospRooms','3');await page.fill('#hospArrival','2026-01-21');await page.fill('#hospDeparture','2026-01-24');await accept('reserve');
   assert.equal(await page.evaluate(()=>GH_HOSPITALITY_CORE.read(__GH_STATE__).bookings.length),1);
+  // This gate follows the player's own booking through the close; the company autopilot, which accepts the market's
+  // offers by itself (build612), is set aside so that booking stays the only one.
+  await page.evaluate(()=>{delete window.GH_COMPANY_AUTOPILOT;});
   assert.equal(await page.evaluate(()=>__AUDIT__.requestCalendarAdvance(14*86400,'hospitality-regression','اختبار إقفال الضيافة')),true);await page.waitForFunction(()=>!GH_SIM_KERNEL.snapshot().manualAdvance&&__GH_STATE__.lastFinancialDay===14&&GH_HOSPITALITY_CORE.read(__GH_STATE__).lastProcessedDay===14,null,{timeout:90000});assert(await page.evaluate(()=>__GH_STATE__.bank.dailyHistory.some(r=>r.day===14)),'the real calendar also runs the staged bank owner');
   const day=await page.evaluate(()=>({lastDay:GH_HOSPITALITY_CORE.read(__GH_STATE__).lastProcessedDay,deposit:GH_HOSPITALITY_CORE.read(__GH_STATE__).bookings[0].depositCollected,daily:__GH_STATE__.finance.dailyCompanyReports[0].companies.hospitality,outputVat:GH_FINANCE_CORE.book(__GH_STATE__,'hospitality').vat.output,critical:GH_INTEGRITY_CORE.check(__GH_STATE__).counts.critical}));
   assert.equal(day.lastDay,14);assert(day.deposit>0&&day.outputVat>0&&day.daily.operatingRevenue>0);assert.equal(day.critical,0);

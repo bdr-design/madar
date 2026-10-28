@@ -108,16 +108,21 @@
   function requirePlan(plan){if(!validate(plan))throw new TypeError('asset-purchase-plan-invalid');return plan;}
   function requireOffset(group,offset){return integer(offset,'offset',{min:0,max:group.qty-1});}
   function assetId(plan,groupIndex,offset){requirePlan(plan);groupIndex=integer(groupIndex,'group-index',{min:0,max:plan.groups.length-1});const group=plan.groups[groupIndex];return id(group.assetIdPrefix,group.assetSequenceStart+requireOffset(group,offset));}
-  function pendingAssetUnchecked(plan,groupIndex,offset){
+  function pendingAssetUnchecked(plan,groupIndex,offset,shared=null){
     const group=plan.groups[groupIndex];
     const {common,item}=plan,sequence=group.assetSequenceStart+offset,serial=group.serialStart+offset,now=common.simSeconds;
-    return {id:id(group.assetIdPrefix,sequence),ownerCompanyId:common.ownerCompanyId,assetMode:common.assetMode,assetClass:common.assetClass,operationProfileId:common.operationProfileId,type:common.assetMode,icon:item.icon,name:`${common.companyShortName} ${100+serial}`,catalogId:item.id,routeId:null,baseFacility:group.baseId,progress:0,fuel:100,phase:'delivery',model:item.name,year:item.year,condition:item.condition,specs:clone(item.specs),ownership:common.ownership,monthlyLease:common.ownership==='lease'?item.leaseMonthly:0,leaseTermMonths:common.ownership==='lease'?60:0,leaseStartSeconds:common.ownership==='lease'?now:0,purchasePrice:item.price,deliveryOrderId:group.orderId};
+    return {id:id(group.assetIdPrefix,sequence),ownerCompanyId:common.ownerCompanyId,assetMode:common.assetMode,assetClass:common.assetClass,operationProfileId:common.operationProfileId,type:common.assetMode,icon:item.icon,name:`${common.companyShortName} ${100+serial}`,catalogId:item.id,routeId:null,baseFacility:group.baseId,progress:0,fuel:100,phase:'delivery',model:item.name,year:item.year,condition:item.condition,specs:shared?shared.specs:clone(item.specs),ownership:common.ownership,monthlyLease:common.ownership==='lease'?item.leaseMonthly:0,leaseTermMonths:common.ownership==='lease'?60:0,leaseStartSeconds:common.ownership==='lease'?now:0,purchasePrice:item.price,deliveryOrderId:group.orderId};
   }
   function pendingAsset(plan,groupIndex,offset){requirePlan(plan);groupIndex=integer(groupIndex,'group-index',{min:0,max:plan.groups.length-1});offset=requireOffset(plan.groups[groupIndex],offset);return pendingAssetUnchecked(plan,groupIndex,offset);}
-  function deliveredAsset(plan,groupIndex,offset){
-    requirePlan(plan);groupIndex=integer(groupIndex,'group-index',{min:0,max:plan.groups.length-1});const group=plan.groups[groupIndex];offset=requireOffset(group,offset);const asset={...pendingAssetUnchecked(plan,groupIndex,offset),companyName:plan.common.companyName};
+  function deliveredAsset(plan,groupIndex,offset){return deliveredRow(plan,groupIndex,offset,null);}
+  // Owner (build 106 iPhone diagnostic): applyStages hands each row to the adapter, whose fleet copies every value it
+  // keeps, so its rows share one frozen copy of the item's specs and of the base staffing instead of two JSON copies per
+  // row; deliveredAsset still returns its own copies.
+  const frozenCopy=value=>{const out=clone(value);(function freeze(v){if(v&&typeof v==='object'){Object.freeze(v);for(const key of Object.keys(v))freeze(v[key]);}})(out);return out;};
+  function deliveredRow(plan,groupIndex,offset,shared){
+    requirePlan(plan);groupIndex=integer(groupIndex,'group-index',{min:0,max:plan.groups.length-1});const group=plan.groups[groupIndex];offset=requireOffset(group,offset);const asset={...pendingAssetUnchecked(plan,groupIndex,offset,shared),companyName:plan.common.companyName};
     asset.ownerCompanyId=plan.common.ownerCompanyId;asset.deliveryOrderId=group.orderId;asset.requestRef=group.requestRef;asset.paymentRef=group.payment.ref;asset.baseFacility=group.baseId;asset.phase='idle';asset.routeId=null;asset.routeSignature=null;asset.routeSlot=null;asset.departureScheduled=false;asset.progress=0;asset.fuel=100;asset.deliveryStatus='delivered';asset.deliveredDay=group.deliveredDay;asset.deliveredAtSeconds=group.deliveredAtSeconds;
-    asset.staffing={...clone(plan.baseStaffing),contractId:group.contractId,provisionedAt:plan.common.simSeconds,center:group.baseName};asset.crewBlocked=false;return asset;
+    asset.staffing={...(shared?shared.staffing:clone(plan.baseStaffing)),contractId:group.contractId,provisionedAt:plan.common.simSeconds,center:group.baseName};asset.crewBlocked=false;return asset;
   }
   function idsForGroup(group){const out=new Array(group.qty);for(let index=0;index<out.length;index++)out[index]=id(group.assetIdPrefix,group.assetSequenceStart+index);return out;}
   function compactIds(group){
@@ -167,13 +172,14 @@
     const clock=typeof options.clock==='function'?options.clock:(()=>globalThis.performance?.now?.()??Date.now()),budget=Math.min(16,Math.max(.25,Number(options.budgetMs)||DEFAULT_BUDGET_MS)),maxRows=Math.min(512,Math.max(1,Math.floor(Number(options.maxRowsPerSlice)||512)));let checkpoint,committed=false,rolledBack=false,done=0,sliceStarted=clock(),sliceRows=0,groupValueDelta=0;const groupValueDeltas=[];
     const rollback=error=>{if(rolledBack||committed)return;rolledBack=true;if(typeof adapter.rollback==='function')adapter.rollback(checkpoint,error);};
     const boundary=function* (phase,groupIndex){const elapsed=Math.max(0,clock()-sliceStarted);if(elapsed>=budget||sliceRows>=maxRows){yield {phase,groupIndex,done,total:plan.count,rows:sliceRows,elapsedMs:elapsed};sliceStarted=clock();sliceRows=0;}};
+    const shared={specs:frozenCopy(plan.item.specs),staffing:frozenCopy(plan.baseStaffing)};
     try{
       if(typeof adapter.prepareStages==='function')yield* adapter.prepareStages(plan,options);
       checkpoint=typeof adapter.begin==='function'?adapter.begin(plan):undefined;
       for(let groupIndex=0;groupIndex<plan.groups.length;groupIndex++){
         const group=plan.groups[groupIndex],valueUnit=groupValueUnit(plan);let groupPurchasePrice=0,groupDelta=0;if(typeof adapter.beginGroup==='function')adapter.beginGroup(group,groupIndex);yield* boundary('group-begin',groupIndex);
         for(let offset=0;offset<group.qty;offset++){
-          adapter.addAsset(deliveredAsset(plan,groupIndex,offset),{group,groupIndex,offset,index:done});groupPurchasePrice+=plan.item.price;groupDelta+=valueUnit;done++;sliceRows++;
+          adapter.addAsset(deliveredRow(plan,groupIndex,offset,shared),{group,groupIndex,offset,index:done});groupPurchasePrice+=plan.item.price;groupDelta+=valueUnit;done++;sliceRows++;
           yield* boundary('assets',groupIndex);
         }
         groupValueDeltas.push(groupDelta);groupValueDelta+=groupDelta;if(typeof adapter.finishGroup==='function')adapter.finishGroup(group,groupIndex,{contract:employmentContract(plan,groupIndex),hiring:hiringRecord(plan,groupIndex),receipt:deliveredReceiptWithTotal(plan,groupIndex,groupPurchasePrice),groupValueDelta:groupDelta});yield* boundary('group-finish',groupIndex);

@@ -541,18 +541,28 @@
     if(typeof value.documentProofId==='string'&&value.documentProofId)ids.add(value.documentProofId);
     for(const nested of Object.values(value))resultProofIds(nested,ids,seen);
   }
+  // Owner (build 106 iPhone diagnostic: the daily collection walked every replay result, 13 ms of 17): a sealed replay
+  // entry is frozen with everything in it, so the proofs its result names are listed once per entry. An entry that is not
+  // sealed is walked every time, as before.
+  const SEALED_RESULT_PROOFS=new WeakMap();
+  function sealedResultProofIds(cached){
+    if(!cached||typeof cached!=='object'||globalThis.GH_TRANSACTION_CORE?.isSealed?.(cached)!==true)return null;
+    let ids=SEALED_RESULT_PROOFS.get(cached);if(!ids){const found=new Set();resultProofIds(cached.result,found);ids=[...found];SEALED_RESULT_PROOFS.set(cached,ids);}return ids;
+  }
   function referencedProofs(state,pinned=[]){
     const seen=new Set(),roots=new Set(pinned);
     for(const document of stateDocuments(state))if(document?.documentProofId)roots.add(document.documentProofId);
     // A replay result can outlive the corresponding live history row. Its proof
     // and ancestors are still referenced, even when no UI document is present.
-    const visited=new Set();for(const cached of Object.values(state.domainRuntime?.idempotency||{}))resultProofIds(cached?.result,roots,visited);
+    const visited=new Set();for(const cached of Object.values(state.domainRuntime?.idempotency||{})){const ids=sealedResultProofIds(cached);if(ids)for(const id of ids)roots.add(id);else resultProofIds(cached?.result,roots,visited);}
     const stack=[...roots];while(stack.length){const id=stack.pop();if(seen.has(id))continue;seen.add(id);const prior=(getRecord(state,id)||getCheckpoint(state,id))?.previousProofId;if(prior)stack.push(prior);}return seen;
   }
   function compact(state,target=Math.max(0,LIMITS.records-200),pinned=[]){
     const store=ensure(state),referenced=referencedProofs(state,pinned),removable=Object.values(store.recordsById).filter(row=>!referenced.has(row.id)).sort((a,b)=>(Number(a.createdAtSim)||0)-(Number(b.createdAtSim)||0)||String(a.id).localeCompare(String(b.id))),remove=Math.max(0,Object.keys(store.recordsById).length-target);
-    // New maps, never an edit in place: maintenance keeps the members of the old ones as its rollback snapshot.
-    const hot={...store.recordsById};for(const row of removable.slice(0,remove))delete hot[row.id];store.recordsById=hot;
+    // New maps, never an edit in place: maintenance keeps the members of the old ones as its rollback snapshot. Owner (build
+    // 106 iPhone diagnostic): with nothing to remove (fewer records than the target) the map is kept as it is; it was
+    // copied every game day, and the save then wrote its 1.6 MB again.
+    const leaving=removable.slice(0,remove);if(leaving.length){const hot={...store.recordsById};for(const row of leaving)delete hot[row.id];store.recordsById=hot;}
     // The archive is replaced only when records leave it (an unchanged archive keeps its version).
     let archivedRemoved=0;if(store.archiveById){const gone=Object.keys(store.archiveById).filter(id=>!referenced.has(id));if(gone.length){const cold={...store.archiveById};for(const id of gone)delete cold[id];store.archiveById=derive(cold,store.archiveById,{removed:gone});archivedRemoved=gone.length;}}
     // An earlier version standing in supersededById goes with its archive copy.
@@ -910,11 +920,10 @@
       // Proof records are sealed (shared with durable drafts, never edited): binding replaces the record where it lives.
       // Build 359: a compact record keeps the signature snapshot's digest (the document keeps the snapshot), as the archived forms do.
       if(store.recordsById?.[record.id]===record)store.recordsById[record.id]=bound;else if(store.supersededById?.[record.id]===record)store.supersededById[record.id]=bound;else if(store.archiveById?.[record.id]===record)store.archiveById=derive({...store.archiveById,[record.id]:bound},store.archiveById,{changed:[record.id]});else throw new Error('document-proof-residency-conflict');const target=writableDocument(state,document);target.authorizationProofId=proof.id;target.authorizationKind=proof.mode;target.signatureSnapshot=clone(signatureSnapshot);}return rows.length;}
-  function markLegacy(state,document,options={}){if(document.documentProofId)return verifyDocument(state,document);return sealDocument(state,document,{...options,authorizationKind:'legacy-name-only'});}
   // Proof records are inserted whole and replaced, never edited (bindAuthorization replaces): durable drafts share them sealed.
   (globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys])))('documentProofs',['recordsById','supersededById']);
   // Build 359: the archive, checkpoints and period sums are replaced on every change (copy-on-write), never edited: each is
   // sealed whole once its members are (a container, GH_TRANSACTION_CORE), so commands share them without walking them.
   (globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys,options)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys,options])))('documentProofs',['archiveById','checkpointsById','periodDigests','sealedPeriods'],{container:true});
-  const API=Object.freeze({VERSION,ARCHIVED_WORKER_VERSION,ARCHIVED_FORM_V2,COMPACT_FORM,compactLiveRecords,checkpointAuditSteps,walkDocuments,walkDocumentEntries,checkpointVerified,periodVerified,releasesAuthorization,SCHEMA,CONTENT_SCHEMA,RECORD_VERSION,LIMITS,DOCUMENT_TYPES,TRANSITIONS,ensure,record:getRecord,records,sequenceMark,recordsSince,compact,checkpoint:getCheckpoint,checkpointAncestors,compactArchivedRecords,prepareArchivedRecords,commitArchivedRecords,prepareArchivedVerification,commitArchivedVerification,hashArchivedCandidate,ARCHIVED_FORM,verifyCheckpoints,migratePeriodDigests,sealDocuments,verifySeals,stateDocumentEntries,stateDocuments,companyProfile,issuerSnapshot,counterpartySnapshot,materialDetails,signedContent,sealDocument,amendDocument,markLegacy,verifyRecord,verifyDocument,forensicInspectStateProofsSteps,forensicInspectStateProofs,forensicInspectStateProofsAsync,ledgerProjection,migrateLegacyLedgerProjections,collectResultDocuments,bindAuthorization,locateDocument});globalThis.GH_DOCUMENT_PROOF=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_DOCUMENT_PROOF=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({VERSION,ARCHIVED_WORKER_VERSION,ARCHIVED_FORM_V2,COMPACT_FORM,compactLiveRecords,checkpointAuditSteps,walkDocuments,walkDocumentEntries,checkpointVerified,periodVerified,releasesAuthorization,SCHEMA,CONTENT_SCHEMA,RECORD_VERSION,LIMITS,DOCUMENT_TYPES,TRANSITIONS,ensure,record:getRecord,records,sequenceMark,recordsSince,compact,checkpoint:getCheckpoint,checkpointAncestors,compactArchivedRecords,prepareArchivedRecords,commitArchivedRecords,prepareArchivedVerification,commitArchivedVerification,hashArchivedCandidate,ARCHIVED_FORM,verifyCheckpoints,migratePeriodDigests,sealDocuments,verifySeals,stateDocumentEntries,stateDocuments,companyProfile,issuerSnapshot,counterpartySnapshot,materialDetails,signedContent,sealDocument,amendDocument,verifyRecord,verifyDocument,forensicInspectStateProofsSteps,forensicInspectStateProofs,forensicInspectStateProofsAsync,ledgerProjection,migrateLegacyLedgerProjections,collectResultDocuments,bindAuthorization,locateDocument});globalThis.GH_DOCUMENT_PROOF=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_DOCUMENT_PROOF=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

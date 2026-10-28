@@ -25,6 +25,9 @@ const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
   for(const company of ['group','sea','hospitality'])await a.runAuthorizedDomainCommand('finance','credit',{company,amount:5000000,note:'QA taxable sale',counterparty:'QA Customer',reference:`QA-VAT-${company}`,taxable:true},{silent:true});
   F.book(s,'air').accounts[0].balance=1000;F.reconcile(s);return {insurer:GH_COMPANY_PLATFORM.listInstances(s,{includeGroup:false}).some(row=>row.id==='insurance'&&row.operational)};});
  assert(setup.insurer,'the group has its own insurer');
+ // This gate checks the player's own taxes page; the company autopilot that pays a covered VAT by itself (build612,
+ // build613) is set aside here so the month's VAT is still due when the page opens.
+ await page.evaluate(()=>{delete window.GH_COMPANY_AUTOPILOT;});
  // 1 and 2: the last two days of January
  for(let d=0;d<2;d++){const r=await page.evaluate(async()=>{const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+86400,{reason:'qa-tax-month',speed:300});if(!r.accepted)return r;await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});return {accepted:true};});assert(r.accepted,JSON.stringify(r));}
  const month=await page.evaluate(()=>{const s=__GH_STATE__,policies=s.advanced.insurance.fleetPolicies||[];return {last:s.lastFinancialDay,fatal:(s.controlPlane?.incidents||[]).filter(i=>i.code==='SIM_FATAL_STATE').map(i=>i.detail),air:policies.filter(p=>p.company==='air'&&p.day===30).map(p=>({status:p.status,transfer:p.transferReference})),paid:policies.filter(p=>p.day===30&&p.company!=='air').map(p=>({status:p.status,transfer:Boolean(p.transferReference)})),premiumTransfers:s.finance.transfers.filter(t=>String(t.reference||'').startsWith('FLEET-POLICY-AIR-30')).length,due:(s.finance.periods||[]).filter(p=>p.status==='مستحق').map(p=>p.company).sort()};});

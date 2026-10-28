@@ -216,7 +216,6 @@
   }
   function getSectorIds(stateOrCompanyId,maybeCompanyId){const withState=object(stateOrCompanyId),definition=withState?definitionFor(stateOrCompanyId,maybeCompanyId):getDefinition(stateOrCompanyId);return definition?[...definition.classification.sectorIds]:[];}
   function getOperationProfile(stateOrCompanyId,maybeCompanyId){const withState=object(stateOrCompanyId),definition=withState?definitionFor(stateOrCompanyId,maybeCompanyId):getDefinition(stateOrCompanyId);return definition?.classification.operationProfileId||null;}
-  function getAssetClasses(stateOrCompanyId,maybeCompanyId){const withState=object(stateOrCompanyId),definition=withState?definitionFor(stateOrCompanyId,maybeCompanyId):getDefinition(stateOrCompanyId);return definition?[...definition.classification.assetClasses]:[];}
   function getRouteModes(stateOrCompanyId,maybeCompanyId){const withState=object(stateOrCompanyId),definition=withState?definitionFor(stateOrCompanyId,maybeCompanyId):getDefinition(stateOrCompanyId);return definition?[...definition.classification.routeModes]:[];}
   // Build 358: the group's name brands every subsidiary. «العساف القابضة» opens «شركة العساف للطيران» (trade name
   // «العساف للطيران», short «ASF AIR»). The root drops a leading «شركة»/«مجموعة» and trailing «القابضة»/«المحدودة»; the
@@ -416,7 +415,7 @@
   function snapshot(){return Object.freeze({version:VERSION,stateSchema:STATE_SCHEMA,stateSchemaVersion:STATE_SCHEMA_VERSION,sealed,definitions:definitionsById.size,companyIds:Object.freeze(companyIds()),origins:Object.freeze(Object.fromEntries(origins))});}
 
   installDefinitions(source.list(),{source:'builtin'});
-  const API=Object.freeze({VERSION,STATE_SCHEMA,STATE_SCHEMA_VERSION,MINIMUM_DYNAMIC_COMPANY_BUILD,installDefinition,installDefinitions,listDefinitions,getDefinition,normalizeSectorId,getInstancePolicy,companyIds,listByCapability,isKnownCompany,isKnownSector,isKnownRouteMode,isKnownAssetClass,definitionFor,resolveCompany,requireCompany,listInstances,hasCapability,getSectorIds,getOperationProfile,getAssetClasses,getRouteModes,resolveIdentity,resolveDocumentProfile,brandedIdentity,followsGroup,syncBrandedNames,ownerForLegacyAssetMode,ownerForLegacyRouteMode,assetClassForLegacyMode,operationProfileForLegacyMode,adapterFor,instanceMetadata,planInstance,migrateState,validateState,fleetEvidence,validateDefinition,validateRegistry,seal,isSealed,snapshot});
+  const API=Object.freeze({VERSION,STATE_SCHEMA,STATE_SCHEMA_VERSION,MINIMUM_DYNAMIC_COMPANY_BUILD,installDefinition,installDefinitions,listDefinitions,getDefinition,normalizeSectorId,getInstancePolicy,companyIds,listByCapability,isKnownCompany,isKnownSector,isKnownRouteMode,isKnownAssetClass,definitionFor,resolveCompany,requireCompany,listInstances,hasCapability,getSectorIds,getOperationProfile,getRouteModes,resolveIdentity,resolveDocumentProfile,brandedIdentity,followsGroup,syncBrandedNames,ownerForLegacyAssetMode,ownerForLegacyRouteMode,assetClassForLegacyMode,operationProfileForLegacyMode,adapterFor,instanceMetadata,planInstance,migrateState,validateState,fleetEvidence,validateDefinition,validateRegistry,seal,isSealed,snapshot});
   globalThis.GH_COMPANY_PLATFORM=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_COMPANY_PLATFORM=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

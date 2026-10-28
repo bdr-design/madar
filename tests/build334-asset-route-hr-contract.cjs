@@ -1,13 +1,10 @@
 'use strict';
 
 const assert = require('assert/strict');
-const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 
 process.env.GH_TEST_SOURCE_DIR = path.resolve(__dirname, '..');
 const {harness, minimal} = require('./helpers/core-harness');
-const appSource = fs.readFileSync(path.join(__dirname, '../WebApp/app.js'), 'utf8');
 const defects = [];
 const passes = [];
 const check = (condition, id, evidence) => condition ? passes.push(id) : defects.push({id, evidence});
@@ -44,28 +41,11 @@ catch (_error) { isolationRejected = true; }
 check(isolationRejected, 'ROUTE_COMPANY_ISOLATION', {isolationRejected});
 
 const moving = {...asset('B334-MOVING'), routeId: route.id, phase: 'moving', progress: 0.5, routeSlot: 0};
-const simulationState = {...minimal(), simSeconds: 0, assets: [moving]};
-Object.assign(fleetBox, {
-  SIMULATION_ASSET_ENGINE: fleetBox.GH_SIMULATION_ASSET_CORE,
-  state: simulationState,
-  routeTemplates: {[route.id]: route},
-  clone: structuredClone,
-  clamp: (value, min, max) => Math.max(min, Math.min(max, value)),
-  normalizeAsset: row => fleetBox.GH_FLEET_CORE.normalizeAsset(row, {route}),
-  routeMatchingFacility: () => route,
-  loadLabel: () => '',
-  computeTripEconomics: () => ({margin: 0, revenue: 0, fuelCost: 0, maintReserve: 0, cashContribution: 0}),
-  assetOwnerCompanyId: row => row.ownerCompanyId || row.companyId || row.type,
-  assetModeOf: row => row.assetMode || row.type,
-  formatDuration: String,
-  fmtMoney: String,
-  findFacility: () => null,
-  diag: () => {}
-});
-vm.runInContext(appSource.slice(appSource.indexOf('  function makeSimulationEffects('), appSource.indexOf('  function simulationCalendarDate(')), fleetBox);
-const movingDraft = structuredClone(moving);
-const effects = fleetBox.makeSimulationEffects();
-fleetBox.processAssetDraft(movingDraft, 60, effects, {from: 0, to: 60, speed: 60, infiniteMoney: false});
+// The asset slice semantics (simulation-asset-core processRow, the reference the Fleet Event engine is proven equal to:
+// build356-fleet-events); app.js's unused copy of the same processor was removed.
+const engineContext = {companies: {air: {serviceLevel: 85, automation: 0}}, research: {}, sustainability: {}, economy: {jetFuel: .86, bunker: 600, diesel: 1, airDemand: 100, seaDemand: 100, roadDemand: 100}, market: {share: {}, competitorPressure: {}}, reputation: {}, ownedFacilities: [], simSeconds: 0};
+const processAsset = (row, routeOf) => fleetBox.GH_SIMULATION_ASSET_CORE.processRow({id: row.id, guard: 'b334', asset: structuredClone(row), route: routeOf, catalogSpecs: null, departureDelay: fleetBox.GH_FLEET_CORE.departureDelay(row)}, {simAdvance: 60, simMeta: {from: 0, to: 60}, context: engineContext}).patch;
+const movingDraft = processAsset(moving, route);
 check(movingDraft.departureScheduledAt === 60 + movingDraft.dwellRemaining,
   'ASSET_DEPARTURE_TIMESTAMP_DRIFTS_AFTER_MID_SLICE_ARRIVAL', {
     progressAtStart: 0.5,
@@ -77,13 +57,13 @@ check(movingDraft.departureScheduledAt === 60 + movingDraft.dwellRemaining,
   });
 
 const missingRouteDraft = {...asset('B334-MISSING-ROUTE'), routeId: 'MISSING', phase: 'moving', progress: 0.25};
-fleetBox.processAssetDraft(missingRouteDraft, 60, fleetBox.makeSimulationEffects(), {from: 0, to: 60, speed: 60, infiniteMoney: false});
-check(Boolean(missingRouteDraft.simulationFault) || missingRouteDraft.routeId === null,
+const missingRoutePatch = processAsset(missingRouteDraft, null);
+check(Boolean(missingRoutePatch.simulationFault) || missingRoutePatch.routeId === null,
   'ASSET_WITH_MISSING_ROUTE_FREEZES_SILENTLY', {
-    routeId: missingRouteDraft.routeId,
-    phase: missingRouteDraft.phase,
-    progress: missingRouteDraft.progress,
-    simulationFault: missingRouteDraft.simulationFault || null
+    routeId: missingRoutePatch.routeId,
+    phase: missingRoutePatch.phase,
+    progress: missingRoutePatch.progress,
+    simulationFault: missingRoutePatch.simulationFault || null
   });
 
 const {s: hrBox} = harness(['transaction-core', 'domain-command-core', 'hr-core']);

@@ -98,12 +98,12 @@ const KINDS=Object.freeze({
     {key:'facilities',title:'المستشفيات',sub:'فتح منشأة من دليل المدن',img:'company-hq-v2',icon:'facilities',to:id=>['companyFacilities',id]},
     {key:'overview',title:'التشغيل والإيراد',sub:'الاستغلال والتحصيل ومستوى الأسعار',img:'finance-budget',icon:'revenue',to:id=>['serviceCompany',{company:id}]},
     {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}],sub:'المدير التنفيذي والتوظيف'},FINANCE,BUDGET])}),
-  education:Object.freeze({sector:'التعليم',hero:{key:'operations',title:'المدارس والتسجيل',img:'lead-rnd',icon:'research',to:id=>['serviceCompany',{company:id}]},tiles:Object.freeze([
+  education:Object.freeze({sector:'التعليم',hero:{key:'operations',title:'المدارس والتسجيل',img:'people-recruit',icon:'research',to:id=>['serviceCompany',{company:id}]},tiles:Object.freeze([
     {key:'facilities',title:'المدارس',sub:'فتح منشأة من دليل المدن',img:'group-boardroom',icon:'facilities',to:id=>['companyFacilities',id]},
     {key:'overview',title:'التشغيل والإيراد',sub:'الاستغلال والتحصيل ومستوى الأسعار',img:'finance-budget',icon:'revenue',to:id=>['serviceCompany',{company:id}]},
     {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}],sub:'المدير التنفيذي والتوظيف'},FINANCE,BUDGET])}),
   sports:Object.freeze({sector:'النادي الرياضي',hero:{key:'operations',title:'المباريات والعضويات',img:'people-team',icon:'performance',to:id=>['serviceCompany',{company:id}]},tiles:Object.freeze([
-    {key:'facilities',title:'الملاعب',sub:'فتح منشأة من دليل المدن',img:'hero',icon:'facilities',to:id=>['companyFacilities',id]},
+    {key:'facilities',title:'الملاعب',sub:'فتح منشأة من دليل المدن',img:'company-hq-v2',icon:'facilities',to:id=>['companyFacilities',id]},
     {key:'overview',title:'التشغيل والإيراد',sub:'الاستغلال والتحصيل ومستوى الأسعار',img:'finance-budget',icon:'revenue',to:id=>['serviceCompany',{company:id}]},
     {...MANAGE,to:id=>['companyManage',{type:id,tab:'management'}],sub:'المدير التنفيذي والتوظيف'},FINANCE,BUDGET])}),
   dealership:Object.freeze({sector:'وكالة السيارات',hero:{key:'operations',title:'المخزون والمبيعات',img:'auto-hero',icon:'car-sales',to:id=>['companyManage',{type:id,tab:'operations'}]},tiles:Object.freeze([
@@ -161,13 +161,25 @@ const DEV_PAGES=new Set(['updates','diagnostics','controlPlane']),isRelease=()=>
 function redirect(panel,arg){if(!shown(panel))return ['settings',undefined];const target=REDIRECTS[panel];return target?[target[0],target[1]===null?undefined:target[1]]:null;}
 function rail(state,panel,arg){const place=locate(state,panel,arg);if(place.section==='company')return '';return SECTIONS[place.section]?.nav||'map';}
 function meta(state,panel,arg){
-  if(panel==='hospitality')return ['الفنادق والمنتجعات',shortName(state,argCompany(state,panel,arg))];
-  if(panel==='serviceCompany'){const id=argCompany(state,panel,arg),kind=KINDS[kindOf(state,id)];return [kind?.sector||'الشركة',shortName(state,id)];}
+  if(panel==='hospitality')return tileTitle(state,panel,arg)||['الفنادق والمنتجعات',shortName(state,argCompany(state,panel,arg))];
+  if(panel==='serviceCompany'){const id=argCompany(state,panel,arg),kind=KINDS[kindOf(state,id)];return tileTitle(state,panel,arg)||[kind?.sector||'الشركة',shortName(state,id)];}
   if(panel==='companyMarket'||panel==='operatingAssetMarket')return [shortName(state,argCompany(state,panel,arg)),panel==='companyMarket'?'السوق والمنافسون':'شراء أعمال قائمة'];
   if(panel==='company'){const id=String(arg||''),kind=KINDS[kindOf(state,id)];return [kind?.sector||'الشركة',shortName(state,id)];}
   if(panel==='procurement')return ['العمليات','الطلبات قيد التسليم'];
   if(HUBS[panel])return [SECTIONS[HUBS[panel]].label,HUB_TITLES[panel]];
+  // A company page carries the name of the tile that opens it (the "المطارات والقواعد" tile opens a page of that name,
+  // not "قواعد ومراكز الشركة") under the company's sector; opened from the group, a page keeps its general name.
+  if(TILE_TITLED.has(panel))return tileTitle(state,panel,arg);
   return null;
+}
+const TILE_TITLED=new Set(['companyFacilities','contracts','crews','maintenance','budgets','invoices','assets','assetMarket','routes','energy','bank','insurance','realestate']);
+// The tile of this company that opens the page (the one naming the same tab first). The company desks (energy, bank,
+// insurance, real estate) also take their tab as a plain string and open on their overview without one.
+const DESK_PANELS=new Set(['energy','bank','insurance','realestate']);
+function tileTitle(state,panel,arg){
+  const id=argCompany(state,panel,arg),kind=id?KINDS[kindOf(state,id)]:null;if(!kind)return null;
+  const tab=arg&&typeof arg==='object'?(arg.tab??(DESK_PANELS.has(panel)?'overview':undefined)):DESK_PANELS.has(panel)?(typeof arg==='string'&&arg?arg:'overview'):undefined,rows=[kind.hero,...kind.tiles].filter(row=>row.to(id)[0]===panel),tile=rows.find(row=>tab!==undefined&&row.to(id)[1]?.tab===tab)||rows[0];
+  return tile?[kind.sector,tile.title]:null;
 }
 
 // ---- Rendering -----------------------------------------------------------------------------------------------------
@@ -175,7 +187,8 @@ function tileMarkup(tile,id,extra=''){
   const [panel,arg]=tile.to(id),art=tile.map?`<svg class="mc-routes" viewBox="0 0 176 99" aria-hidden="true"><path d="M90 52Q106 30 124 50M90 52Q66 26 40 38M124 50Q146 46 162 70"></path><circle cx="90" cy="52" r="3.2"></circle><circle cx="124" cy="50" r="3.2"></circle><circle cx="40" cy="38" r="3.2"></circle></svg>`:'';
   return `<button type="button" class="mc-tile" ${go(panel,arg)} data-tile="${esc(tile.key)}"><img src="${ui(tile.img)}" alt="" loading="lazy" decoding="async">${art}<span class="mc-scrim"></span><span class="mc-badge">${icon(tile.icon)}</span>${extra}<span class="mc-text"><b>${esc(tile.title)}</b><small>${esc(tile.sub||'')}</small></span></button>`;
 }
-function money(ctx,value){return ctx.fmtMoney?.(Number(value)||0)||String(value);}
+// A money figure stays left to right inside the Arabic chips («مطالبات $55.2K», not «55.2K$»).
+function money(ctx,value){const shown=ctx.fmtMoney?.(Number(value)||0);return shown?`\u2066${shown}\u2069`:String(value);}
 function companyFacts(state,id,ctx,readFleet=false){
   let summary=null,performance=null,balance=null,manager=null,fleet=null;
   try{const instance=openedCompanies(state).find(row=>row.id===id);summary=globalThis.GH_ADVANCED?.companyOverviewSummary?.(state,instance)||null;}catch(_error){}
@@ -236,15 +249,15 @@ function marketChip2(state,kindId,ctx){
   if(kindId==='dealership'){const m=state.customerCompanies?.companies?.dealership?.market;return m?`تمويل: ${m.floorPlan?'بنك':'نقدًا'}`:'';}
   if(kindId==='telecom'){const branches=state.customerCompanies?.companies?.telecom?.market?.branches||[],own=branches.filter(row=>Number(row.networkLevel)>0).length;return branches.length?`شبكة خاصة ${num(own)}/${num(branches.length)}`:'';}
   if(kindId==='realestate'){const re=state.realEstate,presold=(re?.projects||[]).reduce((sum,row)=>sum+(Number(row.presold)||0),0),roll=Number(re?.serviceChargeRoll)||0;return presold?`خارطة ${num(presold)} وحدة`:roll>0?`رسوم ${money(ctx,roll)}/سنة`:'';}
-  if(kindId==='insurance'){const ins=state.insurance,low=satisfied(ins?.satisfaction);if(low)return low;const reserve=(ins?.claimsReserve||[]).reduce((sum,row)=>sum+(Number(row.amount)||0),0);return reserve>0?`مطالبات ${money(ctx,reserve)}`:'';}
+  if(kindId==='insurance'){const ins=state.insurance,low=satisfied(ins?.satisfaction);if(low)return low;const reserve=(ins?.claimsReserve||[]).reduce((sum,row)=>sum+(Number(row.amount)||0),0);return reserve>0?`احتياطي مطالبات ${money(ctx,reserve)}`:'';}
   if(kindId==='bank'){const low=satisfied(state.bank?.satisfaction);if(low)return low;const sold=Number(state.bank?.dailyHistory?.[0]?.groupInsured)||0;return sold?`تأمين بنكي ${num(sold)}`:'';}
-  if(kindId==='power'){let mw=0;try{for(const row of globalThis.GH_ENERGY_CORE?.siteEconomics?.(state)||[])if(!row.commissioned&&Number(row.phasedShare)>0)mw+=(Number(row.capacity)||0)*Number(row.phasedShare);}catch(_error){mw=0;}return mw>0?`كتل تبيع ${num(Math.round(mw))} MW`:'';}
+  if(kindId==='power'){let mw=0;try{for(const row of globalThis.GH_ENERGY_CORE?.siteEconomics?.(state)||[])if(!row.commissioned&&Number(row.phasedShare)>0)mw+=(Number(row.capacity)||0)*Number(row.phasedShare);}catch(_error){mw=0;}return mw>0?`كتل تبيع ${num(Math.round(mw))} ميغاواط`:'';}
   return '';
 }
 function renderCompany(state,id,ctx){
   const kindId=kindOf(state,id),kind=KINDS[kindId];if(!kind)return '<div class="empty">الشركة غير مفتوحة أو غير معروفة.</div>';
   stickyCompany=id;const facts=companyFacts(state,id,ctx,kind.fleet===true),perf=facts.performance,net=Number(perf?.net)||0,reported=Number(perf?.reportedDays)||0,summary=facts.summary;
-  const kpis=[['رصيد الشركة',Number.isFinite(Number(facts.balance))?money(ctx,facts.balance):'—',''],['صافي 30 يومًا',reported?`${net>=0?'+':''}${money(ctx,net)}`:'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],[summary?.primaryOperatingLabel||'التشغيل',typeof summary?.primaryOperatingCount==='number'?num(summary.primaryOperatingCount):(summary?.primaryOperatingCount??'—'),'']];
+  const kpis=[['رصيد الشركة',Number.isFinite(Number(facts.balance))?money(ctx,facts.balance):'—',''],['صافي 30 يومًا',reported?`${net>0?'+':''}${money(ctx,net)}`:'لم يُقفل بعد',reported?(net>=0?'positive':'negative'):'is-text'],[summary?.primaryOperatingLabel||'التشغيل',typeof summary?.primaryOperatingCount==='number'?num(summary.primaryOperatingCount):(summary?.primaryOperatingCount??'—'),'']];
   const status=facts.manager?.name?statusLine('good',`تعمل · المدير: ${facts.manager.name}`):statusLine('warn','بلا مدير تنفيذي معيّن');
   let chips=[],count='';
   if(kind.fleet){
@@ -285,7 +298,7 @@ const TASK_DOMAINS=Object.freeze({group:['التشغيل','الشركات'],fina
 function sectionTasks(state,section){let tasks=[];try{tasks=globalThis.GH_UI_QUALITY?.collectTasks?.(state)||[];}catch(_error){}const domains=TASK_DOMAINS[section];return domains?tasks.filter(task=>domains.includes(task.domain)):tasks;}
 const taskDecision=task=>[task.priority==='critical'?'safety':'tasks',task.title,task.reason||'يتطلب مراجعة أو متابعة',task.panel||'actionCenter',undefined,'فتح'];
 const countMarkup=(value,unit)=>`<b class="mc-count">${esc(value)}</b><small>${esc(unit)}</small>`;
-const signed=(ctx,value)=>`${value>=0?'+':''}${money(ctx,value)}`;
+const signed=(ctx,value)=>`${value>0?'+':''}${money(ctx,value)}`;
 function groupHub(state,ctx){
   const opened=openedCompanies(state),n=opened.length,facilities=(state.globalBases?.length||0)+(state.customHubs?.length||0)+(state.branches?.length||0);
   let vacant=0;for(const row of opened){try{if(!globalThis.GH_HR_CORE?.officialManager?.(state,row.id))vacant++;}catch(_error){}}
@@ -373,7 +386,7 @@ function decorate(root,panel,arg,ctx){
   const mark=document.getElementById('drawerMark'),eyebrow=document.getElementById('drawerEyebrow'),markKey=`${place.section}|${place.company||''}`;
   if(place.section==='company'){
     if(mark&&(markKey!==lastMark||refresh))mark.innerHTML=logoImg(state,place.company)||icon('group');
-    if(eyebrow)eyebrow.textContent=panel==='company'?(KINDS[kindOf(state,place.company)]?.sector||'الشركة'):shortName(state,place.company);
+    if(eyebrow)eyebrow.textContent=KINDS[kindOf(state,place.company)]?.sector||shortName(state,place.company);
   }else{
     const section=SECTIONS[place.section];if(mark&&markKey!==lastMark)mark.innerHTML=icon(section?.icon||'map');if(eyebrow&&section)eyebrow.textContent=section.label;
   }

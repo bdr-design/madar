@@ -672,12 +672,6 @@
       const out=writeState(storageKey,p.state);return out.ok?p:out;
     }catch(e){return {ok:false,reason:String(e.message||e)};}
   }
-  function clearSlot(index){
-    try{
-      if(bridgeFor('commitSave'))return requestManualSlot('clearManualSlot',index).catch(error=>({ok:false,reason:String(error.message||error)}));
-      localStorage.removeItem(slotKey(index));return {ok:true};
-    }catch(e){return {ok:false,error:String(e.message||e)};}
-  }
   function exportSaveSliced(state,meta){
     return snapshotOperation('backup-export-snapshot',state,meta,async({copy,yieldToFrame,fresh},timing)=>{
       const worker=globalThis.GH_SAVE_CHECKSUM_THREAD,codec=stateCodec();
@@ -699,7 +693,7 @@
     try{assertState(state);const day=Math.floor((Number(state.simSeconds)||0)/86400)+1,pack={format:EXPORT_FORMAT,version:appVersion,saveSchemaVersion:SAVE_SCHEMA_VERSION,saveRevision:Number(state.saveRevision)||0,simSeconds:Number(state.simSeconds)||0,day,state:stateCodec()?stateCodec().encodeState(state):clone(state)};const blob=new Blob([JSON.stringify(pack,null,2)],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=`Ventora_Save_v${appVersion}_D${day}.ghsave`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return {ok:true,filename:a.download};}catch(e){return {ok:false,reason:'export-failed',error:String(e.message||e)};}
   }
   function migrateMetadata(state){state.advanced=state.advanced||{};state.advanced.saveSlots=Array.isArray(state.advanced.saveSlots)?state.advanced.saveSlots:[null,null,null];for(let i=0;i<3;i++){const s=slotStatus(i);state.advanced.saveSlots[i]=s.exists?{date:s.meta?.label||`اليوم ${s.meta?.day||'—'}`,version:s.meta?.appVersion||'legacy',simSeconds:Number(s.meta?.simSeconds)||0}:null;}return state.advanced.saveSlots;}
-  const API=Object.freeze({VERSION,requireFullValidation,fullValidationRequired:()=>fullValidationReason,noteVaultChunks,forgetVaultChunks,prestageDurableChunks,vaultChunkCount:()=>vaultChunks.size,SLOT_FORMAT,LIMITS:PERSISTENCE_LIMITS,fleetRecordLimit,slotStatus,saveSlot,loadSlot,clearSlot,exportSave,migrateMetadata,parseSlot,inspectJSON,inspectNativeJSON,writeJSON,writeState,commitState,commitDurableState,recoverBrowserState,acknowledgeRecovery,markRecoveryRequired,requestNative,receiveAck,receiveSlotAck,drain,replaceState,isLocked:()=>locked||durableLocked||slicedLocked||recoveryRequired,commitStateSliced,slicedSettled,slicedActive:()=>!!slicedSave,
+  const API=Object.freeze({VERSION,requireFullValidation,fullValidationRequired:()=>fullValidationReason,noteVaultChunks,forgetVaultChunks,prestageDurableChunks,vaultChunkCount:()=>vaultChunks.size,SLOT_FORMAT,LIMITS:PERSISTENCE_LIMITS,fleetRecordLimit,slotStatus,saveSlot,loadSlot,exportSave,migrateMetadata,parseSlot,inspectJSON,inspectNativeJSON,writeJSON,writeState,commitState,commitDurableState,recoverBrowserState,acknowledgeRecovery,markRecoveryRequired,requestNative,receiveAck,receiveSlotAck,drain,replaceState,isLocked:()=>locked||durableLocked||slicedLocked||recoveryRequired,commitStateSliced,slicedSettled,slicedActive:()=>!!slicedSave,
     // Cheap read for the save policy (GH_SAVE_POLICY): when the last save of any kind ran.
     saveCadence:()=>({lastSaveAtMs}),telemetry:()=>({generation,pending:pending.size,slotPending:slotPending.size,ordinaryInFlight:!!ordinaryInFlight,ordinaryDirty,recoveryRequired,samples:clone(samples),timings:{lastSaveBreakdown:clone(lastSaveBreakdown),lastNativeAck:clone(lastNativeAck),samples:clone(timingSamples)}})});
   globalThis.GH_PERSISTENCE=API;if(globalThis.window&&window!==globalThis)window.GH_PERSISTENCE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;

@@ -123,10 +123,6 @@
     if(!adapter&&options.required===true)throw new Error(`adapter-not-found:${kind}:${id}`);
     return adapter;
   }
-  function listAdapters(kind){
-    kind=normalizeId(kind);if(!adapters.has(kind))return [];
-    return [...adapters.get(kind).entries()].map(([id,adapter])=>({kind,id,adapter}));
-  }
   function seal(){sealed=true;return snapshot();}
   function isSealed(){return sealed;}
   function snapshot(){
@@ -134,7 +130,7 @@
     return Object.freeze({version:VERSION,sealed,capabilities:definitions.size,builtinCapabilities:BUILTIN_CAPABILITIES.length,adapters:Object.freeze(counts)});
   }
 
-  const API=Object.freeze({VERSION,CAPABILITY_SCHEMA,CAPABILITY_ID,ADAPTER_KINDS,BUILTIN_CAPABILITIES,has,get,list,validate,validateCapability,registerCapability,validateAdapter,registerAdapter,getAdapter,listAdapters,seal,isSealed,snapshot});
+  const API=Object.freeze({VERSION,CAPABILITY_SCHEMA,CAPABILITY_ID,ADAPTER_KINDS,BUILTIN_CAPABILITIES,has,get,list,validate,validateCapability,registerCapability,validateAdapter,registerAdapter,getAdapter,seal,isSealed,snapshot});
   globalThis.GH_CAPABILITY_REGISTRY=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_CAPABILITY_REGISTRY=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

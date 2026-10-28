@@ -12,7 +12,7 @@
   // crewPlan drives the asset's fixed payroll (GH_FLEET_CORE.staffingPlan); deliveryDays the delivery date;
   // residual5y the resale value. legacyIds map the catalogue lines of earlier builds to the real model they stood for.
   const photo = name => `assets/images/${name}.webp`;
-  const days = n => `${Math.round(n/30)} شهرًا تقريبًا`;
+  const days = n => { const m = Math.round(n/30); return `${m <= 1 ? 'شهر واحد' : m === 2 ? 'شهران' : m <= 10 ? `${m} أشهر` : `${m} شهرًا`} تقريبًا`; };
   const air = (id,manufacturer,model,segment,price,image,s,extra={}) => ({
     id,manufacturer,model,name:`${manufacturer} ${model}`,segment,icon:'✈️',base:extra.base||'AP-RUH',price,photo:photo(image),
     leaseMonthly:Math.round(price*.0085),downPayment:.20,deliveryDays:extra.deliveryDays||540,delivery:days(extra.deliveryDays||540),warranty:extra.warranty||'5 سنوات للهيكل · سنتان للمحركات',

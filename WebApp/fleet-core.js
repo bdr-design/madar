@@ -497,7 +497,6 @@
     if(!result.unstaffed){if(current&&current()!==true)throw new Error('fleet-staffing-reconcile-stale');owner.applyCrewTotals(state,result);}
     return {provisioned,needsRefresh:result.unstaffed>0,contracts:contractResult};
   }
-  function reconcileStaffingPlan(state,facilityResolver,result,options={}){const stages=reconcileStaffingPlanStages(state,facilityResolver,result,options);let step;do{step=stages.next();}while(!step.done);return step.value;}
   function reconcileStaffing(state,facilityResolver){
     const fleet=fleetData();reconcileStaffingContracts(state);
     // The normal load path is already fully staffed.  Group equal delivery,
@@ -689,6 +688,6 @@
     if(cmd==='reconcile-staffing')return reconcileStaffing(state,p.facilityResolver);
     throw new Error(`Unknown fleet command: ${cmd}`);
   }
-  const API={VERSION,saleQuote,DISPATCH_INTENT_SCHEMA,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,previewRouteConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffingContractsStages,reconcileStaffingContracts,reconcileStaffingPlanStages,reconcileStaffingPlan,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch,leaseReturnAffordable};
+  const API={VERSION,saleQuote,DISPATCH_INTENT_SCHEMA,purchaseCatalogs,ROLE_DEFAULTS,ROUTE_FLEET_CAPACITY,ROUTE_MAX_FLEET_CAPACITY,requiredRouteCapacity,ROUTE_DEPARTURE_INTERVAL_SECONDS,AUTOMATIC_ROUTE_DENSITY,assetMode,assetOwnerCompanyId,routeMode,routeOwnerCompanyId,requireFleetAsset,requireFleetRoute,normalizeAsset,departDraft,departureDelay,routeCapacity,automaticRouteTargetLoad,routeSignature,routeConflict,routeConflictContext,routeConflicts,previewRouteConflicts,assignRoutesBatch,departBatch,ensure,find,validate,execute,staffingPlan,provisionStaffing,reconcileStaffingContractsStages,reconcileStaffingContracts,reconcileStaffingPlanStages,reconcileStaffing,synchronizeCrew,payrollSummary,monthlyPayroll,headcount,recordDeliveryBatch,withDisposalBatch,leaseReturnAffordable};
   globalThis.GH_FLEET_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('fleet',API);if(globalThis.window&&window!==globalThis)window.GH_FLEET_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

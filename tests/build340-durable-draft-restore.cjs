@@ -95,7 +95,7 @@ function withDurable(draft,fn){const previous=globalThis.__GH_DURABLE_COMMAND_CO
 // 3) source contracts in the game owner
 const app=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8');
 assert.match(app,/runAuthorizedCompositeCommand\('asset-purchase-order',async\(\{state:draft,dispatch,recordAlert,fleetMutation\}\)=>\{/,'purchase owns one discardable durable draft (Build 372: one asset-purchase order)');
-assert.match(app,/await driveAssetPurchaseStages\(Apply\.reserveCapacityStages\(draft,provisional\.plan,/,'purchase keeps its indexed batch alive across cooperative chunk yields (Build 372: indexed capacity stages)');assert.match(app,/await Plan\.applyAtomic\(bound\.plan,adapter,\{budgetMs:4,maxRowsPerSlice:512,yieldControl:async stage=>\{/,'Build 372: the whole order is applied atomically across cooperative slices');
+assert.match(app,/await driveAssetPurchaseStages\(Apply\.reserveCapacityStages\(draft,provisional\.plan,/,'purchase keeps its indexed batch alive across cooperative chunk yields (Build 372: indexed capacity stages)');assert.match(app,/await Plan\.applyAtomic\(bound\.plan,adapter,\{budgetMs:2,maxRowsPerSlice:512,yieldControl:async stage=>\{/,'Build 372: the whole order is applied atomically across cooperative slices');
 assert.match(app,/__GH_DURABLE_COMMAND_CONTEXT__\?\.poisoned===true\)throw new Error\(`\$\{name\}-draft-poisoned`\)/,'runDurableStateCommand refuses to publish a poisoned draft');
 // Build 358: the draft is validated section by section (validateDraftInSlices).
 const poisonIndex=app.indexOf('-draft-poisoned'),schemaMatch=app.slice(poisonIndex).match(/validateDraftInSlices\(draft(?:,|\))/),schemaIndex=schemaMatch?poisonIndex+schemaMatch.index:-1;

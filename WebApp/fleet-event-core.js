@@ -199,7 +199,6 @@
   }
   function bindingOf(store,row){const v=STORE.value(store,STORE.views(store).u32[row*WR+W_BINDING]);return isObject(v)?v:{};}
   function extrasOf(store,row){return (STORE.views(store).u8[row*SR+U_FLAGS]&EXTRAS)?STORE.extrasOf(store,row):null;}
-  function checkpointTime(store,row){const v=STORE.views(store),carry=(v.u32[row*WR+W_PRESENT]&B.simCarrySeconds)?number(v.f64[row*FR+F_CARRY]):0;return v.f64[row*FR+F_AT]-Math.max(0,carry);}
 
   // Next time this asset's discrete state changes (Infinity: never by itself).
   function nextEventTime(store,row){return rowEventTime(engineFor(store),row);}
@@ -297,8 +296,6 @@
     q.revision=store.revision;return q;
   }
   function heapFor(e){const q=queueFor(e);if(!q.heapOk)buildHeap(e);return q;}
-  function validTop(q,length){while(q.size){const row=q.h[1];if(row<length&&q.slot[2*row]===q.h[0])return true;heapPop(q);}return false;}
-  function peekNext(store){const e=engineFor(store),q=heapFor(e);return validTop(q,store.length)?{time:q.h[0],index:q.h[1]}:null;}
   // Time of the k-th next event (by the current schedule): processing every
   // event up to that time processes k events, plus any cascade they schedule.
   function timeForEventBudget(store,k){
@@ -647,7 +644,7 @@
   }
   function queueStats(store){const e=engineFor(store),q=heapFor(e);return {size:q.size,builds:q.builds};}
 
-  const API=Object.freeze({VERSION,DEPARTURE_INTERVAL_SECONDS,advance,nextEventTime,peekNext,timeForEventBudget,currentAsset,checkpointTime,queueStats,derive,boundedLiveDerive:derive,fuelRate,conditionRate});
+  const API=Object.freeze({VERSION,DEPARTURE_INTERVAL_SECONDS,advance,nextEventTime,timeForEventBudget,currentAsset,queueStats,derive,boundedLiveDerive:derive,fuelRate,conditionRate});
   globalThis.GH_FLEET_EVENTS=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_FLEET_EVENTS=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

@@ -24,9 +24,7 @@
     l.events.unshift(event);if(l.events.length>LIMIT)l.events.length=LIMIT;
     return event;
   }
-  function forEntity(state,entityType,entityId,limit=80){return ensure(state).events.filter(e=>e.entityType===entityType&&e.entityId===String(entityId)).slice(0,limit);}
-  function forCorrelation(state,id,limit=120){return ensure(state).events.filter(e=>e.correlationId===String(id)).slice(0,limit);}
   function summary(state){const l=state?.businessLedger&&typeof state.businessLedger==='object'?state.businessLedger:null,events=Array.isArray(l?.events)?l.events:[],byDomain={};for(const e of events)byDomain[e.domain]=(byDomain[e.domain]||0)+1;return {count:events.length,sequence:Math.max(0,Number(l?.sequence)||0),byDomain};}
-  const API=Object.freeze({VERSION,LIMIT,ensure,append,forEntity,forCorrelation,summary});
+  const API=Object.freeze({VERSION,LIMIT,ensure,append,summary});
   globalThis.GH_EVENT_LEDGER=API;if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_EVENT_LEDGER=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

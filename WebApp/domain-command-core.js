@@ -6,7 +6,7 @@
   // references for at-most-once safety, while bounding only results that can still be replayed in full.
   const IDEMPOTENCY_REPLAY_BYTES_LIMIT=1024*1024,IDEMPOTENCY_REPLAY_ROW_BYTES_LIMIT=128*1024,FLEET_RECEIPT_REPLAY_BYTES_LIMIT=IDEMPOTENCY_REPLAY_ROW_BYTES_LIMIT;
   const owners=new Map(),failureSamples=[],SYSTEM_CAPABILITY=Object.freeze({purpose:'gh-domain-system-dispatch-v1'}),SYSTEM_ACTORS=new Set([
-    'banking-read-model','conference-finance','conference-presentation','conference-reputation','delivery-engine','finance-scheduler','financial-close','legacy-migration','payroll-scheduler','project-commissioning','simulation','simulation-core','simulation-finance','simulation-market','simulation-scheduler','system-fleet-auto-disposal','system-mobility-routing-provider','system-route-maintenance','system-routing-provider','system-ui-notification'
+    'banking-read-model','company-autopilot','conference-finance','conference-presentation','conference-reputation','delivery-engine','finance-scheduler','financial-close','legacy-migration','payroll-scheduler','project-commissioning','simulation','simulation-core','simulation-finance','simulation-market','simulation-scheduler','system-fleet-auto-disposal','system-mobility-routing-provider','system-route-maintenance','system-routing-provider','system-ui-notification'
   ]);
   let securityPolicySealed=false,activePlayerApprovalDepth=0;
   const clone=value=>value===undefined?undefined:(globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value)));

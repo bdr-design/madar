@@ -47,7 +47,7 @@ const screenshotDir=process.env.GH_LAYOUT_SCREENSHOTS_DIR||'';
           columns:grid?getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length:0,
           grid:grid?{...rect(grid),client:grid.clientWidth,scroll:grid.scrollWidth}:null,
           cells,
-          expected:[['LDR',`${Number(policy.maxLdr)}%`],['LCR',`${Number(policy.minLcr)}%`],['CET1',`${Number(policy.minCet1)}%`],['تركيز القطاع',`${Number(policy.sectorConcentration)}%`]]
+          expected:[['حد القروض إلى الودائع',`${Number(policy.maxLdr)}%`],['أدنى تغطية سيولة',`${Number(policy.minLcr)}%`],['أدنى رأس مال أساسي',`${Number(policy.minCet1)}%`],['تركيز القطاع',`${Number(policy.sectorConcentration)}%`]]
         };
       });
       assert.equal(measured.paragraphCount,0,`four bank risk values are not packed into one paragraph at ${viewport.width}x${viewport.height}: ${measured.paragraph}`);

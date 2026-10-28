@@ -293,7 +293,7 @@
   // off the live state until publication, so a shared root cannot change between apply and the ACK. Every other command
   // (Mobility itself, HR hiring, which counts vehicles per center, facilities, fleet) copies it with the draft as before.
   const DURABLE_DEFERRED_ROOTS=Object.freeze(['mobility']),DEFERRED_DRAFTS=new WeakMap();
-  const MOBILITY_FREE_COMMANDS=/^(?:banking|customer-companies|insurance|governance|finance):|^authorized:(?:settle-all-payables|settle-all-cheques|record-paid-cheque|pay-all-taxes|launch-ipo|dividend-policy)(?::|$)/;
+  const MOBILITY_FREE_COMMANDS=/^(?:banking|customer-companies|insurance|governance|finance):|^authorized:(?:settle-all-payables|settle-all-cheques|pay-all-taxes|launch-ipo|dividend-policy)(?::|$)/;
   function durableDeferredRoots(label){return MOBILITY_FREE_COMMANDS.test(String(label||''))?DURABLE_DEFERRED_ROOTS:null;}
   function settleDeferredRoots(draft){
     const row=draft&&DEFERRED_DRAFTS.get(draft);if(!row)return {shared:0,copied:0,copyMs:0};DEFERRED_DRAFTS.delete(draft);let shared=0;

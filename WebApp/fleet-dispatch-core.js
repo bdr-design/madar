@@ -120,7 +120,10 @@
   }
   const digestText=(digest,value)=>{if(typeof digest!=='function')throw new Error('fleet-dispatch-digest-owner-required');const out=String(digest(stable(value))||'').toLowerCase();if(!/^[0-9a-f]{64}$/.test(out))throw new Error('fleet-dispatch-digest-invalid');return out;};
   const assignmentRow=row=>({id:String(row?.id||''),routeId:String(row?.routeId||''),routeRef:String(row?.routeRef||''),baseFacility:row?.baseFacility==null?null:String(row.baseFacility),phase:row?.phase==null?null:String(row.phase)});
-  function bytesHex(buffer,from,to){const bytes=new Uint8Array(buffer,from,to-from),parts=new Array(bytes.length);for(let index=0;index<bytes.length;index++)parts[index]=bytes[index].toString(16).padStart(2,'0');return parts.join('');}
+  // Owner (build 106 iPhone diagnostic: a departure of 20,000 assets spent 139 ms here on desktop): each byte's two hex
+  // digits come from a table instead of toString(16).padStart; the text is the same.
+  const HEX=Array.from({length:256},(_,i)=>i.toString(16).padStart(2,'0'));
+  function bytesHex(buffer,from,to){const bytes=new Uint8Array(buffer,from,to-from),parts=new Array(bytes.length);for(let index=0;index<bytes.length;index++)parts[index]=HEX[bytes[index]];return parts.join('');}
   function planMetadata(plan){return {schema:plan.schema,version:plan.version,tag:plan.tag,context:plan.context,count:plan.count,valuesLength:plan.valuesLength,revisionDelta:plan.revisionDelta,staticRows:plan.staticRows,summary:plan.summary};}
   function assignmentChunk(assignments,from,to){return {from,to,rows:assignments.slice(from,to).map(assignmentRow)};}
   function planChunk(plan,from,to,stride){return {from,to,indices:Array.from(plan.indices.subarray(from,to)),bytes:bytesHex(plan.bytes,from*stride,to*stride),extras:plan.extras.slice(from,to)};}

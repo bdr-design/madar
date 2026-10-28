@@ -6,10 +6,11 @@ const path=require('node:path');
 const vm=require('node:vm');
 const Core=require('../WebApp/simulation-asset-core.js');
 
-const app=fs.readFileSync(path.join(__dirname,'../WebApp/app.js'),'utf8');
-const start=app.indexOf('  function processAssetDraft('),end=app.indexOf('\n  function simulationCalendarDate(',start);
-assert(start>=0&&end>start,'Build 340 compatibility processor is present for the equivalence gate');
-const legacySource=app.slice(start,end).trim();
+// The per-asset processor app.js ran before the Fleet Event engine left the app unused; its exact text is kept here
+// (from 1d7dce1) as this equivalence gate's reference.
+const legacyFixture=require('./fixtures/build340-legacy-asset-processor.json'),legacySource=legacyFixture.source;
+assert.equal(require('node:crypto').createHash('sha256').update(legacySource).digest('hex'),legacyFixture.sha256,'Build 340 reference processor unchanged');
+assert.doesNotMatch(fs.readFileSync(path.join(__dirname,'../WebApp/app.js'),'utf8'),/function processAssetDraft\(/,'the app no longer carries the unused processor');
 const clone=value=>structuredClone(value);
 const WRITE_FIELDS=Core.WRITE_FIELDS;
 

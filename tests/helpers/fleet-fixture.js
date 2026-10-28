@@ -6,7 +6,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const ROOT=path.resolve(__dirname,'../..');
 const CORE=require(path.join(ROOT,'WebApp/simulation-asset-core.js'));
 const app=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8');
-const GUARD_FIELDS=(()=>{const write=JSON.parse(app.match(/const SIMULATION_ASSET_FIELDS=(\[[^\]]+\])/)[1].replace(/'/g,'"')),extra=JSON.parse(app.match(/const SIMULATION_ASSET_GUARD_FIELDS=\[\.\.\.SIMULATION_ASSET_FIELDS,([^\]]+)\]/)[1].replace(/^/,'[').replace(/$/,']').replace(/'/g,'"'));return [...write,...extra];})();
+// The old slice engine's guard list (app.js SIMULATION_ASSET_GUARD_FIELDS until the unused processor left the app): the
+// engine's write fields, then these.
+const GUARD_FIELDS=(()=>{const write=JSON.parse(app.match(/const SIMULATION_ASSET_FIELDS=(\[[^\]]+\])/)[1].replace(/'/g,'"'));return [...write,'salePending','tripSeconds','type','assetMode','ownerCompanyId','assetClass','operationProfileId','name','ownership','monthlyLease','purchasePrice','catalogId','specs','staffing'];})();
 const WRITE=CORE.WRITE_FIELDS,INTERVAL={air:180,sea:60,road:15};
 
 const routes={

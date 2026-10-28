@@ -3,16 +3,16 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "5540e9b10821a84689d46aeef94590481a48d3242380bc4ffa4ce87aa09ca139",
-  "webapp_tree_sha256": "ea488729aa2a5f5a2f55bc387f451c7910169e969ae1a73bc6d5879d410a6afb",
+  "source_tree_sha256": "7e721d79f4e32984301dd23a17146bd563b01a7e28a2247bdc17567100fc6cf0",
+  "webapp_tree_sha256": "668c2fc381e711e8ed781c5b18bffc7fcd67d911f83da2f447011b5162f8b4a8",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
       "sha256": "ddfc582b5ce53a62686684a8232f5c3a84e44e3dcef36ec88ac125a16c919971"
     },
     "WebApp/advanced-core.js": {
-      "bytes": 379460,
-      "sha256": "c78a4525b008420e1760bca5ca5afba19b9cc16110512625e859f30bc6eb372e"
+      "bytes": 383907,
+      "sha256": "add1bd4b2d3ad1104bd1bbb13b29db3a6ebcda0e81128514d0ddfe7d654b9ef7"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -23,16 +23,16 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1063285,
-      "sha256": "9aec0761945b8b899a96a94127dbc75143d600441071236ea708d3635bb6ea7e"
+      "bytes": 1064681,
+      "sha256": "5250323cbb6f1bcbc6bf1e3f29e5802d8ba14d452b32d3d516339133eaea7270"
     },
     "WebApp/arabic-copy-core.js": {
-      "bytes": 3015,
-      "sha256": "55be89b2901fb7202785df3eec1bcd3cc32f7931ee0fbca11cee3a8de7f7dd1c"
+      "bytes": 6510,
+      "sha256": "69778720c7e3dcc8caaa2c3a41cec1e7bf9ff98accfd9778718fdd9c52095509"
     },
     "WebApp/asset-purchase-apply-core.js": {
-      "bytes": 32823,
-      "sha256": "691c58cc560058ca66522e5e93498f184f39eeec448b7cd9e1c42dc2282de123"
+      "bytes": 32834,
+      "sha256": "5d205dfcbb29d7ca8623996dae9261a646aa34c5c999f533d11afc0ca8234dcc"
     },
     "WebApp/asset-purchase-domain-core.js": {
       "bytes": 3133,
@@ -43,8 +43,8 @@
       "sha256": "ef8220ffafa05e0232cd53aaec967bc7b5bd8e2365d15ff61e895f8e70be98b7"
     },
     "WebApp/asset-purchase-plan-core.js": {
-      "bytes": 22420,
-      "sha256": "999908a62942306e153185aa4709a41a0c15cdf580ea5d75ffe42565438b40af"
+      "bytes": 23168,
+      "sha256": "ec97fbb60213494471cf035c714678d1ce1feee786aa89f63a1f6ca8534b4b39"
     },
     "WebApp/assets/conference/HALL-ART-NOTES.txt": {
       "bytes": 658,
@@ -3375,24 +3375,24 @@
       "sha256": "c22e1f0e0baee07621cb2e8afe3afa807bf7237b1ca385246131d541c655d63a"
     },
     "WebApp/authorization-core.js": {
-      "bytes": 46690,
-      "sha256": "8767c7ef3cc575e4ac36f2b844ee9c620a6ff4f80616aff50d02d473e836a668"
+      "bytes": 46596,
+      "sha256": "04fd96a25f391847562c312bacc0217c16db108061096a0d72e1660bd2f47744"
     },
     "WebApp/authorization-ui.css": {
       "bytes": 2714,
       "sha256": "86b590bc471b1193dd64d339ab358e19f3eab30625c2e79d7ad8b28e5b461455"
     },
     "WebApp/banking-core.js": {
-      "bytes": 119440,
-      "sha256": "b425b0e09061b747c8e0c8d2c0e578e610550f1b51ec980d21026e9e4cadabe7"
+      "bytes": 119955,
+      "sha256": "37c64dc4d28bd7507a987dbd65c59f86df4b1400e8272b6d9c8564bcf343b98c"
     },
     "WebApp/branch-campaign-core.js": {
       "bytes": 3690,
       "sha256": "0232535619501646f856d8f9d1124c78605e895110a8bea851d67477adfcca14"
     },
     "WebApp/business-options-ui.js": {
-      "bytes": 15167,
-      "sha256": "1f0d38d0d4dd7431b9f57477756a52ce3ad1791c8d920bb51afb5c0e1cb9bfb9"
+      "bytes": 15470,
+      "sha256": "5233fbde5dd296c37f653401c1fe83aebb048c316d0cae2eacabcb4be7b9b0c6"
     },
     "WebApp/business-options.css": {
       "bytes": 501,
@@ -3403,24 +3403,28 @@
       "sha256": "19fc1e658f221dc86df0e68dddc032344cbe3e49a73ff49467c9aa51b3f544a3"
     },
     "WebApp/capability-registry-core.js": {
-      "bytes": 12810,
-      "sha256": "686f0b9ac7f26f0ccbca8f86096fe65c66dec0056446a768fb9af65adfe7a233"
+      "bytes": 12614,
+      "sha256": "844f651d077d3b5ee2e2afe3ac0f1862fcee0fc65ae8ae2388e967c509dfb10f"
     },
     "WebApp/catalog.js": {
-      "bytes": 37511,
-      "sha256": "36c2642889595cd233e702b3de7faa61c0fccd15e406f88a2dd89e4cfed7ccb5"
+      "bytes": 37623,
+      "sha256": "363bd06ab587589745b26a1f830a49c7f714354b35345f7846330c64f0979c3e"
     },
     "WebApp/company-adapters-core.js": {
       "bytes": 14023,
       "sha256": "dbbe93678c135b12f361c95458dba8fd4eac706754af5eae7c516fbc56069d7f"
+    },
+    "WebApp/company-autopilot-core.js": {
+      "bytes": 10335,
+      "sha256": "660a93cd4e854ac964b9e228b4758c9139721fb2166de1cb9a03b203f06245d9"
     },
     "WebApp/company-definitions.js": {
       "bytes": 38943,
       "sha256": "dccc5d9f8e575df387bfcaee51501611915d8ef4b18aecaf19c57aa6aa3425e2"
     },
     "WebApp/company-platform-core.js": {
-      "bytes": 55648,
-      "sha256": "b5ba9ea5e23d2f6f3dc8c1860c9673b7178b81aa5b0ef97422cabb5577ce66da"
+      "bytes": 55364,
+      "sha256": "7beeabd5a0fb8c7878c79101c151ff3d5ff035040da0c8cb81fbf7b4e7678f14"
     },
     "WebApp/company-revenue-chain-core.js": {
       "bytes": 3080,
@@ -3435,24 +3439,24 @@
       "sha256": "71d2185fcb13c03f2f733969bc391df11d42ef7dd60d7524747b095c8becfe6b"
     },
     "WebApp/conference-core.js": {
-      "bytes": 88890,
-      "sha256": "4fb5bd7c30f0b62ac8b66a4176c38308565a18064641f2e612be2b6fb785a7bf"
+      "bytes": 88692,
+      "sha256": "7a4210aaa81e42e099d19a8181847939d0a6760a5326d9a9b49cf1758185b9f7"
     },
     "WebApp/conference-keynote.js": {
       "bytes": 18220,
       "sha256": "0b7917266f2e2947031e8cd175651ac3a5f1c9cc1e48bc8b724638f10841fe25"
     },
     "WebApp/conference-model.js": {
-      "bytes": 14869,
-      "sha256": "a0197807ca47bf8e25c5f2528047ecda2892150efade455ffb28717cfe0fb549"
+      "bytes": 14873,
+      "sha256": "36f35fa2611f9a8f10b2af221c8caa4ef4c6e0ec9428f059512b8711470e2595"
     },
     "WebApp/contracts-core.js": {
       "bytes": 10329,
       "sha256": "5be94389a1cf3f0e93067c1a0b0376b123ef80458c5dc249e3b4a0001739c9e8"
     },
     "WebApp/control-plane-core.js": {
-      "bytes": 45586,
-      "sha256": "ddf4c2de9ab5e937a83e47781ad3e05ef0a49e0cdf9fa8389419b27627e88481"
+      "bytes": 42672,
+      "sha256": "36ad70d904111f2cf22f43d7810961f0bb6b67a5416c8949d39e8f57e71e17f8"
     },
     "WebApp/corporate-core.js": {
       "bytes": 37515,
@@ -3475,8 +3479,8 @@
       "sha256": "3be6d32518e4c124c1fb6754392c6938fb7324baa791ed08fdced072b22b2aad"
     },
     "WebApp/dependency-core.js": {
-      "bytes": 2549,
-      "sha256": "3f14c2d85d64000c8df57a43234b90233f1911528c653916375a9e99b18ccf8f"
+      "bytes": 2310,
+      "sha256": "add1fc27f397c71fb18e80e9cf3997fe410e3726e38f5a7b55ed43bdf720e364"
     },
     "WebApp/determinism-core.js": {
       "bytes": 1728,
@@ -3491,12 +3495,12 @@
       "sha256": "ff1a735b54b1b33bcb204a96658b544adb1a895bb10646068256d5a0dc75b65c"
     },
     "WebApp/document-proof-core.js": {
-      "bytes": 134425,
-      "sha256": "53910c28ba4b93878ce97f4ea8901112f5d549e7dd8f3e700ffe94751dc344c5"
+      "bytes": 135211,
+      "sha256": "7678624a953bf33a38067b28d14c6aa14bd9c865a24dd91a072f027120e2f3dc"
     },
     "WebApp/domain-command-core.js": {
-      "bytes": 60195,
-      "sha256": "d236fcc99e30845cc8ab916398e50ecc359eb5913c610f3576b0df4b50830aba"
+      "bytes": 60215,
+      "sha256": "8a224b30c36361f7c3170a4f63bfa83f2dd3483f50dbd7be3d57d70b5e941180"
     },
     "WebApp/economics-core.js": {
       "bytes": 13291,
@@ -3507,12 +3511,12 @@
       "sha256": "5777a7fb32d466648fe1370b371b81b8438a2404692f665967ed44415c7356ef"
     },
     "WebApp/event-ledger-core.js": {
-      "bytes": 1989,
-      "sha256": "189418d5c0903f4d76984b8af51039861ac79701631af6460219297de45ed07a"
+      "bytes": 1663,
+      "sha256": "5e56d75b0014c29fd4b5c3a0e799dae8529a5ffce9650537a2f891c23a5a312a"
     },
     "WebApp/facility-core.js": {
-      "bytes": 27178,
-      "sha256": "fa07728fe2d642c6ea21cf85ed33a2b1d6ad93c867ebfcbbd4d023c83051c605"
+      "bytes": 27052,
+      "sha256": "34170a29b2d127ca23d403e5b9cc1ee43e1b964d66f2b0ecf2200a72c5595d59"
     },
     "WebApp/finance-core.js": {
       "bytes": 228460,
@@ -3535,20 +3539,20 @@
       "sha256": "2185b66024aa817032cbe2dcdaf804178962f05a552cf1b2230deb3725cd6a6e"
     },
     "WebApp/fleet-access-core.js": {
-      "bytes": 65321,
-      "sha256": "5a21c45c513900d403fa667cc7e56fd88604b347760d1f3972976871c9d9f542"
+      "bytes": 66105,
+      "sha256": "3d8b757905eaa8f091b0ace02393765299dff12f36dedcf55b6a9bfeb7a1d12e"
     },
     "WebApp/fleet-core.js": {
-      "bytes": 69107,
-      "sha256": "e287f1624ddb1160f075bb03628d452f9e631df65c3717149861983690ff6bdd"
+      "bytes": 68860,
+      "sha256": "59ad34d5cc30e6df547999b4a3bd9a09eb1207abe1ed46c928c3a5c0b4f0d17c"
     },
     "WebApp/fleet-day-core.js": {
       "bytes": 20878,
       "sha256": "49af60404278391e739ef626267674aaae7cb640b72f38ebef481eefb88f59d3"
     },
     "WebApp/fleet-dispatch-core.js": {
-      "bytes": 21796,
-      "sha256": "11e4d591056fa961920fb515df375780a8f77e7aa745fef817f888d4c60ecdb0"
+      "bytes": 22055,
+      "sha256": "37b1182693df9ebcc3ccc9286e2db5ba9038257ee89549b4627dd922495be0cb"
     },
     "WebApp/fleet-engine-thread.js": {
       "bytes": 65872,
@@ -3559,8 +3563,8 @@
       "sha256": "35329c8cc810ee1e1479f57ae0d653e79248153bd17cd561728a84186325c267"
     },
     "WebApp/fleet-event-core.js": {
-      "bytes": 49452,
-      "sha256": "891de76e6b8f3c7d0d421feed1b8cf43af9d95c06351e87ac4f1392a69dfdeb9"
+      "bytes": 48967,
+      "sha256": "a04f414aff207eae5e47968bb23dc8773452ee25c1512fb3fc8e482366ad9cf7"
     },
     "WebApp/fleet-global-route-query-core.js": {
       "bytes": 5785,
@@ -3619,8 +3623,8 @@
       "sha256": "b57ada3180793432214dd8c5e8a5183d2241b884519acf0547ab01e7e47cf32b"
     },
     "WebApp/fleet-store-core.js": {
-      "bytes": 132951,
-      "sha256": "40f90a8d5adca68b2feaaf4bcf1236d9db4700f3f3313351f7e655fff242a1d9"
+      "bytes": 132790,
+      "sha256": "b52e56aadad85664ba14bc48b5b45dc276a48b85e2be024cc49db1bab1e75912"
     },
     "WebApp/fleet-ui-summary-core.js": {
       "bytes": 17172,
@@ -3639,8 +3643,8 @@
       "sha256": "4ba72eb795c4cdf0d9c0e7604afbf24d182d7d95c6112c89711cb519c0d67f66"
     },
     "WebApp/governance-core.js": {
-      "bytes": 17029,
-      "sha256": "cf8f3e0226cd295a8cf4711e90b03d7f575ee6b9f1715871d32499f6ab599e4e"
+      "bytes": 16695,
+      "sha256": "cec923a5901a183ff5430bbbf6975930b229072938923ffa0968869b33df1e29"
     },
     "WebApp/hospitality-calendar-core.js": {
       "bytes": 1297,
@@ -3659,12 +3663,12 @@
       "sha256": "4b5a80c968170dced1201b4eba211c4ca0ca15ef12ef4fb369b6a8e7f5387290"
     },
     "WebApp/hospitality-ui.js": {
-      "bytes": 25938,
-      "sha256": "22a920ae3b07620c2d9f30ec5261a73c660a0ccd1f5c44f37c9c54f06bf9121e"
+      "bytes": 26237,
+      "sha256": "ff44ec8ddbeb66bb11fc861945d575e8068c1f6632f423db1eac540dc0ea16f5"
     },
     "WebApp/hospitality.css": {
-      "bytes": 3501,
-      "sha256": "44fe812227bb74593e2c5e1d75495e2b83cb98d809ab565f62c6e1eeea25f832"
+      "bytes": 3768,
+      "sha256": "d79a352e34c844ffb8b8605307110b5c5499c98c70ff48567e26155f6e50e54b"
     },
     "WebApp/hr-core.js": {
       "bytes": 35982,
@@ -3675,8 +3679,8 @@
       "sha256": "d493ba558499d8705b4bc34fa3bfa21a84ccba14276d09ec08b7660182e607dd"
     },
     "WebApp/index.html": {
-      "bytes": 25359,
-      "sha256": "4e4faf54ba1c0b748380a25afc3c108e354254087d05a79ca54c0ded31c652e3"
+      "bytes": 25411,
+      "sha256": "d0da58cb1e7c6ae54b422f349443f526e3c8db096fea63d423bd07b974561889"
     },
     "WebApp/insurance-core.js": {
       "bytes": 34955,
@@ -3711,12 +3715,12 @@
       "sha256": "f3288d258866e64197d590486867b7815cb41c8fcfdef43ee024980d38e0a913"
     },
     "WebApp/madar-shell.css": {
-      "bytes": 14629,
-      "sha256": "7f2ef842a1e2a2d18010481b1598d29d9d1549ca4aea3bf8e240c6b7d6e434f5"
+      "bytes": 16109,
+      "sha256": "f1e6f197b4bddb93249ca248110181332055ff00c645c91f96944a13be939e18"
     },
     "WebApp/madar-shell.js": {
-      "bytes": 59872,
-      "sha256": "bb2c9e4069a26dfbad8e80f6bac5517bfa084be4dc9c60dee2858fdd3f183480"
+      "bytes": 61376,
+      "sha256": "fdf39af0f232847f171b1fe10392ae5c3a3c767f0505eae1a51da74129c7b6aa"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 8132,
@@ -3727,8 +3731,8 @@
       "sha256": "dfb3ff3a140a40e4a0961fd4a6f8ac291135606fecf4740044b41d6e424c7dc4"
     },
     "WebApp/map-feature-core.js": {
-      "bytes": 15467,
-      "sha256": "76d6743316e28a70a7e0581af325a69dec92dd83d8eb7fbb43a8e764403f5fbe"
+      "bytes": 15349,
+      "sha256": "dbaef3db4bc29dc777416a03c3d50a9ef78cdecd45818dbab0480baafe4d6b4b"
     },
     "WebApp/map-labels.js": {
       "bytes": 14354,
@@ -3783,8 +3787,8 @@
       "sha256": "a447bdb05a54d303fdc3becf378a6f91213f5a3d7c7658236c9ca18b4d62c818"
     },
     "WebApp/mobility-core.js": {
-      "bytes": 89438,
-      "sha256": "b878b41d1d78de7c74d220695cc9448ffc14a9195a4a081986903be0eac82764"
+      "bytes": 88450,
+      "sha256": "6338dc7e7f3c57c71eeb4edf325a83abc0f610cf843bb105cdbd617ee4719684"
     },
     "WebApp/operating-acquisition-core.js": {
       "bytes": 14453,
@@ -3795,8 +3799,8 @@
       "sha256": "b456a744f67a407c3ff66fa47b41a87fa5b7e5046898100f056db750c9190dcb"
     },
     "WebApp/persistence-core.js": {
-      "bytes": 81012,
-      "sha256": "bb90c9d552c2342ffdae102f04a6cf6b46af5901ba14b7db560bb5687522574c"
+      "bytes": 80688,
+      "sha256": "47ec36ebbd7c74482eb3a2eec98ae08b8c61d4fcd2af82f8a5400eccea1c0997"
     },
     "WebApp/phone-layout.css": {
       "bytes": 1568,
@@ -3811,24 +3815,24 @@
       "sha256": "c4533a1e53328a2ddbda2bd064974d44cbea90bc46745c97b794d4b85b70574e"
     },
     "WebApp/procurement-core.js": {
-      "bytes": 14928,
-      "sha256": "6481b48cf6d10a3baafaa40fe5cd31222efcb7d216f95c4db7f9d0f6cb2c56cd"
+      "bytes": 14390,
+      "sha256": "69dbbeafb20e0b455deaf42dfea1d38c789d84c48f1f60199563c3785849465f"
     },
     "WebApp/proof-verification-worker.js": {
       "bytes": 1287,
       "sha256": "850d0de575cc6e6b0e79166ed50bc1b8fed84735e180bf3026adafeb9f09f873"
     },
     "WebApp/qr-core.js": {
-      "bytes": 7964,
-      "sha256": "f5884430a82700ba4e9aef0aadf8e85a4525bed1a4ef20844a5a2e32c6d5d018"
+      "bytes": 7373,
+      "sha256": "f740a163de2177e3f0c2164da03d161c95880d185cf967165218547ea6b307eb"
     },
     "WebApp/realestate-core.js": {
       "bytes": 62046,
       "sha256": "1a0b395b5293822e1b2e3745b635b10d06735ff60b12fa8acf18abc9bd00e666"
     },
     "WebApp/realism-core.js": {
-      "bytes": 122424,
-      "sha256": "afe6e1e40949d5178d0794735e6a704ba9fd80b8f883cc53f2403425ff9f4d70"
+      "bytes": 122428,
+      "sha256": "168c9b10e8a897adf9b56814e76f85df0bc14d181e63da07ee3e6a6df5498145"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -3847,8 +3851,8 @@
       "sha256": "f57ffab1ac776ccaa527a4c42994c6cf082730ddcb180d8233ebab3aa1af1923"
     },
     "WebApp/runtime-required.json": {
-      "bytes": 37027,
-      "sha256": "2d74f1525d93db8cfa712dabb797f732427d982d8f52a74fb88af414efe6d81c"
+      "bytes": 37060,
+      "sha256": "7c6c7f91fbb9be7f81db2cc6835d0b881f88bbaddbf2dc0801f7c69f0a9b40d8"
     },
     "WebApp/save-checksum-thread.js": {
       "bytes": 11845,
@@ -3867,8 +3871,8 @@
       "sha256": "e2b6a8811273984167e035dbe9a9ddce9cef58970bb565c56a8370314df64a07"
     },
     "WebApp/save-schema.js": {
-      "bytes": 131414,
-      "sha256": "6d8c65b72e7258f717d3370ca1710260778ca029b78677964e0f325cad871b0d"
+      "bytes": 132161,
+      "sha256": "a604e946f0ab61e02fdd6ceb4ad29472a9151a68759831d5feef718693c25e3c"
     },
     "WebApp/section-identities.css": {
       "bytes": 3518,
@@ -3907,8 +3911,8 @@
       "sha256": "70e6914b542f41c00153bb856c75e0d5fa341643ce00f6c3350879bd3b12f8ee"
     },
     "WebApp/simulation-time-core.js": {
-      "bytes": 2145,
-      "sha256": "7fba65430a479155bf423b5adca04c620bff3948b3da2c1bdab09927aecf6c15"
+      "bytes": 1899,
+      "sha256": "f3565ba9be836343be71eb0461deaadb67851b66486bbe0a61dee59d7119deec"
     },
     "WebApp/state-codec-core.js": {
       "bytes": 115462,
@@ -3927,8 +3931,8 @@
       "sha256": "c2d9bcb0caa0e06eb43eb1b64cdc347303e59d7ae137620442d5eb00b978ee0b"
     },
     "WebApp/transaction-core.js": {
-      "bytes": 102753,
-      "sha256": "56e7d047c829cc322920ccf388fb929416f77269976b812ad60034ab90b0cc33"
+      "bytes": 102734,
+      "sha256": "a2d4ca1701afcab3d777883d9f8ba474913693e3a972f35cdb030d068d353896"
     },
     "WebApp/ui-quality-core.js": {
       "bytes": 6266,
@@ -4028,7 +4032,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "0f3c826aa5e3a096111115e06ff60daf5806bf564ee56f0a9a4fb87045d8f35c"
+      "sha256": "a4e801deb0ea090263405cc1769bcdaf3980b9d9ad1542ca624809b851fe1881"
     },
     "BUILD": {
       "bytes": 4,

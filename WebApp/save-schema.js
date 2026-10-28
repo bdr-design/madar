@@ -372,13 +372,17 @@
   // validation with every nested proof object frozen.
   function verificationView(root){return root&&typeof root==='object'&&!Array.isArray(root)?{...root}:root;}
   let AUTHORIZATION_ARCHIVE_MEMO=null;
-  function validateAuthorizationState(s,errors,verificationCache,metric,trust=false){
+  // Owner (build 106 iPhone diagnostic: the daily close's post-commit check spent 28 ms in one step verifying the day's
+  // new proofs): the proofs are checked in the same order with the same verifier, and past 4 ms of work the walk gives
+  // the frame back ('authorization-proofs'). Returns the time spent paused, which no metric counts.
+  function* validateAuthorizationState(s,errors,verificationCache,metric,trust=false){
+    let paused=0,sliceStarted=metricClock();
     const work=metric?(metric.authorizationWork={stateChecks:1,people:0,seals:0,activeSeals:0,mandates:0,residencyRows:0,proofRows:0,proofVerifyCalls:0,dependencyChecks:0,archiveByteMeasurements:0,archiveMemoHit:false,total:1}):null;
-    const auth=s?.authorization;if(auth===undefined)return;
-    if(!object(auth)||auth.schema!=='gh-authorization-v1'){errors.push('authorization-shape');return;}
+    const auth=s?.authorization;if(auth===undefined)return paused;
+    if(!object(auth)||auth.schema!=='gh-authorization-v1'){errors.push('authorization-shape');return paused;}
     const people=auth.peopleById,seals=object(auth.visualSealAssetsById)?auth.visualSealAssetsById:auth.signatureAssetsById,active=object(auth.activeVisualSealByPerson)?auth.activeVisualSealByPerson:auth.activeSignatureByPerson,mandates=auth.mandatesById,proofs=auth.proofsById;
-    const archived=auth.proofArchiveById||{};if(!object(archived)){errors.push('authorization-proof-archive-shape');return;}
-    if(!object(people)||!object(seals)||!object(active)||!object(mandates)||!object(proofs)){errors.push('authorization-shape');return;}
+    const archived=auth.proofArchiveById||{};if(!object(archived)){errors.push('authorization-proof-archive-shape');return paused;}
+    if(!object(people)||!object(seals)||!object(active)||!object(mandates)||!object(proofs)){errors.push('authorization-shape');return paused;}
     // Build 359: the proof archive is a sealed container (frozen whole, replaced by every writer). A trusted pass answers a
     // version of it that a pass verified without a fault, after checking the people, seals and mandates its proofs rely
     // on (by content: a draft copies those small maps); it then walks the hot proofs only (and checks them against the
@@ -401,8 +405,10 @@
     for(const [id,row] of Object.entries(mandates)){if(work)work.mandates++;if(!id||!object(row)||row.id!==id||!people[row.principalId]||!Array.isArray(row.companyIds)||!row.companyIds.length||row.companyIds.length>120||!Array.isArray(row.scopes)||!row.scopes.length||row.scopes.length>120||!Number.isSafeInteger(Number(row.version))||Number(row.version)<1)errors.push('authorization-mandate');}
     const verifier=globalThis.GH_AUTHORIZATION?.verifyProof;let verificationState=null,verificationStateBuilt=false;const stateForVerification=()=>{if(!verificationStateBuilt){verificationStateBuilt=true;verificationState=typeof verifier==='function'?{...s,authorization:verificationView(auth)}:null;}return verificationState;};
     const proofVerificationStart=metric?metricClock():0;for(const [id,row] of Object.entries(allProofs)){if(work)work.proofRows++;if(!id||!object(row)||row.id!==id||!people[row.signerPersonId]||!seals[row.signatureAssetId||row.visualSealAssetId]||!mandates[row.mandateId]||!validDigest(row.signatureDigest||row.visualSealDigest)||!validDigest(row.payloadDigest)||!validDigest(row.proofDigest)||!Array.isArray(row.documentDigests)||row.documentDigests.some(value=>!validDigest(value)))errors.push('authorization-proof');else if(trust&&VERIFIED_AUTH_PROOFS.has(row)){/* verified earlier in this process */}else if(typeof verifier!=='function')errors.push('authorization-proof-integrity');else{if(work)work.proofVerifyCalls++;if(!verifier(stateForVerification(),id,verificationCache?.authorization).ok)errors.push('authorization-proof-integrity');else VERIFIED_AUTH_PROOFS.add(row);}
-      if(!answered&&archived[id]===row)for(const [map,key] of [['peopleById',row.signerPersonId],[sealMap,row.signatureAssetId||row.visualSealAssetId],['mandatesById',row.mandateId]]){if(work)work.dependencyChecks++;const ref=`${map}\u0000${key}`;if(!relied.has(ref))relied.set(ref,[map,key,JSON.stringify(auth[map]?.[key])]);}}
-    if(!answered)AUTHORIZATION_ARCHIVE_MEMO=errors.length===errorsBefore&&sealedObject(archived)?{archive:archived,relied:[...relied.values()]}:null;if(metric){metric.authorizationProofVerifyMs+=Math.max(0,metricClock()-proofVerificationStart);work.total=work.stateChecks+work.people+work.seals+work.activeSeals+work.mandates+work.residencyRows+work.proofRows+work.proofVerifyCalls+work.dependencyChecks+work.archiveByteMeasurements;}
+      if(!answered&&archived[id]===row)for(const [map,key] of [['peopleById',row.signerPersonId],[sealMap,row.signatureAssetId||row.visualSealAssetId],['mandatesById',row.mandateId]]){if(work)work.dependencyChecks++;const ref=`${map}\u0000${key}`;if(!relied.has(ref))relied.set(ref,[map,key,JSON.stringify(auth[map]?.[key])]);}
+      if(metricClock()-sliceStarted>=4){const pausedAt=metricClock();yield 'authorization-proofs';const resumed=metricClock();paused+=Math.max(0,resumed-pausedAt);sliceStarted=resumed;}}
+    if(!answered)AUTHORIZATION_ARCHIVE_MEMO=errors.length===errorsBefore&&sealedObject(archived)?{archive:archived,relied:[...relied.values()]}:null;if(metric){metric.authorizationProofVerifyMs+=Math.max(0,metricClock()-proofVerificationStart-paused);work.total=work.stateChecks+work.people+work.seals+work.activeSeals+work.mandates+work.residencyRows+work.proofRows+work.proofVerifyCalls+work.dependencyChecks+work.archiveByteMeasurements;}
+    return paused;
   }
   // Build 359 (a million assets: the archive part of the proof store grows with the game, and every command walked it):
   // a trusted pass answers the archive part by the identity of its sealed containers (frozen whole and replaced by every
@@ -808,7 +814,7 @@
       }
     }}
     yield* pause('books',booksWork);
-    let started=metricClock();validateAuthorizationState(s,errors,verificationCache,metric,trust);metric.authorizationMs=Math.max(0,metricClock()-started);
+    let started=metricClock();const authorizationPaused=yield* validateAuthorizationState(s,errors,verificationCache,metric,trust);metric.authorizationMs=Math.max(0,metricClock()-started-authorizationPaused);pausedMs+=authorizationPaused;sectionStarted+=authorizationPaused;
     // Work counters are incremented inside the existing validation walks. This
     // keeps sealed memo hits O(1) and makes a 10,000-document live scan visible.
     {const {total:_total,archiveMemoHit,...work}=metric.authorizationWork||{};yield* pause('authorization',work,{archiveMemoHit:archiveMemoHit===true});}

@@ -30,6 +30,9 @@ const COMPANIES=['media','sports','healthcare','hospitality'];
     // Play past the month's close (the game's calendar starts on 1 January).
     await page.evaluate(()=>{__AUDIT__.closeDrawer();const s=__GH_STATE__;s.godMoney=false;s.infiniteMoney=false;});
     const end=await page.evaluate(()=>{const start=Math.floor(__GH_STATE__.simSeconds/86400),month=new Date(Date.UTC(2026,0,1)+start*864e5).getUTCMonth();for(let d=start+1;d<400;d++){const date=new Date(Date.UTC(2026,0,1)+d*864e5);if(date.getUTCDate()===2&&date.getUTCMonth()!==month)return d;}return 40;});
+    // Claim 2 reads the returns while due; the company autopilot, which pays a covered VAT by itself (build612, build613),
+    // is set aside here.
+    await page.evaluate(()=>{delete window.GH_COMPANY_AUTOPILOT;});
     await page.evaluate(to=>__AUDIT__.simulationEngine.advanceTo(to,{reason:'qa-construction-vat'}),end*86400+1);
     await page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance&&!window.__GH_DURABLE_COMMAND_CONTEXT__,null,{timeout:240000});
     const returns=await page.evaluate(companies=>{const s=__GH_STATE__,F=s.finance;return companies.map(c=>{const b=s.companyFinance[c],period=(F.periods||[]).filter(p=>p.company===c).sort((a,b)=>String(a.id).localeCompare(String(b.id)))[0]||null,inv=F.invoices.filter(i=>i.company===c&&Number(i.at)<=Number(period?.closedAt??Infinity));return {company:c,period:period&&{id:period.id,amount:Number(period.amount),status:period.status},saleVat:inv.filter(i=>i.kind==='دخل').reduce((a,i)=>a+(Number(i.tax)||0),0),buyVat:inv.filter(i=>i.kind!=='دخل').reduce((a,i)=>a+(Number(i.tax)||0),0),payable:Number(b.taxPayable)||0};});},COMPANIES);

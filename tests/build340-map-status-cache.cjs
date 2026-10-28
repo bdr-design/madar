@@ -16,11 +16,11 @@ let assetScans=0,mobilityScans=0,routeScans=0,facilityScans=0,mobilityRevisionRe
 const assetRows=new Proxy(assets,{get(target,key,receiver){if(key===Symbol.iterator||key==='0'){assetScans++;return Reflect.get(target,key,receiver);}return Reflect.get(target,key,receiver);}});
 const vehicles=new Proxy([{status:'moving'},{status:'available'},{status:'moving'}],{get(target,key,receiver){if(key===Symbol.iterator){mobilityScans++;return Reflect.get(target,key,receiver);}return Reflect.get(target,key,receiver);}});
 const state={saveRevision:7,activeFilter:'all',assets:assetRows,mobility:{vehicles}};
-const window={GH_MAP_STRUCTURE_REVISION:3,GH_MOBILITY_CORE:{mapStructureRevision:()=>{mobilityRevisionReads++;return 11;}},GH_FLEET_DATA:require('../WebApp/fleet-access-core.js')};
+const window={GH_ARABIC_COPY:require('../WebApp/arabic-copy-core.js'),GH_MAP_STRUCTURE_REVISION:3,GH_MOBILITY_CORE:{mapStructureRevision:()=>{mobilityRevisionReads++;return 11;}},GH_FLEET_DATA:require('../WebApp/fleet-access-core.js')};
 const dom={mapStatus:{textContent:'',title:''}};
 let fakeNow=1000000;
 const context={state,window,Date:{now:()=>fakeNow},mapFleetSummaryClient:()=>null,mapFleetClassRows:()=>null,mapFleetSummary:{revision:-1},mapTilesOffline:false,mapCategoryVisible:()=>false,operationalRoutes:()=>{routeScans++;return [{routingSource:'OSRM'}];},getDynamicFacilities:()=>{facilityScans++;return [{owned:true},{owned:false}];},$:id=>dom[id]};
-const textHelper=app.slice(app.indexOf('  const setNodeText='),app.indexOf('  function updateKpis('));
+const textHelper=app.slice(app.indexOf('  const setNodeText='),app.indexOf('  function updateKpis('))+'\n'+app.match(/  function countText\([\s\S]*?\n  }\n/)[0];
 const update=vm.runInNewContext(`(()=>{${textHelper}\n${source};return updateMapStatus;})()`,context,{filename:'map-status-cache.js'});
 
 update();

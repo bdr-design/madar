@@ -102,7 +102,6 @@ function deliveredAssetsAtBase(ctx,state,id){
  const data=fleetData(),size=Number(data.size?.(state));if(!Number.isFinite(size)||size>CLOSE_FLEET_FALLBACK_LIMIT)throw new Error('facility-fleet-summary-required');
  return data.some(state,asset=>asset.baseFacility===id)?1:0;
 }
-function availableAssetCapacity(state,f){return Math.max(0,assetCapacity(f)-assetOccupancy(state,f));}
 const DIRECTORY_KIND_BY_COMPANY=Object.freeze({road:'logistics',power:'power',bank:'bank',mobility:'mobility-center'});
 const GLOBAL_KIND_BY_COMPANY=Object.freeze({air:'airport-base',sea:'port-base'});
 function facilityProfile(state,companyId){const definition=companyDefinition(state,companyId);if(!definition)return null;return {definition,kind:definition.facilities.primaryKind,providers:definition.facilities.directoryProviderIds||[],allowedKinds:definition.facilities.allowedKinds||[]};}
@@ -210,5 +209,5 @@ function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);const f=p.id?fin
     if(cmd==='commission-energy'){const k=String(p.key||'capacityMW');s.energy[k]=num(s.energy[k])+num(p.amount);return {key:k,value:s.energy[k]};}
   throw new Error(`Unknown facility command: ${cmd}`);
 }
-const API={VERSION,dailyOperatingCosts,expansionCost,expandable,DEFAULT_ASSET_CAPACITY,ASSET_FACILITY_KINDS,migrateAssetCapacity,migrateOperatingCosts,ensure,all,find,model,ownerCompany,assetCapacity,isAssetFacilityCompatible,assetOccupancy,readAssetOccupancies,availableAssetCapacity,verifyDirectorySite,verifyGlobalSite,validate,execute};globalThis.GH_FACILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('facilities',API);if(globalThis.window&&window!==globalThis)window.GH_FACILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+const API={VERSION,dailyOperatingCosts,expansionCost,expandable,DEFAULT_ASSET_CAPACITY,ASSET_FACILITY_KINDS,migrateAssetCapacity,migrateOperatingCosts,ensure,all,find,model,ownerCompany,assetCapacity,isAssetFacilityCompatible,assetOccupancy,readAssetOccupancies,verifyDirectorySite,verifyGlobalSite,validate,execute};globalThis.GH_FACILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('facilities',API);if(globalThis.window&&window!==globalThis)window.GH_FACILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

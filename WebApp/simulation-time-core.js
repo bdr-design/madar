@@ -31,10 +31,6 @@
     const boundary=nextBoundaryAfter(from);
     return Math.max(MIN_SLICE_SECONDS,Math.min(requested,boundary.hour-from,boundary.day-from));
   }
-  function planSlice(simSeconds,maxSliceSeconds){
-    const from=finiteNonNegative(simSeconds),sliceSeconds=clampSliceToBoundary(from,maxSliceSeconds),to=from+sliceSeconds;
-    return {from,to,sliceSeconds,boundary:boundaryAt(to)};
-  }
   function boundaryOrder(boundary={}){
     const order=[];
     if(boundary.day!==null&&boundary.day!==undefined)order.push('day');
@@ -42,7 +38,7 @@
     return order;
   }
 
-  const API=Object.freeze({VERSION,HOUR_SECONDS,DAY_SECONDS,BOUNDARY_EPSILON,MIN_SLICE_SECONDS,boundaryAt,nextBoundaryAfter,clampSliceToBoundary,planSlice,boundaryOrder});
+  const API=Object.freeze({VERSION,HOUR_SECONDS,DAY_SECONDS,BOUNDARY_EPSILON,MIN_SLICE_SECONDS,boundaryAt,nextBoundaryAfter,clampSliceToBoundary,boundaryOrder});
   globalThis.GH_SIMULATION_TIME_CORE=API;
   if(globalThis.window&&globalThis.window!==globalThis)globalThis.window.GH_SIMULATION_TIME_CORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;
