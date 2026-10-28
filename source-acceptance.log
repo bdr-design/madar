@@ -1,0 +1,3 @@
+preflight 1/629 0 tests/build593-bulk-acquisition-frames-browser.cjs
+preflight 2/629 1 tests/build575-conference-keynote-weight-browser.cjs
+EARLY_FAILURE tests/build575-conference-keynote-weight-browser.cjs: stopping before remaining 627 gate(s)
