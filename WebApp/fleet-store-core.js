@@ -270,23 +270,30 @@
   // from the free list are returned to it on rollback, values appended are
   // removed from the index, and id lookups changed inside the transaction are
   // repaired row by row.
-  function newLog(capacity){return {count:0,capacity,rows:new Int32Array(capacity),words:new Uint32Array(capacity*WORDS_PER_ROW),extras:new Array(capacity)};}
+  // Build 619 (a calendar window at 300k assets reserved its whole log at once: one 67 MB block allocated and copied,
+  // 449 ms in one task at 2x CPU throttle, again on every window since a log that large was not pooled): the blocks are
+  // kept in segments of LOG_SEGMENT_ROWS rows (512 KB), each made when its first row is logged and never copied; the
+  // row list (4 bytes a row) grows as before.
+  const LOG_SEGMENT_SHIFT=12,LOG_SEGMENT_ROWS=1<<LOG_SEGMENT_SHIFT,LOG_SEGMENT_MASK=LOG_SEGMENT_ROWS-1;
+  function newLog(capacity){return {count:0,capacity,rows:new Int32Array(capacity),segments:[],extras:new Array(capacity)};}
   function growLog(log,needed=log.capacity+1){
     let capacity=Math.max(64,log.capacity*2);while(capacity<needed)capacity*=2;
-    const rows=new Int32Array(capacity),words=new Uint32Array(capacity*WORDS_PER_ROW);
-    rows.set(log.rows.subarray(0,log.count));words.set(log.words.subarray(0,log.count*WORDS_PER_ROW));log.rows=rows;log.words=words;log.extras.length=capacity;log.capacity=capacity;
+    const rows=new Int32Array(capacity);
+    rows.set(log.rows.subarray(0,log.count));log.rows=rows;log.extras.length=capacity;log.capacity=capacity;
   }
+  function logSegment(log,slotIndex){const index=slotIndex>>>LOG_SEGMENT_SHIFT;let words=log.segments[index];if(!words){words=new Uint32Array(LOG_SEGMENT_ROWS*WORDS_PER_ROW);log.segments[index]=words;}return words;}
   // Build 372 (a replayed step or slice journals up to every row of a moving fleet: the log grew by doubling, copying
   // itself at each step, 164 ms in one frame of play at a million assets, and a new log and row mark array were made for
   // every transaction): a writer that knows how many rows it will log reserves them at once, and an ended journal's log
   // (up to LOG_POOL_ROWS rows, 32 MB) and row marks are kept on the runtime for the next one. A pooled log is emptied when
-  // it ends (count 0, extras cleared; the marks of its rows are reset there already).
+  // it ends (count 0, extras cleared; the marks of its rows are reset there already). Build 619: a larger log is pooled
+  // too, keeping the segments of its first LOG_POOL_ROWS rows (32 MB as before) and its row list.
   const LOG_POOL_ROWS=1<<18;
   function reserveLog(store,rows){const r=runtime.get(store),journal=r&&r.journal;if(!journal||!journal.active)return;const log=journal.log,needed=Math.min(journal.length,log.count+Math.max(0,rows|0));if(needed>log.capacity)growLog(log,needed);}
   function takeLog(r){const log=r.logPool;r.logPool=null;if(log){log.count=0;return log;}return newLog(64);}
   function takeSeen(r,capacity){const size=Math.max(16,capacity),seen=r.seenPool;r.seenPool=null;return seen&&seen.length>=size?seen:new Uint8Array(size);}
   function releaseJournal(r,journal){
-    const log=journal.log;if(log&&log.capacity<=LOG_POOL_ROWS&&(!r.logPool||r.logPool.capacity<log.capacity)){for(let k=0;k<log.count;k++)log.extras[k]=undefined;log.count=0;r.logPool=log;}
+    const log=journal.log;if(log&&(!r.logPool||r.logPool.capacity<log.capacity)){for(let k=0;k<log.count;k++)log.extras[k]=undefined;log.count=0;if(log.segments.length>LOG_POOL_ROWS>>>LOG_SEGMENT_SHIFT)log.segments.length=LOG_POOL_ROWS>>>LOG_SEGMENT_SHIFT;r.logPool=log;}
     if(journal.seen&&(!r.seenPool||r.seenPool.length<journal.seen.length))r.seenPool=journal.seen;
   }
   function beginJournal(store){
@@ -308,7 +315,7 @@
   function logRow(journal,store,r,index){
     if(index>=journal.length||journal.seen[index])return;
     journal.seen[index]=1;const log=journal.log;if(log.count===log.capacity)growLog(log);
-    const slotIndex=log.count++,words=log.words,from=r.views.u32,src=index*WORDS_PER_ROW,dst=slotIndex*WORDS_PER_ROW;
+    const slotIndex=log.count++,words=logSegment(log,slotIndex),from=r.views.u32,src=index*WORDS_PER_ROW,dst=(slotIndex&LOG_SEGMENT_MASK)*WORDS_PER_ROW;
     log.rows[slotIndex]=index;
     for(let k=0;k<WORDS_PER_ROW;k++)words[dst+k]=from[src+k];
     log.extras[slotIndex]=(r.views.u8[index*STRIDE+O.flags]&EXTRAS)&&own(store.extras,index)?store.extras[index]:undefined;
@@ -408,8 +415,8 @@
     for(const s of snaps){const n=Math.min(s.copy.length,store.capacity);for(let index=0;index<n;index++)s.target[index*s.per+s.k]=s.copy[index];}
     const words=v.u32;
     for(let slotIndex=0;slotIndex<log.count;slotIndex++){
-      const index=log.rows[slotIndex],src=slotIndex*WORDS_PER_ROW,dst=index*WORDS_PER_ROW;
-      for(let k=0;k<WORDS_PER_ROW;k++)words[dst+k]=log.words[src+k];
+      const index=log.rows[slotIndex],block=log.segments[slotIndex>>>LOG_SEGMENT_SHIFT],src=(slotIndex&LOG_SEGMENT_MASK)*WORDS_PER_ROW,dst=index*WORDS_PER_ROW;
+      for(let k=0;k<WORDS_PER_ROW;k++)words[dst+k]=block[src+k];
       for(const s of snaps)if(slotIndex>=s.logCount&&index<s.copy.length)s.target[index*s.per+s.k]=s.copy[index];
       const extras=log.extras[slotIndex];if(extras===undefined)dropExtras(store,index);else putExtras(store,index,extras);
       markDirty(r,index);logDirty(r,index);

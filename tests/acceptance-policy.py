@@ -60,7 +60,14 @@ declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
 # (AGENTS.md). First build358-staged-day-browser, which failed in the early warning with the frames slowed (80 ms):
-# the day close fell within one presentation frame (the same on 88f4014, 3 runs in 5; it passed at normal pace).
+# the day close fell within one presentation frame (the same on 88f4014, 3 runs in 5; it passed at normal pace); it now
+# reads the close across the engine's simulation ticks. Then the calendar batch (owner: «مسموح لك كل شي كمل»), none
+# reached by a build: the new build620-journal-log-segments (a calendar window reserved a 67 MB journal log at once, 449
+# ms in one task; fails on c57745e) and the journal and fleet gates over the log (build372-journal-pool,
+# build357-fleet-journal, build372-store-maintenance-stages, build372-replica-log-browser,
+# build372-asset-purchase-apply), the new build619-dealer-restock-stages (the fortnightly reorder's cheques in one task,
+# 87 ms; fails on c57745e) and the dealer gates (build374, build378, build385, dealer-ledger-and-stock and its browser
+# gate).
 # Then the prepared map render (owner: «موافق», design A), none reached by a build: the new
 # build618-prepared-map-render-browser (the periodic render is prepared in slices and drawn in a task of its own; fails
 # on 88f4014), the text contracts that read the render block and the choice of vehicles (build334-map-pressure-contract,
@@ -199,6 +206,18 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
     ['node', 'tests/build358-staged-day-browser.cjs'],
+    ['node', 'tests/build620-journal-log-segments.cjs'],
+    ['node', 'tests/build619-dealer-restock-stages.cjs'],
+    ['node', 'tests/build372-journal-pool.cjs'],
+    ['node', 'tests/build357-fleet-journal.cjs'],
+    ['node', 'tests/build372-store-maintenance-stages.cjs'],
+    ['node', 'tests/build372-replica-log-browser.cjs'],
+    ['node', 'tests/build372-asset-purchase-apply.cjs'],
+    ['node', 'tests/build374-dealer-market.cjs'],
+    ['node', 'tests/build378-dealer-floor-plan.cjs'],
+    ['node', 'tests/build385-dealer-first-stock.cjs'],
+    ['node', 'tests/dealer-ledger-and-stock.cjs'],
+    ['node', 'tests/dealer-ledger-and-stock-browser.cjs'],
     ['node', 'tests/build618-prepared-map-render-browser.cjs'],
     ['node', 'tests/build334-map-pressure-contract.cjs'],
     ['node', 'tests/build334-iphone-thermal-contract.cjs'],
@@ -474,7 +493,6 @@ expected_preflight=[
     ['node', 'tests/build563-group-share-page-browser.cjs'],
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
-    ['node', 'tests/dealer-ledger-and-stock-browser.cjs'],
     ['node', 'tests/build608-dispatch-hex-proof-compact.cjs'],
     ['node', 'tests/build334-asset-route-hr-contract.cjs'],
     ['node', 'tests/build499-purchase-append-views.cjs'],
@@ -483,7 +501,6 @@ expected_preflight=[
     ['node', 'tests/build358-row-snapshot-rollback.cjs'],
     ['node', 'tests/build359-proof-checkpoints.cjs'],
     ['node', 'tests/build372-asset-purchase-app-browser.cjs'],
-    ['node', 'tests/build372-asset-purchase-apply.cjs'],
     ['node', 'tests/build372-asset-purchase-intent.cjs'],
     ['node', 'tests/build372-asset-purchase-order.cjs'],
     ['node', 'tests/build372-asset-purchase-plan.cjs'],
@@ -585,9 +602,7 @@ expected_preflight=[
     ['node', 'tests/build364-customer-companies-core.cjs'],
     ['node', 'tests/build374-company-options-browser.cjs'],
     ['node', 'tests/build374-customer-base-telecom-market.cjs'],
-    ['node', 'tests/build374-dealer-market.cjs'],
     ['node', 'tests/build378-bank-capital-conservation.cjs'],
-    ['node', 'tests/build378-dealer-floor-plan.cjs'],
     ['node', 'tests/build378-telecom-network.cjs'],
     ['node', 'tests/build382-company-campaigns.cjs'],
     ['node', 'tests/build385-bank-credit-browser.cjs'],
@@ -597,7 +612,6 @@ expected_preflight=[
     ['node', 'tests/build540-bank-fee-close-day.cjs'],
     ['node', 'tests/build546-sponsorship-revenue.cjs'],
     ['node', 'tests/build572-fleet-premium-unpaid.cjs'],
-    ['node', 'tests/dealer-ledger-and-stock.cjs'],
     ['node', 'tests/build362-hospitality-staffing.cjs'],
     ['node', 'tests/build588-energy-ensure-rows.cjs'],
     ['node', 'tests/build586-value-pages-reuse.cjs'],
@@ -619,7 +633,6 @@ expected_preflight=[
     ['node', 'tests/build355-fleet-access.cjs'],
     ['node', 'tests/build356-fleet-events.cjs'],
     ['node', 'tests/build356-fleet-store.cjs'],
-    ['node', 'tests/build357-fleet-journal.cjs'],
     ['node', 'tests/build357-fleet-migration.cjs'],
     ['node', 'tests/build357-fleet-profile-aggregation.cjs'],
     ['node', 'tests/build358-codec-id-runs.cjs'],
@@ -658,13 +671,11 @@ expected_preflight=[
     ['node', 'tests/build372-fleet-ui-summary.cjs'],
     ['node', 'tests/build372-global-route-candidates.cjs'],
     ['node', 'tests/build372-insurance-condition-worker.cjs'],
-    ['node', 'tests/build372-journal-pool.cjs'],
     ['node', 'tests/build372-large-health-fallback-browser.cjs'],
     ['node', 'tests/build372-legacy-route-plan.cjs'],
     ['node', 'tests/build372-legacy-route-repair-index.cjs'],
     ['node', 'tests/build372-manual-departure-plan.cjs'],
     ['node', 'tests/build372-native-migration-chunk-adoption.cjs'],
-    ['node', 'tests/build372-replica-log-browser.cjs'],
     ['node', 'tests/build372-replica-value-log.cjs'],
     ['node', 'tests/build372-route-normalization-plan.cjs'],
     ['node', 'tests/build372-route-reference-proof.cjs'],
@@ -674,7 +685,6 @@ expected_preflight=[
     ['node', 'tests/build372-startup-normalization-plan.cjs'],
     ['node', 'tests/build372-startup-staffing-classes.cjs'],
     ['node', 'tests/build372-startup-staffing-worker-apply.cjs'],
-    ['node', 'tests/build372-store-maintenance-stages.cjs'],
     ['node', 'tests/build374-cheque-payable-lifecycle.cjs'],
     ['node', 'tests/build374-save-slice-telemetry.cjs'],
     ['node', 'tests/build376-seed-metadata-browser.cjs'],

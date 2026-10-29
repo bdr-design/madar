@@ -2,7 +2,7 @@
 // Build 358 section 6: a live day boundary is ONE staged transaction stepped across frames by the real engine
 // (requestAnimationFrame -> GH_SIMULATION_CORE -> createSimulationSliceJob -> GH_TRANSACTION_CORE.beginStaged).
 // With 120 aircraft on routes this checks, in the full app:
-//  - the close spans several frames with no long task (>50 ms) while it runs, and the day commits;
+//  - the close spans several simulation ticks with no long task (>50 ms) while it runs, and the day commits;
 //  - a save requested during the close is deferred (nothing is written until it ends), then written with the closed day;
 //  - a player command issued during the close waits for it and then commits;
 //  - pausing or hiding the app mid-close aborts the transaction and restores the state exactly (everything but the
@@ -68,7 +68,7 @@ const QTY=120;
       const committed=await command;await new Promise(resolve=>setTimeout(resolve,400));
       observer.disconnect();localStorage.setItem=write;engine.frame=engineFrame;
       const staged=frames.filter(f=>f.staged),first=staged[0]?.t??0,end=staged.at(-1)?.t??0,commitTick=ticks.find(tick=>tick.was&&!tick.is);
-      return {startDay,day:s().lastFinancialDay,stagedFrames:staged.length,stagedMs:end-first,maxGap:Math.max(0,...staged.map(f=>f.gap)),
+      return {startDay,day:s().lastFinancialDay,stagedFrames:staged.length,stagedTicks:ticks.filter(tick=>tick.was||tick.is).length,stagedMs:end-first,maxGap:Math.max(0,...staged.map(f=>f.gap)),
         // The close runs from its first staged frame to the end of the simulation tick that commits it (the tick that
         // starts staged and ends not). It used to end a frame (17 ms) after the last staged frame, which took in what
         // follows the close when it starts that soon: the save deferred during it, its own timer task once the state is
@@ -80,7 +80,9 @@ const QTY=120;
     });
     assert.equal(commit.day,commit.startDay+1,'the day close must commit');
     assert.equal(commit.commitTick,true,'the close commits in a simulation tick');
-    assert(commit.stagedFrames>=2,`the close must be staged across frames: ${JSON.stringify(commit)}`);
+    // The close spans several simulation ticks (tasks), read from the engine's own ticks: with presentation frames
+    // slowed to 80 ms a close of a few ticks fell within one frame (the early warning, as on 88f4014, 3 runs in 5).
+    assert(commit.stagedTicks>=2,`the close must be staged across simulation ticks: ${JSON.stringify(commit)}`);
     assert.deepEqual(commit.longDuringClose,[],`no long task while the close runs: ${JSON.stringify(commit.longDuringClose)}`);
     assert.equal(commit.save?.result,true,'a save during the close is accepted (deferred), not dropped');
     assert(!commit.writes.some(w=>w.staged),`nothing is written while staged: ${JSON.stringify(commit.writes)}`);

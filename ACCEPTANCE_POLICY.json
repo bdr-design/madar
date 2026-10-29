@@ -7,6 +7,54 @@
     ],
     [
       "node",
+      "tests/build620-journal-log-segments.cjs"
+    ],
+    [
+      "node",
+      "tests/build619-dealer-restock-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-journal-pool.cjs"
+    ],
+    [
+      "node",
+      "tests/build357-fleet-journal.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-store-maintenance-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-replica-log-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-apply.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-dealer-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-dealer-floor-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build385-dealer-first-stock.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build618-prepared-map-render-browser.cjs"
     ],
     [
@@ -1107,10 +1155,6 @@
     ],
     [
       "node",
-      "tests/dealer-ledger-and-stock-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build608-dispatch-hex-proof-compact.cjs"
     ],
     [
@@ -1140,10 +1184,6 @@
     [
       "node",
       "tests/build372-asset-purchase-app-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-asset-purchase-apply.cjs"
     ],
     [
       "node",
@@ -1551,15 +1591,7 @@
     ],
     [
       "node",
-      "tests/build374-dealer-market.cjs"
-    ],
-    [
-      "node",
       "tests/build378-bank-capital-conservation.cjs"
-    ],
-    [
-      "node",
-      "tests/build378-dealer-floor-plan.cjs"
     ],
     [
       "node",
@@ -1596,10 +1628,6 @@
     [
       "node",
       "tests/build572-fleet-premium-unpaid.cjs"
-    ],
-    [
-      "node",
-      "tests/dealer-ledger-and-stock.cjs"
     ],
     [
       "node",
@@ -1684,10 +1712,6 @@
     [
       "node",
       "tests/build356-fleet-store.cjs"
-    ],
-    [
-      "node",
-      "tests/build357-fleet-journal.cjs"
     ],
     [
       "node",
@@ -1843,10 +1867,6 @@
     ],
     [
       "node",
-      "tests/build372-journal-pool.cjs"
-    ],
-    [
-      "node",
       "tests/build372-large-health-fallback-browser.cjs"
     ],
     [
@@ -1864,10 +1884,6 @@
     [
       "node",
       "tests/build372-native-migration-chunk-adoption.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-replica-log-browser.cjs"
     ],
     [
       "node",
@@ -1904,10 +1920,6 @@
     [
       "node",
       "tests/build372-startup-staffing-worker-apply.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-store-maintenance-stages.cjs"
     ],
     [
       "node",
@@ -2814,6 +2826,14 @@
     [
       "node",
       "tests/build618-prepared-map-render-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build619-dealer-restock-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build620-journal-log-segments.cjs"
     ],
     [
       "node",

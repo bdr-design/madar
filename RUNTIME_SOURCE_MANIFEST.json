@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "1b845abdc2aae1367aac4b81ba37f287ce6f51701722996d3a0138ef65db330f",
-  "webapp_tree_sha256": "95b2207d4dca12def6b9d4876d06c797288609682cbb0e509dc76e790856e470",
+  "source_tree_sha256": "082f481687bbfa3a96da8bff57d5435ea7ba6d7bd9971bc0f431c3414639c955",
+  "webapp_tree_sha256": "c92a4eea773725402b4c80785bbb8a85bd9ec93ed19daea955c032a47406c25d",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3471,8 +3471,8 @@
       "sha256": "ca055a4203312717b5b611eb87d7c49dbab825265c1c7b6e731650ec59f623c6"
     },
     "WebApp/dealer-market-core.js": {
-      "bytes": 35816,
-      "sha256": "ea5e400b8fdd340537fd271f58757a5225c321313eea71a7fcd2693e73b94d2c"
+      "bytes": 36061,
+      "sha256": "7d21087c452ff4a6410191ceff69aed98b022f7329ec95cdeb79a314c0b38b85"
     },
     "WebApp/delivery-monitor-core.js": {
       "bytes": 1726,
@@ -3623,8 +3623,8 @@
       "sha256": "b57ada3180793432214dd8c5e8a5183d2241b884519acf0547ab01e7e47cf32b"
     },
     "WebApp/fleet-store-core.js": {
-      "bytes": 132790,
-      "sha256": "b52e56aadad85664ba14bc48b5b45dc276a48b85e2be024cc49db1bab1e75912"
+      "bytes": 133677,
+      "sha256": "e7f789f57a9f3ac5d07ad38e63cc884dda3678c055b7c8b338e4e4edab72abf8"
     },
     "WebApp/fleet-ui-summary-core.js": {
       "bytes": 17172,
@@ -4032,7 +4032,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "d521a6015e98e1e92caf542560062a86c0047abdeaaf99fdfd7de1d27ba4870a"
+      "sha256": "cd0a4a4474aad290b052d1dedc6879f3232c5723617f0c010b889dd843beb2cb"
     },
     "BUILD": {
       "bytes": 4,

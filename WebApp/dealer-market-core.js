@@ -142,8 +142,10 @@ function showroomCampaign(state,p={}){
 }
 
 // The reorder, every two weeks: each model is brought back to the chosen cover of expected sales when below half of it,
-// in one purchase order per maker (one invoice and one cheque per maker, at most six a round).
-function restock(state,m,day,inventory,shares,peers,economy){
+// in one purchase order per maker (one invoice and one cheque per maker, at most six a round). Build 619: each order is
+// a stage of its own (the six cheques took 87 ms in one task at 2x CPU throttle); the orders, their order and their
+// amounts are the same.
+function* restockStages(state,m,day,inventory,shares,peers,economy){
   const ops=companies().dealerOps,expected=m.showrooms.reduce((sum,row)=>sum+expectedBuyers(state,m,row,day,peers.get(row.country),economy),0),orders=[];if(!expected)return orders;
   const F=finance(),unlimited=globalThis.GH_FINANCE_CORE?.investorMode?.(state);let cash=unlimited?Infinity:num(F.operating?.(state,'dealership'));
   const byMaker=new Map();
@@ -156,6 +158,7 @@ function restock(state,m,day,inventory,shares,peers,economy){
   const needed=[...byMaker.values()].reduce((sum,order)=>sum+order.amount,0);if(needed>cash&&cash!==Infinity){const drawn=drawFloorPlan(state,m,needed-cash,day);if(drawn){orders.floorPlan=drawn;cash=num(F.operating?.(state,'dealership'));}}
   for(const order of byMaker.values()){
     if(order.amount>cash)continue;
+    if(orders.length)yield 'dealer-market:restock-order';
     const result=ops.addStockBatch(state,{oemId:order.oemId,lines:order.lines,reference:`AUTO-RESTOCK-${order.oemId}-${day}`});cash-=order.amount;m.ytd.restockSpend+=order.amount;orders.push({oemId:order.oemId,quantity:result.quantity,amount:order.amount,invoiceNumber:result.invoiceNumber});
   }
   return orders;
@@ -208,7 +211,7 @@ function* dayStages(state,p={}){
   const C=companies(),ops=C.dealerOps,data=state.customerCompanies.companies.dealership,B=base(),economy=typeof B.demandFactor==='function'?B.demandFactor(state,'cars'):1;
   if(m.showrooms.some(row=>row.active))ops.ensureSupplyAgreements(state);
   let inventory=data.inventory;const shares=modelShares(catalogue()),activeByCountry=new Map();for(const row of m.showrooms)if(row.active)activeByCountry.set(row.country,(activeByCountry.get(row.country)||0)+1);
-  let orders=[];if(m.showrooms.some(row=>row.active)&&(m.lastRestockDay<0||day-m.lastRestockDay>=RESTOCK_EVERY)){orders=restock(state,m,day,inventory,shares,activeByCountry,economy);m.lastRestockDay=day;}
+  let orders=[];if(m.showrooms.some(row=>row.active)&&(m.lastRestockDay<0||day-m.lastRestockDay>=RESTOCK_EVERY)){orders=yield* restockStages(state,m,day,inventory,shares,activeByCountry,economy);m.lastRestockDay=day;}
   // The inventory owner normalises/replaces its array while receiving a new SKU. Read that current array after buying,
   // so the first delivery participates in today's sales and financing as well as in the stock display.
   inventory=data.inventory;
