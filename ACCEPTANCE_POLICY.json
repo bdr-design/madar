@@ -7,6 +7,14 @@
     ],
     [
       "node",
+      "tests/build614-panel-copy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/phone-layout-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build358-staged-day-browser.cjs"
     ],
     [
@@ -88,10 +96,6 @@
     [
       "node",
       "tests/build340-map-status-cache.cjs"
-    ],
-    [
-      "node",
-      "tests/build614-panel-copy-browser.cjs"
     ],
     [
       "node",
@@ -384,10 +388,6 @@
     [
       "node",
       "tests/business-options-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/phone-layout-browser.cjs"
     ],
     [
       "node",

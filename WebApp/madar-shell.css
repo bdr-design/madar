@@ -139,10 +139,12 @@ button.pv-row{cursor:pointer}
    instead of breaking word by word; the last box of a two-column grid with an odd count spans the row instead of leaving
    an empty half; the lines of the manual-purchase card, of a facility row (its name and city) and of the asset-sale bar
    (the company and its count) read as lines (they ran together), a label keeps its value apart, and the hero's large count is not cut at its top; the finance overview figures sit in the same boxes as
-   every other grid. */
+   every other grid. The selectors are written out, not grouped in :is(): a list inside :is() keeps the browser from
+   setting aside at once an element outside the drawer, and every div on the page (the conference's slides among them)
+   walked its ancestors to the root on each restyle (build575: the slides' style work grew a fifth, CI builds 110, 111). */
 #drawerBody .list-item-head>.tag{flex:0 0 auto;white-space:nowrap;max-width:62%;overflow:hidden;text-overflow:ellipsis}
-#drawerBody :is(.metric-row,.asset-grid,.ownership-grid,.finance-clean-kpis)>div:last-child:nth-child(odd){grid-column:1/-1}
-#drawerBody :is(.asset-request-routing>div:first-child,.facility-compact-row>div,.fleet-sale-bar>div)>:is(span,b,small){display:block}
+#drawerBody .metric-row>div:last-child:nth-child(odd),#drawerBody .asset-grid>div:last-child:nth-child(odd),#drawerBody .ownership-grid>div:last-child:nth-child(odd),#drawerBody .finance-clean-kpis>div:last-child:nth-child(odd){grid-column:1/-1}
+#drawerBody .asset-request-routing>div:first-child>span,#drawerBody .asset-request-routing>div:first-child>b,#drawerBody .asset-request-routing>div:first-child>small,#drawerBody .facility-compact-row>div>span,#drawerBody .facility-compact-row>div>b,#drawerBody .facility-compact-row>div>small,#drawerBody .fleet-sale-bar>div>span,#drawerBody .fleet-sale-bar>div>b,#drawerBody .fleet-sale-bar>div>small{display:block}
 .mc-text b.mc-count{overflow:visible}
 #drawerBody .spec-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 #drawerBody .finance-clean-kpis>div{background:var(--surface-3);border:1px solid var(--line-soft);border-radius:11px;padding:10px}

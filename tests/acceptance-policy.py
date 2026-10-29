@@ -59,11 +59,15 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build575-conference-keynote-weight-browser, which failed in build 110 at position 291, after 45
-# minutes of gates (macOS: the slides' synchronous build read 30.4 ms against the source before's 24.7, 1.23 of it, over
-# the 1.15; every total read lighter than before: task 2783 ms against 2966, layout 151 against 179, script 105 against
-# 197). Here it reads 1.12 and 1.13 on this source and 1.14 and 1.10 on 1d7dce1, whose build ran it fourth and passed:
-# the panel review added nothing to the slides; the claim is unchanged. Then build358-staged-day-browser, which failed in build 109 (macOS: the pause case found the close
+# (AGENTS.md). First build575-conference-keynote-weight-browser, which failed in builds 110 (position 291: the slides'
+# synchronous build read 1.23 of the source before against the 1.15 bound) and 111 (first: the opening read 147.8 ms
+# against 119.8, and the slides 1.21), after passing in the three builds before the panel review. The panel review's
+# shell rules grouped their scopes in :is(), which keeps the browser from setting aside an element outside the drawer
+# at once: every div on the page, the conference's slides among them, walked its ancestors on each restyle (here the
+# slides' style work read a fifth more with the rules than without them). The rules are written out now, the same
+# boxes, as cheap as without them; the claim is unchanged. Then build614-panel-copy-browser, whose claim 4 now also
+# reads that the shell's rules carry no :is() list (it fails on f1f3448), and phone-layout-browser, whose pinned hash of
+# madar-shell.css changed. Then build358-staged-day-browser, which failed in build 109 (macOS: the pause case found the close
 # committed, simSeconds 172799 -> 172800 and lastFinancialDay 1 -> 2: the engine runs in timer tasks every 8 ms while a
 # job is open and the frames came 116 ms apart, so the test's requestAnimationFrame watch missed the whole close and
 # paused the next slice; reproduced here with frames held 110 ms apart. It now pauses or hides right after the first
@@ -165,6 +169,8 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
+    ['node', 'tests/build614-panel-copy-browser.cjs'],
+    ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
@@ -186,7 +192,6 @@ expected_preflight=[
     ['node', 'tests/build462-market-summary-refresh.cjs'],
     ['node', 'tests/build458-stable-ui-writes.cjs'],
     ['node', 'tests/build340-map-status-cache.cjs'],
-    ['node', 'tests/build614-panel-copy-browser.cjs'],
     ['node', 'tests/build613-company-autopilot-finance.cjs'],
     ['node', 'tests/build612-company-autopilot-browser.cjs'],
     ['node', 'tests/build334-calendar-owner-cadence.cjs'],
@@ -260,7 +265,6 @@ expected_preflight=[
     ['node', 'tests/build573-asset-sale-browser.cjs'],
     ['node', 'tests/build591-service-companies-browser.cjs'],
     ['node', 'tests/business-options-browser.cjs'],
-    ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/tax-precision-and-routing-browser.cjs'],
     ['node', 'tests/build334-accrual-cash-separation-contract.cjs'],
     ['node', 'tests/build334-app-platform-authorization.cjs'],

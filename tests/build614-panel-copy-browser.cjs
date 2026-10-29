@@ -11,7 +11,8 @@
 //     stations, a page reached from a tile carries the tile's name, under the company's sector;
 //  4. the boxes: a short status pill stays on one line, the odd last box of a two-column grid spans the row, a facility
 //     row and the purchase card show their lines apart (they ran together), and no JavaScript error is raised.
-// On the source before the fix (git 1d7dce1) claims 1–3 fail (GH_TEST_SOURCE_DIR pointing at that tree).
+// On the source before the fix (git 1d7dce1) claims 1–3 fail (GH_TEST_SOURCE_DIR pointing at that tree); the :is() check of
+// claim 4 fails on f1f3448.
 process.env.GH_TEST_SOURCE_DIR=process.env.GH_TEST_SOURCE_DIR||require('path').resolve(__dirname,'..');
 const assert=require('node:assert/strict'),{chromium}=require('playwright');
 const {bootRenderApp:boot}=require('./helpers/render-app.cjs'),{installVault}=require('./helpers/differential-vault-fixture.cjs'),{prepareOperatingWorld}=require('./helpers/all-operating-world.cjs');
@@ -74,6 +75,11 @@ const AGREEMENT=[[/(?:^|[^\d,.])(?:[3-9]|10) (?:أصل|شهر|يوم|ساعة|ب
     await open('companyFacilities',companies[0]);
     const lines=await page.evaluate(()=>{const row=document.querySelector('#drawerBody .facility-compact-row>div');return row?[...row.children].map(el=>getComputedStyle(el).display):null;});
     if(lines)assert.deepEqual([...new Set(lines)],['block'],'4: a facility row shows its name and city on lines of their own');
+    // The shell's rules are written out, not grouped in :is()/:where(): a list there keeps the browser from setting aside
+    // an element outside the drawer at once, and every div on the page walked its ancestors on each restyle (the
+    // conference slides' style work grew a fifth; build575 failed in CI builds 110 and 111).
+    const shellRules=require('fs').readFileSync(require('path').join(process.env.GH_TEST_SOURCE_DIR,'WebApp/madar-shell.css'),'utf8').replace(/\/\*[\s\S]*?\*\//g,'');
+    assert.doesNotMatch(shellRules,/:(?:is|where)\(/,'4: the shell rules set aside an element outside their scope at once (no :is() lists)');
     assert.deepEqual(errors,[],'4: no JavaScript errors');
     console.log(JSON.stringify({suite:'build614-panel-copy',ok:true,companies:companies.length,pages:pages.length}));
   }finally{await browser.close();await env?.closeOrigin?.();}
