@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 2: building and laying out the slides costs no more than before: {"before":{"open":142.7,"fastestOpen":82.2,"slides":48,"task":5874.4,"style":562.5,"layout":434,"script":383.1,"passLongest":204,"passLongTasks":1,"sync":30,"worst":1.1,"longest":0,"halves":[0,0],"longTasks":0,"nodes":70,"images":["assets/conference/hall-dark.webp","assets/identity/approved/group-symbol.webp","assets/images/company-hq-v2.webp"]},"after":{"open":126.6,"fastestOpen":78.1,"slides":48,"task":4667.2,"style":437.2,"layout":230.3,"script":219.1,"passLongest":56,"passLongTasks":1,"sync":35.5,"worst":1.5,"longest":0,"halves":[0,0],"longTasks":0,"nodes":70,"images":["assets/identity/approved/group-symbol.webp","assets/conference/hall-dark.webp","assets/images/company-hq-v2.webp"]}}
+    at /Users/runner/work/madar/madar/tests/build575-conference-keynote-weight-browser.cjs:83:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
