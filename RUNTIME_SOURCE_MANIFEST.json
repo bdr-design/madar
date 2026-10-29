@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "3fa17656b55b581cc18c7406c32b9f029e42b6902169161ddad5c34730cbab14",
+  "source_tree_sha256": "5ed5a20eee8d69665ffc6a7c75fd87ad06ee74d1490a64f9c70f5baaac77640d",
   "webapp_tree_sha256": "02388f5fa74cc0226674c506cc79aabad382424df650c0b4333856a22ffa11a4",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
@@ -4023,8 +4023,8 @@
       "sha256": "85b3daf696406b798960f2e67bd999eb74af623b62c212a3280a7324e5173f4d"
     },
     "iOS/GlobalHoldings/GlobalSaveVault.swift": {
-      "bytes": 85197,
-      "sha256": "04a5737ac948f434957011348a7db1cde5fb82d95ea143abb735fe8948812ce0"
+      "bytes": 85195,
+      "sha256": "8232721044363f8102040dabe6be373f69c3aaacb8250d909956179c996ca7df"
     },
     "iOS/GlobalHoldings/LaunchScreen.storyboard": {
       "bytes": 3110,
@@ -4039,8 +4039,8 @@
       "sha256": "a3b7ce50beffd7b1ac94a9193b1e667fbbfca7c5f150e249be939a8c0a3b5769"
     },
     "iOS/GlobalHoldings/VentoraPack.swift": {
-      "bytes": 11146,
-      "sha256": "766d8e42604e69cdc3a6456b1e83ce8153081320c1c1287ddc2124030fc06b11"
+      "bytes": 11144,
+      "sha256": "cce97c7cf092227aa0ffa9c831129cf1d17059b9df22ffb6aac911cfa9c31cf4"
     },
     "iOS/GlobalHoldings/VentoraReleaseKey.swift": {
       "bytes": 327,

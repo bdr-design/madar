@@ -158,7 +158,7 @@ enum VentoraDeviceSecret {
 /// injected instrumentation library and of an attached debugger, read once (on the vault queue, when the game's first
 /// page is prepared) and given to the game as window.GH_DEVICE_INTEGRITY for its diagnostics. Nothing runs during play,
 /// and nothing is refused on these signs alone: a save edited on disk is refused by its encryption and seal instead.
-enum VentoraDeviceIntegrity {
+enum VentoraDeviceSignals {
     static let script: String = {
         guard ventoraReleaseEdition else { return "" }
         var signals: [String] = []

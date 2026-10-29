@@ -52,7 +52,7 @@ assert.ok(release.includes('check(original.range(of: Data("cash".utf8)) == nil')
 // file carries them; nothing is refused on them alone.
 const tool=read('tools/release/build-release-webapp.cjs'),handler=read('android/app/src/main/java/com/ventora/game/GameAssetHandler.kt');
 assert.ok(tool.includes('private static let parts: [UInt8]')&&tool.includes('private val order = intArrayOf(')&&!tool.includes('private static let second'),'2c: the release key is scattered shares, not two halves');
-assert.ok(pack.includes('enum VentoraDeviceIntegrity')&&pack.includes('guard ventoraReleaseEdition else { return "" }')&&vaultSwift.includes('VentoraDeviceIntegrity.script'),'2c: the iPhone reads its device signals once, in the release edition, with the first page');
+assert.ok(pack.includes('enum VentoraDeviceSignals')&&pack.includes('guard ventoraReleaseEdition else { return "" }')&&vaultSwift.includes('VentoraDeviceSignals.script'),'2c: the iPhone reads its device signals once, in the release edition, with the first page');
 assert.ok(handler.includes('append(DeviceIntegrity.script)')&&read('android/app/src/main/java/com/ventora/game/DeviceIntegrity.kt').includes('val script: String by lazy'),'2c: Android reads them once, with the first page');
 assert.ok(read('WebApp/diagnostics-core.js').includes('deviceIntegrity:globalThis.GH_DEVICE_INTEGRITY?'),'2c: the diagnostic file carries them');
 // 3.
