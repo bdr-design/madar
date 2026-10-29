@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "f9caf143260c8f9ce877bf989a84f0d44a6502ba297b54b50553e1dcac3efb0d",
-  "webapp_tree_sha256": "379fd9928f4299fc2dfb7ff14f7ea60cdafdd29eedce0fd9971662642418b9d5",
+  "source_tree_sha256": "c9ad8f5b7c99dbecf32d37e38579031e0bcc1c6d1538917384c8211b84402488",
+  "webapp_tree_sha256": "f0186f5035262aaa383857e6b9870e7eb3aaf28d84aeac0703fcacf9e4130e39",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1077681,
-      "sha256": "1c2f5fe6eb4e83826e99c8ab95cd0482671dd8bd5a4bab558e7788e0fdb18310"
+      "bytes": 1077998,
+      "sha256": "ef5e82d2aa9072b8143b1f1d0fa6d53a00b9a5f61ce8a7f0d5c3af0f1be33a3c"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 6510,
@@ -3623,8 +3623,8 @@
       "sha256": "b57ada3180793432214dd8c5e8a5183d2241b884519acf0547ab01e7e47cf32b"
     },
     "WebApp/fleet-store-core.js": {
-      "bytes": 135150,
-      "sha256": "f1f9259444427ed2d7f806bb5906cda561e99347f394e37d476cb8aabac3cd46"
+      "bytes": 135177,
+      "sha256": "b8184b501f40c448b257ff58cb86bdd56e837a0fc4b3d749b7fa36eaee2aa2be"
     },
     "WebApp/fleet-ui-summary-core.js": {
       "bytes": 17172,
@@ -3731,8 +3731,8 @@
       "sha256": "dfb3ff3a140a40e4a0961fd4a6f8ac291135606fecf4740044b41d6e424c7dc4"
     },
     "WebApp/map-feature-core.js": {
-      "bytes": 15349,
-      "sha256": "dbaef3db4bc29dc777416a03c3d50a9ef78cdecd45818dbab0480baafe4d6b4b"
+      "bytes": 15773,
+      "sha256": "e3c69d32b8e941183e0e568534d595ecd459440167f8942163336483022dfd94"
     },
     "WebApp/map-labels.js": {
       "bytes": 14354,
@@ -4032,7 +4032,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "cb48f164aa143857013eece832740e93ddeff8cd3d12792e8d92c2e4b257edf3"
+      "sha256": "14e90a327f8b91304a9e35711483bc4483fe6c8e6a137e409d4bc7d38ff1921f"
     },
     "BUILD": {
       "bytes": 4,

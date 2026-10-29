@@ -59,7 +59,11 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First the worker and proof batch (owner: «كمل بدقه»), none reached by a build: the new
+# (AGENTS.md). First the map filter batch (owner: «كمل بدقه»), none reached by a build: the new build625-map-filter-reuse
+# (a prepared draw copied and froze the map filter twice for each facility's company; fails on b86067a), the gates that
+# read the map filter (build334-map-identity-registry, build334-map-pressure-contract, build610-dead-code-removed-browser,
+# build618, build617) and build621-profile-count-stages, whose default slice is now 16,384 rows. Then the worker and
+# proof batch, none reached by a build: the new
 # build624-proof-checkpoint-rounds (the proof maintenance converted 100 versions in one task, 43 ms; a round converts 25,
 # up to 64 a pass; fails on 9ce7d24) and the proof maintenance gates (build359-proof-checkpoints,
 # build359-incremental-maintenance, build359-audit-walk, build359-compact-records), the new
@@ -217,6 +221,13 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build625-map-filter-reuse.cjs'],
+    ['node', 'tests/build621-profile-count-stages.cjs'],
+    ['node', 'tests/build334-map-identity-registry.cjs'],
+    ['node', 'tests/build334-map-pressure-contract.cjs'],
+    ['node', 'tests/build610-dead-code-removed-browser.cjs'],
+    ['node', 'tests/build618-prepared-map-render-browser.cjs'],
+    ['node', 'tests/build617-map-render-reuse.cjs'],
     ['node', 'tests/build624-proof-checkpoint-rounds.cjs'],
     ['node', 'tests/build623-worker-extras-packing.cjs'],
     ['node', 'tests/build359-proof-checkpoints.cjs'],
@@ -228,7 +239,6 @@ expected_preflight=[
     ['node', 'tests/build372-asset-purchase-apply.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build622-trip-settlement-stages-browser.cjs'],
-    ['node', 'tests/build621-profile-count-stages.cjs'],
     ['node', 'tests/build334-600-air-calendar-regression.cjs'],
     ['node', 'tests/build571-tax-month-close-browser.cjs'],
     ['node', 'tests/build379-financial-posting.cjs'],
@@ -248,8 +258,6 @@ expected_preflight=[
     ['node', 'tests/build385-dealer-first-stock.cjs'],
     ['node', 'tests/dealer-ledger-and-stock.cjs'],
     ['node', 'tests/dealer-ledger-and-stock-browser.cjs'],
-    ['node', 'tests/build618-prepared-map-render-browser.cjs'],
-    ['node', 'tests/build334-map-pressure-contract.cjs'],
     ['node', 'tests/build334-iphone-thermal-contract.cjs'],
     ['node', 'tests/build340-map-presentation.cjs'],
     ['node', 'tests/build359-map-canvas-layer.cjs'],
@@ -261,7 +269,6 @@ expected_preflight=[
     ['node', 'tests/build359-map-modes-browser.cjs'],
     ['node', 'tests/build384-map-company-cap-browser.cjs'],
     ['node', 'tests/build366-mobility-map-policy-browser.cjs'],
-    ['node', 'tests/build617-map-render-reuse.cjs'],
     ['node', 'tests/build616-marker-step-projection.cjs'],
     ['node', 'tests/build334-presentation-work-contract.cjs'],
     ['node', 'tests/build615-document-proof-check-slices.cjs'],
@@ -279,7 +286,6 @@ expected_preflight=[
     ['node', 'tests/build394-hospitality-browser.cjs'],
     ['node', 'tests/build399-bank-prudential-summary-layout-browser.cjs'],
     ['node', 'tests/build611-truck-route-center-browser.cjs'],
-    ['node', 'tests/build610-dead-code-removed-browser.cjs'],
     ['node', 'tests/fleet-business-boundary.cjs'],
     ['node', 'tests/build486-route-card-pages.cjs'],
     ['node', 'tests/build453-section-projections.cjs'],
@@ -600,7 +606,6 @@ expected_preflight=[
     ['node', 'tests/build375-group-brand-names.cjs'],
     ['node', 'tests/build334-bank-sector-concentration.cjs'],
     ['node', 'tests/build334-finance-company-security-contract.cjs'],
-    ['node', 'tests/build334-map-identity-registry.cjs'],
     ['node', 'tests/build363-company-economics-balance.cjs'],
     ['node', 'tests/build372-legacy-migration-single-pass.cjs'],
     ['node', 'tests/build378-bancassurance.cjs'],

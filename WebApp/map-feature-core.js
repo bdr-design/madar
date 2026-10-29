@@ -78,13 +78,18 @@ function configuredCompanyIds(options={}){
   return new Set();
 }
 function knownCompany(companyId,options={}){const id=String(companyId||'').trim();if(!id)return false;if(Object.prototype.hasOwnProperty.call(options,'companyIds')||Object.prototype.hasOwnProperty.call(options,'knownCompanyIds'))return configuredCompanyIds(options).has(id);const registry=options.companyRegistry||globalThis.GH_COMPANY_REGISTRY;if(registry?.has)return Boolean(registry.has(id,options.state));const platform=options.companyPlatform||globalThis.GH_COMPANY_PLATFORM;if(platform?.isKnownCompany)return Boolean(platform.isKnownCompany(id,options.state));return configuredCompanyIds(options).has(id);}
+// Build 625: a filter this function made (deep-frozen, so unchanged) is its own normal form and is returned as it is; it
+// was copied and frozen again by every check that took one (the map's company check, once per facility a render).
+const NORMALIZED_FILTERS=new WeakSet();
 function normalizeFilterState(input={},options={}){
+  if(input&&typeof input==='object'&&NORMALIZED_FILTERS.has(input))return input;
   if(!input||typeof input!=='object')input={};
   if(!input.companies&&options.legacyActiveFilter!==undefined)return legacyFilterState(options.legacyActiveFilter,options.legacyShowCompetitors,options);
   const sourceCompanies=input.companies&&typeof input.companies==='object'?input.companies:{},mode=sourceCompanies.mode==='include'?'include':'all',included=uniqueStrings(sourceCompanies.included),excluded=uniqueStrings(sourceCompanies.excluded).filter(id=>!included.includes(id));
-  return deepFreeze({
+  const normalized=deepFreeze({
     version:FILTER_STATE_VERSION,companies:{mode,included,excluded},categories:copyBooleanRecord(input.categories,DEFAULT_FILTER_STATE.categories),optionalLayers:copyBooleanRecord(input.optionalLayers),market:{competitors:Boolean(input.market?.competitors)}
   });
+  NORMALIZED_FILTERS.add(normalized);return normalized;
 }
 function legacyFilterState(activeFilter='all',showCompetitors=false,options={}){
   const filter=String(activeFilter||'all'),companies={mode:'all',included:[],excluded:[]},categories={assets:true,routes:true,facilities:true,infrastructure:false},optionalLayers={};

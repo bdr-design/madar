@@ -2756,12 +2756,14 @@
   }
   function placeBubbleHtml(count,kind=''){return `<div class="map-place-bubble${kind?` ${kind}`:''}"><b dir="ltr">${MAP_VIEW.countLabel(count)}</b></div>`;}
   function mapOwnedFacilities(filter){
+    // Build 625: each owner's visibility once a call (the filter cannot change during it), not once per facility.
+    const ownerVisibility=new Map(),ownerVisible=owner=>{let visible=ownerVisibility.get(owner);if(visible===undefined){visible=mapCompanyVisible(owner);ownerVisibility.set(owner,visible);}return visible;};
     const assetBaseIds=new Set([...mapFleetCount(['baseFacility'],a=>a.baseFacility).keys()].filter(Boolean));
     return getDynamicFacilities().filter(f=>{
       // المنشآت المرجعية تخدم الحسابات والدليل فقط؛ لا تظهر كملكية عند بداية لعبة جديدة.
       const belongsToPlayer=f.owned===true||assetBaseIds.has(f.id)||(f.id==='HQ-GROUP'&&state.onboardingComplete);
       if(!belongsToPlayer||!Array.isArray(f.coords))return false;
-      const owner=facilityOwnerCompanyId(f);if(owner&&!mapCompanyVisible(owner))return false;
+      const owner=facilityOwnerCompanyId(f);if(owner&&!ownerVisible(owner))return false;
       return filter==='airport'?['airport','airport-base'].includes(f.kind):filter==='port'?['port','port-base'].includes(f.kind):true;
     });
   }

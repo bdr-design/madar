@@ -3,6 +3,34 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build625-map-filter-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build621-profile-count-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-map-identity-registry.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-map-pressure-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build610-dead-code-removed-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build618-prepared-map-render-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build617-map-render-reuse.cjs"
+    ],
+    [
+      "node",
       "tests/build624-proof-checkpoint-rounds.cjs"
     ],
     [
@@ -44,10 +72,6 @@
     [
       "node",
       "tests/build622-trip-settlement-stages-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build621-profile-count-stages.cjs"
     ],
     [
       "node",
@@ -127,14 +151,6 @@
     ],
     [
       "node",
-      "tests/build618-prepared-map-render-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-map-pressure-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build334-iphone-thermal-contract.cjs"
     ],
     [
@@ -176,10 +192,6 @@
     [
       "node",
       "tests/build366-mobility-map-policy-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build617-map-render-reuse.cjs"
     ],
     [
       "node",
@@ -248,10 +260,6 @@
     [
       "node",
       "tests/build611-truck-route-center-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build610-dead-code-removed-browser.cjs"
     ],
     [
       "node",
@@ -1532,10 +1540,6 @@
     [
       "node",
       "tests/build334-finance-company-security-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-map-identity-registry.cjs"
     ],
     [
       "node",
@@ -2870,6 +2874,10 @@
     [
       "node",
       "tests/build624-proof-checkpoint-rounds.cjs"
+    ],
+    [
+      "node",
+      "tests/build625-map-filter-reuse.cjs"
     ],
     [
       "node",

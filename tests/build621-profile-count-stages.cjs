@@ -1,6 +1,7 @@
 'use strict';
 // Owner («تتبع الثقل ... ابيها اصفار»; the day close's payroll counted the fleet's 300k rows per profile in one task, 24 ms
-// at 2x CPU throttle): the same count is made over slices of 65,536 rows before the payroll reads it. On the real fleet
+// at 2x CPU throttle): the same count is made over slices (16,384 rows by default; 65,536 here) before the payroll reads
+// it. On the real fleet
 // store, 300,000 rows from 900 purchases (runs of one profile, a dead row in places), against profileRefCounts:
 //  1. the sliced count is the same map, entry for entry and in the same order, and it is the one the payroll and lease
 //     groups then read (no second count);
@@ -17,6 +18,7 @@ function build(){
 }
 const entries=map=>JSON.stringify([...map]);
 assert.equal(typeof STORE.profileRefCountsStages,'function','the store has a sliced profile count');
+{const store=build(),steps=STORE.profileRefCountsStages(store);let yields=0;while(!steps.next().done)yields++;assert.equal(yields,Math.ceil(store.length/16384)-1,`2: by default in slices of 16,384 rows (${yields} yields)`);}
 // 1-2.
 {const store=build(),reference=entries(STORE.profileRefCounts(build()));
   const steps=STORE.profileRefCountsStages(store,{rowSlice:65536});let step,yields=0;while(!(step=steps.next()).done)yields++;

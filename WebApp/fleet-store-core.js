@@ -1112,9 +1112,9 @@
     r.profileGroups=groups;return groups;
   }
   // Build 621 (the day close's payroll counted 300k rows in one task, 24 ms at 2x CPU throttle): the same count over
-  // slices of rowSlice rows, yielded between; it becomes the cached count only if no profile changed meanwhile (the same
+  // slices of rowSlice rows (16,384: about 3 ms at 2x), yielded between; it becomes the cached count only if no profile changed meanwhile (the same
   // runtime, length and invalidations), else profileRefCounts counts again when asked.
-  function* profileRefCountsStages(store,{rowSlice=65536}={}){
+  function* profileRefCountsStages(store,{rowSlice=16384}={}){
     const r=rt(store);if(r.profileGroups)return r.profileGroups;
     const invalidations=r.profileInvalidations||0,length=store.length,groups=new Map();let run=-1,runCount=0;
     for(let start=0;start<length;start+=rowSlice){
