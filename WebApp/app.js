@@ -1909,9 +1909,13 @@
     terrainLayer=L.tileLayer(terrainTileUrl(state.mapLayer),{pane:'localTerrain',className:'gh-terrain-layer',tileSize:L.Browser.retina?128:256,zoomOffset:L.Browser.retina?1:0,maxNativeZoom:L.Browser.retina?3:4,maxZoom:19,minZoom:2,attribution:'Natural Earth'}).addTo(map);
     if(typeof ResizeObserver==='function')new ResizeObserver(()=>map?.invalidateSize({animate:false})).observe($('map'));
     const osmOptions={maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'};
-    layers.fresh = observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...osmOptions,minZoom:5}));
-    layers.natural = observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...osmOptions,minZoom:5}));
-    layers.satellite = observeTileLayer(L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'}));
+    // The store edition draws the bundled map only (approved «عوائق الإطلاق»): the free OpenStreetMap tile server and the
+    // Esri imagery do not allow a published commercial app; their layers stay empty and the imagery choice is removed.
+    const storeEdition=window.GH_EDITION==='release';
+    layers.fresh = storeEdition?L.layerGroup():observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...osmOptions,minZoom:5}));
+    layers.natural = storeEdition?L.layerGroup():observeTileLayer(L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...osmOptions,minZoom:5}));
+    layers.satellite = storeEdition?L.layerGroup():observeTileLayer(L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'}));
+    if(storeEdition)document.querySelector('#layerMenu button[data-layer="satellite"]')?.remove();
     setMapLayer(state.mapLayer);
     const countryPane=map.createPane('countryLabels');countryPane.style.zIndex='380';countryPane.style.pointerEvents='none';
     const countryLabels=L.layerGroup().addTo(map),updateCountryLabels=()=>{countryLabels.clearLayers();const zoom=map.getZoom();if(zoom>5)return;const minimum=zoom<4?20000000:zoom<5?3000000:1000000,size=map.getSize(),placed=[];for(const row of [...(window.GH_MAP_LABELS||[])].sort((a,b)=>b.population-a.population)){if(row.population<minimum)continue;const point=map.latLngToContainerPoint(row.coords),width=Math.min(132,Math.max(40,row.name.length*6)),box={x:point.x-width/2,y:point.y-12,w:width,h:24};if(box.x+box.w<0||box.y+box.h<0||box.x>size.x||box.y>size.y||placed.some(b=>box.x<b.x+b.w+8&&box.x+box.w+8>b.x&&box.y<b.y+b.h+4&&box.y+box.h+4>b.y))continue;placed.push(box);L.marker(row.coords,{pane:'countryLabels',interactive:false,keyboard:false,icon:L.divIcon({className:'ui-country-label',html:esc(row.name),iconSize:[width,24],iconAnchor:[width/2,12]})}).addTo(countryLabels);}};
@@ -2957,9 +2961,12 @@
         const sweeping=!!store&&assetLength>MAP_STATUS_SWEEP_ROWS;
         // Build 372: with the fleet engine's worker the counts come from the map's fleet summary (mapFleetClassRows), read
         // per class as countByPhase reads them; the line keeps its last counts until the summary of this store arrives.
-        if(store&&mapFleetSummaryClient()){
+        // Save-audit follow-up: the counts come from the fleet summary alone, so a slice that moved the save revision but
+        // left the summary, the map structure and the fleet size as they were keeps them (no recount, no new Map a frame).
+        if(store&&mapFleetSummaryClient()&&mapStatusCache.summaryRevision===mapFleetSummary.revision&&mapStatusCache.summaryMapRevision===mapRevision&&mapStatusCache.countedAssets===assetLength&&!mapStatusCache.pendingRecount){mapStatusCache.sweep=null;}
+        else if(store&&mapFleetSummaryClient()){
           mapStatusCache.sweep=null;const rows=mapFleetClassRows();
-          if(rows){const phases=new Map();for(const [row,count] of rows){if(!count)continue;const phase=F.presentedPhase(state,row);phases.set(phase,(phases.get(phase)||0)+count);}finish(phases,revision);mapStatusCache.summaryRevision=mapFleetSummary.revision;}
+          if(rows){const phases=new Map();for(const [row,count] of rows){if(!count)continue;const phase=F.presentedPhase(state,row);phases.set(phase,(phases.get(phase)||0)+count);}finish(phases,revision);mapStatusCache.summaryRevision=mapFleetSummary.revision;mapStatusCache.summaryMapRevision=mapRevision;}
           else mapStatusCache.pendingRecount=true;
         }
         else if(!sweep&&mapStatusCache.countedAssets===assetLength&&(sliceOnly||sweeping)&&nowMs-(mapStatusCache.countedAt||0)<2000){mapStatusCache.pendingRecount=true;}
@@ -2984,7 +2991,9 @@
     // structure revision is counted at once. The cost kept is the larger of the last one and half the one before: a count
     // served from the store's per-chunk cache (under 5 ms) does not let the next full one (about 100 ms) run at once.
     if(mapStatusCache.ownerKey!==ownerKey){const clock=()=>globalThis.performance?.now?.()??Date.now(),ownerCostMs=Number(mapStatusCache.ownerCostMs)||0,nowMs=Date.now();
-      if(ownerCostMs<5||mapStatusCache.ownerMapRevision!==mapRevision||nowMs-(mapStatusCache.ownerAt||0)>=ownerCostMs*40){const started=clock();mapStatusCache.routed=mapRoadRouteCount();mapStatusCache.ownedFacilities=getDynamicFacilities().filter(f=>f?.owned).length;mapStatusCache.ownerKey=ownerKey;mapStatusCache.ownerMapRevision=mapRevision;mapStatusCache.ownerAt=nowMs;mapStatusCache.ownerCostMs=Math.max(clock()-started,ownerCostMs/2);}}
+      // The tooltip's road routes and owned facilities: at once for a new map structure (build340), otherwise at most every
+      // 2 s (a moving fleet changes the save revision on most slices; each recount built a route set and the facility list).
+      if(mapStatusCache.ownerMapRevision!==mapRevision||nowMs-(mapStatusCache.ownerAt||0)>=Math.max(2000,ownerCostMs*40)){const started=clock();mapStatusCache.routed=mapRoadRouteCount();mapStatusCache.ownedFacilities=getDynamicFacilities().filter(f=>f?.owned).length;mapStatusCache.ownerKey=ownerKey;mapStatusCache.ownerMapRevision=mapRevision;mapStatusCache.ownerAt=nowMs;mapStatusCache.ownerCostMs=Math.max(clock()-started,ownerCostMs/2);}}
     const offline=mapTilesOffline?'تضاريس محلية · ':'',status=setNodeText('mapStatus',`${offline}${mapStatusCache.moving} في الحركة · ${mapStatusCache.turn} في المحطات · ${countText(assetLength,'asset',assetLength)}`),title=`${mapStatusCache.idle} متوقف · ${countText(mapStatusCache.ownedFacilities,'facility',mapStatusCache.ownedFacilities)} · مسارات برية: ${mapStatusCache.routed}`;if(status.title!==title)status.title=title;
   }
 
@@ -3002,7 +3011,19 @@
     const fromSin=Math.sin(Math.max(Math.min(max,fromLat),-max)*d),toSin=Math.sin(Math.max(Math.min(max,toLat),-max)*d);
     const ax=scale*(transformation._a*(R*fromLng*d)+transformation._b),ay=scale*(transformation._c*(R*Math.log((1+fromSin)/(1-fromSin))/2)+transformation._d);
     const bx=scale*(transformation._a*(R*toLng*d)+transformation._b),by=scale*(transformation._c*(R*Math.log((1+toSin)/(1-toSin))/2)+transformation._d);
-    return Math.hypot(bx-ax,by-ay);
+    return hypot2(bx-ax,by-ay);
+  }
+  // Save-audit follow-up (sampled allocation, 300k assets, 20 s of live play: 67 MB, of which the marker steps 25 MB):
+  // Math.hypot allocates an array for its arguments on every call, 13 calls a marker a frame. Math.hypot's own arithmetic
+  // for two values (V8's: the larger absolute value, then a Kahan sum of the squares normalised to it), so each distance is
+  // the same number as before, bit for bit (build616), and nothing is allocated.
+  function hypot2(x,y){
+    const a=Math.abs(x),b=Math.abs(y);
+    if(a===Infinity||b===Infinity)return Infinity;if(a!==a||b!==b)return NaN;
+    const max=a>b?a:b;if(max===0)return 0;
+    let sum=0,compensation=0;const n1=a/max,s1=n1*n1-compensation,p1=sum+s1;compensation=(p1-sum)-s1;sum=p1;
+    const n2=b/max,s2=n2*n2-compensation,p2=sum+s2;sum=p2;
+    return Math.sqrt(sum)*max;
   }
   function markerScreenDistance(from,to){try{if(!map)return 0;const toLng=from[1]+shortestLongitudeDelta(from[1],to[1]),zoom=Number(map.getZoom?.()),crs=map.options?.crs,leaflet=globalThis.L;
     if(crs&&leaflet&&crs===leaflet.CRS?.EPSG3857&&crs.projection===leaflet.Projection?.SphericalMercator&&map.project===leaflet.Map?.prototype?.project&&Number.isFinite(zoom)){const gap=mercatorScreenDistance(crs,zoom,+from[0],+from[1],+to[0],+toLng);if(Number.isFinite(gap))return gap;}
@@ -3056,17 +3077,21 @@
     const latGap=Math.abs(clean[0]-row.current[0]),lngGap=Math.abs(shortestLongitudeDelta(row.current[1],clean[1]));if((latGap>45||lngGap>120)&&!route)row.needsResync=true;
     if(force&&visualResyncRequested)row.needsResync=true;
   }
-  // The search's candidate point, only measured (the point kept is interpolated anew).
-  const routeSearchPoint=[0,0];
+  // The search's candidate points, the target's included, are only measured (the point kept is interpolated anew, the one
+  // new array of a step). A step's answer is one reused record, read by its caller at once and never kept.
+  const routeSearchPoint=[0,0],routeStepResult={point:null,progress:0},routeBridgeStepResult={point:null,progress:0,bridge:true};
   function advanceRouteSegment(route,visualProgress,targetProgress,current,maxPixels){
     if(!route||!Number.isFinite(visualProgress)||!Number.isFinite(targetProgress)||targetProgress+.000001<visualProgress)return null;
-    const targetPoint=interpolatePresentationRoute(route,targetProgress),remaining=markerScreenDistance(current,targetPoint);if(remaining<=maxPixels)return {point:targetPoint,progress:targetProgress};
-    let low=visualProgress,high=targetProgress,best=low;for(let i=0;i<12;i++){const mid=(low+high)/2,point=interpolatePresentationRoute(route,mid,routeSearchPoint),distance=markerScreenDistance(current,point);if(distance<=maxPixels){best=mid;low=mid;}else high=mid;}
-    return {point:interpolatePresentationRoute(route,best),progress:best};
+    let progress=targetProgress;
+    if(markerScreenDistance(current,interpolatePresentationRoute(route,targetProgress,routeSearchPoint))>maxPixels){
+      let low=visualProgress,high=targetProgress,best=low;for(let i=0;i<12;i++){const mid=(low+high)/2,point=interpolatePresentationRoute(route,mid,routeSearchPoint),distance=markerScreenDistance(current,point);if(distance<=maxPixels){best=mid;low=mid;}else high=mid;}
+      progress=best;
+    }
+    routeStepResult.point=interpolatePresentationRoute(route,progress);routeStepResult.progress=progress;return routeStepResult;
   }
   function advanceRouteMotion(row,maxPixels){
     const bridge=row.routeBridge?.[0];
-    if(bridge){const step=advanceRouteSegment(bridge.route,bridge.visualProgress,bridge.targetProgress,row.current,maxPixels);if(!step){row.needsResync=true;return null;}bridge.visualProgress=step.progress;if(step.progress>=bridge.targetProgress-.000001){row.routeBridge.shift();if(!row.routeBridge.length)row.visualProgress=0;}return {...step,bridge:true};}
+    if(bridge){const step=advanceRouteSegment(bridge.route,bridge.visualProgress,bridge.targetProgress,row.current,maxPixels);if(!step){row.needsResync=true;return null;}bridge.visualProgress=step.progress;if(step.progress>=bridge.targetProgress-.000001){row.routeBridge.shift();if(!row.routeBridge.length)row.visualProgress=0;}routeBridgeStepResult.point=step.point;routeBridgeStepResult.progress=step.progress;return routeBridgeStepResult;}
     if(!row.route||!Number.isFinite(row.visualProgress)||!Number.isFinite(row.targetProgress))return null;
     if(row.targetProgress+0.002<row.visualProgress){if(queuePresentationBridge(row,row.route,row.routeKey,row.route,row.routeKey,row.visualProgress))return advanceRouteMotion(row,maxPixels);row.needsResync=true;return null;}
     return advanceRouteSegment(row.route,row.visualProgress,row.targetProgress,row.current,maxPixels);
@@ -3137,12 +3162,16 @@
   function calendarMaxTargetDate(){const now=simDate(),target=new Date(Date.UTC(now.getUTCFullYear()+1,now.getUTCMonth(),now.getUTCDate()));return target;}
   function calendarAdvanceTargetDays(days){const now=Math.max(0,Number(state.simSeconds)||0),currentDay=Math.floor(now/86400);return Math.max(now+1,(currentDay+Math.max(1,Math.floor(Number(days)||1)))*86400);}
   function calendarAdvanceTargetYear(){const d=simDate(),y=d.getUTCFullYear()+1,m=d.getUTCMonth(),day=d.getUTCDate(),last=new Date(Date.UTC(y,m+1,0)).getUTCDate();return calendarDayStartSeconds(new Date(Date.UTC(y,m,Math.min(day,last))));}
+  // The store edition's paid features (GH_STORE_CORE.featureOpen): without the purchase the store page opens with the reason.
+  function paidFeatureOpen(feature,reason){if(window.GH_STORE_CORE?.featureOpen?.(state,feature)!==false)return true;notice(reason,'warning');openDrawer('store');return false;}
   function requestCalendarAdvance(target,reason,label){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل تقديم التقويم.');return false;}
     const active=simulationEngine.snapshot().manualAdvance;if(active){notice('هناك تقديم زمني جارٍ الآن. أوقفه أولًا ثم اختر مدة جديدة.');return false;}
     if(pausePendingAfterDayClose){notice('يكتمل إقفال اليوم ويتوقف الوقت، ثم اختر مدة التقديم.');return false;}
     const now=Math.max(0,Number(state.simSeconds)||0),next=Math.floor(Number(target)||0);if(!Number.isFinite(next)||next<=now){notice('اختر تاريخًا لاحقًا عن التاريخ الحالي.');return false;}
     const max=366*86400;if(next-now>max+1){notice('للحفاظ على سلامة المحاكاة يمكن التقديم حتى سنة واحدة في كل عملية.');return false;}
+    // A step of more than one day is the time accelerator's (store edition); one day ahead stays free.
+    if(next-(Math.floor(now/86400)+1)*86400>3600&&!paidFeatureOpen('accelerator','تقديم التقويم بأكثر من يوم واحد من «مسرّع الوقت» أو «فنتورا بلس».'))return false;
     observeLoopLock();
     // Calendar advance is a bounded cooperative workload independent from the player's live-speed selection.
     // The simulation core keeps the current atomic slice alive under device pressure instead of restarting it.
@@ -3211,6 +3240,8 @@
     const identitySignature=[state.profile?.name,state.profile?.shortName,state.profile?.logo,state.companyRegistry?.group?.legalName,state.companyRegistry?.group?.logo].map(value=>String(value||'')).join('|');
     if(identitySignature!==lastKpiIdentitySignature){lastKpiIdentitySignature=identitySignature;if(window.GH_IDENTITY)window.GH_IDENTITY.applyDocument(state);else{setNodeText('groupName',state.profile.name);setNodeText('brandMark',(state.profile.shortName||'GH').slice(0,4).toUpperCase());}}
     setNodeText('cashKpi',window.GH_FINANCE_CORE?.investorMode?.(state)?'∞':fmtMoney(state.cash));
+    // The career level beside the cash (GH_PROGRESSION_CORE.summary); hidden in free play and older saves.
+    {const tile=$('levelKpi');if(tile){const level=window.GH_PROGRESSION_CORE?.summary?.(state),show=level?.mode==='career',pct=show?Math.round(level.progress*100):0,key=show?`${level.level}|${level.investor}|${pct}`:'';if(tile.dataset.key!==key){tile.dataset.key=key;tile.hidden=!show;if(show){setNodeText('levelKpiTitle',level.investor?'المستوى · مستثمر':`المستوى · ${pct}%`);setNodeText('levelKpiValue',String(level.level));tile.style.setProperty('--level-progress',`${pct}%`);tile.title=`${level.title} · ${level.xp.toLocaleString('en-US')} خبرة`;}}}}
     setNodeText('profitKpi',`${state.todayProfit>=0?'+':''}${fmtMoney(state.todayProfit)}`);
     const profitPositive=state.todayProfit>=0;if(profitPositive!==lastKpiProfitSign){lastKpiProfitSign=profitPositive;$('profitKpi').classList.toggle('positive',profitPositive);$('profitKpi').classList.toggle('negative',!profitPositive);}
     setNodeText('simDate',formatSimDateCompact());
@@ -3452,7 +3483,8 @@
       const intercompanyRows=[...(Array.isArray(ed.intercompanyRows)?ed.intercompanyRows:[]),...(energyCompany&&Array.isArray(internalSupply?.rows)?internalSupply.rows.map(row=>({from:row.buyer,to:energyCompany,amount:row.amount})):[])];
       const intercompany=intercompanyRows.reduce((sum,row)=>sum+(row&&row.from!==row.to&&companyIdSet.has(row.from)&&companyIdSet.has(row.to)?Math.max(0,Number(row.amount)||0):0),0)+Math.max(0,Number(window.GH_FINANCE_CORE.takeOffCloseIntercompany?.(state))||0);
       const holdingCost=(Number(groupCost)||0)+(Number(groupPayrollExpense)||0)+holdingExpense,holding={revenue:holdingRevenue+Math.max(0,-holdingCost),expense:Math.max(0,holdingCost)};
-      phase('simulation.finance-day.daily-close-postings',()=>{dispatchSystemCommand({state},'finance','record-daily-close',{day:state.lastFinancialDay,sectors:closedSectorProfit,companies:companyDaily,net,holding,intercompany},{actor:'financial-close'});dispatchSystemCommand({state},'corporate','adjust-group-value',{delta:net*.03},{actor:'financial-close'});dispatchSystemCommand({state},'corporate','close-valuation',{day:state.lastFinancialDay},{actor:'financial-close'});const dividend=dispatchSystemCommand({state},'corporate','close-dividend',{day:state.lastFinancialDay},{actor:'financial-close'})?.result;if(dividend)pushAlert(dividend.paid?`صُرف توزيع أرباح الربع (${dividend.payout}% من ربحه): ${fmtMoney(dividend.publicAmount)} لمساهمي الطرح بحوالة ${dividend.ref}، وحصة المؤسس ${fmtMoney(dividend.founderAmount)} تبقى في القابضة.`:`لم يُوزَّع ربح الربع: ${dividend.reason==='cash'?'نقد القابضة لا يكفي لحصة مساهمي الطرح':'لا ربح في الربع'}.`);runOperationsCycle(net,fleetConditionTotal);});
+      // The career's day of experience is read from this close's own company rows (GH_PROGRESSION_CORE.closeDay).
+      phase('simulation.finance-day.daily-close-postings',()=>{dispatchSystemCommand({state},'finance','record-daily-close',{day:state.lastFinancialDay,sectors:closedSectorProfit,companies:companyDaily,net,holding,intercompany},{actor:'financial-close'});window.GH_PROGRESSION_CORE?.closeDay?.(state,{day:state.lastFinancialDay,companies:companyDaily,net});dispatchSystemCommand({state},'corporate','adjust-group-value',{delta:net*.03},{actor:'financial-close'});dispatchSystemCommand({state},'corporate','close-valuation',{day:state.lastFinancialDay},{actor:'financial-close'});const dividend=dispatchSystemCommand({state},'corporate','close-dividend',{day:state.lastFinancialDay},{actor:'financial-close'})?.result;if(dividend)pushAlert(dividend.paid?`صُرف توزيع أرباح الربع (${dividend.payout}% من ربحه): ${fmtMoney(dividend.publicAmount)} لمساهمي الطرح بحوالة ${dividend.ref}، وحصة المؤسس ${fmtMoney(dividend.founderAmount)} تبقى في القابضة.`:`لم يُوزَّع ربح الربع: ${dividend.reason==='cash'?'نقد القابضة لا يكفي لحصة مساهمي الطرح':'لا ربح في الربع'}.`);runOperationsCycle(net,fleetConditionTotal);});
       // رواتب تقويمية في تاريخ 27؛ إذا وصل حفظ قديم بعد التاريخ تُنفّذ مرة واحدة للشهر نفسه.
       if(payrollDueToday){
         const reportId=`PAYROLL-${payrollMeta.monthKey}`,payrollItems=[...companyIds,'group'].map(company=>payrollPlan[company]).filter(row=>row&&row.amount>0),lines=[];
@@ -3759,7 +3791,7 @@
   // company domain its commands decide in; the finance steps (receivables, taxes, payables, cheques) none of them. The
   // write audit of build612 enforces each step's roots (a write outside them fails the step and the test).
   const AUTOPILOT_DOMAIN_ROOTS=Object.freeze(['insurance','realEstate','customerCompanies','bank','hospitality']),AUTOPILOT_KIND_ROOT=Object.freeze({insurance:'insurance',realestate:'realEstate',telecom:'customerCompanies',bank:'bank',hospitality:'hospitality'});
-  const AUTOPILOT_KIND_SCOPES=new Map();
+  const AUTOPILOT_KIND_SCOPES=new Map(),AUTOPILOT_DECISION_KINDS=new Set(['insurance','realestate','telecom','bank','hospitality']);
   const autopilotScope=kind=>{let scope=AUTOPILOT_KIND_SCOPES.get(kind);if(!scope){const own=AUTOPILOT_KIND_ROOT[kind]||null;scope=Object.freeze(AUTOPILOT_SCOPE.filter(root=>!AUTOPILOT_DOMAIN_ROOTS.includes(root)||root===own));AUTOPILOT_KIND_SCOPES.set(kind,scope);}return scope;};
   const AUTOPILOT_ROW_ROOTS=Object.freeze({finance:{level:'containers'},treasury:{level:'containers'},domainRuntime:{level:'containers'},controlPlane:{level:'rows'},eventLog:{level:'root'},alerts:{level:'root'}});
   function queueCompanyAutopilot(day){
@@ -3799,7 +3831,9 @@
   }
   function companyAutopilotFrame(entry){
     const P=window.GH_COMPANY_AUTOPILOT;if(!P)return true;
-    if(!entry.kinds){entry.kinds=[...P.KINDS];entry.tried=new Set();entry.steps=0;}
+    // A career game makes the companies' decisions automatically from the autopilot's level (GH_PROGRESSION_CORE
+    // 'tool:autopilot'); the money work (receivables, VAT, payables, cheques) runs every day at every level, as before.
+    if(!entry.kinds){const decide=window.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')!==false;entry.kinds=P.KINDS.filter(kind=>decide||!AUTOPILOT_DECISION_KINDS.has(kind));entry.tried=new Set();entry.steps=0;}
     const started=appMetricClock();
     while(entry.kinds.length&&entry.steps<AUTOPILOT_STEP_LIMIT){
       let step=null;try{step=P.next(state,entry.kinds[0],{tried:entry.tried,F:window.GH_FINANCE_CORE});}catch(error){diag('COMPANY_AUTOPILOT_STEP_SKIPPED',{kind:entry.kinds[0],error:String(error?.message||error).slice(0,200)},'info');step=null;}
@@ -5177,7 +5211,7 @@
   }
   function closeDrawer(){ drawerNavigationRevision++; window.GH_INTERFACE.resetHistory(); cancelDrawerSearch(); clearFleetListSearchRequest(); delete $('drawer').dataset.panel; $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('backdrop').classList.add('hidden'); setActiveNav('map'); state.lastPanel=null;state.lastPanelArg=null;  }
   $('workspaceBack').addEventListener('click',()=>window.GH_INTERFACE.back(openDrawer));
-  const ADVANCED_OWNED_PANELS=new Set(['realism','companies','leadershipHub','peopleHub','actionCenter','compliance','facilityManage','companyManage','groupManagement','treasury','procurement','energy','bank','insurance','realestate','research','esg','news','businessWorld','labor','settings','investorMode','updates','diagnostics','controlPlane','conference']);
+  const ADVANCED_OWNED_PANELS=new Set(['progression','store','realism','companies','leadershipHub','peopleHub','actionCenter','compliance','facilityManage','companyManage','groupManagement','treasury','procurement','energy','bank','insurance','realestate','research','esg','news','businessWorld','labor','settings','investorMode','updates','diagnostics','controlPlane','conference']);
   function renderPanel(panel,arg,diagnosticEvidence){
     const context=advancedContext();
     if(panel==='diagnostics'&&diagnosticEvidence?.state===state&&diagnosticEvidence.health===state.diagnostics?.lastHealth&&diagnosticEvidence.integrity)context.businessIntegrity=()=>diagnosticEvidence.integrity;
@@ -5530,12 +5564,15 @@ ${terms.ready?`<div class="pv-optrow"><span>نسبة الطرح</span><div class
     const pageKey=JSON.stringify([activeType,activeTab,marketSegment,marketQuery]);if(pageKey!==marketPageKey){marketPageKey=pageKey;marketPage=0;}
     const pages=Math.max(1,Math.ceil(items.length/4));marketPage=Math.max(0,Math.min(pages-1,Math.trunc(Number(marketPage))||0));
     const visibleItems=items.slice(marketPage*4,marketPage*4+4),pageControls=pages>1?`<nav class="directory-pagination" aria-label="صفحات طرازات الأصول"><button class="secondary-btn" data-market-page="${marketPage-1}" ${marketPage?'':'disabled'}>السابق</button><span>${fmtNumber(items.length)} طراز · ${fmtNumber(marketPage+1)} / ${fmtNumber(pages)}</span><button class="secondary-btn" data-market-page="${marketPage+1}" ${marketPage+1<pages?'':'disabled'}>التالي</button></nav>`:'';
+    // A career game reads a model's payback from the buying company's own last close: its net per held asset.
+    const paybackNet=(()=>{if(window.GH_PROGRESSION_CORE?.active?.(state)!==true)return null;const company=marketBuyer(catalog)?.id,net=Number((state.finance?.dailyCompanyReports||[])[0]?.companies?.[company]?.net),held=company?window.GH_PROGRESSION_CORE.heldFleet(state,company):0;return held>0&&net>0?net/held:null;})();
     const bases=compatibleBases(activeType),hasDeliveryBase=bases.length>0,capacityCore=window.GH_FACILITY_CORE,occupancies=hasDeliveryBase?capacityCore.readAssetOccupancies(state,bases,currentFleetUiSummary()):null;
     const baseOptions=bases.map(f=>{const owner=facilityOwnerCompanyId(f),occupancy=occupancies.get(f.id),free=occupancy===null?'—':fmtNumber(Math.max(0,capacityCore.assetCapacity(f)-occupancy));return `<option value="${esc(f.id)}" data-company="${esc(owner)}">${esc(companyFinanceName(owner))} · ${esc(f.name)} · ${esc(f.city)} · متاح ${free}/${fmtNumber(capacityCore.assetCapacity(f))}</option>`;}).join('');
+    // A career game shows a model above its level as locked, with the way to its early licence (GH_PROGRESSION_CORE).
     const list = visibleItems.map(a=>`<article class="list-item sector-${activeType} asset-market-card"><div class="asset-hero"><img src="${a.photo}" alt="${esc(a.name)}" loading="lazy"><span class="thumb-tag">${activeTab==='new'?'جديد':`مستعمل ${a.condition}% · ${a.year||''}`}</span><div class="asset-hero-title"><div><small>${esc(a.manufacturer||'')} · ${esc(a.segment)}</small><h3>${esc(a.name)}</h3></div><b>${fmtMoney(a.price)}</b></div></div><p class="asset-blurb">${esc(a.description||'')}</p>${specRow(a)}
       <div class="asset-chips"><span>التسليم <b>${a.delivery}</b></span><span>الضمان <b>${esc(a.warranty)}</b></span><span>بعد 5 سنوات <b>${a.residual5y}%</b> من السعر</span><span>الانبعاثات <b>${a.specs.co2Band}</b></span></div>
-      <div class="asset-price">${a.priceOriginal?`<s>${fmtMoney(a.priceOriginal)}</s> `:''}<b>${fmtMoney(a.price)}</b><small>تأجير ${fmtMoney(a.leaseMonthly)}/شهر · دفعة تمويل ${Math.round(a.downPayment*100)}%</small></div>
-      <div class="asset-request-routing"><div><span>شراء يدوي مباشر</span><b>أنت تختار الأصل والعدد والقاعدة وطريقة التملك</b><small>${hasDeliveryBase?'اختر إجماليًا يوزّع داخل منشآت الشركة، أو العدد نفسه لكل منشأة. الطلب الكبير يُنفَّذ على دفعات ضمن عملية واحدة.':'افتح منشأة تسليم متوافقة أولًا؛ لن يسمح النظام بشراء أصل بلا وجهة وصول صحيحة.'}</small></div>${hasDeliveryBase?`<div class="route-builder manual-asset-purchase"><label>الشركة وقاعدة التسليم الأولى<select class="manual-asset-base">${baseOptions}</select></label><label>طريقة توزيع العدد<select class="manual-asset-distribution"><option value="total">إجمالي موزّع</option><option value="per-facility">العدد لكل منشأة</option></select></label><label>العدد<input class="manual-asset-qty" type="number" min="1" max="${window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000}" value="1" inputmode="numeric"><small>حتى ${countText(window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000,'asset')}، ضمن سعة المنشآت وسعة الحفظ في الجهاز</small></label><label>التملك<select class="manual-asset-mode"><option value="cash">شراء نقدي</option><option value="finance">تمويل</option><option value="lease">تأجير تشغيلي</option></select></label></div>`:''}<div class="action-row"><button class="primary-btn manual-buy-asset" data-type="${activeType}" data-tab="${activeTab}" data-id="${a.id}" ${hasDeliveryBase?'':'disabled'}>شراء وتسليم الآن</button><button class="secondary-btn compare-asset ${marketCompare.includes(a.id)?'active':''}" data-id="${a.id}">${marketCompare.includes(a.id)?'إزالة من المقارنة':'قارن'}</button></div></div></article>`).join('');
+      <div class="asset-price">${a.priceOriginal?`<s>${fmtMoney(a.priceOriginal)}</s> `:''}<b>${fmtMoney(a.price)}</b><small>تأجير ${fmtMoney(a.leaseMonthly)}/شهر · دفعة تمويل ${Math.round(a.downPayment*100)}%</small></div>${paybackNet?`<p class="asset-payback">بأداء أسطولك في آخر إقفال (${fmtMoney(paybackNet)} صافيًا للأصل في اليوم) يسترد هذا الطراز سعره في نحو ${fmtNumber(Math.ceil(a.price/paybackNet))} يومًا.</p>`:''}
+      <div class="asset-request-routing"><div><span>شراء يدوي مباشر</span><b>أنت تختار الأصل والعدد والقاعدة وطريقة التملك</b><small>${hasDeliveryBase?'اختر إجماليًا يوزّع داخل منشآت الشركة، أو العدد نفسه لكل منشأة. الطلب الكبير يُنفَّذ على دفعات ضمن عملية واحدة.':'افتح منشأة تسليم متوافقة أولًا؛ لن يسمح النظام بشراء أصل بلا وجهة وصول صحيحة.'}</small></div>${hasDeliveryBase?`<div class="route-builder manual-asset-purchase"><label>الشركة وقاعدة التسليم الأولى<select class="manual-asset-base">${baseOptions}</select></label><label>طريقة توزيع العدد<select class="manual-asset-distribution"><option value="total">إجمالي موزّع</option><option value="per-facility">العدد لكل منشأة</option></select></label><label>العدد<input class="manual-asset-qty" type="number" min="1" max="${window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000}" value="1" inputmode="numeric"><small>حتى ${countText(window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000,'asset')}، ضمن سعة المنشآت وسعة الحفظ في الجهاز</small></label><label>التملك<select class="manual-asset-mode"><option value="cash">شراء نقدي</option><option value="finance">تمويل</option><option value="lease">تأجير تشغيلي</option></select></label></div>`:''}<div class="action-row">${(gate=>gate&&gate.ok===false?`<button class="secondary-btn" data-open="progression">يُفتح في المستوى ${fmtNumber(gate.level)} · الترخيص المبكر</button>`:`<button class="primary-btn manual-buy-asset" data-type="${activeType}" data-tab="${activeTab}" data-id="${a.id}" ${hasDeliveryBase?'':'disabled'}>شراء وتسليم الآن</button>`)(window.GH_PROGRESSION_CORE?.check?.(state,`model:${a.id}`))}<button class="secondary-btn compare-asset ${marketCompare.includes(a.id)?'active':''}" data-id="${a.id}">${marketCompare.includes(a.id)?'إزالة من المقارنة':'قارن'}</button></div></div></article>`).join('');
     const fleetCompanies=operationalCompanyInstances(state).filter(company=>activeType==='mobility'?company.definition?.capabilities?.includes('operations.mobility'):(company.definition?.classification?.routeModes||[]).includes(activeType)),summary=fleetUiSummary();
     const fleetSale=fleetCompanies.map(company=>{const stats=summary?.lookup.ownerMode(company.id,activeType),ownedCount=stats?.total??null,pendingSale=stats?.pendingSale??null,ready=ownedCount!==null;return `<article class="list-item fleet-sale-bar"><div><b>إدارة أصول ${esc(companyFinanceName(company.id))}</b><small data-market-sale-summary="${esc(company.id)}">المملوك: ${countText(ownedCount,'asset',summaryNumber(ownedCount))} · أوامر بيع قيد التنفيذ: ${summaryNumber(pendingSale)}</small></div><button class="danger-soft sell-all-assets" data-company="${esc(company.id)}" ${ready&&ownedCount?'':'disabled'}${ready?'':' data-disabled-reason="جارٍ تحديث ملخص الأسطول من العامل."'}>بيع جميع أصول الشركة</button></article>`;}).join('');
     // Build 378: the group's asset room (persistence-core fleetRecordLimit) is shared by the air, sea and road companies:
@@ -6481,6 +6518,8 @@ ${page}</div>`;
   function openingBlocker(type,target=state){
     const definition=COMPANY_PLATFORM.getDefinition(type),cost=Number(definition?.founding?.defaultCapital)||0;
     if(!definition||definition.kind!=='subsidiary'||definition.lifecycle!=='active'||cost<=0)return 'تعريف هذه الشركة غير متاح للفتح.';
+    // A career game opens each company at its level (GH_PROGRESSION_CORE); free play and investor mode open all.
+    const gate=window.GH_PROGRESSION_CORE?.check?.(target,`company:${type}`);if(gate&&gate.ok===false)return `تُفتح هذه الشركة في المستوى ${gate.level} · أنت في المستوى ${gate.current}.`;
     const shortfall=cost-holdingOperatingCash(target);
     return shortfall>0?`ينقص الحساب الجاري للقابضة ${fmtMoney(shortfall)}. وفّر السيولة من «المال» ثم وقّع العقد.`:null;
   }
@@ -6515,7 +6554,7 @@ ${page}</div>`;
     if(!result){notice(`لم تُفتح ${companyName}. ${openingBlocker(type)||'تعذر تأكيد الحفظ؛ لم يتغير شيء. أعد المحاولة.'}`,'warning');return false;}return true;
   }
   async function openAllCompanies(){const navigationRevision=drawerNavigationRevision;
-    const types=unopenedCompanyTypes();if(!types.length){notice('جميع الشركات مؤسسة وتعمل بالفعل.');return false;}
+    const unopened=unopenedCompanyTypes(),types=unopened.filter(type=>window.GH_PROGRESSION_CORE?.unlocked?.(state,`company:${type}`)!==false);if(!types.length){notice(unopened.length?'الشركات المتبقية تُفتح بالمستويات القادمة؛ تابع صفحة المستويات.':'جميع الشركات مؤسسة وتعمل بالفعل.');return false;}
     const authority=founderAuthorization(state);if(!authority.signature||!authority.mandate){openSignatureDialog({required:true});notice('اعتمد توقيعك المرئي قبل توقيع عقود الشركات.');return false;}
     const total=types.reduce((sum,type)=>sum+(Number(COMPANY_PLATFORM.getDefinition(type)?.founding?.defaultCapital)||0),0),shortfall=total-holdingOperatingCash();
     if(shortfall>0){notice(`لا يمكن فتح الجميع: ينقص الحساب الجاري للقابضة ${fmtMoney(shortfall)}.`,'warning');return false;}
@@ -6533,7 +6572,61 @@ ${page}</div>`;
   // refused for cash; the money a payment lacks arrives as an incoming transfer from the founder's investor card
   // (GH_FINANCE_CORE coverFromInvestorCard). The top bar shows ∞ while it is on. Both saved engine flags turn together.
   // The command returns an object: a bare «false» (switching it off) read as a rejected command and kept it on.
+  // Store purchases (GH_STORE_CORE): the native shell (StoreKit 2 / Play Billing) verifies a transaction and hands it here;
+  // store:deliver writes it into the save once (idempotency key store:<transaction>), and only after that durable save is
+  // the shell told to finish it. A delivery that cannot run now (another command, no signature yet) is retried; the shell
+  // also sends unfinished transactions again on each 'ready'.
+  const storeNative={catalog:{},inFlight:new Set()};
+  function storeBridge(){return window.webkit?.messageHandlers?.storeBridge||null;}
+  function storeBridgePost(action,payload={}){const bridge=storeBridge();if(!bridge)return false;try{bridge.postMessage({action,...payload});return true;}catch(error){nonCritical('store-bridge-post',error);return false;}}
+  async function deliverStoreTransaction(tx,attempt=0){
+    const transactionId=String(tx?.transactionId||''),productId=String(tx?.productId||'');if(!transactionId||!productId||storeNative.inFlight.has(transactionId))return null;
+    if(!state.onboardingComplete)return null;storeNative.inFlight.add(transactionId);const navigationRevision=drawerNavigationRevision;
+    try{const result=await runAuthorizedDomainCommand('store','deliver',{transactionId,productId,expiresAt:Number(tx.expiresAt)||0,...(Number(tx.confirmedAt)>0?{confirmedAt:Number(tx.confirmedAt)}:{}),...(['app-store','play'].includes(tx.store)?{store:tx.store}:{})},{silent:true,idempotencyKey:`store:${transactionId}`});
+      if(result?.ok){storeBridgePost('finish',{transactionId});const delivered=result.result||{};if(!delivered.replay)notice(delivered.capital>0?`وصلت ${window.GH_STORE_CORE?.productOf?.(productId)?.product?.title||'الحزمة'}: ${fmtMoney(delivered.capital)} إلى الحساب الجاري للقابضة.`:`فُعّل ${window.GH_STORE_CORE?.productOf?.(productId)?.product?.title||'الشراء'}.`);updateKpis();if(activeDrawerPanel==='store')reopenDrawer(navigationRevision,'store');}
+      return result;
+    }catch(error){
+      // A paid transaction is never dropped while the game runs: a refusal of the store's own rules (store-…) is final
+      // and reported; anything else (another command, a calendar advance, the save lock) is tried again, then once a minute.
+      if(/^store-/.test(String(error?.message||'')))nonCritical('store-delivery-refused',error);else{if(attempt===5)nonCritical('store-delivery-deferred',error);setTimeout(()=>deliverStoreTransaction(tx,attempt+1),Math.min(60000,2000*(attempt+1)));}
+      return null;}
+    finally{storeNative.inFlight.delete(transactionId);}
+  }
+  // A refunded purchase (owner «نعم تسحب»): store:revoke takes back what it granted and the capital it added (as much as
+  // the holding's current account holds); the shell is told to finish it only after that save. A revoked investor licence
+  // also turns investor mode off. Retried like a delivery while the game runs.
+  async function revokeStoreTransaction(tx,attempt=0){
+    const transactionId=String(tx?.transactionId||''),productId=String(tx?.productId||'');if(!transactionId||!productId||storeNative.inFlight.has(`revoke:${transactionId}`))return null;
+    if(!state.onboardingComplete)return null;storeNative.inFlight.add(`revoke:${transactionId}`);const navigationRevision=drawerNavigationRevision;
+    try{const result=await runAuthorizedDomainCommand('store','revoke',{transactionId,productId},{silent:true,idempotencyKey:`store-revoke:${transactionId}`});
+      if(result?.ok){storeBridgePost('finish',{transactionId});const row=result.result||{};
+        if(!row.replay){const title=window.GH_STORE_CORE?.productOf?.(productId)?.product?.title||'الشراء';notice(`استرد المتجر ثمن «${title}»، فسُحب ما منحه${row.withdrawn>0?`، وخُصم ${fmtMoney(row.withdrawn)} من الحساب الجاري للقابضة`:''}${row.unrecovered>0?` (${fmtMoney(row.unrecovered)} صُرفت قبل الاسترداد)`:''}.`,'warning');}
+        if((row.entitlements||[]).includes('investor')&&window.GH_FINANCE_CORE?.investorMode?.(state)===true&&!window.GH_STORE_CORE?.entitled?.(state,'investor'))await toggleInvestorMode();
+        updateKpis();if(activeDrawerPanel==='store')reopenDrawer(navigationRevision,'store');}
+      return result;
+    }catch(error){if(/^store-/.test(String(error?.message||'')))nonCritical('store-revocation-refused',error);else{if(attempt===5)nonCritical('store-revocation-deferred',error);setTimeout(()=>revokeStoreTransaction(tx,attempt+1),Math.min(60000,2000*(attempt+1)));}return null;}
+    finally{storeNative.inFlight.delete(`revoke:${transactionId}`);}
+  }
+  // Google Play tells the device what the account owns now, not what was refunded: a lifetime purchase delivered from Play
+  // that Play no longer lists (refunded) is revoked. Only rows Play delivered are compared.
+  function reconcileStoreOwned(info){
+    const store=String(info?.store||''),owned=new Set((Array.isArray(info?.products)?info.products:[]).map(id=>window.GH_STORE_CORE?.productOf?.(id)?.suffix).filter(Boolean)),S=window.GH_STORE_CORE;
+    if(store!=='play'||!S||!state.purchases)return;
+    for(const row of Object.values(state.purchases.entitlements||{}))if(row&&row.store===store&&S.PRODUCTS[row.product]?.kind==='permanent'&&!owned.has(row.product))revokeStoreTransaction({transactionId:row.transactionId,productId:row.product});
+  }
+  window.GH_STORE_NATIVE=Object.freeze({
+    available:()=>Boolean(storeBridge()),
+    catalog:()=>({...storeNative.catalog}),
+    onProducts(list){storeNative.catalog={};for(const row of Array.isArray(list)?list:[])if(row&&row.productId)storeNative.catalog[String(row.productId)]={displayPrice:String(row.displayPrice||''),title:String(row.title||'')};if(activeDrawerPanel==='store')openDrawer('store');},
+    onTransaction(tx){return deliverStoreTransaction(tx);},
+    onRevocation(tx){return revokeStoreTransaction(tx);},
+    onOwned(info){reconcileStoreOwned(info);},
+    onPurchaseFailed(info){const reason=String(info?.reason||'');if(reason!=='cancelled')notice(reason==='pending'?'الشراء بانتظار الموافقة (مثل «اطلب الشراء»)؛ يصل تلقائيًا عند اعتماده.':'تعذر إتمام الشراء من المتجر؛ لم يُخصم شيء.','warning');},
+    buy(productId){if(!storeBridgePost('purchase',{productId:String(productId||'')}))notice('الشراء متاح في نسخة المتجر من التطبيق.');},
+    restore(){if(!storeBridgePost('restore'))notice('الاستعادة متاحة في نسخة المتجر من التطبيق.');}
+  });
   async function toggleInvestorMode(){
+    if(window.GH_FINANCE_CORE?.investorMode?.(state)!==true&&!paidFeatureOpen('investor','وضع المستثمر الحر يُفتح بشراء «رخصة المستثمر» مرة واحدة.'))return false;
     const result=await runDurableStateCommand('investor-mode',({state:draft})=>{const next=!window.GH_FINANCE_CORE?.investorMode?.(draft);draft.godMoney=next;draft.infiniteMoney=next;window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:next?'تفعيل وضع المستثمر الحر: كل نقص في السيولة يصل حوالةً واردة من بطاقة المستثمر.':'إيقاف وضع المستثمر الحر؛ يبقى ما شُحن من بطاقة المستثمر في حسابات الشركات حتى تُرجعه بنفسك.',type:'investor-mode'});return {enabled:next};},{silent:true,afterCommit:()=>{updateKpis();if(activeDrawerPanel)openDrawer(activeDrawerPanel,activeDrawerArg);}});
     if(!result)notice('لم يتغير وضع المستثمر؛ تعذر تأكيد الحفظ.','warning');
   }
@@ -6725,6 +6818,8 @@ ${page}</div>`;
       order=Order.quote({availability,freshness,contextToken,ownerCompanyId,assetMode:type,assetClass,operationProfileId:owner.definition.classification.operationProfileId,companyShortName:identity?.shortName||ownerCompanyId,companyName:identity?.legalName||companyFinanceName(ownerCompanyId),tab,ownership:mode,simSeconds:Number(state.simSeconds)||0,item,supplier:assetSupplier,quantity:requestedQty,distribution:purchaseOptions.distribution==='per-facility'?'per-facility':'total',preferredBaseId:base.id,sequences:Order.sequenceSnapshot(state,ownerCompanyId),documentLeadDays,leadSeconds:0,immediateDelivery:true});
       const preview=Order.previewReservation(order);provisional=Order.bind(order,preview,{ref:'PENDING-ASSET-PURCHASE-CHEQUE',invoiceRef:'PENDING-ASSET-PURCHASE-INVOICE',amount:order.totalUpfront});idGuardTicket=await assetPurchaseBaselineTicket(state,provisional.plan);if(!baselineTicket.current()||!idGuardTicket.current()||baselineTicket.result.membershipRevision!==idGuardTicket.result.membershipRevision||baselineTicket.result.revision!==idGuardTicket.result.revision)throw new Error('asset-purchase-worker-baseline-stale');
     }catch(error){return reject(error.message||error);}
+    // The career level's model and fleet band (GH_PROGRESSION_CORE), asked before anything is staged; the command gate asks again.
+    try{window.GH_PROGRESSION_CORE?.checkCommand?.(state,'asset-purchase','authorize-order',{ownerCompanyId,count:order.count,order:{ownerCompanyId,count:order.count,item:{id:item.id}}});}catch(error){return reject(error.message);}
     const totalQty=order.count,upfront=order.totalUpfront,recordLimit=window.GH_PERSISTENCE?.fleetRecordLimit?.(),recordCount=window.GH_FLEET_DATA.persistenceRecordCount(state,deliveries);if(Number.isSafeInteger(recordLimit)&&recordCount+totalQty>recordLimit){const room=Math.max(0,recordLimit-recordCount);return reject(room?`سعة حفظ هذا الجهاز تسمح بإضافة ${countText(room,'asset')} فقط الآن؛ لم يبدأ الشراء.`:'امتلأت سعة حفظ هذا الجهاز للأصول؛ لم يبدأ الشراء.');}
     const finance=window.GH_FINANCE_CORE,unlimited=window.GH_FINANCE_CORE?.investorMode?.(state),ownerCash=companyOperatingBalance(ownerCompanyId),groupCover=ownerCompanyId==='group'?0:companyOperatingBalance('group');if(!unlimited&&ownerCash+groupCover<upfront)return reject(`السيولة المجمعة لا تكفي للدفعة المطلوبة ${fmtMoney(upfront)}.`);if(!unlimited&&(finance.remaining(state,ownerCompanyId)<upfront||finance.lineRemaining(state,ownerCompanyId,'capex')<upfront))return reject(`ميزانية ${companyFinanceName(ownerCompanyId)} لا تسمح بكامل الطلب ${fmtMoney(upfront)}؛ لم يبدأ أي جزء.`);
     try{
@@ -6908,6 +7003,7 @@ ${page}</div>`;
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل تغيير السرعة.');return false;}
     if(state.speed>0)resumeSpeed=state.speed;
     const requested=Number(value),next=SAFE_SPEED_VALUES.includes(requested)?requested:1,now=performance.now();
+    if(next===3&&!paidFeatureOpen('accelerator','السرعة المتسارعة 300× من «مسرّع الوقت» أو «فنتورا بلس»؛ السرعتان 30× و120× مجانيتان.'))return false;
     if(pausePendingAfterDayClose){if(next===0&&afterDayClose)return true;pausePendingAfterDayClose=false;simulationEngine.cancelPauseAfterDayClose?.();if(next===state.speed&&next>0){showSpeedControls(false);return true;}}
     if(afterDayClose&&next===0&&state.speed>0&&simulationEngine.pauseAfterDayClose?.()===true){pausePendingAfterDayClose=true;showSpeedControls(true);notice('يكتمل إقفال اليوم ثم يتوقف الوقت.');return true;}
     // Cancel first. A staged rollback owns the pre-slice `speed` snapshot and
@@ -6923,6 +7019,7 @@ ${page}</div>`;
   // A second tap on the map entry, with nothing open beside the map, frames the whole world.
   $('mapNavBtn').addEventListener('click',()=>{const framed=!document.querySelector('.sheet-dock>.open,.sheet-dock>:not(.hidden):not(.drawer):not(.god-panel)');openWorld();if(framed&&map)map.setView([22,28],3);});
   $('brandBtn').addEventListener('click',openWorld);
+  $('levelKpi')?.addEventListener('click',()=>openDrawer('progression'));$('levelKpi')?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openDrawer('progression');}});
   $('alertsBtn').addEventListener('click',()=>openDrawer('news')); $('topNewsTicker')?.addEventListener('click',()=>openDrawer('news')); $('healthBtn')?.addEventListener('click',()=>openDrawer(window.GH_EDITION==='release'?'settings':'diagnostics')); $('settingsBtn').addEventListener('click',()=>openDrawer('systemHub'));
   document.querySelectorAll('button[data-map-mode]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setMapMode(btn.dataset.mapMode);}));
   $('drawerClose').addEventListener('click',closeDrawer);
@@ -7090,10 +7187,11 @@ ${page}</div>`;
     founderSubmitting=false;$('founderForm').removeAttribute('aria-busy');$('founderSubmit').disabled=false;$('founderBack').disabled=false;$('founderSubmit').textContent='توقيع العقد وتأسيس المجموعة';
     if(!result){founderFeedback('لم يُعتمد العقد ولم يُضف رأس المال. تعذر تأكيد الحفظ؛ أعد المحاولة بعد زوال السبب.');return false;}
     $('founderFlow').classList.add('hidden');$('founderContractPreview').innerHTML='';$('founderLivePreview').innerHTML='';founderSignaturePad?.destroy?.();founderSignaturePad=null;$('founderSignatureMount')?.replaceChildren();$('app').removeAttribute('inert');$('app').removeAttribute('aria-hidden');$('app').style.pointerEvents='';
-    if(map)map.setView(headquartersFacility(state).coords,4,{animate:false});updateKpis();renderMap();return true;
+    if(map)map.setView(headquartersFacility(state).coords,4,{animate:false});updateKpis();renderMap();storeBridgePost('ready');return true;
   }
   $('founderForm').addEventListener('submit',event=>{event.preventDefault();return finishFounder();});
   if(!state.onboardingComplete){$('founderFlow').classList.remove('hidden');$('app').setAttribute('inert','');$('app').setAttribute('aria-hidden','true');}
+  else storeBridgePost('ready');
 
   updateKpis();setSpeed(state.speed);$('competitorToggle').checked=!!state.showCompetitors;
   document.querySelectorAll('.filter-btn').forEach(b=>{const selected=b.dataset.filter===state.activeFilter;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));});

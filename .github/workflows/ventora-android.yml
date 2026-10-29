@@ -1,0 +1,124 @@
+name: VENTORA Android
+
+# VENTORA for Android (approved «تجهيز الأندرويد»): the same WebApp in the Android shell (android/). A debug APK of the
+# source WebApp for testing on a phone, or the release edition: the WebApp minified, smoke-tested, sealed with a key made
+# for this build (the same pack format as the iPhone release), and bundled as an AAB signed with the owner's upload key.
+# The store settings come only from the owner's secrets; without them the release bundle is built unsigned.
+on:
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: "debug (APK for testing) or release (AAB for Google Play)"
+        required: true
+        default: "debug"
+        type: choice
+        options: ["debug", "release"]
+      application_id:
+        description: "The Google Play application id (release; empty keeps the development id)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ventora-android
+  cancel-in-progress: false
+
+jobs:
+  android:
+    name: Android ${{ github.event.inputs.edition }} build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@v4
+
+      - name: Select Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.22.0"
+
+      - name: Select Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install the Android SDK (API 36)
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platforms;android-36 build-tools;36.0.0 platform-tools"
+
+      - name: Select Gradle 8.14.3
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Test the save vault core on the JVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android/vault-jvm --no-daemon test
+          mkdir -p .ci-output && cp -R android/vault-jvm/build/test-results/test .ci-output/vault-jvm-tests
+
+      - name: Build the debug APK
+        if: github.event.inputs.edition == 'debug'
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android --no-daemon assembleDebug
+          mkdir -p .ci-output && cp android/app/build/outputs/apk/debug/app-debug.apk .ci-output/VENTORA_android_debug.apk
+          sha256sum .ci-output/VENTORA_android_debug.apk | tee .ci-output/VENTORA_android_debug.sha256
+
+      - name: Minify, smoke-test and seal the release WebApp
+        if: github.event.inputs.edition == 'release'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false --no-audit --no-fund
+          npx playwright install chromium
+          REL="$RUNNER_TEMP/ventora-release";mkdir -p "$REL/smoke-root" .ci-output
+          cp -R WebApp "$REL/minified"
+          node tools/release/build-release-webapp.cjs --web "$REL/minified" --minify-only --report .ci-output/release-minify.json
+          ln -s "$REL/minified" "$REL/smoke-root/WebApp"
+          node tests/release/ventora-release-smoke.cjs "$REL/smoke-root" | tee .ci-output/release-smoke.log
+          cp -R "$REL/minified" "$REL/sealed"
+          node tools/release/build-release-webapp.cjs --web "$REL/sealed" --swift "$REL/VentoraReleaseKey.swift" --kotlin android/app/src/main/java/com/ventora/game/VentoraReleaseKey.kt --seal-only --report .ci-output/release-seal.json
+          node tests/release/ventora-seal-roundtrip.cjs "$REL/sealed" "$REL/minified" "$REL/VentoraReleaseKey.swift" | tee .ci-output/release-seal-roundtrip.log
+          echo "REL=$REL" >> "$GITHUB_ENV"
+
+      - name: Build the release AAB
+        if: github.event.inputs.edition == 'release'
+        shell: bash
+        env:
+          PLAY_LICENSE_KEY: ${{ secrets.PLAY_LICENSE_KEY }}
+          UPLOAD_KEYSTORE: ${{ secrets.ANDROID_UPLOAD_KEYSTORE }}
+          UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+          APPLICATION_ID: ${{ github.event.inputs.application_id }}
+        run: |
+          set -euo pipefail
+          # Without the Play licence key no purchase verifies: players would be charged and never receive what they paid
+          # for (Play refunds unacknowledged purchases after three days). A store build without it is refused.
+          if [ -z "$PLAY_LICENSE_KEY" ]; then echo "::error::The PLAY_LICENSE_KEY secret is required for the release edition."; exit 1; fi
+          if [ -n "$APPLICATION_ID" ] && ! [[ "$APPLICATION_ID" =~ ^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$ ]]; then echo "::error::Invalid application id."; exit 1; fi
+          ARGS=(-p android --no-daemon bundleRelease "-Pventora.webapp=$REL/sealed" "-Pventora.applicationId=$APPLICATION_ID" "-Pventora.playKey=$PLAY_LICENSE_KEY")
+          if [ -n "$UPLOAD_KEYSTORE" ]; then
+            echo "$UPLOAD_KEYSTORE" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+            ARGS+=("-Pventora.keystore=$RUNNER_TEMP/upload.jks" "-Pventora.keystorePassword=$UPLOAD_KEYSTORE_PASSWORD" "-Pventora.keyAlias=$UPLOAD_KEY_ALIAS" "-Pventora.keyPassword=$UPLOAD_KEY_PASSWORD")
+          fi
+          gradle "${ARGS[@]}"
+          cp android/app/build/outputs/bundle/release/app-release.aab .ci-output/VENTORA_android_release.aab
+          sha256sum .ci-output/VENTORA_android_release.aab | tee .ci-output/VENTORA_android_release.sha256
+          rm -f "$RUNNER_TEMP/upload.jks"
+
+      - name: Upload the Android build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VENTORA-android-${{ github.event.inputs.edition }}
+          path: .ci-output
+          if-no-files-found: error
+          retention-days: 30

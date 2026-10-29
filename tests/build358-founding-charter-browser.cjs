@@ -22,6 +22,8 @@ const {drawFounderSignature}=require('./helpers/signature-input');
       assert.equal(await page.locator(selector).count(),0,`${selector} had no effect and is gone`);
     assert.equal(await page.locator('.incorporation-progress>span').count(),2,'founding has two steps');
     assert.equal(await page.locator('#founderDataStep').getAttribute('aria-current'),'step');
+    // Free play at 50 million (the founding screen's default is now the career at normal difficulty, 250 million).
+    await page.selectOption('#founderMode','balanced');
     await page.fill('#founderName','مجموعة الأفق القابضة');await page.selectOption('#founderLocation','LON');
     await page.waitForFunction(()=>document.querySelector('#founderLivePreview .charter h2')?.textContent==='مجموعة الأفق القابضة');
     assert.match(await page.locator('#founderLivePreview .charter').innerText(),/لندن/,'the live contract follows the chosen headquarters');

@@ -39,6 +39,8 @@ enum VentoraDeviceIntegrity {
 /// the game page being healthy.
 final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, UIDocumentPickerDelegate {
     private var webView: WKWebView!
+    /// VENTORA store (StoreKit 2, VentoraStore.swift): the `storeBridge` handler's owner.
+    private var store: VentoraStore?
     private let schemeHandler = GlobalGameSchemeHandler()
     private var launchOverlay: UIView?
     private weak var launchSubtitleLabel: UILabel?
@@ -85,6 +87,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         configuration.userContentController.add(self, name: "updateBridge")
         configuration.userContentController.add(self, name: "saveBridge")
         configuration.userContentController.add(self, name: "diagnosticBridge")
+        configuration.userContentController.add(self, name: "storeBridge")
         configuration.setURLSchemeHandler(schemeHandler, forURLScheme: "gh")
         if ventoraReleaseEdition {
             configuration.userContentController.addUserScript(WKUserScript(source: "window.GH_EDITION='release';", injectionTime: .atDocumentStart, forMainFrameOnly: true))
@@ -101,6 +104,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         webView.isOpaque = false
         webView.backgroundColor = ventoraSky
         if ventoraReleaseEdition { webView.isInspectable = false }
+        store = VentoraStore(webView: webView)
         view = webView
     }
 
@@ -756,6 +760,10 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             default:
                 break
             }
+            return
+        }
+        if message.name == "storeBridge" {
+            store?.handle(action: action, payload: payload)
             return
         }
         if message.name == "diagnosticBridge" {

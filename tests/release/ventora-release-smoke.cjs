@@ -1,7 +1,9 @@
 'use strict';
 // VENTORA release smoke: the shipped (minified) WebApp, run as the release edition with no test hooks injected into
 // app.js. The group is founded through the founding screen, days pass through the calendar, every rail section and its
-// tiles open, the developer pages stay hidden, and «وضع المستثمر الحر» switches on and off. No page error is allowed.
+// tiles open, the developer pages stay hidden, and «وضع المستثمر الحر» is the store's: refused (the store page opens)
+// until the investor licence is delivered through the store bridge (a stand-in for StoreKit 2), then it switches on and
+// off. No page error is allowed.
 // Usage: node tests/release/ventora-release-smoke.cjs <root with the transformed WebApp>
 const assert=require('node:assert/strict'),path=require('node:path');
 const {chromium}=require('playwright'),{boot}=require('../helpers/local-dom-app');
@@ -10,7 +12,7 @@ const root=path.resolve(process.argv[2]||path.join(__dirname,'../..'));
 (async()=>{
   const browser=await chromium.launch({headless:true}),errors=[];
   try{
-    const {page}=await boot({browser,errors,root,noAudit:true,beforeScripts:{fn:()=>{window.GH_EDITION='release';},arg:null}});
+    const {page}=await boot({browser,errors,root,noAudit:true,beforeScripts:{fn:()=>{window.GH_EDITION='release';window.__storePosts=[];window.webkit={messageHandlers:{storeBridge:{postMessage:message=>window.__storePosts.push(JSON.parse(JSON.stringify(message)))}}};},arg:null}});
     page.setDefaultTimeout(60000);page.on('dialog',dialog=>dialog.accept());
     assert.equal(await page.evaluate(()=>__GH_STATE__.onboardingComplete),true,'the group is founded');
     assert.equal(await page.evaluate(()=>__GH_STATE__.profile.name),'فنتورا القابضة');
@@ -26,6 +28,10 @@ const root=path.resolve(process.argv[2]||path.join(__dirname,'../..'));
       for(const go of tiles.slice(0,8)){const tile=page.locator(`#drawerBody [data-go="${go}"]`).first();if(await tile.isVisible().catch(()=>false)){await tile.click();await page.waitForTimeout(120);opened++;await button.click();await page.waitForTimeout(80);}}
     }
     assert.ok(opened>=8,`pages opened: ${opened}`);
+    await page.click('#settingsBtn');await page.locator('#drawerBody [data-go="investorMode"]').first().click();
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'));
+    assert.equal(await page.evaluate(()=>__GH_STATE__.godMoney===true),false,'investor mode needs its licence in the store edition');
+    await page.evaluate(()=>GH_STORE_NATIVE.onTransaction({transactionId:'SMOKE-1',productId:'com.ventora.smoke.investor.licence'}));await page.waitForFunction(()=>__GH_STATE__.purchases?.entitlements?.investor&&window.__storePosts.some(row=>row.action==='finish'&&row.transactionId==='SMOKE-1'));
     await page.click('#settingsBtn');await page.locator('#drawerBody [data-go="investorMode"]').first().click();
     await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===true);
     await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===false);

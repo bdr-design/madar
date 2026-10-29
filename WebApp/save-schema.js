@@ -653,6 +653,10 @@
     const fleetWork=metric.fleetWork={rootChecks:1,identityValidationCalls:1,conferenceValidationCalls:1,presentationValidationCalls:1,routeIdRows:0,routeRows:0,assetFieldVisits:0,idCollisionChecks:0,routeUserGroups:0,routeSignatureGroups:0,routeSignatureRows:0};
     if(s.serviceCompanies!==undefined){const owner=globalThis.GH_SERVICE_COMPANIES_CORE;if(!owner?.validationSteps)errors.push('service-companies-validator-missing');else{const steps=owner.validationSteps(s);for(;;){const step=steps.next();if(step.done){errors.push(...step.value.errors);break;}yield* pause('serviceCompanies',{sections:1});}}}
     if(s.hospitality!==undefined){const owner=globalThis.GH_HOSPITALITY_CORE;if(!owner?.validationSteps)errors.push('hospitality-validator-missing');else{const steps=owner.validationSteps(s);for(;;){const step=steps.next();if(step.done){errors.push(...step.value.errors);break;}yield* pause('hospitality',{sections:1});}}}
+    // The career progression root (GH_PROGRESSION_CORE); a save from before levels has none and stays open.
+    // Store purchases (GH_STORE_CORE): entitlements and delivered transactions; a save without purchases has none.
+    if(s.purchases!==undefined){const owner=globalThis.GH_STORE_CORE;if(!owner?.validate)errors.push('store-validator-missing');else errors.push(...owner.validate(s));}
+    if(s.progression!==undefined){const owner=globalThis.GH_PROGRESSION_CORE;if(!owner?.validate)errors.push('progression-validator-missing');else errors.push(...owner.validate(s));}
     // iPhone diagnostic DX-1792378248326: these display/identity checks over every invoice, payable, receivable, contract,
     // mobility vehicle and endpoint ran inside the fleet-routes step with no host yield (one 8-20 ms command.schema block
     // per command). Same checks in the same order; past 4 ms of work the runner may give the frame back between them.

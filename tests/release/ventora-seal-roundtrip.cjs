@@ -5,8 +5,11 @@
 // Usage: node tests/release/ventora-seal-roundtrip.cjs <sealed WebApp> <minified WebApp> <VentoraReleaseKey.swift>
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const [sealedRoot,plainRoot,swift]=process.argv.slice(2).map(p=>path.resolve(p));
-const arrays=[...fs.readFileSync(swift,'utf8').matchAll(/\[(0x[0-9a-f]{2}(?:, 0x[0-9a-f]{2})*)\]/g)].map(m=>Buffer.from(m[1].split(', ').map(x=>parseInt(x,16))));
-assert.equal(arrays.length,2,'two masked halves');const key=Buffer.from(arrays[0].map((b,i)=>b^arrays[1][i]));assert.equal(key.length,32);
+// The key is four shares scattered over one table in this build's order (build-release-webapp.cjs): joined here as the app does.
+const source=fs.readFileSync(swift,'utf8'),table=name=>{const m=source.match(new RegExp(`${name}: \\[UInt8\\] = \\[(0x[0-9a-f]{2}(?:, 0x[0-9a-f]{2})*)\\]`));assert.ok(m,`the ${name} table`);return m[1].split(', ').map(x=>parseInt(x,16));};
+const parts=table('parts'),order=table('order');assert.equal(parts.length,128);assert.deepEqual([...order].sort((a,b)=>a-b),[...Array(128).keys()],'the order is a permutation');
+assert.equal(source.match(/\[(0x[0-9a-f]{2}(?:, 0x[0-9a-f]{2})*)\]/g).length,2,'no other byte table');
+const key=Buffer.from(Array.from({length:32},(_,i)=>parts[order[i]]^parts[order[32+i]]^parts[order[64+i]]^parts[order[96+i]]));assert.equal(key.length,32);
 const MAGIC=Buffer.from('VENC1');
 const open=(data,rel)=>{if(!data.subarray(0,5).equals(MAGIC))return null;const nonce=data.subarray(5,17),tag=data.subarray(data.length-16),body=data.subarray(17,data.length-16);try{const d=crypto.createDecipheriv('aes-256-gcm',key,nonce);d.setAAD(Buffer.from(rel));d.setAuthTag(tag);return Buffer.concat([d.update(body),d.final()]);}catch{return null;}};
 const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]);

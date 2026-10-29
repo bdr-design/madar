@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="phone-layout.css">
   <link rel="stylesheet" href="hospitality.css">
   <link rel="stylesheet" href="business-options.css">
+  <link rel="stylesheet" href="progression.css">
 </head>
 <body>
 
@@ -39,7 +40,7 @@
               <label>اسم المؤسس<input id="founderOwner" required maxlength="32" value="المؤسس" autocomplete="name"></label>
               <label>المقر الرئيسي<select id="founderLocation"><option value="RUH">الرياض · السعودية</option></select><small>يقام مبنى المقر في هذه المدينة على الخريطة.</small></label>
             </div>
-            <label class="incorporation-wide">رأس المال الافتتاحي<select id="founderMode"><option value="balanced">50 مليون دولار</option><option value="investor">250 مليون دولار</option><option value="sandbox">مليار دولار</option></select><small>يودع في الحساب الجاري للقابضة، ومنه تُموَّل الشركات التابعة.</small></label>
+            <label class="incorporation-wide">طريقة اللعب ورأس المال الافتتاحي<select id="founderMode"><optgroup label="المسار المهني · 30 مستوى تفتح الشركات تباعًا"><option value="career-normal" selected>عادي · 250 مليون دولار</option><option value="career-easy">سهل · مليار دولار</option><option value="career-hard">صعب · 50 مليون دولار</option></optgroup><optgroup label="اللعب الحر · كل شيء مفتوح"><option value="balanced">50 مليون دولار</option><option value="investor">250 مليون دولار</option><option value="sandbox">مليار دولار</option></optgroup></select><small>يودع رأس المال في الحساب الجاري للقابضة، ومنه تُموَّل الشركات التابعة.</small></label>
             <details class="incorporation-customize"><summary><span>الهوية</span><small>الاختصار والاسم الإنجليزي والشعار · اختياري</small></summary>
               <div class="incorporation-grid"><label>اختصار المجموعة<input id="founderShort" maxlength="4" value="VH" dir="auto" autocomplete="off"></label><label>الاسم الإنجليزي<input id="founderEnglishName" maxlength="60" placeholder="اختياري" dir="ltr" autocomplete="off"></label></div>
               <div class="incorporation-brand"><div id="founderLogoPreview" class="incorporation-logo"><span>VH</span></div><div class="incorporation-upload"><label for="founderLogoUpload">رفع شعار<input id="founderLogoUpload" type="file" accept="image/png,image/jpeg,image/webp"></label><button id="founderLogoClear" type="button" hidden>إزالة الصورة</button><span id="founderLogoStatus" role="status"></span></div></div>
@@ -76,6 +77,7 @@
       <section class="top-kpis" aria-label="مؤشرات المجموعة">
         <div><span>السيولة</span><strong id="cashKpi">$250.0M</strong></div>
         <div><span>صافي اليوم</span><strong id="profitKpi">+$0</strong></div>
+        <div id="levelKpi" class="level-kpi" role="button" tabindex="0" aria-label="المستويات والتراخيص" hidden><span id="levelKpiTitle">المستوى</span><strong id="levelKpiValue">1</strong></div>
       </section>
       <button id="topNewsTicker" class="top-news-ticker" type="button" aria-label="فتح الأخبار الرسمية">
         <span class="mg ic-ticker" data-icon="ticker" aria-hidden="true"></span><span><small>الأخبار الرسمية</small><strong id="topNewsHeadline">لا توجد أحداث جديدة</strong></span><em id="topNewsStatus">موثق</em>
@@ -242,6 +244,8 @@
   <script src="company-adapters-core.js"></script>
   <script src="document-proof-core.js"></script>
   <script src="signature-pad-core.js"></script>
+  <script src="progression-core.js"></script>
+  <script src="store-core.js"></script>
   <script src="formation-engine.js"></script>
   <script src="air-sea-network-core.js"></script>
   <script src="simulation-asset-core.js"></script>

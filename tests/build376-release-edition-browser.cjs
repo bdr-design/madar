@@ -2,7 +2,8 @@
 // Build 376 (owner: the game is VENTORA; the release edition shows the player no developer tools). The iPhone app's
 // release build sets GH_EDITION='release': the system section lists no updates, game-health or control pages (a link
 // to one opens the settings), the settings carry no update card and no safety-period choices but offer a problem
-// report, and the unlimited-money mode lives on its own page, «وضع المستثمر الحر». The development edition keeps its
+// report, and the unlimited-money mode lives on its own page, «وضع المستثمر الحر», opened by the investor licence from the
+// store. The development edition keeps its
 // tools. The default group is «فنتورا القابضة» and its companies carry the new name.
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
@@ -40,6 +41,12 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
 
     // «وضع المستثمر الحر» on its own page.
     await open('investorMode');assert.match(await body(),/وضع المستثمر الحر/);
+    // In the store edition the mode is the investor licence's (GH_STORE_CORE): refused, the store page opens; once the
+    // licence is delivered (the store bridge's verified transaction) it switches on and off as before.
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'));
+    assert.equal(await page.evaluate(()=>__GH_STATE__.godMoney===true),false,'investor mode needs its licence in the store edition');
+    await page.evaluate(()=>GH_STORE_NATIVE.onTransaction({transactionId:'B376-1',productId:'com.ventora.b376.investor.licence'}));await page.waitForFunction(()=>__GH_STATE__.purchases?.entitlements?.investor&&!window.__GH_DURABLE_COMMAND_CONTEXT__);
+    await open('investorMode');
     await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===true&&__GH_STATE__.infiniteMoney===true);
     await page.waitForFunction(()=>document.querySelector('#drawerBody .investor-mode-toggle')?.textContent.includes('إيقاف'));
     await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===false);

@@ -8,7 +8,8 @@
     {id:'LON',country:'المملكة المتحدة',city:'لندن',coords:[51.5072,-0.1276]},
     {id:'NYC',country:'الولايات المتحدة',city:'نيويورك',coords:[40.7128,-74.006]}
   ].map(row=>Object.freeze({...row,coords:Object.freeze(row.coords)})));
-  const FOUNDING_CAPITALS=Object.freeze({balanced:50000000,investor:250000000,sandbox:1000000000});
+  // The career modes (levels, GH_PROGRESSION_CORE) take their capital from the difficulty; the three earlier modes are free play.
+  const FOUNDING_CAPITALS=Object.freeze({'career-normal':250000000,'career-easy':1000000000,'career-hard':50000000,balanced:50000000,investor:250000000,sandbox:1000000000});
   const FOUNDING_ARTICLES=Object.freeze([
     Object.freeze({title:'الكيان والملكية',text:'تؤسس مجموعة قابضة مملوكة للمؤسس الوارد في هذا العقد، ويثبت اسمها ومقرها في سجل المجموعة، ويقام مبنى مقرها الرئيسي في مدينة المقر.'}),
     Object.freeze({title:'رأس المال والحسابات',text:'يودع رأس المال المبين كاملًا في الحساب الجاري للمجموعة مرة واحدة عند اعتماد العقد. العملة المحاسبية هي الدولار الأمريكي، والسنة المالية من يناير إلى ديسمبر.'}),
@@ -73,6 +74,9 @@
     const signatureSnapshot=isPlan&&typeof helpers.signatureSnapshot==='function'?helpers.signatureSnapshot(state,input.signature.signatureRef):null;
     state.companyRegistry.group.formationDocument={version:2,id:registry.formationContract,status:'signed',year,signedAt:Number(state.simSeconds)||0,name:profile.name,englishName:profile.englishName,shortName:profile.shortName,founder:profile.founder,country:profile.country,city:profile.city,legalForm:profile.legalForm,currency:'USD',capital,accountId:F.book(state,'group').accounts[0].id,formationPlanId:isPlan?input.planId:null,formationPlanHash:isPlan?input.planHash:null,signature:isPlan?{signatureRef:input.signature.signatureRef,version:input.signature.version,digest:signatureSnapshot?.digest||null}:null,signatureSnapshot:signatureSnapshot||null,authorizationProofIds:[groupReceipt?.authorizationProofId,capitalReceipt?.authorizationProofId].filter(Boolean),articles:FOUNDING_ARTICLES.map(row=>({...row}))};
     state.companyRegistry.group.paidInCapital=capital;
+    // The founding mode decides the game's progression root: a career game starts at level 1, any other mode is free play.
+    // (The app always loads GH_PROGRESSION_CORE, runtime-required.json; without it the group is founded open, as before.)
+    const progression=globalThis.GH_PROGRESSION_CORE;if(progression?.initial)state.progression=progression.initial(prepared.mode);
     state.alerts=[`اعتمد عقد ${registry.formationContract} لتأسيس ${profile.name} في ${profile.city}، ${profile.country}.`,`أودع رأس المال ${helpers.fmtMoney?.(capital)||capital} في الحساب الجاري للمجموعة. افتح الشركات التابعة من قسم الشركات.`];
     if(helpers.onCommit)tx.afterCommit(helpers.onCommit,{critical:true,priority:100,key:'save'});
     return {capital,profile,registry,planId:isPlan?input.planId:null};

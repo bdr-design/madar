@@ -18,7 +18,10 @@ targets:
       - path: iOS/GlobalHoldings
         excludes:
           - Assets.xcassets
+          - PrivacyInfo.xcprivacy
       - path: iOS/GlobalHoldings/Assets.xcassets
+        buildPhase: resources
+      - path: iOS/GlobalHoldings/PrivacyInfo.xcprivacy
         buildPhase: resources
     info:
       path: iOS/GlobalHoldings/Info.plist
@@ -28,7 +31,7 @@ targets:
         CFBundleIconName: "AppIcon"
         CFBundleShortVersionString: "3.0.0"
         CFBundleVersion: "362"
-        GHSourceSnapshotSHA256: "05292b0ec20a666e487511a1df084f6ad514741b8fea8c7e17092ba070972de6"
+        GHSourceSnapshotSHA256: "02388f5fa74cc0226674c506cc79aabad382424df650c0b4333856a22ffa11a4"
         LSRequiresIPhoneOS: true
         UIRequiresFullScreen: true
         UILaunchStoryboardName: LaunchScreen

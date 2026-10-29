@@ -1,0 +1,20 @@
+/* Owner (approved design «فنتورا: تصميم المستويات وتجهيز الإطلاق»): the career level beside the cash and the levels page
+   (GH_PROGRESSION_CORE). Free play and older saves never show the level tile. */
+.level-kpi{position:relative;cursor:pointer;padding-bottom:3px}
+.level-kpi::after{content:"";position:absolute;inset-inline:0;bottom:0;height:2px;border-radius:2px;background:linear-gradient(to left,var(--accent) var(--level-progress,0%),var(--line) var(--level-progress,0%))}
+.level-kpi:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.level-bar{height:8px;border-radius:8px;background:var(--surface-3);overflow:hidden;margin:10px 0 6px}
+.level-bar>i{display:block;height:100%;border-radius:8px;background:var(--accent)}
+.progression-next{margin:8px 0 0;color:var(--muted);overflow-wrap:anywhere}
+.progression-licence-row,.progression-band-row,.progression-milestone{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line-soft)}
+.progression-licence-row>span{display:flex;flex-direction:column;min-width:0}
+.progression-licence-row small{color:var(--muted)}
+.progression-band-row>span{min-width:0;overflow-wrap:anywhere}
+.progression-milestone.is-done b{color:var(--teal)}
+.progression-level-row{display:grid;grid-template-columns:2.2em 5.5em minmax(0,1fr);gap:8px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line-soft)}
+.progression-level-row>span{color:var(--muted);font-variant-numeric:tabular-nums}
+.progression-level-row>p{margin:0;min-width:0;overflow-wrap:anywhere}
+.progression-level-row.is-done{opacity:.62}
+.progression-level-row.is-current{background:var(--accent-soft);border-radius:8px;padding-inline:6px}
+.company-open-row.is-level-locked{opacity:.86}
+.asset-payback{margin:6px 0 0;color:var(--muted);overflow-wrap:anywhere}

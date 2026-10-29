@@ -25,6 +25,8 @@
     const safetyRows=recent(state?.realism?.incidents),safetyCount=safetyRows.reduce((n,row)=>n+(Number(row.count)||0),0),fleet=Math.max(1,Number(globalThis.GH_FLEET_DATA?.size?.(state))||0),perThousand=safetyCount/fleet*1000;
     if(safetyCount>0)out.push(task('SAFETY:INCIDENTS',`${safetyCount} حادث سلامة في آخر 30 يومًا`,'الرقابة',perThousand>=5?'critical':'normal','compliance',`${perThousand.toFixed(1)} لكل 1,000 أصل`));
     const cyberRows=recent(state?.advanced?.cyber?.events);if(cyberRows.length)out.push(task('CYBER:INCIDENTS',`${cyberRows.length} حادث سيبراني في آخر 30 يومًا`,'الرقابة','high','compliance',''));
+    // The first steps of a career game (GH_PROGRESSION_CORE.startTasks); none in free play or investor mode.
+    for(const row of globalThis.GH_PROGRESSION_CORE?.startTasks?.(state)||[])out.push(task(row.id,row.title,row.domain,row.priority,row.panel,row.reason));
     const rank={critical:0,high:1,normal:2};return out.sort((a,b)=>(rank[a.priority]??9)-(rank[b.priority]??9)||a.domain.localeCompare(b.domain,'ar'));
   }
   function scan(root,panel,state){

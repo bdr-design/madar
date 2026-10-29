@@ -3,11 +3,139 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build576-presentation-rest-browser.cjs"
+      "tests/build623-worker-extras-packing.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-customer-contract-engine.cjs"
+    ],
+    [
+      "node",
+      "tests/build528-reopen-navigation-guard-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-release-edition-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build498-native-save-export-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-founding-charter-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build554-investor-card-funding.cjs"
+    ],
+    [
+      "node",
+      "tests/build616-marker-step-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/build633-progression-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build634-progression-career-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build635-store-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build636-store-release-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build637-launch-native-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-calendar-advance-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-calendar-journey-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-market-discovery-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r4-recovery-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-tabs-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-budgets-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-map-controls-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build530-durable-alert-defer-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build531-durable-publish-no-late-write-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/business-options-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock-browser.cjs"
     ],
     [
       "node",
       "tests/phone-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/tax-precision-and-routing-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-native-runtime-ready.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-runtime-removal.cjs"
+    ],
+    [
+      "node",
+      "tests/build612-company-autopilot-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build613-company-autopilot-finance.cjs"
+    ],
+    [
+      "node",
+      "tests/build450-other-section-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-security-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-schema-sections.cjs"
+    ],
+    [
+      "node",
+      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -16,10 +144,6 @@
     [
       "node",
       "tests/build387-save-actions.cjs"
-    ],
-    [
-      "node",
-      "tests/build450-other-section-work.cjs"
     ],
     [
       "node",
@@ -43,23 +167,11 @@
     ],
     [
       "node",
-      "tests/build623-worker-extras-packing.cjs"
-    ],
-    [
-      "node",
       "tests/build631-energy-realestate-day-stages-browser.cjs"
     ],
     [
       "node",
       "tests/build632-customer-billing-step.cjs"
-    ],
-    [
-      "node",
-      "tests/build612-company-autopilot-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build613-company-autopilot-finance.cjs"
     ],
     [
       "node",
@@ -135,14 +247,6 @@
     ],
     [
       "node",
-      "tests/build376-release-edition-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-founding-charter-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build452-section-review-browser.cjs"
     ],
     [
@@ -188,10 +292,6 @@
     [
       "node",
       "tests/build374-cheque-payable-lifecycle.cjs"
-    ],
-    [
-      "node",
-      "tests/dealer-ledger-and-stock-browser.cjs"
     ],
     [
       "node",
@@ -443,10 +543,6 @@
     ],
     [
       "node",
-      "tests/build616-marker-step-projection.cjs"
-    ],
-    [
-      "node",
       "tests/build334-presentation-work-contract.cjs"
     ],
     [
@@ -543,15 +639,7 @@
     ],
     [
       "node",
-      "tests/build334-market-discovery-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build358-air-sea-dispatch-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-budgets-browser.cjs"
     ],
     [
       "node",
@@ -560,10 +648,6 @@
     [
       "node",
       "tests/build358-large-fleet-dispatch-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-map-controls-browser.cjs"
     ],
     [
       "node",
@@ -744,14 +828,6 @@
     [
       "node",
       "tests/build591-service-companies-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/business-options-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/tax-precision-and-routing-browser.cjs"
     ],
     [
       "node",
@@ -979,10 +1055,6 @@
     ],
     [
       "node",
-      "tests/build360-native-runtime-ready.cjs"
-    ],
-    [
-      "node",
       "tests/build363-energy-health-contract.cjs"
     ],
     [
@@ -1032,10 +1104,6 @@
     [
       "node",
       "tests/build380-construction-acceleration.cjs"
-    ],
-    [
-      "node",
-      "tests/build382-runtime-removal.cjs"
     ],
     [
       "node",
@@ -1244,10 +1312,6 @@
     [
       "node",
       "tests/tax-reload-regressions.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-calendar-journey-browser.cjs"
     ],
     [
       "node",
@@ -1495,10 +1559,6 @@
     ],
     [
       "node",
-      "tests/build554-investor-card-funding.cjs"
-    ],
-    [
-      "node",
       "tests/build334-dynamic-finance-company-ids.cjs"
     ],
     [
@@ -1587,10 +1647,6 @@
     ],
     [
       "node",
-      "tests/build334-security-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build375-group-brand-names.cjs"
     ],
     [
@@ -1660,10 +1716,6 @@
     [
       "node",
       "tests/build339-accrued-obligation-cash-shortfall.cjs"
-    ],
-    [
-      "node",
-      "tests/build360-customer-contract-engine.cjs"
     ],
     [
       "node",
@@ -1836,10 +1888,6 @@
     [
       "node",
       "tests/build358-route-capacity.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-schema-sections.cjs"
     ],
     [
       "node",
@@ -2227,14 +2275,6 @@
     ],
     [
       "node",
-      "tests/build530-durable-alert-defer-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build531-durable-publish-no-late-write-browser.cjs"
-    ],
-    [
-      "node",
       "tests/lint.cjs"
     ],
     [
@@ -2320,14 +2360,6 @@
     [
       "node",
       "tests/build371-calendar-cancel-maintenance-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-r4-recovery-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build498-native-save-export-contract.cjs"
     ],
     [
       "node",
@@ -2938,6 +2970,26 @@
     [
       "node",
       "tests/build632-customer-billing-step.cjs"
+    ],
+    [
+      "node",
+      "tests/build633-progression-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build634-progression-career-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build635-store-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build636-store-release-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build637-launch-native-contract.cjs"
     ],
     [
       "node",

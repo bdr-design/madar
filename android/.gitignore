@@ -1,0 +1,6 @@
+# Gradle and build outputs (the WebApp is copied into build/generated at build time).
+.gradle/
+build/
+app/build/
+local.properties
+*.jks
