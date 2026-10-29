@@ -3,10 +3,12 @@ const assert=require('assert'),fs=require('fs'),path=require('path');
 const app=fs.readFileSync(path.resolve(__dirname,'../WebApp/app.js'),'utf8');
 const r0=app.indexOf('function renderMap()'),r1=app.indexOf('function updateMarkerPositions',r0),block=app.slice(r0,r1);
 // Mobility operates through company panels. The map may display its branches, but never materializes vehicle rows.
-const a0=app.indexOf('function renderAllocatedVehicles('),allocator=app.slice(a0,app.indexOf('\n  function ',a0+10));
+// Build 618: the choice of vehicles is allocateVehicles (a prepared render runs it in its slices).
+const a0=app.indexOf('function allocateVehicles('),allocator=app.slice(a0,app.indexOf('\n  function ',a0+10));
 assert(a0>0&&allocator.includes("Math.min(300,MAP_VIEW.budget('vehicles',zoom))")&&allocator.includes('allocator.allocate(unique,')&&allocator.includes('declutterRadius:18'));
-assert(block.includes('vehicleCandidates.push(...operationVehicleCandidates(')&&block.includes('vehicleCandidates.push(competitorMapCandidate(a))'));
-assert.equal((block.match(/renderAllocatedVehicles\(vehicleCandidates,zoom\)/g)||[]).length,1,'owned fleet and competitors share one bounded allocation call');
+const c0=app.indexOf('function competitorVehicleCandidates('),competitors=app.slice(c0,app.indexOf('\n  function ',c0+10));
+assert(block.includes('vehicleCandidates.push(...operationVehicleCandidates(')&&block.includes('vehicleCandidates.push(...competitorVehicleCandidates(')&&c0>0&&competitors.includes('out.push(competitorMapCandidate(a))'));
+assert.equal((block.match(/renderAllocatedVehicles\(vehicleCandidates,zoom[,)]/g)||[]).length,1,'owned fleet and competitors share one bounded allocation call');
 assert(app.includes("map.createPane('vehicleCanvas')")&&app.includes("vehiclePane.style.zIndex='450'")&&app.includes('GH_MAP_VEHICLE_CANVAS?.create?.({map,container:vehiclePane,hardLimit:300')&&app.includes('mapVehicleCanvas.add(candidate.id,')&&app.includes('mapVehicleCanvas?.clear?.()'));
 assert.doesNotMatch(app,/function mobilityVehicleCandidates\s*\(/,'map must not materialize Mobility vehicle candidates');
 assert.doesNotMatch(app,/function mobilityMapCandidate\s*\(/,'map must not adapt Mobility vehicles to markers');

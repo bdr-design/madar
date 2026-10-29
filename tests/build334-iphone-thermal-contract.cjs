@@ -12,7 +12,7 @@ assert(app.includes('mapStructureInterval=fleetSizeForMap>3000?30000'));
 assert(app.includes("map.createPane('vehicleCanvas')")&&app.includes('GH_MAP_VEHICLE_CANVAS?.create?.({map,container:vehiclePane,hardLimit:300,dprCap:2'));
 assert(app.includes('const limit=Math.min(300,MAP_VIEW.budget(\'vehicles\',zoom))'));
 assert(app.includes('allocator=window.GH_MAP_PROXY_CORE')&&app.includes('allocator.allocate(unique,'));
-assert(app.includes('renderAllocatedVehicles(vehicleCandidates,zoom)'));
+assert(app.includes('renderAllocatedVehicles(vehicleCandidates,zoom'));
 assert(app.includes('mapVehicleCanvas.add(candidate.id,')&&app.includes('mapVehicleCanvas?.drawIfDirty?.()'));
 assert(app.includes('presentationAssetLookup()'));
 assert(app.includes('let mapStatusCache={assetKey:'));

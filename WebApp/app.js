@@ -62,6 +62,7 @@
   const legacyStorageKeys = ['global-holdings-world-v2.0.0','global-holdings-world-v1.2.0','global-holdings-world-v1.1.0','global-holdings-premium-v1.0.0','global-holdings-clean-v0.1.2'];
   const SIM_START = Date.UTC(2026, 0, 1, 0, 0, 0);
   const EARTH_RADIUS_KM = 6371.0088;
+  let renderFacilities=null;
   const COMPANY_PLATFORM=window.GH_COMPANY_PLATFORM;
   const MAP_FEATURE_CORE=window.GH_MAP_FEATURE_CORE;
   if(!COMPANY_PLATFORM?.listDefinitions||!COMPANY_PLATFORM?.resolveCompany)throw new Error('Company Platform failed to load before app.js');
@@ -1935,7 +1936,10 @@
     return [headquartersFacility(target),...facilities,...(target.globalBases||[]),...(target.customHubs||[]),...publicEndpoints,...branches,...acquired];
   }
   // A command's owner passes its draft (GH_HR_CORE facilityGaps), so the list is the one the command writes to.
-  function getDynamicFacilities(target=state){return dynamicFacilitiesFor(target);}
+  // Build 618: while the map is drawn the live list is built once (renderFacilities) for every reader of the draw, which
+  // only reads it; it was built again by the places, the status line and each asset at a base (renderFacilities, declared
+  // at the top: the list is read while the app starts).
+  function getDynamicFacilities(target=state){return target===state&&renderFacilities?renderFacilities:dynamicFacilitiesFor(target);}
   function routeFacilityFor(target,id){return dynamicFacilitiesFor(target).find(f=>f.id===id)||null;}
 
   function endpointMatchesWorldEntity(endpoint,entity){
@@ -2602,7 +2606,12 @@
     else competitorMarkers.set(candidate.asset.id,marker);
   }
   const MAP_VEHICLES_PER_COMPANY=50;
-  function renderAllocatedVehicles(candidates,zoom){
+  // allocated: the vehicles a prepared render chose (allocateVehicles, in its slices).
+  function renderAllocatedVehicles(candidates,zoom,allocated=null){
+    const selected=allocated||allocateVehicles(candidates,zoom);
+    for(const candidate of selected)addVehicleCandidateMarker(candidate);mapVehicleCanvas?.drawIfDirty?.();return selected.length;
+  }
+  function allocateVehicles(candidates,zoom){
     const limit=Math.min(300,MAP_VIEW.budget('vehicles',zoom)),selectedId=selectedAssetId?`fleet:${selectedAssetId}`:'',bounds=map.getBounds().pad(.16),allocator=window.GH_MAP_PROXY_CORE;
     const unique=[...new Map(candidates.filter(Boolean).map(candidate=>[candidate.id,candidate])).values()];let selected;
     if(allocator?.allocate)selected=allocator.allocate(unique,{limit,perCompanyLimit:MAP_VEHICLES_PER_COMPANY,selectedId,paddedBounds:bounds,zoom,world:zoom<5,declutterRadius:18,project:candidate=>map.latLngToContainerPoint(candidate.position)});
@@ -2611,7 +2620,7 @@
       selected=[];const counts=new Map(),focused=unique.find(candidate=>candidate.id===selectedId),take=candidate=>{const owner=candidate.ownerCompanyId||candidate.companyId||candidate.ownerId||'~no-owner',count=counts.get(owner)||0;if(count<MAP_VEHICLES_PER_COMPANY){selected.push(candidate);counts.set(owner,count+1);}};
       if(focused)take(focused);for(const candidate of unique){if(selected.length>=limit)break;if(candidate!==focused)take(candidate);}
     }
-    for(const candidate of selected)addVehicleCandidateMarker(candidate);mapVehicleCanvas?.drawIfDirty?.();return selected.length;
+    return selected;
   }
   // Build 358 (million-asset): above MAP_AGGREGATE_ASSETS the map reads the fleet from classes of rows (exact counts,
   // one cached class scan per fleet revision) instead of one view per asset. Only the vehicles drawn (one per owner and
@@ -2721,7 +2730,10 @@
   }
   // Owner review (Build 358): Mobility vehicles are managed in their company panel; the map shows only its branches.
   // The shared vehicle allocator handles the player fleet and competitors under one bounded marker budget.
-  function operationVehicleCandidates(filterState,presentation,visibleAssets,geography){
+  // prepared: a prepared render's inputs, whose candidates were worked out in its slices.
+  function operationVehicleCandidates(filterState,presentation,visibleAssets,geography,prepared=null){if(prepared?.fleetCandidates)return prepared.fleetCandidates;const steps=operationVehicleCandidateSteps(filterState,presentation,visibleAssets,geography);let step;while(!(step=steps.next()).done){}return step.value;}
+  // due(): the preparation's slice is spent (a prepared render, below); the candidates are the same either way.
+  function* operationVehicleCandidateSteps(filterState,presentation,visibleAssets,geography,due=()=>false){
     const assets=[];
     if(presentation.representatives){
       // Build 616: the representative's own row (ids are unique: the save refuses a duplicate), not its id looked up
@@ -2731,7 +2743,16 @@
     }else{
       for(const asset of visibleAssets)if(asset.phase==='moving'||asset.id===selectedAssetId)assets.push(asset);
     }
-    return assets.map(asset=>fleetMapCandidate(asset,geography)).filter(Boolean);
+    const out=[];for(const asset of assets){const candidate=fleetMapCandidate(asset,geography);if(candidate)out.push(candidate);if(due())yield 'vehicle-candidates';}
+    return out;
+  }
+  function competitorVehicleCandidates(filterState){
+    const out=[];
+    competitorAssets.forEach(a=>{
+      if(filterState.companies.mode==='include'&&!filterState.companies.included.some(companyId=>COMPANY_PLATFORM.getRouteModes(companyId).includes(a.type)))return;
+      out.push(competitorMapCandidate(a));
+    });
+    return out;
   }
   function placeBubbleHtml(count,kind=''){return `<div class="map-place-bubble${kind?` ${kind}`:''}"><b dir="ltr">${MAP_VIEW.countLabel(count)}</b></div>`;}
   function mapOwnedFacilities(filter){
@@ -2788,9 +2809,67 @@
   function removePresentationMarker(marker){
     try{if(marker?.getSnapshot)marker.remove?.();else map.removeLayer(marker);}catch(error){nonCritical('map-layer-remove',error);}
   }
+  // Build 618 (owner: «موافق», design A; renderMap took 31 ms at 2x CPU throttle in a 300k-asset world): the periodic
+  // structural render (the loop's, and the one a fleet summary asks for) is prepared over several tasks: the fleet's
+  // presentation, the facilities' places and the vehicle candidates are worked out in slices of MAP_PREPARE_SLICE_MS,
+  // then the map is drawn from them in a task of its own. The vehicles are therefore chosen from positions a few
+  // frames old; the markers then move to where their assets are, as after any render. Any other render (a command, a
+  // selection, the viewport) draws at once and drops a preparation in progress. A preparation whose map, mode, filter,
+  // zoom, selection, fleet layout or summary changed starts again; after MAP_PREPARE_RESTARTS it draws at once.
+  const MAP_PREPARE_SLICE_MS=4,MAP_PREPARE_RESTARTS=3,MAP_PREPARE_OWN_SLICE='own-slice',MAP_PREPARED_REASONS=new Set(['loop','loop-late','summary-due','summary-new-layout']);
+  let mapPreparation=null,mapPreparedInputs=null,mapPrepareBypass=false;
+  function mapPreparationKey(){
+    const STORE=window.GH_FLEET_STORE,store=state.fleet,isStore=!!STORE?.isStore?.(store);
+    const center=map.getCenter(),size=map.getSize();
+    return [state,map,mapMode(),JSON.stringify(currentMapFilter()),map.getZoom(),center.lat,center.lng,size.x,size.y,mapAggregateMode(),mapCategoryVisible('assets'),mapCategoryVisible('routes'),selectedAssetId||'',isStore?store:null,isStore?STORE.epoch(store):null,window.GH_FLEET_DATA.membershipRevision?.(state)??null,mapFleetSummary.rows];
+  }
+  const sameMapPreparationKey=(a,b)=>a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
+  // What renderMap computes before it draws (the fleet's presentation, the facilities' places, the vehicle candidates
+  // and the vehicles chosen among them for this viewport), in the same order, given back between slices.
+  function* mapPreparationSteps(due){
+    const mode=mapMode(),filterState=currentMapFilter(),aggregate=mapAggregateMode(),showFleet=mode!=='expansion'&&(mapCategoryVisible('assets')||mapCategoryVisible('routes')),visibleAssets=showFleet&&!aggregate?mapVisibleAssetRows(filterState):[];
+    const presentation=showFleet?collectFleetPresentation(filterState,visibleAssets):null;yield 'presentation';
+    const geography=mapFacilityPresentationContext();yield 'geography';
+    const fleetCandidates=mode==='operations'&&presentation&&mapCategoryVisible('assets')?yield* operationVehicleCandidateSteps(filterState,presentation,visibleAssets,geography,due):null;
+    let allocated=null;
+    if(mode==='operations'){yield MAP_PREPARE_OWN_SLICE;allocated=allocateVehicles([...(fleetCandidates||[]),...(filterState.market.competitors&&mapCategoryVisible('assets')?competitorVehicleCandidates(filterState):[])],map.getZoom());}
+    return {visibleAssets,presentation,geography,fleetCandidates,allocated};
+  }
+  function startMapPreparation(){
+    const job={key:null,steps:null,reason:mapRenderReason,followUp:mapSummaryFollowUpRender,restarts:0,inputs:null,deadline:Infinity};
+    const restart=()=>{job.key=mapPreparationKey();job.steps=mapPreparationSteps(()=>appMetricClock()>=job.deadline);job.inputs=null;};
+    restart();mapPreparation=job;
+    const next=run=>setTimeout(()=>{if(mapPreparation!==job)return;if(!map){mapPreparation=null;return;}run();},0);
+    const finish=inputs=>{mapPreparation=null;drawPreparedMap(job,inputs);};
+    const changed=()=>{if(sameMapPreparationKey(job.key,mapPreparationKey()))return false;if(++job.restarts>MAP_PREPARE_RESTARTS){finish(null);return true;}restart();return false;};
+    const slice=()=>{
+      if(changed())return;
+      const started=appMetricClock();job.deadline=started+MAP_PREPARE_SLICE_MS;let step=null,failure=null;
+      // A step yielded as MAP_PREPARE_OWN_SLICE (the choice of vehicles, one piece of work) starts the next slice.
+      try{do{step=job.steps.next();}while(!step.done&&step.value!==MAP_PREPARE_OWN_SLICE&&appMetricClock()<job.deadline);}catch(error){failure=error;}
+      job.deadline=Infinity;window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'map.prepare',started,appMetricClock(),{reason:job.reason});
+      if(failure){nonCritical('map-render-prepare',failure);finish(null);return;}
+      if(!step.done){next(slice);return;}
+      job.inputs=step.value;next(()=>{if(changed())return;if(job.inputs)finish(job.inputs);else next(slice);});
+    };
+    next(slice);
+  }
+  // inputs null: drawn at once (a preparation that failed or kept changing).
+  function drawPreparedMap(job,inputs){
+    const started=appMetricClock();mapPreparedInputs=inputs;mapPrepareBypass=!inputs;mapSummaryFollowUpRender=job.followUp;mapRenderReason=job.reason;
+    try{renderMap();}finally{mapPreparedInputs=null;mapPrepareBypass=false;mapSummaryFollowUpRender=false;mapRenderReason='';}
+    if(job.reason==='loop'||job.reason==='loop-late')recordRenderMetric('structural-render',Math.max(0,appMetricClock()-started),{fleetSize:window.GH_FLEET_DATA.size(state),ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,prepared:!!inputs});
+  }
+  // false: only a preparation was started (the render follows in a later task).
   function renderMap(){
-    if(!map)return;const renderStarted=appMetricClock();
-    const mode=mapMode(),filter=state.activeFilter||'all',filterState=currentMapFilter(),zoom=map.getZoom(),aggregate=mapAggregateMode(),showFleet=mode!=='expansion'&&(mapCategoryVisible('assets')||mapCategoryVisible('routes')),visibleAssets=showFleet&&!aggregate?mapVisibleAssetRows(filterState):[];
+    if(!map)return;
+    const prepared=mapPreparedInputs;mapPreparedInputs=null;
+    if(!prepared){if(MAP_PREPARED_REASONS.has(mapRenderReason)&&!mapPrepareBypass){startMapPreparation();return false;}mapPreparation=null;}
+    renderFacilities=dynamicFacilitiesFor(state);try{drawMap(prepared);}finally{renderFacilities=null;}
+  }
+  function drawMap(prepared){
+    const renderStarted=appMetricClock();
+    const mode=mapMode(),filter=state.activeFilter||'all',filterState=currentMapFilter(),zoom=map.getZoom(),aggregate=mapAggregateMode(),showFleet=mode!=='expansion'&&(mapCategoryVisible('assets')||mapCategoryVisible('routes')),visibleAssets=prepared?prepared.visibleAssets:showFleet&&!aggregate?mapVisibleAssetRows(filterState):[];
     captureMarkerVisualPositions();markerMotionStates.clear();syncMapModeButtons();
     routeLayers.forEach(layer=>{try{map.removeLayer(layer)}catch(error){nonCritical('map-route-remove',error);}}); routeLayers=[];
     mapVehicleCanvas?.clear?.();mapVehicleHitTargets.clear();
@@ -2798,7 +2877,7 @@
     facilityPresentationGeneration++;
     competitorMarkers.forEach(removePresentationMarker); competitorMarkers.clear();
     renderedAssetIds=new Set();renderedMobilityIds=new Set();
-    const presentation=showFleet?collectFleetPresentation(filterState,visibleAssets):null,geography=mapFacilityPresentationContext();
+    const presentation=prepared?prepared.presentation:showFleet?collectFleetPresentation(filterState,visibleAssets):null,geography=prepared?prepared.geography:mapFacilityPresentationContext();
     if(mode==='operations'){
       const vehicleCandidates=[];
       // The selected asset's route is drawn on top, thicker.
@@ -2807,14 +2886,11 @@
         const route=currentAssetRoute(selectedRouteAsset),color=identityRouteColor(assetOwnerCompanyId(selectedRouteAsset),assetModeOf(selectedRouteAsset));
         const line=L.polyline(window.GH_ROUTE_CORE.splitAtDateline(route),{color,weight:3.4,opacity:.96,dashArray:selectedRouteAsset.type==='air'?'7 9':null,lineCap:'round',smoothFactor:1.8,interactive:false}).addTo(map);routeLayers.push(line);
       }
-      if(presentation&&mapCategoryVisible('assets'))vehicleCandidates.push(...operationVehicleCandidates(filterState,presentation,visibleAssets,geography));
-      if(filterState.market.competitors&&mapCategoryVisible('assets')){
-        competitorAssets.forEach(a=>{
-          if(filterState.companies.mode==='include'&&!filterState.companies.included.some(companyId=>COMPANY_PLATFORM.getRouteModes(companyId).includes(a.type)))return;
-          vehicleCandidates.push(competitorMapCandidate(a));
-        });
+      if(!prepared?.allocated){
+        if(presentation&&mapCategoryVisible('assets'))vehicleCandidates.push(...operationVehicleCandidates(filterState,presentation,visibleAssets,geography,prepared));
+        if(filterState.market.competitors&&mapCategoryVisible('assets'))vehicleCandidates.push(...competitorVehicleCandidates(filterState));
       }
-      renderAllocatedVehicles(vehicleCandidates,zoom);
+      renderAllocatedVehicles(vehicleCandidates,zoom,prepared?.allocated);
     }
     if(mode==='expansion'||mapCategoryVisible('facilities'))renderPlaces(mode,zoom,presentation?.parkedByBase||mapFleetCount(['baseFacility','phase','routeId','simulationFault'],row=>window.GH_FLEET_DATA.presentedPhase(state,row)==='moving'?null:row.baseFacility),filter,geography);
     if(mode==='network'&&filterState.market.competitors){
@@ -4870,7 +4946,7 @@
     if(routeCenterRefreshTimer!==null)clearTimeout(routeCenterRefreshTimer);if(routeCenterRetryTimer!==null)clearTimeout(routeCenterRetryTimer);routeCenterRefreshTimer=null;routeCenterRetryTimer=null;
     maintenanceQueue.length=0;runtimeInstrumentation.maintenance.pending=[];globalThis.__GH_HOURLY_SCHEMA_DUE__=false;
     mapStatusCache={assetKey:'',ownerKey:'',moving:0,idle:0,turn:0,routed:0,ownedFacilities:0,countedAt:0,countedRevision:null,countedAssets:null,pendingRecount:false};
-    if(mapRenderTimer!==null)clearTimeout(mapRenderTimer);mapRenderTimer=null;
+    if(mapRenderTimer!==null)clearTimeout(mapRenderTimer);mapRenderTimer=null;mapPreparation=null;
     $('drawerBody')?.replaceChildren();$('assetCard')?.replaceChildren();
   }
   async function hardResetGame(){
@@ -7036,7 +7112,7 @@ ${page}</div>`;
     // Target collection may scan a fleet; interpolation touches only the bounded
     // visible marker set. Keep it independent of fleet size and of game time.
     if(!document.hidden&&now-lastMarkerAnimationAt>=32){lastMarkerAnimationAt=now;const measureAnimation=frameRecorderActive||(++renderMetrics.animationCounter%15)===0;if(measureAnimation)stageStarted=appMetricClock();animateMapMarkerPositions(now);if(measureAnimation){markerAnimationMs=Math.max(0,appMetricClock()-stageStarted);markerAnimated=true;recordRenderMetric('marker-animation',markerAnimationMs,{ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
-    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000,deferredLate=mapLoopRenderDeferredAt>0&&now-mapLoopRenderDeferredAt>=MAP_LOOP_RENDER_DEFER_MS;if(map&&(deferredLate||now-lastMapRenderAt>=mapStructureInterval)){if(deferredLate){mapLoopRenderDeferredAt=0;endLoopFollowUp();}else lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&(deferredLate||!deferLoopRenderToSummary(now))){stageStarted=appMetricClock();mapSummaryFollowUpRender=true;mapRenderReason=deferredLate?'loop-late':'loop';try{renderMap();}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}
+    const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000,deferredLate=mapLoopRenderDeferredAt>0&&now-mapLoopRenderDeferredAt>=MAP_LOOP_RENDER_DEFER_MS;if(map&&(deferredLate||now-lastMapRenderAt>=mapStructureInterval)){if(deferredLate){mapLoopRenderDeferredAt=0;endLoopFollowUp();}else lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&(deferredLate||!deferLoopRenderToSummary(now))){stageStarted=appMetricClock();mapSummaryFollowUpRender=true;mapRenderReason=deferredLate?'loop-late':'loop';let drawn=true;try{drawn=renderMap()!==false;}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}if(drawn){structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}}
     const simulationSnapshot=frameRecorderActive?simulationEngine.snapshot():null,callbackEndMs=measureFrame?appMetricClock():0,frameWorkMs=measureFrame?Math.max(0,callbackEndMs-frameStarted):0;
     if(measureFrame)recordRenderMetric('frame',frameWorkMs,{frameIntervalMs,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});
     if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});

@@ -103,7 +103,10 @@
       sprite:null,spriteUrl:'',imageKey:null,zIndex:0,x:0,y:0,visible:false,active:false,everUsed:false,adapter:null
     }));
     const free=[];for(let index=hardLimit-1;index>=0;index--)free.push(index);
-    const records=new Map(),drawOrder=[],imageCache=new Map();
+    // Build 618: the images a clear() releases wait in parkedImages until the next draw, so the vehicles added again
+    // right after it (each structural map render clears and adds up to 300) reuse them instead of loading new ones (2 ms
+    // of each render at 2x CPU throttle); an image still unused at that draw is let go, as before.
+    const records=new Map(),drawOrder=[],imageCache=new Map(),parkedImages=new Map();let clearing=false;
     let destroyed=false,dirty=true,rafToken=0,width=0,height=0,dpr=1,resizeObserver=null,drawCenter=null,drawZoom=null;
     const canBindMap=typeof map.on==='function'&&typeof map.off==='function';
     const counters={adds:0,updates:0,removes:0,clears:0,reuses:0,rejected:0,frames:0,drawn:0,culled:0,hitTests:0,hits:0,misses:0,highWater:0,lastDrawMs:0};
@@ -166,12 +169,12 @@
     }
     function releaseImage(slot){
       const key=slot.imageKey;if(key==null)return;const entry=imageCache.get(key);slot.imageKey=null;
-      if(!entry)return;entry.refs=Math.max(0,entry.refs-1);if(entry.refs===0){detachImage(entry);imageCache.delete(key);}
+      if(!entry)return;entry.refs=Math.max(0,entry.refs-1);if(entry.refs===0){imageCache.delete(key);if(clearing&&typeof key==='string')parkedImages.set(key,entry);else detachImage(entry);}
     }
     function syncImage(slot){
       const next=imageKeyFor(slot);if(next===slot.imageKey)return;
       releaseImage(slot);if(next==null)return;
-      let entry=imageCache.get(next);if(!entry){entry=createImageEntry(slot,next);imageCache.set(next,entry);}entry.refs++;slot.imageKey=next;
+      let entry=imageCache.get(next);if(!entry){entry=parkedImages.get(next);if(entry)parkedImages.delete(next);else entry=createImageEntry(slot,next);imageCache.set(next,entry);}entry.refs++;slot.imageKey=next;
     }
     function cachedImage(slot){
       return slot.imageKey==null?null:(imageCache.get(slot.imageKey)?.image||null);
@@ -208,7 +211,7 @@
     }
     function draw(){
       if(destroyed)return metrics();
-      cancelPending();const started=now();resize();dirty=false;drawOrder.length=0;if(canvas.style)canvas.style.transform='none';
+      cancelPending();const started=now();for(const entry of parkedImages.values())detachImage(entry);parkedImages.clear();resize();dirty=false;drawOrder.length=0;if(canvas.style)canvas.style.transform='none';
       context.setTransform?.(1,0,0,1,0,0);context.clearRect(0,0,canvas.width,canvas.height);context.setTransform?.(dpr,0,0,dpr,0,0);
       const offset=projectionOffset(),rows=orderedSlots();let culled=0;
       for(const slot of rows){
@@ -285,7 +288,7 @@
     }
     function clear(){
       if(destroyed)return 0;const removed=records.size;if(!removed)return 0;
-      for(const slot of records.values())release(slot);records.clear();drawOrder.length=0;counters.clears++;counters.removes+=removed;scheduleDraw();return removed;
+      clearing=true;try{for(const slot of records.values())release(slot);}finally{clearing=false;}records.clear();drawOrder.length=0;counters.clears++;counters.removes+=removed;scheduleDraw();return removed;
     }
     function count(){return records.size;}
     function localPoint(xOrPoint,y){
@@ -304,7 +307,7 @@
       counters.misses++;return null;
     }
     function metrics(){
-      return Object.freeze({version:VERSION,hardLimit,active:records.size,free:free.length,slotObjects:slots.length,highWater:counters.highWater,adds:counters.adds,updates:counters.updates,removes:counters.removes,clears:counters.clears,slotReuses:counters.reuses,rejectedAtLimit:counters.rejected,frames:counters.frames,drawn:counters.drawn,culled:counters.culled,hitTests:counters.hitTests,hits:counters.hits,misses:counters.misses,width,height,dpr,imageCacheSize:imageCache.size,canvasCount:destroyed?0:1,pendingFrame:Boolean(rafToken),destroyed,lastDrawMs:counters.lastDrawMs});
+      return Object.freeze({version:VERSION,hardLimit,active:records.size,free:free.length,slotObjects:slots.length,highWater:counters.highWater,adds:counters.adds,updates:counters.updates,removes:counters.removes,clears:counters.clears,slotReuses:counters.reuses,rejectedAtLimit:counters.rejected,frames:counters.frames,drawn:counters.drawn,culled:counters.culled,hitTests:counters.hitTests,hits:counters.hits,misses:counters.misses,width,height,dpr,imageCacheSize:imageCache.size,parkedImages:parkedImages.size,canvasCount:destroyed?0:1,pendingFrame:Boolean(rafToken),destroyed,lastDrawMs:counters.lastDrawMs});
     }
     function handleClick(event){
       if(destroyed||!onSelect)return;const source=event?.propagatedFrom||event?.sourceTarget;if(source&&source!==map)return;
@@ -331,7 +334,7 @@
       else container.removeEventListener?.('click',handleClick);
       resizeObserver?.disconnect?.();resizeObserver=null;
       for(const slot of records.values()){releaseImage(slot);slot.active=false;slot.visible=false;slot.adapter=null;}records.clear();
-      for(const entry of imageCache.values())detachImage(entry);imageCache.clear();drawOrder.length=0;free.length=0;
+      for(const entry of [...imageCache.values(),...parkedImages.values()])detachImage(entry);imageCache.clear();parkedImages.clear();drawOrder.length=0;free.length=0;
       if(ACTIVE_CONTAINERS.get(container)===containerToken)ACTIVE_CONTAINERS.delete(container);
       canvas.remove?.();return true;
     }

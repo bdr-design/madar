@@ -82,7 +82,7 @@ async function testFallbackAndWorkerContract(){
   assert.match(html,/map-presentation-core\.js/);assert.ok(html.indexOf('map-presentation-core.js')<html.indexOf('app.js'));assert.doesNotMatch(app,/new Worker\('map-presentation-worker\.js'\)/,'the retired live hero-planning path must not create an unused worker');
   // The worker/core remains a supported, independently tested presentation component. The live vehicle renderer now
   // sends all sources through the country/facility-aware shared allocator rather than depending on requestPlan heroes.
-  assert.match(app,/allocator=window\.GH_MAP_PROXY_CORE/);assert.match(app,/allocator\.allocate\(unique,/);assert.match(app,/renderAllocatedVehicles\(vehicleCandidates,zoom\)/);
+  assert.match(app,/allocator=window\.GH_MAP_PROXY_CORE/);assert.match(app,/allocator\.allocate\(unique,/);assert.match(app,/renderAllocatedVehicles\(vehicleCandidates,zoom[,)]/);
   assert.doesNotMatch(app,/mapPresentationEngine\.requestPositions\(/);assert.ok(runtime.files.includes('map-presentation-worker.js'));
 }
 

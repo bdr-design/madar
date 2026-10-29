@@ -3,6 +3,62 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build358-staged-day-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build618-prepared-map-render-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-map-pressure-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-iphone-thermal-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-map-presentation.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-map-canvas-layer.cjs"
+    ],
+    [
+      "node",
+      "tests/build457-canvas-idle-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build532-map-loop-single-render.cjs"
+    ],
+    [
+      "node",
+      "tests/build514-map-summary-cadence-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build503-recorder-stage-names-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r2-map-local-dom.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-map-modes-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build384-map-company-cap-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build366-mobility-map-policy-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build617-map-render-reuse.cjs"
     ],
     [
@@ -12,10 +68,6 @@
     [
       "node",
       "tests/build334-presentation-work-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-map-pressure-contract.cjs"
     ],
     [
       "node",
@@ -48,10 +100,6 @@
     [
       "node",
       "tests/build449-asset-capacity-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-staged-day-browser.cjs"
     ],
     [
       "node",
@@ -204,10 +252,6 @@
     [
       "node",
       "tests/build358-tax-view-layout-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-map-modes-browser.cjs"
     ],
     [
       "node",
@@ -371,10 +415,6 @@
     ],
     [
       "node",
-      "tests/build503-recorder-stage-names-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build506-drawer-bind-scope-browser.cjs"
     ],
     [
@@ -472,10 +512,6 @@
     [
       "node",
       "tests/build334-identity-regressions.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-iphone-thermal-contract.cjs"
     ],
     [
       "node",
@@ -584,10 +620,6 @@
     [
       "node",
       "tests/build340-map-asset-query.cjs"
-    ],
-    [
-      "node",
-      "tests/build340-map-presentation.cjs"
     ],
     [
       "node",
@@ -880,10 +912,6 @@
     [
       "node",
       "tests/build518-maintenance-worst-first.cjs"
-    ],
-    [
-      "node",
-      "tests/build532-map-loop-single-render.cjs"
     ],
     [
       "node",
@@ -1619,10 +1647,6 @@
     ],
     [
       "node",
-      "tests/build334-r2-map-local-dom.cjs"
-    ],
-    [
-      "node",
       "tests/build335-persistence-root-coalescing.cjs"
     ],
     [
@@ -2071,10 +2095,6 @@
     ],
     [
       "node",
-      "tests/build514-map-summary-cadence-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build516-tracked-collections.cjs"
     ],
     [
@@ -2256,10 +2276,6 @@
     [
       "node",
       "tests/build490-container-compression.cjs"
-    ],
-    [
-      "node",
-      "tests/build457-canvas-idle-work.cjs"
     ],
     [
       "node",
@@ -2794,6 +2810,10 @@
     [
       "node",
       "tests/build617-map-render-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build618-prepared-map-render-browser.cjs"
     ],
     [
       "node",

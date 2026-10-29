@@ -59,7 +59,15 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First the map batch of the heaviness work (owner: «ابيها اصفار»), none reached by a build: the new
+# (AGENTS.md). First build358-staged-day-browser, which failed in the early warning with the frames slowed (80 ms):
+# the day close fell within one presentation frame (the same on 88f4014, 3 runs in 5; it passed at normal pace).
+# Then the prepared map render (owner: «موافق», design A), none reached by a build: the new
+# build618-prepared-map-render-browser (the periodic render is prepared in slices and drawn in a task of its own; fails
+# on 88f4014), the text contracts that read the render block and the choice of vehicles (build334-map-pressure-contract,
+# build334-iphone-thermal-contract, build340-map-presentation), the canvas layer whose cleared images now wait for the
+# next draw (build359-map-canvas-layer, build457-canvas-idle-work), and the gates that draw the map through the loop,
+# the fleet summary or an explicit render (build532, build514, build503, build334-r2-map-local-dom, build359-map-modes,
+# build384, build366). Then the map batch of the heaviness work (owner: «ابيها اصفار»), reached by no build: the new
 # build617-map-render-reuse (renderMap normalised every facility's place again and looked each representative's id up
 # again among 300k rows; fails on f4d8bfd), the new build616-marker-step-projection (each marker's step searched its
 # route through Leaflet's project, 52 of 116 MB allocated in 20 s of live play; fails on f4d8bfd), and
@@ -190,10 +198,23 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build358-staged-day-browser.cjs'],
+    ['node', 'tests/build618-prepared-map-render-browser.cjs'],
+    ['node', 'tests/build334-map-pressure-contract.cjs'],
+    ['node', 'tests/build334-iphone-thermal-contract.cjs'],
+    ['node', 'tests/build340-map-presentation.cjs'],
+    ['node', 'tests/build359-map-canvas-layer.cjs'],
+    ['node', 'tests/build457-canvas-idle-work.cjs'],
+    ['node', 'tests/build532-map-loop-single-render.cjs'],
+    ['node', 'tests/build514-map-summary-cadence-browser.cjs'],
+    ['node', 'tests/build503-recorder-stage-names-browser.cjs'],
+    ['node', 'tests/build334-r2-map-local-dom.cjs'],
+    ['node', 'tests/build359-map-modes-browser.cjs'],
+    ['node', 'tests/build384-map-company-cap-browser.cjs'],
+    ['node', 'tests/build366-mobility-map-policy-browser.cjs'],
     ['node', 'tests/build617-map-render-reuse.cjs'],
     ['node', 'tests/build616-marker-step-projection.cjs'],
     ['node', 'tests/build334-presentation-work-contract.cjs'],
-    ['node', 'tests/build334-map-pressure-contract.cjs'],
     ['node', 'tests/build615-document-proof-check-slices.cjs'],
     ['node', 'tests/build614-panel-copy-browser.cjs'],
     ['node', 'tests/build609-authorization-check-slices.cjs'],
@@ -202,7 +223,6 @@ expected_preflight=[
     ['node', 'tests/build443-company-review-work.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build449-asset-capacity-work.cjs'],
-    ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build596-construction-vat-browser.cjs'],
@@ -241,7 +261,6 @@ expected_preflight=[
     ['node', 'tests/build358-large-fleet-dispatch-browser.cjs'],
     ['node', 'tests/build358-map-controls-browser.cjs'],
     ['node', 'tests/build358-tax-view-layout-browser.cjs'],
-    ['node', 'tests/build359-map-modes-browser.cjs'],
     ['node', 'tests/build359-road-dispatch-browser.cjs'],
     ['node', 'tests/build359-tax-pay-all-browser.cjs'],
     ['node', 'tests/build361-button-binding-browser.cjs'],
@@ -282,7 +301,6 @@ expected_preflight=[
     ['node', 'tests/build452-section-review-browser.cjs'],
     ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build487-route-pages-browser.cjs'],
-    ['node', 'tests/build503-recorder-stage-names-browser.cjs'],
     ['node', 'tests/build506-drawer-bind-scope-browser.cjs'],
     ['node', 'tests/build517-hr-hire-view-facilities-browser.cjs'],
     ['node', 'tests/build527-decision-navigation-guard-browser.cjs'],
@@ -308,7 +326,6 @@ expected_preflight=[
     ['node', 'tests/build334-dynamic-company-consumers.cjs'],
     ['node', 'tests/build334-energy-take-or-pay.cjs'],
     ['node', 'tests/build334-identity-regressions.cjs'],
-    ['node', 'tests/build334-iphone-thermal-contract.cjs'],
     ['node', 'tests/build334-logistics-staged-contract.cjs'],
     ['node', 'tests/build334-market-discovery-contract.cjs'],
     ['node', 'tests/build334-open-invoice-retention.cjs'],
@@ -336,7 +353,6 @@ expected_preflight=[
     ['node', 'tests/build340-fleet-disposal-batch.cjs'],
     ['node', 'tests/build340-fleet-payroll-summary.cjs'],
     ['node', 'tests/build340-map-asset-query.cjs'],
-    ['node', 'tests/build340-map-presentation.cjs'],
     ['node', 'tests/build340-map-structure-revision.cjs'],
     ['node', 'tests/build340-media-assets.cjs'],
     ['node', 'tests/build340-payroll-settlement-index.cjs'],
@@ -410,7 +426,6 @@ expected_preflight=[
     ['node', 'tests/build509-realtime-health-layout.cjs'],
     ['node', 'tests/build511-deferred-draft-roots.cjs'],
     ['node', 'tests/build518-maintenance-worst-first.cjs'],
-    ['node', 'tests/build532-map-loop-single-render.cjs'],
     ['node', 'tests/build533-durable-context-release.cjs'],
     ['node', 'tests/build536-conference-progress-cost.cjs'],
     ['node', 'tests/build537-conference-copy.cjs'],
@@ -594,7 +609,6 @@ expected_preflight=[
     ['node', 'tests/build334-persistence-snapshot-consistency.cjs'],
     ['node', 'tests/build334-purchase-delivery-pressure.cjs'],
     ['node', 'tests/build334-r2-delivery-lazy-index.cjs'],
-    ['node', 'tests/build334-r2-map-local-dom.cjs'],
     ['node', 'tests/build335-persistence-root-coalescing.cjs'],
     ['node', 'tests/build336-state-byte-attribution-pressure.cjs'],
     ['node', 'tests/build337-instrumentation-baseline.cjs'],
@@ -707,7 +721,6 @@ expected_preflight=[
     ['node', 'tests/build510-validation-cache-reasons.cjs'],
     ['node', 'tests/build512-deferred-mobility-browser.cjs'],
     ['node', 'tests/build513-published-command-wait-browser.cjs'],
-    ['node', 'tests/build514-map-summary-cadence-browser.cjs'],
     ['node', 'tests/build516-tracked-collections.cjs'],
     ['node', 'tests/build519-idempotency-tracked.cjs'],
     ['node', 'tests/build522-fleet-day-prefetch.cjs'],
@@ -754,7 +767,6 @@ expected_preflight=[
     ['node', 'tests/build574-investor-budget-overrun.cjs'],
     ['node', 'tests/build496-world-query-reset.cjs'],
     ['node', 'tests/build490-container-compression.cjs'],
-    ['node', 'tests/build457-canvas-idle-work.cjs'],
     ['node', 'tests/build456-list-build-budget.cjs'],
     ['node', 'tests/build446-payroll-unused-work.cjs'],
     ['node', 'tests/build416-canonical-preparation.cjs'],

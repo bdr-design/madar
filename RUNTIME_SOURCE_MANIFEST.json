@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "9255eb50d392ac3f9dba590f4ede1ad27b19d561cf988d75dc5a7a1de5567463",
-  "webapp_tree_sha256": "402197ca61b0eeccf7b7258605d972c3fe70197d4dc6f9d64dec91231edc10f3",
+  "source_tree_sha256": "1b845abdc2aae1367aac4b81ba37f287ce6f51701722996d3a0138ef65db330f",
+  "webapp_tree_sha256": "95b2207d4dca12def6b9d4876d06c797288609682cbb0e509dc76e790856e470",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1069069,
-      "sha256": "7ff4873b3b4b6806f6271ac4c998f1500eb996772dbf1a897eaa15e4501ae6b9"
+      "bytes": 1076239,
+      "sha256": "363af781334f69379010aa952bfcfdf154b69bcc68dbbedda3ab72f7df1e2dc4"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 6510,
@@ -3759,8 +3759,8 @@
       "sha256": "87d3765d8853d6fc00eed3901c10550e0cc73f5080425d54bc10c8b695900958"
     },
     "WebApp/map-vehicle-canvas-core.js": {
-      "bytes": 24392,
-      "sha256": "b1353ec7d1b88bf7dd4989ef03ae144e50b95415d48a7fd6219cf7bfda60080a"
+      "bytes": 25117,
+      "sha256": "8222cf4c46264b6fb003e7ec82b91d796837a80337d2b3dd7fecd24766b48774"
     },
     "WebApp/map-view-core.js": {
       "bytes": 5603,
@@ -4032,7 +4032,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "e57f7191cfdcb7e38c50014e3dcc4f6f022032609ffc49fc10ca518f24fb5000"
+      "sha256": "d521a6015e98e1e92caf542560062a86c0047abdeaaf99fdfd7de1d27ba4870a"
     },
     "BUILD": {
       "bytes": 4,
