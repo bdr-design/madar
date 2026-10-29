@@ -1,0 +1,31 @@
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/GameViewController.swift:13:6: error: invalid redeclaration of 'VentoraDeviceIntegrity'
+  11 | /// need one. The release edition does not open the game there. The checks only look for files and libraries that a
+  12 | /// stock iPhone never has, so an ordinary device is never refused.
+  13 | enum VentoraDeviceIntegrity {
+     |      `- error: invalid redeclaration of 'VentoraDeviceIntegrity'
+  14 |     private static let paths = [
+  15 |         "/Applications/Cydia.app", "/Applications/Sileo.app", "/Applications/Zebra.app", "/Applications/Filza.app",
+
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/GameViewController.swift:150:60: error: type 'VentoraDeviceIntegrity' has no member 'isModified'
+ 148 | 
+ 149 |     private func initializeRuntime() {
+ 150 |         if ventoraReleaseEdition && VentoraDeviceIntegrity.isModified() {
+     |                                                            `- error: type 'VentoraDeviceIntegrity' has no member 'isModified'
+ 151 |             showLaunchOverlay()
+ 152 |             launchPrimaryButton?.isEnabled = false
+
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/GameViewController.swift:401:16: warning: 'contentEdgeInsets' was deprecated in iOS 15.0: This property is ignored when using UIButtonConfiguration
+ 399 |         let button = makeButton(title: title, primary: false)
+ 400 |         button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+ 401 |         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
+     |                `- warning: 'contentEdgeInsets' was deprecated in iOS 15.0: This property is ignored when using UIButtonConfiguration
+ 402 |         return button
+ 403 |     }
+
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/GameViewController.swift:502:119: warning: variable 'self' was written to, but never read
+ 500 |                 return
+ 501 |             }
+ 502 |             GlobalSaveVault.shared.commitAsync(save, runtimeVersion: GlobalGameStorage.shared.currentVersion) { [weak self] result in
+     |                                                                                                                       `- warning: variable 'self' was written to, but never read
+ 503 |                 if case .success(let generation) = result {
+ 504 |                     GlobalGameStorage.shared.noteCurrentSaveGeneration(generation)
