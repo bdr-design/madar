@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build607-calendar-window-stages-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build570-documents-list-weight-browser.cjs"
     ],
     [
@@ -1048,10 +1052,6 @@
     [
       "node",
       "tests/build593-bulk-acquisition-frames-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build607-calendar-window-stages-browser.cjs"
     ],
     [
       "node",

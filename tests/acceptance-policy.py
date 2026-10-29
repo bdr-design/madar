@@ -59,7 +59,10 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build570-documents-list-weight-browser, which failed in build 107 (macOS: the cheques list built in
+# (AGENTS.md). First build607-calendar-window-stages-browser, which failed in build 108 (macOS: one frame interval of the
+# window's advance read 100.0 ms, six whole frames; here 17 ms and no long task even with the processor slowed four
+# times; claim 2 now reads the browser's long-task entries, the work and garbage collection that hold the main thread,
+# against the same 50 ms, and still reports the frame gap). Then build570-documents-list-weight-browser, which failed in build 107 (macOS: the cheques list built in
 # 2.1 ms against the old page's 3.6, 0.58 of it, over the half; here it reads 0.40 to 0.43 on this source and on
 # 1d7dce1 alike, two runs each, so the panel review added nothing to that page; the claim is unchanged). Then the gates
 # that failed here on the panel review's related runs (owner: «راجع كل لوحات الشركات وكل خيار
@@ -152,6 +155,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build596-construction-vat-browser.cjs'],
     ['node', 'tests/build359-sim-smoothness.cjs'],
@@ -414,7 +418,6 @@ expected_preflight=[
     ['node', 'tests/build563-group-share-page-browser.cjs'],
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
-    ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/dealer-ledger-and-stock-browser.cjs'],
     ['node', 'tests/build609-authorization-check-slices.cjs'],
     ['node', 'tests/build608-dispatch-hex-proof-compact.cjs'],
