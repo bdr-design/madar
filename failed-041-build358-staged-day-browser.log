@@ -1,0 +1,49 @@
+commit: 5 frames, 233.4 ms, longest frame gap 116.7 ms, no long task; save deferred; command waited
+AssertionError [ERR_ASSERTION]: pause: state restored exactly (diagnostics appended: []; differs at ["cash: 940817823.8403252 -> 943359877.8949213","groupValue: 1134735020.946803 -> 1134791122.568441","todayProfit: 2598654.0545959957 -> 0","sectorProfitToday.air: 2598654.0545959957 -> 0","simSeconds: 172799 -> 172800","lastFinancialDay: 1 -> 2","lastMarketHour: 47 -> 48","market.0.price: 86.52967550019224 -> 86.42363238012847"])
++ actual - expected
+
++ [
++   'cash',
++   'groupValue',
++   'todayProfit',
++   'sectorProfitToday',
++   'simSeconds',
++   'lastFinancialDay',
++   'lastMarketHour',
++   'market',
++   'treasury',
++   'operations',
++   'companyFinance',
++   'finance',
++   'fleet',
++   'simulationKernel',
++   'simulationWorld',
++   'determinism',
++   'advanced',
++   'controlPlane',
++   'deliveryClosure',
++   'tripProfitAccrued',
++   'tripRevenueAccrued',
++   'tripFuelAccrued',
++   'tripMaintenanceAccrued',
++   'tripCountAccrued',
++   'lastClosedSectorProfit',
++   'lastClosedProfit',
++   'companyBudgets',
++   'businessWorld',
++   'sustainability',
++   'realism',
++   'authorization',
++   'domainRuntime',
++   'documentProofs'
++ ]
+- []
+
+    at /Users/runner/work/madar/madar/tests/build358-staged-day-browser.cjs:135:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
