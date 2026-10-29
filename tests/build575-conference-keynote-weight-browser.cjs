@@ -1,8 +1,10 @@
 'use strict';
 // The keynote in the owner's hall, with the modern slides on its LED screen (owner: «القاعة غير موجوده فقط شاشة»), is no
 // heavier than the hall keynote before the full-screen one (owner: «انتبه من الثقل»). Measured on this source and on that
-// source (`f474908`, run from its own tree), the same eleven-company conference, at 956×440 with three device pixels per
-// point, the processor slowed four times:
+// source (`1d7dce1`, run from its own tree), the same eleven-company conference, at 956×440 with three device pixels per
+// point, the processor slowed four times. The reference is the source with the owner's hall in place (owner: «حدث»): measured
+// against `f474908`, before the hall, the hall's own cost left the slides at 1.18 to 1.23 of it on the macOS runner (CI
+// builds 110 to 113), at the bound; the bounds below are unchanged.
 //  1. opening the conference loads the one hall photograph as before and no other conference image, and reaches its
 //     first slide no slower than before;
 //  2. showing the slides, each through the end of its motion, costs no more main-thread work than before (the
@@ -17,7 +19,7 @@
 // measured 124 to 293 ms over the slides and a longest task of 57 to 253 ms from run to run. Chromium on a desktop;
 // not iPhone performance.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright'),{serve}=require('./helpers/web-server');
-const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='f474908';
+const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='1d7dce1';
 async function boot(root){
  const server=await serve(path.join(root,'WebApp'));let browser;try{
   browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:956,height:440},deviceScaleFactor:3,locale:'ar-SA'}),errors=[],images=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.resourceType()==='image')images.push(r.url().replace(/^.*?\/assets\//,'assets/'));});

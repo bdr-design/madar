@@ -59,7 +59,9 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build449-asset-capacity-work, which failed in build 112's second run (position 495: the asset
+# (AGENTS.md). First build575-conference-keynote-weight-browser, which failed again in build 113 (the slides 1.18 of
+# f474908, the source before the owner's hall): its reference is now 1d7dce1, the source with the hall in place (owner:
+# «حدث»), the bounds unchanged; here it reads 0.99 to 1.00 of it. Then build449-asset-capacity-work, which failed in build 112's second run (position 495: the asset
 # market body it runs in its sandbox now counts its models through countText, which the sandbox lacked; the real
 # countText and GH_ARABIC_COPY are loaded with it, the claims unchanged; every gate after it passes here). Then
 # build575-conference-keynote-weight-browser, which failed in builds 110 (position 291: the slides'
@@ -171,8 +173,8 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
-    ['node', 'tests/build449-asset-capacity-work.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
+    ['node', 'tests/build449-asset-capacity-work.cjs'],
     ['node', 'tests/build614-panel-copy-browser.cjs'],
     ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build358-staged-day-browser.cjs'],
