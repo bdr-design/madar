@@ -98,12 +98,17 @@ const QTY=120;
       const out=await page.evaluate(async how=>{
         const TX=GH_TRANSACTION_CORE,s=()=>__GH_STATE__,encode=()=>GH_STATE_CODEC.serialize(s()),before=encode(),revision=s().saveRevision,day=s().lastFinancialDay,sim=s().simSeconds;
         const setHidden=hidden=>{for(const [key,value] of [['hidden',hidden],['visibilityState',hidden?'hidden':'visible']]){if(hidden)Object.defineProperty(document,key,{configurable:true,get:()=>value});else delete document[key];}document.dispatchEvent(new Event('visibilitychange'));};
-        let seen=false,frames=0;
-        __AUDIT__.setSpeed(3);
-        await new Promise(resolve=>{const tick=()=>{frames++;
-          if(TX.isStaged(s())){seen=true;if(how==='pause')__AUDIT__.setSpeed(0);else setHidden(true);return resolve();}
-          if(frames>600)return resolve();requestAnimationFrame(tick);};requestAnimationFrame(tick);});
-        const stagedAfter=TX.isStaged(s()),reason=__AUDIT__.simulationEngine.snapshot().lastCancelReason;
+        // The pause/hide lands right after the first simulation tick that leaves the close staged (the engine runs in timer
+        // tasks every 8 ms while a job is open, not in requestAnimationFrame). Watching for it in requestAnimationFrame, as
+        // this did, missed the whole close on a slow runner (CI build 109, macOS: frames 116 ms apart) and paused the next
+        // slice instead, after the day had committed (simSeconds 172799 -> 172800, lastFinancialDay 1 -> 2).
+        const engine=__AUDIT__.simulationEngine,engineFrame=engine.frame;let seen=false,seenSim=null,ticks=0;
+        await new Promise(resolve=>{
+          const timeout=setTimeout(()=>{engine.frame=engineFrame;resolve();},30000);
+          engine.frame=function(...args){try{return engineFrame.apply(this,args);}finally{ticks++;
+            if(!seen&&TX.isStaged(s())){seen=true;seenSim=s().simSeconds;engine.frame=engineFrame;clearTimeout(timeout);if(how==='pause')__AUDIT__.setSpeed(0);else setHidden(true);resolve();}}};
+          __AUDIT__.setSpeed(3);});
+        const stagedAfter=TX.isStaged(s()),reason=engine.snapshot().lastCancelReason;
         if(how==='hide'){__AUDIT__.setSpeed(0);setHidden(false);}
         await new Promise(resolve=>setTimeout(resolve,400));
         // Compared decoded (Build 358): a collection that reaches 64 rows (the diagnostics log, written by the hide save) is
@@ -125,10 +130,11 @@ const QTY=120;
         // Where a changed root differs (the first few paths), so a failure names the field (CI run 83: 'fleet' after hiding).
         const walk=(a,b,at)=>{if(paths.length>=8||JSON.stringify(a)===JSON.stringify(b))return;if(a&&b&&typeof a==='object'&&typeof b==='object'){for(const k of new Set([...Object.keys(a),...Object.keys(b)]))walk(a[k],b[k],`${at}.${k}`);}else paths.push(`${at}: ${String(JSON.stringify(a)).slice(0,80)} -> ${String(JSON.stringify(b)).slice(0,80)}`);};
         for(const k of changed)walk(A[k],B[k],k);
-        return {seen,stagedAfter,reason,epochForward:!(Number(epoch.after)<Number(epoch.before)),identical:without(A,volatile)===without(B,volatile),appended,changed,paths,
+        return {seen,seenSim,ticks,stagedAfter,reason,epochForward:!(Number(epoch.after)<Number(epoch.before)),identical:without(A,volatile)===without(B,volatile),appended,changed,paths,
           revisionStep:s().saveRevision-revision,day:s().lastFinancialDay,day0:day,sim:s().simSeconds,sim0:sim};
       },how);
       assert.equal(out.seen,true,`${how}: the close must have started`);
+      assert.equal(out.seenSim,out.sim0,`${how}: caught in the day close itself, before it commits`);
       assert.equal(out.stagedAfter,false,`${how}: the staged transaction must be aborted at once`);
       assert.equal(out.reason,how==='pause'?'user-speed-change':'hidden');
       assert.equal(out.epochForward,true,`${how}: the fleet store's epoch never goes back`);

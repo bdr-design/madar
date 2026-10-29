@@ -59,7 +59,12 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build607-calendar-window-stages-browser, which failed in build 108 (macOS: one frame interval of the
+# (AGENTS.md). First build358-staged-day-browser, which failed in build 109 (macOS: the pause case found the close
+# committed, simSeconds 172799 -> 172800 and lastFinancialDay 1 -> 2: the engine runs in timer tasks every 8 ms while a
+# job is open and the frames came 116 ms apart, so the test's requestAnimationFrame watch missed the whole close and
+# paused the next slice; reproduced here with frames held 110 ms apart. It now pauses or hides right after the first
+# simulation tick that leaves the close staged, asserts that this is the close itself, before it commits, and compares
+# the restored state exactly as before). Then build607-calendar-window-stages-browser, which failed in build 108 (macOS: one frame interval of the
 # window's advance read 100.0 ms, six whole frames; here 17 ms and no long task even with the processor slowed four
 # times; claim 2 now reads the browser's long-task entries, the work and garbage collection that hold the main thread,
 # against the same 50 ms, and still reports the frame gap). Then build570-documents-list-weight-browser, which failed in build 107 (macOS: the cheques list built in
@@ -155,6 +160,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build596-construction-vat-browser.cjs'],
@@ -195,7 +201,6 @@ expected_preflight=[
     ['node', 'tests/build358-founding-charter-browser.cjs'],
     ['node', 'tests/build358-large-fleet-dispatch-browser.cjs'],
     ['node', 'tests/build358-map-controls-browser.cjs'],
-    ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build358-tax-view-layout-browser.cjs'],
     ['node', 'tests/build359-map-modes-browser.cjs'],
     ['node', 'tests/build359-road-dispatch-browser.cjs'],

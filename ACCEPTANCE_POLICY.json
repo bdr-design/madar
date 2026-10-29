@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build358-staged-day-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build607-calendar-window-stages-browser.cjs"
     ],
     [
@@ -160,10 +164,6 @@
     [
       "node",
       "tests/build358-map-controls-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-staged-day-browser.cjs"
     ],
     [
       "node",
