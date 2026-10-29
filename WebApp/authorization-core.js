@@ -19,14 +19,17 @@
     while(STABLE_PLANS.size&&(STABLE_PLANS.size>=STABLE_PLAN_LIMIT||stablePlanChars+chars>STABLE_PLAN_CHARS)){const first=STABLE_PLANS.keys().next().value;stablePlanChars-=STABLE_PLANS.get(first).chars;STABLE_PLANS.delete(first);}
     STABLE_PLANS.set(id,{...plan,chars});stablePlanChars+=chars;return plan;
   }
-  function stable(value){
-    const stack=new WeakSet();
+  // known (optional, a Map): objects whose canonical text the caller has just made and that have not changed since (a document's
+  // material payload, GH_DOCUMENT_PROOF.encodedContent); each stands for its own text.
+  function stable(value,known=null){
+    const stack=new WeakSet(),texts=known instanceof Map?known:null;
     const encode=current=>{
       if(current===undefined||typeof current==='function'||typeof current==='symbol'||typeof current==='bigint')throw new Error('authorization-unsupported-value');
       if(current===null)return'null';
       if(typeof current==='string'||typeof current==='boolean')return JSON.stringify(current);
       if(typeof current==='number'){if(!Number.isFinite(current))throw new Error('authorization-non-finite-value');return Object.is(current,-0)?'0':JSON.stringify(current);}
       if(typeof current!=='object')throw new Error('authorization-unsupported-value');
+      if(texts!==null){const text=texts.get(current);if(text!==undefined)return text;}
       if(stack.has(current))throw new Error('authorization-cyclic-value');stack.add(current);
       try{
         if(Array.isArray(current)){const values=[];for(let index=0;index<current.length;index++)values.push(encode(current[index]));return`[${values.join(',')}]`;}
@@ -89,17 +92,22 @@
   // byte limit) are checked in place: their point count, or null for anything else, which takes normalizeStrokes and the
   // comparison of the two canonical texts as before (owner, build 98: «كمل الباقي بدقه»; the proof audit normalized and
   // encoded every seal's strokes twice on every step). For such strokes the two texts are equal, so the answer is the same.
-  function canonicalStrokePoints(strokes){
+  // Owner («كمل بدقه»; a finance document's delegated signature checked the seal four to seven times, and encoding its
+  // strokes for the digest was two thirds of each check): given texts, each checked stroke's canonical text is built from
+  // the numbers just checked, the text stable() gives for it (keys in order pressure, x, y; a number as JSON writes it, -0
+  // as 0), and joined in text.value.
+  function canonicalStrokePoints(strokes,text=null){
     if(!Array.isArray(strokes)||!strokes.length||strokes.length>64)return null;let points=0,bound=2;
     for(let i=0;i<strokes.length;i++){
-      const stroke=strokes[i];if(!Array.isArray(stroke)||stroke.length<2||stroke.length>2048)return null;bound+=3;
+      const stroke=strokes[i];if(!Array.isArray(stroke)||stroke.length<2||stroke.length>2048)return null;bound+=3;let strokeText='';
       for(let j=0;j<stroke.length;j++){
         const point=stroke[j];if(!point||typeof point!=='object'||Array.isArray(point)||Object.getPrototypeOf(point)!==Object.prototype||Object.prototype.toString.call(point)!=='[object Object]'||Object.getOwnPropertySymbols(point).length)return null;
         let keys=0,pressure=false;for(const key in point){if(key==='x'||key==='y')keys++;else if(key==='pressure')pressure=true;else return null;}if(keys!==2||!Object.prototype.hasOwnProperty.call(point,'x')||!Object.prototype.hasOwnProperty.call(point,'y'))return null;
         const x=point.x,y=point.y;if(typeof x!=='number'||typeof y!=='number'||!(x>=0&&x<=1&&y>=0&&y<=1)||Math.round(x*10000)/10000!==x||Math.round(y*10000)/10000!==y)return null;
-        if(pressure){const p=point.pressure;if(!Object.prototype.hasOwnProperty.call(point,'pressure')||typeof p!=='number'||!Number.isFinite(p)||Math.round(Math.max(0,Math.min(1,p))*1000)/1000!==p)return null;}
-        points++;bound+=pressure?41:24;
+        let p;if(pressure){p=point.pressure;if(!Object.prototype.hasOwnProperty.call(point,'pressure')||typeof p!=='number'||!Number.isFinite(p)||Math.round(Math.max(0,Math.min(1,p))*1000)/1000!==p)return null;}
+        points++;bound+=pressure?41:24;if(text)strokeText+=(j?',{':'{')+(pressure?'"pressure":'+p+',"x":':'"x":')+x+',"y":'+y+'}';
       }
+      if(text)text.value+=(i?',[':'[')+strokeText+']';
     }
     return points<=8192&&bound<=MAX_SIGNATURE_BYTES?points:null;
   }
@@ -111,9 +119,11 @@
       if(!Number.isInteger(Number(row.width))||row.width<1||row.width>4096||!Number.isInteger(Number(row.height))||row.height<1||row.height>2048)throw new Error('signature-dimensions-invalid');
       if(!/^#[0-9a-f]{6}$/i.test(String(row.ink||'')))throw new Error('signature-ink-invalid');
       if(!['active','superseded','revoked'].includes(row.status))throw new Error('signature-status-invalid');
-      let strokes=row.strokes,points=canonicalStrokePoints(row.strokes);
+      const text={value:''};let strokes=row.strokes,points=canonicalStrokePoints(row.strokes,text);
       if(points===null){const normalized=normalizeStrokes(row.strokes);if(stable(normalized)!==stable(row.strokes))throw new Error('signature-strokes-noncanonical');strokes=normalized;points=normalized.reduce((sum,stroke)=>sum+stroke.length,0);}
-      const expected=digest({format:row.format,ownerPersonId:row.ownerPersonId,version:row.version,strokes,width:row.width,height:row.height,ink:String(row.ink).toLowerCase()});if(expected!==row.digest)throw new Error('signature-digest-invalid');
+      // Checked in place: the digest of the same object's canonical text, its keys in stable()'s order, the strokes' text
+      // from the check.
+      const expected=strokes===row.strokes&&text.value?digest(`{"format":${stable(row.format)},"height":${stable(row.height)},"ink":${stable(String(row.ink).toLowerCase())},"ownerPersonId":${stable(row.ownerPersonId)},"strokes":[${text.value}],"version":${stable(row.version)},"width":${stable(row.width)}}`):digest({format:row.format,ownerPersonId:row.ownerPersonId,version:row.version,strokes,width:row.width,height:row.height,ink:String(row.ink).toLowerCase()});if(expected!==row.digest)throw new Error('signature-digest-invalid');
       return {ok:true,digest:expected,points};
     }catch(error){return {ok:false,reason:String(error?.message||error)};}
   }

@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "c9ad8f5b7c99dbecf32d37e38579031e0bcc1c6d1538917384c8211b84402488",
-  "webapp_tree_sha256": "f0186f5035262aaa383857e6b9870e7eb3aaf28d84aeac0703fcacf9e4130e39",
+  "source_tree_sha256": "371c796506956346700d0952a06c7d8b3e32756b8800978d5e96fcffc7156642",
+  "webapp_tree_sha256": "9074ea84a3908eda98c85c5f419c9c4a974de194b55e9835a45a34de137510db",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3375,8 +3375,8 @@
       "sha256": "c22e1f0e0baee07621cb2e8afe3afa807bf7237b1ca385246131d541c655d63a"
     },
     "WebApp/authorization-core.js": {
-      "bytes": 46596,
-      "sha256": "04fd96a25f391847562c312bacc0217c16db108061096a0d72e1660bd2f47744"
+      "bytes": 48001,
+      "sha256": "741d12790121944c27a1844f51bd563c9e315a94e497bb329884813a045cb8f0"
     },
     "WebApp/authorization-ui.css": {
       "bytes": 2714,
@@ -3495,8 +3495,8 @@
       "sha256": "ff1a735b54b1b33bcb204a96658b544adb1a895bb10646068256d5a0dc75b65c"
     },
     "WebApp/document-proof-core.js": {
-      "bytes": 135211,
-      "sha256": "7678624a953bf33a38067b28d14c6aa14bd9c865a24dd91a072f027120e2f3dc"
+      "bytes": 136382,
+      "sha256": "a4b91fd9a9650c43df8b591753e0970b2b72a2bb750cec5450c63410fc0ff6d0"
     },
     "WebApp/domain-command-core.js": {
       "bytes": 60215,
@@ -4032,7 +4032,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "14e90a327f8b91304a9e35711483bc4483fe6c8e6a137e409d4bc7d38ff1921f"
+      "sha256": "d70b51b23f7294da0f7bcd482823d6dc0cabda5ed1960b611387a6be644572e3"
     },
     "BUILD": {
       "bytes": 4,

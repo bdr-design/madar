@@ -59,7 +59,15 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First the map filter batch (owner: «كمل بدقه»), none reached by a build: the new build625-map-filter-reuse
+# (AGENTS.md). First the finance document batch (owner: «كمل بدقه»), none reached by a build: the new
+# build626-seal-strokes-text (a delegated system document checked the visual seal four to seven times, and encoding its
+# strokes for the digest was two thirds of each check; canonical strokes are encoded from the numbers just checked; fails
+# on 668f48d), the new build627-document-material-once (each seal, amendment and check encoded the document's material
+# twice; fails on 668f48d) and the gates that check seals and document proofs (build603-visual-seal-check-in-place,
+# build609-authorization-check-slices, build600-proof-audit-sealed-checks, build372-proof-worker-browser,
+# build359-compact-records, build334-document-proof-v3-security, build416-canonical-preparation,
+# build417-document-amendment-work, build334-durable-authorization-contract, build583-boot-proof-single-hash). Then the map
+# filter batch, none reached by a build: the new build625-map-filter-reuse
 # (a prepared draw copied and froze the map filter twice for each facility's company; fails on b86067a), the gates that
 # read the map filter (build334-map-identity-registry, build334-map-pressure-contract, build610-dead-code-removed-browser,
 # build618, build617) and build621-profile-count-stages, whose default slice is now 16,384 rows. Then the worker and
@@ -221,6 +229,18 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build626-seal-strokes-text.cjs'],
+    ['node', 'tests/build627-document-material-once.cjs'],
+    ['node', 'tests/build603-visual-seal-check-in-place.cjs'],
+    ['node', 'tests/build609-authorization-check-slices.cjs'],
+    ['node', 'tests/build600-proof-audit-sealed-checks.cjs'],
+    ['node', 'tests/build372-proof-worker-browser.cjs'],
+    ['node', 'tests/build359-compact-records.cjs'],
+    ['node', 'tests/build334-document-proof-v3-security.cjs'],
+    ['node', 'tests/build416-canonical-preparation.cjs'],
+    ['node', 'tests/build417-document-amendment-work.cjs'],
+    ['node', 'tests/build334-durable-authorization-contract.cjs'],
+    ['node', 'tests/build583-boot-proof-single-hash.cjs'],
     ['node', 'tests/build625-map-filter-reuse.cjs'],
     ['node', 'tests/build621-profile-count-stages.cjs'],
     ['node', 'tests/build334-map-identity-registry.cjs'],
@@ -233,7 +253,6 @@ expected_preflight=[
     ['node', 'tests/build359-proof-checkpoints.cjs'],
     ['node', 'tests/build359-incremental-maintenance.cjs'],
     ['node', 'tests/build359-audit-walk.cjs'],
-    ['node', 'tests/build359-compact-records.cjs'],
     ['node', 'tests/build358-fleet-engine-thread-browser.cjs'],
     ['node', 'tests/build372-replica-log-browser.cjs'],
     ['node', 'tests/build372-asset-purchase-apply.cjs'],
@@ -273,7 +292,6 @@ expected_preflight=[
     ['node', 'tests/build334-presentation-work-contract.cjs'],
     ['node', 'tests/build615-document-proof-check-slices.cjs'],
     ['node', 'tests/build614-panel-copy-browser.cjs'],
-    ['node', 'tests/build609-authorization-check-slices.cjs'],
     ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build440-document-collection-work.cjs'],
     ['node', 'tests/build443-company-review-work.cjs'],
@@ -549,9 +567,7 @@ expected_preflight=[
     ['node', 'tests/build553-conference-open-cost.cjs'],
     ['node', 'tests/build359-conference-thermal.cjs'],
     ['node', 'tests/build604-event-log-alerts-row-rollback-browser.cjs'],
-    ['node', 'tests/build603-visual-seal-check-in-place.cjs'],
     ['node', 'tests/build334-signature-pad.cjs'],
-    ['node', 'tests/build334-durable-authorization-contract.cjs'],
     ['node', 'tests/build359-authorization-release.cjs'],
     ['node', 'tests/build365-official-news.cjs'],
     ['node', 'tests/build375-group-news.cjs'],
@@ -561,16 +577,11 @@ expected_preflight=[
     ['node', 'tests/build597-finance-metric-maps-in-place.cjs'],
     ['node', 'tests/company-platform-regressions.cjs'],
     ['node', 'tests/build334-singleton-company-boundaries.cjs'],
-    ['node', 'tests/build600-proof-audit-sealed-checks.cjs'],
     ['node', 'tests/build599-diagnostics-world-row-rollback-browser.cjs'],
-    ['node', 'tests/build583-boot-proof-single-hash.cjs'],
     ['node', 'tests/build359-archived-proofs.cjs'],
-    ['node', 'tests/build334-document-proof-v3-security.cjs'],
     ['node', 'tests/build350-proof-ledger.cjs'],
     ['node', 'tests/build524-sealed-text-reuse.cjs'],
     ['node', 'tests/build372-proof-worker.cjs'],
-    ['node', 'tests/build372-proof-worker-browser.cjs'],
-    ['node', 'tests/build417-document-amendment-work.cjs'],
     ['node', 'tests/build359-cheque-archived-invoice.cjs'],
     ['node', 'tests/build339-transaction-write-set-audit.cjs'],
     ['node', 'tests/build358-transaction-row-snapshots.cjs'],
@@ -801,7 +812,6 @@ expected_preflight=[
     ['node', 'tests/build490-container-compression.cjs'],
     ['node', 'tests/build456-list-build-budget.cjs'],
     ['node', 'tests/build446-payroll-unused-work.cjs'],
-    ['node', 'tests/build416-canonical-preparation.cjs'],
     ['node', 'tests/build414-command-preparation.cjs'],
     ['node', 'tests/build415-route-publication-browser.cjs'],
     ['node', 'tests/build406-save-chunk-transport.cjs'],

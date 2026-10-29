@@ -3,6 +3,54 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build626-seal-strokes-text.cjs"
+    ],
+    [
+      "node",
+      "tests/build627-document-material-once.cjs"
+    ],
+    [
+      "node",
+      "tests/build603-visual-seal-check-in-place.cjs"
+    ],
+    [
+      "node",
+      "tests/build609-authorization-check-slices.cjs"
+    ],
+    [
+      "node",
+      "tests/build600-proof-audit-sealed-checks.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-proof-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-compact-records.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-document-proof-v3-security.cjs"
+    ],
+    [
+      "node",
+      "tests/build416-canonical-preparation.cjs"
+    ],
+    [
+      "node",
+      "tests/build417-document-amendment-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-durable-authorization-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build583-boot-proof-single-hash.cjs"
+    ],
+    [
+      "node",
       "tests/build625-map-filter-reuse.cjs"
     ],
     [
@@ -48,10 +96,6 @@
     [
       "node",
       "tests/build359-audit-walk.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-compact-records.cjs"
     ],
     [
       "node",
@@ -208,10 +252,6 @@
     [
       "node",
       "tests/build614-panel-copy-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build609-authorization-check-slices.cjs"
     ],
     [
       "node",
@@ -1315,15 +1355,7 @@
     ],
     [
       "node",
-      "tests/build603-visual-seal-check-in-place.cjs"
-    ],
-    [
-      "node",
       "tests/build334-signature-pad.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-durable-authorization-contract.cjs"
     ],
     [
       "node",
@@ -1363,23 +1395,11 @@
     ],
     [
       "node",
-      "tests/build600-proof-audit-sealed-checks.cjs"
-    ],
-    [
-      "node",
       "tests/build599-diagnostics-world-row-rollback-browser.cjs"
     ],
     [
       "node",
-      "tests/build583-boot-proof-single-hash.cjs"
-    ],
-    [
-      "node",
       "tests/build359-archived-proofs.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-document-proof-v3-security.cjs"
     ],
     [
       "node",
@@ -1392,14 +1412,6 @@
     [
       "node",
       "tests/build372-proof-worker.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-proof-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build417-document-amendment-work.cjs"
     ],
     [
       "node",
@@ -2323,10 +2335,6 @@
     ],
     [
       "node",
-      "tests/build416-canonical-preparation.cjs"
-    ],
-    [
-      "node",
       "tests/build414-command-preparation.cjs"
     ],
     [
@@ -2878,6 +2886,14 @@
     [
       "node",
       "tests/build625-map-filter-reuse.cjs"
+    ],
+    [
+      "node",
+      "tests/build626-seal-strokes-text.cjs"
+    ],
+    [
+      "node",
+      "tests/build627-document-material-once.cjs"
     ],
     [
       "node",
