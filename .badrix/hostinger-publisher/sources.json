@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "all_branches": true,
+  "projects": [
+    {
+      "game_id": "ventora",
+      "sources": [
+        {
+          "repository": "bdr-design/GlobalHoldings-iOS-Source",
+          "ledger_path": ".badrix/public-journal.json"
+        },
+        {
+          "repository": "bdr-design/madar",
+          "ledger_path": ".badrix/public-journal.json"
+        }
+      ]
+    },
+    {
+      "game_id": "saqr",
+      "sources": [
+        {
+          "repository": "bdr-design/saqr-alwadi",
+          "ledger_path": ".badrix/public-journal.json"
+        }
+      ]
+    },
+    {
+      "game_id": "history",
+      "sources": [
+        {
+          "repository": "bdr-design/SaneiAlTarikh",
+          "ledger_path": ".badrix/public-journal.json"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4166 @@
+[
+  {
+    "name": "unknown is not zero",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": []
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "audited zero",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": true,
+          "started_on": null,
+          "plan": null,
+          "records": []
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "complete",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": 0,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 0,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": 0,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": 0,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 0,
+            "is_minimum": false
+          },
+          "records": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "single verified event",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 1,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "canonical moved event",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "moved",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "canonical_id": "one"
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 1,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "artifact copied across records",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "build",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "id": "two",
+              "kind": "build",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": [
+            {
+              "id": "f6272c45b55029371d48",
+              "kind": "build",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "testing event not counted",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "promotion to verified",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 1,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "reopened newer revision",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "reopened",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "revision": 1
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "reopened",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "reverted newer revision",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "reverted",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "revision": 2
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "reverted",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "older revision ignored",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "revision": 3
+            },
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "private event ignored",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": false,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "review batch once",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "count": 26
+            },
+            {
+              "id": "moved",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "canonical_id": "one",
+              "count": 26
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 26,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 26,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 26,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "all count types",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "two",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "three",
+              "kind": "improvement",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "four",
+              "kind": "build",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "feature": {
+              "value": 1,
+              "is_minimum": true
+            }
+          },
+          "total_development": {
+            "value": 3,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "478330af0f2c734cedc7",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "4caae2098cb14165a35e",
+              "kind": "improvement",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "e861d8baae77ef80cb99",
+              "kind": "build",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "source evidence not public",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "https://github.com/private/project/file"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 1,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid public URL",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "المعالجة موثقة",
+                "en": "https://github.com/owner/source"
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "invalid public markup",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "<script>",
+                "en": "Unsafe text"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "conflicting same revision",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "نص آخر",
+                "en": "Different text"
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "documentation is not verified",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "documented",
+                "evidence": "a note"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "evidence required",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "scope validation",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "invalid",
+                "evidence": "proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "build cannot be review batch",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "build",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              },
+              "count": 26
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "invalid actual date",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": "2026-02-30",
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "valid leap day",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": "2024-02-29",
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 1,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": "2024-02-29",
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "date and identity ordering",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "two",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": "2026-10-27",
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": "2026-10-28",
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "three",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 3,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 3,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": "2026-10-28",
+              "verification_scope": "software"
+            },
+            {
+              "id": "13567376e24acaf0993e",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": "2026-10-27",
+              "verification_scope": "software"
+            },
+            {
+              "id": "e9eddc9f9d2fa130fc68",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "announced date required",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [],
+          "first_playable_release": {
+            "status": "scheduled",
+            "date": null
+          }
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "approved release date",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": "2026-09-01",
+          "plan": null,
+          "records": [],
+          "first_playable_release": {
+            "status": "released",
+            "date": "2026-10-28"
+          }
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": "2026-09-01",
+          "first_playable_release": {
+            "status": "released",
+            "date": "2026-10-28"
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": null,
+              "is_minimum": false
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": null,
+            "is_minimum": false
+          },
+          "records": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "weighted verified tasks",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": {
+            "id": "release",
+            "milestones": [
+              {
+                "title": {
+                  "ar": "الأساس",
+                  "en": "Core"
+                },
+                "weight": 60,
+                "task_ids": [
+                  "one",
+                  "two"
+                ]
+              },
+              {
+                "title": {
+                  "ar": "الاختبارات",
+                  "en": "Tests"
+                },
+                "weight": 40,
+                "task_ids": [
+                  "three"
+                ]
+              }
+            ]
+          },
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "two",
+              "kind": "fix",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            },
+            {
+              "id": "three",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": 70,
+            "milestones": [
+              {
+                "title": {
+                  "ar": "الأساس",
+                  "en": "Core"
+                },
+                "percent": 50,
+                "completed_tasks": 1,
+                "total_tasks": 2
+              },
+              {
+                "title": {
+                  "ar": "الاختبارات",
+                  "en": "Tests"
+                },
+                "percent": 100,
+                "completed_tasks": 1,
+                "total_tasks": 1
+              }
+            ]
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 2,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 2,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "13567376e24acaf0993e",
+              "kind": "fix",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "e9eddc9f9d2fa130fc68",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "duplicate task ownership",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": {
+            "id": "release",
+            "milestones": [
+              {
+                "title": {
+                  "ar": "الأساس",
+                  "en": "Core"
+                },
+                "weight": 100,
+                "task_ids": [
+                  "one",
+                  "one"
+                ]
+              }
+            ]
+          },
+          "records": []
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "plan weight must total 100",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": {
+            "id": "release",
+            "milestones": [
+              {
+                "title": {
+                  "ar": "الأساس",
+                  "en": "Core"
+                },
+                "weight": 40,
+                "task_ids": [
+                  "one",
+                  "two"
+                ]
+              }
+            ]
+          },
+          "records": []
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "error": true
+  },
+  {
+    "name": "unicode whitespace trimmed",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "history_complete": false,
+          "started_on": null,
+          "plan": null,
+          "records": [
+            {
+              "id": "one",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "  إصلاح موثق  ",
+                "en": "  Documented fix  "
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "internal-proof"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "game",
+          "title": {
+            "ar": "اللعبة",
+            "en": "The game"
+          },
+          "stage": {
+            "ar": "قيد الاختبار",
+            "en": "Testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 1,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "54ef381b8138228038e7",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إصلاح موثق",
+                "en": "Documented fix"
+              },
+              "summary": {
+                "ar": "تم التحقق من المعالجة برمجيًا.",
+                "en": "The fix was checked in software."
+              },
+              "date": null,
+              "verification_scope": "software"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "three approved initial journals",
+    "ledger": {
+      "schema_version": 1,
+      "projects": [
+        {
+          "id": "ventora",
+          "title": {
+            "ar": "فنتورا",
+            "en": "Ventora"
+          },
+          "stage": {
+            "ar": "اختبار الثبات والأداء",
+            "en": "Stability and performance testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "history_complete": false,
+          "plan": null,
+          "records": [
+            {
+              "id": "ventora-finance-accrual-339",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "معالجة توقف التقدم بسبب المصروف المستحق",
+                "en": "Resolved an accrued-expense progress blocker"
+              },
+              "summary": {
+                "ar": "تحققت الاختبارات البرمجية من تسجيل الالتزام وتسويته دون اختراع نقد. اعتماد الإصدار واختبار الجهاز ما زالا منفصلين.",
+                "en": "Software checks verified obligation recording and settlement without creating cash. Release approval and device testing remain separate."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "bdr-design/madar/BUILD339_ACCRUED_OBLIGATION_FIX_REPORT_AR.md"
+              }
+            },
+            {
+              "id": "ventora-map-query-340",
+              "kind": "improvement",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "تحسين استعلامات عرض الأصول على الخريطة",
+                "en": "Improved map asset queries"
+              },
+              "summary": {
+                "ar": "اجتازت استعلامات العرض اختبارات المطابقة والثبات في الاختبارات البرمجية. هذه النتيجة لا تمثل قياس أداء على أجهزة اللاعبين.",
+                "en": "Presentation queries passed software parity and stability checks. These results do not represent performance on player devices."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "bdr-design/madar/BUILD340_ENGINE_SEPARATION_VERIFICATION.json"
+              }
+            },
+            {
+              "id": "ventora-save-pacing-353",
+              "kind": "improvement",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "تحسين توقيت الحفظ وتقليل العمل المتكرر",
+                "en": "Improved save pacing and reduced repeated work"
+              },
+              "summary": {
+                "ar": "وُثّقت اختبارات متصفح سطح المكتب لتحسين توقيت الحفظ وترميز البيانات. التحقق على أجهزة اللاعبين ما زال مطلوبًا.",
+                "en": "Desktop-browser checks documented improvements to save timing and encoding. Validation on player devices remains outstanding."
+              },
+              "date": null,
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/madar/BUILD353_PERFORMANCE_REPORT_AR.md"
+              }
+            },
+            {
+              "id": "ventora-energy-303",
+              "kind": "feature",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "توسيع أنظمة قطاع الطاقة",
+                "en": "Expanded energy-sector systems"
+              },
+              "summary": {
+                "ar": "يتضمن سجل التطوير توسعة مواقع الطاقة والتشغيل والعقود. تُراجع جاهزيتها ضمن الإصدار المستهدف.",
+                "en": "Development notes describe expanded energy locations, operation and contracts. Readiness is assessed for the target release."
+              },
+              "date": null,
+              "verification": {
+                "scope": "documented",
+                "evidence": "bdr-design/GlobalHoldings-iOS-Source/RELEASE_NOTES_AR.md"
+              }
+            },
+            {
+              "id": "ventora-banking-303",
+              "kind": "feature",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "توسيع الخدمات المصرفية",
+                "en": "Expanded banking services"
+              },
+              "summary": {
+                "ar": "يتضمن سجل التطوير توسعة الحسابات والودائع والتمويل والتحصيل. لا يشكّل توثيق الإضافة اعتمادًا لإطلاقها.",
+                "en": "Development notes describe expanded accounts, deposits, financing and collection. Documentation of the feature is not release approval."
+              },
+              "date": null,
+              "verification": {
+                "scope": "documented",
+                "evidence": "bdr-design/GlobalHoldings-iOS-Source/RELEASE_NOTES_AR.md"
+              }
+            },
+            {
+              "id": "ventora-test-340-70d07e",
+              "kind": "build",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "نسخة اختبار داخلية موثّقة",
+                "en": "Documented internal test build"
+              },
+              "summary": {
+                "ar": "بُنيت نسخة اختبار داخلية بعد اجتياز فحوص المصدر والبناء. لا تمثل إصدارًا عامًا متاحًا للاعبين.",
+                "en": "An internal test build was produced after source and build checks passed. It is not a public player release."
+              },
+              "date": null,
+              "artifact_sha256": "70d07e00279b12b8d9e487590b1d76ccd75386b07cc88052ecb5326914000b8f",
+              "verification": {
+                "scope": "build",
+                "evidence": "bdr-design/madar/README.md",
+                "source_revision": "976c9aef615b5dd30c0967d8a81b63d96c374fc2"
+              }
+            },
+            {
+              "id": "ventora-current-acceptance",
+              "kind": "milestone",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "النسخة الحالية قيد التحقق قبل الإطلاق",
+                "en": "Current candidate is undergoing release verification"
+              },
+              "summary": {
+                "ar": "تشمل المتطلبات المتبقية قياسات أداء على أجهزة فعلية واستكمال بوابات القبول. موعد النسخة الأولى للاعبين لم يُعلن.",
+                "en": "Remaining requirements include physical-device profiling and completion of acceptance gates. The first player-release date has not been announced."
+              },
+              "date": null,
+              "verification": {
+                "scope": "documented",
+                "evidence": "bdr-design/madar/RELEASE_GATE.json",
+                "build": 362
+              }
+            }
+          ]
+        },
+        {
+          "id": "saqr",
+          "title": {
+            "ar": "صقر الوادي",
+            "en": "Saqr Al-Wadi"
+          },
+          "stage": {
+            "ar": "تطوير القمرة واختبار تجربة الطيران",
+            "en": "Cockpit development and flight-experience testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "date_pending",
+            "date": null
+          },
+          "history_complete": false,
+          "plan": null,
+          "records": [
+            {
+              "id": "saqr-f15-flight-model",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "إضافة تجربة الطيران بالطائرة الثانية",
+                "en": "Added the second-aircraft flight experience"
+              },
+              "summary": {
+                "ar": "وُثّق نموذج الطيران واختباراته البرمجية. إتاحة النسخة للاعبين واعتماد شكلها مرحلتان منفصلتان.",
+                "en": "The flight model and its software checks are documented. Player availability and visual approval remain separate gates."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+              }
+            },
+            {
+              "id": "saqr-turn-altitude-stability",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "تحسين ثبات الارتفاع أثناء الانعطاف",
+                "en": "Resolved altitude instability during turns"
+              },
+              "summary": {
+                "ar": "يوثّق سجل الاختبار معالجة فقدان الارتفاع أثناء بعض الانعطافات. لا يُستنتج من ذلك اعتماد إطلاق عام.",
+                "en": "The testing record documents the altitude-loss fix during certain turns. This does not imply public release approval."
+              },
+              "date": null,
+              "verification": {
+                "scope": "software",
+                "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+              }
+            },
+            {
+              "id": "saqr-sensor-glass-edge",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "معالجة حافة العرض عند تغيير الدقة",
+                "en": "Resolved a display-edge issue when resolution changes"
+              },
+              "summary": {
+                "ar": "يوثّق سجل الاختبار نجاح فحوص الحافة والرموز بعد المعالجة، ومنها تشغيلات متوازية تحت الضغط.",
+                "en": "The testing record reports passing edge and symbology checks after the fix, including parallel runs under load."
+              },
+              "date": null,
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+              }
+            },
+            {
+              "id": "saqr-cockpit-clarity",
+              "kind": "improvement",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "تحسين ثبات ووضوح صورة القمرة",
+                "en": "Improved cockpit image stability and clarity"
+              },
+              "summary": {
+                "ar": "يوثّق السجل معالجة الاهتزاز والحبيبات المتحركة مع فحص ثبات الصورة. اعتماد المظهر النهائي منفصل.",
+                "en": "The record documents removal of shake and moving grain with image-stability checks. Final visual approval is separate."
+              },
+              "date": null,
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+              }
+            },
+            {
+              "id": "saqr-f15-internal-test",
+              "kind": "build",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "نسخة اختبار داخلية موثّقة",
+                "en": "Documented internal test build"
+              },
+              "summary": {
+                "ar": "يشير سجل التسليم إلى بناء نسخة اختبار داخلية وتسليمها مع صور للمراجعة. تاريخ أول نسخة عامة قيد التوثيق.",
+                "en": "The handover records an internal test build delivered with review images. The first public-release date remains to be documented."
+              },
+              "date": null,
+              "verification": {
+                "scope": "build",
+                "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+              }
+            },
+            {
+              "id": "saqr-sensor-modes",
+              "kind": "feature",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "تطوير أوضاع المستشعر والتتبّع",
+                "en": "Sensor-mode and tracking development"
+              },
+              "summary": {
+                "ar": "تشمل التجربة أوضاع العرض البصري والحراري والتكبير والتتبّع. تُراجع جاهزيتها ضمن الاختبارات المستمرة.",
+                "en": "The experience includes visual and thermal views, zoom and tracking. Readiness is reviewed through ongoing testing."
+              },
+              "date": null,
+              "verification": {
+                "scope": "documented",
+                "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+              }
+            },
+            {
+              "id": "saqr-web-preview-history",
+              "kind": "milestone",
+              "status": "testing",
+              "public": true,
+              "title": {
+                "ar": "تجربة ويب سابقة موثّقة",
+                "en": "Documented earlier web preview"
+              },
+              "summary": {
+                "ar": "يشير تاريخ المشروع إلى تجربة ويب سابقة. تاريخ أول إتاحة فعلية للاعبين لم يُوثّق بعد.",
+                "en": "The project history records an earlier web preview. Its first player-availability date has not yet been documented."
+              },
+              "date": null,
+              "verification": {
+                "scope": "documented",
+                "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+              }
+            }
+          ]
+        },
+        {
+          "id": "history",
+          "title": {
+            "ar": "صانع التاريخ",
+            "en": "Sanei Al-Tarikh"
+          },
+          "stage": {
+            "ar": "تصميم الواجهات واعتمادها",
+            "en": "Interface design and approval"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "history_complete": false,
+          "plan": null,
+          "records": [
+            {
+              "id": "history-design-play",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "اعتماد تصميم شاشة اللعب",
+                "en": "Approved design: Main play screen"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              }
+            },
+            {
+              "id": "history-design-menu",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "اعتماد تصميم القائمة الرئيسية",
+                "en": "Approved design: Main menu"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              }
+            },
+            {
+              "id": "history-design-new-game",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "اعتماد تصميم بدء لعبة جديدة",
+                "en": "Approved design: New game flow"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              }
+            },
+            {
+              "id": "history-design-province",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "اعتماد تصميم لوحة المحافظة",
+                "en": "Approved design: Province panel"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              }
+            },
+            {
+              "id": "history-design-state",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "اعتماد تصميم لوحة الدولة",
+                "en": "Approved design: State panel"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-21",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              }
+            },
+            {
+              "id": "history-design-economy",
+              "kind": "feature",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "اعتماد تصميم لوحة الاقتصاد",
+                "en": "Approved design: Economy panel"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-21",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              }
+            },
+            {
+              "id": "history-review-province",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "معالجة 26 ملاحظة في تصميم لوحة المحافظة",
+                "en": "Resolved 26 findings in the province panel design"
+              },
+              "summary": {
+                "ar": "يسجّل تقرير مراجعة لوحة المحافظة معالجة 26 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+                "en": "The province design review documents 26 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+              },
+              "date": "2026-10-21",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              },
+              "count": 26
+            },
+            {
+              "id": "history-review-state",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "معالجة 35 ملاحظة في تصميم لوحة الدولة",
+                "en": "Resolved 35 findings in the state panel design"
+              },
+              "summary": {
+                "ar": "يسجّل تقرير مراجعة لوحة الدولة معالجة 35 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+                "en": "The state design review documents 35 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+              },
+              "date": "2026-10-21",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              },
+              "count": 35
+            },
+            {
+              "id": "history-review-economy",
+              "kind": "fix",
+              "status": "verified",
+              "public": true,
+              "title": {
+                "ar": "معالجة 50 ملاحظة في تصميم لوحة الاقتصاد",
+                "en": "Resolved 50 findings in the economy panel design"
+              },
+              "summary": {
+                "ar": "يسجّل تقرير مراجعة لوحة الاقتصاد معالجة 50 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+                "en": "The economy design review documents 50 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+              },
+              "date": "2026-10-21",
+              "verification": {
+                "scope": "desktop",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+              },
+              "count": 50
+            },
+            {
+              "id": "history-next-economy-controls",
+              "kind": "milestone",
+              "status": "in_progress",
+              "public": true,
+              "title": {
+                "ar": "المرحلة التالية: أدوات ضبط الاقتصاد",
+                "en": "Next stage: economic controls"
+              },
+              "summary": {
+                "ar": "تصميم أدوات الميزانية والضرائب والدعم والسياسة النقدية، ثم استكمال بقية الواجهات قبل بدء بناء اللعبة.",
+                "en": "Design budget, tax, subsidy and monetary controls, then complete the remaining interfaces before building the game."
+              },
+              "date": "2026-10-21",
+              "verification": {
+                "scope": "documented",
+                "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "options": {
+      "updatedAt": "2026-10-29T00:00:00.000Z",
+      "mode": "automatic",
+      "complete": true
+    },
+    "expected": {
+      "schema_version": 1,
+      "updated_at": "2026-10-29T00:00:00.000Z",
+      "sync": {
+        "mode": "automatic",
+        "complete": true
+      },
+      "games": [
+        {
+          "id": "ventora",
+          "title": {
+            "ar": "فنتورا",
+            "en": "Ventora"
+          },
+          "stage": {
+            "ar": "اختبار الثبات والأداء",
+            "en": "Stability and performance testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "fix": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": 2,
+              "is_minimum": true
+            },
+            "feature": {
+              "value": null,
+              "is_minimum": false
+            }
+          },
+          "total_development": {
+            "value": 3,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "08367f55119df609d7fc",
+              "kind": "build",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "نسخة اختبار داخلية موثّقة",
+                "en": "Documented internal test build"
+              },
+              "summary": {
+                "ar": "بُنيت نسخة اختبار داخلية بعد اجتياز فحوص المصدر والبناء. لا تمثل إصدارًا عامًا متاحًا للاعبين.",
+                "en": "An internal test build was produced after source and build checks passed. It is not a public player release."
+              },
+              "date": null,
+              "verification_scope": "build"
+            },
+            {
+              "id": "4e7672ac47f91730fe02",
+              "kind": "feature",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "توسيع الخدمات المصرفية",
+                "en": "Expanded banking services"
+              },
+              "summary": {
+                "ar": "يتضمن سجل التطوير توسعة الحسابات والودائع والتمويل والتحصيل. لا يشكّل توثيق الإضافة اعتمادًا لإطلاقها.",
+                "en": "Development notes describe expanded accounts, deposits, financing and collection. Documentation of the feature is not release approval."
+              },
+              "date": null,
+              "verification_scope": "documented"
+            },
+            {
+              "id": "79fc0c47fdf8527d2345",
+              "kind": "feature",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "توسيع أنظمة قطاع الطاقة",
+                "en": "Expanded energy-sector systems"
+              },
+              "summary": {
+                "ar": "يتضمن سجل التطوير توسعة مواقع الطاقة والتشغيل والعقود. تُراجع جاهزيتها ضمن الإصدار المستهدف.",
+                "en": "Development notes describe expanded energy locations, operation and contracts. Readiness is assessed for the target release."
+              },
+              "date": null,
+              "verification_scope": "documented"
+            },
+            {
+              "id": "8580aa283a8836510e4c",
+              "kind": "milestone",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "النسخة الحالية قيد التحقق قبل الإطلاق",
+                "en": "Current candidate is undergoing release verification"
+              },
+              "summary": {
+                "ar": "تشمل المتطلبات المتبقية قياسات أداء على أجهزة فعلية واستكمال بوابات القبول. موعد النسخة الأولى للاعبين لم يُعلن.",
+                "en": "Remaining requirements include physical-device profiling and completion of acceptance gates. The first player-release date has not been announced."
+              },
+              "date": null,
+              "verification_scope": "documented"
+            },
+            {
+              "id": "af3eb6474fc6bacbc3fc",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "معالجة توقف التقدم بسبب المصروف المستحق",
+                "en": "Resolved an accrued-expense progress blocker"
+              },
+              "summary": {
+                "ar": "تحققت الاختبارات البرمجية من تسجيل الالتزام وتسويته دون اختراع نقد. اعتماد الإصدار واختبار الجهاز ما زالا منفصلين.",
+                "en": "Software checks verified obligation recording and settlement without creating cash. Release approval and device testing remain separate."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "daae453d937d56e76cf3",
+              "kind": "improvement",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "تحسين استعلامات عرض الأصول على الخريطة",
+                "en": "Improved map asset queries"
+              },
+              "summary": {
+                "ar": "اجتازت استعلامات العرض اختبارات المطابقة والثبات في الاختبارات البرمجية. هذه النتيجة لا تمثل قياس أداء على أجهزة اللاعبين.",
+                "en": "Presentation queries passed software parity and stability checks. These results do not represent performance on player devices."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "e95e2158f31411f91c92",
+              "kind": "improvement",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "تحسين توقيت الحفظ وتقليل العمل المتكرر",
+                "en": "Improved save pacing and reduced repeated work"
+              },
+              "summary": {
+                "ar": "وُثّقت اختبارات متصفح سطح المكتب لتحسين توقيت الحفظ وترميز البيانات. التحقق على أجهزة اللاعبين ما زال مطلوبًا.",
+                "en": "Desktop-browser checks documented improvements to save timing and encoding. Validation on player devices remains outstanding."
+              },
+              "date": null,
+              "verification_scope": "desktop"
+            }
+          ]
+        },
+        {
+          "id": "saqr",
+          "title": {
+            "ar": "صقر الوادي",
+            "en": "Saqr Al-Wadi"
+          },
+          "stage": {
+            "ar": "تطوير القمرة واختبار تجربة الطيران",
+            "en": "Cockpit development and flight-experience testing"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "date_pending",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "fix": {
+              "value": 2,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": 1,
+              "is_minimum": true
+            },
+            "feature": {
+              "value": 1,
+              "is_minimum": true
+            }
+          },
+          "total_development": {
+            "value": 4,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "25552f28672983ad7026",
+              "kind": "improvement",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "تحسين ثبات ووضوح صورة القمرة",
+                "en": "Improved cockpit image stability and clarity"
+              },
+              "summary": {
+                "ar": "يوثّق السجل معالجة الاهتزاز والحبيبات المتحركة مع فحص ثبات الصورة. اعتماد المظهر النهائي منفصل.",
+                "en": "The record documents removal of shake and moving grain with image-stability checks. Final visual approval is separate."
+              },
+              "date": null,
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "26cbcac3d520368ac846",
+              "kind": "feature",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "تطوير أوضاع المستشعر والتتبّع",
+                "en": "Sensor-mode and tracking development"
+              },
+              "summary": {
+                "ar": "تشمل التجربة أوضاع العرض البصري والحراري والتكبير والتتبّع. تُراجع جاهزيتها ضمن الاختبارات المستمرة.",
+                "en": "The experience includes visual and thermal views, zoom and tracking. Readiness is reviewed through ongoing testing."
+              },
+              "date": null,
+              "verification_scope": "documented"
+            },
+            {
+              "id": "3ad9f19641b5e3fd436b",
+              "kind": "milestone",
+              "status": "testing",
+              "count": 1,
+              "title": {
+                "ar": "تجربة ويب سابقة موثّقة",
+                "en": "Documented earlier web preview"
+              },
+              "summary": {
+                "ar": "يشير تاريخ المشروع إلى تجربة ويب سابقة. تاريخ أول إتاحة فعلية للاعبين لم يُوثّق بعد.",
+                "en": "The project history records an earlier web preview. Its first player-availability date has not yet been documented."
+              },
+              "date": null,
+              "verification_scope": "documented"
+            },
+            {
+              "id": "7f9254ff7ccf2d9fd879",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "إضافة تجربة الطيران بالطائرة الثانية",
+                "en": "Added the second-aircraft flight experience"
+              },
+              "summary": {
+                "ar": "وُثّق نموذج الطيران واختباراته البرمجية. إتاحة النسخة للاعبين واعتماد شكلها مرحلتان منفصلتان.",
+                "en": "The flight model and its software checks are documented. Player availability and visual approval remain separate gates."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "b142fb3491b23c507b00",
+              "kind": "build",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "نسخة اختبار داخلية موثّقة",
+                "en": "Documented internal test build"
+              },
+              "summary": {
+                "ar": "يشير سجل التسليم إلى بناء نسخة اختبار داخلية وتسليمها مع صور للمراجعة. تاريخ أول نسخة عامة قيد التوثيق.",
+                "en": "The handover records an internal test build delivered with review images. The first public-release date remains to be documented."
+              },
+              "date": null,
+              "verification_scope": "build"
+            },
+            {
+              "id": "c6dd4ac99589654f2677",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "تحسين ثبات الارتفاع أثناء الانعطاف",
+                "en": "Resolved altitude instability during turns"
+              },
+              "summary": {
+                "ar": "يوثّق سجل الاختبار معالجة فقدان الارتفاع أثناء بعض الانعطافات. لا يُستنتج من ذلك اعتماد إطلاق عام.",
+                "en": "The testing record documents the altitude-loss fix during certain turns. This does not imply public release approval."
+              },
+              "date": null,
+              "verification_scope": "software"
+            },
+            {
+              "id": "fdcf7bbd0c2c7dc0746b",
+              "kind": "fix",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "معالجة حافة العرض عند تغيير الدقة",
+                "en": "Resolved a display-edge issue when resolution changes"
+              },
+              "summary": {
+                "ar": "يوثّق سجل الاختبار نجاح فحوص الحافة والرموز بعد المعالجة، ومنها تشغيلات متوازية تحت الضغط.",
+                "en": "The testing record reports passing edge and symbology checks after the fix, including parallel runs under load."
+              },
+              "date": null,
+              "verification_scope": "desktop"
+            }
+          ]
+        },
+        {
+          "id": "history",
+          "title": {
+            "ar": "صانع التاريخ",
+            "en": "Sanei Al-Tarikh"
+          },
+          "stage": {
+            "ar": "تصميم الواجهات واعتمادها",
+            "en": "Interface design and approval"
+          },
+          "started_on": null,
+          "first_playable_release": {
+            "status": "unannounced",
+            "date": null
+          },
+          "coverage": "partial",
+          "readiness": {
+            "percent": null,
+            "milestones": []
+          },
+          "metrics": {
+            "build": {
+              "value": null,
+              "is_minimum": false
+            },
+            "fix": {
+              "value": 111,
+              "is_minimum": true
+            },
+            "improvement": {
+              "value": null,
+              "is_minimum": false
+            },
+            "feature": {
+              "value": 6,
+              "is_minimum": true
+            }
+          },
+          "total_development": {
+            "value": 117,
+            "is_minimum": true
+          },
+          "records": [
+            {
+              "id": "2b809b226fd5d2c1adc9",
+              "kind": "fix",
+              "status": "verified",
+              "count": 50,
+              "title": {
+                "ar": "معالجة 50 ملاحظة في تصميم لوحة الاقتصاد",
+                "en": "Resolved 50 findings in the economy panel design"
+              },
+              "summary": {
+                "ar": "يسجّل تقرير مراجعة لوحة الاقتصاد معالجة 50 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+                "en": "The economy design review documents 50 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+              },
+              "date": "2026-10-21",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "301f341335664d6068f9",
+              "kind": "fix",
+              "status": "verified",
+              "count": 35,
+              "title": {
+                "ar": "معالجة 35 ملاحظة في تصميم لوحة الدولة",
+                "en": "Resolved 35 findings in the state panel design"
+              },
+              "summary": {
+                "ar": "يسجّل تقرير مراجعة لوحة الدولة معالجة 35 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+                "en": "The state design review documents 35 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+              },
+              "date": "2026-10-21",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "9c281e042d3b575cb629",
+              "kind": "fix",
+              "status": "verified",
+              "count": 26,
+              "title": {
+                "ar": "معالجة 26 ملاحظة في تصميم لوحة المحافظة",
+                "en": "Resolved 26 findings in the province panel design"
+              },
+              "summary": {
+                "ar": "يسجّل تقرير مراجعة لوحة المحافظة معالجة 26 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+                "en": "The province design review documents 26 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+              },
+              "date": "2026-10-21",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "aa46ab2295f411d2e748",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "اعتماد تصميم لوحة الدولة",
+                "en": "Approved design: State panel"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-21",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "c7c849b6d42354453812",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "اعتماد تصميم لوحة الاقتصاد",
+                "en": "Approved design: Economy panel"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-21",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "d31cdeac3924f207b342",
+              "kind": "milestone",
+              "status": "in_progress",
+              "count": 1,
+              "title": {
+                "ar": "المرحلة التالية: أدوات ضبط الاقتصاد",
+                "en": "Next stage: economic controls"
+              },
+              "summary": {
+                "ar": "تصميم أدوات الميزانية والضرائب والدعم والسياسة النقدية، ثم استكمال بقية الواجهات قبل بدء بناء اللعبة.",
+                "en": "Design budget, tax, subsidy and monetary controls, then complete the remaining interfaces before building the game."
+              },
+              "date": "2026-10-21",
+              "verification_scope": "documented"
+            },
+            {
+              "id": "12fb1e0ea4e6f7142a54",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "اعتماد تصميم شاشة اللعب",
+                "en": "Approved design: Main play screen"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "909116bb0c03b0bded10",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "اعتماد تصميم القائمة الرئيسية",
+                "en": "Approved design: Main menu"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "a8ae5c2dc9c4f924ea6c",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "اعتماد تصميم بدء لعبة جديدة",
+                "en": "Approved design: New game flow"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification_scope": "desktop"
+            },
+            {
+              "id": "dbbc878be05ec6420903",
+              "kind": "feature",
+              "status": "verified",
+              "count": 1,
+              "title": {
+                "ar": "اعتماد تصميم لوحة المحافظة",
+                "en": "Approved design: Province panel"
+              },
+              "summary": {
+                "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+                "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+              },
+              "date": "2026-10-20",
+              "verification_scope": "desktop"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

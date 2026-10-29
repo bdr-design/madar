@@ -1,0 +1,527 @@
+{
+  "schema_version": 1,
+  "projects": [
+    {
+      "id": "ventora",
+      "title": {
+        "ar": "فنتورا",
+        "en": "Ventora"
+      },
+      "stage": {
+        "ar": "اختبار الثبات والأداء",
+        "en": "Stability and performance testing"
+      },
+      "started_on": null,
+      "first_playable_release": {
+        "status": "unannounced",
+        "date": null
+      },
+      "history_complete": false,
+      "plan": null,
+      "records": [
+        {
+          "id": "ventora-finance-accrual-339",
+          "kind": "fix",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "معالجة توقف التقدم بسبب المصروف المستحق",
+            "en": "Resolved an accrued-expense progress blocker"
+          },
+          "summary": {
+            "ar": "تحققت الاختبارات البرمجية من تسجيل الالتزام وتسويته دون اختراع نقد. اعتماد الإصدار واختبار الجهاز ما زالا منفصلين.",
+            "en": "Software checks verified obligation recording and settlement without creating cash. Release approval and device testing remain separate."
+          },
+          "date": null,
+          "verification": {
+            "scope": "software",
+            "evidence": "bdr-design/madar/BUILD339_ACCRUED_OBLIGATION_FIX_REPORT_AR.md"
+          }
+        },
+        {
+          "id": "ventora-map-query-340",
+          "kind": "improvement",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "تحسين استعلامات عرض الأصول على الخريطة",
+            "en": "Improved map asset queries"
+          },
+          "summary": {
+            "ar": "اجتازت استعلامات العرض اختبارات المطابقة والثبات في الاختبارات البرمجية. هذه النتيجة لا تمثل قياس أداء على أجهزة اللاعبين.",
+            "en": "Presentation queries passed software parity and stability checks. These results do not represent performance on player devices."
+          },
+          "date": null,
+          "verification": {
+            "scope": "software",
+            "evidence": "bdr-design/madar/BUILD340_ENGINE_SEPARATION_VERIFICATION.json"
+          }
+        },
+        {
+          "id": "ventora-save-pacing-353",
+          "kind": "improvement",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "تحسين توقيت الحفظ وتقليل العمل المتكرر",
+            "en": "Improved save pacing and reduced repeated work"
+          },
+          "summary": {
+            "ar": "وُثّقت اختبارات متصفح سطح المكتب لتحسين توقيت الحفظ وترميز البيانات. التحقق على أجهزة اللاعبين ما زال مطلوبًا.",
+            "en": "Desktop-browser checks documented improvements to save timing and encoding. Validation on player devices remains outstanding."
+          },
+          "date": null,
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/madar/BUILD353_PERFORMANCE_REPORT_AR.md"
+          }
+        },
+        {
+          "id": "ventora-energy-303",
+          "kind": "feature",
+          "status": "testing",
+          "public": true,
+          "title": {
+            "ar": "توسيع أنظمة قطاع الطاقة",
+            "en": "Expanded energy-sector systems"
+          },
+          "summary": {
+            "ar": "يتضمن سجل التطوير توسعة مواقع الطاقة والتشغيل والعقود. تُراجع جاهزيتها ضمن الإصدار المستهدف.",
+            "en": "Development notes describe expanded energy locations, operation and contracts. Readiness is assessed for the target release."
+          },
+          "date": null,
+          "verification": {
+            "scope": "documented",
+            "evidence": "bdr-design/GlobalHoldings-iOS-Source/RELEASE_NOTES_AR.md"
+          }
+        },
+        {
+          "id": "ventora-banking-303",
+          "kind": "feature",
+          "status": "testing",
+          "public": true,
+          "title": {
+            "ar": "توسيع الخدمات المصرفية",
+            "en": "Expanded banking services"
+          },
+          "summary": {
+            "ar": "يتضمن سجل التطوير توسعة الحسابات والودائع والتمويل والتحصيل. لا يشكّل توثيق الإضافة اعتمادًا لإطلاقها.",
+            "en": "Development notes describe expanded accounts, deposits, financing and collection. Documentation of the feature is not release approval."
+          },
+          "date": null,
+          "verification": {
+            "scope": "documented",
+            "evidence": "bdr-design/GlobalHoldings-iOS-Source/RELEASE_NOTES_AR.md"
+          }
+        },
+        {
+          "id": "ventora-test-340-70d07e",
+          "kind": "build",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "نسخة اختبار داخلية موثّقة",
+            "en": "Documented internal test build"
+          },
+          "summary": {
+            "ar": "بُنيت نسخة اختبار داخلية بعد اجتياز فحوص المصدر والبناء. لا تمثل إصدارًا عامًا متاحًا للاعبين.",
+            "en": "An internal test build was produced after source and build checks passed. It is not a public player release."
+          },
+          "date": null,
+          "artifact_sha256": "70d07e00279b12b8d9e487590b1d76ccd75386b07cc88052ecb5326914000b8f",
+          "verification": {
+            "scope": "build",
+            "evidence": "bdr-design/madar/README.md",
+            "source_revision": "976c9aef615b5dd30c0967d8a81b63d96c374fc2"
+          }
+        },
+        {
+          "id": "ventora-current-acceptance",
+          "kind": "milestone",
+          "status": "testing",
+          "public": true,
+          "title": {
+            "ar": "النسخة الحالية قيد التحقق قبل الإطلاق",
+            "en": "Current candidate is undergoing release verification"
+          },
+          "summary": {
+            "ar": "تشمل المتطلبات المتبقية قياسات أداء على أجهزة فعلية واستكمال بوابات القبول. موعد النسخة الأولى للاعبين لم يُعلن.",
+            "en": "Remaining requirements include physical-device profiling and completion of acceptance gates. The first player-release date has not been announced."
+          },
+          "date": null,
+          "verification": {
+            "scope": "documented",
+            "evidence": "bdr-design/madar/RELEASE_GATE.json",
+            "build": 362
+          }
+        }
+      ]
+    },
+    {
+      "id": "saqr",
+      "title": {
+        "ar": "صقر الوادي",
+        "en": "Saqr Al-Wadi"
+      },
+      "stage": {
+        "ar": "تطوير القمرة واختبار تجربة الطيران",
+        "en": "Cockpit development and flight-experience testing"
+      },
+      "started_on": null,
+      "first_playable_release": {
+        "status": "date_pending",
+        "date": null
+      },
+      "history_complete": false,
+      "plan": null,
+      "records": [
+        {
+          "id": "saqr-f15-flight-model",
+          "kind": "feature",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "إضافة تجربة الطيران بالطائرة الثانية",
+            "en": "Added the second-aircraft flight experience"
+          },
+          "summary": {
+            "ar": "وُثّق نموذج الطيران واختباراته البرمجية. إتاحة النسخة للاعبين واعتماد شكلها مرحلتان منفصلتان.",
+            "en": "The flight model and its software checks are documented. Player availability and visual approval remain separate gates."
+          },
+          "date": null,
+          "verification": {
+            "scope": "software",
+            "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+          }
+        },
+        {
+          "id": "saqr-turn-altitude-stability",
+          "kind": "fix",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "تحسين ثبات الارتفاع أثناء الانعطاف",
+            "en": "Resolved altitude instability during turns"
+          },
+          "summary": {
+            "ar": "يوثّق سجل الاختبار معالجة فقدان الارتفاع أثناء بعض الانعطافات. لا يُستنتج من ذلك اعتماد إطلاق عام.",
+            "en": "The testing record documents the altitude-loss fix during certain turns. This does not imply public release approval."
+          },
+          "date": null,
+          "verification": {
+            "scope": "software",
+            "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+          }
+        },
+        {
+          "id": "saqr-sensor-glass-edge",
+          "kind": "fix",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "معالجة حافة العرض عند تغيير الدقة",
+            "en": "Resolved a display-edge issue when resolution changes"
+          },
+          "summary": {
+            "ar": "يوثّق سجل الاختبار نجاح فحوص الحافة والرموز بعد المعالجة، ومنها تشغيلات متوازية تحت الضغط.",
+            "en": "The testing record reports passing edge and symbology checks after the fix, including parallel runs under load."
+          },
+          "date": null,
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+          }
+        },
+        {
+          "id": "saqr-cockpit-clarity",
+          "kind": "improvement",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "تحسين ثبات ووضوح صورة القمرة",
+            "en": "Improved cockpit image stability and clarity"
+          },
+          "summary": {
+            "ar": "يوثّق السجل معالجة الاهتزاز والحبيبات المتحركة مع فحص ثبات الصورة. اعتماد المظهر النهائي منفصل.",
+            "en": "The record documents removal of shake and moving grain with image-stability checks. Final visual approval is separate."
+          },
+          "date": null,
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+          }
+        },
+        {
+          "id": "saqr-f15-internal-test",
+          "kind": "build",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "نسخة اختبار داخلية موثّقة",
+            "en": "Documented internal test build"
+          },
+          "summary": {
+            "ar": "يشير سجل التسليم إلى بناء نسخة اختبار داخلية وتسليمها مع صور للمراجعة. تاريخ أول نسخة عامة قيد التوثيق.",
+            "en": "The handover records an internal test build delivered with review images. The first public-release date remains to be documented."
+          },
+          "date": null,
+          "verification": {
+            "scope": "build",
+            "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+          }
+        },
+        {
+          "id": "saqr-sensor-modes",
+          "kind": "feature",
+          "status": "testing",
+          "public": true,
+          "title": {
+            "ar": "تطوير أوضاع المستشعر والتتبّع",
+            "en": "Sensor-mode and tracking development"
+          },
+          "summary": {
+            "ar": "تشمل التجربة أوضاع العرض البصري والحراري والتكبير والتتبّع. تُراجع جاهزيتها ضمن الاختبارات المستمرة.",
+            "en": "The experience includes visual and thermal views, zoom and tracking. Readiness is reviewed through ongoing testing."
+          },
+          "date": null,
+          "verification": {
+            "scope": "documented",
+            "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+          }
+        },
+        {
+          "id": "saqr-web-preview-history",
+          "kind": "milestone",
+          "status": "testing",
+          "public": true,
+          "title": {
+            "ar": "تجربة ويب سابقة موثّقة",
+            "en": "Documented earlier web preview"
+          },
+          "summary": {
+            "ar": "يشير تاريخ المشروع إلى تجربة ويب سابقة. تاريخ أول إتاحة فعلية للاعبين لم يُوثّق بعد.",
+            "en": "The project history records an earlier web preview. Its first player-availability date has not yet been documented."
+          },
+          "date": null,
+          "verification": {
+            "scope": "documented",
+            "evidence": "bdr-design/saqr-alwadi/docs/HANDOFF.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "title": {
+        "ar": "صانع التاريخ",
+        "en": "Sanei Al-Tarikh"
+      },
+      "stage": {
+        "ar": "تصميم الواجهات واعتمادها",
+        "en": "Interface design and approval"
+      },
+      "started_on": null,
+      "first_playable_release": {
+        "status": "unannounced",
+        "date": null
+      },
+      "history_complete": false,
+      "plan": null,
+      "records": [
+        {
+          "id": "history-design-play",
+          "kind": "feature",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "اعتماد تصميم شاشة اللعب",
+            "en": "Approved design: Main play screen"
+          },
+          "summary": {
+            "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+            "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+          },
+          "date": "2026-10-20",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          }
+        },
+        {
+          "id": "history-design-menu",
+          "kind": "feature",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "اعتماد تصميم القائمة الرئيسية",
+            "en": "Approved design: Main menu"
+          },
+          "summary": {
+            "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+            "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+          },
+          "date": "2026-10-20",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          }
+        },
+        {
+          "id": "history-design-new-game",
+          "kind": "feature",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "اعتماد تصميم بدء لعبة جديدة",
+            "en": "Approved design: New game flow"
+          },
+          "summary": {
+            "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+            "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+          },
+          "date": "2026-10-20",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          }
+        },
+        {
+          "id": "history-design-province",
+          "kind": "feature",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "اعتماد تصميم لوحة المحافظة",
+            "en": "Approved design: Province panel"
+          },
+          "summary": {
+            "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+            "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+          },
+          "date": "2026-10-20",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          }
+        },
+        {
+          "id": "history-design-state",
+          "kind": "feature",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "اعتماد تصميم لوحة الدولة",
+            "en": "Approved design: State panel"
+          },
+          "summary": {
+            "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+            "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+          },
+          "date": "2026-10-21",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          }
+        },
+        {
+          "id": "history-design-economy",
+          "kind": "feature",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "اعتماد تصميم لوحة الاقتصاد",
+            "en": "Approved design: Economy panel"
+          },
+          "summary": {
+            "ar": "تصميم واجهة معتمد وفحص عرض بمقاسات 7 أجهزة. هذه نماذج تصميم في المتصفح؛ لم تُختبر على آيفون فعلي وليست نسخة لعب.",
+            "en": "Approved interface design with browser layout checks at 7 device sizes. These are design mockups, not a playable build or physical iPhone testing."
+          },
+          "date": "2026-10-21",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          }
+        },
+        {
+          "id": "history-review-province",
+          "kind": "fix",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "معالجة 26 ملاحظة في تصميم لوحة المحافظة",
+            "en": "Resolved 26 findings in the province panel design"
+          },
+          "summary": {
+            "ar": "يسجّل تقرير مراجعة لوحة المحافظة معالجة 26 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+            "en": "The province design review documents 26 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+          },
+          "date": "2026-10-21",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          },
+          "count": 26
+        },
+        {
+          "id": "history-review-state",
+          "kind": "fix",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "معالجة 35 ملاحظة في تصميم لوحة الدولة",
+            "en": "Resolved 35 findings in the state panel design"
+          },
+          "summary": {
+            "ar": "يسجّل تقرير مراجعة لوحة الدولة معالجة 35 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+            "en": "The state design review documents 35 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+          },
+          "date": "2026-10-21",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          },
+          "count": 35
+        },
+        {
+          "id": "history-review-economy",
+          "kind": "fix",
+          "status": "verified",
+          "public": true,
+          "title": {
+            "ar": "معالجة 50 ملاحظة في تصميم لوحة الاقتصاد",
+            "en": "Resolved 50 findings in the economy panel design"
+          },
+          "summary": {
+            "ar": "يسجّل تقرير مراجعة لوحة الاقتصاد معالجة 50 ملاحظة مؤكدة، مع اجتياز فحص العرض في المتصفح. العدد يخص ملاحظات هذا التصميم، ولا يمثل أعطال محرك لعبة.",
+            "en": "The economy design review documents 50 resolved findings and passing browser layout checks. These are findings for this design, not game-engine bugs."
+          },
+          "date": "2026-10-21",
+          "verification": {
+            "scope": "desktop",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md@21eb71bf92994ca9c9b3e809a1efc4e934e4dc6e"
+          },
+          "count": 50
+        },
+        {
+          "id": "history-next-economy-controls",
+          "kind": "milestone",
+          "status": "in_progress",
+          "public": true,
+          "title": {
+            "ar": "المرحلة التالية: أدوات ضبط الاقتصاد",
+            "en": "Next stage: economic controls"
+          },
+          "summary": {
+            "ar": "تصميم أدوات الميزانية والضرائب والدعم والسياسة النقدية، ثم استكمال بقية الواجهات قبل بدء بناء اللعبة.",
+            "en": "Design budget, tax, subsidy and monetary controls, then complete the remaining interfaces before building the game."
+          },
+          "date": "2026-10-21",
+          "verification": {
+            "scope": "documented",
+            "evidence": "bdr-design/SaneiAlTarikh/WORKLOG.md"
+          }
+        }
+      ]
+    }
+  ]
+}
