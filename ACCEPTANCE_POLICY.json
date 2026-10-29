@@ -3,6 +3,50 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build334-r2-deferred-persistence.cjs"
+    ],
+    [
+      "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build629-cheque-payment-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build630-settlement-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build619-dealer-restock-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-dealer-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-cheque-payable-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build622-trip-settlement-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build628-pause-after-day-close.cjs"
     ],
     [
@@ -159,10 +203,6 @@
     ],
     [
       "node",
-      "tests/build622-trip-settlement-stages-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build334-600-air-calendar-regression.cjs"
     ],
     [
@@ -199,10 +239,6 @@
     ],
     [
       "node",
-      "tests/build619-dealer-restock-stages.cjs"
-    ],
-    [
-      "node",
       "tests/build372-journal-pool.cjs"
     ],
     [
@@ -215,23 +251,11 @@
     ],
     [
       "node",
-      "tests/build374-dealer-market.cjs"
-    ],
-    [
-      "node",
       "tests/build378-dealer-floor-plan.cjs"
     ],
     [
       "node",
       "tests/build385-dealer-first-stock.cjs"
-    ],
-    [
-      "node",
-      "tests/dealer-ledger-and-stock.cjs"
-    ],
-    [
-      "node",
-      "tests/dealer-ledger-and-stock-browser.cjs"
     ],
     [
       "node",
@@ -307,10 +331,6 @@
     ],
     [
       "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build449-asset-capacity-work.cjs"
     ],
     [
@@ -340,10 +360,6 @@
     [
       "node",
       "tests/build611-truck-route-center-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/fleet-business-boundary.cjs"
     ],
     [
       "node",
@@ -704,10 +720,6 @@
     [
       "node",
       "tests/build334-open-invoice-retention.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-r2-deferred-persistence.cjs"
     ],
     [
       "node",
@@ -1975,10 +1987,6 @@
     ],
     [
       "node",
-      "tests/build374-cheque-payable-lifecycle.cjs"
-    ],
-    [
-      "node",
       "tests/build374-save-slice-telemetry.cjs"
     ],
     [
@@ -2906,6 +2914,14 @@
     [
       "node",
       "tests/build628-pause-after-day-close.cjs"
+    ],
+    [
+      "node",
+      "tests/build629-cheque-payment-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build630-settlement-stages-browser.cjs"
     ],
     [
       "node",

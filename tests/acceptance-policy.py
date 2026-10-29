@@ -59,7 +59,18 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First the pause batch (owner: «نفذ»), not reached by a build: the new build628-pause-after-day-close (a
+# (AGENTS.md). First the two gates the pushed pause batch (93d77d4) failed here, newest first, before any build reached
+# it: build334-r2-deferred-persistence (it lifts the persistence hook from between onPersist and onAdvance, and the new
+# onPauseAfterDayClose sat there; it now sits after onAdvance, and replaceLiveState no longer reads the pause flag) and
+# fleet-business-boundary (simulation-core.js and customer-companies-core.js are pinned; the pause and the staged order
+# payment are recorded as reviewed edits that restore the exact earlier source). Then the staged finance batch (owner:
+# «نفذ الباقي»), not reached by a build: the new build629-cheque-payment-stages (a dealer purchase order paid by cheque
+# took 25-38 ms in one task; the payment's three parts are stages; fails on 93d77d4), the new
+# build630-settlement-stages-browser (a daily cash settlement amended its invoices in one task; one stage each; fails on
+# 93d77d4) and the gates that run the dealer reorder, the cheque payment and the day close (build619-dealer-restock-stages,
+# build374-dealer-market, build374-cheque-payable-lifecycle, dealer-ledger-and-stock, dealer-ledger-and-stock-browser,
+# build622-trip-settlement-stages-browser); build575-conference-keynote-weight-browser, which failed once here with three
+# browsers running at once and passed twice alone. Then the pause batch (owner: «نفذ»), not reached by a build: the new build628-pause-after-day-close (a
 # pause pressed during a live day close rolled the close back in one task, 17-25 ms at 2x; the player's pause now lets
 # the close finish and then pauses; fails on 4daed4f) and the gates that run the engine, its pacing, the live close and
 # the speed controls (build358-staged-day-browser, build334-scheduler-liveness, build334-calendar-safety-contract,
@@ -235,6 +246,17 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build334-r2-deferred-persistence.cjs'],
+    ['node', 'tests/fleet-business-boundary.cjs'],
+    ['node', 'tests/build629-cheque-payment-stages.cjs'],
+    ['node', 'tests/build630-settlement-stages-browser.cjs'],
+    ['node', 'tests/build619-dealer-restock-stages.cjs'],
+    ['node', 'tests/build374-dealer-market.cjs'],
+    ['node', 'tests/build374-cheque-payable-lifecycle.cjs'],
+    ['node', 'tests/dealer-ledger-and-stock.cjs'],
+    ['node', 'tests/dealer-ledger-and-stock-browser.cjs'],
+    ['node', 'tests/build622-trip-settlement-stages-browser.cjs'],
+    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build628-pause-after-day-close.cjs'],
     ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build334-scheduler-liveness.cjs'],
@@ -274,7 +296,6 @@ expected_preflight=[
     ['node', 'tests/build372-replica-log-browser.cjs'],
     ['node', 'tests/build372-asset-purchase-apply.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
-    ['node', 'tests/build622-trip-settlement-stages-browser.cjs'],
     ['node', 'tests/build334-600-air-calendar-regression.cjs'],
     ['node', 'tests/build571-tax-month-close-browser.cjs'],
     ['node', 'tests/build379-financial-posting.cjs'],
@@ -284,15 +305,11 @@ expected_preflight=[
     ['node', 'tests/build522-fleet-day-prefetch.cjs'],
     ['node', 'tests/build580-company-types-money-weight.cjs'],
     ['node', 'tests/build620-journal-log-segments.cjs'],
-    ['node', 'tests/build619-dealer-restock-stages.cjs'],
     ['node', 'tests/build372-journal-pool.cjs'],
     ['node', 'tests/build357-fleet-journal.cjs'],
     ['node', 'tests/build372-store-maintenance-stages.cjs'],
-    ['node', 'tests/build374-dealer-market.cjs'],
     ['node', 'tests/build378-dealer-floor-plan.cjs'],
     ['node', 'tests/build385-dealer-first-stock.cjs'],
-    ['node', 'tests/dealer-ledger-and-stock.cjs'],
-    ['node', 'tests/dealer-ledger-and-stock-browser.cjs'],
     ['node', 'tests/build334-iphone-thermal-contract.cjs'],
     ['node', 'tests/build340-map-presentation.cjs'],
     ['node', 'tests/build359-map-canvas-layer.cjs'],
@@ -311,7 +328,6 @@ expected_preflight=[
     ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build440-document-collection-work.cjs'],
     ['node', 'tests/build443-company-review-work.cjs'],
-    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build449-asset-capacity-work.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build596-construction-vat-browser.cjs'],
@@ -320,7 +336,6 @@ expected_preflight=[
     ['node', 'tests/build394-hospitality-browser.cjs'],
     ['node', 'tests/build399-bank-prudential-summary-layout-browser.cjs'],
     ['node', 'tests/build611-truck-route-center-browser.cjs'],
-    ['node', 'tests/fleet-business-boundary.cjs'],
     ['node', 'tests/build486-route-card-pages.cjs'],
     ['node', 'tests/build453-section-projections.cjs'],
     ['node', 'tests/build448-labor-tab-work.cjs'],
@@ -411,7 +426,6 @@ expected_preflight=[
     ['node', 'tests/build334-logistics-staged-contract.cjs'],
     ['node', 'tests/build334-market-discovery-contract.cjs'],
     ['node', 'tests/build334-open-invoice-retention.cjs'],
-    ['node', 'tests/build334-r2-deferred-persistence.cjs'],
     ['node', 'tests/build334-r2-maintenance-atomic.cjs'],
     ['node', 'tests/build334-r4-proof-archive.cjs'],
     ['node', 'tests/build334-r4-recovery-integration.cjs'],
@@ -728,7 +742,6 @@ expected_preflight=[
     ['node', 'tests/build372-startup-normalization-plan.cjs'],
     ['node', 'tests/build372-startup-staffing-classes.cjs'],
     ['node', 'tests/build372-startup-staffing-worker-apply.cjs'],
-    ['node', 'tests/build374-cheque-payable-lifecycle.cjs'],
     ['node', 'tests/build374-save-slice-telemetry.cjs'],
     ['node', 'tests/build376-seed-metadata-browser.cjs'],
     ['node', 'tests/build379-mutation-validation-browser.cjs'],

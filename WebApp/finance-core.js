@@ -808,7 +808,12 @@ function settleCheque(s,p){
  if(payable){if(inv)amendInvoice(s,inv,'invoice-cheque-cleared',row=>{row.status='مسددة';row.settledAt=now(s);row.budgetReserved=0;});s.finance.payables=s.finance.payables.filter(x=>x.number!==c.invoiceNumber);journal(s,t,`صرف ${c.id} · تسوية ${c.invoiceNumber}`,[{account:'ذمم دائنة',debit:a},{account:b.accounts[0].id,credit:a}],c.id);}else journal(s,t,`صرف ${c.id} · ${c.note}`,[{account:'مصروف تشغيلي',debit:a},{account:b.accounts[0].id,credit:a}],c.id);
  const payee=inv?.counterpartyPartyId?{id:inv.counterpartyPartyId,name:inv.counterparty}:partyMeta(s,c.beneficiary,'supplier'),entry={at:now(s),from:b.accounts[0].id,to:payee.name||c.beneficiary,toPartyId:payee.id||c.beneficiaryPartyId||null,amount:a,note:c.note||`صرف ${c.id}`,purposeCategory:c.purposeCategory||'سداد بالشيك',purposeDetail:c.purposeDetail||c.note||'سداد التزام',paymentMethod:'شيك مصرفي',chequeNumber:c.id,label:'تسوية شيك مصرفي',company:t,kind:'cheque-settlement',documentNumber:c.invoiceNumber||null,reference:c.id,status:'منفذة'};ledger(s,t,entry);recordWorldFinance(s,{partyId:entry.toPartyId,counterparty:entry.to,company:t,direction:'outgoing',amount:a,reference:c.id,transferRef:c.id,documentNumber:c.invoiceNumber||null,note:c.note||entry.note,settled:true});reconcile(s);const posting={company:t,accountId:b.accounts[0].id,reference:c.id,amount:-a,balanceBefore,balanceAfter:b.accounts[0].balance};assertAccountPosting(s,posting,{company:t,reference:c.id,amount:-a,code:'cheque-current-account-posting-mismatch'});return chequeResult(c,true,'settled',posting);
 }
-function payByCheque(s,p={}){
+// Owner («نفذ الباقي»; a dealer purchase order paid by cheque took 25-38 ms in one task at 2x CPU throttle in a 300k-asset
+// world): the payment's three parts (the invoice accrued, the cheque issued and linked, the cheque settled) are steps of
+// one generator. payByCheque runs them at once, as before; executeStages('pay-by-cheque') yields between them inside the
+// caller's staged transaction, each step under the same command context.
+function payByCheque(s,p={}){const steps=payByChequeSteps(s,p);let step;while(!(step=steps.next()).done){}return step.value;}
+function* payByChequeSteps(s,p={}){
   const t=requireCompany(s,p.company),a=num(p.amount),beneficiary=String(p.beneficiary||p.counterparty||'').trim(),line=p.line||lineFor(p.note,'شيك مصرفي');
   if(a<=0)throw new Error('invalid-cheque-amount');if(!beneficiary)throw new Error('cheque-beneficiary-required');
   // Resolve retries before accruing an invoice. A key can never fund a different purchase.
@@ -819,9 +824,9 @@ function payByCheque(s,p={}){
     doc=findFinanceDocument(s,'invoices','number',prior.invoiceNumber);
     if(!doc||prior.company!==t||Math.abs(num(prior.amount)-a)>.01||prior.beneficiary!==beneficiary||prior.paymentFingerprint&&prior.paymentFingerprint!==fingerprint||String(doc.note)!==String(p.note||'شراء من مورد')||p.number&&doc.number!==p.number)throw new Error('cheque-request-conflict');
     if(prior.status==='مصروف'){if(doc.status!=='مسددة')throw new Error('cheque-payment-inconsistent');return {reference:prior.id,invoice:doc,cheque:prior,settlement:chequeResult(prior,true,'already-settled'),idempotent:true};}
-  }else doc=accrue(s,{company:t,amount:a,note:p.note||'شراء من مورد',method:'شيك مصرفي',taxable:p.taxable!==false,counterparty:beneficiary,dueDay:p.dueDay??Math.floor(now(s)/86400),number:p.number,line});
+  }else{doc=accrue(s,{company:t,amount:a,note:p.note||'شراء من مورد',method:'شيك مصرفي',taxable:p.taxable!==false,counterparty:beneficiary,dueDay:p.dueDay??Math.floor(now(s)/86400),number:p.number,line});yield 'finance:pay-by-cheque.accrued';}
   const cheque=issueCheque(s,{company:t,amount:a,note:p.note||'شراء من مورد',beneficiary,invoiceNumber:doc.number,requestRef:p.requestRef||null,type:p.type||'شيك مصرفي',line,draweeBank:p.draweeBank,issuePlace:p.issuePlace,paymentPlace:p.paymentPlace,authorizedSignatory:p.authorizedSignatory,dueDay:p.dueDay});
-  amendProtectedDocument(s,cheque,'cheque','cheque-request-linked',row=>{row.paymentFingerprint=fingerprint;});
+  amendProtectedDocument(s,cheque,'cheque','cheque-request-linked',row=>{row.paymentFingerprint=fingerprint;});yield 'finance:pay-by-cheque.issued';
   const settlement=settleCheque(s,{id:cheque.id,line});if(!settlement.settled)throw new Error(`cheque-settlement-failed:${settlement.reason}`);
   return {reference:cheque.id,invoice:doc,cheque,settlement};
 }
@@ -898,7 +903,10 @@ function consumeTripAccruals(s){
   s.tripProfitAccrued=zeroSectorMap(s);s.tripRevenueAccrued=zeroSectorMap(s);s.tripFuelAccrued=zeroSectorMap(s);s.tripMaintenanceAccrued=zeroSectorMap(s);s.tripCountAccrued=zeroSectorMap(s);s.finance.pendingDailyCash=zeroSectorMap(s);
   return result;
 }
-function settleDailyCash(s,p={}){
+// Owner («نفذ الباقي»; a company's daily cash settlement amended its trip invoices and sealed its transfer in one task,
+// 20-26 ms at 2x CPU throttle): each linked invoice is a step (settleDailyCashSteps); settleDailyCash runs them at once.
+function settleDailyCash(s,p={}){const steps=settleDailyCashSteps(s,p);let step;while(!(step=steps.next()).done){}return step.value;}
+function* settleDailyCashSteps(s,p={}){
   ensure(s);const t=requireCompany(s,p.company,{defaultGroup:false}),amount=Number(p.amount),day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(s)/86400))),reference=String(p.reference||`DAY-CASH-${t||'INVALID'}-${day}`);
   if(t==='group')throw new Error('invalid-daily-settlement-company');if(!Number.isFinite(amount))throw new Error('invalid-daily-settlement-amount');
   const prior=findTransferByIdOrReference(s,reference);if(prior){if(prior.company!==t||Math.abs(Number(prior.requestedAmount)-Math.abs(amount))>.01)throw new Error('daily-settlement-reference-conflict');return unchangedDailySettlement(s,t,reference,{idempotent:true,status:prior.status});}
@@ -912,7 +920,7 @@ function settleDailyCash(s,p={}){
   if(shortfall>0)s.finance.pendingDailyCash[t]=(Number(s.finance.pendingDailyCash[t])||0)-shortfall;
   const transfer={id:reference,reference,at:now(s),day,from:incoming?'مركز التسوية التشغيلية اليومية':b.accounts[0].id,to:incoming?b.accounts[0].id:'مركز التسوية التشغيلية اليومية',amount:settled,requestedAmount:requested,shortfall,carriedAdjustment:p.grossAmount===undefined?0:amount-(num(p.grossAmount)-num(p.deductions)),signedAmount:incoming?settled:-settled,netAmount:incoming?settled:-settled,note:String(p.note||`تسوية صافي رحلات اليوم ${day} · ${companyName(s,t)}`),purposeCategory:incoming?'وصول صافي التشغيل للحساب الجاري':'تسوية عجز تشغيل',purposeDetail:String(p.note||`صافي الحركة النقدية التشغيلية لليوم ${day}`),paymentMethod:'تسوية تشغيل يومية',company:t,kind:'daily-operating-settlement',label:incoming?'وصول صافي التشغيل للحساب الجاري':'تسوية عجز التشغيل',status:shortfall>0?'منفذة جزئيًا':'منفذة',accountBalanceBefore:balanceBefore,accountBalanceAfter:balanceAfter};
   const profile=collectionProfile(t,s);Object.assign(transfer,{collection:true,channel:profile.channel,service:profile.service,invoiceNumbers:(p.invoiceNumbers||[]).slice(0,20),grossAmount:num(p.grossAmount??Math.max(0,amount)),deductions:num(p.deductions),tripCount:Math.max(0,Math.floor(Number(p.tripCount)||0)),sourceRefs:[`TRIPS-${t}-${day}`]});if(incoming)transfer.from=profile.source;
-  for(const number of transfer.invoiceNumbers){const doc=findFinanceDocument(s,'invoices','number',number,row=>row.company===t);if(doc&&doc.transferReference!==reference)amendInvoice(s,doc,'invoice-transfer-linked',row=>{row.transferReference=reference;});}
+  for(const number of transfer.invoiceNumbers){const doc=findFinanceDocument(s,'invoices','number',number,row=>row.company===t);if(doc&&doc.transferReference!==reference){amendInvoice(s,doc,'invoice-transfer-linked',row=>{row.transferReference=reference;});yield 'finance:settle-daily-cash.invoice';}}
   protectDocument(s,transfer,'daily-operating-settlement');s.finance.dailySettlementDays={...settledDays,[t]:day};insertFinanceTransfer(s,{...transfer});if(settled>0){ledger(s,t,transfer);journal(s,t,transfer.note,incoming?[{account:b.accounts[0].id,debit:settled},{account:'مركز التسوية التشغيلية اليومية',credit:settled}]:[{account:'مركز التسوية التشغيلية اليومية',debit:settled},{account:b.accounts[0].id,credit:settled}],reference);}reconcile(s);const result={company:t,amount:incoming?settled:-settled,reference,accountId:b.accounts[0].id,idempotent:false,status:transfer.status,shortfall,balanceBefore,balanceAfter,documentProofId:transfer.documentProofId,contentDigest:transfer.contentDigest,...(cover?{balanceBeforeCover,investorCover:cover.amount,investorCoverReference:cover.reference}:{})};assertAccountPosting(s,result,{company:t,reference,code:`daily-profit-current-account-mismatch:${t}`});return result;
 }
 
@@ -1161,6 +1169,21 @@ function execute(ctx,cmd,p={},meta={}){
   }
  }finally{activeExecutionMeta=previousMeta;activeEnsureTarget=previousEnsureTarget;activeEnsureComplete=previousEnsureComplete;}
 }
+// The staged form of execute, for a caller inside a staged transaction: pay-by-cheque and settle-daily-cash yield between
+// their steps; every other command runs whole, as execute. Each step runs under the command's context (meta, the ensure done once, at the
+// start), which is put back at every yield.
+const STAGED_COMMANDS=Object.freeze({'pay-by-cheque':payByChequeSteps,'settle-daily-cash':settleDailyCashSteps});
+function* executeStages(ctx,cmd,p={},meta={}){
+ const staged=Object.prototype.hasOwnProperty.call(STAGED_COMMANDS,cmd)?STAGED_COMMANDS[cmd]:null;if(!staged)return execute(ctx,cmd,p,meta);
+ const s=ctx.state||ctx;let steps=null;
+ for(;;){
+  const previousMeta=activeExecutionMeta,previousEnsureTarget=activeEnsureTarget,previousEnsureComplete=activeEnsureComplete;let step;
+  activeExecutionMeta={...meta,name:cmd};activeEnsureTarget=s;
+  try{if(!steps){invalidateSettlementBatch(s,'finance',String(cmd));activeEnsureComplete=false;ensure(s);activeEnsureComplete=true;steps=staged(s,p);}else activeEnsureComplete=true;step=steps.next();}
+  finally{activeExecutionMeta=previousMeta;activeEnsureTarget=previousEnsureTarget;activeEnsureComplete=previousEnsureComplete;}
+  if(step.done)return step.value;yield step.value;
+ }
+}
 // Build 358 (save size): the finance audit archive (finance.auditArchive.records, filled by the daily compaction) holds
 // copies made when rows leave the live lists; they are never edited afterwards (a migration replaces a row, never edits
 // it). Its collections are sealed: a save reuses the text (and vault chunk) of every unchanged archive part, and durable
@@ -1191,5 +1214,5 @@ const FINAL_DOCUMENT=Object.freeze({
 // company's ledger and the treasury ledger are sealed whole.
 for(const [root,keys] of [['finance',['journalEntries']],['companyFinance',['*.ledger']],['treasury',['ledger']]])(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys])))(root,keys);
 for(const [bucket,member] of Object.entries(FINAL_DOCUMENT))(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys,options)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys,options])))('finance',[bucket],{member});
-const API={VERSION,zeroRateConstructionVat,investorMode,investorCardReturnPlan:s=>{ensure(s);return investorCardReturnPlan(s);},transferByReference:findTransferByReference,takeOffCloseIntercompany,withSettlementBatch,invalidateSettlementBatch,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+const API={VERSION,zeroRateConstructionVat,investorMode,investorCardReturnPlan:s=>{ensure(s);return investorCardReturnPlan(s);},transferByReference:findTransferByReference,takeOffCloseIntercompany,withSettlementBatch,invalidateSettlementBatch,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute,executeStages};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

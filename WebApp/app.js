@@ -946,7 +946,6 @@
   function replaceLiveState(snapshot){
     const traceStarted=appMetricClock();try{
     window.GH_TRANSACTION_CORE?.abortStaged?.(state,'live-state-replaced');
-    if(pausePendingAfterDayClose){pausePendingAfterDayClose=false;simulationEngine.cancelPauseAfterDayClose?.();}
     cancelSimulationPersistence();
     (window.GH_TRANSACTION_CORE.publishObject||window.GH_TRANSACTION_CORE.restoreObject)(state,snapshot);
     window.GH_REALISM?.reconcilePendingDeliveryCount?.(state,true);
@@ -3348,7 +3347,14 @@
         // document; the settlement carried them as an unexplained adjustment.
         const {amount,fees}=phase('simulation.finance-day.trip-settlement',()=>{const amount=Number(tripCash[companyId])||0,fees=Math.round(Math.max(0,revenue-fuel-maint-amount)*100)/100;return {amount,fees};});
         if(fees>=.01){phase('simulation.finance-day.trip-settlement',()=>post('مصروف',fees,`رسوم وخدمات تشغيل لرحلات يومية ${typeName(companyId)} · ${count} رحلة`,'تسوية رسوم تشغيل يومية',taxable,'مدفوعة',companyId,'سلطات الموانئ والمطارات والطرق ومزودو الخدمات',{settlementAccount:clearing}));yield 'finance-day.trip-invoice';}
-        phase('simulation.finance-day.trip-settlement',()=>{if(Math.abs(amount)>=.005||revenue>0){const before=companyOperatingBalance(companyId),settlement=dispatchSystemCommand({state},'finance','settle-daily-cash',{company:companyId,amount,grossAmount:revenue,deductions:fuel+maint+(fees>=.01?fees:0),tripCount:count,invoiceNumbers,day:state.lastFinancialDay,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,note:`تحويل صافي تشغيل اليوم ${state.lastFinancialDay} إلى الحساب الجاري · ${typeName(companyId)}`},{actor:'financial-close'}).result;window.GH_FINANCE_CORE.assertAccountPosting(state,settlement,{company:companyId,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,balanceBefore:before,code:`daily-profit-current-account-mismatch:${companyId}`});if(settlement?.shortfall>0)pushAlert(`رحّلت تسوية نقدية غير مغطاة بقيمة ${fmtMoney(settlement.shortfall)} في ${typeName(companyId)} إلى إقفال اليوم التالي دون إسقاطها.`);}});yield 'finance-day.trip-settlement';
+        // Owner («نفذ الباقي»): the settlement is a staged command, a step for each invoice it links (the same command,
+        // documents and order).
+        if(Math.abs(amount)>=.005||revenue>0){
+          const before=phase('simulation.finance-day.trip-settlement',()=>companyOperatingBalance(companyId)),settling=dispatchSystemCommandStages({state},'finance','settle-daily-cash',{company:companyId,amount,grossAmount:revenue,deductions:fuel+maint+(fees>=.01?fees:0),tripCount:count,invoiceNumbers,day:state.lastFinancialDay,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,note:`تحويل صافي تشغيل اليوم ${state.lastFinancialDay} إلى الحساب الجاري · ${typeName(companyId)}`},{actor:'financial-close'});
+          let step;for(;;){step=phase('simulation.finance-day.trip-settlement',()=>settling.next());if(step.done)break;yield 'finance-day.trip-settlement-invoice';}
+          phase('simulation.finance-day.trip-settlement',()=>{const settlement=step.value.result;window.GH_FINANCE_CORE.assertAccountPosting(state,settlement,{company:companyId,reference:`DAY-CASH-${companyId}-${state.lastFinancialDay}`,balanceBefore:before,code:`daily-profit-current-account-mismatch:${companyId}`});if(settlement?.shortfall>0)pushAlert(`رحّلت تسوية نقدية غير مغطاة بقيمة ${fmtMoney(settlement.shortfall)} في ${typeName(companyId)} إلى إقفال اليوم التالي دون إسقاطها.`);});
+        }
+        yield 'finance-day.trip-settlement';
       }
       const companyContractRevenue=zeroCompanyMap(state),companyContractCost=zeroCompanyMap(state),contractDailyRows=[];
       const contractTerms={};for(const id of (state.acceptedContracts||[])){const c=contracts.find(x=>x.id===id);if(!c)continue;const companyId=contractOwnerCompanyId(c,state);if(!companyId)throw new Error(`contract-owner-unresolved-or-ambiguous:${id}`);const termDays=Math.max(1,Number(c.termMonths)||1)*30,dailyRevenue=c.value/termDays,dailyCost=c.cost/termDays;contractTerms[id]=termDays;companyContractRevenue[companyId]=(companyContractRevenue[companyId]||0)+dailyRevenue;companyContractCost[companyId]=(companyContractCost[companyId]||0)+dailyCost;contractDailyRows.push({id,companyId,sector:c.sector,client:c.client,name:c.name,revenue:dailyRevenue,cost:dailyCost,cash:Math.max(0,dailyRevenue-(Number(window.GH_CONTRACTS_CORE?.depositFor?.(state,id))||0)/termDays)});}const expiredContracts=dispatchSystemCommand({state},'contracts','tick-day',{day:state.lastFinancialDay,terms:contractTerms},{actor:'simulation'}).result?.expired||[];for(const id of expiredContracts){const c=contracts.find(x=>x.id===id);if(c)pushAlert(`اكتمل عقد ${c.name} وانتهت مدته التشغيلية بعد ${c.termMonths} شهرًا.`);}
@@ -4502,7 +4508,6 @@
       const metric=runtimeInstrumentation.simRender;metric.count++;metric.last={...parts,recordedAtMs:Date.now()};for(const [key,value] of Object.entries(parts))metric.max[key]=Math.max(Number(metric.max[key])||0,value);
     },
     onPersist:()=>scheduleSimulationPersistence(),
-    onPauseAfterDayClose:()=>pauseAfterDayClose(),
     onAdvance:detail=>{
       const active=!!detail?.active;updateDayStepControl();if(!active)renderSimulationCalendar();
       if(detail?.failed){
@@ -4517,6 +4522,7 @@
     isSuspended:()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||assetPurchaseHolds>0||window.GH_PERSISTENCE.isLocked()||window.GH_CONFERENCE?.isPresentationActive?.()||state.timeRecovery?.active===true,
     canRecoverFatal:()=>!state.simulationKernel?.runtimeFatal&&!state.simulationKernel?.lastAdvanceFailure&&!state.simulationKernel?.boundaryRecovery?.failed&&!window.GH_PERSISTENCE.telemetry?.().recoveryRequired,
     onFatal:error=>{simulationEngine.cancelAdvance?.('simulation-fatal',{immediate:true});state.speed=0;state.simulationKernel=state.simulationKernel||{};const diagnostic=error?.diagnostic||{name:error?.name||'Error',message:String(error?.message||error),code:error?.code||null,transactionLabel:error?.transactionLabel||null,transactionStage:error?.transactionStage||null};state.simulationKernel.runtimeFatal={at:state.simSeconds,code:error?.code||'SIM_FATAL_STATE',error:diagnostic};if(!state.simulationKernel.lastAdvanceFailure)state.simulationKernel.lastAdvanceFailure={reason:'simulation-fatal',stage:error?.transactionStage||'finish',from:state.simSeconds,to:state.simSeconds,at:state.simSeconds,retries:0,code:error?.code||'SIM_FATAL_STATE',error:String(error?.message||error).slice(0,500),errorDetail:diagnostic};diag('SIM_FATAL',diagnostic,'critical');try{const evidence=captureDiagnosticEvidence({recordEvent:true,trackTransitions:true,storeResult:true});window.GH_CONTROL_PLANE?.check?.(state,{evidence});}catch(healthError){console.error('تعذر تحديث الصحة بعد خطأ المحاكاة',healthError);}console.error('Simulation Core fatal error',error);try{pushAlert('أوقف محرك المحاكاة الوقت لحماية الحفظ بعد خطأ داخلي. افتح مركز الإجراءات لمراجعة السبب قبل إعادة المحاولة.');}catch(alertError){console.error('تعذر تسجيل تنبيه خطأ المحاكاة',alertError);}},
+    onPauseAfterDayClose:()=>pauseAfterDayClose(),
     onWarning:({stage,error})=>{diag('SIM_WARNING',{stage,message:String(error?.message||error)});console.warn(`Simulation Core warning [${stage}]`,error);},
     onThrottle:({took,reason,stage})=>{diag('SIM_THROTTLE',{took,reason,stage});console.warn(`Simulation watchdog throttled after ${Math.round(took)}ms ${stage||'work'} stage`);},
     onGovernor:({level,avgChunkMs,avgWorkMs,stage,took,speed})=>{runtimeGovernor={level,avgChunkMs,avgWorkMs,stage,took,speed};governorEventCoalescer.observe(runtimeGovernor);}
@@ -6882,7 +6888,7 @@ ${page}</div>`;
   // Owner («نفذ»): the player's pause (the speed controls, afterDayClose) pressed during a live day close lets the close
   // finish in its slices and pauses when it has (onPauseAfterDayClose), instead of rolling it back in one long task;
   // the button shows the pause at once. Pressing play meanwhile keeps the speed. Every other caller pauses at once.
-  // (pausePendingAfterDayClose is declared at the top: replacing the live state clears it.)
+  // (pausePendingAfterDayClose is declared at the top of app.js.)
   function showSpeedControls(paused){document.querySelectorAll('#speedMenu button[data-speed]').forEach(b=>b.classList.toggle('active',Number(b.dataset.speed)===(paused?0:state.speed)));$('speedLabel').textContent=SPEED_LABEL_BY_LEVEL[paused?0:state.speed];$('speedToggle').querySelector('span').textContent=paused?'▶':'Ⅱ';$('speedToggle').setAttribute('aria-pressed',String(paused));updateDayStepControl();}
   function pauseAfterDayClose(){if(!pausePendingAfterDayClose)return;pausePendingAfterDayClose=false;setSpeed(0);}
   function setSpeed(value,{afterDayClose=false}={}){

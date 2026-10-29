@@ -144,7 +144,7 @@ function showroomCampaign(state,p={}){
 // The reorder, every two weeks: each model is brought back to the chosen cover of expected sales when below half of it,
 // in one purchase order per maker (one invoice and one cheque per maker, at most six a round). Build 619: each order is
 // a stage of its own (the six cheques took 87 ms in one task at 2x CPU throttle); the orders, their order and their
-// amounts are the same.
+// amounts are the same. Owner («نفذ الباقي»): each order's cheque payment is staged too (addStockBatchStages).
 function* restockStages(state,m,day,inventory,shares,peers,economy){
   const ops=companies().dealerOps,expected=m.showrooms.reduce((sum,row)=>sum+expectedBuyers(state,m,row,day,peers.get(row.country),economy),0),orders=[];if(!expected)return orders;
   const F=finance(),unlimited=globalThis.GH_FINANCE_CORE?.investorMode?.(state);let cash=unlimited?Infinity:num(F.operating?.(state,'dealership'));
@@ -159,7 +159,7 @@ function* restockStages(state,m,day,inventory,shares,peers,economy){
   for(const order of byMaker.values()){
     if(order.amount>cash)continue;
     if(orders.length)yield 'dealer-market:restock-order';
-    const result=ops.addStockBatch(state,{oemId:order.oemId,lines:order.lines,reference:`AUTO-RESTOCK-${order.oemId}-${day}`});cash-=order.amount;m.ytd.restockSpend+=order.amount;orders.push({oemId:order.oemId,quantity:result.quantity,amount:order.amount,invoiceNumber:result.invoiceNumber});
+    const request={oemId:order.oemId,lines:order.lines,reference:`AUTO-RESTOCK-${order.oemId}-${day}`},result=typeof ops.addStockBatchStages==='function'?yield* ops.addStockBatchStages(state,request):ops.addStockBatch(state,request);cash-=order.amount;m.ytd.restockSpend+=order.amount;orders.push({oemId:order.oemId,quantity:result.quantity,amount:order.amount,invoiceNumber:result.invoiceNumber});
   }
   return orders;
 }

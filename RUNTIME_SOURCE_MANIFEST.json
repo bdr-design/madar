@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "e54bc203e1601a81da653dfb5a760d5d564aea28aa4419fc2fa4a611060d1a07",
-  "webapp_tree_sha256": "1c953ebee24439f1a0e230501c4a1bf7fdad77b4b7f32572e0c5482cfe3238a9",
+  "source_tree_sha256": "72270cf0ac82c2d995875c2b523e3d7f05216cc44c3983b4630eccd3ca5f24a2",
+  "webapp_tree_sha256": "368db6df7950740d9e532cb372b849f5152bb621852992799118a4ea9d551abb",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1079551,
-      "sha256": "873bb981b5934b8187faa9e6aa2ebf5779097bfe80121f537fe10294f7020152"
+      "bytes": 1079865,
+      "sha256": "dd5e9417fef1ae9d949c65f5bee77fe429ea3b306eea218724b4c5c8e06c8c50"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 6510,
@@ -3467,12 +3467,12 @@
       "sha256": "df39514ddc70cf4ecc7cd1ac5be61d188f84b9de9f4a8ca382234c88ef9145d1"
     },
     "WebApp/customer-companies-core.js": {
-      "bytes": 60892,
-      "sha256": "ca055a4203312717b5b611eb87d7c49dbab825265c1c7b6e731650ec59f623c6"
+      "bytes": 61474,
+      "sha256": "c39a378abd6773248d356c60f34e3f6118d1e478d1093cac1854062690dae68a"
     },
     "WebApp/dealer-market-core.js": {
-      "bytes": 36061,
-      "sha256": "7d21087c452ff4a6410191ceff69aed98b022f7329ec95cdeb79a314c0b38b85"
+      "bytes": 36265,
+      "sha256": "fc46479752e6079d55c4ff442c513a4b895fbf42f059d6bb374e73d02afa5544"
     },
     "WebApp/delivery-monitor-core.js": {
       "bytes": 1726,
@@ -3519,8 +3519,8 @@
       "sha256": "34170a29b2d127ca23d403e5b9cc1ee43e1b964d66f2b0ecf2200a72c5595d59"
     },
     "WebApp/finance-core.js": {
-      "bytes": 228460,
-      "sha256": "78a68268ccd3f95c928a90767270583e8cb562065c90b526a489ccd55ee9a596"
+      "bytes": 230816,
+      "sha256": "c609a3d9d6e285d73a0e7c17cc80a017a27560ec7ee832b04ca38d0951453b92"
     },
     "WebApp/finance-presentation.css": {
       "bytes": 35155,
@@ -4032,7 +4032,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "510667c0e0acce30b7a104ef8ffd6131989de771a44a6fe1092b61a7b7c3f51c"
+      "sha256": "55006bfe739e99b0473e6aaa46fdfbdf103736a01245ab256d6a693675840ab8"
     },
     "BUILD": {
       "bytes": 4,
