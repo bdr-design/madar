@@ -90,6 +90,7 @@ assert.ok(activity.includes('.addPathHandler("/vault/", vault.Paths(release))')&
 assert.ok(bridgeKt.includes('private object Holder')&&/opener\.submit<SaveVault> \{[\s\S]*?DeviceSealKey\.load\(folder\)/.test(bridgeKt)&&bridgeKt.includes('if (token == document.get())'),'5b: one vault per process, opened off the main thread; stale answers dropped');
 assert.ok(vaultKt.includes('Executors.newSingleThreadExecutor { Thread(it, "ventora-save-vault")')&&vaultKt.includes('fun bootScript(')&&vaultKt.includes("fetch('/vault/save-chunk/'"),'5b: the vault thread and its boot script');
 const androidWorkflow=read('.github/workflows/ventora-android.yml');
+assert.ok(/on:\n  push:\n    paths: \["android\/BUILD_REQUEST"\]\n  workflow_dispatch:/.test(androidWorkflow),'5b: an Android build starts only when asked (the request file or a manual run), never on an ordinary push');
 assert.ok(androidWorkflow.includes('gradle -p android/vault-jvm --no-daemon test')&&androidWorkflow.indexOf('android/vault-jvm')<androidWorkflow.indexOf('assembleDebug'),'5b: CI tests the vault core before building');
 assert.ok(androidWorkflow.includes('assembleDebug')&&androidWorkflow.includes('bundleRelease')&&androidWorkflow.includes('ventora-release-smoke.cjs')&&androidWorkflow.includes('--kotlin android/app/src/main/java/com/ventora/game/VentoraReleaseKey.kt'),'5: a debug APK and a sealed, smoke-tested release AAB');
 assert.ok(read('tools/release/build-release-webapp.cjs').includes("kotlin=option('--kotlin')"),'5: the release key for Kotlin');

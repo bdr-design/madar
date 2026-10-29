@@ -4,7 +4,11 @@ name: VENTORA Android
 # source WebApp for testing on a phone, or the release edition: the WebApp minified, smoke-tested, sealed with a key made
 # for this build (the same pack format as the iPhone release), and bundled as an AAB signed with the owner's upload key.
 # The store settings come only from the owner's secrets; without them the release bundle is built unsigned.
+# A manual run needs this workflow on the default branch; until then a build is asked for by changing android/BUILD_REQUEST
+# (a debug APK). No other push starts it.
 on:
+  push:
+    paths: ["android/BUILD_REQUEST"]
   workflow_dispatch:
     inputs:
       edition:
@@ -27,7 +31,7 @@ concurrency:
 
 jobs:
   android:
-    name: Android ${{ github.event.inputs.edition }} build
+    name: Android ${{ github.event.inputs.edition || 'debug' }} build
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -63,7 +67,7 @@ jobs:
           mkdir -p .ci-output && cp -R android/vault-jvm/build/test-results/test .ci-output/vault-jvm-tests
 
       - name: Build the debug APK
-        if: github.event.inputs.edition == 'debug'
+        if: github.event.inputs.edition != 'release'
         shell: bash
         run: |
           set -euo pipefail
@@ -118,7 +122,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: VENTORA-android-${{ github.event.inputs.edition }}
+          name: VENTORA-android-${{ github.event.inputs.edition || 'debug' }}
           path: .ci-output
           if-no-files-found: error
           retention-days: 30
