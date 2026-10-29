@@ -99,9 +99,15 @@ async function alone(t,current,ref){
   // The display rate through the advance is counted over 1.5 s of it, or to its end if sooner (builds 103 and 104, macOS,
   // the same app: 400 ms, seven to nine frames there, met the advance's day close in one run and not in the other; the
   // advance lasts about 3.9 s here on either source).
-  const calendarWindow=async p=>{const a=await p.sample(),ms=await latencyOn(p.page,'calendar');await p.page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:1500,polling:50}).catch(()=>{});const b=await p.sample();return {ms,frames:(b.frames-a.frames)/(b.at-a.at)*1000};};
+  // The wake is timed on this source before the source before starts its advance, as the source before's own wake is
+  // timed alone (build 118, macOS: 75 ms against 6.5 when both advances began in the same task; 20 runs here, either
+  // order, gave the same spread on both sources). The source before starts a few milliseconds later, so the frame
+  // windows still cover the same seconds.
+  const calendarStart=async p=>({a:await p.sample(),ms:await latencyOn(p.page,'calendar')});
+  const calendarWindow=async(p,start)=>{await p.page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:1500,polling:50}).catch(()=>{});const b=await p.sample(),a=start.a;return {ms:start.ms,frames:(b.frames-a.frames)/(b.at-a.at)*1000};};
   const advanced=p=>p.page.waitForFunction(()=>!__AUDIT__.simulationEngine.snapshot().manualAdvance,null,{timeout:60000});
-  const [calendar,calendarReference]=await Promise.all([calendarWindow(t),ref&&calendarWindow(ref)]);out.calendarMs=calendar.ms;out.calendar={frames:calendar.frames};if(ref)out.calendarReference={frames:calendarReference.frames};
+  const started=await calendarStart(t),startedReference=ref&&await calendarStart(ref);
+  const [calendar,calendarReference]=await Promise.all([calendarWindow(t,started),ref&&calendarWindow(ref,startedReference)]);out.calendarMs=calendar.ms;out.calendar={frames:calendar.frames};if(ref)out.calendarReference={frames:calendarReference.frames};
   await Promise.all([advanced(t),ref&&advanced(ref)]);out.afterCalendar=await measure(1500);
   await page.evaluate(()=>GH_DIAGNOSTICS.recorderStart(__GH_STATE__,__AUDIT__.simulationEngine.snapshot()));
   const [recorder,recorderReference]=await Promise.all([measure(1500),ref&&ref.measure(1500)]);out.recorder=recorder;if(ref)out.recorderReference=recorderReference;

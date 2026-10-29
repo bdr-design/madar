@@ -148,3 +148,69 @@ button.pv-row{cursor:pointer}
 .mc-text b.mc-count{overflow:visible}
 #drawerBody .spec-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 #drawerBody .finance-clean-kpis>div{background:var(--surface-3);border:1px solid var(--line-soft);border-radius:11px;padding:10px}
+/* Owner review of every company panel (four phone sizes): the last tile of an odd count spans the two columns instead
+   of leaving an empty half; "بالكامل" keeps its three columns. */
+.app-shell:not(.panel-expanded) #drawerBody .mc-grid>.mc-tile:last-child:nth-child(odd){grid-column:1/-1}
+/* Owner review of every page (owner: «صلح كل شي»), the arrangement half of the narrow-drawer fixes (phone-layout.css
+   holds their dimensions, phone-typography.css their text): one tile per row with the glyph at its far side, a card's
+   status tag under its heading when both do not fit, the buyer bar on two lines, a tab's count as a badge, a directory
+   company chip on three lines, the investor card stacked below 300 px, and the market row's trend line under its name. */
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  .drawer-head .close-btn{flex:0 0 28px;border-radius:9px}
+  .drawer-mark{flex:0 0 28px;border-radius:9px}
+  .drawer-mark>.mi{--mi-size:28px}
+  .drawer-head h2{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+  .app-shell:not(.panel-expanded) #drawerBody .mc-grid .mc-badge{top:50%;right:auto;left:8px;transform:translateY(-50%)}
+  .app-shell:not(.panel-expanded) #drawerBody .mc-grid .mc-text{left:42px;bottom:7px}
+  .app-shell:not(.panel-expanded) #drawerBody .mc-grid .mc-scrim{background:linear-gradient(to left,rgba(7,22,33,.92) 0%,rgba(7,22,33,.6) 55%,rgba(7,22,33,.2) 100%)}
+  #drawerBody .mc-hero .mc-text{left:64px;top:7px;bottom:7px}
+  #drawerBody .mc-hero .mc-chips{max-height:17px}
+  #drawerBody .list-item-head,#drawerBody .finance-section-head-v202,#drawerBody .finance-card-head-v202{flex-wrap:wrap}
+  #drawerBody .list-item-head>div:first-child,#drawerBody .finance-section-head-v202>div:first-child,#drawerBody .finance-card-head-v202>div:first-child{flex:1 1 150px}
+  #drawerBody .list-item-head>.tag{max-width:100%}
+  #drawerBody .doc-list-row .dlr-side{max-width:none}
+  .market-buyer{flex-wrap:wrap}
+  .market-buyer>div:first-of-type{flex:1 1 calc(100% - 34px)}
+  .market-buyer>div:not(:first-of-type){flex:1 1 0}
+  #drawerBody .asset-hero .thumb-tag{right:auto;left:10px}
+}
+#drawerBody .asset-trip-head b{flex:0 0 auto}
+#drawerBody .profit-arrival-card .document-authorization-seal{max-width:100%;overflow:hidden}
+#drawerBody .tab-btn>small{display:inline-block;margin-inline-start:6px;border-radius:8px;background:rgba(13,59,87,.09)}
+#drawerBody .tab-btn.active>small{background:rgba(27,20,7,.14)}
+#drawerBody .world-company-chip{display:inline-flex;flex-direction:column;align-items:flex-start}
+#drawerBody .world-company-chip>b,#drawerBody .world-company-chip>span,#drawerBody .world-company-chip>small{display:block}
+#drawerBody .world-company-chip>small{opacity:.85}
+.investor-card{container-type:inline-size}
+@container (max-width:300px){
+  .investor-card{aspect-ratio:auto;display:grid;gap:8px;padding:12px 14px}
+  .investor-card .ic-plate,.investor-card .ic-inf,.investor-card .ic-num,.investor-card .ic-holder{position:relative;inset:auto;top:auto;left:auto;right:auto;bottom:auto}
+  .investor-card .ic-plate{width:40px;height:32px;justify-self:end}
+  .investor-card .ic-chip{display:none}
+  .investor-card .ic-inf{font-size:28px;justify-self:end;text-align:left}
+  .investor-card .ic-num{font-size:13px;letter-spacing:1px;direction:ltr}
+}
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  #drawerBody .market-row>:nth-child(2){grid-column:1/-1;grid-row:2}
+  #drawerBody .market-row>strong{grid-column:2;grid-row:1}
+  #drawerBody .command-btn>span{flex:0 0 auto;max-width:45%}
+}
+/* Their text wrapping (white-space is not a phone-typography property: browsers expand it into layout longhands). */
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  .drawer-head h2{white-space:normal}
+  #drawerBody .list-item-head>.tag{white-space:normal}
+  #drawerBody .doc-list-row .dlr-main b,#drawerBody .doc-list-row small{white-space:normal}
+  #drawerBody .market-companies .market-company b,#drawerBody .market-companies .market-company small{white-space:normal}
+  #drawerBody .mc-kpi span{white-space:normal}
+  #drawerBody .mc-status{white-space:normal}
+  #drawerBody .official-news-lead-metrics span{white-space:normal}
+  #drawerBody .mc-decision-copy b,#drawerBody .mc-decision-copy small,#drawerBody .pv-name b,#drawerBody .pv-name span{white-space:normal}
+}
+#drawerBody .asset-trip-head b{white-space:nowrap}
+/* At every landscape phone size (the 844 and 956 drawers too): a document row's lines and long references wrap inside
+   the row, a stock fact's label reads in full, the bank paper's account number and an authority footer's seal stay
+   inside their boxes. */
+@media (orientation:landscape) and (max-height:500px){
+  #drawerBody .doc-list-row .dlr-main b,#drawerBody .doc-list-row small{white-space:normal}
+  #drawerBody .pv-fact span{white-space:normal}
+}

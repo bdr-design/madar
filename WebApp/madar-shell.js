@@ -11,6 +11,11 @@ const ui=name=>`assets/images/ui/${name}.webp`;
 const platform=()=>globalThis.GH_COMPANY_PLATFORM;
 // One digit style across the shell, the same Western digits as the money figures in the top bar.
 const num=value=>Number.isFinite(Number(value))?Number(value).toLocaleString('en-US'):'—';
+// A count and its noun agree in Arabic (owner review: «8 سيارة», «1 فروع البنك»): 3 to 10 take the plural, every other
+// count the singular; a label without a known noun is shown as written.
+const COUNT_NOUNS=Object.freeze({'فروع البنك':['فرع','فروع'],'المشاريع العقارية':['مشروع عقاري','مشاريع عقارية'],'قاعدة العملاء':['عميل','عملاء'],'مركبات التنقل':['مركبة','مركبات'],'مشاريع الطاقة':['مشروع طاقة','مشاريع طاقة'],'منشآت تشغيلية':['منشأة تشغيلية','منشآت تشغيلية'],'وثائق تأمين':['وثيقة تأمين','وثائق تأمين'],'أصول متحركة':['أصل متحرك','أصول متحركة']});
+const countNoun=(value,forms)=>{if(!Array.isArray(forms))return String(forms||'');const n=Math.abs(Math.trunc(Number(value)||0))%100;return n===2||(n>=3&&n<=10)?forms[1]:forms[0];};
+const countLabel=(value,label)=>COUNT_NOUNS[label]?countNoun(value,COUNT_NOUNS[label]):String(label||'');
 const go=(panel,arg)=>`data-go="${esc(panel)}"${arg===undefined||arg===null?'':` data-go-arg="${esc(JSON.stringify(arg))}"`}`;
 
 // ---- Companies ----------------------------------------------------------------------------------------------------
@@ -30,14 +35,14 @@ const fleetKind=(sector,unit,fleetTitle,fleetImg,fleetIcon,rows)=>Object.freeze(
   {key:'deliveries',title:'قيد التسليم',sub:'الطلبات المدفوعة في الطريق',img:'company-system-v2',icon:'deliveries',to:()=>['procurement']},
   MANAGE,FINANCE,BUDGET])});
 const KINDS=Object.freeze({
-  air:fleetKind('الطيران','طائرة','الأسطول الجوي','air-widebody','fleet-air',[
+  air:fleetKind('الطيران',['طائرة','طائرات'],'الأسطول الجوي','air-widebody','fleet-air',[
     {key:'buy',title:'شراء طائرات',sub:'جديد ومستعمل · مقارنة · شراء مفصّل',img:'air-narrow',icon:'buy-air',to:id=>['assetMarket',id]},
     {key:'routes',title:'الخطوط الجوية',sub:'الخطوط وتعيين الطائرات',img:'routes-map',icon:'route-air',map:true,to:id=>['routes',id]},
     {key:'bases',title:'المطارات والقواعد',sub:'قواعد الشركة وفتح قاعدة جديدة',img:'facility-airport-v2',icon:'tower',to:id=>['companyFacilities',id]},
     {key:'contracts',title:'عقود الشحن الجوي',sub:'المناقصات والعقود السارية',img:'air-cargo',icon:'contract-air',to:id=>['contracts',id]},
     {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'air-hangar',icon:'maintenance',fuel:true,to:id=>['maintenance',id]},
     {key:'crews',title:'الطواقم والأجور',sub:'مستوى الأجور مقابل السوق',img:'air-crew',icon:'pilot',fuel:true,to:id=>['crews',id]}]),
-  sea:fleetKind('الشحن البحري','سفينة','الأسطول البحري','ship-container','fleet-sea',[
+  sea:fleetKind('الشحن البحري',['سفينة','سفن'],'الأسطول البحري','ship-container','fleet-sea',[
     {key:'buy',title:'شراء سفن',sub:'من المغذّية إلى الناقلات العملاقة',img:'ship-tanker',icon:'buy-sea',to:id=>['assetMarket',id]},
     {key:'routes',title:'الخطوط البحرية',sub:'الخطوط وتعيين السفن',img:'routes-map',icon:'route-sea',map:true,to:id=>['routes',id]},
     {key:'bases',title:'الموانئ والقواعد',sub:'موانئ الشركة وفتح ميناء جديد',img:'facility-port-v2',icon:'port',to:id=>['companyFacilities',id]},
@@ -45,14 +50,14 @@ const KINDS=Object.freeze({
     {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'sea-drydock',icon:'maintenance',fuel:true,to:id=>['maintenance',id]},
     {key:'carbon',title:'تصنيف الكربون CII',sub:'خطط تحسين الامتثال البحري',img:'ship-support',icon:'carbon',to:()=>['compliance']},
     {key:'crews',title:'الطواقم والأجور',sub:'مستوى الأجور مقابل السوق',img:'sea-crew',icon:'captain',fuel:true,to:id=>['crews',id]}]),
-  road:fleetKind('النقل والتوزيع','شاحنة','الأسطول البري','truck-longhaul-v2','fleet-road',[
+  road:fleetKind('النقل والتوزيع',['شاحنة','شاحنات'],'الأسطول البري','truck-longhaul-v2','fleet-road',[
     {key:'buy',title:'شراء شاحنات',sub:'من التوصيل الحضري إلى النقل الثقيل',img:'truck-container',icon:'buy-road',to:id=>['assetMarket',id]},
     {key:'routes',title:'المسارات البرية',sub:'المسارات ونقاط التسليم',img:'routes-map',icon:'route-road',map:true,to:id=>['routes',id]},
     {key:'bases',title:'المستودعات والمراكز',sub:'مراكز الشركة وفتح مركز جديد',img:'facility-logistics-v2',icon:'warehouse',to:id=>['companyFacilities',id]},
     {key:'contracts',title:'عقود التوزيع',sub:'المناقصات والعقود السارية',img:'truck-reefer',icon:'contract-road',to:id=>['contracts',id]},
     {key:'maintenance',title:'الصيانة والتأمين',sub:'سياسة الفحص والتغطية',img:'road-workshop',icon:'maintenance',fuel:true,to:id=>['maintenance',id]},
     {key:'crews',title:'السائقون والأجور',sub:'مستوى الأجور مقابل السوق',img:'road-drivers',icon:'driver',fuel:true,to:id=>['crews',id]}]),
-  mobility:fleetKind('التنقل الذكي','سيارة','سيارات التنقل','mobility-hero','fleet-car',[
+  mobility:fleetKind('التنقل الذكي',['سيارة','سيارات'],'سيارات التنقل','mobility-hero','fleet-car',[
     {key:'buy',title:'شراء سيارات',sub:'سيارات كهربائية وهجينة للمدن',img:'auto-delivery',icon:'buy-car',to:id=>['assetMarket',id]},
     {key:'routes',title:'خطوط المدن',sub:'التشغيل داخل المدن',img:'routes-map',icon:'route-city',map:true,to:id=>['routes',id]},
     {key:'bases',title:'فروع المدن',sub:'مراكز التشغيل وفتح فرع جديد',img:'mobility-charging',icon:'city-branch',to:id=>['companyFacilities',id]},
@@ -148,6 +153,9 @@ function argCompany(state,panel,arg){
   if(panel==='companyManage')return String((arg&&typeof arg==='object'?arg.type:String(arg||'').split(':')[0])||'');
   if(panel==='invoices')return arg&&typeof arg==='object'?String(arg.company||''):String(arg||'');
   if(['assets','assetMarket','routes','companyFacilities','contracts','maintenance','crews','budgets'].includes(panel))return typeof arg==='string'?arg:'';
+  // A company's "assign an executive" opens the managers page for that company (labor, `managers:<company>`): it stays
+  // in the company's section like the company's other pages (owner's decision, review of every company panel).
+  if(panel==='labor')return typeof arg==='string'?arg.split(':')[1]||'':'';
   return '';
 }
 function locate(state,panel,arg){
@@ -166,6 +174,7 @@ function meta(state,panel,arg){
   if(panel==='companyMarket'||panel==='operatingAssetMarket')return [shortName(state,argCompany(state,panel,arg)),panel==='companyMarket'?'السوق والمنافسون':'شراء أعمال قائمة'];
   if(panel==='company'){const id=String(arg||''),kind=KINDS[kindOf(state,id)];return [kind?.sector||'الشركة',shortName(state,id)];}
   if(panel==='procurement')return ['العمليات','الطلبات قيد التسليم'];
+  if(panel==='labor'){const id=argCompany(state,panel,arg),kind=id?KINDS[kindOf(state,id)]:null;if(kind)return [kind.sector,'المديرون التنفيذيون'];}
   if(HUBS[panel])return [SECTIONS[HUBS[panel]].label,HUB_TITLES[panel]];
   // A company page carries the name of the tile that opens it (the "المطارات والقواعد" tile opens a page of that name,
   // not "قواعد ومراكز الشركة") under the company's sector; opened from the group, a page keeps its general name.
@@ -264,20 +273,22 @@ function renderCompany(state,id,ctx){
     // The worker summary arrives a moment after the first paint (app.js re-renders the panel then); until it does,
     // the bounded overview count is exact for small fleets.
     const mobility=kindId==='mobility'?globalThis.GH_MOBILITY_CORE?.managementSnapshot?.(state):null,boundedCount=summary?.category==='fleet'&&typeof summary.primaryOperatingCount==='number'?summary.primaryOperatingCount:null,boundedMoving=Number((summary?.metrics||[]).find(([label])=>label==='رحلات جارية')?.[1]),stats=mobility?{total:Number(mobility.vehicles)||0,moving:Number(mobility.moving)||0,service:null}:facts.fleet||(boundedCount!==null?{total:boundedCount,moving:Number.isFinite(boundedMoving)?boundedMoving:0,service:null}:null);
-    count=stats?`<b class="mc-count">${esc(num(stats.total))}</b><small>${esc(kind.unit)}</small>`:`<b class="mc-count">—</b><small>جارٍ تحديث الأسطول</small>`;
+    count=stats?`<b class="mc-count">${esc(num(stats.total))}</b><small>${esc(countNoun(stats.total,kind.unit))}</small>`:`<b class="mc-count">—</b><small>جارٍ تحديث الأسطول</small>`;
     chips=stats?[`في الحركة ${num(stats.moving)}`,stats.service!=null?`تحتاج صيانة ${num(stats.service)}`:'']:[];
   }else{
     // A metric that repeats the hero's main count is left out (Build 378) to make room for the market facts.
-    const main=String(summary?.primaryOperatingLabel||''),repeats=label=>SERVICE_KINDS.has(kindId)&&main.includes(String(label||'').replace(/^ال/,''));
+    const main=String(summary?.primaryOperatingLabel||''),repeats=label=>main.includes(String(label||'').replace(/^ال/,''));
     chips=(summary?.metrics||[]).filter(([label])=>!repeats(label)).slice(0,SERVICE_KINDS.has(kindId)?1:3).map(([label,value])=>`${label} ${typeof value==='number'?num(value):value}`);
     if(kindId==='power')chips.push(marketChip2(state,kindId,ctx));
     // Build 377 (owner's decision): the companies without transport assets show their main count like the fleet
     // companies, and the market they sell into (solvency, leverage, the property market, rivals, after-sales).
-    if(SERVICE_KINDS.has(kindId)){const n=summary?.primaryOperatingCount;if(typeof n==='number')count=`<b class="mc-count">${esc(num(n))}</b><small>${esc(summary.primaryOperatingLabel||'')}</small>`;chips.push(marketChip(state,kindId,ctx),marketChip2(state,kindId,ctx));}
+    if(SERVICE_KINDS.has(kindId))chips.push(marketChip(state,kindId,ctx),marketChip2(state,kindId,ctx));
+    // Every company's hero carries its main count (owner review: power, hotels and the four new companies had none).
+    const n=summary?.primaryOperatingCount;if(typeof n==='number')count=`<b class="mc-count">${esc(num(n))}</b><small>${esc(countLabel(n,summary.primaryOperatingLabel))}</small>`;
   }
   const hero=kind.hero;
   const decisions=[],pending=SERVICE_KINDS.has(kindId)?pendingDecisions(state,id,ctx,kindId):null;
-  if(kind.fleet&&facts.fleet?.service>0)decisions.push(['maintenance',`${num(facts.fleet.service)} ${kind.unit} تحتاج صيانة`,'افتح الصيانة لمراجعة السياسة والفحوص','maintenance',id,'مراجعة']);
+  if(kind.fleet&&facts.fleet?.service>0)decisions.push(['maintenance',`${num(facts.fleet.service)} ${countNoun(facts.fleet.service,kind.unit)} تحتاج صيانة`,'افتح الصيانة لمراجعة السياسة والفحوص','maintenance',id,'مراجعة']);
   if(!pending?.count)for(const [label,value] of summary?.metrics||[])if(/بانتظار|طلبات|عروض/.test(String(label))&&Number(value)>0)decisions.push(['tasks',`${label}: ${value}`,'قرار مفتوح في هذه الشركة',hero.to(id)[0],hero.to(id)[1],'فتح']);
   if(!facts.manager?.name)decisions.push(['executive','عيّن مديرًا تنفيذيًا','الشركة تعمل بلا مدير رسمي','labor',`managers:${id}`,'تعيين']);
   return panelMarkup({kind:kindId,status,kpis,hero:{key:hero.key,title:hero.title,img:hero.img,to:hero.to(id),count,chips},tiles:tilesFor(state,id).map(tile=>tileMarkup(tile,id)).join(''),decisions,pending});

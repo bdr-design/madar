@@ -38,6 +38,10 @@ if(process.argv[2]==='--measure'){
 const measure=root=>JSON.parse(execFileSync(process.execPath,[__filename,'--measure',root],{encoding:'utf8',maxBuffer:1<<26}));
 const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b557-'));
 try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+ // The hotels company's brand was renamed after this source (owner review: «VH HOTELS», the group brand like every
+ // company); its documents carry the longer names. The source before takes the same identity strings, so the bytes
+ // compared are the investor card's alone.
+ {const file=path.join(tree,'WebApp/company-definitions.js'),before="identity('شركة الفنادق والمنتجعات','Hotels and Resorts Company','الفنادق والمنتجعات','Hotels & Resorts','HOTELS',",text=fs.readFileSync(file,'utf8');assert.equal(text.split(before).length,2,'the source before names the hotels company once');fs.writeFileSync(file,text.replace(before,()=>"identity('شركة فنتورا للفنادق والمنتجعات','Ventora Hotels & Resorts Company','فنتورا للفنادق','VH HOTELS','VH HOTELS',"));}
  // Timer noise: three runs of each source, alternated; the counts are the first run's, the times the fastest median.
  const runs={now:[],before:[]};for(let i=0;i<3;i++){runs.now.push(measure(SOURCE));runs.before.push(measure(tree));}
  const fastest=(rows,key)=>({...rows[0][key],median:Math.min(...rows.map(row=>row[key].median)),p95:Math.min(...rows.map(row=>row[key].p95))});

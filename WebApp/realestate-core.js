@@ -322,7 +322,11 @@
           // Off-plan units are handed over now: the rest of their revenue and cost, and the last 30% of their price.
           if(offPlan){const plan=offPlan.plan,revenue=cents(plan.value-plan.recognized),cost=cents(plan.cost-plan.recognizedCost),cash=Math.max(0,cents(plan.value-plan.collected));acc.sales+=revenue;acc.costOfSales+=cost;acc.offPlanRevenue+=revenue;acc.offPlanCash+=cash;project.salesRevenue+=revenue;today.sales+=revenue;financeHomesOf(re,project,project.presold,plan.value);project.sold+=project.presold;project.handedOver+=project.presold;manageUnits(re,project,project.presold);project.presold=0;project.offPlan=null;}}
   }
-  function tickDay(state,p={}){
+  // Owner («نفذ الباقي»): the real-estate day (8 ms in one task at 2x CPU throttle, more with many projects) yields
+  // after each project and between its closing parts inside the day's staged transaction (onFinancialDayStages);
+  // tickDay runs the same parts at once, in the same order.
+  function tickDay(state,p={}){const stages=tickDayStages(state,p);let step;while(!(step=stages.next()).done){}return step.value;}
+  function* tickDayStages(state,p={}){
     const re=ensure(state),day=Math.max(0,Math.floor(Number(p.day)||Math.floor(now(state)/86400)));if(re.lastProcessedDay===day)return re.dailyHistory.find(row=>row.day===day)||{day,idempotent:true};
     re.mortgagePending=re.mortgagePending&&typeof re.mortgagePending==='object'&&!Array.isArray(re.mortgagePending)?re.mortgagePending:{};
     const manage=(project,units)=>manageUnits(re,project,units),financeHomes=(project,units,revenue)=>financeHomesOf(re,project,units,revenue);
@@ -382,11 +386,13 @@
         project.accumulatedDepreciation=booked+daily;depreciation+=daily;
       }}
       project.today=today;
+      yield 'realestate.project';
     }
     // A sold-out sale project leaves the active list for a compact archive record.
     const done=re.projects.filter(row=>row.mode==='sale'&&row.status==='مكتمل'&&row.sold>=row.units);
     for(const row of done){re.completedArchive.unshift({id:row.id,name:row.name,units:row.units,salesRevenue:row.salesRevenue,completeDay:row.completeDay});}
     re.completedArchive=re.completedArchive.slice(0,100);re.projects=re.projects.filter(row=>!done.includes(row));
+    yield 'realestate.archive';
     for(const request of [...re.tenantRequests])if(day>=Number(request.expiresDay))closeRequest(re,request,'منتهي',{decidedDay:day});
     const internalRentRows=[...internalRentByCompany.values()].map(row=>({...row,amount:Math.round(row.amount*100)/100})),internalRentSettlements=[],accounts=re.internalRentAccounts,F=globalThis.GH_FINANCE_CORE;
     for(const row of internalRentRows){const account=accounts[row.companyId]||(accounts[row.companyId]={companyId:row.companyId,openedDay:day,amount:0,days:0,sourceRefs:[]});account.amount=Math.round((num(account.amount)+row.amount)*100)/100;account.days=Math.max(0,Math.floor(Number(account.days)||0))+1;for(const ref of row.sourceRefs)if(account.sourceRefs.length<80&&!account.sourceRefs.includes(ref))account.sourceRefs.push(ref);}
@@ -395,6 +401,7 @@
       try{const result=F.execute({state},'settle-intercompany-service',{closeOwned:true,from:companyId,to:'realestate',amount:account.amount,note:`إيجار عقاري داخلي · ${account.days} يومًا`,serviceCategory:'إيجار عقاري داخلي',taxCode:'intercompany-tax-group',line:'other',ref:`RE-INT-RENT-${companyId}-${day}`,sourceRefs:account.sourceRefs});internalRentSettlements.push({companyId,amount:account.amount,days:account.days,reference:result.reference});delete accounts[companyId];}
       catch(error){if(!/insufficient-service-cash-or-budget/.test(String(error?.message||error)))throw error;account.carriedOver=(Number(account.carriedOver)||0)+1;}
     }
+    yield 'realestate.internal-rent';
     // Build 378: the units' cost is the sale's expense (their construction was paid as capex); it is not paid again.
     const serviceCharges=num(re.serviceChargeRoll)/365,serviceCost=serviceCharges*(1-SERVICE_MARGIN);
     const revenue=sales+rent+serviceCharges,cashExpense=opex+commission+serviceCost,expense=cashExpense+costOfSales+depreciation,net=revenue-expense;
@@ -418,11 +425,19 @@
     const company=platform.requireCompany(ctx.state,ctx.companyId,{registered:true,operational:true,capability:'operations.realestate'});
     return commands.dispatchSystem({state:ctx.state},'realestate','tick-day',{...p,ownerCompanyId:company.id},{actor:'simulation-scheduler'}).result;
   }
+  function* onFinancialDayStages(ctx,p={}){
+    const platform=globalThis.GH_COMPANY_PLATFORM,commands=globalThis.GH_DOMAIN_COMMANDS;
+    if(!platform?.requireCompany||!commands?.dispatchSystem)throw new Error('company-daily-owner-unavailable');
+    const company=platform.requireCompany(ctx.state,ctx.companyId,{registered:true,operational:true,capability:'operations.realestate'});
+    if(!globalThis.GH_TRANSACTION_CORE?.isActive?.()||typeof commands.dispatchSystemStages!=='function')return onFinancialDay(ctx,p);
+    const result=yield* commands.dispatchSystemStages({state:ctx.state},'realestate','tick-day',{...p,ownerCompanyId:company.id},{actor:'simulation-scheduler'});return result.result;
+  }
+  function* executeStages(ctx,cmd,p={}){if(cmd!=='tick-day')throw new Error('realestate-staged-command-invalid');return yield* tickDayStages(ctx.state||ctx,p);}
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx;
     if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'realestate',p);if(cmd==='acquire-operating-batch')return globalThis.GH_OPERATING_ACQUISITIONS.acquireBatch(state,'realestate',p);if(cmd==='ensure')return ensure(state);if(cmd==='tick-day')return tickDay(state,p);if(cmd==='start-project')return startProject(state,p);if(cmd==='set-project-price')return setProjectPrice(state,p);if(cmd==='decide-request')return decideRequest(state,p);if(cmd==='decide-requests-batch')return decideRequestsBatch(state,p);if(cmd==='lease-to-company')return leaseToCompany(state,p);if(cmd==='finance-construction')return financeConstruction(state,p);if(cmd==='accelerate-construction')return accelerateConstruction(state,p);if(cmd==='sell-to-fund')return sellToFund(state,p);if(cmd==='collect-rent-invoice')return collectRentInvoice(state,p);
     throw new Error(`Unknown real estate command: ${cmd}`);
   }
-  const API={CONSTRUCTION_ACCELERATION_RATE,constructionAccelerationQuote,projectProgress,PROPERTY_OPEX,VERSION,DAILY_FINANCIAL_ORDER:350,CONSTRUCTION_SHARES,FUND_CAP_RATE,fundValue,canSellToFund,TYPES,TYPE_IDS,PRICE_LEVELS,SIZE_LEVELS,MAX_ACTIVE_PROJECTS,MAX_INTERNAL_LEASES,MAX_OPEN_REQUESTS,ensure,officeMarket,projectQuote,cityFactor,arrivals,tickDay,dailyResult,summary,rentInvoices,rentInvoiceStatus,leaseToCompany,decideRequestsBatch,onFinancialDay,execute};
+  const API={CONSTRUCTION_ACCELERATION_RATE,constructionAccelerationQuote,projectProgress,PROPERTY_OPEX,VERSION,DAILY_FINANCIAL_ORDER:350,onFinancialDayStages,executeStages,CONSTRUCTION_SHARES,FUND_CAP_RATE,fundValue,canSellToFund,TYPES,TYPE_IDS,PRICE_LEVELS,SIZE_LEVELS,MAX_ACTIVE_PROJECTS,MAX_INTERNAL_LEASES,MAX_OPEN_REQUESTS,ensure,officeMarket,projectQuote,cityFactor,arrivals,tickDay,dailyResult,summary,rentInvoices,rentInvoiceStatus,leaseToCompany,decideRequestsBatch,onFinancialDay,execute};
   globalThis.GH_REALESTATE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('realestate',API);if(globalThis.window&&window!==globalThis)window.GH_REALESTATE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

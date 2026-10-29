@@ -3,7 +3,7 @@
    No resize handler, DOM measurement or fleet work is added to the runtime. Official papers keep their own type. */
 @media (orientation:landscape) and (max-height:500px){
   .sim-clock-copy strong{font-size:10.5px;line-height:1.35}
-  .sim-clock-copy small{font-size:8.5px;line-height:1.35}
+  .sim-clock-copy small{font-size:9px;line-height:1.35}
   .top-kpis strong{font-size:11.5px;line-height:14.4px;font-variant-numeric:tabular-nums;unicode-bidi:isolate}
   .top-kpis span{line-height:10.2px}
   .top-news-ticker strong{line-height:1.4;unicode-bidi:plaintext}
@@ -34,4 +34,56 @@
   .sim-clock-copy strong{font-size:9.5px}
   .top-kpis strong{font-size:10px}
   .drawer-head h2{font-size:12px}
+}
+/* Owner review of every page (four phone sizes): no text the player reads is set below 9 px (these were 8 and 8.5 px);
+   the drawer's titles, names and references wrap inside their boxes instead of ending in an ellipsis or leaving them. */
+.filter-grid .filter-btn small,
+.command-btn small,
+.conf-command-card > div > span,
+.official-news-heading small,
+.official-news-filter button small,
+.official-news-status,
+.official-news-status b,
+.official-news-card .news-card-meta,
+.official-news-card footer small,
+.official-news-card footer button,
+.management-flow-step>small,
+.asset-live-status,
+.official-news-lead .news-card-meta,
+.official-news-lead-metrics span,
+.official-news-lead footer small,
+.official-news-lead footer button,
+.official-news-card p,
+.top-kpis span,
+.top-news-ticker small,
+.mc-kpi span,
+.mc-text small,
+.mc-chip,
+.settlement-hero span{font-size:9px}
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  .drawer-head h2{line-height:15px;overflow-wrap:anywhere}
+  #drawerBody .mc-hero .mc-count{font-size:19px!important}
+  #drawerBody .doc-list-row .dlr-main b,#drawerBody .doc-list-row small{overflow-wrap:anywhere}
+  #drawerBody .market-companies .market-company b,#drawerBody .market-companies .market-company small{overflow-wrap:anywhere}
+  .market-buyer>div b{overflow-wrap:anywhere}
+}
+#drawerBody .profit-arrival-card footer>*,#drawerBody .profit-arrival-card section>*,#drawerBody .profit-arrival-card section b{overflow-wrap:anywhere}
+#drawerBody .tab-btn>small{font-size:9.5px;font-weight:700;line-height:16px;text-align:center}
+#drawerBody .world-company-chip{text-align:right;line-height:1.3}
+#drawerBody .world-company-chip>b{direction:ltr;unicode-bidi:isolate}
+#drawerBody .world-company-chip>small{font-size:9.5px}
+#drawerBody{overflow-wrap:break-word}
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  #drawerBody .mc-kpi span{line-height:1.25}
+  #drawerBody .official-news-heading h1{font-size:19px;line-height:1.3}
+  #drawerBody .command-btn>span{text-align:center;overflow-wrap:anywhere}
+  #drawerBody .official-news-lead-metrics span{line-height:1.3}
+  #drawerBody .mc-decision-copy b,#drawerBody .mc-decision-copy small,#drawerBody .pv-name b,#drawerBody .pv-name span{overflow-wrap:anywhere}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #drawerBody .asset-metrics b{font-size:13px}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #drawerBody .doc-list-row .dlr-main b,#drawerBody .doc-list-row small,#drawerBody .doc-list-row bdi{overflow-wrap:anywhere}
+  #drawerBody .bank-doc .bd-holder .bd-mono,#drawerBody .authority-footer>*{overflow-wrap:anywhere}
 }

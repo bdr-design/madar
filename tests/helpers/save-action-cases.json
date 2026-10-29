@@ -5849,7 +5849,7 @@
       ],
       "messages": [
         {
-          "text": "تعذر حفظ سياسة Cash Pool: qa-rejected",
+          "text": "تعذر حفظ سياسة تجميع النقد: qa-rejected",
           "kind": "info"
         }
       ],
@@ -5980,7 +5980,7 @@
       ],
       "messages": [
         {
-          "text": "تعذر تنفيذ Cash Pool: qa-rejected",
+          "text": "تعذر تنفيذ تجميع النقد: qa-rejected",
           "kind": "info"
         }
       ],

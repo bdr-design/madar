@@ -53,7 +53,7 @@
 .charter::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,transparent,var(--charter-accent),transparent)}
 .charter[data-company=air]{--charter-accent:var(--air)}.charter[data-company=sea]{--charter-accent:var(--sea)}.charter[data-company=road]{--charter-accent:var(--road)}.charter[data-company=power]{--charter-accent:var(--power)}.charter[data-company=bank]{--charter-accent:var(--bank)}.charter[data-company=mobility]{--charter-accent:var(--mobility)}
 .charter-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.charter-kicker{font:600 8.5px var(--font);letter-spacing:.2em;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.charter-kicker{font:600 9px var(--font);letter-spacing:.2em;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .charter-status{flex:0 0 auto;padding:2px 10px;border-radius:999px;font-size:10.5px;font-weight:600;border:1px dashed var(--line-strong);color:var(--muted)}
 .charter[data-status=signed] .charter-status{border-style:solid;border-color:color-mix(in srgb,var(--good) 45%,transparent);background:var(--good-soft);color:var(--good)}
 .charter-hero{display:flex;align-items:center;gap:12px}
@@ -135,3 +135,18 @@
 .company-open-row dd{margin:0;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
 .company-open-row .is-short dd{color:var(--danger)}.company-open-row .is-good dd{color:var(--good)}
 .company-open-row>button{width:100%}
+/* Owner review: a refused founding field is marked where it is, its reason directly below it. */
+.incorporation-form [aria-invalid="true"]{border-color:#D9493B!important;box-shadow:0 0 0 2px rgba(217,73,59,.22)!important}
+.incorporation-form label+#founderError,.incorporation-brand+#founderError,#founderSignatureMount+#founderError{margin:6px 0 2px}
+/* Owner review (568 wide): in a narrow charter the capital reads on one line with its currency, the facts stand one per
+   row so a registry number is not broken, the kicker wraps instead of ending in an ellipsis and the seal fits its footer. */
+@container (max-width:340px){
+  .charter-top{flex-wrap:wrap;row-gap:4px}
+  .charter-kicker{white-space:normal;font-size:9px}
+  .charter-capital strong,.charter-transfer strong{font-size:17px;white-space:nowrap}
+  .charter-facts,.charter-refs{grid-template-columns:minmax(0,1fr)}
+  .charter-facts>div:last-child:nth-child(odd),.charter-refs>div:last-child:nth-child(odd){grid-column:auto}
+  .charter-sign{flex-wrap:wrap;row-gap:8px}
+  .charter-seal{flex:0 0 64px;width:64px;height:64px}
+  .charter-node b{white-space:normal;overflow-wrap:anywhere}
+}

@@ -3,11 +3,175 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build334-r2-deferred-persistence.cjs"
+      "tests/build576-presentation-rest-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/phone-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build557-investor-card-load.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-actions.cjs"
+    ],
+    [
+      "node",
+      "tests/build450-other-section-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-durable-publication-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build469-app-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build533-durable-context-release.cjs"
     ],
     [
       "node",
       "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build606-purchase-frame-pacing-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build623-worker-extras-packing.cjs"
+    ],
+    [
+      "node",
+      "tests/build631-energy-realestate-day-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build632-customer-billing-step.cjs"
+    ],
+    [
+      "node",
+      "tests/build612-company-autopilot-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build613-company-autopilot-finance.cjs"
+    ],
+    [
+      "node",
+      "tests/build364-customer-companies-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-customer-base-telecom-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-dealer-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-telecom-network.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-dealer-floor-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock.cjs"
+    ],
+    [
+      "node",
+      "tests/build385-dealer-first-stock.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-energy-take-or-pay.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-energy-market.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-energy-blocks-ppa.cjs"
+    ],
+    [
+      "node",
+      "tests/build364-realestate-internal-leases.cjs"
+    ],
+    [
+      "node",
+      "tests/build369-external-rent-monthly-ledger.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-realestate-off-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build607-calendar-window-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-calendar-window-equivalence.cjs"
+    ],
+    [
+      "node",
+      "tests/build614-panel-copy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-revenue-chain-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-release-edition-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-founding-charter-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build452-section-review-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build506-drawer-bind-scope-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build361-button-binding-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build448-labor-tab-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build365-official-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build538-conference-group-headcount.cjs"
+    ],
+    [
+      "node",
+      "tests/company-platform-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r2-deferred-persistence.cjs"
     ],
     [
       "node",
@@ -23,15 +187,7 @@
     ],
     [
       "node",
-      "tests/build374-dealer-market.cjs"
-    ],
-    [
-      "node",
       "tests/build374-cheque-payable-lifecycle.cjs"
-    ],
-    [
-      "node",
-      "tests/dealer-ledger-and-stock.cjs"
     ],
     [
       "node",
@@ -171,10 +327,6 @@
     ],
     [
       "node",
-      "tests/build623-worker-extras-packing.cjs"
-    ],
-    [
-      "node",
       "tests/build359-proof-checkpoints.cjs"
     ],
     [
@@ -196,10 +348,6 @@
     [
       "node",
       "tests/build372-asset-purchase-apply.cjs"
-    ],
-    [
-      "node",
-      "tests/build607-calendar-window-stages-browser.cjs"
     ],
     [
       "node",
@@ -248,14 +396,6 @@
     [
       "node",
       "tests/build372-store-maintenance-stages.cjs"
-    ],
-    [
-      "node",
-      "tests/build378-dealer-floor-plan.cjs"
-    ],
-    [
-      "node",
-      "tests/build385-dealer-first-stock.cjs"
     ],
     [
       "node",
@@ -315,14 +455,6 @@
     ],
     [
       "node",
-      "tests/build614-panel-copy-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/phone-layout-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build440-document-collection-work.cjs"
     ],
     [
@@ -347,10 +479,6 @@
     ],
     [
       "node",
-      "tests/build387-save-actions.cjs"
-    ],
-    [
-      "node",
       "tests/build394-hospitality-browser.cjs"
     ],
     [
@@ -371,10 +499,6 @@
     ],
     [
       "node",
-      "tests/build448-labor-tab-work.cjs"
-    ],
-    [
-      "node",
       "tests/build462-market-summary-refresh.cjs"
     ],
     [
@@ -384,14 +508,6 @@
     [
       "node",
       "tests/build340-map-status-cache.cjs"
-    ],
-    [
-      "node",
-      "tests/build613-company-autopilot-finance.cjs"
-    ],
-    [
-      "node",
-      "tests/build612-company-autopilot-browser.cjs"
     ],
     [
       "node",
@@ -443,10 +559,6 @@
     ],
     [
       "node",
-      "tests/build358-founding-charter-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build358-large-fleet-dispatch-browser.cjs"
     ],
     [
@@ -464,10 +576,6 @@
     [
       "node",
       "tests/build359-tax-pay-all-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build361-button-binding-browser.cjs"
     ],
     [
       "node",
@@ -539,19 +647,11 @@
     ],
     [
       "node",
-      "tests/build373-revenue-chain-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build375-compact-desks-browser.cjs"
     ],
     [
       "node",
       "tests/build375-group-news-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-release-edition-browser.cjs"
     ],
     [
       "node",
@@ -607,15 +707,7 @@
     ],
     [
       "node",
-      "tests/build452-section-review-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build487-route-pages-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build506-drawer-bind-scope-browser.cjs"
     ],
     [
       "node",
@@ -695,15 +787,7 @@
     ],
     [
       "node",
-      "tests/build334-durable-publication-recovery.cjs"
-    ],
-    [
-      "node",
       "tests/build334-dynamic-company-consumers.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-energy-take-or-pay.cjs"
     ],
     [
       "node",
@@ -859,10 +943,6 @@
     ],
     [
       "node",
-      "tests/build358-energy-market.cjs"
-    ],
-    [
-      "node",
       "tests/build359-archive-seal.cjs"
     ],
     [
@@ -947,10 +1027,6 @@
     ],
     [
       "node",
-      "tests/build378-energy-blocks-ppa.cjs"
-    ],
-    [
-      "node",
       "tests/build379-realism-identity.cjs"
     ],
     [
@@ -1003,10 +1079,6 @@
     ],
     [
       "node",
-      "tests/build450-other-section-work.cjs"
-    ],
-    [
-      "node",
       "tests/build451-hr-notice-work.cjs"
     ],
     [
@@ -1024,10 +1096,6 @@
     [
       "node",
       "tests/build464-summary-projection-boundary.cjs"
-    ],
-    [
-      "node",
-      "tests/build469-app-notice-work.cjs"
     ],
     [
       "node",
@@ -1095,19 +1163,11 @@
     ],
     [
       "node",
-      "tests/build533-durable-context-release.cjs"
-    ],
-    [
-      "node",
       "tests/build536-conference-progress-cost.cjs"
     ],
     [
       "node",
       "tests/build537-conference-copy.cjs"
-    ],
-    [
-      "node",
-      "tests/build538-conference-group-headcount.cjs"
     ],
     [
       "node",
@@ -1211,10 +1271,6 @@
     ],
     [
       "node",
-      "tests/build362-calendar-window-equivalence.cjs"
-    ],
-    [
-      "node",
       "tests/build362-empty-calendar-browser.cjs"
     ],
     [
@@ -1223,27 +1279,11 @@
     ],
     [
       "node",
-      "tests/build364-realestate-internal-leases.cjs"
-    ],
-    [
-      "node",
-      "tests/build369-external-rent-monthly-ledger.cjs"
-    ],
-    [
-      "node",
       "tests/build371-calendar-cancel-settle-core.cjs"
     ],
     [
       "node",
-      "tests/build378-realestate-off-plan.cjs"
-    ],
-    [
-      "node",
       "tests/build379-simulation-recovery.cjs"
-    ],
-    [
-      "node",
-      "tests/build380-construction-acceleration-browser.cjs"
     ],
     [
       "node",
@@ -1271,10 +1311,6 @@
     ],
     [
       "node",
-      "tests/build576-presentation-rest-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build593-bulk-acquisition-frames-browser.cjs"
     ],
     [
@@ -1292,10 +1328,6 @@
     [
       "node",
       "tests/build605-purchase-rows-copied-once.cjs"
-    ],
-    [
-      "node",
-      "tests/build606-purchase-frame-pacing-browser.cjs"
     ],
     [
       "node",
@@ -1391,10 +1423,6 @@
     ],
     [
       "node",
-      "tests/build365-official-news.cjs"
-    ],
-    [
-      "node",
       "tests/build375-group-news.cjs"
     ],
     [
@@ -1412,10 +1440,6 @@
     [
       "node",
       "tests/build597-finance-metric-maps-in-place.cjs"
-    ],
-    [
-      "node",
-      "tests/company-platform-regressions.cjs"
     ],
     [
       "node",
@@ -1603,10 +1627,6 @@
     ],
     [
       "node",
-      "tests/build557-investor-card-load.cjs"
-    ],
-    [
-      "node",
       "tests/build560-group-fair-value.cjs"
     ],
     [
@@ -1651,23 +1671,11 @@
     ],
     [
       "node",
-      "tests/build364-customer-companies-core.cjs"
-    ],
-    [
-      "node",
       "tests/build374-company-options-browser.cjs"
     ],
     [
       "node",
-      "tests/build374-customer-base-telecom-market.cjs"
-    ],
-    [
-      "node",
       "tests/build378-bank-capital-conservation.cjs"
-    ],
-    [
-      "node",
-      "tests/build378-telecom-network.cjs"
     ],
     [
       "node",
@@ -2922,6 +2930,14 @@
     [
       "node",
       "tests/build630-settlement-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build631-energy-realestate-day-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build632-customer-billing-step.cjs"
     ],
     [
       "node",

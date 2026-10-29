@@ -23,3 +23,31 @@
 @media (orientation:landscape) and (max-height:500px) and (max-width:760px){
   .asset-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+/* Owner review of every page at 568 and 667 wide (a drawer of about 232-270 px): the header keeps room for the title,
+   the option tiles and command cards stand one per row, the market rows and the buyer bar keep their names readable,
+   and the decision pill is a full tap target. Dimensions only; the rest of each fix is in madar-shell.css. */
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  .drawer-head{gap:5px;padding:6px 7px 6px 6px}
+  .drawer-head .close-btn{width:28px;height:28px}
+  .drawer-mark{width:28px;height:28px}
+  .drawer-mark img{width:22px;height:18px}
+  .app-shell:not(.panel-expanded) #drawerBody .mc-grid{grid-template-columns:minmax(0,1fr)}
+  #drawerBody .mc-hero{height:78px}
+  #drawerBody .list-item-head,#drawerBody .finance-section-head-v202,#drawerBody .finance-card-head-v202{row-gap:5px}
+  #drawerBody .list-item-head>div:first-child,#drawerBody .finance-section-head-v202>div:first-child,#drawerBody .finance-card-head-v202>div:first-child{min-width:0}
+  .market-buyer{row-gap:6px}
+  .market-buyer>div:not(:first-of-type){min-width:0}
+}
+#drawerBody .profit-arrival-card footer>*,#drawerBody .profit-arrival-card section>*,#drawerBody .profit-arrival-card section b{min-width:0}
+#drawerBody .tab-btn>small{padding:0 5px;min-width:16px}
+#drawerBody .world-company-chip{gap:1px}
+#drawerBody .mc-pill{height:26px}
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+  #drawerBody .market-row{grid-template-columns:minmax(0,1fr) auto;row-gap:4px}
+  #drawerBody .market-row>:nth-child(2){width:100%}
+  #drawerBody .command-grid,#drawerBody .finance-domain-nav,#drawerBody .workspace-card-grid{grid-template-columns:minmax(0,1fr)}
+  #drawerBody .command-btn>span{width:auto;min-width:40px}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #drawerBody .authority-footer>*,#drawerBody .bank-doc .bd-holder>*{min-width:0}
+}

@@ -1,5 +1,8 @@
 (()=>{'use strict';
-const VERSION='GH-CUSTOMER-COMPANIES-1.0.0',SCHEMA=1,DAY=86400,MAX_NAMED_CUSTOMERS=160,MAX_SUBSCRIPTIONS=160,MAX_COHORTS=32,MAX_SERVICE_PLANS=160,MAX_STOCK_LINES=96,MAX_STOCK_PER_SKU=5000,MAX_SALES_HISTORY=500,MAX_PURCHASE_HISTORY=500,MAX_BILLING_AMOUNT=1_000_000_000_000,MAX_BILLS_PER_COMPANY_DAY=48,BILLING_SLICE=8;
+// Owner («نفذ الباقي»: a customer company's billing step took 27-33 ms at 2x CPU throttle, eight invoices with their
+// documents and proofs): the day yields after every invoice it issues (BILLING_SLICE); the invoices, their order and the
+// day's totals are the same.
+const VERSION='GH-CUSTOMER-COMPANIES-1.0.0',SCHEMA=1,DAY=86400,MAX_NAMED_CUSTOMERS=160,MAX_SUBSCRIPTIONS=160,MAX_COHORTS=32,MAX_SERVICE_PLANS=160,MAX_STOCK_LINES=96,MAX_STOCK_PER_SKU=5000,MAX_SALES_HISTORY=500,MAX_PURCHASE_HISTORY=500,MAX_BILLING_AMOUNT=1_000_000_000_000,MAX_BILLS_PER_COMPANY_DAY=48,BILLING_SLICE=1;
 const num=v=>Math.max(0,Number(v)||0),now=s=>Number(s?.simSeconds)||0,day=s=>Math.floor(now(s)/DAY),clone=v=>globalThis.structuredClone?structuredClone(v):JSON.parse(JSON.stringify(v));
 const OEMS=Object.freeze([
  Object.freeze({id:'toyota',partyId:'OEM-TOYOTA',name:'Toyota Motor Corporation',displayName:'تويوتا',country:'اليابان',brands:['Toyota'],models:[{id:'camry-hybrid',name:'Camry Hybrid',segment:'سيدان متوسطة',cost:33600,retail:36500},{id:'corolla',name:'Corolla',segment:'سيدان مدمجة',cost:20600,retail:22400},{id:'land-cruiser',name:'Land Cruiser',segment:'دفع رباعي فاخر',cost:84200,retail:91500}]}),

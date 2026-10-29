@@ -445,6 +445,8 @@
       settleWaiters();return settled===outcome;
     }
     const sameExtra=(a,b)=>{if(a===b)return true;try{return JSON.stringify(a)===JSON.stringify(b);}catch(_error){return false;}};
+    // Owner («نفذ الباقي»: one window's compare took 48.9 ms in one task on the iPhone): rows whose extras are long to
+    // compare can pass the budget well inside 64 rows; the clock is read every 8 rows, the rows and their order unchanged.
     function* changedWindowRows(store,message,{rowSlice,budgetMs}){
       let sliceStart=clock();
       const indices=message.indices,source=new Uint32Array(message.bytes),target=STORE.views(store).u32,chosen=new Int32Array(indices.length);let count=0;
@@ -453,11 +455,11 @@
         for(let w=0;!changed&&w<WR;w++)if(source[src+w]!==target[dst+w])changed=true;
         if(changed)chosen[count++]=k;
         if((k+1)%rowSlice===0&&k+1<indices.length){yield 'fleet.replay-compare';sliceStart=clock();}
-        else if(Number.isFinite(budgetMs)&&(k&63)===63&&clock()-sliceStart>=budgetMs){yield 'fleet.replay-compare';sliceStart=clock();}
+        else if(Number.isFinite(budgetMs)&&(k&7)===7&&clock()-sliceStart>=budgetMs){yield 'fleet.replay-compare';sliceStart=clock();}
       }
       if(count===indices.length)return {indices,bytes:message.bytes,extras:message.extras};
       const selected=new Int32Array(count),words=new Uint32Array(count*WR),extras=new Array(count);
-      for(let out=0;out<count;out++){const at=chosen[out];selected[out]=indices[at];words.set(source.subarray(at*WR,(at+1)*WR),out*WR);extras[out]=message.extras?.[at];if((out+1)%rowSlice===0&&out+1<count){yield 'fleet.replay-pack';sliceStart=clock();}else if(Number.isFinite(budgetMs)&&(out&63)===63&&clock()-sliceStart>=budgetMs){yield 'fleet.replay-pack';sliceStart=clock();}}
+      for(let out=0;out<count;out++){const at=chosen[out];selected[out]=indices[at];words.set(source.subarray(at*WR,(at+1)*WR),out*WR);extras[out]=message.extras?.[at];if((out+1)%rowSlice===0&&out+1<count){yield 'fleet.replay-pack';sliceStart=clock();}else if(Number.isFinite(budgetMs)&&(out&7)===7&&clock()-sliceStart>=budgetMs){yield 'fleet.replay-pack';sliceStart=clock();}}
       return {indices:selected,bytes:words.buffer,extras};
     }
     function replayOptions(options){return {...options,rowSlice:options.rowSlice===Infinity?Infinity:Math.max(1,Math.min(512,Math.floor(Number(options.rowSlice)||512))),budgetMs:options.budgetMs===Infinity?Infinity:Math.max(1,Number(options.budgetMs)||4)};}

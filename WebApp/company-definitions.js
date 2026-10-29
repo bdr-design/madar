@@ -214,7 +214,7 @@
     })
     ,subsidiary({
       id:'hospitality',definitionId:'gh-hospitality-v1',order:110,
-      identity:identity('شركة الفنادق والمنتجعات','Hotels and Resorts Company','الفنادق والمنتجعات','Hotels & Resorts','HOTELS','assets/identity/approved/hospitality-symbol.webp','#176b70','#16344b','#bd985b','assets/identity/approved/hospitality-symbol.webp',[],'assets/identity/approved/hospitality-symbol.webp'),
+      identity:identity('شركة فنتورا للفنادق والمنتجعات','Ventora Hotels & Resorts Company','فنتورا للفنادق','VH HOTELS','VH HOTELS','assets/identity/approved/hospitality-symbol.webp','#176b70','#16344b','#bd985b','assets/identity/approved/hospitality-symbol.webp',[],'assets/identity/approved/hospitality-symbol.webp'),
       classification:{primarySectorId:'hospitality',sectorIds:['hospitality'],operationProfileId:'hospitality-stays-v1',assetClasses:[],routeModes:[]},
       capabilities:['operations.hospitality','facility.hospitality'],
       founding:{defaultCapital:80000000,minimumCapital:80000000,documentPrefix:'HOTEL'},
