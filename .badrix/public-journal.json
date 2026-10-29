@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "game_id": "ventora",
+  "records": [
+    {
+      "id": "ventora-finance-accrual-339",
+      "kind": "fix",
+      "status": "verified",
+      "public": true,
+      "title": {
+        "ar": "معالجة توقف التقدم بسبب المصروف المستحق",
+        "en": "Resolved an accrued-expense progress blocker"
+      },
+      "summary": {
+        "ar": "تحققت الاختبارات البرمجية من تسجيل الالتزام وتسويته دون اختراع نقد. اعتماد الإصدار واختبار الجهاز ما زالا منفصلين.",
+        "en": "Software checks verified obligation recording and settlement without creating cash. Release approval and device testing remain separate."
+      },
+      "date": null,
+      "verification": {
+        "scope": "software",
+        "evidence": "bdr-design/madar/BUILD339_ACCRUED_OBLIGATION_FIX_REPORT_AR.md"
+      }
+    },
+    {
+      "id": "ventora-map-query-340",
+      "kind": "improvement",
+      "status": "verified",
+      "public": true,
+      "title": {
+        "ar": "تحسين استعلامات عرض الأصول على الخريطة",
+        "en": "Improved map asset queries"
+      },
+      "summary": {
+        "ar": "اجتازت استعلامات العرض اختبارات المطابقة والثبات في الاختبارات البرمجية. هذه النتيجة لا تمثل قياس أداء على أجهزة اللاعبين.",
+        "en": "Presentation queries passed software parity and stability checks. These results do not represent performance on player devices."
+      },
+      "date": null,
+      "verification": {
+        "scope": "software",
+        "evidence": "bdr-design/madar/BUILD340_ENGINE_SEPARATION_VERIFICATION.json"
+      }
+    },
+    {
+      "id": "ventora-save-pacing-353",
+      "kind": "improvement",
+      "status": "verified",
+      "public": true,
+      "title": {
+        "ar": "تحسين توقيت الحفظ وتقليل العمل المتكرر",
+        "en": "Improved save pacing and reduced repeated work"
+      },
+      "summary": {
+        "ar": "وُثّقت اختبارات متصفح سطح المكتب لتحسين توقيت الحفظ وترميز البيانات. التحقق على أجهزة اللاعبين ما زال مطلوبًا.",
+        "en": "Desktop-browser checks documented improvements to save timing and encoding. Validation on player devices remains outstanding."
+      },
+      "date": null,
+      "verification": {
+        "scope": "desktop",
+        "evidence": "bdr-design/madar/BUILD353_PERFORMANCE_REPORT_AR.md"
+      }
+    },
+    {
+      "id": "ventora-energy-303",
+      "kind": "feature",
+      "status": "testing",
+      "public": true,
+      "title": {
+        "ar": "توسيع أنظمة قطاع الطاقة",
+        "en": "Expanded energy-sector systems"
+      },
+      "summary": {
+        "ar": "يتضمن سجل التطوير توسعة مواقع الطاقة والتشغيل والعقود. تُراجع جاهزيتها ضمن الإصدار المستهدف.",
+        "en": "Development notes describe expanded energy locations, operation and contracts. Readiness is assessed for the target release."
+      },
+      "date": null,
+      "verification": {
+        "scope": "documented",
+        "evidence": "bdr-design/GlobalHoldings-iOS-Source/RELEASE_NOTES_AR.md"
+      }
+    },
+    {
+      "id": "ventora-banking-303",
+      "kind": "feature",
+      "status": "testing",
+      "public": true,
+      "title": {
+        "ar": "توسيع الخدمات المصرفية",
+        "en": "Expanded banking services"
+      },
+      "summary": {
+        "ar": "يتضمن سجل التطوير توسعة الحسابات والودائع والتمويل والتحصيل. لا يشكّل توثيق الإضافة اعتمادًا لإطلاقها.",
+        "en": "Development notes describe expanded accounts, deposits, financing and collection. Documentation of the feature is not release approval."
+      },
+      "date": null,
+      "verification": {
+        "scope": "documented",
+        "evidence": "bdr-design/GlobalHoldings-iOS-Source/RELEASE_NOTES_AR.md"
+      }
+    },
+    {
+      "id": "ventora-test-340-70d07e",
+      "kind": "build",
+      "status": "verified",
+      "public": true,
+      "title": {
+        "ar": "نسخة اختبار داخلية موثّقة",
+        "en": "Documented internal test build"
+      },
+      "summary": {
+        "ar": "بُنيت نسخة اختبار داخلية بعد اجتياز فحوص المصدر والبناء. لا تمثل إصدارًا عامًا متاحًا للاعبين.",
+        "en": "An internal test build was produced after source and build checks passed. It is not a public player release."
+      },
+      "date": null,
+      "artifact_sha256": "70d07e00279b12b8d9e487590b1d76ccd75386b07cc88052ecb5326914000b8f",
+      "verification": {
+        "scope": "build",
+        "evidence": "bdr-design/madar/README.md",
+        "source_revision": "976c9aef615b5dd30c0967d8a81b63d96c374fc2"
+      }
+    },
+    {
+      "id": "ventora-current-acceptance",
+      "kind": "milestone",
+      "status": "testing",
+      "public": true,
+      "title": {
+        "ar": "النسخة الحالية قيد التحقق قبل الإطلاق",
+        "en": "Current candidate is undergoing release verification"
+      },
+      "summary": {
+        "ar": "تشمل المتطلبات المتبقية قياسات أداء على أجهزة فعلية واستكمال بوابات القبول. موعد النسخة الأولى للاعبين لم يُعلن.",
+        "en": "Remaining requirements include physical-device profiling and completion of acceptance gates. The first player-release date has not been announced."
+      },
+      "date": null,
+      "verification": {
+        "scope": "documented",
+        "evidence": "bdr-design/madar/RELEASE_GATE.json",
+        "build": 362
+      }
+    }
+  ]
+}
