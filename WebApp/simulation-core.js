@@ -72,9 +72,15 @@
       maxMaintenanceMs:0,lastMaintenanceMs:0,maxRenderMs:0,lastRenderMs:0,lastFrame:null,maxFrame:null,cooldownFrames:0,deferredRuns:0,
       lastError:'',fatalError:null,lastBoundary:'',lastSliceSeconds:0,lastMaintenanceHour:-1,lastCancelReason:'',lastCommitReason:'',lastWorkStage:'',governor:'GREEN',avgChunkMs:0,avgWorkMs:0,
       manualFailures:0,manualThrottleYields:0,lastAdvanceFailure:null,lastProgressSim:Math.max(0,Number(adapter.getSimTime())||0),lastProgressAt:clock(),activeFrameBudgetMs:cfg.frameBudgetMs,frameCadencePressure:0,lastFrameIntervalMs:0,
-      aggregateSlices:0,aggregateWindows:0,aggregateSubSlices:0,lastAggregateHours:0,aggregateFallbacks:0,jobCleanups:0,cleanupErrors:0
+      aggregateSlices:0,aggregateWindows:0,aggregateSubSlices:0,lastAggregateHours:0,aggregateFallbacks:0,jobCleanups:0,cleanupErrors:0,
+      pausesAfterDayClose:0,lastPauseAfterDayCloseMs:0
     };
     let job=null,jobSlice=0,jobStart=0,jobSpeed=0,jobBoundary=null,jobWorkMs=0,jobReadyToFinish=false,manualAdvance=null;
+    // Owner («نفذ»: a pause pressed during a live day close rolled the close back in one task, 17-25 ms at 2x CPU throttle,
+    // and the close started again on resume): pauseAfterDayClose lets the close in flight finish in its slices, starts no
+    // slice after it, and then hands the pause to the host (onPauseAfterDayClose). A close cancelled meanwhile (hidden,
+    // suspended, failed) hands it over the same way.
+    let pauseAfterJob=null;
     // Build 359: where a simulation cycle spends its time (create, chunks, finish, maintenance and render callbacks),
     // so a slow cycle names its stage in diagnostics. Measurement only; no decision reads it.
     let frameStages=null,cooldownNext=false,frameCadencePressure=0;const addFrameStage=(key,ms)=>{if(frameStages)frameStages[key]+=Math.max(0,Number(ms)||0);};
@@ -157,7 +163,7 @@
 
     function startJob(speed){
       const backlog=pacing.backlog();
-      if(job||backlog<=1e-9)return false;
+      if(job||pauseAfterJob||backlog<=1e-9)return false;
       // The app can opt into a small real-time batching window. This prevents a
       // full atomic fleet transaction on every 60/120 Hz display frame while
       // retaining exact hour/day boundaries and the same simulated elapsed time.
@@ -352,6 +358,7 @@
       if(!Number.isFinite(requested)||requested<=current+1e-6)return {accepted:false,reason:'advance-target-not-forward',target:current};
       if(requested-current>maxSeconds)return {accepted:false,reason:'advance-target-too-far',target:current};
       if(manualAdvance?.cancelling)return {accepted:false,reason:'advance-cancel-settling',target:current};
+      if(pauseAfterJob)return {accepted:false,reason:'pause-after-day-close-pending',target:current};
       const preferred=Number(options.speed),positiveSpeeds=cfg.allowedSpeeds.filter(speed=>speed>0),fastest=positiveSpeeds.length?Math.max(...positiveSpeeds):0;
       const speed=cfg.allowedSpeeds.includes(preferred)&&preferred>0?preferred:fastest;
       if(speed<=0)return {accepted:false,reason:'advance-speed-unavailable',target:current};
@@ -403,8 +410,20 @@
     // expectedIntervalMs: the display interval the host knows the device holds (iOS halves WebKit's frames in Low Power
     // Mode and under serious heat, 33.3 ms); a frame is late past 1.056 times it, never before the 60 Hz bound of 18.5 ms.
     function noteFrameInterval(value,expectedIntervalMs){const interval=Number(value);if(!Number.isFinite(interval)||interval<=0||interval>250)return frameCadencePressure;const floor=Math.max(18.5,(Number(expectedIntervalMs)||0)*1.056),instant=interval<=floor?0:Math.min(1,(interval-floor)/30);health.frameCadenceFloorMs=Math.round(floor*100)/100;frameCadencePressure=Math.max(instant,frameCadencePressure*.82);health.frameCadencePressure=Math.round(frameCadencePressure*1000)/1000;health.lastFrameIntervalMs=Math.round(interval*100)/100;return frameCadencePressure;}
+    function pauseAfterDayClose(){
+      if(manualAdvance||!job||jobBoundary?.day==null)return false;
+      if(!pauseAfterJob){pauseAfterJob={requestedAt:clock()};health.pausesAfterDayClose++;}return true;
+    }
+    function cancelPauseAfterDayClose(){const pending=!!pauseAfterJob;pauseAfterJob=null;return pending;}
+    function settlePauseAfterDayClose(){
+      if(!pauseAfterJob||job)return false;
+      const pending=pauseAfterJob;pauseAfterJob=null;health.lastPauseAfterDayCloseMs=Math.max(0,clock()-pending.requestedAt);
+      try{adapter.onPauseAfterDayClose?.({waitedMs:health.lastPauseAfterDayCloseMs});}catch(error){report('pause-after-day-close',error,false);}
+      return true;
+    }
     function frameBody(now){
       health.frames++;completeManualAdvance();
+      if(settlePauseAfterDayClose()){pacing.reset(now);lastObservedSpeed=getSpeed();maybeRender(now,lastObservedSpeed);return;}
       if(manualAdvance?.cancelling){
         const hidden=pacing.snapshot().hidden,suspended=!!adapter.isSuspended?.();
         if(!hidden&&!suspended&&runDeferredWork()){maybeRender(now,getSpeed());return;}
@@ -454,8 +473,8 @@
 
     // Two reads the frame loop takes every frame: snapshot() builds a new object (the health counters, pacing and config
     // copies) and was called several times a frame for one of these booleans (owner, build 98 diagnostic: garbage).
-    const manualActive=()=>!!manualAdvance,jobActive=()=>!!job;
-    return {version:VERSION,frame,noteFrameInterval,reset,setHidden,advanceTo,cancelAdvance,snapshot,manualActive,jobActive,health:()=>({...health}),config:()=>({...cfg,allowedSpeeds:[...cfg.allowedSpeeds],nowMs:undefined})};
+    const manualActive=()=>!!manualAdvance,jobActive=()=>!!job,pausePending=()=>!!pauseAfterJob;
+    return {version:VERSION,frame,noteFrameInterval,reset,setHidden,advanceTo,cancelAdvance,pauseAfterDayClose,cancelPauseAfterDayClose,pausePending,snapshot,manualActive,jobActive,health:()=>({...health}),config:()=>({...cfg,allowedSpeeds:[...cfg.allowedSpeeds],nowMs:undefined})};
   }
 
   const API=Object.freeze({VERSION,DEFAULTS,normalizeConfig,create});

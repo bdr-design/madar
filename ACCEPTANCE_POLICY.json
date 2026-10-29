@@ -3,6 +3,50 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build628-pause-after-day-close.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-staged-day-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-scheduler-liveness.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-calendar-safety-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-time-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-late-frame-liveness.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-phase1bb-pacing-separation.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-calendar-owner-cadence.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-cooperative-draft-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build535-staged-save-retake-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build460-render-idle-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build626-seal-strokes-text.cjs"
     ],
     [
@@ -148,10 +192,6 @@
     [
       "node",
       "tests/build580-company-types-money-weight.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-staged-day-browser.cjs"
     ],
     [
       "node",
@@ -336,10 +376,6 @@
     [
       "node",
       "tests/build612-company-autopilot-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-calendar-owner-cadence.cjs"
     ],
     [
       "node",
@@ -559,10 +595,6 @@
     ],
     [
       "node",
-      "tests/build460-render-idle-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build487-route-pages-browser.cjs"
     ],
     [
@@ -639,10 +671,6 @@
     ],
     [
       "node",
-      "tests/build334-calendar-safety-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build334-deferred-save-lifecycle.cjs"
     ],
     [
@@ -695,10 +723,6 @@
     ],
     [
       "node",
-      "tests/build334-simulation-time-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build334-tabs-component.cjs"
     ],
     [
@@ -736,10 +760,6 @@
     [
       "node",
       "tests/build339-hour-boundary-write-map.cjs"
-    ],
-    [
-      "node",
-      "tests/build339-phase1bb-pacing-separation.cjs"
     ],
     [
       "node",
@@ -1163,10 +1183,6 @@
     ],
     [
       "node",
-      "tests/build334-scheduler-liveness.cjs"
-    ],
-    [
-      "node",
       "tests/build340-simulation-worker-scheduler.cjs"
     ],
     [
@@ -1504,10 +1520,6 @@
     [
       "node",
       "tests/build592-service-companies-engine.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-late-frame-liveness.cjs"
     ],
     [
       "node",
@@ -2164,10 +2176,6 @@
     [
       "node",
       "tests/build534-staged-save-overlap.cjs"
-    ],
-    [
-      "node",
-      "tests/build535-staged-save-retake-browser.cjs"
     ],
     [
       "node",
@@ -2894,6 +2902,10 @@
     [
       "node",
       "tests/build627-document-material-once.cjs"
+    ],
+    [
+      "node",
+      "tests/build628-pause-after-day-close.cjs"
     ],
     [
       "node",

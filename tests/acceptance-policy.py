@@ -59,7 +59,13 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First the finance document batch (owner: «كمل بدقه»), none reached by a build: the new
+# (AGENTS.md). First the pause batch (owner: «نفذ»), not reached by a build: the new build628-pause-after-day-close (a
+# pause pressed during a live day close rolled the close back in one task, 17-25 ms at 2x; the player's pause now lets
+# the close finish and then pauses; fails on 4daed4f) and the gates that run the engine, its pacing, the live close and
+# the speed controls (build358-staged-day-browser, build334-scheduler-liveness, build334-calendar-safety-contract,
+# build334-simulation-time-contract, build334-late-frame-liveness, build339-phase1bb-pacing-separation,
+# build334-calendar-owner-cadence, build376-cooperative-draft-browser, build535-staged-save-retake-browser,
+# build460-render-idle-browser). Then the finance document batch (owner: «كمل بدقه»), not reached by a build: the new
 # build626-seal-strokes-text (a delegated system document checked the visual seal four to seven times, and encoding its
 # strokes for the digest was two thirds of each check; canonical strokes are encoded from the numbers just checked; fails
 # on 668f48d), the new build627-document-material-once (each seal, amendment and check encoded the document's material
@@ -229,6 +235,17 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build628-pause-after-day-close.cjs'],
+    ['node', 'tests/build358-staged-day-browser.cjs'],
+    ['node', 'tests/build334-scheduler-liveness.cjs'],
+    ['node', 'tests/build334-calendar-safety-contract.cjs'],
+    ['node', 'tests/build334-simulation-time-contract.cjs'],
+    ['node', 'tests/build334-late-frame-liveness.cjs'],
+    ['node', 'tests/build339-phase1bb-pacing-separation.cjs'],
+    ['node', 'tests/build334-calendar-owner-cadence.cjs'],
+    ['node', 'tests/build376-cooperative-draft-browser.cjs'],
+    ['node', 'tests/build535-staged-save-retake-browser.cjs'],
+    ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build626-seal-strokes-text.cjs'],
     ['node', 'tests/build627-document-material-once.cjs'],
     ['node', 'tests/build603-visual-seal-check-in-place.cjs'],
@@ -266,7 +283,6 @@ expected_preflight=[
     ['node', 'tests/build372-fleet-ui-summary.cjs'],
     ['node', 'tests/build522-fleet-day-prefetch.cjs'],
     ['node', 'tests/build580-company-types-money-weight.cjs'],
-    ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build620-journal-log-segments.cjs'],
     ['node', 'tests/build619-dealer-restock-stages.cjs'],
     ['node', 'tests/build372-journal-pool.cjs'],
@@ -313,7 +329,6 @@ expected_preflight=[
     ['node', 'tests/build340-map-status-cache.cjs'],
     ['node', 'tests/build613-company-autopilot-finance.cjs'],
     ['node', 'tests/build612-company-autopilot-browser.cjs'],
-    ['node', 'tests/build334-calendar-owner-cadence.cjs'],
     ['node', 'tests/build334-r2-snapshot-budget.cjs'],
     ['node', 'tests/build334-simulation-fault-isolation.cjs'],
     ['node', 'tests/build334-simulation-slice-atomic.cjs'],
@@ -368,7 +383,6 @@ expected_preflight=[
     ['node', 'tests/build419-document-drawer-work-browser.cjs'],
     ['node', 'tests/build445-document-pages-browser.cjs'],
     ['node', 'tests/build452-section-review-browser.cjs'],
-    ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build487-route-pages-browser.cjs'],
     ['node', 'tests/build506-drawer-bind-scope-browser.cjs'],
     ['node', 'tests/build517-hr-hire-view-facilities-browser.cjs'],
@@ -388,7 +402,6 @@ expected_preflight=[
     ['node', 'tests/build334-archived-proof-retention-open.cjs'],
     ['node', 'tests/build334-bank-balance-sheet.cjs'],
     ['node', 'tests/build334-bank-energy-operating-costs.cjs'],
-    ['node', 'tests/build334-calendar-safety-contract.cjs'],
     ['node', 'tests/build334-deferred-save-lifecycle.cjs'],
     ['node', 'tests/build334-durable-postcommit-contract.cjs'],
     ['node', 'tests/build334-durable-publication-recovery.cjs'],
@@ -402,7 +415,6 @@ expected_preflight=[
     ['node', 'tests/build334-r2-maintenance-atomic.cjs'],
     ['node', 'tests/build334-r4-proof-archive.cjs'],
     ['node', 'tests/build334-r4-recovery-integration.cjs'],
-    ['node', 'tests/build334-simulation-time-contract.cjs'],
     ['node', 'tests/build334-tabs-component.cjs'],
     ['node', 'tests/build334-tabs-contract.cjs'],
     ['node', 'tests/build334-xss-logo-security.cjs'],
@@ -413,7 +425,6 @@ expected_preflight=[
     ['node', 'tests/build339-architecture-bootstrap.cjs'],
     ['node', 'tests/build339-day-boundary-write-map.cjs'],
     ['node', 'tests/build339-hour-boundary-write-map.cjs'],
-    ['node', 'tests/build339-phase1bb-pacing-separation.cjs'],
     ['node', 'tests/build339-time-golden.cjs'],
     ['node', 'tests/build340-air-sea-network-worker.cjs'],
     ['node', 'tests/build340-durable-draft-restore.cjs'],
@@ -519,7 +530,6 @@ expected_preflight=[
     ['node', 'tests/tax-reload-regressions.cjs'],
     ['node', 'tests/build334-calendar-journey-browser.cjs'],
     ['node', 'tests/build334-r3-calendar-work.cjs'],
-    ['node', 'tests/build334-scheduler-liveness.cjs'],
     ['node', 'tests/build340-simulation-worker-scheduler.cjs'],
     ['node', 'tests/build358-calendar-staged-completion.cjs'],
     ['node', 'tests/build358-payment-terms.cjs'],
@@ -605,7 +615,6 @@ expected_preflight=[
     ['node', 'tests/build368-approved-company-logos.cjs'],
     ['node', 'tests/build420-conference-durable-browser.cjs'],
     ['node', 'tests/build592-service-companies-engine.cjs'],
-    ['node', 'tests/build334-late-frame-liveness.cjs'],
     ['node', 'tests/build339-diagnostic-frame-trace.cjs'],
     ['node', 'tests/build362-simulation-runtime.cjs'],
     ['node', 'tests/build426-governor-pressure.cjs'],
@@ -770,7 +779,6 @@ expected_preflight=[
     ['node', 'tests/build523-proofs-commands-tracked.cjs'],
     ['node', 'tests/build526-prestage-fleet-chunks-only.cjs'],
     ['node', 'tests/build534-staged-save-overlap.cjs'],
-    ['node', 'tests/build535-staged-save-retake-browser.cjs'],
     ['node', 'tests/fleet-save-slicing.cjs'],
     ['node', 'tests/native-save-worker-browser.cjs'],
     ['node', 'tests/persistence-regressions.cjs'],

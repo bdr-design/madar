@@ -62,7 +62,7 @@
   const legacyStorageKeys = ['global-holdings-world-v2.0.0','global-holdings-world-v1.2.0','global-holdings-world-v1.1.0','global-holdings-premium-v1.0.0','global-holdings-clean-v0.1.2'];
   const SIM_START = Date.UTC(2026, 0, 1, 0, 0, 0);
   const EARTH_RADIUS_KM = 6371.0088;
-  let renderFacilities=null;
+  let renderFacilities=null;let pausePendingAfterDayClose=false;
   const COMPANY_PLATFORM=window.GH_COMPANY_PLATFORM;
   const MAP_FEATURE_CORE=window.GH_MAP_FEATURE_CORE;
   if(!COMPANY_PLATFORM?.listDefinitions||!COMPANY_PLATFORM?.resolveCompany)throw new Error('Company Platform failed to load before app.js');
@@ -946,6 +946,7 @@
   function replaceLiveState(snapshot){
     const traceStarted=appMetricClock();try{
     window.GH_TRANSACTION_CORE?.abortStaged?.(state,'live-state-replaced');
+    if(pausePendingAfterDayClose){pausePendingAfterDayClose=false;simulationEngine.cancelPauseAfterDayClose?.();}
     cancelSimulationPersistence();
     (window.GH_TRANSACTION_CORE.publishObject||window.GH_TRANSACTION_CORE.restoreObject)(state,snapshot);
     window.GH_REALISM?.reconcilePendingDeliveryCount?.(state,true);
@@ -3133,6 +3134,7 @@
   function requestCalendarAdvance(target,reason,label){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل تقديم التقويم.');return false;}
     const active=simulationEngine.snapshot().manualAdvance;if(active){notice('هناك تقديم زمني جارٍ الآن. أوقفه أولًا ثم اختر مدة جديدة.');return false;}
+    if(pausePendingAfterDayClose){notice('يكتمل إقفال اليوم ويتوقف الوقت، ثم اختر مدة التقديم.');return false;}
     const now=Math.max(0,Number(state.simSeconds)||0),next=Math.floor(Number(target)||0);if(!Number.isFinite(next)||next<=now){notice('اختر تاريخًا لاحقًا عن التاريخ الحالي.');return false;}
     const max=366*86400;if(next-now>max+1){notice('للحفاظ على سلامة المحاكاة يمكن التقديم حتى سنة واحدة في كل عملية.');return false;}
     observeLoopLock();
@@ -4500,6 +4502,7 @@
       const metric=runtimeInstrumentation.simRender;metric.count++;metric.last={...parts,recordedAtMs:Date.now()};for(const [key,value] of Object.entries(parts))metric.max[key]=Math.max(Number(metric.max[key])||0,value);
     },
     onPersist:()=>scheduleSimulationPersistence(),
+    onPauseAfterDayClose:()=>pauseAfterDayClose(),
     onAdvance:detail=>{
       const active=!!detail?.active;updateDayStepControl();if(!active)renderSimulationCalendar();
       if(detail?.failed){
@@ -6876,16 +6879,24 @@ ${page}</div>`;
     return requestCalendarAdvance(calendarAdvanceTargetDays(1),'calendar-next-day','بيوم واحد');
   }
   let resumeSpeed=startupSignatureResumeSpeed>0?startupSignatureResumeSpeed:(state.speed>0?state.speed:1);
-  function setSpeed(value){
+  // Owner («نفذ»): the player's pause (the speed controls, afterDayClose) pressed during a live day close lets the close
+  // finish in its slices and pauses when it has (onPauseAfterDayClose), instead of rolling it back in one long task;
+  // the button shows the pause at once. Pressing play meanwhile keeps the speed. Every other caller pauses at once.
+  // (pausePendingAfterDayClose is declared at the top: replacing the live state clears it.)
+  function showSpeedControls(paused){document.querySelectorAll('#speedMenu button[data-speed]').forEach(b=>b.classList.toggle('active',Number(b.dataset.speed)===(paused?0:state.speed)));$('speedLabel').textContent=SPEED_LABEL_BY_LEVEL[paused?0:state.speed];$('speedToggle').querySelector('span').textContent=paused?'▶':'Ⅱ';$('speedToggle').setAttribute('aria-pressed',String(paused));updateDayStepControl();}
+  function pauseAfterDayClose(){if(!pausePendingAfterDayClose)return;pausePendingAfterDayClose=false;setSpeed(0);}
+  function setSpeed(value,{afterDayClose=false}={}){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل تغيير السرعة.');return false;}
     if(state.speed>0)resumeSpeed=state.speed;
     const requested=Number(value),next=SAFE_SPEED_VALUES.includes(requested)?requested:1,now=performance.now();
+    if(pausePendingAfterDayClose){if(next===0&&afterDayClose)return true;pausePendingAfterDayClose=false;simulationEngine.cancelPauseAfterDayClose?.();if(next===state.speed&&next>0){showSpeedControls(false);return true;}}
+    if(afterDayClose&&next===0&&state.speed>0&&simulationEngine.pauseAfterDayClose?.()===true){pausePendingAfterDayClose=true;showSpeedControls(true);notice('يكتمل إقفال اليوم ثم يتوقف الوقت.');return true;}
     // Cancel first. A staged rollback owns the pre-slice `speed` snapshot and
     // may restore it; publishing the player's new speed only after that rollback
     // prevents a cancelled midnight close from silently starting again.
     simulationEngine.cancelAdvance?.('user-speed-change');simulationEngine.reset(now,'user-speed-change');
     state.speed=next;simulationEngine.reset(now,'user-speed-change-settled');simulationRuntime.wake();wakePresentationLoop();
-    document.querySelectorAll('#speedMenu button[data-speed]').forEach(b=>b.classList.toggle('active',Number(b.dataset.speed)===state.speed));$('speedLabel').textContent=SPEED_LABEL_BY_LEVEL[state.speed];$('speedToggle').querySelector('span').textContent=state.speed===0?'▶':'Ⅱ';$('speedToggle').setAttribute('aria-pressed',String(state.speed===0));updateDayStepControl();
+    showSpeedControls(state.speed===0);
   }
 
   function openWorld(){closeDrawer();closeMapPopovers();$('assetCard').classList.add('hidden');setActiveNav('map');updateMapStatus();}
@@ -6902,7 +6913,7 @@ ${page}</div>`;
   $('assetManageBtn').addEventListener('click',()=>{if(selectedAssetId)openDrawer('assetManage',selectedAssetId);});
   syncMapCompanyFilterButtons();
   $('filterToggle').addEventListener('click',e=>{e.stopPropagation();const pop=$('filterPopover'),opening=pop.classList.contains('hidden');if(opening){closeDrawer();toggleSimulationCalendar(false);$('assetCard').classList.add('hidden');syncMapCompanyFilterButtons();}pop.classList.toggle('hidden');});
-  $('speedToggle').addEventListener('click',e=>{e.stopPropagation();setSpeed(state.speed===0?resumeSpeed:0);});
+  $('speedToggle').addEventListener('click',e=>{e.stopPropagation();setSpeed(state.speed===0||pausePendingAfterDayClose?resumeSpeed:0,{afterDayClose:true});});
   $('simNextDay')?.addEventListener('click',advanceToNextSimulationDay);
   $('simCalendarToggle')?.addEventListener('click',e=>{e.stopPropagation();toggleSimulationCalendar();});
   $('simCalendarPanel')?.addEventListener('click',e=>e.stopPropagation());
@@ -6915,7 +6926,7 @@ ${page}</div>`;
   $('competitorToggle').addEventListener('change',e=>{state.showCompetitors=e.target.checked;const next=clone(currentMapFilter());next.market.competitors=state.showCompetitors;state.mapFilterState=clone(MAP_FEATURE_CORE.normalizeFilterState(next,{state,companyPlatform:COMPANY_PLATFORM}));renderMap();});
   document.querySelectorAll('.speed-menu button').forEach(el=>el.addEventListener('click',e=>e.stopPropagation()));
   document.querySelectorAll('#layerMenu button').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setMapLayer(btn.dataset.layer);/* keep menu open for consecutive choices */}));
-  document.querySelectorAll('#speedMenu button[data-speed]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setSpeed(btn.dataset.speed);/* keep menu open */}));
+  document.querySelectorAll('#speedMenu button[data-speed]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setSpeed(btn.dataset.speed,{afterDayClose:true});/* keep menu open */}));
 
 
   let founderLogoData=null,founderLogoRequest=0,founderLogoLoading=false,founderReviewedInput=null,founderSubmitting=false,founderSignaturePad=null,signatureDialogPad=null,signatureDialogRequired=false,pendingAuthorizedResumeSpeed=startupSignatureResumeSpeed;
