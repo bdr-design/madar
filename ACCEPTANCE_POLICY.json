@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build449-asset-capacity-work.cjs"
+    ],
+    [
+      "node",
       "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
@@ -1976,10 +1980,6 @@
     [
       "node",
       "tests/build442-fleet-review-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build449-asset-capacity-work.cjs"
     ],
     [
       "node",

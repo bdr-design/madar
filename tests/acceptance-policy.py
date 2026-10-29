@@ -59,9 +59,12 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build575-conference-keynote-weight-browser, which failed in builds 110 (position 291: the slides'
+# (AGENTS.md). First build449-asset-capacity-work, which failed in build 112's second run (position 495: the asset
+# market body it runs in its sandbox now counts its models through countText, which the sandbox lacked; the real
+# countText and GH_ARABIC_COPY are loaded with it, the claims unchanged; every gate after it passes here). Then
+# build575-conference-keynote-weight-browser, which failed in builds 110 (position 291: the slides'
 # synchronous build read 1.23 of the source before against the 1.15 bound) and 111 (first: the opening read 147.8 ms
-# against 119.8, and the slides 1.21), after passing in the three builds before the panel review. The panel review's
+# against 119.8, and the slides 1.21), after passing in the three builds before the panel review, and passed in build 112's second run. The panel review's
 # shell rules grouped their scopes in :is(), which keeps the browser from setting aside an element outside the drawer
 # at once: every div on the page, the conference's slides among them, walked its ancestors on each restyle (here the
 # slides' style work read a fifth more with the rules than without them). The rules are written out now, the same
@@ -168,6 +171,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build449-asset-capacity-work.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build614-panel-copy-browser.cjs'],
     ['node', 'tests/phone-layout-browser.cjs'],
@@ -662,7 +666,6 @@ expected_preflight=[
     ['node', 'tests/build437-adoption-patch-lineage.cjs'],
     ['node', 'tests/build438-day-scratch-work.cjs'],
     ['node', 'tests/build442-fleet-review-work.cjs'],
-    ['node', 'tests/build449-asset-capacity-work.cjs'],
     ['node', 'tests/build463-ui-summary-projection.cjs'],
     ['node', 'tests/build468-summary-projection-browser.cjs'],
     ['node', 'tests/build474-event-trace-work.cjs'],
