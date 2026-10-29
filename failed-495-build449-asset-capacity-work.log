@@ -1,0 +1,17 @@
+evalmachine.<anonymous>:19
+      <div class="asset-request-routing"><div><span>شراء يدوي مباشر</span><b>أنت تختار الأصل والعدد والقاعدة وطريقة التملك</b><small>${hasDeliveryBase?'اختر إجماليًا يوزّع داخل منشآت الشركة، أو العدد نفسه لكل منشأة. الطلب الكبير يُنفَّذ على دفعات ضمن عملية واحدة.':'افتح منشأة تسليم متوافقة أولًا؛ لن يسمح النظام بشراء أصل بلا وجهة وصول صحيحة.'}</small></div>${hasDeliveryBase?`<div class="route-builder manual-asset-purchase"><label>الشركة وقاعدة التسليم الأولى<select class="manual-asset-base">${baseOptions}</select></label><label>طريقة توزيع العدد<select class="manual-asset-distribution"><option value="total">إجمالي موزّع</option><option value="per-facility">العدد لكل منشأة</option></select></label><label>العدد<input class="manual-asset-qty" type="number" min="1" max="${window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000}" value="1" inputmode="numeric"><small>حتى ${countText(window.GH_PROCUREMENT_CORE?.MAX_ASSET_PURCHASE_REQUEST||1000000,'asset')}، ضمن سعة المنشآت وسعة الحفظ في الجهاز</small></label><label>التملك<select class="manual-asset-mode"><option value="cash">شراء نقدي</option><option value="finance">تمويل</option><option value="lease">تأجير تشغيلي</option></select></label></div>`:''}<div class="action-row"><button class="primary-btn manual-buy-asset" data-type="${activeType}" data-tab="${activeTab}" data-id="${a.id}" ${hasDeliveryBase?'':'disabled'}>شراء وتسليم الآن</button><button class="secondary-btn compare-asset ${marketCompare.includes(a.id)?'active':''}" data-id="${a.id}">${marketCompare.includes(a.id)?'إزالة من المقارنة':'قارن'}</button></div></div></article>`).join('');
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+
+ReferenceError: countText is not defined
+    at evalmachine.<anonymous>:19:806
+    at Array.map (<anonymous>)
+    at Object.renderAssetMarketBody (evalmachine.<anonymous>:16:31)
+    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/build449-asset-capacity-work.cjs:13:180)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+
+Node.js v24.22.0
