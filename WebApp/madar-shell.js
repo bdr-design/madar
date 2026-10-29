@@ -440,7 +440,17 @@ function install({openDrawer,getState}){
   });
   const expand=document.getElementById('drawerExpand');
   expand?.addEventListener('click',()=>{const shell=document.querySelector('.app-shell'),on=!shell.classList.contains('panel-expanded');shell.classList.toggle('panel-expanded',on);expand.setAttribute('aria-pressed',String(on));const mark=expand.querySelector('.mg');mark?.classList.toggle('ic-collapse',on);mark?.classList.toggle('ic-expand',!on);expand.setAttribute('aria-label',on?'العودة بجانب الخريطة':'فتح القسم بالكامل');});
+  // The overlay state the map strip, the sheet dock and the status capsule follow, kept as two classes on the app root
+  // (drawer-open, overlay-open) when the drawer, the calendar, the layers popover or the asset card opens or closes. The
+  // :has() rules they replace searched the whole app on every change inside it (iPhone ui.open up to 38 ms; selector
+  // statistics: 135 µs a check, 687 elements restyled to open a 38-element page).
+  const overlayShell=document.getElementById('app'),overlayDrawer=document.getElementById('drawer'),overlayOthers=['simCalendarPanel','filterPopover','assetCard'].map(id=>document.getElementById(id)).filter(Boolean);
+  const syncOverlay=()=>{if(!overlayShell||!overlayDrawer)return;const open=overlayDrawer.classList.contains('open');overlayShell.classList.toggle('drawer-open',open);overlayShell.classList.toggle('overlay-open',open||overlayOthers.some(node=>!node.classList.contains('hidden')));};
+  if(overlayShell&&overlayDrawer&&typeof MutationObserver==='function'){const watch=new MutationObserver(syncOverlay);for(const node of [overlayDrawer,...overlayOthers])watch.observe(node,{attributes:true,attributeFilter:['class']});}
+  syncOverlay();
   try{syncDock(getState(),null,true);}catch(_error){}
 }
-globalThis.GH_MADAR=Object.freeze({VERSION:'1.1.0',KINDS,SECTIONS,HUBS,kindOf,openedCompanies,locate,redirect,rail,meta,render,decorate,sync,syncDock,install,tilesFor});
+// The name of the tile that opens a page, for the cards inside it (one page, one name; panel review).
+const titleFor=(state,panel,arg)=>tileTitle(state,panel,arg)?.[1]||null;
+globalThis.GH_MADAR=Object.freeze({VERSION:'1.1.0',KINDS,SECTIONS,HUBS,kindOf,openedCompanies,locate,redirect,rail,meta,render,decorate,sync,syncDock,install,tilesFor,titleFor});
 })();

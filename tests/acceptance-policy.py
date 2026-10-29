@@ -59,7 +59,24 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build575-conference-keynote-weight-browser, which failed again in build 113 (the slides 1.18 of
+# (AGENTS.md). First the map batch of the heaviness work (owner: «ابيها اصفار»), none reached by a build: the new
+# build617-map-render-reuse (renderMap normalised every facility's place again and looked each representative's id up
+# again among 300k rows; fails on f4d8bfd), the new build616-marker-step-projection (each marker's step searched its
+# route through Leaflet's project, 52 of 116 MB allocated in 20 s of live play; fails on f4d8bfd), and
+# build334-presentation-work-contract, which reads the marker motion next to the code changed, and
+# build334-map-pressure-contract, which reads the render block that builds the vehicle candidates. Then the heaviness batch from the iPhone diagnostic DX-1793259100633 (owner: «تتبع الثقل ... وحلها بدقه»),
+# none reached by a build: the new build615-document-proof-check-slices (each simulation slice's post-commit save check
+# averaged 40 ms, the document proof walk one block; it now gives the frame back past 4 ms; fails on f4d8bfd), then
+# build614-panel-copy-browser, whose claim 4 now also reads that the app root carries the overlay state as classes
+# instead of :has() rules (selector statistics: 135 µs a check, 687 elements restyled to open a 38-element page), then
+# build609-authorization-check-slices, which now also leaves the document slices out of its section order, and
+# phone-layout-browser, whose pinned hash of interface-layout.css changed. Then the gates the pages-consistency batch
+# changed (owner: «صلح»), none reached by a build:
+# build614-panel-copy-browser, whose claim 3 now also reads one name for one thing across the pages, the asset
+# registry counting the company it is opened on, and a company's contracts listing only the construction it ordered (all
+# fail on f4d8bfd), then build440-document-collection-work and build443-company-review-work, whose pinned page HTML
+# changed only by the renamed labels (the finance card, the customer-base receivables, the overview links, the company
+# balance, the power and bank revenue lines). Then build575-conference-keynote-weight-browser, which failed again in build 113 (the slides 1.18 of
 # f474908, the source before the owner's hall): its reference is now 1d7dce1, the source with the hall in place (owner:
 # «حدث»), the bounds unchanged; here it reads 0.99 to 1.00 of it. Then build449-asset-capacity-work, which failed in build 112's second run (position 495: the asset
 # market body it runs in its sandbox now counts its models through countText, which the sandbox lacked; the real
@@ -173,10 +190,18 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build617-map-render-reuse.cjs'],
+    ['node', 'tests/build616-marker-step-projection.cjs'],
+    ['node', 'tests/build334-presentation-work-contract.cjs'],
+    ['node', 'tests/build334-map-pressure-contract.cjs'],
+    ['node', 'tests/build615-document-proof-check-slices.cjs'],
+    ['node', 'tests/build614-panel-copy-browser.cjs'],
+    ['node', 'tests/build609-authorization-check-slices.cjs'],
+    ['node', 'tests/phone-layout-browser.cjs'],
+    ['node', 'tests/build440-document-collection-work.cjs'],
+    ['node', 'tests/build443-company-review-work.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build449-asset-capacity-work.cjs'],
-    ['node', 'tests/build614-panel-copy-browser.cjs'],
-    ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
@@ -193,8 +218,6 @@ expected_preflight=[
     ['node', 'tests/build486-route-card-pages.cjs'],
     ['node', 'tests/build453-section-projections.cjs'],
     ['node', 'tests/build448-labor-tab-work.cjs'],
-    ['node', 'tests/build440-document-collection-work.cjs'],
-    ['node', 'tests/build443-company-review-work.cjs'],
     ['node', 'tests/build462-market-summary-refresh.cjs'],
     ['node', 'tests/build458-stable-ui-writes.cjs'],
     ['node', 'tests/build340-map-status-cache.cjs'],
@@ -287,10 +310,8 @@ expected_preflight=[
     ['node', 'tests/build334-identity-regressions.cjs'],
     ['node', 'tests/build334-iphone-thermal-contract.cjs'],
     ['node', 'tests/build334-logistics-staged-contract.cjs'],
-    ['node', 'tests/build334-map-pressure-contract.cjs'],
     ['node', 'tests/build334-market-discovery-contract.cjs'],
     ['node', 'tests/build334-open-invoice-retention.cjs'],
-    ['node', 'tests/build334-presentation-work-contract.cjs'],
     ['node', 'tests/build334-r2-deferred-persistence.cjs'],
     ['node', 'tests/build334-r2-maintenance-atomic.cjs'],
     ['node', 'tests/build334-r4-proof-archive.cjs'],
@@ -439,7 +460,6 @@ expected_preflight=[
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build593-bulk-acquisition-frames-browser.cjs'],
     ['node', 'tests/dealer-ledger-and-stock-browser.cjs'],
-    ['node', 'tests/build609-authorization-check-slices.cjs'],
     ['node', 'tests/build608-dispatch-hex-proof-compact.cjs'],
     ['node', 'tests/build334-asset-route-hr-contract.cjs'],
     ['node', 'tests/build499-purchase-append-views.cjs'],

@@ -50,7 +50,8 @@ try{
   assert.equal(JSON.parse(now.answers.clean).ok,true,'1: a clean store passes');for(const name of ['payload','seal','mandate'])assert.equal(JSON.parse(now.answers[name]).ok,false,`1: ${name}: refused`);
   // 2.
   assert.ok(now.metric.pauses>=2,`2: the proof walk gives the frame back (${now.metric.pauses} times)`);assert.equal(before.sections.names.filter(n=>n==='authorization-proofs').length,0,'2: (the source before never did)');
-  assert.deepEqual(now.sections.names.filter(n=>n!=='authorization-proofs'),before.sections.names,'2: every other section in the same order');assert.equal(now.sections.ok,true);
+  // The document proof walk gives the frame back the same way since build615 ('document-proof-checks', its own gate).
+  assert.deepEqual(now.sections.names.filter(n=>n!=='authorization-proofs'&&n!=='document-proof-checks'),before.sections.names,'2: every other section in the same order');assert.equal(now.sections.ok,true);
   // 3.
   assert.ok(now.metric.authorizationMs<now.metric.pauses*50,`3: the authorization time leaves out the pauses (${now.metric.authorizationMs} ms, ${now.metric.pauses} pauses of 50 ms)`);
   assert.ok(now.metric.totalMs<before.metric.totalMs+now.metric.pauses*50,`3: so does the total (${now.metric.totalMs} against ${before.metric.totalMs})`);

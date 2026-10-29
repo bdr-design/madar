@@ -451,7 +451,8 @@
     if(!current||typeof current!=='object')return {changed:new Set(),removed:new Set(Array.isArray(known)?known:Object.keys(known))};
     return globalThis.GH_TRANSACTION_CORE?.containerChanges?.(current,known)||null;
   }
-  function validateDocumentProofState(s,errors,verificationCache,metric,trust=false){
+  function* validateDocumentProofState(s,errors,verificationCache,metric,trust=false){
+    let paused=0,sliceStarted=metricClock();
     const work=metric?(metric.documentProofWork={stateChecks:1,archiveResidencyRows:0,recordRows:0,recordVerifyCalls:0,liveDocuments:0,archiveDocuments:0,documentVerifyCalls:0,documentSerializationRows:0,dependencyChecks:0,changeSetChecks:0,changeListKinds:0,changeRemovedDocumentEntries:0,changeRemovedDocuments:0,changeRemovedRecords:0,changeRemovedCheckpoints:0,changeChangedCheckpoints:0,changeChangedPeriods:0,changeChangedRecords:0,changeRecordDocumentLinks:0,changeChangedDocumentEntries:0,changeRecheckDocuments:0,checkpointVerifyCalls:0,checkpointRows:0,checkpointPeriodRows:0,checkpointDigestRows:0,sealVerifyCalls:0,sealRows:0,archiveMode:'full',total:1}):null;
     const store=s?.documentProofs;if(store===undefined)return;
     if(!object(store)||store.schema!=='gh-document-proofs-v1'||!object(store.recordsById)){errors.push('document-proof-shape');return;}
@@ -562,11 +563,11 @@
     // Build 359: the records are read in place (the archive's, then the hot window's; a record in both is the hot one, as
     // the merged copy {...archive,...hot} that every validation built had it), and a sealed record whose shape passed is
     // not inspected again (the reference to its authorization proof is, every time). An answered archive is not walked.
-    const recordVerificationStart=metric?metricClock():0;
-    if(!answered)for(const id of Object.keys(archived))if(!conflicts.has(id)&&!own(superseded,id)){const row=archived[id],relied=checkRecord(id,row,true);if(relied?.length)index.relied.set(`r${id}`,relied);if(object(row)&&row.previousProofId){index.recordPrevious.set(id,row.previousProofId);index.predecessors.set(row.previousProofId,(index.predecessors.get(row.previousProofId)||0)+1);}}
-    for(const id of hotIds)checkRecord(id,hot[id],false);
-    for(const id of supersededIds)checkRecord(id,superseded[id],false);
-    if(metric)metric.documentRecordVerifyMs+=Math.max(0,metricClock()-recordVerificationStart);
+    const recordVerificationStart=metric?metricClock():0,recordPausedBefore=paused;
+    if(!answered)for(const id of Object.keys(archived))if(!conflicts.has(id)&&!own(superseded,id)){const row=archived[id],relied=checkRecord(id,row,true);if(relied?.length)index.relied.set(`r${id}`,relied);if(object(row)&&row.previousProofId){index.recordPrevious.set(id,row.previousProofId);index.predecessors.set(row.previousProofId,(index.predecessors.get(row.previousProofId)||0)+1);}if(metricClock()-sliceStarted>=4){const pausedAt=metricClock();yield 'document-proof-checks';const resumed=metricClock();paused+=Math.max(0,resumed-pausedAt);sliceStarted=resumed;}}
+    for(const id of hotIds){checkRecord(id,hot[id],false);if(metricClock()-sliceStarted>=4){const pausedAt=metricClock();yield 'document-proof-checks';const resumed=metricClock();paused+=Math.max(0,resumed-pausedAt);sliceStarted=resumed;}}
+    for(const id of supersededIds){checkRecord(id,superseded[id],false);if(metricClock()-sliceStarted>=4){const pausedAt=metricClock();yield 'document-proof-checks';const resumed=metricClock();paused+=Math.max(0,resumed-pausedAt);sliceStarted=resumed;}}
+    if(metric)metric.documentRecordVerifyMs+=Math.max(0,metricClock()-recordVerificationStart-(paused-recordPausedBefore));
     const documentCollectionStart=metric?metricClock():0,documents=documentOwner.stateDocuments(s,{archive:false}),live=new Set(documents),archiveDocuments=[];
     if(!answered)for(const list of archiveLists(s).values())for(const document of list)if(document&&typeof document==='object'&&!live.has(document))archiveDocuments.push(document);
     if(metric)metric.documentCollectionMs+=Math.max(0,metricClock()-documentCollectionStart);
@@ -579,14 +580,15 @@
       {if(work)work.sealVerifyCalls++;const seals=documentOwner.verifySeals?.(s);if(work)work.sealRows+=Number(seals?.stats?.sealRows)||0;if(seals&&!seals.ok)errors.push('document-proof-seal');}
       {if(work)work.checkpointVerifyCalls++;const checkpoints=documentOwner.verifyCheckpoints?.(s,verificationCache?.documents,{fresh:!trust});if(work){work.checkpointRows+=Number(checkpoints?.stats?.checkpointRows)||0;work.checkpointPeriodRows+=Number(checkpoints?.stats?.periodRows)||0;work.checkpointDigestRows+=Number(checkpoints?.stats?.digestRows)||0;}if(checkpoints&&!checkpoints.ok)errors.push('document-proof-checkpoint');}
     }
-    const documentVerificationStart=metric?metricClock():0;
-    for(const document of documents){if(work)work.liveDocuments++;if(document?.documentProofId)checkDocument(document,false);}
-    for(const document of archiveDocuments){if(work)work.archiveDocuments++;if(document.documentProofId){const relied=checkDocument(document,true);const proofId=document.documentProofId;let holders=index.documents.get(proofId);if(!holders){holders=new Set();index.documents.set(proofId,holders);}holders.add(document);if(relied?.length)index.relied.set(`d${proofId}`,relied);}}
+    const documentVerificationStart=metric?metricClock():0,documentPausedBefore=paused;
+    for(const document of documents){if(work)work.liveDocuments++;if(document?.documentProofId)checkDocument(document,false);if(metricClock()-sliceStarted>=4){const pausedAt=metricClock();yield 'document-proof-checks';const resumed=metricClock();paused+=Math.max(0,resumed-pausedAt);sliceStarted=resumed;}}
+    for(const document of archiveDocuments){if(work)work.archiveDocuments++;if(document.documentProofId){const relied=checkDocument(document,true);const proofId=document.documentProofId;let holders=index.documents.get(proofId);if(!holders){holders=new Set();index.documents.set(proofId,holders);}holders.add(document);if(relied?.length)index.relied.set(`d${proofId}`,relied);}if(metricClock()-sliceStarted>=4){const pausedAt=metricClock();yield 'document-proof-checks';const resumed=metricClock();paused+=Math.max(0,resumed-pausedAt);sliceStarted=resumed;}}
     // An answered pass did not see the archive's documents: it leaves their ledger entries alone.
     if(!answered&&(!trust||VERIFIED_DOCUMENTS.size>seenDocuments.size*2+64))for(const proofId of [...VERIFIED_DOCUMENTS.keys()])if(!seenDocuments.has(proofId))VERIFIED_DOCUMENTS.delete(proofId);
-    if(metric)metric.documentVerifyMs+=Math.max(0,metricClock()-documentVerificationStart);
+    if(metric)metric.documentVerifyMs+=Math.max(0,metricClock()-documentVerificationStart-(paused-documentPausedBefore));
     // A pass that verified the archive part without a fault remembers its version, if nothing in it can change.
     if(!answered){const current=version||archiveVersion(s,store);ARCHIVE_MEMO=errors.length===errorsBefore&&rememberable(current)?{version:current,archive:store.archiveById,checkpoints:store.checkpointsById,periods:store.periodDigests,lists:archiveLists(s),...index}:null;}if(work)work.total=work.stateChecks+work.archiveResidencyRows+work.recordRows+work.recordVerifyCalls+work.liveDocuments+work.archiveDocuments+work.documentVerifyCalls+work.documentSerializationRows+work.dependencyChecks+work.changeSetChecks+work.changeListKinds+work.changeRemovedDocumentEntries+work.changeRemovedDocuments+work.changeRemovedRecords+work.changeRemovedCheckpoints+work.changeChangedCheckpoints+work.changeChangedPeriods+work.changeChangedRecords+work.changeRecordDocumentLinks+work.changeChangedDocumentEntries+work.changeRecheckDocuments+work.checkpointVerifyCalls+work.checkpointRows+work.checkpointPeriodRows+work.checkpointDigestRows+work.sealVerifyCalls+work.sealRows;
+    return paused;
   }
   // Build 359 (owner: no command or save may walk every document): persistence ran a full validation (every proof and
   // document verified afresh, 77 ms on iPhone at 13,291 documents) on every tenth save. That verification is now an
@@ -818,7 +820,10 @@
     // Work counters are incremented inside the existing validation walks. This
     // keeps sealed memo hits O(1) and makes a 10,000-document live scan visible.
     {const {total:_total,archiveMemoHit,...work}=metric.authorizationWork||{};yield* pause('authorization',work,{archiveMemoHit:archiveMemoHit===true});}
-    started=metricClock();validateDocumentProofState(s,errors,verificationCache,metric,trust);metric.documentProofMs=Math.max(0,metricClock()-started);
+    // Build 614 (iPhone diagnostic DX-1793259100633: each simulation slice's post-commit schema check averaged 40 ms, the
+    // document proof walk one block): the walk keeps its order and verifier and, past 4 ms of work, gives the frame back
+    // ('document-proof-checks'), as the authorization walk does. The time paused counts in no metric.
+    started=metricClock();const documentPaused=Number(yield* validateDocumentProofState(s,errors,verificationCache,metric,trust))||0;metric.documentProofMs=Math.max(0,metricClock()-started-documentPaused);pausedMs+=documentPaused;sectionStarted+=documentPaused;
     {const {total:_total,archiveMode,...work}=metric.documentProofWork||{};yield* pause('document-proofs',work,{archiveMode:archiveMode||'unavailable'});}
     started=metricClock();const companyValidator=globalThis.GH_COMPANY_PLATFORM?.validateState,companyOptions={assetScan:rowScan?'rows':'classes',measureWork:true};if(companyFleetValidation)companyOptions.fleetAssetValidation=companyFleetValidation;else if(validationRequired)companyOptions.requireFleetAssetValidation=true;const companyValidation=companyValidator?.(s,companyOptions),companyPlatformWork=metric.companyPlatformWork=object(companyValidation?.work)?companyValidation.work:{validationCalls:typeof companyValidator==='function'?1:0};metric.companyPlatformMs=Math.max(0,metricClock()-started);if(companyValidation&&!companyValidation.ok)errors.push(...companyValidation.errors.map(error=>`company-platform:${error}`));
     const validationEnded=metricClock();metric.sectionSamples.push({name:'company-platform',durationMs:Math.max(0,validationEnded-sectionStarted),units:workTotal(companyPlatformWork),details:{work:{...companyPlatformWork},logicalRows:Number.isSafeInteger(companyValidation?.logicalRows)?companyValidation.logicalRows:fleetLogicalRows,scan:companyFleetValidation?'worker-summary':validationRequired?'worker-required':rowScan?'rows':'classes'}});metric.totalMs=Math.max(0,validationEnded-validationStart-pausedMs);metric.errors=new Set(errors).size;metric.otherMs=Math.max(0,metric.totalMs-metric.authorizationMs-metric.documentProofMs-metric.companyPlatformMs);publishValidationMetric(metric);

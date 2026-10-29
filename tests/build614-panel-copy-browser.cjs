@@ -62,6 +62,21 @@ const AGREEMENT=[[/(?:^|[^\d,.])(?:[3-9]|10) (?:أصل|شهر|يوم|ساعة|ب
       if(!f.moving)assert.doesNotMatch(f.people.text,/طواقم الأصول|طاقم الأصول/,`3: ${id} has no asset crew`);
       for(const p of pages.filter(row=>row.id===id&&row.tile)){assert.equal(p.title,p.tile,`3: ${id} ${p.where} carries its tile's name`);}
     }
+    // One thing, one name: the cards inside a page reached from a tile carry the tile's name, the company balance is
+    // «رصيد الشركة», the power revenue lines and the bank's interest line read the same on every page, money is «$…».
+    const STALE=[/مركز العقود الكبرى والمناقصات/,/ميزانيات الشهر/,/المالية والمستندات/,/رصيد الحساب(?! الجاري| المصدر)/,/صافي دخل الفائدة/,/عقود PPA/,/التخزين\/المراجحة/,/سعة\/موازنة/,/رواتب أصول شهرية/,/\d USD\b/,/مليون دولار/];
+    const stale=[];for(const p of pages){const body=`${p.title}\n${p.text}`;for(const rule of STALE)if(rule.test(body))stale.push(`${p.id} ${p.where}: «${body.match(rule)[0]}»`);}
+    assert.deepEqual(stale,[],'3: one thing, one name across the pages');
+    for(const p of pages.filter(row=>row.tile&&/^tile:(companyFacilities|crews|budgets|invoices)$/.test(row.where)))assert(p.text.includes(p.tile),`3: ${p.id} ${p.where}: the card inside carries the tile's name «${p.tile}»`);
+    // One scope, one count: the asset registry opened on a company counts that company (it read the group's total), and a
+    // company's contracts list only the construction that company ordered.
+    for(const id of companies.filter(id=>facts[id].moving)){
+      await open('assets',id);
+      const head=await page.evaluate(id=>{const s=__GH_STATE__,mobility=GH_COMPANY_PLATFORM.definitionFor(s,id)?.capabilities?.includes('operations.mobility'),own=mobility?(s.mobility?.vehicles||[]).length:GH_FLEET_DATA.filter(s,x=>(x.ownerCompanyId||x.companyId)===id).length,first=document.querySelector('#drawerBody .registry-hero .metric-row>div');return {own,label:first?.querySelector('span')?.textContent||'',shown:Number(String(first?.querySelector('b')?.textContent||'').replace(/[^\d]/g,''))};},id);
+      assert.equal(head.shown,head.own,`3: ${id}: the registry head counts the company's own assets («${head.label}»)`);
+    }
+    const foreign=await page.evaluate(()=>(__GH_STATE__.constructionContracts||[]).filter(row=>row?.ownerCompanyId&&row?.siteName).map(row=>({owner:row.ownerCompanyId,site:row.siteName})));
+    for(const p of pages.filter(row=>row.where==='tile:contracts'))for(const row of foreign)if(row.owner!==p.id&&!foreign.some(other=>other.owner===p.id&&other.site===row.site))assert(!p.text.includes(row.site),`3: ${p.id} contracts do not list ${row.owner}'s construction «${row.site}»`);
     const energy=await page.evaluate(()=>{const s=__GH_STATE__,sites=(s.energy?.sites||[]).filter(x=>x.commissioned===true&&!String(x.id||'').startsWith('LEGACY-'));return {solar:sites.filter(x=>x.kind==='solar').reduce((n,x)=>n+Number(x.capacity||0),0)};});
     if(energy.solar>0&&facts.power)assert.match(facts.power.assets.text,new RegExp(`شمسي\\s*${energy.solar.toLocaleString('en-US')} ميغاواط`),'3: the power assets tab reads the commissioned stations');
     // 4. Boxes (the computed layout of the rules madar-shell.css adds).
@@ -80,6 +95,15 @@ const AGREEMENT=[[/(?:^|[^\d,.])(?:[3-9]|10) (?:أصل|شهر|يوم|ساعة|ب
     // conference slides' style work grew a fifth; build575 failed in CI builds 110 and 111).
     const shellRules=require('fs').readFileSync(require('path').join(process.env.GH_TEST_SOURCE_DIR,'WebApp/madar-shell.css'),'utf8').replace(/\/\*[\s\S]*?\*\//g,'');
     assert.doesNotMatch(shellRules,/:(?:is|where)\(/,'4: the shell rules set aside an element outside their scope at once (no :is() lists)');
+    // The app root carries the overlay state as classes (drawer-open, overlay-open) instead of :has() rules that searched the
+    // whole app on every change inside it (opening a 38-element page restyled 687; 135 µs a check), and the classes follow
+    // the drawer, the calendar, the layers popover and the asset card.
+    const layoutRules=require('fs').readFileSync(require('path').join(process.env.GH_TEST_SOURCE_DIR,'WebApp/interface-layout.css'),'utf8').replace(/\/\*[\s\S]*?\*\//g,'');
+    assert.doesNotMatch(layoutRules,/\.app-shell[^{,]*:has\(/,'4: no rule on the app root searches it with :has()');
+    const overlay=async()=>{await page.waitForTimeout(30);return page.evaluate(()=>{const c=document.getElementById('app').classList;return `${c.contains('drawer-open')?'D':'-'}${c.contains('overlay-open')?'O':'-'}`;});};
+    await open('companies');assert.equal(await overlay(),'DO','4: an open drawer sets both classes');
+    await page.evaluate(()=>__AUDIT__.closeDrawer());assert.equal(await overlay(),'--','4: a closed drawer clears them');
+    for(const id of ['simCalendarPanel','filterPopover','assetCard']){await page.evaluate(id=>document.getElementById(id).classList.remove('hidden'),id);assert.equal(await overlay(),'-O',`4: ${id} open sets overlay-open only`);await page.evaluate(id=>document.getElementById(id).classList.add('hidden'),id);assert.equal(await overlay(),'--',`4: ${id} closed clears it`);}
     assert.deepEqual(errors,[],'4: no JavaScript errors');
     console.log(JSON.stringify({suite:'build614-panel-copy',ok:true,companies:companies.length,pages:pages.length}));
   }finally{await browser.close();await env?.closeOrigin?.();}

@@ -55,8 +55,9 @@
 
 /* ---- The panel: a card beside the map; "بالكامل" widens it over the map ---- */
 .sheet-dock{position:absolute;z-index:20;top:var(--below-bar);right:var(--panel-right);bottom:var(--edge-bottom);width:var(--panel);display:none;direction:rtl}
-.app-shell:has(.drawer.open,#simCalendarPanel:not(.hidden),#filterPopover:not(.hidden),#assetCard:not(.hidden)) .sheet-dock{display:block}
-.app-shell.panel-expanded:has(.drawer.open) .sheet-dock{width:auto;left:var(--edge-left)}
+/* overlay-open / drawer-open: classes madar-shell.js keeps on the app root (the :has() rules they replace searched the whole app on each change). */
+.app-shell.overlay-open .sheet-dock{display:block}
+.app-shell.panel-expanded.drawer-open .sheet-dock{width:auto;left:var(--edge-left)}
 .sheet-dock>*{position:absolute;inset:0;border-radius:18px;background:var(--surface);box-shadow:var(--panel-shadow);overflow:hidden}
 .sheet-dock>.filter-popover{width:auto;min-width:0;max-width:none;align-content:start;overflow-y:auto}
 .drawer{display:none;flex-direction:column;direction:rtl;color:var(--text)}
@@ -88,8 +89,8 @@
 .map-modes button{height:26px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:500 10.5px var(--font);cursor:pointer}
 .map-modes button[aria-pressed=true]{background:#0D3B57;color:#FFFFFF;font-weight:600}
 .map-strip{position:absolute;z-index:610;left:var(--edge-left);bottom:var(--edge-bottom);right:calc(var(--panel-right) + var(--gap));display:flex;align-items:flex-end;gap:var(--gap);direction:ltr;pointer-events:none}
-.app-shell:has(.drawer.open,#simCalendarPanel:not(.hidden),#filterPopover:not(.hidden),#assetCard:not(.hidden)) .map-strip{right:calc(var(--panel-right) + var(--panel) + var(--gap))}
-.app-shell.panel-expanded:has(.drawer.open) .map-strip{display:none}
+.app-shell.overlay-open .map-strip{right:calc(var(--panel-right) + var(--panel) + var(--gap))}
+.app-shell.panel-expanded.drawer-open .map-strip{display:none}
 .company-dock{pointer-events:auto;flex:0 1 auto;min-width:0;display:flex;gap:3px;padding:3px;border-radius:13px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl;overflow:hidden}
 /* Only the logos scroll; "+" is outside the strip, so no logo can slide beneath it when a page opens. */
 .company-dock .dock-strip{display:flex;gap:3px;min-width:0;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:none;direction:rtl;padding-bottom:4px;margin-bottom:-4px}
@@ -112,6 +113,6 @@
 @media(max-width:900px){.top-kpis>div:nth-child(2){display:none}.sim-clock-copy small{display:none}}
 @media(max-width:760px){.ui-speeds button{min-width:30px;padding:0 2px}.top-news-ticker>em{display:none}}
 /* On a phone, an open panel leaves no room for the status line beside the company dock; the dock wins. */
-@media(max-width:1100px){.app-shell:has(.drawer.open,#simCalendarPanel:not(.hidden),#filterPopover:not(.hidden),#assetCard:not(.hidden)) .map-status-capsule{display:none}}
+@media(max-width:1100px){.app-shell.overlay-open .map-status-capsule{display:none}}
 @media(max-height:360px){.side-nav button{height:42px;flex-basis:42px}}
 .page-context{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0 0 8px;padding:8px 10px;border-radius:12px;background:#FFFFFF;border:1px solid var(--line-soft);font-size:10.5px;color:var(--muted)}.page-context b{font-size:12px;color:var(--text)}.page-context em{font-style:normal;margin-inline-start:auto;padding:2px 8px;border-radius:999px;background:var(--surface-3);color:#33495A;font-size:9.5px;font-weight:600}

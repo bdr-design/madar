@@ -3,11 +3,23 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
+      "tests/build617-map-render-reuse.cjs"
     ],
     [
       "node",
-      "tests/build449-asset-capacity-work.cjs"
+      "tests/build616-marker-step-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-presentation-work-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-map-pressure-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build615-document-proof-check-slices.cjs"
     ],
     [
       "node",
@@ -15,7 +27,27 @@
     ],
     [
       "node",
+      "tests/build609-authorization-check-slices.cjs"
+    ],
+    [
+      "node",
       "tests/phone-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build440-document-collection-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build449-asset-capacity-work.cjs"
     ],
     [
       "node",
@@ -80,14 +112,6 @@
     [
       "node",
       "tests/build448-labor-tab-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build440-document-collection-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build443-company-review-work.cjs"
     ],
     [
       "node",
@@ -459,19 +483,11 @@
     ],
     [
       "node",
-      "tests/build334-map-pressure-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build334-market-discovery-contract.cjs"
     ],
     [
       "node",
       "tests/build334-open-invoice-retention.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-presentation-work-contract.cjs"
     ],
     [
       "node",
@@ -1064,10 +1080,6 @@
     [
       "node",
       "tests/dealer-ledger-and-stock-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build609-authorization-check-slices.cjs"
     ],
     [
       "node",
@@ -2770,6 +2782,18 @@
     [
       "node",
       "tests/build614-panel-copy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build615-document-proof-check-slices.cjs"
+    ],
+    [
+      "node",
+      "tests/build616-marker-step-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/build617-map-render-reuse.cjs"
     ],
     [
       "node",
