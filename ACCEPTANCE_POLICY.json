@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build606-purchase-frame-pacing-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build623-worker-extras-packing.cjs"
     ],
     [
@@ -160,10 +164,6 @@
     [
       "node",
       "tests/fleet-business-boundary.cjs"
-    ],
-    [
-      "node",
-      "tests/build606-purchase-frame-pacing-browser.cjs"
     ],
     [
       "node",
