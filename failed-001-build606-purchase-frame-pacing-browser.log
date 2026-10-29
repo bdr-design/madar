@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 3: at most 80% of the source before's time (3616 ms against 4281)
+    at /Users/runner/work/madar/madar/tests/build606-purchase-frame-pacing-browser.cjs:71:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

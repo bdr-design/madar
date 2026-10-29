@@ -1,0 +1,2 @@
+preflight 1/662 1 tests/build606-purchase-frame-pacing-browser.cjs
+EARLY_FAILURE tests/build606-purchase-frame-pacing-browser.cjs: stopping before remaining 661 gate(s)
