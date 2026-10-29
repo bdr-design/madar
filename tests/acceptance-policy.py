@@ -59,7 +59,12 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build358-staged-day-browser, which failed in the early warning with the frames slowed (80 ms):
+# (AGENTS.md). First the day-close batch (owner: «مسموح لك كل شي كمل»), none reached by a build: the new
+# build622-trip-settlement-stages-browser (each company's trip invoices and cash settlement in one task, up to 40 ms;
+# fails on b759519) and build621-profile-count-stages (the payroll's profile count over 300k rows in one task, 24 ms;
+# fails on c57745e), then the gates over the day close, its payroll and its finance documents (build334-600-air-calendar-
+# regression, build607, build571, build379, build359-sealed-flows, build357-fleet-profile-aggregation,
+# build372-fleet-ui-summary, build522, build580). Then build358-staged-day-browser, which failed in the early warning with the frames slowed (80 ms):
 # the day close fell within one presentation frame (the same on 88f4014, 3 runs in 5; it passed at normal pace); it now
 # reads the close across the engine's simulation ticks. Then the calendar batch (owner: «مسموح لك كل شي كمل»), none
 # reached by a build: the new build620-journal-log-segments (a calendar window reserved a 67 MB journal log at once, 449
@@ -205,6 +210,17 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build622-trip-settlement-stages-browser.cjs'],
+    ['node', 'tests/build621-profile-count-stages.cjs'],
+    ['node', 'tests/build334-600-air-calendar-regression.cjs'],
+    ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
+    ['node', 'tests/build571-tax-month-close-browser.cjs'],
+    ['node', 'tests/build379-financial-posting.cjs'],
+    ['node', 'tests/build359-sealed-flows.cjs'],
+    ['node', 'tests/build357-fleet-profile-aggregation.cjs'],
+    ['node', 'tests/build372-fleet-ui-summary.cjs'],
+    ['node', 'tests/build522-fleet-day-prefetch.cjs'],
+    ['node', 'tests/build580-company-types-money-weight.cjs'],
     ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build620-journal-log-segments.cjs'],
     ['node', 'tests/build619-dealer-restock-stages.cjs'],
@@ -242,15 +258,12 @@ expected_preflight=[
     ['node', 'tests/build443-company-review-work.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build449-asset-capacity-work.cjs'],
-    ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build596-construction-vat-browser.cjs'],
     ['node', 'tests/build359-sim-smoothness.cjs'],
-    ['node', 'tests/build334-600-air-calendar-regression.cjs'],
     ['node', 'tests/build387-save-actions.cjs'],
     ['node', 'tests/build394-hospitality-browser.cjs'],
     ['node', 'tests/build399-bank-prudential-summary-layout-browser.cjs'],
-    ['node', 'tests/build571-tax-month-close-browser.cjs'],
     ['node', 'tests/build611-truck-route-center-browser.cjs'],
     ['node', 'tests/build610-dead-code-removed-browser.cjs'],
     ['node', 'tests/fleet-business-boundary.cjs'],
@@ -459,7 +472,6 @@ expected_preflight=[
     ['node', 'tests/build550-airline-passenger-costs.cjs'],
     ['node', 'tests/build555-investor-card-return.cjs'],
     ['node', 'tests/build578-energy-history-compaction.cjs'],
-    ['node', 'tests/build580-company-types-money-weight.cjs'],
     ['node', 'tests/build581-fleet-definition-weight.cjs'],
     ['node', 'tests/build582-directory-type-weight.cjs'],
     ['node', 'tests/build584-summary-one-in-flight.cjs'],
@@ -543,7 +555,6 @@ expected_preflight=[
     ['node', 'tests/build372-proof-worker.cjs'],
     ['node', 'tests/build372-proof-worker-browser.cjs'],
     ['node', 'tests/build417-document-amendment-work.cjs'],
-    ['node', 'tests/build359-sealed-flows.cjs'],
     ['node', 'tests/build359-cheque-archived-invoice.cjs'],
     ['node', 'tests/build339-transaction-write-set-audit.cjs'],
     ['node', 'tests/build358-transaction-row-snapshots.cjs'],
@@ -554,7 +565,6 @@ expected_preflight=[
     ['node', 'tests/build554-investor-card-funding.cjs'],
     ['node', 'tests/build334-dynamic-finance-company-ids.cjs'],
     ['node', 'tests/build334-finance-settlement-contract.cjs'],
-    ['node', 'tests/build379-financial-posting.cjs'],
     ['node', 'tests/build376-money-guard.cjs'],
     ['node', 'tests/build317-finance-depth-test.js'],
     ['node', 'tests/build358-heaviness.cjs'],
@@ -634,7 +644,6 @@ expected_preflight=[
     ['node', 'tests/build356-fleet-events.cjs'],
     ['node', 'tests/build356-fleet-store.cjs'],
     ['node', 'tests/build357-fleet-migration.cjs'],
-    ['node', 'tests/build357-fleet-profile-aggregation.cjs'],
     ['node', 'tests/build358-codec-id-runs.cjs'],
     ['node', 'tests/build358-codec-segments.cjs'],
     ['node', 'tests/build358-fleet-row-codec-cache.cjs'],
@@ -668,7 +677,6 @@ expected_preflight=[
     ['node', 'tests/build372-fleet-query-worker-browser.cjs'],
     ['node', 'tests/build372-fleet-reference-query.cjs'],
     ['node', 'tests/build372-fleet-sale-plan.cjs'],
-    ['node', 'tests/build372-fleet-ui-summary.cjs'],
     ['node', 'tests/build372-global-route-candidates.cjs'],
     ['node', 'tests/build372-insurance-condition-worker.cjs'],
     ['node', 'tests/build372-large-health-fallback-browser.cjs'],
@@ -733,7 +741,6 @@ expected_preflight=[
     ['node', 'tests/build513-published-command-wait-browser.cjs'],
     ['node', 'tests/build516-tracked-collections.cjs'],
     ['node', 'tests/build519-idempotency-tracked.cjs'],
-    ['node', 'tests/build522-fleet-day-prefetch.cjs'],
     ['node', 'tests/build523-proofs-commands-tracked.cjs'],
     ['node', 'tests/build526-prestage-fleet-chunks-only.cjs'],
     ['node', 'tests/build534-staged-save-overlap.cjs'],

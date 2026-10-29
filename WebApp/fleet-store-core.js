@@ -144,7 +144,7 @@
   function identitySnapshot(store){const r=rt(store);return {runtime:r.uid,epoch:r.epoch,mass:r.massVersion,generation:r.valuesGeneration,length:store.length,structure:store.structure,versions:r.identityVersions.slice(0,Math.ceil(store.length/CHUNK_ROWS))};}
   function identityCurrent(store,snapshot){const r=rt(store);if(!snapshot||snapshot.runtime!==r.uid||snapshot.epoch!==r.epoch||snapshot.mass!==r.massVersion||snapshot.generation!==r.valuesGeneration||snapshot.length!==store.length||snapshot.structure!==store.structure)return false;for(let i=0;i<snapshot.versions.length;i++)if(snapshot.versions[i]!==r.identityVersions[i])return false;return true;}
   function bumpEpoch(store){const r=rt(store);r.epoch=++epochCounter;r.ids=null;return r.epoch;}
-  function invalidateProfiles(store){const r=runtime.get(store);if(r){r.profileGroups=null;r.leaseGroups=null;r.payrollGroups=null;}}
+  function invalidateProfiles(store){const r=runtime.get(store);if(r){r.profileGroups=null;r.leaseGroups=null;r.payrollGroups=null;r.profileInvalidations=(r.profileInvalidations||0)+1;}}
   // Generic slot access (owners on hot paths use views() with O offsets).
   function slot(store,name,index){const [view,k]=SLOTS[name];return views(store)[view][index*PER_ROW[view]+k];}
   function setSlot(store,name,index,value){const [view,k]=SLOTS[name];views(store)[view][index*PER_ROW[view]+k]=value;}
@@ -1111,6 +1111,25 @@
     if(runCount)groups.set(run,(groups.get(run)||0)+runCount);
     r.profileGroups=groups;return groups;
   }
+  // Build 621 (the day close's payroll counted 300k rows in one task, 24 ms at 2x CPU throttle): the same count over
+  // slices of rowSlice rows, yielded between; it becomes the cached count only if no profile changed meanwhile (the same
+  // runtime, length and invalidations), else profileRefCounts counts again when asked.
+  function* profileRefCountsStages(store,{rowSlice=65536}={}){
+    const r=rt(store);if(r.profileGroups)return r.profileGroups;
+    const invalidations=r.profileInvalidations||0,length=store.length,groups=new Map();let run=-1,runCount=0;
+    for(let start=0;start<length;start+=rowSlice){
+      if(start)yield 'fleet.profile-counts';
+      if(runtime.get(store)!==r||store.length!==length||(r.profileInvalidations||0)!==invalidations)return null;
+      const u8=r.views.u8,W=r.views.u32,end=Math.min(length,start+rowSlice);
+      for(let index=start;index<end;index++){
+        if(!(u8[index*STRIDE+O.flags]&ALIVE))continue;const ref=W[index*WORDS_PER_ROW+O.profile];
+        if(ref===run){runCount++;continue;}if(runCount)groups.set(run,(groups.get(run)||0)+runCount);run=ref;runCount=1;
+      }
+    }
+    if(runtime.get(store)!==r||store.length!==length||(r.profileInvalidations||0)!==invalidations)return null;
+    if(runCount)groups.set(run,(groups.get(run)||0)+runCount);
+    if(!r.profileGroups)r.profileGroups=groups;return r.profileGroups;
+  }
   // Groups of profiles keyed by fields of the profile, in order of first row, with summed row counts (the per-row
   // grouping these replace kept the same order and counts).
   function forEachLeaseGroup(store,fn){
@@ -1465,7 +1484,7 @@
 
   const API=Object.freeze({extrasVersion,VERSION,SCHEMA,CHUNK_SHIFT,CHUNK_ROWS,ALIVE,EXTRAS,I32_NULL,PROFILE_FIELDS,BINDING_FIELDS,HOT_FIELDS,HOT_BIT,STRIDE,F64_PER_ROW,WORDS_PER_ROW,SLOTS,SLOT_NAMES,O,
     create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
-    views,slot,setSlot,columnWriter,columnPlanStages,columnPlanActive,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,planValueCollection,applyValueCollectionPlanStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,valueRevision,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachLeaseGroup,forEachPayrollGroup,
+    views,slot,setSlot,profileRefCounts,profileRefCountsStages,columnWriter,columnPlanStages,columnPlanActive,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,planValueCollection,applyValueCollectionPlanStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,valueRevision,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachLeaseGroup,forEachPayrollGroup,
     // Fields whose in-place writes leave identityVersions alone (engine, carried seconds, route tier): a per-chunk table
     // keyed on identityVersions must not read them (GH_FLEET_SAVE_VALIDATION's static checks verify this).
     IDENTITY_TIER_EXEMPT:Object.freeze([...IDENTITY_EXEMPT,...ROUTE_TIER])});

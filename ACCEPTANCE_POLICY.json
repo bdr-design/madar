@@ -3,6 +3,50 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build622-trip-settlement-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build621-profile-count-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-600-air-calendar-regression.cjs"
+    ],
+    [
+      "node",
+      "tests/build607-calendar-window-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build571-tax-month-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-financial-posting.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-sealed-flows.cjs"
+    ],
+    [
+      "node",
+      "tests/build357-fleet-profile-aggregation.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-ui-summary.cjs"
+    ],
+    [
+      "node",
+      "tests/build522-fleet-day-prefetch.cjs"
+    ],
+    [
+      "node",
+      "tests/build580-company-types-money-weight.cjs"
+    ],
+    [
+      "node",
       "tests/build358-staged-day-browser.cjs"
     ],
     [
@@ -151,10 +195,6 @@
     ],
     [
       "node",
-      "tests/build607-calendar-window-stages-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build570-documents-list-weight-browser.cjs"
     ],
     [
@@ -167,10 +207,6 @@
     ],
     [
       "node",
-      "tests/build334-600-air-calendar-regression.cjs"
-    ],
-    [
-      "node",
       "tests/build387-save-actions.cjs"
     ],
     [
@@ -180,10 +216,6 @@
     [
       "node",
       "tests/build399-bank-prudential-summary-layout-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build571-tax-month-close-browser.cjs"
     ],
     [
       "node",
@@ -1019,10 +1051,6 @@
     ],
     [
       "node",
-      "tests/build580-company-types-money-weight.cjs"
-    ],
-    [
-      "node",
       "tests/build581-fleet-definition-weight.cjs"
     ],
     [
@@ -1355,10 +1383,6 @@
     ],
     [
       "node",
-      "tests/build359-sealed-flows.cjs"
-    ],
-    [
-      "node",
       "tests/build359-cheque-archived-invoice.cjs"
     ],
     [
@@ -1396,10 +1420,6 @@
     [
       "node",
       "tests/build334-finance-settlement-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-financial-posting.cjs"
     ],
     [
       "node",
@@ -1719,10 +1739,6 @@
     ],
     [
       "node",
-      "tests/build357-fleet-profile-aggregation.cjs"
-    ],
-    [
-      "node",
       "tests/build358-codec-id-runs.cjs"
     ],
     [
@@ -1852,10 +1868,6 @@
     [
       "node",
       "tests/build372-fleet-sale-plan.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-ui-summary.cjs"
     ],
     [
       "node",
@@ -2112,10 +2124,6 @@
     [
       "node",
       "tests/build519-idempotency-tracked.cjs"
-    ],
-    [
-      "node",
-      "tests/build522-fleet-day-prefetch.cjs"
     ],
     [
       "node",
@@ -2834,6 +2842,14 @@
     [
       "node",
       "tests/build620-journal-log-segments.cjs"
+    ],
+    [
+      "node",
+      "tests/build621-profile-count-stages.cjs"
+    ],
+    [
+      "node",
+      "tests/build622-trip-settlement-stages-browser.cjs"
     ],
     [
       "node",
