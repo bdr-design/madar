@@ -126,3 +126,5 @@ jobs:
           path: .ci-output
           if-no-files-found: error
           retention-days: 30
+          # .ci-output starts with a dot: the action leaves hidden paths out unless told (run 1 built the APK, uploaded nothing).
+          include-hidden-files: true
