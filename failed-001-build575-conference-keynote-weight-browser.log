@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 1: the first slide is on screen no slower than before (the median of seven openings): {"before":{"open":119.8,"fastestOpen":44.8,"slides":48,"task":4720.1,"style":451.6,"layout":368.2,"script":356.9,"passLongest":213,"passLongTasks":1,"sync":26.2,"worst":1.1,"longest":0,"halves":[0,0],"longTasks":0,"nodes":70,"images":["assets/conference/hall-dark.webp","assets/identity/approved/group-symbol.webp","assets/images/company-hq-v2.webp"]},"after":{"open":147.8,"fastestOpen":125.7,"slides":48,"task":3873.5,"style":358.8,"layout":193.5,"script":192.6,"passLongest":0,"passLongTasks":0,"sync":31.7,"worst":1.5,"longest":0,"halves":[0,0],"longTasks":0,"nodes":70,"images":["assets/identity/approved/group-symbol.webp","assets/conference/hall-dark.webp","assets/images/company-hq-v2.webp"]}}
+    at /Users/runner/work/madar/madar/tests/build575-conference-keynote-weight-browser.cjs:81:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
