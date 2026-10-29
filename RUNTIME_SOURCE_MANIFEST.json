@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "092aa9a35ad97516b13cad176bb28b2d0d8145c70a1b1842aa70021aa729457b",
-  "webapp_tree_sha256": "10a2822fa6047619654981e1165a6adeba12eaeccb33c4b18fb5581011da5f06",
+  "source_tree_sha256": "f9caf143260c8f9ce877bf989a84f0d44a6502ba297b54b50553e1dcac3efb0d",
+  "webapp_tree_sha256": "379fd9928f4299fc2dfb7ff14f7ea60cdafdd29eedce0fd9971662642418b9d5",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1077434,
-      "sha256": "a5641ce0d88b836d4f473c4485a40156b7f26956e2960283227b4c90dc0af2cc"
+      "bytes": 1077681,
+      "sha256": "1c2f5fe6eb4e83826e99c8ab95cd0482671dd8bd5a4bab558e7788e0fdb18310"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 6510,
@@ -3555,12 +3555,12 @@
       "sha256": "37b1182693df9ebcc3ccc9286e2db5ba9038257ee89549b4627dd922495be0cb"
     },
     "WebApp/fleet-engine-thread.js": {
-      "bytes": 65872,
-      "sha256": "9dae327553581c7cc0cd2ed454d55fbeef015cddaf7c825968b5d56a0889ce3a"
+      "bytes": 66279,
+      "sha256": "5485d9e9473fa32ba8858adbd50c308db9b1293b80b36d900d6fbed4fe62b682"
     },
     "WebApp/fleet-engine-worker.js": {
-      "bytes": 32685,
-      "sha256": "35329c8cc810ee1e1479f57ae0d653e79248153bd17cd561728a84186325c267"
+      "bytes": 33631,
+      "sha256": "e67c1d0f775217c6650b212f4793ab5cf5b5b7ea54917c4f2e18b1e5c82ed232"
     },
     "WebApp/fleet-event-core.js": {
       "bytes": 48967,
@@ -4032,7 +4032,7 @@
     },
     "project.yml": {
       "bytes": 2432,
-      "sha256": "7e47cf9e2eca119c1f5e8ae434527650d6f8c1bb5237c1d9936f32c9473c2872"
+      "sha256": "cb48f164aa143857013eece832740e93ddeff8cd3d12792e8d92c2e4b257edf3"
     },
     "BUILD": {
       "bytes": 4,

@@ -3,6 +3,46 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build624-proof-checkpoint-rounds.cjs"
+    ],
+    [
+      "node",
+      "tests/build623-worker-extras-packing.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-proof-checkpoints.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-incremental-maintenance.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-audit-walk.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-compact-records.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-fleet-engine-thread-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-replica-log-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-apply.cjs"
+    ],
+    [
+      "node",
+      "tests/build607-calendar-window-stages-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build622-trip-settlement-stages-browser.cjs"
     ],
     [
@@ -12,10 +52,6 @@
     [
       "node",
       "tests/build334-600-air-calendar-regression.cjs"
-    ],
-    [
-      "node",
-      "tests/build607-calendar-window-stages-browser.cjs"
     ],
     [
       "node",
@@ -68,14 +104,6 @@
     [
       "node",
       "tests/build372-store-maintenance-stages.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-replica-log-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-asset-purchase-apply.cjs"
     ],
     [
       "node",
@@ -312,10 +340,6 @@
     [
       "node",
       "tests/build358-bulk-payables-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-fleet-engine-thread-browser.cjs"
     ],
     [
       "node",
@@ -763,10 +787,6 @@
     ],
     [
       "node",
-      "tests/build359-compact-records.cjs"
-    ],
-    [
-      "node",
       "tests/build359-corridor-index.cjs"
     ],
     [
@@ -1207,10 +1227,6 @@
     ],
     [
       "node",
-      "tests/build359-proof-checkpoints.cjs"
-    ],
-    [
-      "node",
       "tests/build372-asset-purchase-app-browser.cjs"
     ],
     [
@@ -1348,10 +1364,6 @@
     [
       "node",
       "tests/build583-boot-proof-single-hash.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-audit-walk.cjs"
     ],
     [
       "node",
@@ -2850,6 +2862,14 @@
     [
       "node",
       "tests/build622-trip-settlement-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build623-worker-extras-packing.cjs"
+    ],
+    [
+      "node",
+      "tests/build624-proof-checkpoint-rounds.cjs"
     ],
     [
       "node",

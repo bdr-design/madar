@@ -59,6 +59,19 @@ function routeKeys(){
   }
   return keys;
 }
+// Build 623 (a calendar window's result named the extras of each of its rows, 50k entries nearly all empty, and reading
+// them on the main thread took up to 19 ms at 2x CPU throttle): a result whose rows mostly have no extras sends only the
+// positions that have one (Int32Array, transferred) and their values; the thread rebuilds the same list.
+function packedExtras(extras){
+  if(!Array.isArray(extras)||extras.length<256)return null;let present=0;for(let k=0;k<extras.length;k++)if(extras[k]!==undefined)present++;
+  if(present*4>extras.length)return null;const at=new Int32Array(present),values=new Array(present);
+  for(let k=0,j=0;k<extras.length;k++)if(extras[k]!==undefined){at[j]=k;values[j]=extras[k];j++;}
+  return {length:extras.length,at,values};
+}
+function postResult(id,ms,result){
+  const sparse=packedExtras(result.extras),body=sparse?{...result,extras:undefined,extrasSparse:sparse}:result;if(sparse)delete body.extras;
+  self.postMessage({type:'result',version:VERSION,id,ms,...body},sparse?[result.bytes,result.indices.buffer,sparse.at.buffer]:[result.bytes,result.indices.buffer]);
+}
 function imported(importId){self.postMessage({type:'ready',version:VERSION,id:0,length:store.length});self.postMessage({type:'route-keys',version:VERSION,importId,keys:routeKeys()});}
 function catalogSpecs(asset){return asset?.specs?null:(specs[asset?.type]?.[asset?.catalogId]||null);}
 function addressedToOpen(message){
@@ -334,7 +347,7 @@ self.addEventListener('message',event=>{
       case 'advance':{
         const started=performance.now(),result=advance(message),ms=performance.now()-started;
         if(result.fallback){self.postMessage({type:'result',version:VERSION,id:message.id,fallback:result.fallback,ms});return;}
-        self.postMessage({type:'result',version:VERSION,id:message.id,ms,...result},[result.bytes,result.indices.buffer]);
+        postResult(message.id,ms,result);
         return;
       }
       case 'window-begin':beginWindow(message);return;
@@ -350,7 +363,7 @@ self.addEventListener('message',event=>{
       case 'window-advance':{
         const started=performance.now(),result=advanceWindow(message),ms=performance.now()-started;
         if(result.fallback){self.postMessage({type:'result',version:VERSION,id:message.id,fallback:result.fallback,ms});return;}
-        self.postMessage({type:'result',version:VERSION,id:message.id,ms,...result},[result.bytes,result.indices.buffer]);
+        postResult(message.id,ms,result);
         return;
       }
       case 'settle':

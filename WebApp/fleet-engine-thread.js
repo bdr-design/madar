@@ -70,7 +70,10 @@
       return worker;
     }
     function post(message,transfer){worker.postMessage(message,transfer||[]);}
+    // Build 623: a result that sent only the extras present (fleet-engine-worker postResult) gets the same list back.
+    function unpackExtras(sparse){const out=new Array(sparse.length);for(let j=0;j<sparse.at.length;j++)out[sparse.at[j]]=sparse.values[j];return out;}
     function receive(message){
+      if(message.type==='result'&&message.extrasSparse){message.extras=unpackExtras(message.extrasSparse);delete message.extrasSparse;}
       if(message.type==='error'){disable(`worker:${message.error}`);return;}
       if(message.type==='route-keys'){measuredWork('fleet.route-answers',()=>answerRouteKeys(message));return;}
       if(message.type==='health'){const entry=healthChecks.get(message.id);healthChecks.delete(message.id);if(entry){stats.lastHealthWorkerMs=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+stats.lastHealthWorkerMs;stats.maxHealthWorkerMs=Math.max(stats.maxHealthWorkerMs||0,stats.lastHealthWorkerMs);entry.resolve(message.unavailable||!Array.isArray(message.issues)?null:{...entry.tag,issues:message.issues});}return;}

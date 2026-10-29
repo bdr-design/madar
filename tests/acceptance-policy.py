@@ -59,7 +59,14 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First the day-close batch (owner: «مسموح لك كل شي كمل»), none reached by a build: the new
+# (AGENTS.md). First the worker and proof batch (owner: «كمل بدقه»), none reached by a build: the new
+# build624-proof-checkpoint-rounds (the proof maintenance converted 100 versions in one task, 43 ms; a round converts 25,
+# up to 64 a pass; fails on 9ce7d24) and the proof maintenance gates (build359-proof-checkpoints,
+# build359-incremental-maintenance, build359-audit-walk, build359-compact-records), the new
+# build623-worker-extras-packing (a fleet window result named the extras of each of its 50k rows, read in up to 19 ms;
+# fails on c57745e) and the gates over the worker's results (build358-fleet-engine-thread-browser,
+# build372-replica-log-browser, build372-asset-purchase-apply, build607). Then the day-close batch, none reached by a
+# build: the new
 # build622-trip-settlement-stages-browser (each company's trip invoices and cash settlement in one task, up to 40 ms;
 # fails on b759519) and build621-profile-count-stages (the payroll's profile count over 300k rows in one task, 24 ms;
 # fails on c57745e), then the gates over the day close, its payroll and its finance documents (build334-600-air-calendar-
@@ -210,10 +217,19 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build624-proof-checkpoint-rounds.cjs'],
+    ['node', 'tests/build623-worker-extras-packing.cjs'],
+    ['node', 'tests/build359-proof-checkpoints.cjs'],
+    ['node', 'tests/build359-incremental-maintenance.cjs'],
+    ['node', 'tests/build359-audit-walk.cjs'],
+    ['node', 'tests/build359-compact-records.cjs'],
+    ['node', 'tests/build358-fleet-engine-thread-browser.cjs'],
+    ['node', 'tests/build372-replica-log-browser.cjs'],
+    ['node', 'tests/build372-asset-purchase-apply.cjs'],
+    ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build622-trip-settlement-stages-browser.cjs'],
     ['node', 'tests/build621-profile-count-stages.cjs'],
     ['node', 'tests/build334-600-air-calendar-regression.cjs'],
-    ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build571-tax-month-close-browser.cjs'],
     ['node', 'tests/build379-financial-posting.cjs'],
     ['node', 'tests/build359-sealed-flows.cjs'],
@@ -227,8 +243,6 @@ expected_preflight=[
     ['node', 'tests/build372-journal-pool.cjs'],
     ['node', 'tests/build357-fleet-journal.cjs'],
     ['node', 'tests/build372-store-maintenance-stages.cjs'],
-    ['node', 'tests/build372-replica-log-browser.cjs'],
-    ['node', 'tests/build372-asset-purchase-apply.cjs'],
     ['node', 'tests/build374-dealer-market.cjs'],
     ['node', 'tests/build378-dealer-floor-plan.cjs'],
     ['node', 'tests/build385-dealer-first-stock.cjs'],
@@ -288,7 +302,6 @@ expected_preflight=[
     ['node', 'tests/build358-air-sea-dispatch-browser.cjs'],
     ['node', 'tests/build358-budgets-browser.cjs'],
     ['node', 'tests/build358-bulk-payables-browser.cjs'],
-    ['node', 'tests/build358-fleet-engine-thread-browser.cjs'],
     ['node', 'tests/build358-founding-charter-browser.cjs'],
     ['node', 'tests/build358-large-fleet-dispatch-browser.cjs'],
     ['node', 'tests/build358-map-controls-browser.cjs'],
@@ -400,7 +413,6 @@ expected_preflight=[
     ['node', 'tests/build358-delivery-due-slices.cjs'],
     ['node', 'tests/build358-energy-market.cjs'],
     ['node', 'tests/build359-archive-seal.cjs'],
-    ['node', 'tests/build359-compact-records.cjs'],
     ['node', 'tests/build359-corridor-index.cjs'],
     ['node', 'tests/build359-document-seal.cjs'],
     ['node', 'tests/build359-fleet-list-query.cjs'],
@@ -511,7 +523,6 @@ expected_preflight=[
     ['node', 'tests/build605-purchase-rows-copied-once.cjs'],
     ['node', 'tests/build606-purchase-frame-pacing-browser.cjs'],
     ['node', 'tests/build358-row-snapshot-rollback.cjs'],
-    ['node', 'tests/build359-proof-checkpoints.cjs'],
     ['node', 'tests/build372-asset-purchase-app-browser.cjs'],
     ['node', 'tests/build372-asset-purchase-intent.cjs'],
     ['node', 'tests/build372-asset-purchase-order.cjs'],
@@ -547,7 +558,6 @@ expected_preflight=[
     ['node', 'tests/build600-proof-audit-sealed-checks.cjs'],
     ['node', 'tests/build599-diagnostics-world-row-rollback-browser.cjs'],
     ['node', 'tests/build583-boot-proof-single-hash.cjs'],
-    ['node', 'tests/build359-audit-walk.cjs'],
     ['node', 'tests/build359-archived-proofs.cjs'],
     ['node', 'tests/build334-document-proof-v3-security.cjs'],
     ['node', 'tests/build350-proof-ledger.cjs'],

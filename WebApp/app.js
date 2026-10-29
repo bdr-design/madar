@@ -3568,7 +3568,9 @@
     const proofs=window.GH_DOCUMENT_PROOF;if(typeof proofs?.compact!=='function')return null;
     return proofMaintenancePass('proof-record-collection',()=>proofs.compact(state));
   }
-  const PROOF_CHECKPOINT_ROUND=100;
+  // Build 624: a round converts 25 earlier versions (100 took 43 ms in one task at 2x CPU throttle, 300k assets), up to 64
+  // rounds a maintenance pass: the same 1,600 at most as 16 rounds of 100.
+  const PROOF_CHECKPOINT_ROUND=25,PROOF_CHECKPOINT_ROUNDS=64;
   function checkpointProofHistory(){
     const proofs=window.GH_DOCUMENT_PROOF;if(typeof proofs?.checkpointAncestors!=='function')return null;
     return proofMaintenancePass('proof-history-checkpoints',()=>proofs.checkpointAncestors(state,{limit:PROOF_CHECKPOINT_ROUND}));
@@ -3800,7 +3802,7 @@
       const day=Math.floor((Number(state.simSeconds)||0)/86400),hot=state.documentProofs?.recordsById;
       if(!entry.collected&&(day!==lastProofCollectionDay||(hot&&Object.keys(hot).length>=PROOF_COLLECTION_HOT))){collectProofRecords();lastProofCollectionDay=day;entry.collected=true;return false;}
       const out=checkpointProofHistory();entry.rounds=(entry.rounds||0)+1;
-      return !((out?.checkpointed||0)>=PROOF_CHECKPOINT_ROUND&&entry.rounds<16);
+      return !((out?.checkpointed||0)>=PROOF_CHECKPOINT_ROUND&&entry.rounds<PROOF_CHECKPOINT_ROUNDS);
     }
     // The selection once, then one round of 200 rows per frame until it is done; then the authorization archive drops the
     // proofs the sealed documents released.
