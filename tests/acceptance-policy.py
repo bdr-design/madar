@@ -59,7 +59,11 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # The owner: the gates that failed first, then those not yet tested or touched by a fix, then the ones that passed
-# (AGENTS.md). First build358-staged-day-browser, which failed in build 109 (macOS: the pause case found the close
+# (AGENTS.md). First build575-conference-keynote-weight-browser, which failed in build 110 at position 291, after 45
+# minutes of gates (macOS: the slides' synchronous build read 30.4 ms against the source before's 24.7, 1.23 of it, over
+# the 1.15; every total read lighter than before: task 2783 ms against 2966, layout 151 against 179, script 105 against
+# 197). Here it reads 1.12 and 1.13 on this source and 1.14 and 1.10 on 1d7dce1, whose build ran it fourth and passed:
+# the panel review added nothing to the slides; the claim is unchanged. Then build358-staged-day-browser, which failed in build 109 (macOS: the pause case found the close
 # committed, simSeconds 172799 -> 172800 and lastFinancialDay 1 -> 2: the engine runs in timer tasks every 8 ms while a
 # job is open and the frames came 116 ms apart, so the test's requestAnimationFrame watch missed the whole close and
 # paused the next slice; reproduced here with frames held 110 ms apart. It now pauses or hides right after the first
@@ -160,6 +164,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build358-staged-day-browser.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
@@ -450,7 +455,6 @@ expected_preflight=[
     ['node', 'tests/build520-map-aggregate-threshold-browser.cjs'],
     ['node', 'tests/build598-company-evidence-token-browser.cjs'],
     ['node', 'tests/fleet-validation-reuse-browser.cjs'],
-    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build553-conference-open-cost.cjs'],
     ['node', 'tests/build359-conference-thermal.cjs'],
     ['node', 'tests/build604-event-log-alerts-row-rollback-browser.cjs'],

@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build358-staged-day-browser.cjs"
     ],
     [
@@ -1160,10 +1164,6 @@
     [
       "node",
       "tests/fleet-validation-reuse-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
       "node",
