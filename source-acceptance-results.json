@@ -1,0 +1,2902 @@
+{
+  "completed": false,
+  "all_tests_passed": false,
+  "runtime_unchanged": true,
+  "gates_unchanged": true,
+  "verification_error": null,
+  "gates_verification_error": null,
+  "acceptance_contract_sha256": "4a881c000dd56b56e5d18f7be7e5a8611e1f6c182195acf533b1925d070c64f9",
+  "runtime_source": {
+    "verified": true,
+    "files": 1009,
+    "source_tree_sha256": "72270cf0ac82c2d995875c2b523e3d7f05216cc44c3983b4630eccd3ca5f24a2",
+    "version": "3.0.0",
+    "build": 362,
+    "save_schema": "3.0.0",
+    "release_approved": false,
+    "blocking_issues": [
+      "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
+      "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
+      "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
+      "Historical desktop measurements from an earlier 600x source: Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+      "A fully moving fleet still needs fresh complete validation after writes. Coalesced validation and chunk-checksum workers have targeted desktop coverage; iPhone profiling of ordinary saves, background saves, startup, manual slots, reset and large text chunks remains unverified for this candidate.",
+      "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
+      "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
+      "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
+      "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
+      "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
+      "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
+      "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
+      "Current all-sections candidate: 530 mandatory gates / 134 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
+    ]
+  },
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-deferred-persistence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.073,
+      "log": "001-build334-r2-deferred-persistence.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-business-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.067,
+      "log": "002-fleet-business-boundary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build629-cheque-payment-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.449,
+      "log": "003-build629-cheque-payment-stages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build630-settlement-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.576,
+      "log": "004-build630-settlement-stages-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build619-dealer-restock-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.535,
+      "log": "005-build619-dealer-restock-stages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-dealer-market.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.524,
+      "log": "006-build374-dealer-market.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-cheque-payable-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.305,
+      "log": "007-build374-cheque-payable-lifecycle.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/dealer-ledger-and-stock.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.426,
+      "log": "008-dealer-ledger-and-stock.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/dealer-ledger-and-stock-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 39.314,
+      "log": "009-dealer-ledger-and-stock-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build622-trip-settlement-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.859,
+      "log": "010-build622-trip-settlement-stages-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build575-conference-keynote-weight-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 85.381,
+      "log": "011-build575-conference-keynote-weight-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build628-pause-after-day-close.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 38.295,
+      "log": "012-build628-pause-after-day-close.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-staged-day-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.435,
+      "log": "013-build358-staged-day-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-scheduler-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.225,
+      "log": "014-build334-scheduler-liveness.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-safety-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.719,
+      "log": "015-build334-calendar-safety-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-time-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.133,
+      "log": "016-build334-simulation-time-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-late-frame-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.072,
+      "log": "017-build334-late-frame-liveness.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1bb-pacing-separation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.146,
+      "log": "018-build339-phase1bb-pacing-separation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-owner-cadence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.252,
+      "log": "019-build334-calendar-owner-cadence.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-cooperative-draft-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.364,
+      "log": "020-build376-cooperative-draft-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build535-staged-save-retake-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.474,
+      "log": "021-build535-staged-save-retake-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build460-render-idle-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 56.452,
+      "log": "022-build460-render-idle-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build626-seal-strokes-text.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.186,
+      "log": "023-build626-seal-strokes-text.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build627-document-material-once.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.869,
+      "log": "024-build627-document-material-once.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build603-visual-seal-check-in-place.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.631,
+      "log": "025-build603-visual-seal-check-in-place.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build609-authorization-check-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.698,
+      "log": "026-build609-authorization-check-slices.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build600-proof-audit-sealed-checks.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.168,
+      "log": "027-build600-proof-audit-sealed-checks.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-proof-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.514,
+      "log": "028-build372-proof-worker-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-compact-records.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.81,
+      "log": "029-build359-compact-records.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-document-proof-v3-security.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.313,
+      "log": "030-build334-document-proof-v3-security.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build416-canonical-preparation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.122,
+      "log": "031-build416-canonical-preparation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build417-document-amendment-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.49,
+      "log": "032-build417-document-amendment-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-durable-authorization-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.288,
+      "log": "033-build334-durable-authorization-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build583-boot-proof-single-hash.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.585,
+      "log": "034-build583-boot-proof-single-hash.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build625-map-filter-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.122,
+      "log": "035-build625-map-filter-reuse.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build621-profile-count-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.831,
+      "log": "036-build621-profile-count-stages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-map-identity-registry.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.145,
+      "log": "037-build334-map-identity-registry.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-map-pressure-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "038-build334-map-pressure-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build610-dead-code-removed-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.232,
+      "log": "039-build610-dead-code-removed-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build618-prepared-map-render-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.986,
+      "log": "040-build618-prepared-map-render-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build617-map-render-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.254,
+      "log": "041-build617-map-render-reuse.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build624-proof-checkpoint-rounds.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.531,
+      "log": "042-build624-proof-checkpoint-rounds.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build623-worker-extras-packing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.629,
+      "log": "043-build623-worker-extras-packing.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-proof-checkpoints.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.281,
+      "log": "044-build359-proof-checkpoints.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-incremental-maintenance.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.242,
+      "log": "045-build359-incremental-maintenance.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-audit-walk.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.161,
+      "log": "046-build359-audit-walk.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-engine-thread-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 30.366,
+      "log": "047-build358-fleet-engine-thread-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-replica-log-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.364,
+      "log": "048-build372-replica-log-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-apply.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.373,
+      "log": "049-build372-asset-purchase-apply.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build607-calendar-window-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.126,
+      "log": "050-build607-calendar-window-stages-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-600-air-calendar-regression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.792,
+      "log": "051-build334-600-air-calendar-regression.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build571-tax-month-close-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 41.295,
+      "log": "052-build571-tax-month-close-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-financial-posting.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.985,
+      "log": "053-build379-financial-posting.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sealed-flows.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.376,
+      "log": "054-build359-sealed-flows.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-fleet-profile-aggregation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.706,
+      "log": "055-build357-fleet-profile-aggregation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-ui-summary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.061,
+      "log": "056-build372-fleet-ui-summary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build522-fleet-day-prefetch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.518,
+      "log": "057-build522-fleet-day-prefetch.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build580-company-types-money-weight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.538,
+      "log": "058-build580-company-types-money-weight.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build620-journal-log-segments.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.254,
+      "log": "059-build620-journal-log-segments.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-journal-pool.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.336,
+      "log": "060-build372-journal-pool.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-fleet-journal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.089,
+      "log": "061-build357-fleet-journal.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-store-maintenance-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.197,
+      "log": "062-build372-store-maintenance-stages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-dealer-floor-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.374,
+      "log": "063-build378-dealer-floor-plan.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build385-dealer-first-stock.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.248,
+      "log": "064-build385-dealer-first-stock.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-iphone-thermal-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.111,
+      "log": "065-build334-iphone-thermal-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-presentation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.455,
+      "log": "066-build340-map-presentation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-canvas-layer.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.094,
+      "log": "067-build359-map-canvas-layer.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build457-canvas-idle-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.161,
+      "log": "068-build457-canvas-idle-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build532-map-loop-single-render.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.426,
+      "log": "069-build532-map-loop-single-render.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build514-map-summary-cadence-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 41.909,
+      "log": "070-build514-map-summary-cadence-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build503-recorder-stage-names-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.163,
+      "log": "071-build503-recorder-stage-names-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-map-local-dom.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.297,
+      "log": "072-build334-r2-map-local-dom.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-modes-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.886,
+      "log": "073-build359-map-modes-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build384-map-company-cap-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.99,
+      "log": "074-build384-map-company-cap-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build366-mobility-map-policy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.7,
+      "log": "075-build366-mobility-map-policy-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build616-marker-step-projection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.035,
+      "log": "076-build616-marker-step-projection.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-presentation-work-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.086,
+      "log": "077-build334-presentation-work-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build615-document-proof-check-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.891,
+      "log": "078-build615-document-proof-check-slices.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build614-panel-copy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 34.038,
+      "log": "079-build614-panel-copy-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 216.709,
+      "log": "080-phone-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build440-document-collection-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.995,
+      "log": "081-build440-document-collection-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build443-company-review-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.392,
+      "log": "082-build443-company-review-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build449-asset-capacity-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.344,
+      "log": "083-build449-asset-capacity-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build570-documents-list-weight-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 40.769,
+      "log": "084-build570-documents-list-weight-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build596-construction-vat-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 51.265,
+      "log": "085-build596-construction-vat-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sim-smoothness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.825,
+      "log": "086-build359-sim-smoothness.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build387-save-actions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.804,
+      "log": "087-build387-save-actions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build394-hospitality-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 43.587,
+      "log": "088-build394-hospitality-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build399-bank-prudential-summary-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.096,
+      "log": "089-build399-bank-prudential-summary-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build611-truck-route-center-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.962,
+      "log": "090-build611-truck-route-center-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build486-route-card-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.059,
+      "log": "091-build486-route-card-pages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build453-section-projections.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.303,
+      "log": "092-build453-section-projections.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build448-labor-tab-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.304,
+      "log": "093-build448-labor-tab-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build462-market-summary-refresh.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.268,
+      "log": "094-build462-market-summary-refresh.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build458-stable-ui-writes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.308,
+      "log": "095-build458-stable-ui-writes.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-status-cache.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.072,
+      "log": "096-build340-map-status-cache.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build613-company-autopilot-finance.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.439,
+      "log": "097-build613-company-autopilot-finance.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build612-company-autopilot-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.803,
+      "log": "098-build612-company-autopilot-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-snapshot-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.384,
+      "log": "099-build334-r2-snapshot-budget.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-fault-isolation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.328,
+      "log": "100-build334-simulation-fault-isolation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-slice-atomic.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.435,
+      "log": "101-build334-simulation-slice-atomic.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-simulation-write-set-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.311,
+      "log": "102-build339-simulation-write-set-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-transaction-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.549,
+      "log": "103-build340-simulation-transaction-worker.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-steady-slice-rollback.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.405,
+      "log": "104-build353-steady-slice-rollback.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-asset-departure-trace.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.246,
+      "log": "105-build371-asset-departure-trace.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.338,
+      "log": "106-fleet-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-market-discovery-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.364,
+      "log": "107-build334-market-discovery-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-air-sea-dispatch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.911,
+      "log": "108-build358-air-sea-dispatch-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-budgets-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.867,
+      "log": "109-build358-budgets-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-bulk-payables-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.604,
+      "log": "110-build358-bulk-payables-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-founding-charter-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.881,
+      "log": "111-build358-founding-charter-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-large-fleet-dispatch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.603,
+      "log": "112-build358-large-fleet-dispatch-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-map-controls-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.165,
+      "log": "113-build358-map-controls-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-tax-view-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.954,
+      "log": "114-build358-tax-view-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-road-dispatch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 20.146,
+      "log": "115-build359-road-dispatch-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-tax-pay-all-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.065,
+      "log": "116-build359-tax-pay-all-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build361-button-binding-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.631,
+      "log": "117-build361-button-binding-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-bulk-asset-purchase-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.378,
+      "log": "118-build362-bulk-asset-purchase-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-facility-scope-bank-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.135,
+      "log": "119-build363-facility-scope-bank-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-air-destination-pool-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.772,
+      "log": "120-build371-air-destination-pool-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-air-destination-pool-riyadh-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.091,
+      "log": "121-build371-air-destination-pool-riyadh-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-air-fleet-series-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 82.908,
+      "log": "122-build371-air-fleet-series-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-custom-road-geometry-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.079,
+      "log": "123-build371-custom-road-geometry-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-durable-fleet-isolation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 32.056,
+      "log": "124-build371-durable-fleet-isolation-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-durable-live-fields-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 20.627,
+      "log": "125-build371-durable-live-fields-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-native-update-isolation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.031,
+      "log": "126-build371-native-update-isolation-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-old-save-trip-correction-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 64.917,
+      "log": "127-build371-old-save-trip-correction-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-reload-trip-speed-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.927,
+      "log": "128-build371-reload-trip-speed-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-sea-dispatch-lifecycle-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.305,
+      "log": "129-build371-sea-dispatch-lifecycle-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-maintenance-health-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.827,
+      "log": "130-build372-maintenance-health-worker-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-map-summary-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.207,
+      "log": "131-build372-map-summary-worker-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-native-seed-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.23,
+      "log": "132-build372-native-seed-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-save-validation-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.779,
+      "log": "133-build372-save-validation-worker-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-reach-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.329,
+      "log": "134-build373-reach-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-revenue-chain-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.47,
+      "log": "135-build373-revenue-chain-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-compact-desks-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.269,
+      "log": "136-build375-compact-desks-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-group-news-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.54,
+      "log": "137-build375-group-news-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-release-edition-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.789,
+      "log": "138-build376-release-edition-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-cheque-ui-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.115,
+      "log": "139-build379-cheque-ui-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-financial-posting-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 48.849,
+      "log": "140-build379-financial-posting-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-recovery-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.526,
+      "log": "141-build379-recovery-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-campaign-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.684,
+      "log": "142-build382-campaign-decisions-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-nonfleet-tax-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.448,
+      "log": "143-build382-nonfleet-tax-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build383-navigation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.958,
+      "log": "144-build383-navigation-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build386-confirmation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.67,
+      "log": "145-build386-confirmation-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build387-save-once-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 31.088,
+      "log": "146-build387-save-once-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build398-asset-market-metrics-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.125,
+      "log": "147-build398-asset-market-metrics-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build411-command-row-patch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 34.652,
+      "log": "148-build411-command-row-patch-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build418-command-phase-trace-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.23,
+      "log": "149-build418-command-phase-trace-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build419-document-drawer-work-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.462,
+      "log": "150-build419-document-drawer-work-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build445-document-pages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 36.187,
+      "log": "151-build445-document-pages-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build452-section-review-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.497,
+      "log": "152-build452-section-review-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build487-route-pages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 34.287,
+      "log": "153-build487-route-pages-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build506-drawer-bind-scope-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.311,
+      "log": "154-build506-drawer-bind-scope-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build517-hr-hire-view-facilities-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.13,
+      "log": "155-build517-hr-hire-view-facilities-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build527-decision-navigation-guard-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.184,
+      "log": "156-build527-decision-navigation-guard-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build552-conference-hall-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.076,
+      "log": "157-build552-conference-hall-layout-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build556-investor-card-page-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.605,
+      "log": "158-build556-investor-card-page-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build561-ipo-offering-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.453,
+      "log": "159-build561-ipo-offering-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build565-group-dividends-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.436,
+      "log": "160-build565-group-dividends-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build568-budget-lapsed-cheques-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.474,
+      "log": "161-build568-budget-lapsed-cheques-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build573-asset-sale-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.496,
+      "log": "162-build573-asset-sale-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build591-service-companies-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.708,
+      "log": "163-build591-service-companies-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/business-options-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.736,
+      "log": "164-business-options-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-precision-and-routing-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 133.023,
+      "log": "165-tax-precision-and-routing-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-accrual-cash-separation-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.068,
+      "log": "166-build334-accrual-cash-separation-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-app-platform-authorization.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.052,
+      "log": "167-build334-app-platform-authorization.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-archive-integrity-r2.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.331,
+      "log": "168-build334-archive-integrity-r2.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-archived-proof-retention-open.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.197,
+      "log": "169-build334-archived-proof-retention-open.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-balance-sheet.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.127,
+      "log": "170-build334-bank-balance-sheet.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-energy-operating-costs.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.25,
+      "log": "171-build334-bank-energy-operating-costs.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-deferred-save-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.046,
+      "log": "172-build334-deferred-save-lifecycle.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-durable-postcommit-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.047,
+      "log": "173-build334-durable-postcommit-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-durable-publication-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.278,
+      "log": "174-build334-durable-publication-recovery.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-dynamic-company-consumers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.282,
+      "log": "175-build334-dynamic-company-consumers.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-energy-take-or-pay.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.128,
+      "log": "176-build334-energy-take-or-pay.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-identity-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.116,
+      "log": "177-build334-identity-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-logistics-staged-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.418,
+      "log": "178-build334-logistics-staged-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-market-discovery-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.133,
+      "log": "179-build334-market-discovery-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-open-invoice-retention.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.195,
+      "log": "180-build334-open-invoice-retention.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-maintenance-atomic.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "181-build334-r2-maintenance-atomic.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r4-proof-archive.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.919,
+      "log": "182-build334-r4-proof-archive.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r4-recovery-integration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.208,
+      "log": "183-build334-r4-recovery-integration.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-tabs-component.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.886,
+      "log": "184-build334-tabs-component.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-tabs-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.09,
+      "log": "185-build334-tabs-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-xss-logo-security.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.307,
+      "log": "186-build334-xss-logo-security.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build335-compaction-v2-60day-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.426,
+      "log": "187-build335-compaction-v2-60day-pressure.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-hour83-calendar-proof-regression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.376,
+      "log": "188-build336-hour83-calendar-proof-regression.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-proof-ledger-compaction-regression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.284,
+      "log": "189-build336-proof-ledger-compaction-regression.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-real-proof-compaction-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.672,
+      "log": "190-build336-real-proof-compaction-pressure.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-architecture-bootstrap.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.115,
+      "log": "191-build339-architecture-bootstrap.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-day-boundary-write-map.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.755,
+      "log": "192-build339-day-boundary-write-map.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-hour-boundary-write-map.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.268,
+      "log": "193-build339-hour-boundary-write-map.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-time-golden.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.073,
+      "log": "194-build339-time-golden.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-air-sea-network-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.089,
+      "log": "195-build340-air-sea-network-worker.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-durable-draft-restore.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.715,
+      "log": "196-build340-durable-draft-restore.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-finance-report.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.237,
+      "log": "197-build340-finance-report.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-finance-transaction-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.005,
+      "log": "198-build340-finance-transaction-index.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-fleet-disposal-batch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.352,
+      "log": "199-build340-fleet-disposal-batch.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-fleet-payroll-summary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.179,
+      "log": "200-build340-fleet-payroll-summary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-asset-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.199,
+      "log": "201-build340-map-asset-query.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-structure-revision.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.062,
+      "log": "202-build340-map-structure-revision.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-media-assets.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "203-build340-media-assets.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-payroll-settlement-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.117,
+      "log": "204-build340-payroll-settlement-index.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-procurement-batch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.192,
+      "log": "205-build340-procurement-batch.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-route-center-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.11,
+      "log": "206-build340-route-center-index.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-route-planner-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.357,
+      "log": "207-build340-route-planner-worker.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-asset-engine.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.409,
+      "log": "208-build340-simulation-asset-engine.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-compaction-scope.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.21,
+      "log": "209-build353-compaction-scope.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-persistence-pacing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.342,
+      "log": "210-build353-persistence-pacing.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-fleet-list-virtualizer.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.195,
+      "log": "211-build357-fleet-list-virtualizer.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-asset-realism.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.079,
+      "log": "212-build358-asset-realism.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-bank-market.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.239,
+      "log": "213-build358-bank-market.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-delivery-due-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.425,
+      "log": "214-build358-delivery-due-slices.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-energy-market.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.294,
+      "log": "215-build358-energy-market.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-archive-seal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.667,
+      "log": "216-build359-archive-seal.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-corridor-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 25.471,
+      "log": "217-build359-corridor-index.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-document-seal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.741,
+      "log": "218-build359-document-seal.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-fleet-list-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.487,
+      "log": "219-build359-fleet-list-query.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-management-effects.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.646,
+      "log": "220-build359-management-effects.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sea-cii-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.364,
+      "log": "221-build359-sea-cii-plan.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-customer-ratings-conference.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.308,
+      "log": "222-build360-customer-ratings-conference.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-energy-debt-proof-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.574,
+      "log": "223-build360-energy-debt-proof-recovery.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-iphone-failure-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.38,
+      "log": "224-build360-iphone-failure-recovery.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-native-runtime-ready.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.114,
+      "log": "225-build360-native-runtime-ready.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-energy-health-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.108,
+      "log": "226-build363-energy-health-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-runtime-diagnostics-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.166,
+      "log": "227-build363-runtime-diagnostics-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-staged-holdings-command.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.261,
+      "log": "228-build363-staged-holdings-command.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-company-overview-summary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.103,
+      "log": "229-build364-company-overview-summary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build368-hr-payroll-parity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.285,
+      "log": "230-build368-hr-payroll-parity.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-insurance-risk-batch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.121,
+      "log": "231-build369-insurance-risk-batch.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-market-reference.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.208,
+      "log": "232-build369-market-reference.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-interactive-summary-consumers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.104,
+      "log": "233-build372-interactive-summary-consumers.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-owner-totals-cache.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.075,
+      "log": "234-build372-owner-totals-cache.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-daily-worker-integration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.715,
+      "log": "235-build374-daily-worker-integration.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-frame-work-attribution.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.063,
+      "log": "236-build376-frame-work-attribution.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-energy-blocks-ppa.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.116,
+      "log": "237-build378-energy-blocks-ppa.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-realism-identity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "238-build379-realism-identity.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build380-construction-acceleration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.538,
+      "log": "239-build380-construction-acceleration.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-runtime-removal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.081,
+      "log": "240-build382-runtime-removal.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build395-hospitality-edge-cases.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.172,
+      "log": "241-build395-hospitality-edge-cases.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build396-hospitality-budgets.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.675,
+      "log": "242-build396-hospitality-budgets.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build404-worker-close-read-models.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.748,
+      "log": "243-build404-worker-close-read-models.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build407-diagnostic-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.123,
+      "log": "244-build407-diagnostic-lifecycle.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build421-conference-recovery-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.39,
+      "log": "245-build421-conference-recovery-contract.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build431-decision-notices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.119,
+      "log": "246-build431-decision-notices.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build432-ready-fleet-validation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.106,
+      "log": "247-build432-ready-fleet-validation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build434-service-panel-fleet-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.105,
+      "log": "248-build434-service-panel-fleet-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build439-summary-single-request.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.168,
+      "log": "249-build439-summary-single-request.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build444-document-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.981,
+      "log": "250-build444-document-pages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build450-other-section-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.289,
+      "log": "251-build450-other-section-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build451-hr-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "252-build451-hr-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build454-facility-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.36,
+      "log": "253-build454-facility-pages.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build455-cii-preview-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.297,
+      "log": "254-build455-cii-preview-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build461-market-render-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.361,
+      "log": "255-build461-market-render-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build464-summary-projection-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.154,
+      "log": "256-build464-summary-projection-boundary.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build469-app-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.376,
+      "log": "257-build469-app-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build470-composite-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.336,
+      "log": "258-build470-composite-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build471-company-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.286,
+      "log": "259-build471-company-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build473-purchase-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.336,
+      "log": "260-build473-purchase-notice-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build477-bank-read-sync-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.153,
+      "log": "261-build477-bank-read-sync-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build479-facility-scope-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.595,
+      "log": "262-build479-facility-scope-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build481-diagnostic-fleet-proof.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.063,
+      "log": "263-build481-diagnostic-fleet-proof.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build485-cold-validation-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.06,
+      "log": "264-build485-cold-validation-query.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build488-route-preview-payload.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.092,
+      "log": "265-build488-route-preview-payload.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build497-route-preview-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "266-build497-route-preview-reuse.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build500-sale-navigation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.315,
+      "log": "267-build500-sale-navigation.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build501-schema-text-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.472,
+      "log": "268-build501-schema-text-slices.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build504-durable-clone-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.941,
+      "log": "269-build504-durable-clone-budget.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build508-presentation-index-saves.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.784,
+      "log": "270-build508-presentation-index-saves.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build509-realtime-health-layout.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.13,
+      "log": "271-build509-realtime-health-layout.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build511-deferred-draft-roots.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.071,
+      "log": "272-build511-deferred-draft-roots.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build518-maintenance-worst-first.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.682,
+      "log": "273-build518-maintenance-worst-first.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build533-durable-context-release.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.436,
+      "log": "274-build533-durable-context-release.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build536-conference-progress-cost.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.676,
+      "log": "275-build536-conference-progress-cost.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build537-conference-copy.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.324,
+      "log": "276-build537-conference-copy.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build538-conference-group-headcount.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.378,
+      "log": "277-build538-conference-group-headcount.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build539-intercompany-interest-pnl.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.665,
+      "log": "278-build539-intercompany-interest-pnl.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build541-bank-provision-cash.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.628,
+      "log": "279-build541-bank-provision-cash.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build543-external-claim-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.544,
+      "log": "280-build543-external-claim-recovery.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build545-power-finance-interest.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.785,
+      "log": "281-build545-power-finance-interest.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build547-conference-customer-base.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.62,
+      "log": "282-build547-conference-customer-base.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build548-group-intercompany-elimination.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5,
+      "log": "283-build548-group-intercompany-elimination.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build549-intercompany-loan-interest.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.523,
+      "log": "284-build549-intercompany-loan-interest.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build550-airline-passenger-costs.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.379,
+      "log": "285-build550-airline-passenger-costs.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build555-investor-card-return.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.216,
+      "log": "286-build555-investor-card-return.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build578-energy-history-compaction.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.217,
+      "log": "287-build578-energy-history-compaction.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build581-fleet-definition-weight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.737,
+      "log": "288-build581-fleet-definition-weight.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build582-directory-type-weight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.13,
+      "log": "289-build582-directory-type-weight.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build584-summary-one-in-flight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.174,
+      "log": "290-build584-summary-one-in-flight.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build589-acceleration-immediate.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.167,
+      "log": "291-build589-acceleration-immediate.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build590-bulk-acquisition.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.516,
+      "log": "292-build590-bulk-acquisition.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/conference-capability-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.131,
+      "log": "293-conference-capability-core.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/core-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.429,
+      "log": "294-core-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/operating-acquisitions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.24,
+      "log": "295-operating-acquisitions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-reload-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.053,
+      "log": "296-tax-reload-regressions.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-journey-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 76.702,
+      "log": "297-build334-calendar-journey-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r3-calendar-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.129,
+      "log": "298-build334-r3-calendar-work.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-worker-scheduler.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.114,
+      "log": "299-build340-simulation-worker-scheduler.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-calendar-staged-completion.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.118,
+      "log": "300-build358-calendar-staged-completion.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-payment-terms.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 38.132,
+      "log": "301-build358-payment-terms.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-save-policy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 176.372,
+      "log": "302-build359-save-policy-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-calendar-window-equivalence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.929,
+      "log": "303-build362-calendar-window-equivalence.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-empty-calendar-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.68,
+      "log": "304-build362-empty-calendar-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-simulation-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.098,
+      "log": "305-build362-simulation-lifecycle.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-realestate-internal-leases.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.203,
+      "log": "306-build364-realestate-internal-leases.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-external-rent-monthly-ledger.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.192,
+      "log": "307-build369-external-rent-monthly-ledger.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-calendar-cancel-settle-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.125,
+      "log": "308-build371-calendar-cancel-settle-core.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-realestate-off-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.508,
+      "log": "309-build378-realestate-off-plan.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-simulation-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.122,
+      "log": "310-build379-simulation-recovery.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build380-construction-acceleration-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.854,
+      "log": "311-build380-construction-acceleration-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build392-hospitality-links.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.432,
+      "log": "312-build392-hospitality-links.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build405-worker-close-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.262,
+      "log": "313-build405-worker-close-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build472-all-company-operating-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 51.762,
+      "log": "314-build472-all-company-operating-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build558-investor-card-load-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 123.423,
+      "log": "315-build558-investor-card-load-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build559-share-value-fixes-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.205,
+      "log": "316-build559-share-value-fixes-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build563-group-share-page-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.051,
+      "log": "317-build563-group-share-page-browser.log"
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build576-presentation-rest-browser.cjs"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 153.112,
+      "log": "318-build576-presentation-rest-browser.log"
+    }
+  ],
+  "total": 655,
+  "passed": 317,
+  "ipa_built": false,
+  "device_tested": false,
+  "failed_early": "tests/build576-presentation-rest-browser.cjs"
+}
