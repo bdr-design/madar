@@ -11,7 +11,8 @@
 //  2. a purchase of 30,000 assets keeps one cheque, invoice, supplier transaction, delivery, purchase order and
 //     authorization, and leaves exactly the source before's fleet (every row) and purchase order;
 //  3. while its rows are written it paints at most 60% as many frames as slices (the source before: one frame a
-//     slice), fewer frames in all than the source before, and it takes at most 80% of the source before's time;
+//     slice), fewer frames in all than the source before, and it takes at most 80% of the source before's time (the
+//     median of three alternate runs of each source);
 //  4. every slice still reaches the fleet worker (no more than 512 rows each) and the worker's copy commits once;
 //  5. no error is logged.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),vm=require('node:vm'),{execFileSync}=require('node:child_process'),acorn=require('acorn');
@@ -58,8 +59,13 @@ async function purchase(browser,root){
   const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b606-'));const browser=await chromium.launch({headless:true});
   try{
     execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
-    const before=await purchase(browser,tree),now=await purchase(browser,SOURCE);
-    for(const [label,r] of [['now',now],['before',before]]){assert.equal(r.id,true,`2: ${label}: the purchase commits (${r.error})`);assert.equal(r.completed,QTY);assert.equal(r.fleet,QTY);}
+    // Each source purchases three times, alternately (on the macOS runner one run of a source varied 1.4-3.6 s now and
+    // 3.6-6.4 s before, so a single pair could land on either side of 80%); claim 3's time compares the medians, and every
+    // other claim holds for every run.
+    const runs={before:[],now:[]};for(let k=0;k<3;k++){runs.before.push(await purchase(browser,tree));runs.now.push(await purchase(browser,SOURCE));}
+    for(const [label,list] of Object.entries(runs))for(const r of list){assert.equal(r.id,true,`2: ${label}: the purchase commits (${r.error})`);assert.equal(r.completed,QTY);assert.equal(r.fleet,QTY);}
+    const median=list=>[...list].sort((x,y)=>x.ms-y.ms)[1],before=median(runs.before),now=median(runs.now);
+    for(const r of runs.now){assert.equal(r.digest,before.digest,'2: exactly the source before\'s fleet, every row (each run)');assert.equal(r.order,before.order,'2: exactly the source before\'s purchase order (each run)');assert.ok(r.applyFrames<=0.6*(r.slices-1),`3: each run: at most 60% as many frames as slices (${r.applyFrames}, ${r.slices})`);assert.deepEqual(r.errors,[],'5: no error (each run)');}
     // 2.
     for(const key of ['cheques','invoices','supplier','deliveries','orders','proofs'])assert.equal(now.after[key]-now.before[key],1,`2: one ${key} for the order`);
     assert.equal(now.digest,before.digest,'2: exactly the source before\'s fleet, every row');assert.equal(now.order,before.order,'2: exactly the source before\'s purchase order');
@@ -68,12 +74,12 @@ async function purchase(browser,root){
     assert.ok(before.applyFrames>=0.9*(before.slices-1),`3: (the source before painted a frame after every slice: ${before.applyFrames} frames, ${before.slices} slices)`);
     assert.ok(now.applyFrames<=0.6*(now.slices-1),`3: while the rows are written, at most 60% as many frames as slices (${now.applyFrames} frames, ${now.slices} slices)`);
     assert.ok(now.frames<now.slices&&now.frames<before.frames,`3: fewer frames for the purchase than the source before (${now.frames} against ${before.frames})`);
-    assert.ok(now.ms<=0.8*before.ms,`3: at most 80% of the source before's time (${now.ms.toFixed(0)} ms against ${before.ms.toFixed(0)})`);
+    assert.ok(now.ms<=0.8*before.ms,`3: at most 80% of the source before's time, median of three each (${now.ms.toFixed(0)} ms against ${before.ms.toFixed(0)}; now ${runs.now.map(r=>r.ms.toFixed(0))}, before ${runs.before.map(r=>r.ms.toFixed(0))})`);
     // 4.
     assert.ok(now.stats.incrementalSyncs>=now.slices,`4: every slice reaches the worker (${now.stats.incrementalSyncs} syncs, ${now.slices} slices)`);assert.ok(now.stats.maxMutationRows<=512,`4: at most 512 rows a slice (${now.stats.maxMutationRows})`);
     assert.equal(now.stats.mutationCommits,1,'4: the worker\'s copy commits once');assert.equal(now.stats.mutationRollbacks,0);
     // 5.
     assert.deepEqual(now.errors,[],'5: no error');
-    console.log(JSON.stringify({suite:'build606-purchase-frame-pacing-browser',ok:true,now:{ms:Math.round(now.ms),frames:now.frames,applyFrames:now.applyFrames,slices:now.slices},before:{ms:Math.round(before.ms),frames:before.frames,applyFrames:before.applyFrames,slices:before.slices}}));
+    console.log(JSON.stringify({suite:'build606-purchase-frame-pacing-browser',ok:true,now:{ms:Math.round(now.ms),frames:now.frames,applyFrames:now.applyFrames,slices:now.slices,runs:runs.now.map(r=>Math.round(r.ms))},before:{ms:Math.round(before.ms),frames:before.frames,applyFrames:before.applyFrames,slices:before.slices,runs:runs.before.map(r=>Math.round(r.ms))}}));
   }finally{await browser.close();fs.rmSync(tree,{recursive:true,force:true});}
 })().catch(error=>{console.error(error);process.exitCode=1;});
