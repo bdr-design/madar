@@ -42,7 +42,7 @@ async function advance(page,enabled,cancel=false){
 (async()=>{
   const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b607-')),browser=await chromium.launch({headless:true}),errors=[];
   try{
-    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
     // One saved world for every run.
     const setup=await boot({browser,errors,root:SOURCE,fleetWorker:true,viewport:{width:844,height:390}});setup.page.setDefaultTimeout(600000);
     const world=await setup.page.evaluate(async({bases,per})=>{

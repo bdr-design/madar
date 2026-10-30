@@ -32,7 +32,7 @@ async function boot(root){
  }catch(error){await browser.close();await env?.closeOrigin?.();throw error;}
 }
 (async()=>{
- const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b570-'));let current,old;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+ const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b570-'));let current,old;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
   current=await boot(SOURCE);old=await boot(tree);
   for(const view of VIEWS){
    const arg={company:'all',tab:'documents',view},runs=new Map([[current,[]],[old,[]]]);for(let i=0;i<ROUNDS;i++)for(const t of [current,old])runs.get(t).push(await t.open(arg));

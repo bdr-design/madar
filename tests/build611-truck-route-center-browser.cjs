@@ -39,7 +39,7 @@ async function routePage(page,tab='road'){
 (async()=>{
   const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b611-')),browser=await chromium.launch({headless:true}),errors=[];
   try{
-    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
     // 1.
     {const env=await boot({browser,errors,root:tree,fleetWorker:true});env.page.setDefaultTimeout(120000);await osrmDouble(env.page);
       const w=await world(env.page);assert.equal(w.trucks,TRUCKS,'1: the trucks were bought');assert.equal(w.roadRoutes,0,'1: (no road route yet)');

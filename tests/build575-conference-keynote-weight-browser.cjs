@@ -17,7 +17,8 @@
 // The synchronous costs are taken with the
 // processor at full speed: slowed four times, the throttle's own pauses land in them at random, and the same source
 // measured 124 to 293 ms over the slides and a longest task of 57 to 253 ms from run to run. Chromium on a desktop;
-// not iPhone performance.
+// not iPhone performance. The source before carries the game's present name (tests/helpers/brand-baseline.cjs: its
+// slides read «ASSETS & INFLUENCE» as this source's do), so its text lays out the same.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright'),{serve}=require('./helpers/web-server');
 const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='1d7dce1';
 async function boot(root){
@@ -60,7 +61,7 @@ async function result(t){
  return {open:opens[Math.floor(opens.length/2)],fastestOpen:opens[0],openImages:t.openImages,slides:t.slides,cost,sync:cost.reduce((a,b)=>a+b,0),worst:Math.max(...cost),task:t.spent('TaskDuration'),style:t.spent('RecalcStyleDuration'),layout:t.spent('LayoutDuration'),script:t.spent('ScriptDuration'),longest:Math.min(...halves),halves,longTasks:shown.length,passLongest:Math.max(0,...t.passLong),passLongTasks:t.passLong.length,nodes:Math.max(...t.nodes)};
 }
 (async()=>{
- const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b575-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+ const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b575-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
   old=await boot(tree);now=await boot(SOURCE);
   // Seven openings each, taking turns; the median is compared (builds 100 and 101, macOS: the source before's fastest of
   // three opened in 137 ms in one run and 51 ms in the next, the same code; here five builds of the same source, the hall

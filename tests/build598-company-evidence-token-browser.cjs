@@ -48,7 +48,7 @@ async function measure(browser,root){
 (async()=>{
   const browser=await chromium.launch({headless:true}),tree=fs.mkdtempSync(path.join(os.tmpdir(),'b598-'));
   try{
-    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${tree}"`]);
+    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
     const before=await measure(browser,tree),now=await measure(browser,SOURCE);
     // 1.
     assert.ok(now.play.asked>=4,`1: the slices asked through play (${now.play.asked})`);

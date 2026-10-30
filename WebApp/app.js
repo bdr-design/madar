@@ -51,6 +51,15 @@
   // Keep the storage key stable across compatible app releases so existing saves are not orphaned.
   const storageKey = `global-holdings-world-v${SAVE_SCHEMA_VERSION}`;
   const resetMarkerKey = 'global-holdings-reset-epoch';
+  // Development edition (owner: «موضوع الخادم عشان نعرف اذا فيه مشكلة»): new road routes may be computed on the device as
+  // in the store edition, a choice kept on this device (not in the save, kept by a new game); the store edition always
+  // computes them on the device (GH_MAP_PROVIDER.offline).
+  const ROAD_SOURCE_KEY='gh-road-source';
+  window.GH_LOCAL_ROADS=(()=>{if(window.GH_EDITION==='release')return false;try{return localStorage.getItem(ROAD_SOURCE_KEY)==='device';}catch(_error){return false;}})();
+  window.GH_ROAD_SOURCE=Object.freeze({
+    local:()=>window.GH_EDITION==='release'||window.GH_LOCAL_ROADS===true,
+    set(local){if(window.GH_EDITION==='release')return false;window.GH_LOCAL_ROADS=local===true;try{if(local===true)localStorage.setItem(ROAD_SOURCE_KEY,'device');else localStorage.removeItem(ROAD_SOURCE_KEY);}catch(_error){}return true;}
+  });
   let hardResetInProgress=false,hardResetSettlement=Promise.resolve({committed:false});
   let durableCommandInProgress=false;
   let assetPurchaseHolds=0; // Build 373: asset orders being quoted; the simulation is suspended meanwhile (buyAsset).
@@ -2430,7 +2439,7 @@
       worker.onerror=event=>plannerStarted?finish(event?.error||new Error(event?.message||'road-planner-worker-failed')):finish(null,null);
       worker.onmessageerror=()=>plannerStarted?finish(new Error('road-planner-worker-message-invalid')):finish(null,null);
       if(signal?.aborted){onAbort();return;}signal?.addEventListener('abort',onAbort,{once:true});
-      try{worker.postMessage({type:'plan',requestId,input,edition:window.GH_EDITION==='release'?'release':''});}catch(error){finish(error);}
+      try{worker.postMessage({type:'plan',requestId,input,edition:window.GH_EDITION==='release'?'release':'',localRoads:window.GH_LOCAL_ROADS===true});}catch(error){finish(error);}
     });
   }
   function roadPlanningMarkup(){return roadPlanning?`<p class="road-plan-status" role="status" aria-live="polite">${esc(roadPlanning.text)}</p><button class="secondary-btn cancel-road-plan">إلغاء حساب المسارات</button>`:'';}

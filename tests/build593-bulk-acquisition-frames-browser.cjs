@@ -48,7 +48,7 @@ async function buyAll(page,variant){
 (async()=>{
   const browser=await chromium.launch({headless:true}),tree=fs.mkdtempSync(path.join(os.tmpdir(),'b593-'));const r=v=>Math.round(v*10)/10;
   try{
-    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${tree}"`]);
+    execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
     // 2. The source before: the same ten offers bought in one signed command.
     const old=await world(browser,tree);await openOffices(old.page,10);await openOffices(old.page,10);await closeDay(old.page);const oldBuy=await buyAll(old.page,'office');
     assert.equal(oldBuy.receipts.length,20,'the source before bought the twenty offers');

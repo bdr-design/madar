@@ -126,7 +126,7 @@ async function alone(t,current,ref){
  await speed(0);assert.deepEqual(t.errors,[]);return out;
 }
 (async()=>{
- const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b576-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+ const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b576-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
   old=await boot(tree);now=await boot(SOURCE);
   // 3: playing, both sources measured at once in the same two windows (the runner's rates and a desktop's busy time drift
   // between windows, alike for both in the same seconds); each keeps its mean over the two. Each page also counts its

@@ -30,9 +30,10 @@
   //    LOCAL_MIN_POINTS..LOCAL_MAX_POINTS points, bowed to the side a hash of the two points picks: the same two points
   //    always give the same route, on every device.
   // A few dozen points of arithmetic per route; nothing is fetched, nothing waits. The development edition keeps the
-  // server (its tests intercept it).
+  // server (its tests intercept it) unless its settings ask for the device (GH_LOCAL_ROADS, owner: «موضوع الخادم عشان
+  // نعرف اذا فيه مشكلة»), to try the store edition's routes on a development build.
   const LOCAL_DETOUR=1.25,LOCAL_SPEED_KMH=65,LOCAL_STEP_KM=25,LOCAL_MIN_POINTS=8,LOCAL_MAX_POINTS=64,LOCAL_BOW=.12,LOCAL_SOURCE='تقدير محلي للطرق';
-  const offline=()=>globalThis.GH_EDITION==='release';
+  const offline=()=>globalThis.GH_EDITION==='release'||globalThis.GH_LOCAL_ROADS===true;
   function sideOf(from,to){const text=`${from[0].toFixed(5)},${from[1].toFixed(5)}>${to[0].toFixed(5)},${to[1].toFixed(5)}`;let h=0x811c9dc5;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),0x01000193);return (h>>>0)%2?1:-1;}
   function localRoad(from,to){
     if(!valid(from)||!valid(to))return {ok:false,status:'invalid-coordinates'};

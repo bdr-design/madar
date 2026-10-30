@@ -62,7 +62,7 @@ async function run(root){
 (async()=>{
   const now=await run(process.env.GH_TEST_SOURCE_DIR||ROOT);
   const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b618-'));let before;
-  try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} | tar -x -C "${tree}"`]);before=await run(tree);}finally{fs.rmSync(tree,{recursive:true,force:true});}
+  try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);before=await run(tree);}finally{fs.rmSync(tree,{recursive:true,force:true});}
   assert.ok(now.immediateCount>=20,`a fleet is drawn (${now.immediateCount} vehicles) ${JSON.stringify(now.debug)}`);
   // 1.
   assert.equal(now.started,false,'1: the summary render only starts a preparation');assert.equal(now.preparingAfterTask,true,'1: a preparation is in progress');assert.equal(now.drawnInTask,0,'1: nothing drawn in its own task');

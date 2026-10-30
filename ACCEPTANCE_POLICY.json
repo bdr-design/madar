@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build472-all-company-operating-browser.cjs"
     ],
     [
@@ -75,6 +79,10 @@
     ],
     [
       "node",
+      "tests/build646-development-device-roads-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build644-game-name.cjs"
     ],
     [
@@ -83,27 +91,31 @@
     ],
     [
       "node",
-      "tests/build638-value-pages-over-budget.cjs"
+      "tests/build570-documents-list-weight-browser.cjs"
     ],
     [
       "node",
-      "tests/build639-compact-receipt-reload.cjs"
+      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
-      "tests/build640-boot-without-maritime-save-browser.cjs"
+      "tests/build593-bulk-acquisition-frames-browser.cjs"
     ],
     [
       "node",
-      "tests/build641-release-player-tasks-browser.cjs"
+      "tests/build598-company-evidence-token-browser.cjs"
     ],
     [
       "node",
-      "tests/build642-local-road-geometry.cjs"
+      "tests/build607-calendar-window-stages-browser.cjs"
     ],
     [
       "node",
-      "tests/build643-release-roads-offline-browser.cjs"
+      "tests/build611-truck-route-center-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build618-prepared-map-render-browser.cjs"
     ],
     [
       "node",
@@ -123,11 +135,19 @@
     ],
     [
       "node",
+      "tests/build350-archive-route-diet.cjs"
+    ],
+    [
+      "node",
       "tests/build358-route-quotas.cjs"
     ],
     [
       "node",
       "tests/build359-road-dispatch-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-save-policy-browser.cjs"
     ],
     [
       "node",
@@ -143,7 +163,43 @@
     ],
     [
       "node",
-      "tests/build611-truck-route-center-browser.cjs"
+      "tests/build377-health-status-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-actions.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-once-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build642-local-road-geometry.cjs"
+    ],
+    [
+      "node",
+      "tests/build643-release-roads-offline-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build638-value-pages-over-budget.cjs"
+    ],
+    [
+      "node",
+      "tests/build639-compact-receipt-reload.cjs"
+    ],
+    [
+      "node",
+      "tests/build640-boot-without-maritime-save-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build641-release-player-tasks-browser.cjs"
     ],
     [
       "node",
@@ -164,10 +220,6 @@
     [
       "node",
       "tests/build359-management-effects.cjs"
-    ],
-    [
-      "node",
-      "tests/build377-health-status-browser.cjs"
     ],
     [
       "node",
@@ -487,10 +539,6 @@
     ],
     [
       "node",
-      "tests/build350-archive-route-diet.cjs"
-    ],
-    [
-      "node",
       "tests/build350-persistence-codec.cjs"
     ],
     [
@@ -684,10 +732,6 @@
     [
       "node",
       "tests/build359-proof-checkpoints.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-save-policy-browser.cjs"
     ],
     [
       "node",
@@ -1059,14 +1103,6 @@
     ],
     [
       "node",
-      "tests/build387-save-actions.cjs"
-    ],
-    [
-      "node",
-      "tests/build387-save-once-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build388-change-tracking-browser.cjs"
     ],
     [
@@ -1164,10 +1200,6 @@
     [
       "node",
       "tests/build477-bank-read-sync-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build492-manual-slot-slices-browser.cjs"
     ],
     [
       "node",
@@ -1315,10 +1347,6 @@
     ],
     [
       "node",
-      "tests/build570-documents-list-weight-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build572-fleet-premium-unpaid.cjs"
     ],
     [
@@ -1328,14 +1356,6 @@
     [
       "node",
       "tests/build574-investor-budget-overrun.cjs"
-    ],
-    [
-      "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -1371,10 +1391,6 @@
     ],
     [
       "node",
-      "tests/build593-bulk-acquisition-frames-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build594-finance-company-ids-memo.cjs"
     ],
     [
@@ -1384,10 +1400,6 @@
     [
       "node",
       "tests/build596-construction-vat-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build598-company-evidence-token-browser.cjs"
     ],
     [
       "node",
@@ -1407,10 +1419,6 @@
     ],
     [
       "node",
-      "tests/build607-calendar-window-stages-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build609-authorization-check-slices.cjs"
     ],
     [
@@ -1424,10 +1432,6 @@
     [
       "node",
       "tests/build615-document-proof-check-slices.cjs"
-    ],
-    [
-      "node",
-      "tests/build618-prepared-map-render-browser.cjs"
     ],
     [
       "node",
@@ -3154,6 +3158,10 @@
     [
       "node",
       "tests/build645-legal-consent-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build646-development-device-roads-browser.cjs"
     ],
     [
       "node",
