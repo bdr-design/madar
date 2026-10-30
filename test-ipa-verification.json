@@ -1,0 +1,18 @@
+{
+  "ipa_created": true,
+  "ipa_name": "GlobalHoldings_BUILD362_unsigned_TEST.ipa",
+  "ipa_sha256": "8241611a10d18980537c02ebe92fd081a89fe67617a213dfbe8767e8f1ed80bb",
+  "ipa_bytes": 14232333,
+  "source_tree_sha256": "744e417219d02ea1cd67aade21e5848a03d786a90131a357e50d710b38a17e4d",
+  "webapp_tree_sha256": "81491dab6e5f06492078683f2e4d8405f1434ff5d58bfee63ced4eed49531246",
+  "webapp_files": 998,
+  "app_files": 1008,
+  "workflow_run_id": 41099898439,
+  "workflow_commit": "ef5781467e2fe5e0dbe2cee78669fa8d8bb20f0c",
+  "arm64_iphoneos": true,
+  "unsigned": true,
+  "experimental_test_build": true,
+  "physical_iphone_tested": false,
+  "production_approved": false,
+  "save_schema": "3.0.0"
+}
