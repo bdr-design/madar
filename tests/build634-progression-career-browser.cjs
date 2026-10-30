@@ -10,10 +10,13 @@
 //     paid, the band itself is bought; facilities stop at their band;
 //  4. an early licence (the marine company, level 5, two levels ahead) is one signed command: the group pays the approved
 //     fee by a documented expense, the licence is recorded, the company opens, and a second licence is refused;
-//  5. investor mode lifts every limit (media, level 6, opens); turned off, what was opened stays and the limits come back
+//  5. (owner, approved pricing) investor mode is unlimited money only: the levels stay (media, level 6, is refused with
+//     its level) and the experience keeps counting; turned off, the limits are as they were
 //     (telecom, level 8, is refused);
 //  6. the level tile beside the cash shows the level and opens the levels page; the page shows the level, the early
 //     licences within reach and the table; a day's close is counted once (lastClosedDay) and the level never goes down;
+//     the tile follows the level by itself, with no refresh asked of it (owner: «متأكد ان المستوى يتحدث اول بأول؟»):
+//     after the decisions above, and while the game plays when experience is added as the day's close adds it;
 //  7. a group founded in free play has no limits and no level tile.
 const assert=require('node:assert/strict');
 const {boot,reboot}=require('./helpers/local-dom-app');
@@ -75,19 +78,32 @@ const command=(page,domain,name,payload)=>page.evaluate(async([domain,name,paylo
     const again=await command(page,'progression','early-licence',{key:'company:sea',fee:licence.quote.fee});assert.equal(again.ok,false,'4: no second licence or charge');
     // 5.
     await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);
-    assert.equal(await page.evaluate(()=>GH_PROGRESSION_CORE.active(__GH_STATE__)),false,'5: investor mode lifts the limits');
-    assert.equal(await page.evaluate(()=>__AUDIT__.openCompany('media')),true,'5: media opens in investor mode');await settle(page);
+    const investing=await page.evaluate(()=>({on:GH_FINANCE_CORE.investorMode(__GH_STATE__),active:GH_PROGRESSION_CORE.active(__GH_STATE__),blocker:__AUDIT__.openingBlocker('media'),xp:__GH_STATE__.progression.xp}));
+    assert.equal(investing.on,true);assert.equal(investing.active,true,'5: investor mode keeps the levels');assert.match(investing.blocker,/المستوى 6/,'5: media stays at its level in investor mode');
+    assert.equal(await page.evaluate(()=>__AUDIT__.openCompany('media')),false,'5: media does not open in investor mode');await settle(page);
+    assert.ok(await page.evaluate(xp=>{GH_PROGRESSION_CORE.onCommand(__GH_STATE__,'finance','transfer',{});return __GH_STATE__.progression.xp>xp;},investing.xp),'5: the experience keeps counting in investor mode');
     await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);
     const after=await page.evaluate(()=>({active:GH_PROGRESSION_CORE.active(__GH_STATE__),media:__GH_STATE__.openedCompanies.includes('media'),blocker:__AUDIT__.openingBlocker('telecom')}));
-    assert.equal(after.active,true);assert.equal(after.media,true,'5: what was opened stays');assert.match(after.blocker,/المستوى 8/,'5: the limits come back');
+    assert.equal(after.active,true);assert.equal(after.media,false,'5: nothing opened early');assert.match(after.blocker,/المستوى 8/,'5: the limits are as they were');
     // 6.
-    const tile=await page.evaluate(()=>{__AUDIT__.updateKpis?.();const t=document.getElementById('levelKpi');return {hidden:t.hidden,value:document.getElementById('levelKpiValue').textContent,level:__GH_STATE__.progression.level};});
-    assert.equal(tile.hidden,false,'6: the level tile shows in a career');assert.equal(tile.value,String(tile.level));
+    // The tile is read as the game drew it: no updateKpis() is called by the test.
+    const readTile=()=>page.evaluate(()=>{const t=document.getElementById('levelKpi');return {hidden:t.hidden,value:document.getElementById('levelKpiValue').textContent,level:__GH_STATE__.progression.level};});
+    await page.waitForFunction(()=>document.getElementById('levelKpiValue')?.textContent===String(__GH_STATE__.progression.level),null,{timeout:5000}).catch(()=>{});
+    const tile=await readTile();
+    assert.equal(tile.hidden,false,'6: the level tile shows in a career');assert.equal(tile.value,String(tile.level),'6: the tile follows the decisions by itself');
     await page.click('#levelKpi');await page.waitForFunction(()=>document.querySelector('#drawerBody .progression-head'),null,{timeout:30000});
     const pageText=await page.evaluate(()=>({head:document.querySelector('#drawerBody .progression-head h3').textContent,rows:document.querySelectorAll('#drawerBody .progression-level-row').length,licences:document.querySelectorAll('#drawerBody .progression-licence-row button[data-gh-action="progression-licence"]').length}));
     assert.match(pageText.head,/^المستوى \d+ · /);assert.equal(pageText.rows,30,'6: the whole table');assert.ok(pageText.licences>0,'6: early licences within reach');
     const day=await page.evaluate(async()=>{const e=__AUDIT__.simulationEngine,s=__GH_STATE__,xp=s.progression.xp,level=s.progression.level,target=(Math.floor(s.simSeconds/86400)+1)*86400+3600;e.advanceTo(target,{reason:'b634',maxSeconds:3*86400});const until=performance.now()+300000;while((e.snapshot().manualAdvance||GH_TRANSACTION_CORE.isStaged(s))&&performance.now()<until)await new Promise(r=>setTimeout(r,20));return {xp,level,after:s.progression.xp,levelAfter:s.progression.level,closed:s.progression.lastClosedDay,day:s.lastFinancialDay};});
     assert.equal(day.closed,day.day,'6: the day close was counted');assert.ok(day.after>=day.xp&&day.levelAfter>=day.level,'6: experience and level never go down');
+    // Experience added while the game plays, as the day's close adds it (GH_PROGRESSION_CORE.addXp, 'day'): the next
+    // level's threshold reached; the tile shows it by itself within 5 s.
+    await settle(page);await page.click('[data-speed="1"]');
+    const next=await page.evaluate(()=>{const s=__GH_STATE__,p=s.progression,need=GH_PROGRESSION_CORE.XP?.[p.level]??null;if(need===null)return null;GH_PROGRESSION_CORE.addXp(s,Math.ceil((need-p.xp)/(GH_PROGRESSION_CORE.multiplier?.(s)||1))+1,'day');return p.level;});
+    assert.ok(next>tile.level,`6: the experience reaches the next level (${next})`);
+    await page.waitForFunction(level=>document.getElementById('levelKpiValue')?.textContent===String(level),next,{timeout:5000}).catch(()=>{});
+    assert.equal((await readTile()).value,String(next),'6: the tile follows experience gained while playing by itself');
+    await page.click('#speedToggle');await settle(page);
     // 1. (after a reload)
     await settle(page);const saved=await page.evaluate(()=>JSON.stringify(__GH_STATE__.progression));await page.evaluate(()=>__AUDIT__.save?.());await settle(page);
     ({page}=await reboot(page,{errors,appAudit:AUDIT}));page.setDefaultTimeout(120000);

@@ -707,7 +707,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                     }
                 }
             case "saveManualSlot":
-                guard let index = payloadInteger(payload["index"]), (0...2).contains(index),
+                guard let index = payloadInteger(payload["index"]), (0...5).contains(index),
                       let json = payload["saveJSON"] as? String else {
                     reportManualSlotAck(payload: payload, success: false, message: "Invalid manual slot save envelope.")
                     return
@@ -725,7 +725,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                 }
             case "loadManualSlot":
                 guard let requestId = payload["requestId"] as? String, !requestId.isEmpty, requestId.count <= 200,
-                      let index = payloadInteger(payload["index"]), (0...2).contains(index) else {
+                      let index = payloadInteger(payload["index"]), (0...5).contains(index) else {
                     reportManualSlotAck(payload: payload, success: false, message: "Invalid manual slot load request.")
                     return
                 }
@@ -743,7 +743,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                 }
             case "clearManualSlot":
                 guard let requestId = payload["requestId"] as? String, !requestId.isEmpty, requestId.count <= 200,
-                      let index = payloadInteger(payload["index"]), (0...2).contains(index) else {
+                      let index = payloadInteger(payload["index"]), (0...5).contains(index) else {
                     reportManualSlotAck(payload: payload, success: false, message: "Invalid manual slot clear request.")
                     return
                 }

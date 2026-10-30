@@ -1,12 +1,13 @@
 {
   "design_files": {
-    "WebApp/interface-layout.css": "84410d6aae2dd694d2681dbc6459cf2cdfc1a019a622d3e92f19dfc8146e918d",
+    "WebApp/interface-layout.css": "ba7870bc814c0f3bd506954382032365128b0b6c387caed9ecb3bb7dd8c5487b",
     "WebApp/styles.css": "2e1f5889fda3ecbebac01b7e479d878431675c62215b436781a2b3490342e6d1",
     "WebApp/madar-shell.css": "80f3e4174f94aabb5075d75ada76454c7c028cd779c0f9e80f37c399ee6a9de5",
     "WebApp/section-identities.css": "24bc5a39de24b847a9435440b70b6297927b1d050dc0fc03cd3d63c2d9994073",
     "WebApp/finance-presentation.css": "70e3b9436f98ba7814b885ce78406c445f137d9f5c37b02651533be1f230d576"
   },
   "approved_design_edits": {
-    "WebApp/madar-shell.css": "Owner (review of every page and company panel at four phone sizes, «صلح كل شي»): appended rules only. The last odd tile spans its row; below 740 px wide the drawer's option tiles stand one per row with the glyph at the far side, a card's status tag moves under its heading, the buyer bar wraps, a tab's count reads as a badge, a directory company chip shows its three lines, the investor card stacks below 300 px and the market row's trend line sits under its name. Colours, routes, order and every earlier rule unchanged."
+    "WebApp/madar-shell.css": "Owner (review of every page and company panel at four phone sizes, «صلح كل شي»): appended rules only. The last odd tile spans its row; below 740 px wide the drawer's option tiles stand one per row with the glyph at the far side, a card's status tag moves under its heading, the buyer bar wraps, a tab's count reads as a badge, a directory company chip shows its three lines, the investor card stacks below 300 px and the market row's trend line sits under its name. Colours, routes, order and every earlier rule unchanged.",
+    "WebApp/interface-layout.css": "Owner («شريط عرض معلومات الاصول بالرئيسية يختفي اذا انفتحت الشركات بالشريط»): the map strip wraps (wrap-reverse) and the status capsule keeps at least 250 px, moving to the row above the company dock instead of shrinking away or hiding when a panel opens."
   }
 }

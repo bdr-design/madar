@@ -31,7 +31,7 @@
     if(!facility||facility.owned!==true||facility.kind!=='power'||String(facility.ownerCompanyId||facility.companyId||facility.company)!=='power'||facility.commissioned)return null;
     const day=Math.floor(now(state)/86400),start=Math.floor(num(contract.awardedAt)/86400),lead=Math.max(1,num(contract.leadDays)||180),originalCompleteDay=start+lead,remaining=originalCompleteDay-day;
     if(remaining<=1||day<start||!Number.isFinite(Number(contract.amount))||Number(contract.amount)<=0)return null;
-    const completeDay=day,fee=Math.round(Number(contract.amount)*(remaining/lead)*CONSTRUCTION_ACCELERATION_RATE);
+    const completeDay=day,fee=Math.round(Number(contract.amount)*(remaining/lead)*CONSTRUCTION_ACCELERATION_RATE*(globalThis.GH_STORE_CORE?.accelerationFactor?.(state)??1));
     return fee>0?{contractId:contract.id,facilityId:facility.id,day,originalCompleteDay,completeDay,daysSaved:originalCompleteDay-completeDay,fee}:null;
   }
   function accelerateConstruction(state,p={}){

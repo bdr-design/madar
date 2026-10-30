@@ -1,20 +1,20 @@
 'use strict';
 // Owner (approved design «فنتورا: تصميم المستويات وتجهيز الإطلاق»): a career game climbs thirty levels that open the
-// companies, the catalogue models and the group's tools; free play, saves from before levels and investor mode carry no
-// limits. GH_PROGRESSION_CORE, with the real catalogue, company definitions and founding modes:
+// companies, the catalogue models and the group's tools; free play and saves from before levels carry no limits (owner,
+// approved pricing: in a career, investor mode is unlimited money only, the levels and experience stay). GH_PROGRESSION_CORE, with the real catalogue, company definitions and founding modes:
 //  1. the experience table rises strictly to level 30, and levelForXp reads it at every boundary;
 //  2. every company definition and every catalogue line (new and used, air, sea, road) has a level from the approved
 //     table; a used line takes its new model's level; every listed tool is a real player command;
 //  3. the founding offers the three career modes (capital from the difficulty: 1B, 250M, 50M) beside the three free-play
 //     modes, the career-normal mode chosen by default; a career mode founds a career root at level 1, any other free play;
-//  4. limits apply to a career game only: none for free play, an absent root or investor mode;
+//  4. limits apply to a career game, investor mode or not: none for free play or an absent root;
 //  5. the command gate refuses a company, a model, a tool or a count past a band with the level that opens it, accepts
 //     what the level opens, never refuses repaying or selling, and a licence opens its key early;
 //  6. the bands of facilities and fleets follow the company's own level, lift whole at 27 (fleets) and 29 (facilities),
 //     and the group's regional headquarters follow their own steps;
 //  7. the save validation accepts the roots it writes and refuses a malformed one;
 //  8. experience: milestones once, 3 a decision up to 60 a day, the day's profitable companies and group net up to the
-//     day's cap, months and years in profit, × the difficulty (and Plus); none in investor mode; the level never goes down;
+//     day's cap, months and years in profit, × the difficulty (and Plus, 50%); investor mode earns as any career; the level never goes down;
 //  9. the early licence: the difficulty's reach and fee factor, the approved fee for a company, a model and a tool, a
 //     documented group expense in the same command, no second charge, and the licensed key opens;
 // 10. the expansion grant: the share of a newly opened company's minimum capital by difficulty, as a documented founder
@@ -65,8 +65,8 @@ for(const mode of ['balanced','investor','sandbox',undefined,'x']){const root=P.
 
 // 4.
 assert.equal(P.active(career(1)),true);assert.equal(P.active({}),false,'4: a save from before levels is open');assert.equal(P.active({progression:P.initial('sandbox')}),false,'4: free play is open');
-assert.equal(P.active(career(1,{godMoney:true,infiniteMoney:true})),false,'4: investor mode lifts every limit');
-for(const state of [{},{progression:P.initial('balanced')},career(1,{godMoney:true,infiniteMoney:true})]){
+assert.equal(P.active(career(1,{godMoney:true,infiniteMoney:true})),true,'4: investor mode keeps the levels');assert.equal(P.unlocked(career(1,{godMoney:true,infiniteMoney:true}),'company:sports'),false,'4: investor mode opens nothing early');
+for(const state of [{},{progression:P.initial('balanced')}]){
   assert.equal(P.unlocked(state,'company:sports'),true);assert.equal(P.checkCommand(state,'corporate','open-company',{type:'sports'}),true);assert.equal(P.bandLimit(state,'road','road'),Infinity);
   assert.equal(P.checkCommand(state,'mobility','buy-fleet',{quantity:1e6}),true);}
 
@@ -134,8 +134,8 @@ const fresh=(difficulty='normal',extra={})=>{const st={simSeconds:0,alerts:[],..
   P.closeDay(st,{day:31,companies:{},net:-1});assert.ok(st.progression.milestones['first-profit-month']!==undefined,'8: January closed in profit');
   P.closeDay(st,{day:400,companies:{},net:1});assert.ok(st.progression.milestones['first-profit-year']!==undefined,'8: 2026 closed in profit');}
 {const easy=fresh('easy'),hard=fresh('hard');P.onCommand(easy,'finance','transfer',{});P.onCommand(hard,'finance','transfer',{});assert.equal(easy.progression.xp,75+5);assert.equal(hard.progression.xp,38+2,'8: the difficulty multiplies every point');
-  const plus=fresh('normal',{purchases:{entitlements:{plus:{transactionId:'T'}}}});P.onCommand(plus,'finance','transfer',{});assert.equal(plus.progression.xp,50+4,'8: Plus adds 25%');}
-{const st=fresh('normal',{godMoney:true,infiniteMoney:true});assert.equal(P.onCommand(st,'corporate','open-company',{type:'road'}),null);assert.equal(P.closeDay(st,{day:0,companies:{a:{net:1}},net:1e9}),null);assert.equal(st.progression.xp,50,'8: investor mode earns nothing');}
+  const plus=fresh('normal',{purchases:{entitlements:{plus:{transactionId:'T'}}}});P.onCommand(plus,'finance','transfer',{});assert.equal(plus.progression.xp,50+5,'8: Plus adds 50% (3 × 1.5, rounded)');}
+{const st=fresh('normal',{godMoney:true,infiniteMoney:true}),plain=fresh('normal');for(const row of [st,plain]){P.onCommand(row,'corporate','open-company',{type:'road'});P.closeDay(row,{day:0,companies:{a:{net:1}},net:1e9});}assert.ok(st.progression.xp>50,'8: investor mode earns experience');assert.equal(st.progression.xp,plain.progression.xp,'8: exactly as without it');}
 {const st=career(10);st.progression.xp=P.XP[9];P.addXp(st,0,'');assert.equal(st.progression.level,10);st.progression.xp=0;P.addXp(st,1,'');assert.equal(st.progression.level,10,'8: the level never goes down');}
 // 9. Early licence.
 s.GH_COMPANY_PLATFORM={getDefinition:id=>({founding:{minimumCapital:{air:25e6,sea:30e6,bank:75e6}[id]||0}})};

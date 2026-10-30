@@ -3181,15 +3181,15 @@
   function calendarAdvanceTargetDays(days){const now=Math.max(0,Number(state.simSeconds)||0),currentDay=Math.floor(now/86400);return Math.max(now+1,(currentDay+Math.max(1,Math.floor(Number(days)||1)))*86400);}
   function calendarAdvanceTargetYear(){const d=simDate(),y=d.getUTCFullYear()+1,m=d.getUTCMonth(),day=d.getUTCDate(),last=new Date(Date.UTC(y,m+1,0)).getUTCDate();return calendarDayStartSeconds(new Date(Date.UTC(y,m,Math.min(day,last))));}
   // The store edition's paid features (GH_STORE_CORE.featureOpen): without the purchase the store page opens with the reason.
-  function paidFeatureOpen(feature,reason){if(window.GH_STORE_CORE?.featureOpen?.(state,feature)!==false)return true;notice(reason,'warning');openDrawer('store');return false;}
+  function paidFeatureOpen(feature,reason){if(window.GH_STORE_CORE?.featureOpen?.(state,feature)!==false)return true;notice(reason,'warning');openDrawer('store',{tab:feature==='advance'?'plus':'lic'});return false;}
   function requestCalendarAdvance(target,reason,label){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل تقديم التقويم.');return false;}
     const active=simulationEngine.snapshot().manualAdvance;if(active){notice('هناك تقديم زمني جارٍ الآن. أوقفه أولًا ثم اختر مدة جديدة.');return false;}
     if(pausePendingAfterDayClose){notice('يكتمل إقفال اليوم ويتوقف الوقت، ثم اختر مدة التقديم.');return false;}
     const now=Math.max(0,Number(state.simSeconds)||0),next=Math.floor(Number(target)||0);if(!Number.isFinite(next)||next<=now){notice('اختر تاريخًا لاحقًا عن التاريخ الحالي.');return false;}
     const max=366*86400;if(next-now>max+1){notice('للحفاظ على سلامة المحاكاة يمكن التقديم حتى سنة واحدة في كل عملية.');return false;}
-    // A step of more than one day is the time accelerator's (store edition); one day ahead stays free.
-    if(next-(Math.floor(now/86400)+1)*86400>3600&&!paidFeatureOpen('accelerator','تقديم التقويم بأكثر من يوم واحد من «مسرّع الوقت» أو «أصول ونفوذ بلس».'))return false;
+    // A step of more than one day is Plus's (store edition, owner's approved pricing); one day ahead stays free.
+    if(next-(Math.floor(now/86400)+1)*86400>3600&&!paidFeatureOpen('advance','تقديم التقويم بأكثر من يوم واحد من مزايا «أصول ونفوذ بلس».'))return false;
     observeLoopLock();
     // Calendar advance is a bounded cooperative workload independent from the player's live-speed selection.
     // The simulation core keeps the current atomic slice alive under device pressure instead of restarting it.
@@ -3254,7 +3254,18 @@
   }
   let lastKpiIdentitySignature='',lastKpiProfitSign=null;
   const setNodeText=(id,value)=>{const node=$(id),text=String(value);if(node&&node.textContent!==text)node.textContent=text;return node;};
+  // A store-edition 300× that is no longer held (the starter pack's three days, Plus ended) steps down to 120× once.
+  let speedEntitlementCheckQueued=false;
+  function checkSpeedEntitlement(){
+    if(state.speed!==3||speedEntitlementCheckQueued||window.GH_STORE_CORE?.featureOpen?.(state,'accelerator')!==false)return;
+    speedEntitlementCheckQueued=true;setTimeout(()=>{speedEntitlementCheckQueued=false;if(state.speed!==3||window.GH_STORE_CORE?.featureOpen?.(state,'accelerator')!==false)return;setSpeed(2);if(state.speed===2)notice('انتهت مدة السرعة 300×؛ عادت السرعة إلى 120×.','warning');},0);
+  }
+  // Owner (approved Plus): the gold identity (the brand's frame and Plus mark, the headquarters on the map, the annual
+  // conference), one class on the app root, changed only when Plus is gained or lost.
+  let plusMemberShown=null;
+  function syncPlusIdentity(){const member=window.GH_STORE_CORE?.entitled?.(state,'plus')===true;if(member===plusMemberShown)return;plusMemberShown=member;$('app')?.classList.toggle('plus-member',member);}
   function updateKpis(){
+    checkSpeedEntitlement();syncPlusIdentity();
     const identitySignature=[state.profile?.name,state.profile?.shortName,state.profile?.logo,state.companyRegistry?.group?.legalName,state.companyRegistry?.group?.logo].map(value=>String(value||'')).join('|');
     if(identitySignature!==lastKpiIdentitySignature){lastKpiIdentitySignature=identitySignature;if(window.GH_IDENTITY)window.GH_IDENTITY.applyDocument(state);else{setNodeText('groupName',state.profile.name);setNodeText('brandMark',(state.profile.shortName||'GH').slice(0,4).toUpperCase());}}
     setNodeText('cashKpi',window.GH_FINANCE_CORE?.investorMode?.(state)?'∞':fmtMoney(state.cash));
@@ -3502,7 +3513,7 @@
       const intercompany=intercompanyRows.reduce((sum,row)=>sum+(row&&row.from!==row.to&&companyIdSet.has(row.from)&&companyIdSet.has(row.to)?Math.max(0,Number(row.amount)||0):0),0)+Math.max(0,Number(window.GH_FINANCE_CORE.takeOffCloseIntercompany?.(state))||0);
       const holdingCost=(Number(groupCost)||0)+(Number(groupPayrollExpense)||0)+holdingExpense,holding={revenue:holdingRevenue+Math.max(0,-holdingCost),expense:Math.max(0,holdingCost)};
       // The career's day of experience is read from this close's own company rows (GH_PROGRESSION_CORE.closeDay).
-      phase('simulation.finance-day.daily-close-postings',()=>{dispatchSystemCommand({state},'finance','record-daily-close',{day:state.lastFinancialDay,sectors:closedSectorProfit,companies:companyDaily,net,holding,intercompany},{actor:'financial-close'});window.GH_PROGRESSION_CORE?.closeDay?.(state,{day:state.lastFinancialDay,companies:companyDaily,net});dispatchSystemCommand({state},'corporate','adjust-group-value',{delta:net*.03},{actor:'financial-close'});dispatchSystemCommand({state},'corporate','close-valuation',{day:state.lastFinancialDay},{actor:'financial-close'});const dividend=dispatchSystemCommand({state},'corporate','close-dividend',{day:state.lastFinancialDay},{actor:'financial-close'})?.result;if(dividend)pushAlert(dividend.paid?`صُرف توزيع أرباح الربع (${dividend.payout}% من ربحه): ${fmtMoney(dividend.publicAmount)} لمساهمي الطرح بحوالة ${dividend.ref}، وحصة المؤسس ${fmtMoney(dividend.founderAmount)} تبقى في القابضة.`:`لم يُوزَّع ربح الربع: ${dividend.reason==='cash'?'نقد القابضة لا يكفي لحصة مساهمي الطرح':'لا ربح في الربع'}.`);runOperationsCycle(net,fleetConditionTotal);});
+      phase('simulation.finance-day.daily-close-postings',()=>{dispatchSystemCommand({state},'finance','record-daily-close',{day:state.lastFinancialDay,sectors:closedSectorProfit,companies:companyDaily,net,holding,intercompany},{actor:'financial-close'});window.GH_PROGRESSION_CORE?.closeDay?.(state,{day:state.lastFinancialDay,companies:companyDaily,net});{const salary=window.GH_STORE_CORE?.paySalary?.(state,state.lastFinancialDay);if(salary)pushAlert(`وصل راتب المؤسس لشهر ${salary.month}: ${fmtMoney(salary.amount)} إلى الحساب الجاري للقابضة (أصول ونفوذ بلس).`);}dispatchSystemCommand({state},'corporate','adjust-group-value',{delta:net*.03},{actor:'financial-close'});dispatchSystemCommand({state},'corporate','close-valuation',{day:state.lastFinancialDay},{actor:'financial-close'});const dividend=dispatchSystemCommand({state},'corporate','close-dividend',{day:state.lastFinancialDay},{actor:'financial-close'})?.result;if(dividend)pushAlert(dividend.paid?`صُرف توزيع أرباح الربع (${dividend.payout}% من ربحه): ${fmtMoney(dividend.publicAmount)} لمساهمي الطرح بحوالة ${dividend.ref}، وحصة المؤسس ${fmtMoney(dividend.founderAmount)} تبقى في القابضة.`:`لم يُوزَّع ربح الربع: ${dividend.reason==='cash'?'نقد القابضة لا يكفي لحصة مساهمي الطرح':'لا ربح في الربع'}.`);runOperationsCycle(net,fleetConditionTotal);});
       // رواتب تقويمية في تاريخ 27؛ إذا وصل حفظ قديم بعد التاريخ تُنفّذ مرة واحدة للشهر نفسه.
       if(payrollDueToday){
         const reportId=`PAYROLL-${payrollMeta.monthKey}`,payrollItems=[...companyIds,'group'].map(company=>payrollPlan[company]).filter(row=>row&&row.amount>0),lines=[];
@@ -7045,6 +7056,7 @@ ${page}</div>`;
   $('alertsBtn').addEventListener('click',()=>openDrawer('news')); $('topNewsTicker')?.addEventListener('click',()=>openDrawer('news')); $('healthBtn')?.addEventListener('click',()=>openDrawer(window.GH_EDITION==='release'?'settings':'diagnostics')); $('settingsBtn').addEventListener('click',()=>openDrawer('systemHub'));
   document.querySelectorAll('button[data-map-mode]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setMapMode(btn.dataset.mapMode);}));
   $('drawerClose').addEventListener('click',closeDrawer);
+  $('storeBtn')?.addEventListener('click',()=>openDrawer('store'));
   window.GH_MADAR?.install?.({openDrawer,getState:()=>state});
   $('backdrop').addEventListener('click',closeDrawer);
   $('assetClose').addEventListener('click',()=>{$('assetCard').classList.add('hidden');selectedAssetId=null;renderMap();});

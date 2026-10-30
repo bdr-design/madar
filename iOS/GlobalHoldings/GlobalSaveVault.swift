@@ -222,12 +222,12 @@ final class GlobalSaveVault {
     private var rollbackCheckpointURL: URL { folder.appendingPathComponent("rollback-checkpoint.json", isDirectory: false) }
 
     private func validatedManualSlotIndex(_ index: Int) throws -> Int {
-        guard (0...2).contains(index) else { throw VaultError.message("Invalid manual save slot.") }
+        guard (0...5).contains(index) else { throw VaultError.message("Invalid manual save slot.") }
         return index
     }
 
     private func manualSlotRawHashes() throws -> [String?] {
-        try (0...2).map { index in
+        try (0...5).map { index in
             let file = manualSlotURL(index)
             guard fm.fileExists(atPath: file.path) else { return nil }
             return sha256(try Data(contentsOf: file))
@@ -238,7 +238,7 @@ final class GlobalSaveVault {
         guard expectedHashes.count == 3 else { throw VaultError.message("Invalid manual slot reset hash set.") }
         // Two-phase staging: copy + hash-verify every original before deleting any
         // source. A crash during copy leaves the original authoritative.
-        for index in 0...2 {
+        for index in 0...5 {
             let source = manualSlotURL(index), backup = manualSlotBackupURL(index)
             if fm.fileExists(atPath: backup.path) { try fm.removeItem(at: backup) }
             guard let expected = expectedHashes[index] else {
@@ -254,7 +254,7 @@ final class GlobalSaveVault {
                 throw VaultError.message("Manual slot reset backup verification failed.")
             }
         }
-        for index in 0...2 {
+        for index in 0...5 {
             let source = manualSlotURL(index)
             if fm.fileExists(atPath: source.path) { try fm.removeItem(at: source) }
         }
@@ -262,7 +262,7 @@ final class GlobalSaveVault {
 
     private func restoreManualSlotsAfterResetFailure(expectedHashes: [String?]) throws {
         guard expectedHashes.count == 3 else { throw VaultError.message("Invalid manual slot recovery hash set.") }
-        for index in 0...2 {
+        for index in 0...5 {
             let source = manualSlotURL(index), backup = manualSlotBackupURL(index)
             guard let expected = expectedHashes[index] else {
                 if fm.fileExists(atPath: source.path) { try fm.removeItem(at: source) }
@@ -285,7 +285,7 @@ final class GlobalSaveVault {
     }
 
     private func discardManualSlotResetBackups() {
-        for index in 0...2 { try? fm.removeItem(at: manualSlotBackupURL(index)) }
+        for index in 0...5 { try? fm.removeItem(at: manualSlotBackupURL(index)) }
     }
 
     func commitAsync(_ json: String, runtimeVersion: String? = nil, envelope: [String: Any]? = nil, completion: ((Result<Int, Error>) -> Void)? = nil) {
@@ -515,7 +515,7 @@ final class GlobalSaveVault {
     }
 
     func manualSlotMetadata() -> [ManualSlotMetadata] {
-        queue.sync { (0...2).compactMap { readManualSlot($0)?.metadata } }
+        queue.sync { (0...5).compactMap { readManualSlot($0)?.metadata } }
     }
 
     func saveManualSlotAsync(_ index: Int, json: String, label: String, runtimeVersion: String? = nil, envelope: [String: Any]? = nil, completion: ((Result<ManualSlotMetadata, Error>) -> Void)? = nil) {
@@ -597,7 +597,7 @@ final class GlobalSaveVault {
     }
 
     private func readManualSlot(_ index: Int) -> ManualSlotEnvelope? {
-        guard (0...2).contains(index),
+        guard (0...5).contains(index),
               let stored = try? Data(contentsOf: manualSlotURL(index)), let data = VentoraSaveSeal.plainBytes(stored),
               let envelope = try? JSONDecoder().decode(ManualSlotEnvelope.self, from: data),
               envelope.format == "global-holdings-native-slot-v1",
@@ -689,7 +689,7 @@ final class GlobalSaveVault {
         let nativeRevision = envelope.saveRevision ?? 0
         let nativeReset = String(format: "%.0f", envelope.resetEpoch ?? 0)
         let nativeGeneration = envelope.generation
-        let slotMetadata = (0...2).compactMap { readManualSlot($0)?.metadata }
+        let slotMetadata = (0...5).compactMap { readManualSlot($0)?.metadata }
         let slotJSON = (try? JSONEncoder().encode(slotMetadata)) ?? Data("[]".utf8)
         let slotB64 = slotJSON.base64EncodedString()
         return compatibility + """

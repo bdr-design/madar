@@ -928,6 +928,8 @@
     "interface-layout.css",
     "legal-core.js",
     "legal.css",
+    "store.css",
+    "news.css",
     "lifecycle-core.js",
     "madar-icons.css",
     "madar-icons.js",

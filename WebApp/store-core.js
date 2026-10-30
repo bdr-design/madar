@@ -13,16 +13,23 @@
   const PRODUCTS=Object.freeze({
     'plus.monthly':Object.freeze({kind:'subscription',grants:'plus',title:'أصول ونفوذ بلس · شهري',price:'4.99'}),
     'plus.yearly':Object.freeze({kind:'subscription',grants:'plus',title:'أصول ونفوذ بلس · سنوي',price:'39.99'}),
-    'investor.licence':Object.freeze({kind:'permanent',grants:'investor',title:'رخصة المستثمر',price:'9.99'}),
+    'investor.licence':Object.freeze({kind:'permanent',grants:'investor',title:'رخصة المستثمر',price:'99.99'}),
     'time.accelerator':Object.freeze({kind:'permanent',grants:'accelerator',title:'مسرّع الوقت',price:'2.99'}),
-    'starter.pack':Object.freeze({kind:'once',capital:[5000000,5000000,5000000],title:'حزمة البداية',price:'2.99',days:7}),
-    'capital.small':Object.freeze({kind:'consumable',capital:[5000000],title:'حزمة رأس مال صغيرة',price:'0.99'}),
+    'starter.pack':Object.freeze({kind:'once',capital:[25000000],speedDays:3,title:'حزمة البداية',price:'2.99',days:7}),
+    // Owner (approved pricing): no longer offered; kept so a pending or refunded purchase made before is still handled.
+    'capital.small':Object.freeze({kind:'consumable',capital:[5000000],title:'حزمة رأس مال صغيرة',price:'0.99',retired:true}),
     'capital.medium':Object.freeze({kind:'consumable',capital:[30000000],title:'حزمة رأس مال متوسطة',price:'4.99'}),
     'capital.large':Object.freeze({kind:'consumable',capital:[70000000],title:'حزمة رأس مال كبيرة',price:'9.99'}),
     'capital.huge':Object.freeze({kind:'consumable',capital:[160000000],title:'حزمة رأس مال ضخمة',price:'19.99'})
   });
-  // What each entitlement opens. Plus includes the time accelerator.
-  const BENEFITS=Object.freeze({plus:'خبرة +25% · رسوم الترخيص المبكر بنصف السعر · الطيار الآلي من المستوى 1 · مسرّع الوقت',investor:'وضع المستثمر بشكل دائم: كل القيود مرفوعة والمال لا نهائي',accelerator:'السرعة 300× وتقديم التقويم بأسبوع وشهر وسنة'});
+  // What each entitlement opens (owner, approved pricing). Plus includes 300× and is the only way to the long calendar
+  // advances; the investor licence is unlimited money in every game, the levels and experience staying as they are; the
+  // starter pack's three days of 300× (speed) run in game time.
+  const BENEFITS=Object.freeze({plus:'راتب المؤسس شهريًا · خبرة +50% · الترخيص المبكر بنصف السعر ومستوى أبعد · تسريع البناء بنصف السعر · 6 خانات حفظ · الطيار الآلي من المستوى 1 · 300× وتقديم التقويم · الهوية الذهبية',investor:'مال لا نهائي في كل الألعاب؛ المستويات والخبرة كما هي',accelerator:'السرعة 300× دائمًا',speed:'السرعة 300× لثلاثة أيام من اللعبة'});
+  // The capital packs the store offers, smallest first.
+  const CAPITAL_OFFERED=Object.freeze(['capital.medium','capital.large','capital.huge']);
+  // Plus's founder salary (owner, approved): 12M × (1 + level ÷ 5) a month, as packs grow, i.e. a base of 10M.
+  const PLUS_SALARY_BASE=10000000;
   const own=(object,key)=>Object.prototype.hasOwnProperty.call(object,key);
   const plainObject=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
   function release(){return globalThis.GH_EDITION==='release';}
@@ -36,13 +43,28 @@
   // cannot bring an expired subscription back, and setting it forward only ends one sooner. Game time never reads the
   // phone's clock (it advances only while playing), so no date change gives money or progress.
   function clockOf(state,clock){const high=Number(root(state)?.clockHigh);return Math.max(Number(clock)||0,Number.isFinite(high)?high:0);}
-  function entitled(state,id,clock=Date.now()){const row=root(state)?.entitlements?.[id];if(!plainObject(row))return false;if(Number.isFinite(Number(row.expiresAt))&&Number(row.expiresAt)>0)return Number(row.expiresAt)>clockOf(state,clock);return true;}
+  function entitled(state,id,clock=Date.now()){const row=root(state)?.entitlements?.[id];if(!plainObject(row))return false;if(row.untilSim!==undefined)return nowSeconds(state)<(Number(row.untilSim)||0);if(Number.isFinite(Number(row.expiresAt))&&Number(row.expiresAt)>0)return Number(row.expiresAt)>clockOf(state,clock);return true;}
   // In a player command's transaction (GH_DOMAIN_COMMANDS): one number, only in a save holding a subscription (the only
   // entitlement that reads the clock); every other save is left as it is.
   function expiring(p){for(const row of Object.values(p.entitlements||{}))if(plainObject(row)&&Number(row.expiresAt)>0)return true;return false;}
   function noteClock(state,clock=Date.now()){const p=root(state);if(!p||!expiring(p))return;const now=Number(clock);if(Number.isFinite(now)&&now>(Number(p.clockHigh)||0))p.clockHigh=Math.floor(now);}
   // A paid feature is open in the development edition, and in the store edition with its entitlement.
-  function featureOpen(state,feature){if(!release())return true;if(feature==='investor')return entitled(state,'investor');if(feature==='accelerator')return entitled(state,'accelerator')||entitled(state,'plus');return true;}
+  // 'accelerator' is the 300× speed (the accelerator, Plus or the starter pack's three days); 'advance' is a calendar
+  // advance of more than a day and 'slots' the manual save slots 4–6 (Plus only).
+  function featureOpen(state,feature){if(!release())return true;if(feature==='investor')return entitled(state,'investor');if(feature==='accelerator')return entitled(state,'accelerator')||entitled(state,'plus')||entitled(state,'speed');if(feature==='advance'||feature==='slots')return entitled(state,'plus');return true;}
+  // Owner (approved Plus): the founder salary, once a calendar month while Plus is held, at the first day close of the
+  // month (app.js, in the day's transaction): a documented founder investment into the holding, PLUS-SALARY-<month>.
+  function paySalary(state,day){
+    if(!entitled(state,'plus'))return null;const finance=globalThis.GH_FINANCE_CORE;if(!finance?.execute)return null;
+    const month=String(finance.calendarMonthForDay?.(day)||'');if(!/^\d{4}-\d{2}$/.test(month))return null;const store=ensure(state);if(store.salaryMonth===month)return null;
+    const amount=plusSalary(state),ref=`PLUS-SALARY-${month}`;finance.execute({state},'founder-investment',{company:'group',amount,ref,note:'راتب المؤسس · أصول ونفوذ بلس'});
+    store.salaryMonth=month;return {month,amount,ref};
+  }
+  // Owner (approved Plus): a paid construction acceleration (power plants, real-estate projects, hotels) costs half with
+  // Plus. The factor each quote multiplies its fee by.
+  function accelerationFactor(state){return entitled(state,'plus')?.5:1;}
+  // The founder salary a Plus month pays at the current level (shown in the store; paid only while Plus is held).
+  function plusSalary(state){return packAmount(state,PLUS_SALARY_BASE);}
   // The capital a pack invests: its base × (1 + the career level ÷ 5); level 1 outside a career.
   function packAmount(state,base){const level=globalThis.GH_PROGRESSION_CORE?.level?.(state)||1;return Math.round(Number(base)*(1+level/5));}
   function productOf(productId){const id=String(productId||'');const suffix=Object.keys(PRODUCTS).find(key=>id===key||id.endsWith(`.${key}`));return suffix?{suffix,product:PRODUCTS[suffix]}:null;}
@@ -100,6 +122,7 @@
       const delivery={transactionId,product:found.suffix,at:nowSeconds(state),capital:0,documents:[],commandId:String(meta?.id||'')};if(payload.store)delivery.store=payload.store;
       if(product.grants){const row={product:found.suffix,transactionId,since:nowSeconds(state)};if(payload.store)row.store=payload.store;if(product.kind==='subscription')row.expiresAt=Number(payload.expiresAt);const prior=store.entitlements[product.grants];if(!(product.kind==='subscription'&&plainObject(prior)&&(!(Number(prior.expiresAt)>0)||Number(prior.expiresAt)>row.expiresAt)))store.entitlements[product.grants]=row;if(product.kind==='subscription'){noteClock(state);if(Number(payload.confirmedAt)>0)noteClock(state,Number(payload.confirmedAt));}}
       if(product.kind==='once')store.entitlements[found.suffix]={product:found.suffix,transactionId,since:nowSeconds(state)};
+      if(Number(product.speedDays)>0){const prior=store.entitlements.speed,from=Math.max(nowSeconds(state),Number(prior?.untilSim)||0);store.entitlements.speed={product:found.suffix,transactionId,since:nowSeconds(state),untilSim:from+Number(product.speedDays)*86400};}
       if(Array.isArray(product.capital)){const finance=globalThis.GH_FINANCE_CORE;if(!finance?.execute)throw new Error('store-finance-owner-unavailable');
         product.capital.forEach((base,index)=>{const amount=packAmount(state,base),ref=`STORE-${transactionId}-${index+1}`;finance.execute({state},'founder-investment',{company:'group',amount,ref,note:`${product.title} · استثمار المؤسس`});delivery.capital+=amount;delivery.documents.push(ref);});}
       store.deliveries[transactionId]=delivery;return {...delivery};
@@ -116,11 +139,16 @@
     const s=state?.purchases;if(s===undefined)return [];if(!plainObject(s)||s.schema!==SCHEMA||!plainObject(s.entitlements)||!plainObject(s.deliveries))return ['store-shape'];const errors=[];
     for(const [id,row] of Object.entries(s.entitlements))if(!plainObject(row)||!(own(BENEFITS,id)||own(PRODUCTS,id))||!row.transactionId)errors.push('store-entitlement');
     for(const [id,row] of Object.entries(s.deliveries))if(!plainObject(row)||row.transactionId!==id||!own(PRODUCTS,row.product))errors.push('store-delivery');
+    for(const row of Object.values(s.entitlements))if(plainObject(row)&&row.untilSim!==undefined&&!(Number.isSafeInteger(row.untilSim)&&row.untilSim>0))errors.push('store-entitlement');
+    if(s.salaryMonth!==undefined&&!/^\d{4}-\d{2}$/.test(String(s.salaryMonth)))errors.push('store-salary');
     if(s.clockHigh!==undefined&&!(Number.isSafeInteger(s.clockHigh)&&s.clockHigh>=0))errors.push('store-clock');
     if(s.revocations!==undefined){if(!plainObject(s.revocations))errors.push('store-revocation');else for(const [id,row] of Object.entries(s.revocations))if(!plainObject(row)||row.transactionId!==id||!own(PRODUCTS,row.product)||!(Number(row.withdrawn)>=0)||!(Number(row.unrecovered)>=0))errors.push('store-revocation');}
     return errors;
   }
-  // Whether the starter pack can still be offered (its first 7 game days, once).
-  function starterOffered(state){return !root(state)?.entitlements?.['starter.pack']&&Math.floor(nowSeconds(state)/86400)<PRODUCTS['starter.pack'].days;}
-  return Object.freeze({VERSION,SCHEMA,DOMAIN,DELIVER,REVOKE,STORES,PRODUCTS,BENEFITS,release,entitled,noteClock,clockOf,featureOpen,packAmount,productOf,validate,starterOffered,owner,install,isInstalled:()=>installed});
+  // Owner (approved pricing): the starter pack is offered once, for 7 game days from the first subsidiary a career opens
+  // (its «first-company» milestone); outside a career, the first 7 days of the game.
+  function starterFrom(state){const p=state?.progression;if(plainObject(p)&&p.mode==='career'){const day=p.milestones?.['first-company'];return Number.isFinite(Number(day))?Number(day):null;}return 0;}
+  function starterDaysLeft(state){if(root(state)?.entitlements?.['starter.pack'])return 0;const from=starterFrom(state);if(from===null)return 0;const left=from+PRODUCTS['starter.pack'].days-Math.floor(nowSeconds(state)/86400);return Math.max(0,Math.min(PRODUCTS['starter.pack'].days,left));}
+  function starterOffered(state){return starterDaysLeft(state)>0;}
+  return Object.freeze({VERSION,SCHEMA,DOMAIN,DELIVER,REVOKE,STORES,PRODUCTS,BENEFITS,CAPITAL_OFFERED,PLUS_SALARY_BASE,release,entitled,noteClock,clockOf,featureOpen,packAmount,plusSalary,paySalary,accelerationFactor,productOf,validate,starterOffered,starterDaysLeft,owner,install,isInstalled:()=>installed});
 });

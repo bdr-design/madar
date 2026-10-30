@@ -1,9 +1,10 @@
 // Owner (approved design «فنتورا: تصميم المستويات وتجهيز الإطلاق», «موافق نفذ بدقه عاليه جدًا جدًا»): a career game
 // climbs thirty group levels. The level opens the companies a player may found, the catalogue models a company may buy and
 // the group's financial and management tools; a company's facilities and fleet grow in bands from the level it opened at.
-// Free play, a save from before this build (no progression root) and investor mode carry no limits at all: everything is
-// open as it was. The level never goes down and nothing held is ever taken back; a limit refuses only a new purchase,
-// opening or tool use, with the level that opens it.
+// Free play and a save from before this build (no progression root) carry no limits at all: everything is open as it
+// was. Owner (approved pricing): the investor licence is unlimited money only; in a career the levels and the experience
+// stay as they are in investor mode. The level never goes down and nothing held is ever taken back; a limit refuses only
+// a new purchase, opening or tool use, with the level that opens it.
 // Every check is a lookup in a table or one count of held rows, made when a command is asked for, never on a frame.
 (function(root,factory){const api=factory();if(root){root.GH_PROGRESSION_CORE=api;api.install();}if(typeof module!=='undefined'&&module.exports)module.exports=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
@@ -87,8 +88,8 @@
   function root(state){return plainObject(state?.progression)?state.progression:null;}
   // Investor mode is read from its one owner (GH_FINANCE_CORE.investorMode), as every other reader does.
   function investorMode(state){return globalThis.GH_FINANCE_CORE?.investorMode?.(state)===true;}
-  // Limits apply to a career game outside investor mode only.
-  function active(state){const p=root(state);return !!p&&p.mode==='career'&&!investorMode(state);}
+  // Limits apply to a career game, investor mode or not.
+  function active(state){const p=root(state);return !!p&&p.mode==='career';}
   function levelForXp(xp){xp=Math.max(0,Number(xp)||0);let level=1;for(let i=1;i<XP.length;i++){if(xp>=XP[i])level=i+1;else break;}return level;}
   function level(state){const p=root(state);if(!p||p.mode!=='career')return null;return Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(p.level)||1)));}
   function title(lvl){for(const [at,name] of TITLES)if(lvl>=at)return name;return TITLES[TITLES.length-1][1];}
@@ -169,12 +170,13 @@
 
   // Experience (approved table «مصادر الخبرة»): one-time milestones, the day's operation (20 for each company that closed
   // the day in profit and 10 × log10(1 + the group's net ÷ 100,000), up to 150 + 25 × level a day) and 3 for each player
-  // decision (up to 60 a day). The difficulty multiplies every point; investor mode earns none; the level never goes down.
+  // decision (up to 60 a day). The difficulty multiplies every point (and Plus); the level never goes down.
   const MILESTONES=Object.freeze({'found-group':50,'first-company':100,company:150,'first-asset':50,'first-trip':50,'first-contract':75,'first-facility':75,'first-profit-day':100,'first-tax':100,'first-profit-month':250,'first-conference':300,'first-profit-year':500});
   const DECISION_XP=3,DECISION_CAP=60,COMPANY_DAY_XP=20,PROFIT_UNIT=100000;
   const MILESTONE_LABEL=Object.freeze({'found-group':'تأسيس المجموعة','first-company':'أول شركة تابعة',company:'شركة جديدة','first-asset':'أول أصل للشركة','first-trip':'أول رحلة مكتملة','first-contract':'أول عقد موقّع','first-facility':'أول منشأة','first-profit-day':'أول يوم رابح','first-tax':'أول سداد ضريبي','first-profit-month':'أول شهر رابح','first-conference':'أول مؤتمر سنوي','first-profit-year':'أول سنة رابحة'});
   function dayOf(state){return Math.max(0,Math.floor((Number(state?.simSeconds)||0)/86400));}
-  function multiplier(state){const p=root(state);let factor=DIFFICULTY[p?.difficulty]?.xp||1;if(entitled(state,'plus'))factor*=1.25;return factor;}
+  // Owner (approved Plus): a Plus subscriber earns 50% more.
+  function multiplier(state){const p=root(state);let factor=DIFFICULTY[p?.difficulty]?.xp||1;if(entitled(state,'plus'))factor*=1.5;return factor;}
   // Store entitlements (GH_STORE_CORE, state.purchases.entitlements); absent, none applies.
   function entitled(state,id){const store=globalThis.GH_STORE_CORE;if(store?.entitled)return store.entitled(state,id);const rows=state?.purchases?.entitlements;return plainObject(rows)&&!!rows[id];}
   function addXp(state,points,reason){
@@ -255,7 +257,8 @@
     key=licenceKey(key);if(!active(state))return {ok:false,reason:'progression-not-active'};
     const need=requirement(key);if(need===null)return {ok:false,reason:'licence-unknown-key'};const now=level(state),ahead=need-now;
     if(ahead<=0||licensed(state,key))return {ok:false,reason:'licence-not-needed'};
-    const p=root(state),rule=DIFFICULTY[p.difficulty];if(ahead>rule.early)return {ok:false,reason:'licence-too-far',reach:rule.early,need,current:now};
+    // Owner (approved Plus): a Plus subscriber reaches one level further, at half the fee.
+    const p=root(state),rule=DIFFICULTY[p.difficulty],reach=rule.early+(entitled(state,'plus')?1:0);if(ahead>reach)return {ok:false,reason:'licence-too-far',reach,need,current:now};
     const base=licenceBase(key);if(!(base>0))return {ok:false,reason:'licence-unknown-key'};
     const fee=Math.round(base*ahead*rule.fee*(entitled(state,'plus')?.5:1));return {ok:true,key,need,current:now,ahead,fee,label:labelFor(key)};
   }

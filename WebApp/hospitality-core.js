@@ -82,7 +82,7 @@
     f.dailyCost=TYPES[property.kind].dailyCost;f.constructionStatus='مكتمل';
     F().journal(s,property.companyId,'بدء تشغيل منشأة ضيافة',[{account:'منشآت وتجهيزات ضيافة',debit:money(property.capitalized)},{account:'منشآت ضيافة تحت الإنشاء',credit:money(property.capitalized)}],`HOSP-OPEN-${property.id}`);return true;
   }
-  function propertyAccelerationQuote(s,id,p){const day=today(s);if(!p||p.status!=='construction'||p.accelerated||p.completeDay<=day)return null;return {companyId:id,propertyId:p.id,fee:Math.max(10000,Math.round(p.constructionCost*.1*(p.completeDay-day)/TYPES[p.kind].days)),completeDay:day};}
+  function propertyAccelerationQuote(s,id,p){const day=today(s);if(!p||p.status!=='construction'||p.accelerated||p.completeDay<=day)return null;return {companyId:id,propertyId:p.id,fee:Math.max(10000,Math.round(p.constructionCost*.1*(p.completeDay-day)/TYPES[p.kind].days*(globalThis.GH_STORE_CORE?.accelerationFactor?.(s)??1))),completeDay:day};}
   function accelerationQuote(s,id,propertyId){const root=read(s,id);return propertyAccelerationQuote(s,id,root&&findProperty(root,propertyId));}
   function accelerate(s,p,meta){
     const id=String(p.companyId||''),root=ensure(s,id),property=findProperty(root,p.propertyId);if(property.accelerated)return {...copy(property.accelerated),idempotent:true};

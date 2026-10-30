@@ -72,9 +72,9 @@ const AUDIT='{setSpeed:value=>setSpeed(value),promptLegal:()=>promptLegal(),drop
     assert.match(await page.locator('#drawerBody .legal-card-row').textContent(),/وافقت على نسخة 30 أكتوبر 2026/);
     await page.locator('#drawerBody [data-gh-action="legal-terms"]').click();await page.locator('#legalReader').waitFor({state:'visible'});assert.equal(await page.locator('#legalReaderTitle').textContent(),'شروط الاستخدام');
     assert.equal(await page.locator('#legalReader .legal-reader-foot [data-legal-close]').textContent(),'رجوع');await page.locator('#legalReader .legal-reader-foot [data-legal-close]').click();await page.locator('#legalReader').waitFor({state:'hidden'});
-    await page.evaluate(()=>__AUDIT__.openDrawer('store'));assert.equal(await page.locator('#drawerBody [data-gh-action="store-manage"]').isDisabled(),true,'5: no store, no manage');
+    await page.evaluate(()=>__AUDIT__.openDrawer('store',{tab:'lic'}));assert.equal(await page.locator('#drawerBody [data-gh-action="store-manage"]').isDisabled(),true,'5: no store, no manage');
     await page.locator('#drawerBody [data-gh-action="legal-privacy"]').click();await page.locator('#legalReader').waitFor({state:'visible'});assert.equal(await page.locator('#legalReaderTitle').textContent(),'سياسة الخصوصية');await page.keyboard.press('Escape');
-    await page.evaluate(()=>{window.__qaBridge=[];window.webkit={messageHandlers:{storeBridge:{postMessage:message=>window.__qaBridge.push(message)}}};__AUDIT__.openDrawer('store');});
+    await page.evaluate(()=>{window.__qaBridge=[];window.webkit={messageHandlers:{storeBridge:{postMessage:message=>window.__qaBridge.push(message)}}};__AUDIT__.openDrawer('store',{tab:'lic'});});
     await page.locator('#drawerBody [data-gh-action="store-manage"]').click();assert.deepEqual(await page.evaluate(()=>window.__qaBridge.filter(row=>row.action==='manage')),[{action:'manage'}],'5: the store bridge is asked for its subscription page');
     await page.close();
     ({page}=await boot({browser,errors,found:false}));assert.equal(await page.locator('#legalConsent').isHidden(),true,'5: the development edition shows no consent at boot');

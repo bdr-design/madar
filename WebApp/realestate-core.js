@@ -124,7 +124,7 @@
     if(!project||project.status!=='قيد الإنشاء'||project.constructionAcceleration||![1,2].includes(project.milestonesPaid))return null;
     const day=Math.floor(now(state)/86400),remaining=Number(project.completeDay)-day,span=Number(project.completeDay)-Number(project.startDay);
     if(remaining<=1||span<=0||day<Number(project.startDay)||!Number.isFinite(remaining)||!Number.isFinite(Number(project.buildCost)))return null;
-    const completeDay=day,fee=Math.round(num(project.buildCost)*(remaining/span)*CONSTRUCTION_ACCELERATION_RATE);
+    const completeDay=day,fee=Math.round(num(project.buildCost)*(remaining/span)*CONSTRUCTION_ACCELERATION_RATE*(globalThis.GH_STORE_CORE?.accelerationFactor?.(state)??1));
     return fee>0?{projectId:project.id,day,originalCompleteDay:Number(project.completeDay),completeDay,daysSaved:Number(project.completeDay)-completeDay,fee}:null;
   }
   function accelerateConstruction(state,p={}){

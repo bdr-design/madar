@@ -1,16 +1,18 @@
 'use strict';
 // Owner (approved design, «الاشتراكات والمشتريات», and «تسريع الوقت خل عليه عملية شراء»): GH_STORE_CORE.
-//  1. the products and what they grant: Plus (monthly, yearly), the investor licence, the time accelerator, the starter
-//     pack (once, first 7 days) and four capital packs; store product ids match by their suffix;
-//  2. paid features are open in the development edition; in the store edition the investor mode needs its licence and
-//     the accelerator (300×, long calendar advances) needs its purchase or Plus;
+//  1. the products and what they grant: Plus (monthly, yearly), the investor licence ($99.99), the time accelerator, the
+//     starter pack (once, 7 days) and the capital packs (three offered; the $0.99 pack retired but still delivered);
+//     store product ids match by their suffix;
+//  2. paid features are open in the development edition; in the store edition the investor mode needs its licence, 300×
+//     needs the accelerator, Plus or the starter pack's three game days, and long calendar advances and slots 4–6 need Plus;
 //  3. store:deliver writes a verified transaction once: a permanent grant, a subscription with its store expiry (held
 //     until then), capital packs as documented founder investments of base × (1 + level ÷ 5), the starter pack once;
 //     the same transaction delivered again is answered with its first delivery and nothing is paid twice; a
 //     subscription delivery arriving out of order never shortens the expiry held;
 //  4. malformed deliveries are refused (transaction id, unknown product, a subscription without expiry);
 //  5. the save validation accepts what it writes and refuses a malformed root;
-//  6. a Plus subscriber earns 25% more experience, pays half an early licence and runs the autopilot from level 1;
+//  6. a Plus subscriber earns 50% more experience, pays half an early licence and reaches one level further, runs the
+//     autopilot from level 1, pays half a construction acceleration and receives the founder salary once a month;
 //  7. a refunded purchase is taken back once (owner «نعم تسحب»).
 const assert=require('node:assert/strict');
 const {harness}=require('./helpers/core-harness');
@@ -21,15 +23,16 @@ const invested=[],withdrawn=[];s.GH_FINANCE_CORE={investorMode:st=>Boolean(st?.g
 // 1.
 same(Object.keys(S.PRODUCTS).sort(),['capital.huge','capital.large','capital.medium','capital.small','investor.licence','plus.monthly','plus.yearly','starter.pack','time.accelerator']);
 assert.equal(S.productOf('com.bdran.ventora.capital.small').suffix,'capital.small');assert.equal(S.productOf('com.x.unknown'),null);
-assert.equal(S.PRODUCTS['plus.monthly'].price,'4.99');assert.equal(S.PRODUCTS['plus.yearly'].price,'39.99');assert.equal(S.PRODUCTS['investor.licence'].price,'9.99');assert.equal(S.PRODUCTS['time.accelerator'].price,'2.99');
+assert.equal(S.PRODUCTS['plus.monthly'].price,'4.99');assert.equal(S.PRODUCTS['plus.yearly'].price,'39.99');assert.equal(S.PRODUCTS['investor.licence'].price,'99.99');
+same(S.CAPITAL_OFFERED,['capital.medium','capital.large','capital.huge'],'1: the $0.99 pack is no longer offered');assert.equal(S.PRODUCTS['capital.small'].retired,true);assert.equal(S.PRODUCTS['time.accelerator'].price,'2.99');
 // 2.
 const st={simSeconds:0};delete s.GH_EDITION;assert.equal(S.featureOpen(st,'investor'),true,'2: development edition: open');assert.equal(S.featureOpen(st,'accelerator'),true);
-s.GH_EDITION='release';assert.equal(S.featureOpen(st,'investor'),false,'2: store edition: the licence is needed');assert.equal(S.featureOpen(st,'accelerator'),false);
+s.GH_EDITION='release';assert.equal(S.featureOpen(st,'investor'),false,'2: store edition: the licence is needed');assert.equal(S.featureOpen(st,'accelerator'),false);assert.equal(S.featureOpen(st,'advance'),false);assert.equal(S.featureOpen(st,'slots'),false);
 // 3.
 const deliver=(state,payload)=>S.owner.execute({state},'deliver',payload,{id:'DOM-1'});
 const r1=deliver(st,{transactionId:'1001',productId:'com.app.investor.licence'});assert.equal(r1.capital,0);assert.equal(S.featureOpen(st,'investor'),true,'3: the licence opens investor mode');
-const r2=deliver(st,{transactionId:'1002',productId:'com.app.time.accelerator'});assert.equal(S.featureOpen(st,'accelerator'),true,'3: the accelerator opens 300×');
-const sub={simSeconds:0},later=Date.now()+86400000;deliver(sub,{transactionId:'2001',productId:'com.app.plus.monthly',expiresAt:later});assert.equal(S.entitled(sub,'plus'),true);assert.equal(S.featureOpen(sub,'accelerator'),true,'3: Plus includes the accelerator');
+const r2=deliver(st,{transactionId:'1002',productId:'com.app.time.accelerator'});assert.equal(S.featureOpen(st,'accelerator'),true,'3: the accelerator opens 300×');assert.equal(S.featureOpen(st,'advance'),false,'3: long calendar advances are Plus\'s, not the accelerator\'s');
+const sub={simSeconds:0},later=Date.now()+86400000;deliver(sub,{transactionId:'2001',productId:'com.app.plus.monthly',expiresAt:later});assert.equal(S.entitled(sub,'plus'),true);assert.equal(S.featureOpen(sub,'accelerator'),true,'3: Plus includes the accelerator');assert.equal(S.featureOpen(sub,'advance'),true,'3: Plus opens the long advances');assert.equal(S.featureOpen(sub,'slots'),true,'3: and slots 4–6');
 assert.equal(S.entitled(sub,'plus',later+1),false,'3: a subscription holds until its store expiry');deliver(sub,{transactionId:'2002',productId:'com.app.plus.monthly',expiresAt:later+30*86400000});assert.equal(S.entitled(sub,'plus',later+1),true,'3: a renewal extends it');
 // An older renewal delivered after a newer one (StoreKit's unfinished list has no order) keeps the later expiry.
 deliver(sub,{transactionId:'2003',productId:'com.app.plus.yearly',expiresAt:later+5*86400000});assert.equal(S.entitled(sub,'plus',later+20*86400000),true,'3: an older delivery never shortens a subscription');assert.equal(sub.purchases.entitlements.plus.transactionId,'2002');
@@ -43,10 +46,13 @@ deliver(sub,{transactionId:'2003',productId:'com.app.plus.yearly',expiresAt:late
 const pack={simSeconds:0};deliver(pack,{transactionId:'3001',productId:'com.app.capital.small'});assert.equal(invested.length,1);assert.equal(invested[0].company,'group');assert.equal(invested[0].amount,5000000*1.2,'3: level 1 (no career): base × 1.2');assert.equal(invested[0].ref,'STORE-3001-1');
 const replay=deliver(pack,{transactionId:'3001',productId:'com.app.capital.small'});assert.equal(replay.replay,true);assert.equal(invested.length,1,'3: the same transaction pays once');
 const career={simSeconds:0,progression:{...P.initial('career-normal'),level:10,xp:P.XP[9]}};deliver(career,{transactionId:'3002',productId:'com.app.capital.huge'});assert.equal(invested[1].amount,160000000*3,'3: level 10: base × 3');
-deliver(pack,{transactionId:'4001',productId:'com.app.starter.pack'});assert.equal(invested.length,5,'3: the starter pack invests three small packs');assert.equal(S.starterOffered(pack),false);
+assert.equal(S.starterDaysLeft(pack),7,'3: outside a career the starter pack is offered from day 0');
+deliver(pack,{transactionId:'4001',productId:'com.app.starter.pack'});assert.equal(invested.length,3,'3: the starter pack invests once');assert.equal(invested[2].amount,25000000*1.2,'3: 30M at level 1');assert.equal(S.starterOffered(pack),false);
+assert.equal(S.featureOpen(pack,'accelerator'),true,'3: the starter pack opens 300× ...');assert.equal(pack.purchases.entitlements.speed.untilSim,3*86400,'3: ... for three game days');pack.simSeconds=3*86400-1;assert.equal(S.featureOpen(pack,'accelerator'),true);pack.simSeconds=3*86400;assert.equal(S.featureOpen(pack,'accelerator'),false,'3: then 300× closes');assert.equal(S.validate(pack).length,0);pack.simSeconds=0;
+{const cp=P.initial('career-normal'),cs={simSeconds:2*86400,progression:cp};assert.equal(S.starterOffered(cs),false,'3: a career is offered the starter pack only after its first company');cp.milestones['first-company']=3;cs.simSeconds=5*86400;assert.equal(S.starterDaysLeft(cs),5,'3: seven days from the first company');cs.simSeconds=10*86400;assert.equal(S.starterOffered(cs),false);}
 assert.throws(()=>deliver(pack,{transactionId:'4002',productId:'com.app.starter.pack'}),/store-once-already-delivered/,'3: the starter pack once');
 assert.equal(S.owner.validate({state:pack},'deliver',{transactionId:'4001',productId:'com.app.starter.pack'}),true,'3: the same starter transaction again is a replay the shell can finish');assert.equal(deliver(pack,{transactionId:'4001',productId:'com.app.starter.pack'}).replay,true);
-assert.equal(S.starterOffered({simSeconds:7*86400}),false,'3: offered in the first 7 days only');assert.equal(S.starterOffered({simSeconds:6*86400}),true);
+assert.equal(S.starterOffered({simSeconds:7*86400}),false,'3: offered for 7 days only');assert.equal(S.starterOffered({simSeconds:6*86400}),true);
 // 4.
 for(const [payload,reason] of [[{transactionId:'',productId:'com.app.capital.small'},'store-transaction-invalid'],[{transactionId:'x y',productId:'com.app.capital.small'},'store-transaction-invalid'],[{transactionId:'5',productId:'com.app.nope'},'store-product-unknown'],[{transactionId:'6',productId:'com.app.plus.yearly'},'store-subscription-expiry-required']]){
   const out=S.owner.validate({state:{}},'deliver',payload);assert.equal(out.ok,false);assert.equal(out.reason,reason,`4: ${reason}`);}
@@ -55,8 +61,19 @@ same(S.validate({}),[]);same(S.validate(st),[]);same(S.validate(sub),[]);same(S.
 const bad=JSON.parse(JSON.stringify(pack));bad.purchases.deliveries['3001'].transactionId='9';assert.ok(S.validate(bad).includes('store-delivery'));
 // 6.
 delete s.GH_EDITION;const plus={simSeconds:0,alerts:[],purchases:{schema:1,entitlements:{plus:{product:'plus.yearly',transactionId:'7',expiresAt:Date.now()+86400000}},deliveries:{}}};plus.progression=P.initial('career-normal');
-const before=plus.progression.xp;P.onCommand(plus,'finance','transfer',{});assert.equal(plus.progression.xp-before,4,'6: 3 × 1.25');
+const before=plus.progression.xp;P.onCommand(plus,'finance','transfer',{});assert.equal(plus.progression.xp-before,5,'6: 3 × 1.5 (rounded)');
 s.GH_COMPANY_PLATFORM={getDefinition:()=>({founding:{minimumCapital:25e6}})};assert.equal(P.licenceQuote(plus,'company:air').fee,25e6*.2*2*.5,'6: half the licence fee');
+{const two={...plus,progression:{...plus.progression,level:2}};assert.equal(P.licenceQuote(two,'company:sea').ok,true,'6: Plus reaches 3 levels ahead in normal (sea, level 5, from level 2)');assert.equal(P.licenceQuote(two,'company:sea').fee,25e6*.2*3*.5);assert.equal(P.licenceQuote({...two,purchases:undefined},'company:sea').reason,'licence-too-far','6: 2 without Plus');}
+assert.equal(S.accelerationFactor(plus),.5,'6: half a construction acceleration');assert.equal(S.accelerationFactor({}),1);
+{h.load('realestate-core');h.load('energy-core');const R=s.GH_REALESTATE_CORE,E=s.GH_ENERGY_CORE,project={id:'P1',status:'قيد الإنشاء',milestonesPaid:1,startDay:0,completeDay:100,buildCost:1e8};
+  const contract={id:'C1',facilityKind:'power',ownerCompanyId:'power',awardedAt:0,leadDays:180,amount:1e8},hub={id:'F1',constructionContractId:'C1',owned:true,kind:'power',ownerCompanyId:'power'};
+  const without={simSeconds:10*86400,constructionContracts:[contract],customHubs:[hub]},withPlus={...without,purchases:plus.purchases};
+  const re=[R.constructionAccelerationQuote(without,project).fee,R.constructionAccelerationQuote(withPlus,project).fee],en=[E.constructionAccelerationQuote(without,contract).fee,E.constructionAccelerationQuote(withPlus,contract).fee];
+  assert.ok(re[0]>0&&en[0]>0);assert.equal(re[1],Math.round(re[0]/2),'6: a real-estate acceleration costs half with Plus');assert.equal(en[1],Math.round(en[0]/2),'6: a power-plant acceleration costs half with Plus');}
+{s.GH_FINANCE_CORE.calendarMonthForDay=day=>day<31?'2026-01':'2026-02';const n=invested.length;assert.equal(S.paySalary({simSeconds:0},0),null,'6: no salary without Plus');
+  const paid=S.paySalary(plus,0);assert.equal(paid.amount,10000000*1.2,'6: the founder salary, 12M at level 1');assert.equal(invested[invested.length-1].ref,'PLUS-SALARY-2026-01');
+  assert.equal(S.paySalary(plus,5),null,'6: once a month');const feb=S.paySalary(plus,31);assert.equal(feb.month,'2026-02');assert.equal(invested.length,n+2);assert.equal(S.validate(plus).length,0);
+  const broken=JSON.parse(JSON.stringify(plus));broken.purchases.salaryMonth='x';assert.ok(S.validate(broken).includes('store-salary'));}
 assert.equal(P.unlocked(plus,'tool:autopilot'),true,'6: the autopilot from level 1');assert.equal(P.unlocked({progression:P.initial('career-normal')},'tool:autopilot'),false);
 // 7. (owner «نعم تسحب») a refunded purchase is taken back once: what it granted, and the capital it added as far as the
 // holding's current account holds it (a documented founder withdrawal, never a negative balance); never delivered again.

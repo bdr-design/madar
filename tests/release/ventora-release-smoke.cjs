@@ -15,7 +15,7 @@ const root=path.resolve(process.argv[2]||path.join(__dirname,'../..'));
     const {page}=await boot({browser,errors,root,noAudit:true,beforeScripts:{fn:()=>{window.GH_EDITION='release';window.__storePosts=[];window.webkit={messageHandlers:{storeBridge:{postMessage:message=>window.__storePosts.push(JSON.parse(JSON.stringify(message)))}}};},arg:null}});
     page.setDefaultTimeout(60000);page.on('dialog',dialog=>dialog.accept());
     assert.equal(await page.evaluate(()=>__GH_STATE__.onboardingComplete),true,'the group is founded');
-    assert.equal(await page.evaluate(()=>__GH_STATE__.profile.name),'فنتورا القابضة');
+    assert.equal(await page.evaluate(()=>__GH_STATE__.profile.name),'أصول ونفوذ القابضة');
     await page.click('#simCalendarToggle');
     for(let i=0;i<3;i++){const before=await page.evaluate(()=>__GH_STATE__.simSeconds);await page.click('#simNextDay');await page.waitForFunction(b=>__GH_STATE__.simSeconds>=b+86400&&!GH_SIM_KERNEL.snapshot().manualAdvance,before);}
     await page.click('#simCalendarToggle');
@@ -32,6 +32,8 @@ const root=path.resolve(process.argv[2]||path.join(__dirname,'../..'));
     await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'));
     assert.equal(await page.evaluate(()=>__GH_STATE__.godMoney===true),false,'investor mode needs its licence in the store edition');
     await page.evaluate(()=>GH_STORE_NATIVE.onTransaction({transactionId:'SMOKE-1',productId:'com.ventora.smoke.investor.licence'}));await page.waitForFunction(()=>__GH_STATE__.purchases?.entitlements?.investor&&window.__storePosts.some(row=>row.action==='finish'&&row.transactionId==='SMOKE-1'));
+    // The store opens full screen over the game (owner's approved design); its own close button returns to the game.
+    await page.locator('#drawerBody .st-x').click();await page.waitForFunction(()=>!document.getElementById('app').classList.contains('store-open'));
     await page.click('#settingsBtn');await page.locator('#drawerBody [data-go="investorMode"]').first().click();
     await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===true);
     await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>__GH_STATE__.godMoney===false);

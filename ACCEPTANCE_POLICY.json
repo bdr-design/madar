@@ -3,7 +3,91 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
+      "tests/phone-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build647-store-plus-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build645-legal-consent-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build635-store-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build633-progression-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build365-official-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build370-official-news-pagination.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build361-button-binding-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-cooperative-draft-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build636-store-release-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build634-progression-career-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-release-edition-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration.cjs"
+    ],
+    [
+      "node",
+      "tests/build589-acceleration-immediate.cjs"
+    ],
+    [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-native-chunked-save.cjs"
+    ],
+    [
+      "node",
+      "tests/persistence-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-company-dock-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-reach-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-navigation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build644-game-name.cjs"
     ],
     [
       "node",
@@ -12,6 +96,38 @@
     [
       "node",
       "tests/build444-document-pages.cjs"
+    ],
+    [
+      "node",
+      "tests/build637-launch-native-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build391-hospitality-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build612-company-autopilot-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build577-save-layout-steps.cjs"
+    ],
+    [
+      "node",
+      "tests/build507-encode-rows-steps.cjs"
+    ],
+    [
+      "node",
+      "tests/build623-worker-extras-packing.cjs"
+    ],
+    [
+      "node",
+      "tests/build528-reopen-navigation-guard-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
       "node",
@@ -43,10 +159,6 @@
     ],
     [
       "node",
-      "tests/build636-store-release-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build605-purchase-rows-copied-once.cjs"
     ],
     [
@@ -56,10 +168,6 @@
     [
       "node",
       "tests/build606-purchase-frame-pacing-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build589-acceleration-immediate.cjs"
     ],
     [
       "node",
@@ -88,14 +196,6 @@
     [
       "node",
       "tests/build646-development-device-roads-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build644-game-name.cjs"
-    ],
-    [
-      "node",
-      "tests/build645-legal-consent-browser.cjs"
     ],
     [
       "node",
@@ -183,10 +283,6 @@
     ],
     [
       "node",
-      "tests/build492-manual-slot-slices-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build642-local-road-geometry.cjs"
     ],
     [
@@ -208,10 +304,6 @@
     [
       "node",
       "tests/build641-release-player-tasks-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-release-edition-browser.cjs"
     ],
     [
       "node",
@@ -276,10 +368,6 @@
     [
       "node",
       "tests/build358-proof-chunks.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-native-chunked-save.cjs"
     ],
     [
       "node",
@@ -791,10 +879,6 @@
     ],
     [
       "node",
-      "tests/build361-button-binding-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build362-bulk-asset-purchase-browser.cjs"
     ],
     [
@@ -967,10 +1051,6 @@
     ],
     [
       "node",
-      "tests/build373-reach-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build373-revenue-chain-browser.cjs"
     ],
     [
@@ -999,19 +1079,11 @@
     ],
     [
       "node",
-      "tests/build375-group-news-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build375-group-news.cjs"
     ],
     [
       "node",
       "tests/build375-large-fleet-background-save-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-cooperative-draft-browser.cjs"
     ],
     [
       "node",
@@ -1067,10 +1139,6 @@
     ],
     [
       "node",
-      "tests/build380-construction-acceleration.cjs"
-    ],
-    [
-      "node",
       "tests/build382-campaign-decisions-browser.cjs"
     ],
     [
@@ -1091,10 +1159,6 @@
     ],
     [
       "node",
-      "tests/build383-navigation-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build383-save-encoding.cjs"
     ],
     [
@@ -1112,10 +1176,6 @@
     [
       "node",
       "tests/build388-change-tracking-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build391-hospitality-core.cjs"
     ],
     [
       "node",
@@ -1459,18 +1519,6 @@
     ],
     [
       "node",
-      "tests/build633-progression-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build634-progression-career-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build637-launch-native-contract.cjs"
-    ],
-    [
-      "node",
       "tests/business-options-browser.cjs"
     ],
     [
@@ -1519,14 +1567,6 @@
     ],
     [
       "node",
-      "tests/persistence-regressions.cjs"
-    ],
-    [
-      "node",
-      "tests/phone-layout-browser.cjs"
-    ],
-    [
-      "node",
       "tests/review-regressions.cjs"
     ],
     [
@@ -1539,35 +1579,11 @@
     ],
     [
       "node",
-      "tests/build577-save-layout-steps.cjs"
-    ],
-    [
-      "node",
-      "tests/build507-encode-rows-steps.cjs"
-    ],
-    [
-      "node",
-      "tests/build623-worker-extras-packing.cjs"
-    ],
-    [
-      "node",
-      "tests/build528-reopen-navigation-guard-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build616-marker-step-projection.cjs"
     ],
     [
       "node",
-      "tests/build635-store-core.cjs"
-    ],
-    [
-      "node",
       "tests/build360-native-runtime-ready.cjs"
-    ],
-    [
-      "node",
-      "tests/build612-company-autopilot-browser.cjs"
     ],
     [
       "node",
@@ -1620,10 +1636,6 @@
     [
       "node",
       "tests/build448-labor-tab-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build365-official-news.cjs"
     ],
     [
       "node",
@@ -2128,10 +2140,6 @@
     [
       "node",
       "tests/build334-signature-pad.cjs"
-    ],
-    [
-      "node",
-      "tests/build370-official-news-pagination.cjs"
     ],
     [
       "node",
@@ -3162,6 +3170,10 @@
     [
       "node",
       "tests/build646-development-device-roads-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build647-store-plus-browser.cjs"
     ],
     [
       "node",

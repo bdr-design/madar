@@ -88,7 +88,7 @@
 .map-modes{position:absolute;z-index:610;top:var(--below-bar);left:var(--edge-left);display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl}
 .map-modes button{height:26px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:500 10.5px var(--font);cursor:pointer}
 .map-modes button[aria-pressed=true]{background:#0D3B57;color:#FFFFFF;font-weight:600}
-.map-strip{position:absolute;z-index:610;left:var(--edge-left);bottom:var(--edge-bottom);right:calc(var(--panel-right) + var(--gap));display:flex;align-items:flex-end;gap:var(--gap);direction:ltr;pointer-events:none}
+.map-strip{position:absolute;z-index:610;left:var(--edge-left);bottom:var(--edge-bottom);right:calc(var(--panel-right) + var(--gap));display:flex;flex-wrap:wrap-reverse;align-items:flex-end;gap:var(--gap);direction:ltr;pointer-events:none}
 .app-shell.overlay-open .map-strip{right:calc(var(--panel-right) + var(--panel) + var(--gap))}
 .app-shell.panel-expanded.drawer-open .map-strip{display:none}
 .company-dock{pointer-events:auto;flex:0 1 auto;min-width:0;display:flex;gap:3px;padding:3px;border-radius:13px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl;overflow:hidden}
@@ -103,7 +103,7 @@
 .company-dock button.on{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
 .company-dock button.on::after{content:"";position:absolute;bottom:-4px;left:50%;width:12px;height:2.5px;margin-left:-6px;border-radius:3px;background:var(--accent)}
 .company-dock .dock-add{background:#EEF2F5}
-.map-status-capsule{pointer-events:auto;flex:0 20 auto;min-width:0;display:flex;align-items:center;gap:8px;height:22px;padding:0 9px;border-radius:9px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl}
+.map-status-capsule{pointer-events:auto;flex:0 1 auto;min-width:min(100%,250px);max-width:100%;display:flex;align-items:center;gap:8px;height:22px;padding:0 9px;border-radius:9px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl}
 .map-status{min-width:0;display:flex;align-items:center;gap:8px;font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .map-credit{flex:0 0 auto;font-size:8px;color:var(--faint)}
 .placing-route .map-status{white-space:normal}
@@ -112,7 +112,7 @@
 
 @media(max-width:900px){.top-kpis>div:nth-child(2){display:none}.sim-clock-copy small{display:none}}
 @media(max-width:760px){.ui-speeds button{min-width:30px;padding:0 2px}.top-news-ticker>em{display:none}}
-/* On a phone, an open panel leaves no room for the status line beside the company dock; the dock wins. */
-@media(max-width:1100px){.app-shell.overlay-open .map-status-capsule{display:none}}
+/* Owner («شريط عرض معلومات الاصول بالرئيسية يختفي اذا انفتحت الشركات بالشريط»): the status line never hides or shrinks
+   to nothing beside the company dock; without room beside it, it moves to the row above the dock. */
 @media(max-height:360px){.side-nav button{height:42px;flex-basis:42px}}
 .page-context{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0 0 8px;padding:8px 10px;border-radius:12px;background:#FFFFFF;border:1px solid var(--line-soft);font-size:10.5px;color:var(--muted)}.page-context b{font-size:12px;color:var(--text)}.page-context em{font-style:normal;margin-inline-start:auto;padding:2px 8px;border-radius:999px;background:var(--surface-3);color:#33495A;font-size:9.5px;font-weight:600}

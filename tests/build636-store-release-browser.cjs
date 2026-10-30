@@ -3,11 +3,12 @@
 // app (GH_EDITION 'release') with a store bridge standing in for StoreKit 2:
 //  1. the app tells the bridge it is ready once the group is founded;
 //  2. without purchases, 300× and a seven-day calendar advance are refused and open the store page; investor mode is
-//     refused and opens the store page;
-//  3. the store page lists the products with the store's localized prices, sends a purchase and a restore to the bridge;
+//     refused and opens the store page (licences tab);
+//  3. the store page (owner's approved design: three tabs) lists the products with the store's localized prices, sends a
+//     purchase and a restore to the bridge;
 //  4. a verified capital-pack transaction is delivered once: the group receives the pack as a documented founder
 //     investment, the bridge is told to finish only after the save, and the same transaction again pays nothing;
-//  5. the investor licence opens investor mode; the time accelerator opens 300×;
+//  5. the investor licence opens investor mode; the time accelerator opens 300× (a seven-day advance stays Plus's);
 //  6. a refund takes the capital pack back (documented founder withdrawal) and the licence (investor mode off).
 const assert=require('node:assert/strict');
 const {boot}=require('./helpers/local-dom-app');
@@ -28,12 +29,13 @@ const RELEASE={fn:()=>{window.GH_EDITION='release';window.__storePosts=[];window
     assert.ok(!advance.manual,'2: a seven-day advance needs the accelerator');await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'),null,{timeout:30000});
     await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);assert.equal(await page.evaluate(()=>GH_FINANCE_CORE.investorMode(__GH_STATE__)),false,'2: investor mode needs its licence');
     // 3.
-    await page.evaluate(()=>{GH_STORE_NATIVE.onProducts(GH_STORE_CORE&&Object.keys(GH_STORE_CORE.PRODUCTS).map(suffix=>({productId:`com.test.ventora.${suffix}`,displayPrice:`SAR ${suffix.length}.99`,title:suffix})));__AUDIT__.openDrawer('store');});
-    await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'),null,{timeout:30000});
-    const listing=await page.evaluate(()=>({cards:document.querySelectorAll('#drawerBody .store-product').length,prices:[...document.querySelectorAll('#drawerBody .store-product .tag')].map(e=>e.textContent),buy:document.querySelector('#drawerBody [data-gh-action="store-buy"][data-product="capital.small"]')?.disabled}));
-    assert.ok(listing.cards>=8,`3: the products (${listing.cards})`);assert.ok(listing.prices.includes('SAR 13.99'),'3: the store\'s localized price');assert.equal(listing.buy,false,'3: buying is open with a store bridge');
-    await page.click('#drawerBody [data-gh-action="store-buy"][data-product="capital.small"]');await page.click('#drawerBody [data-gh-action="store-restore"]');
-    const posts=await page.evaluate(()=>window.__storePosts.map(row=>row.action+':'+(row.productId||'')));assert.ok(posts.includes('purchase:capital.small'),'3: a purchase reaches the bridge');assert.ok(posts.includes('restore:'),'3: a restore reaches the bridge');
+    await page.evaluate(()=>{GH_STORE_NATIVE.onProducts(GH_STORE_CORE&&Object.keys(GH_STORE_CORE.PRODUCTS).map(suffix=>({productId:`com.test.ventora.${suffix}`,displayPrice:`SAR ${suffix.length}.99`,title:suffix})));__AUDIT__.openDrawer('store',{tab:'cap'});});
+    await page.waitForFunction(()=>document.querySelector('#drawerBody .st[data-store-tab="cap"] .store-product'),null,{timeout:30000});
+    const listing=await page.evaluate(()=>({cards:[...document.querySelectorAll('#drawerBody .store-product')].map(e=>e.dataset.storeProduct),prices:[...document.querySelectorAll('#drawerBody .store-product [data-store-price]')].map(e=>e.textContent),buy:document.querySelector('#drawerBody [data-gh-action="store-buy"][data-product="capital.medium"]')?.disabled,small:document.querySelectorAll('#drawerBody [data-product="capital.small"]').length}));
+    assert.deepEqual(listing.cards.filter(id=>id.startsWith('capital.')),['capital.medium','capital.large','capital.huge'],`3: the capital packs offered (${listing.cards})`);assert.equal(listing.small,0,'3: the $0.99 pack is retired');
+    assert.ok(listing.prices.includes('SAR 14.99'),'3: the store\'s localized price');assert.equal(listing.buy,false,'3: buying is open with a store bridge');
+    await page.click('#drawerBody [data-gh-action="store-buy"][data-product="capital.medium"]');await page.click('#drawerBody .st-head [data-gh-action="store-restore"]');
+    const posts=await page.evaluate(()=>window.__storePosts.map(row=>row.action+':'+(row.productId||'')));assert.ok(posts.includes('purchase:capital.medium'),'3: a purchase reaches the bridge');assert.ok(posts.includes('restore:'),'3: a restore reaches the bridge');
     // 4.
     const delivered=await page.evaluate(async()=>{const cash=()=>GH_FINANCE_CORE.operating(__GH_STATE__,'group'),before=cash();window.__storePosts.length=0;await GH_STORE_NATIVE.onTransaction({transactionId:'90001',productId:'com.test.ventora.capital.small'});
       const after=cash(),finishes=window.__storePosts.filter(row=>row.action==='finish').map(row=>row.transactionId),doc=(__GH_STATE__.finance.transfers||[]).find(row=>row.reference==='STORE-90001-1');
@@ -46,6 +48,7 @@ const RELEASE={fn:()=>{window.GH_EDITION='release';window.__storePosts=[];window
     await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);
     await page.evaluate(()=>GH_STORE_NATIVE.onTransaction({transactionId:'90003',productId:'com.test.ventora.time.accelerator'}));await settle(page);
     await page.evaluate(()=>__AUDIT__.setSpeed(3));assert.equal(await page.evaluate(()=>__GH_STATE__.speed),3,'5: the accelerator opens 300×');await page.evaluate(()=>__AUDIT__.setSpeed(0));
+    assert.equal(await page.evaluate(()=>GH_STORE_CORE.featureOpen(__GH_STATE__,'advance')),false,'5: a seven-day advance stays Plus\'s');
     // 6. (owner «نعم تسحب») refunds: the capital pack is taken back as a documented founder withdrawal and the bridge is
     // told to finish after the save; the investor licence is taken back and investor mode turned off.
     await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);assert.equal(await page.evaluate(()=>GH_FINANCE_CORE.investorMode(__GH_STATE__)),true);
