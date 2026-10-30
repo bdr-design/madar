@@ -14,8 +14,9 @@ for(const [file,expected] of Object.entries(fixture.files)){
  // Restore the exact reviewed performance edits before the earlier integration edits; retain the original economic hash.
  // The fleet sale and premium edits are the newest and rewrite lines the share-value edits had written, so they go first;
  // the removal of functions nothing called (approved_dead_code_removal_edits) is newer still and goes before them, and the
- // panel wording edits (approved_panel_copy_edits) are the newest of all.
- for(const edit of [...(fixture.approved_panel_copy_edits?.[file]||[]),...(fixture.approved_dead_code_removal_edits?.[file]||[]),...(fixture.approved_fleet_sale_edits?.[file]||[]),...(fixture.approved_fleet_premium_edits?.[file]||[]),...(fixture.approved_runtime_performance_edits?.[file]||[]),...(fixture.approved_nonfleet_integration_edits?.[file]||[]),...(fixture.approved_recovery_validation_edits?.[file]||[]),...(fixture.approved_construction_progress_edits?.[file]||[]),...(fixture.approved_financial_booking_edits?.[file]||[]),...(fixture.approved_airline_cost_edits?.[file]||[]),...(fixture.approved_investor_card_edits?.[file]||[]),...(fixture.approved_share_value_edits?.[file]||[])]){
+ // panel wording edits (approved_panel_copy_edits) are newer still, and the game's name (approved_game_name_edits) is the
+ // newest of all.
+ for(const edit of [...(fixture.approved_game_name_edits?.[file]||[]),...(fixture.approved_panel_copy_edits?.[file]||[]),...(fixture.approved_dead_code_removal_edits?.[file]||[]),...(fixture.approved_fleet_sale_edits?.[file]||[]),...(fixture.approved_fleet_premium_edits?.[file]||[]),...(fixture.approved_runtime_performance_edits?.[file]||[]),...(fixture.approved_nonfleet_integration_edits?.[file]||[]),...(fixture.approved_recovery_validation_edits?.[file]||[]),...(fixture.approved_construction_progress_edits?.[file]||[]),...(fixture.approved_financial_booking_edits?.[file]||[]),...(fixture.approved_airline_cost_edits?.[file]||[]),...(fixture.approved_investor_card_edits?.[file]||[]),...(fixture.approved_share_value_edits?.[file]||[])]){
   assert.equal(hash(edit.after),edit.sha256,'reviewed non-economic edit changed');
   assert.equal(source.split(edit.after).length,2,'the reviewed edit must have one exact source boundary');
   source=source.replace(edit.after,edit.before);

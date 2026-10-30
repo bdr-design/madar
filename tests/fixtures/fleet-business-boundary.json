@@ -840,5 +840,90 @@
         "sha256": "dfa97879d70a886e6e816273d3897597c330f14d45937db22a409403df838e07"
       }
     ]
+  },
+  "approved_game_name_edits_reason": "Owner (30 Oct 2026, «أصول ونفوذ | ASSETS & INFLUENCE», «غير مايلزم باللعبة كامله»): the game's name changes on the group's and every company's identity line only (names, short codes, legacy names); no customer, price, fleet or economic value changes. Restored first, before every older reviewed edit.",
+  "approved_game_name_edits": {
+    "WebApp/company-definitions.js": [
+      {
+        "before": "      identity:identity('فنتورا القابضة','Ventora Holdings Group','فنتورا','Ventora','VH','assets/identity/approved/group-symbol.webp','#d0a34a','#0d3b57','#d0a34a','assets/images/company-hq-v2.webp',['المجموعة العالمية القابضة','Global Holdings Group','جلوبال هولدينغز','Global Holdings','GH'],'assets/identity/approved/group-horizontal.webp'),",
+        "after": "      identity:identity('أصول ونفوذ القابضة','Assets & Influence Holdings Group','أصول ونفوذ','Assets & Influence','ANI','assets/identity/approved/group-symbol.webp','#d0a34a','#0d3b57','#d0a34a','assets/images/company-hq-v2.webp',['المجموعة العالمية القابضة','Global Holdings Group','جلوبال هولدينغز','Global Holdings','GH','فنتورا القابضة','Ventora Holdings Group','فنتورا','Ventora','VH'],'assets/identity/approved/group-horizontal.webp'),",
+        "sha256": "fc0482a43a66b45cea984952ef27e3105c65b60e2692b726c702f3c57e2605da"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للطيران','Ventora Aviation Company','فنتورا إير','VH AIR','VH AIR','assets/identity/approved/air-symbol.webp','#2d72df','#123f69','#2d72df','assets/images/air-cargo.webp',['الشركة العالمية للطيران','شركة جلوبال هولدينغز للطيران','Global Holdings Aviation Company','جي إتش إير','GH AIR','GH AIR'],'assets/identity/approved/air-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للطيران','Assets & Influence Aviation Company','أصول ونفوذ للطيران','ANI AIR','ANI AIR','assets/identity/approved/air-symbol.webp','#2d72df','#123f69','#2d72df','assets/images/air-cargo.webp',['الشركة العالمية للطيران','شركة جلوبال هولدينغز للطيران','Global Holdings Aviation Company','جي إتش إير','GH AIR','GH AIR','شركة فنتورا للطيران','Ventora Aviation Company','فنتورا إير','VH AIR'],'assets/identity/approved/air-horizontal.webp'),",
+        "sha256": "a9a87eec003cf01911e3d96bce733f588b76de9d772354ffd23d8f224411a851"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للشحن البحري','Ventora Marine Shipping Company','فنتورا مارين','VH MARINE','VH MARINE','assets/identity/approved/sea-symbol.webp','#119c94','#0c5961','#12a99c','assets/images/ship-container.webp',['الشركة العالمية للشحن البحري','شركة جلوبال هولدينغز للشحن البحري','Global Holdings Marine Shipping Company','جي إتش مارين','GH MARINE','GH MARINE'],'assets/identity/approved/sea-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للشحن البحري','Assets & Influence Marine Shipping Company','أصول ونفوذ للشحن البحري','ANI MARINE','ANI MARINE','assets/identity/approved/sea-symbol.webp','#119c94','#0c5961','#12a99c','assets/images/ship-container.webp',['الشركة العالمية للشحن البحري','شركة جلوبال هولدينغز للشحن البحري','Global Holdings Marine Shipping Company','جي إتش مارين','GH MARINE','GH MARINE','شركة فنتورا للشحن البحري','Ventora Marine Shipping Company','فنتورا مارين','VH MARINE'],'assets/identity/approved/sea-horizontal.webp'),",
+        "sha256": "02653a4afb9f001c7ed7b071581c9bfff16daee403abe02e83bf9beacef446f4"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للخدمات اللوجستية','Ventora Logistics Company','فنتورا لوجستيكس','VH LOGISTICS','VH LOGISTICS','assets/identity/approved/road-symbol.webp','#df8a3d','#65391f','#e08b3e','assets/images/facility-logistics-v2.webp',['اللوجستيات العالمية','شركة جلوبال هولدينغز للخدمات اللوجستية','Global Holdings Logistics Company','جي إتش لوجستيكس','GH LOGISTICS','GH LOGISTICS'],'assets/identity/approved/road-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للخدمات اللوجستية','Assets & Influence Logistics Company','أصول ونفوذ للنقل','ANI LOGISTICS','ANI LOGISTICS','assets/identity/approved/road-symbol.webp','#df8a3d','#65391f','#e08b3e','assets/images/facility-logistics-v2.webp',['اللوجستيات العالمية','شركة جلوبال هولدينغز للخدمات اللوجستية','Global Holdings Logistics Company','جي إتش لوجستيكس','GH LOGISTICS','GH LOGISTICS','شركة فنتورا للخدمات اللوجستية','Ventora Logistics Company','فنتورا لوجستيكس','VH LOGISTICS'],'assets/identity/approved/road-horizontal.webp'),",
+        "sha256": "41841a2f074e0ae10293e25a1da52682eb00fa4b082408d1523c0b98fb5422c6"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للطاقة','Ventora Energy Company','فنتورا إنرجي','VH ENERGY','VH ENERGY','assets/identity/approved/power-symbol.webp','#d0a33f','#5c4a1e','#d0a33f','assets/images/company-energy-v2.webp',['الطاقة العالمية','شركة الطاقة العالمية','شركة جلوبال هولدينغز للطاقة','Global Holdings Energy Company','جي إتش إنرجي','GH ENERGY','GH ENERGY'],'assets/identity/approved/power-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للطاقة','Assets & Influence Energy Company','أصول ونفوذ للطاقة','ANI ENERGY','ANI ENERGY','assets/identity/approved/power-symbol.webp','#d0a33f','#5c4a1e','#d0a33f','assets/images/company-energy-v2.webp',['الطاقة العالمية','شركة الطاقة العالمية','شركة جلوبال هولدينغز للطاقة','Global Holdings Energy Company','جي إتش إنرجي','GH ENERGY','GH ENERGY','شركة فنتورا للطاقة','Ventora Energy Company','فنتورا إنرجي','VH ENERGY'],'assets/identity/approved/power-horizontal.webp'),",
+        "sha256": "78fb36011d0ccf559cdddc3d399a3465e96a2ab1f21572210c4b85064113573e"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا المصرفية','Ventora Banking Company','فنتورا بنك','VH BANK','VH BANK','assets/identity/approved/bank-symbol.webp','#735bc7','#34286c','#735bc7','assets/images/company-bank-v2.webp',['بنك المجموعة','شركة جلوبال هولدينغز المصرفية','Global Holdings Banking Company','جي إتش بنك','GH BANK','GH BANK'],'assets/identity/approved/bank-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ المصرفية','Assets & Influence Banking Company','بنك أصول ونفوذ','ANI BANK','ANI BANK','assets/identity/approved/bank-symbol.webp','#735bc7','#34286c','#735bc7','assets/images/company-bank-v2.webp',['بنك المجموعة','شركة جلوبال هولدينغز المصرفية','Global Holdings Banking Company','جي إتش بنك','GH BANK','GH BANK','شركة فنتورا المصرفية','Ventora Banking Company','فنتورا بنك','VH BANK'],'assets/identity/approved/bank-horizontal.webp'),",
+        "sha256": "0f0742bdea4055339f51322e205707c0a78d15857d0ba3422b5d2bf9969311cc"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للتنقل الذكي','Ventora Smart Mobility Company','فنتورا موبيليتي','VH MOBILITY','VH MOBILITY','assets/identity/approved/mobility-symbol.webp','#1a9a6b','#15563f','#1a9a6b','assets/images/company-system-v2.webp',['GH Mobility للتنقل الذكي','شركة جلوبال هولدينغز للتنقل الذكي','Global Holdings Smart Mobility Company','جي إتش موبيليتي','GH MOBILITY','GH MOBILITY'],'assets/identity/approved/mobility-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للتنقل الذكي','Assets & Influence Smart Mobility Company','أصول ونفوذ للتنقل الذكي','ANI MOBILITY','ANI MOBILITY','assets/identity/approved/mobility-symbol.webp','#1a9a6b','#15563f','#1a9a6b','assets/images/company-system-v2.webp',['GH Mobility للتنقل الذكي','شركة جلوبال هولدينغز للتنقل الذكي','Global Holdings Smart Mobility Company','جي إتش موبيليتي','GH MOBILITY','GH MOBILITY','شركة فنتورا للتنقل الذكي','Ventora Smart Mobility Company','فنتورا موبيليتي','VH MOBILITY'],'assets/identity/approved/mobility-horizontal.webp'),",
+        "sha256": "ea780b6888e0f7a36d816db80d66e01a20777dbce2c2352c02f3d6857c84bfd3"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للتأمين','Ventora Insurance Company','فنتورا للتأمين','VH INSURANCE','VH INSURANCE','assets/identity/approved/insurance-symbol.webp','#1f7a8c','#16495a','#1f7a8c','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز للتأمين','Global Holdings Insurance Company','جي إتش للتأمين','GH INSURANCE','GH INSURANCE'],'assets/identity/approved/insurance-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للتأمين','Assets & Influence Insurance Company','أصول ونفوذ للتأمين','ANI INSURANCE','ANI INSURANCE','assets/identity/approved/insurance-symbol.webp','#1f7a8c','#16495a','#1f7a8c','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز للتأمين','Global Holdings Insurance Company','جي إتش للتأمين','GH INSURANCE','GH INSURANCE','شركة فنتورا للتأمين','Ventora Insurance Company','فنتورا للتأمين','VH INSURANCE'],'assets/identity/approved/insurance-horizontal.webp'),",
+        "sha256": "9c152dcc7afd13103b0f3701621bdddaf244a16642e21aca4cad6a1cb4413ac5"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للتطوير العقاري','Ventora Real Estate Development Company','فنتورا العقارية','VH REAL ESTATE','VH REAL ESTATE','assets/identity/approved/realestate-symbol.webp','#b5703a','#5a3a22','#b5703a','assets/images/company-hq-v2.webp',['شركة جلوبال هولدينغز للتطوير العقاري','Global Holdings Real Estate Development Company','جي إتش العقارية','GH REAL ESTATE','GH REAL ESTATE'],'assets/identity/approved/realestate-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للتطوير العقاري','Assets & Influence Real Estate Development Company','أصول ونفوذ للتطوير العقاري','ANI REAL ESTATE','ANI REAL ESTATE','assets/identity/approved/realestate-symbol.webp','#b5703a','#5a3a22','#b5703a','assets/images/company-hq-v2.webp',['شركة جلوبال هولدينغز للتطوير العقاري','Global Holdings Real Estate Development Company','جي إتش العقارية','GH REAL ESTATE','GH REAL ESTATE','شركة فنتورا للتطوير العقاري','Ventora Real Estate Development Company','فنتورا العقارية','VH REAL ESTATE'],'assets/identity/approved/realestate-horizontal.webp'),",
+        "sha256": "1714a06f5b5fa63f130a19d9e5f04160dbef0859fac2978efb7cbe4c48891e44"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للاتصالات','Ventora Telecom Company','فنتورا تيليكوم','VH TELECOM','VH TEL','assets/identity/approved/telecom-symbol.webp','#1688a8','#123f59','#1688a8','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز للاتصالات','Global Holdings Telecom Company','جي إتش تيليكوم','GH TELECOM','GH TEL'],'assets/identity/approved/telecom-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للاتصالات','Assets & Influence Telecom Company','أصول ونفوذ للاتصالات','ANI TELECOM','ANI TEL','assets/identity/approved/telecom-symbol.webp','#1688a8','#123f59','#1688a8','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز للاتصالات','Global Holdings Telecom Company','جي إتش تيليكوم','GH TELECOM','GH TEL','شركة فنتورا للاتصالات','Ventora Telecom Company','فنتورا تيليكوم','VH TELECOM','VH TEL'],'assets/identity/approved/telecom-horizontal.webp'),",
+        "sha256": "a68132ece9ff1b1558e5d65a6843444a4f24f3bdea1c4afe17f3588b62a65d90"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا لوكالات السيارات','Ventora Automotive Retail Company','فنتورا أوتو','VH AUTO','VH AUTO','assets/identity/approved/dealership-symbol.webp','#c47b35','#57371f','#cf8135','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز لوكالات السيارات','Global Holdings Automotive Retail Company','جي إتش أوتو','GH AUTO','GH AUTO'],'assets/identity/approved/dealership-horizontal.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ لوكالات السيارات','Assets & Influence Automotive Retail Company','أصول ونفوذ لوكالات السيارات','ANI AUTO','ANI AUTO','assets/identity/approved/dealership-symbol.webp','#c47b35','#57371f','#cf8135','assets/images/company-system-v2.webp',['شركة جلوبال هولدينغز لوكالات السيارات','Global Holdings Automotive Retail Company','جي إتش أوتو','GH AUTO','GH AUTO','شركة فنتورا لوكالات السيارات','Ventora Automotive Retail Company','فنتورا أوتو','VH AUTO'],'assets/identity/approved/dealership-horizontal.webp'),",
+        "sha256": "90f362cc6bba66af77bddfe051f47a5b3dc90b53c66a631a0135ccd05bb1653d"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للفنادق والمنتجعات','Ventora Hotels & Resorts Company','فنتورا للفنادق','VH HOTELS','VH HOTELS','assets/identity/approved/hospitality-symbol.webp','#176b70','#16344b','#bd985b','assets/identity/approved/hospitality-symbol.webp',[],'assets/identity/approved/hospitality-symbol.webp'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للفنادق والمنتجعات','Assets & Influence Hotels & Resorts Company','أصول ونفوذ للفنادق والمنتجعات','ANI HOTELS','ANI HOTELS','assets/identity/approved/hospitality-symbol.webp','#176b70','#16344b','#bd985b','assets/identity/approved/hospitality-symbol.webp',['شركة فنتورا للفنادق والمنتجعات','Ventora Hotels & Resorts Company','فنتورا للفنادق','VH HOTELS'],'assets/identity/approved/hospitality-symbol.webp'),",
+        "sha256": "5ed54223315099239e8215efa1ddeee66573ceb552f0c4732c30706db3983dd5"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للإعلام والإنتاج','Ventora Media & Production Company','فنتورا ميديا','VH MEDIA','VH MEDIA','assets/identity/approved/media-symbol.svg','#7b3fa0','#2e1a47','#7b3fa0','assets/images/company-system-v2.webp',[],'assets/identity/approved/media-symbol.svg'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للإعلام والإنتاج','Assets & Influence Media & Production Company','أصول ونفوذ للإعلام والإنتاج','ANI MEDIA','ANI MEDIA','assets/identity/approved/media-symbol.svg','#7b3fa0','#2e1a47','#7b3fa0','assets/images/company-system-v2.webp',['شركة فنتورا للإعلام والإنتاج','Ventora Media & Production Company','فنتورا ميديا','VH MEDIA'],'assets/identity/approved/media-symbol.svg'),",
+        "sha256": "9a3e517e73ef6105f76d84d33d188d658a46e067689fdda356fc419c82d5c5fe"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للرعاية الصحية','Ventora Healthcare Company','فنتورا الصحية','VH HEALTH','VH HEALTH','assets/identity/approved/healthcare-symbol.svg','#0f8b8d','#0b3c49','#0f8b8d','assets/images/company-system-v2.webp',[],'assets/identity/approved/healthcare-symbol.svg'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للرعاية الصحية','Assets & Influence Healthcare Company','أصول ونفوذ للرعاية الصحية','ANI HEALTH','ANI HEALTH','assets/identity/approved/healthcare-symbol.svg','#0f8b8d','#0b3c49','#0f8b8d','assets/images/company-system-v2.webp',['شركة فنتورا للرعاية الصحية','Ventora Healthcare Company','فنتورا الصحية','VH HEALTH'],'assets/identity/approved/healthcare-symbol.svg'),",
+        "sha256": "d05e631f452c84477199128fa939f9874972eb60b5a92c2310b911619a961c51"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للتعليم','Ventora Education Company','فنتورا التعليمية','VH EDUCATION','VH EDU','assets/identity/approved/education-symbol.svg','#2f6fb5','#16325c','#2f6fb5','assets/images/company-system-v2.webp',[],'assets/identity/approved/education-symbol.svg'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للتعليم','Assets & Influence Education Company','أصول ونفوذ للتعليم','ANI EDUCATION','ANI EDU','assets/identity/approved/education-symbol.svg','#2f6fb5','#16325c','#2f6fb5','assets/images/company-system-v2.webp',['شركة فنتورا للتعليم','Ventora Education Company','فنتورا التعليمية','VH EDUCATION','VH EDU'],'assets/identity/approved/education-symbol.svg'),",
+        "sha256": "52dc52f4611a59e3bf94eb777a093307c808d36156cf3832e09437207a93c916"
+      },
+      {
+        "before": "      identity:identity('شركة فنتورا للأندية الرياضية','Ventora Sports Club Company','نادي فنتورا','VH SPORTS','VH SPORTS','assets/identity/approved/sports-symbol.svg','#2e8b3e','#173f22','#2e8b3e','assets/images/company-system-v2.webp',[],'assets/identity/approved/sports-symbol.svg'),",
+        "after": "      identity:identity('شركة أصول ونفوذ للأندية الرياضية','Assets & Influence Sports Club Company','أصول ونفوذ للأندية الرياضية','ANI SPORTS','ANI SPORTS','assets/identity/approved/sports-symbol.svg','#2e8b3e','#173f22','#2e8b3e','assets/images/company-system-v2.webp',['شركة فنتورا للأندية الرياضية','Ventora Sports Club Company','نادي فنتورا','VH SPORTS'],'assets/identity/approved/sports-symbol.svg'),",
+        "sha256": "6e1a07a2cc52533f7ba22c60e9583d780e5c9bcc6f5d32ea95a69277c1964390"
+      }
+    ]
   }
 }

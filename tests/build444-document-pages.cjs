@@ -2,7 +2,8 @@
 // Document pages (owner, build 77 diagnostic: the documents page took 80 ms to open on the iPhone; «ليه مانجهز مستند
 // بدال الرسم»). A documents page lists light rows, twenty a page; the full signed document is drawn only for an opened
 // row. Proven on the real renderer with every collection behind a counting proxy:
-//  1. the signed document templates and their actions are byte-for-byte unchanged;
+//  1. the signed document templates and their actions are byte-for-byte unchanged (the game's name in four of their
+//     headers, «· VENTORA» -> «· ASSETS & INFLUENCE», is the only change since build 77: owner, «أصول ونفوذ»);
 //  2. every document appears once as a row, in the original (directional) order, through the page controls, beyond any
 //     old first-N limit; a page never holds more than twenty rows and draws no full document; a bad page is page one;
 //  3. each row opens exactly its own document, drawn once by the unchanged template, with its place in the list, the

@@ -6,7 +6,7 @@
 // against `f474908`, before the hall, the hall's own cost left the slides at 1.18 to 1.23 of it on the macOS runner (CI
 // builds 110 to 113), at the bound; the bounds below are unchanged.
 //  1. opening the conference loads the one hall photograph as before and no other conference image, and reaches its
-//     first slide no slower than before;
+//     first slide no slower than before (the median of fifteen openings after a warm-up one, the two sources taking turns);
 //  2. showing the slides, each through the end of its motion, costs no more main-thread work than before (the
 //     browser's own task, style and layout clocks over all the slides); building and laying out a slide costs no more
 //     than before (all the slides, and the dearest), and no showing stalls the screen (100 ms) or runs longer than
@@ -20,7 +20,7 @@
 // not iPhone performance. The source before carries the game's present name (tests/helpers/brand-baseline.cjs: its
 // slides read «ASSETS & INFLUENCE» as this source's do), so its text lays out the same.
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process'),{chromium}=require('playwright'),{serve}=require('./helpers/web-server');
-const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='1d7dce1';
+const ROOT=path.resolve(__dirname,'..'),SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,PREVIOUS='1d7dce1',OPENINGS=16;
 async function boot(root){
  const server=await serve(path.join(root,'WebApp'));let browser;try{
   browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:956,height:440},deviceScaleFactor:3,locale:'ar-SA'}),errors=[],images=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.resourceType()==='image')images.push(r.url().replace(/^.*?\/assets\//,'assets/'));});
@@ -39,7 +39,7 @@ async function boot(root){
 // a quiet machine.
 async function open(t,run){
  t.images.length=0;t.opens.push(await t.page.evaluate(async()=>{const t0=performance.now();GH_CONFERENCE_3D.launch({snapshot:qaSnapshot},{mode:'manual'});while(GH_CONFERENCE_3D.diagnostics().phase!=='presenting')await new Promise(r=>setTimeout(r,4));await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)));const ms=performance.now()-t0;for(const a of document.getAnimations())a.finish();return ms;}));
- if(run===0)t.openImages=[...t.images];if(run<6)await t.page.evaluate(()=>GH_CONFERENCE_3D.close());
+ if(run===0)t.openImages=[...t.images];if(run<OPENINGS-1)await t.page.evaluate(()=>GH_CONFERENCE_3D.close());
 }
 // 2-3: every slide in order on both sources at once, each shown through the end of its entrance motion (1.4 s), the
 // processor slowed four times; each browser's own clocks cover its whole pass. Showing the two together halves the
@@ -57,16 +57,20 @@ const again=(t,i)=>t.page.evaluate(i=>{GH_CONFERENCE_3D.go(i===0?1:0);document.b
 async function result(t){
  const shown=await t.page.evaluate(()=>window.qaShown.slice());await t.page.evaluate(()=>GH_CONFERENCE_3D.close());assert.deepEqual(t.errors,[]);const cost=t.cost;
  const halves=[0,0];for(const [at,ms] of shown){const round=t.rounds.filter(start=>start<=at).length-1;halves[round<6?0:1]=Math.max(halves[round<6?0:1],ms);}
- const opens=t.opens.slice().sort((a,b)=>a-b);
+ const opens=t.opens.slice(1).sort((a,b)=>a-b);
  return {open:opens[Math.floor(opens.length/2)],fastestOpen:opens[0],openImages:t.openImages,slides:t.slides,cost,sync:cost.reduce((a,b)=>a+b,0),worst:Math.max(...cost),task:t.spent('TaskDuration'),style:t.spent('RecalcStyleDuration'),layout:t.spent('LayoutDuration'),script:t.spent('ScriptDuration'),longest:Math.min(...halves),halves,longTasks:shown.length,passLongest:Math.max(0,...t.passLong),passLongTasks:t.passLong.length,nodes:Math.max(...t.nodes)};
 }
 (async()=>{
  const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b575-'));let old,now;try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
   old=await boot(tree);now=await boot(SOURCE);
-  // Seven openings each, taking turns; the median is compared (builds 100 and 101, macOS: the source before's fastest of
-  // three opened in 137 ms in one run and 51 ms in the next, the same code; here five builds of the same source, the hall
-  // taken out piece by piece, had fastest openings from 113 to 140 ms and medians from 150 to 171 ms).
-  for(let run=0;run<7;run++)for(const t of [old,now])await open(t,run);
+  // Sixteen openings each, taking turns, the source that opens first changing every round; the first, on a page just
+  // booted (132 and 132 ms, 149 and 119 ms here, against medians near 90), warms each page and checks its images, and the
+  // median of the fifteen after it is compared (builds
+  // 100 and 101, macOS: the source before's fastest of three opened in 137 ms in one run and 51 ms in the next, the same
+  // code; here five builds of the same source, the hall taken out piece by piece, had fastest openings from 113 to 140 ms
+  // and medians from 150 to 171 ms). CI build 125 ran this gate first on a cold runner: seven openings with the source
+  // before always first gave medians of 103 and 117.5 ms although this source's fastest was 47 ms and the other's 81 ms.
+  for(let run=0;run<OPENINGS;run++)for(const t of run%2?[now,old]:[old,now])await open(t,run);
   await pass([old,now]);
   assert.equal(now.slides,old.slides,'the same slides are shown');
   // Each slide's synchronous cost is the cheapest of twelve showings at full speed (eight before builds 100 and 101), the two sources taking turns slide by
@@ -81,7 +85,7 @@ async function result(t){
   const row=m=>({open:r(m.open),fastestOpen:r(m.fastestOpen),slides:m.slides,task:r(m.task),style:r(m.style),layout:r(m.layout),script:r(m.script),passLongest:r(m.passLongest),passLongTasks:m.passLongTasks,sync:r(m.sync),worst:r(m.worst),longest:r(m.longest),halves:m.halves.map(r),longTasks:m.longTasks,nodes:m.nodes,images:m.openImages}),report={before:row(before),after:row(after)};
   assert(before.openImages.some(url=>/assets\/conference\/hall-dark\.webp/.test(url)),`the hall loaded its photograph before: ${JSON.stringify(before.openImages)}`);
   assert.equal(after.openImages.filter(url=>/assets\/conference\//.test(url)).join(),'assets/conference/hall-dark.webp',`1: the one hall photograph is loaded, as before, and no other conference image: ${JSON.stringify(after.openImages)}`);
-  assert(after.open<=before.open*1.1+2,`1: the first slide is on screen no slower than before (the median of seven openings): ${JSON.stringify(report)}`);
+  assert(after.open<=before.open*1.1+2,`1: the first slide is on screen no slower than before (the median of fifteen openings): ${JSON.stringify(report)}`);
   assert(after.task<=before.task*1.15&&after.style+after.layout<=(before.style+before.layout)*1.15,`2: the slides cost no more main-thread work in total than before: ${JSON.stringify(report)}`);
   assert(after.sync<=before.sync*1.15,`2: building and laying out the slides costs no more than before: ${JSON.stringify(report)}`);
   // One slide's few milliseconds vary from run to run on a desktop; the dearest slide is compared, not each slide.

@@ -266,6 +266,8 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
+    ['node', 'tests/fleet-business-boundary.cjs'],
+    ['node', 'tests/build444-document-pages.cjs'],
     ['node', 'tests/build472-all-company-operating-browser.cjs'],
     ['node', 'tests/build585-save-upload-block-accounting.cjs'],
     ['node', 'tests/build558-investor-card-load-browser.cjs'],
@@ -657,7 +659,6 @@ expected_preflight=[
     ['node', 'tests/build612-company-autopilot-browser.cjs'],
     ['node', 'tests/build334-durable-publication-recovery.cjs'],
     ['node', 'tests/build469-app-notice-work.cjs'],
-    ['node', 'tests/fleet-business-boundary.cjs'],
     ['node', 'tests/build631-energy-realestate-day-stages-browser.cjs'],
     ['node', 'tests/build632-customer-billing-step.cjs'],
     ['node', 'tests/build364-customer-companies-core.cjs'],
@@ -756,7 +757,6 @@ expected_preflight=[
     ['node', 'tests/build431-decision-notices.cjs'],
     ['node', 'tests/build434-service-panel-fleet-work.cjs'],
     ['node', 'tests/build439-summary-single-request.cjs'],
-    ['node', 'tests/build444-document-pages.cjs'],
     ['node', 'tests/build451-hr-notice-work.cjs'],
     ['node', 'tests/build455-cii-preview-work.cjs'],
     ['node', 'tests/build461-market-render-work.cjs'],
