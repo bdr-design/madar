@@ -11,8 +11,8 @@
   const VERSION='1.0.0',SCHEMA=1,DOMAIN='store',DELIVER='deliver',REVOKE='revoke',STORES=Object.freeze(['app-store','play']);
   // Product ids are the store's: the bundle prefix is the app's (set at release; the suffix is the product).
   const PRODUCTS=Object.freeze({
-    'plus.monthly':Object.freeze({kind:'subscription',grants:'plus',title:'فنتورا بلس · شهري',price:'4.99'}),
-    'plus.yearly':Object.freeze({kind:'subscription',grants:'plus',title:'فنتورا بلس · سنوي',price:'39.99'}),
+    'plus.monthly':Object.freeze({kind:'subscription',grants:'plus',title:'أصول ونفوذ بلس · شهري',price:'4.99'}),
+    'plus.yearly':Object.freeze({kind:'subscription',grants:'plus',title:'أصول ونفوذ بلس · سنوي',price:'39.99'}),
     'investor.licence':Object.freeze({kind:'permanent',grants:'investor',title:'رخصة المستثمر',price:'9.99'}),
     'time.accelerator':Object.freeze({kind:'permanent',grants:'accelerator',title:'مسرّع الوقت',price:'2.99'}),
     'starter.pack':Object.freeze({kind:'once',capital:[5000000,5000000,5000000],title:'حزمة البداية',price:'2.99',days:7}),

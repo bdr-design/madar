@@ -151,7 +151,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             showLaunchOverlay()
             launchPrimaryButton?.isEnabled = false
             launchPrimaryButton?.alpha = 0.55
-            showLaunchStatus("لا تعمل VENTORA على جهاز معدّل (Jailbreak) حفاظًا على عدالة اللعبة وحماية حفظك.")
+            showLaunchStatus("لا تعمل أصول ونفوذ على جهاز معدّل (Jailbreak) حفاظًا على عدالة اللعبة وحماية حفظك.")
             return
         }
         do {
@@ -228,7 +228,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         art.contentMode = .scaleAspectFill
         art.clipsToBounds = true
         art.isAccessibilityElement = true
-        art.accessibilityLabel = "VENTORA"
+        art.accessibilityLabel = "أصول ونفوذ"
         art.translatesAutoresizingMaskIntoConstraints = false
         overlay.addSubview(art)
 
@@ -249,7 +249,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         status.translatesAutoresizingMaskIntoConstraints = false
         status.isHidden = recoveryMessage == nil
         let subtitle = UILabel()
-        subtitle.text = recoveryMessage.map { "استرداد VENTORA · \($0)" }
+        subtitle.text = recoveryMessage.map { "استرداد أصول ونفوذ · \($0)" }
         subtitle.textColor = .white
         subtitle.font = .systemFont(ofSize: 13, weight: .semibold)
         subtitle.textAlignment = .center
@@ -442,7 +442,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
     private func confirmAndApplyUpdate(_ url: URL) {
         let alert = UIAlertController(
-            title: "تحديث VENTORA",
+            title: "تحديث أصول ونفوذ",
             message: "تم العثور على حزمة تحديث. الإصدار الحالي: \(GlobalGameStorage.shared.currentVersion)",
             preferredStyle: .alert
         )
@@ -775,7 +775,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         switch action {
         case "installWebPack":
             guard !ventoraReleaseEdition else {
-                reportToWeb(success: false, message: "تحديثات VENTORA تصل من متجر التطبيقات.")
+                reportToWeb(success: false, message: "تحديثات أصول ونفوذ تصل من متجر التطبيقات.")
                 return
             }
             guard let manifest = payload["manifest"] as? [String: Any],

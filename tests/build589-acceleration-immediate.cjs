@@ -44,7 +44,7 @@ if(process.argv[2]==='--measure'){
 const measure=tree=>JSON.parse(execFileSync(process.execPath,[__filename,'--measure',tree],{encoding:'utf8',maxBuffer:1<<28}));
 const before=fs.mkdtempSync(path.join(os.tmpdir(),'gh-b589-'));
 try{
-  const archive=path.join(before,'previous.tar');execFileSync('git',['-C',process.env.GH_B589_GIT_DIR||ROOT,'archive','-o',archive,PREVIOUS,'WebApp','tests/helpers']);execFileSync('tar',['-xf',archive,'-C',before]);fs.rmSync(archive);
+  const archive=path.join(before,'previous.tar');execFileSync('git',['-C',process.env.GH_B589_GIT_DIR||ROOT,'archive','-o',archive,PREVIOUS,'WebApp','tests/helpers']);execFileSync('tar',['-xf',archive,'-C',before]);fs.rmSync(archive);require(path.join(__dirname,'helpers/brand-baseline.cjs')).brandBaseline(before);
   const old=measure(before),now=measure(ROOT);
   // 1.
   for(const key of ['realEstate','energy','contracts','cheques'])assert.equal(now.plain[key],old.plain[key],`1: without an acceleration, sixty closes leave the previous source's ${key}`);

@@ -51,6 +51,10 @@ const measure=tree=>JSON.parse(execFileSync(process.execPath,[__filename,'--meas
 const before=fs.mkdtempSync(path.join(os.tmpdir(),'gh-b585-'));
 try{
   const archive=path.join(before,'previous.tar');execFileSync('git',['-C',process.env.GH_B585_GIT_DIR||ROOT,'archive','-o',archive,PREVIOUS,'WebApp','tests/helpers']);execFileSync('tar',['-xf',archive,'-C',before]);fs.rmSync(archive);
+  // The previous source carries the game's present name (tests/helpers/brand-baseline.cjs).
+  require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(before,ROOT);
+  // The previous source runs with this source's text chunk threshold (tests/helpers/codec-baseline.cjs).
+  {const codec=path.join(before,'WebApp','state-codec-core.js');fs.writeFileSync(codec,require(path.join(ROOT,'tests/helpers/codec-baseline.cjs')).withCurrentTextChunkMin(fs.readFileSync(codec,'utf8'),ROOT));}
   const [oldFirst,oldSecond]=measure(before),[first,second]=measure(ROOT);
   assert.ok(oldFirst.ok&&first.ok&&oldSecond.ok&&second.ok,'every save commits');
   assert.ok(first.uploads.length>=3,`text chunks are uploaded (${first.uploads.length})`);

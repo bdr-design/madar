@@ -28,7 +28,8 @@ try{
   fs.cpSync(path.join(ROOT,'WebApp'),path.join(tmp,'WebApp'),{recursive:true});fs.cpSync(path.join(ROOT,'tests'),path.join(tmp,'tests'),{recursive:true});
   const previous=execFileSync('git',['-C',process.env.GH_ENCODE_STEPS_GIT_DIR||ROOT,'show','5e2277d:WebApp/state-codec-core.js'],{encoding:'utf8',maxBuffer:32*1024*1024});
   assert.ok(!previous.includes('encodeRowsSteps'),'the baseline encodes a segment in one step');
-  fs.writeFileSync(path.join(tmp,'WebApp','state-codec-core.js'),previous);
+  // The baseline runs with this source's text chunk threshold (tests/helpers/codec-baseline.cjs).
+  fs.writeFileSync(path.join(tmp,'WebApp','state-codec-core.js'),require(path.join(ROOT,'tests/helpers/codec-baseline.cjs')).withCurrentTextChunkMin(previous,ROOT));
   old=JSON.parse(execFileSync(process.execPath,[__filename],{env:{...process.env,GH_TEST_SOURCE_DIR:tmp,GH_ENCODE_STEPS_CHILD:'1'},encoding:'utf8',maxBuffer:256*1024*1024}));
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}
 assert.equal(current.whole,old.whole,'serialize() text is identical');

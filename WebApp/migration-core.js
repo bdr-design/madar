@@ -14,13 +14,18 @@
   const SAVE_V2='2.0.0',SAVE_V3='3.0.0';
   function migrateDeliveryAndCrewBatches(state){
     const procurement=state.realism?.procurement,deliveries=Array.isArray(procurement?.deliveries)?procurement.deliveries:null;if(!deliveries)return false;
-    const alreadyBatched=deliveries.every(row=>row.deliveryOrderId===row.id&&Array.isArray(row?.assets)&&row.count===row.assets.length&&Array.isArray(row.assetIds)&&row.assetIds.length===row.assets.length&&!Object.prototype.hasOwnProperty.call(row,'asset')&&row.assets.every((asset,index)=>asset?.id===row.assetIds[index]&&asset.deliveryOrderId===row.id&&asset.baseFacility===row.baseId))&&Number(procurement.pendingDeliveryCount)===deliveries.filter(row=>row?.status==='pending').length;
+    // A compact receipt (GH_FLEET_DATA.compactReceipt, a delivered batch) is the current form: it is never batched again.
+    // Reopening a game that had bought a single asset pulled that asset back into its receipt (the receipt keeps assetId)
+    // and the save was refused at load (delivery-receipt).
+    const compact=row=>fleetData().isCompactReceipt(row);
+    const alreadyBatched=deliveries.every(row=>compact(row)||row.deliveryOrderId===row.id&&Array.isArray(row?.assets)&&row.count===row.assets.length&&Array.isArray(row.assetIds)&&row.assetIds.length===row.assets.length&&!Object.prototype.hasOwnProperty.call(row,'asset')&&row.assets.every((asset,index)=>asset?.id===row.assetIds[index]&&asset.deliveryOrderId===row.id&&asset.baseFacility===row.baseId))&&Number(procurement.pendingDeliveryCount)===deliveries.filter(row=>row?.status==='pending').length;
     // Crew lists may be compact id runs (GH_FLEET_DATA.idLists): they are values, read through idLists, never edited in place.
     const mobilityOwner=String(state.mobility?.ownerCompanyId||'mobility'),isMobilityCohort=contract=>contract?.mobilityDriverCohort===true&&contract.role==='سائق تنقل حضري'&&String(contract.ownerCompanyId||contract.company||'')===mobilityOwner;
     const L=fleetData().idLists,existingContracts=state.advanced?.labor?.employmentContracts||[],contractsBatched=existingContracts.every(contract=>contract?.automaticAssetStaffing!==true||isMobilityCohort(contract)||L.is(contract.assetIds)&&contract.deliveryOrderId&&contract.assetCount===L.length(contract.assetIds)),hiringBatched=(state.advanced?.labor?.hiringLog||[]).every(row=>!row?.source?.includes('أصل آلي ثابت')||row.deliveryOrderId&&L.is(row.assetIds));
     if(alreadyBatched&&contractsBatched&&hiringBatched)return false;
     const fleet=fleetData(),prepared=[],groups=new Map(),assetToOrder=new Map();let changed=false;
     for(const source of deliveries){
+      if(compact(source)){prepared.push({key:`compact:${source.id}`,rows:[{row:source,assets:[]}],compact:true});continue;}
       const row={...source},legacyAsset=row.asset,assets=Array.isArray(row.assets)?row.assets.slice():legacyAsset?[legacyAsset]:[];
       if(!assets.length&&row.assetId){const live=fleet.get(state,row.assetId);if(live)assets.push(fleet.plain(live));}
       if(legacyAsset){delete row.asset;changed=true;}
@@ -31,6 +36,7 @@
     }
     const normalized=[];
     for(const entry of prepared){
+      if(entry.compact){normalized.push(entry.rows[0].row);continue;}
       const first=entry.rows[0].row,allAssets=entry.rows.flatMap(part=>part.assets),complete=entry.rows.every(part=>part.assets.length>0),shouldMerge=entry.rows.length>1&&complete;
       if(shouldMerge){
         const id=String(first.deliveryOrderId||first.id),assets=[];

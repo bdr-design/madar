@@ -31,6 +31,12 @@
   // at most the next. The cached text of a segment is found by its first member's identity, not by its index. A
   // collection whose members have no identity (or a repeated one) keeps the 256-row segments. Readers never relied on
   // segment sizes.
+  // Save audit (300,000 assets): a collection under SEGMENT_MIN rows was one part, so any change re-sent all of it with
+  // every save (the document proofs: 141 rows, 108-120 KB, growing about 6 KB a command). A collection of MID_POLICY.min
+  // (128) to SEGMENT_MIN rows with no policy of its own is now segmented by the same identity rule with smaller bounds
+  // (a boundary once 32 rows are held, about every 32 rows after that, at most 256): a change re-sends the segment it
+  // falls in. One rule (layoutPolicy) for the save, encodeState and the adoption of chunk ids at load. A save written
+  // before this reads unchanged; its unchanged segments keep their chunks where the bounds agree.
   // Build 358 (save size): with the native vault, a sealed segment (or a whole sealed collection) of TEXT_CHUNK_MIN+
   // characters is kept out of the save text as a vault chunk holding its JSON text (UTF-8):
   //   {"$ghText":"chunk-v1","id":id,"bytes":byteLength}
@@ -60,7 +66,10 @@
     if(cell.length!==5||tag!==-3||typeof prefix!=='string'||!Number.isInteger(width)||width<0||width>10||!Number.isSafeInteger(first)||first<0||!Number.isInteger(count)||count<1||count>RUN_MAX||first+count-1>0xFFFFFFFF)throw corrupt('run');
     const out=new Array(count);for(let i=0;i<count;i++)out[i]=runText(prefix,width,first+i);return out;
   }
-  const MIN_ROWS=64,SEGMENT_ROWS=256,SEGMENT_MIN=SEGMENT_ROWS*2,SEGMENT_FLOOR=64,SEGMENT_CEIL=1024,SEG_VERSION='gh-shape-3',TEXT_VERSION='gh-shape-4',TEXT_CHUNK_MIN=16384;
+  // Save audit (300,000 assets): 348 KB of the 814 KB save text were sealed proof and idempotency segments under 16 KB,
+  // sent again with every save. A sealed segment of 4 KB or more now leaves the save text as a vault chunk; an unchanged
+  // one keeps its id and is never uploaded again.
+  const MIN_ROWS=64,SEGMENT_ROWS=256,SEGMENT_MIN=SEGMENT_ROWS*2,SEGMENT_FLOOR=64,SEGMENT_CEIL=1024,SEG_VERSION='gh-shape-3',TEXT_VERSION='gh-shape-4',TEXT_CHUNK_MIN=4096;
   const COLD_PAGE_VERSION='gh-cold-archive-page-v1',COLD_PAGE_MARKER='chunk-v1',COLD_PAGE_BYTES=new WeakMap();let coldPageSequence=0;
   const MIN_POOL_CHARS=40;
   const MIN_CONSTANT_ROWS=4;
@@ -485,6 +494,8 @@
   // The larger extras segments are for a fleet store's extras in the native chunked save (and its adoption at load) only:
   // serialize stays JSON.stringify(encodeState(state)), and a plain object at that path is segmented as before.
   function segmentPolicy(key,chunked=true){return TRACKED.get(key)||(chunked&&key===EXTRAS_KEY?EXTRAS_POLICY:null);}
+  const MID_POLICY=Object.freeze({floor:32,mask:31,ceil:256,min:128});
+  function layoutPolicy(policy,count){return policy||(count>=MID_POLICY.min&&count<SEGMENT_MIN?MID_POLICY:null);}
   const VERSIONED_CANDIDATES=new WeakMap(),extrasStats={layoutReused:0,rowsSealed:0};
   function registerTrackedCollection(path,{rows=32}={}){
     if(!Array.isArray(path)||!path.length||path.some(key=>typeof key!=='string'||!key))throw new TypeError('state-codec-tracked-path-invalid');
@@ -507,12 +518,12 @@
     return entry.text;
   }
   // One rule for the save (collectionLayoutSteps), encodeState and the adoption of chunk ids at load: the same steps.
-  function segmentBounds(value,policy=null){const isArray=Array.isArray(value);return drain(segmentBoundsSteps(isArray,isArray?null:Object.keys(value),isArray?value:null,policy));}
+  function segmentBounds(value,policy=null){const isArray=Array.isArray(value),keys=isArray?null:Object.keys(value);return drain(segmentBoundsSteps(isArray,keys,isArray?value:null,layoutPolicy(policy,isArray?value.length:keys.length)));}
   function segmentSlices(value,layout=segmentBounds(value)){
     const isArray=Array.isArray(value),{keys,bounds}=layout;
     return bounds.map(({start,end})=>{if(isArray)return value.slice(start,end);const part={};for(let i=start;i<end;i++)part[keys[i]]=value[keys[i]];return part;});
   }
-  function segmented(value,policy=null){return (Array.isArray(value)?value.length:Object.keys(value).length)>=(policy?policy.min:SEGMENT_MIN);}
+  function segmented(value,policy=null){const count=Array.isArray(value)?value.length:Object.keys(value).length;policy=layoutPolicy(policy,count);return count>=(policy?policy.min:SEGMENT_MIN);}
   function encodeCollection(value){
     if(!segmented(value))return encodeRows(value);
     return {$gh:3,a:Array.isArray(value)?1:0,g:segmentSlices(value).map(encodeRows)};
@@ -594,9 +605,9 @@
   // as the first save seals the proof stores): an edit in place of a sealed value throws instead of going unsaved, and a
   // page whose slots hold the same sealed values (or the same strings, numbers and nulls) as at its last text reuses it.
   const VALUE_TEXT=new Map(),VALUE_CACHE_CHARS=8*1024*1024,VALUE_PART_CHARS=512*1024,VALUE_ROWS=256;let valueChars=0,valueSequence=0;
-  function forgetValueText(key){const old=VALUE_TEXT.get(key);if(old){valueChars-=old.text.length;VALUE_TEXT.delete(key);}}
+  function forgetValueText(key){const old=VALUE_TEXT.get(key);if(old){valueChars-=old.text?old.text.length:0;VALUE_TEXT.delete(key);}}
   function rememberValueText(key,text,chunk,members=null){forgetValueText(key);if(text.length>VALUE_PART_CHARS||valueChars+text.length>VALUE_CACHE_CHARS)return false;VALUE_TEXT.set(key,{text,chunk,members});valueChars+=text.length;return true;}
-  const valuePartStats={reused:0,written:0};
+  const valuePartStats={reused:0,written:0,textless:0,remade:0};
   // Seal the page's objects; null when one cannot be sealed (not plain data) or there is no sealer: its text is not reused.
   function sealedValueSlots(values,start,count){
     const seal=globalThis.GH_TRANSACTION_CORE?.sealValue;if(typeof seal!=='function')return null;const members=values.slice(start,start+count);
@@ -605,8 +616,24 @@
   function sameValueSlots(members,values,start,count){if(!members||members.length!==count)return false;for(let i=0;i<count;i++)if(!Object.is(members[i],values[start+i]))return false;return true;}
   function* valueTextPart(text,key,count,members=null){
     const old=VALUE_TEXT.get(key);if(old?.text===text){old.members=members;return old.chunk;}
-    if(text.length>VALUE_PART_CHARS||valueChars-(old?.text.length||0)+text.length>VALUE_CACHE_CHARS){forgetValueText(key);return null;}
-    const chunk={id:`${NONCE}.v.${(++valueSequence).toString(36)}`,bytes:yield* utf8LengthSteps(text),count};return rememberValueText(key,text,chunk,members)?chunk:null;
+    if(text.length>VALUE_PART_CHARS){forgetValueText(key);return null;}
+    // iPhone diagnostic (630,000 assets): the table had grown to 9.8 MB, past the 8 MB of kept text, and every page
+    // past it was written inline again by every save (about 2.2 MB of each save). A sealed page past the budget keeps its
+    // chunk without its text: its slots are compared instead, and its text is made again only if the vault lacks it.
+    const chunk={id:`${NONCE}.v.${(++valueSequence).toString(36)}`,bytes:yield* utf8LengthSteps(text),count};
+    if(rememberValueText(key,text,chunk,members))return chunk;
+    if(!members)return null;
+    VALUE_TEXT.set(key,{text:null,chunk,members});valuePartStats.textless++;return chunk;
+  }
+  // A text chunk of a page kept without its text: the text of its sealed slots is made only when it is read (an upload
+  // the vault lacks), and it must have the byte length the save already wrote for it.
+  function valueChunkRow(chunk,text,members){
+    if(typeof text==='string')return {id:chunk.id,byteLength:chunk.bytes,text};
+    let made=null;
+    return {id:chunk.id,byteLength:chunk.bytes,get text(){
+      if(made===null){made=JSON.stringify(members);if(drain(utf8LengthSteps(made))!==chunk.bytes)throw new Error('state-codec-value-text-mismatch');valuePartStats.remade++;}
+      return made;
+    }};
   }
   function resolveValueTable(marker,pending,options){
     if(!isPlain(marker)||marker.$ghValues!=='segments-v1'||!Number.isSafeInteger(marker.length)||marker.length<1||marker.length>4194304||!Array.isArray(marker.parts)||marker.parts.length!==Math.ceil(marker.length/VALUE_ROWS))throw corrupt('value-table');
@@ -829,8 +856,8 @@
       let same=true;for(let i=0;i<count&&same;i++){if(cached.members[i]!==members[i]||!isArray&&cached.keys[i]!==keys[i])same=false;if(i%LAYOUT_STEP===LAYOUT_STEP-1)yield;}
       if(same){cached.value=value;cached.version=version;layoutCacheStats.hits++;return cached;}
     }
-    const split=count>=(policy?policy.min:SEGMENT_MIN);let layout=null,parts;
-    if(split){layout=yield* segmentBoundsSteps(isArray,keys,members,policy);parts=yield* segmentSlicesSteps(isArray,keys,members,layout);}
+    const bounds=layoutPolicy(policy,count),split=count>=(bounds?bounds.min:SEGMENT_MIN);let layout=null,parts;
+    if(split){layout=yield* segmentBoundsSteps(isArray,keys,members,bounds);parts=yield* segmentSlicesSteps(isArray,keys,members,layout);}
     else parts=[isArray?value.slice():{...value}];
     const entry={value,version,policy,keys,members,split,layout,parts,sealed:new Array(parts.length).fill(null)};
     PATH_LAYOUT.set(key,entry);layoutCacheStats.misses++;return entry;
@@ -944,11 +971,11 @@
       const store=state.fleet,values=store.values,originalLength=values.length,owner=globalThis.GH_FLEET_STORE,valueRevision=owner?.valueRevision?.(store),parts=[],liveValues=new Set();
       valueFresh=()=>{if(state.fleet!==store||store.values!==values||values.length!==originalLength||owner?.valueRevision?.(store)!==valueRevision)throw new Error('state-codec-fleet-changed-during-save');};
       for(let index=0,start=0;start<values.length;index++,start+=VALUE_ROWS){
-        const count=Math.min(VALUE_ROWS,values.length-start),old=VALUE_TEXT.get(index);let text,members;
-        if(old?.chunk&&sameValueSlots(old.members,values,start,count)){text=old.text;members=old.members;valuePartStats.reused++;}
+        const count=Math.min(VALUE_ROWS,values.length-start),old=VALUE_TEXT.get(index);let text,members,chunk=null;
+        if(old?.chunk&&sameValueSlots(old.members,values,start,count)){text=old.text;members=old.members;chunk=old.chunk;valuePartStats.reused++;}
         else{members=sealedValueSlots(values,start,count);text=yield* stringifySteps(members||values.slice(start,start+count));valuePartStats.written++;}
-        valueFresh();const chunk=yield* valueTextPart(text,index,count,members);valueFresh();
-        if(chunk){liveValues.add(index);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text:VALUE_TEXT.get(index)?.text||text});parts.push(JSON.stringify({$ghValuesPart:1,...chunk}));}
+        valueFresh();if(!chunk)chunk=yield* valueTextPart(text,index,count,members);valueFresh();
+        if(chunk){liveValues.add(index);textChunks.push(valueChunkRow(chunk,VALUE_TEXT.get(index)?.text??text,members));parts.push(JSON.stringify({$ghValuesPart:1,...chunk}));}
         else parts.push(text);yield 'fleet-values-part';valueFresh();
       }
       for(const key of VALUE_TEXT.keys())if(!liveValues.has(key))forgetValueText(key);

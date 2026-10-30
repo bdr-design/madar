@@ -128,7 +128,7 @@ const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'b579-'));
 let B0,B10,N0,N10;
 try{
   const before=path.join(tmp,'before'),now=path.join(tmp,'now');fs.mkdirSync(before);fs.mkdirSync(path.join(now,'tests'),{recursive:true});
-  execFileSync('sh',['-c',`git -C "${process.env.GH_B579_GIT_DIR||ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${before}"`]);
+  execFileSync('sh',['-c',`git -C "${process.env.GH_B579_GIT_DIR||ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${before}"`]);require(path.join(__dirname,'helpers/brand-baseline.cjs')).brandBaseline(before);
   fs.cpSync(path.join(ROOT,'WebApp'),path.join(now,'WebApp'),{recursive:true});fs.cpSync(path.join(ROOT,'tests/helpers'),path.join(now,'tests/helpers'),{recursive:true});
   // Both arms run on the previous definitions file: the gate is about the platform, not about which types ship.
   fs.copyFileSync(path.join(before,'WebApp/company-definitions.js'),path.join(now,'WebApp/company-definitions.js'));

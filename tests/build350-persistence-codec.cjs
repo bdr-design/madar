@@ -49,7 +49,8 @@ const api=x=>x.s.GH_PERSISTENCE;
   const upgraded=loadFrom(x);sameFleet(upgraded.state,fromPlain.state,'pre-350 plain save migration');assert.deepEqual(fleetAssets(x,upgraded.state),fleetAssets(x,fromPlain.state),'legacy assets survive migration');
   // ---------- C) a corrupt / truncated / tampered encoded save is rejected whole ----------
   const tamper=(mutate,label)=>{const tree=JSON.parse(codedRaw);mutate(tree);x.store.set('main',JSON.stringify(tree));assert.throws(()=>loadFrom(x),/MIGRATION_JSON_INVALID/,label);};
-  tamper(t=>{t.assets.r[0].pop();},'row arity');
+  // The 500 assets are segmented (save audit: a collection of 128-511 rows is split, state-codec MID_POLICY): a row of the first part.
+  tamper(t=>{assert.equal(t.assets.$gh,3,'the assets are segmented');t.assets.g[0].r[0].pop();},'row arity');
   tamper(t=>{t.stateCodec.version='gh-shape-999';},'unknown codec version');
   tamper(t=>{delete t.assets;},'collection removed');
   x.store.set('main',codedRaw.slice(0,Math.floor(codedRaw.length*.6)));assert.throws(()=>loadFrom(x),/MIGRATION_JSON_INVALID/,'truncated json');

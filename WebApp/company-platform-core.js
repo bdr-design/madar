@@ -223,12 +223,33 @@
   // renamed itself (record.customName). A save from before this keeps a name the player typed: only the stock names of
   // the definition count as following the group.
   const AR_LEAD=/^(?:شركة|مجموعة)\s+/u,AR_TRAIL=/\s+(?:القابضة|القابضه|المحدودة|للاستثمار)$/u,EN_TRAIL=/[\s,]+(?:holdings?|group|company|co\.?|ltd\.?|llc|inc\.?|plc)$/i;
-  // The stock group keeps the stock subsidiary names (شركة فنتورا للطيران). VENTORA: the group of the old name
-  // (المجموعة العالمية القابضة) takes the new one on load.
-  const STOCK_GROUP_NAME='فنتورا القابضة',LEGACY_GROUP_NAME='المجموعة العالمية القابضة';
-  function renameLegacyGroup(state){const profile=object(state?.profile)?state.profile:null;if(!profile||String(profile.name||'').trim()!==LEGACY_GROUP_NAME)return;profile.name=STOCK_GROUP_NAME;if(!profile.englishName||profile.englishName==='Global Holdings Group')profile.englishName='Ventora Holdings Group';if(!profile.shortName||profile.shortName==='GH')profile.shortName='VH';}
+  // The stock group keeps the stock subsidiary names (شركة أصول ونفوذ للطيران). ASSETS & INFLUENCE: a group of an old name (فنتورا
+  // القابضة, المجموعة العالمية القابضة) takes the new one on load, and so do its companies still carrying an old stock
+  // name (one the player did not choose: record.customName is not true); a name the player typed stays.
+  const STOCK_GROUP_NAME='أصول ونفوذ القابضة',LEGACY_GROUP_NAMES=Object.freeze(['فنتورا القابضة','المجموعة العالمية القابضة']);
+  const LEGACY_GROUP_ENGLISH=['Ventora Holdings Group','Global Holdings Group'],LEGACY_GROUP_SHORT=['VH','GH'];
+  function renameLegacyGroup(state){
+    const profile=object(state?.profile)?state.profile:null;if(!profile||!LEGACY_GROUP_NAMES.includes(String(profile.name||'').trim()))return;
+    // A save without a seed takes it from the group's name (GH_DETERMINISM): fixed from the old name first, so the new
+    // name changes no random draw of this game.
+    globalThis.GH_DETERMINISM?.ensure?.(state);
+    const identity=getDefinition('group')?.identity||{};profile.name=STOCK_GROUP_NAME;
+    if(!profile.englishName||LEGACY_GROUP_ENGLISH.includes(profile.englishName))profile.englishName=identity.legalDefault?.en||'Assets & Influence Holdings Group';
+    if(!profile.shortName||LEGACY_GROUP_SHORT.includes(profile.shortName))profile.shortName=identity.short||'ANI';
+    if(profile.tradeName&&(identity.legacyLegalNames||[]).includes(profile.tradeName))profile.tradeName=identity.trade?.ar||profile.tradeName;
+  }
+  // The stock group's companies: an old stock name (the definition's legacy names) becomes the current stock name.
+  function renameLegacyStockNames(state){
+    if(String(state?.profile?.name||'').trim()!==STOCK_GROUP_NAME)return 0;let changed=0;
+    for(const [companyId,record] of Object.entries(object(state?.companyRegistry)?state.companyRegistry:{})){
+      if(!object(record)||record.customName===true)continue;const identity=(definitionFor(state,companyId)||getDefinition(companyId))?.identity;if(!identity)continue;
+      const legacy=new Set(identity.legacyLegalNames||[]),stock={legalName:companyId==='group'?STOCK_GROUP_NAME:identity.legalDefault?.ar,name:companyId==='group'?STOCK_GROUP_NAME:identity.legalDefault?.ar,tradeName:identity.trade?.ar,shortName:identity.short,englishName:identity.legalDefault?.en};
+      for(const [field,value] of Object.entries(stock))if(value&&typeof record[field]==='string'&&legacy.has(record[field].trim())&&record[field]!==value){record[field]=value;changed++;}
+    }
+    return changed;
+  }
   function trimRoot(value,lead,trail){let text=String(value||'').replace(/\s+/g,' ').trim(),prev;if(lead){const cut=text.replace(lead,'');if(cut.trim())text=cut.trim();}do{prev=text;const cut=text.replace(trail,'');if(cut.trim())text=cut.trim();}while(text!==prev);return text;}
-  function groupBrand(state){const profile=object(state?.profile)?state.profile:{},ar=trimRoot(profile.name,AR_LEAD,AR_TRAIL),en=trimRoot(profile.englishName,null,EN_TRAIL),short=String(profile.shortName||'').trim().toUpperCase();return ar&&![STOCK_GROUP_NAME,LEGACY_GROUP_NAME].includes(String(profile.name||'').trim())?{ar,en,short:short||'VH'}:null;}
+  function groupBrand(state){const profile=object(state?.profile)?state.profile:{},ar=trimRoot(profile.name,AR_LEAD,AR_TRAIL),en=trimRoot(profile.englishName,null,EN_TRAIL),short=String(profile.shortName||'').trim().toUpperCase();return ar&&![STOCK_GROUP_NAME,...LEGACY_GROUP_NAMES].includes(String(profile.name||'').trim())?{ar,en,short:short||'ANI'}:null;}
   function brandedIdentity(state,companyId){
     const definition=definitionFor(state,companyId)||getDefinition(companyId),brand=definition?.identity?.brand,root=definition?.kind==='subsidiary'&&object(brand)?groupBrand(state):null;if(!root)return null;
     const trade=brand.prefix?`${brand.prefix} ${root.ar}`:`${root.ar} ${brand.ar}`,legal=brand.legalAr?`شركة ${root.ar} ${brand.legalAr}`:`شركة ${root.ar} ${brand.ar}`;
@@ -333,7 +354,7 @@
       state.companyRegistry[companyId]=enrichRecord(state,companyId,state.companyRegistry[companyId]);
       const definition=definitionFor(state,companyId);if(definition){recorded.add(definition.definitionId);for(const sectorId of definition.classification.sectorIds)if(!state.unlockedSectors.includes(sectorId)&&state.openedCompanies.includes(companyId))state.unlockedSectors.push(sectorId);}
     }
-    renameLegacyGroup(state);syncBrandedNames(state);
+    renameLegacyGroup(state);renameLegacyStockNames(state);syncBrandedNames(state);
     // The migration already visits every legacy asset to add canonical owner
     // fields. Fold the dynamic-ownership feature check into that same visit;
     // a second `some()` over a million rows added no independent evidence.

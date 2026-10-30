@@ -47,6 +47,13 @@ async function boot(options={}){
   await page.evaluate('(()=>{'+text+'\n})()\n//# sourceURL=gh-app/'+file);
  }
  if(options.found===false||process.env.GH_AUDIT_UNFORMED)return {page,browser,errors};
+ // The gates' worlds were written against the seed of the founding name «فنتورا القابضة» (GH_DETERMINISM takes a new
+ // world's seed from the group's name). The game's name changed (أصول ونفوذ); a gate keeps its own world: the seed is
+ // set before founding, while no random number has been drawn.
+ if(!await page.evaluate(()=>window.__GH_STATE__?.onboardingComplete))await page.evaluate(seed=>{const d=__GH_STATE__.determinism;if(d&&!Object.keys(d.streams||{}).length&&!Object.keys(__GH_STATE__.sequences||{}).length)d.seed=seed;},1026488172);
+ // The store edition (GH_EDITION 'release') asks for the privacy policy and the terms before founding (legal-core.js):
+ // accepted from the screen itself, as a player does.
+ if(await page.evaluate(()=>window.GH_LEGAL?.view?.().consent===true)){await page.locator('#legalConsent [data-legal-agree]').check();await page.locator('#legalConsent [data-legal-accept]').click();await page.waitForFunction(()=>window.GH_LEGAL.view().consent===false);}
  if(!await page.evaluate(()=>window.__GH_STATE__?.onboardingComplete)){await page.selectOption('#founderMode','sandbox');await page.click('#founderReview');await drawFounderSignature(page);await page.locator('#founderForm button[type=submit]').click();await page.waitForFunction(()=>window.__GH_STATE__?.onboardingComplete&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.getElementById('app')?.hasAttribute('inert'));}
  if(await page.evaluate(()=>__GH_STATE__.speed>0))await page.click('#speedToggle');
  return {page,browser,errors};

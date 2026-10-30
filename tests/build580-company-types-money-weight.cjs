@@ -53,7 +53,7 @@ if(process.argv[2]==='--measure'){
   const F=s.GH_FINANCE_CORE,H=s.GH_HR_CORE,TX=s.GH_TRANSACTION_CORE,json=JSON.stringify;
   const window=fn=>{const v0=visits(),c0={...counts},value=fn();return {value:value===undefined?null:value,visits:visits()-v0,full:counts.full-c0.full,held:counts.held-c0.held,heldRows:counts.heldRows-c0.heldRows,resolve:counts.resolve-c0.resolve};};
   const money=state=>json({finance:state.finance,companyFinance:state.companyFinance,treasury:state.treasury,cash:state.cash});
-  const world=(opened,registry={},extra={})=>{const m=P.migrateState({simSeconds:86400,openedCompanies:opened,profile:{name:'فنتورا القابضة',founder:'سالم'},hired:[],assets:[],globalBases:[],customHubs:[],branches:[],bank:{branches:1},energy:{},mobility:{vehicles:[]},companyRegistry:registry,...extra});if(m.errors.length)throw new Error(m.errors.join(','));const state=m.state;F.ensure(state);for(const id of F.companyIds(state,{includeGroup:false}))F.book(state,id).accounts[0].balance=1000000;F.reconcile(state);return state;};
+  const world=(opened,registry={},extra={})=>{const m=P.migrateState({simSeconds:86400,openedCompanies:opened,profile:{name:'أصول ونفوذ القابضة',founder:'سالم'},hired:[],assets:[],globalBases:[],customHubs:[],branches:[],bank:{branches:1},energy:{},mobility:{vehicles:[]},companyRegistry:registry,...extra});if(m.errors.length)throw new Error(m.errors.join(','));const state=m.state;F.ensure(state);for(const id of F.companyIds(state,{includeGroup:false}))F.book(state,id).accounts[0].balance=1000000;F.reconcile(state);return state;};
   const worlds={all:world(TYPES),group:world([],{},{onboardingComplete:true}),mixed:world(['air','air-east'],{air:{definitionId:'gh-air-v1'},bank:{definitionId:'gh-bank-v1'},'air-east':{definitionId:'gh-air-v1'}})};
   // app.js's own company lists, from its source, with the platform copy above as COMPANY_PLATFORM.
   const appSource=fs.readFileSync(path.join(root,'WebApp/app.js'),'utf8'),start=appSource.indexOf('  // Company collections are live projections of the platform registry.'),end=appSource.indexOf('  const operationalCompanyInstances=',start);
@@ -92,7 +92,7 @@ const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'b580-'));
 let B0,B10,N0,N10;
 try{
   const before=path.join(tmp,'before'),now=path.join(tmp,'now');fs.mkdirSync(before);fs.mkdirSync(path.join(now,'tests'),{recursive:true});
-  execFileSync('sh',['-c',`git -C "${process.env.GH_B580_GIT_DIR||ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${before}"`]);
+  execFileSync('sh',['-c',`git -C "${process.env.GH_B580_GIT_DIR||ROOT}" archive ${PREVIOUS} WebApp tests/helpers | tar -x -C "${before}"`]);require(path.join(__dirname,'helpers/brand-baseline.cjs')).brandBaseline(before);
   fs.cpSync(path.join(ROOT,'WebApp'),path.join(now,'WebApp'),{recursive:true});fs.cpSync(path.join(ROOT,'tests/helpers'),path.join(now,'tests/helpers'),{recursive:true});
   fs.copyFileSync(path.join(before,'WebApp/company-definitions.js'),path.join(now,'WebApp/company-definitions.js'));
   assert.ok(!fs.readFileSync(path.join(before,'WebApp/finance-core.js'),'utf8').includes('heldOnly'),'the previous finance owner resolved every installed type');

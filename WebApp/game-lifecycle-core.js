@@ -28,7 +28,7 @@
   function prepareFounding(input={}){
     const clean=(value,max,required,label)=>{const text=String(value??'').trim().replace(/\s+/g,' ');if((required&&!text)||text.length>max||/[\u0000-\u001f\u007f<>]/.test(text))throw new Error(label);return text;};
     const name=clean(input.name,42,true,'أدخل اسمًا للمجموعة من 1 إلى 42 حرفًا.'),founder=clean(input.founder,32,true,'أدخل اسم المؤسس من 1 إلى 32 حرفًا.');
-    const shortName=clean(input.shortName||'VH',4,true,'اختصار المجموعة لا يتجاوز أربعة أحرف.').toUpperCase();
+    const shortName=clean(input.shortName||'ANI',4,true,'اختصار المجموعة لا يتجاوز أربعة أحرف.').toUpperCase();
     if(!/^[\p{L}\p{N}]{1,4}$/u.test(shortName))throw new Error('استخدم أحرفًا أو أرقامًا فقط في الاختصار.');
     const location=FOUNDING_LOCATIONS.find(row=>row.id===input.locationId);if(!location)throw new Error('اختر مقرًا من القائمة المعتمدة.');
     if(!Object.prototype.hasOwnProperty.call(FOUNDING_CAPITALS,input.mode))throw new Error('اختر رأس مال من الخيارات المعروضة.');

@@ -926,6 +926,8 @@
     "interaction-core.js",
     "interface-core.js",
     "interface-layout.css",
+    "legal-core.js",
+    "legal.css",
     "lifecycle-core.js",
     "madar-icons.css",
     "madar-icons.js",

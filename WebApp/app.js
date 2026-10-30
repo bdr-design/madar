@@ -498,7 +498,7 @@
 
   const defaultState = {
     saveVersion:SAVE_SCHEMA_VERSION,saveRevision:0,onboardingComplete:false,lastPanel:null,lastPanelArg:null,mapLayer:'fresh',
-    profile:{name:'فنتورا القابضة',shortName:'VH',founder:'المؤسس',englishName:'Ventora Holdings Group',country:'السعودية',city:'الرياض',locationId:'RUH',mode:'balanced',legalForm:'شركة قابضة مساهمة مقفلة',currency:'USD',fiscalYear:'calendar',reputation:12,creditRating:'BBB',logo:null},
+    profile:{name:'أصول ونفوذ القابضة',shortName:'ANI',founder:'المؤسس',englishName:'Assets & Influence Holdings Group',country:'السعودية',city:'الرياض',locationId:'RUH',mode:'balanced',legalForm:'شركة قابضة مساهمة مقفلة',currency:'USD',fiscalYear:'calendar',reputation:12,creditRating:'BBB',logo:null},
     cash:250000000,debt:84000000,groupValue:412000000,todayProfit:0,
     sectorProfitToday:{air:0,sea:0,road:0,power:0,bank:0,mobility:0},
     speed:1,simSeconds:0,lastFinancialDay:0,lastMarketHour:0,
@@ -536,7 +536,7 @@
     const box=document.createElement('div');box.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#f1f4f9;color:#17283f;display:grid;place-content:center;padding:32px;gap:20px;text-align:center';
     box.id='saveRecovery';const title=document.createElement('h2');title.textContent=String(error.message).includes('Build251')?'يلزم تثبيت تطبيق Build251 المحدث':'تعذر فتح الحفظ بأمان';box.appendChild(title);
     const message=document.createElement('p');message.textContent='احتفظنا بالملف الحالي دون تغييره. صدّر نسخة لاستعادتها أو مراجعتها قبل متابعة اللعب.';box.appendChild(message);
-    const button=document.createElement('button');button.textContent='تصدير الحفظ للمراجعة';button.onclick=()=>{const raw=window.__GH_NATIVE_SAVE_JSON__||localStorage.getItem(storageKey)||legacyStorageKeys.map(k=>localStorage.getItem(k)).find(Boolean)||'';const url=URL.createObjectURL(new Blob([raw],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='Ventora_Recovery.ghsave';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};box.appendChild(button);document.body.appendChild(box);console.error('SAVE_LOAD_BLOCKED',error);return;
+    const button=document.createElement('button');button.textContent='تصدير الحفظ للمراجعة';button.onclick=()=>{const raw=window.__GH_NATIVE_SAVE_JSON__||localStorage.getItem(storageKey)||legacyStorageKeys.map(k=>localStorage.getItem(k)).find(Boolean)||'';const url=URL.createObjectURL(new Blob([raw],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='AssetsInfluence_Recovery.ghsave';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};box.appendChild(button);document.body.appendChild(box);console.error('SAVE_LOAD_BLOCKED',error);return;
   }
   // One source of truth: pause plus the three user-visible simulation levels.
   // Keep the persisted level IDs stable (Save Schema 3.0.0) while using
@@ -737,15 +737,19 @@
   const legacyRouteExclusivity=normalizeLegacyRouteAssignments();
   if(dedupeCustomRoutes()||legacyBankMigration.changed||legacyMobilityMigration.changed||mobilityTripLedgerMigration.changed||legacyRouteExclusivity.changed) save();
   // ترحيل المسارات البحرية القديمة التي كانت خطوطًا عامة إلى شبكة الممرات البحرية الحالية.
-  let maritimeMigrationChanged=false;
+  // Reopening a large game (iPhone, 630,000 assets) began with a full save that held the simulation for about 3 s: the two
+  // built-in sea templates (SEA_SIN_JED, SEA_RTM_NYC) are not saved and never carry the geometry version, so they were
+  // rebuilt on every boot and asked for a save each time. Their geometry is still rebuilt in memory; only a saved route
+  // that changed asks for a save.
+  let maritimeMigrationChanged=false,maritimeSavedRouteChanged=false;
   // Routes with a moving asset, counted once per class of rows (phase as views present it), only when a sea route
   // still needs the migration.
   let movingRouteIds=null;
   const routeHasMovingAsset=routeId=>{if(!movingRouteIds){const fleet=window.GH_FLEET_DATA;movingRouteIds=new Set();fleet.forEachFieldClasses(state,['phase','routeId','simulationFault'],(row,count)=>{if(count&&row.routeId&&fleet.presentedPhase(state,row)==='moving')movingRouteIds.add(row.routeId);});}return movingRouteIds.has(routeId);};
   Object.values(routeTemplates).filter(route=>route.type==='sea'&&route.maritimeGeometryVersion!==310&&!routeHasMovingAsset(route.id)).forEach(route=>{
-    if(rebuildMaritimeRoute(route)){maritimeMigrationChanged=true;const index=state.customRoutes.findIndex(r=>r.id===route.id);if(index>=0)state.customRoutes[index]={...state.customRoutes[index],...clone(route)};}
+    if(rebuildMaritimeRoute(route)){maritimeMigrationChanged=true;const index=state.customRoutes.findIndex(r=>r.id===route.id);if(index>=0){state.customRoutes[index]={...state.customRoutes[index],...clone(route)};maritimeSavedRouteChanged=true;}}
   });
-  if(maritimeMigrationChanged){state.routesRevision=(Math.max(0,Math.floor(Number(state.routesRevision)||0))+1);save();}
+  if(maritimeMigrationChanged){state.routesRevision=(Math.max(0,Math.floor(Number(state.routesRevision)||0))+1);if(maritimeSavedRouteChanged)save();}
 
   // Normalize legacy documents to the parent company so every document has an accountable legal entity.
   // Build 359: a final document is sealed (frozen, GH_FINANCE_CORE): one that needs a change is replaced by a copy.
@@ -1797,6 +1801,9 @@
       const cached=state.routeCache[tpl.id];
       if(cached?.canonicalRouteId===tpl.id)return;
       if(isRouteCacheFresh(cached)&&cached.route){if(await applyRoadGeometryWhenSettled(tpl.id,cached,false)){changedRouteIds.add(tpl.id);stateChanged=true;}return;}
+      // Release edition: no routing server (GH_MAP_PROVIDER offline). A saved road route keeps the geometry and trip time it
+      // has, as when the server cannot be reached (its stored route, if any); only a new route is computed on the device.
+      if(window.GH_MAP_PROVIDER?.offline?.()===true){if(cached?.route&&await applyRoadGeometryWhenSettled(tpl.id,cached,false)){changedRouteIds.add(tpl.id);stateChanged=true;}return;}
       const from=routeFacility(tpl.fromFacility),to=routeFacility(tpl.toFacility);if(!from||!to)return;
       let geometry=await requestRoadGeometry(from.coords,to.coords);
       if(!geometry){ await delay(1500); geometry=await requestRoadGeometry(from.coords,to.coords); } // محاولة ثانية عند انقطاع مؤقت
@@ -1814,6 +1821,8 @@
   let mobilityStreetHydration=null,lastMobilityStreetHydrationMs=0;
   const mobilityStreetRetries=new Map();
   async function hydrateMobilityStreetRoutes(){
+    // Release edition: no routing server; urban trips keep the street line they have.
+    if(window.GH_MAP_PROVIDER?.offline?.()===true)return null;
     if(mobilityStreetHydration)return mobilityStreetHydration;
     const wallNow=Date.now(),pending=(window.GH_MOBILITY_CORE?.pendingStreetRoutes?.(state,8)||[]).filter(request=>(mobilityStreetRetries.get(request.key)?.retryAt||0)<=wallNow).slice(0,3);if(!pending.length)return null;
     mobilityStreetHydration=(async()=>{
@@ -2421,7 +2430,7 @@
       worker.onerror=event=>plannerStarted?finish(event?.error||new Error(event?.message||'road-planner-worker-failed')):finish(null,null);
       worker.onmessageerror=()=>plannerStarted?finish(new Error('road-planner-worker-message-invalid')):finish(null,null);
       if(signal?.aborted){onAbort();return;}signal?.addEventListener('abort',onAbort,{once:true});
-      try{worker.postMessage({type:'plan',requestId,input});}catch(error){finish(error);}
+      try{worker.postMessage({type:'plan',requestId,input,edition:window.GH_EDITION==='release'?'release':''});}catch(error){finish(error);}
     });
   }
   function roadPlanningMarkup(){return roadPlanning?`<p class="road-plan-status" role="status" aria-live="polite">${esc(roadPlanning.text)}</p><button class="secondary-btn cancel-road-plan">إلغاء حساب المسارات</button>`:'';}
@@ -3171,7 +3180,7 @@
     const now=Math.max(0,Number(state.simSeconds)||0),next=Math.floor(Number(target)||0);if(!Number.isFinite(next)||next<=now){notice('اختر تاريخًا لاحقًا عن التاريخ الحالي.');return false;}
     const max=366*86400;if(next-now>max+1){notice('للحفاظ على سلامة المحاكاة يمكن التقديم حتى سنة واحدة في كل عملية.');return false;}
     // A step of more than one day is the time accelerator's (store edition); one day ahead stays free.
-    if(next-(Math.floor(now/86400)+1)*86400>3600&&!paidFeatureOpen('accelerator','تقديم التقويم بأكثر من يوم واحد من «مسرّع الوقت» أو «فنتورا بلس».'))return false;
+    if(next-(Math.floor(now/86400)+1)*86400>3600&&!paidFeatureOpen('accelerator','تقديم التقويم بأكثر من يوم واحد من «مسرّع الوقت» أو «أصول ونفوذ بلس».'))return false;
     observeLoopLock();
     // Calendar advance is a bounded cooperative workload independent from the player's live-speed selection.
     // The simulation core keeps the current atomic slice alive under device pressure instead of restarting it.
@@ -5029,6 +5038,8 @@
       const cleanupKeys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith('global-holdings-'))cleanupKeys.push(k);}
       await window.GH_GAME_LIFECYCLE.reset(state,defaultState,{storageKey,resetMarkerKey,appVersion:APP_VERSION,checkpoint:previousState,cleanupKeys,clearManualSlots:true,prepare:next=>{
         window.GH_ADVANCED.migrate(next);window.GH_REALISM.migrate(next);window.GH_EVENT_LEDGER.ensure(next);window.GH_DEPENDENCY_CORE.ensure(next);window.GH_DELIVERY_MONITOR.ensure(next);window.GH_FINANCE_CORE.ensure(next);window.GH_DIAGNOSTICS.ensure(next);window.GH_CONTROL_PLANE.bootstrap(next,controlPlaneEngineMetadata());next.advanced.saveSlots=[null,null,null];
+        // The privacy policy and the terms accepted on this device stay accepted for the new group.
+        if(window.GH_LEGAL?.accepted?.(previousState))next.legal=clone(previousState.legal);
       }});
       resetDurabilityEstablished=true;releaseOldWorldReferences();
       selectedAssetId=null;
@@ -5036,7 +5047,7 @@
       closeDrawer();closeMapPopovers();$('assetCard')?.classList.add('hidden');
       const founder=$('founderFlow');founder.classList.remove('hidden');founder.removeAttribute('aria-hidden');founder.style.setProperty('display','grid','important');founder.scrollTop=0;
       const shell=$('app');shell.setAttribute('aria-hidden','true');shell.style.pointerEvents='none';
-      updateFounderLogoPreview();simulationEngine.reset(performance.now(),'new-group');simulationRuntime.wake();updateKpis();renderMap();updateMapStatus();return true;
+      updateFounderLogoPreview();simulationEngine.reset(performance.now(),'new-group');simulationRuntime.wake();updateKpis();renderMap();updateMapStatus();promptLegal();return true;
     }catch(error){
       if(error.requiresNativeReload){
         resetDurabilityEstablished=true;state.speed=0;
@@ -5071,7 +5082,7 @@
       const out=kind==='incident'?cp.exportIncident(state,id,{evidence,readOnly:true}):kind==='health'?cp.exportHealth(state,{evidence,readOnly:true}):kind==='trace'?cp.trace(state,id):kind==='support'?(cp.exportSupportAsync?await cp.exportSupportAsync(state,{evidence,simulation,yieldToHost,budgetMs,readOnly:true}):cp.exportSupport(state,{evidence,readOnly:true})):(cp.exportDiagnosticAsync?await cp.exportDiagnosticAsync(state,{evidence,simulation,yieldToHost,budgetMs,readOnly:true}):cp.exportDiagnostic(state,{evidence,readOnly:true}));
       const started=appMetricClock(),serialized=await window.GH_DIAGNOSTICS.stringifyAsync(out,{yieldToHost,budgetMs,space:2}),json=serialized.text;if(typeof json!=='string')throw new Error('diagnostic-export-json-unavailable');
       const measured=await window.GH_DIAGNOSTICS.utf8ByteLengthAsync(json,{yieldToHost,budgetMs}),bridge=window.webkit?.messageHandlers?.diagnosticBridge;if(bridge&&measured.bytes>8_000_000)throw new Error(`حجم التقرير ${(measured.bytes/1_000_000).toFixed(2)} ميجابايت ويتجاوز حد iOS البالغ 8 ميجابايت.`);
-      assertDiagnosticSnapshotUnchanged(marker);const ext={incident:'ghincident',health:'ghhealth',trace:'ghtrace',support:'ghsupport',diagnostic:'ghdiagnostic'}[kind]||'ghdiagnostic',filename=`Ventora_${kind}_v${APP_VERSION}_${Date.now()}.${ext}`;
+      assertDiagnosticSnapshotUnchanged(marker);const ext={incident:'ghincident',health:'ghhealth',trace:'ghtrace',support:'ghsupport',diagnostic:'ghdiagnostic'}[kind]||'ghdiagnostic',filename=`AssetsInfluence_${kind}_v${APP_VERSION}_${Date.now()}.${ext}`;
       if(bridge)bridge.postMessage({action:'exportDiagnostic',filename,json});else{const blob=new Blob([json],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);}
       runtimeInstrumentation.diagnosticExport={kind,completedAt:new Date().toISOString(),bytes:measured.bytes,sizeMeasurement:measured.timing,serializedChars:serialized.timing.outputChars,stringify:serialized.timing,exportPerformance:out.diagnostics?.exportPerformance||null,evidenceId:evidence.id,simulationSeconds:simulation.simSeconds};
       runtimeInstrumentation.diagnosticExport.stringifyWallMs=Math.max(0,appMetricClock()-started);return out;
@@ -5990,8 +6001,8 @@ ${terms.ready?`<div class="pv-optrow"><span>نسبة الطرح</span><div class
     const geometry=await requestRoadGeometry(from.coords,to.coords);if(!geometry){notice('لم يجد مزود الطرق اتصالًا بريًا صالحًا. لم يُنشأ أي سجل أو خط بديل.');return false;}
     return await runAuthorizedCompositeCommand('create-road-route',({state:draft,dispatch})=>{
       const draftFrom=routeFacilityFor(draft,fromId),draftTo=routeFacilityFor(draft,toId);if(!draftFrom||!draftTo||!draftFrom.owned||!draftTo.owned||facilityOwnerCompanyId(draftFrom)!==companyId||facilityOwnerCompanyId(draftTo)!==companyId)throw new Error('تغيرت ملكية إحدى نقطتي التشغيل أثناء الحساب');
-      const id=window.GH_DETERMINISM.nextId(draft,'ROAD-CUSTOM'),durationHours=Math.max(.25,geometry.durationSeconds/3600),fromName=roadLocationName(draftFrom),toName=roadLocationName(draftTo),route=prepareRoute({id,type:'road',routeMode:'road',ownerCompanyId:companyId,name:`${fromName} → ${toName}`,from:fromName,to:toName,fromFacility:draftFrom.id,toFacility:draftTo.id,route:geometry.route,roadGeometryVersion:311,roadNetworkDistanceKm:geometry.distanceKm,maxLegKm:geometry.distanceKm,effectiveSpeedKmh:clamp(geometry.distanceKm/durationHours,42,82),dwellHours:2.5,routingSource:'OSRM · شبكة طرق فعلية'},draft);
-      dispatch('routes','create-with-cache',{route,distanceKm:route.distanceKm,durationSeconds:geometry.durationSeconds});window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`أُنشئ مسار بري فعلي من ${route.from} إلى ${route.to} بطول ${fmtNumber(route.distanceKm)} كم.`,type:'route'});return {routeId:id};
+      const id=window.GH_DETERMINISM.nextId(draft,'ROAD-CUSTOM'),durationHours=Math.max(.25,geometry.durationSeconds/3600),fromName=roadLocationName(draftFrom),toName=roadLocationName(draftTo),route=prepareRoute({id,type:'road',routeMode:'road',ownerCompanyId:companyId,name:`${fromName} → ${toName}`,from:fromName,to:toName,fromFacility:draftFrom.id,toFacility:draftTo.id,route:geometry.route,roadGeometryVersion:311,roadNetworkDistanceKm:geometry.distanceKm,maxLegKm:geometry.distanceKm,effectiveSpeedKmh:clamp(geometry.distanceKm/durationHours,42,82),dwellHours:2.5,routingSource:geometry.source||'OSRM · شبكة طرق فعلية'},draft);
+      dispatch('routes','create-with-cache',{route,distanceKm:route.distanceKm,durationSeconds:geometry.durationSeconds});window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`أُنشئ مسار بري ${geometry.source?'تقديري':'فعلي'} من ${route.from} إلى ${route.to} بطول ${fmtNumber(route.distanceKm)} كم.`,type:'route'});return {routeId:id};
     },{afterCommit:()=>{renderMap();updateKpis();reopenDrawer(navigationRevision,'routes',companyId);}});
     }catch(error){notice(`تعذر حساب الطريق: ${String(error.message||error)}`);return false;}finally{if(button?.isConnected){button.disabled=false;button.textContent=label;}}
   }
@@ -6184,16 +6195,16 @@ ${page}</div>`;
   }
   function payrollArt(report,company='all'){
     const lines=(report.lines||[]).filter(line=>company==='all'||line.company===company),total=lines.reduce((sum,line)=>sum+(Number(line.amount)||0),0),paid=lines.reduce((sum,line)=>sum+(Number(line.paid)||0),0),due=Math.max(0,total-paid),identity=financeDocumentIdentity(company==='all'?'group':company),signatureVisual=authorizationSignatureMarkup(report,{legacyLabel:'تقرير رواتب تاريخي سابق لنظام التوقيع المرئي'});
-    return `<div class="document-card"><article class="financial-paper payroll-paper authority-inspired"><div class="financial-watermark">PAYROLL</div><header class="authority-head">${companyLogoMarkup(company==='all'?'group':company,'small')}<div><small>OFFICIAL PAYROLL REPORT · VENTORA</small><h3>تقرير صرف الرواتب</h3><p>${company==='all'?'المجموعة والشركات':esc(identity.name)}</p></div><strong>${esc(report.id)}</strong></header><div class="authority-meta"><span>شهر المحاكاة <b>${report.month||'—'}</b></span><span>يوم الصرف <b>27</b></span><span>الحالة <b class="doc-status ${due?'pending':''}">${due?'مسجل مع مستحق':'مصروف بالكامل'}</b></span></div><section class="financial-subject"><div><small>إجمالي المسير</small><h4>${fmtDocumentMoney(total)}</h4><p>توظيف الأصول ورواتبها محسوبة تلقائيًا من سجل الملكية الفعلي.</p></div><strong class="financial-amount positive">${fmtDocumentMoney(paid)}</strong></section><div class="payroll-lines">${lines.map(line=>`<div class="invoice-row"><span>${esc(line.companyName)} · ${DOCUMENT_INTEGER_FORMAT.format(line.headcount||0)} موظف</span><strong>${fmtDocumentMoney(line.paid)}${line.due?` · مستحق ${fmtDocumentMoney(line.due)}`:''}</strong></div>`).join('')}</div><div class="authority-grid financial-grid"><div><span>إجمالي الرواتب</span><b>${fmtDocumentMoney(total)}</b></div><div><span>المصروف</span><b>${fmtDocumentMoney(paid)}</b></div><div><span>التمويل الآلي</span><b>${fmtDocumentMoney(lines.reduce((sum,line)=>sum+(Number(line.autoFunding)||0),0))}</b></div><div><span>المستحق</span><b>${fmtDocumentMoney(due)}</b></div></div><footer class="authority-footer"><span>${esc(report.id)} · يوم ${report.day}</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;
+    return `<div class="document-card"><article class="financial-paper payroll-paper authority-inspired"><div class="financial-watermark">PAYROLL</div><header class="authority-head">${companyLogoMarkup(company==='all'?'group':company,'small')}<div><small>OFFICIAL PAYROLL REPORT · ASSETS &amp; INFLUENCE</small><h3>تقرير صرف الرواتب</h3><p>${company==='all'?'المجموعة والشركات':esc(identity.name)}</p></div><strong>${esc(report.id)}</strong></header><div class="authority-meta"><span>شهر المحاكاة <b>${report.month||'—'}</b></span><span>يوم الصرف <b>27</b></span><span>الحالة <b class="doc-status ${due?'pending':''}">${due?'مسجل مع مستحق':'مصروف بالكامل'}</b></span></div><section class="financial-subject"><div><small>إجمالي المسير</small><h4>${fmtDocumentMoney(total)}</h4><p>توظيف الأصول ورواتبها محسوبة تلقائيًا من سجل الملكية الفعلي.</p></div><strong class="financial-amount positive">${fmtDocumentMoney(paid)}</strong></section><div class="payroll-lines">${lines.map(line=>`<div class="invoice-row"><span>${esc(line.companyName)} · ${DOCUMENT_INTEGER_FORMAT.format(line.headcount||0)} موظف</span><strong>${fmtDocumentMoney(line.paid)}${line.due?` · مستحق ${fmtDocumentMoney(line.due)}`:''}</strong></div>`).join('')}</div><div class="authority-grid financial-grid"><div><span>إجمالي الرواتب</span><b>${fmtDocumentMoney(total)}</b></div><div><span>المصروف</span><b>${fmtDocumentMoney(paid)}</b></div><div><span>التمويل الآلي</span><b>${fmtDocumentMoney(lines.reduce((sum,line)=>sum+(Number(line.autoFunding)||0),0))}</b></div><div><span>المستحق</span><b>${fmtDocumentMoney(due)}</b></div></div><footer class="authority-footer"><span>${esc(report.id)} · يوم ${report.day}</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;
   }
-  function taxSettlementArt(row){const company=documentCompanyKey(row),i=financeDocumentIdentity(company),day=Math.floor((Number(row.paidAt)||0)/86400)+1,signatureVisual=authorizationSignatureMarkup(row,{legacyLabel:'تسوية ضريبية تاريخية سابقة لنظام التوقيع المرئي'});return `<div class="document-card"><article class="financial-paper authority-inspired settlement-paper tax-settlement-paper"><div class="financial-watermark">TAX SETTLEMENT</div><header class="authority-head">${companyLogoMarkup(company,'small')}<div><small>OFFICIAL TAX SETTLEMENT · VENTORA</small><h3>ورقة تسوية ضريبية</h3><p>${esc(i.name)}</p></div><strong>${esc(row.settlementNumber||row.id)}</strong></header><div class="authority-meta"><span>الجهة الضريبية<b>${esc(row.taxAuthority||'هيئة الزكاة والضريبة والجمارك')}</b></span><span>الرقم الضريبي<b dir="ltr">${esc(row.taxNumber||'غير مسجل')}</b></span><span>الحالة<b class="doc-status">${esc(row.status||'مسددة بالكامل')}</b></span></div><section class="settlement-hero"><div><span>إجمالي التسوية</span><strong>${fmtDocumentMoney(row.amountPaid||0)}</strong></div><div><span>الفترات</span><b>${esc((row.periods||[]).join(' · ')||'—')}</b></div></section><div class="authority-grid financial-grid"><div><span>أصل الاستحقاق</span><b>${fmtDocumentMoney(row.originalAmount||0)}</b></div><div><span>التسويات</span><b>${fmtDocumentMoney(row.adjustments||0)}</b></div><div><span>المبلغ المسدد</span><b>${fmtDocumentMoney(row.amountPaid||0)}</b></div><div><span>المتبقي</span><b>${fmtDocumentMoney(row.remaining||0)}</b></div><div><span>الحساب المسدد منه</span><b>${mono(accountNumberText(row.accountId||i.account))}</b></div><div><span>${row.chequeId?'رقم الشيك':'مرجع التحويل'}</span><b dir="ltr">${esc(row.paymentReference||'—')}</b></div><div><span>طريقة السداد</span><b>${esc(row.paymentMethod||'تحويل حكومي')}</b></div><div><span>رقم القيد</span><b dir="ltr">${esc(row.journalEntryId||'—')}</b></div><div><span>يوم السداد</span><b>${day}</b></div></div><footer class="authority-footer"><span>${esc(row.id)} · محفوظ في سجل التسويات الضريبية</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;}
-  function debtSettlementArt(row){const company=documentCompanyKey(row),i=financeDocumentIdentity(company),day=Math.floor((Number(row.paidAt)||0)/86400)+1,signatureVisual=authorizationSignatureMarkup(row,{legacyLabel:'تسوية دين تاريخية سابقة لنظام التوقيع المرئي'});return `<div class="document-card"><article class="financial-paper authority-inspired settlement-paper debt-settlement-paper"><div class="financial-watermark">DEBT SETTLEMENT</div><header class="authority-head">${companyLogoMarkup(company,'small')}<div><small>DEBT PAYMENT CONFIRMATION · VENTORA</small><h3>إشعار تسوية دين</h3><p>${esc(i.name)}</p></div><strong>${esc(row.reference||row.id)}</strong></header><section class="settlement-hero"><div><span>المبلغ المسدد</span><strong>${fmtDocumentMoney(row.amount||0)}</strong></div><div><span>الجهة الممولة</span><b>${esc(formalFinanceParty(row.lender,company,'supplier'))}</b></div></section><div class="authority-grid financial-grid"><div><span>الحساب</span><b>${mono(accountNumberText(row.accountId||i.account))}</b></div><div><span>رقم القيد</span><b dir="ltr">${esc(row.journalEntryId||'—')}</b></div><div><span>الرصيد قبل</span><b>${fmtDocumentMoney(row.accountBalanceBefore||0)}</b></div><div><span>الرصيد بعد</span><b>${fmtDocumentMoney(row.accountBalanceAfter||0)}</b></div><div><span>الديون المخصصة</span><b>${esc((row.allocations||[]).map(x=>x.debtId).join(' · ')||'رصيد دين')}</b></div><div><span>يوم السداد</span><b>${day}</b></div></div><footer class="authority-footer"><span>${esc(row.reference||row.id)}</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;}
+  function taxSettlementArt(row){const company=documentCompanyKey(row),i=financeDocumentIdentity(company),day=Math.floor((Number(row.paidAt)||0)/86400)+1,signatureVisual=authorizationSignatureMarkup(row,{legacyLabel:'تسوية ضريبية تاريخية سابقة لنظام التوقيع المرئي'});return `<div class="document-card"><article class="financial-paper authority-inspired settlement-paper tax-settlement-paper"><div class="financial-watermark">TAX SETTLEMENT</div><header class="authority-head">${companyLogoMarkup(company,'small')}<div><small>OFFICIAL TAX SETTLEMENT · ASSETS &amp; INFLUENCE</small><h3>ورقة تسوية ضريبية</h3><p>${esc(i.name)}</p></div><strong>${esc(row.settlementNumber||row.id)}</strong></header><div class="authority-meta"><span>الجهة الضريبية<b>${esc(row.taxAuthority||'هيئة الزكاة والضريبة والجمارك')}</b></span><span>الرقم الضريبي<b dir="ltr">${esc(row.taxNumber||'غير مسجل')}</b></span><span>الحالة<b class="doc-status">${esc(row.status||'مسددة بالكامل')}</b></span></div><section class="settlement-hero"><div><span>إجمالي التسوية</span><strong>${fmtDocumentMoney(row.amountPaid||0)}</strong></div><div><span>الفترات</span><b>${esc((row.periods||[]).join(' · ')||'—')}</b></div></section><div class="authority-grid financial-grid"><div><span>أصل الاستحقاق</span><b>${fmtDocumentMoney(row.originalAmount||0)}</b></div><div><span>التسويات</span><b>${fmtDocumentMoney(row.adjustments||0)}</b></div><div><span>المبلغ المسدد</span><b>${fmtDocumentMoney(row.amountPaid||0)}</b></div><div><span>المتبقي</span><b>${fmtDocumentMoney(row.remaining||0)}</b></div><div><span>الحساب المسدد منه</span><b>${mono(accountNumberText(row.accountId||i.account))}</b></div><div><span>${row.chequeId?'رقم الشيك':'مرجع التحويل'}</span><b dir="ltr">${esc(row.paymentReference||'—')}</b></div><div><span>طريقة السداد</span><b>${esc(row.paymentMethod||'تحويل حكومي')}</b></div><div><span>رقم القيد</span><b dir="ltr">${esc(row.journalEntryId||'—')}</b></div><div><span>يوم السداد</span><b>${day}</b></div></div><footer class="authority-footer"><span>${esc(row.id)} · محفوظ في سجل التسويات الضريبية</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;}
+  function debtSettlementArt(row){const company=documentCompanyKey(row),i=financeDocumentIdentity(company),day=Math.floor((Number(row.paidAt)||0)/86400)+1,signatureVisual=authorizationSignatureMarkup(row,{legacyLabel:'تسوية دين تاريخية سابقة لنظام التوقيع المرئي'});return `<div class="document-card"><article class="financial-paper authority-inspired settlement-paper debt-settlement-paper"><div class="financial-watermark">DEBT SETTLEMENT</div><header class="authority-head">${companyLogoMarkup(company,'small')}<div><small>DEBT PAYMENT CONFIRMATION · ASSETS &amp; INFLUENCE</small><h3>إشعار تسوية دين</h3><p>${esc(i.name)}</p></div><strong>${esc(row.reference||row.id)}</strong></header><section class="settlement-hero"><div><span>المبلغ المسدد</span><strong>${fmtDocumentMoney(row.amount||0)}</strong></div><div><span>الجهة الممولة</span><b>${esc(formalFinanceParty(row.lender,company,'supplier'))}</b></div></section><div class="authority-grid financial-grid"><div><span>الحساب</span><b>${mono(accountNumberText(row.accountId||i.account))}</b></div><div><span>رقم القيد</span><b dir="ltr">${esc(row.journalEntryId||'—')}</b></div><div><span>الرصيد قبل</span><b>${fmtDocumentMoney(row.accountBalanceBefore||0)}</b></div><div><span>الرصيد بعد</span><b>${fmtDocumentMoney(row.accountBalanceAfter||0)}</b></div><div><span>الديون المخصصة</span><b>${esc((row.allocations||[]).map(x=>x.debtId).join(' · ')||'رصيد دين')}</b></div><div><span>يوم السداد</span><b>${day}</b></div></div><footer class="authority-footer"><span>${esc(row.reference||row.id)}</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;}
   function commercialContractArt(row){
     const company=documentCompanyKey(row),identity=financeDocumentIdentity(company),start=Number(row.startDay),end=Number(row.endDay),terms=row.terms&&typeof row.terms==='object'&&!Array.isArray(row.terms)?row.terms:{},labels={rate:'نسبة العائد',tariff:'التعرفة',termDays:'مدة العقد بالأيام',years:'مدة العقد بالسنوات',units:'عدد الوحدات',capacityMW:'السعة',volumeMWh:'الكمية',annualRent:'الإيجار السنوي',sumInsured:'مبلغ التغطية',premium:'القسط',fee:'الرسوم',projectId:'المشروع',siteId:'الموقع',officeId:'المكتب',applicantCompanyId:'مقدم الطلب'};
     const termRows=Object.entries(terms).filter(([,value])=>value!=null&&typeof value!=='object').slice(0,8).map(([key,value])=>`<div><span>${esc(labels[key]||key)}</span><b>${esc(typeof value==='number'?fmtNumber(value):value)}</b></div>`).join('');
     const references=[...(row.sourceRefs||[]),...(row.linkedDocumentNumbers||[]),...(row.linkedTransferReferences||[])].filter(Boolean);
     const signatureVisual=authorizationSignatureMarkup(row,{legacyLabel:'عقد تاريخي سابق لنظام التوقيع المرئي'});
-    return `<div class="document-card"><article class="financial-paper authority-inspired commercial-contract-paper"><div class="financial-watermark">CONTRACT</div><header class="authority-head">${companyLogoMarkup(company,'small')}<div><small>PROTECTED COMMERCIAL AGREEMENT · VENTORA</small><h3>${esc(row.contractType||'عقد تجاري')}</h3><p>${esc(identity.name)}</p></div><strong>${esc(row.id||row.reference||'—')}</strong></header><div class="authority-meta"><span>الطرف المقابل <b>${esc(row.counterparty||'—')}</b></span><span>الحالة <b class="doc-status">${esc(row.status||'موقع وساري')}</b></span><span>القيمة <b>${fmtDocumentMoney(row.amount||0)}</b></span></div><section class="financial-subject"><div><small>موضوع العقد</small><h4>${esc(row.title||row.contractType||'عقد تجاري')}</h4><p>من يوم ${Number.isFinite(start)?start+1:'—'} إلى ${Number.isFinite(end)?end+1:'مفتوح'}</p></div><strong class="financial-amount">${fmtDocumentMoney(row.amount||0)}</strong></section>${termRows?`<div class="authority-grid financial-grid">${termRows}</div>`:''}<div class="authority-grid financial-grid"><div><span>مراجع المصدر</span><b>${esc(references.join(' · ')||'—')}</b></div><div><span>بصمة الحماية</span><b dir="ltr">${esc(String(row.contentDigest||'—').slice(0,18))}${row.contentDigest?'…':''}</b></div></div><footer class="authority-footer"><span>${esc(row.documentProofId||row.id||'—')}</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;
+    return `<div class="document-card"><article class="financial-paper authority-inspired commercial-contract-paper"><div class="financial-watermark">CONTRACT</div><header class="authority-head">${companyLogoMarkup(company,'small')}<div><small>PROTECTED COMMERCIAL AGREEMENT · ASSETS &amp; INFLUENCE</small><h3>${esc(row.contractType||'عقد تجاري')}</h3><p>${esc(identity.name)}</p></div><strong>${esc(row.id||row.reference||'—')}</strong></header><div class="authority-meta"><span>الطرف المقابل <b>${esc(row.counterparty||'—')}</b></span><span>الحالة <b class="doc-status">${esc(row.status||'موقع وساري')}</b></span><span>القيمة <b>${fmtDocumentMoney(row.amount||0)}</b></span></div><section class="financial-subject"><div><small>موضوع العقد</small><h4>${esc(row.title||row.contractType||'عقد تجاري')}</h4><p>من يوم ${Number.isFinite(start)?start+1:'—'} إلى ${Number.isFinite(end)?end+1:'مفتوح'}</p></div><strong class="financial-amount">${fmtDocumentMoney(row.amount||0)}</strong></section>${termRows?`<div class="authority-grid financial-grid">${termRows}</div>`:''}<div class="authority-grid financial-grid"><div><span>مراجع المصدر</span><b>${esc(references.join(' · ')||'—')}</b></div><div><span>بصمة الحماية</span><b dir="ltr">${esc(String(row.contentDigest||'—').slice(0,18))}${row.contentDigest?'…':''}</b></div></div><footer class="authority-footer"><span>${esc(row.documentProofId||row.id||'—')}</span><span class="document-authorization-seal">${signatureVisual}</span></footer></article></div>`;
   }
   function debtRecordCard(row){const company=documentCompanyKey(row),due=row.dueDay==null?'غير محدد':`يوم ${Number(row.dueDay)+1}`,outstanding=Number(row.outstanding)||0,preset=Math.max(1,Math.min(outstanding,25000000));return `<article class="list-item debt-register-card"><div class="list-item-head"><div><h3>${esc(row.type||'التزام تمويلي')}</h3><p>${esc(formalFinanceParty(row.lender,company,'supplier'))} · ${esc(row.id)}</p></div><span class="tag ${outstanding<=.005?'positive':''}">${esc(row.status||'قائم')}</span></div><div class="metric-row"><div><span>أصل الدين</span><b>${fmtMoney(row.originalAmount||0)}</b></div><div><span>القائم</span><b>${fmtMoney(outstanding)}</b></div><div><span>الاستحقاق</span><b>${due}</b></div><div><span>القيد</span><b>${esc(row.journalEntryId||'—')}</b></div></div>${outstanding>.005?`<div class="debt-payment-control"><label>مبلغ السداد<input class="debt-payment-amount" data-debt-id="${esc(row.id)}" type="number" min="1" max="${Math.ceil(outstanding)}" step="1000" value="${Math.round(preset)}"></label><button class="primary-btn repay-debt-record" data-company="${company}" data-debt-id="${esc(row.id)}">سداد هذا الدين</button></div>`:''}</article>`;}
   function renderProfitFlow(validCompany){
@@ -6532,7 +6543,7 @@ ${page}</div>`;
     window.GH_FORMATION_ENGINE.validatePlan(plan);return plan;
   }
   function applyCompanyOpeningDraft(draft,plan){
-    const type=plan.companyId,draftAuthority=founderAuthorization(draft),stamp=plan.planHash.slice(0,10).toUpperCase(),short=(draft.profile.shortName||'VH').toUpperCase(),year=new Date(SIM_START+(Number(draft.simSeconds)||0)*1000).getUTCFullYear();
+    const type=plan.companyId,draftAuthority=founderAuthorization(draft),stamp=plan.planHash.slice(0,10).toUpperCase(),short=(draft.profile.shortName||'ANI').toUpperCase(),year=new Date(SIM_START+(Number(draft.simSeconds)||0)*1000).getUTCFullYear();
     if(draft.openedCompanies.includes(type))throw new Error(`formation-company-already-open:${type}`);
     if(!draftAuthority.signature||draftAuthority.signature.id!==plan.signature.signatureRef||draftAuthority.signature.version!==plan.signature.version)throw new Error('formation-signature-version-conflict');
     window.GH_FORMATION_ENGINE.validatePlan(plan);
@@ -6623,7 +6634,9 @@ ${page}</div>`;
     onOwned(info){reconcileStoreOwned(info);},
     onPurchaseFailed(info){const reason=String(info?.reason||'');if(reason!=='cancelled')notice(reason==='pending'?'الشراء بانتظار الموافقة (مثل «اطلب الشراء»)؛ يصل تلقائيًا عند اعتماده.':'تعذر إتمام الشراء من المتجر؛ لم يُخصم شيء.','warning');},
     buy(productId){if(!storeBridgePost('purchase',{productId:String(productId||'')}))notice('الشراء متاح في نسخة المتجر من التطبيق.');},
-    restore(){if(!storeBridgePost('restore'))notice('الاستعادة متاحة في نسخة المتجر من التطبيق.');}
+    restore(){if(!storeBridgePost('restore'))notice('الاستعادة متاحة في نسخة المتجر من التطبيق.');},
+    // The subscription's own page in the store (App Store / Google Play), where it is managed and cancelled.
+    manage(){if(!storeBridgePost('manage'))notice('إدارة الاشتراك متاحة في نسخة المتجر من التطبيق.');}
   });
   async function toggleInvestorMode(){
     if(window.GH_FINANCE_CORE?.investorMode?.(state)!==true&&!paidFeatureOpen('investor','وضع المستثمر الحر يُفتح بشراء «رخصة المستثمر» مرة واحدة.'))return false;
@@ -7003,7 +7016,7 @@ ${page}</div>`;
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل تغيير السرعة.');return false;}
     if(state.speed>0)resumeSpeed=state.speed;
     const requested=Number(value),next=SAFE_SPEED_VALUES.includes(requested)?requested:1,now=performance.now();
-    if(next===3&&!paidFeatureOpen('accelerator','السرعة المتسارعة 300× من «مسرّع الوقت» أو «فنتورا بلس»؛ السرعتان 30× و120× مجانيتان.'))return false;
+    if(next===3&&!paidFeatureOpen('accelerator','السرعة المتسارعة 300× من «مسرّع الوقت» أو «أصول ونفوذ بلس»؛ السرعتان 30× و120× مجانيتان.'))return false;
     if(pausePendingAfterDayClose){if(next===0&&afterDayClose)return true;pausePendingAfterDayClose=false;simulationEngine.cancelPauseAfterDayClose?.();if(next===state.speed&&next>0){showSpeedControls(false);return true;}}
     if(afterDayClose&&next===0&&state.speed>0&&simulationEngine.pauseAfterDayClose?.()===true){pausePendingAfterDayClose=true;showSpeedControls(true);notice('يكتمل إقفال اليوم ثم يتوقف الوقت.');return true;}
     // Cancel first. A staged rollback owns the pre-slice `speed` snapshot and
@@ -7077,7 +7090,7 @@ ${page}</div>`;
   document.addEventListener('click',event=>{const trigger=event.target.closest?.('[data-open-signature]');if(trigger){event.preventDefault();openSignatureDialog();}});
   function updateFounderLogoPreview(){
     const box=$('founderLogoPreview');if(!box)return;
-    box.innerHTML=charterLogo(founderLogoData,$('founderShort')?.value||'VH');
+    box.innerHTML=charterLogo(founderLogoData,$('founderShort')?.value||'ANI');
     $('founderLogoClear').hidden=!founderLogoData;$('founderReview').disabled=founderLogoLoading||founderSubmitting;renderFounderPreview();
   }
   // ---- Build 358: one renderer for the founding contract and every subsidiary opening contract ----
@@ -7086,14 +7099,14 @@ ${page}</div>`;
   const charterAmount=value=>Number(value||0).toLocaleString('en-US');
   function charterSeal(doc){
     const signed=doc.status==='signed',ring=`charterRing${++charterSerial}`;
-    return `<div class="charter-seal" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><path id="${ring}" d="M60,60 m-45,0 a45,45 0 1,1 90,0 a45,45 0 1,1 -90,0"/></defs><circle cx="60" cy="60" r="57" class="charter-seal-outer"/><circle cx="60" cy="60" r="34" class="charter-seal-inner"/><text class="charter-seal-ring"><textPath href="#${ring}" textLength="270" lengthAdjust="spacing">VENTORA · ${signed?'SIGNED':'DRAFT'} · ${esc(String(doc.year||''))} ·</textPath></text><text x="60" y="${signed?64:67}" text-anchor="middle" class="charter-seal-mark">${esc(String(doc.sealMark||'GH').slice(0,4))}</text>${signed?`<text x="60" y="79" text-anchor="middle" class="charter-seal-code">${esc(String(doc.sealCode||'').slice(0,8))}</text>`:''}</svg></div>`;
+    return `<div class="charter-seal" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><path id="${ring}" d="M60,60 m-45,0 a45,45 0 1,1 90,0 a45,45 0 1,1 -90,0"/></defs><circle cx="60" cy="60" r="57" class="charter-seal-outer"/><circle cx="60" cy="60" r="34" class="charter-seal-inner"/><text class="charter-seal-ring"><textPath href="#${ring}" textLength="270" lengthAdjust="spacing">ASSETS &amp; INFLUENCE · ${signed?'SIGNED':'DRAFT'} · ${esc(String(doc.year||''))} ·</textPath></text><text x="60" y="${signed?64:67}" text-anchor="middle" class="charter-seal-mark">${esc(String(doc.sealMark||'GH').slice(0,4))}</text>${signed?`<text x="60" y="79" text-anchor="middle" class="charter-seal-code">${esc(String(doc.sealCode||'').slice(0,8))}</text>`:''}</svg></div>`;
   }
   function charterMarkup(doc){
     const signed=doc.status==='signed';
     const capital=doc.flow?`<section class="charter-flow" aria-label="مسار رأس المال"><div class="charter-node"><small>من</small><b>${esc(doc.flow.from)}</b><code dir="ltr">${esc(doc.flow.fromAccount)}</code></div><div class="charter-transfer"><strong dir="ltr"><span>${esc(doc.currency)}</span>${charterAmount(doc.capital)}</strong><i aria-hidden="true"></i></div><div class="charter-node is-new"><small>إلى</small><b>${esc(doc.flow.to)}</b><code dir="ltr">${esc(doc.flow.toAccount)}</code></div></section>`
       :`<section class="charter-capital"><small>رأس المال عند التأسيس</small><strong dir="ltr"><span>${esc(doc.currency)}</span>${charterAmount(doc.capital)}</strong><p>${esc(doc.capitalNote)}</p></section>`;
     return `<article class="charter" data-company="${esc(doc.company)}" data-kind="${esc(doc.kind)}" data-status="${signed?'signed':'draft'}" aria-label="${esc(doc.title)}">
-      <header class="charter-top"><span class="charter-kicker" dir="ltr">VENTORA · ${doc.kind==='group'?'INCORPORATION':'SUBSIDIARY CHARTER'}</span><span class="charter-status">${signed?'موقّع ومختوم':'مسودة للمراجعة'}</span></header>
+      <header class="charter-top"><span class="charter-kicker" dir="ltr">ASSETS &amp; INFLUENCE · ${doc.kind==='group'?'INCORPORATION':'SUBSIDIARY CHARTER'}</span><span class="charter-status">${signed?'موقّع ومختوم':'مسودة للمراجعة'}</span></header>
       <section class="charter-hero"><div class="charter-mark">${doc.logoHtml}</div><div><small>${esc(doc.title)}</small><h2>${esc(doc.legalName)}</h2>${doc.englishName?`<bdi dir="ltr">${esc(doc.englishName)}</bdi>`:''}</div></section>
       ${capital}
       <dl class="charter-facts">${doc.facts.map(([label,value,tone])=>`<div${tone?` class="${esc(tone)}"`:''}><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>
@@ -7103,7 +7116,7 @@ ${page}</div>`;
     </article>`;
   }
   const charterPendingSignature=text=>`<span class="charter-signature-pending">${esc(text)}</span>`;
-  function charterLogo(logo,shortName){return logo?`<img src="${esc(logo)}" alt="">`:`<span>${esc(String(shortName||'VH').slice(0,4).toUpperCase())}</span>`;}
+  function charterLogo(logo,shortName){return logo?`<img src="${esc(logo)}" alt="">`:`<span>${esc(String(shortName||'ANI').slice(0,4).toUpperCase())}</span>`;}
   // source: the reviewed founding input (draft) or the stored formation document (signed).
   function groupCharterDoc(source,signed){
     const registry=state.companyRegistry?.group||{},year=signed?source.year:simDate().getUTCFullYear();
@@ -7176,14 +7189,28 @@ ${page}</div>`;
   $('founderReview').addEventListener('click',reviewFounder);$('founderBack').addEventListener('click',editFounder);
   updateFounderLogoPreview();
 
+  // Owner (approved consent screen): the privacy policy and the terms, accepted once before founding (the acceptance is
+  // written in the founding command, with the version of the texts); a founded save that has not accepted this version
+  // accepts it once in its own durable command, its game kept and its time paused meanwhile. The store edition's
+  // (GH_EDITION 'release', set by the iPhone and Android apps), like its paid limits; both editions read the texts.
+  let legalAcceptedSession=false;
+  function legalReady(){return !window.GH_LEGAL||window.GH_EDITION!=='release'||window.GH_LEGAL.accepted(state)||(!state.onboardingComplete&&legalAcceptedSession);}
+  function promptLegal(){
+    const legal=window.GH_LEGAL;if(legalReady())return null;
+    if(!state.onboardingComplete)return legal.showConsent({founded:false,onAccept:()=>{legalAcceptedSession=true;return true;}});
+    const resume=state.speed>0?state.speed:0;if(resume)setSpeed(0);$('app').setAttribute('inert','');
+    return legal.showConsent({founded:true,onAccept:async()=>(await runDurableStateCommand('accept-legal',({state:draft})=>{legal.record(draft,Math.floor((Number(draft.simSeconds)||0)/86400)+1);return true;},{silent:true}))===true})
+      .then(ok=>{$('app').removeAttribute('inert');if(resume)setSpeed(resume);return ok;});
+  }
   async function finishFounder(){
     if(founderSubmitting||state.onboardingComplete||founderLogoLoading)return false;
+    if(!legalReady()){promptLegal();return false;}
     if(!founderReviewedInput){reviewFounder();return false;}
     try{if(JSON.stringify(window.GH_GAME_LIFECYCLE.prepareFounding(founderInput()))!==JSON.stringify(founderReviewedInput)){editFounder();founderFeedback('تغيرت البيانات. راجع العقد مجددًا قبل التوقيع.');return false;}}catch(error){editFounder();founderFeedback(error.message);return false;}
     let strokes;try{strokes=ensureFounderSignaturePad().export();}catch(error){founderFeedback(error.message==='signature-too-short'?'أكمل توقيعك بخط أوضح وأطول قبل اعتماد العقد.':String(error.message||error));return false;}
     founderSubmitting=true;founderFeedback();$('founderForm').setAttribute('aria-busy','true');
     $('founderSubmit').disabled=true;$('founderBack').disabled=true;$('founderSubmit').textContent='جارٍ اعتماد العقد وحفظه…';
-    const result=await runDurableStateCommand('found-group',({state:draft})=>{const authority=createFounderSignature(draft,strokes,founderReviewedInput.founder),plan=window.GH_GAME_LIFECYCLE.prepareFormationPlan(founderReviewedInput,authority.signature,{createdAt:Number(draft.simSeconds)||0});return window.GH_GAME_LIFECYCLE.foundGroup(draft,plan,defaultState,{nextId:prefix=>window.GH_DETERMINISM.nextId(draft,prefix),simYear:()=>new Date(SIM_START+(Number(draft.simSeconds)||0)*1000).getUTCFullYear(),fmtMoney,signatureSnapshot,dispatchAuthorized:(target,domain,name,payload,options)=>authorizedDraftDispatch(target,domain,name,payload,options)});},{silent:true});
+    const result=await runDurableStateCommand('found-group',({state:draft})=>{const authority=createFounderSignature(draft,strokes,founderReviewedInput.founder),plan=window.GH_GAME_LIFECYCLE.prepareFormationPlan(founderReviewedInput,authority.signature,{createdAt:Number(draft.simSeconds)||0});const founded=window.GH_GAME_LIFECYCLE.foundGroup(draft,plan,defaultState,{nextId:prefix=>window.GH_DETERMINISM.nextId(draft,prefix),simYear:()=>new Date(SIM_START+(Number(draft.simSeconds)||0)*1000).getUTCFullYear(),fmtMoney,signatureSnapshot,dispatchAuthorized:(target,domain,name,payload,options)=>authorizedDraftDispatch(target,domain,name,payload,options)});if(legalAcceptedSession&&window.GH_LEGAL&&!window.GH_LEGAL.accepted(draft))window.GH_LEGAL.record(draft,1);return founded;},{silent:true});
     founderSubmitting=false;$('founderForm').removeAttribute('aria-busy');$('founderSubmit').disabled=false;$('founderBack').disabled=false;$('founderSubmit').textContent='توقيع العقد وتأسيس المجموعة';
     if(!result){founderFeedback('لم يُعتمد العقد ولم يُضف رأس المال. تعذر تأكيد الحفظ؛ أعد المحاولة بعد زوال السبب.');return false;}
     $('founderFlow').classList.add('hidden');$('founderContractPreview').innerHTML='';$('founderLivePreview').innerHTML='';founderSignaturePad?.destroy?.();founderSignaturePad=null;$('founderSignatureMount')?.replaceChildren();$('app').removeAttribute('inert');$('app').removeAttribute('aria-hidden');$('app').style.pointerEvents='';
@@ -7192,6 +7219,7 @@ ${page}</div>`;
   $('founderForm').addEventListener('submit',event=>{event.preventDefault();return finishFounder();});
   if(!state.onboardingComplete){$('founderFlow').classList.remove('hidden');$('app').setAttribute('inert','');$('app').setAttribute('aria-hidden','true');}
   else storeBridgePost('ready');
+  promptLegal();
 
   updateKpis();setSpeed(state.speed);$('competitorToggle').checked=!!state.showCompetitors;
   document.querySelectorAll('.filter-btn').forEach(b=>{const selected=b.dataset.filter===state.activeFilter;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));});

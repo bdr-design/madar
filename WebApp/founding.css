@@ -5,6 +5,8 @@
 .incorporation-masthead{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:38px}
 .incorporation-wordmark{display:flex;align-items:baseline;gap:10px;font:700 21px var(--font-head);color:var(--accent);letter-spacing:.02em}
 .incorporation-wordmark>span{font:600 9.5px var(--font);letter-spacing:.24em;color:var(--muted)}
+/* أصول ونفوذ: Arabic letters join only without letter spacing. */
+.incorporation-wordmark-ar{font:inherit;letter-spacing:0}
 .incorporation-progress{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--faint)}
 .incorporation-progress>span{display:flex;align-items:center;gap:8px;white-space:nowrap}
 .incorporation-progress b{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line-strong);font-size:11px;font-variant-numeric:tabular-nums}

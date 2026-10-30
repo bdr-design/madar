@@ -302,7 +302,7 @@ jobs:
               if archive.testzip() is not None: raise SystemExit('IPA CRC failure')
               rows={row.filename:row for row in archive.infolist() if not row.is_dir()}
               info=plistlib.loads(archive.read(prefix+'Info.plist'))
-              if info.get('GHEdition')!='release' or info.get('CFBundleDisplayName')!='VENTORA': raise SystemExit('IPA is not the VENTORA release edition')
+              if info.get('GHEdition')!='release' or info.get('CFBundleDisplayName')!='أصول ونفوذ': raise SystemExit('IPA is not the ASSETS & INFLUENCE release edition')
               actual={name[len(prefix+'WebApp/'):]:hashlib.sha256(archive.read(name)).hexdigest() for name in rows if name.startswith(prefix+'WebApp/')}
               if actual!=expected: raise SystemExit('IPA WebApp differs from the sealed tree')
               plain=[name for name in actual if name.rsplit('.',1)[-1].lower() in ('js','css','json') and name!='runtime-required.json' and not archive.read(prefix+'WebApp/'+name).startswith(b'VENC1')]

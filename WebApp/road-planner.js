@@ -12,7 +12,7 @@
   }
   function makeRoute(origin,geometry,index){
     const end=geometry.route.at(-1),key=`${end[0].toFixed(5)}:${end[1].toFixed(5)}`,id=`ROAD-AUTO-PREVIEW-${index}`,endpoint={id:`PUBLIC-ROAD-${key}`,sourceKey:`road-delivery:${key}`,kind:'logistics',company:'road',owned:false,public:true,routeEndpoint:true,icon:'🚚',name:`نقطة تسليم · ${origin.city||origin.name} · ${index+1}`,city:origin.city||origin.name,country:origin.country||'',coords:[...end],capacity:'نقطة تسليم عامة',detail:'وجهة نقل مولدة داخل اللعبة ومتصلة بشبكة الطرق؛ ليست مركزًا مملوكًا.'};
-    return {endpoint,route:{id,type:'road',company:'road',name:`${origin.name} → ${endpoint.name}`,from:origin.name,to:endpoint.name,fromFacility:origin.id,toFacility:endpoint.id,route:geometry.route,roadGeometryVersion:311,roadNetworkDistanceKm:geometry.distanceKm,distanceKm:geometry.distanceKm,maxLegKm:geometry.distanceKm,effectiveSpeedKmh:Math.max(42,Math.min(82,geometry.distanceKm/(geometry.durationSeconds/3600))),tripSeconds:geometry.durationSeconds,dwellHours:2.5,publicAccess:true,automaticRoad:true,routingSource:'OSRM · شبكة طرق فعلية · وجهة نقل تلقائية'}};
+    return {endpoint,route:{id,type:'road',company:'road',name:`${origin.name} → ${endpoint.name}`,from:origin.name,to:endpoint.name,fromFacility:origin.id,toFacility:endpoint.id,route:geometry.route,roadGeometryVersion:311,roadNetworkDistanceKm:geometry.distanceKm,distanceKm:geometry.distanceKm,maxLegKm:geometry.distanceKm,effectiveSpeedKmh:Math.max(42,Math.min(82,geometry.distanceKm/(geometry.durationSeconds/3600))),tripSeconds:geometry.durationSeconds,dwellHours:2.5,publicAccess:true,automaticRoad:true,routingSource:`${geometry.source||'OSRM · شبكة طرق فعلية'} · وجهة نقل تلقائية`}};
   }
   // Planning performs network reads only. One verified road geometry serves a
   // bounded fleet slot pool; callers still revalidate and commit every asset in
@@ -43,6 +43,9 @@
       const load=Math.max(1,slots[groupIndex].load||automaticCapacity);
       for(let index=0;index<group.length;index+=load){const members=group.slice(index,index+load);pending.push({asset:members[0].asset,origin:members[0].origin,index:members[0].index,members,load,attempt:0});}
     }
+    // A route computed on the device (release edition: GH_MAP_PROVIDER offline) needs no pause between requests: the
+    // pause only spaced requests to a routing server.
+    if(provider?.offline?.()===true)intervalMs=0;
     let calls=0,lastCall=0;
     function check(){if(signal?.aborted)throw new Error('أُلغي حساب المسارات');if(calls>=80)throw new Error('لم تكتمل مسارات الأسطول ضمن حد المحاولات؛ لم تُعتمد أي رحلة');}
     async function fetchGroup(rows){

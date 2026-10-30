@@ -18,7 +18,7 @@ if(process.argv[2]==='--measure'){
  const {s:G}=harness(['capability-registry-core','company-definitions','company-platform-core','identity-system','control-plane-core','document-proof-core','finance-core']),F=G.GH_FINANCE_CORE;
  let seals=0;const proof=G.GH_DOCUMENT_PROOF;G.GH_DOCUMENT_PROOF={...proof,sealDocument(...args){seals++;return proof.sealDocument(...args);}};
  const types=['air','sea','road','power','bank','mobility','insurance','realestate','telecom','dealership','hospitality'];
- const world=()=>{const m=G.GH_COMPANY_PLATFORM.migrateState({simSeconds:86400,openedCompanies:types,profile:{name:'فنتورا القابضة',founder:'سالم'},hired:[],assets:[],globalBases:[],customHubs:[],branches:[],bank:{branches:1},energy:{},mobility:{vehicles:[]},companyRegistry:{}});const s=m.state;F.ensure(s);for(const t of types)F.book(s,t).accounts[0].balance=1000000;F.reconcile(s);s.godMoney=true;s.infiniteMoney=true;return s;};
+ const world=()=>{const m=G.GH_COMPANY_PLATFORM.migrateState({simSeconds:86400,openedCompanies:types,profile:{name:'أصول ونفوذ القابضة',founder:'سالم'},hired:[],assets:[],globalBases:[],customHubs:[],branches:[],bank:{branches:1},energy:{},mobility:{vehicles:[]},companyRegistry:{}});const s=m.state;F.ensure(s);for(const t of types)F.book(s,t).accounts[0].balance=1000000;F.reconcile(s);s.godMoney=true;s.infiniteMoney=true;return s;};
  const counts=s=>({seals,transfers:s.finance.transfers.length,ledger:s.treasury.ledger.length+types.reduce((n,t)=>n+F.book(s,t).ledger.length,0),journal:s.finance.journalEntries.length});
  const bytes=s=>{const copy=JSON.parse(JSON.stringify(s));delete copy.finance.investorCard;return JSON.stringify(copy).length;};
  const run=(s,n,need)=>{const times=[],before=counts(s),b0=bytes(s);for(let i=0;i<n;i++){const t=types[i%types.length];if(i%types.length===0)s.simSeconds+=86400;const amount=need?F.operating(s,t)+1000:1000;const t0=process.hrtime.bigint();F.execute({state:s},'spend',{company:t,amount,note:'تشغيل',line:'other'});times.push(Number(process.hrtime.bigint()-t0)/1e6);}
@@ -42,6 +42,8 @@ try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -
  // company); its documents carry the longer names. The source before takes the same identity strings, so the bytes
  // compared are the investor card's alone.
  {const file=path.join(tree,'WebApp/company-definitions.js'),before="identity('شركة الفنادق والمنتجعات','Hotels and Resorts Company','الفنادق والمنتجعات','Hotels & Resorts','HOTELS',",text=fs.readFileSync(file,'utf8');assert.equal(text.split(before).length,2,'the source before names the hotels company once');fs.writeFileSync(file,text.replace(before,()=>"identity('شركة فنتورا للفنادق والمنتجعات','Ventora Hotels & Resorts Company','فنتورا للفنادق','VH HOTELS','VH HOTELS',"));}
+ // أصول ونفوذ: the game's name changed after this source; the source before takes the same names (helpers/brand-baseline).
+ require(path.join(__dirname,'helpers/brand-baseline.cjs')).brandBaseline(tree);
  // Timer noise: three runs of each source, alternated; the counts are the first run's, the times the fastest median.
  const runs={now:[],before:[]};for(let i=0;i<3;i++){runs.now.push(measure(SOURCE));runs.before.push(measure(tree));}
  const fastest=(rows,key)=>({...rows[0][key],median:Math.min(...rows.map(row=>row[key].median)),p95:Math.min(...rows.map(row=>row[key].p95))});

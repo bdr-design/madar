@@ -10,6 +10,8 @@ self.addEventListener('message',event=>{
     return;
   }
   if(message.type!=='plan'||!Number.isSafeInteger(message.requestId))return;
+  // The worker has no GH_EDITION of its own: the page passes it, so the release edition plans without a routing server.
+  if(message.edition==='release')self.GH_EDITION='release';
   const controller=new AbortController();controllers.set(message.requestId,controller);
   self.GH_ROAD_PLANNER_WORKER_CORE.plan(message.input,{signal:controller.signal,onProgress:(done,total)=>self.postMessage({type:'progress',requestId:message.requestId,done,total})})
     .then(plan=>{if(!controller.signal.aborted)self.postMessage({type:'result',requestId:message.requestId,plan});})

@@ -131,7 +131,9 @@ assert.equal(Schema.validate(state).ok,true,'seeded state validates in full');
   assert.equal(C.serialize(big),reference(),'unsealed: identical');
   assert.ok(CT.sealCollections(big)>=270);
   const first=C.serialize(big),hits0=C.cacheStats().hits;assert.equal(first,reference(),'first sealed save: identical');
-  assert.equal(C.serialize(big),reference(),'cached save: identical');assert.equal(C.cacheStats().hits-hits0,2,'both sealed collections were reused');
+  assert.equal(C.serialize(big),reference(),'cached save: identical');
+  // Every part of both sealed collections is reused (save audit: a collection of 128-511 rows is segmented, state-codec MID_POLICY).
+  {const saved=JSON.parse(first),parts=v=>v&&v.$gh===3?v.g.length:1,expected=parts(saved.documentProofs.recordsById)+parts(saved.domainRuntime.idempotency);assert.ok(parts(saved.documentProofs.recordsById)>1,'the 180 records are segmented');assert.equal(C.cacheStats().hits-hits0,expected,'every part of both sealed collections was reused');}
   big.documentProofs.recordsById.R999=row(999);big.finance.invoices[0].amount=-1;
   assert.equal(C.serialize(big),reference(),'after an insertion and an unsealed edit: identical');
   delete big.domainRuntime.idempotency.K3;big.domainRuntime.idempotency.K3={at:3,fingerprint:'f',result:{ok:true,n:3}};

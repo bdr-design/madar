@@ -136,7 +136,7 @@ final class GlobalGameStorage {
     /// filesystem swap before WebKit is allowed to load anything.
     func ensureInitialized() throws {
         guard try prepareRuntimeForUpdate() else {
-            throw UpdateError.message("ملفات VENTORA الأساسية غير موجودة داخل التطبيق.")
+            throw UpdateError.message("ملفات أصول ونفوذ الأساسية غير موجودة داخل التطبيق.")
         }
     }
 
@@ -839,7 +839,7 @@ final class GlobalGameStorage {
         }
 
         if requiresFormat, (root["format"] as? String) != Self.updateFormat {
-            throw UpdateError.message("هذا ليس ملف تحديث VENTORA.")
+            throw UpdateError.message("هذا ليس ملف تحديث أصول ونفوذ.")
         }
 
         let manifest: [String: Any]
@@ -1126,7 +1126,7 @@ final class GlobalGameStorage {
               let signatureText = manifest["signature"] as? String,
               let signature = Data(base64Encoded: signatureText), signature.count == 64,
               let publicKeyData = Data(base64Encoded: trustedKey), publicKeyData.count == 32 else {
-            throw UpdateError.message("حزمة التحديث غير موقعة بمفتاح VENTORA الموثوق.")
+            throw UpdateError.message("حزمة التحديث غير موقعة بمفتاح أصول ونفوذ الموثوق.")
         }
         guard let id = manifest["id"] as? String,
               let version = manifest["version"] as? String,

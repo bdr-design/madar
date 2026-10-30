@@ -51,6 +51,10 @@ const advance=page=>page.evaluate(async hours=>{
   const now=path.join(SOURCE,'WebApp'),tree=fs.mkdtempSync(path.join(os.tmpdir(),'b610-'));
   try{
     execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+    // The source before boots without the maritime-template save, as this source does (tests/helpers/boot-baseline.cjs).
+    require(path.join(ROOT,'tests/helpers/boot-baseline.cjs')).applyToTree(tree);
+    // and carries the game's present name (أصول ونفوذ, tests/helpers/brand-baseline.cjs).
+    require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
     const sources=fs.readdirSync(now).filter(file=>/\.(js|html)$/.test(file));
     for(const [file,names] of Object.entries(REMOVED)){
       const before=fs.readFileSync(path.join(tree,'WebApp',file),'utf8');

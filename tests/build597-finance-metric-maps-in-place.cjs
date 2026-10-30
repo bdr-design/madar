@@ -80,7 +80,7 @@ function scenario(){
 if(process.env.QA_BUILD597_SCENARIO){process.stdout.write(JSON.stringify(scenario()));return;}
 const ROOT=path.resolve(__dirname,'..'),PREVIOUS='8510d56',tree=fs.mkdtempSync(path.join(os.tmpdir(),'b597-'));
 try{
-  execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+  execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(__dirname,'helpers/brand-baseline.cjs')).brandBaseline(tree);
   const before=JSON.parse(execFileSync(process.execPath,[__filename],{env:{...process.env,GH_TEST_SOURCE_DIR:tree,QA_BUILD597_SCENARIO:'1'},maxBuffer:256*1024*1024}).toString());
   const now=scenario();
   // 1.

@@ -1,6 +1,9 @@
 package com.ventora.game
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.util.Base64
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
@@ -28,7 +31,7 @@ import java.util.concurrent.Executors
 
 /**
  * VENTORA store on Google Play (Play Billing 8), with the same protocol as the iPhone's StoreKit 2 owner
- * (VentoraStore.swift): the game asks through the `storeBridge` handler (`ready`, `purchase`, `restore`, `finish`), and this
+ * (VentoraStore.swift): the game asks through the `storeBridge` handler (`ready`, `purchase`, `restore`, `manage`, `finish`), and this
  * owner answers on window.GH_STORE_NATIVE (`onProducts`, `onTransaction`, `onPurchaseFailed`). A purchase is delivered only
  * when its signature verifies under the app's Play licence key; it is consumed (capital packs) or acknowledged (the rest)
  * only when the game answers `finish` after the save that holds it is stored, so an interrupted purchase is delivered
@@ -54,6 +57,11 @@ class StoreBilling(private val activity: Activity, private val send: (String, St
             "purchase" -> payload.optString("productId").takeIf { it.isNotEmpty() }?.let { id -> connected({ failed("unavailable") }) { purchase(suffixOf(id)) } }
             "restore" -> connected(null) { deliverOwned() }
             "finish" -> payload.optString("transactionId").takeIf { it.isNotEmpty() }?.let { finish(it) }
+            // «إدارة الاشتراك»: Google Play's subscription page for this app.
+            "manage" -> try {
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/account/subscriptions?package=${activity.packageName}")))
+            } catch (error: ActivityNotFoundException) {
+            }
         }
     }
 

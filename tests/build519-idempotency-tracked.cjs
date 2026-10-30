@@ -8,7 +8,9 @@
 //     segment holding it, and the text equals a fresh encoding;
 //  2. pruning the oldest receipt and replacing one whole (archiving): only the segments holding them are encoded;
 //  3. every save decodes to the live table through a fresh decoder;
-//  4. untracked, the same receipt makes the save encode the whole table again (the cost removed);
+//  4. untracked, the table falls under the codec's default bounds (save audit: a collection of 128-511 rows is split
+//     with segments of about 64 rows, state-codec MID_POLICY): fewer, larger segments than tracked, and the same receipt
+//     makes the save encode the larger segment holding it again;
 //  5. the command owner registers the table.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
@@ -40,10 +42,11 @@ rows.push(step('one archived',()=>{const key='banking:decide:KEY-300',row=table[
 for(const row of rows)assert.ok(row.encoded>=1&&row.encoded<=2,`${row.label}: ${row.encoded} of ${segments} segments encoded again`);
 // Sealed rows cannot be edited in place, so a write that is not a whole replacement cannot be missed.
 assert.throws(()=>{table['banking:decide:KEY-5'].result.ok=false;},TypeError);
-// 4. Untracked: the same new receipt re-encodes the whole table (one segment, every row).
+// 4. Untracked: the default bounds give fewer, larger segments; the same new receipt re-encodes the one holding it.
 {const s=realm(false),codec=s.GH_STATE_CODEC,copy=JSON.parse(JSON.stringify(state));for(const row of Object.values(copy.domainRuntime.idempotency))s.GH_TRANSACTION_CORE.sealValue(row);
   save(codec,copy);const before=codec.cacheStats().misses+codec.cacheStats().open;copy.domainRuntime.idempotency['x:y:NEW']=receipt(9001);const out=save(codec,copy);
-  assert.equal(codec.cacheStats().misses+codec.cacheStats().open-before,1,'untracked: one encoding');assert.notEqual(JSON.parse(out.text).domainRuntime.idempotency.$gh,3,'untracked: the table is one segment, encoded whole');}
+  assert.equal(codec.cacheStats().misses+codec.cacheStats().open-before,1,'untracked: one encoding');const untracked=JSON.parse(out.text).domainRuntime.idempotency,trackedParts=JSON.parse(first.text).domainRuntime.idempotency.g.length;
+  assert.equal(untracked.$gh,3,'untracked: a table of 128-511 rows is split by the default bounds');assert.ok(untracked.g.length<trackedParts,`untracked: fewer, larger segments than tracked (${untracked.g.length} against ${trackedParts})`);}
 // 5. The command owner registers the table.
 assert.match(fs.readFileSync(path.join(ROOT,'WebApp/domain-command-core.js'),'utf8'),/registerTrackedCollection\?\.\(\['domainRuntime','idempotency'\],\{rows:32\}\)/);
 console.log(JSON.stringify({suite:'build519-idempotency-tracked',ok:true,segments,changes:rows.map(r=>[r.label,r.encoded])}));

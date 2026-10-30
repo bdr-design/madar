@@ -20,6 +20,34 @@
     if(compactGeometry&&route.length>limit)throw new Error('routing-geometry-too-complex');
     return {route,distanceKm:raw.distance/1000,durationSeconds:raw.duration};
   }
+  // Release edition (owner: «نفذ بدون خوادم»): no road route is asked of a server. The public OSRM demo server is not for
+  // a store game (it may refuse or vanish), and the road planner and the manual road route both depend on it. A road
+  // route is computed on the device instead, in the shape a server answer has, so every caller is unchanged:
+  //  - distance: the straight distance x LOCAL_DETOUR (a road network's usual detour), declared as the route's road
+  //    network distance (the drawn line is a picture of it, as a road geometry is);
+  //  - duration: that distance at LOCAL_SPEED_KMH (inside the 42-82 km/h the game already uses for roads);
+  //  - shape: a gentle quadratic curve from the exact start to the exact end, one point about every LOCAL_STEP_KM,
+  //    LOCAL_MIN_POINTS..LOCAL_MAX_POINTS points, bowed to the side a hash of the two points picks: the same two points
+  //    always give the same route, on every device.
+  // A few dozen points of arithmetic per route; nothing is fetched, nothing waits. The development edition keeps the
+  // server (its tests intercept it).
+  const LOCAL_DETOUR=1.25,LOCAL_SPEED_KMH=65,LOCAL_STEP_KM=25,LOCAL_MIN_POINTS=8,LOCAL_MAX_POINTS=64,LOCAL_BOW=.12,LOCAL_SOURCE='تقدير محلي للطرق';
+  const offline=()=>globalThis.GH_EDITION==='release';
+  function sideOf(from,to){const text=`${from[0].toFixed(5)},${from[1].toFixed(5)}>${to[0].toFixed(5)},${to[1].toFixed(5)}`;let h=0x811c9dc5;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),0x01000193);return (h>>>0)%2?1:-1;}
+  function localRoad(from,to){
+    if(!valid(from)||!valid(to))return {ok:false,status:'invalid-coordinates'};
+    const straight=distance(from,to);if(!(straight>=.001))return {ok:false,status:'no-route',reason:'NoRoute'};
+    const count=Math.max(LOCAL_MIN_POINTS,Math.min(LOCAL_MAX_POINTS,Math.ceil(straight/LOCAL_STEP_KM)+1));
+    // A local plane around the start (km); the end's longitude unwrapped across the date line.
+    let dLng=to[1]-from[1];if(dLng>180)dLng-=360;else if(dLng<-180)dLng+=360;
+    const scale=111.32*Math.max(.05,Math.cos((from[0]+(to[0]-from[0])/2)*Math.PI/180)),ex=dLng*scale,ey=(to[0]-from[0])*111.32,length=Math.hypot(ex,ey)||1;
+    const bow=LOCAL_BOW*length*sideOf(from,to),cx=ex/2-ey/length*bow,cy=ey/2+ex/length*bow,route=new Array(count);
+    route[0]=[from[0],from[1]];
+    for(let i=1;i<count-1;i++){const t=i/(count-1),u=1-t,x=2*u*t*cx+t*t*ex,y=2*u*t*cy+t*t*ey;let lng=from[1]+x/scale;lng=((lng+540)%360)-180;route[i]=[Math.max(-89.9,Math.min(89.9,from[0]+y/111.32)),lng];}
+    route[count-1]=[to[0],to[1]];
+    const distanceKm=straight*LOCAL_DETOUR;
+    return {ok:true,status:'available',geometry:{route,distanceKm,durationSeconds:distanceKm/LOCAL_SPEED_KMH*3600,source:LOCAL_SOURCE}};
+  }
   function create({fetchImpl=(...args)=>globalThis.fetch(...args),now=()=>Date.now(),timeoutMs=12000,batchTimeoutMs=30000,failureLimit=3,cooldownMs=30000}={}){
     let failures=0,openUntil=0,lastError=null;
     async function request(url,parse,signal,deadlineMs=timeoutMs){
@@ -35,12 +63,19 @@
       finally{clearTimeout(timer);signal?.removeEventListener('abort',onAbort);}
     }
     async function road(from,to,{signal,compactGeometry=false}={}){
+      if(offline()){if(signal?.aborted)return {ok:false,status:'cancelled'};return localRoad(from,to);}
       if(!valid(from)||!valid(to))return {ok:false,status:'invalid-coordinates'};
       const url=`https://router.project-osrm.org/route/v1/driving/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson&steps=false`;
       return request(url,data=>({ok:true,status:'available',geometry:geometry(data.routes?.[0]||{},data.routes?.[0]?.geometry?.coordinates,from,to,compactGeometry)}),signal);
     }
     async function roadBatch(pairs,{signal}={}){
       if(!Array.isArray(pairs)||!pairs.length||pairs.length>12||pairs.some(p=>!valid(p.from)||!valid(p.to)))return {ok:false,status:'invalid-coordinates'};
+      if(offline()){
+        if(signal?.aborted)return {ok:false,status:'cancelled'};
+        const answers=pairs.map(p=>localRoad(p.from,p.to));
+        if(answers.some(answer=>!answer.ok))return {ok:false,status:'no-route',reason:'NoRoute'};
+        return {ok:true,status:'available',geometries:answers.map(answer=>answer.geometry)};
+      }
       // 2n waypoints; legs 0,2,4... are the requested journeys. Connector legs are discarded.
       const coordinates=pairs.flatMap(p=>[p.from,p.to]).map(p=>`${p[1]},${p[0]}`).join(';');
       const url=`https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=false&geometries=geojson&steps=true&continue_straight=false`;
@@ -50,9 +85,9 @@
         return {ok:true,status:'available',geometries};
       },signal,batchTimeoutMs);
     }
-    return Object.freeze({road,roadBatch,health:()=>({status:now()<openUntil?'circuit-open':failures?'degraded':'available',failures,openUntil,lastError})});
+    return Object.freeze({road,roadBatch,offline,health:()=>offline()?{status:'local',failures:0,openUntil:0,lastError:null}:({status:now()<openUntil?'circuit-open':failures?'degraded':'available',failures,openUntil,lastError})});
   }
   const provider=create();
-  const API=Object.freeze({VERSION,create,compact,distance,road:provider.road,roadBatch:provider.roadBatch,health:provider.health});
+  const API=Object.freeze({VERSION,create,compact,distance,localRoad,offline,LOCAL:Object.freeze({detour:LOCAL_DETOUR,speedKmh:LOCAL_SPEED_KMH,stepKm:LOCAL_STEP_KM,minPoints:LOCAL_MIN_POINTS,maxPoints:LOCAL_MAX_POINTS,source:LOCAL_SOURCE}),road:provider.road,roadBatch:provider.roadBatch,health:provider.health});
   globalThis.GH_MAP_PROVIDER=API;if(globalThis.window&&window!==globalThis)window.GH_MAP_PROVIDER=API;
 })();

@@ -3,7 +3,7 @@ import StoreKit
 import WebKit
 
 /// VENTORA store (StoreKit 2). The game's store page asks through the `storeBridge` message handler; this owner loads
-/// the products (`<bundle id>.<suffix>`), buys, restores, and hands every *verified* transaction to the game
+/// the products (`<bundle id>.<suffix>`), buys, restores, opens the subscription page (`manage`), and hands every *verified* transaction to the game
 /// (`GH_STORE_NATIVE.onTransaction`). A transaction is finished only when the game answers `finish` after the save that
 /// holds it is stored, so a purchase interrupted by a crash or a closed app is delivered again at the next `ready`
 /// (`Transaction.unfinished`). An unverified transaction is never delivered; a revoked one is finished without delivery.
@@ -46,6 +46,12 @@ final class VentoraStore {
                 try? await AppStore.sync()
                 await self?.deliverCurrentEntitlements()
                 await self?.deliverUnfinished()
+            }
+        case "manage":
+            // «إدارة الاشتراك»: the App Store's own subscription page, over the game.
+            Task { [weak self] in
+                guard let scene = self?.webView?.window?.windowScene else { return }
+                try? await AppStore.showManageSubscriptions(in: scene)
             }
         case "finish":
             guard let raw = payload["transactionId"] as? String, let id = UInt64(raw),

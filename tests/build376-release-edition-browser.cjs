@@ -4,7 +4,8 @@
 // to one opens the settings), the settings carry no update card and no safety-period choices but offer a problem
 // report, and the unlimited-money mode lives on its own page, «وضع المستثمر الحر», opened by the investor licence from the
 // store. The development edition keeps its
-// tools. The default group is «فنتورا القابضة» and its companies carry the new name.
+// tools. The default group is «أصول ونفوذ القابضة» (ASSETS & INFLUENCE, owner: «غير مايلزم باللعبة كامله») and its companies carry the new
+// name; a save of an older name (فنتورا القابضة, المجموعة العالمية القابضة) takes it on load.
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
 
@@ -17,11 +18,12 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     const body=()=>page.locator('#drawerBody').textContent();
 
     // The new name.
-    assert.equal(await page.title(),'VENTORA · فنتورا');
-    assert.equal(await page.evaluate(()=>__GH_STATE__.profile.name),'فنتورا القابضة');
-    assert.equal(await page.evaluate(()=>GH_COMPANY_PLATFORM.resolveIdentity(__GH_STATE__,'air').legalName),'شركة فنتورا للطيران');
+    assert.equal(await page.title(),'أصول ونفوذ · ASSETS & INFLUENCE');
+    assert.equal(await page.evaluate(()=>__GH_STATE__.profile.name),'أصول ونفوذ القابضة');
+    assert.equal(await page.evaluate(()=>GH_COMPANY_PLATFORM.resolveIdentity(__GH_STATE__,'air').legalName),'شركة أصول ونفوذ للطيران');
     // A save of the old name takes the new one.
-    assert.equal(await page.evaluate(()=>{const s=structuredClone(__GH_STATE__);s.profile.name='المجموعة العالمية القابضة';s.profile.shortName='GH';return GH_COMPANY_PLATFORM.migrateState(s).state.profile.name;}),'فنتورا القابضة');
+    assert.equal(await page.evaluate(()=>{const s=structuredClone(__GH_STATE__);s.profile.name='المجموعة العالمية القابضة';s.profile.shortName='GH';return GH_COMPANY_PLATFORM.migrateState(s).state.profile.name;}),'أصول ونفوذ القابضة');
+    assert.equal(await page.evaluate(()=>{const s=structuredClone(__GH_STATE__);s.profile.name='فنتورا القابضة';s.profile.shortName='VH';const p=GH_COMPANY_PLATFORM.migrateState(s).state.profile;return `${p.name}|${p.shortName}`;}),'أصول ونفوذ القابضة|ANI');
 
     // Development edition: the tools are listed.
     await open('systemHub');let listed=await tiles();
@@ -34,7 +36,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     for(const tool of ['updates','diagnostics','controlPlane'])assert.ok(!listed.includes(tool),`release hides ${tool}`);
     await open('diagnostics');assert.equal(await page.locator('#drawerTitle').textContent(),'الحفظ والإعدادات','a developer page opens the settings');
     const settings=await body();
-    assert.doesNotMatch(settings,/تحديثات VENTORA|ملف تحديث|عند الخروج فقط|مدة الأمان|God Mode|وضع التجربة/);
+    assert.doesNotMatch(settings,/تحديثات (?:أصول ونفوذ|VENTORA)|ملف تحديث|عند الخروج فقط|مدة الأمان|God Mode|وضع التجربة/);
     assert.equal(await page.locator('#drawerBody .save-cap-choices').count(),0);assert.equal(await page.locator('#drawerBody .save-now-btn').count(),1);
     assert.equal(await page.locator('#drawerBody [data-gh-action="report-problem"]').count(),1,'the problem report stays');
     assert.equal(await page.locator('#drawerBody .investor-mode-toggle').count(),0,'the money mode left the settings');

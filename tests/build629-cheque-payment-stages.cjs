@@ -26,7 +26,7 @@ if(process.argv[2]==='--run'){
 }
 const run=(root,mode)=>{const dir=fs.mkdtempSync(path.join(os.tmpdir(),'b629-out-')),out=path.join(dir,'run.json');try{execFileSync(process.execPath,[__filename,'--run',out,mode],{env:{...process.env,GH_TEST_SOURCE_DIR:root},stdio:['ignore','ignore','inherit']});return JSON.parse(fs.readFileSync(out,'utf8'));}finally{fs.rmSync(dir,{recursive:true,force:true});}};
 const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b629-'));let before;
-try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);before=run(tree,'whole');}finally{fs.rmSync(tree,{recursive:true,force:true});}
+try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);before=run(tree,'whole');}finally{fs.rmSync(tree,{recursive:true,force:true});}
 const SOURCE=process.env.GH_TEST_SOURCE_DIR||ROOT,staged=run(SOURCE,'staged'),whole=run(SOURCE,'whole');
 // 1.
 assert.ok(staged.state.finance.cheques.filter(row=>row.status==='مصروف').length>=30,'1: thirty cheques paid');

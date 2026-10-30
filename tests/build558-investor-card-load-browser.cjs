@@ -70,7 +70,7 @@ async function both(roots,work){
  try{const failed=started.find(r=>r.status==='rejected');if(failed)throw failed.reason;await Promise.all(open.map(t=>t.quiet()));return await work(open);}finally{for(const t of open)await t.close();}
 }
 (async()=>{
- const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b558-'));try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+ const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b558-'));try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
   // The pages are opened after both sources' first ten days, one source after the other.
   const plays=[];for(let round=0;round<2;round++)plays.push(await both([SOURCE,tree],async([current,old])=>{
    const [now,before]=await Promise.all([current.days(),old.days()]);if(round===0){Object.assign(now,await current.pages());Object.assign(before,await old.pages());}

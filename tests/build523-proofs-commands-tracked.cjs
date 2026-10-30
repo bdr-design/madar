@@ -39,9 +39,11 @@ rows.push(step('oldest proof compacted',()=>{delete proofs['PRF-000000'];}));
 rows.push(step('new command record',()=>record(command(2000))));
 rows.push(step('another command record',()=>record(command(2001))));
 for(const [label,n] of rows)assert.ok(n>=1&&n<=3,`${label}: ${n} of ${segments} segments encoded again`);
-// Untracked, a new proof re-encodes the proofs whole and a new record re-encodes the commands whole.
+// Untracked, both fall under the codec's default bounds (save audit: a collection of 128-511 rows is split with segments
+// of about 64 rows, state-codec MID_POLICY): fewer, larger segments than tracked.
 {const s=realm(false),codec=s.GH_STATE_CODEC,copy=JSON.parse(JSON.stringify(state));for(const row of Object.values(copy.authorization.proofsById))s.GH_TRANSACTION_CORE.sealValue(row);
-  save(codec,copy);const out=save(codec,copy),parsed=JSON.parse(out.text);assert.notEqual(parsed.authorization.proofsById.$gh,3,'untracked: the proofs are one segment');assert.notEqual(parsed.domainRuntime.commands.$gh,3,'untracked: the commands are one segment');}
+  save(codec,copy);const out=save(codec,copy),parsed=JSON.parse(out.text);for(const [name,untracked,tracked] of [['proofs',parsed.authorization.proofsById,head.authorization.proofsById],['commands',parsed.domainRuntime.commands,head.domainRuntime.commands]]){
+    assert.equal(untracked.$gh,3,`untracked: the ${name} are split by the default bounds`);assert.ok(untracked.g.length<tracked.g.length,`untracked: fewer, larger ${name} segments than tracked (${untracked.g.length} against ${tracked.g.length})`);}}
 // 4. The owners register them.
 assert.match(fs.readFileSync(path.join(ROOT,'WebApp/authorization-core.js'),'utf8'),/registerTrackedCollection\?\.\(\['authorization','proofsById'\],\{rows:32\}\)/);
 assert.match(fs.readFileSync(path.join(ROOT,'WebApp/domain-command-core.js'),'utf8'),/registerTrackedCollection\?\.\(\['domainRuntime','commands'\],\{rows:32\}\)/);

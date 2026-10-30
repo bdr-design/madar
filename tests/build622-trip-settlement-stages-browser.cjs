@@ -45,7 +45,7 @@ async function run(root){
 }
 (async()=>{
   const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b622-'));let before;
-  try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} | tar -x -C "${tree}"`]);before=await run(tree);}finally{fs.rmSync(tree,{recursive:true,force:true});}
+  try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);before=await run(tree);}finally{fs.rmSync(tree,{recursive:true,force:true});}
   const now=await run(process.env.GH_TEST_SOURCE_DIR||ROOT);
   // 1.
   const parsed=JSON.parse(now.finance);assert.ok(parsed.day>=2&&parsed.invoices.some(row=>/تسوية رحلات يومية/.test(String(row.note||row.description||JSON.stringify(row)))),'1: two days closed with trip invoices');

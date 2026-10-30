@@ -86,7 +86,8 @@ try{
   fs.cpSync(path.join(ROOT,'WebApp'),path.join(tmp,'WebApp'),{recursive:true});fs.cpSync(path.join(ROOT,'tests'),path.join(tmp,'tests'),{recursive:true});
   const previous=execFileSync('git',['-C',process.env.GH_LAYOUT_STEPS_GIT_DIR||ROOT,'show','b6b2fd5:WebApp/state-codec-core.js'],{encoding:'utf8',maxBuffer:32*1024*1024});
   assert.ok(!previous.includes('collectionLayoutSteps'),'the baseline lays a collection out in one step');
-  fs.writeFileSync(path.join(tmp,'WebApp','state-codec-core.js'),previous);
+  // The baseline runs with this source's text chunk threshold (tests/helpers/codec-baseline.cjs).
+  fs.writeFileSync(path.join(tmp,'WebApp','state-codec-core.js'),require(path.join(ROOT,'tests/helpers/codec-baseline.cjs')).withCurrentTextChunkMin(previous,ROOT));
   previousAll=JSON.parse(execFileSync(process.execPath,[__filename],{env:{...process.env,GH_TEST_SOURCE_DIR:tmp,GH_LAYOUT_STEPS_CHILD:'1'},encoding:'utf8',maxBuffer:512*1024*1024}));old=previousAll.first;
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}
 assert.equal(current.saves.length,4);

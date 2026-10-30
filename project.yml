@@ -26,12 +26,12 @@ targets:
     info:
       path: iOS/GlobalHoldings/Info.plist
       properties:
-        CFBundleDisplayName: "VENTORA"
+        CFBundleDisplayName: "أصول ونفوذ"
         GHEdition: "development"
         CFBundleIconName: "AppIcon"
         CFBundleShortVersionString: "3.0.0"
         CFBundleVersion: "362"
-        GHSourceSnapshotSHA256: "02388f5fa74cc0226674c506cc79aabad382424df650c0b4333856a22ffa11a4"
+        GHSourceSnapshotSHA256: "8e5b56c9793976ed78ca0abb466e5862230f49c290172a548c077df383a19078"
         LSRequiresIPhoneOS: true
         UIRequiresFullScreen: true
         UILaunchStoryboardName: LaunchScreen
@@ -42,14 +42,14 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         CFBundleDocumentTypes:
-          - CFBundleTypeName: "VENTORA Update"
+          - CFBundleTypeName: "Assets & Influence Update"
             CFBundleTypeRole: Editor
             LSHandlerRank: Owner
             LSItemContentTypes:
               - com.bdran.globalholdings.update
         UTExportedTypeDeclarations:
           - UTTypeIdentifier: com.bdran.globalholdings.update
-            UTTypeDescription: "VENTORA Update"
+            UTTypeDescription: "Assets & Influence Update"
             UTTypeConformsTo:
               - public.data
             UTTypeTagSpecification:

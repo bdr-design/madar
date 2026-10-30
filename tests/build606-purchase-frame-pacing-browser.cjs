@@ -59,6 +59,10 @@ async function purchase(browser,root){
   const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b606-'));const browser=await chromium.launch({headless:true});
   try{
     execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);
+    // The source before boots without the maritime-template save, as this source does (tests/helpers/boot-baseline.cjs).
+    require(path.join(ROOT,'tests/helpers/boot-baseline.cjs')).applyToTree(tree);
+    // and carries the game's present name (أصول ونفوذ, tests/helpers/brand-baseline.cjs).
+    require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);
     // Each source purchases three times, alternately (on the macOS runner one run of a source varied 1.4-3.6 s now and
     // 3.6-6.4 s before, so a single pair could land on either side of 80%); claim 3's time compares the medians, and every
     // other claim holds for every run.

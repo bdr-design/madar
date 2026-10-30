@@ -656,6 +656,8 @@
     // The career progression root (GH_PROGRESSION_CORE); a save from before levels has none and stays open.
     // Store purchases (GH_STORE_CORE): entitlements and delivered transactions; a save without purchases has none.
     if(s.purchases!==undefined){const owner=globalThis.GH_STORE_CORE;if(!owner?.validate)errors.push('store-validator-missing');else errors.push(...owner.validate(s));}
+    // The privacy policy and terms accepted (GH_LEGAL): the version of the texts and the day; a save without it has not accepted.
+    if(s.legal!==undefined){const owner=globalThis.GH_LEGAL;if(!owner?.validate)errors.push('legal-validator-missing');else errors.push(...owner.validate(s));}
     if(s.progression!==undefined){const owner=globalThis.GH_PROGRESSION_CORE;if(!owner?.validate)errors.push('progression-validator-missing');else errors.push(...owner.validate(s));}
     // iPhone diagnostic DX-1792378248326: these display/identity checks over every invoice, payable, receivable, contract,
     // mobility vehicle and endpoint ran inside the fleet-routes step with no host yield (one 8-20 ms command.schema block

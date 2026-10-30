@@ -25,7 +25,7 @@ if(process.argv[2]==='--run'){
 }
 const run=root=>{const out=path.join(fs.mkdtempSync(path.join(os.tmpdir(),'b627-out-')),'run.json');try{execFileSync(process.execPath,[path.join(ROOT,'tests/build627-document-material-once.cjs'),'--run',out],{env:{...process.env,GH_TEST_SOURCE_DIR:root},stdio:['ignore','ignore','inherit']});return JSON.parse(fs.readFileSync(out,'utf8'));}finally{fs.rmSync(path.dirname(out),{recursive:true,force:true});}};
 const tree=fs.mkdtempSync(path.join(os.tmpdir(),'b627-'));let before;
-try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);before=run(tree);}finally{fs.rmSync(tree,{recursive:true,force:true});}
+try{execFileSync('sh',['-c',`git -C "${ROOT}" archive ${PREVIOUS} WebApp | tar -x -C "${tree}"`]);require(path.join(ROOT,'tests/helpers/brand-baseline.cjs')).brandBaseline(tree,ROOT);before=run(tree);}finally{fs.rmSync(tree,{recursive:true,force:true});}
 const now=run(process.env.GH_TEST_SOURCE_DIR||ROOT);
 // 1.
 assert.ok(now.authorized>=120,`1: the invoices are sealed and bound under the founder's authority (${now.authorized})`);

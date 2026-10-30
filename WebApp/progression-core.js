@@ -79,7 +79,7 @@
   // The group's regional headquarters (the founding headquarters HQ-GROUP aside): 1 to level 9, 3 from 10, then one more at
   // 19, 23, 26 and 28; no limit at 30.
   const HQ_STEPS=Object.freeze([[30,Infinity],[28,7],[26,6],[23,5],[19,4],[10,3],[1,1]]);
-  const TITLES=Object.freeze([[30,'إمبراطورية فنتورا'],[25,'تكتل عالمي'],[20,'مجموعة دولية'],[15,'مجموعة إقليمية'],[10,'مجموعة وطنية'],[5,'شركة إقليمية'],[1,'مؤسسة ناشئة']]);
+  const TITLES=Object.freeze([[30,'إمبراطورية النفوذ'],[25,'تكتل عالمي'],[20,'مجموعة دولية'],[15,'مجموعة إقليمية'],[10,'مجموعة وطنية'],[5,'شركة إقليمية'],[1,'مؤسسة ناشئة']]);
   const COMPANY_LABEL=Object.freeze({group:'المجموعة القابضة',road:'شركة اللوجستيات',air:'شركة الطيران',sea:'شركة الشحن البحري',media:'شركة الإعلام والإنتاج',telecom:'شركة الاتصالات',power:'شركة الطاقة',education:'شركة التعليم',insurance:'شركة التأمين',dealership:'شركة وكالات السيارات',bank:'البنك',hospitality:'شركة الفنادق والمنتجعات',healthcare:'شركة الرعاية الصحية',mobility:'شركة التنقل الذكي',realestate:'شركة التطوير العقاري',sports:'شركة الأندية الرياضية'});
 
   const own=(object,key)=>Object.prototype.hasOwnProperty.call(object,key);
