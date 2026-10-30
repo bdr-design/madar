@@ -39,7 +39,8 @@ jobs:
       - name: Measure build606 per source
         shell: bash
         run: |
-          set -uo pipefail
+          # macOS has no timeout(1), and a run that fails must not stop the others: no -e here.
+          set +e
           BASE=e7c4718
           make_tree(){ # name, then files to put back from BASE
             local dir="$RUNNER_TEMP/tree-$1"; shift
@@ -51,8 +52,10 @@ jobs:
           }
           run(){ # label, tree
             for k in 1 2; do
-              out=$(cd "$GITHUB_WORKSPACE" && GH_TEST_SOURCE_DIR="$2" timeout 600 node tests/build606-purchase-frame-pacing-browser.cjs 2>&1 | grep -E '"suite"|AssertionError' | tail -1)
-              echo "PROBE $1 #$k: $out"
+              log=$(cd "$GITHUB_WORKSPACE" && GH_TEST_SOURCE_DIR="$2" node tests/build606-purchase-frame-pacing-browser.cjs 2>&1)
+              line=$(printf '%s\n' "$log" | grep -E '"suite"|AssertionError' | tail -1)
+              if [ -z "$line" ]; then line="no result: $(printf '%s\n' "$log" | tail -5 | tr '\n' ' ')"; fi
+              echo "PROBE $1 #$k: $line"
             done
           }
           base="$RUNNER_TEMP/tree-base"; rm -rf "$base"; mkdir -p "$base"; git archive "$BASE" | tar -x -C "$base"; ln -s "$GITHUB_WORKSPACE/node_modules" "$base/node_modules"
