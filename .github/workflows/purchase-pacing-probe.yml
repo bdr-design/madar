@@ -1,0 +1,65 @@
+name: Purchase pacing probe on macOS (diagnostic only)
+
+# Runs 121 and 122 stopped at build606-purchase-frame-pacing-browser on the macOS runner (the purchase took 97% and 84% of
+# the source before's time; the claim is at most 80%), while every local run (Linux, also with slowed frames and CPU)
+# measures 44-54%; run 119 (e7c4718) passed it. This workflow runs that gate on the same runner and Node against
+# e7c4718, the current head, and the head with one changed WebApp file put back as it was in e7c4718, twice each, and
+# prints every measurement, to find what slowed the purchase there. It builds nothing and is not an acceptance gate.
+on:
+  # A workflow that is not on the default branch cannot be dispatched; a push that changes this file runs it.
+  push:
+    branches: ["claude/madar-ventora-handover-3.0.0-stg723"]
+    paths: [".github/workflows/purchase-pacing-probe.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Check out the source with history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.22.0"
+
+      - name: Install the browsers
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false --no-audit --no-fund
+          npx playwright install chromium
+
+      - name: Measure build606 per source
+        shell: bash
+        run: |
+          set -uo pipefail
+          BASE=e7c4718
+          make_tree(){ # name, then files to put back from BASE
+            local dir="$RUNNER_TEMP/tree-$1"; shift
+            rm -rf "$dir"; mkdir -p "$dir"
+            git archive HEAD | tar -x -C "$dir"
+            for f in "$@"; do git show "$BASE:$f" > "$dir/$f"; done
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$dir/node_modules"
+            echo "$dir"
+          }
+          run(){ # label, tree
+            for k in 1 2; do
+              out=$(cd "$GITHUB_WORKSPACE" && GH_TEST_SOURCE_DIR="$2" timeout 600 node tests/build606-purchase-frame-pacing-browser.cjs 2>&1 | grep -E '"suite"|AssertionError' | tail -1)
+              echo "PROBE $1 #$k: $out"
+            done
+          }
+          base="$RUNNER_TEMP/tree-base"; rm -rf "$base"; mkdir -p "$base"; git archive "$BASE" | tar -x -C "$base"; ln -s "$GITHUB_WORKSPACE/node_modules" "$base/node_modules"
+          run "e7c4718" "$base"
+          run "head" "$(make_tree head)"
+          run "head+app.js@base" "$(make_tree app WebApp/app.js)"
+          run "head+domain-command-core@base" "$(make_tree dcc WebApp/domain-command-core.js)"
+          run "head+index-and-required@base" "$(make_tree index WebApp/index.html WebApp/runtime-required.json)"
+          run "head+diagnostics@base" "$(make_tree diag WebApp/diagnostics-core.js)"
+          run "head+lifecycle-schema-shell@base" "$(make_tree misc WebApp/game-lifecycle-core.js WebApp/save-schema.js WebApp/madar-shell.js WebApp/advanced-core.js WebApp/ui-quality-core.js)"
