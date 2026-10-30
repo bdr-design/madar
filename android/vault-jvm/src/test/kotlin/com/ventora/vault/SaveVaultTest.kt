@@ -141,16 +141,18 @@ class SaveVaultTest {
         v.await { v.clearManualSlot(1) }
         assertTrue(v.await { v.manualSlotMetadata() }.isEmpty())
         assertFailsWith<VaultException> { v.await { v.loadManualSlot(1, null) } }
-        assertFailsWith<VaultException> { v.await { v.saveManualSlot(3, v.prepare(json(1)), "", null) } }
+        assertFailsWith<VaultException> { v.await { v.saveManualSlot(SaveVault.MANUAL_SLOTS, v.prepare(json(1)), "", null) } }
+        assertEquals(6, SaveVault.MANUAL_SLOTS, "Plus opens six manual slots (store-core «slots»)")
     }
 
     @Test fun resetWritesBothSlotsAndClearsManualSlots() {
         val dir = folder(); val v = open(dir)
         v.commitNow(json(20, epoch = 0)); v.await { v.saveManualSlot(0, v.prepare(json(5)), "a", null) }
+        v.await { v.saveManualSlot(SaveVault.MANUAL_SLOTS - 1, v.prepare(json(6)), "plus", null) }
         val generation = v.await { v.resetTo(v.prepare(json(0, epoch = 1)), "3.0.0", clearManualSlots = true) }
         assertTrue(generation >= 3)
         assertTrue(v.await { v.currentPayload() }!!.contentEquals(json(0, epoch = 1)))
-        assertTrue(v.await { v.manualSlotMetadata() }.isEmpty() && !File(dir, "pending-reset.vault").exists() && !File(dir, "pending-manual-slot-1.vault").exists())
+        assertTrue(v.await { v.manualSlotMetadata() }.isEmpty() && !File(dir, "pending-reset.vault").exists() && !File(dir, "pending-manual-slot-1.vault").exists() && !File(dir, "pending-manual-slot-${SaveVault.MANUAL_SLOTS}.vault").exists())
         assertFailsWith<VaultException> { v.commitNow(json(99, epoch = 0)) }
     }
 

@@ -198,7 +198,7 @@ final class GlobalSaveVault {
             for slot in ["A", "B"] { if fm.fileExists(atPath: url(slot).path) { try fm.removeItem(at: url(slot)) } }
         }
         if checkpoint.clearManualSlots == true {
-            guard let hashes = checkpoint.manualSlotHashes, hashes.count == 3 else {
+            guard let hashes = checkpoint.manualSlotHashes.flatMap(Self.manualSlotHashSet) else {
                 throw VaultError.message("Manual slot reset checkpoint is incomplete.")
             }
             try restoreManualSlotsAfterResetFailure(expectedHashes: hashes)
@@ -221,13 +221,23 @@ final class GlobalSaveVault {
     private func manualSlotBackupURL(_ index: Int) -> URL { folder.appendingPathComponent("pending-manual-slot-\(index + 1).json", isDirectory: false) }
     private var rollbackCheckpointURL: URL { folder.appendingPathComponent("rollback-checkpoint.json", isDirectory: false) }
 
+    /// Owner (approved Plus): six manual slots (Plus opens slots 4–6).
+    static let manualSlotCount = 6
+    /// A reset checkpoint's slot hashes, one per slot. A checkpoint written by a build with three slots (an interrupted
+    /// reset across the update) lists three: the slots it never had are absent.
+    static func manualSlotHashSet(_ hashes: [String?]) -> [String?]? {
+        if hashes.count == manualSlotCount { return hashes }
+        if hashes.count == 3 { return hashes + Array(repeating: nil, count: manualSlotCount - 3) }
+        return nil
+    }
+
     private func validatedManualSlotIndex(_ index: Int) throws -> Int {
-        guard (0...5).contains(index) else { throw VaultError.message("Invalid manual save slot.") }
+        guard (0..<Self.manualSlotCount).contains(index) else { throw VaultError.message("Invalid manual save slot.") }
         return index
     }
 
     private func manualSlotRawHashes() throws -> [String?] {
-        try (0...5).map { index in
+        try (0..<Self.manualSlotCount).map { index in
             let file = manualSlotURL(index)
             guard fm.fileExists(atPath: file.path) else { return nil }
             return sha256(try Data(contentsOf: file))
@@ -235,10 +245,10 @@ final class GlobalSaveVault {
     }
 
     private func stageManualSlotsForReset(expectedHashes: [String?]) throws {
-        guard expectedHashes.count == 3 else { throw VaultError.message("Invalid manual slot reset hash set.") }
+        guard let expectedHashes = Self.manualSlotHashSet(expectedHashes) else { throw VaultError.message("Invalid manual slot reset hash set.") }
         // Two-phase staging: copy + hash-verify every original before deleting any
         // source. A crash during copy leaves the original authoritative.
-        for index in 0...5 {
+        for index in 0..<Self.manualSlotCount {
             let source = manualSlotURL(index), backup = manualSlotBackupURL(index)
             if fm.fileExists(atPath: backup.path) { try fm.removeItem(at: backup) }
             guard let expected = expectedHashes[index] else {
@@ -254,15 +264,15 @@ final class GlobalSaveVault {
                 throw VaultError.message("Manual slot reset backup verification failed.")
             }
         }
-        for index in 0...5 {
+        for index in 0..<Self.manualSlotCount {
             let source = manualSlotURL(index)
             if fm.fileExists(atPath: source.path) { try fm.removeItem(at: source) }
         }
     }
 
     private func restoreManualSlotsAfterResetFailure(expectedHashes: [String?]) throws {
-        guard expectedHashes.count == 3 else { throw VaultError.message("Invalid manual slot recovery hash set.") }
-        for index in 0...5 {
+        guard let expectedHashes = Self.manualSlotHashSet(expectedHashes) else { throw VaultError.message("Invalid manual slot recovery hash set.") }
+        for index in 0..<Self.manualSlotCount {
             let source = manualSlotURL(index), backup = manualSlotBackupURL(index)
             guard let expected = expectedHashes[index] else {
                 if fm.fileExists(atPath: source.path) { try fm.removeItem(at: source) }
@@ -285,7 +295,7 @@ final class GlobalSaveVault {
     }
 
     private func discardManualSlotResetBackups() {
-        for index in 0...5 { try? fm.removeItem(at: manualSlotBackupURL(index)) }
+        for index in 0..<Self.manualSlotCount { try? fm.removeItem(at: manualSlotBackupURL(index)) }
     }
 
     func commitAsync(_ json: String, runtimeVersion: String? = nil, envelope: [String: Any]? = nil, completion: ((Result<Int, Error>) -> Void)? = nil) {
@@ -515,7 +525,7 @@ final class GlobalSaveVault {
     }
 
     func manualSlotMetadata() -> [ManualSlotMetadata] {
-        queue.sync { (0...5).compactMap { readManualSlot($0)?.metadata } }
+        queue.sync { (0..<Self.manualSlotCount).compactMap { readManualSlot($0)?.metadata } }
     }
 
     func saveManualSlotAsync(_ index: Int, json: String, label: String, runtimeVersion: String? = nil, envelope: [String: Any]? = nil, completion: ((Result<ManualSlotMetadata, Error>) -> Void)? = nil) {
@@ -597,7 +607,7 @@ final class GlobalSaveVault {
     }
 
     private func readManualSlot(_ index: Int) -> ManualSlotEnvelope? {
-        guard (0...5).contains(index),
+        guard (0..<Self.manualSlotCount).contains(index),
               let stored = try? Data(contentsOf: manualSlotURL(index)), let data = VentoraSaveSeal.plainBytes(stored),
               let envelope = try? JSONDecoder().decode(ManualSlotEnvelope.self, from: data),
               envelope.format == "global-holdings-native-slot-v1",
@@ -689,7 +699,7 @@ final class GlobalSaveVault {
         let nativeRevision = envelope.saveRevision ?? 0
         let nativeReset = String(format: "%.0f", envelope.resetEpoch ?? 0)
         let nativeGeneration = envelope.generation
-        let slotMetadata = (0...5).compactMap { readManualSlot($0)?.metadata }
+        let slotMetadata = (0..<Self.manualSlotCount).compactMap { readManualSlot($0)?.metadata }
         let slotJSON = (try? JSONEncoder().encode(slotMetadata)) ?? Data("[]".utf8)
         let slotB64 = slotJSON.base64EncodedString()
         return compatibility + """

@@ -283,7 +283,7 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
 
     private class ManualSlot(val metadata: SlotMetadata, val sha256: String, val seal: String?, val payload: ByteArray)
 
-    private fun validIndex(index: Int): Int { if (index !in 0..5) throw VaultException("Invalid manual save slot."); return index }
+    private fun validIndex(index: Int): Int { if (index !in 0 until MANUAL_SLOTS) throw VaultException("Invalid manual save slot."); return index }
 
     fun saveManualSlot(index: Int, prepared: Prepared, label: String, runtimeVersion: String?): SlotMetadata {
         validIndex(index)
@@ -295,7 +295,7 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
     }
 
     private fun readManualSlot(index: Int): ManualSlot? {
-        if (index !in 0..5) return null
+        if (index !in 0 until MANUAL_SLOTS) return null
         val framed = readPlain(manualFile(index))?.let { unframe(MANUAL_MAGIC, it) } ?: return null
         val h = framed.header
         val m = h["metadata"] as? Map<*, *> ?: return null
@@ -310,7 +310,7 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
         return ManualSlot(metadata, sha, h["seal"] as? String, framed.payload)
     }
 
-    fun manualSlotMetadata(): List<SlotMetadata> = (0..5).mapNotNull { readManualSlot(it)?.metadata }
+    fun manualSlotMetadata(): List<SlotMetadata> = (0 until MANUAL_SLOTS).mapNotNull { readManualSlot(it)?.metadata }
 
     fun clearManualSlot(index: Int) { validIndex(index); manualFile(index).delete() }
 
@@ -346,14 +346,14 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
     fun resetTo(prepared: Prepared, runtimeVersion: String?, clearManualSlots: Boolean): Int {
         recoverPendingReset()
         folder.mkdirs()
-        val hashes = if (clearManualSlots) (0..5).map { rawHash(manualFile(it)) } else null
+        val hashes = if (clearManualSlots) (0 until MANUAL_SLOTS).map { rawHash(manualFile(it)) } else null
         writeCheckpoint(bestEnvelope(), clearManualSlots, hashes)
         return try {
             if (hashes != null) stageManualSlots(hashes)
             commit(prepared, runtimeVersion, allowRegression = true)
             val generation = commit(prepared, runtimeVersion, allowRegression = true)
             resetFile.delete()
-            if (clearManualSlots) (0..5).forEach { manualBackupFile(it).delete() }
+            if (clearManualSlots) (0 until MANUAL_SLOTS).forEach { manualBackupFile(it).delete() }
             generation
         } catch (failure: Exception) {
             try { recoverPendingReset() } catch (error: Exception) { throw VaultException("CRITICAL: reset compensation failed: ${error.message}") }
@@ -363,7 +363,7 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
 
     /** Two-phase: every manual slot copied and its copy verified before any is removed. */
     private fun stageManualSlots(hashes: List<String?>) {
-        for (index in 0..5) {
+        for (index in 0 until MANUAL_SLOTS) {
             val source = manualFile(index); val backup = manualBackupFile(index)
             backup.delete()
             val expected = hashes[index]
@@ -372,11 +372,11 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
             Files.copy(source.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING)
             if (rawHash(backup) != expected) throw VaultException("Manual slot reset backup verification failed.")
         }
-        for (index in 0..5) manualFile(index).delete()
+        for (index in 0 until MANUAL_SLOTS) manualFile(index).delete()
     }
 
     private fun restoreManualSlots(hashes: List<String?>) {
-        for (index in 0..5) {
+        for (index in 0 until MANUAL_SLOTS) {
             val source = manualFile(index); val backup = manualBackupFile(index); val expected = hashes[index]
             if (expected == null) { source.delete(); backup.delete(); continue }
             if (backup.exists() && rawHash(backup) == expected) {
@@ -388,7 +388,7 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
     }
 
     private fun recoverPendingReset() {
-        if (!resetFile.exists()) { (0..5).forEach { manualBackupFile(it).delete() }; return }
+        if (!resetFile.exists()) { (0 until MANUAL_SLOTS).forEach { manualBackupFile(it).delete() }; return }
         val framed = readPlain(resetFile)?.let { unframe(RESET_MAGIC, it) } ?: throw VaultException("Reset checkpoint is unreadable.")
         val h = framed.header
         if (h["hasPayload"] == true) {
@@ -400,12 +400,14 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
             SLOTS.forEach { slotFile(it).delete(); slotHeaders.remove(it) }
         }
         if (h["clearManualSlots"] == true) {
-            val hashes = (h["manualSlotHashes"] as? List<*>)?.map { it as? String }
-            if (hashes == null || hashes.size != 3) throw VaultException("Manual slot reset checkpoint is incomplete.")
+            // A checkpoint from a build with three slots lists three: the slots it never had are absent.
+            val listed = (h["manualSlotHashes"] as? List<*>)?.map { it as? String }
+            val hashes = when (listed?.size) { MANUAL_SLOTS -> listed; 3 -> listed + List(MANUAL_SLOTS - 3) { null }; else -> null }
+                ?: throw VaultException("Manual slot reset checkpoint is incomplete.")
             restoreManualSlots(hashes)
         }
         resetFile.delete()
-        (0..5).forEach { manualBackupFile(it).delete() }
+        (0 until MANUAL_SLOTS).forEach { manualBackupFile(it).delete() }
         startupError = null
     }
 
@@ -616,6 +618,8 @@ class SaveVault(private val folder: File, private val seal: VaultSeal, private v
         const val VAULT_SCHEMA = "2.0.0"
         val SUPPORTED = setOf("2.0.0", "3.0.0")
         private val SLOTS = listOf("A", "B")
+        /** Owner (approved Plus): six manual slots (Plus opens slots 4–6). */
+        const val MANUAL_SLOTS = 6
         private const val SLOT_MAGIC = "GHVAULT2"
         private const val MANUAL_MAGIC = "GHSLOT2"
         private const val RESET_MAGIC = "GHRESET2"

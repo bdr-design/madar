@@ -3,6 +3,30 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build365-official-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build370-official-news-pagination.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build361-button-binding-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-cooperative-draft-browser.cjs"
+    ],
+    [
+      "node",
       "tests/phone-layout-browser.cjs"
     ],
     [
@@ -20,26 +44,6 @@
     [
       "node",
       "tests/build633-progression-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build365-official-news.cjs"
-    ],
-    [
-      "node",
-      "tests/build370-official-news-pagination.cjs"
-    ],
-    [
-      "node",
-      "tests/build375-group-news-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build361-button-binding-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-cooperative-draft-browser.cjs"
     ],
     [
       "node",
@@ -1076,10 +1080,6 @@
     [
       "node",
       "tests/build375-group-brand-names.cjs"
-    ],
-    [
-      "node",
-      "tests/build375-group-news.cjs"
     ],
     [
       "node",
