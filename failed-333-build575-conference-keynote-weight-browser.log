@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: 2: the slides cost no more main-thread work in total than before: {"before":{"open":131.8,"fastestOpen":73.3,"slides":48,"task":3847.5,"style":304.8,"layout":139,"script":96.9,"passLongest":0,"passLongTasks":0,"sync":27.7,"worst":1.3,"longest":0,"halves":[0,0],"longTasks":0,"nodes":70,"images":["assets/identity/approved/group-symbol.webp","assets/conference/hall-dark.webp","assets/images/company-hq-v2.webp"]},"after":{"open":128.5,"fastestOpen":111.7,"slides":48,"task":3719.8,"style":330.2,"layout":183.1,"script":109.1,"passLongest":0,"passLongTasks":0,"sync":27.6,"worst":1.3,"longest":0,"halves":[0,0],"longTasks":0,"nodes":70,"images":["assets/identity/approved/group-symbol.webp","assets/conference/hall-dark.webp","assets/images/company-hq-v2.webp"]}}
+    at /Users/runner/work/madar/madar/tests/build575-conference-keynote-weight-browser.cjs:84:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
