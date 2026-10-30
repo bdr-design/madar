@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "repository": "bdr-design/madar",
+  "source_commit": "3d36fd80a0f4b489dadb3907bc9311a13aa87f37",
+  "run_id": 41140554717,
+  "attempt": 1,
+  "job_status": "failure",
+  "run_url": "https://github.com/bdr-design/madar/actions/runs/41140554717",
+  "certified": false,
+  "ipa_artifact_url": "",
+  "ipa_single_file_url": "",
+  "physical_iphone_tested": false,
+  "receipt_ref": "refs/heads/ci-receipts/build362/3d36fd80a0f4b489dadb3907bc9311a13aa87f37/41140554717-1",
+  "files": {
+    "native-ios-typecheck.log": {
+      "bytes": 1302,
+      "sha256": "ebfb8926f489ae5780c91e0c61eb2aa43a05d20263a83d13b84cb801a5df087a"
+    },
+    "native-save-export-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-export.json": {
+      "bytes": 1317,
+      "sha256": "feade33407c3252c5b4a9bcddaf4c949b7bdf04021869310e76161d648526bf8"
+    },
+    "native-save-export.log": {
+      "bytes": 446,
+      "sha256": "4e8a366ca58871c893cb68748a00a5c975b5eef569f5834538e9c4235c4b936f"
+    },
+    "native-save-worker-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-save-worker.json": {
+      "bytes": 2869,
+      "sha256": "72c423f9c8165f1ca79a3e846df474827ac58b259731a8dbb11904f574586142"
+    },
+    "native-save-worker.log": {
+      "bytes": 24,
+      "sha256": "dd525051f0f38965b26a9cc154e88f84063d2a5699f52deaae78c7f045b0fcf3"
+    },
+    "native-storage-tests.log": {
+      "bytes": 4746,
+      "sha256": "ad3680c834855ffb644ea29f05a72522aee8bb97659e9faf81a18c57f99f3d29"
+    },
+    "source-mode.txt": {
+      "bytes": 82,
+      "sha256": "8ef83191af620d6f57e653c68352b99cce86684cea6b424c78a649d04a9bdd88"
+    },
+    "source-package-integrity.log": {
+      "bytes": 130360,
+      "sha256": "3d30c26bb3366d647f4a1a8329bd40663ead0beb7846e393b7065392187e1551"
+    },
+    "source-verification.json": {
+      "bytes": 4339,
+      "sha256": "4c8019873d8f96d45c09f7cc92e6e1a5af5a56a3c4cad1f6884d17d375edc557"
+    }
+  }
+}
