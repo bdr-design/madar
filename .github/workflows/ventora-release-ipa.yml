@@ -10,6 +10,10 @@ on:
         description: "The App Store bundle id (empty keeps the development id)"
         required: false
         default: ""
+  # A store IPA from a working branch: push a tag store-ipa-<n> at its commit (a manual run needs this file on main).
+  # The bundle id input is empty then: the development id is kept and the App Store upload step does not run.
+  push:
+    tags: ["store-ipa-*"]
 
 permissions:
   contents: read
