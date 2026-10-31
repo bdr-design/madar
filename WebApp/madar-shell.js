@@ -456,7 +456,7 @@ function install({openDrawer,getState}){
   // :has() rules they replace searched the whole app on every change inside it (iPhone ui.open up to 38 ms; selector
   // statistics: 135 µs a check, 687 elements restyled to open a 38-element page).
   const overlayShell=document.getElementById('app'),overlayDrawer=document.getElementById('drawer'),overlayOthers=['simCalendarPanel','filterPopover','assetCard'].map(id=>document.getElementById(id)).filter(Boolean);
-  const syncOverlay=()=>{if(!overlayShell||!overlayDrawer)return;const open=overlayDrawer.classList.contains('open');overlayShell.classList.toggle('drawer-open',open);overlayShell.classList.toggle('store-open',open&&overlayDrawer.dataset.panel==='store');overlayShell.classList.toggle('overlay-open',open||overlayOthers.some(node=>!node.classList.contains('hidden')));};
+  const syncOverlay=()=>{if(!overlayShell||!overlayDrawer)return;const open=overlayDrawer.classList.contains('open');overlayShell.classList.toggle('drawer-open',open);overlayShell.classList.toggle('store-open',open&&overlayDrawer.dataset.panel==='store');overlayShell.classList.toggle('levels-open',open&&overlayDrawer.dataset.panel==='progression');overlayShell.classList.toggle('overlay-open',open||overlayOthers.some(node=>!node.classList.contains('hidden')));};
   if(overlayShell&&overlayDrawer&&typeof MutationObserver==='function'){const watch=new MutationObserver(syncOverlay);for(const node of [overlayDrawer,...overlayOthers])watch.observe(node,{attributes:true,attributeFilter:['class','data-panel']});}
   syncOverlay();
   try{syncDock(getState(),null,true);}catch(_error){}

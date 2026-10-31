@@ -3,6 +3,330 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build654-confirm-dialog-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build655-store-capture-protection.cjs"
+    ],
+    [
+      "node",
+      "tests/build652-native-document-scripts.cjs"
+    ],
+    [
+      "node",
+      "tests/build653-i18n-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build651-i18n-source-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build650-i18n-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build649-levels-page-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build648-health-maintenance-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-bulk-payables-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build361-bulk-opening-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-facility-scope-bank-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-revenue-chain-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-compact-desks-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build380-construction-acceleration-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-campaign-decisions-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build386-confirmation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-once-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build420-conference-durable-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build433-request-decisions-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build452-section-review-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build528-reopen-navigation-guard-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build556-investor-card-page-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build559-share-value-fixes-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build561-ipo-offering-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build563-group-share-page-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build565-group-dividends-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build573-asset-sale-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build593-bulk-acquisition-frames-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build596-construction-vat-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build611-truck-route-center-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/business-options-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/dealer-ledger-and-stock-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/tax-precision-and-routing-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build498-native-save-export-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-native-runtime-ready.cjs"
+    ],
+    [
+      "node",
+      "tests/build637-launch-native-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-release-edition-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build636-store-release-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-security-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-runtime-removal.cjs"
+    ],
+    [
+      "node",
+      "tests/build644-game-name.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-save-policy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-actions.cjs"
+    ],
+    [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build493-backup-export-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-finance-report.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-map-presentation.cjs"
+    ],
+    [
+      "node",
+      "tests/build616-marker-step-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/build646-development-device-roads-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build377-health-status-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build368-approved-company-logos.cjs"
+    ],
+    [
+      "node",
+      "tests/build367-company-static-identities.cjs"
+    ],
+    [
+      "node",
+      "tests/build634-progression-career-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build633-progression-core.cjs"
+    ],
+    [
+      "node",
+      "tests/phone-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build647-store-plus-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build645-legal-consent-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build361-button-binding-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-navigation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-reach-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build614-panel-copy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build444-document-pages.cjs"
+    ],
+    [
+      "node",
+      "tests/native-save-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-identity-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-time-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-xss-logo-security.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-media-assets.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-maintenance-health-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-large-health-fallback-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-calendar-cancel-maintenance-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-proof-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build483-large-panel-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-sim-smoothness.cjs"
+    ],
+    [
+      "node",
+      "tests/build336-diagnostics-transient.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-diagnostic-lifecycle-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-runtime-diagnostics-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-frame-work-attribution.cjs"
+    ],
+    [
+      "node",
+      "tests/build407-diagnostic-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/build481-diagnostic-fleet-proof.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-customer-satisfaction.cjs"
+    ],
+    [
+      "node",
       "tests/build365-official-news.cjs"
     ],
     [
@@ -19,43 +343,11 @@
     ],
     [
       "node",
-      "tests/build361-button-binding-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build376-cooperative-draft-browser.cjs"
     ],
     [
       "node",
-      "tests/phone-layout-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build647-store-plus-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build645-legal-consent-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build635-store-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build633-progression-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build636-store-release-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build634-progression-career-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-release-edition-browser.cjs"
     ],
     [
       "node",
@@ -64,10 +356,6 @@
     [
       "node",
       "tests/build589-acceleration-immediate.cjs"
-    ],
-    [
-      "node",
-      "tests/build492-manual-slot-slices-browser.cjs"
     ],
     [
       "node",
@@ -83,27 +371,7 @@
     ],
     [
       "node",
-      "tests/build373-reach-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build383-navigation-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build644-game-name.cjs"
-    ],
-    [
-      "node",
       "tests/fleet-business-boundary.cjs"
-    ],
-    [
-      "node",
-      "tests/build444-document-pages.cjs"
-    ],
-    [
-      "node",
-      "tests/build637-launch-native-contract.cjs"
     ],
     [
       "node",
@@ -124,10 +392,6 @@
     [
       "node",
       "tests/build623-worker-extras-packing.cjs"
-    ],
-    [
-      "node",
-      "tests/build528-reopen-navigation-guard-browser.cjs"
     ],
     [
       "node",
@@ -195,23 +459,11 @@
     ],
     [
       "node",
-      "tests/build493-backup-export-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build646-development-device-roads-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build570-documents-list-weight-browser.cjs"
     ],
     [
       "node",
       "tests/build576-presentation-rest-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build593-bulk-acquisition-frames-browser.cjs"
     ],
     [
       "node",
@@ -223,15 +475,7 @@
     ],
     [
       "node",
-      "tests/build611-truck-route-center-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build618-prepared-map-render-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-security-contract.cjs"
     ],
     [
       "node",
@@ -259,10 +503,6 @@
     ],
     [
       "node",
-      "tests/build359-save-policy-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build371-custom-road-geometry-browser.cjs"
     ],
     [
@@ -272,18 +512,6 @@
     [
       "node",
       "tests/build372-map-summary-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build377-health-status-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build387-save-actions.cjs"
-    ],
-    [
-      "node",
-      "tests/build387-save-once-browser.cjs"
     ],
     [
       "node",
@@ -312,10 +540,6 @@
     [
       "node",
       "tests/build334-r4-recovery-integration.cjs"
-    ],
-    [
-      "node",
-      "tests/build336-diagnostics-transient.cjs"
     ],
     [
       "node",
@@ -515,10 +739,6 @@
     ],
     [
       "node",
-      "tests/build334-identity-regressions.cjs"
-    ],
-    [
-      "node",
       "tests/build334-logistics-staged-contract.cjs"
     ],
     [
@@ -555,19 +775,11 @@
     ],
     [
       "node",
-      "tests/build334-simulation-time-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build334-singleton-company-boundaries.cjs"
     ],
     [
       "node",
       "tests/build334-tabs-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-xss-logo-security.cjs"
     ],
     [
       "node",
@@ -615,23 +827,11 @@
     ],
     [
       "node",
-      "tests/build340-finance-report.cjs"
-    ],
-    [
-      "node",
       "tests/build340-finance-transaction-index.cjs"
     ],
     [
       "node",
       "tests/build340-map-asset-query.cjs"
-    ],
-    [
-      "node",
-      "tests/build340-map-presentation.cjs"
-    ],
-    [
-      "node",
-      "tests/build340-media-assets.cjs"
     ],
     [
       "node",
@@ -676,10 +876,6 @@
     [
       "node",
       "tests/build358-budgets-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-bulk-payables-browser.cjs"
     ],
     [
       "node",
@@ -843,10 +1039,6 @@
     ],
     [
       "node",
-      "tests/build359-sim-smoothness.cjs"
-    ],
-    [
-      "node",
       "tests/build359-tax-pay-all-browser.cjs"
     ],
     [
@@ -879,10 +1071,6 @@
     ],
     [
       "node",
-      "tests/build361-bulk-opening-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build362-bulk-asset-purchase-browser.cjs"
     ],
     [
@@ -899,10 +1087,6 @@
     ],
     [
       "node",
-      "tests/build363-facility-scope-bank-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build364-company-overview-summary.cjs"
     ],
     [
@@ -916,14 +1100,6 @@
     [
       "node",
       "tests/build366-mobility-no-repeat-scans.cjs"
-    ],
-    [
-      "node",
-      "tests/build367-company-static-identities.cjs"
-    ],
-    [
-      "node",
-      "tests/build368-approved-company-logos.cjs"
     ],
     [
       "node",
@@ -1023,15 +1199,7 @@
     ],
     [
       "node",
-      "tests/build372-maintenance-health-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build372-owner-totals-cache.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-proof-worker-browser.cjs"
     ],
     [
       "node",
@@ -1055,10 +1223,6 @@
     ],
     [
       "node",
-      "tests/build373-revenue-chain-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build374-cheque-payable-lifecycle.cjs"
     ],
     [
@@ -1067,15 +1231,7 @@
     ],
     [
       "node",
-      "tests/build374-diagnostic-lifecycle-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build374-route-capacity-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build375-compact-desks-browser.cjs"
     ],
     [
       "node",
@@ -1096,10 +1252,6 @@
     [
       "node",
       "tests/build378-bank-capital-conservation.cjs"
-    ],
-    [
-      "node",
-      "tests/build378-customer-satisfaction.cjs"
     ],
     [
       "node",
@@ -1135,14 +1287,6 @@
     ],
     [
       "node",
-      "tests/build380-construction-acceleration-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build382-campaign-decisions-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build382-company-campaigns.cjs"
     ],
     [
@@ -1152,10 +1296,6 @@
     [
       "node",
       "tests/build382-route-validation-cache.cjs"
-    ],
-    [
-      "node",
-      "tests/build382-runtime-removal.cjs"
     ],
     [
       "node",
@@ -1171,19 +1311,11 @@
     ],
     [
       "node",
-      "tests/build386-confirmation-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build388-change-tracking-browser.cjs"
     ],
     [
       "node",
       "tests/build393-hospitality-financial-safety.cjs"
-    ],
-    [
-      "node",
-      "tests/build394-hospitality-browser.cjs"
     ],
     [
       "node",
@@ -1239,19 +1371,11 @@
     ],
     [
       "node",
-      "tests/build420-conference-durable-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build421-conference-recovery-contract.cjs"
     ],
     [
       "node",
       "tests/build432-ready-fleet-validation.cjs"
-    ],
-    [
-      "node",
-      "tests/build433-request-decisions-browser.cjs"
     ],
     [
       "node",
@@ -1268,10 +1392,6 @@
     [
       "node",
       "tests/build477-bank-read-sync-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build498-native-save-export-contract.cjs"
     ],
     [
       "node",
@@ -1375,27 +1495,11 @@
     ],
     [
       "node",
-      "tests/build556-investor-card-page-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build560-group-fair-value.cjs"
     ],
     [
       "node",
-      "tests/build561-ipo-offering-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build562-group-share-price.cjs"
-    ],
-    [
-      "node",
-      "tests/build563-group-share-page-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build565-group-dividends-browser.cjs"
     ],
     [
       "node",
@@ -1416,10 +1520,6 @@
     [
       "node",
       "tests/build572-fleet-premium-unpaid.cjs"
-    ],
-    [
-      "node",
-      "tests/build573-asset-sale-browser.cjs"
     ],
     [
       "node",
@@ -1467,10 +1567,6 @@
     ],
     [
       "node",
-      "tests/build596-construction-vat-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build600-proof-audit-sealed-checks.cjs"
     ],
     [
@@ -1495,10 +1591,6 @@
     ],
     [
       "node",
-      "tests/build614-panel-copy-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build615-document-proof-check-slices.cjs"
     ],
     [
@@ -1519,10 +1611,6 @@
     ],
     [
       "node",
-      "tests/business-options-browser.cjs"
-    ],
-    [
-      "node",
       "tests/company-platform-regressions.cjs"
     ],
     [
@@ -1532,10 +1620,6 @@
     [
       "node",
       "tests/core-regressions.cjs"
-    ],
-    [
-      "node",
-      "tests/dealer-ledger-and-stock-browser.cjs"
     ],
     [
       "node",
@@ -1555,10 +1639,6 @@
     ],
     [
       "node",
-      "tests/native-save-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/operating-acquisitions.cjs"
     ],
     [
@@ -1571,19 +1651,7 @@
     ],
     [
       "node",
-      "tests/tax-precision-and-routing-browser.cjs"
-    ],
-    [
-      "node",
       "tests/tax-precision-and-routing.cjs"
-    ],
-    [
-      "node",
-      "tests/build616-marker-step-projection.cjs"
-    ],
-    [
-      "node",
-      "tests/build360-native-runtime-ready.cjs"
     ],
     [
       "node",
@@ -1624,10 +1692,6 @@
     [
       "node",
       "tests/build385-dealer-first-stock.cjs"
-    ],
-    [
-      "node",
-      "tests/build452-section-review-browser.cjs"
     ],
     [
       "node",
@@ -1939,10 +2003,6 @@
     ],
     [
       "node",
-      "tests/build363-runtime-diagnostics-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build363-staged-holdings-command.cjs"
     ],
     [
@@ -1959,15 +2019,7 @@
     ],
     [
       "node",
-      "tests/build376-frame-work-attribution.cjs"
-    ],
-    [
-      "node",
       "tests/build379-realism-identity.cjs"
-    ],
-    [
-      "node",
-      "tests/build407-diagnostic-lifecycle.cjs"
     ],
     [
       "node",
@@ -2012,10 +2064,6 @@
     [
       "node",
       "tests/build479-facility-scope-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build481-diagnostic-fleet-proof.cjs"
     ],
     [
       "node",
@@ -2100,10 +2148,6 @@
     [
       "node",
       "tests/build392-hospitality-links.cjs"
-    ],
-    [
-      "node",
-      "tests/build559-share-value-fixes-browser.cjs"
     ],
     [
       "node",
@@ -2291,10 +2335,6 @@
     ],
     [
       "node",
-      "tests/build372-large-health-fallback-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build372-legacy-route-plan.cjs"
     ],
     [
@@ -2419,10 +2459,6 @@
     ],
     [
       "node",
-      "tests/build483-large-panel-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build484-operating-vault-bootstrap-browser.cjs"
     ],
     [
@@ -2520,10 +2556,6 @@
     [
       "node",
       "tests/build359-route-seal.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-calendar-cancel-maintenance-browser.cjs"
     ],
     [
       "node",
@@ -3174,6 +3206,38 @@
     [
       "node",
       "tests/build647-store-plus-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build648-health-maintenance-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build649-levels-page-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build650-i18n-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build651-i18n-source-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build652-native-document-scripts.cjs"
+    ],
+    [
+      "node",
+      "tests/build653-i18n-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build654-confirm-dialog-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build655-store-capture-protection.cjs"
     ],
     [
       "node",

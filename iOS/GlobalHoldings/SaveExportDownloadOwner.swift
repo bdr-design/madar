@@ -65,7 +65,7 @@ final class VentoraSaveExportDownloads: NSObject, WKDownloadDelegate {
         guard active === download else { completionHandler(nil); return }
         guard Self.allowedFilename(suggestedFilename), response.expectedContentLength <= Self.byteLimit else {
             completionHandler(nil)
-            fail(download, error: exportError("تعذر تصدير الملف: الاسم أو الحجم غير مدعوم."))
+            fail(download, error: exportError(arEn("تعذر تصدير الملف: الاسم أو الحجم غير مدعوم.", "The file could not be exported: its name or size is not supported.")))
             return
         }
         do {
@@ -82,11 +82,11 @@ final class VentoraSaveExportDownloads: NSObject, WKDownloadDelegate {
 
     func downloadDidFinish(_ download: WKDownload) {
         guard active === download else { return }
-        guard let url = destination else { fail(download, error: exportError("لم يُنشأ ملف التصدير.")); return }
+        guard let url = destination else { fail(download, error: exportError(arEn("لم يُنشأ ملف التصدير.", "The export file was not created."))); return }
         do {
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             guard let size = attributes[.size] as? NSNumber, Self.allowedSize(size.int64Value) else {
-                throw exportError("حجم ملف التصدير غير صالح.")
+                throw exportError(arEn("حجم ملف التصدير غير صالح.", "The export file size is not valid."))
             }
             active = nil
             destination = nil

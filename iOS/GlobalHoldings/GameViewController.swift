@@ -5,7 +5,21 @@ import CryptoKit
 import UniformTypeIdentifiers
 import MachO
 
-private let ventoraSky = UIColor(red: 0.122, green: 0.471, blue: 0.784, alpha: 1)
+// The navy of the «أصول ونفوذ» logo, under the launch art and the page while they load.
+private let ventoraSky = UIColor(red: 0.051, green: 0.231, blue: 0.341, alpha: 1)
+
+// The game's two languages (owner, approved English plan). The choice is the device's, kept here and given to every game
+// document before its own scripts (GH_I18N reads it); a choice made in the game's settings comes back through
+// languageBridge. English is offered in the development edition until the English edition is complete.
+let englishEditionReady = false
+enum AppLanguage {
+    static let key = "ANILanguage"
+    static var offersEnglish: Bool { englishEditionReady || !ventoraReleaseEdition }
+    static var current: String { offersEnglish && UserDefaults.standard.string(forKey: key) == "en" ? "en" : "ar" }
+    static func set(_ value: String) { UserDefaults.standard.set(value == "en" ? "en" : "ar", forKey: key) }
+    static var documentScript: String { "try{localStorage.setItem('ani-language','\(current)');}catch(_e){}" }
+}
+func arEn(_ ar: String, _ en: String) -> String { AppLanguage.current == "en" ? en : ar }
 
 /// VENTORA release edition on a modified (jailbroken) iPhone: the tools that edit a running game's memory and files
 /// need one. The release edition does not open the game there. The checks only look for files and libraries that a
@@ -46,6 +60,9 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     private weak var launchSubtitleLabel: UILabel?
     private weak var launchPrimaryButton: UIButton?
     private weak var launchUpdateButton: UIButton?
+    private weak var launchLanguageRow: UIStackView?
+    /// A modified device in the store edition: the entry screen stays locked (no play, no language choice that would draw it again).
+    private var deviceBlocked = false
     private var launchTimeoutWorkItem: DispatchWorkItem?
     private var launchAttempt: UInt = 0
     private var pendingIncomingUpdateURL: URL?
@@ -74,7 +91,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             if let popover = share.popoverPresentationController { popover.sourceView = self.view; popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 1, height: 1) }
             (self.presentedViewController ?? self).present(share, animated: true)
         case .failure(let error):
-            self.showMessage(title: "تعذر التصدير", message: error.localizedDescription)
+            self.showMessage(title: arEn("تعذر التصدير", "Export failed"), message: error.localizedDescription)
         }
     }
 
@@ -88,10 +105,9 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         configuration.userContentController.add(self, name: "saveBridge")
         configuration.userContentController.add(self, name: "diagnosticBridge")
         configuration.userContentController.add(self, name: "storeBridge")
+        configuration.userContentController.add(self, name: "languageBridge")
         configuration.setURLSchemeHandler(schemeHandler, forURLScheme: "gh")
-        if ventoraReleaseEdition {
-            configuration.userContentController.addUserScript(WKUserScript(source: "window.GH_EDITION='release';", injectionTime: .atDocumentStart, forMainFrameOnly: true))
-        }
+        addDocumentStartScripts(configuration.userContentController)
 
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = self
@@ -112,6 +128,77 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         super.viewDidLoad()
         initializeRuntime()
         observeDeviceState()
+        observeScreenCapture()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // The capture cover stays above everything, the entry screen included (it is added after the cover).
+        if let cover = captureCover, view.subviews.last !== cover { view.bringSubviewToFront(cover) }
+    }
+
+    // Owner («امنع تصوير الشاشة باللعبة» → «نسخة المتجر فقط»): in the store edition a screen recording, AirPlay or a
+    // mirrored display shows a cover instead of the game while it lasts. The change comes from iOS's own capture notice,
+    // never polled. iOS offers an app no way to block a single screenshot; the development edition stays capturable.
+    private var captureObservers: [NSObjectProtocol] = []
+    private weak var captureCover: UIView?
+
+    private func observeScreenCapture() {
+        guard ventoraReleaseEdition, captureObservers.isEmpty else { return }
+        // The capture notice, and a return to the app (a capture that ended while the app was suspended is read again).
+        for name in [UIScreen.capturedDidChangeNotification, UIApplication.didBecomeActiveNotification] {
+            captureObservers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                self?.updateCaptureCover()
+            })
+        }
+        updateCaptureCover()
+    }
+
+    private func updateCaptureCover() {
+        guard ventoraReleaseEdition else { return }
+        let captured = (view.window?.windowScene?.screen ?? UIScreen.main).isCaptured
+        if !captured {
+            captureCover?.removeFromSuperview()
+            return
+        }
+        if let cover = captureCover {
+            view.bringSubviewToFront(cover)
+            return
+        }
+        let cover = UIView()
+        cover.backgroundColor = ventoraSky
+        cover.translatesAutoresizingMaskIntoConstraints = false
+        cover.isAccessibilityElement = true
+        let title = UILabel()
+        title.text = arEn("أصول ونفوذ", "Assets & Influence")
+        title.font = .systemFont(ofSize: 22, weight: .bold)
+        title.textColor = .white
+        title.textAlignment = .center
+        let note = UILabel()
+        note.text = arEn("تسجيل الشاشة وعرضها غير متاحين في اللعبة.", "Screen recording and mirroring are not available in the game.")
+        note.font = .systemFont(ofSize: 14, weight: .medium)
+        note.textColor = UIColor.white.withAlphaComponent(0.8)
+        note.textAlignment = .center
+        note.numberOfLines = 0
+        cover.accessibilityLabel = note.text
+        let stack = UIStackView(arrangedSubviews: [title, note])
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        cover.addSubview(stack)
+        view.addSubview(cover)
+        NSLayoutConstraint.activate([
+            cover.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            cover.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            cover.topAnchor.constraint(equalTo: view.topAnchor),
+            cover.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            stack.centerXAnchor.constraint(equalTo: cover.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: cover.centerYAnchor),
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: cover.leadingAnchor, constant: 32),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: cover.trailingAnchor, constant: -32)
+        ])
+        captureCover = cover
     }
 
     // The device's power and heat state for the diagnostic export, sent to the page when it loads and when iOS reports a
@@ -148,10 +235,11 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
     private func initializeRuntime() {
         if ventoraReleaseEdition && VentoraDeviceIntegrity.isModified() {
+            deviceBlocked = true
             showLaunchOverlay()
             launchPrimaryButton?.isEnabled = false
             launchPrimaryButton?.alpha = 0.55
-            showLaunchStatus("لا تعمل أصول ونفوذ على جهاز معدّل (Jailbreak) حفاظًا على عدالة اللعبة وحماية حفظك.")
+            showLaunchStatus(arEn("لا تعمل أصول ونفوذ على جهاز معدّل (Jailbreak) حفاظًا على عدالة اللعبة وحماية حفظك.", "Assets & Influence does not run on a modified (jailbroken) device, to keep the game fair and protect your save."))
             return
         }
         do {
@@ -166,6 +254,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        updateCaptureCover()
         if let url = pendingIncomingUpdateURL {
             pendingIncomingUpdateURL = nil
             confirmAndApplyUpdate(url)
@@ -213,8 +302,8 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         }
     }
 
-    /// VENTORA entry screen: the launch art fills the screen, one «دخول اللعبة» button sits over the calm sea on the
-    /// left, and a status line under it reports loading and failures. The development edition keeps two small update
+    /// Entry screen («أصول ونفوذ»): the launch art fills the screen, one «دخول اللعبة» button sits low on the left over
+    /// the desk, and a status line under it reports loading and failures. The development edition keeps two small update
     /// and restore buttons in the corner; the release edition has neither.
     private func showLaunchOverlay(recoveryMessage: String? = nil) {
         launchTimeoutWorkItem?.cancel()
@@ -228,12 +317,12 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         art.contentMode = .scaleAspectFill
         art.clipsToBounds = true
         art.isAccessibilityElement = true
-        art.accessibilityLabel = "أصول ونفوذ"
+        art.accessibilityLabel = arEn("أصول ونفوذ", "Assets & Influence")
         art.translatesAutoresizingMaskIntoConstraints = false
         overlay.addSubview(art)
 
         let recovering = recoveryMessage != nil
-        let play = makeButton(title: recovering ? "إعادة محاولة التشغيل" : "دخول اللعبة", primary: true)
+        let play = makeButton(title: recovering ? arEn("إعادة محاولة التشغيل", "Try again") : arEn("دخول اللعبة", "Enter Game"), primary: true)
         if recovering {
             play.addTarget(self, action: #selector(retryRuntimeInitialization), for: .touchUpInside)
         } else {
@@ -242,6 +331,29 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         play.translatesAutoresizingMaskIntoConstraints = false
         overlay.addSubview(play)
 
+        // The language, chosen before entering (owner, approved English plan): the game page loads in it.
+        var languageRow: UIStackView?
+        if AppLanguage.offersEnglish && !recovering && !deviceBlocked {
+            let choices: [(code: String, title: String)] = [("ar", "العربية"), ("en", "English")]
+            let row = UIStackView(arrangedSubviews: choices.map { choice -> UIButton in
+                let code = choice.code
+                let button = makeCornerButton(title: choice.title)
+                button.tag = code == "en" ? 1 : 0
+                let selected = AppLanguage.current == code
+                button.backgroundColor = selected ? .white : UIColor.black.withAlphaComponent(0.35)
+                button.setTitleColor(selected ? UIColor(red: 0.051, green: 0.231, blue: 0.341, alpha: 1) : .white, for: .normal)
+                button.accessibilityTraits = selected ? [.button, .selected] : .button
+                button.addTarget(self, action: #selector(chooseLanguage(_:)), for: .touchUpInside)
+                return button
+            })
+            row.axis = .horizontal
+            row.spacing = 6
+            row.semanticContentAttribute = .forceLeftToRight
+            row.translatesAutoresizingMaskIntoConstraints = false
+            overlay.addSubview(row)
+            languageRow = row
+        }
+
         // The status line: loading, recovery and failure messages on a dark glass pill.
         let status = UIView()
         status.backgroundColor = UIColor.black.withAlphaComponent(0.38)
@@ -249,7 +361,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         status.translatesAutoresizingMaskIntoConstraints = false
         status.isHidden = recoveryMessage == nil
         let subtitle = UILabel()
-        subtitle.text = recoveryMessage.map { "استرداد أصول ونفوذ · \($0)" }
+        subtitle.text = recoveryMessage.map { arEn("استرداد أصول ونفوذ · \($0)", "Assets & Influence recovery · \($0)") }
         subtitle.textColor = .white
         subtitle.font = .systemFont(ofSize: 13, weight: .semibold)
         subtitle.textAlignment = .center
@@ -261,9 +373,9 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         let version = UILabel()
         let storage = GlobalGameStorage.shared
         let installedNote = !ventoraReleaseEdition && storage.installedBuild > 0 && storage.installedBuild != storage.bundledBuild
-            ? " ⚠︎ مثبّت فعليًا BUILD\(storage.installedBuild)"
+            ? arEn(" ⚠︎ مثبّت فعليًا BUILD\(storage.installedBuild)", " ⚠︎ actually installed BUILD\(storage.installedBuild)")
             : ""
-        version.text = ventoraReleaseEdition ? "الإصدار \(storage.currentVersion)" : "\(storage.currentVersion) · BUILD\(storage.bundledBuild)\(installedNote)"
+        version.text = ventoraReleaseEdition ? arEn("الإصدار \(storage.currentVersion)", "Version \(storage.currentVersion)") : "\(storage.currentVersion) · BUILD\(storage.bundledBuild)\(installedNote)"
         version.textColor = .white
         version.font = .monospacedDigitSystemFont(ofSize: 11, weight: .semibold)
         version.layer.shadowColor = UIColor.black.cgColor
@@ -284,10 +396,12 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             art.topAnchor.constraint(equalTo: overlay.topAnchor),
             art.bottomAnchor.constraint(equalTo: overlay.bottomAnchor),
             play.leftAnchor.constraint(equalTo: safe.leftAnchor, constant: 28),
-            play.centerYAnchor.constraint(equalTo: safe.centerYAnchor, constant: -10),
+            // Owner (approved entry art «أصول ونفوذ»): the button and its status sit low on the left, over the desk, so the
+            // window's skyline and the logo on the wall stay clear.
+            play.bottomAnchor.constraint(equalTo: status.topAnchor, constant: -12),
             play.widthAnchor.constraint(equalToConstant: 220),
             play.heightAnchor.constraint(equalToConstant: 56),
-            status.topAnchor.constraint(equalTo: play.bottomAnchor, constant: 12),
+            status.bottomAnchor.constraint(equalTo: version.topAnchor, constant: -10),
             status.centerXAnchor.constraint(equalTo: play.centerXAnchor),
             status.widthAnchor.constraint(lessThanOrEqualToConstant: 300),
             status.widthAnchor.constraint(greaterThanOrEqualTo: play.widthAnchor),
@@ -298,15 +412,22 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             version.leftAnchor.constraint(equalTo: safe.leftAnchor, constant: 30),
             version.bottomAnchor.constraint(equalTo: safe.bottomAnchor, constant: -12)
         ]
+        if let languageRow {
+            constraints += [
+                languageRow.leftAnchor.constraint(equalTo: play.leftAnchor),
+                languageRow.bottomAnchor.constraint(equalTo: play.topAnchor, constant: -10),
+                languageRow.heightAnchor.constraint(equalToConstant: 32)
+            ]
+        }
 
         var update: UIButton?
         if !ventoraReleaseEdition {
             var corner: [UIView] = []
-            let updateButton = makeCornerButton(title: "تحديث")
+            let updateButton = makeCornerButton(title: arEn("تحديث", "Update"))
             updateButton.addTarget(self, action: #selector(openUpdatePicker), for: .touchUpInside)
             corner.append(updateButton)
             if GlobalGameStorage.shared.hasPreviousVersion {
-                let restore = makeCornerButton(title: "استرجاع")
+                let restore = makeCornerButton(title: arEn("استرجاع", "Restore"))
                 restore.addTarget(self, action: #selector(confirmRestorePreviousVersion), for: .touchUpInside)
                 corner.append(restore)
             }
@@ -327,6 +448,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         launchOverlay = overlay
         launchSubtitleLabel = subtitle
         launchPrimaryButton = play
+        launchLanguageRow = languageRow
         launchUpdateButton = update
     }
 
@@ -339,17 +461,18 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         launchAttempt &+= 1
         let attempt = launchAttempt
         launchTimeoutWorkItem?.cancel()
-        showLaunchStatus("جارٍ استعادة عالمك والتحقق من الحفظ وتجهيز الخريطة…")
-        launchPrimaryButton?.setTitle("جارٍ التشغيل…", for: .normal)
+        showLaunchStatus(arEn("جارٍ استعادة عالمك والتحقق من الحفظ وتجهيز الخريطة…", "Restoring your world, checking the save and preparing the map…"))
+        launchPrimaryButton?.setTitle(arEn("جارٍ التشغيل…", "Starting…"), for: .normal)
         launchPrimaryButton?.isEnabled = false
         launchPrimaryButton?.alpha = 0.72
+        launchLanguageRow?.isHidden = true
         launchUpdateButton?.isEnabled = false
         launchUpdateButton?.alpha = 0.55
         let timeout = DispatchWorkItem { [weak self] in
             guard let self, self.launchAttempt == attempt, self.launchOverlay != nil else { return }
             self.showLaunchFailure(ventoraReleaseEdition
-                ? "لم يكتمل تجهيز اللعبة خلال المهلة. لم يُعرض عالم افتراضي بدل حفظك؛ أعد المحاولة."
-                : "لم يكتمل تجهيز اللعبة خلال المهلة. لم يُعرض عالم افتراضي بدل حفظك؛ أعد المحاولة أو ثبّت تحديثًا سليمًا.")
+                ? arEn("لم يكتمل تجهيز اللعبة خلال المهلة. لم يُعرض عالم افتراضي بدل حفظك؛ أعد المحاولة.", "The game took too long to load. Your save was not replaced with a default world. Try again.")
+                : arEn("لم يكتمل تجهيز اللعبة خلال المهلة. لم يُعرض عالم افتراضي بدل حفظك؛ أعد المحاولة أو ثبّت تحديثًا سليمًا.", "The game took too long to load. Your save was not replaced with a default world. Try again, or install a valid update."))
         }
         launchTimeoutWorkItem = timeout
         DispatchQueue.main.asyncAfter(deadline: .now() + 45, execute: timeout)
@@ -359,7 +482,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         launchTimeoutWorkItem?.cancel()
         launchTimeoutWorkItem = nil
         showLaunchStatus(message)
-        launchPrimaryButton?.setTitle("إعادة محاولة التشغيل", for: .normal)
+        launchPrimaryButton?.setTitle(arEn("إعادة محاولة التشغيل", "Try again"), for: .normal)
         launchPrimaryButton?.isEnabled = true
         launchPrimaryButton?.alpha = 1
         launchUpdateButton?.isEnabled = true
@@ -402,6 +525,14 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         return button
     }
 
+    /// A language chosen on the entry screen, before the game page loads: stored, and the entry screen drawn again in it.
+    @objc private func chooseLanguage(_ sender: UIButton) {
+        let language = sender.tag == 1 ? "en" : "ar"
+        guard !deviceBlocked, AppLanguage.offersEnglish, language != AppLanguage.current, launchLanguageRow?.isHidden == false else { return }
+        AppLanguage.set(language)
+        showLaunchOverlay()
+    }
+
     @objc private func enterGame() {
         loadGame()
     }
@@ -436,18 +567,18 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             }
             confirmAndApplyUpdate(local)
         } catch {
-            showMessage(title: "فشل استلام التحديث", message: error.localizedDescription)
+            showMessage(title: arEn("فشل استلام التحديث", "The update could not be received"), message: error.localizedDescription)
         }
     }
 
     private func confirmAndApplyUpdate(_ url: URL) {
         let alert = UIAlertController(
-            title: "تحديث أصول ونفوذ",
-            message: "تم العثور على حزمة تحديث. الإصدار الحالي: \(GlobalGameStorage.shared.currentVersion)",
+            title: arEn("تحديث أصول ونفوذ", "Update Assets & Influence"),
+            message: arEn("تم العثور على حزمة تحديث. الإصدار الحالي: \(GlobalGameStorage.shared.currentVersion)", "An update package was found. Current version: \(GlobalGameStorage.shared.currentVersion)"),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "إلغاء", style: .cancel) { _ in try? FileManager.default.removeItem(at: url) })
-        alert.addAction(UIAlertAction(title: "تحديث الآن", style: .default) { [weak self] _ in self?.applyNativeUpdate(url) })
+        alert.addAction(UIAlertAction(title: arEn("إلغاء", "Cancel"), style: .cancel) { _ in try? FileManager.default.removeItem(at: url) })
+        alert.addAction(UIAlertAction(title: arEn("تحديث الآن", "Update Now"), style: .default) { [weak self] _ in self?.applyNativeUpdate(url) })
         present(alert, animated: true)
     }
 
@@ -457,7 +588,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             guard let self else { return }
             switch result {
             case .failure(let error):
-                self.showMessage(title: "فشل نقطة الاستعادة", message: error.localizedDescription)
+                self.showMessage(title: arEn("فشل نقطة الاستعادة", "Restore point failed"), message: error.localizedDescription)
             case .success(let generation):
                 self.preUpdateSaveGeneration = generation
                 self.reportUpdateLifecycle(phase: "PRE_SAVE_COMMITTED", message: "Verified pre-update save generation \(generation)")
@@ -469,8 +600,8 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                             self.preparePendingUpdate(result)
                             self.reportUpdateLifecycle(phase: "RUNTIME_SWAPPED", version: result.version)
                             self.showMessage(
-                                title: "تم التحقق من ملفات التحديث",
-                                message: "تم تجهيز الإصدار \(result.version) مبدئيًا. سيُعتمد فقط بعد نجاح العمليات والحفظ الدائم وفحص سلامة التشغيل."
+                                title: arEn("تم التحقق من ملفات التحديث", "Update files verified"),
+                                message: arEn("تم تجهيز الإصدار \(result.version) مبدئيًا. سيُعتمد فقط بعد نجاح العمليات والحفظ الدائم وفحص سلامة التشغيل.", "Version \(result.version) is staged. It is confirmed only after its operations, the durable save and the runtime health check succeed.")
                             ) { [weak self] in
                                 self?.launchOverlay?.removeFromSuperview()
                                 self?.launchOverlay = nil
@@ -480,7 +611,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                     } catch {
                         DispatchQueue.main.async { [weak self] in
                             self?.reportUpdateLifecycle(phase: "FAILED", message: error.localizedDescription)
-                            self?.showMessage(title: "فشل التحديث", message: error.localizedDescription)
+                            self?.showMessage(title: arEn("فشل التحديث", "Update failed"), message: error.localizedDescription)
                         }
                     }
                 }
@@ -493,7 +624,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             guard let save, !save.isEmpty else {
                 let generation = GlobalSaveVault.shared.currentGeneration()
                 guard generation > 0 else {
-                    completion(.failure(NSError(domain: "GlobalHoldings.Update", code: 1001, userInfo: [NSLocalizedDescriptionKey: "لا توجد نقطة حفظ Native موثقة قبل التحديث. افتح اللعبة واحفظ الحالة أولاً ثم أعد المحاولة."])))
+                    completion(.failure(NSError(domain: "GlobalHoldings.Update", code: 1001, userInfo: [NSLocalizedDescriptionKey: arEn("لا توجد نقطة حفظ Native موثقة قبل التحديث. افتح اللعبة واحفظ الحالة أولاً ثم أعد المحاولة.", "There is no verified native save point before the update. Open the game, save, then try again.")])))
                     return
                 }
                 completion(.success(generation))
@@ -549,14 +680,14 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
     @objc private func confirmRestorePreviousVersion() {
         guard GlobalGameStorage.shared.hasPreviousVersion else { return }
-        let version = GlobalGameStorage.shared.previousVersion ?? "النسخة السابقة"
+        let version = GlobalGameStorage.shared.previousVersion ?? arEn("النسخة السابقة", "(previous)")
         let alert = UIAlertController(
-            title: "استرجاع النسخة السابقة",
-            message: "سيتم استرجاع إصدار \(version) مع الاحتفاظ بالنسخة الحالية للتبديل لاحقًا.",
+            title: arEn("استرجاع النسخة السابقة", "Restore Previous Version"),
+            message: arEn("سيتم استرجاع إصدار \(version) مع الاحتفاظ بالنسخة الحالية للتبديل لاحقًا.", "Version \(version) will be restored. The current version is kept so you can switch back later."),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "إلغاء", style: .cancel))
-        alert.addAction(UIAlertAction(title: "استرجاع", style: .destructive) { [weak self] _ in self?.restorePreviousVersion() })
+        alert.addAction(UIAlertAction(title: arEn("إلغاء", "Cancel"), style: .cancel))
+        alert.addAction(UIAlertAction(title: arEn("استرجاع", "Restore"), style: .destructive) { [weak self] _ in self?.restorePreviousVersion() })
         present(alert, animated: true)
     }
 
@@ -568,18 +699,18 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             guard let self else { return }
             switch checkpoint {
             case .failure(let error):
-                self.showMessage(title: "فشل الاسترجاع", message: "تعذر تثبيت نقطة حفظ قبل الاسترجاع: \(error.localizedDescription)")
+                self.showMessage(title: arEn("فشل الاسترجاع", "Restore failed"), message: arEn("تعذر تثبيت نقطة حفظ قبل الاسترجاع: \(error.localizedDescription)", "A save point could not be secured before the restore: \(error.localizedDescription)"))
             case .success:
                 DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                     do {
                         let version = try GlobalGameStorage.shared.restorePreviousVersion()
                         DispatchQueue.main.async {
-                            self?.showMessage(title: "تم تجهيز الاسترجاع", message: "تم تجهيز الإصدار \(version). لن يُعتمد نهائيًا إلا بعد اجتياز Boot + Integrity.") { [weak self] in
+                            self?.showMessage(title: arEn("تم تجهيز الاسترجاع", "Restore staged"), message: arEn("تم تجهيز الإصدار \(version). لن يُعتمد نهائيًا إلا بعد اجتياز Boot + Integrity.", "Version \(version) is staged. It is confirmed only after it passes Boot + Integrity.")) { [weak self] in
                                 self?.loadGame(cacheBuster: UUID().uuidString)
                             }
                         }
                     } catch {
-                        DispatchQueue.main.async { [weak self] in self?.showMessage(title: "فشل الاسترجاع", message: error.localizedDescription) }
+                        DispatchQueue.main.async { [weak self] in self?.showMessage(title: arEn("فشل الاسترجاع", "Restore failed"), message: error.localizedDescription) }
                     }
                 }
             }
@@ -590,7 +721,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         if launchOverlay == nil { showLaunchOverlay() }
         beginLaunchLoading()
         guard let url = URL(string: "gh://app/index.html?v=\(cacheBuster.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? cacheBuster)") else {
-            showLaunchFailure("تعذر تكوين عنوان التشغيل المحلي.")
+            showLaunchFailure(arEn("تعذر تكوين عنوان التشغيل المحلي.", "The game's local address could not be created."))
             return
         }
         webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30))
@@ -606,6 +737,14 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         bootstrapForceOnNavigation = bootstrapForceOnNavigation || force
         bootstrapPauseOnNavigation = bootstrapPauseOnNavigation || pause
         nativeBootstrapIntent &+= 1
+    }
+
+    /// The scripts every game document gets before its own: the store edition's flag (GH_EDITION) and the player's language.
+    private func addDocumentStartScripts(_ controller: WKUserContentController) {
+        if ventoraReleaseEdition {
+            controller.addUserScript(WKUserScript(source: "window.GH_EDITION='release';", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        }
+        controller.addUserScript(WKUserScript(source: AppLanguage.documentScript, injectionTime: .atDocumentStart, forMainFrameOnly: true))
     }
 
     private func installBootstrapBeforeNavigation(_ target: WKWebView, token: UInt, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -624,6 +763,9 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                 return
             }
             target.configuration.userContentController.removeAllUserScripts()
+            // The edition flag and the language come first: the page reads both before anything else (store-core,
+            // i18n-core). Clearing the scripts here once dropped the store edition's flag from every game document.
+            self.addDocumentStartScripts(target.configuration.userContentController)
             if !script.isEmpty {
                 target.configuration.userContentController.addUserScript(WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: true))
             }
@@ -762,6 +904,12 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             }
             return
         }
+        if message.name == "languageBridge" {
+            if action == "setLanguage", let language = payload["language"] as? String, ["ar", "en"].contains(language), AppLanguage.offersEnglish || language == "ar" {
+                AppLanguage.set(language)
+            }
+            return
+        }
         if message.name == "storeBridge" {
             store?.handle(action: action, payload: payload)
             return
@@ -775,14 +923,14 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         switch action {
         case "installWebPack":
             guard !ventoraReleaseEdition else {
-                reportToWeb(success: false, message: "تحديثات أصول ونفوذ تصل من متجر التطبيقات.")
+                reportToWeb(success: false, message: arEn("تحديثات أصول ونفوذ تصل من متجر التطبيقات.", "Assets & Influence updates come from the App Store."))
                 return
             }
             guard let manifest = payload["manifest"] as? [String: Any],
                   let files = payload["files"] as? [[String: Any]],
                   let operationsJSON = payload["operationsJSON"] as? String,
                   let save = payload["saveJSON"] as? String else {
-                reportToWeb(success: false, message: "بيانات التحديث أو نقطة الحفظ الوقائية غير مكتملة.")
+                reportToWeb(success: false, message: arEn("بيانات التحديث أو نقطة الحفظ الوقائية غير مكتملة.", "The update data or its safety save point is incomplete."))
                 return
             }
             pendingSaveJSON = save
@@ -796,7 +944,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                     self?.applyWebBridgeUpdate(manifest: manifest, files: files, operationsJSON: operationsJSON, preUpdateSaveGeneration: generation)
                 case .failure(let error):
                     self?.pendingSaveJSON = nil
-                    self?.reportToWeb(success: false, message: "فشل إنشاء نقطة الاستعادة قبل التحديث: \(error.localizedDescription)")
+                    self?.reportToWeb(success: false, message: arEn("فشل إنشاء نقطة الاستعادة قبل التحديث: \(error.localizedDescription)", "The restore point could not be created before the update: \(error.localizedDescription)"))
                 }
             }
         case "commitUpdateState":
@@ -805,7 +953,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                   let save = payload["saveJSON"] as? String,
                   pendingNativeUpdate?.version == version,
                   pendingNativeUpdate?.build == build else {
-                reportToWeb(success: false, message: "رفض Native اعتماد حالة تحديث غير مطابقة للإصدار/Build المعلق.")
+                reportToWeb(success: false, message: arEn("رفض Native اعتماد حالة تحديث غير مطابقة للإصدار/Build المعلق.", "The app refused an update state that does not match the pending version/Build."))
                 return
             }
             GlobalSaveVault.shared.commitAsync(save, runtimeVersion: version) { [weak self] result in
@@ -824,7 +972,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                         self.rollbackFailedUpdate(reason: "update-journal-state-commit-failed")
                     }
                 case .failure(let error):
-                    self.reportToWeb(success: false, message: "فشل الحفظ الدائم بعد عمليات التحديث: \(error.localizedDescription)")
+                    self.reportToWeb(success: false, message: arEn("فشل الحفظ الدائم بعد عمليات التحديث: \(error.localizedDescription)", "The durable save failed after the update operations: \(error.localizedDescription)"))
                     self.rollbackFailedUpdate(reason: "durable-save-failed")
                 }
             }
@@ -844,7 +992,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             guard let version = payload["version"] as? String,
                   version == GlobalGameStorage.shared.currentVersion,
                   payloadInteger(payload["build"]) != nil else {
-                showLaunchFailure("رفض Native إشارة جهوزية لا تطابق إصدار اللعبة المثبّت.")
+                showLaunchFailure(arEn("رفض Native إشارة جهوزية لا تطابق إصدار اللعبة المثبّت.", "The app rejected a ready signal that does not match the installed game version."))
                 return
             }
             completeLaunchOverlay()
@@ -854,7 +1002,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                   let total = payloadInteger(payload["total"]),
                   total > 0, loaded <= total else { return }
             let percent = min(100, Int((Double(loaded) / Double(total) * 100).rounded(.down)))
-            launchSubtitleLabel?.text = "جارٍ استعادة عالمك والتحقق من الحفظ… \(percent)%"
+            launchSubtitleLabel?.text = arEn("جارٍ استعادة عالمك والتحقق من الحفظ… \(percent)%", "Restoring your world and checking the save… \(percent)%")
         case "resetGameSave":
             guard let cleanSave = payload["saveJSON"] as? String else {
                 reportSaveAck(payload: payload, success: false, generation: nil, message: "Invalid reset envelope.")
@@ -929,7 +1077,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
                     self.updateBootConfirmedIdentity = nil
                     self.operationsApplyingIdentity = nil
                     self.reportUpdateLifecycle(phase: "FINALIZED", version: version)
-                    self.reportToWeb(success: true, message: "تم تثبيت الإصدار \(version) Build \(build) واعتماد العمليات والحفظ الدائم بنجاح.")
+                    self.reportToWeb(success: true, message: arEn("تم تثبيت الإصدار \(version) Build \(build) واعتماد العمليات والحفظ الدائم بنجاح.", "Version \(version) Build \(build) is installed, with its operations and durable save confirmed."))
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
@@ -949,7 +1097,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(finalName, isDirectory: false)
         do {
             guard let data = json.data(using: .utf8), data.count <= 8_000_000 else {
-                showMessage(title: "تعذر التصدير", message: "ملف التشخيص أكبر من الحد الوقائي 8 MB.")
+                showMessage(title: arEn("تعذر التصدير", "Export failed"), message: arEn("ملف التشخيص أكبر من الحد الوقائي 8 MB.", "The diagnostic file is larger than the 8 MB safety limit."))
                 return
             }
             try data.write(to: url, options: .atomic)
@@ -957,7 +1105,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             if let popover = share.popoverPresentationController { popover.sourceView = view; popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1) }
             present(share, animated: true)
         } catch {
-            showMessage(title: "فشل تصدير التشخيص", message: error.localizedDescription)
+            showMessage(title: arEn("فشل تصدير التشخيص", "Diagnostic export failed"), message: error.localizedDescription)
         }
     }
 
@@ -994,13 +1142,13 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         guard webView === self.webView else { return }
         navigationPreparing = false
-        showLaunchFailure("تعذر تحميل محرك اللعبة المحلي: \(error.localizedDescription)")
+        showLaunchFailure(arEn("تعذر تحميل محرك اللعبة المحلي: \(error.localizedDescription)", "The game engine could not be loaded: \(error.localizedDescription)"))
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         guard webView === self.webView else { return }
         navigationPreparing = false
-        showLaunchFailure("توقف تحميل محرك اللعبة قبل اكتماله: \(error.localizedDescription)")
+        showLaunchFailure(arEn("توقف تحميل محرك اللعبة قبل اكتماله: \(error.localizedDescription)", "The game engine stopped loading: \(error.localizedDescription)"))
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
@@ -1081,11 +1229,11 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
             operationsApplyingIdentity = nil
             pendingSaveJSON = nil
             reportUpdateLifecycle(phase: "ROLLED_BACK", version: restoredVersion, message: reason)
-            reportToWeb(success: false, message: "تم إلغاء التحديث واستعادة النسخة السابقة بسبب فشل وقائي: \(reason)")
+            reportToWeb(success: false, message: arEn("تم إلغاء التحديث واستعادة النسخة السابقة بسبب فشل وقائي: \(reason)", "The update was cancelled and the previous version restored after a safety failure: \(reason)"))
             loadGame(cacheBuster: "rollback-\(UUID().uuidString)")
         } catch {
             reportUpdateLifecycle(phase: "FAILED", version: pendingNativeUpdate?.version, message: error.localizedDescription)
-            reportToWeb(success: false, message: "فشل التحديث وتعذر الاسترجاع التلقائي: \(error.localizedDescription)")
+            reportToWeb(success: false, message: arEn("فشل التحديث وتعذر الاسترجاع التلقائي: \(error.localizedDescription)", "The update failed and could not be rolled back automatically: \(error.localizedDescription)"))
         }
     }
 
@@ -1162,7 +1310,7 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
     private func showMessage(title: String, message: String, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "حسنًا", style: .default) { _ in completion?() })
+        alert.addAction(UIAlertAction(title: arEn("حسنًا", "OK"), style: .default) { _ in completion?() })
         present(alert, animated: true)
     }
 
@@ -1331,14 +1479,14 @@ extension GameViewController {
 
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "حسنًا", style: .default) { _ in completionHandler() })
+        alert.addAction(UIAlertAction(title: arEn("حسنًا", "OK"), style: .default) { _ in completionHandler() })
         if !presentJavaScriptDialog(alert) { completionHandler() }
     }
 
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "إلغاء", style: .cancel) { _ in completionHandler(false) })
-        alert.addAction(UIAlertAction(title: "تأكيد", style: .default) { _ in completionHandler(true) })
+        alert.addAction(UIAlertAction(title: arEn("إلغاء", "Cancel"), style: .cancel) { _ in completionHandler(false) })
+        alert.addAction(UIAlertAction(title: arEn("تأكيد", "Confirm"), style: .default) { _ in completionHandler(true) })
         if !presentJavaScriptDialog(alert) { completionHandler(false) }
     }
 }

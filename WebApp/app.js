@@ -27,18 +27,20 @@
   // cost tens of microseconds on every label, list row and departure.
   // Build 373: one digit style in the interface, the Western digits of the money figures (the Kufi zero reads as a dot).
   // Official papers keep the Arabic-Indic digits they were designed with.
-  const ARABIC_INTEGER_FORMAT = new Intl.NumberFormat('ar-SA-u-nu-latn', {maximumFractionDigits: 0});
-  const DOCUMENT_INTEGER_FORMAT = new Intl.NumberFormat('ar-SA', {maximumFractionDigits: 0});
+  // The language (GH_I18N, loaded first) chooses each locale; in Arabic they are the ones these formats always used.
+  const localeOf = kind => window.GH_I18N?.locale?.(kind) || ({number:'ar-SA-u-nu-latn',document:'ar-SA',date:'ar-SA-u-ca-gregory-nu-latn',cheque:'ar-SA-u-ca-gregory',region:'ar'})[kind];
+  const ARABIC_INTEGER_FORMAT = new Intl.NumberFormat(localeOf('number'), {maximumFractionDigits: 0});
+  const DOCUMENT_INTEGER_FORMAT = new Intl.NumberFormat(localeOf('document'), {maximumFractionDigits: 0});
   const DOCUMENT_USD_FORMAT = new Intl.NumberFormat('en-US', {style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
   const DOCUMENT_DECIMAL_FORMAT = new Intl.NumberFormat('en-US', {minimumFractionDigits:2,maximumFractionDigits:2});
   const DOCUMENT_ENGLISH_FORMAT = new Intl.NumberFormat('en-US');
   // Build 358: date formatters are built once; constructing an Intl formatter on every KPI render (every frame) was a
   // measurable cost on iPhone.
   const SIM_DATE_FORMATS=Object.freeze({
-    full:new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}),
-    compact:new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}),
-    month:new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric',timeZone:'UTC'}),
-    cheque:new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'})
+    full:new Intl.DateTimeFormat(localeOf('date'),{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}),
+    compact:new Intl.DateTimeFormat(localeOf('date'),{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}),
+    month:new Intl.DateTimeFormat(localeOf('date'),{month:'long',year:'numeric',timeZone:'UTC'}),
+    cheque:new Intl.DateTimeFormat(localeOf('cheque'),{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'})
   });
   const fmtNumber = value => ARABIC_INTEGER_FORMAT.format(value || 0);
   const APP_VERSION = '3.0.0';
@@ -172,7 +174,7 @@
   function portRowByCode(value){const code=String(value||'').toUpperCase();if(!code)return null;if(portRowCache.has(code))return portRowCache.get(code);let found=null;for(const row of WORLD.ports)if(row[0]===code){found=row;break;}portRowCache.set(code,found);if(found)portKeyCache.set(`port:${found[0]}:${found[3]}:${found[4]}`,found);return found;}
   function portRowsForCodes(codes){const requested=[...new Set((codes||[]).map(code=>String(code||'').toUpperCase()).filter(Boolean))],missing=new Set(requested.filter(code=>!portRowCache.has(code)));if(missing.size)for(const row of WORLD.ports){if(missing.has(row[0])){portRowCache.set(row[0],row);portKeyCache.set(`port:${row[0]}:${row[3]}:${row[4]}`,row);missing.delete(row[0]);if(!missing.size)break;}}for(const code of missing)portRowCache.set(code,null);return requested.map(code=>portRowCache.get(code)).filter(Boolean);}
   function portRowByKey(key){key=String(key||'');if(portKeyCache.has(key))return portKeyCache.get(key);const parts=key.split(':'),row=parts[0]==='port'?portRowByCode(parts[1]):null;if(row&&`port:${row[0]}:${row[3]}:${row[4]}`===key){portKeyCache.set(key,row);return row;}portKeyCache.set(key,null);return null;}
-  const regionNames = typeof Intl.DisplayNames==='function' ? new Intl.DisplayNames(['ar'],{type:'region'}) : null;
+  const regionNames = typeof Intl.DisplayNames==='function' ? new Intl.DisplayNames([localeOf('region')],{type:'region'}) : null;
   const logisticsCenterName = place => place?.area ? `مركز ${place.city} — ${place.area}` : `مركز ${place?.label||'موقع مخصص'}`;
   const esc = value => String(value??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
   const normalizeSearch = value => String(value||'').normalize('NFKD').replace(/[\u0300-\u036f\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed]/g,'').toLocaleLowerCase('ar').replace(/\s+/g,' ').trim();
@@ -3775,7 +3777,9 @@
   // confirmed by a full validation (only then, in that frame); a confirmed fault is reported, stops the simulation and
   // makes every recurring save validate in full (GH_PERSISTENCE.requireFullValidation), as a failed full pass did.
   const PROOF_AUDIT_ITEMS=1000,PROOF_AUDIT_MS=8,PROOF_AUDIT_RENDER_MS=4,PROOF_AUDIT_PLAY_REST_MS=30000;let proofAudit=null;
-  const HEALTH_WORKER_WAITS=600,HEALTH_WORKER_RETRIES=4,FLEET_HEALTH_MAIN_ROWS=2048;
+  const HEALTH_WORKER_WAITS=600,HEALTH_WORKER_RETRIES=4,FLEET_HEALTH_MAIN_ROWS=2048,HEALTH_STAGE_RESTARTS=3;
+  // What the staged health part compares between its frames: any committed command, slice, save or fleet write moves it.
+  function healthStageStamp(){return `${Number(state.saveRevision)||0}|${Number(state.simSeconds)||0}|${Number(state.controlPlane?.revision)||0}|${Number(state.controlPlane?.eventSequence)||0}|${Number(window.GH_TRANSACTION_CORE?.revision?.(state))||0}|${window.GH_FLEET_DATA?.revision?.(state)??''}|${Number(window.GH_FLEET_DATA?.size?.(state))||0}`;}
   const fleetRowsForHealth=()=>Math.max(0,Number(window.GH_FLEET_DATA?.size?.(state))||0);
   const mainFleetHealthAllowed=()=>fleetRowsForHealth()<=FLEET_HEALTH_MAIN_ROWS;
   // Battery: with the game paused, or through the conference (which suspends the simulation), and nothing changed since
@@ -3940,6 +3944,16 @@
     // runtime, revision, length and structure) at the same time. A small fleet may retain the exact main-thread fallback;
     // a large fleet retries and then records the unavailable check without turning that absence into a healthy report.
     if(entry.task==='health'){
+      // Owner (DX-1793426939 on the iPhone: the part was one 13 ms block, the longest in the maintenance round): after the
+      // fleet evidence is settled, the integrity check, the health check with its evidence, and the control plane's check
+      // each take a frame of their own. Every check still runs, in the same order, on the same evidence. A write between
+      // two of them (the stamp moved) starts the part again; after HEALTH_STAGE_RESTARTS restarts it runs whole, as before.
+      if(entry.staged){
+        const staged=entry.staged;
+        if(healthStageStamp()!==staged.stamp){entry.staged=null;entry.asked=null;entry.stageRestarts=(entry.stageRestarts||0)+1;entry.lastStage='restart';return false;}
+        if(staged.stage==='evidence'){entry.lastStage='evidence';staged.evidence=captureDiagnosticEvidence({trackTransitions:true,storeResult:true,fleetAssetIssues:staged.fleetAssetIssues,integrity:staged.integrity});staged.stage='central';staged.stamp=healthStageStamp();return false;}
+        entry.lastStage='central';entry.staged=null;const central=window.GH_CONTROL_PLANE?.check?.(state,{evidence:staged.evidence});haltOnGlobalFault(staged.evidence.health,central);return true;
+      }
       if(!entry.asked){
         entry.asked={done:false,value:null,waits:0};
         const client=fleetEngineThreadClient,asked=client&&!client.disabled&&window.GH_FLEET_STORE?.isStore?.(state.fleet)?client.health?.(state.fleet,{simSeconds:state.simSeconds}):null;
@@ -3959,7 +3973,8 @@
         // obtained, so this pass cannot assert either health or a new fault.
         return true;
       }
-      const evidence=captureDiagnosticEvidence({trackTransitions:true,storeResult:true,fleetAssetIssues}),health=evidence.health,central=window.GH_CONTROL_PLANE?.check?.(state,{evidence});haltOnGlobalFault(health,central);return true;
+      if((entry.stageRestarts||0)<HEALTH_STAGE_RESTARTS){entry.lastStage='integrity';entry.staged={stage:'evidence',fleetAssetIssues,integrity:window.GH_INTEGRITY_CORE?.check?.(state)||null,stamp:healthStageStamp()};return false;}
+      entry.lastStage='whole';const evidence=captureDiagnosticEvidence({trackTransitions:true,storeResult:true,fleetAssetIssues}),health=evidence.health,central=window.GH_CONTROL_PLANE?.check?.(state,{evidence});haltOnGlobalFault(health,central);return true;
     }
     return true;
   }
@@ -4490,7 +4505,7 @@
   }
   function captureDiagnosticEvidence(options={}){
     const fleetAssetIssues=Array.isArray(options.fleetAssetIssues)?options.fleetAssetIssues:diagnosticFleetIssues();
-    return window.GH_DIAGNOSTICS.captureExportEvidence(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:options.simulation||window.GH_SIM_KERNEL?.snapshot?.()||simulationEngine.snapshot(),...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{})},{recordEvent:options.recordEvent===true,trackTransitions:options.trackTransitions===true,storeResult:options.storeResult===true});
+    return window.GH_DIAGNOSTICS.captureExportEvidence(state,{appVersion:APP_VERSION,saveSchemaVersion:SAVE_SCHEMA_VERSION,simulation:options.simulation||window.GH_SIM_KERNEL?.snapshot?.()||simulationEngine.snapshot(),...(Array.isArray(fleetAssetIssues)?{fleetAssetIssues}:{}),...(options.integrity!==undefined?{integrity:options.integrity,integrityCalls:1}:{})},{recordEvent:options.recordEvent===true,trackTransitions:options.trackTransitions===true,storeResult:options.storeResult===true});
   }
   async function diagnosticLifecycleSettled(){
     for(;;){

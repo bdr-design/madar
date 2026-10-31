@@ -65,9 +65,60 @@ root.querySelectorAll('.eyebrow').forEach(e=>{if(/BUILD|DOMAIN|CORE|CENTER|WORKS
 globalThis.GH_FINANCE_PRESENTATION?.prepare(root);
 globalThis.GH_MADAR?.decorate?.(root,panel,arg,ctx);
 const selected=root.querySelector('.tabs .active,.hr-manager-company-tabs .active');if(selected&&!selected.parentElement?.classList.contains('mc-in-strip'))requestAnimationFrame(()=>{const parent=selected.parentElement;if(selected.isConnected&&root.contains(selected)&&parent&&!parent.classList.contains('mc-in-strip'))parent.scrollLeft=selected.offsetLeft-parent.offsetLeft;});}
-// A money figure inside an Arabic question reads left to right as one unit («مقابل $750.0K؟», not «750.0K$»).
-const isolateMoney=html=>String(html).replace(/[−-]?\$\d[\d.,]*(?:[KMB])?/g,m=>`<bdi dir="ltr">${m}</bdi>`);
-function confirm(message,{title='مراجعة القرار',accept='تأكيد',state,action='hr-official-manager',risk='personnel'}={}){if(pending)return Promise.resolve(false);return new Promise(resolve=>{const dialog=document.createElement('dialog');dialog.className='ui-confirm';dialog.dir='rtl';dialog.setAttribute('aria-labelledby','uiConfirmTitle');dialog.innerHTML=`<h2 id="uiConfirmTitle">${esc(title)}</h2><p>${isolateMoney(esc(message))}</p><footer><button type="button" class="secondary-btn" data-confirm="cancel">إلغاء</button><button type="button" class="primary-btn" data-confirm="accept">${esc(accept)}</button></footer>`;const prior=document.activeElement;let done=false;const finish=accepted=>{if(done)return;done=true;pending=null;globalThis.GH_WORKFLOW?.record?.(state,accepted?'WORKFLOW_CONFIRM_ACCEPTED':'WORKFLOW_CONFIRM_CANCELLED',{action,risk});dialog.close();dialog.remove();if(prior?.isConnected)prior.focus();resolve(accepted);};pending=finish;document.body.append(dialog);globalThis.GH_WORKFLOW?.record?.(state,'WORKFLOW_CONFIRM_SHOWN',{action,risk});dialog.querySelector('[data-confirm=cancel]').onclick=()=>finish(false);dialog.querySelector('[data-confirm=accept]').onclick=()=>finish(true);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false);});dialog.addEventListener('close',()=>finish(false));dialog.showModal();dialog.querySelector('[data-confirm=cancel]').focus();});}
+// The decision dialog (owner-approved design, «ادمج معه صور بطريقة عصرية وبدون ثقل»). Presentation only: the message
+// is the caller's text, shown whole; the result, the records and the one-dialog guard are unchanged.
+//   · a message with figures ("label: value" lines, a total) opens as a split card: the decision over a photo on one side,
+//     the total and the lines with the buttons on the other;
+//   · any other message opens as one centred card under a photo banner;
+//   · the photo is one of the game's own 640×360 images, chosen by the action, else by the open page or company; one
+//     image per dialog, decoded off the main path; a missing image leaves the navy ground.
+const arEn=(ar,en)=>globalThis.GH_I18N?.L?.(ar,en)??ar;
+// A money figure or a Latin name inside an Arabic sentence reads left to right as one unit («مقابل $750.0K؟»,
+// «بيع Boeing 787-9 ANI-204؟»).
+// Isolated on the raw text, each piece escaped after (an escape such as &amp; is never split).
+// A run never ends on "." or "," (a sentence's full stop stays at the sentence's end).
+const LTR_RUN=/[−-]?\$\d(?:[\d.,]*\d)?(?:[KMBT])?|[A-Za-z](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?(?: [A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?)*/g;
+const isolateText=text=>{const raw=String(text??'');if(globalThis.GH_I18N?.isEn?.())return esc(raw);let out='',last=0;for(const m of raw.matchAll(LTR_RUN)){out+=esc(raw.slice(last,m.index))+`<bdi dir="ltr">${esc(m[0])}</bdi>`;last=m.index+m[0].length;}return out+esc(raw.slice(last));};
+const CONFIRM_ACTION_IMAGES=Object.freeze({'open-facilities-by-scope':'facility-port-v2','open-all-companies':'company-hq-v2','launch-ipo':'finance-markets','dividend-policy':'finance-markets','collect-all-receivables':'finance-documents','sell-mobility-asset':'mobility-hero','load-slot':'company-system-v2','hr-appoint-all-managers':'people-recruit','hr-official-manager':'people-recruit','progression-licence':'company-system-v2','conference-prepare':'lead-news','investor-card-return':'bank-vault','investor-card-return-all':'bank-vault'});
+const CONFIRM_PANEL_IMAGES=Object.freeze({treasury:'bank-vault',investorMode:'bank-vault',invoices:'finance-documents',finance:'finance-budget',monthlyFinance:'finance-budget',budgets:'finance-documents',stocks:'finance-markets',market:'finance-markets',settings:'company-system-v2',progression:'company-system-v2',labor:'people-recruit',crews:'people-team',conference:'lead-news',news:'lead-news',businessWorld:'lead-partners',compliance:'lead-security',research:'lead-rnd',esg:'lead-esg',companies:'company-hq-v2',network:'facility-airport-v2',expansion:'facility-port-v2',realestate:'realestate-hero',hospitality:'realestate-hero',bank:'bank-credit',insurance:'insurance-hero',energy:'energy-solar',mobilityAsset:'mobility-hero',procurement:'company-system-v2'});
+function confirmImage(state,action,explicit){
+ const name=String(explicit||CONFIRM_ACTION_IMAGES[action]||(()=>{const row=history.at(-1);if(!row)return '';try{const M=globalThis.GH_MADAR,place=M?.locate?.(state,row.panel,row.arg);const img=place?.company?M.KINDS?.[M.kindOf(state,place.company)]?.hero?.img:'';if(img)return img;}catch(_error){}return CONFIRM_PANEL_IMAGES[row.panel]||'';})()||'group-boardroom');
+ return /^[a-z0-9-]+$/.test(name)?`assets/images/ui/${name}.webp`:'assets/images/ui/group-boardroom.webp';
+}
+// "label: value" (a short label, a short value, no sentence) is one line of figures.
+const confirmRow=line=>{const m=/^([^:.؟]{1,42}):\s*(\S.{0,43}?)\.?$/.exec(line);return m&&!/[.؟?]$/.test(m[2])?{label:m[1].trim(),value:m[2].trim()}:null;};
+const CONFIRM_TOTAL=/^(إجمالي|الإجمالي|المجموع)/;
+// The message, read into the question, the lines of figures, the total and the closing note. Every word of the message
+// stays in one of them.
+function confirmParts(message){
+ const blocks=String(message??'').split(/\n\s*\n/).map(block=>block.split('\n').map(line=>line.trim()).filter(Boolean)).filter(block=>block.length);
+ const question=[],rows=[],notes=[];
+ blocks.forEach((block,index)=>{
+  const last=index>0&&index===blocks.length-1;
+  if(index>0&&block.every(confirmRow)&&(!last||block.every(line=>/\d/.test(confirmRow(line).value)))){rows.push(...block.map(confirmRow));return;}
+  if(last){notes.push(...block);return;}
+  question.push(...block);
+ });
+ const at=rows.findIndex(row=>CONFIRM_TOTAL.test(row.label)),total=at>=0?rows.splice(at,1)[0]:null;
+ return {question,rows,total,notes};
+}
+const CONFIRM_ICON={normal:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7L10 17l-5-5"/></svg>',risk:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10"/><path d="M12 19v.01"/></svg>',note:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>'};
+function confirmMarkup(message,{title,accept,risk,image}){
+ const parts=confirmParts(message),high=risk==='high'||risk==='critical';
+ const chip=high?arEn('قرار مؤثر','High-impact decision'):risk==='financial'?arEn('قرار مالي','Financial decision'):risk==='personnel'?arEn('قرار إداري','Management decision'):arEn('يحتاج تأكيدك','Needs your confirmation');
+ const question=`<p class="dx-q">${parts.question.map(line=>isolateText(line)).join('<br>')}</p>`;
+ const note=parts.notes.length?`<div class="dx-note">${CONFIRM_ICON.note}<span>${parts.notes.map(line=>isolateText(line)).join(' ')}</span></div>`:'';
+ const media=cls=>`<div class="dx-media ${cls}"><img src="${esc(image)}" alt="" decoding="async"></div>`;
+ const actions=`<div class="dx-acts"><button type="button" class="dx-btn dx-ok" data-confirm="accept">${esc(accept)}</button><button type="button" class="dx-btn dx-no" data-confirm="cancel">${esc(arEn('إلغاء','Cancel'))}</button></div>`;
+ const heading=`<span class="dx-chip"><i></i>${esc(chip)}</span><h2 id="uiConfirmTitle">${esc(title)}</h2>`;
+ if(parts.rows.length||parts.total){
+  const lines=parts.rows.map(row=>{const m=/^(\d[\d,]*)\s*·\s*(.+)$/.exec(row.value);return `<li><span>${isolateText(row.label)}</span>${m?`<em><bdi dir="ltr">×${esc(m[1])}</bdi></em><b>${isolateText(m[2])}</b>`:`<b>${isolateText(row.value)}</b>`}</li>`;}).join('');
+  return {variant:'split',high,html:`<div class="dx-info">${media('dx-photo')}<div class="dx-copy">${heading}${question}${note}</div></div><div class="dx-sum">${parts.total?`<div class="dx-total"><small>${isolateText(parts.total.label)}</small><b>${isolateText(parts.total.value)}</b></div>`:''}${lines?`<ul class="dx-lines">${lines}</ul>`:''}${actions}</div>`};
+ }
+ const money=parts.question.join(' ').match(/[−-]?\$\d[\d.,]*[KMBT]?/g)||[];
+ return {variant:'solo',high,html:`${media('dx-banner')}<span class="dx-badge">${high?CONFIRM_ICON.risk:CONFIRM_ICON.normal}</span>${heading}${question}${money.length===1?`<b class="dx-amount" aria-hidden="true"><bdi dir="ltr">${esc(money[0])}</bdi></b>`:''}${note}${actions}`};
+}
+function confirm(message,{title='مراجعة القرار',accept='تأكيد',state,action='hr-official-manager',risk='personnel',image}={}){if(pending)return Promise.resolve(false);return new Promise(resolve=>{const dialog=document.createElement('dialog');const view=confirmMarkup(message,{title,accept,risk,image:confirmImage(state,action,image)});dialog.className=`ui-confirm dx dx-${view.variant}${view.high?' risk':''}`;dialog.dir=globalThis.GH_I18N?.dir?.()||'rtl';dialog.setAttribute('aria-labelledby','uiConfirmTitle');dialog.innerHTML=view.html;dialog.querySelectorAll('.dx-media img').forEach(img=>img.addEventListener('error',()=>img.remove(),{once:true}));const prior=document.activeElement;let done=false;const finish=accepted=>{if(done)return;done=true;pending=null;globalThis.GH_WORKFLOW?.record?.(state,accepted?'WORKFLOW_CONFIRM_ACCEPTED':'WORKFLOW_CONFIRM_CANCELLED',{action,risk});dialog.close();dialog.remove();if(prior?.isConnected)prior.focus();resolve(accepted);};pending=finish;document.body.append(dialog);globalThis.GH_WORKFLOW?.record?.(state,'WORKFLOW_CONFIRM_SHOWN',{action,risk});dialog.querySelector('[data-confirm=cancel]').onclick=()=>finish(false);dialog.querySelector('[data-confirm=accept]').onclick=()=>finish(true);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false);});dialog.addEventListener('close',()=>finish(false));dialog.showModal();dialog.querySelector('[data-confirm=cancel]').focus();});}
 // Build 373: the map fills the screen and the chrome floats over it, so the visible map is the map's rectangle
 // below the top bar and left of the rail or of the open panel. Centring (panMapTo) uses this rectangle.
 function mapViewport(){

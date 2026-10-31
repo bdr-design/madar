@@ -17,10 +17,10 @@
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchArt" translatesAutoresizingMaskIntoConstraints="NO" id="Mdr-Lg-001" userLabel="VENTORA launch art">
                                 <rect key="frame" x="0.0" y="0.0" width="852" height="393"/>
-                                <accessibility key="accessibilityConfiguration" label="VENTORA"/>
+                                <accessibility key="accessibilityConfiguration" label="أصول ونفوذ"/>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0.122" green="0.471" blue="0.784" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.051" green="0.231" blue="0.341" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <constraints>
                             <constraint firstItem="Mdr-Lg-001" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="Mdr-Ld-001"/>
@@ -36,6 +36,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LaunchArt" width="1846" height="852"/>
+        <image name="LaunchArt" width="1851" height="850"/>
     </resources>
 </document>

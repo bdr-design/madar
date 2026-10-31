@@ -91,9 +91,18 @@ const command=(page,domain,name,payload)=>page.evaluate(async([domain,name,paylo
     await page.waitForFunction(()=>document.getElementById('levelKpiValue')?.textContent===String(__GH_STATE__.progression.level),null,{timeout:5000}).catch(()=>{});
     const tile=await readTile();
     assert.equal(tile.hidden,false,'6: the level tile shows in a career');assert.equal(tile.value,String(tile.level),'6: the tile follows the decisions by itself');
-    await page.click('#levelKpi');await page.waitForFunction(()=>document.querySelector('#drawerBody .progression-head'),null,{timeout:30000});
-    const pageText=await page.evaluate(()=>({head:document.querySelector('#drawerBody .progression-head h3').textContent,rows:document.querySelectorAll('#drawerBody .progression-level-row').length,licences:document.querySelectorAll('#drawerBody .progression-licence-row button[data-gh-action="progression-licence"]').length}));
-    assert.match(pageText.head,/^المستوى \d+ · /);assert.equal(pageText.rows,30,'6: the whole table');assert.ok(pageText.licences>0,'6: early licences within reach');
+    // The approved levels page (three tabs): the level on the progress tab, all 30 levels on the path, the early licences
+    // within reach on the goals tab.
+    await page.click('#levelKpi');await page.waitForFunction(()=>document.querySelector('#drawerBody .lv-hero'),null,{timeout:30000});
+    const head=await page.evaluate(()=>({level:document.querySelector('#drawerBody .lv-lvl>b').textContent.trim(),title:document.querySelector('#drawerBody .lv-lvl h3').textContent.trim(),state:__GH_STATE__.progression.level,expected:GH_PROGRESSION_CORE.title(__GH_STATE__.progression.level)}));
+    assert.equal(head.level,String(head.state),'6: the page shows the level');assert.equal(head.title,head.expected);
+    await page.click('#drawerBody .lv-dock button[data-go-arg*="path"]');await page.waitForFunction(()=>document.querySelector('#drawerBody .lv[data-levels-tab="path"]'),null,{timeout:30000});
+    assert.equal(await page.evaluate(()=>document.querySelectorAll('#drawerBody .lv-d').length),30,'6: the whole table');
+    await page.click('#drawerBody .lv-dock button[data-go-arg*="goals"]');await page.waitForFunction(()=>document.querySelector('#drawerBody .lv[data-levels-tab="goals"]'),null,{timeout:30000});
+    assert.ok(await page.evaluate(()=>document.querySelectorAll('#drawerBody .lv-lr button[data-gh-action="progression-licence"]').length)>0,'6: early licences within reach');
+    // Full screen like the store: its close button returns to the game (the top bar is under it while it is open).
+    assert.equal(await page.evaluate(()=>document.getElementById('app').classList.contains('levels-open')),true,'6: the levels page is full screen');
+    await page.click('#drawerBody .lv-x');await page.waitForFunction(()=>!document.getElementById('drawer').classList.contains('open')&&!document.getElementById('app').classList.contains('levels-open'),null,{timeout:30000});
     const day=await page.evaluate(async()=>{const e=__AUDIT__.simulationEngine,s=__GH_STATE__,xp=s.progression.xp,level=s.progression.level,target=(Math.floor(s.simSeconds/86400)+1)*86400+3600;e.advanceTo(target,{reason:'b634',maxSeconds:3*86400});const until=performance.now()+300000;while((e.snapshot().manualAdvance||GH_TRANSACTION_CORE.isStaged(s))&&performance.now()<until)await new Promise(r=>setTimeout(r,20));return {xp,level,after:s.progression.xp,levelAfter:s.progression.level,closed:s.progression.lastClosedDay,day:s.lastFinancialDay};});
     assert.equal(day.closed,day.day,'6: the day close was counted');assert.ok(day.after>=day.xp&&day.levelAfter>=day.level,'6: experience and level never go down');
     // Experience added while the game plays, as the day's close adds it (GH_PROGRESSION_CORE.addXp, 'day'): the next

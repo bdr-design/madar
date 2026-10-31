@@ -930,6 +930,8 @@
     "legal.css",
     "store.css",
     "news.css",
+    "levels.css",
+    "i18n-core.js",
     "lifecycle-core.js",
     "madar-icons.css",
     "madar-icons.js",

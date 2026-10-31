@@ -179,9 +179,26 @@
   function multiplier(state){const p=root(state);let factor=DIFFICULTY[p?.difficulty]?.xp||1;if(entitled(state,'plus'))factor*=1.5;return factor;}
   // Store entitlements (GH_STORE_CORE, state.purchases.entitlements); absent, none applies.
   function entitled(state,id){const store=globalThis.GH_STORE_CORE;if(store?.entitled)return store.entitled(state,id);const rows=state?.purchases?.entitlements;return plainObject(rows)&&!!rows[id];}
+  // Owner (approved levels page: «خبرة اليوم» and the time to the next level): the experience of the last XP_DAYS game days,
+  // by source (the day's operation, decisions, milestones). Eight short rows; read by the levels page only.
+  const XP_DAYS=8,XP_SOURCES=Object.freeze(['ops','decisions','milestones']);
+  function recordXpDay(p,day,gained,reason){
+    const rows=Array.isArray(p.xpDays)?p.xpDays:(p.xpDays=[]),source=reason==='day'?'ops':reason==='decision'?'decisions':'milestones';
+    let row=rows[rows.length-1];if(!row||row.day!==day){row={day,xp:0,ops:0,decisions:0,milestones:0};rows.push(row);if(rows.length>XP_DAYS)rows.splice(0,rows.length-XP_DAYS);}
+    row.xp+=gained;row[source]+=gained;
+  }
+  // The average experience a game day over the closed days (today excluded) since the first recorded one, at most the
+  // last 7: a day with nothing counts as 0, the days before the record began are not counted. Null before one has closed.
+  function xpRate(state){
+    const p=root(state);if(!p||p.mode!=='career')return null;const today=dayOf(state),rows=Array.isArray(p.xpDays)?p.xpDays:[];
+    const first=rows.length?Math.max(today-7,rows[0].day):null;if(first===null||first>=today)return null;
+    let sum=0;for(const row of rows)if(row.day>=first&&row.day<today)sum+=Number(row.xp)||0;return sum/(today-first);
+  }
+  function xpToday(state){const p=root(state),today=dayOf(state),row=(Array.isArray(p?.xpDays)?p.xpDays:[]).find(item=>item.day===today);return {day:today,xp:Number(row?.xp)||0,ops:Number(row?.ops)||0,decisions:Number(row?.decisions)||0,milestones:Number(row?.milestones)||0,decisionXp:Number(p?.daily?.day===today?p.daily.actionXp:0)||0,decisionCap:DECISION_CAP};}
   function addXp(state,points,reason){
     if(!active(state))return null;const p=root(state);points=Math.max(0,Number(points)||0);if(!points)return null;
     const gained=Math.round(points*multiplier(state)),from=level(state);p.xp=Math.max(0,Math.round(Number(p.xp)||0))+gained;const to=Math.max(from,levelForXp(p.xp));p.level=to;
+    if(gained>0)recordXpDay(p,dayOf(state),gained,reason);
     if(to>from){p.lastLevelUp={from,to,day:dayOf(state)};grantsFor(state,from,to);if(Array.isArray(state.alerts)){state.alerts.unshift(`ترقية المجموعة إلى المستوى ${to} (${title(to)}). افتح صفحة المستويات لترى ما فُتح.`);if(state.alerts.length>40)state.alerts.length=40;}}
     return {gained,from,to,reason:String(reason||'')};
   }
@@ -300,6 +317,7 @@
       if(!Number.isFinite(Number(p.xp))||Number(p.xp)<0)errors.push('progression-xp');
       if(!Number.isInteger(p.level)||p.level<1||p.level>MAX_LEVEL||p.level<levelForXp(p.xp))errors.push('progression-level');
       if(!plainObject(p.milestones)||!plainObject(p.licences)||!plainObject(p.daily))errors.push('progression-records');
+      if(p.xpDays!==undefined&&(!Array.isArray(p.xpDays)||p.xpDays.length>XP_DAYS||p.xpDays.some((row,index)=>!plainObject(row)||!Number.isInteger(row.day)||row.day<0||(index&&row.day<=p.xpDays[index-1].day)||['xp',...XP_SOURCES].some(key=>!Number.isFinite(Number(row[key]))||Number(row[key])<0))))errors.push('progression-xp-days');
       if(p.grants!==undefined&&(!plainObject(p.grants)||Object.entries(p.grants).some(([company,row])=>!own(COMPANY,company)||!plainObject(row))))errors.push('progression-grants');
       if(plainObject(p.licences))for(const key of Object.keys(p.licences))if(requirement(key)===null)errors.push('progression-licence');
     }
@@ -322,6 +340,6 @@
   }
 
   return Object.freeze({VERSION,SCHEMA,MAX_LEVEL,XP,DIFFICULTY,CAREER_MODES,COMPANY,MODEL,USED_BASE,FEATURE,TOOL,BANDS,HQ_STEPS,FLEET_LIFT,FACILITY_LIFT,COMPANY_LABEL,
-    active,level,levelForXp,title,requirement,unlocked,check,require,checkCommand,bandLimit,limitAt,requireRoom,heldFacilities,heldFleet,nextBandLevel,
+    XP_DAYS,xpRate,xpToday,active,level,levelForXp,title,requirement,unlocked,check,require,checkCommand,bandLimit,limitAt,requireRoom,heldFacilities,heldFleet,nextBandLevel,
     initial,isCareerMode,validate,summary,opensAt,labelFor,modelKey,MILESTONES,MILESTONE_LABEL,COMMAND_LABEL,TOOL_LABEL,grantsFor,startTasks,licenceQuote,licenceKey,LICENCE_REASON,DOMAIN,LICENCE_COMMAND,owner,install,isInstalled:()=>installed,addXp,milestone,onCommand,closeDay,entitled,multiplier});
 });

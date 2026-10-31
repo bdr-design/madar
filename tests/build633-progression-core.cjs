@@ -169,4 +169,24 @@ s.GH_COMPANY_PLATFORM={getDefinition:id=>({founding:{minimumCapital:{air:25e6,se
   same(P.startTasks(st).map(t=>t.id),['START:FACILITY']);st.customHubs=[{id:'L1',owned:true,ownerCompanyId:'road'}];same(P.startTasks(st).map(t=>t.id),['START:FLEET']);
   s.GH_FLEET_DATA={countByFields:()=>new Map([['road',5]])};same(P.startTasks(st).map(t=>t.id),['START:ROUTE']);st.customRoutes=[{id:'R',mode:'road'}];same(P.startTasks(st).map(t=>t.id),[]);
   same(P.startTasks({progression:P.initial('sandbox')}),[],'11: none in free play');}
+// Owner (approved levels page): the experience of the last 8 game days by source, for «خبرة اليوم» and the time to the next
+// level. Each addition lands in its game day and source; eight rows at most; the rate is the mean of the closed days (today
+// excluded, the days with nothing counted as 0) over at most 7; a malformed record is refused by the save validation.
+{
+  const g=career(3,{simSeconds:2*86400+10}),p=g.progression;
+  assert.equal(P.xpRate(g),null,'xp-days: no rate before a day has closed');
+  P.addXp(g,10,'day');P.addXp(g,6,'decision');P.addXp(g,4,'first-facility');
+  assert.deepEqual(JSON.parse(JSON.stringify(p.xpDays)),[{day:2,xp:20,ops:10,decisions:6,milestones:4}],'xp-days: one row a game day, split by source');
+  assert.deepEqual(JSON.parse(JSON.stringify(P.xpToday(g))),{day:2,xp:20,ops:10,decisions:6,milestones:4,decisionXp:0,decisionCap:60},'xp-days: today');
+  assert.equal(P.xpRate(g),null,'xp-days: today alone gives no rate');
+  g.simSeconds=5*86400;P.addXp(g,30,'day');
+  assert.equal(P.xpRate(g),20/3,'xp-days: days 2 to 4 closed, day 3 and 4 had nothing');
+  for(let day=6;day<=16;day++){g.simSeconds=day*86400;P.addXp(g,day,'decision');}
+  assert.equal(p.xpDays.length,P.XP_DAYS,'xp-days: eight rows at most');assert.deepEqual([...p.xpDays.map(row=>row.day)],[9,10,11,12,13,14,15,16]);
+  assert.equal(P.xpRate(g),(9+10+11+12+13+14+15)/7,'xp-days: the last seven closed days');
+  assert.equal(P.validate(g).length,0,'xp-days: a valid record');
+  for(const broken of [{day:-1,xp:1,ops:0,decisions:0,milestones:0},{day:20,xp:-1,ops:0,decisions:0,milestones:0},{day:20,xp:1,ops:'x',decisions:0,milestones:0},{day:3,xp:1,ops:0,decisions:0,milestones:0}]){const bad=JSON.parse(JSON.stringify(g));bad.progression.xpDays.push(broken);bad.progression.xpDays.shift();assert.ok(P.validate(bad).includes('progression-xp-days'),`xp-days: refused ${JSON.stringify(broken)}`);}
+  const tooMany=JSON.parse(JSON.stringify(g));tooMany.progression.xpDays.push({day:17,xp:1,ops:1,decisions:0,milestones:0});assert.ok(P.validate(tooMany).includes('progression-xp-days'),'xp-days: nine rows are refused');
+  const free={progression:P.initial('sandbox')};assert.equal(P.xpRate(free),null);
+}
 console.log(JSON.stringify({suite:'build633-progression-core',ok:true,companies:companies.length+1,catalogueLines:lines.length,tools:Object.keys(P.FEATURE).length}));

@@ -21,11 +21,13 @@ const root=path.resolve(process.argv[2]||path.join(__dirname,'../..'));
     await page.click('#simCalendarToggle');
     const rail=await page.evaluate(()=>[...document.querySelectorAll('[data-nav]')].map(b=>b.dataset.nav).filter(Boolean));
     let opened=0;
+    // A page that opens full screen over the game (the store, the levels page) is left by its own close button, as a player does.
+    const closeFullScreen=async()=>{for(const [cls,close] of [['levels-open','.lv-x'],['store-open','.st-x']]){if(await page.evaluate(c=>document.getElementById('app').classList.contains(c),cls)){await page.locator(`#drawerBody ${close}`).click();await page.waitForFunction(c=>!document.getElementById('app').classList.contains(c),cls);}}};
     for(const nav of rail){
       const button=page.locator(`[data-nav="${nav}"]`).first();if(!(await button.isVisible().catch(()=>false)))continue;await button.click();await page.waitForTimeout(150);opened++;
       const tiles=await page.evaluate(()=>[...document.querySelectorAll('#drawerBody [data-go]')].map(b=>b.dataset.go));
       for(const tool of ['updates','diagnostics','controlPlane'])assert.ok(!tiles.includes(tool),`${nav}: ${tool} is hidden`);
-      for(const go of tiles.slice(0,8)){const tile=page.locator(`#drawerBody [data-go="${go}"]`).first();if(await tile.isVisible().catch(()=>false)){await tile.click();await page.waitForTimeout(120);opened++;await button.click();await page.waitForTimeout(80);}}
+      for(const go of tiles.slice(0,8)){const tile=page.locator(`#drawerBody [data-go="${go}"]`).first();if(await tile.isVisible().catch(()=>false)){await tile.click();await page.waitForTimeout(120);opened++;await closeFullScreen();await button.click();await page.waitForTimeout(80);}}
     }
     assert.ok(opened>=8,`pages opened: ${opened}`);
     await page.click('#settingsBtn');await page.locator('#drawerBody [data-go="investorMode"]').first().click();

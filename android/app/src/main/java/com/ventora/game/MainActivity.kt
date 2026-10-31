@@ -3,6 +3,7 @@ package com.ventora.game
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
+import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -34,6 +35,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val release = BuildConfig.EDITION == "release"
+        // Owner («امنع تصوير الشاشة باللعبة» → «نسخة المتجر فقط»): the store edition's window is secure, so a screenshot,
+        // a screen recording and the recent-apps thumbnail show nothing of the game. Set before any content is shown; the
+        // development edition stays capturable (store listing images, bug reports).
+        if (release) window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         vault = VaultBridge(filesDir, release) { script -> if (::webView.isInitialized) webView.evaluateJavascript(script, null) }
         val loader = WebViewAssetLoader.Builder()
             .setDomain(GameAssetHandler.HOST)
