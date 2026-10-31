@@ -1,0 +1,27 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: existing design changed: WebApp/interface-layout.css
++ actual - expected
+
++ 'c05c0d8eab4d633a6062caa7c3b65b436d86718a373ce102450f64650ddf1cd6'
+- 'ba7870bc814c0f3bd506954382032365128b0b6c387caed9ecb3bb7dd8c5487b'
+
+    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/phone-layout-browser.cjs:9:70)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'c05c0d8eab4d633a6062caa7c3b65b436d86718a373ce102450f64650ddf1cd6',
+  expected: 'ba7870bc814c0f3bd506954382032365128b0b6c387caed9ecb3bb7dd8c5487b',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0

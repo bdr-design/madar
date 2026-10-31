@@ -1,0 +1,53 @@
+{
+  "adoptions" : 5,
+  "cases" : [
+    {
+      "name" : "trusted-main-source-only",
+      "ok" : true
+    },
+    {
+      "name" : "filename-and-size-guards",
+      "ok" : true
+    },
+    {
+      "name" : "worker-blob-streams-to-exact-native-file",
+      "ok" : true
+    },
+    {
+      "name" : "url-lease-cleanup-only-owned-files",
+      "ok" : true
+    },
+    {
+      "name" : "diagnostic-blob-uses-same-native-download",
+      "ok" : true
+    },
+    {
+      "name" : "unsupported-extension-refuses-and-releases",
+      "ok" : true
+    },
+    {
+      "name" : "cancel-is-bounded-and-retry-is-exact",
+      "ok" : true
+    },
+    {
+      "name" : "document-survives-and-no-script-errors",
+      "ok" : true
+    }
+  ],
+  "errors" : [
+
+  ],
+  "failed" : 0,
+  "origin" : "gh:\/\/app",
+  "passed" : 8,
+  "physicalIPhone" : false,
+  "platform" : "macOS",
+  "realWKWebView" : true,
+  "sourceSha256" : {
+    "iOS\/GlobalHoldings\/GameViewController.swift" : "3780d2ff616b4433469fd8a1401a87251c2e934e01bc3460cd320c85ebbd4799",
+    "iOS\/GlobalHoldings\/SaveExportDownloadOwner.swift" : "866fb87914290befbef9c7dd181756c742d2b03273b7fb980a9f45da804a0d16",
+    "tests\/native\/save-export-download-smoke.swift" : "9fd486e1fd250545cc082febb8b006d964138359ff7e3e3f7a2d44a759957eec"
+  },
+  "total" : 8,
+  "workerBlobExact" : true
+}
