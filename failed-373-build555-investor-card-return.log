@@ -1,0 +1,25 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: 9: only the finance owner, the news and the page name the return (advanced-core.js:acy','legal-terms','road-source-toggle',,advanced-core.js:d-source-toggle','investor-card-return',,advanced-core.js:lass="secondary-btn" ${actionAttributes(,advanced-core.js: class="primary-btn" ${actionAttributes(,advanced-core.js:tion:id,risk:'financial'}); if(id===,advanced-core.js:await signedDomainCommand(ctx,'finance',,advanced-core.js:await signedDomainCommand(ctx,'finance',,advanced-core.js:taset.ghAction,s=ctx.state; if(id===,advanced-core.js: if(id==='investor-card-return'||id===,business-world-core.js:ounder-investment','founder-withdrawal',,business-world-core.js:nder-withdrawal','investor-card-return',,business-world-core.js:ry';destinationId='';} else if(name===,business-world-core.js:f(name==='investor-card-return'||name===,business-world-core.js:-all'){if(!amount)return null;if(name===,business-world-core.js:ount=num(r?.companies)||1;}title=name===,finance-core.js,finance-core.js:':return founderWithdrawal(s,p); case,finance-core.js:eturn returnToInvestorCard(s,p); case,interface-core.js:em-v2','conference-prepare':'lead-news',,interface-core.js:ws','investor-card-return':'bank-vault',)
+
+2 !== 0
+
+    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/build555-investor-card-return.cjs:60:8)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0
