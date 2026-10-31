@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build555-investor-card-return.cjs"
+    ],
+    [
+      "node",
       "tests/phone-layout-browser.cjs"
     ],
     [
@@ -1488,10 +1492,6 @@
     [
       "node",
       "tests/build554-investor-card-funding.cjs"
-    ],
-    [
-      "node",
-      "tests/build555-investor-card-return.cjs"
     ],
     [
       "node",

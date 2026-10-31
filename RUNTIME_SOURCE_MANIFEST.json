@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "631e9e525e3af287b57e944b538fc843015342f86dfcd42924002aabd3a2165d",
-  "webapp_tree_sha256": "b9280685e4094695891171c256bc44d548aff3687e68c56dfe02fdead9757395",
+  "source_tree_sha256": "285dcd88518288b267612c877cd47da7636b888206fdecd09aafa640068689ff",
+  "webapp_tree_sha256": "7ef5c7b06ec83ecbf7b4fdcdda318b6f16029ff2cea71ea27efb585393d7c788",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3703,8 +3703,8 @@
       "sha256": "4fd054c2a2d9ce8f703df991ac4826873f1409e0beae622fd91e46b06f98aa75"
     },
     "WebApp/interface-core.js": {
-      "bytes": 21464,
-      "sha256": "541b718b2f18d759664ed11ad7085cfa3fbfe722416765591b18f1076b305e6f"
+      "bytes": 21507,
+      "sha256": "1e752fa19199b83b5b5e15d8c1f41770d35e6b67934355727892beac3ec5bae4"
     },
     "WebApp/interface-layout.css": {
       "bytes": 13411,
@@ -4080,7 +4080,7 @@
     },
     "project.yml": {
       "bytes": 2585,
-      "sha256": "e034cbc37c27f0a134320e1df091e9152ce37dbd35837c9e6be5919b453c39c6"
+      "sha256": "f51daa01cf3202ec5e2a12cd87e98a420e2ac6d668fd4a1df446796f14613309"
     },
     "BUILD": {
       "bytes": 4,
