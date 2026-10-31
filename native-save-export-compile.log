@@ -1,0 +1,23 @@
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/SaveExportDownloadOwner.swift:68:47: error: cannot find 'arEn' in scope
+ 66 |         guard Self.allowedFilename(suggestedFilename), response.expectedContentLength <= Self.byteLimit else {
+ 67 |             completionHandler(nil)
+ 68 |             fail(download, error: exportError(arEn("تعذر تصدير الملف: الاسم أو الحجم غير مدعوم.", "The file could not be exported: its name or size is not supported.")))
+    |                                               `- error: cannot find 'arEn' in scope
+ 69 |             return
+ 70 |         }
+
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/SaveExportDownloadOwner.swift:85:78: error: cannot find 'arEn' in scope
+ 83 |     func downloadDidFinish(_ download: WKDownload) {
+ 84 |         guard active === download else { return }
+ 85 |         guard let url = destination else { fail(download, error: exportError(arEn("لم يُنشأ ملف التصدير.", "The export file was not created."))); return }
+    |                                                                              `- error: cannot find 'arEn' in scope
+ 86 |         do {
+ 87 |             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/SaveExportDownloadOwner.swift:89:35: error: cannot find 'arEn' in scope
+ 87 |             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+ 88 |             guard let size = attributes[.size] as? NSNumber, Self.allowedSize(size.int64Value) else {
+ 89 |                 throw exportError(arEn("حجم ملف التصدير غير صالح.", "The export file size is not valid."))
+    |                                   `- error: cannot find 'arEn' in scope
+ 90 |             }
+ 91 |             active = nil
