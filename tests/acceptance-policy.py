@@ -265,6 +265,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build651-i18n-source-contract.cjs'],
     ['node', 'tests/build654-confirm-dialog-browser.cjs'],
     ['node', 'tests/build655-store-capture-protection.cjs'],
@@ -320,7 +321,6 @@ expected_preflight=[
     ['node', 'tests/build367-company-static-identities.cjs'],
     ['node', 'tests/build634-progression-career-browser.cjs'],
     ['node', 'tests/build633-progression-core.cjs'],
-    ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build647-store-plus-browser.cjs'],
     ['node', 'tests/build645-legal-consent-browser.cjs'],
     ['node', 'tests/build361-button-binding-browser.cjs'],

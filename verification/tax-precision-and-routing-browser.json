@@ -1,0 +1,32 @@
+[
+  {
+    "engine": "chromium",
+    "companies": 14,
+    "cents": true,
+    "closedReplay": true,
+    "reload": true,
+    "bankMixed": true,
+    "residentialExempt": true,
+    "walkInExempt": true,
+    "reserveReturnsExempt": true,
+    "officeTaxed": true,
+    "indiaJurisdiction": "IN",
+    "indiaRate": 0.15,
+    "proofs": true
+  },
+  {
+    "engine": "webkit",
+    "companies": 14,
+    "cents": true,
+    "closedReplay": true,
+    "reload": true,
+    "bankMixed": true,
+    "residentialExempt": true,
+    "walkInExempt": true,
+    "reserveReturnsExempt": true,
+    "officeTaxed": true,
+    "indiaJurisdiction": "IN",
+    "indiaRate": 0.15,
+    "proofs": true
+  }
+]

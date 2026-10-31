@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/phone-layout-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build651-i18n-source-contract.cjs"
     ],
     [
@@ -220,10 +224,6 @@
     [
       "node",
       "tests/build633-progression-core.cjs"
-    ],
-    [
-      "node",
-      "tests/phone-layout-browser.cjs"
     ],
     [
       "node",

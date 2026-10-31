@@ -82,6 +82,7 @@
 .map-popover{display:flex;flex-direction:column;gap:10px;padding:12px;overflow-y:auto}
 .sim-calendar-panel{overflow-y:auto}
 .asset-card{overflow-y:auto}
+.ui-confirm{top:var(--below-bar);right:var(--panel-right);width:var(--panel);max-height:calc(100dvh - var(--below-bar) - var(--edge-bottom))}
 
 /* ---- Over the map: map modes top-left, the company dock and the status bottom-left ---- */
 .map-modes{position:absolute;z-index:610;top:var(--below-bar);left:var(--edge-left);display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--float);box-shadow:var(--float-shadow);direction:rtl}

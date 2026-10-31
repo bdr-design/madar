@@ -240,71 +240,12 @@ table{border-collapse:separate;border-spacing:0;width:100%;font-size:11px;backgr
 .save-slots small{flex-basis: 100%;}
 .result-note{color: var(--blue);}
 .confirm-check{display: flex; gap: 8px; align-items: center; padding: 10px 0px;}
-/* The decision dialog (owner-approved design): a light card over a dimmed map, beside the rail; a photo of the
-   decision's subject; the figures, total first, beside the buttons. The dialog sits in the top layer, outside the app
-   shell, so it carries its own colours. Nothing animates but its opacity and scale, once, when it opens. */
-.ui-confirm.dx{--dx-ink:#0B2132;--dx-ink-2:#3A5062;--dx-mute:#6B7F8E;--dx-rule:#E4EAEF;--dx-tone:#F3F6F9;--dx-act:#0D3B57;--dx-chip:#FBF0D9;--dx-chip-ink:#8A5E0F;
-  position:fixed;inset:12px calc(var(--edge-right,6px) + var(--rail,54px) + 14px) 12px 14px;margin:auto;height:fit-content;max-height:calc(100dvh - 24px);max-width:none;padding:0;border:0;border-radius:24px;background:#FFFFFF;color:var(--dx-ink);font-family:var(--font);box-shadow:0 30px 70px -10px rgba(4,16,26,.5);overflow:hidden;-webkit-font-smoothing:antialiased}
-.ui-confirm.dx[open]{display:grid;animation:dx-in .16s ease-out}
-.ui-confirm.dx.risk{--dx-act:#C2311E;--dx-chip:#FDECEA;--dx-chip-ink:#B42318}
-.ui-confirm.dx::backdrop{background:rgba(6,20,31,.56)}
-@keyframes dx-in{from{opacity:0;transform:translateY(6px) scale(.985)}}
-@media (prefers-reduced-motion:reduce){.ui-confirm.dx[open]{animation:none}}
-.dx bdi{unicode-bidi:isolate;font-variant-numeric:tabular-nums}
-.dx-chip{display:inline-flex;align-items:center;gap:6px;width:max-content;height:22px;padding:0 10px 0 9px;border-radius:999px;background:var(--dx-chip);color:var(--dx-chip-ink);font-size:10.5px;font-weight:600}
-.dx-chip i{width:6px;height:6px;border-radius:50%;background:currentColor}
-.dx h2{margin:0;font:700 17px/1.5 var(--font-head);color:var(--dx-ink)}
-.dx-q{margin:0;font-size:13.5px;line-height:1.8;font-weight:500;color:var(--dx-ink-2);overflow-wrap:anywhere}
-.dx-note{display:flex;gap:8px;align-items:flex-start;font-size:11px;line-height:1.75;color:var(--dx-mute)}
-.dx svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.dx-note svg{flex:0 0 14px;width:14px;height:14px;margin-top:3px}
-.dx-btn{height:44px;padding:0 14px;border:0;border-radius:14px;font:600 13px/1 var(--font);cursor:pointer}
-.dx-ok{background:var(--dx-act);color:#FFFFFF;box-shadow:0 8px 18px -8px var(--dx-act)}
-.dx-no{background:transparent;color:var(--dx-ink-2)}
-.dx-btn:focus-visible{outline:2px solid #E7B556;outline-offset:2px}
-.dx-media{position:relative;overflow:hidden;background:#0D3B57}
-.dx-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.dx-media::after{content:"";position:absolute;inset:0;pointer-events:none}
-/* With figures: the decision over its photo, and the figures with the buttons. */
-.ui-confirm.dx-split{width:min(580px,100%);grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
-.dx-info{position:relative;display:flex;min-width:0;min-height:min(250px,calc(100dvh - 24px));overflow:hidden;background:#0D3B57}
-.dx-photo{position:absolute;inset:0}
-.dx-photo::after{background:linear-gradient(180deg,rgba(7,24,37,.05) 0%,rgba(7,24,37,.35) 38%,rgba(7,24,37,.92) 100%)}
-.dx-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;gap:8px;width:100%;padding:20px 22px;overflow-y:auto;overscroll-behavior:contain;color:#FFFFFF}
-/* Pushed to the bottom by a margin, not by flex-end: a long decision scrolls from its first line. */
-.dx-copy>:first-child{margin-top:auto}
-.dx-copy .dx-chip{background:rgba(255,255,255,.16);color:#FFFFFF;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
-.dx-copy .dx-chip i{background:#F2C76E}.risk .dx-copy .dx-chip i{background:#FF8A7A}
-.dx-copy h2{color:#FFFFFF;font-size:18px}
-.dx-copy .dx-q{color:rgba(255,255,255,.9)}
-.dx-copy .dx-note{margin-top:2px;color:rgba(255,255,255,.74)}
-.dx-sum{display:flex;flex-direction:column;min-width:0;min-height:0;padding:18px 18px 14px;background:var(--dx-tone);overflow:hidden}
-.dx-total small{display:block;font-size:10.5px;font-weight:500;color:var(--dx-mute)}
-.dx-total b{display:block;margin-top:2px;font-size:27px;line-height:1.15;font-weight:600;color:var(--dx-ink);text-align:start}
-.dx-lines{flex:0 1 auto;min-height:0;margin:12px 0 0;padding:0;list-style:none;overflow-y:auto;overscroll-behavior:contain}
-.dx-lines li{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--dx-rule);font-size:11.5px;line-height:1.55;color:var(--dx-ink-2)}
-/* A line's label and value both wrap rather than hide: no word is cut off. */
-.dx-lines li span{flex:1 1 50%;min-width:0;overflow-wrap:anywhere}
-.dx-lines li em{font-style:normal;font-size:10px;font-weight:600;color:var(--dx-mute);background:#FFFFFF;border-radius:6px;padding:1px 6px}
-.dx-lines li b{flex:0 1 auto;max-width:60%;font-size:12px;font-weight:600;color:var(--dx-ink);text-align:end;overflow-wrap:anywhere}
-.dx-acts{flex:0 0 auto;display:grid;gap:4px;margin-top:auto;padding-top:14px}
-.dx-split .dx-no{height:36px}
-/* Without figures: one centred card under a photo banner. */
-.ui-confirm.dx-solo[open]{display:flex;flex-direction:column;align-items:center}
-.ui-confirm.dx-solo{width:min(380px,100%);padding:0 22px 16px;text-align:center}
-.dx-solo>*{flex:0 0 auto}.dx-solo .dx-q{flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
-.dx-banner{width:calc(100% + 44px);height:112px;margin:0 -22px;flex:0 0 auto}
-.dx-banner::after{background:linear-gradient(180deg,rgba(7,24,37,0) 35%,rgba(7,24,37,.25) 70%,#FFFFFF 100%)}
-.dx-badge{position:relative;z-index:1;width:48px;height:48px;display:grid;place-items:center;margin:-30px 0 10px;border-radius:16px;background:var(--dx-chip);color:var(--dx-chip-ink);box-shadow:0 0 0 4px #FFFFFF,0 8px 18px -6px rgba(7,24,37,.35)}
-.dx-badge svg{width:22px;height:22px}
-.dx-solo .dx-chip{display:none}
-.dx-solo h2{font-size:16px}
-.dx-solo .dx-q{margin-top:6px}
-.dx-amount{margin-top:10px;font-size:24px;line-height:1.2;font-weight:600;color:var(--dx-ink)}
-.dx-solo .dx-note{justify-content:center;margin-top:8px}.dx-solo .dx-note svg{display:none}
-.dx-solo .dx-acts{width:100%;grid-template-columns:1.4fr 1fr;gap:8px;padding-top:18px}
-.dx-solo .dx-no{height:44px;background:var(--dx-tone)}
-@media (max-height:400px){.dx-banner{height:88px}.ui-confirm.dx-solo{padding-bottom:12px}.dx-solo .dx-acts{padding-top:12px}.dx-info{min-height:min(220px,calc(100dvh - 24px))}}
+.ui-confirm{position:fixed;left:auto;bottom:auto;margin:0;overflow:auto;border:1px solid var(--line-strong);border-radius:16px;background:var(--surface-2);padding:20px;box-shadow:var(--shadow);color:var(--text);font-family:var(--font);}
+.ui-confirm::backdrop{background: rgba(20, 43, 66, 0.07);}
+.ui-confirm h2{font-size: 17px; margin-bottom: 9px;}
+.ui-confirm p{font-size: 13px; line-height: 1.9; color: var(--muted);}
+.ui-confirm footer{display: flex; gap: 8px; margin-top: 16px;}
+.ui-confirm footer button{flex: 1 1 0%;}
 @media (prefers-reduced-motion: reduce){
 *{scroll-behavior: auto !important; animation: auto ease 0s 1 normal none running none !important; transition: none !important;}
 }

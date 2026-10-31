@@ -1,0 +1,22 @@
+[
+  {
+    "engine": "chromium",
+    "received": 44800,
+    "addedRevenue": 44800,
+    "addedCost": 41200,
+    "addedNet": 3600,
+    "reload": true,
+    "replay": true,
+    "proofs": true
+  },
+  {
+    "engine": "webkit",
+    "received": 44800,
+    "addedRevenue": 44800,
+    "addedCost": 41200,
+    "addedNet": 3600,
+    "reload": true,
+    "replay": true,
+    "proofs": true
+  }
+]

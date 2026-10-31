@@ -931,6 +931,7 @@
     "store.css",
     "news.css",
     "levels.css",
+    "confirm.css",
     "i18n-core.js",
     "lifecycle-core.js",
     "madar-icons.css",
