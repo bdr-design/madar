@@ -265,6 +265,8 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build460-render-idle-browser.cjs'],
+    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build555-investor-card-return.cjs'],
     ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build651-i18n-source-contract.cjs'],
@@ -380,7 +382,6 @@ expected_preflight=[
     ['node', 'tests/build580-company-types-money-weight.cjs'],
     ['node', 'tests/build608-dispatch-hex-proof-compact.cjs'],
     ['node', 'tests/build597-finance-metric-maps-in-place.cjs'],
-    ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build598-company-evidence-token-browser.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
@@ -696,7 +697,6 @@ expected_preflight=[
     ['node', 'tests/build334-late-frame-liveness.cjs'],
     ['node', 'tests/build334-calendar-owner-cadence.cjs'],
     ['node', 'tests/build535-staged-save-retake-browser.cjs'],
-    ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build334-document-proof-v3-security.cjs'],
     ['node', 'tests/build416-canonical-preparation.cjs'],
     ['node', 'tests/build625-map-filter-reuse.cjs'],
