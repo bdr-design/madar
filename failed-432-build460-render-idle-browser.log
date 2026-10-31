@@ -1,0 +1,13 @@
+{"suite":"build460-render-idle-browser","engine":"chromium","viewport":{"width":956,"height":440},"world":{"rows":4400,"companies":11},"canvasPaints":0,"pixelsUnchanged":true,"drawn":1,"count":1,"canvasCount":1,"logicalWidth":956,"logicalHeight":440,"mapWidth":956,"mapHeight":440,"pan":{"painted":true,"changed":true,"shiftX":-40,"shiftY":0,"beforeHit":"fleet:N-AIR-00000001","afterHit":"fleet:N-AIR-00000001","id":"fleet:N-AIR-00000001"},"drawerIdle":{"writes":{},"paints":0},"marketModels":26}
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+1 !== 0
+
+    at /Users/runner/work/madar/madar/tests/build460-render-idle-browser.cjs:9:741 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
