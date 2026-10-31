@@ -43,9 +43,10 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
 
     // «وضع المستثمر الحر» on its own page.
     await open('investorMode');assert.match(await body(),/وضع المستثمر الحر/);
-    // In the store edition the mode is the investor licence's (GH_STORE_CORE): refused, the store page opens; once the
-    // licence is delivered (the store bridge's verified transaction) it switches on and off as before.
-    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'));
+    // In the store edition the mode is the investor licence's (GH_STORE_CORE): refused with a notice, the store page not
+    // opened (owner: a locked feature never sends the player to the store); once the licence is delivered (the store
+    // bridge's verified transaction) it switches on and off as before.
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForTimeout(300);assert.equal(await page.evaluate(()=>!!document.querySelector('#drawerBody .store-product')),false,'a refused investor mode does not open the store');
     assert.equal(await page.evaluate(()=>__GH_STATE__.godMoney===true),false,'investor mode needs its licence in the store edition');
     await page.evaluate(()=>GH_STORE_NATIVE.onTransaction({transactionId:'B376-1',productId:'com.ventora.b376.investor.licence'}));await page.waitForFunction(()=>__GH_STATE__.purchases?.entitlements?.investor&&!window.__GH_DURABLE_COMMAND_CONTEXT__);
     await open('investorMode');

@@ -3183,7 +3183,12 @@
   function calendarAdvanceTargetDays(days){const now=Math.max(0,Number(state.simSeconds)||0),currentDay=Math.floor(now/86400);return Math.max(now+1,(currentDay+Math.max(1,Math.floor(Number(days)||1)))*86400);}
   function calendarAdvanceTargetYear(){const d=simDate(),y=d.getUTCFullYear()+1,m=d.getUTCMonth(),day=d.getUTCDate(),last=new Date(Date.UTC(y,m+1,0)).getUTCDate();return calendarDayStartSeconds(new Date(Date.UTC(y,m,Math.min(day,last))));}
   // The store edition's paid features (GH_STORE_CORE.featureOpen): without the purchase the store page opens with the reason.
-  function paidFeatureOpen(feature,reason){if(window.GH_STORE_CORE?.featureOpen?.(state,feature)!==false)return true;notice(reason,'warning');openDrawer('store',{tab:feature==='advance'?'plus':'lic'});return false;}
+  // Owner (store edition: «شاشة المتجر تفتح تلقائي… عند ضغط على اي شي مقفل يحولك المتجر هذا غلط»): a locked paid feature
+  // is refused with its notice and nothing else; the store opens only from its own button.
+  function paidFeatureOpen(feature,reason){if(window.GH_STORE_CORE?.featureOpen?.(state,feature)!==false)return true;notice(reason,'warning');return false;}
+  // A speed the game returns to by itself (a save, a resume, the end of a dialog) is never a locked 300×: it steps down
+  // to 120× without a word from the store.
+  function heldSpeed(value){const level=Number(value)||0;return level===3&&window.GH_STORE_CORE?.featureOpen?.(state,'accelerator')===false?2:level;}
   function requestCalendarAdvance(target,reason,label){
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true){notice('انتظر اكتمال تصدير التشخيص قبل تقديم التقويم.');return false;}
     const active=simulationEngine.snapshot().manualAdvance;if(active){notice('هناك تقديم زمني جارٍ الآن. أوقفه أولًا ثم اختر مدة جديدة.');return false;}
@@ -7078,7 +7083,7 @@ ${page}</div>`;
   $('assetManageBtn').addEventListener('click',()=>{if(selectedAssetId)openDrawer('assetManage',selectedAssetId);});
   syncMapCompanyFilterButtons();
   $('filterToggle').addEventListener('click',e=>{e.stopPropagation();const pop=$('filterPopover'),opening=pop.classList.contains('hidden');if(opening){closeDrawer();toggleSimulationCalendar(false);$('assetCard').classList.add('hidden');syncMapCompanyFilterButtons();}pop.classList.toggle('hidden');});
-  $('speedToggle').addEventListener('click',e=>{e.stopPropagation();setSpeed(state.speed===0||pausePendingAfterDayClose?resumeSpeed:0,{afterDayClose:true});});
+  $('speedToggle').addEventListener('click',e=>{e.stopPropagation();setSpeed(state.speed===0||pausePendingAfterDayClose?heldSpeed(resumeSpeed):0,{afterDayClose:true});});
   $('simNextDay')?.addEventListener('click',advanceToNextSimulationDay);
   $('simCalendarToggle')?.addEventListener('click',e=>{e.stopPropagation();toggleSimulationCalendar();});
   $('simCalendarPanel')?.addEventListener('click',e=>e.stopPropagation());
@@ -7117,7 +7122,7 @@ ${page}</div>`;
   async function saveSignatureDialog(){
     let strokes;try{strokes=signatureDialogPad?.export();if(!strokes)throw new Error('ارسم توقيعًا واضحًا داخل المساحة.');}catch(error){setSignatureDialogError(error.message==='signature-too-short'?'أكمل التوقيع بخط أوضح وأطول.':String(error.message||error));return false;}
     $('signatureDialogSave').disabled=true;const result=await runDurableStateCommand('replace-founder-signature',({state:draft})=>{const created=createFounderSignature(draft,strokes,draft.profile?.founder);window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`اعتمد الإصدار ${created.signature.version} من التوقيع المرئي للمعاملات الجديدة. المستندات السابقة تحتفظ بإصدارها.`,type:'authorization'});return {signatureId:created.signature.id,version:created.signature.version};},{silent:true});$('signatureDialogSave').disabled=false;
-    if(!result){setSignatureDialogError('لم يُحفظ التوقيع، ولم يتغير الإصدار المعتمد. تحقق من الحفظ وأعد المحاولة.');return false;}closeSignatureDialog(true);const resumeSpeed=SAFE_SPEED_VALUES.includes(Number(pendingAuthorizedResumeSpeed))&&Number(pendingAuthorizedResumeSpeed)>0?Number(pendingAuthorizedResumeSpeed):0;pendingAuthorizedResumeSpeed=0;if(resumeSpeed)setSpeed(resumeSpeed);else updateKpis();window.GH_WORKFLOW?.notify?.(`أصبح الإصدار ${result.version} من توقيعك المرئي معتمدًا للمعاملات الجديدة.${resumeSpeed?` استعيدت سرعة المحاكاة ${SPEED_LABEL_BY_LEVEL[resumeSpeed]}.`:''}`,'success',{state,panel:activeDrawerPanel,ephemeral:true});return true;
+    if(!result){setSignatureDialogError('لم يُحفظ التوقيع، ولم يتغير الإصدار المعتمد. تحقق من الحفظ وأعد المحاولة.');return false;}closeSignatureDialog(true);const resumeSpeed=SAFE_SPEED_VALUES.includes(Number(pendingAuthorizedResumeSpeed))&&Number(pendingAuthorizedResumeSpeed)>0?Number(pendingAuthorizedResumeSpeed):0;pendingAuthorizedResumeSpeed=0;if(resumeSpeed)setSpeed(heldSpeed(resumeSpeed));else updateKpis();window.GH_WORKFLOW?.notify?.(`أصبح الإصدار ${result.version} من توقيعك المرئي معتمدًا للمعاملات الجديدة.${resumeSpeed?` استعيدت سرعة المحاكاة ${SPEED_LABEL_BY_LEVEL[resumeSpeed]}.`:''}`,'success',{state,panel:activeDrawerPanel,ephemeral:true});return true;
   }
   window.GH_OPEN_SIGNATURE_DIALOG=openSignatureDialog;
   $('signatureDialogClose')?.addEventListener('click',()=>closeSignatureDialog());
@@ -7236,7 +7241,7 @@ ${page}</div>`;
     if(!state.onboardingComplete)return legal.showConsent({founded:false,onAccept:()=>{legalAcceptedSession=true;return true;}});
     const resume=state.speed>0?state.speed:0;if(resume)setSpeed(0);$('app').setAttribute('inert','');
     return legal.showConsent({founded:true,onAccept:async()=>(await runDurableStateCommand('accept-legal',({state:draft})=>{legal.record(draft,Math.floor((Number(draft.simSeconds)||0)/86400)+1);return true;},{silent:true}))===true})
-      .then(ok=>{$('app').removeAttribute('inert');if(resume)setSpeed(resume);return ok;});
+      .then(ok=>{$('app').removeAttribute('inert');if(resume)setSpeed(heldSpeed(resume));return ok;});
   }
   async function finishFounder(){
     if(founderSubmitting||state.onboardingComplete||founderLogoLoading)return false;
@@ -7257,6 +7262,7 @@ ${page}</div>`;
   else storeBridgePost('ready');
   promptLegal();
 
+  {const saved=Number(state.speed)||0,held=heldSpeed(saved);if(held!==saved){state.speed=held;notice('السرعة 300× غير متاحة دون «مسرّع الوقت» أو «أصول ونفوذ بلس»؛ تستمر اللعبة على 120×.','warning');}}
   updateKpis();setSpeed(state.speed);$('competitorToggle').checked=!!state.showCompetitors;
   document.querySelectorAll('.filter-btn').forEach(b=>{const selected=b.dataset.filter===state.activeFilter;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));});
   initMap();

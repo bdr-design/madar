@@ -3,6 +3,78 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build656-store-no-redirect-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build636-store-release-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-release-edition-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build647-store-plus-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build635-store-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build641-release-player-tasks-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build645-legal-consent-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build492-manual-slot-slices-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-calendar-journey-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-calendar-cancel-maintenance-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build628-pause-after-day-close.cjs"
+    ],
+    [
+      "node",
+      "tests/build386-confirmation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build651-i18n-source-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build653-i18n-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build643-release-roads-offline-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-money-guard.cjs"
+    ],
+    [
+      "node",
+      "tests/build637-launch-native-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build610-dead-code-removed-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build460-render-idle-browser.cjs"
     ],
     [
@@ -19,10 +91,6 @@
     ],
     [
       "node",
-      "tests/build651-i18n-source-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build654-confirm-dialog-browser.cjs"
     ],
     [
@@ -32,10 +100,6 @@
     [
       "node",
       "tests/build652-native-document-scripts.cjs"
-    ],
-    [
-      "node",
-      "tests/build653-i18n-browser.cjs"
     ],
     [
       "node",
@@ -76,10 +140,6 @@
     [
       "node",
       "tests/build382-campaign-decisions-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build386-confirmation-browser.cjs"
     ],
     [
       "node",
@@ -163,18 +223,6 @@
     ],
     [
       "node",
-      "tests/build637-launch-native-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-release-edition-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build636-store-release-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build334-security-contract.cjs"
     ],
     [
@@ -192,10 +240,6 @@
     [
       "node",
       "tests/build387-save-actions.cjs"
-    ],
-    [
-      "node",
-      "tests/build492-manual-slot-slices-browser.cjs"
     ],
     [
       "node",
@@ -236,14 +280,6 @@
     [
       "node",
       "tests/build633-progression-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build647-store-plus-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build645-legal-consent-browser.cjs"
     ],
     [
       "node",
@@ -292,10 +328,6 @@
     [
       "node",
       "tests/build372-large-health-fallback-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-calendar-cancel-maintenance-browser.cjs"
     ],
     [
       "node",
@@ -356,10 +388,6 @@
     [
       "node",
       "tests/build376-cooperative-draft-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build635-store-core.cjs"
     ],
     [
       "node",
@@ -443,10 +471,6 @@
     ],
     [
       "node",
-      "tests/build610-dead-code-removed-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build606-purchase-frame-pacing-browser.cjs"
     ],
     [
@@ -527,10 +551,6 @@
     ],
     [
       "node",
-      "tests/build643-release-roads-offline-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build638-value-pages-over-budget.cjs"
     ],
     [
@@ -540,10 +560,6 @@
     [
       "node",
       "tests/build640-boot-without-maritime-save-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build641-release-player-tasks-browser.cjs"
     ],
     [
       "node",
@@ -708,10 +724,6 @@
     [
       "node",
       "tests/build334-calendar-advance-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-calendar-journey-browser.cjs"
     ],
     [
       "node",
@@ -1251,10 +1263,6 @@
     ],
     [
       "node",
-      "tests/build376-money-guard.cjs"
-    ],
-    [
-      "node",
       "tests/build378-bancassurance.cjs"
     ],
     [
@@ -1608,10 +1616,6 @@
     [
       "node",
       "tests/build626-seal-strokes-text.cjs"
-    ],
-    [
-      "node",
-      "tests/build628-pause-after-day-close.cjs"
     ],
     [
       "node",
@@ -3238,6 +3242,10 @@
     [
       "node",
       "tests/build655-store-capture-protection.cjs"
+    ],
+    [
+      "node",
+      "tests/build656-store-no-redirect-browser.cjs"
     ],
     [
       "node",

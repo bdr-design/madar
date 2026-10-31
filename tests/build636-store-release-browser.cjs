@@ -2,8 +2,8 @@
 // Owner (approved design, «الاشتراكات والمشتريات», and «تسريع الوقت خل عليه عملية شراء»): the store edition of the real
 // app (GH_EDITION 'release') with a store bridge standing in for StoreKit 2:
 //  1. the app tells the bridge it is ready once the group is founded;
-//  2. without purchases, 300× and a seven-day calendar advance are refused and open the store page; investor mode is
-//     refused and opens the store page (licences tab);
+//  2. without purchases, 300× and a seven-day calendar advance are refused, and investor mode is refused; none of them
+//     opens the store page (owner: «عند ضغط على اي شي مقفل يحولك المتجر هذا غلط»), which opens from its own button only;
 //  3. the store page (owner's approved design: three tabs) lists the products with the store's localized prices, sends a
 //     purchase and a restore to the bridge;
 //  4. a verified capital-pack transaction is delivered once: the group receives the pack as a documented founder
@@ -22,12 +22,12 @@ const RELEASE={fn:()=>{window.GH_EDITION='release';window.__storePosts=[];window
     // 1.
     assert.ok(await page.evaluate(()=>window.__storePosts.some(row=>row.action==='ready')),'1: ready after founding');
     // 2.
-    await page.evaluate(()=>__AUDIT__.setSpeed(3));assert.notEqual(await page.evaluate(()=>__GH_STATE__.speed),3,'2: 300× needs the accelerator');
-    await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'),null,{timeout:30000});
+    const noStore=async label=>{await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>!!document.querySelector('#drawerBody .store-product')||__AUDIT__.currentPanel()==='store'),false,`2: ${label} does not open the store`);};
+    await page.evaluate(()=>__AUDIT__.setSpeed(3));assert.notEqual(await page.evaluate(()=>__GH_STATE__.speed),3,'2: 300× needs the accelerator');await noStore('300×');
     await page.evaluate(()=>__AUDIT__.openDrawer('groupHub'));
     const advance=await page.evaluate(()=>{const s=__GH_STATE__.simSeconds;document.querySelector('[data-calendar-advance="7"]').click();return {before:s,manual:__AUDIT__.simulationEngine.snapshot().manualAdvance};});
-    assert.ok(!advance.manual,'2: a seven-day advance needs the accelerator');await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'),null,{timeout:30000});
-    await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);assert.equal(await page.evaluate(()=>GH_FINANCE_CORE.investorMode(__GH_STATE__)),false,'2: investor mode needs its licence');
+    assert.ok(!advance.manual,'2: a seven-day advance needs the accelerator');await noStore('a seven-day advance');await page.evaluate(()=>__AUDIT__.openDrawer('groupHub'));
+    await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);assert.equal(await page.evaluate(()=>GH_FINANCE_CORE.investorMode(__GH_STATE__)),false,'2: investor mode needs its licence');await noStore('investor mode');
     // 3.
     await page.evaluate(()=>{GH_STORE_NATIVE.onProducts(GH_STORE_CORE&&Object.keys(GH_STORE_CORE.PRODUCTS).map(suffix=>({productId:`com.test.ventora.${suffix}`,displayPrice:`SAR ${suffix.length}.99`,title:suffix})));__AUDIT__.openDrawer('store',{tab:'cap'});});
     await page.waitForFunction(()=>document.querySelector('#drawerBody .st[data-store-tab="cap"] .store-product'),null,{timeout:30000});

@@ -10,7 +10,7 @@
 //     ($30M at level 1) and
 //     opens 300× for three game days, after which a 300× game steps down to 120× by itself;
 //  4. the investor licence is unlimited money only: in investor mode the career's levels stay;
-//  5. Plus opens slots 4–6 (refused without it, the store opening on its Plus tab) and the gold identity on the app, both
+//  5. Plus opens slots 4–6 (refused without it, with a notice; the store does not open) and the gold identity on the app, both
 //     gone again when the subscription has ended; the long calendar advance is Plus's, not the accelerator's.
 const assert=require('node:assert/strict');
 const {boot}=require('./helpers/local-dom-app');
