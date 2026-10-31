@@ -1,0 +1,64 @@
+PASS: real UTF8 save, hash, A/B readback
+PASS: Save Schema 3 uses the current JSON vault path
+PASS: bad hash leaves disk unchanged
+PASS: revision mismatch leaves disk unchanged
+PASS: epoch mismatch leaves disk unchanged
+PASS: empty request id
+PASS: oversized request id
+PASS: wrong envelope schema
+PASS: payload schema must match JSON root
+PASS: raw envelope belongs to different JSON
+PASS: cross-action envelope rejected by commit owner
+PASS: boolean revision rejected
+PASS: fractional revision rejected
+PASS: malformed JSON rejected
+PASS: 30 MiB byte limit enforced
+PASS: unsupported future save schema
+PASS: FIFO saves and main completion queue
+PASS: stale revision rejected
+PASS: manual save then load older revision with journal
+PASS: invalid manual-slot envelope preserves disk
+PASS: native pinned rollback survives A/B rotations
+PASS: reset updates both slots, clears manual slots, no resurrection
+PASS: pre-reset epoch cannot resurrect
+PASS: corrupt newest A/B slot falls back to verified peer
+PASS: slot integer
+PASS: slot fraction
+PASS: slot bool
+PASS: slot NaN
+PASS: slot over-safe-int
+PASS: legacy integer string
+PASS: document URL gh://app/index.html
+PASS: document URL gh://app/index.html?v=334
+PASS: document URL https://app/index.html
+PASS: document URL gh://other/index.html
+PASS: document URL gh://user@app/index.html
+PASS: document URL gh://app:123/index.html
+PASS: document URL file:///index.html
+PASS: document URL about:blank
+PASS: AppliedUpdate preserves exact operationsJSON and no mirror
+PASS: chunk store round-trips bytes, compressed and SHA-256 checked
+PASS: stored LZ4 containers remain opaque, hash checked and immutable in the native vault
+PASS: compressed transport restores the exact original chunk before immutable storage
+PASS: corrupt transport is refused before any chunk is written
+PASS: binary and bridge transport decode on the real vault queue
+PASS: re-uploading the same bytes is accepted; other bytes under the id are refused
+PASS: unsafe chunk ids are refused
+PASS: a corrupt chunk file is detected on read
+PASS: a commit that lists a missing chunk is refused and leaves the disk unchanged
+PASS: collection keeps chunks only because a vault file lists them, and removes stale ones
+PASS: a chunk only a manual slot lists stays across commits and goes once the slot is cleared
+PASS: a commit reports its stage timings once
+PASS: a slot file changed on disk is verified again before the next commit
+PASS: a commit that lists a missing text chunk is refused; with it on disk it commits and the chunk is kept
+PASS: bootstrap of a chunked save installs the boot gate
+PASS: payload scan reads what JSONSerialization reads (fixed corpus)
+PASS: payload scan refuses what RFC 8259 refuses
+PASS: payload scan: deep nesting, lone surrogates and repeated keys
+PASS: payload scan reads what JSONSerialization reads (generated saves, cut short)
+PASS: the A/B envelope keeps every payload byte
+PASS: bridge check refuses an envelope whose save is not JSON
+PASS: a second large commit succeeds and reports its stages
+PASS: a large Arabic save commits; text comparison is literal
+SAVE_MEASUREMENT {"arabic_commit_stages":{"backgroundChunkGcAborted":0,"backgroundChunkGcCandidates":1,"backgroundChunkGcDeleted":1,"backgroundChunkGcGeneration":5,"backgroundChunkGcMs":0.89379200000000003,"backgroundChunkGcProtected":0,"backgroundChunkGcScannedBytes":0,"bridgeMs":100.112208,"chunkGcDeferred":1,"chunkGcMs":0,"chunkGcScheduleMs":0.141459,"currentSlotMs":0.95245800000000003,"encodeMs":2156.3885420000001,"envelopeBytes":15200379,"parseMs":0.37933299999999998,"payloadBytes":15200118,"queueWaitMs":0.088666999999999996,"verifyMs":7.3695830000000004,"writeMs":12.895250000000001},"arabic_text_bytes":15200000,"arabic_text_literal_equal_ms":3.1091250000000001,"arabic_text_swift_equal_ms":671.86316699999998,"bytes":14000117,"completed_ms":2458.5742919999998,"handler_validation_and_enqueue_ms":0.059166999999999997,"includes_bootstrap_refresh":false,"iphone_measurement":false,"second_commit_ms":2284.156708,"second_commit_stages":{"backgroundChunkGcAborted":0,"backgroundChunkGcCandidates":1,"backgroundChunkGcDeleted":1,"backgroundChunkGcGeneration":5,"backgroundChunkGcMs":0.89379200000000003,"backgroundChunkGcProtected":0,"backgroundChunkGcScannedBytes":0,"bridgeMs":77.572833000000003,"chunkGcDeferred":1,"chunkGcMs":0,"chunkGcScheduleMs":0.18720800000000001,"currentSlotMs":0.28995799999999999,"encodeMs":2111.823292,"envelopeBytes":14000379,"parseMs":0.19154199999999999,"payloadBytes":14000118,"queueWaitMs":0.13266700000000001,"verifyMs":13.146542,"writeMs":15.967833000000001},"single_sample":true,"success":true}
+NATIVE_TESTS 62/62

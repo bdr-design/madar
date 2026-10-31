@@ -1,0 +1,118 @@
+{
+  "scope": "Extracted real native JS; controlled runtime/bridge. Full current335 validator if --web. This does NOT verify trusted Ed25519 signatures or install files.",
+  "native_payload_compiled": true,
+  "node": "v24.22.0",
+  "total": 23,
+  "passed": 23,
+  "failed": 0,
+  "rows": [
+    {
+      "name": "healthy explicit apply",
+      "ok": true
+    },
+    {
+      "name": "warning not critical",
+      "ok": true
+    },
+    {
+      "name": "missing runtime",
+      "ok": true
+    },
+    {
+      "name": "missing apply owner",
+      "ok": true
+    },
+    {
+      "name": "missing integrity owner",
+      "ok": true
+    },
+    {
+      "name": "ambiguous false / duplicate",
+      "ok": true
+    },
+    {
+      "name": "undefined apply result",
+      "ok": true
+    },
+    {
+      "name": "unrecognized apply object",
+      "ok": true
+    },
+    {
+      "name": "throw during apply",
+      "ok": true
+    },
+    {
+      "name": "rejected async apply",
+      "ok": true
+    },
+    {
+      "name": "critical integrity",
+      "ok": true
+    },
+    {
+      "name": "missing report",
+      "ok": true
+    },
+    {
+      "name": "missing counts",
+      "ok": true
+    },
+    {
+      "name": "contradictory counts",
+      "ok": true
+    },
+    {
+      "name": "unrecognized status",
+      "ok": true
+    },
+    {
+      "name": "missing state",
+      "ok": true
+    },
+    {
+      "name": "privileged handler source gates webview/mainframe/origin",
+      "ok": true
+    },
+    {
+      "name": "raw signed text is forwarded by native owner",
+      "ok": true
+    },
+    {
+      "name": "current335 validator accepts exact native contract",
+      "ok": true
+    },
+    {
+      "name": "current335 rejects tampered whitespace hash",
+      "ok": true
+    },
+    {
+      "name": "current335 rejects separate mirror",
+      "ok": true
+    },
+    {
+      "name": "current335 rejects wrong installed build",
+      "ok": true
+    },
+    {
+      "name": "current335 rejects overlay contract",
+      "ok": true
+    }
+  ],
+  "source_checks": {
+    "moved_envelope_validation": true,
+    "handler_origin_gate": true,
+    "raw_operations_forwarded": true,
+    "script_sha256": "e1ebd1a33464ccc51a15f34cfa96b3e0e750836feaf52ba004425eb6992a990a",
+    "swift_files": {
+      "VentoraStore.swift": "28d00b08f25f21550fddb977bcc2cca959e1a1862e09ef1767212f8114d910c4",
+      "GameViewController.swift": "bba6ea71e95328aab39b713f7b7442334fa5d190db0f9d8badd5dbc7004e31b9",
+      "VentoraReleaseKey.swift": "db25983ae6ac93f83839e18c596fc40a60c54125312c57e52706edbfbe96041b",
+      "GlobalSaveVault.swift": "dadf62710466f766edba4c895db4fc944a03d5bc004aeb3785ff9f71119282a8",
+      "GlobalGameStorage.swift": "46939bdc41609908411411845aaab310e5aff32bee8a27db0fa986fdddd4f719",
+      "AppDelegate.swift": "ac85c6e05e16ee9e7ac927d2e46bd83c577c7d208bff503709decd1f3dd2421b",
+      "VentoraPack.swift": "cce97c7cf092227aa0ffa9c831129cf1d17059b9df22ffb6aac911cfa9c31cf4",
+      "SaveExportDownloadOwner.swift": "a3b7ce50beffd7b1ac94a9193b1e667fbbfca7c5f150e249be939a8c0a3b5769"
+    }
+  }
+}
