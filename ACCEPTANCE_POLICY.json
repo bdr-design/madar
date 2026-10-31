@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build651-i18n-source-contract.cjs"
+    ],
+    [
+      "node",
       "tests/build654-confirm-dialog-browser.cjs"
     ],
     [
@@ -16,10 +20,6 @@
     [
       "node",
       "tests/build653-i18n-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build651-i18n-source-contract.cjs"
     ],
     [
       "node",

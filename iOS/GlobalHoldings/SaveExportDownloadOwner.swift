@@ -12,6 +12,9 @@ final class VentoraSaveExportDownloads: NSObject, WKDownloadDelegate {
     private var active: WKDownload?
     private var destination: URL?
     private var leased = Set<URL>()
+    /// The text in the player's language. The shell gives its own arEn; this file also compiles on its own (the macOS
+    /// export check), where the default keeps the Arabic text.
+    var arEn: (String, String) -> String = { ar, _ in ar }
 
     init(directory: URL = FileManager.default.temporaryDirectory.appendingPathComponent("Ventora-Exports", isDirectory: true),
          completion: @escaping (Result<URL, Error>) -> Void) {

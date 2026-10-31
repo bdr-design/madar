@@ -14,7 +14,10 @@
 //      it once; no file defines a global L (Leaflet's) and i18n-core.js is the first script of index.html;
 //   8. the iOS shell writes no Arabic text outside arEn (comments aside), so nothing it shows stays Arabic in English;
 //      the only exceptions are the language's own name «العربية» on the language button, and GlobalGameStorage.swift (the
-//      development edition's update-package checks; its messages are a later batch).
+//      development edition's update-package checks; its messages are a later batch);
+//   9. the save-export owner (SaveExportDownloadOwner.swift, also compiled on its own by the macOS export check) takes
+//      the shell's arEn through one property whose default keeps the Arabic text; the shell hands it over once. That
+//      forwarding call is the only arEn call without literal texts.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const ROOT=path.join(__dirname,'..'),WEB=path.join(ROOT,'WebApp'),IOS=path.join(ROOT,'iOS/GlobalHoldings');
 const ARABIC=/[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/,ARABIC_LETTER=/[ء-يٱ-ۓۺ-ۿ]/;
@@ -42,6 +45,7 @@ function calls(src,swift){
   const out=[],re=/\barEn\(/g;let m;
   while((m=re.exec(src))){
     const before=src.slice(Math.max(0,m.index-12),m.index);if(/(const|func)\s+$/.test(before)||/function\s+$/.test(before))continue;
+    {const lead='owner.arEn = { ar, en in ';if(swift&&src.slice(m.index-lead.length,m.index)===lead&&src.startsWith('arEn(ar, en)',m.index))continue;}
     const a=readLiteral(src,m.index+5,swift);if(!a){out.push({at:m.index,error:'the Arabic argument is not a string literal'});continue;}
     let k=a.end;while(/\s/.test(src[k]))k++;if(src[k]!==','){out.push({at:m.index,error:'expected two arguments'});continue;}
     const b=readLiteral(src,k+1,swift);if(!b){out.push({at:m.index,error:'the English argument is not a string literal'});continue;}
@@ -108,6 +112,11 @@ for(const name of fs.readdirSync(IOS).filter(f=>f.endsWith('.swift')&&!SWIFT_LAT
 }
 {const sample='let a = arEn("نعم", "Yes")\n// تعليق "عربي"\nlet b = "لا"\nlet c = "\\(x) قيمة"';const spans=calls(sample,true).map(c=>[c.at,c.en.end]),loose=swiftLiterals(sample).filter(l=>ARABIC_LETTER.test(l.text)&&!spans.some(([a,b])=>l.at>a&&l.end<=b)).map(l=>l.text);
   assert.deepEqual(loose,['"لا"','"\\(x) قيمة"'],'8: the checker finds Arabic outside arEn, not in comments or inside arEn');}
+// 9.
+{const owner=fs.readFileSync(path.join(IOS,'SaveExportDownloadOwner.swift'),'utf8'),shell=fs.readFileSync(path.join(IOS,'GameViewController.swift'),'utf8');
+  if((owner.match(/var arEn: \(String, String\) -> String = \{ ar, _ in ar \}/g)||[]).length!==1)problems.push('iOS/SaveExportDownloadOwner.swift: one arEn property whose default keeps the Arabic text');
+  if((shell.match(/owner\.arEn = \{ ar, en in arEn\(ar, en\) \}/g)||[]).length!==1)problems.push('iOS/GameViewController.swift: the export owner gets the shell\'s arEn once');
+  if(!/private lazy var saveExportDownloads: VentoraSaveExportDownloads = makeSaveExportDownloads\(\)/.test(shell))problems.push('iOS/GameViewController.swift: the export owner is made by makeSaveExportDownloads');}
 const html=fs.readFileSync(path.join(WEB,'index.html'),'utf8'),scripts=[...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(m=>m[1]);
 if(scripts[0]!=='i18n-core.js')problems.push(`index.html: i18n-core.js must be the first script (found ${scripts[0]})`);
 if(html.indexOf('i18n-core.js')>html.indexOf('<body'))problems.push('index.html: i18n-core.js must load in <head>, before the page paints');

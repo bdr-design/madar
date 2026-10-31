@@ -82,8 +82,15 @@ final class GameViewController: UIViewController, WKNavigationDelegate, WKUIDele
     private var nativeBootstrapIntent: UInt = 0
     private var bootstrapForceOnNavigation = false
     private var bootstrapPauseOnNavigation = false
-    private lazy var saveExportDownloads: VentoraSaveExportDownloads = VentoraSaveExportDownloads { [weak self] result in
-        guard let self else { return }
+    private lazy var saveExportDownloads: VentoraSaveExportDownloads = makeSaveExportDownloads()
+
+    private func makeSaveExportDownloads() -> VentoraSaveExportDownloads {
+        let owner = VentoraSaveExportDownloads { [weak self] result in self?.finishSaveExport(result) }
+        owner.arEn = { ar, en in arEn(ar, en) }
+        return owner
+    }
+
+    private func finishSaveExport(_ result: Result<URL, Error>) {
         switch result {
         case .success(let url):
             let share = UIActivityViewController(activityItems: [url], applicationActivities: nil)
