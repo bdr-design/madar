@@ -58,6 +58,10 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
+# First build358-map-controls-browser, which failed on the store runner for 2986eab (its only failure of 681 gates;
+# it passed there for 1076d88 with the same game code, and three times here). Then build575, now taking thirty-one
+# openings (it failed again on the development runner for 2986eab: fastest 95.5 against 95.1 ms, median 199.9 against
+# 153.5). Before that:
 # First build575-conference-keynote-weight-browser, which failed on the development runner for 1076d88 (macOS: the
 # median opening 221.4 ms against the source before's 129.8, the fastest 120.7 against 98.5; the push did not touch the
 # conference; it passed here on the same commit). Then, as for 1076d88:
@@ -271,6 +275,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build358-map-controls-browser.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build656-store-no-redirect-browser.cjs'],
     ['node', 'tests/build636-store-release-browser.cjs'],
@@ -510,7 +515,6 @@ expected_preflight=[
     ['node', 'tests/build358-idempotency-archive.cjs'],
     ['node', 'tests/build358-large-fleet-dispatch-browser.cjs'],
     ['node', 'tests/build358-maintenance.cjs'],
-    ['node', 'tests/build358-map-controls-browser.cjs'],
     ['node', 'tests/build358-payment-terms.cjs'],
     ['node', 'tests/build358-purchase-caps.cjs'],
     ['node', 'tests/build358-purchase-scale.cjs'],

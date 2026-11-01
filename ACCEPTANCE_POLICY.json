@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build358-map-controls-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
@@ -956,10 +960,6 @@
     [
       "node",
       "tests/build358-maintenance.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-map-controls-browser.cjs"
     ],
     [
       "node",
