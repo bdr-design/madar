@@ -58,6 +58,9 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
+# First build575-conference-keynote-weight-browser, which failed on the development runner for 1076d88 (macOS: the
+# median opening 221.4 ms against the source before's 129.8, the fastest 120.7 against 98.5; the push did not touch the
+# conference; it passed here on the same commit). Then, as for 1076d88:
 # Now (store fix, owner: «عند ضغط على اي شي مقفل يحولك المتجر هذا غلط»; «نعم أصلحه الآن»): build656, new, first; then
 # the gates over the store edition, Plus, the save slots, the calendar, the speed and the legal resume it touches; then
 # build460, build570, build555 and phone-layout, which failed once on one runner and passed since; then the order below.
@@ -268,6 +271,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build656-store-no-redirect-browser.cjs'],
     ['node', 'tests/build636-store-release-browser.cjs'],
     ['node', 'tests/build376-release-edition-browser.cjs'],
@@ -376,7 +380,6 @@ expected_preflight=[
     ['node', 'tests/build577-save-layout-steps.cjs'],
     ['node', 'tests/build507-encode-rows-steps.cjs'],
     ['node', 'tests/build623-worker-extras-packing.cjs'],
-    ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build472-all-company-operating-browser.cjs'],
     ['node', 'tests/build585-save-upload-block-accounting.cjs'],
     ['node', 'tests/build558-investor-card-load-browser.cjs'],

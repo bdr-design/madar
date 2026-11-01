@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build656-store-no-redirect-browser.cjs"
     ],
     [
@@ -432,10 +436,6 @@
     [
       "node",
       "tests/build623-worker-extras-packing.cjs"
-    ],
-    [
-      "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
       "node",
