@@ -1,0 +1,5 @@
+/* Hand-written mirrored details (tools/ltr_css.cjs appends them to WebApp/ltr.css). */
+/* The strip under the map is laid out left to right in the Arabic design (the company dock starts at the left edge);
+   mirrored, it starts at the right edge. Its capsules keep their own (mirrored) direction. */
+html[dir="ltr"] .map-strip{direction:rtl}
+html[dir="ltr"] .map-strip>*{direction:ltr}

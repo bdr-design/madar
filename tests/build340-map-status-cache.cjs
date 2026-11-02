@@ -20,7 +20,8 @@ const window={GH_ARABIC_COPY:require('../WebApp/arabic-copy-core.js'),GH_MAP_STR
 const dom={mapStatus:{textContent:'',title:''}};
 let fakeNow=1000000;
 const context={state,window,Date:{now:()=>fakeNow},mapFleetSummaryClient:()=>null,mapFleetClassRows:()=>null,mapFleetSummary:{revision:-1},mapTilesOffline:false,mapCategoryVisible:()=>false,operationalRoutes:()=>{routeScans++;return [{routingSource:'OSRM'}];},getDynamicFacilities:()=>{facilityScans++;return [{owned:true},{owned:false}];},$:id=>dom[id]};
-const textHelper=app.slice(app.indexOf('  const setNodeText='),app.indexOf('  function updateKpis('))+'\n'+app.match(/  function countText\([\s\S]*?\n  }\n/)[0];
+// The game's two-language helper (GH_I18N is absent here: the Arabic text, as before).
+const textHelper=app.match(/  const arEn=.*\n/)[0]+app.slice(app.indexOf('  const setNodeText='),app.indexOf('  function updateKpis('))+'\n'+app.match(/  function countText\([\s\S]*?\n  }\n/)[0];
 const update=vm.runInNewContext(`(()=>{${textHelper}\n${source};return updateMapStatus;})()`,context,{filename:'map-status-cache.js'});
 
 update();

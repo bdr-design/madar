@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='3.0.0',BATCH_SIZE=12,MAX_ATTEMPTS=6,DEFAULT_ROUTE_CAPACITY=64,DEFAULT_PLAN_YIELD_EVERY=48;
+  const VERSION='3.0.0',BATCH_SIZE=12,MAX_ATTEMPTS=6,MIN_CALL_LIMIT=80,DEFAULT_ROUTE_CAPACITY=64,DEFAULT_PLAN_YIELD_EVERY=48;
   const copy=value=>structuredClone(value);
   const yieldToUI=()=>typeof globalThis.scheduler?.yield==='function'?globalThis.scheduler.yield():new Promise(resolve=>setTimeout(resolve,0));
   function fail(result){if(result.status==='cancelled')throw new Error('أُلغي حساب المسارات');if(result.status==='circuit-open')throw new Error('مزود الطرق غير متاح مؤقتًا؛ أعد المحاولة بعد 30 ثانية');throw new Error('تعذر الاتصال بمزود الطرق؛ لم تُعتمد أي رحلة. أعد المحاولة عند استقرار الاتصال');}
@@ -46,11 +46,19 @@
     // A route computed on the device (release edition: GH_MAP_PROVIDER offline) needs no pause between requests: the
     // pause only spaced requests to a routing server.
     if(provider?.offline?.()===true)intervalMs=0;
+    // Owner («كمل ابحاثك عن اسباب الثقل والمشاكل» → «جميعها على دفعات»): each routing call serves one depot, so a fixed
+    // limit of 80 refused every dispatch of 80 depots or more, even when every route was found. The limit follows the
+    // calls this plan needs (one per depot batch of BATCH_SIZE) with room for a refused batch split down to single rows
+    // (2×BATCH_SIZE−1 calls) or its MAX_ATTEMPTS retries, never below 80; the limit is tested before a call, so a call
+    // that reaches it is kept; each row stays bounded by MAX_ATTEMPTS and the caller's time limit.
+    const perOrigin=new Map();for(const row of pending)perOrigin.set(row.origin.id,(perOrigin.get(row.origin.id)||0)+1);
+    let neededCalls=0;for(const rows of perOrigin.values())neededCalls+=Math.ceil(rows/BATCH_SIZE);
+    const callLimit=Math.max(MIN_CALL_LIMIT,neededCalls*Math.max(MAX_ATTEMPTS*2,2*BATCH_SIZE-1));
     let calls=0,lastCall=0;
-    function check(){if(signal?.aborted)throw new Error('أُلغي حساب المسارات');if(calls>=80)throw new Error('لم تكتمل مسارات الأسطول ضمن حد المحاولات؛ لم تُعتمد أي رحلة');}
+    function check(){if(signal?.aborted)throw new Error('أُلغي حساب المسارات');if(calls>=callLimit)throw new Error('لم تكتمل مسارات الأسطول ضمن حد المحاولات؛ لم تُعتمد أي رحلة');}
     async function fetchGroup(rows){
       check();const wait=Math.max(0,lastCall+intervalMs-Date.now());if(wait)await new Promise(resolve=>setTimeout(resolve,wait));check();lastCall=Date.now();calls++;
-      const pairs=rows.map(row=>({from:row.origin.coords,to:pointFor(row.origin,row.asset,row.index,row.attempt,seed)})),response=await provider.roadBatch(pairs,{signal});check();
+      const pairs=rows.map(row=>({from:row.origin.coords,to:pointFor(row.origin,row.asset,row.index,row.attempt,seed)})),response=await provider.roadBatch(pairs,{signal});if(signal?.aborted)throw new Error('أُلغي حساب المسارات');
       if(response.ok)return response.geometries;
       if(response.status==='no-route'||response.reason==='routing-endpoint-too-far'||response.reason==='routing-geometry-too-complex'){
         if(rows.length===1)return [null];const middle=Math.ceil(rows.length/2);return [...await fetchGroup(rows.slice(0,middle)),...await fetchGroup(rows.slice(middle))];
@@ -58,7 +66,12 @@
       fail(response);
     }
     onProgress(result.length,assets.length);
+    // Offline (release edition) a batch resolves at once, so without a worker the loop would be one long task; it gives
+    // the screen a turn once 8 ms have passed, checked between depot batches and every 64 trucks a route's copies are
+    // made for (the command that applies the plan re-checks origins, routes and trucks).
+    const clock=()=>globalThis.performance?.now?.()??Date.now();let sliceStarted=clock();
     while(pending.length){
+      if(clock()-sliceStarted>=8){await yieldControl();if(signal?.aborted)throw new Error('أُلغي حساب المسارات');sliceStarted=clock();}
       check();const originId=pending[0].origin.id,group=pending.filter(row=>row.origin.id===originId).slice(0,BATCH_SIZE),geometries=await fetchGroup(group);
       for(const [i,row]of group.entries()){
         const g=geometries[i];let planned=null;
@@ -68,12 +81,16 @@
         if(planned){
           const capacity=Math.max(hardCapacity,row.load);if(capacity>baseCapacity)planned.route.fleetCapacity=capacity;
           remember(planned.route);loads.set(planned.route.id,row.members.length);
-          row.members.forEach((member,index)=>result.push({assetId:member.asset.id,origin:copy(row.origin),...copy(planned),created:index===0,plannedShared:index>0,shared:true}));pending.splice(pending.indexOf(row),1);
+          for(let index=0;index<row.members.length;index++){
+            const member=row.members[index];result.push({assetId:member.asset.id,origin:copy(row.origin),...copy(planned),created:index===0,plannedShared:index>0,shared:true});
+            if((index&63)===63&&clock()-sliceStarted>=8){await yieldControl();if(signal?.aborted)throw new Error('أُلغي حساب المسارات');sliceStarted=clock();}
+          }
+          pending.splice(pending.indexOf(row),1);
         }else if(++row.attempt>=MAX_ATTEMPTS)throw new Error(`${row.asset.name}: تعذر إيجاد طريق للأسطول ضمن مدى الشاحنات؛ لم تُعتمد أي رحلة`);
       }
       onProgress(result.length,assets.length);
     }
-    check();return result;
+    if(signal?.aborted)throw new Error('أُلغي حساب المسارات');return result;
   }
   const API=Object.freeze({VERSION,BATCH_SIZE,MAX_ATTEMPTS,DEFAULT_ROUTE_CAPACITY,DEFAULT_PLAN_YIELD_EVERY,plan,pointFor,makeRoute});globalThis.GH_ROAD_PLANNER=API;if(globalThis.window&&window!==globalThis)window.GH_ROAD_PLANNER=API;
 })();

@@ -7,7 +7,7 @@
   // Loaded first, in <head>: it sets <html lang dir> before the page paints.
   // Until every batch of the English edition is done (EN_READY), English is offered in the development edition only; the
   // store edition stays Arabic whatever is stored.
-  const VERSION='1.0.0',STORAGE_KEY='ani-language',LANGUAGES=Object.freeze(['ar','en']),EN_READY=false;
+  const VERSION='1.1.0',STORAGE_KEY='ani-language',LANGUAGES=Object.freeze(['ar','en']),EN_READY=false;
   const LOCALES=Object.freeze({ar:Object.freeze({number:'ar-SA-u-nu-latn',document:'ar-SA',date:'ar-SA-u-ca-gregory-nu-latn',cheque:'ar-SA-u-ca-gregory',region:'ar'}),en:Object.freeze({number:'en-US',document:'en-US',date:'en-US',cheque:'en-US',region:'en'})});
   const MONTHS=Object.freeze({ar:Object.freeze(['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']),en:Object.freeze(['January','February','March','April','May','June','July','August','September','October','November','December'])});
   const releaseEdition=()=>globalThis.GH_EDITION==='release';
@@ -39,8 +39,22 @@
     }
     globalThis.location?.reload?.();return {ok:true,changed:true,language:value};
   }
+  // The page's own (static) texts carry their English beside the Arabic: data-en for the element's text (its first text
+  // of its own; the elements inside it are kept) and data-en-<attribute> for an attribute (title, aria-label, …). In
+  // English they are set once, when the page is parsed and before any game script reads it (i18n-static.js, the first
+  // script of <body>'s end). Nothing is set in Arabic, and nothing watches the page afterwards.
+  function applyStatic(doc=globalThis.document){
+    if(current!=='en'||!doc?.querySelectorAll)return 0;let count=0;
+    for(const el of doc.querySelectorAll('*')){
+      for(const attr of [...el.attributes]){
+        if(attr.name==='data-en'){for(const node of el.childNodes){if(node.nodeType===3&&node.nodeValue.trim()){const value=node.nodeValue;node.nodeValue=value.slice(0,value.length-value.trimStart().length)+attr.value+value.slice(value.trimEnd().length);count++;break;}}}
+        else if(attr.name.startsWith('data-en-')){el.setAttribute(attr.name.slice(8),attr.value);count++;}
+      }
+    }
+    return count;
+  }
   apply();
-  const API=Object.freeze({VERSION,STORAGE_KEY,LANGUAGES,EN_READY,available,lang,isEn,dir,L,locale,month,apply,setLang});
+  const API=Object.freeze({VERSION,STORAGE_KEY,LANGUAGES,EN_READY,available,lang,isEn,dir,L,locale,month,apply,applyStatic,setLang});
   globalThis.GH_I18N=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

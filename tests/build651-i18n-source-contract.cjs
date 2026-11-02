@@ -17,7 +17,11 @@
 //      development edition's update-package checks; its messages are a later batch);
 //   9. the save-export owner (SaveExportDownloadOwner.swift, also compiled on its own by the macOS export check) takes
 //      the shell's arEn through one property whose default keeps the Arabic text; the shell hands it over once. That
-//      forwarding call is the only arEn call without literal texts.
+//      forwarding call is the only arEn call without literal texts;
+//  10. index.html's own texts: every Arabic text of an element has its English in data-en, every Arabic attribute its
+//      English in data-en-<attribute>, each pair held to rules 1–6; the only exception is the bilingual wordmark (the
+//      brand's Arabic name beside its English one); i18n-static.js, which sets them, is the first script after the page's
+//      markup.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const ROOT=path.join(__dirname,'..'),WEB=path.join(ROOT,'WebApp'),IOS=path.join(ROOT,'iOS/GlobalHoldings');
 const ARABIC=/[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/,ARABIC_LETTER=/[ء-يٱ-ۓۺ-ۿ]/;
@@ -120,6 +124,22 @@ for(const name of fs.readdirSync(IOS).filter(f=>f.endsWith('.swift')&&!SWIFT_LAT
 const html=fs.readFileSync(path.join(WEB,'index.html'),'utf8'),scripts=[...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(m=>m[1]);
 if(scripts[0]!=='i18n-core.js')problems.push(`index.html: i18n-core.js must be the first script (found ${scripts[0]})`);
 if(html.indexOf('i18n-core.js')>html.indexOf('<body'))problems.push('index.html: i18n-core.js must load in <head>, before the page paints');
+// 10.
+{const AR_TEXT=/[\u0600-\u06FF]/,decode=t=>t.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'"),VOID=new Set(['input','meta','link','img','br','hr','source']),KEEP=new Set(['incorporation-wordmark-ar']);
+  const pair=(at,ar,en)=>check(path.join(WEB,'index.html'),html,{at,ar:{value:decode(ar),placeholders:[]},en:{value:decode(en),placeholders:[]}},problems);
+  const stack=[],re=/<!--[\s\S]*?-->|<\/?([a-zA-Z][\w-]*)([^>]*)>|[^<]+/g;let m,pairs=0;
+  while((m=re.exec(html))){const tok=m[0];if(tok.startsWith('<!--'))continue;if(tok.startsWith('</')){stack.pop();continue;}
+    if(tok.startsWith('<')){const name=m[1].toLowerCase(),attrs=m[2],en=new Map([...attrs.matchAll(/\s(data-en(?:-[a-z-]+)?)="([^"]*)"/g)].map(a=>[a[1],a[2]]));
+      for(const a of attrs.matchAll(/\s([a-z-]+)="([^"]*)"/g)){if(a[1].startsWith('data-en')||!AR_TEXT.test(a[2]))continue;const english=en.get(`data-en-${a[1]}`);if(english===undefined)problems.push(`WebApp/index.html:${lineOf(html,m.index)}: the ${a[1]} «${a[2]}» has no data-en-${a[1]}`);else{pair(m.index,a[2],english);pairs++;}}
+      if(!VOID.has(name))stack.push({name,cls:(/class="([^"]*)"/.exec(attrs)||[])[1]||'',en:en.get('data-en'),texts:0});continue;}
+    if(!AR_TEXT.test(tok)||['script','style'].includes(stack.at(-1)?.name))continue;const parent=stack.at(-1);if(KEEP.has(parent.cls.split(' ')[0]))continue;
+    if(parent.texts++)problems.push(`WebApp/index.html:${lineOf(html,m.index)}: two Arabic texts in one element`);
+    if(parent.en===undefined)problems.push(`WebApp/index.html:${lineOf(html,m.index)}: «${tok.trim()}» has no data-en`);else{pair(m.index,tok.trim(),parent.en);pairs++;}}
+  if(pairs<100)problems.push(`index.html: only ${pairs} static pairs`);total+=pairs;perFile['index.html']=pairs;
+  const bodyScripts=[...html.slice(html.indexOf('<body')).matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(x=>x[1]);
+  if(bodyScripts[0]!=='i18n-static.js')problems.push(`index.html: i18n-static.js must be the first script after the markup (found ${bodyScripts[0]})`);
+  // The checker finds a missing English text and a missing English attribute.
+  {const sample='<p title="عنوان">نص</p>';const missing=[];const t=/\s([a-z-]+)="([^"]*)"/.exec(sample);if(!/data-en-title/.test(sample)&&AR_TEXT.test(t[2]))missing.push('title');if(!/data-en=/.test(sample))missing.push('text');assert.deepEqual(missing,['title','text'],'10: the checker\'s own sample');}}
 // The checker itself: broken pairs are caught.
 {const bad=[["arEn(`مرحبًا ${name}.`,`Hello.`)",'placeholders differ'],["arEn('تم.','done.')",'small letter'],["arEn('سعر 5 دولار','Price 6 dollars')",'numbers differ'],["arEn('نص','نص')",'holds Arabic'],["arEn('سؤال؟','Question.')",'should end with'],["arEn(' مسافة','space')",'spaces differ'],["arEn('نص',value)",'not a string literal'],["arEn('نص','Text  here')",'double space'],["arEn('نص','Text , here')",'space before punctuation']];
   for(const [code,expected] of bad){const local=[];for(const call of calls(code,false))check(path.join(WEB,'self-test.js'),code,call,local);assert.ok(local.some(p=>p.includes(expected)),`the checker catches «${expected}» in ${code} (got ${JSON.stringify(local)})`);}

@@ -7,9 +7,9 @@
   <meta name="theme-color" content="#0d3b57">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="أصول ونفوذ">
-  <meta name="description" content="لعبة إدارة عالمية للطيران والشحن البحري والنقل البري والطاقة.">
-  <title>أصول ونفوذ · ASSETS &amp; INFLUENCE</title>
+  <meta name="apple-mobile-web-app-title" content="أصول ونفوذ" data-en-content="Assets &amp; Influence">
+  <meta name="description" content="لعبة إدارة عالمية للطيران والشحن البحري والنقل البري والطاقة." data-en-content="A global management game of aviation, shipping, road transport and energy.">
+  <title data-en="ASSETS &amp; INFLUENCE">أصول ونفوذ · ASSETS &amp; INFLUENCE</title>
   <script src="i18n-core.js"></script>
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="styles.css">
@@ -31,37 +31,38 @@
   <link rel="stylesheet" href="news.css">
   <link rel="stylesheet" href="levels.css">
   <link rel="stylesheet" href="confirm.css">
+  <link rel="stylesheet" href="ltr.css">
 </head>
 <body>
 
   <section id="founderFlow" class="incorporation-flow hidden" aria-labelledby="incorporationTitle">
     <div class="incorporation-workspace">
-      <header class="incorporation-masthead"><span class="incorporation-wordmark"><b class="incorporation-wordmark-ar">أصول ونفوذ</b><span dir="ltr">ASSETS &amp; INFLUENCE</span></span><nav class="incorporation-progress" aria-label="مراحل التأسيس"><span id="founderDataStep" aria-current="step"><b>1</b> المجموعة</span><i></i><span id="founderReviewStep"><b>2</b> العقد والتوقيع</span></nav></header>
+      <header class="incorporation-masthead"><span class="incorporation-wordmark"><b class="incorporation-wordmark-ar">أصول ونفوذ</b><span dir="ltr">ASSETS &amp; INFLUENCE</span></span><nav class="incorporation-progress" aria-label="مراحل التأسيس" data-en-aria-label="Incorporation steps"><span id="founderDataStep" aria-current="step" data-en="Group"><b>1</b> المجموعة</span><i></i><span id="founderReviewStep" data-en="Contract and signature"><b>2</b> العقد والتوقيع</span></nav></header>
       <form id="founderForm" class="incorporation-form" novalidate>
         <div id="founderDataPane" class="incorporation-stage">
           <div class="incorporation-fields">
-            <header class="incorporation-intro"><p>مكتب تأسيس المجموعات</p><h1 id="incorporationTitle">مجموعة تحمل اسمك.</h1><span>العقد يُكتب أمامك وأنت تملأ البيانات.</span></header>
-            <label class="incorporation-wide">اسم المجموعة<input id="founderName" required maxlength="42" value="أصول ونفوذ القابضة" autocomplete="organization"></label>
+            <header class="incorporation-intro"><p data-en="Group Incorporation Office">مكتب تأسيس المجموعات</p><h1 id="incorporationTitle" data-en="A group that carries your name.">مجموعة تحمل اسمك.</h1><span data-en="The contract is written as you fill in the details.">العقد يُكتب أمامك وأنت تملأ البيانات.</span></header>
+            <label class="incorporation-wide" data-en="Group name">اسم المجموعة<input id="founderName" required maxlength="42" value="أصول ونفوذ القابضة" autocomplete="organization" data-en-value="Assets &amp; Influence Holdings"></label>
             <div class="incorporation-grid">
-              <label>اسم المؤسس<input id="founderOwner" required maxlength="32" value="المؤسس" autocomplete="name"></label>
-              <label>المقر الرئيسي<select id="founderLocation"><option value="RUH">الرياض · السعودية</option></select><small>يقام مبنى المقر في هذه المدينة على الخريطة.</small></label>
+              <label data-en="Founder's name">اسم المؤسس<input id="founderOwner" required maxlength="32" value="المؤسس" autocomplete="name" data-en-value="Founder"></label>
+              <label data-en="Headquarters">المقر الرئيسي<select id="founderLocation"><option value="RUH" data-en="Riyadh · Saudi Arabia">الرياض · السعودية</option></select><small data-en="The headquarters building stands in this city on the map.">يقام مبنى المقر في هذه المدينة على الخريطة.</small></label>
             </div>
-            <label class="incorporation-wide">طريقة اللعب ورأس المال الافتتاحي<select id="founderMode"><optgroup label="المسار المهني · 30 مستوى تفتح الشركات تباعًا"><option value="career-normal" selected>عادي · 250 مليون دولار</option><option value="career-easy">سهل · مليار دولار</option><option value="career-hard">صعب · 50 مليون دولار</option></optgroup><optgroup label="اللعب الحر · كل شيء مفتوح"><option value="balanced">50 مليون دولار</option><option value="investor">250 مليون دولار</option><option value="sandbox">مليار دولار</option></optgroup></select><small>يودع رأس المال في الحساب الجاري للقابضة، ومنه تُموَّل الشركات التابعة.</small></label>
-            <details class="incorporation-customize"><summary><span>الهوية</span><small>الاختصار والاسم الإنجليزي والشعار · اختياري</small></summary>
-              <div class="incorporation-grid"><label>اختصار المجموعة<input id="founderShort" maxlength="4" value="ANI" dir="auto" autocomplete="off"></label><label>الاسم الإنجليزي<input id="founderEnglishName" maxlength="60" placeholder="اختياري" dir="ltr" autocomplete="off"></label></div>
-              <div class="incorporation-brand"><div id="founderLogoPreview" class="incorporation-logo"><span>ANI</span></div><div class="incorporation-upload"><label for="founderLogoUpload">رفع شعار<input id="founderLogoUpload" type="file" accept="image/png,image/jpeg,image/webp"></label><button id="founderLogoClear" type="button" hidden>إزالة الصورة</button><span id="founderLogoStatus" role="status"></span></div></div>
+            <label class="incorporation-wide" data-en="Game mode and opening capital">طريقة اللعب ورأس المال الافتتاحي<select id="founderMode"><optgroup label="المسار المهني · 30 مستوى تفتح الشركات تباعًا" data-en-label="Career · 30 levels unlock the companies in turn"><option value="career-normal" selected data-en="Normal · $250 million">عادي · 250 مليون دولار</option><option value="career-easy" data-en="Easy · one billion dollars">سهل · مليار دولار</option><option value="career-hard" data-en="Hard · $50 million">صعب · 50 مليون دولار</option></optgroup><optgroup label="اللعب الحر · كل شيء مفتوح" data-en-label="Free play · everything open"><option value="balanced" data-en="$50 million">50 مليون دولار</option><option value="investor" data-en="$250 million">250 مليون دولار</option><option value="sandbox" data-en="One billion dollars">مليار دولار</option></optgroup></select><small data-en="The capital is deposited in the holding's current account, which funds the subsidiaries.">يودع رأس المال في الحساب الجاري للقابضة، ومنه تُموَّل الشركات التابعة.</small></label>
+            <details class="incorporation-customize"><summary><span data-en="Identity">الهوية</span><small data-en="Initials, English name and logo · optional">الاختصار والاسم الإنجليزي والشعار · اختياري</small></summary>
+              <div class="incorporation-grid"><label data-en="Group initials">اختصار المجموعة<input id="founderShort" maxlength="4" value="ANI" dir="auto" autocomplete="off"></label><label data-en="English name">الاسم الإنجليزي<input id="founderEnglishName" maxlength="60" placeholder="اختياري" dir="ltr" autocomplete="off" data-en-placeholder="Optional"></label></div>
+              <div class="incorporation-brand"><div id="founderLogoPreview" class="incorporation-logo"><span>ANI</span></div><div class="incorporation-upload"><label for="founderLogoUpload" data-en="Upload logo">رفع شعار<input id="founderLogoUpload" type="file" accept="image/png,image/jpeg,image/webp"></label><button id="founderLogoClear" type="button" hidden data-en="Remove image">إزالة الصورة</button><span id="founderLogoStatus" role="status"></span></div></div>
             </details>
-            <footer class="incorporation-actions"><button id="founderReview" class="incorporation-primary" type="button">التالي: العقد والتوقيع <span aria-hidden="true">←</span></button></footer>
+            <footer class="incorporation-actions"><button id="founderReview" class="incorporation-primary" type="button" data-en="Next: contract and signature">التالي: العقد والتوقيع <span aria-hidden="true" data-en="→">←</span></button></footer>
           </div>
-          <aside class="incorporation-preview" aria-label="معاينة العقد"><div id="founderLivePreview"></div></aside>
+          <aside class="incorporation-preview" aria-label="معاينة العقد" data-en-aria-label="Contract preview"><div id="founderLivePreview"></div></aside>
         </div>
         <div id="founderReviewPane" class="incorporation-stage" hidden>
           <div class="incorporation-fields incorporation-sign-stage">
-            <header class="incorporation-intro"><p>الخطوة الأخيرة</p><h1 tabindex="-1" id="founderReviewTitle">راجع. وقّع. ابدأ.</h1><span>توقيعك يُعتمد للمعاملات، ويُختم به العقد وكل عقود الفتح بعده.</span></header>
+            <header class="incorporation-intro"><p data-en="Final step">الخطوة الأخيرة</p><h1 tabindex="-1" id="founderReviewTitle" data-en="Review. Sign. Begin.">راجع. وقّع. ابدأ.</h1><span data-en="Your signature approves transactions. It seals this contract and every company opening contract after it.">توقيعك يُعتمد للمعاملات، ويُختم به العقد وكل عقود الفتح بعده.</span></header>
             <div id="founderSignatureMount"></div>
-            <footer class="incorporation-actions"><button id="founderBack" class="incorporation-back" type="button">تعديل البيانات</button><button id="founderSubmit" class="incorporation-primary" type="submit">توقيع العقد وتأسيس المجموعة</button></footer>
+            <footer class="incorporation-actions"><button id="founderBack" class="incorporation-back" type="button" data-en="Edit details">تعديل البيانات</button><button id="founderSubmit" class="incorporation-primary" type="submit" data-en="Sign the contract and found the group">توقيع العقد وتأسيس المجموعة</button></footer>
           </div>
-          <aside class="incorporation-preview" aria-label="عقد التأسيس"><div id="founderContractPreview"></div></aside>
+          <aside class="incorporation-preview" aria-label="عقد التأسيس" data-en-aria-label="Incorporation contract"><div id="founderContractPreview"></div></aside>
         </div>
         <p id="founderError" class="incorporation-error" role="alert" tabindex="-1" hidden></p>
       </form>
@@ -72,86 +73,87 @@
 
   <div id="app" class="app-shell">
     <header class="topbar">
-      <button class="brand" id="brandBtn" type="button" aria-label="العودة للخريطة">
+      <button class="brand" id="brandBtn" type="button" aria-label="العودة للخريطة" data-en-aria-label="Back to the map">
         <span id="brandMark" class="brand-mark">ANI</span>
-        <span class="brand-copy"><strong id="groupName">أصول ونفوذ القابضة</strong><small id="runtimeBuildBadge" hidden>BUILD —</small></span>
+        <span class="brand-copy"><strong id="groupName" data-en="Assets &amp; Influence Holdings">أصول ونفوذ القابضة</strong><small id="runtimeBuildBadge" hidden>BUILD —</small></span>
       </button>
       <div id="simClockChip" class="sim-clock-chip" aria-live="polite">
-        <button id="simCalendarToggle" class="sim-clock-toggle" type="button" aria-expanded="false" aria-controls="simCalendarPanel" title="فتح التقويم التشغيلي">
-          <span class="sim-clock-copy"><strong id="simDate">01 يناير 2026</strong><small id="simDay">اليوم 1</small></span>
+        <button id="simCalendarToggle" class="sim-clock-toggle" type="button" aria-expanded="false" aria-controls="simCalendarPanel" title="فتح التقويم التشغيلي" data-en-title="Open the operations calendar">
+          <span class="sim-clock-copy"><strong id="simDate" data-en="Jan 01, 2026">01 يناير 2026</strong><small id="simDay" data-en="Day 1">اليوم 1</small></span>
         </button>
       </div>
-      <div class="ui-time" aria-label="الوقت والسرعة"><button id="speedToggle" class="ui-pause" title="إيقاف أو استئناف المحاكاة" aria-label="إيقاف أو استئناف المحاكاة"><span aria-hidden="true">Ⅱ</span><b id="speedLabel" class="sr-only"></b></button><div id="speedMenu" class="ui-speeds" role="group" aria-label="سرعة المحاكاة"><button data-speed="1" title="عادي · 30 ضعفًا">30×</button><button data-speed="2" title="سريع · 120 ضعفًا">120×</button><button data-speed="3" title="متسارع · 300 ضعفًا">300×</button></div></div>
-      <section class="top-kpis" aria-label="مؤشرات المجموعة">
-        <div><span>السيولة</span><strong id="cashKpi">$250.0M</strong></div>
-        <div><span>صافي اليوم</span><strong id="profitKpi">+$0</strong></div>
-        <div id="levelKpi" class="level-kpi" role="button" tabindex="0" aria-label="المستويات والتراخيص" hidden><span id="levelKpiTitle">المستوى</span><strong id="levelKpiValue">1</strong></div>
+      <div class="ui-time" aria-label="الوقت والسرعة" data-en-aria-label="Time and speed"><button id="speedToggle" class="ui-pause" title="إيقاف أو استئناف المحاكاة" aria-label="إيقاف أو استئناف المحاكاة" data-en-aria-label="Pause or resume the simulation" data-en-title="Pause or resume the simulation"><span aria-hidden="true">Ⅱ</span><b id="speedLabel" class="sr-only"></b></button><div id="speedMenu" class="ui-speeds" role="group" aria-label="سرعة المحاكاة" data-en-aria-label="Simulation speed"><button data-speed="1" title="عادي · 30 ضعفًا" data-en-title="Normal · 30×">30×</button><button data-speed="2" title="سريع · 120 ضعفًا" data-en-title="Fast · 120×">120×</button><button data-speed="3" title="متسارع · 300 ضعفًا" data-en-title="Rapid · 300×">300×</button></div></div>
+      <section class="top-kpis" aria-label="مؤشرات المجموعة" data-en-aria-label="Group indicators">
+        <div><span data-en="Cash">السيولة</span><strong id="cashKpi">$250.0M</strong></div>
+        <div><span data-en="Today's net">صافي اليوم</span><strong id="profitKpi">+$0</strong></div>
+        <div id="levelKpi" class="level-kpi" role="button" tabindex="0" aria-label="المستويات والتراخيص" hidden data-en-aria-label="Levels and licences"><span id="levelKpiTitle" data-en="Level">المستوى</span><strong id="levelKpiValue">1</strong></div>
       </section>
-      <button id="topNewsTicker" class="top-news-ticker" type="button" aria-label="فتح الأخبار الرسمية">
-        <span class="mg ic-ticker" data-icon="ticker" aria-hidden="true"></span><span><small>الأخبار الرسمية</small><strong id="topNewsHeadline">لا توجد أحداث جديدة</strong></span><em id="topNewsStatus">موثق</em>
+      <button id="topNewsTicker" class="top-news-ticker" type="button" aria-label="فتح الأخبار الرسمية" data-en-aria-label="Open official news">
+        <span class="mg ic-ticker" data-icon="ticker" aria-hidden="true"></span><span><small data-en="Official News">الأخبار الرسمية</small><strong id="topNewsHeadline" data-en="No new events">لا توجد أحداث جديدة</strong></span><em id="topNewsStatus" data-en="Verified">موثق</em>
       </button>
       <div class="top-actions">
-        <button id="filterToggle" class="icon-btn" aria-label="طبقات الخريطة" title="طبقات الخريطة"><span class="mg ic-layers" data-icon="layers" aria-hidden="true"></span></button><button id="alertsBtn" class="icon-btn" aria-label="أخبار المجموعة"><span class="mg ic-bell" data-icon="bell" aria-hidden="true"></span><b id="alertCount">0</b></button><button id="healthBtn" hidden class="icon-btn health-shortcut" aria-label="صحة النظام" title="صحة النظام"><span>HLT</span></button><button id="settingsBtn" class="icon-btn" aria-label="النظام: الحفظ والإعدادات" title="النظام" aria-pressed="false"><span class="mg ic-settings" data-icon="settings" aria-hidden="true"></span></button>
+        <button id="filterToggle" class="icon-btn" aria-label="طبقات الخريطة" title="طبقات الخريطة" data-en-title="Map Layers" data-en-aria-label="Map Layers"><span class="mg ic-layers" data-icon="layers" aria-hidden="true"></span></button><button id="alertsBtn" class="icon-btn" aria-label="أخبار المجموعة" data-en-aria-label="Group news"><span class="mg ic-bell" data-icon="bell" aria-hidden="true"></span><b id="alertCount">0</b></button><button id="healthBtn" hidden class="icon-btn health-shortcut" aria-label="صحة النظام" title="صحة النظام" data-en-title="System health" data-en-aria-label="System health"><span>HLT</span></button><button id="settingsBtn" class="icon-btn" aria-label="النظام: الحفظ والإعدادات" title="النظام" aria-pressed="false" data-en-title="System" data-en-aria-label="System: save and settings"><span class="mg ic-settings" data-icon="settings" aria-hidden="true"></span></button>
       </div>
-      <button id="storeBtn" class="store-top-btn" type="button" aria-label="المتجر" title="المتجر"><span class="st-top-gl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l3 6-9 12L3 9zM3 9h18M9 3l-1.5 6L12 21M15 3l1.5 6L12 21"/></svg></span><span class="st-top-label">المتجر</span></button>
+      <button id="storeBtn" class="store-top-btn" type="button" aria-label="المتجر" title="المتجر" data-en-title="Store" data-en-aria-label="Store"><span class="st-top-gl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l3 6-9 12L3 9zM3 9h18M9 3l-1.5 6L12 21M15 3l1.5 6L12 21"/></svg></span><span class="st-top-label" data-en="Store">المتجر</span></button>
     </header>
 
     <div class="game-frame">
       <main class="map-stage">
-        <div id="map" aria-label="الخريطة العالمية الموحدة"></div>
-        <div class="map-modes" role="group" aria-label="وضع الخريطة"><button type="button" data-map-mode="operations" aria-pressed="true" title="الأصول المتحركة ومساراتها">العمليات</button><button type="button" data-map-mode="network" aria-pressed="false" title="القواعد والمحاور والمقار">الشبكة</button><button type="button" data-map-mode="expansion" aria-pressed="false" title="المطارات والموانئ المتاحة">التوسع</button></div>
-        <div class="map-strip"><nav id="companyDock" class="company-dock" aria-label="شركات المجموعة" hidden></nav><div class="map-status-capsule"><div id="mapStatus" class="map-status">تحميل الحركة العالمية…</div><span class="map-credit" dir="ltr">Natural Earth · © OpenStreetMap contributors · Esri</span></div></div>
+        <div id="map" aria-label="الخريطة العالمية الموحدة" data-en-aria-label="Unified world map"></div>
+        <div class="map-modes" role="group" aria-label="وضع الخريطة" data-en-aria-label="Map mode"><button type="button" data-map-mode="operations" aria-pressed="true" title="الأصول المتحركة ومساراتها" data-en="Operations" data-en-title="Moving assets and their routes">العمليات</button><button type="button" data-map-mode="network" aria-pressed="false" title="القواعد والمحاور والمقار" data-en="Network" data-en-title="Bases, hubs and headquarters">الشبكة</button><button type="button" data-map-mode="expansion" aria-pressed="false" title="المطارات والموانئ المتاحة" data-en="Expansion" data-en-title="Available airports and ports">التوسع</button></div>
+        <div class="map-strip"><nav id="companyDock" class="company-dock" aria-label="شركات المجموعة" hidden data-en-aria-label="Group companies"></nav><div class="map-status-capsule"><div id="mapStatus" class="map-status" data-en="Loading world traffic…">تحميل الحركة العالمية…</div><span class="map-credit" dir="ltr">Natural Earth · © OpenStreetMap contributors · Esri</span></div></div>
       </main>
 
       <div class="sheet-dock">
         <aside id="drawer" class="drawer" aria-hidden="true">
-        <div class="drawer-head"><button id="workspaceBack" class="close-btn" aria-label="الرجوع للصفحة السابقة" hidden><span class="mg ic-back" data-icon="back" aria-hidden="true"></span></button><span id="drawerMark" class="drawer-mark" aria-hidden="true"></span><div><span id="drawerEyebrow" class="eyebrow">المجموعة</span><h2 id="drawerTitle">المجموعة</h2></div><button id="drawerExpand" class="close-btn" type="button" aria-label="فتح القسم بالكامل" aria-pressed="false" title="بالكامل"><span class="mg ic-expand" data-icon="expand" aria-hidden="true"></span></button><button id="drawerClose" class="close-btn" aria-label="إغلاق اللوحة"><span class="mg ic-close" data-icon="close" aria-hidden="true"></span></button></div>
-        <nav id="sectionNav" class="section-nav" aria-label="صفحات القسم" hidden></nav>
+        <div class="drawer-head"><button id="workspaceBack" class="close-btn" aria-label="الرجوع للصفحة السابقة" hidden data-en-aria-label="Back to the previous page"><span class="mg ic-back" data-icon="back" aria-hidden="true"></span></button><span id="drawerMark" class="drawer-mark" aria-hidden="true"></span><div><span id="drawerEyebrow" class="eyebrow" data-en="Group">المجموعة</span><h2 id="drawerTitle" data-en="Group">المجموعة</h2></div><button id="drawerExpand" class="close-btn" type="button" aria-label="فتح القسم بالكامل" aria-pressed="false" title="بالكامل" data-en-title="Full width" data-en-aria-label="Open the section in full"><span class="mg ic-expand" data-icon="expand" aria-hidden="true"></span></button><button id="drawerClose" class="close-btn" aria-label="إغلاق اللوحة" data-en-aria-label="Close panel"><span class="mg ic-close" data-icon="close" aria-hidden="true"></span></button></div>
+        <nav id="sectionNav" class="section-nav" aria-label="صفحات القسم" hidden data-en-aria-label="Section pages"></nav>
         <div id="drawerBody" class="drawer-body"></div>
       </aside>
 
-        <section id="simCalendarPanel" class="sim-calendar-panel hidden" aria-label="التقويم التشغيلي">
-          <header class="sim-cal-head"><div><small>التقويم التشغيلي</small><strong id="simCalendarCurrent">01 يناير 2026 · 00:00</strong></div><span id="simAdvanceStatus">جاهز للتقديم</span></header>
-          <div class="sim-cal-quick" aria-label="تقديم الوقت"><button id="simNextDay" type="button" class="sim-day-step">+ يوم</button><button type="button" data-calendar-advance="7">+ 7 أيام</button><button type="button" data-calendar-advance="30">+ 30 يوم</button><button type="button" data-calendar-advance="year">+ سنة</button></div>
-          <div class="sim-cal-nav"><button id="simCalendarPrev" type="button" aria-label="الشهر السابق">‹</button><strong id="simCalendarMonthLabel"></strong><button id="simCalendarNext" type="button" aria-label="الشهر التالي">›</button></div>
-          <div class="sim-cal-week" aria-hidden="true"><span>س</span><span>ح</span><span>ن</span><span>ث</span><span>ر</span><span>خ</span><span>ج</span></div>
+        <section id="simCalendarPanel" class="sim-calendar-panel hidden" aria-label="التقويم التشغيلي" data-en-aria-label="Operations Calendar">
+          <header class="sim-cal-head"><div><small data-en="Operations Calendar">التقويم التشغيلي</small><strong id="simCalendarCurrent" data-en="Jan 01, 2026 · 00:00">01 يناير 2026 · 00:00</strong></div><span id="simAdvanceStatus" data-en="Ready to advance">جاهز للتقديم</span></header>
+          <div class="sim-cal-quick" aria-label="تقديم الوقت" data-en-aria-label="Advance time"><button id="simNextDay" type="button" class="sim-day-step" data-en="+ a day">+ يوم</button><button type="button" data-calendar-advance="7" data-en="+ 7 days">+ 7 أيام</button><button type="button" data-calendar-advance="30" data-en="+ 30 days">+ 30 يوم</button><button type="button" data-calendar-advance="year" data-en="+ a year">+ سنة</button></div>
+          <div class="sim-cal-nav"><button id="simCalendarPrev" type="button" aria-label="الشهر السابق" data-en-aria-label="Previous month">‹</button><strong id="simCalendarMonthLabel"></strong><button id="simCalendarNext" type="button" aria-label="الشهر التالي" data-en-aria-label="Next month">›</button></div>
+          <div class="sim-cal-week" aria-hidden="true"><span data-en="Sa">س</span><span data-en="Su">ح</span><span data-en="Mo">ن</span><span data-en="Tu">ث</span><span data-en="We">ر</span><span data-en="Th">خ</span><span data-en="Fr">ج</span></div>
           <div id="simCalendarGrid" class="sim-cal-grid"></div>
-          <div class="sim-cal-foot"><small>اختيار أي يوم قادم حتى سنة واحدة في كل عملية يحافظ على الإقفالات اليومية والرواتب والضرائب.</small><button id="simCalendarGo" type="button" class="primary-btn" data-disabled-reason="اختر تاريخًا قادمًا أولًا" disabled>تقديم إلى التاريخ</button></div>
+          <div class="sim-cal-foot"><small data-en="Any coming day up to one year ahead can be chosen per advance. Daily closings, salaries and taxes are all kept.">اختيار أي يوم قادم حتى سنة واحدة في كل عملية يحافظ على الإقفالات اليومية والرواتب والضرائب.</small><button id="simCalendarGo" type="button" class="primary-btn" data-disabled-reason="اختر تاريخًا قادمًا أولًا" disabled data-en="Advance to date" data-en-data-disabled-reason="Choose a coming date first">تقديم إلى التاريخ</button></div>
         </section>
 
-        <section id="filterPopover" class="map-popover filter-popover hidden" aria-label="طبقات الخريطة">
-          <div class="popover-title"><span>طبقات الخريطة</span><small>التغيير لا يحرك الكاميرا</small></div>
-          <div id="layerMenu" class="filter-section layer-pop"><b>خلفية الخريطة</b><div class="filter-grid"><button data-layer="fresh"><span>منعش</span></button><button data-layer="natural"><span>طبيعي</span></button><button data-layer="satellite"><span>قمر صناعي</span></button></div></div>
-          <div class="filter-section"><b>النطاق</b><div class="filter-grid"><button class="filter-btn active" data-filter="all"><span class="mi ic-map" data-icon="map" aria-hidden="true"></span><span>الكل</span><small>شبكة المجموعة</small></button><button class="filter-btn" data-filter="facility"><span class="mi ic-facilities" data-icon="facilities" aria-hidden="true"></span><span>المنشآت</span><small>المقار والمواقع</small></button></div></div>
-          <div class="filter-section"><b>التشغيل</b><div class="filter-grid"><button class="filter-btn" data-filter="air"><span class="mi ic-fleet-air" data-icon="fleet-air" aria-hidden="true"></span><span>الطيران</span><small>الطائرات والمسارات</small></button><button class="filter-btn" data-filter="sea"><span class="mi ic-fleet-sea" data-icon="fleet-sea" aria-hidden="true"></span><span>البحرية</span><small>السفن والمسارات</small></button><button class="filter-btn" data-filter="road"><span class="mi ic-fleet-road" data-icon="fleet-road" aria-hidden="true"></span><span>اللوجستيات</span><small>الشاحنات والمسارات</small></button><button class="filter-btn" data-filter="mobility"><span class="mi ic-fleet-car" data-icon="fleet-car" aria-hidden="true"></span><span>التنقل الذكي</span><small>المركبات الحضرية</small></button></div></div>
-          <div class="filter-section"><b>البنية العالمية</b><div class="filter-grid"><button class="filter-btn" data-filter="airport"><span class="mi ic-tower" data-icon="tower" aria-hidden="true"></span><span>المطارات</span><small>ضمن نطاق العرض</small></button><button class="filter-btn" data-filter="port"><span class="mi ic-port" data-icon="port" aria-hidden="true"></span><span>الموانئ</span><small>ضمن نطاق العرض</small></button></div></div>
-          <label class="mini-switch"><input id="competitorToggle" type="checkbox" checked><span></span><b>طبقة المنافسين</b></label>
+        <section id="filterPopover" class="map-popover filter-popover hidden" aria-label="طبقات الخريطة" data-en-aria-label="Map Layers">
+          <div class="popover-title"><span data-en="Map Layers">طبقات الخريطة</span><small data-en="Changes keep the camera in place">التغيير لا يحرك الكاميرا</small></div>
+          <div id="layerMenu" class="filter-section layer-pop"><b data-en="Map background">خلفية الخريطة</b><div class="filter-grid"><button data-layer="fresh"><span data-en="Fresh">منعش</span></button><button data-layer="natural"><span data-en="Natural">طبيعي</span></button><button data-layer="satellite"><span data-en="Satellite">قمر صناعي</span></button></div></div>
+          <div class="filter-section"><b data-en="Scope">النطاق</b><div class="filter-grid"><button class="filter-btn active" data-filter="all"><span class="mi ic-map" data-icon="map" aria-hidden="true"></span><span data-en="All">الكل</span><small data-en="Group network">شبكة المجموعة</small></button><button class="filter-btn" data-filter="facility"><span class="mi ic-facilities" data-icon="facilities" aria-hidden="true"></span><span data-en="Facilities">المنشآت</span><small data-en="Headquarters and sites">المقار والمواقع</small></button></div></div>
+          <div class="filter-section"><b data-en="Operations">التشغيل</b><div class="filter-grid"><button class="filter-btn" data-filter="air"><span class="mi ic-fleet-air" data-icon="fleet-air" aria-hidden="true"></span><span data-en="Aviation">الطيران</span><small data-en="Aircraft and routes">الطائرات والمسارات</small></button><button class="filter-btn" data-filter="sea"><span class="mi ic-fleet-sea" data-icon="fleet-sea" aria-hidden="true"></span><span data-en="Maritime">البحرية</span><small data-en="Ships and routes">السفن والمسارات</small></button><button class="filter-btn" data-filter="road"><span class="mi ic-fleet-road" data-icon="fleet-road" aria-hidden="true"></span><span data-en="Logistics">اللوجستيات</span><small data-en="Trucks and routes">الشاحنات والمسارات</small></button><button class="filter-btn" data-filter="mobility"><span class="mi ic-fleet-car" data-icon="fleet-car" aria-hidden="true"></span><span data-en="Smart mobility">التنقل الذكي</span><small data-en="City vehicles">المركبات الحضرية</small></button></div></div>
+          <div class="filter-section"><b data-en="World infrastructure">البنية العالمية</b><div class="filter-grid"><button class="filter-btn" data-filter="airport"><span class="mi ic-tower" data-icon="tower" aria-hidden="true"></span><span data-en="Airports">المطارات</span><small data-en="Within view">ضمن نطاق العرض</small></button><button class="filter-btn" data-filter="port"><span class="mi ic-port" data-icon="port" aria-hidden="true"></span><span data-en="Ports">الموانئ</span><small data-en="Within view">ضمن نطاق العرض</small></button></div></div>
+          <label class="mini-switch"><input id="competitorToggle" type="checkbox" checked><span></span><b data-en="Competitors layer">طبقة المنافسين</b></label>
         </section>
 
         <section id="assetCard" class="asset-card hidden" aria-live="polite">
-          <button id="assetClose" class="close-btn asset-close" aria-label="إغلاق"><span class="mg ic-close" data-icon="close" aria-hidden="true"></span></button>
+          <button id="assetClose" class="close-btn asset-close" aria-label="إغلاق" data-en-aria-label="Close"><span class="mg ic-close" data-icon="close" aria-hidden="true"></span></button>
           <div class="asset-title"><span id="assetIcon" class="asset-symbol">A</span><div><strong id="assetName"></strong><span id="assetCompany"></span></div><span id="assetStatus" class="asset-live-status"></span></div>
           <div class="asset-route" id="assetRoute"></div>
-          <section class="asset-live-journey" aria-label="تقدم الرحلة"><div class="asset-live-journey-head"><span id="assetTripStage">حالة الرحلة</span><b id="assetTripPercent">—</b></div><div id="assetJourneyTrack" class="asset-journey-track" role="progressbar" aria-label="تقدم الرحلة" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="assetJourneyProgress"></i></div></section>
-          <div class="asset-grid"><div><span>الوصول المتوقع</span><b id="assetEta"></b></div><div><span>المسافة المتبقية</span><b id="assetDistance"></b></div><div><span>السرعة الحالية</span><b id="assetSpeed"></b></div><div><span>الوقود</span><b id="assetFuel"></b></div><div><span>الحمولة</span><b id="assetLoad"></b></div></div>
-          <div class="asset-footer"><span>هامش آخر دورة</span><strong id="assetMargin"></strong><button id="assetManageBtn" class="primary-btn">فتح ملف الأصل</button></div>
+          <section class="asset-live-journey" aria-label="تقدم الرحلة" data-en-aria-label="Trip progress"><div class="asset-live-journey-head"><span id="assetTripStage" data-en="Trip status">حالة الرحلة</span><b id="assetTripPercent">—</b></div><div id="assetJourneyTrack" class="asset-journey-track" role="progressbar" aria-label="تقدم الرحلة" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-en-aria-label="Trip progress"><i id="assetJourneyProgress"></i></div></section>
+          <div class="asset-grid"><div><span data-en="Expected arrival">الوصول المتوقع</span><b id="assetEta"></b></div><div><span data-en="Distance left">المسافة المتبقية</span><b id="assetDistance"></b></div><div><span data-en="Current speed">السرعة الحالية</span><b id="assetSpeed"></b></div><div><span data-en="Fuel">الوقود</span><b id="assetFuel"></b></div><div><span data-en="Load">الحمولة</span><b id="assetLoad"></b></div></div>
+          <div class="asset-footer"><span data-en="Last cycle margin">هامش آخر دورة</span><strong id="assetMargin"></strong><button id="assetManageBtn" class="primary-btn" data-en="Open asset file">فتح ملف الأصل</button></div>
         </section>
       </div>
 
-      <nav class="side-nav domain-rail" aria-label="الأقسام">
-        <button id="mapNavBtn" title="الخريطة" aria-label="الخريطة" class="active" data-nav="map"><span class="mg ic-map" data-icon="map" aria-hidden="true"></span><span>الخريطة</span></button>
-        <button title="المجموعة" aria-label="المجموعة" data-panel="groupHub" data-nav="companies"><span class="mg ic-group" data-icon="group" aria-hidden="true"></span><span>المجموعة</span></button>
-        <button title="المال" aria-label="المال" data-panel="financeHub" data-nav="finance"><span class="mg ic-finance" data-icon="finance" aria-hidden="true"></span><span>المال</span></button>
-        <button title="الأفراد" aria-label="الأفراد" data-panel="peopleHub" data-nav="people"><span class="mg ic-people" data-icon="people" aria-hidden="true"></span><span>الأفراد</span></button>
-        <button title="الإدارة" aria-label="الإدارة" data-panel="leadershipHub" data-nav="leadership"><span class="mg ic-leadership" data-icon="leadership" aria-hidden="true"></span><span>الإدارة</span></button>
+      <nav class="side-nav domain-rail" aria-label="الأقسام" data-en-aria-label="Sections">
+        <button id="mapNavBtn" title="الخريطة" aria-label="الخريطة" class="active" data-nav="map" data-en-aria-label="Map" data-en-title="Map"><span class="mg ic-map" data-icon="map" aria-hidden="true"></span><span data-en="Map">الخريطة</span></button>
+        <button title="المجموعة" aria-label="المجموعة" data-panel="groupHub" data-nav="companies" data-en-aria-label="Group" data-en-title="Group"><span class="mg ic-group" data-icon="group" aria-hidden="true"></span><span data-en="Group">المجموعة</span></button>
+        <button title="المال" aria-label="المال" data-panel="financeHub" data-nav="finance" data-en-aria-label="Finance" data-en-title="Finance"><span class="mg ic-finance" data-icon="finance" aria-hidden="true"></span><span data-en="Finance">المال</span></button>
+        <button title="الأفراد" aria-label="الأفراد" data-panel="peopleHub" data-nav="people" data-en-aria-label="People" data-en-title="People"><span class="mg ic-people" data-icon="people" aria-hidden="true"></span><span data-en="People">الأفراد</span></button>
+        <button title="الإدارة" aria-label="الإدارة" data-panel="leadershipHub" data-nav="leadership" data-en-aria-label="Leadership" data-en-title="Leadership"><span class="mg ic-leadership" data-icon="leadership" aria-hidden="true"></span><span data-en="Leadership">الإدارة</span></button>
       </nav>
     </div>
 
     <div id="backdrop" class="backdrop hidden"></div>
     <dialog id="signatureDialog" class="authorization-dialog" aria-labelledby="signatureDialogTitle">
-      <div class="authorization-dialog-card"><header><div><small>هوية الاعتماد</small><h2 id="signatureDialogTitle">اعتماد توقيع المعاملات</h2></div><button id="signatureDialogClose" type="button" aria-label="إغلاق">×</button></header><p>يستخدم هذا الرسم كتوقيع مرئي على المعاملات الجديدة. يحتفظ كل مستند بإصدار التوقيع وبصمته وقت الاعتماد.</p><div id="signatureDialogMount"></div><p id="signatureDialogError" class="incorporation-error" role="alert" hidden></p><footer><button id="signatureDialogCancel" class="secondary-btn" type="button">لاحقًا</button><button id="signatureDialogSave" class="primary-btn" type="button">اعتماد التوقيع</button></footer></div>
+      <div class="authorization-dialog-card"><header><div><small data-en="Approval identity">هوية الاعتماد</small><h2 id="signatureDialogTitle" data-en="Transaction signature">اعتماد توقيع المعاملات</h2></div><button id="signatureDialogClose" type="button" aria-label="إغلاق" data-en-aria-label="Close">×</button></header><p data-en="This drawing is used as your visible signature on new transactions. Each document keeps the signature version and fingerprint it was approved with.">يستخدم هذا الرسم كتوقيع مرئي على المعاملات الجديدة. يحتفظ كل مستند بإصدار التوقيع وبصمته وقت الاعتماد.</p><div id="signatureDialogMount"></div><p id="signatureDialogError" class="incorporation-error" role="alert" hidden></p><footer><button id="signatureDialogCancel" class="secondary-btn" type="button" data-en="Later">لاحقًا</button><button id="signatureDialogSave" class="primary-btn" type="button" data-en="Approve signature">اعتماد التوقيع</button></footer></div>
     </dialog>
   </div>
+  <script src="i18n-static.js"></script>
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="world-data.js"></script>
   <script src="catalog.js"></script>

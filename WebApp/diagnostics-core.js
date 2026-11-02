@@ -82,13 +82,21 @@
   function histogramAdd(hist,value){const ms=Number(value);if(Number.isFinite(ms)&&ms>=0)hist[Math.min(hist.length-1,Math.floor(ms*2))]++;}
   function histogramQuantile(hist,count,q){if(!count)return null;const target=Math.max(1,Math.ceil(count*q));let seen=0;for(let i=0;i<hist.length;i++){seen+=hist[i];if(seen>=target)return roundMs(Math.min((hist.length-1)/2,i/2+.25));}return (hist.length-1)/2;}
   function frameRows(buffer,limit=RECORDER_FRAME_LIMIT){if(!buffer?.count)return [];const out=[],count=Math.min(buffer.count,limit),start=(buffer.write-buffer.count+buffer.rows.length)%buffer.rows.length,skip=buffer.count-count;for(let i=skip;i<buffer.count;i++){const row=buffer.rows[(start+i)%buffer.rows.length];if(row)out.push(row);}return out;}
+  // The modal frame interval of the last CADENCE_WINDOW visible intervals (rounded to whole milliseconds), as before; the
+  // bucket counts follow the window as samples enter and leave instead of the whole map being rebuilt and its entries
+  // sorted on every frame while a diagnostic recording runs; only the chosen bucket's samples are still sorted, for the
+  // median. Same buckets, same tie-break (most samples, then the shorter interval), same median: the same estimate.
   function cadenceEstimate(buffer,gapMs){
-    if(gapMs>=6&&gapMs<=60){buffer.cadenceSamples.push(gapMs);if(buffer.cadenceSamples.length>CADENCE_WINDOW)buffer.cadenceSamples.shift();}
-    const samples=buffer.cadenceSamples;if(samples.length<6)return;
-    const buckets=new Map();for(const value of samples){const bucket=Math.round(value);buckets.set(bucket,(buckets.get(bucket)||0)+1);}
-    const ranked=[...buckets.entries()].sort((a,b)=>b[1]-a[1]||(a[0]-b[0]));let [bucket,count]=ranked[0];
-    if(buffer.baselineIntervalMs!=null&&ranked.length>1){const currentBucket=Math.round(buffer.baselineIntervalMs),currentCount=buckets.get(currentBucket)||0,share=count/samples.length;if(bucket>currentBucket*1.5&&share<.7){bucket=currentBucket;count=currentCount;}else if(bucket<currentBucket*.65&&share<.35){bucket=currentBucket;count=currentCount;}}
-    const selected=samples.filter(value=>Math.round(value)===bucket).sort((a,b)=>a-b),middle=Math.floor(selected.length/2),estimate=selected.length%2?selected[middle]:(selected[middle-1]+selected[middle])/2;
+    const samples=buffer.cadenceSamples,counts=buffer.cadenceCounts||(buffer.cadenceCounts=new Map());
+    if(gapMs>=6&&gapMs<=60){
+      samples.push(gapMs);const added=Math.round(gapMs);counts.set(added,(counts.get(added)||0)+1);
+      if(samples.length>CADENCE_WINDOW){const removed=Math.round(samples.shift()),left=(counts.get(removed)||0)-1;if(left>0)counts.set(removed,left);else counts.delete(removed);}
+    }
+    if(samples.length<6)return;
+    let bucket=null,count=0;for(const [key,n] of counts)if(n>count||(n===count&&key<bucket)){bucket=key;count=n;}
+    if(buffer.baselineIntervalMs!=null&&counts.size>1){const currentBucket=Math.round(buffer.baselineIntervalMs),currentCount=counts.get(currentBucket)||0,share=count/samples.length;if(bucket>currentBucket*1.5&&share<.7){bucket=currentBucket;count=currentCount;}else if(bucket<currentBucket*.65&&share<.35){bucket=currentBucket;count=currentCount;}}
+    const selected=buffer.cadenceSelected||(buffer.cadenceSelected=[]);selected.length=0;for(const value of samples)if(Math.round(value)===bucket)selected.push(value);selected.sort((a,b)=>a-b);
+    const middle=Math.floor(selected.length/2),estimate=selected.length%2?selected[middle]:(selected[middle-1]+selected[middle])/2;
     buffer.baselineIntervalMs=estimate;buffer.cadenceModeShare=count/samples.length;buffer.cadenceConfidence=samples.length<12||buffer.cadenceModeShare<.35?'provisional':buffer.cadenceModeShare>=.6?'steady':'mixed';
   }
   function frameSummary(buffer){if(!buffer)return {measured:false,frameCallbacks:0,visibleIntervals:0,jankyFrames:0,estimatedMissedFrames:0};const elapsed=buffer.intervalCount?buffer.sumIntervalMs:0,effectiveFps=elapsed>0?roundMs(buffer.intervalCount*1000/elapsed):null,interval=buffer.baselineIntervalMs;return {measured:true,frameCallbacks:buffer.totalFrames,visibleIntervals:buffer.intervalCount,effectiveFps,estimatedRefreshHz:interval>0?roundMs(1000/interval):null,estimatedObservedCadenceHz:interval>0?roundMs(1000/interval):null,hardwareRefreshRateMeasured:false,expectedFrameIntervalMs:interval==null?null:roundMs(interval),cadenceEstimator:'rolling-modal-visible-interval-v2',cadenceSamples:buffer.cadenceSamples.length,cadenceConfidence:buffer.cadenceConfidence,cadenceModeShare:roundMs(buffer.cadenceModeShare),jankyFrames:buffer.jankyFrames,estimatedMissedFrames:buffer.estimatedMissedFrames,longGaps:buffer.longGaps,longTasks:buffer.longTasks,mainThreadWorkSamples:buffer.mainThreadWork?.length||0,mainThreadWorkCapacity:96,maxFrameIntervalMs:roundMs(buffer.maxIntervalMs),p50FrameIntervalMs:histogramQuantile(buffer.intervalHistogram,buffer.intervalCount,.5),p95FrameIntervalMs:histogramQuantile(buffer.intervalHistogram,buffer.intervalCount,.95),maxCallbackDurationMs:roundMs(buffer.maxCallbackMs),p95CallbackDurationMs:histogramQuantile(buffer.callbackHistogram,buffer.callbackCount,.95),recentTraceFrames:buffer.count,traceCapacity:RECORDER_FRAME_LIMIT,percentilesScope:'whole-recording histogram capped at 1000ms; frameTrace contains most recent bounded window'};}

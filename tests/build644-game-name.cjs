@@ -69,10 +69,10 @@ const branded={profile:{name:'العساف',shortName:'ASF'},companyRegistry:{ai
 P.syncBrandedNames(branded);assert.equal(branded.companyRegistry.air.legalName,'شركة العساف للطيران','3: an old stock name follows the brand');assert.equal(branded.companyRegistry.sea.legalName,'شركة العساف للشحن البحري','3: the new stock name too');
 // 4. What the player sees.
 const html=read('WebApp/index.html');
-assert.match(html,/<title>أصول ونفوذ · ASSETS &amp; INFLUENCE<\/title>/);assert.match(html,/name="apple-mobile-web-app-title" content="أصول ونفوذ"/);
+assert.match(html,/<title(?: data-en="[^"]*")?>أصول ونفوذ · ASSETS &amp; INFLUENCE<\/title>/);assert.match(html,/name="apple-mobile-web-app-title" content="أصول ونفوذ"/);
 assert.match(html,/class="incorporation-wordmark"><b class="incorporation-wordmark-ar">أصول ونفوذ<\/b><span dir="ltr">ASSETS &amp; INFLUENCE<\/span>/,'4: the founding wordmark in both languages');
 assert.match(read('WebApp/founding.css'),/\.incorporation-wordmark-ar\{font:inherit;letter-spacing:0\}/,'4: the Arabic wordmark joins (no letter spacing)');
-assert.match(html,/id="founderName"[^>]*value="أصول ونفوذ القابضة"/);assert.match(html,/id="founderShort"[^>]*value="ANI"/);assert.match(html,/<strong id="groupName">أصول ونفوذ القابضة<\/strong>/);
+assert.match(html,/id="founderName"[^>]*value="أصول ونفوذ القابضة"/);assert.match(html,/id="founderShort"[^>]*value="ANI"/);assert.match(html,/<strong id="groupName"(?: data-en="[^"]*")?>أصول ونفوذ القابضة<\/strong>/);
 const store=require(path.join(web,'store-core.js'));const titles=JSON.stringify(store.PRODUCTS||store.products?.()||read('WebApp/store-core.js'));
 assert.match(titles,/أصول ونفوذ بلس · شهري/);assert.match(titles,/أصول ونفوذ بلس · سنوي/);
 assert.match(read('WebApp/identity-system.js'),/labels:\{ar:\{short:'ANI',display:'أصول ونفوذ',legal:'أصول ونفوذ',map:'ANI'\},en:\{short:'ANI',display:'ASSETS & INFLUENCE',legal:'ASSETS & INFLUENCE',map:'ANI'\}\}/);

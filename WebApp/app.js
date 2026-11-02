@@ -29,6 +29,8 @@
   // Official papers keep the Arabic-Indic digits they were designed with.
   // The language (GH_I18N, loaded first) chooses each locale; in Arabic they are the ones these formats always used.
   const localeOf = kind => window.GH_I18N?.locale?.(kind) || ({number:'ar-SA-u-nu-latn',document:'ar-SA',date:'ar-SA-u-ca-gregory-nu-latn',cheque:'ar-SA-u-ca-gregory',region:'ar'})[kind];
+  // The game's two languages (GH_I18N): a text the page shows is written in both where it is used.
+  const arEn=(ar,en)=>globalThis.GH_I18N?.L?.(ar,en)??ar;
   const ARABIC_INTEGER_FORMAT = new Intl.NumberFormat(localeOf('number'), {maximumFractionDigits: 0});
   const DOCUMENT_INTEGER_FORMAT = new Intl.NumberFormat(localeOf('document'), {maximumFractionDigits: 0});
   const DOCUMENT_USD_FORMAT = new Intl.NumberFormat('en-US', {style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
@@ -554,7 +556,7 @@
   // conservative live rates that remain practical with large active fleets.
   const SAFE_SPEED_VALUES=[0,1,2,3];
   const SIMULATION_RATE_BY_LEVEL=Object.freeze({0:0,1:30,2:120,3:300});
-  const SPEED_LABEL_BY_LEVEL=Object.freeze({0:'متوقف',1:'عادي · 30×',2:'سريع · 120×',3:'متسارع · 300×'});
+  const SPEED_LABEL_BY_LEVEL=Object.freeze({0:arEn('متوقف','Paused'),1:arEn('عادي · 30×','Normal · 30×'),2:arEn('سريع · 120×','Fast · 120×'),3:arEn('متسارع · 300×','Rapid · 300×')});
   const effectiveSimulationRate=level=>SIMULATION_RATE_BY_LEVEL[SAFE_SPEED_VALUES.includes(Number(level))?Number(level):1];
   const simulationLevelForRate=rate=>SAFE_SPEED_VALUES.find(level=>SIMULATION_RATE_BY_LEVEL[level]===Number(rate))??1;
   if(Number(state.speed)===4)state.speed=3;
@@ -1146,7 +1148,7 @@
   const contractTerm=value=>window.GH_ARABIC_COPY?.term?.(value)??value;
   function countText(value,noun,shown){
     const copy=window.GH_ARABIC_COPY,forms=copy?.FORMS?.[noun];if(value===null||value===undefined||value===''||!Number.isFinite(Number(value)))return String(shown??'—');
-    const n=Math.max(0,Math.round(Number(value)));if(!forms)return String(shown??fmtNumber(n));const kind=copy.category(n);
+    const n=Math.max(0,Math.round(Number(value)));if(!forms)return String(shown??fmtNumber(n));if(window.GH_I18N?.isEn?.())return copy.count(n,noun,{shown:shown??fmtNumber(n)});const kind=copy.category(n);
     return kind==='zero'||kind==='one'||kind==='two'?copy.count(n,noun):`${shown??fmtNumber(n)} ${forms[kind]}`;
   }
   // Build 371: fields the page writes on the live state while a durable command runs (the player's speed, map layer and
@@ -3014,7 +3016,7 @@
       // The tooltip's road routes and owned facilities: at once for a new map structure (build340), otherwise at most every
       // 2 s (a moving fleet changes the save revision on most slices; each recount built a route set and the facility list).
       if(mapStatusCache.ownerMapRevision!==mapRevision||nowMs-(mapStatusCache.ownerAt||0)>=Math.max(2000,ownerCostMs*40)){const started=clock();mapStatusCache.routed=mapRoadRouteCount();mapStatusCache.ownedFacilities=getDynamicFacilities().filter(f=>f?.owned).length;mapStatusCache.ownerKey=ownerKey;mapStatusCache.ownerMapRevision=mapRevision;mapStatusCache.ownerAt=nowMs;mapStatusCache.ownerCostMs=Math.max(clock()-started,ownerCostMs/2);}}
-    const offline=mapTilesOffline?'تضاريس محلية · ':'',status=setNodeText('mapStatus',`${offline}${mapStatusCache.moving} في الحركة · ${mapStatusCache.turn} في المحطات · ${countText(assetLength,'asset',assetLength)}`),title=`${mapStatusCache.idle} متوقف · ${countText(mapStatusCache.ownedFacilities,'facility',mapStatusCache.ownedFacilities)} · مسارات برية: ${mapStatusCache.routed}`;if(status.title!==title)status.title=title;
+    const offline=mapTilesOffline?arEn('تضاريس محلية · ','Local terrain · '):'',status=setNodeText('mapStatus',arEn(`${offline}${mapStatusCache.moving} في الحركة · ${mapStatusCache.turn} في المحطات · ${countText(assetLength,'asset',assetLength)}`,`${offline}${mapStatusCache.moving} moving · ${mapStatusCache.turn} at stations · ${countText(assetLength,'asset',assetLength)}`)),title=arEn(`${mapStatusCache.idle} متوقف · ${countText(mapStatusCache.ownedFacilities,'facility',mapStatusCache.ownedFacilities)} · مسارات برية: ${mapStatusCache.routed}`,`${mapStatusCache.idle} idle · ${countText(mapStatusCache.ownedFacilities,'facility',mapStatusCache.ownedFacilities)} · road routes: ${mapStatusCache.routed}`);if(status.title!==title)status.title=title;
   }
 
   function markerPoint(value){if(Array.isArray(value)&&value.length===2&&value.every(Number.isFinite))return [Number(value[0]),Number(value[1])];if(value&&Number.isFinite(Number(value.lat))&&Number.isFinite(Number(value.lng)))return [Number(value.lat),Number(value.lng)];return null;}
@@ -3229,27 +3231,28 @@
   }
   function toggleSimulationCalendar(force){const panel=$('simCalendarPanel'),toggle=$('simCalendarToggle');if(!panel||!toggle)return;const open=typeof force==='boolean'?force:panel.classList.contains('hidden');panel.classList.toggle('hidden',!open);toggle.setAttribute('aria-expanded',open?'true':'false');if(open){const d=simDate();calendarViewMonth=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1));calendarSelectedKey='';renderSimulationCalendar();}}
   function formatDuration(seconds){
-    if(seconds<=0)return 'الآن';
-    if(seconds<3600)return `${Math.ceil(seconds/60)} دقيقة`;
-    if(seconds<86400){const hours=(seconds/3600).toFixed(seconds<10800?1:0);return Number.isInteger(Number(hours))?countText(Number(hours),'hour'):`${hours} ساعة`;}
-    const days=(seconds/86400).toFixed(seconds<259200?1:0);return Number.isInteger(Number(days))?countText(Number(days),'day'):`${days} يوم`;
+    if(seconds<=0)return arEn('الآن','now');
+    if(seconds<3600)return arEn(`${Math.ceil(seconds/60)} دقيقة`,`${Math.ceil(seconds/60)} min`);
+    if(seconds<86400){const hours=(seconds/3600).toFixed(seconds<10800?1:0);return Number.isInteger(Number(hours))?countText(Number(hours),'hour'):arEn(`${hours} ساعة`,`${hours} hours`);}
+    const days=(seconds/86400).toFixed(seconds<259200?1:0);return Number.isInteger(Number(days))?countText(Number(days),'day'):arEn(`${days} يوم`,`${days} days`);
   }
+  const ADVANCE_RUNNING=arEn('يوجد تقديم زمني جارٍ','A time advance is running');
   function updateCalendarAdvanceControl(){
     const go=$('simCalendarGo');if(!go)return;
     const selected=calendarDateFromKey(calendarSelectedKey),active=!!window.GH_SIM_KERNEL?.snapshot?.().manualAdvance;
-    const reason=active?'يوجد تقديم زمني جارٍ':!selected?'اختر تاريخًا قادمًا أولًا':calendarDayStartSeconds(selected)<=Number(state.simSeconds)?'اختر يومًا بعد التاريخ الحالي':selected>calendarMaxTargetDate()?'اختر تاريخًا ضمن السنة القادمة':'';
+    const reason=active?ADVANCE_RUNNING:!selected?arEn('اختر تاريخًا قادمًا أولًا','Choose a coming date first'):calendarDayStartSeconds(selected)<=Number(state.simSeconds)?arEn('اختر يومًا بعد التاريخ الحالي','Choose a day after the current date'):selected>calendarMaxTargetDate()?arEn('اختر تاريخًا ضمن السنة القادمة','Choose a date within the coming year'):'';
     if(go.disabled!==!!reason)go.disabled=!!reason;if(reason){if(go.dataset.disabledReason!==reason)go.dataset.disabledReason=reason;}else if(go.dataset.disabledReason!==undefined)delete go.dataset.disabledReason;
   }
   function updateDayStepControl(){
     const button=$('simNextDay'),advance=window.GH_SIM_KERNEL?.snapshot?.().manualAdvance;
     if(button){
       // Cancellation still settles the committed boundary; identical labels do not replace DOM nodes.
-      const label=advance?.cancelling?'جارٍ الإيقاف':advance?'إيقاف التقديم':'+ يوم',title=advance?.cancelling?'يُنهي صيانة آخر حدّ زمني معتمد قبل تأكيد الإيقاف':advance?`إيقاف التقديم الجاري؛ المتبقي ${formatDuration(advance.remaining)}`:'تقديم آمن إلى بداية اليوم التالي عبر محرك المحاكاة';
+      const label=advance?.cancelling?arEn('جارٍ الإيقاف','Stopping'):advance?arEn('إيقاف التقديم','Stop advance'):arEn('+ يوم','+ a day'),title=advance?.cancelling?arEn('يُنهي صيانة آخر حدّ زمني معتمد قبل تأكيد الإيقاف','Finishing the upkeep of the last confirmed time boundary before the stop is confirmed'):advance?arEn(`إيقاف التقديم الجاري؛ المتبقي ${formatDuration(advance.remaining)}`,`Stop the running advance (${formatDuration(advance.remaining)} left)`):arEn('تقديم آمن إلى بداية اليوم التالي عبر محرك المحاكاة','Safe advance to the start of the next day through the simulation engine');
       if(button.textContent!==label)button.textContent=label;if(button.title!==title)button.title=title;if(button.getAttribute('aria-label')!==title)button.setAttribute('aria-label',title);
       if(advance){if(button.dataset.advancing!=='true')button.dataset.advancing='true';}else if(button.dataset.advancing!==undefined)delete button.dataset.advancing;
     }
-    setNodeText('simAdvanceStatus',advance?.cancelling?'جارٍ إيقاف التقديم بعد صيانة آخر حدّ معتمد':advance?`جارٍ التقديم · ${formatDuration(advance.remaining)} متبقي`:'جاهز للتقديم');
-    document.querySelectorAll('[data-calendar-advance]').forEach(btn=>{if(btn.disabled!==!!advance)btn.disabled=!!advance;if(advance){if(btn.dataset.disabledReason!=='يوجد تقديم زمني جارٍ')btn.dataset.disabledReason='يوجد تقديم زمني جارٍ';}else if(btn.dataset.disabledReason!==undefined)delete btn.dataset.disabledReason;});
+    setNodeText('simAdvanceStatus',advance?.cancelling?arEn('جارٍ إيقاف التقديم بعد صيانة آخر حدّ معتمد','Stopping the advance after the last confirmed boundary'):advance?arEn(`جارٍ التقديم · ${formatDuration(advance.remaining)} متبقي`,`Advancing · ${formatDuration(advance.remaining)} left`):arEn('جاهز للتقديم','Ready to advance'));
+    document.querySelectorAll('[data-calendar-advance]').forEach(btn=>{if(btn.disabled!==!!advance)btn.disabled=!!advance;if(advance){if(btn.dataset.disabledReason!==ADVANCE_RUNNING)btn.dataset.disabledReason=ADVANCE_RUNNING;}else if(btn.dataset.disabledReason!==undefined)delete btn.dataset.disabledReason;});
     updateCalendarAdvanceControl();
   }
 
@@ -3257,7 +3260,7 @@
   let lastRenderedNewsSignature='',lastObservedNewsSourceSignature='';
   function syncTopNews(){
     const button=$('topNewsTicker');if(!button)return;const rawEvents=state.businessWorld?.events||[],latestRaw=rawEvents[0],signature=`${Number(state.businessWorld?.sequence)||0}|${rawEvents.length}|${latestRaw?.id||''}|${latestRaw?.reference||''}`,stamp=Date.now();if(signature===lastTopNewsSignature&&stamp-lastTopNewsAt<5000)return;lastTopNewsAt=stamp;lastTopNewsSignature=signature;const summary=window.GH_ADVANCED?.newsSummary?.(state);
-    const headline=summary?.latest?.text||'بانتظار حدث مؤسسي موثق',count=Math.min(99,summary?.count||0);setNodeText('topNewsHeadline',headline);setNodeText('topNewsStatus',count?`${count} موثق`:'موثق');setNodeText('alertCount',count);if(button.title!==headline)button.title=headline;const shortcut=$('alertsBtn'),label=`أخبار المجموعة · ${count} خبر متاح`;if(shortcut&&shortcut.getAttribute('aria-label')!==label)shortcut.setAttribute('aria-label',label);
+    const headline=summary?.latest?.text||arEn('بانتظار حدث مؤسسي موثق','Waiting for a verified corporate event'),count=Math.min(99,summary?.count||0);setNodeText('topNewsHeadline',headline);setNodeText('topNewsStatus',count?arEn(`${count} موثق`,`${count} verified`):arEn('موثق','Verified'));setNodeText('alertCount',count);if(button.title!==headline)button.title=headline;const shortcut=$('alertsBtn'),label=arEn(`أخبار المجموعة · ${count} خبر متاح`,`Group news · ${count} available`);if(shortcut&&shortcut.getAttribute('aria-label')!==label)shortcut.setAttribute('aria-label',label);
   }
   let lastKpiIdentitySignature='',lastKpiProfitSign=null;
   const setNodeText=(id,value)=>{const node=$(id),text=String(value);if(node&&node.textContent!==text)node.textContent=text;return node;};
@@ -3265,7 +3268,7 @@
   let speedEntitlementCheckQueued=false;
   function checkSpeedEntitlement(){
     if(state.speed!==3||speedEntitlementCheckQueued||window.GH_STORE_CORE?.featureOpen?.(state,'accelerator')!==false)return;
-    speedEntitlementCheckQueued=true;setTimeout(()=>{speedEntitlementCheckQueued=false;if(state.speed!==3||window.GH_STORE_CORE?.featureOpen?.(state,'accelerator')!==false)return;setSpeed(2);if(state.speed===2)notice('انتهت مدة السرعة 300×؛ عادت السرعة إلى 120×.','warning');},0);
+    speedEntitlementCheckQueued=true;setTimeout(()=>{speedEntitlementCheckQueued=false;if(state.speed!==3||window.GH_STORE_CORE?.featureOpen?.(state,'accelerator')!==false)return;setSpeed(2);if(state.speed===2)notice(arEn('انتهت مدة السرعة 300×؛ عادت السرعة إلى 120×.','The 300× speed has ended. The speed is back to 120×.'),'warning');},0);
   }
   // Owner (approved Plus): the gold identity (the brand's frame and Plus mark, the headquarters on the map, the annual
   // conference), one class on the app root, changed only when Plus is gained or lost.
@@ -3277,11 +3280,11 @@
     if(identitySignature!==lastKpiIdentitySignature){lastKpiIdentitySignature=identitySignature;if(window.GH_IDENTITY)window.GH_IDENTITY.applyDocument(state);else{setNodeText('groupName',state.profile.name);setNodeText('brandMark',(state.profile.shortName||'GH').slice(0,4).toUpperCase());}}
     setNodeText('cashKpi',window.GH_FINANCE_CORE?.investorMode?.(state)?'∞':fmtMoney(state.cash));
     // The career level beside the cash (GH_PROGRESSION_CORE.summary); hidden in free play and older saves.
-    {const tile=$('levelKpi');if(tile){const level=window.GH_PROGRESSION_CORE?.summary?.(state),show=level?.mode==='career',pct=show?Math.round(level.progress*100):0,key=show?`${level.level}|${level.investor}|${pct}`:'';if(tile.dataset.key!==key){tile.dataset.key=key;tile.hidden=!show;if(show){setNodeText('levelKpiTitle',level.investor?'المستوى · مستثمر':`المستوى · ${pct}%`);setNodeText('levelKpiValue',String(level.level));tile.style.setProperty('--level-progress',`${pct}%`);tile.title=`${level.title} · ${level.xp.toLocaleString('en-US')} خبرة`;}}}}
+    {const tile=$('levelKpi');if(tile){const level=window.GH_PROGRESSION_CORE?.summary?.(state),show=level?.mode==='career',pct=show?Math.round(level.progress*100):0,key=show?`${level.level}|${level.investor}|${pct}`:'';if(tile.dataset.key!==key){tile.dataset.key=key;tile.hidden=!show;if(show){setNodeText('levelKpiTitle',level.investor?arEn('المستوى · مستثمر','Level · Investor'):arEn(`المستوى · ${pct}%`,`Level · ${pct}%`));setNodeText('levelKpiValue',String(level.level));tile.style.setProperty('--level-progress',`${pct}%`);tile.title=arEn(`${level.title} · ${level.xp.toLocaleString('en-US')} خبرة`,`${level.title} · ${level.xp.toLocaleString('en-US')} XP`);}}}}
     setNodeText('profitKpi',`${state.todayProfit>=0?'+':''}${fmtMoney(state.todayProfit)}`);
     const profitPositive=state.todayProfit>=0;if(profitPositive!==lastKpiProfitSign){lastKpiProfitSign=profitPositive;$('profitKpi').classList.toggle('positive',profitPositive);$('profitKpi').classList.toggle('negative',!profitPositive);}
     setNodeText('simDate',formatSimDateCompact());
-    setNodeText('simDay',`اليوم ${Math.floor(Math.max(0,Number(state.simSeconds)||0)/86400)+1}`);
+    {const day=Math.floor(Math.max(0,Number(state.simSeconds)||0)/86400)+1;setNodeText('simDay',arEn(`اليوم ${day}`,`Day ${day}`));}
     syncTopNews();
     if(activeDrawerPanel==='news'){
       const events=state.businessWorld?.events||[],latest=events[0],sourceSignature=`${Number(state.businessWorld?.sequence)||0}|${events.length}|${latest?.id||''}|${latest?.reference||''}`;
@@ -4695,27 +4698,27 @@
 
 
   function assetStatus(asset){
-    if(asset.phase==='idle')return 'متوقف — بانتظار تعيين مسار';
-    if(asset.phase==='turnaround'&&asset.departureScheduled)return 'مجدول للمغادرة ضمن دفعة الأسطول';
-    if(asset.phase==='turnaround')return asset.type==='air'?'دوران وتجهيز بالمطار':asset.type==='sea'?'مناولة بالميناء':'تحميل/راحة وتشغيل';
-    return asset.type==='air'?'في الجو':asset.type==='sea'?'في البحر':'على الطريق';
+    if(asset.phase==='idle')return arEn('متوقف — بانتظار تعيين مسار','Idle — waiting for a route');
+    if(asset.phase==='turnaround'&&asset.departureScheduled)return arEn('مجدول للمغادرة ضمن دفعة الأسطول','Scheduled to depart with the fleet batch');
+    if(asset.phase==='turnaround')return asset.type==='air'?arEn('دوران وتجهيز بالمطار','Turnaround at the airport'):asset.type==='sea'?arEn('مناولة بالميناء','Cargo handling at the port'):arEn('تحميل/راحة وتشغيل','Loading/rest and operation');
+    return asset.type==='air'?arEn('في الجو','In the air'):asset.type==='sea'?arEn('في البحر','At sea'):arEn('على الطريق','On the road');
   }
   function refreshAssetCard(id){
     const source=window.GH_FLEET_DATA.get(state,id);if(!source)return;const a=normalizedAssetView(source),tpl=routeTemplates[a.routeId];
     $('assetIcon').innerHTML=window.GH_ICONS?.tile(window.GH_ICONS.forAsset(a.icon,a.type)||'fleet-all')||''; $('assetName').textContent=a.name; $('assetCompany').textContent=a.company;
-    $('assetRoute').textContent=tpl?`${a.from} → ${a.to} · ${fmtNumber(tpl.distanceKm)} كم`:`${a.model||typeName(a.type)} · متوقف في القاعدة`;
+    $('assetRoute').textContent=tpl?arEn(`${a.from} → ${a.to} · ${fmtNumber(tpl.distanceKm)} كم`,`${a.from} → ${a.to} · ${fmtNumber(tpl.distanceKm)} km`):arEn(`${a.model||typeName(a.type)} · متوقف في القاعدة`,`${a.model||typeName(a.type)} · idle at base`);
     $('assetStatus').textContent=assetStatus(a);$('assetStatus').className=`asset-live-status ${a.phase==='moving'?'moving':a.phase==='turnaround'?'turnaround':'idle'}`;
-    const journeyPct=a.phase==='moving'?Math.max(0,Math.min(100,Math.round(Number(a.progress||0)*100))):a.phase==='turnaround'?100:0,journeyTrack=$('assetJourneyTrack');if(journeyTrack)journeyTrack.setAttribute('aria-valuenow',String(journeyPct));$('assetJourneyProgress').style.width=`${journeyPct}%`;$('assetTripPercent').textContent=a.phase==='moving'?`${journeyPct}%`:a.phase==='turnaround'?'اكتملت':'—';$('assetTripStage').textContent=a.phase==='moving'?'رحلة جارية':a.phase==='turnaround'?'وصول وتجهيز للمغادرة':a.routeId?'بانتظار بدء الرحلة':'الأصل متوقف';
+    const journeyPct=a.phase==='moving'?Math.max(0,Math.min(100,Math.round(Number(a.progress||0)*100))):a.phase==='turnaround'?100:0,journeyTrack=$('assetJourneyTrack');if(journeyTrack)journeyTrack.setAttribute('aria-valuenow',String(journeyPct));$('assetJourneyProgress').style.width=`${journeyPct}%`;$('assetTripPercent').textContent=a.phase==='moving'?`${journeyPct}%`:a.phase==='turnaround'?arEn('اكتملت','Complete'):'—';$('assetTripStage').textContent=a.phase==='moving'?arEn('رحلة جارية','Trip under way'):a.phase==='turnaround'?arEn('وصول وتجهيز للمغادرة','Arrived, preparing to depart'):a.routeId?arEn('بانتظار بدء الرحلة','Waiting for the trip to start'):arEn('الأصل متوقف','The asset is idle');
     if(a.phase==='moving'&&tpl){
       const remaining=(1-a.progress)*(a.tripSeconds||tpl.tripSeconds);
-      $('assetEta').textContent=formatDuration(remaining); $('assetDistance').textContent=`${fmtNumber((1-a.progress)*tpl.distanceKm)} كم`;
-      $('assetSpeed').textContent=a.type==='sea'?`${(tpl.effectiveSpeedKmh/1.852).toFixed(1)} عقدة`:`${fmtNumber(tpl.effectiveSpeedKmh)} كم/س`;
+      $('assetEta').textContent=formatDuration(remaining); $('assetDistance').textContent=arEn(`${fmtNumber((1-a.progress)*tpl.distanceKm)} كم`,`${fmtNumber((1-a.progress)*tpl.distanceKm)} km`);
+      $('assetSpeed').textContent=a.type==='sea'?arEn(`${(tpl.effectiveSpeedKmh/1.852).toFixed(1)} عقدة`,`${(tpl.effectiveSpeedKmh/1.852).toFixed(1)} kn`):arEn(`${fmtNumber(tpl.effectiveSpeedKmh)} كم/س`,`${fmtNumber(tpl.effectiveSpeedKmh)} km/h`);
     }else if(a.phase==='turnaround'){
-      $('assetEta').textContent=formatDuration(a.dwellRemaining||0); $('assetDistance').textContent='0 كم'; $('assetSpeed').textContent='متوقف';
+      $('assetEta').textContent=formatDuration(a.dwellRemaining||0); $('assetDistance').textContent=arEn('0 كم','0 km'); $('assetSpeed').textContent=arEn('متوقف','Stopped');
     }else{
       $('assetEta').textContent='—'; $('assetDistance').textContent='—'; $('assetSpeed').textContent='—';
     }
-    $('assetFuel').textContent=`${Math.round(a.fuel)}%`; $('assetLoad').textContent=a.routeId?loadLabel(a):'بدون حمولة';
+    $('assetFuel').textContent=`${Math.round(a.fuel)}%`; $('assetLoad').textContent=a.routeId?loadLabel(a):arEn('بدون حمولة','No load');
     $('assetMargin').textContent=a.lastTrip?fmtMoney(a.lastTrip.margin):'—';
   }
   function showAsset(id){ selectedMobilityId=null; selectedAssetId=id; refreshAssetCard(id); $('assetCard').classList.remove('hidden'); closeMapPopovers(); renderMap(); }
