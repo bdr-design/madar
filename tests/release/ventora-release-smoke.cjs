@@ -1,8 +1,9 @@
 'use strict';
 // VENTORA release smoke: the shipped (minified) WebApp, run as the release edition with no test hooks injected into
 // app.js. The group is founded through the founding screen, days pass through the calendar, every rail section and its
-// tiles open, the developer pages stay hidden, and «وضع المستثمر الحر» is the store's: refused (the store page opens)
-// until the investor licence is delivered through the store bridge (a stand-in for StoreKit 2), then it switches on and
+// tiles open, the developer pages stay hidden, and «وضع المستثمر الحر» is the store's: refused with its notice, the store
+// page staying closed (owner: «عند ضغط على اي شي مقفل يحولك المتجر هذا غلط»), until the investor licence is delivered
+// through the store bridge (a stand-in for StoreKit 2), the store opened from its own button; then it switches on and
 // off. No page error is allowed.
 // Usage: node tests/release/ventora-release-smoke.cjs <root with the transformed WebApp>
 const assert=require('node:assert/strict'),path=require('node:path');
@@ -31,8 +32,10 @@ const root=path.resolve(process.argv[2]||path.join(__dirname,'../..'));
     }
     assert.ok(opened>=8,`pages opened: ${opened}`);
     await page.click('#settingsBtn');await page.locator('#drawerBody [data-go="investorMode"]').first().click();
-    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'));
+    await page.locator('#drawerBody .investor-mode-toggle').click();await page.waitForTimeout(400);
     assert.equal(await page.evaluate(()=>__GH_STATE__.godMoney===true),false,'investor mode needs its licence in the store edition');
+    assert.equal(await page.evaluate(()=>!!document.querySelector('#drawerBody .store-product')||document.getElementById('app').classList.contains('store-open')),false,'a locked feature does not open the store');
+    await page.click('#storeBtn');await page.waitForFunction(()=>document.querySelector('#drawerBody .store-product'));
     await page.evaluate(()=>GH_STORE_NATIVE.onTransaction({transactionId:'SMOKE-1',productId:'com.ventora.smoke.investor.licence'}));await page.waitForFunction(()=>__GH_STATE__.purchases?.entitlements?.investor&&window.__storePosts.some(row=>row.action==='finish'&&row.transactionId==='SMOKE-1'));
     // The store opens full screen over the game (owner's approved design); its own close button returns to the game.
     await page.locator('#drawerBody .st-x').click();await page.waitForFunction(()=>!document.getElementById('app').classList.contains('store-open'));

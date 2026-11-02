@@ -58,6 +58,8 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
+# First build576-presentation-rest-browser, which failed on the development runner for 94faa93 (claim 4: the slowest
+# of five resumes 88.9 ms against the source before's 20.6 + 50; here 3.7 and 4.1 ms against 12, twice). Then:
 # First build358-map-controls-browser, which failed on the store runner for 2986eab (its only failure of 681 gates;
 # it passed there for 1076d88 with the same game code, and three times here). Then build575, now taking thirty-one
 # openings (it failed again on the development runner for 2986eab: fastest 95.5 against 95.1 ms, median 199.9 against
@@ -275,6 +277,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build358-map-controls-browser.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build656-store-no-redirect-browser.cjs'],
@@ -399,7 +402,6 @@ expected_preflight=[
     ['node', 'tests/build580-company-types-money-weight.cjs'],
     ['node', 'tests/build608-dispatch-hex-proof-compact.cjs'],
     ['node', 'tests/build597-finance-metric-maps-in-place.cjs'],
-    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build598-company-evidence-token-browser.cjs'],
     ['node', 'tests/build607-calendar-window-stages-browser.cjs'],
     ['node', 'tests/build618-prepared-map-render-browser.cjs'],

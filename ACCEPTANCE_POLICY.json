@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build576-presentation-rest-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build358-map-controls-browser.cjs"
     ],
     [
@@ -496,10 +500,6 @@
     [
       "node",
       "tests/build597-finance-metric-maps-in-place.cjs"
-    ],
-    [
-      "node",
-      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
