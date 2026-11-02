@@ -79,15 +79,25 @@ function baseSide(index,key,group,side,neutral,depth=0){
   for(let i=1;i<parts.length;i++){const sub=parts.slice(i).join(' ');const model=index.has(sub)?sideModel(index.get(sub))[group]:null;if(model&&(model[side]||model[OPPOSITE[side]]))return mirroredSide(index,sub,group,side,neutral,depth);}
   return neutral;
 }
-function mirror(decls,{geometry,key,index}){
+// A value moved to the other side keeps the physical edge it measures: the device's safe-area insets (and the variables
+// made of them) stay on their own side of the screen.
+const FLIP=[['safe-area-inset-left','safe-area-inset-right'],['--safe-left','--safe-right'],['--stage-left','--stage-right']];
+function flip(value){if(typeof value!=='string')return value;return value.replace(/safe-area-inset-(left|right)|--safe-(left|right)|--stage-(left|right)/g,m=>{for(const [a,b] of FLIP){if(m===a)return b;if(m===b)return a;}return m;});}
+// Declarations that keep their meaning in either direction (logical sides, centred text, no float): copied as they are
+// into a scoped rule when the same elements have mirrored rules, so a later rule still overrides an earlier one.
+const KEEP_AS_IS=/^(padding|margin|inset|border)-inline(-start|-end)?$|^border-(start|end)-(start|end)-radius$/;
+const groupOf=prop=>/^(left|right)$/.test(prop)?'pos':/^margin/.test(prop)?'margin':/^padding/.test(prop)?'padding':/radius$/.test(prop)?'radius':/^border/.test(prop)?'border':/^(text-align|float|clear)$/.test(prop)?'text':/^inset/.test(prop)?'pos':null;
+function mirror(decls,{geometry,key,index,full=false}){
+  // full: false, or the set of side groups mirrored elsewhere for the same elements (copied whole here).
+  const whole=group=>full&&full.has(group);
   const out=[],emit=(prop,value,important)=>out.push(`${prop}:${value}${important?'!important':''}`);
   const centred=decls.some(d=>(d.prop==='left'||d.prop==='right')&&d.value.trim()==='50%');
   const g=sideModel(decls);
-  const same=(a,b)=>a&&b&&a.value===b.value&&a.shorthand===b.shorthand&&a.important===b.important;
-  const valueOf=x=>x.shorthand??x.value;
+  const same=(a,b)=>a&&b&&a.value===flip(b.value)&&a.shorthand===flip(b.shorthand)&&a.important===b.important;
+  const valueOf=x=>flip(x.shorthand??x.value);
   const cancel=(group,side,neutral)=>index?baseSide(index,key,group,side,neutral):neutral;
   // A pair of sides: mirrored when they differ; a side the rule sets alone takes, on the other side, the base value.
-  const pair=(group,left,right,name,neutral)=>{const L=g[group][left],R=g[group][right];if(!L&&!R)return;if(same(L,R))return;
+  const pair=(group,left,right,name,neutral)=>{const L=g[group][left],R=g[group][right];if(!L&&!R)return;if(same(L,R)){if(whole(groupOf(name(left)))){emit(name(left),valueOf(R),R.important);emit(name(right),valueOf(L),L.important);}return;}
     emit(name(left),R?valueOf(R):cancel(group,left,neutral),(R||L).important);
     emit(name(right),L?valueOf(L):cancel(group,right,neutral),(L||R).important);};
   if(geometry&&!centred){
@@ -98,7 +108,7 @@ function mirror(decls,{geometry,key,index}){
     pair('padding','left','right',s=>`padding-${s}`,'0');
     // A border side given as a shorthand is mirrored as a shorthand; its parts are mirrored as parts.
     const bl=g.bw.left,br=g.bw.right;
-    if((bl?.shorthand!==undefined||br?.shorthand!==undefined)&&!same(bl,br)){
+    if((bl?.shorthand!==undefined||br?.shorthand!==undefined)&&(whole('border')||!same(bl,br))){
       emit('border-left',br?valueOf(br):cancel('bw','left','0 none'),(br||bl).important);emit('border-right',bl?valueOf(bl):cancel('bw','right','0 none'),(bl||br).important);
     }else pair('bw','left','right',s=>`border-${s}-width`,'0');
     pair('bs','left','right',s=>`border-${s}-style`,'none');pair('bc','left','right',s=>`border-${s}-color`,'currentcolor');
@@ -108,6 +118,7 @@ function mirror(decls,{geometry,key,index}){
     const v=value.trim().toLowerCase();
     if(prop==='direction'&&v==='rtl')emit('direction','ltr',important);
     else if(geometry&&['text-align','float','clear'].includes(prop)&&(v==='left'||v==='right'))emit(prop,v==='left'?'right':'left',important);
+    else if(geometry&&(KEEP_AS_IS.test(prop)||['text-align','float','clear'].includes(prop))&&whole(groupOf(prop.replace(/-inline.*$/,'').replace(/^border-(start|end).*$/,'border-radius'))))emit(prop,value,important);
   }
   // The last word for each property (a later mirrored declaration wins, as in the source).
   const last=new Map();for(const d of out)last.set(d.slice(0,d.indexOf(':')),d);
@@ -120,13 +131,19 @@ function collect(src,rules,media=null){
     rules.push({media,selectors:selectors(prelude),decls:declarations(body)});
   }
 }
-function emitRules(rules,index){
+// The classes and ids of a selector's subject (its last compound), or its element name.
+function subject(selector){const last=compounds(selector).at(-1)||'';const tokens=last.match(/[.#][\w-]+/g);return tokens||[last.replace(/[:\[].*$/,'')];}
+// For each subject token, the side groups some rule mirrors for it.
+function mirroredSubjects(perFile,index){const out=new Map();for(const {rules} of perFile)for(const rule of rules){const geometry=!rule.selectors.some(s=>MAP_GEOMETRY.test(s));for(const sel of rule.selectors){const groups=mirror(rule.decls,{geometry,key:compounds(sel).join(' '),index}).map(d=>groupOf(d.slice(0,d.indexOf(':')))).filter(Boolean);if(!groups.length)continue;for(const t of subject(sel)){if(!out.has(t))out.set(t,new Set());for(const g of groups)out.get(t).add(g);}}}return out;}
+function emitRules(rules,index,mirrored){
   const lines=[];let open=null;
   const close=()=>{if(open){lines.push('}'.repeat(open.length));open=null;}};
   for(const rule of rules){
     const geometry=!rule.selectors.some(s=>MAP_GEOMETRY.test(s));
-    // One mirrored rule per selector when its base values differ; one rule for the list otherwise.
-    const per=rule.selectors.map(sel=>({sel,decls:mirror(rule.decls,{geometry,key:compounds(sel).join(' '),index})})).filter(r=>r.decls.length);
+    // One mirrored rule per selector when its base values differ; one rule for the list otherwise. A rule about the
+    // same elements as a mirrored one is copied whole (its symmetric and logical sides too), so the cascade between them
+    // is the same as in Arabic.
+    const per=rule.selectors.map(sel=>({sel,decls:mirror(rule.decls,{geometry,key:compounds(sel).join(' '),index,full:(()=>{const set=new Set();for(const t of subject(sel))for(const g of mirrored.get(t)||[])set.add(g);return set.size?set:false;})()})})).filter(r=>r.decls.length);
     if(!per.length)continue;
     const groups=[];for(const r of per){const text=r.decls.join(';'),last=groups[groups.length-1];if(last&&last.text===text)last.sels.push(r.sel);else groups.push({text,sels:[r.sel]});}
     const media=rule.media||null;
@@ -138,8 +155,8 @@ function emitRules(rules,index){
 function generate(){
   const lines=['/* Generated by tools/ltr_css.cjs from the design\'s style sheets: do not edit. The English edition mirrors the',' Arabic design; these rules match only html[dir="ltr"]. Hand-written mirrored details come from tools/ltr-extra.css. */'];
   const perFile=sheets().map(file=>{const rules=[];collect(stripComments(fs.readFileSync(path.join(WEB,file),'utf8')),rules);return {file,rules};});
-  const index=makeIndex(perFile.flatMap(f=>f.rules));
-  for(const {file,rules} of perFile){const inner=emitRules(rules,index);if(inner.length)lines.push(`/* ${file} */`,...inner);}
+  const index=makeIndex(perFile.flatMap(f=>f.rules)),mirrored=mirroredSubjects(perFile,index);
+  for(const {file,rules} of perFile){const inner=emitRules(rules,index,mirrored);if(inner.length)lines.push(`/* ${file} */`,...inner);}
   const extra=fs.existsSync(EXTRA)?fs.readFileSync(EXTRA,'utf8').trim():'';if(extra)lines.push('/* ltr-extra.css */',extra);
   return lines.join('\n')+'\n';
 }

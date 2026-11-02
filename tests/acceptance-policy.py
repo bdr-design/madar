@@ -58,17 +58,21 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
-# Now, rebuilt from the previous list: build460-render-idle-browser, whose first attempt failed on the development runner
-# for d0c6a68 (it passed on its retry); then the three new gates, build657 (the road dispatch's call limit follows its
+# Now, rebuilt from the previous list: build576-presentation-rest-browser, which failed on the development runner for
+# f10a7ca (claim 5: playing, the audit checked nothing in 2.5 s; twice, its retry too; it passed on the store runner for
+# the same source and twice here, 107 checks); then build460-render-idle-browser, whose first attempt failed on the
+# development runner for d0c6a68 (it passed on its retry); then the three new gates, build657 (the road dispatch's call limit follows its
 # depots), build658 (the diagnostic recorder's cadence estimate follows its window, results unchanged) and build659 (the
 # English edition's frame: the mirrored layout of WebApp/ltr.css and the frame's English texts); then, in their previous
-# relative order, the 98 gates that run the changed code — they dispatch a road fleet through the planner (the dispatch
+# relative order, the 105 gates that run the changed code — they dispatch a road fleet through the planner (the dispatch
 # button, GH_ROAD_PLANNER or road-planner.js, or the worlds of tests/helpers/all-operating-world.cjs), start the
-# diagnostic recorder, or read what the English batch touched (index.html and its static texts, i18n-core.js, the
-# counts and terms of arabic-copy-core.js, or the frame's texts in app.js: the speed labels, the status line, the
-# calendar's advance, the day, the news line, the level tile and the asset card) — among them build576 (which also
-# failed before) and build340-hotpath-profiler, newly listed here; then build358-map-controls, build575, build570, build555
-# and phone-layout, which failed before and passed since; then the rest in their previous relative order. The
+# diagnostic recorder, or read what the English batch touched (index.html and its static texts, i18n-core.js and
+# i18n-static.js, the counts and terms of arabic-copy-core.js, the frame's texts in app.js — the speed labels, the status
+# line, the calendar, the day, the news line, the level tile and the asset card —, the map's free area in
+# interface-core.js, the direction of the signature pad, the conference and the news page, the English boot of build653
+# and build654, and the lint of the new files) — among them build358-map-controls and phone-layout (which also failed
+# before) and build340-hotpath-profiler, newly listed here; then build575, build570 and build555, which failed
+# before and passed since; then the rest in their previous relative order. The
 # paragraphs that follow record the earlier orders:
 # First build576-presentation-rest-browser, which failed on the development runner for 94faa93 (claim 4: the slowest
 # of five resumes 88.9 ms against the source before's 20.6 + 50; here 3.7 and 4.1 ms against 12, twice). Then:
@@ -289,11 +293,11 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build657-road-dispatch-depots.cjs'],
     ['node', 'tests/build658-recorder-cadence-equivalence.cjs'],
     ['node', 'tests/build659-english-shell-browser.cjs'],
-    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build358-map-controls-browser.cjs'],
     ['node', 'tests/build656-store-no-redirect-browser.cjs'],
     ['node', 'tests/build334-calendar-journey-browser.cjs'],
@@ -390,6 +394,13 @@ expected_preflight=[
     ['node', 'tests/build359-sliced-save-browser.cjs'],
     ['python3', 'tests/acceptance-policy.py'],
     ['node', 'tests/build340-hotpath-profiler.cjs'],
+    ['node', 'tests/build653-i18n-browser.cjs'],
+    ['node', 'tests/build654-confirm-dialog-browser.cjs'],
+    ['node', 'tests/build370-official-news-pagination.cjs'],
+    ['node', 'tests/build359-conference-thermal.cjs'],
+    ['node', 'tests/build334-signature-pad.cjs'],
+    ['node', 'tests/lint.cjs'],
+    ['node', 'tests/build459-navigation-scroll-work.cjs'],
     ['node', 'tests/build575-conference-keynote-weight-browser.cjs'],
     ['node', 'tests/build570-documents-list-weight-browser.cjs'],
     ['node', 'tests/build555-investor-card-return.cjs'],
@@ -402,11 +413,9 @@ expected_preflight=[
     ['node', 'tests/build492-manual-slot-slices-browser.cjs'],
     ['node', 'tests/build628-pause-after-day-close.cjs'],
     ['node', 'tests/build386-confirmation-browser.cjs'],
-    ['node', 'tests/build653-i18n-browser.cjs'],
     ['node', 'tests/build376-money-guard.cjs'],
     ['node', 'tests/build637-launch-native-contract.cjs'],
     ['node', 'tests/build610-dead-code-removed-browser.cjs'],
-    ['node', 'tests/build654-confirm-dialog-browser.cjs'],
     ['node', 'tests/build655-store-capture-protection.cjs'],
     ['node', 'tests/build649-levels-page-browser.cjs'],
     ['node', 'tests/build648-health-maintenance-stages-browser.cjs'],
@@ -449,7 +458,6 @@ expected_preflight=[
     ['node', 'tests/build363-runtime-diagnostics-contract.cjs'],
     ['node', 'tests/build481-diagnostic-fleet-proof.cjs'],
     ['node', 'tests/build378-customer-satisfaction.cjs'],
-    ['node', 'tests/build370-official-news-pagination.cjs'],
     ['node', 'tests/build375-group-news.cjs'],
     ['node', 'tests/build376-cooperative-draft-browser.cjs'],
     ['node', 'tests/build380-construction-acceleration.cjs'],
@@ -842,8 +850,6 @@ expected_preflight=[
     ['node', 'tests/build372-fleet-dispatch-worker-browser.cjs'],
     ['node', 'tests/build476-staged-worker-replay.cjs'],
     ['node', 'tests/build520-map-aggregate-threshold-browser.cjs'],
-    ['node', 'tests/build359-conference-thermal.cjs'],
-    ['node', 'tests/build334-signature-pad.cjs'],
     ['node', 'tests/build524-sealed-text-reuse.cjs'],
     ['node', 'tests/build359-cheque-archived-invoice.cjs'],
     ['node', 'tests/build339-transaction-write-set-audit.cjs'],
@@ -921,7 +927,6 @@ expected_preflight=[
     ['node', 'tests/build513-published-command-wait-browser.cjs'],
     ['node', 'tests/build526-prestage-fleet-chunks-only.cjs'],
     ['node', 'tests/save-checksum-worker-browser.cjs'],
-    ['node', 'tests/lint.cjs'],
     ['python3', 'tests/build334-source-layout.py'],
     ['node', 'tests/build465-directory-ranking-work.cjs'],
     ['node', 'tests/build466-directory-round-robin.cjs'],
@@ -929,7 +934,6 @@ expected_preflight=[
     ['node', 'tests/build478-directory-scope-stream.cjs'],
     ['node', 'tests/build358-directory-search-browser.cjs'],
     ['node', 'tests/build358-directory-regions-browser.cjs'],
-    ['node', 'tests/build459-navigation-scroll-work.cjs'],
     ['node', 'tests/build447-hr-facility-work.cjs'],
     ['node', 'tests/build359-durable-command-cost.cjs'],
     ['node', 'tests/build359-route-seal.cjs'],

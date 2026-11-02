@@ -3,3 +3,7 @@
    mirrored, it starts at the right edge. Its capsules keep their own (mirrored) direction. */
 html[dir="ltr"] .map-strip{direction:rtl}
 html[dir="ltr"] .map-strip>*{direction:ltr}
+/* The rail and the panel stand on the left: the frame's rail-side edge measures the left inset, the other the right. */
+html[dir="ltr"]{--rail-safe:var(--safe-left);--left-safe:var(--safe-right)}
+/* The back arrow points to where the user came from. */
+html[dir="ltr"] .ic-back{transform:scaleX(-1)}

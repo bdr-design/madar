@@ -3,31 +3,50 @@
 /* styles.css */
 html[dir="ltr"] .icon-btn b{left:-3px;right:auto}
 html[dir="ltr"] .ui-country-label{direction:ltr}
-html[dir="ltr"] .map-popover > button{text-align:left}
+html[dir="ltr"] .map-popover > button{padding-left:8px;padding-right:8px;text-align:left}
 html[dir="ltr"] .filter-grid .filter-btn{text-align:left}
-html[dir="ltr"] .layer-pop .filter-grid button{text-align:left}
-html[dir="ltr"] .command-btn{text-align:left}
+html[dir="ltr"] .layer-pop .filter-grid button{padding-left:10px;padding-right:10px;text-align:left}
+html[dir="ltr"] .sim-cal-grid button{padding-left:1px;padding-right:1px}
+html[dir="ltr"] .drawer-body button:not(.tab-btn):not(.command-btn){border-top-left-radius:10px;border-top-right-radius:10px;border-bottom-left-radius:10px;border-bottom-right-radius:10px}
+html[dir="ltr"] .command-btn{border-top-left-radius:12px;border-top-right-radius:12px;border-bottom-left-radius:12px;border-bottom-right-radius:12px;text-align:left}
 html[dir="ltr"] .command-btn::before{border-top-left-radius:4px;border-top-right-radius:0;border-bottom-left-radius:4px;border-bottom-right-radius:0}
-html[dir="ltr"] .company-quick-actions button{text-align:left}
+html[dir="ltr"] .hr-manager-company-tabs button,html[dir="ltr"] .news-filter > button{padding-left:12px;padding-right:12px}
+html[dir="ltr"] .company-quick-actions button{padding-left:12px;padding-right:12px;text-align:left}
+@media(max-width:620px){
+ html[dir="ltr"] .company-quick-actions button{padding-left:8px;padding-right:8px}
+}
 html[dir="ltr"] td,html[dir="ltr"] th{text-align:left}
+html[dir="ltr"] .ma-stage span{text-align:center}
 html[dir="ltr"] .asset-close{left:auto;right:8px}
 html[dir="ltr"] .asset-title{padding-left:0;padding-right:30px}
 html[dir="ltr"] .ui-confirm{left:auto;right:auto}
 html[dir="ltr"] .stockline > div:last-child{text-align:right}
 html[dir="ltr"] #drawerBody .market-company{text-align:left}
+html[dir="ltr"] .market-buyer>div{text-align:center}
 html[dir="ltr"] .market-buyer>div:first-of-type{text-align:left}
+html[dir="ltr"] #drawerBody .market-condition button{padding-left:14px;padding-right:14px}
+html[dir="ltr"] #drawerBody .market-chips button{padding-left:12px;padding-right:12px}
 html[dir="ltr"] .asset-price > b{text-align:left}
 html[dir="ltr"] .thumb-tag{left:8px;right:auto}
 html[dir="ltr"] .port-table td:last-child{text-align:right}
 html[dir="ltr"] .official-news-card footer small{direction:ltr}
+html[dir="ltr"] .official-news-card footer button{padding-left:9px;padding-right:9px}
+html[dir="ltr"] .drawer[data-panel="news"] .drawer-head{padding-left:9px;padding-right:9px}
 html[dir="ltr"] .official-news-page{direction:ltr}
+html[dir="ltr"] .official-news-filter button{padding-left:9px;padding-right:9px}
+html[dir="ltr"] .official-news-card footer button{padding-left:8px;padding-right:8px}
 html[dir="ltr"] .stock-ipo-card>strong{text-align:right}
 html[dir="ltr"] .stock-market-card header>strong{text-align:right}
+html[dir="ltr"] .sim-cal-quick button{padding-left:5px;padding-right:5px}
 html[dir="ltr"] .asset-market-card .spec-row>b{text-align:right}
 html[dir="ltr"] .asset-hero .thumb-tag{left:10px;right:auto}
+html[dir="ltr"] .asset-title{padding-inline:34px 0}
 html[dir="ltr"] .management-flow-step{text-align:left}
 html[dir="ltr"] .internal-lease-row span{text-align:right}
 html[dir="ltr"] .internal-lease-row small{direction:ltr}
+html[dir="ltr"] .official-news-filter button{padding-inline:10px}
+html[dir="ltr"] .official-news-lead-metrics>div{text-align:center}
+html[dir="ltr"] .official-news-lead footer button{padding-left:8px;padding-right:8px}
 html[dir="ltr"] .layer-pop .filter-grid button[data-layer]{padding-left:6px;padding-right:10px}
 html[dir="ltr"] .investor-card .ic-plate{left:auto;right:14px}
 html[dir="ltr"] .investor-card .ic-title{text-align:left}
@@ -42,21 +61,29 @@ html[dir="ltr"] .ic-amount-field input{text-align:right}
 html[dir="ltr"] .map-stage{direction:ltr}
 html[dir="ltr"] .topbar{left:var(--edge-right);right:var(--edge-left);direction:ltr}
 html[dir="ltr"] .sim-clock-toggle{text-align:left}
+html[dir="ltr"] .ui-speeds button{padding-left:4px;padding-right:4px}
 html[dir="ltr"] .top-kpis strong{text-align:left}
 html[dir="ltr"] .top-news-ticker{text-align:left}
-html[dir="ltr"] .topbar .icon-btn b{left:auto;right:-4px}
+html[dir="ltr"] .topbar .icon-btn b{left:auto;right:-4px;text-align:center}
 html[dir="ltr"] .side-nav{left:var(--edge-right);right:auto;direction:ltr}
+html[dir="ltr"] .side-nav button{padding-left:0;padding-right:0}
 html[dir="ltr"] .sheet-dock{left:var(--panel-right);right:auto;direction:ltr}
 html[dir="ltr"] .app-shell.panel-expanded.drawer-open .sheet-dock{left:var(--panel-right);right:var(--edge-left)}
 html[dir="ltr"] .drawer{direction:ltr}
 html[dir="ltr"] .drawer-head{padding-left:10px;padding-right:8px}
+html[dir="ltr"] .section-nav button{padding-left:11px;padding-right:11px}
 html[dir="ltr"] .ui-confirm{left:var(--panel-right);right:auto}
 html[dir="ltr"] .map-modes{left:auto;right:var(--edge-left);direction:ltr}
+html[dir="ltr"] .map-modes button{padding-left:10px;padding-right:10px}
 html[dir="ltr"] .map-strip{left:calc(var(--panel-right) + var(--gap));right:var(--edge-left)}
 html[dir="ltr"] .app-shell.overlay-open .map-strip{left:calc(var(--panel-right) + var(--panel) + var(--gap));right:var(--edge-left)}
 html[dir="ltr"] .company-dock{direction:ltr}
 html[dir="ltr"] .company-dock .dock-strip{direction:ltr}
+html[dir="ltr"] .company-dock button{padding-left:0;padding-right:0}
 html[dir="ltr"] .map-status-capsule{direction:ltr}
+@media(max-width:760px){
+ html[dir="ltr"] .ui-speeds button{padding-left:2px;padding-right:2px}
+}
 /* finance-presentation.css */
 html[dir="ltr"] .authority-paper,html[dir="ltr"] .authorization-paper{direction:ltr}
 html[dir="ltr"] .authority-watermark{left:auto;right:18px}
@@ -75,6 +102,7 @@ html[dir="ltr"] .finance-card-identity-v202 small{text-align:left}
 html[dir="ltr"] .profit-arrival-card section strong{text-align:left}
 html[dir="ltr"] .realism-budget-table>div>span{text-align:left}
 html[dir="ltr"] .realism-budget-table>div>span::before{direction:ltr}
+html[dir="ltr"] .tax-company-live-row>strong{text-align:end}
 html[dir="ltr"] .monthly-company-exec-card>strong{text-align:left}
 html[dir="ltr"] .bank-doc{text-align:left}
 html[dir="ltr"] .bd-title{text-align:right}
@@ -86,28 +114,30 @@ html[dir="ltr"] .cheque-instrument .bd-stamp{left:auto;right:8%}
 html[dir="ltr"] .iv-no{text-align:right}
 html[dir="ltr"] .iv-row>span:not(:first-child){text-align:right}
 html[dir="ltr"] .invoice-paper .bd-stamp{left:auto;right:33%}
-html[dir="ltr"] .cheque-viewer{padding-left:max(14px,env(safe-area-inset-right));padding-right:max(14px,env(safe-area-inset-left))}
-html[dir="ltr"] .cheque-viewer-close{left:auto;right:max(10px,env(safe-area-inset-left))}
+html[dir="ltr"] .cheque-viewer-close{left:auto;right:max(10px,env(safe-area-inset-right))}
 /* founding.css */
-html[dir="ltr"] .incorporation-flow{padding-left:max(16px,env(safe-area-inset-right));padding-right:max(16px,env(safe-area-inset-left))}
+html[dir="ltr"] .incorporation-upload button{padding-left:14px;padding-right:14px}
 html[dir="ltr"] .charter-refs dd{text-align:left}
 /* authorization-ui.css */
+html[dir="ltr"] .authorization-pad footer button{padding-left:14px;padding-right:14px}
 html[dir="ltr"] .authorization-dialog-card{direction:ltr}
+html[dir="ltr"] .authorization-dialog-card>footer button{padding-left:16px;padding-right:16px}
 /* conference-3d.css */
 html[dir="ltr"] .ghc3{text-align:left}
-html[dir="ltr"] .ghc3[data-upright] .ghc3-led{left:var(--stage-right)!important;right:var(--stage-left)!important}
+html[dir="ltr"] .ghc3 button{padding-left:16px;padding-right:16px}
 html[dir="ltr"] .ghc3-hero{text-align:left}
 html[dir="ltr"] .ghc3-bar{text-align:left}
 html[dir="ltr"] .ghc3-track i{left:0;right:auto}
 html[dir="ltr"] .ghc3-bar b{text-align:right}
+html[dir="ltr"] .ghc3-vchart b{left:0;right:0;text-align:center}
+html[dir="ltr"] .ghc3-vchart i{left:0;right:0}
 html[dir="ltr"] .ghc3-stars i{left:0;right:auto}
-html[dir="ltr"] .ghc3-ctl-top{left:calc(var(--safe-right) + var(--edge));right:auto}
-html[dir="ltr"] .ghc3-ctl-end{left:auto;right:calc(var(--safe-left) + var(--edge))}
-html[dir="ltr"] .ghc3-ctl-transport{left:calc(var(--safe-right) + var(--edge));right:calc(var(--safe-left) + var(--edge))}
-html[dir="ltr"] .ghc3-progress{left:var(--stage-right);right:var(--stage-left)}
+html[dir="ltr"] .ghc3-ctl-top{left:calc(var(--safe-left) + var(--edge));right:auto}
+html[dir="ltr"] .ghc3-ctl-end{left:auto;right:calc(var(--safe-right) + var(--edge))}
+html[dir="ltr"] .ghc3-progress{left:var(--stage-left);right:var(--stage-right)}
 html[dir="ltr"] .ghc3-progress:after{left:0;right:auto}
-html[dir="ltr"] .ghc3-panel{left:0;right:auto;padding-left:calc(14px + var(--safe-right));padding-right:14px}
-html[dir="ltr"] .ghc3-panel-content button{text-align:left}
+html[dir="ltr"] .ghc3-panel{left:0;right:auto;padding-left:calc(14px + var(--safe-left));padding-right:14px}
+html[dir="ltr"] .ghc3-panel-content button{padding-left:12px;padding-right:12px;text-align:left}
 @container ghc3-stage (max-width:480px){
  html[dir="ltr"] .ghc3-list>div{text-align:left}
 }
@@ -117,9 +147,12 @@ html[dir="ltr"] .mc-kpi b.is-text{direction:ltr}
 html[dir="ltr"] #drawerBody .mc-tile{text-align:left}
 html[dir="ltr"] .mc-badge{left:5px;right:auto}
 html[dir="ltr"] .mc-flag{left:auto;right:7px}
+html[dir="ltr"] .mc-text{left:8px;right:8px}
 html[dir="ltr"] .mc-hero .mc-text{left:11px;right:90px}
+html[dir="ltr"] .pv-seg>button{padding-left:6px;padding-right:6px}
 html[dir="ltr"] .pv-row{text-align:left}
 html[dir="ltr"] .pv-fact b{text-align:left}
+html[dir="ltr"] .pv-opt>button{padding-left:4px;padding-right:4px}
 html[dir="ltr"] .pvx-pill b{text-align:left}
 @media (orientation:landscape) and (max-height:500px) and (max-width:740px){
  html[dir="ltr"] .app-shell:not(.panel-expanded) #drawerBody .mc-grid .mc-badge{left:auto;right:8px}
@@ -128,37 +161,66 @@ html[dir="ltr"] .pvx-pill b{text-align:left}
  html[dir="ltr"] #drawerBody .asset-hero .thumb-tag{left:auto;right:10px}
 }
 @container (max-width:300px){
+ html[dir="ltr"] .investor-card .ic-plate,html[dir="ltr"] .investor-card .ic-inf,html[dir="ltr"] .investor-card .ic-holder{left:auto;right:auto}
  html[dir="ltr"] .investor-card .ic-inf{text-align:right}
 }
 /* phone-typography.css */
+html[dir="ltr"] #drawerBody .tab-btn>small{text-align:center}
 html[dir="ltr"] #drawerBody .world-company-chip{text-align:left}
+@media (orientation:landscape) and (max-height:500px) and (max-width:740px){
+ html[dir="ltr"] #drawerBody .command-btn>span{text-align:center}
+}
 /* phone-layout.css */
+@media (orientation:landscape) and (max-height:500px){
+ html[dir="ltr"] .ui-speeds button{padding-inline:2px}
+ html[dir="ltr"] #drawerBody .market-condition button,html[dir="ltr"] #drawerBody .market-chips button{padding-left:9px;padding-right:9px}
+}
 @media (orientation:landscape) and (max-height:500px) and (max-width:740px){
  html[dir="ltr"] .drawer-head{padding-left:7px;padding-right:6px}
 }
 /* hospitality.css */
 html[dir="ltr"] .hospitality-figures dd{text-align:right}
 /* legal.css */
-html[dir="ltr"] .legal-consent,html[dir="ltr"] .legal-reader{padding-left:max(20px,env(safe-area-inset-right));padding-right:max(20px,env(safe-area-inset-left))}
+html[dir="ltr"] .legal-table th,html[dir="ltr"] .legal-table td{text-align:start}
 /* store.css */
 html[dir="ltr"] .store-top-btn{padding-left:11px!important;padding-right:5px!important}
-html[dir="ltr"] #drawerBody .st{padding-left:max(14px,env(safe-area-inset-right));padding-right:max(14px,env(safe-area-inset-left));direction:ltr}
+@media (max-width:760px){
+ html[dir="ltr"] .store-top-btn{padding-left:3px!important;padding-right:3px!important}
+}
+html[dir="ltr"] .app-shell.store-open .sheet-dock{left:0;right:0}
+html[dir="ltr"] #drawerBody .st{direction:ltr}
+html[dir="ltr"] #drawerBody .st-dock button{padding-left:16px;padding-right:16px}
 html[dir="ltr"] #drawerBody .st-kick{text-align:left}
 html[dir="ltr"] #drawerBody .st-amt{text-align:left}
 html[dir="ltr"] #drawerBody .st-badge{left:auto;right:10px}
 html[dir="ltr"] #drawerBody .st-timer{left:auto;right:10px}
 html[dir="ltr"] #drawerBody .st-note{text-align:left}
 html[dir="ltr"] #drawerBody .st-vault{left:auto;right:0}
+html[dir="ltr"] #drawerBody .st-links button{padding-left:8px;padding-right:8px}
 /* news.css */
 html[dir="ltr"] #drawerBody .nx .nx-ticker{padding-left:4px;padding-right:12px}
+html[dir="ltr"] #drawerBody .nx .official-news-filter button{padding-left:11px;padding-right:11px}
+html[dir="ltr"] #drawerBody .nx .official-news-lead footer button{padding-left:12px;padding-right:12px}
+html[dir="ltr"] #drawerBody .nx .official-news-card footer button,html[dir="ltr"] #drawerBody .nx .official-news-pagination button{padding-left:12px;padding-right:12px}
 /* levels.css */
-html[dir="ltr"] #drawerBody .lv{padding-left:max(14px,env(safe-area-inset-right));padding-right:max(14px,env(safe-area-inset-left));direction:ltr}
+html[dir="ltr"] .app-shell.levels-open .sheet-dock{left:0;right:0}
+html[dir="ltr"] #drawerBody .lv{direction:ltr}
+html[dir="ltr"] #drawerBody .lv-dock button{padding-left:16px;padding-right:16px}
+@media (max-width:700px){
+ html[dir="ltr"] #drawerBody .lv-dock button{padding-left:12px;padding-right:12px}
+}
 /* confirm.css */
 html[dir="ltr"] .ui-confirm.dx{left:calc(var(--edge-right,6px) + var(--rail,54px) + 14px);right:14px}
 html[dir="ltr"] .dx-chip{padding-left:10px;padding-right:9px}
+html[dir="ltr"] .dx-total b{text-align:start}
+html[dir="ltr"] .dx-lines li b{text-align:end}
 /* ltr-extra.css */
 /* Hand-written mirrored details (tools/ltr_css.cjs appends them to WebApp/ltr.css). */
 /* The strip under the map is laid out left to right in the Arabic design (the company dock starts at the left edge);
    mirrored, it starts at the right edge. Its capsules keep their own (mirrored) direction. */
 html[dir="ltr"] .map-strip{direction:rtl}
 html[dir="ltr"] .map-strip>*{direction:ltr}
+/* The rail and the panel stand on the left: the frame's rail-side edge measures the left inset, the other the right. */
+html[dir="ltr"]{--rail-safe:var(--safe-left);--left-safe:var(--safe-right)}
+/* The back arrow points to where the user came from. */
+html[dir="ltr"] .ic-back{transform:scaleX(-1)}

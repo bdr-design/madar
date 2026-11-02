@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build576-presentation-rest-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build460-render-idle-browser.cjs"
     ],
     [
@@ -16,10 +20,6 @@
     [
       "node",
       "tests/build659-english-shell-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -407,6 +407,34 @@
     ],
     [
       "node",
+      "tests/build653-i18n-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build654-confirm-dialog-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build370-official-news-pagination.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-conference-thermal.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-signature-pad.cjs"
+    ],
+    [
+      "node",
+      "tests/lint.cjs"
+    ],
+    [
+      "node",
+      "tests/build459-navigation-scroll-work.cjs"
+    ],
+    [
+      "node",
       "tests/build575-conference-keynote-weight-browser.cjs"
     ],
     [
@@ -455,10 +483,6 @@
     ],
     [
       "node",
-      "tests/build653-i18n-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build376-money-guard.cjs"
     ],
     [
@@ -468,10 +492,6 @@
     [
       "node",
       "tests/build610-dead-code-removed-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build654-confirm-dialog-browser.cjs"
     ],
     [
       "node",
@@ -640,10 +660,6 @@
     [
       "node",
       "tests/build378-customer-satisfaction.cjs"
-    ],
-    [
-      "node",
-      "tests/build370-official-news-pagination.cjs"
     ],
     [
       "node",
@@ -2215,14 +2231,6 @@
     ],
     [
       "node",
-      "tests/build359-conference-thermal.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-signature-pad.cjs"
-    ],
-    [
-      "node",
       "tests/build524-sealed-text-reuse.cjs"
     ],
     [
@@ -2530,10 +2538,6 @@
       "tests/save-checksum-worker-browser.cjs"
     ],
     [
-      "node",
-      "tests/lint.cjs"
-    ],
-    [
       "python3",
       "tests/build334-source-layout.py"
     ],
@@ -2560,10 +2564,6 @@
     [
       "node",
       "tests/build358-directory-regions-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build459-navigation-scroll-work.cjs"
     ],
     [
       "node",

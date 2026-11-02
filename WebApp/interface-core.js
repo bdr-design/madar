@@ -121,12 +121,15 @@ function confirmMarkup(message,{title,accept,risk,image}){
 }
 function confirm(message,{title='مراجعة القرار',accept='تأكيد',state,action='hr-official-manager',risk='personnel',image}={}){if(pending)return Promise.resolve(false);return new Promise(resolve=>{const dialog=document.createElement('dialog');const view=confirmMarkup(message,{title,accept,risk,image:confirmImage(state,action,image)});dialog.className=`ui-confirm dx dx-${view.variant}${view.high?' risk':''}`;dialog.dir=globalThis.GH_I18N?.dir?.()||'rtl';dialog.setAttribute('aria-labelledby','uiConfirmTitle');dialog.innerHTML=view.html;dialog.querySelectorAll('.dx-media img').forEach(img=>img.addEventListener('error',()=>img.remove(),{once:true}));const prior=document.activeElement;let done=false;const finish=accepted=>{if(done)return;done=true;pending=null;globalThis.GH_WORKFLOW?.record?.(state,accepted?'WORKFLOW_CONFIRM_ACCEPTED':'WORKFLOW_CONFIRM_CANCELLED',{action,risk});dialog.close();dialog.remove();if(prior?.isConnected)prior.focus();resolve(accepted);};pending=finish;document.body.append(dialog);globalThis.GH_WORKFLOW?.record?.(state,'WORKFLOW_CONFIRM_SHOWN',{action,risk});dialog.querySelector('[data-confirm=cancel]').onclick=()=>finish(false);dialog.querySelector('[data-confirm=accept]').onclick=()=>finish(true);dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false);});dialog.addEventListener('close',()=>finish(false));dialog.showModal();dialog.querySelector('[data-confirm=cancel]').focus();});}
 // Build 373: the map fills the screen and the chrome floats over it, so the visible map is the map's rectangle
-// below the top bar and left of the rail or of the open panel. Centring (panMapTo) uses this rectangle.
+// below the top bar and beside the rail or the open panel (left of them in Arabic; right of them in the mirrored English
+// edition, where they stand on the left). Centring (panMapTo) uses this rectangle.
 function mapViewport(){
  const rect=document.getElementById('map').getBoundingClientRect(),box=selector=>{const node=document.querySelector(selector);if(!node)return null;const r=node.getBoundingClientRect();return r.width&&r.height?r:null;};
  let left=rect.left,top=rect.top,right=rect.right,bottom=rect.bottom;
- const bar=box('.topbar'),rail=box('.side-nav'),panel=box('.sheet-dock');
- if(bar)top=Math.max(top,bar.bottom);if(rail)right=Math.min(right,rail.left);if(panel)right=Math.min(right,panel.left);
+ const bar=box('.topbar'),rail=box('.side-nav'),panel=box('.sheet-dock'),ltr=document.documentElement.dir==='ltr';
+ if(bar)top=Math.max(top,bar.bottom);
+ if(ltr){if(rail)left=Math.max(left,rail.right);if(panel)left=Math.max(left,panel.right);}
+ else{if(rail)right=Math.min(right,rail.left);if(panel)right=Math.min(right,panel.left);}
  return {left,top,right,bottom,width:Math.max(0,right-left),height:Math.max(0,bottom-top)};
 }
 globalThis.GH_INTERFACE=Object.freeze({VERSION:'2.0.0',prepare,navigate,back,resetHistory,confirm,mapViewport});

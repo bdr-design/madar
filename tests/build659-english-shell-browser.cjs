@@ -5,12 +5,14 @@
 //      every one of its rules matches only html[dir="ltr"];
 //   2. Arabic is unchanged: with ltr.css removed from the page, every element keeps the same box;
 //   3. mirrored: with dir="ltr" (the texts left as they are, so every box keeps its size), every visible element outside
-//      the map sits at the mirror of its Arabic place — on the map screen, the calendar, the map layers and four pages.
+//      the map sits at the mirror of its Arabic place — on the map screen, the calendar, the map layers and four pages,
+//      on the founding screen, and at two more phone sizes (667×375, where the narrow-screen rules apply, and 932×430).
 //      Inside a part the design pins left to right (the speed buttons), the order is kept; inside a horizontal scroller
 //      the place is measured from the scroller's start;
 //   4. English (development edition): the frame's own texts and labels are English (the rail, the top bar, the map
-//      modes, the layers, the calendar, the status line), the rail stands on the left, the page plays, and nothing in it
-//      holds Arabic except the map's place names (a later batch) and texts a save already holds;
+//      modes, the layers, the calendar, the status line), the rail stands on the left, the back arrow points left, the
+//      map's free area (where "show on the map" centres) lies right of the rail and is as wide as in Arabic, the page
+//      plays, and nothing in the frame holds Arabic except the map's place names (a later batch) and texts a save holds;
 //   5. no page error.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
@@ -62,7 +64,14 @@ async function mirrored(page,label){
       await page.click('#simCalendarToggle');await page.waitForTimeout(150);counted.calendar=await mirrored(page,'the calendar');await page.click('#simCalendarToggle');
       await page.click('#filterToggle');await page.waitForTimeout(150);counted.layers=await mirrored(page,'the map layers');await page.click('#filterToggle');
       for(const panel of ['groupHub','financeHub','store','news']){await page.evaluate(p=>__AUDIT__.openDrawer(p),panel);await page.waitForTimeout(200);counted[panel]=await mirrored(page,`the ${panel} page`);}
+      await page.click('#mapNavBtn');await page.waitForTimeout(150);results.arabicViewport=await page.evaluate(()=>Math.round(GH_INTERFACE.mapViewport().width));
       assert.deepEqual(errors,[],'5: no page error');results.mirrored=counted;await page.close();}
+    // 3. Two more sizes, and the founding screen.
+    for(const viewport of [{width:667,height:375},{width:932,height:430}]){const errors=[];const {page}=await boot({browser,errors,viewport});await page.waitForTimeout(300);
+      const label=`${viewport.width}×${viewport.height}`;results.mirrored[label]=await mirrored(page,`the map screen at ${label}`);
+      await page.evaluate(()=>__AUDIT__.openDrawer('store'));await page.waitForTimeout(200);results.mirrored[`${label} store`]=await mirrored(page,`the store at ${label}`);
+      assert.deepEqual(errors,[],'5: no page error');await page.close();}
+    {const errors=[];const {page}=await boot({browser,errors,viewport:{width:844,height:390},found:false});await page.waitForTimeout(400);results.mirrored.founding=await mirrored(page,'the founding screen');assert.deepEqual(errors,[],'5: no page error');await page.close();}
     // 4.
     {const errors=[];const {page}=await boot({browser,errors,viewport:{width:844,height:390},storage:[['ani-language','en']]});await page.waitForTimeout(400);
       const frame=await page.evaluate(()=>{const text=sel=>[...document.querySelectorAll(sel)].map(n=>n.textContent.trim());return {dir:document.documentElement.dir,
@@ -73,15 +82,26 @@ async function mirrored(page,label){
       assert.deepEqual(frame.rail,['Map','Group','Finance','People','Leadership'],'4: the rail in English');
       assert.deepEqual(frame.railTitles,[['Map','Map'],['Group','Group'],['Finance','Finance'],['People','People'],['Leadership','Leadership']],'4: the rail\'s titles and labels');
       assert.ok(frame.railLeft<60,`4: the rail stands on the left (${frame.railLeft})`);
-      assert.deepEqual(frame.modes,['Operations','Network','Expansion']);assert.deepEqual(frame.kpis.slice(0,1),['Cash']);assert.equal(frame.news,'Official News');assert.equal(frame.store,'Store');
+      assert.deepEqual(frame.modes,['Operations','Network','Expansion']);assert.deepEqual(frame.kpis.slice(0,1),['Cash']);assert.equal(frame.news,'Official news');assert.equal(frame.store,'Store');
+      const geometry=await page.evaluate(()=>{const view=GH_INTERFACE.mapViewport(),rail=document.querySelector('.side-nav').getBoundingClientRect();return {left:view.left,width:Math.round(view.width),railRight:rail.right};});
+      // The back arrow, measured in an open page (a closed drawer draws nothing).
+      await page.evaluate(()=>__AUDIT__.openDrawer('settings'));await page.waitForTimeout(150);
+      geometry.back=await page.evaluate(()=>{const button=document.getElementById('workspaceBack'),hidden=button.hidden;button.hidden=false;const out=getComputedStyle(button.querySelector('.ic-back')).transform;button.hidden=hidden;return out;});
+      await page.click('#mapNavBtn');await page.waitForTimeout(150);
+      assert.ok(geometry.left>=geometry.railRight,`4: the map's free area starts right of the rail (${geometry.left} ≥ ${geometry.railRight})`);
+      assert.ok(Math.abs(geometry.width-results.arabicViewport)<=2,`4: the map's free area is as wide as in Arabic (${geometry.width} for ${results.arabicViewport})`);
+      assert.equal(geometry.back,'matrix(-1, 0, 0, 1, 0, 0)','4: the back arrow points left');
       assert.deepEqual(frame.speedTitles,['Normal · 30×','Fast · 120×','Rapid · 300×']);
       assert.match(frame.status,/^\d+ moving · \d+ at stations · (no assets|\d+ assets?)$/,`4: the status line (${frame.status})`);assert.match(frame.day,/^Day \d+$/);assert.equal(frame.title,'ASSETS & INFLUENCE');
       await page.click('#simCalendarToggle');await page.waitForTimeout(150);
       const calendar=await page.evaluate(()=>({head:document.querySelector('.sim-cal-head small').textContent,status:document.getElementById('simAdvanceStatus').textContent,quick:[...document.querySelectorAll('.sim-cal-quick button')].map(b=>b.textContent.trim()),week:[...document.querySelectorAll('.sim-cal-week span')].map(s=>s.textContent)}));
-      assert.deepEqual(calendar,{head:'Operations Calendar',status:'Ready to advance',quick:['+ a day','+ 7 days','+ 30 days','+ a year'],week:['Sa','Su','Mo','Tu','We','Th','Fr']},'4: the calendar in English');
-      await page.click('#simCalendarToggle');await page.click('#filterToggle');await page.waitForTimeout(150);
-      // Nothing in the frame (top bar, rail, map controls, status line, layers) holds Arabic but the group's own news line.
-      const left=await page.evaluate(()=>{const AR=/[؀-ۿ]/,out=[];for(const root of document.querySelectorAll('.topbar,.side-nav,.map-modes,.map-strip,#filterPopover')){const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);for(let t;(t=walker.nextNode());)if(AR.test(t.nodeValue)&&t.parentElement.id!=='topNewsHeadline')out.push(t.nodeValue.trim());for(const el of root.querySelectorAll('*'))for(const a of ['title','aria-label','placeholder'])if(AR.test(el.getAttribute(a)||'')&&el.closest('#topNewsTicker')===null&&el.id!=='alertsBtn')out.push(`${a}: ${el.getAttribute(a)}`);}return out;});
+      assert.deepEqual(calendar,{head:'Operations calendar',status:'Ready to advance',quick:['+ a day','+ 7 days','+ 30 days','+ a year'],week:['Sa','Su','Mo','Tu','We','Th','Fr']},'4: the calendar in English');
+      // Nothing in the frame (top bar, rail, map controls, status line, calendar, layers) holds Arabic, in its texts, labels
+      // or disabled reasons, but the group's name and its news line (texts the save holds; the default name stays the
+      // stock Arabic one, which the company names are built from).
+      const scan=()=>page.evaluate(()=>{const AR=/[\u0600-\u06FF]/,out=[];for(const root of document.querySelectorAll('.topbar,.side-nav,.map-modes,.map-strip,#filterPopover,#simCalendarPanel')){const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);for(let t;(t=walker.nextNode());)if(AR.test(t.nodeValue)&&!['topNewsHeadline','groupName'].includes(t.parentElement.id))out.push(t.nodeValue.trim());for(const el of [root,...root.querySelectorAll('*')])for(const a of ['title','aria-label','placeholder','data-disabled-reason'])if(AR.test(el.getAttribute(a)||'')&&el.id!=='topNewsTicker')out.push(`${a}: ${el.getAttribute(a)}`);}return out;});
+      const inCalendar=await scan();await page.click('#simCalendarToggle');await page.click('#filterToggle');await page.waitForTimeout(150);
+      const left=[...inCalendar,...await scan()];
       results.leftArabic=left;
       // The company dock's "+" (madar-shell.js) is the next batch's.
       assert.deepEqual(left.filter(t=>!/فتح شركة جديدة/.test(t)),[],'4: no Arabic left in the frame');

@@ -35,7 +35,7 @@ class ConferenceSession{
  listen(target,event,fn,options){target.addEventListener(event,fn,options);this.events.push(()=>target.removeEventListener(event,fn,options));}
  mount(){
   this.setPhase('preflight',false);this.previousFocus=document.activeElement;this.previousOverflow=document.body.style.overflow;
-  const root=this.root=document.createElement('section');root.className='ghc3';root.dir='rtl';root.dataset.phase=this.phase;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label',`المؤتمر السنوي ${this.snapshot.year||''}`.trim());
+  const root=this.root=document.createElement('section');root.className='ghc3';root.dir=globalThis.GH_I18N?.dir?.()||'rtl';root.dataset.phase=this.phase;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label',`المؤتمر السنوي ${this.snapshot.year||''}`.trim());
   // The hall photograph is the viewport's background; the slide is drawn on its LED screen (lit in the speaker's colour,
   // a hero slide's photograph behind the stage), the speaker's mark on its side screens. The arrows sit at the sides,
   // where the thumbs rest in landscape.

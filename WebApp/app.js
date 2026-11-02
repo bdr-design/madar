@@ -3016,7 +3016,7 @@
       // The tooltip's road routes and owned facilities: at once for a new map structure (build340), otherwise at most every
       // 2 s (a moving fleet changes the save revision on most slices; each recount built a route set and the facility list).
       if(mapStatusCache.ownerMapRevision!==mapRevision||nowMs-(mapStatusCache.ownerAt||0)>=Math.max(2000,ownerCostMs*40)){const started=clock();mapStatusCache.routed=mapRoadRouteCount();mapStatusCache.ownedFacilities=getDynamicFacilities().filter(f=>f?.owned).length;mapStatusCache.ownerKey=ownerKey;mapStatusCache.ownerMapRevision=mapRevision;mapStatusCache.ownerAt=nowMs;mapStatusCache.ownerCostMs=Math.max(clock()-started,ownerCostMs/2);}}
-    const offline=mapTilesOffline?arEn('تضاريس محلية · ','Local terrain · '):'',status=setNodeText('mapStatus',arEn(`${offline}${mapStatusCache.moving} في الحركة · ${mapStatusCache.turn} في المحطات · ${countText(assetLength,'asset',assetLength)}`,`${offline}${mapStatusCache.moving} moving · ${mapStatusCache.turn} at stations · ${countText(assetLength,'asset',assetLength)}`)),title=arEn(`${mapStatusCache.idle} متوقف · ${countText(mapStatusCache.ownedFacilities,'facility',mapStatusCache.ownedFacilities)} · مسارات برية: ${mapStatusCache.routed}`,`${mapStatusCache.idle} idle · ${countText(mapStatusCache.ownedFacilities,'facility',mapStatusCache.ownedFacilities)} · road routes: ${mapStatusCache.routed}`);if(status.title!==title)status.title=title;
+    const offline=mapTilesOffline?arEn('تضاريس محلية · ','Local terrain · '):'',assets=countText(assetLength,'asset',assetLength),facilities=countText(mapStatusCache.ownedFacilities,'facility',mapStatusCache.ownedFacilities),status=setNodeText('mapStatus',arEn(`${offline}${mapStatusCache.moving} في الحركة · ${mapStatusCache.turn} في المحطات · ${assets}`,`${offline}${mapStatusCache.moving} moving · ${mapStatusCache.turn} at stations · ${assets}`)),title=arEn(`${mapStatusCache.idle} متوقف · ${facilities} · مسارات برية: ${mapStatusCache.routed}`,`${mapStatusCache.idle} idle · ${facilities} · road routes: ${mapStatusCache.routed}`);if(status.title!==title)status.title=title;
   }
 
   function markerPoint(value){if(Array.isArray(value)&&value.length===2&&value.every(Number.isFinite))return [Number(value[0]),Number(value[1])];if(value&&Number.isFinite(Number(value.lat))&&Number.isFinite(Number(value.lng)))return [Number(value.lat),Number(value.lng)];return null;}
@@ -3225,7 +3225,7 @@
     }
     grid.innerHTML=cells.join('');
     const prev=$('simCalendarPrev'),next=$('simCalendarNext');
-    for(const [btn,disabled,reason] of [[prev,calendarViewMonth.getTime()<=minMonth,'هذا أول شهر متاح'],[next,calendarViewMonth.getTime()>=maxMonth,'هذا آخر شهر متاح ضمن السنة القادمة']])if(btn){btn.disabled=disabled;if(disabled)btn.dataset.disabledReason=reason;else delete btn.dataset.disabledReason;}
+    for(const [btn,disabled,reason] of [[prev,calendarViewMonth.getTime()<=minMonth,arEn('هذا أول شهر متاح','This is the first month available')],[next,calendarViewMonth.getTime()>=maxMonth,arEn('هذا آخر شهر متاح ضمن السنة القادمة','This is the last month available within the next year')]])if(btn){btn.disabled=disabled;if(disabled)btn.dataset.disabledReason=reason;else delete btn.dataset.disabledReason;}
     updateCalendarAdvanceControl();
     grid.querySelectorAll('[data-calendar-date]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();calendarSelectedKey=btn.dataset.calendarDate||'';renderSimulationCalendar();}));
   }
@@ -3240,18 +3240,20 @@
   function updateCalendarAdvanceControl(){
     const go=$('simCalendarGo');if(!go)return;
     const selected=calendarDateFromKey(calendarSelectedKey),active=!!window.GH_SIM_KERNEL?.snapshot?.().manualAdvance;
-    const reason=active?ADVANCE_RUNNING:!selected?arEn('اختر تاريخًا قادمًا أولًا','Choose a coming date first'):calendarDayStartSeconds(selected)<=Number(state.simSeconds)?arEn('اختر يومًا بعد التاريخ الحالي','Choose a day after the current date'):selected>calendarMaxTargetDate()?arEn('اختر تاريخًا ضمن السنة القادمة','Choose a date within the coming year'):'';
+    const reason=active?ADVANCE_RUNNING:!selected?arEn('اختر تاريخًا قادمًا أولًا','Choose a future date first'):calendarDayStartSeconds(selected)<=Number(state.simSeconds)?arEn('اختر يومًا بعد التاريخ الحالي','Choose a day after the current date'):selected>calendarMaxTargetDate()?arEn('اختر تاريخًا ضمن السنة القادمة','Choose a date within the next year'):'';
     if(go.disabled!==!!reason)go.disabled=!!reason;if(reason){if(go.dataset.disabledReason!==reason)go.dataset.disabledReason=reason;}else if(go.dataset.disabledReason!==undefined)delete go.dataset.disabledReason;
   }
   function updateDayStepControl(){
     const button=$('simNextDay'),advance=window.GH_SIM_KERNEL?.snapshot?.().manualAdvance;
     if(button){
       // Cancellation still settles the committed boundary; identical labels do not replace DOM nodes.
-      const label=advance?.cancelling?arEn('جارٍ الإيقاف','Stopping'):advance?arEn('إيقاف التقديم','Stop advance'):arEn('+ يوم','+ a day'),title=advance?.cancelling?arEn('يُنهي صيانة آخر حدّ زمني معتمد قبل تأكيد الإيقاف','Finishing the upkeep of the last confirmed time boundary before the stop is confirmed'):advance?arEn(`إيقاف التقديم الجاري؛ المتبقي ${formatDuration(advance.remaining)}`,`Stop the running advance (${formatDuration(advance.remaining)} left)`):arEn('تقديم آمن إلى بداية اليوم التالي عبر محرك المحاكاة','Safe advance to the start of the next day through the simulation engine');
+      const left=advance?formatDuration(advance.remaining):'';
+      const label=advance?.cancelling?arEn('جارٍ الإيقاف','Stopping'):advance?arEn('إيقاف التقديم','Stop advancing'):arEn('+ يوم','+ a day'),title=advance?.cancelling?arEn('يُنهي صيانة آخر حدّ زمني معتمد قبل تأكيد الإيقاف','Finishing the last confirmed day before stopping'):advance?arEn(`إيقاف التقديم الجاري؛ المتبقي ${left}`,`Stop the running advance (${left} left)`):arEn('تقديم آمن إلى بداية اليوم التالي عبر محرك المحاكاة','Safe advance to the start of the next day through the simulation engine');
       if(button.textContent!==label)button.textContent=label;if(button.title!==title)button.title=title;if(button.getAttribute('aria-label')!==title)button.setAttribute('aria-label',title);
       if(advance){if(button.dataset.advancing!=='true')button.dataset.advancing='true';}else if(button.dataset.advancing!==undefined)delete button.dataset.advancing;
     }
-    setNodeText('simAdvanceStatus',advance?.cancelling?arEn('جارٍ إيقاف التقديم بعد صيانة آخر حدّ معتمد','Stopping the advance after the last confirmed boundary'):advance?arEn(`جارٍ التقديم · ${formatDuration(advance.remaining)} متبقي`,`Advancing · ${formatDuration(advance.remaining)} left`):arEn('جاهز للتقديم','Ready to advance'));
+    const remaining=advance?formatDuration(advance.remaining):'';
+    setNodeText('simAdvanceStatus',advance?.cancelling?arEn('جارٍ إيقاف التقديم بعد صيانة آخر حدّ معتمد','Stopping after the last confirmed day'):advance?arEn(`جارٍ التقديم · ${remaining} متبقي`,`Advancing · ${remaining} left`):arEn('جاهز للتقديم','Ready to advance'));
     document.querySelectorAll('[data-calendar-advance]').forEach(btn=>{if(btn.disabled!==!!advance)btn.disabled=!!advance;if(advance){if(btn.dataset.disabledReason!==ADVANCE_RUNNING)btn.dataset.disabledReason=ADVANCE_RUNNING;}else if(btn.dataset.disabledReason!==undefined)delete btn.dataset.disabledReason;});
     updateCalendarAdvanceControl();
   }
@@ -4700,7 +4702,7 @@
   function assetStatus(asset){
     if(asset.phase==='idle')return arEn('متوقف — بانتظار تعيين مسار','Idle — waiting for a route');
     if(asset.phase==='turnaround'&&asset.departureScheduled)return arEn('مجدول للمغادرة ضمن دفعة الأسطول','Scheduled to depart with the fleet batch');
-    if(asset.phase==='turnaround')return asset.type==='air'?arEn('دوران وتجهيز بالمطار','Turnaround at the airport'):asset.type==='sea'?arEn('مناولة بالميناء','Cargo handling at the port'):arEn('تحميل/راحة وتشغيل','Loading/rest and operation');
+    if(asset.phase==='turnaround')return asset.type==='air'?arEn('دوران وتجهيز بالمطار','Turnaround at the airport'):asset.type==='sea'?arEn('مناولة بالميناء','Cargo handling at the port'):arEn('تحميل/راحة وتشغيل','Loading / rest stop');
     return asset.type==='air'?arEn('في الجو','In the air'):asset.type==='sea'?arEn('في البحر','At sea'):arEn('على الطريق','On the road');
   }
   function refreshAssetCard(id){
