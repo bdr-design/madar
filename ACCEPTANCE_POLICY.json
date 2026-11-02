@@ -11,6 +11,10 @@
     ],
     [
       "node",
+      "tests/build660-english-section-pages-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build657-road-dispatch-depots.cjs"
     ],
     [
@@ -439,19 +443,283 @@
     ],
     [
       "node",
-      "tests/build570-documents-list-weight-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build555-investor-card-return.cjs"
-    ],
-    [
-      "node",
       "tests/build636-store-release-browser.cjs"
     ],
     [
       "node",
       "tests/build376-release-edition-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build386-confirmation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build648-health-maintenance-stages-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-revenue-chain-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build382-campaign-decisions-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build387-save-once-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build394-hospitality-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build361-button-binding-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-navigation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build373-reach-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-customer-satisfaction.cjs"
+    ],
+    [
+      "node",
+      "tests/build375-group-news.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-company-dock-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build579-defined-types-platform-weight.cjs"
+    ],
+    [
+      "node",
+      "tests/build597-finance-metric-maps-in-place.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-purchase-delivery-pressure.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-bank-projected-risk.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-dynamic-company-consumers.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-long-session-pressure.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-market-discovery-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-tabs-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build338-idempotency-save-lag-root.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-budgets-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-founding-charter-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-payment-terms.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-staged-full-scope.cjs"
+    ],
+    [
+      "node",
+      "tests/build364-realestate-internal-leases.cjs"
+    ],
+    [
+      "node",
+      "tests/build369-external-rent-monthly-ledger.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-cheque-payable-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-bancassurance.cjs"
+    ],
+    [
+      "node",
+      "tests/build378-realestate-off-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-cheque-ui-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-financial-posting-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-financial-posting.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-recovery-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build388-change-tracking-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build404-worker-close-read-models.cjs"
+    ],
+    [
+      "node",
+      "tests/build405-worker-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build502-consolidated-cash-order.cjs"
+    ],
+    [
+      "node",
+      "tests/build544-internal-rent-tenants.cjs"
+    ],
+    [
+      "node",
+      "tests/build548-group-intercompany-elimination.cjs"
+    ],
+    [
+      "node",
+      "tests/build567-budget-lapsed-reservation.cjs"
+    ],
+    [
+      "node",
+      "tests/build569-company-evidence-pending.cjs"
+    ],
+    [
+      "node",
+      "tests/build574-investor-budget-overrun.cjs"
+    ],
+    [
+      "node",
+      "tests/build590-bulk-acquisition.cjs"
+    ],
+    [
+      "node",
+      "tests/build594-finance-company-ids-memo.cjs"
+    ],
+    [
+      "node",
+      "tests/build595-construction-zero-rated.cjs"
+    ],
+    [
+      "node",
+      "tests/build601-finance-company-ids-kept.cjs"
+    ],
+    [
+      "node",
+      "tests/core-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/operating-acquisitions.cjs"
+    ],
+    [
+      "node",
+      "tests/build506-drawer-bind-scope-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r2-deferred-persistence.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-map-canvas-layer.cjs"
+    ],
+    [
+      "node",
+      "tests/build366-mobility-map-policy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-hour-boundary-write-map.cjs"
+    ],
+    [
+      "node",
+      "tests/build363-energy-health-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build434-service-panel-fleet-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-cheque-archived-invoice.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-finance-settlement-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-accrued-obligation-cash-shortfall.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-durable-command-cost.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-phase1c-equivalence-gate.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-phase1cb-readiness.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-phase1cb-writer-contract-proof.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-hospitality-ledger-parties.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-navigation-interaction.cjs"
+    ],
+    [
+      "node",
+      "tests/build570-documents-list-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build555-investor-card-return.cjs"
     ],
     [
       "node",
@@ -479,10 +747,6 @@
     ],
     [
       "node",
-      "tests/build386-confirmation-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build376-money-guard.cjs"
     ],
     [
@@ -503,10 +767,6 @@
     ],
     [
       "node",
-      "tests/build648-health-maintenance-stages-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build358-bulk-payables-browser.cjs"
     ],
     [
@@ -519,23 +779,7 @@
     ],
     [
       "node",
-      "tests/build373-revenue-chain-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build380-construction-acceleration-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build382-campaign-decisions-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build387-save-once-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build394-hospitality-browser.cjs"
     ],
     [
       "node",
@@ -615,18 +859,6 @@
     ],
     [
       "node",
-      "tests/build361-button-binding-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build383-navigation-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build373-reach-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build444-document-pages.cjs"
     ],
     [
@@ -659,14 +891,6 @@
     ],
     [
       "node",
-      "tests/build378-customer-satisfaction.cjs"
-    ],
-    [
-      "node",
-      "tests/build375-group-news.cjs"
-    ],
-    [
-      "node",
       "tests/build376-cooperative-draft-browser.cjs"
     ],
     [
@@ -684,10 +908,6 @@
     [
       "node",
       "tests/persistence-regressions.cjs"
-    ],
-    [
-      "node",
-      "tests/build362-company-dock-browser.cjs"
     ],
     [
       "node",
@@ -747,10 +967,6 @@
     ],
     [
       "node",
-      "tests/build579-defined-types-platform-weight.cjs"
-    ],
-    [
-      "node",
       "tests/build557-investor-card-load.cjs"
     ],
     [
@@ -760,10 +976,6 @@
     [
       "node",
       "tests/build608-dispatch-hex-proof-compact.cjs"
-    ],
-    [
-      "node",
-      "tests/build597-finance-metric-maps-in-place.cjs"
     ],
     [
       "node",
@@ -812,10 +1024,6 @@
     [
       "node",
       "tests/build357-fleet-migration.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-purchase-delivery-pressure.cjs"
     ],
     [
       "node",
@@ -931,10 +1139,6 @@
     ],
     [
       "node",
-      "tests/build334-bank-projected-risk.cjs"
-    ],
-    [
-      "node",
       "tests/build334-bank-sector-concentration.cjs"
     ],
     [
@@ -959,10 +1163,6 @@
     ],
     [
       "node",
-      "tests/build334-dynamic-company-consumers.cjs"
-    ],
-    [
-      "node",
       "tests/build334-dynamic-finance-company-ids.cjs"
     ],
     [
@@ -975,15 +1175,7 @@
     ],
     [
       "node",
-      "tests/build334-long-session-pressure.cjs"
-    ],
-    [
-      "node",
       "tests/build334-map-identity-registry.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-market-discovery-browser.cjs"
     ],
     [
       "node",
@@ -1011,10 +1203,6 @@
     ],
     [
       "node",
-      "tests/build334-tabs-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build335-persistence-root-coalescing.cjs"
     ],
     [
@@ -1032,10 +1220,6 @@
     [
       "node",
       "tests/build336-real-proof-compaction-pressure.cjs"
-    ],
-    [
-      "node",
-      "tests/build338-idempotency-save-lag-root.cjs"
     ],
     [
       "node",
@@ -1091,10 +1275,6 @@
     ],
     [
       "node",
-      "tests/build358-budgets-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build358-codec-id-runs.cjs"
     ],
     [
@@ -1131,10 +1311,6 @@
     ],
     [
       "node",
-      "tests/build358-founding-charter-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build358-fuel-hedge.cjs"
     ],
     [
@@ -1152,10 +1328,6 @@
     [
       "node",
       "tests/build358-maintenance.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-payment-terms.cjs"
     ],
     [
       "node",
@@ -1180,10 +1352,6 @@
     [
       "node",
       "tests/build358-staged-day-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-staged-full-scope.cjs"
     ],
     [
       "node",
@@ -1291,10 +1459,6 @@
     ],
     [
       "node",
-      "tests/build364-realestate-internal-leases.cjs"
-    ],
-    [
-      "node",
       "tests/build366-mobility-dashboard-lightweight.cjs"
     ],
     [
@@ -1304,10 +1468,6 @@
     [
       "node",
       "tests/build368-hr-payroll-parity.cjs"
-    ],
-    [
-      "node",
-      "tests/build369-external-rent-monthly-ledger.cjs"
     ],
     [
       "node",
@@ -1415,10 +1575,6 @@
     ],
     [
       "node",
-      "tests/build374-cheque-payable-lifecycle.cjs"
-    ],
-    [
-      "node",
       "tests/build374-route-capacity-browser.cjs"
     ],
     [
@@ -1431,10 +1587,6 @@
     ],
     [
       "node",
-      "tests/build378-bancassurance.cjs"
-    ],
-    [
-      "node",
       "tests/build378-bank-capital-conservation.cjs"
     ],
     [
@@ -1443,27 +1595,7 @@
     ],
     [
       "node",
-      "tests/build378-realestate-off-plan.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-cheque-ui-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build379-command-validation-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-financial-posting-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-financial-posting.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-recovery-browser.cjs"
     ],
     [
       "node",
@@ -1495,10 +1627,6 @@
     ],
     [
       "node",
-      "tests/build388-change-tracking-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build393-hospitality-financial-safety.cjs"
     ],
     [
@@ -1527,14 +1655,6 @@
     ],
     [
       "node",
-      "tests/build404-worker-close-read-models.cjs"
-    ],
-    [
-      "node",
-      "tests/build405-worker-close-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build411-command-row-patch-browser.cjs"
     ],
     [
@@ -1555,10 +1675,6 @@
     ],
     [
       "node",
-      "tests/build443-company-review-work.cjs"
-    ],
-    [
-      "node",
       "tests/build454-facility-pages.cjs"
     ],
     [
@@ -1568,10 +1684,6 @@
     [
       "node",
       "tests/build501-schema-text-slices.cjs"
-    ],
-    [
-      "node",
-      "tests/build502-consolidated-cash-order.cjs"
     ],
     [
       "node",
@@ -1615,19 +1727,11 @@
     ],
     [
       "node",
-      "tests/build544-internal-rent-tenants.cjs"
-    ],
-    [
-      "node",
       "tests/build545-power-finance-interest.cjs"
     ],
     [
       "node",
       "tests/build546-sponsorship-revenue.cjs"
-    ],
-    [
-      "node",
-      "tests/build548-group-intercompany-elimination.cjs"
     ],
     [
       "node",
@@ -1667,23 +1771,11 @@
     ],
     [
       "node",
-      "tests/build567-budget-lapsed-reservation.cjs"
-    ],
-    [
-      "node",
       "tests/build568-budget-lapsed-cheques-browser.cjs"
     ],
     [
       "node",
-      "tests/build569-company-evidence-pending.cjs"
-    ],
-    [
-      "node",
       "tests/build572-fleet-premium-unpaid.cjs"
-    ],
-    [
-      "node",
-      "tests/build574-investor-budget-overrun.cjs"
     ],
     [
       "node",
@@ -1707,10 +1799,6 @@
     ],
     [
       "node",
-      "tests/build590-bulk-acquisition.cjs"
-    ],
-    [
-      "node",
       "tests/build591-service-companies-browser.cjs"
     ],
     [
@@ -1719,19 +1807,7 @@
     ],
     [
       "node",
-      "tests/build594-finance-company-ids-memo.cjs"
-    ],
-    [
-      "node",
-      "tests/build595-construction-zero-rated.cjs"
-    ],
-    [
-      "node",
       "tests/build600-proof-audit-sealed-checks.cjs"
-    ],
-    [
-      "node",
-      "tests/build601-finance-company-ids-kept.cjs"
     ],
     [
       "node",
@@ -1771,10 +1847,6 @@
     ],
     [
       "node",
-      "tests/core-regressions.cjs"
-    ],
-    [
-      "node",
       "tests/dealer-ledger-and-stock.cjs"
     ],
     [
@@ -1788,10 +1860,6 @@
     [
       "node",
       "tests/formation-engine-core.cjs"
-    ],
-    [
-      "node",
-      "tests/operating-acquisitions.cjs"
     ],
     [
       "node",
@@ -1832,14 +1900,6 @@
     [
       "node",
       "tests/build385-dealer-first-stock.cjs"
-    ],
-    [
-      "node",
-      "tests/build506-drawer-bind-scope-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-r2-deferred-persistence.cjs"
     ],
     [
       "node",
@@ -1919,10 +1979,6 @@
     ],
     [
       "node",
-      "tests/build359-map-canvas-layer.cjs"
-    ],
-    [
-      "node",
       "tests/build457-canvas-idle-work.cjs"
     ],
     [
@@ -1940,10 +1996,6 @@
     [
       "node",
       "tests/build384-map-company-cap-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build366-mobility-map-policy-browser.cjs"
     ],
     [
       "node",
@@ -2043,10 +2095,6 @@
     ],
     [
       "node",
-      "tests/build339-hour-boundary-write-map.cjs"
-    ],
-    [
-      "node",
       "tests/build339-time-golden.cjs"
     ],
     [
@@ -2087,10 +2135,6 @@
     ],
     [
       "node",
-      "tests/build363-energy-health-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build363-staged-holdings-command.cjs"
     ],
     [
@@ -2104,10 +2148,6 @@
     [
       "node",
       "tests/build379-realism-identity.cjs"
-    ],
-    [
-      "node",
-      "tests/build434-service-panel-fleet-work.cjs"
     ],
     [
       "node",
@@ -2235,10 +2275,6 @@
     ],
     [
       "node",
-      "tests/build359-cheque-archived-invoice.cjs"
-    ],
-    [
-      "node",
       "tests/build339-transaction-write-set-audit.cjs"
     ],
     [
@@ -2251,10 +2287,6 @@
     ],
     [
       "node",
-      "tests/build334-finance-settlement-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build362-simulation-runtime.cjs"
     ],
     [
@@ -2264,10 +2296,6 @@
     [
       "node",
       "tests/governor-overrun-signal.cjs"
-    ],
-    [
-      "node",
-      "tests/build339-accrued-obligation-cash-shortfall.cjs"
     ],
     [
       "node",
@@ -2568,10 +2596,6 @@
     [
       "node",
       "tests/build447-hr-facility-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-durable-command-cost.cjs"
     ],
     [
       "node",
@@ -3274,6 +3298,10 @@
     [
       "node",
       "tests/build659-english-shell-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build660-english-section-pages-browser.cjs"
     ],
     [
       "node",
