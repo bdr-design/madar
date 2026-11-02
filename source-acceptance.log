@@ -1,0 +1,6 @@
+preflight 1/684 0 tests/build460-render-idle-browser.cjs
+preflight 2/684 0 tests/build657-road-dispatch-depots.cjs
+preflight 3/684 0 tests/build658-recorder-cadence-equivalence.cjs
+preflight 4/684 0 tests/build659-english-shell-browser.cjs
+preflight 5/684 1 tests/build576-presentation-rest-browser.cjs RETRIED (attempt 1: 1)
+EARLY_FAILURE tests/build576-presentation-rest-browser.cjs: stopping before remaining 679 gate(s)
