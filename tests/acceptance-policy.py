@@ -939,6 +939,24 @@ with tempfile.TemporaryDirectory(prefix='madar-acceptance-early-stop-') as tmp:
     assert evidence['completed'] is False and evidence['all_tests_passed'] is False
     assert evidence['failed_early']==expected_preflight[0][1] and len(evidence['tests'])==1
     assert evidence['tests'][0]['exit_code']==7
+    # A failed gate runs once more before it counts as failed (owner: «يخليه ينعاد تلقائي مرة ثانية قبل ما ينحسب فاشل»):
+    # both attempts are recorded, each with its own log, and the per-attempt timeout is unchanged.
+    first=evidence['tests'][0];assert first['attempts']==2 and first['earlier_attempts']==[{'exit_code':7,'log':first['log'].replace('.log','.attempt1.log')}],first
+    assert (output/first['earlier_attempts'][0]['log']).is_file() and (output/first['log']).is_file() and 'RETRIED (attempt 1: 7)' in run.stdout
+    # A gate that fails once and passes on its retry passes; the next gate, failing twice, stops the run.
+    flaky=base/'flaky-node';calls=base/'calls';output2=base/'evidence-flaky'
+    flaky.write_text("#!/usr/bin/env python3\nimport sys,pathlib\nif sys.argv[1:]==['--version']:\n print('v24.0.0');sys.exit(0)\nc=pathlib.Path(%r);n=int(c.read_text()) if c.exists() else 0;c.write_text(str(n+1))\nsys.exit(3 if n==0 else 0 if n==1 else 7)\n"%str(calls))
+    flaky.chmod(0o755)
+    run2=subprocess.run(['python3',str(root/'tools/run_acceptance.py'),'--output',str(output2),'--node',str(flaky),'--timeout','5','--preflight','--fail-fast'],capture_output=True,text=True)
+    rows=json.loads((output2/'results.json').read_text())['tests']
+    assert run2.returncode==1 and len(rows)==2,run2.stdout+'\n'+run2.stderr
+    assert rows[0]['exit_code']==0 and rows[0]['attempts']==2 and rows[0]['earlier_attempts'][0]['exit_code']==3,rows[0]
+    assert rows[1]['exit_code']==7 and rows[1]['attempts']==2 and int(calls.read_text())==4,rows[1]
+    # --retries 0 keeps a single attempt.
+    output3=base/'evidence-once'
+    run3=subprocess.run(['python3',str(root/'tools/run_acceptance.py'),'--output',str(output3),'--node',str(fake),'--timeout','5','--preflight','--fail-fast','--retries','0'],capture_output=True,text=True)
+    once=json.loads((output3/'results.json').read_text())['tests'][0]
+    assert run3.returncode==1 and once['attempts']==1 and 'earlier_attempts' not in once and 'RETRIED' not in run3.stdout,once
 for command in [['node','tests/save-pipeline-browser.cjs'],['node','tests/native-save-worker-browser.cjs']]:assert command in declared['commands']
 # Node 24.19.0 crashes (SIGSEGV) on the arm64 macOS runner: a full GC in a Sparkplug prologue reads an untagged slot
 # (node-crash-probe.yml, which keeps 24.19.0 as its baseline). Every other workflow pins 24.22.0 or later.
