@@ -1,39 +1,49 @@
 (()=>{'use strict';
+  // The game's two languages (GH_I18N): a text is written in both where it is used.
+  const arEn=(ar,en)=>globalThis.GH_I18N?.L?.(ar,en)??ar;
   const VERSION='3.0.0';
   // Build 358: the chosen headquarters is a real place: the group HQ facility stands at these coordinates on the map.
   const FOUNDING_LOCATIONS=Object.freeze([
-    {id:'RUH',country:'السعودية',city:'الرياض',coords:[24.7136,46.6753]},
-    {id:'DXB',country:'الإمارات',city:'دبي',coords:[25.2048,55.2708]},
-    {id:'SIN',country:'سنغافورة',city:'سنغافورة',coords:[1.2903,103.8519]},
-    {id:'LON',country:'المملكة المتحدة',city:'لندن',coords:[51.5072,-0.1276]},
-    {id:'NYC',country:'الولايات المتحدة',city:'نيويورك',coords:[40.7128,-74.006]}
-  ].map(row=>Object.freeze({...row,coords:Object.freeze(row.coords)})));
+    {id:'RUH',country:'السعودية',city:'الرياض',en:{country:'Saudi Arabia',city:'Riyadh'},coords:[24.7136,46.6753]},
+    {id:'DXB',country:'الإمارات',city:'دبي',en:{country:'United Arab Emirates',city:'Dubai'},coords:[25.2048,55.2708]},
+    {id:'SIN',country:'سنغافورة',city:'سنغافورة',en:{country:'Singapore',city:'Singapore'},coords:[1.2903,103.8519]},
+    {id:'LON',country:'المملكة المتحدة',city:'لندن',en:{country:'United Kingdom',city:'London'},coords:[51.5072,-0.1276]},
+    {id:'NYC',country:'الولايات المتحدة',city:'نيويورك',en:{country:'United States',city:'New York'},coords:[40.7128,-74.006]}
+  ].map(row=>Object.freeze({...row,en:Object.freeze(row.en),coords:Object.freeze(row.coords)})));
+  // The city and the country the save holds (Arabic, its data; locationFor finds a place by them) are shown in the
+  // player's language: the place's English names in English.
+  const LEGAL_FORMS=Object.freeze({'شركة قابضة مساهمة مقفلة':'Closed joint-stock holding company','شركة تابعة مملوكة للمجموعة':'Subsidiary owned by the group'});
+  function placeNames(source={}){const row=locationFor(source),english=globalThis.GH_I18N?.isEn?.()===true;return english&&row&&(row.id===source.locationId||row.city===source.city)?{city:row.en.city,country:row.en.country}:source.city!=null||source.country!=null?{city:source.city,country:source.country}:{city:row?.city,country:row?.country};}
+  const legalFormLabel=value=>globalThis.GH_I18N?.isEn?.()===true&&Object.prototype.hasOwnProperty.call(LEGAL_FORMS,value)?LEGAL_FORMS[value]:value;
   // The career modes (levels, GH_PROGRESSION_CORE) take their capital from the difficulty; the three earlier modes are free play.
   const FOUNDING_CAPITALS=Object.freeze({'career-normal':250000000,'career-easy':1000000000,'career-hard':50000000,balanced:50000000,investor:250000000,sandbox:1000000000});
   const FOUNDING_ARTICLES=Object.freeze([
-    Object.freeze({title:'الكيان والملكية',text:'تؤسس مجموعة قابضة مملوكة للمؤسس الوارد في هذا العقد، ويثبت اسمها ومقرها في سجل المجموعة، ويقام مبنى مقرها الرئيسي في مدينة المقر.'}),
-    Object.freeze({title:'رأس المال والحسابات',text:'يودع رأس المال المبين كاملًا في الحساب الجاري للمجموعة مرة واحدة عند اعتماد العقد. العملة المحاسبية هي الدولار الأمريكي، والسنة المالية من يناير إلى ديسمبر.'}),
-    Object.freeze({title:'الشركات والتشغيل',text:'تؤسس الشركات التابعة لاحقًا بعقود فتح مستقلة، ولكل شركة حسابها ومشترياتها ونتائجها. لا يمنح هذا العقد أصولًا أو قواعد تشغيلية تلقائيًا.'})
+    Object.freeze({title:arEn('الكيان والملكية','Entity and ownership'),text:arEn('تؤسس مجموعة قابضة مملوكة للمؤسس الوارد في هذا العقد، ويثبت اسمها ومقرها في سجل المجموعة، ويقام مبنى مقرها الرئيسي في مدينة المقر.','A holding group owned by the founder named in this contract is founded. Its name and headquarters are entered in the group register, and its headquarters building stands in the headquarters city.')}),
+    Object.freeze({title:arEn('رأس المال والحسابات','Capital and accounts'),text:arEn('يودع رأس المال المبين كاملًا في الحساب الجاري للمجموعة مرة واحدة عند اعتماد العقد. العملة المحاسبية هي الدولار الأمريكي، والسنة المالية من يناير إلى ديسمبر.','The stated capital is deposited in full in the group\'s current account once, when the contract is approved. The accounting currency is the US dollar, and the financial year runs from January to December.')}),
+    Object.freeze({title:arEn('الشركات والتشغيل','Companies and operations'),text:arEn('تؤسس الشركات التابعة لاحقًا بعقود فتح مستقلة، ولكل شركة حسابها ومشترياتها ونتائجها. لا يمنح هذا العقد أصولًا أو قواعد تشغيلية تلقائيًا.','Subsidiaries are founded later by separate opening contracts, and each company has its own account, purchases and results. This contract grants no assets or operating bases automatically.')})
   ]);
   // Build 358: the clauses of a subsidiary opening contract. Each one states what the opening command really does.
-  function openingArticles({groupName='المجموعة',legalName='الشركة',sector='',capitalText='',sourceAccount=''}={}){
+  function openingArticles({groupName=arEn('المجموعة','the group'),legalName=arEn('الشركة','the company'),sector='',capitalText='',sourceAccount=''}={}){
+    // Mid-sentence, the English activity starts in lower case (the Arabic is as written).
+    const named=sector&&globalThis.GH_I18N?.isEn?.()===true?String(sector).charAt(0).toLowerCase()+String(sector).slice(1):sector;
+    const activity=sector?arEn(`، ونشاطها ${named}`,`, working in ${named}`):'',from=sourceAccount?` ${sourceAccount}`:'';
     return [
-      {title:'الكيان',text:`تُفتح ${legalName} شركةً تابعة مملوكة بالكامل لـ ${groupName}${sector?`، ونشاطها ${sector}`:''}، ولها سجلها التجاري وملفها الضريبي.`},
-      {title:'رأس المال',text:`يُحوَّل ${capitalText} عند التوقيع من الحساب الجاري للقابضة${sourceAccount?` ${sourceAccount}`:''} إلى حساب الشركة الجديد، ويُقيَّد رأس مال مدفوعًا. لا تتغير قيمة المجموعة بالتحويل لأنه داخلها.`},
-      {title:'التشغيل',text:'تبدأ الشركة بلا أصول ولا منشآت ولا طواقم. كل أصل أو منشأة يُشترى بأمر مستقل ويُدفع من حسابها.'},
-      {title:'الاعتماد',text:'تُعتمد معاملات الشركة بتوقيع المؤسس المرئي، ويُعيَّن مديرها التنفيذي من الموارد البشرية.'}
+      {title:arEn('الكيان','Entity'),text:arEn(`تُفتح ${legalName} شركةً تابعة مملوكة بالكامل لـ ${groupName}${activity}، ولها سجلها التجاري وملفها الضريبي.`,`${legalName} is opened as a subsidiary wholly owned by ${groupName}${activity}, with its own commercial register and tax file.`)},
+      {title:arEn('رأس المال','Capital'),text:arEn(`يُحوَّل ${capitalText} عند التوقيع من الحساب الجاري للقابضة${from} إلى حساب الشركة الجديد، ويُقيَّد رأس مال مدفوعًا. لا تتغير قيمة المجموعة بالتحويل لأنه داخلها.`,`On signing, ${capitalText} is transferred from the holding company's current account${from} to the new company's account and recorded as paid-in capital. The group's value does not change, as the transfer stays within it.`)},
+      {title:arEn('التشغيل','Operations'),text:arEn('تبدأ الشركة بلا أصول ولا منشآت ولا طواقم. كل أصل أو منشأة يُشترى بأمر مستقل ويُدفع من حسابها.','The company starts with no assets, facilities or crews. Each asset or facility is bought by a separate order and paid from its account.')},
+      {title:arEn('الاعتماد','Approval'),text:arEn('تُعتمد معاملات الشركة بتوقيع المؤسس المرئي، ويُعيَّن مديرها التنفيذي من الموارد البشرية.',"The company's transactions are approved with the founder's visible signature, and its chief executive is appointed through human resources.")}
     ];
   }
   function locationFor(profile={}){return FOUNDING_LOCATIONS.find(row=>row.id===profile.locationId)||FOUNDING_LOCATIONS.find(row=>row.city===profile.city)||FOUNDING_LOCATIONS[0];}
   function prepareFounding(input={}){
     const clean=(value,max,required,label)=>{const text=String(value??'').trim().replace(/\s+/g,' ');if((required&&!text)||text.length>max||/[\u0000-\u001f\u007f<>]/.test(text))throw new Error(label);return text;};
-    const name=clean(input.name,42,true,'أدخل اسمًا للمجموعة من 1 إلى 42 حرفًا.'),founder=clean(input.founder,32,true,'أدخل اسم المؤسس من 1 إلى 32 حرفًا.');
-    const shortName=clean(input.shortName||'ANI',4,true,'اختصار المجموعة لا يتجاوز أربعة أحرف.').toUpperCase();
-    if(!/^[\p{L}\p{N}]{1,4}$/u.test(shortName))throw new Error('استخدم أحرفًا أو أرقامًا فقط في الاختصار.');
-    const location=FOUNDING_LOCATIONS.find(row=>row.id===input.locationId);if(!location)throw new Error('اختر مقرًا من القائمة المعتمدة.');
-    if(!Object.prototype.hasOwnProperty.call(FOUNDING_CAPITALS,input.mode))throw new Error('اختر رأس مال من الخيارات المعروضة.');
-    const logo=input.logo||null;if(logo){const inspect=globalThis.GH_IDENTITY?.inspectCustomLogo;if(typeof inspect!=='function')throw new Error('تعذر تشغيل فاحص الشعار الآمن.');const checked=inspect(logo);if(!checked.ok)throw new Error(`الشعار غير صالح؛ ارفع صورة أخرى. (${checked.reason})`);}
-    return {name,founder,shortName,englishName:clean(input.englishName,60,false,'الاسم الإنجليزي لا يتجاوز 60 حرفًا.'),locationId:location.id,country:location.country,city:location.city,mode:input.mode,capital:FOUNDING_CAPITALS[input.mode],currency:'USD',legalForm:'شركة قابضة مساهمة مقفلة',fiscalYear:'calendar',logo};
+    const name=clean(input.name,42,true,arEn('أدخل اسمًا للمجموعة من 1 إلى 42 حرفًا.','Enter a group name of 1 to 42 characters.')),founder=clean(input.founder,32,true,arEn('أدخل اسم المؤسس من 1 إلى 32 حرفًا.','Enter a founder name of 1 to 32 characters.'));
+    const shortName=clean(input.shortName||'ANI',4,true,arEn('اختصار المجموعة لا يتجاوز أربعة أحرف.','The group initials are four characters at most.')).toUpperCase();
+    if(!/^[\p{L}\p{N}]{1,4}$/u.test(shortName))throw new Error(arEn('استخدم أحرفًا أو أرقامًا فقط في الاختصار.','Use only letters or numbers in the initials.'));
+    const location=FOUNDING_LOCATIONS.find(row=>row.id===input.locationId);if(!location)throw new Error(arEn('اختر مقرًا من القائمة المعتمدة.','Choose a headquarters from the approved list.'));
+    if(!Object.prototype.hasOwnProperty.call(FOUNDING_CAPITALS,input.mode))throw new Error(arEn('اختر رأس مال من الخيارات المعروضة.','Choose a capital from the options shown.'));
+    const logo=input.logo||null;if(logo){const inspect=globalThis.GH_IDENTITY?.inspectCustomLogo;if(typeof inspect!=='function')throw new Error(arEn('تعذر تشغيل فاحص الشعار الآمن.','The safe logo checker could not run.'));const checked=inspect(logo);if(!checked.ok)throw new Error(arEn(`الشعار غير صالح؛ ارفع صورة أخرى. (${checked.reason})`,`The logo is not valid. Upload another image. (${checked.reason})`));}
+    return {name,founder,shortName,englishName:clean(input.englishName,60,false,arEn('الاسم الإنجليزي لا يتجاوز 60 حرفًا.','The English name is 60 characters at most.')),locationId:location.id,country:location.country,city:location.city,mode:input.mode,capital:FOUNDING_CAPITALS[input.mode],currency:'USD',legalForm:'شركة قابضة مساهمة مقفلة',fiscalYear:'calendar',logo};
   }
   function prepareFormationPlan(input={},signature={},options={}){
     const prepared=prepareFounding(input),engine=globalThis.GH_FORMATION_ENGINE;
@@ -77,7 +87,9 @@
     // The founding mode decides the game's progression root: a career game starts at level 1, any other mode is free play.
     // (The app always loads GH_PROGRESSION_CORE, runtime-required.json; without it the group is founded open, as before.)
     const progression=globalThis.GH_PROGRESSION_CORE;if(progression?.initial)state.progression=progression.initial(prepared.mode);
-    state.alerts=[`اعتمد عقد ${registry.formationContract} لتأسيس ${profile.name} في ${profile.city}، ${profile.country}.`,`أودع رأس المال ${helpers.fmtMoney?.(capital)||capital} في الحساب الجاري للمجموعة. افتح الشركات التابعة من قسم الشركات.`];
+    // The founding alerts are written in the player's language (texts a save holds keep the language they were written in).
+    const place=placeNames(profile),capitalText=helpers.fmtMoney?.(capital)||capital;
+    state.alerts=[arEn(`اعتمد عقد ${registry.formationContract} لتأسيس ${profile.name} في ${place.city}، ${place.country}.`,`Contract ${registry.formationContract} to found ${profile.name} in ${place.city}, ${place.country}, was approved.`),arEn(`أودع رأس المال ${capitalText} في الحساب الجاري للمجموعة. افتح الشركات التابعة من قسم الشركات.`,`The capital of ${capitalText} was deposited in the group's current account. Open subsidiaries from the Companies section.`)];
     if(helpers.onCommit)tx.afterCommit(helpers.onCommit,{critical:true,priority:100,key:'save'});
     return {capital,profile,registry,planId:isPlan?input.planId:null};
     }});return outcome.value;
@@ -88,5 +100,5 @@
       if(Object.prototype.hasOwnProperty.call(next,'fleet'))state.fleet=next.fleet;else delete state.fleet;
       try{return (globalThis.GH_TRANSACTION_CORE.publishObject||globalThis.GH_TRANSACTION_CORE.restoreObject)(state,next);}catch(error){if(hadFleet)state.fleet=fleet;else delete state.fleet;throw error;}
     }});}
-  window.GH_GAME_LIFECYCLE={VERSION,FOUNDING_LOCATIONS,FOUNDING_CAPITALS,FOUNDING_ARTICLES,openingArticles,locationFor,prepareFounding,prepareFormationPlan,pristine,foundGroup,reset};
+  window.GH_GAME_LIFECYCLE={VERSION,FOUNDING_LOCATIONS,FOUNDING_CAPITALS,FOUNDING_ARTICLES,openingArticles,locationFor,placeNames,legalFormLabel,LEGAL_FORMS,prepareFounding,prepareFormationPlan,pristine,foundGroup,reset};
 })();

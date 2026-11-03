@@ -12,7 +12,8 @@ async function drawSignaturePad(page,selector){
   for(const [x,y] of points.slice(1))await page.mouse.move(box.x+box.width*x,box.y+box.height*y,{steps:3});
   await page.mouse.up();
   await page.waitForFunction(input=>{
-    const node=document.querySelector(input);return node?.closest('.authorization-pad')?.querySelector('[role="status"]')?.textContent?.includes('جاهز');
+    // The pad's ready status in either language (English edition: "Signature ready").
+    const text=document.querySelector(input)?.closest('.authorization-pad')?.querySelector('[role="status"]')?.textContent||'';return text.includes('جاهز')||text==='Signature ready';
   },selector);
 }
 

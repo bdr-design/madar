@@ -9,7 +9,8 @@
 //   4. the same Latin digits (a number never changes between the languages);
 //   5. the ending matches: . → . , ؟ → ? , ! → ! , … → … , : → : ; an Arabic text with no closing mark gets none in
 //      English; an English sentence (it ends with . ? !) starts with a capital where it starts with a letter;
-//   6. English typography: no double space, no space before , . ; : ! ? ) , balanced brackets, no Arabic punctuation;
+//   6. English typography: no double space, no space before , . ; : ! ? ) , balanced brackets, no Arabic punctuation,
+//      and the same markup characters (< > ") on both sides;
 //   7. one helper, one meaning: every WebApp file that uses arEn defines it exactly as the core's L; the iOS shell defines
 //      it once; no file defines a global L (Leaflet's) and i18n-core.js is the first script of index.html;
 //   8. the iOS shell writes no Arabic text outside arEn (comments aside), so nothing it shows stays Arabic in English;
@@ -79,6 +80,8 @@ function check(file,src,call,problems){
   if(!arEnd&&enEnd&&!/[.?!:…]$/.test(tAr))problems.push(`${where}: the English adds a closing «${enEnd[1]}» the Arabic does not have`);
   if(/[.?!]$/.test(tEn)&&/^[a-z]/.test(en.trim()))problems.push(`${where}: an English sentence starts with a small letter: ${JSON.stringify(tEn)}`);
   // A placeholder stands for a value: it keeps its place in the spacing checks.
+  // Markup characters belong to the page, not to a text: both sides carry the same (a split tag would lose its end).
+  for(const mark of ['<','>','"']){if(plain(ar).split(mark).length!==plain(en).split(mark).length)problems.push(`${where}: the texts differ in the markup character ${mark}`);}
   const body=en.replace(/\u0000/g,'X');
   if(/ {2,}/.test(body))problems.push(`${where}: double space in the English`);
   if(/ [,.;:!?)]/.test(body.replace(/ \.\.\./g,'')))problems.push(`${where}: space before punctuation in the English: ${JSON.stringify(body)}`);
@@ -161,9 +164,10 @@ function staticPairs(source,file){
   assert.deepEqual(run('<p title="عنوان" data-en-title="Title" data-en="Text"> نص <span>x</span></p>'),[],'10: a sound element passes');
   assert.deepEqual(run('<input id="founderName" value="أصول ونفوذ القابضة">'),[],'10: the stock group name stays');}
 // The checker itself: broken pairs are caught.
-{const bad=[["arEn(`مرحبًا ${name}.`,`Hello.`)",'placeholders differ'],["arEn('تم.','done.')",'small letter'],["arEn('سعر 5 دولار','Price 6 dollars')",'numbers differ'],["arEn('نص','نص')",'holds Arabic'],["arEn('سؤال؟','Question.')",'should end with'],["arEn(' مسافة','space')",'spaces differ'],["arEn('نص',value)",'not a string literal'],["arEn('نص','Text  here')",'double space'],["arEn('نص','Text , here')",'space before punctuation']];
+{const bad=[["arEn(`مرحبًا ${name}.`,`Hello.`)",'placeholders differ'],["arEn('تم.','done.')",'small letter'],["arEn('سعر 5 دولار','Price 6 dollars')",'numbers differ'],["arEn('نص','نص')",'holds Arabic'],["arEn('سؤال؟','Question.')",'should end with'],["arEn(' مسافة','space')",'spaces differ'],["arEn('نص',value)",'not a string literal'],["arEn('نص','Text  here')",'double space'],["arEn('نص','Text , here')",'space before punctuation'],["arEn('\">نص','Text')",'markup character']];
   for(const [code,expected] of bad){const local=[];for(const call of calls(code,false))check(path.join(WEB,'self-test.js'),code,call,local);assert.ok(local.some(p=>p.includes(expected)),`the checker catches «${expected}» in ${code} (got ${JSON.stringify(local)})`);}
   const good=[];for(const call of calls("arEn(`حُفظ ${n} ملف.`,`${n} files saved.`)",false))check(path.join(WEB,'self-test.js'),'',call,good);assert.deepEqual(good,[],'a sound pair passes');
+   const marked=[];for(const call of calls("arEn('<b>نص</b> \"مقتبس\"','<b>Text</b> \"quoted\"')",false))check(path.join(WEB,'self-test.js'),'',call,marked);assert.deepEqual(marked,[],'a pair with the same markup passes');
   const swiftBad=[];for(const call of calls('arEn("الإصدار \\(v)", "Version")',true))check(path.join(IOS,'self-test.swift'),'',call,swiftBad);assert.ok(swiftBad.some(p=>p.includes('placeholders differ')),'Swift placeholders are checked');}
 assert.ok(total>0,'texts in both languages exist');
 assert.deepEqual(problems,[],`texts in both languages:\n${problems.join('\n')}`);
