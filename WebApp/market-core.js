@@ -35,7 +35,7 @@ function netIncome(s,c){const rate=globalThis.GH_FINANCE_CORE?.floatingDebtRate?
 function holding(s,id){return s.maPortfolio.find(row=>row.id===id)||null;}
 function stakeQuote(s,id,target){const c=competitor(s,id),current=num(holding(s,id)?.stake);if(!STAKE_TARGETS.includes(target)||target<=current)throw new Error('stake-target-invalid');const premium=target>=CONTROL&&current<CONTROL?CONTROL_PREMIUM:0;return {id,target,current,premium,cost:Math.round((target-current)/100*num(c.price)*(1+premium)*(1+DEAL_FEES))};}
 function buyStake(s,p,F){const target=Math.floor(Number(p.target)||0),q=stakeQuote(s,String(p.id||''),target),c=competitor(s,q.id),day=today(s);F.execute({state:s},'spend',{company:'group',amount:q.cost,note:`استحواذ على ${target-q.current}% من ${c.name}`,method:'تسوية صفقة',taxable:false,line:'capex',counterparty:`مساهمو ${c.name}`});let row=holding(s,q.id);if(!row){row={id:q.id,name:c.name,stake:0,costBasis:0,acquiredDay:day,controlDay:null};s.maPortfolio.push(row);}row.stake=target;row.costBasis=num(row.costBasis)+q.cost;if(target>=CONTROL&&row.controlDay==null)row.controlDay=day;s.stakes[q.id]=target;return {...row,paid:q.cost,premium:q.premium};}
-function sellStake(s,p,F){const row=holding(s,String(p.id||''));if(!row)throw new Error('stake-not-held');const c=competitor(s,row.id),proceeds=Math.round(row.stake/100*num(c.price)*(1-DEAL_FEES));F.execute({state:s},'credit',{company:'group',amount:proceeds,note:`بيع حصة ${row.stake}% في ${c.name}`,method:'تسوية صفقة',taxable:false,reference:`STAKE-SALE-${row.id}-${today(s)}`,counterparty:'مشترو الحصة'});s.maPortfolio=s.maPortfolio.filter(x=>x!==row);delete s.stakes[row.id];return {id:row.id,stake:row.stake,proceeds,gain:proceeds-num(row.costBasis)};}
+function sellStake(s,p,F){const row=holding(s,String(p.id||''));if(!row)throw new Error('stake-not-held');const c=competitor(s,row.id),proceeds=Math.round(row.stake/100*num(c.price)*(1-DEAL_FEES));F.execute({state:s},'credit',{company:'group',amount:proceeds,note:`بيع حصة ${row.stake}% في ${c.name}`,method:'تسوية صفقة',taxable:false,reference:`STAKE-SALE-${row.id}-${today(s)}`,counterparty:'مشترو الحصة',investmentResult:proceeds-num(row.costBasis)});s.maPortfolio=s.maPortfolio.filter(x=>x!==row);delete s.stakes[row.id];return {id:row.id,stake:row.stake,proceeds,gain:proceeds-num(row.costBasis)};}
 // What a holding pays and when: a quarterly dividend below control, a monthly upstream with control.
 function holdingIncome(s,row,day){const c=competitor(s,row.id),share=num(row.stake)/100,ni=netIncome(s,c);if(row.stake<CONTROL)return {kind:'dividend',every:90,due:day>row.acquiredDay&&(day-row.acquiredDay)%90===0,amount:Math.round(share*ni*PAYOUT/4)};const age=Math.max(0,day-row.controlDay);return {kind:'upstream',every:30,due:age>0&&age%30===0,amount:Math.round(share*(ni/12+num(c.revenue)*SYNERGY*Math.min(1,age/365)/12))};}
 function settleListedDividend(s,stock,day,F){
@@ -49,7 +49,7 @@ function settleListedDividend(s,stock,day,F){
  return total>0?{symbol:stock.sym,kind:'listed-dividend',amount:total,periods:paidPeriods,reference:`LISTED-DIV-${stock.sym}-P${period}`}:null;
 }
 function* settleListedDividendStages(s,day,F){const out=[];for(const stock of Array.isArray(s.market)?s.market:[]){const payout=settleListedDividend(s,stock,day,F);if(payout)out.push(payout);yield 'market.holdings.listed';}return out;}
-function settleHolding(s,row,day,F){if(!(s.simulationWorld?.competitors||[]).some(c=>c.id===row.id))return null;const income=holdingIncome(s,row,day);if(!income.due||income.amount<1)return null;const c=competitor(s,row.id);F.execute({state:s},'credit',{company:'group',amount:income.amount,note:income.kind==='dividend'?`أرباح موزعة من ${c.name} · حصة ${row.stake}%`:`أرباح ${c.name} المحولة للقابضة · حصة ${row.stake}%`,method:'توزيعات أرباح',taxable:false,reference:`${income.kind==='dividend'?'DIV':'UPS'}-${row.id}-${day}`,counterparty:c.name});return {id:row.id,kind:income.kind,amount:income.amount};}
+function settleHolding(s,row,day,F){if(!(s.simulationWorld?.competitors||[]).some(c=>c.id===row.id))return null;const income=holdingIncome(s,row,day);if(!income.due||income.amount<1)return null;const c=competitor(s,row.id);F.execute({state:s},'credit',{company:'group',amount:income.amount,investmentResult:income.amount,note:income.kind==='dividend'?`أرباح موزعة من ${c.name} · حصة ${row.stake}%`:`أرباح ${c.name} المحولة للقابضة · حصة ${row.stake}%`,method:'توزيعات أرباح',taxable:false,reference:`${income.kind==='dividend'?'DIV':'UPS'}-${row.id}-${day}`,counterparty:c.name});return {id:row.id,kind:income.kind,amount:income.amount};}
 function tradeStock(s,p,F){
  const sym=String(p.sym||''),stock=(s.market||[]).find(row=>row.sym===sym);if(!stock)throw new Error('symbol-not-found');const signed=Math.trunc(Number(p.qty)||0),quantity=Math.abs(signed),day=today(s),current=Math.max(0,Math.floor(Number(s.portfolio[sym])||0));if(!quantity||!Number.isFinite(Number(stock.price))||Number(stock.price)<=0)throw new Error('invalid-qty');if(signed<0&&current<quantity)throw new Error('insufficient-shares');
  const side=signed>0?'buy':'sell',unitPrice=Number(stock.price),amount=Math.round(unitPrice*quantity*100)/100,reference=`STOCK-${side.toUpperCase()}-${sym}-${day}-${String(Number(s.portfolioTradeSequence)+1).padStart(6,'0')}`;let allocations=[],costBasis=0;
@@ -86,10 +86,13 @@ if(cmd==='tick-prices'){
   s.simulationWorld=s.simulationWorld&&typeof s.simulationWorld==='object'?s.simulationWorld:{};
   s.simulationWorld.competitors=Array.isArray(s.simulationWorld.competitors)?s.simulationWorld.competitors:[];
   for(const row of s.market){
-    const fundamentals=(rnd.nextFloat(s,'market-fundamentals')-.49)*.006;
+    // Build 375: the hourly drift gave a median +59% a year with a 90% chance of profit; centred at .4976 a stock's median
+    // year is about +6% (plus its dividend) and about four in ten years lose.
+    const fundamentals=(rnd.nextFloat(s,'market-fundamentals')-.4976)*.006;
     const sentiment=(rnd.nextFloat(s,'market-sentiment')-.5)*.012;
     const change=Math.max(-4.5,Math.min(4.5,(fundamentals+sentiment)*100));
-    row.change=change;row.price=Math.max(2,num(row.price)*(1+change/100));
+    // Build 375: the market value and the P/E follow the price (they stayed at their opening values).
+    const before=num(row.price);row.change=change;row.price=Math.max(2,before*(1+change/100));const ratio=before>0?row.price/before:1;if(num(row.marketCap)>0)row.marketCap=Math.round(num(row.marketCap)*ratio);if(num(row.pe)>0)row.pe=Math.round(num(row.pe)*ratio*10)/10;
   }
   for(const rival of s.simulationWorld.competitors){
     rival.price=Math.max(num(rival.revenue)*.2,num(rival.price)*(1+(rnd.nextFloat(s,'competitor-price')-.5)*.003));

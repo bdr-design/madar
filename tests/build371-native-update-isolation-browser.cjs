@@ -54,8 +54,11 @@ async function settled(page,pattern){
 
     // 1. During a durable command (the sea dispatch, paused between its assignment and its departures).
     const duringPack=await makePack(page,'during');
-    await page.evaluate(()=>{const original=window.setTimeout;window.qaPause={armed:true,held:null,original};
-      window.setTimeout=function(fn,ms,...rest){if(qaPause.armed&&!ms&&window.__GH_DURABLE_COMMAND_CONTEXT__&&String(fn).includes('[native code]')){const ships=GH_FLEET_DATA.filter(__GH_STATE__,a=>(a.ownerCompanyId||a.companyId)==='sea');if(ships.length&&ships.every(a=>a.routeId&&a.phase!=='moving'&&!a.departureScheduled)){qaPause.armed=false;qaPause.held=()=>fn(...rest);return 0;}}return original.call(window,fn,ms,...rest);};
+    await page.evaluate(()=>{const post=MessagePort.prototype.postMessage;window.qaPause={armed:true,held:null,post};
+      // Build 372: the dispatch plan assigns and departs in one staged apply, so the hold is the dispatch command's first
+      // cooperative yield (the durable command is open and owns the state) instead of a gap between assignment and departure.
+      // That yield (yieldToEventLoop) posts on a MessagePort.
+      MessagePort.prototype.postMessage=function(...args){if(qaPause.armed&&/bulk-shared-departure:sea/.test(String(window.__GH_DURABLE_COMMAND_CONTEXT__?.name||''))){qaPause.armed=false;const port=this;qaPause.held=()=>post.call(port,...args);return;}return post.apply(this,args);};
       __AUDIT__.openDrawer('routes','sea');});
     await page.locator('.dispatch-international-network[data-company="sea"]').first().click();
     await page.waitForFunction(()=>!!qaPause.held,null,{timeout:120000});
@@ -69,7 +72,7 @@ async function settled(page,pattern){
     const duringState=await page.evaluate(`(${UPDATE_STATE})()`);
     assert.equal(await page.evaluate(()=>qaDuring.done),false,'the update waits while the command holds the state');
     assert.deepEqual(duringState,initial,'and writes nothing meanwhile');
-    await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;window.setTimeout=qaPause.original;held();});
+    await page.evaluate(()=>{const held=qaPause.held;qaPause.held=null;MessagePort.prototype.postMessage=qaPause.post;held();});
     await settled(page,'bulk-shared-departure:sea');
     await page.waitForFunction(()=>qaDuring.done,null,{timeout:60000});
     const during=await page.evaluate(()=>qaDuring),afterCommand=await page.evaluate(`(${UPDATE_STATE})()`);

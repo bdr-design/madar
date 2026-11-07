@@ -7,7 +7,7 @@
         "width": 844,
         "height": 390
       },
-      "cards": 26
+      "cards": 3
     },
     {
       "mode": "sea",
@@ -15,7 +15,7 @@
         "width": 844,
         "height": 390
       },
-      "cards": 23
+      "cards": 5
     },
     {
       "mode": "road",
@@ -23,7 +23,7 @@
         "width": 844,
         "height": 390
       },
-      "cards": 14
+      "cards": 2
     },
     {
       "mode": "mobility",
@@ -39,7 +39,7 @@
         "width": 390,
         "height": 844
       },
-      "cards": 26
+      "cards": 3
     },
     {
       "mode": "sea",
@@ -47,7 +47,7 @@
         "width": 390,
         "height": 844
       },
-      "cards": 23
+      "cards": 5
     },
     {
       "mode": "road",
@@ -55,7 +55,7 @@
         "width": 390,
         "height": 844
       },
-      "cards": 14
+      "cards": 2
     },
     {
       "mode": "mobility",

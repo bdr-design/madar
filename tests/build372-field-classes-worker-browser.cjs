@@ -36,7 +36,8 @@ const fields=JSON.parse(read('save-schema.js').match(/FLEET_VALIDATION_FIELDS=Ob
       const mainClasses=()=>{const rows=[];STORE.forEachClass(store,fields,(row,count,info)=>rows.push([row,count,info.index,info.members]),{numeric});return {rows,ids:STORE.idCollisions(store)};};
       const same=(a,b)=>{try{return JSON.stringify(a,(k,v)=>Number.isNaN(v)?'NaN':v===undefined?'undefined':v)===JSON.stringify(b,(k,v)=>Number.isNaN(v)?'NaN':v===undefined?'undefined':v);}catch{return false;}};
       const compare=async label=>{
-        const asked=client.fieldClasses(store,{fields,numeric,ids:true});if(!asked)throw new Error(`${label}: refused`);
+        // The replica is built in chunks off the UI thread: wait for it; the refusals below are checked directly.
+        let asked=null;for(let attempt=0;attempt<1000&&!(asked=client.fieldClasses(store,{fields,numeric,ids:true}));attempt++)await new Promise(resolve=>setTimeout(resolve,10));if(!asked)throw new Error(`${label}: refused`);
         const found=await asked;if(!found)throw new Error(`${label}: no result`);if(!client.current(found,store))throw new Error(`${label}: not current`);
         const expected=mainClasses(),ok=same(found.rows,expected.rows)&&same(found.ids,expected.ids);log.push({label,classes:expected.rows.length,ids:expected.ids,ok});
         if(!ok)throw new Error(`${label}: classes differ`);return found;

@@ -7,12 +7,15 @@ const DEFAULT_ASSET_CAPACITY=Object.freeze({'airport-base':1000000,'port-base':1
 const LEGACY_ASSET_CAPACITY=Object.freeze({'airport-base':300,'port-base':120,logistics:140,depot:80,'mobility-center':120});
 // Build 363: the former values treated a sizeable part of construction cost as a daily expense. Existing saves are
 // repriced only when they still carry the exact legacy tariff; deliberate player/provider overrides remain untouched.
-const OPERATING_COST_VERSION=2;
+// Build 375: an insurance office ran at $9,500 a day, above a bank branch ($5,500) for a sales and claims office, so a
+// one-office insurer lost money for most of a year; it is now $4,500 (version 3).
+const OPERATING_COST_VERSION=3;
 const OPERATING_COSTS=Object.freeze({
  power:Object.freeze({legacy:38000,current:12000}),
  bank:Object.freeze({legacy:18500,current:5500}),
  'mobility-center':Object.freeze({legacy:9800,current:2200}),
- realestate:Object.freeze({legacy:8000,current:1800})
+ realestate:Object.freeze({legacy:8000,current:1800}),
+ insurance:Object.freeze({legacy:9500,current:4500})
 });
 const CAPACITY_UNIT=/^(\D*?)\d[\d,]*(?=\s*(?:طائرة|سفينة|شاحنة|سيارة))/;
 const ASSET_FACILITY_KINDS=Object.freeze({air:Object.freeze(['airport-base']),sea:Object.freeze(['port-base']),road:Object.freeze(['depot','logistics'])});
@@ -160,14 +163,20 @@ function canonicalFacility(state,p={}){
 }
 function finance(){const f=globalThis.GH_FINANCE_CORE;if(!f?.execute)throw new Error('finance-core-missing');return f;}
 function value(s,delta){const c=globalThis.GH_CORPORATE_CORE;if(!c?.execute)throw new Error('corporate-core-missing');return c.execute({state:s},'adjust-group-value',{delta});}
-function spend(s,company,amount,note){if(num(amount)<=0)return true;finance().execute({state:s},'spend',{company,amount,note,method:'تحويل بنكي',line:'capex'});return true;}
+function spend(s,company,amount,note,line='capex'){if(num(amount)<=0)return true;finance().execute({state:s},'spend',{company,amount,note,method:'تحويل بنكي',line});return true;}
+// Build 375: an expansion costs a quarter of what the facility cost to build (at least $250,000) and raises its running
+// cost with its capacity. Only a facility whose asset capacity can bind is expanded (a base's default capacity is a
+// ceiling far above any fleet, so expanding it bought nothing).
+const EXPANSION_SHARE=.25,EXPANSION_MINIMUM=250000,EXPANSION_FACTOR=1.25;
+function expansionCost(f){return Math.max(EXPANSION_MINIMUM,Math.round(num(f?.cost)*EXPANSION_SHARE/1000)*1000);}
+function expandable(f){const capacity=assetCapacity(f);return capacity>0&&capacity<DEFAULT_ASSET_CAPACITY['airport-base'];}
 function purchase(s,company,amount,note,beneficiary){if(num(amount)<=0)return null;return finance().execute({state:s},'pay-by-cheque',{company,amount,note,beneficiary,line:'capex'});}
 function validate(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);const f=p.id?find(s,p.id):null;try{verifyManagementOwner(f,cmd,p);if(cmd==='close'&&deliveredAssetsAtBase(ctx,s,p.id)>0)return {ok:false,reason:'facility-has-assets'};}catch(error){return {ok:false,reason:String(error?.message||error)};}if(cmd==='create'){if(!p.facility?.id||find(s,p.facility.id))return {ok:false,reason:'invalid-or-duplicate-facility'};try{canonicalFacility(s,p);}catch(error){return {ok:false,reason:String(error?.message||error)};}}return true;}
 function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);const f=p.id?find(s,p.id):null;verifyManagementOwner(f,cmd,p);if(f)requireFacilityCompany(s,ownerCompany(f));const m=f?model(s,f):null;
  if(cmd==='create'){const row=canonicalFacility(s,p);if(find(s,row.id))throw new Error('invalid-or-duplicate-facility');const profile=facilityProfile(s,ownerCompany(row)),bucket=profile?.providers.some(id=>id==='world-airports'||id==='world-ports')?s.globalBases:s.customHubs;bucket.push(row);model(s,row);if(num(p.groupValueAdd))value(s,num(p.groupValueAdd));return row;}
  if(cmd==='open-regional-hq'){const id=String(p.id||'');if(!id)throw new Error('facility-id-required');s.branches=Array.isArray(s.branches)?s.branches:[];if(s.branches.includes(id))throw new Error('facility-already-open');s.branches.push(id);value(s,num(p.groupValueAdd));return {id,openedAt:now(s)};}
- if(cmd==='close'){if(deliveredAssetsAtBase(ctx,s,p.id)>0)throw new Error('facility-has-assets');const company=ownerCompany(f),settlement=num(p.settlement);if(settlement)spend(s,company,settlement,`تسوية إغلاق ${f.name||f.id}`);const closedDay=Math.floor(now(s)/86400);for(const contract of s.advanced?.labor?.employmentContracts||[]){if(contract?.status==='ساري'&&!contract.automaticAssetStaffing&&contract.facilityId===f.id){contract.status='منتهي';contract.endedDay=closedDay;contract.endReason=`إنهاء عقد تشغيل المنشأة بعد إغلاق ${f.name||f.id}`;}}s.globalBases=s.globalBases.filter(x=>x.id!==f.id);s.customHubs=s.customHubs.filter(x=>x.id!==f.id);delete s.advanced.facilities[f.id];return true;}
-     if(cmd==='expand'){const cost=num(p.cost||12000000),payment=purchase(s,ownerCompany(f),cost,`توسعة ${f.name}`,p.contractor||`مقاول توسعة ${f.name}`),factor=Math.max(1.01,Number(p.factor)||1.25),add=p.addCapacity!=null?Math.max(1,Number(p.addCapacity)||1):null;m.level++;if(add!=null)m.capacity=Math.max(m.capacity,Number(p.currentCapacity)||0)+add;else m.capacity=Math.round(m.capacity*factor);if(assetCapacity(f)>0){const currentAssetCapacity=assetCapacity(f),nextAssetCapacity=add!=null?currentAssetCapacity+add:Math.max(currentAssetCapacity+1,Math.round(currentAssetCapacity*factor));f.deliveryCapacity=nextAssetCapacity;m.assetCapacity=nextAssetCapacity;if(f.kind==='mobility-center')f.bays=nextAssetCapacity;}value(s,num(p.groupValueAdd||cost*.7));return {facilityId:f.id,capacity:m.capacity,assetCapacity:assetCapacity(f),paymentRef:payment?.cheque?.id||null,invoiceRef:payment?.invoice?.number||null,message:log(s,m,'اكتملت توسعة القدرة التشغيلية.')};}
+ if(cmd==='close'){if(deliveredAssetsAtBase(ctx,s,p.id)>0)throw new Error('facility-has-assets');const company=ownerCompany(f),settlement=num(p.settlement);if(settlement)spend(s,company,settlement,`تسوية إغلاق ${f.name||f.id}`,'other');const closedDay=Math.floor(now(s)/86400);for(const contract of s.advanced?.labor?.employmentContracts||[]){if(contract?.status==='ساري'&&!contract.automaticAssetStaffing&&contract.facilityId===f.id){contract.status='منتهي';contract.endedDay=closedDay;contract.endReason=`إنهاء عقد تشغيل المنشأة بعد إغلاق ${f.name||f.id}`;}}s.globalBases=s.globalBases.filter(x=>x.id!==f.id);s.customHubs=s.customHubs.filter(x=>x.id!==f.id);delete s.advanced.facilities[f.id];return true;}
+     if(cmd==='expand'){if(!expandable(f))throw new Error('facility-expansion-not-applicable');const cost=expansionCost(f),payment=purchase(s,ownerCompany(f),cost,`توسعة ${f.name}`,p.contractor||`مقاول توسعة ${f.name}`),factor=EXPANSION_FACTOR;if(num(f.dailyCost)>0)f.dailyCost=Math.round(num(f.dailyCost)*factor*100)/100;const add=p.addCapacity!=null?Math.max(1,Number(p.addCapacity)||1):null;m.level++;if(add!=null)m.capacity=Math.max(m.capacity,Number(p.currentCapacity)||0)+add;else m.capacity=Math.round(m.capacity*factor);if(assetCapacity(f)>0){const currentAssetCapacity=assetCapacity(f),nextAssetCapacity=add!=null?currentAssetCapacity+add:Math.max(currentAssetCapacity+1,Math.round(currentAssetCapacity*factor));f.deliveryCapacity=nextAssetCapacity;m.assetCapacity=nextAssetCapacity;if(f.kind==='mobility-center')f.bays=nextAssetCapacity;}value(s,num(p.groupValueAdd||cost*.7));return {facilityId:f.id,capacity:m.capacity,assetCapacity:assetCapacity(f),paymentRef:payment?.cheque?.id||null,invoiceRef:payment?.invoice?.number||null,message:log(s,m,'اكتملت توسعة القدرة التشغيلية.')};}
  if(cmd==='hire'){
   const hr=globalThis.GH_HR_CORE;if(!hr?.snapshot||!hr?.executeHiring)throw new Error('hr-core-missing');
   const company=ownerCompany(f),context={candidates:Array.isArray(ctx.candidates)?ctx.candidates:[],getDynamicFacilities:typeof ctx.getDynamicFacilities==='function'?ctx.getDynamicFacilities:undefined,facilityId:f.id};
@@ -183,5 +192,5 @@ function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);const f=p.id?fin
     if(cmd==='commission-energy'){const k=String(p.key||'capacityMW');s.energy[k]=num(s.energy[k])+num(p.amount);return {key:k,value:s.energy[k]};}
   throw new Error(`Unknown facility command: ${cmd}`);
 }
-const API={VERSION,dailyOperatingCosts,DEFAULT_ASSET_CAPACITY,ASSET_FACILITY_KINDS,migrateAssetCapacity,migrateOperatingCosts,ensure,all,find,model,ownerCompany,assetCapacity,isAssetFacilityCompatible,assetOccupancy,availableAssetCapacity,verifyDirectorySite,verifyGlobalSite,validate,execute};globalThis.GH_FACILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('facilities',API);if(globalThis.window&&window!==globalThis)window.GH_FACILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+const API={VERSION,dailyOperatingCosts,expansionCost,expandable,DEFAULT_ASSET_CAPACITY,ASSET_FACILITY_KINDS,migrateAssetCapacity,migrateOperatingCosts,ensure,all,find,model,ownerCompany,assetCapacity,isAssetFacilityCompatible,assetOccupancy,availableAssetCapacity,verifyDirectorySite,verifyGlobalSite,validate,execute};globalThis.GH_FACILITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('facilities',API);if(globalThis.window&&window!==globalThis)window.GH_FACILITY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

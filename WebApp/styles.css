@@ -13,7 +13,6 @@ button:disabled{opacity: 0.5; cursor: default;}
 button.is-busy::after{content: "…"; margin-inline-start: 6px;}
 .hidden,[hidden]{display: none !important;}
 .sr-only{position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);}
-.icon-sprite{position: absolute; width: 0px; height: 0px; overflow: hidden;}
 svg{width: 21px; height: 21px; fill: none; stroke: currentcolor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;}
 .positive{color: var(--good) !important;}
 .negative{color: var(--danger) !important;}
@@ -22,14 +21,15 @@ h1,h2,h3,h4,p{margin: 0px;}
 small{color: var(--muted);}
 .icon-btn,.close-btn{display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:11px;position:relative;transition:transform .16s ease,background .16s ease,border-color .16s ease;}
 .icon-btn b{position: absolute; top: -4px; right: -3px; min-width: 16px; border-radius: 9px; background: var(--danger); color: var(--danger-ink); font-size: 9px; padding: 1px 3px;}
-.icon-btn svg{width: 18px; height: 18px;}
+.icon-btn .mg{width: 18px; height: 18px;}
 .bottom-nav{display: none;}
 #map{background:var(--sea-ground);}
 .map-natural #map,.map-natural .leaflet-container{background:#b9d8df;}
-.map-natural .ui-country-label{color:#29455d;text-shadow:#fff 0 1px 2px,#fff 0 0 5px;}
+.map-fresh #map,.map-fresh .leaflet-container{background:#5FA9DA;}
+.map-fresh .ui-country-label,.map-natural .ui-country-label{color:#29455d;text-shadow:#fff 0 1px 2px,#fff 0 0 5px;}
+.map-satellite .ui-country-label{color:#FFFFFF;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 6px rgba(0,0,0,.55);}
 .leaflet-container{font-family:var(--font);background:var(--sea-ground);}
 .map-natural .leaflet-tile-pane{filter:saturate(1.08) contrast(.96) brightness(1.04);}
-.map-dark .leaflet-layer:not(.gh-terrain-layer){filter:invert(1) hue-rotate(180deg) brightness(.72) contrast(1.1) saturate(.45);}
 .map-stage.map-tiles-offline .leaflet-tile-pane{opacity: 0;}
 .leaflet-popup-content-wrapper,.leaflet-popup-tip{background: var(--surface); color: var(--text); box-shadow: var(--shadow);}
 .leaflet-popup-content{font: 13px/1.7 var(--font); max-width: 230px;}
@@ -47,7 +47,7 @@ small{color: var(--muted);}
 .filter-popover{width:268px;padding:10px;display:grid;gap:10px}.filter-popover .popover-title{display:flex;align-items:end;justify-content:space-between;gap:8px;padding:2px 2px 8px}.filter-popover .popover-title span{font-size:13px;font-weight:700}.filter-popover .popover-title small{font-size:9px;color:var(--muted)}
 .filter-section{display:grid;gap:6px}.filter-section>b{font-size:9px;letter-spacing:.02em;color:var(--muted);padding-inline:2px}.filter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.filter-grid .filter-btn{display:grid;gap:2px;min-height:48px;padding:7px 8px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text);text-align:right;font:inherit}.filter-grid .filter-btn span{font-size:11px;font-weight:650}.filter-grid .filter-btn small{font-size:8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.filter-grid .filter-btn.active,.filter-grid [data-layer].active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .filter-popover .mini-switch{margin:0;padding:9px 2px 2px;border-top:1px solid var(--line)}
-.facility-marker{width:44px!important;height:44px!important;margin-left:-22px!important;margin-top:-22px!important;display:grid!important;place-items:center!important}.facility-marker .marker-core{width:22px;height:22px;border-width:1px;border-radius:7px;box-shadow:0 4px 11px rgba(0,0,0,.18)}.facility-marker .marker-core svg{width:13px;height:13px}.facility-marker .facility-brand-logo{right:-5px;bottom:-5px;width:10px;height:10px;border-radius:3px}.facility-marker.selected .marker-core{width:28px;height:28px;border-width:2px;box-shadow:0 0 0 4px rgba(45,114,223,.13),0 7px 16px rgba(0,0,0,.22)}.facility-marker.selected .marker-core svg{width:16px;height:16px}
+.facility-marker{width:44px!important;height:44px!important;margin-left:-22px!important;margin-top:-22px!important;display:grid!important;place-items:center!important}.facility-marker .marker-core{width:22px;height:22px;border-width:1px;border-radius:7px;box-shadow:0 4px 11px rgba(0,0,0,.18)}.facility-marker .marker-core .facility-glyph{width:15px;height:15px}.facility-marker .facility-brand-logo{right:-5px;bottom:-5px;width:10px;height:10px;border-radius:3px}.facility-marker.selected .marker-core{width:28px;height:28px;border-width:2px;box-shadow:0 0 0 4px rgba(45,114,223,.13),0 7px 16px rgba(0,0,0,.22)}.facility-marker.selected .marker-core .facility-glyph{width:18px;height:18px}
 /* Build 358: the background choices were bare buttons; they read like the other choices now, the current one in gold. */
 .layer-pop .filter-grid button{min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text);font:600 12px var(--font);text-align:right}.layer-pop .filter-grid button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 @media(max-width:460px){.filter-popover{width:min(260px,calc(100% - 16px))}.filter-grid .filter-btn{min-height:45px;padding:6px}}
@@ -101,8 +101,8 @@ small{color: var(--muted);}
 .policy-grid,.form-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;}
 .command-btn{display:flex;align-items:center;gap:9px;width:100%;text-align:right;min-height:72px;padding:9px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--text);position:relative;overflow:hidden;}
 .command-btn::before{content:"";position:absolute;inset-block:9px;inset-inline-start:0;width:2px;border-radius:0 4px 4px 0;background:var(--accent);opacity:.72;}
-.command-btn > span{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;background:#0D3B57;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 38%,#0D3B57);font-size:10px;border-radius:11px;}
-.command-btn > span svg{width:20px;height:20px;stroke-width:1.8}
+.command-btn > span{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center}
+.command-btn > span .mi{--mi-size:38px}
 .command-btn div{flex: 1 1 0%; min-width: 0px;}
 .command-btn b{display:block;font-size:11.5px;font-weight:600;line-height:1.45}.command-btn small{display:block;font-size:8.5px;color:var(--muted);line-height:1.5;margin-top:2px;}
 .command-btn em{font-style: normal; font-size: 9px; color: var(--muted);}
@@ -148,12 +148,6 @@ label > input,label > select{margin-top: 4px;}
 .finance-doc-hub-v316 aside button{flex: 0 0 auto;}
 .finance-documents-v316{min-width: 0px;}
 .empty,.empty-state{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:13px;padding:24px 15px;text-align:center;font-size:12px;color:var(--muted);line-height:1.8;}
-.ui-section-hero{display:grid;grid-template-columns:76px minmax(0,1fr);direction:ltr;gap:11px;align-items:center;background:linear-gradient(125deg,color-mix(in srgb,var(--accent) 7%,var(--surface-2)),var(--surface-2));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));border-radius:15px;overflow:hidden;margin-bottom:12px;padding:0;min-height:84px;position:relative;}
-.ui-section-hero::after{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,color-mix(in srgb,var(--accent) 26%,transparent) 1px,transparent 1.5px);background-size:22px 22px;mask-image:linear-gradient(90deg,#000,transparent 58%);pointer-events:none}.ui-section-hero>img{width:76px;height:84px;object-fit:cover;border-radius:0;filter:saturate(.72) contrast(1.05);opacity:.34;}
-.ui-section-hero > div{direction:rtl;position:relative;z-index:2;padding:9px 0 9px 11px}.ui-section-hero h3{font:700 14px/1.5 var(--font-head);color:var(--text);}.ui-section-hero p{font-size:9.5px;color:var(--muted);line-height:1.55}.ui-section-hero span:not(.ui-section-mark){color:var(--accent);font-size:8.5px;font-weight:600;}
-.ui-section-mark{position:absolute;z-index:3;left:18px;top:20px;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:#0D3B57;border:1px solid color-mix(in srgb,var(--accent) 48%,#0D3B57);color:var(--accent)}.ui-section-mark svg{width:21px;height:21px;stroke-width:1.8}
-.ui-section-hero>.company-logo-badge{position:absolute;z-index:2;inset:auto auto 8px 8px;width:34px;height:34px;flex-basis:34px;border-color:var(--line-strong)}
-.ui-hero-note summary{cursor: pointer; font-size: 11px; color: var(--blue); min-height: 24px; padding-top: 4px;}
 .asset-thumb{margin:0 0 11px;border-radius:12px;overflow:hidden;background:var(--surface-3)}.asset-thumb img{display:block;width:100%;height:148px;object-fit:cover;filter:saturate(1.08) contrast(1.03);}
 .thumb-sm img{width: 60px; height: 45px; object-fit: cover; border-radius: 7px;}
 .company-visual-card{padding:0;}.company-visual-card > img{width:100%;height:124px;object-fit:cover;display:block;filter:saturate(1.1) contrast(1.03);}
@@ -226,11 +220,12 @@ table{border-collapse:separate;border-spacing:0;width:100%;font-size:11px;backgr
 .map-place-bubble b{font:700 12px/1 system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums}
 .map-place-bubble.airport{--place-color:var(--air)}.map-place-bubble.port{--place-color:var(--sea)}.map-place-bubble.mixed{--place-color:var(--blue)}
 .world-infrastructure-marker{background:transparent!important;border:0!important;overflow:visible!important}
-.world-place-dot{display:grid;place-items:center;width:22px;height:22px;border:1px solid rgba(255,255,255,.94);border-radius:50%;background:rgba(8,38,55,.9);color:#fff;box-shadow:0 2px 8px rgba(4,23,34,.24)}
+.world-place-dot{display:grid;place-items:center;width:22px;height:22px;border:1px solid rgba(13,59,87,.22);border-radius:50%;background:linear-gradient(180deg,#FFFFFF,#E9EFF4);color:#0D3B57;box-shadow:0 2px 8px rgba(4,23,34,.24)}
+.world-place-dot .facility-glyph{width:14px;height:14px}
 .world-place-code{position:absolute;top:24px;left:50%;transform:translateX(-50%);padding:1px 5px;border-radius:6px;background:rgba(8,38,55,.82);color:#fff;font:600 10px/14px system-ui,-apple-system,sans-serif;white-space:nowrap;pointer-events:none}
 .marker-core{display:grid;place-items:center;width:40px;height:40px;background:var(--surface);color:var(--text);border:2px solid var(--blue);border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.4);}
 .marker-core{position:relative}.marker-core.airport{border-color:var(--air)}.marker-core.port{border-color:var(--sea)}.marker-core.logistics{border-color:var(--road)}.marker-core.power{border-color:var(--power)}.marker-core.bank{border-color:var(--bank)}.marker-core.mobility{border-color:var(--mobility)}.marker-core.insurance{border-color:#1f7a8c}.marker-core.realestate{border-color:#b5703a}.facility-brand-logo{position:absolute;inset:auto -5px -5px auto;width:16px;height:16px;object-fit:contain;border:1px solid var(--line-strong);border-radius:5px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
-.marker-core svg{width: 25px; height: 25px; color: var(--blue);}
+.marker-core .facility-glyph{width: 25px; height: 25px;}
 .world-dot{width: 9px; height: 9px; border: 2px solid white; background: var(--blue); border-radius: 50%;}
 .asset-card{padding:15px;}
 .asset-close{position: absolute; top: 8px; left: 8px; width: 30px; height: 30px;}
@@ -516,3 +511,13 @@ table{border-collapse:separate;border-spacing:0;width:100%;font-size:11px;backgr
 .official-news-lead{display:grid;gap:9px;margin:0;padding:13px;border:1px solid #e4e8e6;border-radius:13px;border-inline-start:1px solid #e4e8e6;background:#fff;box-shadow:0 4px 12px rgba(23,43,49,.05)}.official-news-lead .news-card-meta{align-items:center;justify-content:flex-start;font-size:8px}.official-news-lead .news-card-meta time{margin-inline-start:auto;color:#738087;white-space:nowrap}.exclusive-tag{padding:4px 7px;border-radius:7px;background:#b38a3d;color:#fff;font-weight:700}.official-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:7px;background:#e3f2ed;color:#16745e;font-weight:700}.official-news-lead h2{margin:2px 0 0;color:#111d25;font-size:18px;line-height:1.45}.official-news-lead>p{margin:0;color:#67767c;font-size:10px;line-height:1.65}.official-news-amount{font-size:13px;color:#1b6554}.official-news-lead-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:2px}.official-news-lead-metrics>div{display:grid;gap:4px;min-width:0;padding:9px 7px;border-radius:9px;background:#f4f5f3;text-align:center}.official-news-lead-metrics b{font-size:17px;color:#1b252b}.official-news-lead-metrics span{font-size:8px;color:#68777d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.official-news-lead footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;padding-top:8px;border-top:1px solid #edf0ef}.official-news-lead footer small{font-size:8px;color:#6e7b80}.official-news-lead footer button{min-height:29px;padding:3px 8px;background:#124554;color:#fff;border-color:#124554;font-size:8px;white-space:nowrap}
 .official-news-feed{gap:8px}.official-news-featured .official-news-card-main{display:grid;grid-template-columns:minmax(0,1fr) 78px;align-items:center;gap:10px}.official-news-thumb{width:78px;height:68px;border-radius:8px}.official-news-card h3{font-size:12px}.official-news-card p{font-size:8.5px}.official-news-card footer{margin-top:7px;padding-top:6px}
 @media(max-width:700px){.official-news-toolbar{align-items:flex-start;flex-direction:column}.official-news-filter{width:100%}.official-news-status{align-self:flex-start}.official-news-heading h1{font-size:22px}}
+/* Build 373: the asset card shows the MADAR glyph of its fleet on a glass tile. */
+.asset-symbol:has(.mi){background:none;box-shadow:none}.asset-symbol .mi{--mi-size:40px}
+.filter-grid .filter-btn:has(>.mi){grid-template-columns:auto minmax(0,1fr);column-gap:8px;align-items:center}.filter-grid .filter-btn>.mi{--mi-size:30px;grid-row:1/3}
+.filter-btn>.filter-logo img{width:72%;height:72%;object-fit:contain}
+/* Build 373: each map background shows a real preview cut from the game's own tiles (satellite: a darkened preview,
+   since its imagery only streams online). Static images inside a closed popover cost nothing during play. */
+.layer-pop .filter-grid button[data-layer]{display:flex;align-items:center;gap:9px;padding:0 6px 0 10px;min-height:44px}
+.layer-pop .filter-grid button[data-layer]::before{content:"";flex:0 0 46px;height:32px;border-radius:8px;background:url(assets/maps/ne2-fresh/3/4/3.webp) 85% 45%/180% auto no-repeat;box-shadow:inset 0 0 0 1px rgba(16,35,49,.12)}
+.layer-pop .filter-grid button[data-layer=natural]::before{background-image:url(assets/maps/ne2/3/4/3.webp)}
+.layer-pop .filter-grid button[data-layer=satellite]::before{background-image:url(assets/maps/ne2/3/4/3.webp);filter:saturate(.55) brightness(.5) contrast(1.35)}

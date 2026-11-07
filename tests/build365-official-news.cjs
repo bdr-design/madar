@@ -40,8 +40,7 @@ const official=(id,kind,reference,at,extra={})=>({id,kind,reference,at,title:`خ
    cards:document.querySelectorAll('.official-news-card').length+document.querySelectorAll('.official-news-lead').length,
    thumbnails:document.querySelectorAll('.official-news-thumb').length,
    oldCenterButton:!!document.querySelector('[data-open="executionLog"],#executionLogBtn'),
-   tracks:getComputedStyle(document.querySelector('.game-frame')).gridTemplateColumns,
-   mapColumn:getComputedStyle(document.querySelector('.map-stage')).gridColumnStart,
+   mapView:window.GH_INTERFACE.mapViewport(),
    navRect:(()=>{const r=document.querySelector('.side-nav').getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})(),mapRect:(()=>{const r=document.querySelector('.map-stage').getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})(),sheetRect:(()=>{const r=document.querySelector('.sheet-dock').getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})(),
    title:document.querySelector('#drawerTitle')?.textContent||''
   }));
@@ -51,8 +50,9 @@ const official=(id,kind,reference,at,extra={})=>({id,kind,reference,at,title:`خ
   assert(!result.text.includes('DOC-NEWS-'),'document identifiers stay out of the newsroom UI');
   assert(!/تحذير واجهة|عرض غير معتمد|مرفوضة|خبر منافس مولد|نسخة مكررة|عقد قديم موثق/.test(result.text));
   assert.equal(result.oldCenterButton,false,'approval/execution log center has no UI entry point');
-  assert.equal(result.mapColumn,'2','the map stays between the left rail and the right newsroom');assert(result.navRect.right<=result.mapRect.left+1,'the physical navigation rail stays left of the map');assert(result.mapRect.right<=result.sheetRect.left+1,'the map stays left of the right-hand news panel');assert(result.sheetRect.right>=1279,'the news panel reaches the right edge in landscape');
-  assert(result.tracks.split(' ').length===3,'the landscape news layout uses separate map, rail, and panel columns');
+  // Build 373 floating frame: the newsroom is an ordinary panel beside the rail and the map stays visible beside it.
+  assert(result.sheetRect.right<=result.navRect.left+1,'the news panel floats beside the navigation rail');
+  assert(result.mapView.right<=result.sheetRect.left+1&&result.mapView.width>340,'the map stays visible beside the news panel');
   assert.equal(await page.locator('#executionLogBtn').count(),0);
   await page.evaluate(()=>{window.GH_BUSINESS_WORLD.recordEvent(window.__GH_STATE__,{kind:'billing',company:'group',ownerCompanyId:'group',title:'إصدار فاتورة شهرية موثقة',detail:'فاتورة TEL-INV-PRODUCER-2026-02',amount:38,reference:'BILL-telecom-2026-02-PRODUCER',official:true,sourceDomain:'finance',sourceRef:'BILL-telecom-2026-02-PRODUCER',documentRef:'TEL-INV-PRODUCER-2026-02'});window.__AUDIT__.updateKpis();});
   await page.waitForFunction(()=>document.querySelector('#drawerBody')?.innerText.includes('إصدار فاتورة شهرية موثقة'));

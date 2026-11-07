@@ -31,7 +31,7 @@ function installVault(){
 (async()=>{
   const browser=await chromium.launch({headless:true}),errors=[];
   try{
-    const {page}=await boot({browser,errors});page.setDefaultTimeout(300000);
+    const {page}=await boot({browser,errors,fleetWorker:true});page.setDefaultTimeout(300000);
     await page.evaluate(installVault);
     const prepared=await page.evaluate(async({qty,sites})=>{
       const a=__AUDIT__,s=()=>__GH_STATE__,WORLD=GH_WORLD_DATA,type='air';

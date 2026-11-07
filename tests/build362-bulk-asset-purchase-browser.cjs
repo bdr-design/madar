@@ -7,7 +7,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
 (async()=>{
   const browser=await chromium.launch({headless:true}),errors=[];
   try{
-    const {page}=await boot({browser,errors,viewport:{width:844,height:390}});page.setDefaultTimeout(180000);
+    const {page}=await boot({browser,errors,viewport:{width:844,height:390},fleetWorker:true});page.setDefaultTimeout(180000);
     const setup=await page.evaluate(async()=>{
       const a=__AUDIT__,s=__GH_STATE__,type='air',definition=GH_COMPANY_PLATFORM.definitionFor(s,type);s.godMoney=true;s.infiniteMoney=true;
       await a.runAuthorizedDomainCommand('corporate','open-company',{type,companyId:type,capital:900000000,legalName:'QA Bulk Assets',formationContract:'QA-BULK-ASSETS'},{silent:true});
@@ -24,8 +24,15 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
       const second=await a.buyAsset('air','used',model.id,'lease',10,'QA-OMDB',true,'QA-EACH-10','air',each);
       return {first,second,progress,total:{completed:total.completedCount,facilities:total.facilityCount,chunks:total.chunkCount},each:{completed:each.completedCount,facilities:each.facilityCount,chunks:each.chunkCount},size:GH_FLEET_DATA.size(s),byBase:Object.fromEntries(['QA-OMDB','QA-EGLL'].map(id=>[id,GH_FLEET_DATA.count(s,row=>row.baseFacility===id)]))};
     });
-    assert.ok(purchased.first&&purchased.second);assert.deepEqual(purchased.total,{completed:600,facilities:1,chunks:2});assert.deepEqual(purchased.each,{completed:20,facilities:2,chunks:2});
-    assert.deepEqual(purchased.byBase,{'QA-OMDB':610,'QA-EGLL':10});assert.equal(purchased.size,620);assert.deepEqual(purchased.progress,[[512,600],[600,600],[10,20],[20,20]]);
+    assert.ok(purchased.first&&purchased.second);assert.deepEqual(purchased.total,{completed:600,facilities:1,chunks:2});// Build 372: one plan per order applied in row stages of 512, whatever the number of facilities (20 rows: one stage).
+    assert.deepEqual(purchased.each,{completed:20,facilities:2,chunks:1});
+    assert.deepEqual(purchased.byBase,{'QA-OMDB':610,'QA-EGLL':10});assert.equal(purchased.size,620);// Progress is reported per time slice: it only grows, never passes its order's total, and ends at each total.
+    // Build 378: the purchase page shows the group's shared asset room, used and left, after the purchases.
+    const room=await page.evaluate(()=>{__AUDIT__.openDrawer('assetMarket','air');const text=document.querySelector('#drawerBody .group-asset-room')?.textContent||'',limit=GH_PERSISTENCE.fleetRecordLimit(),used=GH_FLEET_DATA.persistenceRecordCount(__GH_STATE__,__GH_STATE__.realism?.procurement?.deliveries||[]);return {text,limit,used};});
+    assert.ok(room.used>=620&&room.text.includes(room.used.toLocaleString('en-US'))&&room.text.includes((room.limit-room.used).toLocaleString('en-US')),`shared room shown: ${JSON.stringify(room)}`);
+    const ofTotal=total=>purchased.progress.filter(([,count])=>count===total).map(([done])=>done);
+    for(const [total,steps] of [[600,ofTotal(600)],[20,ofTotal(20)]]){assert(steps.length>=1);assert(steps.every((done,index)=>done>0&&done<=total&&(index===0||done>=steps[index-1])));assert.equal(steps.at(-1),total);}
+    assert.equal(purchased.progress.length,ofTotal(600).length+ofTotal(20).length);assert.deepEqual(purchased.progress.at(-1),[20,20]);
 
     const overLegacyCapacity=await page.evaluate(async()=>{
       const a=__AUDIT__,s=__GH_STATE__,model=GH_ASSET_CATALOG.air.used[0],progress=[],options={progress:(done,total)=>progress.push([done,total])};
@@ -34,12 +41,19 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     });
     assert.ok(overLegacyCapacity.order,'one base accepts a real order above the previous 3,000-base limit');assert.equal(overLegacyCapacity.completed,3500);assert.equal(overLegacyCapacity.facilities,1);assert.equal(overLegacyCapacity.chunks,7);assert.equal(overLegacyCapacity.capacity,1000000);assert.equal(overLegacyCapacity.occupancy,4110);
 
+    // Build 372: an order is one plan applied in row stages; a failure after the first stage (here the fleet replica
+    // refusing a flush past 512 new rows, the same seam build372-asset-purchase-app-browser uses) must roll back all of it.
     const rollback=await page.evaluate(async()=>{
-      const a=__AUDIT__,s=__GH_STATE__,model=GH_ASSET_CATALOG.air.used[0],core=GH_PROCUREMENT_CORE,original=core.execute,snapshot=()=>JSON.stringify({fleet:GH_FLEET_DATA.size(s),deliveries:s.realism.procurement.deliveries.length,cheques:s.finance.cheques.length,invoices:s.finance.invoices.length,supplier:s.supplierTransactions.length,cash:GH_FINANCE_CORE.operating(s,'air')}),before=snapshot();let purchases=0;
-      core.execute=function(ctx,cmd,payload){if(cmd==='purchase-assets'&&++purchases===2)throw new Error('QA-BULK-SECOND-CHUNK');return original.call(this,ctx,cmd,payload);};
-      try{const options={};const order=await a.buyAsset('air','used',model.id,'lease',600,'QA-OMDB',true,'QA-BULK-ROLLBACK','air',options);return {order,error:options.errorMessage,identical:before===snapshot(),purchases};}finally{core.execute=original;}
+      const a=__AUDIT__,s=__GH_STATE__,client=a.fleetEngineThreadClient(),model=GH_ASSET_CATALOG.air.used[0],snapshot=()=>JSON.stringify({fleet:GH_FLEET_DATA.size(s),deliveries:s.realism.procurement.deliveries.length,cheques:s.finance.cheques.length,invoices:s.finance.invoices.length,supplier:s.supplierTransactions.length,cash:GH_FINANCE_CORE.operating(s,'air')}),before=snapshot(),startSize=GH_FLEET_DATA.size(s),original=client.flushMutation,originalFinish=client.finishMutation;let failedAt=0;
+      // The order runs inside a replica mutation session only once the worker replica has caught up with the fleet.
+      for(let attempt=0;attempt<200&&!client.replicaReady(s.fleet);attempt++){const asked=client.query(s.fleet,{name:'purchaseBaseline',params:{plan:null,legacyOwner:{}},simSeconds:s.simSeconds});if(asked)await asked;else await new Promise(resolve=>setTimeout(resolve,10));}
+      // The refusal covers the final flush too: on a fast machine the 600 rows run as 512 + 88, the last stage reaches the
+      // replica only through finishMutation, and a refusal on the intermediate flush alone never fired.
+      client.flushMutation=function(session,store){const added=store.length-startSize;if(added>512){failedAt=added;return false;}return original.call(this,session,store);};
+      client.finishMutation=function(session,store){const added=store.length-startSize;if(added>512){failedAt=added;return false;}return originalFinish.call(this,session,store);};
+      try{const options={};const order=await a.buyAsset('air','used',model.id,'lease',600,'QA-OMDB',true,'QA-BULK-ROLLBACK','air',options);return {order,error:options.errorMessage,identical:before===snapshot(),failedAt};}finally{client.flushMutation=original;client.finishMutation=originalFinish;}
     });
-    assert.equal(rollback.order,null);assert.match(rollback.error,/QA-BULK-SECOND-CHUNK/);assert.equal(rollback.identical,true,'a later chunk failure rolls back payment, documents and every earlier asset');assert.equal(rollback.purchases,2);
+    assert.equal(rollback.order,null);assert.ok(rollback.error);assert(rollback.failedAt>512,`the failure came after the first row stage: ${rollback.failedAt}`);assert.equal(rollback.identical,true,'a later stage failure rolls back payment, documents and every earlier asset');
 
     const chequeView=await page.evaluate(async()=>{
       const a=__AUDIT__,credit=(await a.runAuthorizedDomainCommand('finance','credit',{company:'air',amount:12500,note:'QA customer collection',counterparty:'QA Customer',reference:'QA-INCOMING',termsDays:7},{silent:true})).result;

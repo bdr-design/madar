@@ -21,7 +21,7 @@ const UNKNOWN_DEFINITION=deepFreeze({
 });
 const GAME_DEFINITION=deepFreeze({
   id:'game',definitionId:'global-holdings-game-v1',kind:'game',order:-20,sectorId:'system',known:true,
-  labels:{ar:{short:'GH',display:'Global Holdings',legal:'Global Holdings',map:'GH'},en:{short:'GH',display:'Global Holdings',legal:'Global Holdings',map:'GH'}},
+  labels:{ar:{short:'VH',display:'فنتورا',legal:'VENTORA',map:'VH'},en:{short:'VH',display:'VENTORA',legal:'VENTORA',map:'VH'}},
   identity:{logos:{symbol:'assets/identity/global-holdings.svg',horizontal:'assets/identity/global-holdings.svg',documentSeal:'assets/identity/global-holdings.svg',monochrome:'assets/identity/global-holdings.svg'},accent:'#2d72df',secondary:'#0d3b57',route:'#2d72df'},
   capabilities:['identity.system'],assetKinds:[],routeModes:[],facilityKinds:[],legacyNames:[],source:null
 });
@@ -138,7 +138,7 @@ const FAMILY_CACHE=new Map(),FAMILY_FONT="-apple-system,'SF Pro Display','Segoe 
 function darker(hex,amount=.32){const n=parseInt(String(hex).slice(1),16),f=v=>Math.max(0,Math.round(v*(1-amount))).toString(16).padStart(2,'0');return `#${f(n>>16)}${f((n>>8)&255)}${f(n&255)}`;}
 function familyLogo(state,type){
   const raw=rawDefinition(state,type),holding=raw?.kind==='holding',glyph=raw?.identity?.brand?.glyph;if(!raw||(!holding&&!glyph))return null;
-  const group=record(state,'group'),short=cleanText(group.shortName,'GH',6).toUpperCase(),groupLogo=customLogoVariants(group).primary||'',def=definition(type,state),groupDef=definition('group',state);
+  const group=record(state,'group'),short=cleanText(group.shortName,'VH',6).toUpperCase(),groupLogo=customLogoVariants(group).primary||'',def=definition(type,state),groupDef=definition('group',state);
   const gold=validColor(group?.identity?.accent)?group.identity.accent:'#e3b55b',bg=holding?(validColor(group?.identity?.secondary)?group.identity.secondary:groupDef.identity.secondary):def.identity.secondary;
   const key=`${type}|${short}|${bg}|${gold}|${groupLogo.length}:${groupLogo.slice(-32)}`;if(FAMILY_CACHE.has(key))return FAMILY_CACHE.get(key);
   const arabic=/[\u0600-\u06ff]/.test(short),size=short.length<=2?34:short.length===3?30:24;

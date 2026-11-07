@@ -36,6 +36,15 @@ assert.equal(state.ipo,undefined,'invalid ownership does not publish');
 command('corporate','set-ipo',{...ipoBase,capTable:[{holderId:'founders',label:'المؤسسون',shares:82},{holderId:'public-float',label:'المساهمون العموم',shares:18}]});
 assert.equal(state.ipo.capTable.reduce((sum,row)=>sum+row.shares,0),state.ipo.totalShares);assert.equal(s.GH_SAVE_SCHEMA.validate(state).ok,true);
 
+// Build 375: a sale below cost is settled: the holding leaves at its full cost and the loss is its own account (the entry
+// was unbalanced, so a share that had fallen could never be sold).
+state.market[0].price=30;state.simSeconds=300*DAY;command('market','trade-stock',{sym:'QA',qty:100});
+state.market[0].price=20;state.simSeconds=301*DAY;const lossSale=command('market','trade-stock',{sym:'QA',qty:-100});
+assert.equal(lossSale.costBasis,3000);assert.equal(lossSale.realizedGain,-1000,'the loss is realized');assert.equal(state.portfolio.QA,undefined,'the position is closed');
+const lossEntry=state.finance.journalEntries.find(row=>row.sourceRef===lossSale.reference||String(row.description||'').includes('بيع أسهم مدرجة QA')&&row.lines.some(line=>line.account==='خسائر محققة من بيع استثمارات'));
+assert.ok(lossEntry,'the sale has its journal entry');const debit=lossEntry.lines.reduce((n,line)=>n+(Number(line.debit)||0),0),credit=lossEntry.lines.reduce((n,line)=>n+(Number(line.credit)||0),0);
+assert.ok(Math.abs(debit-credit)<.01,'the entry balances');assert.equal(lossEntry.lines.find(line=>line.account==='استثمارات في أوراق مالية مدرجة').credit,3000,'the holding leaves at its cost');assert.equal(lossEntry.lines.find(line=>line.account==='خسائر محققة من بيع استثمارات').debit,1000);
+
 // Legacy portfolio roots migrate to one opening lot without changing share count or average cost.
 const legacy={simSeconds:50*DAY,portfolio:{QA:17},portfolioBook:{QA:{avgCost:12.5,acquiredDay:0,lastDividendPeriod:0,realizedIncome:0}}};M.ensure(legacy);
 assert.equal(legacy.portfolio.QA,17);assert.deepEqual(JSON.parse(JSON.stringify(legacy.portfolioLots.QA.map(({quantity,remaining,unitCost,acquiredDay})=>({quantity,remaining,unitCost,acquiredDay})))),[{quantity:17,remaining:17,unitCost:12.5,acquiredDay:0}]);

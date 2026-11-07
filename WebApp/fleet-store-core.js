@@ -1364,14 +1364,19 @@
     const r=rt(store),chunks=Math.ceil(store.length/CHUNK_ROWS),moved=(versions,before)=>{const out=[];for(let chunk=0;chunk<chunks;chunk++)if(!before||chunk>=before.length||versions[chunk]!==before[chunk])out.push(chunk);return out;};
     return {static:moved(r.staticVersions,snapshot?.static),identity:moved(r.identityVersions,snapshot?.identity),routed:moved(r.routedVersions,snapshot?.routed)};
   }
-  function writeRows(store,indices,bytes,extras,{revisionDelta=0,staticRows=false}={}){
-    const before=store.revision,touch=toucher(store),src=new Uint32Array(bytes),dst=views(store).u32;
+  // `trackIds` (the engine thread's replica sync): a row whose id changes (a purchase appended it, a slot was reused)
+  // is moved in the built id index, which raw row bytes otherwise bypass; without it a bought asset stayed invisible to
+  // indexOf on the replica until the next epoch. Main-thread step writes never change ids and do not pay for it.
+  function writeRows(store,indices,bytes,extras,{revisionDelta=0,staticRows=false,trackIds=false}={}){
+    const before=store.revision,touch=toucher(store),src=new Uint32Array(bytes),dst=views(store).u32,tracked=trackIds&&!!runtime.get(store)?.ids;
     if(indices.length){journalFor(store);reserveLog(store,indices.length);}
     if(src.length!==indices.length*WORDS_PER_ROW)throw new Error('fleet-replica-rows-invalid');
     for(let k=0;k<indices.length;k++){
       const index=indices[k];if(!(index>=0&&index<store.length))throw new Error('fleet-replica-row-out-of-range');
+      const previousId=tracked&&isAlive(store,index)?idAt(store,index):undefined;
       touch(index);for(let w=0,from=k*WORDS_PER_ROW,to=index*WORDS_PER_ROW;w<WORDS_PER_ROW;w++)dst[to+w]=src[from+w];
       const extra=extras?.[k];if(extra===undefined||extra===null)delete store.extras[index];else store.extras[index]=extra;
+      if(tracked){const id=isAlive(store,index)?idAt(store,index):undefined;if(id!==previousId)idsMove(store,index,previousId,id);}
     }
     const r=rt(store);
     // `staticRows`: true marks the chunks of every row written; a list names the chunks to mark (Build 371: the engine

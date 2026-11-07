@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const {harness,minimal}=require('./helpers/core-harness');
-const {s}=harness(['advanced-core']);
+const {s}=harness(['telecom-market-core','dealer-market-core','advanced-core']);
 const Advanced=s.GH_ADVANCED;
 
 function definition(capability,primaryKind=null){return {capabilities:[capability],facilities:{primaryKind}};}
@@ -102,8 +102,11 @@ let renderedActionOrigin='';
   assert.match(detail,/دورة عملاء الاتصالات/);
   assert.match(detail,/اشتراكات سارية/);
   assert.match(detail,/data-open="invoices" data-arg="telecom"/,'operations panel links to the existing company document flow');
-  assert.match(detail,/telecom-create-subscription/,'telecom operations expose the actual subscription command');
-  assert.match(detail,/telecom-set-cohort/,'telecom operations support aggregated customer cohorts');
+  // Build 374 (owner's decision): the telecom market replaces the typed subscription and cohort forms. Each plan's price
+  // is chosen by a button and the page has no typed field at all.
+  assert.match(detail,/data-gh-action="telecom-set-price"/,'telecom operations set each plan price by choice');
+  assert.equal((detail.match(/data-gh-action="telecom-set-price"/g)||[]).length,12,'four plans, three price stances each');
+  assert.doesNotMatch(detail,/<input|<textarea/,'telecom operations have no typed field');
   const dashboard=Advanced.render('companyManage',{type:'dealership',tab:'overview'},ctx);
   assert.match(dashboard,/company-quick-actions/,'company overview provides one concise direct-access panel');
   for(const target of ['operations','people','finance'])assert.match(dashboard,new RegExp(`data-company-manage-tab="${target}"`),`company dashboard links directly to ${target}`);
@@ -116,7 +119,10 @@ let renderedActionOrigin='';
   assert.match(dealerDetail,/المصنعون والموردون/);
   assert.match(dealerDetail,/OEM Fixture/);
   assert.match(dealerDetail,/CHQ-04/,'supplier purchase history shows existing cheque reference without creating a new action');
-  for(const action of ['dealership-receive-stock','dealership-retail-sale','dealership-create-service-plan','dealership-settle-financed-sale','bank-customer-finance-batch'])assert.match(dealerDetail,new RegExp(action),`dealer operations expose ${action}`);
+  // Build 374 (owner's decision): the dealer market replaces the typed stock, sale and service-plan forms with choices;
+  // the bank's financing review and the financed-sale settlement stay.
+  for(const action of ['dealership-set-price','dealership-set-cover','dealership-set-service','dealership-settle-financed-sale','bank-customer-finance-batch'])assert.match(dealerDetail,new RegExp(`data-gh-action="${action}"`),`dealer operations expose ${action}`);
+  assert.doesNotMatch(dealerDetail,/<input(?![^>]*type="checkbox")|<textarea/,'dealer operations have no typed field');
   assert.equal((dealerDetail.match(/data-customer-finance-decision=/g)||[]).length,5,'financing review is bounded by bank open-request capacity');
   assert.equal((dealerDetail.match(/data-sale="SALE-/g)||[]).length,5,'settlement view renders a bounded list of pending sales');
   assert.equal((dealerDetail.match(/Customer \d+/g)||[]).length<=10,true,'the operation view never renders the full customer population');

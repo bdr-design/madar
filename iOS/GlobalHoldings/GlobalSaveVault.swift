@@ -23,6 +23,8 @@ final class GlobalSaveVault {
         let resetEpoch: Double?
         let savedAt: Double
         let sha256: String
+        /// VENTORA release seal (VentoraSaveSeal); absent in the development edition.
+        let seal: String?
         let payload: String
     }
 
@@ -38,6 +40,7 @@ final class GlobalSaveVault {
         let resetEpoch: Double?
         let savedAt: Double
         let sha256: String
+        let seal: String?
     }
 
     struct Snapshot {
@@ -56,6 +59,7 @@ final class GlobalSaveVault {
         let saveRevision: Int
         let resetEpoch: Double
         let sha256: String
+        let seal: String?
         let payload: String
     }
 
@@ -74,6 +78,7 @@ final class GlobalSaveVault {
         let schemaVersion: String
         let metadata: ManualSlotMetadata
         let sha256: String
+        let seal: String?
         let payload: String
     }
 
@@ -172,6 +177,7 @@ final class GlobalSaveVault {
         let payload: String?
         let runtimeVersion: String?
         let sha256: String?
+        let seal: String?
         let clearManualSlots: Bool?
         let manualSlotHashes: [String?]?
     }
@@ -185,7 +191,7 @@ final class GlobalSaveVault {
         let checkpoint = try JSONDecoder().decode(ResetCheckpoint.self, from: Data(contentsOf: resetCheckpointURL))
         if let payload = checkpoint.payload {
             let prepared = try preparePayload(payload)
-            guard checkpoint.sha256 == prepared.sha256 else { throw VaultError.message("Reset checkpoint hash mismatch.") }
+            guard checkpoint.sha256 == prepared.sha256, VentoraSaveSeal.matches(checkpoint.seal, prepared.data) else { throw VaultError.message("Reset checkpoint hash mismatch.") }
             _ = try commitLocked(payload, runtimeVersion: checkpoint.runtimeVersion, allowRegression: true, prepared: prepared)
             _ = try commitLocked(payload, runtimeVersion: checkpoint.runtimeVersion, allowRegression: true, prepared: prepared)
         } else {
@@ -333,7 +339,8 @@ final class GlobalSaveVault {
             saveRevision: validation.saveRevision,
             resetEpoch: validation.resetEpoch,
             savedAt: Date().timeIntervalSince1970,
-            sha256: payload.sha256
+            sha256: payload.sha256,
+            seal: VentoraSaveSeal.seal(payload.data)
         )
         let data = try encodeEnvelope(header, payload: payload.data)
         lap("encodeMs")
@@ -443,7 +450,7 @@ final class GlobalSaveVault {
                 throw VaultError.message("Cannot pin missing rollback generation \(generation).")
             }
             try fm.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
-            let checkpoint = RollbackCheckpoint(sourceGeneration: old.generation, runtimeVersion: runtimeVersion ?? old.runtimeVersion, simSeconds: old.simSeconds, saveRevision: old.saveRevision, resetEpoch: old.resetEpoch, sha256: sha256(Data(old.payload.utf8)), payload: old.payload)
+            let checkpoint = RollbackCheckpoint(sourceGeneration: old.generation, runtimeVersion: runtimeVersion ?? old.runtimeVersion, simSeconds: old.simSeconds, saveRevision: old.saveRevision, resetEpoch: old.resetEpoch, sha256: sha256(Data(old.payload.utf8)), seal: VentoraSaveSeal.seal(Data(old.payload.utf8)), payload: old.payload)
             let data = try JSONEncoder().encode(checkpoint)
             try data.write(to: rollbackCheckpointURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
             guard let verified = readRollbackCheckpoint(), verified.sha256 == checkpoint.sha256, verified.sourceGeneration == generation else {
@@ -494,6 +501,7 @@ final class GlobalSaveVault {
               let checkpoint = try? JSONDecoder().decode(RollbackCheckpoint.self, from: data),
               checkpoint.sourceGeneration > 0, checkpoint.simSeconds.isFinite, checkpoint.simSeconds >= 0, checkpoint.saveRevision >= 0,
               sha256(Data(checkpoint.payload.utf8)) == checkpoint.sha256,
+              VentoraSaveSeal.matches(checkpoint.seal, Data(checkpoint.payload.utf8)),
               let validated = try? validatePayload(checkpoint.payload),
               validated.saveRevision == checkpoint.saveRevision else { return nil }
         return checkpoint
@@ -526,6 +534,7 @@ final class GlobalSaveVault {
                     schemaVersion: self.schemaVersion,
                     metadata: metadata,
                     sha256: payload.sha256,
+                    seal: VentoraSaveSeal.seal(payload.data),
                     payload: json
                 )
                 let data = try JSONEncoder().encode(stored)
@@ -548,7 +557,7 @@ final class GlobalSaveVault {
                 try self.recoverPendingReset()
                 try self.fm.createDirectory(at: self.folder, withIntermediateDirectories: true)
                 let current = self.bestEnvelope()
-                let checkpoint = ResetCheckpoint(payload: current?.payload, runtimeVersion: current?.runtimeVersion, sha256: current?.sha256, clearManualSlots: false, manualSlotHashes: nil)
+                let checkpoint = ResetCheckpoint(payload: current?.payload, runtimeVersion: current?.runtimeVersion, sha256: current?.sha256, seal: current?.seal, clearManualSlots: false, manualSlotHashes: nil)
                 let checkpointData = try JSONEncoder().encode(checkpoint)
                 try checkpointData.write(to: self.resetCheckpointURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
                 guard try Data(contentsOf: self.resetCheckpointURL) == checkpointData else { throw VaultError.message("Manual slot load checkpoint verification failed.") }
@@ -591,6 +600,7 @@ final class GlobalSaveVault {
               envelope.metadata.saveRevision >= 0,
               envelope.metadata.resetEpoch >= 0,
               sha256(Data(envelope.payload.utf8)) == envelope.sha256,
+              VentoraSaveSeal.matches(envelope.seal, Data(envelope.payload.utf8)),
               let validated = try? validatePayload(envelope.payload),
               validated.simSeconds == envelope.metadata.simSeconds,
               validated.saveRevision == envelope.metadata.saveRevision,
@@ -620,7 +630,7 @@ final class GlobalSaveVault {
                 try self.fm.createDirectory(at: self.folder, withIntermediateDirectories: true)
                 let current = self.bestEnvelope()
                 let manualSlotHashes = clearManualSlots ? try self.manualSlotRawHashes() : nil
-                let checkpoint = ResetCheckpoint(payload: current?.payload, runtimeVersion: current?.runtimeVersion, sha256: current?.sha256, clearManualSlots: clearManualSlots, manualSlotHashes: manualSlotHashes)
+                let checkpoint = ResetCheckpoint(payload: current?.payload, runtimeVersion: current?.runtimeVersion, sha256: current?.sha256, seal: current?.seal, clearManualSlots: clearManualSlots, manualSlotHashes: manualSlotHashes)
                 let data = try JSONEncoder().encode(checkpoint)
                 try data.write(to: self.resetCheckpointURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
                 guard try Data(contentsOf: self.resetCheckpointURL) == data else { throw VaultError.message("Reset checkpoint verification failed.") }
@@ -722,6 +732,7 @@ final class GlobalSaveVault {
               envelope.simSeconds.isFinite, envelope.simSeconds >= 0,
               let parsed = try? parsedPayload(envelope.payload),
               sha256(parsed.data) == envelope.sha256,
+              VentoraSaveSeal.matches(envelope.seal, parsed.data),
               parsed.info.simSeconds == envelope.simSeconds,
               parsed.info.saveRevision == (envelope.saveRevision ?? 0),
               parsed.info.resetEpoch == (envelope.resetEpoch ?? 0) else { return nil }
@@ -890,7 +901,7 @@ final class GlobalSaveVault {
         try fm.createDirectory(at: chunkFolder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
         let compressed = try (data as NSData).compressed(using: .lzfse) as Data
         var file = Data(GlobalSaveVault.chunkMagic)
-        file.append(contentsOf: SHA256.hash(data: data))
+        file.append(VentoraSaveSeal.chunkDigest(data))
         var length = UInt64(data.count).littleEndian
         withUnsafeBytes(of: &length) { file.append(contentsOf: $0) }
         file.append(compressed)
@@ -920,7 +931,7 @@ final class GlobalSaveVault {
         _ = withUnsafeMutableBytes(of: &length) { file.subdata(in: 40..<48).copyBytes(to: $0) }
         length = UInt64(littleEndian: length)
         let raw = try (file.subdata(in: 48..<file.count) as NSData).decompressed(using: .lzfse) as Data
-        guard UInt64(raw.count) == length, Data(SHA256.hash(data: raw)) == digest else { throw VaultError.message("Save chunk is corrupt.") }
+        guard UInt64(raw.count) == length, VentoraSaveSeal.chunkDigest(raw) == digest else { throw VaultError.message("Save chunk is corrupt.") }
         return raw
     }
 

@@ -36,7 +36,8 @@ function makeAsset(overrides={}){
   };
 }
 function legacyFormatMoney(value){const sign=value<0?'-':'',n=Math.abs(Number(value)||0);if(n>=1e12)return `${sign}$${(n/1e12).toFixed(2)}T`;if(n>=1e9)return `${sign}$${(n/1e9).toFixed(2)}B`;if(n>=1e6)return `${sign}$${(n/1e6).toFixed(1)}M`;if(n>=1e3)return `${sign}$${(n/1e3).toFixed(1)}K`;return `${sign}$${n.toFixed(0)}`;}
-const legacyFormatNumber=value=>new Intl.NumberFormat('ar-SA',{maximumFractionDigits:0}).format(value||0);
+// The reference formats numbers as app.js does (Build 373: Western digits in the interface).
+const legacyFormatNumber=value=>new Intl.NumberFormat('ar-SA-u-nu-latn',{maximumFractionDigits:0}).format(value||0);
 const legacyClamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 function legacyNormalize(asset){
   const tpl=asset.routeId===route.id?route:null;

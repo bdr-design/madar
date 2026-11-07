@@ -33,7 +33,7 @@ assert.match(app,/map\.setView\(camera\.center,camera\.zoom,\{animate:false\}\)/
 const filterToggleHandler=app.match(/\$\('filterToggle'\)\.addEventListener\('click',[^;]+;/)?.[0]||'';
 assert.doesNotMatch(filterToggleHandler,/setView|fitBounds|panTo/,'opening the filter popover must not move the camera');
 
-assert.match(app,/assetOwnerCompanyId\(asset\)===company\.id/,'owned asset UI must isolate company instances');
+assert.match(app,/fleetListQueryEngine\.query\(state,\{owner:ownedFilterType/,'owned asset UI must isolate company instances');assert.match(fs.readFileSync(path.join(root,'WebApp/fleet-list-query-core.js'),'utf8'),/const owner=String\(row\.ownerCompanyId\|\|row\.companyId\|\|''\)/,'Build 372: the fleet list index keys every row by its owning company instance');
 assert.match(app,/routeOwnerCompanyId\(route\)===companyId/,'route UI must isolate same-mode company instances');
 assert.match(app,/const contractRowsByCompany=new Map\(\)/,'daily contract close must index contracts once by explicit company ownership');
 assert.match(app,/contractRows=contractRowsByCompany\.get\(companyId\)\|\|\[\]/,'daily contract close must read only the selected company contract rows');

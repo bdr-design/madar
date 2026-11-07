@@ -25,10 +25,13 @@
   if(!STORE)throw new Error('Fleet engine thread requires the Fleet Store core');
   const W_ROUTE=STORE.O.routeId,W_BASE=STORE.O.baseFacility,WR=STORE.WORDS_PER_ROW;
   const routeKey=(routeId,base)=>String(routeId||'')+'\u0000'+String(base||'');
+  // One incremental exchange's main-thread budget. stats.slowSyncs counts the exchanges that took longer in wall time;
+  // a single sample can include a GC or scheduler pause unrelated to the exchange's own work.
+  const SYNC_BUDGET_MS=4.5;
 
   function create({workerFactory,resolveRoute,catalogSpecs,routesRevision=()=>0,clock=()=>performance.now(),timeoutMs=15000,replicaRowSlice=4096,replicaValueSlice=512,replicaExtraSlice=256,replicaBudgetMs=4}={}){
     let worker=null,disabled=null,nextId=1,needsFull=true,synced=null,routeTable=new Map(),routesAt=null,pending=null,windowSession=null,mutationSession=null,lastBudgetTime=Infinity,importId=0,routesReady=true,replicaBuild=null;
-    const tickets=new Map(),waiters=[],inspections=new Map(),healthChecks=new Map(),classRequests=new Map(),queryRequests=new Map(),dispatchRequests=new Map(),stats={requests:0,applied:0,fallbacks:0,windowBegins:0,windowSteps:0,windowCommits:0,windowRollbacks:0,windowFallbacks:0,fullSyncs:0,seedSyncs:0,incrementalSyncs:0,columnSyncs:0,columnPlanSyncs:0,compactions:0,rowsSent:0,routeKeysAnswered:0,deferredRequests:0,windowDeferred:0,replicaPrimeSlices:0,replicaPrimeRestarts:0,replicaPrimeFailures:0,replicaPrimeRows:0,replicaPrimeValues:0,replicaPrimeExtras:0,lastReplicaPrimeSliceMs:0,maxReplicaPrimeSliceMs:0,lastWorkerMs:0,lastApplyMs:0,lastSyncMs:0,maxWorkerMs:0,maxApplyMs:0,maxSyncMs:0,maxFullSyncMs:0,maxSeedSyncMs:0,maxRouteAnswerMs:0,lastReason:'',fullSyncReasons:{}};
+    const tickets=new Map(),waiters=[],inspections=new Map(),healthChecks=new Map(),classRequests=new Map(),queryRequests=new Map(),dispatchRequests=new Map(),stats={requests:0,applied:0,fallbacks:0,windowBegins:0,windowSteps:0,windowCommits:0,windowRollbacks:0,windowFallbacks:0,fullSyncs:0,seedSyncs:0,incrementalSyncs:0,columnSyncs:0,columnPlanSyncs:0,compactions:0,rowsSent:0,routeKeysAnswered:0,deferredRequests:0,windowDeferred:0,replicaPrimeSlices:0,replicaPrimeRestarts:0,replicaPrimeFailures:0,replicaPrimeRows:0,replicaPrimeValues:0,replicaPrimeExtras:0,lastReplicaPrimeSliceMs:0,maxReplicaPrimeSliceMs:0,lastWorkerMs:0,lastApplyMs:0,lastSyncMs:0,maxWorkerMs:0,maxApplyMs:0,maxSyncMs:0,maxFullSyncMs:0,maxSeedSyncMs:0,maxRouteAnswerMs:0,slowSyncs:0,lastReason:'',fullSyncReasons:{}};
     replicaRowSlice=Math.max(256,Math.floor(Number(replicaRowSlice)||4096));replicaValueSlice=Math.max(64,Math.floor(Number(replicaValueSlice)||512));replicaExtraSlice=Math.max(32,Math.floor(Number(replicaExtraSlice)||256));replicaBudgetMs=Math.max(1,Math.min(8,Number(replicaBudgetMs)||4));
     const scheduleReplica=fn=>typeof globalThis.requestAnimationFrame==='function'?{kind:'frame',id:globalThis.requestAnimationFrame(()=>fn())}:{kind:'timer',id:setTimeout(fn,0)};
     const cancelReplica=task=>{if(!task)return;if(task.kind==='frame'&&typeof globalThis.cancelAnimationFrame==='function')globalThis.cancelAnimationFrame(task.id);else clearTimeout(task.id);};
@@ -67,7 +70,7 @@
       if(message.type==='classes'){const entry=classRequests.get(message.id);classRequests.delete(message.id);if(entry){stats.lastClassesWorkerMs=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+stats.lastClassesWorkerMs;stats.maxClassesWorkerMs=Math.max(stats.maxClassesWorkerMs||0,stats.lastClassesWorkerMs);entry.resolve(message.unavailable||!Array.isArray(message.rows)?null:{...entry.tag,rows:message.rows,ids:message.ids||null});}return;}
       if(message.type==='query'){const entry=queryRequests.get(message.id);queryRequests.delete(message.id);if(entry){const ms=Number(message.ms)||0;stats.totalWorkerMs=(stats.totalWorkerMs||0)+ms;stats.maxQueryWorkerMs=Math.max(stats.maxQueryWorkerMs||0,ms);entry.resolve(message.unavailable||!message.result||message.result.legacy?null:{...entry.tag,result:message.result});}return;}
       if(message.type==='dispatch-plan'){
-        const entry=dispatchRequests.get(message.id);dispatchRequests.delete(message.id);if(entry){clearTimeout(entry.timer);const ms=Number(message.ms)||0;stats.lastDispatchWorkerMs=ms;stats.totalWorkerMs=(stats.totalWorkerMs||0)+ms;stats.maxDispatchWorkerMs=Math.max(stats.maxDispatchWorkerMs||0,ms);const plan=message.plan,tag=plan?.tag,valid=!message.unavailable&&plan&&plan.indices instanceof Int32Array&&plan.bytes instanceof ArrayBuffer&&tag&&tag.revision===entry.tag.revision&&tag.structure===entry.tag.structure&&tag.length===entry.tag.length&&tag.valuesLength===entry.tag.valuesLength;entry.resolve(valid?{...entry.tag,plan}:null);settleWaiters();}return;
+        const entry=dispatchRequests.get(message.id);dispatchRequests.delete(message.id);if(entry){clearTimeout(entry.timer);const ms=Number(message.ms)||0;stats.lastDispatchWorkerMs=ms;stats.totalWorkerMs=(stats.totalWorkerMs||0)+ms;stats.maxDispatchWorkerMs=Math.max(stats.maxDispatchWorkerMs||0,ms);const plan=message.plan,tag=plan?.tag,valid=!message.unavailable&&plan&&plan.indices instanceof Int32Array&&plan.bytes instanceof ArrayBuffer&&tag&&tag.revision===entry.tag.revision&&tag.structure===entry.tag.structure&&tag.length===entry.tag.length&&tag.valuesLength===entry.tag.valuesLength;if(!valid)stats.lastDispatchPlanRefusal=String(message.unavailable||(plan?'tag-mismatch':'no-plan')).slice(0,200);entry.resolve(valid?{...entry.tag,plan}:null);settleWaiters();}return;
       }
       if(message.type==='inspect'){const resolve=inspections.get(message.id);inspections.delete(message.id);resolve?.(message.missing?null:message);return;}
       if(message.type!=='result')return;
@@ -240,7 +243,7 @@
       }else if(columnNames){const payload=STORE.readColumns(store,columnNames);post({type:'columns',...(into||{}),reported:log.reportedColumns,payload},payload.columns.map(([,buffer])=>buffer));stats.columnSyncs++;}
       synced.valuesLength=values.length;
       synced.length=store.length;
-      stats.incrementalSyncs++;stats.lastSyncMs=clock()-started;stats.maxSyncMs=Math.max(stats.maxSyncMs,stats.lastSyncMs);
+      stats.incrementalSyncs++;stats.lastSyncMs=clock()-started;stats.maxSyncMs=Math.max(stats.maxSyncMs,stats.lastSyncMs);if(stats.lastSyncMs>SYNC_BUDGET_MS)stats.slowSyncs++;
       return routesReady;
     }
     // Build 372: rows, values, appended rows and columns rewritten wholesale (the day close's flight counters) this side
@@ -525,6 +528,9 @@
       // Read-only guard for callers that must never trigger the first/full
       // replica export (bulk dispatch and large durable mutations). It performs
       // no sync and returns true only for an exact, idle incremental replica.
+      // Build 373: the replica belongs to this store and only rows written since the last sync are missing; the next
+      // request brings it current with an incremental sync (no full export), as dispatchPlan does itself.
+      replicaSyncable(store){return !disabled&&!!worker&&!replicaBuild&&!needsFull&&routesReady&&!pending&&!windowSession&&!mutationSession&&!dispatchRequests.size&&STORE.isStore(store)&&!!synced&&synced.store===store&&synced.runtime===STORE.chunkStamp(store).runtime;},
       replicaReady(store){return !disabled&&!!worker&&!replicaBuild&&!needsFull&&routesReady&&!pending&&!windowSession&&!mutationSession&&!dispatchRequests.size&&STORE.isStore(store)&&!!synced&&synced.store===store&&synced.runtime===STORE.chunkStamp(store).runtime&&synced.length===store.length&&synced.valuesLength===store.values.length&&STORE.replicaClean(store);},
       // The worker's replica as it is once every message posted so far is handled (null without one). For gates only.
       inspect(){if(disabled||!worker||replicaBuild)return Promise.resolve(null);const id=nextId++;return new Promise(resolve=>{inspections.set(id,resolve);post({type:'inspect',id});});},

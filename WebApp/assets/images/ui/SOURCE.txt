@@ -1,0 +1,4 @@
+Section and option images for the Build 373 interface, supplied by the game's owner
+on 2026-10-12 (MADAR_IMAGES_42), generated to the brief in the owner's image list.
+Each image is stored at 640x360 for cards; company heroes also at 960x540 in hero/.
+Resized and re-encoded to WebP (quality 74) from the owner's 1672x941 originals.

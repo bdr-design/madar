@@ -16,10 +16,11 @@ function baseState(){
     {id:'BANK',kind:'bank',ownerCompanyId:'bank',owned:true,dailyCost:18500},
     {id:'MOB',kind:'mobility-center',ownerCompanyId:'mobility',owned:true,dailyCost:9800},
     {id:'RE',kind:'realestate',ownerCompanyId:'realestate',owned:true,dailyCost:8000},
-    {id:'CUSTOM',kind:'bank',ownerCompanyId:'bank',owned:true,dailyCost:7777}
+    {id:'CUSTOM',kind:'bank',ownerCompanyId:'bank',owned:true,dailyCost:7777},
+    {id:'INS',kind:'insurance',ownerCompanyId:'insurance',owned:true,dailyCost:9500}
   );
-  assert.equal(s.GH_FACILITY_CORE.migrateOperatingCosts(state),5);
-  assert.deepEqual(state.customHubs.map(row=>row.dailyCost),[12000,5500,2200,1800,7777]);
+  assert.equal(s.GH_FACILITY_CORE.migrateOperatingCosts(state),6);
+  assert.deepEqual(state.customHubs.map(row=>row.dailyCost),[12000,5500,2200,1800,7777,4500],'Build 375: an insurance office at the old $9,500 tariff runs at $4,500');
   assert.equal(state.customHubs[0].plannedDailyCost,12000);assert.equal(s.GH_FACILITY_CORE.migrateOperatingCosts(state),0);
 }
 

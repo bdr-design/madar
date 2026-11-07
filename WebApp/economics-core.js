@@ -40,8 +40,11 @@ function sectorEconomics(state,options={}){
   // Build 358: companies whose engine reports its own day (insurance, real estate) hand the close their P&L and the
   // part of it paid in cash today (an insurer pays claims 30 days after they occur).
   const companyRevenue={},companyExpense={},companyCashRevenue={},companyCashExpense={};
-  for(const [engine,companyId] of [[globalThis.GH_INSURANCE_CORE,'insurance'],[globalThis.GH_REALESTATE_CORE,'realestate']]){
+  // Build 374: the telecom market's network and acquisition costs and the dealer market's workshop cost (their revenue
+  // arrives on invoices); a save whose company has no market yet reports nothing here, exactly as before.
+  for(const [engine,companyId] of [[globalThis.GH_INSURANCE_CORE,'insurance'],[globalThis.GH_REALESTATE_CORE,'realestate'],[globalThis.GH_TELECOM_MARKET,'telecom'],[globalThis.GH_DEALER_MARKET,'dealership']]){
     if(typeof engine?.dailyResult!=='function'||!state.openedCompanies?.includes?.(companyId))continue;
+    if((companyId==='telecom'||companyId==='dealership')&&!engine.read?.(state))continue;
     const row=engine.dailyResult(state,requestedDay??Math.floor(num(state.simSeconds)/86400));companyRevenue[companyId]=num(row.revenue);companyCashRevenue[companyId]=num(row.cashRevenue??row.revenue);companyExpense[companyId]=num(row.expense);companyCashExpense[companyId]=num(row.cashExpense??row.expense);
     if(companyId==='realestate'){
       // Internal rent is already accrued in each tenant's P&L, and a monthly settlement has already moved cash and

@@ -6,7 +6,9 @@ function fragment(start,end){const a=app.indexOf(start),b=app.indexOf(end,a);ass
 const EXPECTED={
   1:['acceptedContracts','advanced','assets','bank','businessWorld','cash','companyBudgets','companyFinance','contractStartDays','documentProofs','domainRuntime','failedBids','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','maPortfolio','operations','portfolio','portfolioBook','portfolioLots','portfolioTradeSequence','portfolioTrades','profile','realism','todayProfit','treasury'],
   26:['alerts','businessWorld','cash','companyBudgets','companyFinance','documentProofs','domainRuntime','eventLog','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','operations','realism','sequences','treasury'],
-  30:['alerts','businessWorld','cash','companyBudgets','companyFinance','documentProofs','domainRuntime','eventLog','finance','groupValue','lastFinancialDay','operations','realism','sequences','treasury']
+  // Build 375: day 30 carries the month's fleet insurance premium (a document realism-core issues every 30 days); it is now
+  // the company's profit too (Finance Core notes documents made outside the close), so this close publishes the profit roots.
+  30:['alerts','businessWorld','cash','companyBudgets','companyFinance','documentProofs','domainRuntime','eventLog','finance','groupValue','lastClosedProfit','lastClosedSectorProfit','lastFinancialDay','operations','realism','sequences','treasury']
 };
 function installDayOwner(){
   const e=scenario();for(const name of ['strategy-core','business-world-core','conference-core','advanced-core','economics-core','banking-core','contracts-core','company-adapters-core'])e.load(name);

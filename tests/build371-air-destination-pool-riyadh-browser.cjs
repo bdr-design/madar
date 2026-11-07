@@ -11,7 +11,7 @@ function installVault(){
 (async()=>{
   const browser=await chromium.launch({headless:true}),errors=[];
   try{
-    const {page}=await boot({browser,errors});page.setDefaultTimeout(300000);await page.evaluate(installVault);
+    const {page}=await boot({browser,errors,fleetWorker:true});page.setDefaultTimeout(300000);await page.evaluate(installVault);
     const prepared=await page.evaluate(async({qty,modelId})=>{
       const a=__AUDIT__,s=__GH_STATE__,type='air',definition=GH_COMPANY_PLATFORM.definitionFor(s,type);
       if(!s.openedCompanies.includes(type))await a.runAuthorizedDomainCommand('corporate','open-company',{type,companyId:type,capital:Math.max(400000000,definition.founding.minimumCapital),legalName:'QA Riyadh Destination Pool',formationContract:'QA-RIYADH-DESTINATION-POOL'},{silent:true});
