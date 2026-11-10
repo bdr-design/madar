@@ -139,5 +139,23 @@ function mapViewport(){
  else{if(rail)right=Math.min(right,rail.left);if(panel)right=Math.min(right,panel.left);}
  return {left,top,right,bottom,width:Math.max(0,right-left),height:Math.max(0,bottom-top)};
 }
-globalThis.GH_INTERFACE=Object.freeze({VERSION:'2.0.0',prepare,navigate,back,resetHistory,confirm,mapViewport});
+// Build 672 (play-through, the first finding): every refusal, result and warning the game writes went to a list no page
+// shows («buy 1,000 trucks at level 3»: refused, and nothing on the screen). The message strip shows each one under the
+// top bar for a few seconds: at most two at a time (a phone's screen is 390 points high), the same text never twice at once, dismissed by its close button. Text only,
+// nothing saved, and no timer runs while no message is shown.
+const TOAST_LIMIT=2,TOAST_MS=5200,TOAST_ALERT_MS=8000,TOAST_MAX_MS=12000;let toastHost=null;
+function toast(message,kind='info'){
+ const text=String(message||'').replace(/\s+/g,' ').trim();if(!text||typeof document==='undefined'||!document.body)return false;
+ if(!toastHost||!toastHost.isConnected){toastHost=document.createElement('div');toastHost.id='uiToasts';toastHost.className='ui-toasts';toastHost.setAttribute('role','status');toastHost.setAttribute('aria-live','polite');document.body.append(toastHost);}
+ const tone=kind==='error'?'err':kind==='warning'||kind==='disabled'?'warn':kind==='success'?'ok':'info';
+ for(const shown of [...toastHost.children])if(shown.dataset.text===text)shown.__drop();
+ const row=document.createElement('div'),mark=document.createElement('i'),body=document.createElement('p'),close=document.createElement('button');
+ row.className=`ui-toast ${tone}`;row.dataset.text=text;row.dataset.kind=tone;mark.setAttribute('aria-hidden','true');mark.textContent=tone==='err'?'×':tone==='warn'?'!':tone==='ok'?'✓':'i';body.textContent=text;close.type='button';close.textContent='×';close.setAttribute('aria-label',arEn('إغلاق الرسالة','Dismiss the message'));
+ const timer=setTimeout(()=>row.__drop(),Math.min(TOAST_MAX_MS,(tone==='err'||tone==='warn'?TOAST_ALERT_MS:TOAST_MS)+text.length*30));
+ row.__drop=()=>{clearTimeout(timer);row.remove();if(toastHost&&!toastHost.children.length){toastHost.remove();toastHost=null;}};
+ close.addEventListener('click',()=>row.__drop());row.append(mark,body,close);toastHost.append(row);
+ while(toastHost.children.length>TOAST_LIMIT)toastHost.firstElementChild.__drop();
+ return true;
+}
+globalThis.GH_INTERFACE=Object.freeze({VERSION:'2.0.0',prepare,navigate,back,resetHistory,confirm,mapViewport,toast});
 })();

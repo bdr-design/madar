@@ -62,12 +62,12 @@
         // as settled, with no second payment; one with a cheque in issue waits for the cheque.
         const open=(s.finance.payables||[]).some(r=>r.number===account.invoiceNumber),settledElsewhere=!!invoice&&!open&&['مسددة','مدفوعة'].includes(invoice.status);
         if(!settledElsewhere){
-          if(!invoice||F().operating(s,companyId)<amount||!F().canSpend(s,companyId,amount,line))continue;
+          if(!invoice||F().investorMode?.(s)!==true&&F().operating(s,companyId)<amount||!F().canSpend(s,companyId,amount,line))continue;
           if((s.finance.cheques||[]).some(c=>c.invoiceNumber===account.invoiceNumber&&c.status==='صادر'))continue;
           F().execute({state:s},'settle-payable',{company:companyId,number:account.invoiceNumber,reference:ref},meta);
         }
       }else{
-        if(F().operating(s,companyId)<net||!F().canSpend(s,companyId,net,'other'))continue;
+        if(F().investorMode?.(s)!==true&&F().operating(s,companyId)<net||!F().canSpend(s,companyId,net,'other'))continue;
         F().execute({state:s},'settle-intercompany-service',{from:companyId,to:account.providerCompanyId,amount:net,line:'other',ref,closeOwned:true,serviceCategory:KINDS[account.kind].name,note:`خدمة ضيافة داخل المجموعة · دورة ${account.cycleId}`,sourceRefs:[ref]},meta);
         F().journal(s,companyId,'تسوية استحقاق خدمة ضيافة سابق',[{account:'خدمات ضيافة مستحقة',debit:net},{account:'مصروف تشغيلي',credit:net}],ref);
         F().journal(s,account.providerCompanyId,'تسوية دخل خدمة ضيافة سابق',[{account:'إيرادات تشغيلية',debit:net},{account:'خدمات ضيافة مدينة',credit:net}],ref);

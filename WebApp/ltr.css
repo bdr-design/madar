@@ -214,6 +214,7 @@ html[dir="ltr"] .ui-confirm.dx{left:calc(var(--edge-right,6px) + var(--rail,54px
 html[dir="ltr"] .dx-chip{padding-left:10px;padding-right:9px}
 html[dir="ltr"] .dx-total b{text-align:start}
 html[dir="ltr"] .dx-lines li b{text-align:end}
+html[dir="ltr"] .ui-toast button{padding-left:4px;padding-right:4px}
 /* ltr-extra.css */
 /* Hand-written mirrored details (tools/ltr_css.cjs appends them to WebApp/ltr.css). */
 /* The strip under the map is laid out left to right in the Arabic design (the company dock starts at the left edge);

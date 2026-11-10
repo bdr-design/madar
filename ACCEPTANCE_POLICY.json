@@ -11,6 +11,14 @@
     ],
     [
       "node",
+      "tests/build673-tender-and-investor-card.cjs"
+    ],
+    [
+      "node",
+      "tests/build672-message-strip-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build671-settle-all-ceiling-browser.cjs"
     ],
     [
@@ -1775,6 +1783,42 @@
     ],
     [
       "node",
+      "tests/build339-diagnostic-frame-trace.cjs"
+    ],
+    [
+      "node",
+      "tests/conference-capability-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build575-conference-keynote-weight-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build557-investor-card-load.cjs"
+    ],
+    [
+      "node",
+      "tests/build552-conference-hall-layout-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build439-summary-single-request.cjs"
+    ],
+    [
+      "node",
+      "tests/build464-summary-projection-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build584-summary-one-in-flight.cjs"
+    ],
+    [
+      "node",
+      "tests/tax-reload-regressions.cjs"
+    ],
+    [
+      "node",
       "tests/build657-road-dispatch-depots.cjs"
     ],
     [
@@ -1855,10 +1899,6 @@
     ],
     [
       "node",
-      "tests/build339-diagnostic-frame-trace.cjs"
-    ],
-    [
-      "node",
       "tests/build450-other-section-work.cjs"
     ],
     [
@@ -1876,10 +1916,6 @@
     [
       "node",
       "tests/build359-fleet-list-query.cjs"
-    ],
-    [
-      "node",
-      "tests/conference-capability-core.cjs"
     ],
     [
       "node",
@@ -1915,10 +1951,6 @@
     ],
     [
       "node",
-      "tests/build575-conference-keynote-weight-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build579-defined-types-platform-weight.cjs"
     ],
     [
@@ -1928,10 +1960,6 @@
     [
       "node",
       "tests/build434-service-panel-fleet-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build557-investor-card-load.cjs"
     ],
     [
       "node",
@@ -2235,10 +2263,6 @@
     ],
     [
       "node",
-      "tests/build552-conference-hall-layout-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build620-journal-log-segments.cjs"
     ],
     [
@@ -2371,14 +2395,6 @@
     ],
     [
       "node",
-      "tests/build439-summary-single-request.cjs"
-    ],
-    [
-      "node",
-      "tests/build464-summary-projection-boundary.cjs"
-    ],
-    [
-      "node",
       "tests/build479-facility-scope-work.cjs"
     ],
     [
@@ -2388,14 +2404,6 @@
     [
       "node",
       "tests/build497-route-preview-reuse.cjs"
-    ],
-    [
-      "node",
-      "tests/build584-summary-one-in-flight.cjs"
-    ],
-    [
-      "node",
-      "tests/tax-reload-regressions.cjs"
     ],
     [
       "node",
@@ -3402,6 +3410,14 @@
     [
       "node",
       "tests/build671-settle-all-ceiling-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build672-message-strip-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build673-tender-and-investor-card.cjs"
     ],
     [
       "node",

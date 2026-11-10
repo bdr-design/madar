@@ -174,14 +174,17 @@
   // A milestone due in the daily close: paid when the company has the cash, otherwise the project waits a day.
   function finalPayment(project){const base=num(project.buildCost)*MILESTONES[2];if(project.risk!==1||deterministic(`${project.id}:overrun`,0,1)>=OVERRUN_CHANCE)return base;return Math.round(base+num(project.buildCost)*deterministic(`${project.id}:overrun-share`,.01,MAX_OVERRUN));}
   function payMilestone(state,project,amount,stage){
-    if(num(globalThis.GH_FINANCE_CORE?.operating?.(state,'realestate'))<amount){project.completeDay++;project.waitingDays=(Number(project.waitingDays)||0)+1;return false;}
+    if(globalThis.GH_FINANCE_CORE?.investorMode?.(state)!==true&&num(globalThis.GH_FINANCE_CORE?.operating?.(state,'realestate'))<amount){project.completeDay++;project.waitingDays=(Number(project.waitingDays)||0)+1;return false;}
     project.cheques.push(payContractor(state,project,amount,stage));return true;
   }
   function startProject(state,p){
     const re=ensure(state),office=re.offices.find(row=>row.id===p.officeId||row.facilityId===p.officeId);if(!office||!office.active)throw new Error('realestate-office-required');
     if(re.projects.filter(row=>row.status!=='مكتمل'||row.units>row.sold).length>=MAX_ACTIVE_PROJECTS)throw new Error('realestate-project-limit');
     const type=String(p.type||''),size=Number(p.size)||1,level=Number(p.priceLevel)||1,mode=String(p.mode||'');if(!TYPES[type])throw new Error('realestate-type-invalid');if(!SIZE_LEVELS.includes(size))throw new Error('realestate-size-invalid');if(!PRICE_LEVELS.includes(level))throw new Error('realestate-price-invalid');if(!TYPES[type].modes.includes(mode))throw new Error('realestate-mode-invalid');
-    const q=projectQuote(type,size,level,cityFactor(office.country,state)),first=q.land+q.build*MILESTONES[0],F=globalThis.GH_FINANCE_CORE;if(num(F?.operating?.(state,'realestate'))<first)throw new Error('insufficient-cash');
+    const q=projectQuote(type,size,level,cityFactor(office.country,state)),first=q.land+q.build*MILESTONES[0],F=globalThis.GH_FINANCE_CORE;
+    // Build 673 (play-through): with the investor licence («no purchase is refused for lack of cash») 19 of 20 projects were
+    // refused once the company's own cash was spent. The contractor's cheque is covered by the card as every cheque is.
+    if(F?.investorMode?.(state)!==true&&num(F?.operating?.(state,'realestate'))<first)throw new Error('insufficient-cash');
     const day=Math.floor(now(state)/86400),project={id:`RE-PRJ-${++re.sequence}`,officeId:office.id,city:office.city,country:office.country,type,name:`${q.name} · ${office.city}`,mode,units:q.units,unitCost:Math.round((q.land+q.build)/q.units),localFactor:q.localFactor,marketAtStart:Math.round(marketValue(state)*10000)/10000,landCost:q.land,buildCost:q.build,priceLevel:level,startDay:day,completeDay:day+q.days,status:'قيد الإنشاء',risk:1,milestonesPaid:0,sold:0,presold:0,leased:0,handedOver:0,salesRevenue:0,rentRevenue:0,today:null};
     project.cheques=[payContractor(state,project,first,'الأرض والدفعة الأولى')];project.milestonesPaid=1;const legal=F.execute({state},'register-commercial-contract',{id:`LEGAL-${project.id}`,company:'realestate',contractType:'عقد أرض وإنشاء',counterparty:`مقاول البناء · ${project.city}`,title:`عقد تطوير ${project.name}`,startDay:day,endDay:project.completeDay,amount:q.total,terms:{officeId:office.id,country:office.country,type,mode,units:q.units,landCost:q.land,buildCost:q.build,milestones:[...MILESTONES]},sourceRefs:[project.id],linkedDocumentNumbers:project.cheques});project.legalDocumentId=legal.id;project.documentProofId=legal.documentProofId;project.contentDigest=legal.contentDigest;re.ytd.capex+=first;re.projects.push(project);return clone(project);
   }

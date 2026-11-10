@@ -191,7 +191,7 @@
   function branchCampaign(state,p,F){
     const bank=ensure(state),branch=bank.branchNetwork.find(row=>row.id===p.branchId||row.facilityId===p.branchId);if(!branch)throw new Error('bank-branch-not-found');if(!branch.servicesActive)throw new Error('bank-active-branch-required');
     const day=Math.floor(now(state)/86400);if(Number(branch.campaignUntil)>day)throw new Error('bank-campaign-running');
-    const cost=campaignCost(bank,branch);if(num(F.operating(state,'bank'))<cost)throw new Error('insufficient-cash');
+    const cost=campaignCost(bank,branch);if(F.investorMode?.(state)!==true&&num(F.operating(state,'bank'))<cost)throw new Error('insufficient-cash');
     // Paid like any outside supplier (energy maintenance does the same): an invoice settled by a cleared cheque.
     const payment=F.execute({state},'pay-by-cheque',{company:'bank',amount:cost,note:`حملة تسويقية · فرع ${branch.city} · ${CAMPAIGN_DAYS} يومًا`,beneficiary:`وكالة تسويق · ${branch.city}`,line:'marketing',requestRef:`BANK-CAMPAIGN-${branch.id}-${day}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('bank-campaign-cheque-not-cleared');
     branch.campaignUntil=day+CAMPAIGN_DAYS;branch.campaigns=Math.max(0,Math.floor(Number(branch.campaigns)||0))+1;branch.campaignSpend=num(branch.campaignSpend)+cost;return {branchId:branch.id,city:branch.city,cost,until:branch.campaignUntil,chequeId:payment.cheque.id};
