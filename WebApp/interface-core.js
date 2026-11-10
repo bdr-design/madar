@@ -146,11 +146,13 @@ function mapViewport(){
 const TOAST_LIMIT=2,TOAST_MS=5200,TOAST_ALERT_MS=8000,TOAST_MAX_MS=12000;let toastHost=null;
 function toast(message,kind='info'){
  const text=String(message||'').replace(/\s+/g,' ').trim();if(!text||typeof document==='undefined'||!document.body)return false;
+ // Build 676: the same text again replaces its message. Dropped first: when it was the only message its strip leaves
+ // the page with it (the strip was then asked to take the new message and was gone: a page error).
+ if(toastHost)for(const shown of [...toastHost.children])if(shown.dataset.text===text)shown.__drop();
  if(!toastHost||!toastHost.isConnected){toastHost=document.createElement('div');toastHost.id='uiToasts';toastHost.className='ui-toasts';toastHost.setAttribute('role','status');toastHost.setAttribute('aria-live','polite');document.body.append(toastHost);}
  const tone=kind==='error'?'err':kind==='warning'||kind==='disabled'?'warn':kind==='success'?'ok':'info';
- for(const shown of [...toastHost.children])if(shown.dataset.text===text)shown.__drop();
  const row=document.createElement('div'),mark=document.createElement('i'),body=document.createElement('p'),close=document.createElement('button');
- row.className=`ui-toast ${tone}`;row.dataset.text=text;row.dataset.kind=tone;mark.setAttribute('aria-hidden','true');mark.textContent=tone==='err'?'×':tone==='warn'?'!':tone==='ok'?'✓':'i';body.textContent=text;close.type='button';close.textContent='×';close.setAttribute('aria-label',arEn('إغلاق الرسالة','Dismiss the message'));
+ row.className=`ui-toast ${tone}`;row.dataset.text=text;row.dataset.kind=tone;mark.setAttribute('role','img');mark.setAttribute('aria-label',tone==='err'?arEn('خطأ','Error'):tone==='warn'?arEn('تحذير','Warning'):tone==='ok'?arEn('تم','Done'):arEn('معلومة','Note'));mark.textContent=tone==='err'?'×':tone==='warn'?'!':tone==='ok'?'✓':'i';body.textContent=text;close.type='button';close.textContent='×';close.setAttribute('aria-label',arEn('إغلاق الرسالة','Dismiss the message'));
  const timer=setTimeout(()=>row.__drop(),Math.min(TOAST_MAX_MS,(tone==='err'||tone==='warn'?TOAST_ALERT_MS:TOAST_MS)+text.length*30));
  row.__drop=()=>{clearTimeout(timer);row.remove();if(toastHost&&!toastHost.children.length){toastHost.remove();toastHost=null;}};
  close.addEventListener('click',()=>row.__drop());row.append(mark,body,close);toastHost.append(row);

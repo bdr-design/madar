@@ -59,7 +59,7 @@
     globalThis.GH_PROCUREMENT_CORE?.execute?.({state},'complete-construction',{id:contract.id,status:'مكتمل / مشغل'});
     if(facility){facility.commissioned=true;facility.status='تشغيل تجاري';facility.dailyCost=Number(facility.plannedDailyCost)||Number(facility.dailyCost)||0;facility.capacity=`مشغل · ${Number(contract.capacityAmount)||0} ${contract.capacityKey==='storageMWh'?'MWh':'MW'}`;}
     const adjusted=commands.dispatchSystem({state},'corporate','adjust-group-value',{delta:(Number(contract.amount)||0)*.44},{actor:'project-commissioning'});if(!adjusted?.ok)throw new Error('project-value-owner-rejected');
-    const alert=commands.dispatchSystem({state},'operations','record-alert',{text:`اكتمل التشغيل التجاري لمشروع ${contract.siteName||contract.facilityKind}. أضيفت القدرة الجديدة إلى التشغيل الفعلي.`,type:'commissioning'},{actor:'project-commissioning'});if(!alert?.ok)throw new Error('project-alert-owner-rejected');
+    const alert=commands.dispatchSystem({state},'operations','record-alert',{text:`بدأ التشغيل التجاري لمشروع ${contract.siteName||contract.facilityKind}. أضيفت القدرة الجديدة إلى التشغيل الفعلي.`,type:'commissioning'},{actor:'project-commissioning'});if(!alert?.ok)throw new Error('project-alert-owner-rejected');
     ensure(state);return true;
   }
   function hash(text){let h=2166136261>>>0;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
@@ -364,7 +364,7 @@
     out.cashPostedRevenue=out.revenue;
     if(F?.execute)for(const buyer of Object.keys(accounts).sort()){
       const account=accounts[buyer];if(!account||num(account.amount)<=0){delete accounts[buyer];continue;}if(day-Math.floor(Number(account.openedDay)||day)<SETTLE_EVERY_DAYS)continue;
-      let cash=0;try{cash=num(F.operating(state,buyer));}catch{continue;}if(cash+1e-8<num(account.amount)){account.carriedOver=(Number(account.carriedOver)||0)+1;continue;}
+      let cash=0;try{cash=num(F.operating(state,buyer));}catch{continue;}if(F.investorMode?.(state)!==true&&cash+1e-8<num(account.amount)){account.carriedOver=(Number(account.carriedOver)||0)+1;continue;}
       const result=F.execute({state},'settle-intercompany-supply',{from:buyer,to:seller,amount:account.amount,mwh:account.mwh,note:`توريد كهرباء داخلي · ${Math.round(account.mwh)} ميغاواط ساعة · ${account.days} يوم حتى يوم ${day}`,ref:`ENERGY-SUPPLY-${buyer}-${day}`});
       out.settlements.push({buyer,amount:account.amount,mwh:account.mwh,days:account.days,reference:result?.reference||`ENERGY-SUPPLY-${buyer}-${day}`});delete accounts[buyer];
     }

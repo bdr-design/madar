@@ -27,7 +27,9 @@ const {harness,minimal}=require('./helpers/core-harness'),ROOT=process.env.GH_TE
  const app=fs.readFileSync(path.join(ROOT,'WebApp/app.js'),'utf8'),push=app.indexOf('  function pushAlert(text){'),decl=app.lastIndexOf('  const deferredStagedAlerts=',push),end=app.indexOf('  const validMoney',push);assert(push>0&&end>push);
  let staged=true,epoch=0,dispatches=0;const callbacks=[],state={resetEpoch:0},notices=[];
  const context={state,window:{GH_TRANSACTION_CORE:{isStaged:()=>staged,isActive:()=>false,afterCommit:fn=>fn()}},afterStagedState:fn=>callbacks.push(fn),nextId:()=>String(++epoch),dispatchSystemCommand:()=>{if(staged)throw new Error('staged-transaction-in-progress');dispatches++;return {ok:true};},updateKpis:()=>{}};
- const pushAlert=vm.runInNewContext(`(()=>{${app.slice(decl>=0?decl:push,end)};return pushAlert;})()`,context);context.window.GH_INTERACTION_NOTICE=text=>{notices.push(text);return pushAlert(text);};
+ // Build 672: joined notices take the gravest kind of their parts (gravestAlertKind and its map, as the page declares them).
+ const kindsAt=app.indexOf('  function gravestAlertKind(messages){'),kinds=app.slice(kindsAt,app.indexOf('\n',kindsAt));assert(kindsAt>0&&/alertKinds\.get/.test(kinds));
+ const pushAlert=vm.runInNewContext(`(()=>{const alertKinds=new Map();${kinds}\n${app.slice(decl>=0?decl:push,end)};return pushAlert;})()`,context);context.window.GH_INTERACTION_NOTICE=text=>{notices.push(text);return pushAlert(text);};
  for(let i=0;i<100;i++)pushAlert('recording stopped');assert.equal(dispatches,0,'no write before the staged owner settles');assert.equal(callbacks.length,1,'one existing lifecycle waiter, no timer per message');
  staged=false;callbacks.shift()();assert.equal(dispatches,1,'exactly one notification after commit');assert.equal(notices.length,1);
  staged=true;for(let i=0;i<100;i++)pushAlert('notice-'+i);assert.equal(callbacks.length,1);staged=false;callbacks.shift()();assert.equal(dispatches,2,'16 pending messages flush in one notification transaction');assert.equal(notices[1].split(' • ').length,16,'the pending messages stay bounded');

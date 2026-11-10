@@ -13,7 +13,8 @@
 //   8. no page error.
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright'),{boot,reboot}=require('./helpers/local-dom-app');
-const RELEASE={fn:()=>{window.GH_EDITION='release';}},AUDIT='{toggleInvestorMode}';
+// (Build 676: the page also keeps the texts of the messages its strip shows, from before the app starts.)
+const RELEASE={fn:()=>{window.GH_EDITION='release';window.__toasts=[];new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1&&node.classList.contains('ui-toast'))window.__toasts.push(node.querySelector('p')?.textContent||'');}).observe(document.documentElement,{childList:true,subtree:true});}},AUDIT='{toggleInvestorMode}';
 
 (async()=>{
   const browser=await chromium.launch({headless:true});const results={};
@@ -31,6 +32,8 @@ const RELEASE={fn:()=>{window.GH_EDITION='release';}},AUDIT='{toggleInvestorMode
     await page.click('#speedToggle');
     const opened={speed:await page.evaluate(()=>__GH_STATE__.speed),store:await storeOpen(page),notice:await page.evaluate(()=>(__GH_STATE__.workflowControl?.history||[]).some(r=>/تستمر اللعبة على 120×/.test(JSON.stringify(r))))};
     assert.deepEqual(opened,{speed:2,store:false,notice:true},'1: a saved 300× opens (and plays) at 120× with one notice, without the store');
+    // Build 676 (review of the message strip): the notice was written before the strip had read the list, and never shown.
+    assert.deepEqual(await page.evaluate(()=>window.__toasts),['السرعة 300× غير متاحة دون «مسرّع الوقت» أو «أصول ونفوذ بلس»؛ تستمر اللعبة على 120×.'],'1: the strip shows that notice at launch, and nothing the save already held');
     results.opened=opened;
     // 2.
     await watch(page);

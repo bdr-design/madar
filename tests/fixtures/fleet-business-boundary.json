@@ -925,5 +925,34 @@
         "sha256": "6e1a07a2cc52533f7ba22c60e9583d780e5c9bcc6f5d32ea95a69277c1964390"
       }
     ]
+  },
+  "approved_play_through_fix_edits_reason": "Owner (10 Nov 2026, «لايوجد شي مقصود صلح كل شي مع الاختبارات والوكلاء»): fixes found by playing the store edition. governance-core: an ESG programme's yearly upkeep also asks the month's budget ceiling (the ceiling's refusal, uncaught, rolled the day back at every attempt; tests/build667). realism-core: a fleet claim paid by the group's own insurer does not wait for the insurer's cash under the investor licence (tests/build677), and the completion notice of a plant reads in Arabic (tests/build674). No customer, price or fleet rule changes. company-definitions: the logistics centre's card no longer promises a fleet of 1,000,000 trucks at every level (tests/build678); its capacity and prices are unchanged.",
+  "approved_play_through_fix_edits": {
+    "WebApp/governance-core.js": [
+      {
+        "before": "       if(cash>=upkeep){spend(s,upkeep,`صيانة سنوية لبرنامج الاستدامة ${id}`,company);program.lapsed=false;program.nextUpkeepDay=dueDay+UPKEEP_DAYS;program.upkeepPaid=(Number(program.upkeepPaid)||0)+upkeep;}\n       else{program.lapsed=true;program.nextUpkeepDay=day+30;}}",
+        "after": "       // Build 667 (review): a monthly budget ceiling refused this spend after the cash check passed, uncaught, and the day\n       // was rolled back at every attempt (a 1M ceiling on the holding stopped the clock on the upkeep's day). A programme is\n       // what the ceiling governs: an upkeep the budget refuses lapses as one the cash refuses. It is tried again the next day\n       // (30 days later is the same day of the budget's 30-day month, where the room was as short), the cash's in 30 days.\n       if(cash>=upkeep&&(typeof F?.canSpend!=='function'||F.canSpend(s,company,upkeep,'other'))){spend(s,upkeep,`صيانة سنوية لبرنامج الاستدامة ${id}`,company);program.lapsed=false;program.nextUpkeepDay=dueDay+UPKEEP_DAYS;program.upkeepPaid=(Number(program.upkeepPaid)||0)+upkeep;}\n       else{program.lapsed=true;program.nextUpkeepDay=day+(cash>=upkeep?1:30);}}",
+        "sha256": "0c3ef4a7d0aed6c427a2d48ed9c6c745eccb88535c08ea9c27ef02c242da37e6"
+      }
+    ],
+    "WebApp/realism-core.js": [
+      {
+        "before": "اكتمل Commissioning لمشروع",
+        "after": "بدأ التشغيل التجاري لمشروع",
+        "sha256": "753190db56d8a77455551296ed3eb7ace37bc5d7c6a784959bfd728619522f7d"
+      },
+      {
+        "before": "if(insurer&&insurer===internalInsurer){if(Math.max(0,Number(F?.operating?.(state,insurer))||0)+1e-8<amount){",
+        "after": "if(insurer&&insurer===internalInsurer){if(F?.investorMode?.(state)!==true&&Math.max(0,Number(F?.operating?.(state,insurer))||0)+1e-8<amount){",
+        "sha256": "e99c80aa22e183b0958f93caf9332203f66dcd2d7bdb3853e38ac00a3eb4ee72"
+      }
+    ],
+    "WebApp/company-definitions.js": [
+      {
+        "before": "capacity:'42 موقفًا · سعة أسطول حتى 1,000,000 شاحنة'",
+        "after": "capacity:'42 موقفًا · مركز تسليم وتشغيل للشاحنات'",
+        "sha256": "ed75b547758fe33b640cb81068d579de9d2f89be5c31c6567ee40b1cb033d2f8"
+      }
+    ]
   }
 }

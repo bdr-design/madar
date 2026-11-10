@@ -330,8 +330,8 @@ function investorCardTransfer(s,t,a,account,purpose){
 function investorCover(s,t,a,purpose='مصروف',account=0){
  if(!investorMode(s))return null;const shortfall=Math.max(0,num(a)-num(book(s,t).accounts[account]?.balance));if(shortfall<=0)return null;
  // Build 673 (play-through): the margin was «the shortfall again» above 25M, so a $110.0B purchase charged the card $219.95B
- // and left $109.98B in the company. The margin is 2.5 steps (25M) at every size: a run of payments still arrives as one
- // transfer, and a large purchase charges what it costs.
+ // and left $109.98B in the company. The margin is 2.5 steps (25M) at every size: a run of small payments still arrives as
+ // one transfer, a large purchase charges what it costs, and a run of large payments is one transfer each.
  const amount=Math.ceil((shortfall+INVESTOR_CARD_STEP*2.5)/INVESTOR_CARD_STEP)*INVESTOR_CARD_STEP;
  return investorCardTransfer(s,t,amount,account,purpose);
 }

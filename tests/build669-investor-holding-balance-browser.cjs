@@ -33,7 +33,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     await page.evaluate(async()=>{await __AUDIT__.runAuthorizedDomainCommand('finance','spend',{company:'group',amount:900000000,note:'QA holding expense',method:'تحويل بنكي',taxable:false},{silent:true});});
     const short=await read(),lacking=short.funding.filter(row=>row[1]==='ينقص حساب القابضة');assert.ok(short.holding<150000000,'1: the holding is down to about 100M');
     assert.ok(lacking.length>=1&&lacking.length<short.funding.length,`1: some companies are short, not all (${lacking.length} of ${short.funding.length})`);assert.ok(lacking.every(row=>row[0].includes('is-short')&&money.test(row[2])),'1: a short company prints what it lacks');
-    assert.ok(short.funding.filter(row=>row[1]==='حساب القابضة يكفي').every(row=>row[2]===short.openAll[1][1]),'1: an affordable one prints the balance');assert.doesNotMatch(short.openAll[2][1],/^\$0(\.0+)?$/,'1: the open-all card shows the shortfall');assert.equal(short.disabled,true,'1: and its button is disabled');
+    assert.ok(short.funding.filter(row=>row[1]==='حساب القابضة يكفي').every(row=>row[2]===short.openAll[1][1]),'1: an affordable one prints the balance');assert.doesNotMatch(short.openAll[2][1],/^\$0(\.0+)?$/,'1: the open-all card shows the shortfall');assert.equal(short.disabled,false,'1: and its button founds the companies the balance covers (Build 678; it was disabled)');assert.equal(short.openAll[3]?.[0],'يغطي الرصيد','1: the card says how many the balance covers');
 
     // 2. The investor mode, switched by its own button.
     await toggle(true);const on=await read();assert.equal(on.investor,true);

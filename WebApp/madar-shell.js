@@ -12,8 +12,9 @@ const ui=name=>`assets/images/ui/${name}.webp`;
 const platform=()=>globalThis.GH_COMPANY_PLATFORM;
 // One digit style across the shell, the same Western digits as the money figures in the top bar.
 const num=value=>Number.isFinite(Number(value))?Number(value).toLocaleString('en-US'):'—';
-// A counted Arabic noun from the copy owner («شركة واحدة», «3 شركات», «11 شركةً»); the plain number and noun without it.
-const countAr=(value,noun,plain)=>{try{return globalThis.GH_ARABIC_COPY.count(value,noun);}catch(_error){return `${num(value)} ${plain}`;}};
+// A counted noun from the copy owner, in the page's language («شركة واحدة», «3 شركات», «11 شركةً»; «1 company»,
+// «3 companies»): both texts of a pair carry this one placeholder. The plain number without the owner.
+const counted=(value,noun)=>{try{return globalThis.GH_ARABIC_COPY.count(value,noun);}catch(_error){return num(value);}};
 // A count and its noun agree in Arabic (owner review: «8 سيارة», «1 فروع البنك»): 3 to 10 take the plural, every other
 // count the singular; a label without a known noun is shown as written. The labels are the summary's (advanced-core.js),
 // in the same two languages.
@@ -320,8 +321,8 @@ function groupHub(state,ctx){
   const opened=openedCompanies(state),n=opened.length,facilities=(state.globalBases?.length||0)+(state.customHubs?.length||0)+(state.branches?.length||0);
   let vacant=0;for(const row of opened){try{if(!globalThis.GH_HR_CORE?.officialManager?.(state,row.id))vacant++;}catch(_error){}}
   const decisions=[];
-  if(vacant)decisions.push(['executive',arEn(`${countAr(vacant,'company','شركة')} بلا مدير تنفيذي`,`${num(vacant)} ${vacant===1?arEn('شركة','company'):arEn('شركات','companies')} without a chief executive`),arEn('أفضل مرشح لكل شركة في اعتماد واحد','The best candidate for each company in one approval'),'labor','managers',arEn('تعيين','Appoint')]);
-  if(n&&!facilities)decisions.push(['facilities',arEn('لا توجد منشآت بعد','No facilities yet'),arEn('افتح أول قاعدة من الدليل العالمي','Open the first base from the world directory'),'network',undefined,arEn('فتح','Open')]);
+  if(vacant)decisions.push(['executive',arEn(`${counted(vacant,'company')} بلا مدير تنفيذي`,`${counted(vacant,'company')} without a chief executive`),arEn('أفضل مرشح لكل شركة في اعتماد واحد','The best candidate for each company in one approval'),'labor','managers',arEn('تعيين','Appoint')]);
+  if(n&&!facilities&&!sectionTasks(state,'group').some(task=>task.id==='START:FACILITY'))decisions.push(['facilities',arEn('لا توجد منشآت بعد','No facilities yet'),arEn('افتح أول قاعدة من الدليل العالمي','Open the first base from the world directory'),'network',undefined,arEn('فتح','Open')]);
   decisions.push(...sectionTasks(state,'group').slice(0,3).map(taskDecision));
   return panelMarkup({status:n?statusLine('good',arEn(`${num(n)} ${n===1?arEn('شركة تعمل','operating company'):arEn('شركات تعمل','operating companies')} · السمعة ${num(state.profile?.reputation||0)}/100`,`${num(n)} ${n===1?arEn('شركة تعمل','operating company'):arEn('شركات تعمل','operating companies')} · reputation ${num(state.profile?.reputation||0)}/100`)):statusLine('warn',arEn('لا شركات تابعة بعد','No subsidiaries yet')),
     kpis:[[arEn('قيمة المجموعة','Group value'),money(ctx,state.groupValue),''],[arEn('السيولة','Cash'),money(ctx,state.cash),''],[arEn('الدين','Debt'),money(ctx,state.debt),'']],
@@ -342,12 +343,12 @@ function peopleHub(state,ctx){
   let health=null;try{health=globalThis.GH_HR_CORE?.health?.(state,ctx)||null;}catch(_error){}
   const people=(state.hired?.length||0)+(state.crew||[]).reduce((n,row)=>n+(Number(row?.count)||0),0)+(state.mobility?.drivers?.length||0);
   const managers=Number(health?.officialManagers)||0,required=Number(health?.officialManagerRequired)||0,vacant=Math.max(0,required-managers),missing=Number(health?.facilityMissing)||0,decisions=[];
-  if(vacant)decisions.push(['executive',arEn(`${countAr(vacant,'company','شركة')} بلا مدير تنفيذي`,`${num(vacant)} ${vacant===1?arEn('شركة','company'):arEn('شركات','companies')} without a chief executive`),arEn('أفضل مرشح لكل شركة في اعتماد واحد','The best candidate for each company in one approval'),'labor','managers',arEn('تعيين','Appoint')]);
+  if(vacant)decisions.push(['executive',arEn(`${counted(vacant,'company')} بلا مدير تنفيذي`,`${counted(vacant,'company')} without a chief executive`),arEn('أفضل مرشح لكل شركة في اعتماد واحد','The best candidate for each company in one approval'),'labor','managers',arEn('تعيين','Appoint')]);
   if(missing)decisions.push(['people-dash',(missing===1?arEn(`${num(missing)} وظيفة غير مغطاة`,`${num(missing)} job uncovered`):arEn(`${num(missing)} وظيفة غير مغطاة`,`${num(missing)} jobs uncovered`)),arEn('المراكز والمنشآت تحتاج موظفين','The centres and facilities need staff'),'labor','dashboard',arEn('توظيف','Hire')]);
   decisions.push(...sectionTasks(state,'people').slice(0,3).map(taskDecision));
-  return panelMarkup({status:vacant?statusLine('warn',arEn(`${countAr(vacant,'company','شركة')} بلا مدير تنفيذي`,`${num(vacant)} ${vacant===1?arEn('شركة','company'):arEn('شركات','companies')} without a chief executive`)):statusLine('good',required?arEn('كل الشركات لها مدير تنفيذي','Every company has a chief executive'):arEn('لا شركات تحتاج مديرًا بعد','No company needs a manager yet')),
+  return panelMarkup({status:vacant?statusLine('warn',arEn(`${counted(vacant,'company')} بلا مدير تنفيذي`,`${counted(vacant,'company')} without a chief executive`)):statusLine('good',required?arEn('كل الشركات لها مدير تنفيذي','Every company has a chief executive'):arEn('لا شركات تحتاج مديرًا بعد','No company needs a manager yet')),
     kpis:[[arEn('الموظفون','Employees'),num(people),''],[arEn('تغطية الوظائف','Job coverage'),health?`${num(health.coverage)}%`:'—',''],[arEn('عقود سارية','Active contracts'),health?num(health.contracts):'—','']],
-    hero:{key:'managers',title:arEn('المديرون التنفيذيون','Chief executives'),img:'people-recruit',to:['labor','managers'],count:countMarkup(`${num(managers)}/${num(required)}`,arEn('شركات لها مدير','Companies with a manager')),chips:[vacant?(vacant===1?arEn(`${num(vacant)} شواغر`,`${num(vacant)} vacancy`):arEn(`${num(vacant)} شواغر`,`${num(vacant)} vacancies`)):'',health?.openRequisitions?arEn(`طلبات توظيف ${num(health.openRequisitions)}`,`Hiring requests ${num(health.openRequisitions)}`):'']},
+    hero:{key:'managers',title:arEn('المديرون التنفيذيون','Chief executives'),img:'people-recruit',to:['labor','managers'],count:countMarkup(`${num(managers)}/${num(required)}`,arEn('شركات لها مدير','Companies with a manager')),chips:[vacant?(vacant===1?arEn(`${num(vacant)} شاغر`,`${num(vacant)} vacancy`):arEn(`${num(vacant)} شواغر`,`${num(vacant)} vacancies`)):'',health?.openRequisitions?arEn(`طلبات توظيف ${num(health.openRequisitions)}`,`Hiring requests ${num(health.openRequisitions)}`):'']},
     tiles:HUB_TILES.people.map(tile=>tileMarkup(tile)).join(''),decisions});
 }
 function leadershipHub(state){
@@ -363,7 +364,7 @@ function systemHub(state,ctx){
   const last=!Number.isFinite(ago)||ago>86400000?'—':minutes<1?arEn('الآن','now'):arEn(`قبل ${num(minutes)} د`,`${num(minutes)} min ago`);
   const decisions=sectionTasks(state,'system').slice(0,3).map(taskDecision);
   return panelMarkup({status:decisions.length?statusLine('warn',arEn('النظام يحتاج مراجعة','The system needs a review')):statusLine('good',arEn('الحفظ التلقائي يعمل','Autosave is on')),
-    kpis:[[arEn('نسخة اللعبة','Game version'),String(ctx.appVersion||'—'),''],...(isRelease()?[]:[[arEn('الكتالوج','Catalogue'),String(state.advanced?.content?.catalogVersion||'—'),'']]),[arEn('خانات الحفظ','Save slots'),(total=>arEn(`${num(slots)} من ${num(total)}`,`${num(slots)} of ${num(total)}`))(globalThis.GH_STORE_CORE?.featureOpen?.(state,'slots')===true?6:3),'is-text']],
+    kpis:[[arEn('نسخة اللعبة','Game version'),String(ctx.appVersion||'—'),''],...(isRelease()?[]:[[arEn('الكتالوج','Catalogue'),String(state.advanced?.content?.catalogVersion||'—'),'']]),[arEn('خانات الحفظ','Save slots'),(total=>arEn(`${num(slots)} من ${num(total)}`,`${num(slots)} of ${num(total)}`))(globalThis.GH_STORE_CORE?.featureOpen?.(state,'slots')===true||slots>3?6:3),'is-text']],
     hero:{key:'save',title:arEn('آخر حفظ','Last save'),img:'company-system-v2',to:['settings'],count:countMarkup(last,''),chips:[save?.capMinutes?arEn(`تلقائي كل ${num(save.capMinutes)} د`,`Auto every ${num(save.capMinutes)} min`):'',arEn('الحفظ والخانات','Saves and slots')]},
     tiles:HUB_TILES.system.filter(tile=>shown(tile.to()[0])).map(tile=>tileMarkup(tile)).join(''),decisions});
 }

@@ -153,10 +153,11 @@
     const rows=platform()?.listInstances?.(state,{includeGroup:false,openedOnly:true,capability:'hr.management'}).filter(row=>row.operational).map(row=>row.id)||(state.openedCompanies||[]).filter(company=>managerCompanies().includes(company)),result={appointed:0,skipped:0,companies:[],appointments:[]};
     // Build 674 (play-through): one person was appointed to several companies (the best candidate of each, and the candidates
     // of different companies are drawn from one pool of people). Each company still takes its candidates in order of
-    // strength, but a person is given one company: a company whose candidates are all taken makes an earlier one move to
-    // its next candidate when that frees a person (an augmenting path); a person who manages a company already is not
-    // moved. Only when no such arrangement exists does a company take its strongest candidate as before.
-    const managing=new Set(),pending=[];
+    // strength, and a person is given one company: a company asks for its strongest candidate first, and the company that
+    // holds that person moves to its next free candidate when it has one (an augmenting path), so the most different
+    // people are appointed; a person who manages a company already is not moved. Only when no arrangement gives a
+    // company a person of its own does it take its strongest candidate as before.
+    const managing=new Set(Object.values(ensure(state).officialManagers||{}).filter(row=>row?.status==='ساري'&&row.name).map(row=>String(row.name))),pending=[];
     for(const company of [...new Set(rows)]){const current=officialManager(state,company);if(current){result.skipped++;if(current.name)managing.add(String(current.name));continue;}const candidates=managerCandidateRows(state,company).slice().sort((a,b)=>(Number(b.skill)||0)-(Number(a.skill)||0)||(Number(b.experience)||0)-(Number(a.experience)||0)||(Number(a.salary)||0)-(Number(b.salary)||0)||String(a.id).localeCompare(String(b.id)));if(!candidates.length){result.skipped++;continue;}pending.push({company,candidates,chosen:null});}
     const holder=new Map(),place=(index,seen)=>{for(const candidate of pending[index].candidates){const name=String(candidate.name);if(managing.has(name)||seen.has(name))continue;seen.add(name);const other=holder.get(name);if(other===undefined||place(other,seen)){holder.set(name,index);pending[index].chosen=candidate;return true;}}return false;};
     pending.forEach((row,index)=>{if(!place(index,new Set()))row.chosen=row.candidates[0];});

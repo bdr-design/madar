@@ -40,7 +40,9 @@ console.log(JSON.stringify({result:'passed',registeredAttributes:allowed.length,
  const start=source.indexOf('  function renderCompanies('),end=source.indexOf('  function renderActionCenter(',start);
  assert(start>=0&&end>start);
  let instances=[],calls=[];
- const render=vm.runInNewContext(source.slice(start,end)+'\nrenderCompanies',{
+ // Build 674: the page counts its companies with the file's own countOf (the plain number here, without the copy owner).
+ const countOfAt=source.indexOf('  function countOf('),countOfSource=source.slice(countOfAt,source.indexOf('\n',countOfAt));assert(countOfAt>=0);
+ const render=vm.runInNewContext(countOfSource+'\n'+source.slice(start,end)+'\nrenderCompanies',{
   companyInstances:()=>instances,identityName:(_s,id)=>id,assetOwnerCompanyId:a=>a.ownerCompanyId,
   companyOverviewIndex:()=>({fleet:new Map(),facilities:new Map()}),
   companyOverviewSummary:()=>({category:'service',categoryLabel:'service',primaryOperatingLabel:'operations',primaryOperatingCount:0,metrics:[]}),

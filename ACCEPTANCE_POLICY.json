@@ -11,6 +11,14 @@
     ],
     [
       "node",
+      "tests/build678-balance-capacity-and-details-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build677-investor-closes-and-tender-lock.cjs"
+    ],
+    [
+      "node",
       "tests/build675-task-targets-and-page-texts-browser.cjs"
     ],
     [
@@ -1847,6 +1855,106 @@
     ],
     [
       "node",
+      "tests/build368-approved-company-logos.cjs"
+    ],
+    [
+      "node",
+      "tests/build367-company-static-identities.cjs"
+    ],
+    [
+      "node",
+      "tests/native-save-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build407-diagnostic-lifecycle.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-tabs-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build473-purchase-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build616-marker-step-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build623-worker-extras-packing.cjs"
+    ],
+    [
+      "node",
+      "tests/save-pipeline-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-field-classes-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/fleet-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-replica-log-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build353-steady-slice-rollback.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-asset-purchase-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-dispatch-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-large-fleet-main-thread-policy-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build362-fleet-window-session.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-query-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-staged-replica-prime-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-seed-metadata-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-mutation-validation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build429-worker-value-collection-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/save-checksum-worker-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build657-road-dispatch-depots.cjs"
     ],
     [
@@ -1879,18 +1987,6 @@
     ],
     [
       "node",
-      "tests/build368-approved-company-logos.cjs"
-    ],
-    [
-      "node",
-      "tests/build367-company-static-identities.cjs"
-    ],
-    [
-      "node",
-      "tests/native-save-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build334-identity-regressions.cjs"
     ],
     [
@@ -1904,10 +2000,6 @@
     [
       "node",
       "tests/build376-frame-work-attribution.cjs"
-    ],
-    [
-      "node",
-      "tests/build407-diagnostic-lifecycle.cjs"
     ],
     [
       "node",
@@ -1948,14 +2040,6 @@
     [
       "node",
       "tests/build532-map-loop-single-render.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-tabs-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build473-purchase-notice-work.cjs"
     ],
     [
       "node",
@@ -2067,10 +2151,6 @@
     ],
     [
       "node",
-      "tests/build616-marker-step-projection.cjs"
-    ],
-    [
-      "node",
       "tests/build336-diagnostics-transient.cjs"
     ],
     [
@@ -2083,19 +2163,11 @@
     ],
     [
       "node",
-      "tests/fleet-business-boundary.cjs"
-    ],
-    [
-      "node",
       "tests/build577-save-layout-steps.cjs"
     ],
     [
       "node",
       "tests/build507-encode-rows-steps.cjs"
-    ],
-    [
-      "node",
-      "tests/build623-worker-extras-packing.cjs"
     ],
     [
       "node",
@@ -2148,10 +2220,6 @@
     [
       "node",
       "tests/build587-fleet-extras-reuse.cjs"
-    ],
-    [
-      "node",
-      "tests/save-pipeline-browser.cjs"
     ],
     [
       "node",
@@ -2223,10 +2291,6 @@
     ],
     [
       "node",
-      "tests/build372-field-classes-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build372-fleet-dispatch-plan.cjs"
     ],
     [
@@ -2283,10 +2347,6 @@
     ],
     [
       "node",
-      "tests/fleet-regressions.cjs"
-    ],
-    [
-      "node",
       "tests/formation-engine-core.cjs"
     ],
     [
@@ -2320,10 +2380,6 @@
     [
       "node",
       "tests/build617-map-render-reuse.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-replica-log-browser.cjs"
     ],
     [
       "node",
@@ -2364,10 +2420,6 @@
     [
       "node",
       "tests/build340-simulation-transaction-worker.cjs"
-    ],
-    [
-      "node",
-      "tests/build353-steady-slice-rollback.cjs"
     ],
     [
       "node",
@@ -2431,14 +2483,6 @@
     ],
     [
       "node",
-      "tests/build372-asset-purchase-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-dispatch-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build476-staged-worker-replay.cjs"
     ],
     [
@@ -2452,10 +2496,6 @@
     [
       "node",
       "tests/build358-transaction-row-snapshots.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-large-fleet-main-thread-policy-browser.cjs"
     ],
     [
       "node",
@@ -2495,10 +2535,6 @@
     ],
     [
       "node",
-      "tests/build362-fleet-window-session.cjs"
-    ],
-    [
-      "node",
       "tests/build362-save-validation-chunks.cjs"
     ],
     [
@@ -2512,14 +2548,6 @@
     [
       "node",
       "tests/build372-fleet-day-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-query-worker-browser.cjs"
     ],
     [
       "node",
@@ -2563,10 +2591,6 @@
     ],
     [
       "node",
-      "tests/build372-staged-replica-prime-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build372-startup-normalization-plan.cjs"
     ],
     [
@@ -2576,14 +2600,6 @@
     [
       "node",
       "tests/build372-startup-staffing-worker-apply.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-seed-metadata-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-mutation-validation-browser.cjs"
     ],
     [
       "node",
@@ -2612,10 +2628,6 @@
     [
       "node",
       "tests/build428-worker-value-collection.cjs"
-    ],
-    [
-      "node",
-      "tests/build429-worker-value-collection-browser.cjs"
     ],
     [
       "node",
@@ -2668,10 +2680,6 @@
     [
       "node",
       "tests/build526-prestage-fleet-chunks-only.cjs"
-    ],
-    [
-      "node",
-      "tests/save-checksum-worker-browser.cjs"
     ],
     [
       "python3",
@@ -3434,6 +3442,14 @@
     [
       "node",
       "tests/build675-task-targets-and-page-texts-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build677-investor-closes-and-tender-lock.cjs"
+    ],
+    [
+      "node",
+      "tests/build678-balance-capacity-and-details-browser.cjs"
     ],
     [
       "node",

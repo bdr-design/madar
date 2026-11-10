@@ -31,7 +31,11 @@ const ROOT=process.env.GH_TEST_SOURCE_DIR,source=name=>fs.readFileSync(path.join
   assert.deepEqual(forms('ship'),['لا سفن','سفينة واحدة','سفينتان','3 سفن','10 سفن','11 سفينةً','15 سفينةً','99 سفينةً','100 سفينة','101 سفينة'],'1: سفينة');
   assert.deepEqual(forms('truck'),['لا شاحنات','شاحنة واحدة','شاحنتان','3 شاحنات','10 شاحنات','11 شاحنةً','15 شاحنةً','99 شاحنةً','100 شاحنة','101 شاحنة'],'1: شاحنة');
   for(const [noun,one,many] of [['manager','manager','managers'],['aircraft','aircraft','aircraft'],['ship','ship','ships'],['truck','truck','trucks']])assert.deepEqual(Array.from(A.FORMS_EN[noun]),[one,many],`1: ${noun} in English`);
-  for(const noun of Object.keys(A.FORMS))assert.ok(Array.isArray(A.FORMS_EN[noun])||typeof A.FORMS_EN[noun]==='object',`1: ${noun} has its English forms`);}
+  for(const noun of Object.keys(A.FORMS))assert.ok(Array.isArray(A.FORMS_EN[noun])||typeof A.FORMS_EN[noun]==='object',`1: ${noun} has its English forms`);
+  // (review) A governed noun (after a preposition, a verbal noun, as an object): the dual takes «ـين»; the other numbers
+  // are written the same.
+  assert.deepEqual(['company','manager','aircraft','ship','truck','employee','route','asset','day','facility'].map(noun=>A.count(2,noun,{oblique:true})),['شركتين','مديرين','طائرتين','سفينتين','شاحنتين','موظفين','مسارين','أصلين','يومين','منشأتين'],'1: the governed dual');
+  for(const noun of Object.keys(A.FORMS)){assert.match(A.FORMS[noun].two,/ان$/u,`1: ${noun}: the dual ends in «ان»`);for(const n of [0,1,3,11,100])assert.equal(A.count(n,noun,{oblique:true}),A.count(n,noun),`1: ${noun} ${n}: only the dual changes`);}}
 console.log('1 ok: مدير، طائرة، سفينة، شاحنة are counted in every category');
 
 // 2. «تعيين الجميع».
@@ -61,7 +65,9 @@ const strongest=(H,state,company)=>H.officialManagerCandidates(state,company).sl
     const out=command('hr','appoint-all-official-managers',{termMonths:12}),label=`${seat.name} at ${seat.company}`;assert.deepEqual({appointed:out.appointed,skipped:out.skipped},{appointed:14,skipped:1},`2: ${label}: the appointed company is left alone`);
     assert.equal(H.officialManager(state,seat.company).id,kept.id,`2: ${label}: the manager the player chose is not moved`);const names=companies.map(company=>H.officialManager(state,company).name);
     assert.equal(new Set(names).size,expected,`2: ${label}: as many different people as any arrangement gives (${expected})`);
-    if(expected===15){full++;assert.equal(names.filter(name=>name===seat.name).length,1,`2: ${label}: one company only`);}else short++;
+    if(expected===15){full++;assert.equal(names.filter(name=>name===seat.name).length,1,`2: ${label}: one company only`);}else{short++;
+      // No arrangement gives every company its own person: the one left takes its strongest candidate, as before.
+      const twice=names.filter((name,index)=>names.indexOf(name)!==index);assert.ok(twice.length>=1);for(const company of companies){const manager=H.officialManager(state,company);if(company!==seat.company&&twice.includes(manager.name)&&names.indexOf(manager.name)!==companies.indexOf(company))assert.equal(manager.candidateId,strongest(H,state,company)[0].id,`2: ${label}: ${company}, left without a person of its own, takes its strongest candidate`);}}
     for(const company of companies)assert.equal(command('hr','dismiss-official-manager',{company}).dismissed,true);}
   assert.ok(full>=1&&short>=1,`2: both shapes were met: an arrangement for everyone (${full}) and none (${short})`);const valid=s.GH_SAVE_SCHEMA.validate(state);assert.ok(valid.ok,JSON.stringify(valid.errors));}
 {// One company alone takes its strongest candidate (tests/build360 holds the same for the first game's airline).
@@ -99,8 +105,10 @@ console.log('4 ok: unbounded money is written ∞');
 {const app=source('app.js'),advanced=source('advanced-core.js');
   for(const [name,text,gone] of [['app.js',app,['} شركات الآن؟','شركات وتسجيل عقودها','ذري','ذرّية','للأسطول لشركة','`فُعّل ','ألغي شراء سيارات Mobility بالكامل: ${error.message}']],['advanced-core.js',advanced,['} شركات</span>','مديرين رسميين','أصبح المدير الرسمي لـ','مديرًا رسميًا لـ','كمدير رسمي لـ','تم توظيف ${result.total} وحفظ']],['energy-core.js',source('energy-core.js'),['اكتمل Commissioning']],['realism-core.js',source('realism-core.js'),['اكتمل Commissioning']]])
     for(const part of gone)assert.equal(text.includes(part),false,`5: ${name} no longer writes «${part}»`);
-  for(const [text,kept] of [[app,["فتح ${countText(plans.length,'company')} الآن؟","${countText(plannedCount,type==='air'?'aircraft':'ship')}","${countText(current.length,'truck')}","غادرت ${countText(candidates.length,'aircraft')}","`تم تفعيل ${"]],[advanced,["${countOf(unopened.length,'company')}","عُيّن ${countOf(result.appointed,'manager')} رسميًا","تم توظيف ${countOf(result.total,'employee')}"]],[source('energy-core.js'),['اكتمل التشغيل التجاري لمشروع']],[source('realism-core.js'),['اكتمل التشغيل التجاري لمشروع']]])
+  for(const [text,kept] of [[app,["فتح ${countText(plans.length,'company',undefined,true)} الآن؟","${countText(plannedCount,type==='air'?'aircraft':'ship')}","${countText(current.length,'truck')}","غادرت ${countText(candidates.length,'aircraft')}","`تم تفعيل ${"]],[advanced,["${countOf(unopened.length,'company')}","عُيّن ${countOf(result.appointed,'manager')} رسميًا","لم يُعيَّن أحد","أُسندت إدارة ${ctx.typeName(company)} رسميًا إلى ${result.appointment.name}.","إعفاء ${current.name} من منصب المدير الرسمي","تم توظيف ${countOf(result.total,'employee',undefined,true)}"]],[source('energy-core.js'),['بدأ التشغيل التجاري لمشروع']],[source('realism-core.js'),['بدأ التشغيل التجاري لمشروع']]])
     for(const part of kept)assert.ok(text.includes(part),`5: «${part}» is written`);
+  // Build 678: the signed «new-game» action (no page renders its button today) asks before it erases the game.
+  assert.match(advanced,/if\(id==='new-game'\)\{if\(!ctx\.hardResetGame\)\{[^}]*\}if\(!await confirmDecision\(ctx,'[^']*لا يمكن التراجع بعد التأكيد\.','critical','new-game'\)\)return;const resetOk=await ctx\.hardResetGame\(\);/,'5: the new-game action is confirmed first');
   // Every noun the counted texts name is one the copy owner counts.
   const h=harness([]);h.load('arabic-copy-core');const FORMS=h.s.GH_ARABIC_COPY.FORMS;for(const text of [app,advanced])for(const match of text.matchAll(/count(?:Text|Of)\([^()]*(?:\([^()]*\)[^()]*)*,\s*'([a-zA-Z]+)'/g))assert.ok(FORMS[match[1]],`5: «${match[1]}» is a counted noun`);}
 console.log('5 ok: the messages count their nouns and carry no English word or «ذريًا»');

@@ -14,6 +14,10 @@
 //      called as the fastest way up: each is listed when it can be done, and only then;
 //   7. the system page counted the save slots against 3 for everyone: 6 where the slots feature is open, 3 in the store
 //      edition without Plus; the Plus page no longer promises a free week to everyone.
+// Build 677 (review of build 673):
+//   8. a tender the group cannot bid on says why: «أسّسها أولًا» only while no company of the sector is founded; a founded
+//      fleet company with no working asset is told to buy or repair one; a tender lost to a competitor shows the days
+//      until it is tendered again, and its button takes no bid.
 const assert=require('node:assert/strict');
 const {boot}=require('./helpers/local-dom-app');
 (async()=>{
@@ -38,12 +42,16 @@ const {boot}=require('./helpers/local-dom-app');
     const over=await buy(5);assert.deepEqual(over,{alert:'لم يُنفَّذ الشراء: الأماكن المتاحة في هذا المركز 2 من أصل 2.',cars:0},'1: five cars for two places: refused, with the places left');
     assert.ok((await toasts()).includes(over.alert),'1: and the player is shown it');
     const fits=await buy(2);assert.equal(fits.cars,2,'1: two cars for two places are delivered');assert.match(fits.alert,/^تم شراء وتسليم 2 سيارة/,'1: with the purchase\'s own message');
-    const full=await buy(1);assert.deepEqual(full,{alert:'لم يُنفَّذ الشراء: هذا المركز ممتلئ (سعته 2 سيارة).',cars:2},'1: a full centre says it is full');
+    const full=await buy(1);assert.deepEqual(full,{alert:'لم يُنفَّذ الشراء: هذا المركز ممتلئ (سعته: 2).',cars:2},'1: a full centre says it is full');
     for(const row of [over,full])assert.doesNotMatch(row.alert,/mobility-center-capacity|ألغي/,'1: no code in the message');
     console.log('1 ok: a refused car purchase says how many places are left, or that the centre is full');
 
     // 2. The first step of a career.
-    await page.evaluate(()=>{__GH_STATE__.progression=GH_PROGRESSION_CORE.initial('career-normal');});await open('groupHub');
+    await page.evaluate(()=>{__GH_STATE__.progression=GH_PROGRESSION_CORE.initial('career-normal');});
+    // (8, first half: the tenders' reasons while the logistics company is not founded)
+    const tenders=async()=>{await open('groupHub');await open('contracts');return page.evaluate(()=>Object.fromEntries([...document.querySelectorAll('#drawerBody .bid-contract')].map(node=>[node.dataset.id,{disabled:node.disabled,reason:node.dataset.disabledReason||'',label:node.textContent.trim()}])));};
+    const tendersBefore=await tenders();
+    await open('groupHub');
     const first=(await decisions()).find(row=>row.title==='افتح شركة اللوجستيات');assert.deepEqual(first,{title:'افتح شركة اللوجستيات',go:'companies',arg:'"subs"'},'2: the first step names the subsidiaries tab');
     await page.locator('#drawer .mc-decision .mc-act[data-go="companies"]').first().click();await page.waitForFunction(()=>document.getElementById('drawer').dataset.panel==='companies');
     const tabs=await page.evaluate(()=>({active:[...document.querySelectorAll('#drawerBody [data-companytab].active')].map(node=>node.dataset.companytab),tag:document.querySelector('#drawerBody .company-open-all .tag')?.textContent||null,unopened:document.querySelectorAll('#drawerBody .company-open-list>*').length}));
@@ -61,7 +69,11 @@ const {boot}=require('./helpers/local-dom-app');
     await page.locator('#drawer .mc-decision .mc-act[data-go="network"][data-go-arg]').first().click();await page.waitForFunction(()=>document.getElementById('drawer').dataset.panel==='network'&&document.getElementById('worldKind'));
     assert.deepEqual(await directory(),{kind:'road',list:'road'},'3: its button opens the logistics company\'s sites');
     await page.locator('#worldKind').selectOption('mobility');await page.waitForFunction(()=>document.querySelector('#drawerBody .world-directory')?.dataset.company==='mobility');
-    await page.evaluate(()=>__AUDIT__.openDrawer('network','road'));await page.waitForTimeout(300);assert.deepEqual(await directory(),{kind:'mobility',list:'mobility'},'3: the company chosen on the page is kept when the same page is drawn again');
+    await page.evaluate(()=>__AUDIT__.openDrawer('network'));await page.waitForTimeout(300);assert.deepEqual(await directory(),{kind:'mobility',list:'mobility'},'3: the company chosen on the page is kept when the page is drawn again');
+    // (review) «رجوع» from another page comes back to the player's choice, not to the task's company.
+    await open('contracts');await page.click('#workspaceBack');await page.waitForFunction(()=>document.getElementById('drawer').dataset.panel==='network'&&document.getElementById('worldKind'));
+    assert.deepEqual(await directory(),{kind:'mobility',list:'mobility'},'3: «رجوع» comes back to the company the player chose');
+    assert.equal(await page.evaluate(()=>JSON.stringify(__AUDIT__.currentArg?.()??null)),'null','3: the place opened is the directory itself (its company is taken at the door)');
     await open('groupHub');await page.locator('#drawer .mc-decision .mc-act[data-go="network"][data-go-arg]').first().click();await page.waitForFunction(()=>document.getElementById('drawer').dataset.panel==='network'&&document.getElementById('worldKind'));
     assert.deepEqual(await directory(),{kind:'road',list:'road'},'3: coming back from another page, the task\'s button filters again');
     console.log('3 ok: «افتح أول مركز لوجستي» opens the logistics company\'s sites, and the page keeps the company chosen afterwards');
@@ -73,7 +85,8 @@ const {boot}=require('./helpers/local-dom-app');
     const tagOf=()=>page.evaluate(name=>{const card=[...document.querySelectorAll('#drawerBody .list-item')].find(node=>node.querySelector('h3')?.textContent.trim()===name);return card?.querySelector('.tag.positive')?.textContent||null;},centre.name);
     await open('contracts');assert.equal(await tagOf(),'مكتمل / مشغل','4: the page reads the working facility');
     await page.evaluate(id=>{__GH_STATE__.customHubs.find(row=>row.id===id).status='قيد الإنشاء';},centre.id);await open('groupHub');await open('contracts');assert.equal(await tagOf(),'قيد التنفيذ','4: a facility under construction keeps «قيد التنفيذ»');
-    await page.evaluate(id=>{delete __GH_STATE__.customHubs.find(row=>row.id===id).status;},centre.id);
+    await page.evaluate(id=>{const row=__GH_STATE__.customHubs.find(item=>item.id===id);delete row.status;row.commissioned=false;},centre.id);await open('groupHub');await open('contracts');assert.equal(await tagOf(),'قيد التنفيذ','4: a facility not yet commissioned keeps «قيد التنفيذ»');
+    await page.evaluate(id=>{delete __GH_STATE__.customHubs.find(row=>row.id===id).commissioned;},centre.id);await open('groupHub');await open('contracts');assert.equal(await tagOf(),'مكتمل / مشغل','4: and reads as delivered again');
     console.log('4 ok: a working centre\'s construction contract reads «مكتمل / مشغل»');
 
     // 5. The market.
@@ -89,7 +102,11 @@ const {boot}=require('./helpers/local-dom-app');
     assert.deepEqual(due,{tax:false,conference:null,current:false},'6: no tax is due and no conference is called');
     assert.deepEqual(await steps(),['monthlyFinance','monthlyFinance','monthlyFinance'],'6: neither the tax nor the conference is offered');
     await page.evaluate(()=>{const s=__GH_STATE__;s.finance.periods.push({id:'QA-TAX-DUE',status:'مستحق'});});assert.deepEqual(await steps(),['invoices','monthlyFinance','monthlyFinance'],'6: with a tax due, paying it is the first step');
-    await page.evaluate(()=>{const s=__GH_STATE__;s.finance.periods.pop();s.advanced.conference=s.advanced.conference||{};s.advanced.conference.pendingYear=2027;});assert.deepEqual(await steps(),['monthlyFinance','conference','monthlyFinance'],'6: with a conference called, it is offered in its place');
+    await page.evaluate(()=>{const s=__GH_STATE__;s.finance.periods.pop();s.finance.periods.push({id:'QA-TAX-PAID',status:'مسددة'});});assert.deepEqual(await steps(),['monthlyFinance','monthlyFinance','monthlyFinance'],'6: a paid tax period offers nothing');
+    // (review) The conference's own reader keeps «none» as 0 after a day's close: still not called.
+    await page.evaluate(()=>{const s=__GH_STATE__;s.finance.periods.pop();s.advanced.conference=s.advanced.conference||{};s.advanced.conference.pendingYear=0;});assert.deepEqual(await steps(),['monthlyFinance','monthlyFinance','monthlyFinance'],'6: a conference year of 0 is no conference');
+    await page.evaluate(()=>{const s=__GH_STATE__;s.advanced.conference.pendingYear=null;s.advanced.conference.current={year:2027};});assert.deepEqual(await steps(),['monthlyFinance','conference','monthlyFinance'],'6: a conference under way is offered');
+    await page.evaluate(()=>{const s=__GH_STATE__;delete s.advanced.conference.current;s.advanced.conference.pendingYear=2027;});assert.deepEqual(await steps(),['monthlyFinance','conference','monthlyFinance'],'6: with a conference called, it is offered in its place');
     await page.evaluate(()=>{const s=__GH_STATE__;s.advanced.conference.pendingYear=null;Object.assign(s.progression,JSON.parse(window.__QA_PROGRESS__));});
     console.log('6 ok: the tax and the conference are offered when they can be done, and only then');
 
@@ -103,6 +120,21 @@ const {boot}=require('./helpers/local-dom-app');
       assert.doesNotMatch(plus.text,/أسبوع مجاني|أسبوعك المجاني/,'7: no free week is promised');assert.equal(plus.cta,'اشترك الآن');assert.deepEqual(plus.checks,['العرض التجريبي، إن توفّر لك، يظهر في نافذة المتجر','ألغِ متى شئت من حسابك في المتجر']);}
     finally{await page.evaluate(()=>{if(window.__QA_EDITION__===undefined)delete window.GH_EDITION;else window.GH_EDITION=window.__QA_EDITION__;});}
     console.log('7 ok: the system page counts the slots the edition gives; the Plus page promises no free week');
+
+    // 8. Why a tender cannot be bid on.
+    await page.waitForFunction(()=>__AUDIT__.currentFleetUiSummary?.()!=null,null,{timeout:30000}).catch(()=>{});
+    let tendersNow=await tenders();for(let guard=0;guard<20&&Object.values(tendersNow).some(row=>/جارٍ تحديث ملخص الأسطول/.test(row.reason));guard++){await page.waitForTimeout(250);tendersNow=await tenders();}
+    assert.ok(Object.keys(tendersBefore).length>=8,`8: the page lists the tenders (${Object.keys(tendersBefore).length})`);
+    const unfounded=Object.values(tendersBefore).filter(row=>/؛ أسّسها أولًا\.$/.test(row.reason)).length,changed=Object.keys(tendersNow).filter(id=>tendersBefore[id]&&tendersBefore[id].reason!==tendersNow[id].reason);
+    assert.ok(unfounded>=changed.length&&changed.length>=1,`8: founding the logistics company changes the reason of its tenders (${changed.length} of ${unfounded})`);
+    for(const id of changed){assert.match(tendersBefore[id].reason,/^لا تملك المجموعة شركة عاملة في قطاع .+؛ أسّسها أولًا\.$/,`8: ${id} asked for the company while it was not founded`);
+      assert.match(tendersNow[id].reason,/^لا تملك .+ أصلًا جاهزًا للتشغيل؛ اشترِ أصلًا أو أصلح أسطولها قبل تقديم العرض\.$/,`8: ${id} now asks for a working asset, not for the company`);assert.equal(tendersNow[id].disabled,true);}
+    // A tender lost to a competitor (the command, as the page sends it).
+    const lostId=changed[0],today=await page.evaluate(()=>Math.floor((Number(__GH_STATE__.simSeconds)||0)/86400));
+    await page.evaluate(id=>__AUDIT__.runAuthorizedDomainCommand('contracts','bid',{id,won:false,number:null,client:'عميل الاختبار',sector:'road',category:'تشغيل',title:'مناقصة الاختبار',value:1000000,termMonths:12,competitorId:null,competitorName:'منافس'}),lostId);await settle();
+    assert.equal(await page.evaluate(id=>__GH_STATE__.contractRetenderDays?.[id],lostId),today+30,'8: the lost tender is closed for thirty days');
+    const lost=(await tenders())[lostId];assert.deepEqual(lost,{disabled:true,reason:'رست هذه المناقصة على منافس؛ يُعاد طرحها بعد 30 يومًا.',label:'يُعاد طرحها بعد 30 يومًا'},'8: the page shows the days until it is tendered again');
+    console.log(`8 ok: ${changed.length} tenders ask for a working asset once their company is founded; a lost tender shows its wait`);
     assert.deepEqual(errors,[],'no page error');
     console.log('BUILD675_TASK_TARGETS_AND_PAGE_TEXTS_BROWSER_PASS');
   }finally{await browser.close();}
