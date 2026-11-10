@@ -59,7 +59,7 @@
     globalThis.GH_PROCUREMENT_CORE?.execute?.({state},'complete-construction',{id:contract.id,status:'مكتمل / مشغل'});
     if(facility){facility.commissioned=true;facility.status='تشغيل تجاري';facility.dailyCost=Number(facility.plannedDailyCost)||Number(facility.dailyCost)||0;facility.capacity=`مشغل · ${Number(contract.capacityAmount)||0} ${contract.capacityKey==='storageMWh'?'MWh':'MW'}`;}
     const adjusted=commands.dispatchSystem({state},'corporate','adjust-group-value',{delta:(Number(contract.amount)||0)*.44},{actor:'project-commissioning'});if(!adjusted?.ok)throw new Error('project-value-owner-rejected');
-    const alert=commands.dispatchSystem({state},'operations','record-alert',{text:`اكتمل Commissioning لمشروع ${contract.siteName||contract.facilityKind}. أضيفت القدرة الجديدة إلى التشغيل الفعلي.`,type:'commissioning'},{actor:'project-commissioning'});if(!alert?.ok)throw new Error('project-alert-owner-rejected');
+    const alert=commands.dispatchSystem({state},'operations','record-alert',{text:`اكتمل التشغيل التجاري لمشروع ${contract.siteName||contract.facilityKind}. أضيفت القدرة الجديدة إلى التشغيل الفعلي.`,type:'commissioning'},{actor:'project-commissioning'});if(!alert?.ok)throw new Error('project-alert-owner-rejected');
     ensure(state);return true;
   }
   function hash(text){let h=2166136261>>>0;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h>>>0;}

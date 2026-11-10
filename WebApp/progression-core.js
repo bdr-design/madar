@@ -218,8 +218,8 @@
   // The first steps of a career (GH_UI_QUALITY tasks, «المهام الآن»): each one is also a milestone of experience.
   function startTasks(state){
     if(!active(state))return [];const opened=Array.isArray(state.openedCompanies)?state.openedCompanies:[],rows=[],task=(id,title,panel,reason,arg)=>({id,title,domain:'الشركات',priority:'high',panel,reason,...(arg!==undefined?{arg}:{})});
-    if(!opened.includes('road'))return [task('START:COMPANY','افتح شركة اللوجستيات','companies','أول شركة ترفع المجموعة إلى المستوى 3 مباشرة وتفتح شركة الطيران.')];
-    if(!heldFacilities(state,'road'))rows.push(task('START:FACILITY','افتح أول مركز لوجستي','network','الشاحنات تحتاج مركزًا تسلَّم إليه وتنطلق منه.'));
+    if(!opened.includes('road'))return [task('START:COMPANY','افتح شركة اللوجستيات','companies','أول شركة ترفع المجموعة إلى المستوى 3 مباشرة وتفتح شركة الطيران.','subs')];
+    if(!heldFacilities(state,'road'))rows.push(task('START:FACILITY','افتح أول مركز لوجستي','network','الشاحنات تحتاج مركزًا تسلَّم إليه وتنطلق منه.','road'));
     else if(!heldFleet(state,'road'))rows.push(task('START:FLEET','اشترِ شاحناتك الأولى','assetMarket','الشاحنة المستعملة تسترد سعرها في نحو شهرين من التشغيل.','road'));
     else if(!(Array.isArray(state.customRoutes)&&state.customRoutes.some(route=>String(route?.mode||route?.type||'')==='road'||String(route?.ownerCompanyId||'')==='road')))rows.push(task('START:ROUTE','أنشئ أول مسار بري','routes','الإيراد يبدأ حين تتحرك الشاحنات بين مدينتين.','road'));
     const p=root(state);if(p.lastLevelUp&&p.lastLevelUp.day===dayOf(state))rows.push(task('LEVEL:UP',`المستوى ${p.lastLevelUp.to}: اطّلع على ما فُتح`,'progression','شركات وطرازات وأدوات جديدة في متناولك.'));

@@ -3,16 +3,16 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "dc04e1447df24a322d27fd2f4666f7a6629066109a644dafd88db80243c4f27b",
-  "webapp_tree_sha256": "3b184060878a28cee044a58295edaf308a72a54cd556b183d5de7d260366efcc",
+  "source_tree_sha256": "132e0908867a1cf6b0cc3f943c88ac68b11f645da2f719361917d5b13b03c736",
+  "webapp_tree_sha256": "417a4893cc72c113f21f4b740a20d12430db56e2e02656cbbd1ff264c05907cd",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
       "sha256": "ddfc582b5ce53a62686684a8232f5c3a84e44e3dcef36ec88ac125a16c919971"
     },
     "WebApp/advanced-core.js": {
-      "bytes": 432642,
-      "sha256": "21b498f809ed2e7ff663090aa3deba9b19ef202d8dee252a77533818cec8cacd"
+      "bytes": 433277,
+      "sha256": "e30c018e946ddcc31eb9ec2fc22d26823387b0df6c30289fb4c28dd1a8165be8"
     },
     "WebApp/air-sea-network-core.js": {
       "bytes": 13798,
@@ -23,12 +23,12 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1124699,
-      "sha256": "d4c2496fcd4d91953518c583036b6689fefe995c2818294eb44036a659fa2c0c"
+      "bytes": 1126085,
+      "sha256": "248606df4e13bfeb28429667693f93760a94abc68874d51d3661c80526a3157b"
     },
     "WebApp/arabic-copy-core.js": {
-      "bytes": 8690,
-      "sha256": "ad3e8041ede81fdc367a6ba23f3d9574492ed0ea4cd25feef8d8820c0b4d6ec4"
+      "bytes": 9353,
+      "sha256": "dfffde6e04cc322c1a445b8db01910fb1e2d27add08d07aa28e69ebf9b5cf030"
     },
     "WebApp/asset-purchase-apply-core.js": {
       "bytes": 32834,
@@ -3511,8 +3511,8 @@
       "sha256": "104c8a293d0f22e14317ab6701b55833259217d40afa1177591f0700985d6b2b"
     },
     "WebApp/energy-core.js": {
-      "bytes": 76632,
-      "sha256": "e5f32ba3cb5ddf8982dd2449194ee6e060c30591dd0a1995b53bc8d82a496010"
+      "bytes": 76648,
+      "sha256": "246ab0c0c356dac144bff6941dd55c974980d4fbe054edf67e3284200514e968"
     },
     "WebApp/event-ledger-core.js": {
       "bytes": 1663,
@@ -3675,8 +3675,8 @@
       "sha256": "d79a352e34c844ffb8b8605307110b5c5499c98c70ff48567e26155f6e50e54b"
     },
     "WebApp/hr-core.js": {
-      "bytes": 35982,
-      "sha256": "c6015d5a445c0bddca5291a2d6e13c4cc17d27cebc39d9e9881e2bbcc2a2a2de"
+      "bytes": 37216,
+      "sha256": "d250134bb2e9c6043bea3520ea385150d4b0afeb69131d1ab0d5971064922e05"
     },
     "WebApp/i18n-core.js": {
       "bytes": 5385,
@@ -3747,8 +3747,8 @@
       "sha256": "80f3e4174f94aabb5075d75ada76454c7c028cd779c0f9e80f37c399ee6a9de5"
     },
     "WebApp/madar-shell.js": {
-      "bytes": 80249,
-      "sha256": "5001bef4cba4dc174584ce4f8ceafb34295bbb52ea85700ef7d292d5b42838dd"
+      "bytes": 80495,
+      "sha256": "e1e13e7b9d21469031d1df16b1b7ffd6a4ea44439b2dbeb1da0a73f6d8119569"
     },
     "WebApp/map-asset-query-core.js": {
       "bytes": 8132,
@@ -3851,8 +3851,8 @@
       "sha256": "69dbbeafb20e0b455deaf42dfea1d38c789d84c48f1f60199563c3785849465f"
     },
     "WebApp/progression-core.js": {
-      "bytes": 37803,
-      "sha256": "5511c0210174b5e2470f6645b2868e10b83609f52014acd8f6973a2433644db1"
+      "bytes": 37817,
+      "sha256": "f5cc3e7d67cdbc52ffdf4e440456fb66f788f322228ef34172adb3d51ca4e12a"
     },
     "WebApp/progression.css": {
       "bytes": 1910,
@@ -3871,8 +3871,8 @@
       "sha256": "70f4fad88be7c04cf6ae32edb5abbe967ec5be04c6d4b0639bc755b2b53a7d75"
     },
     "WebApp/realism-core.js": {
-      "bytes": 126673,
-      "sha256": "a9ed9808cdcd0573ff952cd70e9e2f0498e6017921f5aa30574d415b0e0afbab"
+      "bytes": 126689,
+      "sha256": "453abd6fbea3a70e15bc3b28f4ea3bba132b3b9c7a50083e2c8ce07c55320f34"
     },
     "WebApp/road-planner-worker-core.js": {
       "bytes": 3722,
@@ -3983,8 +3983,8 @@
       "sha256": "a2d4ca1701afcab3d777883d9f8ba474913693e3a972f35cdb030d068d353896"
     },
     "WebApp/ui-quality-core.js": {
-      "bytes": 6851,
-      "sha256": "b1206e807fcfb741440cae9437f48e83810b8ca74e820c972782f420c1e8fc36"
+      "bytes": 6893,
+      "sha256": "960c1337c9c2cb9c50308337dda35e4c082e96835ad083a530bedb0f3fff8ad6"
     },
     "WebApp/vendor/leaflet/images/layers-2x.png": {
       "bytes": 1259,
@@ -4088,7 +4088,7 @@
     },
     "project.yml": {
       "bytes": 2585,
-      "sha256": "5fb05dde4d0201f5cabc26ccecad49957bdc99c20cae9b40b67f1bcb533a6bed"
+      "sha256": "4e38a703aaff4cd2b1c721152220266003ecdfcf4efb2d407d6f2f5e3fce7bc0"
     },
     "BUILD": {
       "bytes": 4,

@@ -12,7 +12,7 @@
   function record(state,type,detail={},severity='info'){
     try{globalThis.GH_DIAGNOSTICS?.record?.(state,type,detail,severity);}catch(error){console.warn('UI quality diagnostics failed',error);}
   }
-  function task(id,title,domain,priority='normal',panel=null,reason=''){return {id,title,domain,priority,panel,reason};}
+  function task(id,title,domain,priority='normal',panel=null,reason='',arg){return {id,title,domain,priority,panel,reason,...(arg!==undefined?{arg}:{})};}
   function collectTasks(state){
     const out=[],diag=state?.diagnostics||{},now=Number(state?.simSeconds)||0;
     (state?.realism?.procurement?.deliveries||[]).filter(d=>d?.status!=='delivered'&&Number(d?.dueSimSeconds||Infinity)<now).forEach(d=>{const asset=(Array.isArray(d.assets)?d.assets:d.asset?[d.asset]:[])[0];out.push(task(`DEL:${d.id}`,`تسليم متأخر · ${asset?.model||d.catalogId||d.id}${Number(d.count||d.assets?.length)>1?` · ${Number(d.count||d.assets.length)} أصل`:''}`,'التشغيل','critical','procurement',d.destination||''));});
@@ -29,7 +29,7 @@
     if(safetyCount>0)out.push(task('SAFETY:INCIDENTS',`${safetyCount} حادث سلامة في آخر 30 يومًا`,'الرقابة',perThousand>=5?'critical':'normal','compliance',`${perThousand.toFixed(1)} لكل 1,000 أصل`));
     const cyberRows=recent(state?.advanced?.cyber?.events);if(cyberRows.length)out.push(task('CYBER:INCIDENTS',`${cyberRows.length} حادث سيبراني في آخر 30 يومًا`,'الرقابة','high','compliance',''));
     // The first steps of a career game (GH_PROGRESSION_CORE.startTasks); none in free play or investor mode.
-    for(const row of globalThis.GH_PROGRESSION_CORE?.startTasks?.(state)||[])out.push(task(row.id,row.title,row.domain,row.priority,row.panel,row.reason));
+    for(const row of globalThis.GH_PROGRESSION_CORE?.startTasks?.(state)||[])out.push(task(row.id,row.title,row.domain,row.priority,row.panel,row.reason,row.arg));
     const rank={critical:0,high:1,normal:2};return out.sort((a,b)=>(rank[a.priority]??9)-(rank[b.priority]??9)||a.domain.localeCompare(b.domain,'ar'));
   }
   function scan(root,panel,state){

@@ -11,6 +11,14 @@
     ],
     [
       "node",
+      "tests/build675-task-targets-and-page-texts-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build674-counted-texts-and-managers.cjs"
+    ],
+    [
+      "node",
       "tests/build673-tender-and-investor-card.cjs"
     ],
     [
@@ -1819,6 +1827,26 @@
     ],
     [
       "node",
+      "tests/build450-other-section-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-hotpath-profiler.cjs"
+    ],
+    [
+      "node",
+      "tests/build434-service-panel-fleet-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build582-directory-type-weight.cjs"
+    ],
+    [
+      "node",
+      "tests/build479-facility-scope-work.cjs"
+    ],
+    [
+      "node",
       "tests/build657-road-dispatch-depots.cjs"
     ],
     [
@@ -1899,10 +1927,6 @@
     ],
     [
       "node",
-      "tests/build450-other-section-work.cjs"
-    ],
-    [
-      "node",
       "tests/build340-air-sea-network-worker.cjs"
     ],
     [
@@ -1939,10 +1963,6 @@
     ],
     [
       "node",
-      "tests/build340-hotpath-profiler.cjs"
-    ],
-    [
-      "node",
       "tests/build359-conference-thermal.cjs"
     ],
     [
@@ -1956,10 +1976,6 @@
     [
       "node",
       "tests/build359-map-canvas-layer.cjs"
-    ],
-    [
-      "node",
-      "tests/build434-service-panel-fleet-work.cjs"
     ],
     [
       "node",
@@ -1996,10 +2012,6 @@
     [
       "node",
       "tests/build581-fleet-definition-weight.cjs"
-    ],
-    [
-      "node",
-      "tests/build582-directory-type-weight.cjs"
     ],
     [
       "node",
@@ -2392,10 +2404,6 @@
     [
       "node",
       "tests/build359-corridor-index.cjs"
-    ],
-    [
-      "node",
-      "tests/build479-facility-scope-work.cjs"
     ],
     [
       "node",
@@ -3418,6 +3426,14 @@
     [
       "node",
       "tests/build673-tender-and-investor-card.cjs"
+    ],
+    [
+      "node",
+      "tests/build674-counted-texts-and-managers.cjs"
+    ],
+    [
+      "node",
+      "tests/build675-task-targets-and-page-texts-browser.cjs"
     ],
     [
       "node",

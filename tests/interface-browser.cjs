@@ -93,7 +93,7 @@ const {drawFounderSignature}=require('./helpers/signature-input');
     manager:GH_HR_CORE.officialManager(__GH_STATE__,'air'),
     contracts:__GH_STATE__.advanced.labor.employmentContracts.filter(row=>row.officialManager&&row.company==='air').length,
     hiring:__GH_STATE__.advanced.labor.hiringLog.filter(row=>row.action==='official-manager-appointed'&&row.company==='air').length,
-    falseSuccess:__GH_STATE__.alerts.some(text=>String(text).includes('أصبح المدير الرسمي')),
+    falseSuccess:__GH_STATE__.alerts.some(text=>/أصبح المدير الرسمي|تولّى إدارة/.test(String(text))),
     realFailure:__GH_STATE__.alerts.some(text=>String(text).includes('qa-forced-durable-save-failure')&&(String(text).includes('تعذر تعيين المدير الرسمي')||String(text).includes('أُلغيت المعاملة بالكامل'))),
     failureAlerts:__GH_STATE__.alerts.filter(text=>String(text).includes('qa-forced-durable-save-failure'))
   }));
