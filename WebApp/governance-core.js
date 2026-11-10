@@ -67,8 +67,12 @@ function execute(ctx,cmd,p={}){const s=ctx.state||ctx;ensure(s);
      // maturity points a month until a later attempt (every 30 days) pays.
      const catalog=ESG_PROGRAMS[id],upkeep=Math.round(num(program.cost||catalog?.cost)*UPKEEP_SHARE),dueDay=Number.isFinite(Number(program.nextUpkeepDay))&&program.nextUpkeepDay!==null?Number(program.nextUpkeepDay):Math.floor(started/86400)+UPKEEP_DAYS;
      if(day>=dueDay&&upkeep>0){const company=payingCompany(s,program.company||catalog?.company||'group'),F=globalThis.GH_FINANCE_CORE,cash=globalThis.GH_FINANCE_CORE?.investorMode?.(s)?Infinity:Number(F?.operating?.(s,company))||0;
-       if(cash>=upkeep){spend(s,upkeep,`صيانة سنوية لبرنامج الاستدامة ${id}`,company);program.lapsed=false;program.nextUpkeepDay=dueDay+UPKEEP_DAYS;program.upkeepPaid=(Number(program.upkeepPaid)||0)+upkeep;}
-       else{program.lapsed=true;program.nextUpkeepDay=day+30;}}
+       // Build 667 (review): a monthly budget ceiling refused this spend after the cash check passed, uncaught, and the day
+       // was rolled back at every attempt (a 1M ceiling on the holding stopped the clock on the upkeep's day). A programme is
+       // what the ceiling governs: an upkeep the budget refuses lapses as one the cash refuses. It is tried again the next day
+       // (30 days later is the same day of the budget's 30-day month, where the room was as short), the cash's in 30 days.
+       if(cash>=upkeep&&(typeof F?.canSpend!=='function'||F.canSpend(s,company,upkeep,'other'))){spend(s,upkeep,`صيانة سنوية لبرنامج الاستدامة ${id}`,company);program.lapsed=false;program.nextUpkeepDay=dueDay+UPKEEP_DAYS;program.upkeepPaid=(Number(program.upkeepPaid)||0)+upkeep;}
+       else{program.lapsed=true;program.nextUpkeepDay=day+(cash>=upkeep?1:30);}}
      const maturity=program.lapsed?clamp((Number(program.maturity)||0)-steps*LAPSE_PER_DAY,0,100):program.status==='مكتمل'?100:clamp((Number(program.maturity)||0)+steps*4,0,100);program.maturity=maturity;program.lastMaturityDay=elapsedDays;const factor=maturity/100;
      if(id==='fleet')su.electricRoadShare=Math.max(num(su.electricRoadShare),12*factor);if(id==='saf')su.safShare=Math.max(num(su.safShare),15*factor);if(id==='shore')su.shorePower=Math.max(num(su.shorePower),25*factor);if(id==='renewable')su.renewableShare=Math.max(num(su.renewableShare),18*factor);if(id==='circular')su.circularity=Math.max(num(su.circularity),14*factor);if(id==='supply')su.supplyChainScore=Math.max(num(su.supplyChainScore),15*factor);if(id==='water')su.waterScore=Math.max(num(su.waterScore),18*factor);if(id==='disclosure')su.disclosure=Math.max(num(su.disclosure),18*factor);program.status=program.lapsed?'متوقف لعدم دفع الصيانة':maturity>=100?'مكتمل':'قيد التنفيذ';
    }

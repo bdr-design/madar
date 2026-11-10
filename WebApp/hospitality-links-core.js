@@ -57,8 +57,15 @@
           yield 'service-invoice';
         }
         const invoice=F().findArchivedDocument?.(s,'invoices','number',account.invoiceNumber)||s.finance.invoices.find(r=>r.number===account.invoiceNumber),amount=Number(invoice?.total||0),line=F().lineFor(invoice?.note,invoice?.method);
-        if(!invoice||F().operating(s,companyId)<amount||!F().canSpend(s,companyId,amount,line))continue;
-        F().execute({state:s},'settle-payable',{company:companyId,number:account.invoiceNumber,reference:ref},meta);
+        // Build 665 (found by review, reproduced): the supplier's bill is an ordinary payable; once the player or the company
+        // autopilot had paid it, settle-payable threw payable-not-found at every close. A bill already settled is recorded
+        // as settled, with no second payment; one with a cheque in issue waits for the cheque.
+        const open=(s.finance.payables||[]).some(r=>r.number===account.invoiceNumber),settledElsewhere=!!invoice&&!open&&['مسددة','مدفوعة'].includes(invoice.status);
+        if(!settledElsewhere){
+          if(!invoice||F().operating(s,companyId)<amount||!F().canSpend(s,companyId,amount,line))continue;
+          if((s.finance.cheques||[]).some(c=>c.invoiceNumber===account.invoiceNumber&&c.status==='صادر'))continue;
+          F().execute({state:s},'settle-payable',{company:companyId,number:account.invoiceNumber,reference:ref},meta);
+        }
       }else{
         if(F().operating(s,companyId)<net||!F().canSpend(s,companyId,net,'other'))continue;
         F().execute({state:s},'settle-intercompany-service',{from:companyId,to:account.providerCompanyId,amount:net,line:'other',ref,closeOwned:true,serviceCategory:KINDS[account.kind].name,note:`خدمة ضيافة داخل المجموعة · دورة ${account.cycleId}`,sourceRefs:[ref]},meta);

@@ -1384,7 +1384,7 @@
   const canSpend = amount => canCompanySpend('group',amount);
   // Inventory review: a refusal reached the player as its internal code («insufficient-funds-or-budget»,
   // «duplicate-route», «company-not-found:»). The notices read the reason in Arabic; an unknown code is shown as is.
-  const COMMAND_REASON_TEXT=Object.freeze({'insufficient-funds-or-budget':'الرصيد أو الميزانية الشهرية لا تكفي لهذه العملية.','insufficient-cash':'الرصيد غير كافٍ لهذه العملية.','insufficient-funds':'الرصيد غير كافٍ لهذه العملية.','duplicate-route':'هذا المسار موجود مسبقًا بين القاعدتين.','hospitality-construction-in-progress':'المنشأة قيد الإنشاء؛ لا تُغلق قبل اكتمالها.','diagnostic-export-state-changed':'تغيرت حالة اللعبة أثناء تجهيز التقرير؛ أعد المحاولة.'});
+  const COMMAND_REASON_TEXT=Object.freeze({'borrower-fee-budget':'سقف ميزانية الشركة المقترضة لا يتسع لرسوم ترتيب التسهيل هذا الشهر.','insufficient-funds-or-budget':'الرصيد أو الميزانية الشهرية لا تكفي لهذه العملية.','insufficient-cash':'الرصيد غير كافٍ لهذه العملية.','insufficient-funds':'الرصيد غير كافٍ لهذه العملية.','duplicate-route':'هذا المسار موجود مسبقًا بين القاعدتين.','hospitality-construction-in-progress':'المنشأة قيد الإنشاء؛ لا تُغلق قبل اكتمالها.','diagnostic-export-state-changed':'تغيرت حالة اللعبة أثناء تجهيز التقرير؛ أعد المحاولة.'});
   const reasonText=error=>{const message=String(error?.message||error||'');return COMMAND_REASON_TEXT[message]||(/^company-not-found/.test(message)?'الشركة المطلوبة غير موجودة لهذه العملية.':message);};
   window.GH_REASON_TEXT=reasonText;
   const pendingInteractionNotices=new Set();
@@ -1454,7 +1454,7 @@
     return true;
   }
   async function spendCompany(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=await runAuthorizedDomainCommand('finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable});return !!out.result;}
-  function spendCompanySystem(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=dispatchSystemCommand({state},'finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable,closeOwned:true},{actor:'financial-close'});return !!out.result;}
+  function spendCompanySystem(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=dispatchSystemCommand({state},'finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable,closeOwned:true,obligation:true},{actor:'financial-close'});return !!out.result;}
   const spend = (amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true) => spendCompany('group',amount,note,method,taxable);
 
   // ---- HR: موظفو المنشآت والقيادات فقط؛ طواقم الأصول يملكها Fleet Core ----
@@ -3726,20 +3726,35 @@
   const AUDIT_RETENTION_SECONDS=90*86400,AUDIT_DETAIL_LIMIT=5000,AUDIT_SEAL_ROUND=100,AUDIT_SEAL_VERIFY_MS=6,AUDIT_SEAL_ROLLBACK=Object.freeze({documentProofs:Object.freeze({level:'containers'}),finance:Object.freeze({level:'containers'}),coldArchive:Object.freeze({level:'containers'})});
   const auditRowAt=row=>Math.max(0,Number(row?.at??row?.issuedAt??row?.closedAt??row?.createdAt)||0);
   const AUDIT_LIVE_BUCKETS=Object.freeze(['hospitalityDocuments','invoices','cheques','transfers','payables','receivables','periods','taxSettlements','debtRecords','debtSettlements','payrollReports']),AUDIT_LINK_FIELDS=Object.freeze(['invoiceNumber','documentNumber','number','reference','sourceRef','chequeNumber','chequeId','replacedBy','settlementReference','transferReference','cancelledChequeIds']);
+  // A live customer receipt or credit note names its invoice (save-schema checks the link): that archived invoice stays hot
+  // like one a live cheque names. These lists only add links; the live proofs kept by a seal (liveProofIds) are unchanged.
+  const AUDIT_LINK_ONLY_BUCKETS=Object.freeze(['customerSalePaymentReceipts','customerFinancingReceipts','customerSaleCreditNotes']);
   // Build 359: whether anything is due is answered from each sealed collection's size and oldest row, kept per version of
   // it (a collection is replaced by its writers), before any row is listed.
   const AUDIT_OLDEST=new WeakMap();
+  const AUDIT_IDLE=new WeakMap(),AUDIT_IDLE_SECONDS=7*86400;
   function auditOldest(list){let at=AUDIT_OLDEST.get(list);if(at===undefined){at=Infinity;for(const row of list)at=Math.min(at,auditRowAt(row));if(Object.isFrozen(list))AUDIT_OLDEST.set(list,at);}return at;}
   function auditSealSelection(){
     const records=state.finance?.auditArchive?.records;if(!records||typeof records!=='object')return [];
-    {let total=0,oldest=Infinity;for(const list of Object.values(records))if(Array.isArray(list)){total+=list.length;oldest=Math.min(oldest,auditOldest(list));}if(total<=AUDIT_DETAIL_LIMIT&&oldest>=(Number(state.simSeconds)||0)-AUDIT_RETENTION_SECONDS)return [];}
-    const rows=[];for(const [kind,list] of Object.entries(records))if(Array.isArray(list))for(const row of list)rows.push({kind,row,at:auditRowAt(row)});
-    const cutoff=(Number(state.simSeconds)||0)-AUDIT_RETENTION_SECONDS,excess=Math.max(0,rows.length-AUDIT_DETAIL_LIMIT);
-    if(!excess&&!rows.some(entry=>entry.at<cutoff))return [];
-    const links=new Set();for(const bucket of AUDIT_LIVE_BUCKETS)for(const row of Array.isArray(state.finance?.[bucket])?state.finance[bucket]:[])for(const field of AUDIT_LINK_FIELDS){const value=row?.[field];if(Array.isArray(value)){for(const id of value)if(id!=null&&id!=='')links.add(String(id));}else if(value!=null&&value!=='')links.add(String(value));}
-    const linked=row=>[row?.number,row?.id,row?.reference,row?.chequeNumber].some(value=>value!=null&&value!==''&&links.has(String(value)));
+    const cutoff=(Number(state.simSeconds)||0)-AUDIT_RETENTION_SECONDS;let total=0,oldest=Infinity;for(const list of Object.values(records))if(Array.isArray(list)){total+=list.length;oldest=Math.min(oldest,auditOldest(list));}
+    if(total<=AUDIT_DETAIL_LIMIT&&oldest>=cutoff)return [];
+    // A pass inside the limit that found only named old rows is not repeated for a game week: reading every live document's
+    // links twice a game day to find nothing was 13 ms here. A row that becomes due meanwhile waits for that pass at most.
+    const archive=state.finance.auditArchive,idleUntil=total<=AUDIT_DETAIL_LIMIT?AUDIT_IDLE.get(archive):undefined;
+    if(idleUntil!==undefined&&(Number(state.simSeconds)||0)<idleUntil&&(Number(state.simSeconds)||0)>=idleUntil-AUDIT_IDLE_SECONDS)return [];
+    // Build 662: an old row a live document names stays hot for as long as that document lives, so «a row is older than the
+    // retention» is then true on every pass. Inside the limit only the rows past the retention can be due: they alone are
+    // listed and sorted, and only the links that name one of them are kept (the same selection, in the same order).
+    const excess=Math.max(0,total-AUDIT_DETAIL_LIMIT),rows=[];for(const [kind,list] of Object.entries(records))if(Array.isArray(list))for(const row of list){const at=auditRowAt(row);if(excess||at<cutoff)rows.push({kind,row,at});}
+    if(!rows.length)return [];
+    const keys=row=>[row?.number,row?.id,row?.reference,row?.chequeNumber],wanted=excess?null:new Set();if(wanted)for(const entry of rows)for(const value of keys(entry.row))if(value!=null&&value!=='')wanted.add(String(value));
+    const links=new Set(),link=value=>{if(value==null||value==='')return;const key=String(value);if(!wanted||wanted.has(key))links.add(key);};
+    for(const bucket of AUDIT_LIVE_BUCKETS)for(const row of Array.isArray(state.finance?.[bucket])?state.finance[bucket]:[])for(const field of AUDIT_LINK_FIELDS){const value=row?.[field];if(Array.isArray(value)){for(const id of value)link(id);}else link(value);}
+    for(const bucket of AUDIT_LINK_ONLY_BUCKETS)for(const row of Array.isArray(state.finance?.[bucket])?state.finance[bucket]:[])link(row?.invoiceNumber);
+    const linked=row=>keys(row).some(value=>value!=null&&value!==''&&links.has(String(value)));
     rows.sort((a,b)=>a.at-b.at);const out=[];
     for(let index=0;index<rows.length;index++){const entry=rows[index];if(entry.at>=cutoff&&index>=excess)break;if(!linked(entry.row))out.push(entry);}
+    if(!excess&&!out.length)AUDIT_IDLE.set(archive,(Number(state.simSeconds)||0)+AUDIT_IDLE_SECONDS);else AUDIT_IDLE.delete(archive);
     return out;
   }
   function liveProofIds(){
@@ -5090,8 +5105,11 @@
       selectedAssetId=null;
       Object.keys(routeTemplates).forEach(id=>{if(!BASE_ROUTE_IDS.has(id))delete routeTemplates[id];});
       closeDrawer();closeMapPopovers();$('assetCard')?.classList.add('hidden');
-      const founder=$('founderFlow');founder.classList.remove('hidden');founder.removeAttribute('aria-hidden');founder.style.setProperty('display','grid','important');founder.scrollTop=0;
-      const shell=$('app');shell.setAttribute('aria-hidden','true');shell.style.pointerEvents='none';
+      // Build 664: shown as a first launch shows it. An inline «display:grid !important» was set here: as a grid the screen's two
+      // panes stopped scrolling («التالي» and the signature button stayed below a phone's screen), and it beat the class
+      // that hides the screen once the group is founded.
+      resetFounderForm();const founder=$('founderFlow');founder.classList.remove('hidden');founder.removeAttribute('aria-hidden');founder.style.removeProperty('display');founder.scrollTop=0;for(const pane of founder.querySelectorAll('.incorporation-fields,.incorporation-preview'))pane.scrollTop=0;
+      const shell=$('app');shell.setAttribute('inert','');shell.setAttribute('aria-hidden','true');shell.style.pointerEvents='none';
       updateFounderLogoPreview();simulationEngine.reset(performance.now(),'new-group');simulationRuntime.wake();updateKpis();renderMap();updateMapStatus();promptLegal();return true;
     }catch(error){
       if(error.requiresNativeReload){
@@ -5109,7 +5127,7 @@
     }
   }
 
-  // Public fail-safe used only by the explicit New Group control.
+  // The reset itself, unconfirmed: for the acceptance tests and the measuring tools. The settings' button asks first.
   window.GH_FORCE_NEW_GAME=()=>hardResetGame();
 
   async function runFullDiagnostics(options={}){
@@ -6445,7 +6463,13 @@ ${page}</div>`;
     drawerRoot.querySelectorAll('.depart-route').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ جدولة المسار…');if(!release)return;try{const companyId=b.dataset.company||routeOwnerCompanyId(routeTemplates[b.dataset.route]),ok=await departRouteAssets(b.dataset.route,companyId);if(ok)reopenDrawer(navigationRevision,'routes',companyId);}finally{release();}}));
     drawerRoot.querySelectorAll('.sell-asset').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ مراجعة البيع…');if(!release)return;try{await sellAsset(b.dataset.id);}finally{release();}}));
     drawerRoot.querySelectorAll('.sell-all-assets').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ مراجعة بيع الأصول…');if(!release)return;try{await sellAllAssets(b.dataset.company);}catch(error){notice(`تعذر بيع الأصول: ${error.message}`);}finally{release();}}));
-    drawerRoot.querySelectorAll('.new-game-direct').forEach(b=>b.addEventListener('click',async event=>{event.preventDefault();event.stopPropagation();b.disabled=true;try{await hardResetGame();}finally{b.disabled=false;}}));
+    // Build 664 (found by playing: one tap erased a game of 183 days): the erasure is confirmed first, with what it takes.
+    drawerRoot.querySelectorAll('.new-game-direct').forEach(b=>b.addEventListener('click',async event=>{event.preventDefault();event.stopPropagation();if(b.disabled)return;b.disabled=true;try{
+      const days=Math.floor((Number(state.simSeconds)||0)/86400),group=String(state.profile?.name||'').trim();
+      const named=group?(window.GH_I18N?.isEn?.()===true?`“${group}”`:`«${group}»`):arEn('المجموعة الحالية','the current group'),played=countText(days,'day');
+      const erased=days>0?arEn(`بدء مجموعة جديدة يمسح ${named} نهائيًا: ${played} من اللعب، وكل الشركات والأموال، مع خانات الحفظ والنسخ الاستردادية.`,`Starting a new group erases ${named} for good: ${played} of play, every company and all money, with the save slots and the recovery copies.`):arEn(`بدء مجموعة جديدة يمسح ${named} نهائيًا: كل الشركات والأموال، مع خانات الحفظ والنسخ الاستردادية.`,`Starting a new group erases ${named} for good: every company and all money, with the save slots and the recovery copies.`);
+      if(!await ask(`${erased}\n${arEn('لا يمكن التراجع بعد التأكيد.','This cannot be undone once confirmed.')}`,'critical','new-game',{title:arEn('مسح اللعبة وبدء مجموعة جديدة','Erase the game and start a new group'),accept:arEn('تأكيد المسح','Confirm the erasure')}))return;
+      await hardResetGame();}finally{b.disabled=false;}}));
     drawerRoot.querySelectorAll('.add-credit').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;try{await runAuthorizedDomainCommand('finance','raise-debt',{company:'group',amount:50000000,note:'تفعيل خط ائتمان للمجموعة',liabilityAccount:'تسهيلات ائتمانية مستحقة',lender:'بنك المجموعة العالمي — إدارة الائتمان المؤسسي',termDays:360},{successNotice:_result=>'تم تفعيل خط ائتمان بقيمة $50M وتسجيله في سجل الديون.'});updateKpis();reopenDrawer(navigationRevision,'invoices',{company:'group',tab:'obligations',view:'debts'});}catch(error){notice(`تعذر تفعيل الائتمان: ${error.message}`);}}));
     drawerRoot.querySelectorAll('.issue-bond').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;try{await runAuthorizedDomainCommand('finance','raise-debt',{company:'group',amount:100000000,note:'إصدار سندات لخمس سنوات',liabilityAccount:'سندات مستحقة الدفع',lender:'أمناء إصدار سندات المجموعة العالمية',termDays:1800,fixedRate:true},{successNotice:_result=>`أصدرت المجموعة سندات لخمس سنوات بقيمة $100M وفق التصنيف ${state.profile.creditRating} وسُجل الالتزام رسميًا.`});updateKpis();reopenDrawer(navigationRevision,'invoices',{company:'group',tab:'obligations',view:'debts'});}catch(error){notice(`تعذر إصدار السندات: ${error.message}`);}}));
     // The share of each quarter's profit paid out (GH_CORPORATE_CORE set-dividend-policy; owner, IPO restructuring batch 4):
@@ -6711,7 +6735,7 @@ ${page}</div>`;
   function bulkPayableCompany(filter){return filter&&filter!=='all'?filter:'all';}
   function openPayablesFor(filter){const company=bulkPayableCompany(filter),issued=new Set((state.finance.cheques||[]).filter(ch=>ch.status==='صادر'&&ch.invoiceNumber).map(ch=>ch.invoiceNumber));return (state.finance.payables||[]).filter(d=>(company==='all'||(d.company||'group')===company)&&!issued.has(d.number));}
   function issuedChequesFor(filter){const company=bulkPayableCompany(filter);return (state.finance.cheques||[]).filter(ch=>ch.status==='صادر'&&(company==='all'||(ch.company||'group')===company));}
-  function payableSkipText(reasons={}){const labels={'payroll-cheque-not-supported':'رواتب تُصرف بتحويل فقط','cheque-already-issued':'لها شيك صادر','insufficient-cash':'الرصيد لا يكفي','cheque-linked-invoice-not-payable':'فاتورتها مسددة','cheque-linked-amount-mismatch':'مبلغها لا يطابق فاتورتها','cheque-linked-company-mismatch':'شركتها لا تطابق فاتورتها','cheque-linked-payable-not-found':'بلا فاتورة'};return Object.entries(reasons).map(([key,count])=>`${fmtNumber(count)} ${labels[key]||key}`).join('، ')||'—';}
+  function payableSkipText(reasons={}){const labels={'payroll-cheque-not-supported':'رواتب تُصرف بتحويل فقط','cheque-already-issued':'لها شيك صادر','insufficient-cash':'الرصيد لا يكفي','insufficient-budget':'سقف الميزانية لا يتسع لها','payable-cheque-pending':'لها شيك صادر','cheque-linked-invoice-not-payable':'فاتورتها مسددة','cheque-linked-amount-mismatch':'مبلغها لا يطابق فاتورتها','cheque-linked-company-mismatch':'شركتها لا تطابق فاتورتها','cheque-linked-payable-not-found':'بلا فاتورة'};return Object.entries(reasons).map(([key,count])=>`${fmtNumber(count)} ${labels[key]||key}`).join('، ')||'—';}
   // Build 359 (iPhone: settling or cashing every document was one 3.6 s block): the bulk loop yields to the frame once a
   // slice (BULK_SLICE_MS) is spent. The durable command suspends the simulation, so only painting runs in between, and the
   // button shows how far the batch has come. Still one command, one approval and one save.
@@ -6725,12 +6749,14 @@ ${page}</div>`;
       const reasons={};
       for(const number of numbers){await slice(done++);const item=(draft.finance.payables||[]).find(row=>row.number===number);if(!item)continue;const due=Number(item.total??item.amount)||0;
         if(method==='transfer'&&!free&&F.operating(draft,F.requireCompany(draft,item.company||'group'))<due){skipped++;reasons['insufficient-cash']=(reasons['insufficient-cash']||0)+1;continue;}
+        // Build 670 (review): a payable the month's ceiling refuses is skipped with its reason too; it rejected the whole batch.
+        const refused=method==='transfer'?F.payableTransferBlocker?.(draft,number)||null:null;if(refused){skipped++;reasons[refused]=(reasons[refused]||0)+1;continue;}
         // Build 358: a payable that cannot take a cheque (payroll is paid by transfer only, a cheque already issued...)
         // is skipped with its reason; it never rejects the whole batch.
         const blocker=method==='cheque'?F.payableChequeBlocker(draft,number):null;if(blocker){skipped++;reasons[blocker]=(reasons[blocker]||0)+1;continue;}
         const out=dispatch('finance','settle-payable',{number,method}).result;count++;amount+=Number(out?.amount)||due;}
-      if(!count)throw new Error(method==='cheque'?`لا توجد ذمة يمكن إصدار شيك لها الآن (${payableSkipText(reasons)})`:'لا يكفي رصيد الحساب الجاري لسداد أي ذمة الآن');
-      const result={count,amount,skipped,reasons};recordAlert(method==='cheque'?`صدرت ${fmtNumber(result.count)} شيكات بقيمة ${fmtMoney(result.amount)} لسداد الذمم المفتوحة؛ تبقى كل ذمة مفتوحة حتى صرف شيكها.${result.skipped?` لم يصدر شيك لـ ${fmtNumber(result.skipped)} ذمة: ${payableSkipText(result.reasons)}.`:''}`:`سُددت ${fmtNumber(result.count)} ذمة بتحويلات بنكية بقيمة ${fmtMoney(result.amount)}${result.skipped?`؛ بقيت ${fmtNumber(result.skipped)} ذمة لعدم كفاية الرصيد`:''}.`);return result;
+      if(!count)throw new Error(method==='cheque'?`لا توجد ذمة يمكن إصدار شيك لها الآن (${payableSkipText(reasons)})`:(reasons['insufficient-budget']?`لا توجد ذمة يمكن سدادها الآن (${payableSkipText(reasons)})`:'لا يكفي رصيد الحساب الجاري لسداد أي ذمة الآن'));
+      const result={count,amount,skipped,reasons};recordAlert(method==='cheque'?`صدرت ${fmtNumber(result.count)} شيكات بقيمة ${fmtMoney(result.amount)} لسداد الذمم المفتوحة؛ تبقى كل ذمة مفتوحة حتى صرف شيكها.${result.skipped?` لم يصدر شيك لـ ${fmtNumber(result.skipped)} ذمة: ${payableSkipText(result.reasons)}.`:''}`:`سُددت ${fmtNumber(result.count)} ذمة بتحويلات بنكية بقيمة ${fmtMoney(result.amount)}${result.skipped?(result.reasons['insufficient-budget']||result.reasons['payable-cheque-pending']?`؛ بقيت ${fmtNumber(result.skipped)} ذمة: ${payableSkipText(result.reasons)}`:`؛ بقيت ${fmtNumber(result.skipped)} ذمة لعدم كفاية الرصيد`):''}.`);return result;
     },{afterCommit:()=>{updateKpis();if(stayPanel){reopenDrawer(navigationRevision,stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}});
 
     return result;
@@ -7227,6 +7253,15 @@ ${page}</div>`;
   function editFounder(){
     if(founderSubmitting)return;founderReviewedInput=null;setFounderStep(false);founderFeedback();renderFounderPreview();$('founderName').focus?.();
   }
+  // Build 664 (found by playing): after «بدء مجموعة جديدة» the founding screen opened on its second step with an empty
+  // contract and no signature field, the fields of the erased group still in it. It opens as a first launch does: the
+  // first step, the fields as the page declares them, no logo, no reviewed contract and no signature.
+  function resetFounderForm(){
+    founderLogoRequest++;founderLogoLoading=false;founderLogoData=null;founderReviewedInput=null;
+    founderSignaturePad?.destroy?.();founderSignaturePad=null;$('founderSignatureMount')?.replaceChildren();
+    $('founderForm').reset();$('founderLocation').value='RUH';$('founderLogoStatus').textContent='';$('founderContractPreview').innerHTML='';
+    setFounderStep(false);founderFeedback();updateFounderLogoPreview();renderFounderPreview();
+  }
   function compressLogoFile(file){return new Promise((resolve,reject)=>{const allowed=new Set(['image/png','image/jpeg','image/webp']);if(!file||!allowed.has(String(file.type).toLowerCase())){reject(new Error(arEn('اختر شعارًا بصيغة PNG أو JPEG أو WebP.','Choose a logo in PNG, JPEG or WebP format.')));return;}if(file.size>8*1024*1024){reject(new Error(arEn('حجم الصورة كبير جدًا. الحد 8MB قبل الضغط.','The image is too large. The limit is 8MB before compression.')));return;}const reader=new FileReader();reader.onerror=()=>reject(new Error(arEn('تعذر قراءة الصورة من الاستديو.','The image could not be read from the photo library.')));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error(arEn('ملف الصورة غير قابل للقراءة.','The image file cannot be read.')));img.onload=()=>{const sourceWidth=Math.floor(Number(img.naturalWidth)||0),sourceHeight=Math.floor(Number(img.naturalHeight)||0);if(sourceWidth<1||sourceHeight<1||sourceWidth*sourceHeight>16000000){reject(new Error(arEn('أبعاد الشعار غير صالحة أو كبيرة جدًا للمعالجة الآمنة.','The logo\'s dimensions are invalid or too large for safe processing.')));return;}const max=360,scale=Math.min(1,max/Math.max(sourceWidth,sourceHeight)),w=Math.max(1,Math.round(sourceWidth*scale)),h=Math.max(1,Math.round(sourceHeight*scale)),canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const c=canvas.getContext('2d',{alpha:true});if(!c){reject(new Error(arEn('تعذر تجهيز مساحة الصورة.','The image canvas could not be prepared.')));return;}c.clearRect(0,0,w,h);c.drawImage(img,0,0,w,h);let data;try{data=canvas.toDataURL('image/webp',.76);if(!data.startsWith('data:image/webp'))data=canvas.toDataURL('image/jpeg',.78);}catch{data=canvas.toDataURL('image/jpeg',.78);}if(data.length>280000){reject(new Error(arEn('الشعار ما زال كبيرًا بعد الضغط. اختر صورة أبسط أو أقل تفاصيل.','The logo is still too large after compression. Choose a simpler or less detailed image.')));return;}resolve(data);};img.src=String(reader.result);};reader.readAsDataURL(file);});}
   $('founderLogoUpload')?.addEventListener('change',async event=>{
     const file=event.target.files?.[0];if(!file)return;const request=++founderLogoRequest;founderLogoLoading=true;$('founderLogoStatus').textContent=arEn('جارٍ تجهيز الشعار…','Preparing the logo…');updateFounderLogoPreview();
@@ -7266,7 +7301,9 @@ ${page}</div>`;
     const result=await runDurableStateCommand('found-group',({state:draft})=>{const authority=createFounderSignature(draft,strokes,founderReviewedInput.founder),plan=window.GH_GAME_LIFECYCLE.prepareFormationPlan(founderReviewedInput,authority.signature,{createdAt:Number(draft.simSeconds)||0});const founded=window.GH_GAME_LIFECYCLE.foundGroup(draft,plan,defaultState,{nextId:prefix=>window.GH_DETERMINISM.nextId(draft,prefix),simYear:()=>new Date(SIM_START+(Number(draft.simSeconds)||0)*1000).getUTCFullYear(),fmtMoney,signatureSnapshot,dispatchAuthorized:(target,domain,name,payload,options)=>authorizedDraftDispatch(target,domain,name,payload,options)});if(legalAcceptedSession&&window.GH_LEGAL&&!window.GH_LEGAL.accepted(draft))window.GH_LEGAL.record(draft,1);return founded;},{silent:true});
     founderSubmitting=false;$('founderForm').removeAttribute('aria-busy');$('founderSubmit').disabled=false;$('founderBack').disabled=false;$('founderSubmit').textContent=arEn('توقيع العقد وتأسيس المجموعة','Sign the contract and found the group');
     if(!result){founderFeedback(arEn('لم يُعتمد العقد ولم يُضف رأس المال. تعذر تأكيد الحفظ؛ أعد المحاولة بعد زوال السبب.','The contract was not approved and no capital was added. The save could not be confirmed; try again once the cause is gone.'));return false;}
-    $('founderFlow').classList.add('hidden');$('founderContractPreview').innerHTML='';$('founderLivePreview').innerHTML='';founderSignaturePad?.destroy?.();founderSignaturePad=null;$('founderSignatureMount')?.replaceChildren();$('app').removeAttribute('inert');$('app').removeAttribute('aria-hidden');$('app').style.pointerEvents='';
+    // Build 664 (found by playing): founded again after a reset, this screen stayed over the game until the app was
+    // restarted (an inline display set by the reset beat the class that hides it), and it kept its second step.
+    $('founderFlow').classList.add('hidden');$('founderFlow').style.removeProperty('display');founderReviewedInput=null;setFounderStep(false);$('founderContractPreview').innerHTML='';$('founderLivePreview').innerHTML='';founderSignaturePad?.destroy?.();founderSignaturePad=null;$('founderSignatureMount')?.replaceChildren();$('app').removeAttribute('inert');$('app').removeAttribute('aria-hidden');$('app').style.pointerEvents='';
     if(map)map.setView(headquartersFacility(state).coords,4,{animate:false});updateKpis();renderMap();storeBridgePost('ready');return true;
   }
   $('founderForm').addEventListener('submit',event=>{event.preventDefault();return finishFounder();});

@@ -60,19 +60,28 @@
       return null;
     }
     if(kind==='payables'){
-      const pending=new Set(list(s?.finance?.cheques).filter(row=>row?.status==='صادر'&&row.invoiceNumber).map(row=>String(row.invoiceNumber))),take=[],spent=new Map();
+      // Build 670 (review): a payable the month's ceiling refuses is left out as one the cash cannot cover is (the finance
+      // owner says which: payableTransferBlocker); it rejected the whole step, every day.
+      const pending=new Set(list(s?.finance?.cheques).filter(row=>row?.status==='صادر'&&row.invoiceNumber).map(row=>String(row.invoiceNumber))),take=[],spent=new Map(),planned={},blocked=typeof F.payableTransferBlocker==='function'?row=>F.payableTransferBlocker(s,row.number,planned)!==null:()=>false;
       for(const row of list(s?.finance?.payables)){
         if(take.length>=ROW_LIMIT)break;if(!row?.number||row.autoSettle===true||!due(row,day)||pending.has(String(row.number)))continue;const key=`${kind}:${row.number}`;if(tried.has(key))continue;
-        const company=companyOf(row),amount=num(row.total??row.amount),used=spent.get(company)||0;if(amount<=0||!covers(company,used+amount)){tried.add(key);continue;}
+        const company=companyOf(row),amount=num(row.total??row.amount),used=spent.get(company)||0;if(amount<=0||!covers(company,used+amount)||blocked(row)){tried.add(key);continue;}
         spent.set(company,used+amount);take.push(row);
       }
       if(!take.length)return null;
       return {kind,keys:take.map(row=>`${kind}:${row.number}`),count:take.length,commands:take.map(row=>({domain:'finance',name:'settle-payable',payload:{number:String(row.number),method:'transfer'}}))};
     }
     if(kind==='cheques'||kind==='returned'){
-      const status=kind==='cheques'?'صادر':'مرتجع',take=[];
+      const status=kind==='cheques'?'صادر':'مرتجع',take=[],taken=new Map();
       const rows=list(s?.finance?.cheques).filter(row=>row?.status===status&&row.id!=null&&!tried.has(`${kind}:${row.id}`)).sort((a,b)=>num(a.dueDay)-num(b.dueDay)||String(a.id).localeCompare(String(b.id)));
-      for(const row of rows){if(take.length>=ROW_LIMIT)break;const key=`${kind}:${row.id}`;let blocker='unchecked';try{blocker=typeof F.chequeFundingBlocker==='function'?F.chequeFundingBlocker(s,row):'unchecked';}catch(_error){blocker='invalid';}if(blocker!==null){tried.add(key);continue;}take.push(row);}
+      for(const row of rows){if(take.length>=ROW_LIMIT)break;const key=`${kind}:${row.id}`;let blocker='unchecked';try{blocker=typeof F.chequeFundingBlocker==='function'?F.chequeFundingBlocker(s,row):'unchecked';}catch(_error){blocker='invalid';}if(blocker!==null){tried.add(key);continue;}
+        // Build 670 (review): the finance owner checks each cheque alone. A second cheque of the same company in one step was
+        // presented against cash or budget room the first had taken, and bounced. It waits for the next step, which reads
+        // the state the first one left: always while a ceiling is on (the room is the total's and each line's), and with
+        // no ceiling unless the cash covers the step's cheques together.
+        const company=F.requireCompany?F.requireCompany(s,companyOf(row)):companyOf(row),amount=num(row.amount),used=taken.get(company);
+        if(used!==undefined&&!free&&((typeof F.remaining==='function'?F.remaining(s,company):Infinity)!==Infinity||num(F.operating?.(s,company))<used+amount+.005))continue;
+        taken.set(company,(used||0)+amount);take.push(row);}
       if(!take.length)return null;
       return {kind,keys:take.map(row=>`${kind}:${row.id}`),count:take.length,commands:take.map(row=>({domain:'finance',name:'settle-cheque',payload:{id:String(row.id)}}))};
     }

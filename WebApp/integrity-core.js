@@ -5,6 +5,12 @@ const arEn=(ar,en)=>globalThis.GH_I18N?.L?.(ar,en)??ar;
   const platform=()=>globalThis.GH_COMPANY_PLATFORM||null;
   const fleetData=()=>{const api=globalThis.GH_FLEET_DATA||(typeof require==='function'?require('./fleet-access-core.js'):null);if(!api)throw new Error('fleet-data-access-unavailable');return api;};
   const issue=(id,severity,title,detail,domain='business',evidence={})=>({id,severity,title,detail,domain,evidence});
+  // Build 663 (found by playing: the clock stopped for good on game day 219 of a bank left alone, «CET1 below 4.5%»): a
+  // condition of the business itself is not a fault of the operation that reaches it. 'critical' is for a broken state:
+  // every owner refuses the operation, a day of the simulation included, that brings a new critical issue. A bank under its
+  // prudential minimums or a grid short of capacity is the player's business to mend; it is reported, the highest of the
+  // warnings, and the clock goes on.
+  const BUSINESS_CONDITION='warning';
   const finite=v=>Number.isFinite(Number(v));
   const finiteMetric=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));
   const positive=v=>Math.max(0,Number(v)||0);
@@ -80,9 +86,9 @@ const arEn=(ar,en)=>globalThis.GH_I18N?.L?.(ar,en)??ar;
     // the healthy default instead of coercing to 0, which used to raise a critical breach on day 1.
     const ratio=(v,d)=>v===null||v===undefined?d:(Number.isFinite(Number(v))?Number(v):d);
     const bankDormant=bank.dormant===true;
-    if(!bankDormant&&ratio(bank.cet1,99)<4.5)issues.push(issue('BANK_CET1_REGULATORY_MIN','critical',arEn('CET1 دون الحد الأساسي','CET1 below the minimum'),arEn('CET1 الداخلي أقل من 4.5% من RWA.','Internal CET1 is below 4.5% of RWA.'),'bank',{cet1:bank.cet1,minimum:4.5}));
-    if(!bankDormant&&ratio(bank.lcr,999)<100)issues.push(issue('BANK_LCR_BELOW_100','critical',arEn('LCR دون 100%','LCR below 100%'),arEn('السيولة عالية الجودة لا تغطي صافي التدفقات المضغوطة وفق المؤشر الداخلي.','High-quality liquid assets do not cover stressed net outflows on the internal measure.'),'bank',{lcr:bank.lcr}));
-    if(!bankDormant&&ratio(bank.nsfr,999)<100)issues.push(issue('BANK_NSFR_BELOW_100','critical',arEn('NSFR دون 100%','NSFR below 100%'),arEn('التمويل المستقر المتاح أقل من التمويل المستقر المطلوب وفق المؤشر الداخلي.','Available stable funding is below the required stable funding on the internal measure.'),'bank',{nsfr:bank.nsfr}));
+    if(!bankDormant&&ratio(bank.cet1,99)<4.5)issues.push(issue('BANK_CET1_REGULATORY_MIN',BUSINESS_CONDITION,arEn('CET1 دون الحد الأساسي','CET1 below the minimum'),arEn('CET1 الداخلي أقل من 4.5% من RWA.','Internal CET1 is below 4.5% of RWA.'),'bank',{cet1:bank.cet1,minimum:4.5}));
+    if(!bankDormant&&ratio(bank.lcr,999)<100)issues.push(issue('BANK_LCR_BELOW_100',BUSINESS_CONDITION,arEn('LCR دون 100%','LCR below 100%'),arEn('السيولة عالية الجودة لا تغطي صافي التدفقات المضغوطة وفق المؤشر الداخلي.','High-quality liquid assets do not cover stressed net outflows on the internal measure.'),'bank',{lcr:bank.lcr}));
+    if(!bankDormant&&ratio(bank.nsfr,999)<100)issues.push(issue('BANK_NSFR_BELOW_100',BUSINESS_CONDITION,arEn('NSFR دون 100%','NSFR below 100%'),arEn('التمويل المستقر المتاح أقل من التمويل المستقر المطلوب وفق المؤشر الداخلي.','Available stable funding is below the required stable funding on the internal measure.'),'bank',{nsfr:bank.nsfr}));
     if(num(bank.provisionCoverage,100)<60&&num(bank.npl,0)>3)issues.push(issue('BANK_PROVISION_COVERAGE_LOW','warning',arEn('تغطية المخصصات ضعيفة','Weak provision coverage'),arEn('ارتفاع NPL مع تغطية مخصصات منخفضة يحتاج مراجعة ائتمانية.','A high NPL with low provision coverage needs a credit review.'),'bank',{npl:bank.npl,coverage:bank.provisionCoverage}));
     const av=r.aviation||ops.aviation||{};if(num(av.dispatchReliability,100)<94)issues.push(issue('AIR_DISPATCH_RELIABILITY_LOW','warning',arEn('اعتمادية التشغيل الجوي منخفضة','Low air operations reliability'),`Dispatch Reliability ${num(av.dispatchReliability).toFixed(1)}%.`,'aviation',{dispatchReliability:av.dispatchReliability}));
     if(num(av.maintenanceReserveCoverage,100)<70)issues.push(issue('AIR_MRO_RESERVE_LOW','warning',arEn('احتياطي صيانة الطيران منخفض','Low aviation maintenance reserve'),arEn(`التغطية ${num(av.maintenanceReserveCoverage).toFixed(0)}%.`,`Coverage ${num(av.maintenanceReserveCoverage).toFixed(0)}%.`),'aviation',{coverage:av.maintenanceReserveCoverage}));
@@ -96,7 +102,7 @@ const arEn=(ar,en)=>globalThis.GH_I18N?.L?.(ar,en)??ar;
     if(power.capacityStateMismatch)issues.push(issue('POWER_CAPACITY_STATE_MISMATCH','warning',arEn('قدرة الطاقة لا تطابق المنشآت المشغلة','Energy capacity does not match the operating facilities'),arEn('توجد محطة توليد مشغلة لكن سجل القدرة المجمع لا يحتوي قدرتها؛ أُوقف حكم هامش الاحتياطي حتى تتطابق المصادر.','A generation plant is operating but the combined capacity record does not hold its capacity. The reserve margin judgement is held until the sources match.'),'energy',powerEvidence));
     else if(power.metricFresh&&power.reserveMargin===null)issues.push(issue('POWER_ADEQUACY_METRIC_UNAVAILABLE','warning',arEn('مؤشر كفاية القدرة غير متاح','Capacity adequacy measure unavailable'),arEn('توجد قدرة توليد مشغلة، لكن مؤشر هامش الاحتياطي غير رقمي أو مفقود.','There is operating generation capacity, but the reserve margin measure is non-numeric or missing.'),'energy',powerEvidence));
     else if(power.metricFresh&&!power.adequacyMetricConsistent)issues.push(issue('POWER_ADEQUACY_METRIC_INCONSISTENT','warning',arEn('مؤشرات كفاية القدرة غير متطابقة','Capacity adequacy measures do not match'),arEn('القدرة المتاحة أو هامش الاحتياطي لا يطابق القدرة المركبة والإتاحة والطلب المقدر؛ أُوقف حكم الهامش حتى يعاد الإقفال اليومي.','The available capacity or the reserve margin does not match the installed capacity, availability and estimated demand. The margin judgement is held until the next daily close.'),'energy',powerEvidence));
-    else if(power.metricFresh&&power.reserveMargin<0)issues.push(issue('POWER_RESERVE_MARGIN_NEGATIVE','critical',arEn('هامش احتياطي القدرة سالب','Negative capacity reserve margin'),arEn('القدرة المتاحة لا تغطي الطلب التشغيلي المقدر.','The available capacity does not cover the estimated operating demand.'),'energy',powerEvidence));
+    else if(power.metricFresh&&power.reserveMargin<0)issues.push(issue('POWER_RESERVE_MARGIN_NEGATIVE',BUSINESS_CONDITION,arEn('هامش احتياطي القدرة سالب','Negative capacity reserve margin'),arEn('القدرة المتاحة لا تغطي الطلب التشغيلي المقدر.','The available capacity does not cover the estimated operating demand.'),'energy',powerEvidence));
     else if(power.metricFresh&&power.reserveMargin<8)issues.push(issue('POWER_RESERVE_MARGIN_LOW','warning',arEn('هامش احتياطي القدرة منخفض','Low capacity reserve margin'),`${power.reserveMargin.toFixed(1)}%.`,'energy',powerEvidence));
     }
     if(power.hasStorage){

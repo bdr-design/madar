@@ -22,6 +22,7 @@
 .dx-ok{background:var(--dx-act);color:#FFFFFF;box-shadow:0 8px 18px -8px var(--dx-act)}
 .dx-no{background:transparent;color:var(--dx-ink-2)}
 .dx-btn:focus-visible{outline:2px solid #E7B556;outline-offset:2px}
+.dx-btn:disabled{opacity:.45;cursor:default}
 .dx-media{position:relative;overflow:hidden;background:#0D3B57}
 .dx-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .dx-media::after{content:"";position:absolute;inset:0;pointer-events:none}
