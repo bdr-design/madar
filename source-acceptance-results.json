@@ -1,0 +1,7061 @@
+{
+  "completed": true,
+  "all_tests_passed": true,
+  "retried": [],
+  "node": "v24.22.0",
+  "runtime_unchanged": true,
+  "gates_unchanged": true,
+  "verification_error": null,
+  "gates_verification_error": null,
+  "acceptance_contract_sha256": "ea849ed4ffb3d28f56d8620b6c8add1506c6e0fd9a017cda0b3cbf07d7228ead",
+  "runtime_source": {
+    "verified": true,
+    "files": 1023,
+    "source_tree_sha256": "2e21e421766edd13750054e61fe6ce4d0ed372adf883a1121cf6742ced480350",
+    "version": "3.0.0",
+    "build": 362,
+    "save_schema": "3.0.0",
+    "release_approved": false,
+    "blocking_issues": [
+      "The offline sourced policy-rate snapshot covers only the Euro Area, Saudi Arabia, and the United States. Insurance pricing, local energy tariffs, real-estate pricing, and other countries still use the game model. SAMA redistribution terms for its announcement have not been confirmed; review before commercial redistribution.",
+      "No physical iPhone profile exists for this candidate. Frame time, touch latency, memory (803 MB JS heap at 1,000,000 assets in desktop Chromium), and thermal targets at 100,000 and 1,000,000 assets remain unverified on target hardware.",
+      "Build 358 direct-source CI passed on commit 1c618ad (run 37077522739: 147/147 source gates, unsigned arm64 iPhoneOS Release build); the recorded artifact block below still belongs to Build 357 (commit af36368). Later commits are verified by their own runs.",
+      "Historical desktop measurements from an earlier 600x source: Native fleet persistence admits purchases up to 1,000,000 records (fleet records in 4 MiB native vault chunks outside the save JSON; the browser localStorage save keeps 6,000). Measured only in desktop Chromium with the full app at 1,000,000 assets: 150 s of play at 600x with 5 frames over 100 ms (longest 0.45 s), staged daily close 2.7 s with a 174 ms longest task, warm save 83 ms (0.73 MB JSON), purchase 0.28 s, boot 2.8 s.",
+      "A fully moving fleet still needs fresh complete validation after writes. Coalesced validation and chunk-checksum workers have targeted desktop coverage; iPhone profiling of ordinary saves, background saves, startup, manual slots, reset and large text chunks remains unverified for this candidate.",
+      "Manual advance consults adapter.getManualSliceLimit and estimates a slice from a 1,500-event window, with 60-second and 3,600-second bounds; actual per-frame timing still needs iPhone profiling.",
+      "The incremental spatial index and device-scale map/list rendering profile remain unverified.",
+      "Road fleets remain capped at 240 routes x 64 trucks (15,360) for bulk dispatch; air and sea routes scale their capacity, road planning (external road provider) does not yet.",
+      "Mobility retains its existing 3,000-vehicle center cap. Driver identities remain individual; HR driver contracts are grouped by center, salary and terms, with one-time legacy migration at startup. Million-vehicle Mobility simulation and device profiling remain unverified.",
+      "Historical source 613c1cf: Current game-scan candidate declares 471 gates and 74 preflight definitions. 22 related scripts and 10 mutation cases passed; document HTML parity in 416 cases. Full acceptance, native CI and physical iPhone profiling remain pending. Work-count reductions do not establish full command ACK or all main-thread chunks below 20 ms.",
+      "Historical source 613c1cf: Paused Chromium comparison on source 613c1cf at one million assets: cold UI summary wait 1017→497ms; document-drawer main-task medians still 104ms for cheques and 244ms for invoices, with maxima above these values. Target-device, live all-revenue and financial-command ACK budgets remain unverified.",
+      "Historical ordered review evidence:  54 related scripts and 16 mutation checks passed; 476 gates / 79 preflight definitions declared. Paused desktop million-asset UI main-task medians: cheques 15.02ms, invoices 15.66ms; maximum 19.57ms in these samples. Full acceptance, physical iPhone, live all-company revenue and full financial-command ACK below 20ms remain unverified.",
+      "Current all-sections candidate: 530 mandatory gates / 134 preflight definitions. Moving-million/all-11-revenue paired desktop decisions upload 2.22–3.32 MB, median protocol ACK 915 ms Chromium / 878 ms WebKit (before final explicit snapshot/reset and lazy route payload changes). Million-row manual slots/export/reset pass exact restore on both desktop engines; snapshot export frame maximum 62 ms on WebKit in one finite sample. Both 20 ms targets, full current CI, IPA and physical iPhone storage/profile remain unverified. See VENTORA_FINAL_REVIEW_20261018_AR.md and source-bound evidence."
+    ]
+  },
+  "tests": [
+    {
+      "argv": [
+        "node",
+        "tests/fleet-business-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.109,
+      "log": "471-fleet-business-boundary.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/operating-acquisitions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.198,
+      "log": "142-operating-acquisitions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/business-options-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 33.172,
+      "log": "032-business-options-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/phone-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 231.314,
+      "log": "028-phone-layout-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build397-management-flow-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.723,
+      "log": "308-build397-management-flow-layout-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build398-asset-market-metrics-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.434,
+      "log": "309-build398-asset-market-metrics-layout-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build399-bank-prudential-summary-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.457,
+      "log": "310-build399-bank-prudential-summary-layout-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/acceptance-policy.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.909,
+      "log": "086-acceptance-policy.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r4-proof-archive.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.639,
+      "log": "396-build334-r4-proof-archive.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r4-recovery-integration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.139,
+      "log": "050-build334-r4-recovery-integration.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r4-recovery-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.447,
+      "log": "226-build334-r4-recovery-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build335-persistence-root-coalescing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.093,
+      "log": "563-build335-persistence-root-coalescing.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build335-compaction-v2-60day-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.583,
+      "log": "428-build335-compaction-v2-60day-pressure.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build335-sea-facility-country-identity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.053,
+      "log": "681-build335-sea-facility-country-identity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-proof-ledger-compaction-regression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.404,
+      "log": "398-build336-proof-ledger-compaction-regression.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-real-proof-compaction-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.873,
+      "log": "399-build336-real-proof-compaction-pressure.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-diagnostics-transient.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "538-build336-diagnostics-transient.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-hour83-calendar-proof-regression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.756,
+      "log": "397-build336-hour83-calendar-proof-regression.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-state-byte-attribution-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.402,
+      "log": "213-build336-state-byte-attribution-pressure.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build336-intercompany-ledger-projection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.131,
+      "log": "564-build336-intercompany-ledger-projection.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build337-instrumentation-baseline.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.063,
+      "log": "628-build337-instrumentation-baseline.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build338-idempotency-save-lag-root.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.827,
+      "log": "113-build338-idempotency-save-lag-root.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-architecture-bootstrap.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.059,
+      "log": "609-build339-architecture-bootstrap.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-time-golden.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.047,
+      "log": "610-build339-time-golden.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1bb-pacing-separation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.102,
+      "log": "565-build339-phase1bb-pacing-separation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-transaction-write-set-audit.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "623-build339-transaction-write-set-audit.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-simulation-write-set-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.202,
+      "log": "604-build339-simulation-write-set-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-hour-boundary-write-map.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.239,
+      "log": "146-build339-hour-boundary-write-map.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-day-boundary-write-map.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.882,
+      "log": "053-build339-day-boundary-write-map.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1c-adversarial-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.082,
+      "log": "566-build339-phase1c-adversarial-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1c-equivalence-gate.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.094,
+      "log": "152-build339-phase1c-equivalence-gate.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1cb-readiness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.12,
+      "log": "153-build339-phase1cb-readiness.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-phase1cb-writer-contract-proof.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.478,
+      "log": "154-build339-phase1cb-writer-contract-proof.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-diagnostic-frame-trace.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.174,
+      "log": "450-build339-diagnostic-frame-trace.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build339-accrued-obligation-cash-shortfall.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.431,
+      "log": "150-build339-accrued-obligation-cash-shortfall.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-asset-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.182,
+      "log": "506-build340-map-asset-query.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-structure-revision.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.048,
+      "log": "612-build340-map-structure-revision.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-status-cache.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.163,
+      "log": "045-build340-map-status-cache.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-map-presentation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.311,
+      "log": "496-build340-map-presentation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-finance-report.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.172,
+      "log": "495-build340-finance-report.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-payroll-settlement-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.079,
+      "log": "430-build340-payroll-settlement-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-route-planner-cooperative.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.242,
+      "log": "501-build340-route-planner-cooperative.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-route-planner-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.483,
+      "log": "502-build340-route-planner-worker.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-route-center-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.102,
+      "log": "613-build340-route-center-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-media-assets.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "log": "499-build340-media-assets.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-air-sea-network-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.202,
+      "log": "682-build340-air-sea-network-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-air-sea-network-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.088,
+      "log": "505-build340-air-sea-network-worker.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-fleet-payroll-summary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.156,
+      "log": "429-build340-fleet-payroll-summary.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-procurement-batch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.133,
+      "log": "401-build340-procurement-batch.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-fleet-disposal-batch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.286,
+      "log": "611-build340-fleet-disposal-batch.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-finance-transaction-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.805,
+      "log": "400-build340-finance-transaction-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-asset-engine.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.247,
+      "log": "074-build340-simulation-asset-engine.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-worker-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.12,
+      "log": "683-build340-simulation-worker-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-worker-scheduler.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.057,
+      "log": "617-build340-simulation-worker-scheduler.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-simulation-transaction-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.505,
+      "log": "605-build340-simulation-transaction-worker.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-hotpath-profiler.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.113,
+      "log": "460-build340-hotpath-profiler.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r3-calendar-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.071,
+      "log": "439-build334-r3-calendar-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/build334-source-layout.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.238,
+      "log": "671-build334-source-layout.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-transaction-promotion.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.085,
+      "log": "684-build334-r2-transaction-promotion.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-snapshot-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.41,
+      "log": "422-build334-r2-snapshot-budget.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-maintenance-atomic.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "426-build334-r2-maintenance-atomic.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-deferred-persistence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.096,
+      "log": "144-build334-r2-deferred-persistence.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-delivery-lazy-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.419,
+      "log": "363-build334-r2-delivery-lazy-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-archive-integrity-r2.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.34,
+      "log": "390-build334-archive-integrity-r2.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-transaction-promotion-r2.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.072,
+      "log": "685-build334-transaction-promotion-r2.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-persistence-snapshot-consistency.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.094,
+      "log": "562-build334-persistence-snapshot-consistency.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-delivery-atomic-reconciliation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.615,
+      "log": "382-build334-delivery-atomic-reconciliation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-slice-atomic.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.257,
+      "log": "603-build334-simulation-slice-atomic.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-durable-publication-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.263,
+      "log": "337-build334-durable-publication-recovery.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/lint.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.377,
+      "log": "090-lint.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-scheduler-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.103,
+      "log": "589-build334-scheduler-liveness.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-energy-operating-costs.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.238,
+      "log": "391-build334-bank-energy-operating-costs.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-logistics-staged-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.337,
+      "log": "052-build334-logistics-staged-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-projected-risk.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.15,
+      "log": "108-build334-bank-projected-risk.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-signed-income.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.2,
+      "log": "394-build334-bank-signed-income.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-balance-sheet.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.089,
+      "log": "223-build334-bank-balance-sheet.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-fee-reporting.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.117,
+      "log": "392-build334-bank-fee-reporting.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-energy-take-or-pay.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.085,
+      "log": "224-build334-energy-take-or-pay.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-procurement-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.655,
+      "log": "379-build334-procurement-pressure.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-purchase-delivery-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.647,
+      "log": "107-build334-purchase-delivery-pressure.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-long-session-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.405,
+      "log": "110-build334-long-session-pressure.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-customer-contract-engine.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.006,
+      "log": "267-build360-customer-contract-engine.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-tabs-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.063,
+      "log": "468-build334-tabs-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-identity-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.079,
+      "log": "497-build334-identity-regressions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build579-defined-types-platform-weight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.582,
+      "log": "514-build579-defined-types-platform-weight.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build580-company-types-money-weight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.178,
+      "log": "204-build580-company-types-money-weight.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build581-fleet-definition-weight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.483,
+      "log": "524-build581-fleet-definition-weight.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build582-directory-type-weight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.182,
+      "log": "462-build582-directory-type-weight.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build583-boot-proof-single-hash.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.832,
+      "log": "525-build583-boot-proof-single-hash.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build584-summary-one-in-flight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.173,
+      "log": "457-build584-summary-one-in-flight.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build585-save-upload-block-accounting.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.885,
+      "log": "196-build585-save-upload-block-accounting.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build586-value-pages-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.909,
+      "log": "545-build586-value-pages-reuse.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build587-fleet-extras-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.759,
+      "log": "555-build587-fleet-extras-reuse.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build588-energy-ensure-rows.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.568,
+      "log": "410-build588-energy-ensure-rows.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build589-acceleration-immediate.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.402,
+      "log": "192-build589-acceleration-immediate.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build590-bulk-acquisition.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.528,
+      "log": "137-build590-bulk-acquisition.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build591-service-companies-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.226,
+      "log": "331-build591-service-companies-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build592-service-companies-engine.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.076,
+      "log": "526-build592-service-companies-engine.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build593-bulk-acquisition-frames-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.017,
+      "log": "180-build593-bulk-acquisition-frames-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build594-finance-company-ids-memo.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.145,
+      "log": "138-build594-finance-company-ids-memo.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build595-construction-zero-rated.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.083,
+      "log": "139-build595-construction-zero-rated.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build596-construction-vat-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 67.583,
+      "log": "181-build596-construction-vat-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build597-finance-metric-maps-in-place.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.817,
+      "log": "106-build597-finance-metric-maps-in-place.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build598-company-evidence-token-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.705,
+      "log": "205-build598-company-evidence-token-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build599-diagnostics-world-row-rollback-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.748,
+      "log": "211-build599-diagnostics-world-row-rollback-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build600-proof-audit-sealed-checks.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.225,
+      "log": "527-build600-proof-audit-sealed-checks.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build601-finance-company-ids-kept.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.534,
+      "log": "140-build601-finance-company-ids-kept.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build603-visual-seal-check-in-place.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.708,
+      "log": "528-build603-visual-seal-check-in-place.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build604-event-log-alerts-row-rollback-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.859,
+      "log": "332-build604-event-log-alerts-row-rollback-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build605-purchase-rows-copied-once.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.262,
+      "log": "202-build605-purchase-rows-copied-once.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build606-purchase-frame-pacing-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 106.698,
+      "log": "203-build606-purchase-frame-pacing-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build607-calendar-window-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.367,
+      "log": "206-build607-calendar-window-stages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build608-dispatch-hex-proof-compact.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.664,
+      "log": "516-build608-dispatch-hex-proof-compact.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build609-authorization-check-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.689,
+      "log": "529-build609-authorization-check-slices.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build610-dead-code-removed-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.274,
+      "log": "164-build610-dead-code-removed-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build611-truck-route-center-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.976,
+      "log": "031-build611-truck-route-center-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build612-company-autopilot-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.862,
+      "log": "195-build612-company-autopilot-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build613-company-autopilot-finance.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.285,
+      "log": "333-build613-company-autopilot-finance.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build614-panel-copy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 37.428,
+      "log": "038-build614-panel-copy-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build615-document-proof-check-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.197,
+      "log": "530-build615-document-proof-check-slices.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build616-marker-step-projection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.063,
+      "log": "470-build616-marker-step-projection.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build617-map-render-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.146,
+      "log": "595-build617-map-render-reuse.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build618-prepared-map-render-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.058,
+      "log": "207-build618-prepared-map-render-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build619-dealer-restock-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.416,
+      "log": "411-build619-dealer-restock-stages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build620-journal-log-segments.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.97,
+      "log": "585-build620-journal-log-segments.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build621-profile-count-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.105,
+      "log": "593-build621-profile-count-stages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build622-trip-settlement-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.015,
+      "log": "200-build622-trip-settlement-stages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build623-worker-extras-packing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.674,
+      "log": "472-build623-worker-extras-packing.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build624-proof-checkpoint-rounds.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.052,
+      "log": "340-build624-proof-checkpoint-rounds.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build625-map-filter-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.103,
+      "log": "592-build625-map-filter-reuse.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build626-seal-strokes-text.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.879,
+      "log": "586-build626-seal-strokes-text.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build627-document-material-once.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.39,
+      "log": "201-build627-document-material-once.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build628-pause-after-day-close.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 37.852,
+      "log": "163-build628-pause-after-day-close.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build629-cheque-payment-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.726,
+      "log": "198-build629-cheque-payment-stages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build630-settlement-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.43,
+      "log": "199-build630-settlement-stages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build631-energy-realestate-day-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 37.61,
+      "log": "066-build631-energy-realestate-day-stages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build632-customer-billing-step.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "412-build632-customer-billing-step.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build633-progression-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.131,
+      "log": "037-build633-progression-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build634-progression-career-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.622,
+      "log": "036-build634-progression-career-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build635-store-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "384-build635-store-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build636-store-release-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.299,
+      "log": "092-build636-store-release-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build637-launch-native-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.05,
+      "log": "534-build637-launch-native-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build638-value-pages-over-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.783,
+      "log": "387-build638-value-pages-over-budget.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build639-compact-receipt-reload.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.438,
+      "log": "543-build639-compact-receipt-reload.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build640-boot-without-maritime-save-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.012,
+      "log": "209-build640-boot-without-maritime-save-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build641-release-player-tasks-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.189,
+      "log": "160-build641-release-player-tasks-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build642-local-road-geometry.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.289,
+      "log": "504-build642-local-road-geometry.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build643-release-roads-offline-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.728,
+      "log": "027-build643-release-roads-offline-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build644-game-name.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.197,
+      "log": "494-build644-game-name.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build645-legal-consent-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.644,
+      "log": "161-build645-legal-consent-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build646-development-device-roads-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.869,
+      "log": "034-build646-development-device-roads-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build647-store-plus-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.383,
+      "log": "159-build647-store-plus-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build648-health-maintenance-stages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.509,
+      "log": "095-build648-health-maintenance-stages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build649-levels-page-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.209,
+      "log": "165-build649-levels-page-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build650-i18n-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.134,
+      "log": "029-build650-i18n-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build651-i18n-source-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.294,
+      "log": "026-build651-i18n-source-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build652-native-document-scripts.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.053,
+      "log": "491-build652-native-document-scripts.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build653-i18n-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.379,
+      "log": "087-build653-i18n-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build654-confirm-dialog-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 26.488,
+      "log": "088-build654-confirm-dialog-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build655-store-capture-protection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.039,
+      "log": "535-build655-store-capture-protection.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build656-store-no-redirect-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.961,
+      "log": "023-build656-store-no-redirect-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build657-road-dispatch-depots.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.974,
+      "log": "489-build657-road-dispatch-depots.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build658-recorder-cadence-equivalence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.401,
+      "log": "490-build658-recorder-cadence-equivalence.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build659-english-shell-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.933,
+      "log": "021-build659-english-shell-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build660-english-section-pages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.01,
+      "log": "020-build660-english-section-pages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build661-english-founding-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.97,
+      "log": "019-build661-english-founding-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build662-receipt-archived-invoice.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.079,
+      "log": "018-build662-receipt-archived-invoice.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build663-business-condition-not-fatal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.074,
+      "log": "017-build663-business-condition-not-fatal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build664-new-game-flow-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 32.407,
+      "log": "016-build664-new-game-flow-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build665-payable-settled-elsewhere.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.493,
+      "log": "015-build665-payable-settled-elsewhere.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build666-party-capacity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.436,
+      "log": "014-build666-party-capacity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build667-obligation-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.171,
+      "log": "013-build667-obligation-budget.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build668-project-finance-prepaid.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.343,
+      "log": "012-build668-project-finance-prepaid.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build669-investor-holding-balance-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.308,
+      "log": "011-build669-investor-holding-balance-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build670-ceiling-refusals.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.188,
+      "log": "010-build670-ceiling-refusals.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build671-settle-all-ceiling-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.919,
+      "log": "009-build671-settle-all-ceiling-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build672-message-strip-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.815,
+      "log": "008-build672-message-strip-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build673-tender-and-investor-card.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.469,
+      "log": "007-build673-tender-and-investor-card.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build674-counted-texts-and-managers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.563,
+      "log": "006-build674-counted-texts-and-managers.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build675-task-targets-and-page-texts-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.86,
+      "log": "005-build675-task-targets-and-page-texts-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build677-investor-closes-and-tender-lock.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.012,
+      "log": "004-build677-investor-closes-and-tender-lock.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build678-balance-capacity-and-details-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.407,
+      "log": "003-build678-balance-capacity-and-details-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/company-platform-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.133,
+      "log": "531-company-platform-regressions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-company-platform-orphan-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.083,
+      "log": "557-build334-company-platform-orphan-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-company-adapters.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.083,
+      "log": "517-build334-company-adapters.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-dynamic-company-consumers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.183,
+      "log": "109-build334-dynamic-company-consumers.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-singleton-company-boundaries.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.187,
+      "log": "227-build334-singleton-company-boundaries.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-dynamic-finance-company-ids.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.107,
+      "log": "559-build334-dynamic-finance-company-ids.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-map-identity-registry.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.193,
+      "log": "518-build334-map-identity-registry.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-security-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.159,
+      "log": "492-build334-security-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-xss-logo-security.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.35,
+      "log": "039-build334-xss-logo-security.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-document-proof-v3-security.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.113,
+      "log": "419-build334-document-proof-v3-security.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-signature-pad.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.068,
+      "log": "513-build334-signature-pad.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/formation-engine-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.325,
+      "log": "587-formation-engine-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/conference-capability-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.089,
+      "log": "451-conference-capability-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-time-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.092,
+      "log": "498-build334-simulation-time-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-600-air-calendar-regression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.377,
+      "log": "420-build334-600-air-calendar-regression.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-owner-cadence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.3,
+      "log": "418-build334-calendar-owner-cadence.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-asset-route-hr-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.087,
+      "log": "442-build334-asset-route-hr-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-app-platform-authorization.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.086,
+      "log": "352-build334-app-platform-authorization.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-finance-settlement-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.079,
+      "log": "149-build334-finance-settlement-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-finance-company-security-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.106,
+      "log": "225-build334-finance-company-security-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-durable-authorization-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.163,
+      "log": "558-build334-durable-authorization-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/core-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.34,
+      "log": "141-core-regressions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.327,
+      "log": "475-fleet-regressions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/persistence-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "log": "540-persistence-regressions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build315-procurement-idempotency-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.274,
+      "log": "381-build315-procurement-idempotency-test.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/persistence-pressure-and-native-build251-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.226,
+      "log": "588-persistence-pressure-and-native-build251-test.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build317-finance-depth-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.088,
+      "log": "389-build317-finance-depth-test.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/review-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.083,
+      "log": "064-review-regressions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-reload-regressions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.1,
+      "log": "458-tax-reload-regressions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-tabs-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.263,
+      "log": "112-build334-tabs-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-tabs-component.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.328,
+      "log": "427-build334-tabs-component.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-safety-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.642,
+      "log": "395-build334-calendar-safety-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-advance-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.373,
+      "log": "051-build334-calendar-advance-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-calendar-journey-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 68.327,
+      "log": "024-build334-calendar-journey-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-market-discovery-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.188,
+      "log": "560-build334-market-discovery-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-market-discovery-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.335,
+      "log": "111-build334-market-discovery-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-accrual-cash-separation-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.04,
+      "log": "607-build334-accrual-cash-separation-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-bank-sector-concentration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.118,
+      "log": "393-build334-bank-sector-concentration.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-deferred-save-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.049,
+      "log": "424-build334-deferred-save-lifecycle.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-durable-postcommit-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.042,
+      "log": "608-build334-durable-postcommit-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-iphone-thermal-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.07,
+      "log": "509-build334-iphone-thermal-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-late-frame-liveness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.047,
+      "log": "590-build334-late-frame-liveness.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-map-pressure-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.067,
+      "log": "594-build334-map-pressure-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-native-snapshot-queue.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.104,
+      "log": "561-build334-native-snapshot-queue.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-open-invoice-retention.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.125,
+      "log": "425-build334-open-invoice-retention.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-presentation-work-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.084,
+      "log": "601-build334-presentation-work-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-simulation-fault-isolation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.26,
+      "log": "602-build334-simulation-fault-isolation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-archived-proof-retention-open.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.067,
+      "log": "423-build334-archived-proof-retention-open.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build340-durable-draft-restore.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.695,
+      "log": "228-build340-durable-draft-restore.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build350-state-codec.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.851,
+      "log": "214-build350-state-codec.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build350-persistence-codec.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.281,
+      "log": "229-build350-persistence-codec.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build350-archive-route-diet.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.229,
+      "log": "208-build350-archive-route-diet.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build350-proof-ledger.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.925,
+      "log": "567-build350-proof-ledger.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build350-proof-ledger-persistence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.205,
+      "log": "230-build350-proof-ledger-persistence.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build351-mobility-stepping.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.849,
+      "log": "231-build351-mobility-stepping.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-steady-slice-rollback.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.488,
+      "log": "477-build353-steady-slice-rollback.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-compaction-scope.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.119,
+      "log": "431-build353-compaction-scope.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build353-persistence-pacing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.226,
+      "log": "568-build353-persistence-pacing.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build356-fleet-store.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.779,
+      "log": "631-build356-fleet-store.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build356-fleet-events.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 34.215,
+      "log": "630-build356-fleet-events.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build355-fleet-access.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.49,
+      "log": "629-build355-fleet-access.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-fleet-journal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.075,
+      "log": "569-build357-fleet-journal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-fleet-migration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.046,
+      "log": "212-build357-fleet-migration.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-fleet-list-virtualizer.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.092,
+      "log": "507-build357-fleet-list-virtualizer.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-route-revision.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.051,
+      "log": "686-build357-route-revision.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build357-fleet-profile-aggregation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.518,
+      "log": "596-build357-fleet-profile-aggregation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-save-cap.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.65,
+      "log": "215-build358-fleet-save-cap.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-transaction-row-snapshots.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.133,
+      "log": "624-build358-transaction-row-snapshots.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-row-snapshot-rollback.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.726,
+      "log": "249-build358-row-snapshot-rollback.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-heaviness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.344,
+      "log": "244-build358-heaviness.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-air-sea-dispatch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.945,
+      "log": "232-build358-air-sea-dispatch-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-staged-day-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.777,
+      "log": "251-build358-staged-day-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-row-codec-cache.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.118,
+      "log": "633-build358-fleet-row-codec-cache.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-validation-classes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.553,
+      "log": "254-build358-validation-classes.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-chunk-manifest.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.369,
+      "log": "546-build358-fleet-chunk-manifest.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-native-chunked-save.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.168,
+      "log": "193-build358-native-chunked-save.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-codec-id-runs.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.059,
+      "log": "234-build358-codec-id-runs.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-purchase-scale.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.406,
+      "log": "248-build358-purchase-scale.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-scan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.145,
+      "log": "242-build358-fleet-scan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-route-capacity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.171,
+      "log": "571-build358-route-capacity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-large-fleet-dispatch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.876,
+      "log": "245-build358-large-fleet-dispatch-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-purchase-caps.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.281,
+      "log": "247-build358-purchase-caps.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-directory-search-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.747,
+      "log": "374-build358-directory-search-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-bulk-payables-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.371,
+      "log": "166-build358-bulk-payables-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-purchase-vat.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.322,
+      "log": "241-build358-fleet-purchase-vat.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-calendar-staged-completion.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.105,
+      "log": "440-build358-calendar-staged-completion.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-directory-regions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.498,
+      "log": "375-build358-directory-regions-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-payment-terms.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 35.499,
+      "log": "116-build358-payment-terms.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-staged-full-scope.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.068,
+      "log": "117-build358-staged-full-scope.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-delivery-due-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.238,
+      "log": "237-build358-delivery-due-slices.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-tax-view-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.457,
+      "log": "253-build358-tax-view-layout-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-route-quotas.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.157,
+      "log": "503-build358-route-quotas.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-idempotency-archive.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.44,
+      "log": "570-build358-idempotency-archive.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-schema-sections.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.212,
+      "log": "250-build358-schema-sections.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-directory-open-sites-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.33,
+      "log": "238-build358-directory-open-sites-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fleet-engine-thread-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 43.464,
+      "log": "240-build358-fleet-engine-thread-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-cold-fleet-receipts.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.193,
+      "log": "687-build358-cold-fleet-receipts.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-fuel-hedge.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.215,
+      "log": "243-build358-fuel-hedge.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-debt-interest.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.189,
+      "log": "236-build358-debt-interest.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-energy-market.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.115,
+      "log": "239-build358-energy-market.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-bank-market.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.099,
+      "log": "233-build358-bank-market.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-budgets-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.681,
+      "log": "114-build358-budgets-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-stakes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.187,
+      "log": "252-build358-stakes.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-maintenance.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.242,
+      "log": "246-build358-maintenance.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-crews.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.256,
+      "log": "235-build358-crews.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-founding-charter-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.609,
+      "log": "115-build358-founding-charter-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-map-controls-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.027,
+      "log": "022-build358-map-controls-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-codec-segments.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.302,
+      "log": "632-build358-codec-segments.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-asset-realism.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "532-build358-asset-realism.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build358-proof-chunks.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.253,
+      "log": "218-build358-proof-chunks.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-cheque-archived-invoice.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.055,
+      "log": "148-build359-cheque-archived-invoice.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-view-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.072,
+      "log": "688-build359-map-view-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-geographic-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "689-build359-map-geographic-budget.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-canvas-layer.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.055,
+      "log": "515-build359-map-canvas-layer.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-fleet-list-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.77,
+      "log": "508-build359-fleet-list-query.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-conference-thermal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.053,
+      "log": "512-build359-conference-thermal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-map-modes-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.735,
+      "log": "054-build359-map-modes-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-schema-byte-limits.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.084,
+      "log": "402-build359-schema-byte-limits.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-proof-checkpoints.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.503,
+      "log": "263-build359-proof-checkpoints.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-tax-pay-all-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.911,
+      "log": "265-build359-tax-pay-all-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-save-policy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 197.045,
+      "log": "184-build359-save-policy-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-archived-proofs.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.688,
+      "log": "256-build359-archived-proofs.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-command-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.243,
+      "log": "219-build359-command-slices.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sim-smoothness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.752,
+      "log": "041-build359-sim-smoothness.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-management-effects.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.629,
+      "log": "210-build359-management-effects.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-authorization-release.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.52,
+      "log": "258-build359-authorization-release.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-archive-seal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.184,
+      "log": "255-build359-archive-seal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-cold-archive.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.201,
+      "log": "388-build360-cold-archive.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-bulk-receivables-cheque.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.169,
+      "log": "266-build360-bulk-receivables-cheque.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-hr-one-click-managers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.148,
+      "log": "269-build360-hr-one-click-managers.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-market-income-transfers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.175,
+      "log": "271-build360-market-income-transfers.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-customer-ratings-conference.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.192,
+      "log": "075-build360-customer-ratings-conference.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-operational-settlements.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.199,
+      "log": "272-build360-operational-settlements.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-iphone-failure-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.244,
+      "log": "270-build360-iphone-failure-recovery.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-energy-debt-proof-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.473,
+      "log": "268-build360-energy-debt-proof-recovery.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build360-native-runtime-ready.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.038,
+      "log": "537-build360-native-runtime-ready.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-durable-command-cost.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.42,
+      "log": "151-build359-durable-command-cost.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-corridor-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 28.974,
+      "log": "614-build359-corridor-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-recorder-signal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.184,
+      "log": "511-build359-recorder-signal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sliced-save-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.56,
+      "log": "085-build359-sliced-save-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sea-cii-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.34,
+      "log": "353-build359-sea-cii-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-document-seal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.618,
+      "log": "261-build359-document-seal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-road-dispatch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 20.123,
+      "log": "046-build359-road-dispatch-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-audit-walk.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.768,
+      "log": "257-build359-audit-walk.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-sealed-flows.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.202,
+      "log": "264-build359-sealed-flows.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-container-seal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.898,
+      "log": "260-build359-container-seal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-incremental-maintenance.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.775,
+      "log": "262-build359-incremental-maintenance.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-route-seal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.208,
+      "log": "376-build359-route-seal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build359-compact-records.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.038,
+      "log": "259-build359-compact-records.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-r2-map-local-dom.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.384,
+      "log": "345-build334-r2-map-local-dom.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build334-proof-capacity-acceptance-r2.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.976,
+      "log": "690-build334-proof-capacity-acceptance-r2.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build361-bulk-opening-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.003,
+      "log": "167-build361-bulk-opening-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build361-button-binding-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.356,
+      "log": "100-build361-button-binding-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-reach-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.272,
+      "log": "102-build373-reach-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-facility-scope-bank-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.115,
+      "log": "168-build363-facility-scope-bank-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-company-economics-balance.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.088,
+      "log": "403-build363-company-economics-balance.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-realestate-internal-leases.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.116,
+      "log": "118-build364-realestate-internal-leases.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-simulation-runtime.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.042,
+      "log": "625-build362-simulation-runtime.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-simulation-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "618-build362-simulation-lifecycle.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-empty-calendar-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.078,
+      "log": "359-build362-empty-calendar-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-bulk-asset-purchase-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.805,
+      "log": "273-build362-bulk-asset-purchase-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-asset-departure-trace.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.227,
+      "log": "606-build371-asset-departure-trace.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-destination-window.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.108,
+      "log": "691-build371-destination-window.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-air-destination-pool-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.084,
+      "log": "281-build371-air-destination-pool-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-air-fleet-series-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 89.625,
+      "log": "283-build371-air-fleet-series-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-air-destination-pool-riyadh-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.344,
+      "log": "282-build371-air-destination-pool-riyadh-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-calendar-cancel-settle-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08,
+      "log": "441-build371-calendar-cancel-settle-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-calendar-cancel-maintenance-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.452,
+      "log": "025-build371-calendar-cancel-maintenance-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-sea-dispatch-lifecycle-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.184,
+      "log": "286-build371-sea-dispatch-lifecycle-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-durable-fleet-isolation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 31.952,
+      "log": "048-build371-durable-fleet-isolation-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-native-update-isolation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.749,
+      "log": "056-build371-native-update-isolation-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-durable-live-fields-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.769,
+      "log": "284-build371-durable-live-fields-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-reload-trip-speed-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.045,
+      "log": "285-build371-reload-trip-speed-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-custom-road-geometry-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.286,
+      "log": "047-build371-custom-road-geometry-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-old-save-trip-correction-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 66.92,
+      "log": "057-build371-old-save-trip-correction-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build371-route-holder-scan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.759,
+      "log": "635-build371-route-holder-scan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-replica-value-log.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.079,
+      "log": "643-build372-replica-value-log.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-store-maintenance-stages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.873,
+      "log": "599-build372-store-maintenance-stages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-replica-log-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.605,
+      "log": "476-build372-replica-log-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-native-seed-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.794,
+      "log": "216-build372-native-seed-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-native-migration-chunk-adoption.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.096,
+      "log": "547-build372-native-migration-chunk-adoption.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-health-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.556,
+      "log": "447-build372-fleet-health-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-field-classes-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.395,
+      "log": "474-build372-field-classes-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-save-validation-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.001,
+      "log": "294-build372-save-validation-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-map-summary-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.297,
+      "log": "049-build372-map-summary-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-journal-pool.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.098,
+      "log": "598-build372-journal-pool.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-staged-wait.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.055,
+      "log": "576-build372-staged-wait.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-insurance-condition-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.625,
+      "log": "367-build372-insurance-condition-worker.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-maintenance-health-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.003,
+      "log": "186-build372-maintenance-health-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-query-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.937,
+      "log": "483-build372-fleet-query-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-slice-parity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.792,
+      "log": "365-build372-fleet-day-slice-parity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-owner-totals-cache.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.068,
+      "log": "575-build372-owner-totals-cache.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-route-tier.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.611,
+      "log": "646-build372-route-tier.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-apply.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.221,
+      "log": "288-build372-asset-purchase-apply.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-intent.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.102,
+      "log": "572-build372-asset-purchase-intent.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-order.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.253,
+      "log": "289-build372-asset-purchase-order.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.086,
+      "log": "443-build372-asset-purchase-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.949,
+      "log": "478-build372-asset-purchase-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-depart-projection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.143,
+      "log": "636-build372-depart-projection.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-dispatch-app-integration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.981,
+      "log": "291-build372-dispatch-app-integration.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-finance-initial-allocation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.125,
+      "log": "404-build372-finance-initial-allocation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.312,
+      "log": "637-build372-fleet-day-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-exceptional.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.62,
+      "log": "364-build372-fleet-day-exceptional.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.06,
+      "log": "482-build372-fleet-day-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-day-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.668,
+      "log": "366-build372-fleet-day-worker.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-dispatch-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.49,
+      "log": "573-build372-fleet-dispatch-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-dispatch-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.925,
+      "log": "479-build372-fleet-dispatch-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-reference-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.05,
+      "log": "638-build372-fleet-reference-query.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-sale-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.056,
+      "log": "639-build372-fleet-sale-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-fleet-ui-summary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.048,
+      "log": "597-build372-fleet-ui-summary.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-global-route-candidates.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.051,
+      "log": "640-build372-global-route-candidates.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-interactive-summary-consumers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.046,
+      "log": "432-build372-interactive-summary-consumers.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-large-fleet-main-thread-policy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.499,
+      "log": "480-build372-large-fleet-main-thread-policy-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-large-fleet-main-thread-policy.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.074,
+      "log": "692-build372-large-fleet-main-thread-policy.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-large-health-fallback-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.392,
+      "log": "187-build372-large-health-fallback-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-legacy-migration-single-pass.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.194,
+      "log": "519-build372-legacy-migration-single-pass.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-legacy-route-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.063,
+      "log": "641-build372-legacy-route-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-legacy-route-repair-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.086,
+      "log": "574-build372-legacy-route-repair-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-manual-departure-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.075,
+      "log": "642-build372-manual-departure-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-proof-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.43,
+      "log": "188-build372-proof-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-proof-worker.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.006,
+      "log": "293-build372-proof-worker.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-route-normalization-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.666,
+      "log": "644-build372-route-normalization-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-route-reference-proof.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.129,
+      "log": "645-build372-route-reference-proof.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-staffing-reconcile-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.113,
+      "log": "647-build372-staffing-reconcile-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-startup-normalization-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "648-build372-startup-normalization-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-startup-staffing-classes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.004,
+      "log": "649-build372-startup-staffing-classes.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-staged-replica-prime-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.585,
+      "log": "484-build372-staged-replica-prime-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-large-fleet-fallback-guards-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.164,
+      "log": "292-build372-large-fleet-fallback-guards-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-startup-staffing-worker-apply.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.096,
+      "log": "650-build372-startup-staffing-worker-apply.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-compact-save-validation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.309,
+      "log": "290-build372-compact-save-validation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build372-asset-purchase-app-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 59.285,
+      "log": "287-build372-asset-purchase-app-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-large-fleet-hour-boundary-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 28.16,
+      "log": "296-build373-large-fleet-hour-boundary-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-conference-large-fleet-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.877,
+      "log": "295-build373-conference-large-fleet-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-revenue-chain-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.063,
+      "log": "693-build373-revenue-chain-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build373-revenue-chain-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.83,
+      "log": "096-build373-revenue-chain-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-customer-base-telecom-market.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.501,
+      "log": "414-build374-customer-base-telecom-market.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-dealer-market.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.59,
+      "log": "415-build374-dealer-market.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-realestate-off-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.492,
+      "log": "122-build378-realestate-off-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-energy-blocks-ppa.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.105,
+      "log": "299-build378-energy-blocks-ppa.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-bancassurance.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.117,
+      "log": "121-build378-bancassurance.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-bank-capital-conservation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.097,
+      "log": "405-build378-bank-capital-conservation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-dealer-floor-plan.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.282,
+      "log": "417-build378-dealer-floor-plan.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-telecom-network.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.154,
+      "log": "416-build378-telecom-network.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build378-customer-satisfaction.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.129,
+      "log": "103-build378-customer-satisfaction.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-company-options-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.279,
+      "log": "058-build374-company-options-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-large-fleet-background-save-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 27.663,
+      "log": "298-build375-large-fleet-background-save-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-group-brand-names.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.055,
+      "log": "577-build375-group-brand-names.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-compact-desks-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.455,
+      "log": "030-build375-compact-desks-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-release-edition-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.626,
+      "log": "093-build376-release-edition-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-money-guard.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "533-build376-money-guard.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/dealer-ledger-and-stock.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.559,
+      "log": "334-dealer-ledger-and-stock.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/dealer-ledger-and-stock-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 37.611,
+      "log": "182-dealer-ledger-and-stock-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-precision-and-routing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.656,
+      "log": "336-tax-precision-and-routing.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/tax-precision-and-routing-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 131.948,
+      "log": "183-tax-precision-and-routing-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-save-slicing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.79,
+      "log": "556-fleet-save-slicing.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/fleet-validation-reuse-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.303,
+      "log": "335-fleet-validation-reuse-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/save-checksum-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.701,
+      "log": "488-save-checksum-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/save-pipeline-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.11,
+      "log": "473-save-pipeline-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/native-save-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.37,
+      "log": "466-native-save-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-idempotency-byte-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.341,
+      "log": "694-build362-idempotency-byte-budget.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-calendar-window-equivalence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.12,
+      "log": "274-build362-calendar-window-equivalence.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-fleet-window-session.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.048,
+      "log": "481-build362-fleet-window-session.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-energy-health-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.111,
+      "log": "147-build363-energy-health-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-staged-holdings-command.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.315,
+      "log": "354-build363-staged-holdings-command.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-control-outbox-atomicity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "695-build363-control-outbox-atomicity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build363-runtime-diagnostics-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.205,
+      "log": "386-build363-runtime-diagnostics-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-company-overview-summary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.184,
+      "log": "055-build364-company-overview-summary.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build365-official-news.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.769,
+      "log": "042-build365-official-news.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build370-official-news-pagination.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.404,
+      "log": "089-build370-official-news-pagination.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build552-conference-hall-layout-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.094,
+      "log": "454-build552-conference-hall-layout-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build551-conference-keynote-slides.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.114,
+      "log": "523-build551-conference-keynote-slides.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build368-approved-company-logos.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.142,
+      "log": "464-build368-approved-company-logos.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build368-hr-payroll-parity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.252,
+      "log": "278-build368-hr-payroll-parity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build366-facility-close-hr-contracts.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.049,
+      "log": "696-build366-facility-close-hr-contracts.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build366-mobility-dashboard-lightweight.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.28,
+      "log": "276-build366-mobility-dashboard-lightweight.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build366-mobility-map-policy-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.714,
+      "log": "145-build366-mobility-map-policy-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build366-mobility-no-repeat-scans.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.429,
+      "log": "277-build366-mobility-no-repeat-scans.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build367-company-static-identities.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.727,
+      "log": "465-build367-company-static-identities.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-insurance-risk-batch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.071,
+      "log": "076-build369-insurance-risk-batch.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-stock-lifecycle-integrity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.302,
+      "log": "280-build369-stock-lifecycle-integrity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-external-rent-monthly-ledger.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.087,
+      "log": "119-build369-external-rent-monthly-ledger.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build369-market-reference.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.12,
+      "log": "279-build369-market-reference.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build364-customer-companies-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.133,
+      "log": "413-build364-customer-companies-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-cheque-payable-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.451,
+      "log": "120-build374-cheque-payable-lifecycle.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-daily-worker-integration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.183,
+      "log": "355-build374-daily-worker-integration.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-critical-timing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.074,
+      "log": "697-build374-critical-timing.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-diagnostic-lifecycle-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.61,
+      "log": "189-build374-diagnostic-lifecycle-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-route-capacity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.864,
+      "log": "698-build374-route-capacity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-route-capacity-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.353,
+      "log": "297-build374-route-capacity-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build374-save-slice-telemetry.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.287,
+      "log": "368-build374-save-slice-telemetry.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-group-news.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.37,
+      "log": "104-build375-group-news.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build375-group-news-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.631,
+      "log": "043-build375-group-news-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-frame-work-attribution.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.084,
+      "log": "500-build376-frame-work-attribution.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-cooperative-draft.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.291,
+      "log": "677-build376-cooperative-draft.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-cooperative-draft-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.586,
+      "log": "190-build376-cooperative-draft-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build376-seed-metadata-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.029,
+      "log": "485-build376-seed-metadata-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build377-health-status-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.119,
+      "log": "035-build377-health-status-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-cheque-ui-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.461,
+      "log": "123-build379-cheque-ui-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-command-validation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.882,
+      "log": "300-build379-command-validation-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-financial-posting-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 47.669,
+      "log": "124-build379-financial-posting-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-financial-posting.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.002,
+      "log": "125-build379-financial-posting.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-mutation-validation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.843,
+      "log": "486-build379-mutation-validation-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-realism-identity.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "356-build379-realism-identity.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-recovery-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.226,
+      "log": "126-build379-recovery-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-simulation-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.108,
+      "log": "619-build379-simulation-recovery.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build379-validation-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "578-build379-validation-slices.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build380-construction-acceleration.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.499,
+      "log": "191-build380-construction-acceleration.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build380-construction-acceleration-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.343,
+      "log": "169-build380-construction-acceleration-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-campaign-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.747,
+      "log": "097-build382-campaign-decisions-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-cheque-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.188,
+      "log": "699-build382-cheque-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-company-campaigns.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.318,
+      "log": "301-build382-company-campaigns.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-nonfleet-tax-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.584,
+      "log": "302-build382-nonfleet-tax-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-route-validation-cache.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.19,
+      "log": "303-build382-route-validation-cache.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build382-runtime-removal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "493-build382-runtime-removal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build383-navigation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.88,
+      "log": "101-build383-navigation-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build383-navigation-interaction.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.051,
+      "log": "156-build383-navigation-interaction.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build383-save-encoding.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.144,
+      "log": "579-build383-save-encoding.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build384-map-company-cap.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.095,
+      "log": "700-build384-map-company-cap.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build384-map-company-cap-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.011,
+      "log": "346-build384-map-company-cap-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build385-bank-credit-accounting.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.701,
+      "log": "380-build385-bank-credit-accounting.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build385-bank-installment-backlog.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.342,
+      "log": "305-build385-bank-installment-backlog.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build385-dealer-first-stock.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.209,
+      "log": "338-build385-dealer-first-stock.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build385-bank-credit-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.295,
+      "log": "304-build385-bank-credit-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build386-confirmation-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 30.743,
+      "log": "094-build386-confirmation-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build387-save-actions.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.868,
+      "log": "033-build387-save-actions.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build387-save-once-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 28.119,
+      "log": "098-build387-save-once-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build388-change-tracking.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.188,
+      "log": "701-build388-change-tracking.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build388-change-tracking-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.319,
+      "log": "127-build388-change-tracking-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build389-differential-collections.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.272,
+      "log": "548-build389-differential-collections.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build389-differential-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.053,
+      "log": "217-build389-differential-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build390-cooperative-snapshot.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.12,
+      "log": "549-build390-cooperative-snapshot.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build390-snapshot-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.619,
+      "log": "220-build390-snapshot-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build391-hospitality-core.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.497,
+      "log": "194-build391-hospitality-core.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build392-hospitality-links.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.746,
+      "log": "360-build392-hospitality-links.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build393-hospitality-financial-safety.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.471,
+      "log": "306-build393-hospitality-financial-safety.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build394-hospitality-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 55.026,
+      "log": "099-build394-hospitality-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build395-hospitality-edge-cases.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.004,
+      "log": "059-build395-hospitality-edge-cases.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build396-hospitality-budgets.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.46,
+      "log": "307-build396-hospitality-budgets.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-durable-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.091,
+      "log": "275-build362-durable-prestage.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-save-validation-chunks.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 25.353,
+      "log": "634-build362-save-validation-chunks.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-phase-totals.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "702-build362-phase-totals.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-hospitality-staffing.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.162,
+      "log": "362-build362-hospitality-staffing.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-hospitality-ledger-parties.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.377,
+      "log": "155-build362-hospitality-ledger-parties.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build362-company-dock-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.012,
+      "log": "105-build362-company-dock-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build400-telecom-peer-index.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.366,
+      "log": "444-build400-telecom-peer-index.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build401-mobility-batching-and-indexes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.682,
+      "log": "311-build401-mobility-batching-and-indexes.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build402-company-daily-indexes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.341,
+      "log": "445-build402-company-daily-indexes.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build403-legacy-runtime-migration-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.776,
+      "log": "312-build403-legacy-runtime-migration-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build404-worker-close-read-models.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.725,
+      "log": "128-build404-worker-close-read-models.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build405-worker-close-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.358,
+      "log": "129-build405-worker-close-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build406-save-chunk-transport.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.31,
+      "log": "680-build406-save-chunk-transport.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build407-diagnostic-lifecycle.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.106,
+      "log": "467-build407-diagnostic-lifecycle.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build408-diagnostic-map-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.795,
+      "log": "060-build408-diagnostic-map-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build409-compressed-persistence.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.651,
+      "log": "221-build409-compressed-persistence.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build410-fleet-save-row-patches.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.078,
+      "log": "651-build410-fleet-save-row-patches.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build411-command-row-patch-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 36.591,
+      "log": "313-build411-command-row-patch-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build412-live-validation-predicates.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.703,
+      "log": "652-build412-live-validation-predicates.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build413-fleet-value-chunks.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.101,
+      "log": "544-build413-fleet-value-chunks.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build414-command-preparation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.894,
+      "log": "377-build414-command-preparation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build415-route-publication-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.307,
+      "log": "378-build415-route-publication-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build416-canonical-preparation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "log": "591-build416-canonical-preparation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build417-document-amendment-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.4,
+      "log": "406-build417-document-amendment-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build418-command-phase-trace-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.759,
+      "log": "314-build418-command-phase-trace-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build419-document-drawer-work-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.055,
+      "log": "347-build419-document-drawer-work-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build420-conference-durable-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.792,
+      "log": "170-build420-conference-durable-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build421-conference-recovery-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.247,
+      "log": "061-build421-conference-recovery-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build553-conference-open-cost.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.529,
+      "log": "323-build553-conference-open-cost.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build423-worker-sync-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.085,
+      "log": "653-build423-worker-sync-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build424-dense-fleet-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.637,
+      "log": "654-build424-dense-fleet-pages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build425-validation-dependencies.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.713,
+      "log": "655-build425-validation-dependencies.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build426-governor-pressure.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.05,
+      "log": "626-build426-governor-pressure.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build427-day-profile-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.945,
+      "log": "656-build427-day-profile-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build428-worker-value-collection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.016,
+      "log": "657-build428-worker-value-collection.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build429-worker-value-collection-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.166,
+      "log": "487-build429-worker-value-collection-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build430-legacy-fleet-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.099,
+      "log": "658-build430-legacy-fleet-pages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/governor-overrun-signal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.098,
+      "log": "627-governor-overrun-signal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build431-decision-notices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.057,
+      "log": "077-build431-decision-notices.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build432-ready-fleet-validation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.055,
+      "log": "580-build432-ready-fleet-validation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build433-request-decisions-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 67.864,
+      "log": "171-build433-request-decisions-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build434-service-panel-fleet-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.12,
+      "log": "461-build434-service-panel-fleet-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build435-conditional-prestage.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.125,
+      "log": "581-build435-conditional-prestage.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build436-save-work-removal.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.122,
+      "log": "550-build436-save-work-removal.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build437-adoption-patch-lineage.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.125,
+      "log": "551-build437-adoption-patch-lineage.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build438-day-scratch-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.33,
+      "log": "659-build438-day-scratch-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build439-summary-single-request.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.093,
+      "log": "455-build439-summary-single-request.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build440-document-collection-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.033,
+      "log": "421-build440-document-collection-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build441-bank-migration-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.19,
+      "log": "446-build441-bank-migration-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build442-fleet-review-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.583,
+      "log": "660-build442-fleet-review-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build443-company-review-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.239,
+      "log": "130-build443-company-review-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build444-document-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.076,
+      "log": "385-build444-document-pages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build445-document-pages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 37.346,
+      "log": "348-build445-document-pages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build446-payroll-unused-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.14,
+      "log": "449-build446-payroll-unused-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build447-hr-facility-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.065,
+      "log": "676-build447-hr-facility-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build448-labor-tab-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.229,
+      "log": "067-build448-labor-tab-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build449-asset-capacity-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.259,
+      "log": "069-build449-asset-capacity-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build450-other-section-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.247,
+      "log": "459-build450-other-section-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build451-hr-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "log": "078-build451-hr-notice-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build452-section-review-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.526,
+      "log": "172-build452-section-review-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build453-section-projections.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.274,
+      "log": "071-build453-section-projections.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build454-facility-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.323,
+      "log": "582-build454-facility-pages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build455-cii-preview-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.184,
+      "log": "433-build455-cii-preview-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build456-list-build-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.056,
+      "log": "448-build456-list-build-budget.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build457-canvas-idle-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.063,
+      "log": "600-build457-canvas-idle-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build458-stable-ui-writes.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.258,
+      "log": "073-build458-stable-ui-writes.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build459-navigation-scroll-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.046,
+      "log": "091-build459-navigation-scroll-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build460-render-idle-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 63.58,
+      "log": "002-build460-render-idle-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build461-market-render-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.332,
+      "log": "434-build461-market-render-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build462-market-summary-refresh.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.308,
+      "log": "072-build462-market-summary-refresh.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build463-ui-summary-projection.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.058,
+      "log": "661-build463-ui-summary-projection.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build464-summary-projection-boundary.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08,
+      "log": "456-build464-summary-projection-boundary.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build465-directory-ranking-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.096,
+      "log": "672-build465-directory-ranking-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build466-directory-round-robin.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.314,
+      "log": "673-build466-directory-round-robin.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build467-directory-country-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08,
+      "log": "674-build467-directory-country-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build468-summary-projection-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.309,
+      "log": "369-build468-summary-projection-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build469-app-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.462,
+      "log": "065-build469-app-notice-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build470-composite-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.201,
+      "log": "079-build470-composite-notice-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build471-company-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.133,
+      "log": "080-build471-company-notice-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build472-all-company-operating-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 50.825,
+      "log": "044-build472-all-company-operating-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build473-purchase-notice-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.258,
+      "log": "469-build473-purchase-notice-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build474-event-trace-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.627,
+      "log": "662-build474-event-trace-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build475-replay-row-ranges.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.074,
+      "log": "663-build475-replay-row-ranges.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build476-staged-worker-replay.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.439,
+      "log": "621-build476-staged-worker-replay.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build477-bank-read-sync-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.082,
+      "log": "407-build477-bank-read-sync-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build478-directory-scope-stream.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.268,
+      "log": "675-build478-directory-scope-stream.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build479-facility-scope-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.459,
+      "log": "463-build479-facility-scope-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build480-journal-reserve-work.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.144,
+      "log": "664-build480-journal-reserve-work.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build481-diagnostic-fleet-proof.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.06,
+      "log": "539-build481-diagnostic-fleet-proof.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build482-worker-route-conflicts.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.678,
+      "log": "665-build482-worker-route-conflicts.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build483-large-panel-worker-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 39.403,
+      "log": "040-build483-large-panel-worker-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build485-cold-validation-query.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.055,
+      "log": "435-build485-cold-validation-query.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build484-operating-vault-bootstrap-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.404,
+      "log": "370-build484-operating-vault-bootstrap-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build486-route-card-pages.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.056,
+      "log": "070-build486-route-card-pages.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build487-route-pages-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 37.539,
+      "log": "349-build487-route-pages-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build488-route-preview-payload.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.082,
+      "log": "615-build488-route-preview-payload.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build489-stored-lane-containers.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.939,
+      "log": "666-build489-stored-lane-containers.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build490-container-compression.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.073,
+      "log": "679-build490-container-compression.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build491-stored-containers-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.345,
+      "log": "371-build491-stored-containers-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build492-manual-slot-slices-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.357,
+      "log": "162-build492-manual-slot-slices-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build493-backup-export-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.218,
+      "log": "185-build493-backup-export-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build494-export-worker-protocol.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.516,
+      "log": "667-build494-export-worker-protocol.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build495-large-reset-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.001,
+      "log": "372-build495-large-reset-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build496-world-query-reset.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.052,
+      "log": "678-build496-world-query-reset.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build497-route-preview-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.064,
+      "log": "616-build497-route-preview-reuse.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build498-native-save-export-contract.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.039,
+      "log": "536-build498-native-save-export-contract.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build499-purchase-append-views.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.172,
+      "log": "620-build499-purchase-append-views.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build500-sale-navigation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.185,
+      "log": "081-build500-sale-navigation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build501-schema-text-slices.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.574,
+      "log": "315-build501-schema-text-slices.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build502-consolidated-cash-order.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.196,
+      "log": "131-build502-consolidated-cash-order.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build503-recorder-stage-names-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.372,
+      "log": "344-build503-recorder-stage-names-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build504-durable-clone-budget.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.162,
+      "log": "436-build504-durable-clone-budget.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build505-fleet-maintenance-guard.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.458,
+      "log": "668-build505-fleet-maintenance-guard.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build506-drawer-bind-scope-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.169,
+      "log": "143-build506-drawer-bind-scope-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build507-encode-rows-steps.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.926,
+      "log": "542-build507-encode-rows-steps.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build577-save-layout-steps.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.761,
+      "log": "541-build577-save-layout-steps.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build578-energy-history-compaction.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.289,
+      "log": "330-build578-energy-history-compaction.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build508-presentation-index-saves.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.947,
+      "log": "357-build508-presentation-index-saves.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build509-realtime-health-layout.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.09,
+      "log": "437-build509-realtime-health-layout.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build510-validation-cache-reasons.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.318,
+      "log": "669-build510-validation-cache-reasons.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build511-deferred-draft-roots.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.071,
+      "log": "438-build511-deferred-draft-roots.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build512-deferred-mobility-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.447,
+      "log": "084-build512-deferred-mobility-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build513-published-command-wait-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.41,
+      "log": "373-build513-published-command-wait-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build514-map-summary-cadence-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 41.171,
+      "log": "343-build514-map-summary-cadence-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build515-mobility-day-ledger-rollback.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.184,
+      "log": "316-build515-mobility-day-ledger-rollback.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build516-tracked-collections.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.296,
+      "log": "552-build516-tracked-collections.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build517-hr-hire-view-facilities-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.75,
+      "log": "350-build517-hr-hire-view-facilities-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build518-maintenance-worst-first.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.938,
+      "log": "358-build518-maintenance-worst-first.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build519-idempotency-tracked.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.459,
+      "log": "553-build519-idempotency-tracked.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build520-map-aggregate-threshold-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.304,
+      "log": "361-build520-map-aggregate-threshold-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build521-static-validation-groups.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.706,
+      "log": "520-build521-static-validation-groups.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build522-fleet-day-prefetch.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.454,
+      "log": "342-build522-fleet-day-prefetch.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build523-proofs-commands-tracked.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.244,
+      "log": "554-build523-proofs-commands-tracked.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build524-sealed-text-reuse.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "log": "622-build524-sealed-text-reuse.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build525-validation-context-route-ids.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.041,
+      "log": "583-build525-validation-context-route-ids.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build526-prestage-fleet-chunks-only.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.128,
+      "log": "670-build526-prestage-fleet-chunks-only.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build527-decision-navigation-guard-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.319,
+      "log": "351-build527-decision-navigation-guard-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build528-reopen-navigation-guard-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.231,
+      "log": "173-build528-reopen-navigation-guard-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build530-durable-alert-defer-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.011,
+      "log": "062-build530-durable-alert-defer-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build531-durable-publish-no-late-write-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.983,
+      "log": "317-build531-durable-publish-no-late-write-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build532-map-loop-single-render.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.51,
+      "log": "510-build532-map-loop-single-render.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build533-durable-context-release.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.371,
+      "log": "318-build533-durable-context-release.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build534-staged-save-overlap.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.532,
+      "log": "222-build534-staged-save-overlap.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build535-staged-save-retake-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 26.287,
+      "log": "339-build535-staged-save-retake-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build536-conference-progress-cost.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.499,
+      "log": "082-build536-conference-progress-cost.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build537-conference-copy.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.329,
+      "log": "083-build537-conference-copy.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build538-conference-group-headcount.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.279,
+      "log": "068-build538-conference-group-headcount.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build539-intercompany-interest-pnl.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.643,
+      "log": "319-build539-intercompany-interest-pnl.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build540-bank-fee-close-day.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.517,
+      "log": "408-build540-bank-fee-close-day.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build541-bank-provision-cash.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.447,
+      "log": "409-build541-bank-provision-cash.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build542-contract-deposit.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.336,
+      "log": "320-build542-contract-deposit.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build543-external-claim-recovery.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.685,
+      "log": "521-build543-external-claim-recovery.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build544-internal-rent-tenants.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.539,
+      "log": "132-build544-internal-rent-tenants.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build545-power-finance-interest.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.895,
+      "log": "321-build545-power-finance-interest.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build546-sponsorship-revenue.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.636,
+      "log": "322-build546-sponsorship-revenue.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build547-conference-customer-base.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.008,
+      "log": "063-build547-conference-customer-base.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build548-group-intercompany-elimination.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.568,
+      "log": "133-build548-group-intercompany-elimination.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build549-intercompany-loan-interest.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.748,
+      "log": "522-build549-intercompany-loan-interest.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build550-airline-passenger-costs.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.463,
+      "log": "584-build550-airline-passenger-costs.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build554-investor-card-funding.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.329,
+      "log": "324-build554-investor-card-funding.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build555-investor-card-return.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.271,
+      "log": "158-build555-investor-card-return.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build556-investor-card-page-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.87,
+      "log": "174-build556-investor-card-page-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build557-investor-card-load.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 38.588,
+      "log": "453-build557-investor-card-load.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build558-investor-card-load-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 123.755,
+      "log": "197-build558-investor-card-load-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build559-share-value-fixes-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.185,
+      "log": "175-build559-share-value-fixes-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build560-group-fair-value.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.102,
+      "log": "325-build560-group-fair-value.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build561-ipo-offering-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.365,
+      "log": "176-build561-ipo-offering-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build562-group-share-price.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.701,
+      "log": "326-build562-group-share-price.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build563-group-share-page-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.456,
+      "log": "177-build563-group-share-page-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build564-group-dividends.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.485,
+      "log": "383-build564-group-dividends.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build565-group-dividends-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.613,
+      "log": "178-build565-group-dividends-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build566-fresh-capital-facility-book.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.257,
+      "log": "327-build566-fresh-capital-facility-book.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build567-budget-lapsed-reservation.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.544,
+      "log": "134-build567-budget-lapsed-reservation.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build568-budget-lapsed-cheques-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.946,
+      "log": "328-build568-budget-lapsed-cheques-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build569-company-evidence-pending.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.43,
+      "log": "135-build569-company-evidence-pending.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build570-documents-list-weight-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 43.683,
+      "log": "157-build570-documents-list-weight-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build571-tax-month-close-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 60.17,
+      "log": "341-build571-tax-month-close-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build572-fleet-premium-unpaid.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.453,
+      "log": "329-build572-fleet-premium-unpaid.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build573-asset-sale-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.923,
+      "log": "179-build573-asset-sale-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build574-investor-budget-overrun.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.269,
+      "log": "136-build574-investor-budget-overrun.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build575-conference-keynote-weight-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 94.186,
+      "log": "452-build575-conference-keynote-weight-browser.log",
+      "attempts": 1
+    },
+    {
+      "argv": [
+        "node",
+        "tests/build576-presentation-rest-browser.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 136.628,
+      "log": "001-build576-presentation-rest-browser.log",
+      "attempts": 1
+    }
+  ],
+  "total": 702,
+  "passed": 702,
+  "ipa_built": false,
+  "device_tested": false
+}
