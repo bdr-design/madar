@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "1d5dec781c266f0b3028d8aabe4a21712a0ed530fe77c08b29929ddd2a2931fc",
-  "webapp_tree_sha256": "806a9741071296d31229045c5998e4df80349fa17495453dc900de6746a996b5",
+  "source_tree_sha256": "607af886dd31c43aed4c1cc28c5953415f6fac5ba6f02130bfd676c1395efda6",
+  "webapp_tree_sha256": "1508e8ed39e602974f1be26939bf4f846f52f5ddb136b16ebeb312504ed2578a",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1139945,
-      "sha256": "36e93088d12e975fd0a0fa1603d6d982effc87912e83275bc19e608208dc18eb"
+      "bytes": 1142283,
+      "sha256": "4509435a68f4cdcf998f5468fd8c5d277ea580835446c51b77416f483a449f07"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 9718,
@@ -3675,8 +3675,8 @@
       "sha256": "d79a352e34c844ffb8b8605307110b5c5499c98c70ff48567e26155f6e50e54b"
     },
     "WebApp/hr-core.js": {
-      "bytes": 37450,
-      "sha256": "e102974eedf92bd9beb2534d282a815207f041571eb626195f514ac7eb159332"
+      "bytes": 37471,
+      "sha256": "22a164cb8d0510f98a24332010e930c57c28480fa0fb59b344f8a2275c9c51ab"
     },
     "WebApp/i18n-core.js": {
       "bytes": 5385,
@@ -3815,8 +3815,8 @@
       "sha256": "4eb2f513d6dd3be6e8ef73f68b7e3724fc649797aad35edee4aa9eac5e9c51ac"
     },
     "WebApp/mobility-core.js": {
-      "bytes": 88464,
-      "sha256": "46393a7edb2a3dd21acd61dbfbb3f1ad51f2e3fdf1281c393fb1dc2041bb65ca"
+      "bytes": 93987,
+      "sha256": "3e9b42a7c938ce85bf95873b01ff0dbf40e154aee95148e022cb932f0e7cb057"
     },
     "WebApp/news.css": {
       "bytes": 9167,
@@ -3899,8 +3899,8 @@
       "sha256": "d35e1e22ba84d6f2fe58d356db0743740785a2b02f1871d058e3c59c96b52f94"
     },
     "WebApp/save-checksum-worker.js": {
-      "bytes": 7243,
-      "sha256": "cce4ee326cd0771f665acbd09976f86ce0858fd219e4ca1f2fc57ec1b7610a40"
+      "bytes": 7628,
+      "sha256": "9cf0ecb4475a321b4b8cdeae54163b09c76fae82c638c53a7f1ccec5d956e1f3"
     },
     "WebApp/save-chunk-codec.js": {
       "bytes": 10958,
@@ -3955,8 +3955,8 @@
       "sha256": "f3565ba9be836343be71eb0461deaadb67851b66486bbe0a61dee59d7119deec"
     },
     "WebApp/state-codec-core.js": {
-      "bytes": 117862,
-      "sha256": "244d93f0db3373a354bd0b74570bfe3afd4e4ac3763b6bb5491c0905fe78903b"
+      "bytes": 118906,
+      "sha256": "872f7e19acac596d9809b1c35d7f60ff6c304af10761f60093666c9e62270d48"
     },
     "WebApp/store-core.js": {
       "bytes": 18190,
@@ -4088,7 +4088,7 @@
     },
     "project.yml": {
       "bytes": 2585,
-      "sha256": "dd0beb8f6f0c343654ae2d624f473a3d7edbc0822379c7cf92ddf1d78560434f"
+      "sha256": "d314cad2e4121a3297a1e586392e32a5a50c48d6a3b860c2c2aa7cf5deccf7e1"
     },
     "BUILD": {
       "bytes": 4,

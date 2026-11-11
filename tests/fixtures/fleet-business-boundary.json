@@ -956,6 +956,106 @@
     ],
     "WebApp/mobility-core.js": [
       {
+        "before": "  const API={VERSION,MAX_FLEET_PURCHASE_QUANTITY,ROLLBACK_POLICY,",
+        "after": "  const API={VERSION,MAX_FLEET_PURCHASE_QUANTITY,MAX_NETWORK_VEHICLES,ROLLBACK_POLICY,",
+        "sha256": "25b8270b7f5114cb1170d4241d1e2a0a0bf487c0eceeaba57bdddf8e67213915"
+      },
+      {
+        "before": "if(occupied+total>capacity)throw new Error(`mobility-center-capacity:${Math.max(0,capacity-occupied)}/${capacity}`);const capex=acquisitionCost(total,classId);",
+        "after": "if(occupied+total>capacity)throw new Error(`mobility-center-capacity:${Math.max(0,capacity-occupied)}/${capacity}`);if(m.vehicles.length+total>MAX_NETWORK_VEHICLES)throw new Error(`mobility-network-capacity:${Math.max(0,MAX_NETWORK_VEHICLES-m.vehicles.length)}/${MAX_NETWORK_VEHICLES}`);const capex=acquisitionCost(total,classId);",
+        "sha256": "c992b260e9c06556e4273869874ebfe433d14666d4edddb5016cdb47e56f46ad"
+      },
+      {
+        "before": "  const MAX_FLEET_PURCHASE_QUANTITY=3000;",
+        "after": "  const MAX_FLEET_PURCHASE_QUANTITY=3000;\n  // Build 688 (owner: «نفذ الاخف والامن»): the network's safe size. With the save head freed of the cars (Build 685) the\n  // only bound left was the centres' bays (130 x 3,000 = 390,000 cars): measured on desktop at 390,000, a page of 1.6 GB, a\n  // save of 18.8 s and a day of 102 s. The network is held at 80,000 cars, under the 87,000 at which saves were refused\n  // before (577 MB): a purchase past it is refused before any payment, and the cars a save already holds are kept.\n  const MAX_NETWORK_VEHICLES=80000;",
+        "sha256": "81ced9676f2e050958c664e75ed70384e8285be67e5010c41a700fb9904168bb"
+      },
+      {
+        "before": "      const vehiclesByCenter=new Map(),driversByCenter=new Map(),vehiclesById=new Map(),driversById=new Map(),fleetCounts=new Map(),dedicatedDriverIds=new Set(),lookupIds=activeTripIds(m);\n      for(const vehicle of m.vehicles){\n        const centerId=vehicle.centerId||'RUH',rows=vehiclesByCenter.get(centerId)||[];\n        rows.push(vehicle);vehiclesByCenter.set(centerId,rows);if(lookupIds?.vehicles.has(vehicle.id))rememberTripRow(vehiclesById,vehicle);\n        fleetCounts.set(centerId,(fleetCounts.get(centerId)||0)+1);\n        if(vehicle.driverId)dedicatedDriverIds.add(vehicle.driverId);\n      }\n      for(const driver of m.drivers){\n        const centerId=driver.centerId||'RUH',rows=driversByCenter.get(centerId)||[];\n        rows.push(driver);driversByCenter.set(centerId,rows);if(lookupIds?.drivers.has(driver.id))rememberTripRow(driversById,driver);\n      }\n      cached={vehicles:m.vehicles,vehicleLength:m.vehicles.length,drivers:m.drivers,driverLength:m.drivers.length,indexes:{vehiclesByCenter,driversByCenter,vehiclesById,driversById,fleetCounts,dedicatedDriverIds}};\n",
+        "after": "      // Build 684: what the groups are built from is kept with them, so the next owner walk (ensure) can reuse them.\n      const vehiclesByCenter=new Map(),driversByCenter=new Map(),vehiclesById=new Map(),driversById=new Map(),fleetCounts=new Map(),dedicatedDriverIds=new Set(),lookupIds=activeTripIds(m),proof={vehicles:[],vehicleCenters:[],vehicleDrivers:[],drivers:[],driverCenters:[]};\n      for(const vehicle of m.vehicles){\n        const centerId=vehicle.centerId||'RUH',rows=vehiclesByCenter.get(centerId)||[];\n        rows.push(vehicle);vehiclesByCenter.set(centerId,rows);if(lookupIds?.vehicles.has(vehicle.id))rememberTripRow(vehiclesById,vehicle);\n        fleetCounts.set(centerId,(fleetCounts.get(centerId)||0)+1);\n        if(vehicle.driverId)dedicatedDriverIds.add(vehicle.driverId);\n        proof.vehicles.push(vehicle);proof.vehicleCenters.push(centerId);proof.vehicleDrivers.push(vehicle.driverId);\n      }\n      for(const driver of m.drivers){\n        const centerId=driver.centerId||'RUH',rows=driversByCenter.get(centerId)||[];\n        rows.push(driver);driversByCenter.set(centerId,rows);if(lookupIds?.drivers.has(driver.id))rememberTripRow(driversById,driver);\n        proof.drivers.push(driver);proof.driverCenters.push(centerId);\n      }\n      cached={vehicles:m.vehicles,vehicleLength:m.vehicles.length,drivers:m.drivers,driverLength:m.drivers.length,indexes:{vehiclesByCenter,driversByCenter,vehiclesById,driversById,fleetCounts,dedicatedDriverIds},proof};\n",
+        "sha256": "b2405f30cf25db503377e8b7110b752b23545d498440bc741c88230efa4871a9"
+      },
+      {
+        "before": "    if(validatedIndexes&&wasCanonicalRouteSchema&&m.routeSchemaVersion===3)simulationIndexCache.set(m,{vehicles:m.vehicles,vehicleLength:m.vehicles.length,drivers:m.drivers,driverLength:m.drivers.length,indexes:validatedIndexes});\n",
+        "after": "    // Reused groups hold only while nothing differed and no member was removed by this walk (the lengths are the kept ones).\n    if(reuseGroups&&(staleGroups||m.vehicles.length!==keptIndexes.vehicleLength||m.drivers.length!==keptIndexes.driverLength))simulationIndexCache.delete(m);\n    else if(validatedIndexes&&wasCanonicalRouteSchema&&m.routeSchemaVersion===3)simulationIndexCache.set(m,{vehicles:m.vehicles,vehicleLength:m.vehicles.length,drivers:m.drivers,driverLength:m.drivers.length,indexes:validatedIndexes,proof:indexProof});\n",
+        "sha256": "41bd75620b18adaffe6bc38301df4e2af7e8733a625f56536a421fd571eebe82"
+      },
+      {
+        "before": "        if(validatedIndexes&&key==='vehicles'){\n          const centerId=row.centerId||'RUH',group=validatedIndexes.vehiclesByCenter.get(centerId)||[];\n          group.push(row);validatedIndexes.vehiclesByCenter.set(centerId,group);\n          if(lookupIds?.vehicles.has(row.id))rememberTripRow(validatedIndexes.vehiclesById,row);\n          validatedIndexes.fleetCounts.set(centerId,(validatedIndexes.fleetCounts.get(centerId)||0)+1);\n          if(row.driverId)validatedIndexes.dedicatedDriverIds.add(row.driverId);\n        }else if(validatedIndexes&&key==='drivers'){\n          const centerId=row.centerId||'RUH',group=validatedIndexes.driversByCenter.get(centerId)||[];\n          group.push(row);validatedIndexes.driversByCenter.set(centerId,group);\n          if(lookupIds?.drivers.has(row.id))rememberTripRow(validatedIndexes.driversById,row);\n        }\n",
+        "after": "        if(validatedIndexes&&key==='vehicles'){\n          const centerId=row.centerId||'RUH';\n          if(reuseGroups){if(indexProof.vehicles[index]!==row||indexProof.vehicleCenters[index]!==centerId||indexProof.vehicleDrivers[index]!==row.driverId)staleGroups=true;}\n          else{\n            const group=validatedIndexes.vehiclesByCenter.get(centerId)||[];\n            group.push(row);validatedIndexes.vehiclesByCenter.set(centerId,group);\n            validatedIndexes.fleetCounts.set(centerId,(validatedIndexes.fleetCounts.get(centerId)||0)+1);\n            if(row.driverId)validatedIndexes.dedicatedDriverIds.add(row.driverId);\n            indexProof.vehicles.push(row);indexProof.vehicleCenters.push(centerId);indexProof.vehicleDrivers.push(row.driverId);\n          }\n          if(lookupIds?.vehicles.has(row.id))rememberTripRow(validatedIndexes.vehiclesById,row);\n        }else if(validatedIndexes&&key==='drivers'){\n          const centerId=row.centerId||'RUH';\n          if(reuseGroups){if(indexProof.drivers[index]!==row||indexProof.driverCenters[index]!==centerId)staleGroups=true;}\n          else{\n            const group=validatedIndexes.driversByCenter.get(centerId)||[];\n            group.push(row);validatedIndexes.driversByCenter.set(centerId,group);\n            indexProof.drivers.push(row);indexProof.driverCenters.push(centerId);\n          }\n          if(lookupIds?.drivers.has(row.id))rememberTripRow(validatedIndexes.driversById,row);\n        }\n",
+        "sha256": "72c58ecef24c0e72fe771c620c8d2c0c7280a59006fe428c626a6d84f2d52f8d"
+      },
+      {
+        "before": "    const wasCanonicalRouteSchema=m.routeSchemaVersion===3,buildSimulationIndexes=options?.simulationIndexes===true,lookupIds=buildSimulationIndexes?activeTripIds(m):null,validatedIndexes=buildSimulationIndexes?{vehiclesByCenter:new Map(),driversByCenter:new Map(),vehiclesById:new Map(),driversById:new Map(),fleetCounts:new Map(),dedicatedDriverIds:new Set()}:null;\n",
+        "after": "    // Build 684 (a play of the whole game with 30,000 cars: this walk regrouped 60,000 rows by centre for every\n    // simulation slice, 37 ms a slice): the groups by centre, the fleet counts and the dedicated drivers are a function\n    // of the rows, their order, each row's centre and each vehicle's driver. The walk still checks the owner of every\n    // row, and compares each row with what the kept groups were built from (indexProof); while all of it is the same the\n    // groups are reused, and anything else (a row replaced, moved, removed, a centre or a driver changed) builds them\n    // again. The rows of the trips in progress are looked up afresh on every walk, as before.\n    const wasCanonicalRouteSchema=m.routeSchemaVersion===3,buildSimulationIndexes=options?.simulationIndexes===true,lookupIds=buildSimulationIndexes?activeTripIds(m):null,keptIndexes=buildSimulationIndexes&&wasCanonicalRouteSchema?simulationIndexCache.get(m):null,reuseGroups=!!keptIndexes?.proof&&keptIndexes.vehicles===m.vehicles&&keptIndexes.vehicleLength===m.vehicles.length&&keptIndexes.drivers===m.drivers&&keptIndexes.driverLength===m.drivers.length,indexProof=buildSimulationIndexes?(reuseGroups?keptIndexes.proof:{vehicles:[],vehicleCenters:[],vehicleDrivers:[],drivers:[],driverCenters:[]}):null,validatedIndexes=buildSimulationIndexes?(reuseGroups?{...keptIndexes.indexes,vehiclesById:new Map(),driversById:new Map()}:{vehiclesByCenter:new Map(),driversByCenter:new Map(),vehiclesById:new Map(),driversById:new Map(),fleetCounts:new Map(),dedicatedDriverIds:new Set()}):null;\n    let staleGroups=false;\n",
+        "sha256": "fc8a1fbe758dc11dbea4253f2fbfeecef1ea78068b6ba4cc6e3df02bdabd6174"
+      },
+      {
+        "before": "if(driver&&typeof driver==='object'){delete driver.earnings;delete driver.totalTrips;}",
+        "after": "if(driver&&typeof driver==='object'){keepRow(driver);delete driver.earnings;delete driver.totalTrips;}",
+        "sha256": "593623cdccec5de7d960bfa5659f1a6e5491e4fbe560b4454bf67460bbbf2404"
+      },
+      {
+        "before": "          else row.ownerCompanyId=ownerCompanyId;\n",
+        "after": "          else{keepRow(row);row.ownerCompanyId=ownerCompanyId;}\n",
+        "sha256": "66209e79ae7621944f541470155ca88469bef66c72f1f067bc9bf863ba8489bc"
+      },
+      {
+        "before": "throw new Error('mobility-maintenance-cheque-not-cleared');vehicle.condition=100;",
+        "after": "throw new Error('mobility-maintenance-cheque-not-cleared');keepRow(vehicle);vehicle.condition=100;",
+        "sha256": "2470a6a2f547370eef4b18b0a4d97d72b4309c4076c53c7c42dc1106952e0886"
+      },
+      {
+        "before": "for(const driver of driversById.get(driverId)||[]){driver.status='online';driver.zoneId=trip.fromZone||driver.zoneId;",
+        "after": "for(const driver of driversById.get(driverId)||[]){keepRow(driver);driver.status='online';driver.zoneId=trip.fromZone||driver.zoneId;",
+        "sha256": "45229f0e151999978e0b2c0561bb55d47996bfd21e238628fd065d1748ded7ed"
+      },
+      {
+        "before": "for(const vehicle of vehiclesById.get(vehicleId)||[]){vehicle.status='available';vehicle.zoneId=trip.fromZone||vehicle.zoneId;",
+        "after": "for(const vehicle of vehiclesById.get(vehicleId)||[]){keepRow(vehicle);vehicle.status='available';vehicle.zoneId=trip.fromZone||vehicle.zoneId;",
+        "sha256": "94b1bc9e148ca2982730afce610d3405f759eb21011911ad365968d8ab7784fb"
+      },
+      {
+        "before": "for(const driver of driversById.get(driverId)||[]){driver.status='online';driver.zoneId=trip.toZone;",
+        "after": "for(const driver of driversById.get(driverId)||[]){keepRow(driver);driver.status='online';driver.zoneId=trip.toZone;",
+        "sha256": "0430bab7e8220b1870aa33b9fe1c3bc475e377d4106fedec5231740e1cf13b25"
+      },
+      {
+        "before": "for(const vehicle of vehiclesById.get(vehicleId)||[]){vehicle.status='available';vehicle.zoneId=trip.toZone;",
+        "after": "for(const vehicle of vehiclesById.get(vehicleId)||[]){keepRow(vehicle);vehicle.status='available';vehicle.zoneId=trip.toZone;",
+        "sha256": "985e5e64d141e9f861398039309b614756bb9ca2515ee9d7b5d2068242362b31"
+      },
+      {
+        "before": "request.tripId=id(m,'TRIP');vehicle.status='moving';vehicle.tripId=request.tripId;",
+        "after": "request.tripId=id(m,'TRIP');keepRow(vehicle);keepRow(driver);vehicle.status='moving';vehicle.tripId=request.tripId;",
+        "sha256": "e2a349b3f90b0534f11182fed2e07b4c4b255235899268cd9c7529abfbc1f4c9"
+      },
+      {
+        "before": "      vehicle.driverId=driver.id;vehicle.staffing={mode:'automatic-fixed',",
+        "after": "      keepRow(vehicle);vehicle.driverId=driver.id;vehicle.staffing={mode:'automatic-fixed',",
+        "sha256": "dc012be05ec8deede4eaaf0c697b559f4090ae0a0de1d52258087fcd0ff2e857"
+      },
+      {
+        "before": "      for(const vehicle of group.vehicles)vehicle.staffing={...(vehicle.staffing||{}),employmentContractId:row.id};",
+        "after": "      for(const vehicle of group.vehicles){keepRow(vehicle);vehicle.staffing={...(vehicle.staffing||{}),employmentContractId:row.id};}",
+        "sha256": "5d3d6a77839a15cb8ed2a8aeb3e45187cba73360ea510700be7b3167a394c9a6"
+      },
+      {
+        "before": "      for(const driver of m.drivers)driver.centerId=driver.centerId||'RUH';\n",
+        "after": "      for(const driver of m.drivers){keepRow(driver);driver.centerId=driver.centerId||'RUH';}\n",
+        "sha256": "dd170b0dff12663315d29073f9c9832268daec6a8281cd4146917fa648c9da86"
+      },
+      {
+        "before": "const serial=Math.max(1,Number(String(vehicle.id||'').split('-').pop())||index+1);vehicle.manufacturer=vehicle.manufacturer||spec.manufacturer;",
+        "after": "const serial=Math.max(1,Number(String(vehicle.id||'').split('-').pop())||index+1);keepRow(vehicle);vehicle.manufacturer=vehicle.manufacturer||spec.manufacturer;",
+        "sha256": "69612705c151ce1a5d3665e71fd97b51c87ee523dd502e1853c318c5e1d5afaa"
+      },
+      {
+        "before": "  const ROLLBACK_POLICY=Object.freeze({level:'rows',immutable:Object.freeze([...IMMUTABLE_ROWS])});\n",
+        "after": "  // Build 683 (a play of the whole game at a million assets, 30,000 cars): a slice's row-level snapshot copied every\n  // vehicle and every driver, 60,000 objects a slice, to protect the few rows a slice edits (a trip assigned, completed\n  // or released). After the staffing scan was removed it was half of the processor's busy time. This owner is the only\n  // writer of those rows: it keeps the row as it was before its first edit inside a transaction (keepRow, undone after\n  // the snapshot is restored: GH_TRANSACTION_CORE.registerUndo), and the snapshot keeps the two collections' membership\n  // only. Every edit in place of a vehicle or a driver in this file is preceded by keepRow; a rolled-back slice comes\n  // back exact (tests/build358-row-snapshot-rollback.cjs, tests/build683-mobility-kept-rows.cjs).\n  const OWNER_KEPT_ROWS=Object.freeze(['vehicles','drivers']);\n  function keepRow(row){\n    const tx=globalThis.GH_TRANSACTION_CORE;\n    if(!row||typeof row!=='object'||typeof tx?.isActive!=='function'||!tx.isActive()||typeof tx.registerUndo!=='function'||typeof tx.transactionMemoGet!=='function'||typeof tx.transactionMemoSet!=='function')return row;\n    let kept=tx.transactionMemoGet('mobility-kept-rows');\n    if(!kept){\n      kept=new Map();tx.transactionMemoSet('mobility-kept-rows',kept);const rows=kept;\n      // The members as they were: the same keys in the same order with the same values (as a row-level snapshot restores).\n      tx.registerUndo(()=>{for(const [ref,before] of rows){const keys=before.keys,values=before.values,current=Object.keys(ref);let same=current.length===keys.length;if(same)for(let i=0;i<keys.length;i++)if(current[i]!==keys[i]){same=false;break;}if(same){for(const key of keys)if(ref[key]!==values[key])ref[key]=values[key];}else{for(const key of current)delete ref[key];for(const key of keys)ref[key]=values[key];}}rows.clear();},()=>rows.clear());\n    }\n    if(!kept.has(row))kept.set(row,{keys:Object.keys(row),values:{...row}});\n    return row;\n  }\n  const ROLLBACK_POLICY=Object.freeze({level:'rows',immutable:Object.freeze([...IMMUTABLE_ROWS,...OWNER_KEPT_ROWS])});\n",
+        "sha256": "db7bfe21f9280bbbc09447d838099a3968593d7f056c58017b12fe58e0dcca27"
+      },
+      {
         "before": "{id:'eco-ev',name:'GH Go Electric'",
         "after": "{id:'eco-ev',name:'ANI Go Electric'",
         "sha256": "fa7cf8f7a9615feee5a39a0d1d4b5c6056d06aa3ad52617e5f3411eb5e1e7893"

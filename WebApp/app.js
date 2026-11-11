@@ -1974,7 +1974,12 @@
   // only reads it; it was built again by the places, the status line and each asset at a base (renderFacilities, declared
   // at the top: the list is read while the app starts).
   function getDynamicFacilities(target=state){return target===state&&renderFacilities?renderFacilities:dynamicFacilitiesFor(target);}
-  function routeFacilityFor(target,id){return dynamicFacilitiesFor(target).find(f=>f.id===id)||null;}
+  // Build 686 (a play of the whole game at a million assets: one air dispatch press spent 4 s rebuilding this list, once
+  // for every base, every registered route and both of its ends): a caller that compares many facilities of one target
+  // whose facilities do not change meanwhile builds the index once (facilityIndexFor) and passes it. The index keeps the
+  // first facility of each id, as find() does; without it the lookup is what it was.
+  function facilityIndexFor(target){const index=new Map();for(const facility of dynamicFacilitiesFor(target))if(facility&&!index.has(facility.id))index.set(facility.id,facility);return index;}
+  function routeFacilityFor(target,id,index=null){if(index)return index.get(id)||null;return dynamicFacilitiesFor(target).find(f=>f.id===id)||null;}
 
   function endpointMatchesWorldEntity(endpoint,entity){
     if(!endpoint||!entity||endpoint.kind!==entity.kind)return false;
@@ -2358,7 +2363,7 @@
       if(availableRoutes<minimumRoutes)throw new Error(`سعة سجل المسارات لا تكفي لتوزيع أسطول ${label} بأمان؛ المتاح ${countText(availableRoutes,'route')} والحد الأدنى المطلوب ${countText(minimumRoutes,'route')}`);
       const targetLoad=fleet.automaticRouteTargetLoad(type,plannedFleet,capacity>baseCapacity?usableRoutes:availableRoutes,capacity),registeredRoutes=draft.customRoutes.filter(route=>routeOwnerCompanyId(route)===companyId&&routeModeOf(route)===type&&routes[route.id]);
       source.metrics.registeredRouteCount=registeredRoutes.length;
-      const originRows=[...originsById.values()],originRoutes=await cooperativeFleetMap(originRows,origin=>({originId:origin.id,routeIds:registeredRoutes.filter(route=>sameUnderlyingFacilityFor(draft,origin.id,route.fromFacility)||sameUnderlyingFacilityFor(draft,origin.id,route.toFacility)).map(route=>route.id)}),source.metrics),plannerRoutes=await cooperativeFleetMap(registeredRoutes,route=>({id:String(route.id),fromFacility:String(route.fromFacility||''),toFacility:String(route.toFacility||''),legKm:Number(route.maxLegKm)||routeLongestLeg(route.route)}),source.metrics);
+      const originRows=[...originsById.values()],originFacilityIndex=facilityIndexFor(draft),originRoutes=await cooperativeFleetMap(originRows,origin=>({originId:origin.id,routeIds:registeredRoutes.filter(route=>sameUnderlyingFacilityFor(draft,origin.id,route.fromFacility,originFacilityIndex)||sameUnderlyingFacilityFor(draft,origin.id,route.toFacility,originFacilityIndex)).map(route=>route.id)}),source.metrics),plannerRoutes=await cooperativeFleetMap(registeredRoutes,route=>({id:String(route.id),fromFacility:String(route.fromFacility||''),toFacility:String(route.toFacility||''),legKm:Number(route.maxLegKm)||routeLongestLeg(route.route)}),source.metrics);
       const plannerInput={targetLoad,routeCapacity:capacity,assets:plannerAssets,routes:plannerRoutes,originRoutes,initialLoads:Object.fromEntries(initialLoads)};
       const routePlanStarted=performance.now();let routePlan=await routeWorker?.plan(plannerInput);if(!routePlan)routePlan=await planAirSeaNetworkCooperatively(plannerInput,source.metrics);if(!await validateAirSeaPlanCooperatively(plannerInput,routePlan,source.metrics))throw new Error('رفض مخطط شبكة الطيران والبحرية قبل الاعتماد');source.metrics.routePlanMs=performance.now()-routePlanStarted;
       // Retry planning only under route pressure: reuse compatible existing routes up to the unchanged hard cap.
@@ -2375,8 +2380,8 @@
       }
       const plannedCount=routePlan.assignments.length+groupSlots.reduce((sum,row)=>sum+row.count,0),capacityRemaining=eligibleUnsorted.length-plannedCount;remaining+=capacityRemaining;
       if(!plannedCount){const error=new Error(`لا توجد سعة مسارات ${routeLabel} مناسبة متاحة الآن؛ بقيت ${capacityRemaining} دون مغادرة`);error.code='route-mode-capacity';throw error;}
-      const registeredRouteById=new Map(registeredRoutes.map(route=>[route.id,route])),assignments=[],createdRoutes=[],diversity=newRouteDiversityLedger(),diversityRoutes=new Set(),routeLoads=new Map(initialLoads);let sharedBatches=0;const routeSelectionStarted=performance.now();
-      await cooperativeFleetLoop(routePlan.assignments.length,index=>{const row=routePlan.assignments[index],asset=eligibleById.get(row.assetId),route=registeredRouteById.get(row.routeId),origin=originByAssetId.get(row.assetId);if(!asset||!route||!origin)throw new Error('فقد أصل أو مسار قائم أثناء تخطيط الشبكة');assignments.push({asset,route});routeLoads.set(route.id,(routeLoads.get(route.id)||0)+1);if(!diversityRoutes.has(route.id)){const fromOrigin=sameUnderlyingFacilityFor(draft,origin.id,route.fromFacility),destinationId=fromOrigin?route.toFacility:route.fromFacility,endpoint=routeFacilityFor(draft,destinationId),point=fromOrigin?route.route.at(-1):route.route[0];recordRouteDiversity(diversity,endpoint?.sourceKey||route.id,point,haversine(origin.coords,point));diversityRoutes.add(route.id);}},source.metrics);
+      const registeredRouteById=new Map(registeredRoutes.map(route=>[route.id,route])),assignments=[],createdRoutes=[],diversity=newRouteDiversityLedger(),diversityRoutes=new Set(),routeLoads=new Map(initialLoads);let sharedBatches=0;const routeSelectionStarted=performance.now(),selectionFacilities=facilityIndexFor(draft);
+      await cooperativeFleetLoop(routePlan.assignments.length,index=>{const row=routePlan.assignments[index],asset=eligibleById.get(row.assetId),route=registeredRouteById.get(row.routeId),origin=originByAssetId.get(row.assetId);if(!asset||!route||!origin)throw new Error('فقد أصل أو مسار قائم أثناء تخطيط الشبكة');assignments.push({asset,route});routeLoads.set(route.id,(routeLoads.get(route.id)||0)+1);if(!diversityRoutes.has(route.id)){const fromOrigin=sameUnderlyingFacilityFor(draft,origin.id,route.fromFacility,selectionFacilities),destinationId=fromOrigin?route.toFacility:route.fromFacility,endpoint=routeFacilityFor(draft,destinationId,selectionFacilities),point=fromOrigin?route.route.at(-1):route.route[0];recordRouteDiversity(diversity,endpoint?.sourceKey||route.id,point,haversine(origin.coords,point));diversityRoutes.add(route.id);}},source.metrics);
       for(const [groupIndex,plannedGroup] of routePlan.waitingGroups.entries()){
         if(!groupSlots[groupIndex].count)continue;const group={origin:originsById.get(plannedGroup.originId),assets:null};let previousAsset=null;
         group.assets=await cooperativeFleetMap(plannedGroup.assetIds.slice(0,groupSlots[groupIndex].count),id=>{const asset=eligibleById.get(id);if(!asset)throw new Error('فقد أصل أو نقطة انطلاق أثناء تخطيط الشبكة');if(previousAsset&&(assetRangeKm(previousAsset)>assetRangeKm(asset)||assetRangeKm(previousAsset)===assetRangeKm(asset)&&String(previousAsset.id).localeCompare(String(asset.id))>0))throw new Error('ترتيب أصول مخطط الشبكة غير صالح');previousAsset=asset;return asset;},source.metrics);if(!group.origin)throw new Error('فقد أصل أو نقطة انطلاق أثناء تخطيط الشبكة');
@@ -3367,7 +3372,10 @@
   // Only understaffed bases are listed (the context is part of the trip cache key).
   function baseDwellFactors(facilities){
     const H=window.GH_HR_CORE,out={};if(typeof H?.facilityNeed!=='function')return out;const models=state.advanced?.facilities||{};
-    for(const f of facilities){if(!f?.owned||!f.id)continue;const need=Number(H.facilityNeed(f,state))||0;if(need<=0)continue;const have=Math.max(0,Number(models[f.id]?.staff)||0),coverage=Math.min(1,have/need);if(coverage<1)out[String(f.id)]=Math.round(Math.min(2,1+(1-coverage))*1000)/1000;}
+    // Build 682: the cars of each mobility centre are counted once for the call (GH_HR_CORE.mobilityCenterCounts), not
+    // once per centre: this runs in every simulation slice, and 130 centres with 30,000 cars read 3.9 million cars a slice.
+    let mobilityCounts=null;
+    for(const f of facilities){if(!f?.owned||!f.id)continue;if(f.kind==='mobility-center'&&mobilityCounts===null&&typeof H.mobilityCenterCounts==='function')mobilityCounts=H.mobilityCenterCounts(state);const need=Number(H.facilityNeed(f,state,mobilityCounts))||0;if(need<=0)continue;const have=Math.max(0,Number(models[f.id]?.staff)||0),coverage=Math.min(1,have/need);if(coverage<1)out[String(f.id)]=Math.round(Math.min(2,1+(1-coverage))*1000)/1000;}
     return out;
   }
   function simulationAssetRuntimeContext(){
@@ -6924,13 +6932,16 @@ ${page}</div>`;
       notice(`لم يُنفذ الشراء ولم يحدث أي خصم: ${String(error.message||'راجع الرصيد والمورد والسعة.')}`);return null;
     }finally{release();}
   }
+  function mobilityNetworkCapacityText(left,cap){return left>0?`لم يُنفَّذ الشراء ولم يُخصم أي مبلغ: الحد الآمن لشبكة التنقل ${fmtNumber(cap)} سيارة، والمتاح الآن ${fmtNumber(left)} فقط.`:`لم يُنفَّذ الشراء ولم يُخصم أي مبلغ: بلغت شبكة التنقل حدها الآمن (${fmtNumber(cap)} سيارة) حفاظًا على سرعة اللعبة والحفظ.`;}
   async function manualMobilityPurchaseFromCard(button){
     const navigationRevision=drawerNavigationRevision;
     const card=button?.closest?.('.mobility-market-card'),classId=button?.dataset?.class,centerId=card?.querySelector('.mobility-purchase-center')?.value,quantity=Math.max(1,Math.min(window.GH_MOBILITY_CORE?.MAX_FLEET_PURCHASE_QUANTITY||3000,Math.round(Number(card?.querySelector('.mobility-purchase-qty')?.value)||1)));
     if(!classId||!centerId){notice('اختر طرازًا ومركز تسليم مملوكًا.');return null;}
+    // Build 688: the network's safe size is checked before the spend question (the engine refuses it again, before any payment).
+    {const cap=Number(window.GH_MOBILITY_CORE?.MAX_NETWORK_VEHICLES)||0,held=(state.mobility?.vehicles||[]).length;if(cap>0&&held+quantity>cap){notice(mobilityNetworkCapacityText(Math.max(0,cap-held),cap),'warning');return null;}}
     const release=beginButtonOperation(button,'جارٍ شراء وتسليم السيارات…');if(!release)return null;
     try{{const spec=(window.GH_MOBILITY_CORE?.CLASSES||[]).find(row=>row.id===classId),owner=window.GH_MOBILITY_CORE?.mobilityOwnerCompanyId?.(state,'',{operational:true})||'mobility';if(!await confirmLargeSpend((Number(spec?.cost)||0)*quantity,owner,`شراء ${countText(quantity,'vehicle',undefined,true)} · ${spec?.name||classId}؟`,false))return null;}
-      const result=(await runAuthorizedDomainCommand('mobility','buy-fleet',{quantity,centerId,classId},{successNotice:result=>result?(`تم شراء وتسليم ${quantity} سيارة إلى ${window.GH_MOBILITY_CORE.centerMeta(state,centerId)?.city||centerId}، وتعيين ${quantity} سائق برواتب ثابتة تلقائيًا.`):''})).result;if(!result)throw new Error('محرك Mobility غير متاح');updateKpis();renderMap();reopenDrawer(navigationRevision,'assets','mobility');return result;}catch(error){{const room=/^mobility-center-capacity:(\d+)\/(\d+)$/.exec(String(error?.message||''));notice(room?(Number(room[1])>0?`لم يُنفَّذ الشراء: الأماكن المتاحة في هذا المركز ${fmtNumber(Number(room[1]))} من أصل ${fmtNumber(Number(room[2]))}.`:`لم يُنفَّذ الشراء: هذا المركز ممتلئ (سعته: ${fmtNumber(Number(room[2]))}).`):`لم يُنفَّذ شراء السيارات: ${reasonText(error)}`,'warning');}return null;}finally{release();}
+      const result=(await runAuthorizedDomainCommand('mobility','buy-fleet',{quantity,centerId,classId},{successNotice:result=>result?(`تم شراء وتسليم ${quantity} سيارة إلى ${window.GH_MOBILITY_CORE.centerMeta(state,centerId)?.city||centerId}، وتعيين ${quantity} سائق برواتب ثابتة تلقائيًا.`):''})).result;if(!result)throw new Error('محرك Mobility غير متاح');updateKpis();renderMap();reopenDrawer(navigationRevision,'assets','mobility');return result;}catch(error){{const network=/^mobility-network-capacity:(\d+)\/(\d+)$/.exec(String(error?.message||''));if(network){notice(mobilityNetworkCapacityText(Number(network[1]),Number(network[2])),'warning');return null;}const room=/^mobility-center-capacity:(\d+)\/(\d+)$/.exec(String(error?.message||''));notice(room?(Number(room[1])>0?`لم يُنفَّذ الشراء: الأماكن المتاحة في هذا المركز ${fmtNumber(Number(room[1]))} من أصل ${fmtNumber(Number(room[2]))}.`:`لم يُنفَّذ الشراء: هذا المركز ممتلئ (سعته: ${fmtNumber(Number(room[2]))}).`):`لم يُنفَّذ شراء السيارات: ${reasonText(error)}`,'warning');}return null;}finally{release();}
   }
   function focusOwnedAsset(id){const asset=window.GH_FLEET_DATA.get(state,id);if(!asset)return;selectedMobilityId=null;selectedAssetId=id;setMapFilterSelection(assetOwnerCompanyId(asset)||'all');renderMap();panMapTo(assetPosition(asset),7);closeDrawer();showAsset(id);}
   function focusMobilityAsset(id){const vehicle=window.GH_MOBILITY_CORE?.findVehicle?.(state,id);if(!vehicle)return;selectedAssetId=null;selectedMobilityId=null;closeDrawer();openDrawer('mobilityAsset',id);}
@@ -7037,10 +7048,10 @@ ${page}</div>`;
     if(!opts.silent&&!(state.branches||[]).includes(id)&&!await confirmLargeSpend(Number(constructionBid('group','hq',site.price,site.name)?.winner?.quote)||site.price,'group',`فتح ${site.name}؟`))return false;
     const result=await runAuthorizedCompositeCommand('open-regional-hq',({state:draft,dispatch,recordAlert})=>{if((draft.branches||[]).includes(id))throw new Error('facility-already-open');const build=awardConstructionDraft(draft,dispatch,recordAlert,'group','hq',site.name,site.price);if(!build||build.insufficient)throw new Error('construction-funding-unavailable');dispatch('facilities','open-regional-hq',{id,groupValueAdd:build.amount*.7});ensureFacilityWorkforceDraft(draft,dispatch,'group','فتح مقر إقليمي');recordAlert(`أرسى إنشاء ${site.name} على ${build.contractor}.`,'facility');return true;},{silent:Boolean(opts.silent),afterCommit:()=>{updateKpis();renderMap();if(!opts.silent)openFacility(id);}});return Boolean(result);
   }
-  function sameUnderlyingFacilityFor(target,baseFacilityId,routeFacilityId){
+  function sameUnderlyingFacilityFor(target,baseFacilityId,routeFacilityId,index=null){
     if(!baseFacilityId||!routeFacilityId)return false;
     if(baseFacilityId===routeFacilityId)return true;
-    const a=routeFacilityFor(target,baseFacilityId),b=routeFacilityFor(target,routeFacilityId);
+    const a=routeFacilityFor(target,baseFacilityId,index),b=routeFacilityFor(target,routeFacilityId,index);
     if(!a||!b)return false;
     return Boolean((a.iata&&a.iata===b.iata)||(a.icao&&a.icao===b.icao)||(a.code&&a.code===b.code));
   }

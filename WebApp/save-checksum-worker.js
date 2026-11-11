@@ -11,14 +11,17 @@ function transformFleet(bytes,transform,expectedBytes){
 }
 // Explicit file exports share this worker. One bounded session owns its immutable input;
 // no simulation tick, timer, or extra worker is added. The final Blob never becomes a giant UI-thread JSON string.
-const exportFiles=new Map(),EXPORT_LIMIT=512*1024*1024;
+// Build 687: a save names one chunk per tracked segment (Build 685: the Mobility cars and drivers are their own chunks
+// past the open-text budget, about 0.05 chunk a car), so a large network passes 4,096 chunk ids. The count only guards the
+// manifest's shape; the bytes stay bounded by EXPORT_LIMIT and the file by its 1 GiB budget.
+const exportFiles=new Map(),EXPORT_LIMIT=512*1024*1024,EXPORT_CHUNK_IDS_LIMIT=65536;
 function exportMessage(m){
   if(m.version!==VERSION||!Number.isSafeInteger(m.id)||typeof m.session!=='string'||!/^[a-z0-9._-]{1,80}$/.test(m.session))throw new Error('save-export-request-invalid');
   if(m.type==='export-abort'){if(exportFiles.delete(m.session))importScripts('state-codec-core.js');return {ok:true};}
   if(m.type==='export-start'){
     if(exportFiles.size||typeof m.json!=='string'||m.json.length>64*1024*1024||!m.meta||m.meta.format!=='global-holdings-save')throw new Error('save-export-start-invalid');
     const root=JSON.parse(m.json),ids=[...(root.fleet?.rows?.chunks||[]),...(root.stateCodec?.chunks||[])];
-    if(ids.length>4096||new Set(ids).size!==ids.length||ids.some(id=>typeof id!=='string'||!/^[A-Za-z0-9._-]{1,160}$/.test(id))||Number(m.meta.saveRevision)!==(Number(root.saveRevision)||0)||Number(m.meta.simSeconds)!==(Number(root.simSeconds)||0))throw new Error('save-export-manifest-invalid');
+    if(ids.length>EXPORT_CHUNK_IDS_LIMIT||new Set(ids).size!==ids.length||ids.some(id=>typeof id!=='string'||!/^[A-Za-z0-9._-]{1,160}$/.test(id))||Number(m.meta.saveRevision)!==(Number(root.saveRevision)||0)||Number(m.meta.simSeconds)!==(Number(root.simSeconds)||0))throw new Error('save-export-manifest-invalid');
     exportFiles.set(m.session,{json:m.json,meta:m.meta,ids:new Set(ids),chunks:new Map(),total:0});return {ok:true};
   }
   const file=exportFiles.get(m.session);if(!file)throw new Error('save-export-session-missing');

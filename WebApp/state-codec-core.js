@@ -792,20 +792,26 @@
   // entries. Parts outside that budget stay inline, so a large collection cannot churn the cache and reupload every
   // part on each save. The existing manifest commits every part atomically.
   const OPEN_TEXT=new Map(),OPEN_TEXT_LIMIT=4*1024*1024,OPEN_ENTRY_LIMIT=512*1024;
-  const openChunkStats={hits:0,misses:0,adopted:0,declined:0,chars:0};
-  function forgetOpenText(key){const old=OPEN_TEXT.get(key);if(old){openChunkStats.chars-=old.text.length;OPEN_TEXT.delete(key);}}
-  function rememberOpenText(key,text,chunk){
-    forgetOpenText(key);if(text.length>OPEN_ENTRY_LIMIT||openChunkStats.chars+text.length>OPEN_TEXT_LIMIT){openChunkStats.declined++;return false;}
-    OPEN_TEXT.set(key,{text,chunk});openChunkStats.chars+=text.length;return true;
+  const openChunkStats={hits:0,misses:0,adopted:0,declined:0,chars:0,shared:0,sharedChars:0};
+  // Build 685 (a play of the whole game with 30,000 Mobility cars: the save head was 10 MB, 7 MB of it the cars and their
+  // drivers written inline, and at 87,000 cars the head reached the native 30 MB limit and every command was refused):
+  // the budget below bounds the memory of the texts this cache alone keeps. A tracked segment's text is already kept by
+  // its tracked cache (TRACKED_TEXT holds the same string for the same part), so remembering its chunk keeps nothing
+  // more: it is remembered outside the budget (shared) and is its own chunk at any count, as TRACKED_CHUNK_MIN intends.
+  // Every other text (untracked open collections, a loaded save's texts) is counted and declined past the budget as before.
+  function forgetOpenText(key){const old=OPEN_TEXT.get(key);if(old){if(!old.shared)openChunkStats.chars-=old.text.length;else openChunkStats.sharedChars-=old.text.length;OPEN_TEXT.delete(key);}}
+  function rememberOpenText(key,text,chunk,shared=false){
+    forgetOpenText(key);if(text.length>OPEN_ENTRY_LIMIT||!shared&&openChunkStats.chars+text.length>OPEN_TEXT_LIMIT){openChunkStats.declined++;return false;}
+    OPEN_TEXT.set(key,{text,chunk,shared});if(shared){openChunkStats.sharedChars+=text.length;openChunkStats.shared++;}else openChunkStats.chars+=text.length;return true;
   }
-  function* openTextChunkOf(text,key){
+  function* openTextChunkOf(text,key,shared=false){
     const prior=OPEN_TEXT.get(key),adopted=ADOPTED_TEXT.get(key),loaded=adopted?OPEN_TEXT.get(`@${adopted.id}`):null;ADOPTED_TEXT.delete(key);
-    if(text.length>OPEN_ENTRY_LIMIT||openChunkStats.chars-(prior?.text.length||0)-(loaded?.text.length||0)+text.length>OPEN_TEXT_LIMIT){forgetOpenText(key);if(adopted)forgetOpenText(`@${adopted.id}`);openChunkStats.declined++;return null;}
+    if(text.length>OPEN_ENTRY_LIMIT||!shared&&openChunkStats.chars-(prior&&!prior.shared?prior.text.length:0)-(loaded&&!loaded.shared?loaded.text.length:0)+text.length>OPEN_TEXT_LIMIT){forgetOpenText(key);if(adopted)forgetOpenText(`@${adopted.id}`);openChunkStats.declined++;return null;}
     let chunk;
     if(prior?.text===text){chunk=prior.chunk;openChunkStats.hits++;}
     else if(loaded?.text===text){chunk=loaded.chunk;openChunkStats.adopted++;}
     else{chunk={id:`${NONCE}.o.${(++textChunkSequence).toString(36)}`,bytes:yield* utf8LengthSteps(text)};openChunkStats.misses++;}
-    if(adopted)forgetOpenText(`@${adopted.id}`);return rememberOpenText(key,text,chunk)?chunk:null;
+    if(adopted)forgetOpenText(`@${adopted.id}`);return rememberOpenText(key,text,chunk,shared)?chunk:null;
   }
   // The chunk of a cached collection text: an id that never changes while the text does not (the entry is replaced when
   // its members change), the vault's id when the loaded save held the same text at the same place.
@@ -1008,7 +1014,7 @@
           }
           // A tracked segment is small (it was cut small to be reused): it is its own chunk at any size, so the header holds
           // only its reference and an unchanged one keeps its chunk id (nothing to upload or rewrite).
-          const chunk=textChunks&&text.length>=(members?TRACKED_CHUNK_MIN:TEXT_CHUNK_MIN)?(yield* openTextChunkOf(text,partKey)):null;
+          const chunk=textChunks&&text.length>=(members?TRACKED_CHUNK_MIN:TEXT_CHUNK_MIN)?(yield* openTextChunkOf(text,partKey,!!members&&TRACKED_TEXT.get(partKey)?.text===text)):null;
           if(chunk){liveOpen.add(partKey);textChunks.push({id:chunk.id,byteLength:chunk.bytes,text});texts.push(`{"$ghText":"chunk-v1","id":${JSON.stringify(chunk.id)},"bytes":${chunk.bytes}}`);}
           else texts.push(text);yield;continue;
         }
