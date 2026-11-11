@@ -139,6 +139,25 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     const long=await page.evaluate(()=>{const body=document.querySelector('#uiToasts .ui-toast p'),style=getComputedStyle(body);return {lines:Math.round(body.clientHeight/parseFloat(style.lineHeight)),cut:body.scrollHeight>body.clientHeight+1,clamp:style.webkitLineClamp,bottom:document.getElementById('uiToasts').getBoundingClientRect().bottom};});
     assert.deepEqual({lines:long.lines,cut:long.cut,clamp:long.clamp},{lines:5,cut:true,clamp:'5'},'10: a long message is cut at five lines, with an ellipsis');assert.ok(long.bottom<=195,`10: and leaves half the screen free (${long.bottom})`);await closeAll();
     console.log('10 ok: the locked save, joined notices, English refusals, the names and the size of the parts, and long messages');
-    assert.deepEqual(errors,[]);console.log('build672 message strip: 10 checks passed');
+    // 11 (Build 681, review). A burst between two reads that pushes the list as last read off the list, with alerts written
+    // without their owner among it (a month advanced at once: headlines, a level-up): its gravest and its newest are shown.
+    await refresh();const burst=await page.evaluate(()=>{const record=text=>GH_OPERATIONS_CORE.execute({state:__GH_STATE__},'record-alert',{text,type:'operation'});
+      for(let index=0;index<20;index++)record(`اكتملت مراجعة الفرع ${index}.`);record('ارتجع الشيك CHQ-BURST لعدم كفاية الرصيد.');for(let index=20;index<35;index++)record(`اكتملت مراجعة الفرع ${index}.`);
+      __GH_STATE__.alerts.unshift('عنوان اقتصادي: أسعار الوقود ترتفع.');__GH_STATE__.alerts.unshift('ترقية المجموعة إلى المستوى 5: أدوات جديدة.');__GH_STATE__.alerts=__GH_STATE__.alerts.slice(0,40);
+      return {length:__GH_STATE__.alerts.length,cheque:__GH_STATE__.alerts.indexOf('ارتجع الشيك CHQ-BURST لعدم كفاية الرصيد.')};});
+    assert.deepEqual({length:burst.length,held:burst.cheque>=0&&burst.cheque<36},{length:40,held:true},'11: thirty-six counted alerts and two uncounted fill the list');
+    await refresh();await page.waitForFunction(()=>document.querySelectorAll('#uiToasts .ui-toast').length===2,null,{timeout:5000});
+    assert.deepEqual(await texts(),[['warn','ارتجع الشيك CHQ-BURST لعدم كفاية الرصيد.'],['info','ترقية المجموعة إلى المستوى 5: أدوات جديدة.']],'11: the gravest of the burst and its newest are shown');await closeAll();
+    await refresh();assert.deepEqual(await texts(),[],'11: once');
+    // A burst that is mostly not counted (a month's headlines): a bounced cheque, then thirty headlines with eight
+    // counted results among them. One line of the list as last read still shows at the end; the cheque is before it.
+    await refresh();const news=await page.evaluate(()=>{const record=text=>GH_OPERATIONS_CORE.execute({state:__GH_STATE__},'record-alert',{text,type:'operation'});
+      record('ارتجع الشيك CHQ-NEWS لعدم كفاية الرصيد.');for(let index=0;index<38;index++){if(index%5===2)record(`اكتملت مراجعة القسم ${index}.`);else{__GH_STATE__.alerts.unshift(`عنوان اقتصادي ${index}: الأسواق تتحرك.`);__GH_STATE__.alerts=__GH_STATE__.alerts.slice(0,40);}}
+      return {length:__GH_STATE__.alerts.length,cheque:__GH_STATE__.alerts.indexOf('ارتجع الشيك CHQ-NEWS لعدم كفاية الرصيد.'),newest:__GH_STATE__.alerts[0]};});
+    assert.deepEqual({length:news.length,cheque:news.cheque},{length:40,cheque:38},'11: the cheque is the oldest of thirty-nine new lines');
+    await refresh();await page.waitForFunction(()=>document.querySelectorAll('#uiToasts .ui-toast').length===2,null,{timeout:5000});
+    assert.deepEqual(await texts(),[['warn','ارتجع الشيك CHQ-NEWS لعدم كفاية الرصيد.'],['info',news.newest]],'11: the cheque is shown though few of the lines after it were counted');await closeAll();await refresh();assert.deepEqual(await texts(),[],'11: once');
+    console.log('11 ok: a burst that leaves no place for the list as last read shows its gravest and its newest');
+    assert.deepEqual(errors,[]);console.log('build672 message strip: 11 checks passed');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

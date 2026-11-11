@@ -1138,7 +1138,7 @@ function execute(ctx,cmd,p={},meta={}){
    case'ensure':return ensure(s);
    case'hospitality-accounting':{
     const owner=globalThis.GH_HOSPITALITY_FINANCE;if(!owner?.execute)throw new Error('hospitality-finance-owner-missing');
-    return owner.execute(s,p.action,p,{book,now,invoice,journal,ledger,protectDocument,refreshBookTaxPayable,reconcile,collectReceivable,postCustomerInvoicePayment,findFinanceDocument,notePnl});
+    return owner.execute(s,p.action,p,{book,now,invoice,journal,ledger,protectDocument,refreshBookTaxPayable,reconcile,collectReceivable,postCustomerInvoicePayment,findFinanceDocument,notePnl,investorCover});
    }
 	   case'issue-invoice':return issueInvoice(s,p);
 	   case'register-commercial-contract':return registerCommercialContract(s,p);

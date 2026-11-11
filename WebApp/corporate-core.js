@@ -53,6 +53,8 @@
     for(const [sym,qty] of Object.entries(object(state.portfolio)?state.portfolio:{}))sum+=num(qty)*num(market.find(row=>row?.sym===sym)?.price);
     for(const row of Array.isArray(state.maPortfolio)?state.maPortfolio:[])sum+=num(row?.stake)/100*num(rivals.find(rival=>rival?.id===row?.id)?.price);return sum;
   }
+  // Build 679: the group's value as the pages show it (reads only).
+  function shownValue(state){const v=state?.advanced?.valuation;if(object(v)&&v.day!=null&&Number.isFinite(Number(v.fair)))return Math.max(0,Number(v.fair));return Math.max(num(state?.groupValue),num(state?.cash)-num(state?.debt),0);}
   function closeValuation(state,payload={}){
     const v=valuation(state),day=Math.max(0,Math.floor(Number(payload.day)||0));if(v.day===day)return {...v};
     const before={day:v.day,fresh:num(v.fresh),earnings:Number(v.earnings)||0,nav:Number(v.nav)||0,profit12:Number(v.profit12)||0,multiple:Number(v.multiple)||12,grade:v.grade};
@@ -256,7 +258,7 @@
     throw new Error(`Unknown corporate command: ${command}`);
   }
 
-  const API=Object.freeze({VERSION,get COMPANY_TYPES(){return companyTypes();},IPO_FLOATS,DIVIDEND_PAYOUTS,FACILITY_DEPRECIATION,FRESH_CAPITAL_DAYS,dividendPlan,SHARE_MOOD:Object.freeze({min:MOOD_MIN,max:MOOD_MAX,daily:MOOD_DAILY,agm:MOOD_AGM}),ensure,model,planOpenCompany,validate,execute,ipoTerms,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
+  const API=Object.freeze({VERSION,get COMPANY_TYPES(){return companyTypes();},IPO_FLOATS,DIVIDEND_PAYOUTS,FACILITY_DEPRECIATION,FRESH_CAPITAL_DAYS,dividendPlan,SHARE_MOOD:Object.freeze({min:MOOD_MIN,max:MOOD_MAX,daily:MOOD_DAILY,agm:MOOD_AGM}),ensure,model,planOpenCompany,validate,execute,ipoTerms,shownValue,valuation:state=>({...(object(state?.advanced?.valuation)?state.advanced.valuation:{})})});
   globalThis.GH_CORPORATE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('corporate',API);
   if(globalThis.window&&window!==globalThis)globalThis.window.GH_CORPORATE_CORE=API;
   if(typeof module!=='undefined'&&module.exports)module.exports=API;

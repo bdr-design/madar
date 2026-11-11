@@ -28,10 +28,11 @@ const FORMS=Object.freeze({
  loan:{zero:'لا قروض',one:'قرض واحد',two:'قرضان',few:'قروض',many:'قرضًا',other:'قرض'},
  order:{zero:'لا أوامر',one:'أمر واحد',two:'أمران',few:'أوامر',many:'أمرًا',other:'أمر'},
  policy:{zero:'لا وثائق',one:'وثيقة واحدة',two:'وثيقتان',few:'وثائق',many:'وثيقةً',other:'وثيقة'},
- subscriber:{zero:'لا مشتركين',one:'مشترك واحد',two:'مشتركان',few:'مشتركين',many:'مشتركًا',other:'مشترك'}
+ subscriber:{zero:'لا مشتركين',one:'مشترك واحد',two:'مشتركان',few:'مشتركين',many:'مشتركًا',other:'مشترك'},
+ receivable:{zero:'لا ذمم',one:'ذمة واحدة',two:'ذمتان',few:'ذمم',many:'ذمةً',other:'ذمة'}
 });
 // The English edition (GH_I18N): singular and plural; none reads «no assets».
-const FORMS_EN=Object.freeze({manager:['manager','managers'],aircraft:['aircraft','aircraft'],ship:['ship','ships'],truck:['truck','trucks'],asset:['asset','assets'],facility:['facility','facilities'],company:['company','companies'],employee:['employee','employees'],route:['route','routes'],trip:['trip','trips'],project:['project','projects'],branch:['branch','branches'],vehicle:['vehicle','vehicles'],attendee:['attendee','attendees'],viewer:['view','views'],month:['month','months'],day:['day','days'],hour:['hour','hours'],year:['year','years'],sailor:['sailor','sailors'],ton:['ton','tons'],decision:['decision','decisions'],customer:['customer','customers'],cheque:['cheque','cheques'],loan:['loan','loans'],order:['order','orders'],policy:['policy','policies'],subscriber:['subscriber','subscribers']});
+const FORMS_EN=Object.freeze({receivable:['receivable','receivables'],manager:['manager','managers'],aircraft:['aircraft','aircraft'],ship:['ship','ships'],truck:['truck','trucks'],asset:['asset','assets'],facility:['facility','facilities'],company:['company','companies'],employee:['employee','employees'],route:['route','routes'],trip:['trip','trips'],project:['project','projects'],branch:['branch','branches'],vehicle:['vehicle','vehicles'],attendee:['attendee','attendees'],viewer:['view','views'],month:['month','months'],day:['day','days'],hour:['hour','hours'],year:['year','years'],sailor:['sailor','sailors'],ton:['ton','tons'],decision:['decision','decisions'],customer:['customer','customers'],cheque:['cheque','cheques'],loan:['loan','loans'],order:['order','orders'],policy:['policy','policies'],subscriber:['subscriber','subscribers']});
 const english=()=>globalThis.GH_I18N?.isEn?.()===true;
 const formatNumber=value=>Math.max(0,Math.round(Number(value)||0)).toLocaleString('ar-SA-u-nu-latn');
 function category(value){const n=Math.abs(Math.trunc(Number(value)||0)),mod100=n%100;if(n===0)return'zero';if(n===1)return'one';if(n===2)return'two';if(mod100>=3&&mod100<=10)return'few';if(mod100>=11&&mod100<=99)return'many';return'other';}

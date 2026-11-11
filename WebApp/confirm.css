@@ -77,6 +77,9 @@
 /* Build 678: the monthly record's row was 430 points in a 318-point page (its last column lay outside). The design's own
    sheet is kept as approved; the page's rule is here. */
 #drawerBody .monthly-history-table>div{min-width:0;grid-template-columns:minmax(64px,1fr) repeat(3,minmax(0,1fr));gap:6px;font-size:11px}#drawerBody .monthly-history-table>div>*{min-width:0;overflow-wrap:anywhere}
+/* Build 679: the calendar on a short screen (a phone held sideways): its six weeks, its advances and its button fit
+   without a scroll. The design's own sheets are kept as approved. */
+@media (max-height:440px){#simCalendarPanel{padding:8px 12px}#simCalendarPanel .sim-cal-head,#simCalendarPanel .sim-cal-nav{margin-bottom:4px}#simCalendarPanel .sim-cal-quick{margin:4px 0}#simCalendarPanel .sim-cal-quick button{min-height:28px}#simCalendarPanel .sim-cal-grid{gap:2px}#simCalendarPanel .sim-cal-grid button,#simCalendarPanel .sim-cal-blank{min-height:22px}#simCalendarPanel .sim-cal-foot{margin-top:6px;gap:8px;grid-template-columns:minmax(0,1fr) auto;align-items:center}}
 [data-calendar-advance][data-plus-only]::after{content:attr(data-plus-only);display:inline-block;margin-inline-start:5px;padding:1px 5px;border-radius:999px;background:#D0A34A;color:#10283A;font:700 9px/1.5 var(--font,system-ui);vertical-align:middle}
 @keyframes ui-toast-in{from{opacity:0;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){.ui-toast{animation:none}}

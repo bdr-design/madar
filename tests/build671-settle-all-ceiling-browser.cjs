@@ -27,7 +27,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
 
     // 1. One click.
     const first=await settleAll();assert.deepEqual(first.after.open,['QA-TOP-1'],'1: the two accrued bills are paid, the refused payable is left open');assert.equal(Math.round(first.before.cash-first.after.cash),600000,'1: 600,000 left the account');
-    assert.equal(first.after.saveRevision,first.before.saveRevision+1,'1: in one save');assert.match(first.after.alert,/سُددت 2 ذمة/,'1: the result names what was paid');assert.match(first.after.alert,/بقيت 1 ذمة: 1 سقف الميزانية لا يتسع لها/,`1: and why one was left: ${first.after.alert}`);assert.equal(first.after.valid,true);
+    assert.equal(first.after.saveRevision,first.before.saveRevision+1,'1: in one save');assert.match(first.after.alert,/سُددت ذمتان/,'1: the result names what was paid');assert.match(first.after.alert,/بقيت ذمة واحدة: 1 سقف الميزانية لا يتسع لها/,`1: and why one was left: ${first.after.alert}`);assert.equal(first.after.valid,true);
     console.log('1 ok: one click pays the two accrued bills in one save and leaves the refused payable with its reason');
 
     // 2. Only the refused payable is left.
@@ -42,7 +42,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     await command('finance','set-budget',{company:'group',limit:25000000,lines:{fuel:1000000}});
     await page.evaluate(()=>{for(const number of ['QA-FUEL-1','QA-FUEL-2'])GH_DOMAIN_COMMANDS.dispatchSystem({state:__GH_STATE__},'finance','issue-invoice',{kind:'مصروف',company:'group',amount:600000,status:'مستحقة',taxable:false,method:'التزام عقد وقود',counterparty:'QA Fuel LLC',note:`حد أدنى ملزم لعقد الوقود · ${number}`,number,dueDay:0,sourceRef:number},{actor:'simulation'});});
     const fourth=await settleAll();assert.equal(fourth.after.open.length,1,`4: one of the two is paid: ${JSON.stringify(fourth.after.open)}`);assert.equal(Math.round(fourth.before.cash-fourth.after.cash),600000,'4: 600,000 left the account');assert.equal(fourth.after.saveRevision,fourth.before.saveRevision+1,'4: in one save');
-    assert.match(fourth.after.alert,/سُددت 1 ذمة/);assert.match(fourth.after.alert,/بقيت 1 ذمة: 1 سقف الميزانية لا يتسع لها/,`4: the other is left with its reason: ${fourth.after.alert}`);assert.equal(fourth.after.valid,true);
+    assert.match(fourth.after.alert,/سُددت ذمة واحدة/);assert.match(fourth.after.alert,/بقيت ذمة واحدة: 1 سقف الميزانية لا يتسع لها/,`4: the other is left with its reason: ${fourth.after.alert}`);assert.equal(fourth.after.valid,true);
     console.log('4 ok: of two payables that fit one at a time, one click pays one and leaves the other');
     assert.deepEqual(errors,[]);console.log('build671 settle all under a ceiling: 4 checks passed');
   }finally{await browser.close();}

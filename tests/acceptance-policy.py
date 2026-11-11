@@ -62,7 +62,12 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # f10a7ca (claim 5: playing, the audit checked nothing in 2.5 s; twice, its retry too; it passed on the store runner for
 # the same source and twice here, 107 checks); then build460-render-idle-browser, whose first attempt failed on the
 # development runner for d0c6a68 (it passed on its retry); then the fixes found by playing the store edition, none yet
-# run by a build: build678 («فتح جميع الشركات» founds what the balance covers; a career's market names the level's ceiling;
+# run by a build: build681 (the review of the shipped fixes: «ذمة» counted, the per-text alert count keeps the texts last
+# written, a manager whose contract ended manages no company, the page texts), build680 (one tap that spends half of what can pay it, or a billion and more under the investor licence,
+# asks first; the mobility company's classes, centres and documents carry its name), build679 (under the investor licence
+# the payroll arrears, the holding's daily cost and the hotels' refunds are paid from the card; the group's value is never
+# below its cash; a route's end with no name reads its code; the calendar fits a short phone; loading a slot is held),
+# build678 («فتح جميع الشركات» founds what the balance covers; a career's market names the level's ceiling;
 # a tender's details open in its card; the calendar marks the Plus advances; the monthly page fits), build677 (under the investor licence a company's facility from the group's bank, the electricity bought
 # inside the group and the closes the first gate did not hold are paid from the card; each lost tender keeps its own day
 # and an ended contract's tender is closed), build675 (a career's first steps open the subsidiaries tab and the logistics company's sites; a working
@@ -85,7 +90,10 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # short of capacity is a condition of the business, reported as a warning: the simulation day that reaches it commits,
 # a broken state is still refused) and build662 (a live customer receipt whose collected invoice the compaction archived
 # keeps the save valid, the archived invoice stays hot while a receipt names it, and a sealing pass that finds only
-# named rows waits a game week); then the gates that run what the sixteen changed (the energy company, the hotels, the bank,
+# named rows waits a game week); then the gates the newest batches failed here before their repair (build473-purchase-notice-work and
+# build334-logistics-staged-contract, whose lifted functions met the large-spend question; build651, fleet-business-boundary and
+# build340-payroll-settlement-index, which pin what the batches edited, and build358-bulk-payables-browser, whose
+# pinned cheque text is now counted); then the gates that run what the nineteen changed (the energy company, the hotels, the bank,
 # the business world, payroll and the budgets among them), in their previous relative order:
 # every gate that founds a group through the founding screen or opens the settings or a confirmation, the integrity check and what reads its
 # critical issues (the control plane, the transaction and command owners, the workflow, the health report), the bank,
@@ -332,6 +340,9 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 expected_preflight=[
     ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build460-render-idle-browser.cjs'],
+    ['node', 'tests/build681-review-leftovers.cjs'],
+    ['node', 'tests/build680-large-spend-and-mobility-names-browser.cjs'],
+    ['node', 'tests/build679-investor-close-value-and-names.cjs'],
     ['node', 'tests/build678-balance-capacity-and-details-browser.cjs'],
     ['node', 'tests/build677-investor-closes-and-tender-lock.cjs'],
     ['node', 'tests/build675-task-targets-and-page-texts-browser.cjs'],
@@ -348,6 +359,12 @@ expected_preflight=[
     ['node', 'tests/build664-new-game-flow-browser.cjs'],
     ['node', 'tests/build663-business-condition-not-fatal.cjs'],
     ['node', 'tests/build662-receipt-archived-invoice.cjs'],
+    ['node', 'tests/build473-purchase-notice-work.cjs'],
+    ['node', 'tests/build334-logistics-staged-contract.cjs'],
+    ['node', 'tests/build651-i18n-source-contract.cjs'],
+    ['node', 'tests/fleet-business-boundary.cjs'],
+    ['node', 'tests/build340-payroll-settlement-index.cjs'],
+    ['node', 'tests/build358-bulk-payables-browser.cjs'],
     ['node', 'tests/build661-english-founding-browser.cjs'],
     ['node', 'tests/build660-english-section-pages-browser.cjs'],
     ['node', 'tests/build659-english-shell-browser.cjs'],
@@ -355,7 +372,6 @@ expected_preflight=[
     ['node', 'tests/build656-store-no-redirect-browser.cjs'],
     ['node', 'tests/build334-calendar-journey-browser.cjs'],
     ['node', 'tests/build371-calendar-cancel-maintenance-browser.cjs'],
-    ['node', 'tests/build651-i18n-source-contract.cjs'],
     ['node', 'tests/build643-release-roads-offline-browser.cjs'],
     ['node', 'tests/phone-layout-browser.cjs'],
     ['node', 'tests/build650-i18n-core.cjs'],
@@ -381,7 +397,6 @@ expected_preflight=[
     ['node', 'tests/build372-map-summary-worker-browser.cjs'],
     ['node', 'tests/build334-r4-recovery-integration.cjs'],
     ['node', 'tests/build334-calendar-advance-browser.cjs'],
-    ['node', 'tests/build334-logistics-staged-contract.cjs'],
     ['node', 'tests/build339-day-boundary-write-map.cjs'],
     ['node', 'tests/build359-map-modes-browser.cjs'],
     ['node', 'tests/build364-company-overview-summary.cjs'],
@@ -495,7 +510,6 @@ expected_preflight=[
     ['node', 'tests/build628-pause-after-day-close.cjs'],
     ['node', 'tests/build610-dead-code-removed-browser.cjs'],
     ['node', 'tests/build649-levels-page-browser.cjs'],
-    ['node', 'tests/build358-bulk-payables-browser.cjs'],
     ['node', 'tests/build361-bulk-opening-browser.cjs'],
     ['node', 'tests/build363-facility-scope-bank-browser.cjs'],
     ['node', 'tests/build380-construction-acceleration-browser.cjs'],
@@ -759,7 +773,6 @@ expected_preflight=[
     ['node', 'tests/build334-tabs-component.cjs'],
     ['node', 'tests/build335-compaction-v2-60day-pressure.cjs'],
     ['node', 'tests/build340-fleet-payroll-summary.cjs'],
-    ['node', 'tests/build340-payroll-settlement-index.cjs'],
     ['node', 'tests/build353-compaction-scope.cjs'],
     ['node', 'tests/build372-interactive-summary-consumers.cjs'],
     ['node', 'tests/build455-cii-preview-work.cjs'],
@@ -798,9 +811,7 @@ expected_preflight=[
     ['node', 'tests/native-save-worker-browser.cjs'],
     ['node', 'tests/build407-diagnostic-lifecycle.cjs'],
     ['node', 'tests/build334-tabs-contract.cjs'],
-    ['node', 'tests/build473-purchase-notice-work.cjs'],
     ['node', 'tests/build616-marker-step-projection.cjs'],
-    ['node', 'tests/fleet-business-boundary.cjs'],
     ['node', 'tests/build623-worker-extras-packing.cjs'],
     ['node', 'tests/save-pipeline-browser.cjs'],
     ['node', 'tests/build372-field-classes-worker-browser.cjs'],
@@ -818,6 +829,13 @@ expected_preflight=[
     ['node', 'tests/build379-mutation-validation-browser.cjs'],
     ['node', 'tests/build429-worker-value-collection-browser.cjs'],
     ['node', 'tests/save-checksum-worker-browser.cjs'],
+    ['node', 'tests/build334-identity-regressions.cjs'],
+    ['node', 'tests/build543-external-claim-recovery.cjs'],
+    ['node', 'tests/build549-intercompany-loan-interest.cjs'],
+    ['node', 'tests/company-platform-regressions.cjs'],
+    ['node', 'tests/persistence-regressions.cjs'],
+    ['node', 'tests/build516-tracked-collections.cjs'],
+    ['node', 'tests/build334-market-discovery-contract.cjs'],
     ['node', 'tests/build657-road-dispatch-depots.cjs'],
     ['node', 'tests/build658-recorder-cadence-equivalence.cjs'],
     ['node', 'tests/build652-native-document-scripts.cjs'],
@@ -826,7 +844,6 @@ expected_preflight=[
     ['node', 'tests/build644-game-name.cjs'],
     ['node', 'tests/build340-finance-report.cjs'],
     ['node', 'tests/build340-map-presentation.cjs'],
-    ['node', 'tests/build334-identity-regressions.cjs'],
     ['node', 'tests/build334-simulation-time-contract.cjs'],
     ['node', 'tests/build340-media-assets.cjs'],
     ['node', 'tests/build376-frame-work-attribution.cjs'],
@@ -850,8 +867,6 @@ expected_preflight=[
     ['node', 'tests/build334-map-identity-registry.cjs'],
     ['node', 'tests/build372-legacy-migration-single-pass.cjs'],
     ['node', 'tests/build521-static-validation-groups.cjs'],
-    ['node', 'tests/build543-external-claim-recovery.cjs'],
-    ['node', 'tests/build549-intercompany-loan-interest.cjs'],
     ['node', 'tests/build551-conference-keynote-slides.cjs'],
     ['node', 'tests/build581-fleet-definition-weight.cjs'],
     ['node', 'tests/build583-boot-proof-single-hash.cjs'],
@@ -860,7 +875,6 @@ expected_preflight=[
     ['node', 'tests/build603-visual-seal-check-in-place.cjs'],
     ['node', 'tests/build609-authorization-check-slices.cjs'],
     ['node', 'tests/build615-document-proof-check-slices.cjs'],
-    ['node', 'tests/company-platform-regressions.cjs'],
     ['node', 'tests/build358-asset-realism.cjs'],
     ['node', 'tests/build376-money-guard.cjs'],
     ['node', 'tests/build637-launch-native-contract.cjs'],
@@ -869,7 +883,6 @@ expected_preflight=[
     ['node', 'tests/build360-native-runtime-ready.cjs'],
     ['node', 'tests/build336-diagnostics-transient.cjs'],
     ['node', 'tests/build481-diagnostic-fleet-proof.cjs'],
-    ['node', 'tests/persistence-regressions.cjs'],
     ['node', 'tests/build577-save-layout-steps.cjs'],
     ['node', 'tests/build507-encode-rows-steps.cjs'],
     ['node', 'tests/build639-compact-receipt-reload.cjs'],
@@ -881,7 +894,6 @@ expected_preflight=[
     ['node', 'tests/build390-cooperative-snapshot.cjs'],
     ['node', 'tests/build436-save-work-removal.cjs'],
     ['node', 'tests/build437-adoption-patch-lineage.cjs'],
-    ['node', 'tests/build516-tracked-collections.cjs'],
     ['node', 'tests/build519-idempotency-tracked.cjs'],
     ['node', 'tests/build523-proofs-commands-tracked.cjs'],
     ['node', 'tests/build587-fleet-extras-reuse.cjs'],
@@ -889,7 +901,6 @@ expected_preflight=[
     ['node', 'tests/build334-company-platform-orphan-contract.cjs'],
     ['node', 'tests/build334-durable-authorization-contract.cjs'],
     ['node', 'tests/build334-dynamic-finance-company-ids.cjs'],
-    ['node', 'tests/build334-market-discovery-contract.cjs'],
     ['node', 'tests/build334-native-snapshot-queue.cjs'],
     ['node', 'tests/build334-persistence-snapshot-consistency.cjs'],
     ['node', 'tests/build335-persistence-root-coalescing.cjs'],

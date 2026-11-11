@@ -43,7 +43,7 @@ const COUNT=30;
     // still get their cheques (it used to reject the whole batch, so no cheque was issued at all).
     await page.evaluate(async()=>{await __AUDIT__.runAuthorizedDomainCommand('finance','accrue-payroll',{company:'group',amount:2500,note:'QA payroll due',number:'QA-MIX-PAY',dueDay:Math.floor(__GH_STATE__.simSeconds/86400),reportId:'PAYROLL-QA-MIX'},{silent:true});for(let i=0;i<2;i++)await __AUDIT__.runAuthorizedDomainCommand('finance','accrue-expense',{company:'group',amount:500+i,note:`QA mix ${i}`,counterparty:'QA Bulk Vendor LLC',taxable:false,number:`QA-MIX-${i}`},{silent:true});});
     await click('.settle-all-payables[data-method="cheque"]');
-    const mixed=await page.evaluate(()=>{const s=__GH_STATE__;return {issued:(s.finance.cheques||[]).filter(ch=>ch.status==='صادر'&&String(ch.invoiceNumber||'').startsWith('QA-MIX-')).map(ch=>ch.invoiceNumber).sort(),payrollOpen:(s.finance.payables||[]).some(row=>row.number==='QA-MIX-PAY'),alert:(s.alerts||[]).find(text=>/صدرت .* شيكات/.test(text))||''};});
+    const mixed=await page.evaluate(()=>{const s=__GH_STATE__;return {issued:(s.finance.cheques||[]).filter(ch=>ch.status==='صادر'&&String(ch.invoiceNumber||'').startsWith('QA-MIX-')).map(ch=>ch.invoiceNumber).sort(),payrollOpen:(s.finance.payables||[]).some(row=>row.number==='QA-MIX-PAY'),alert:(s.alerts||[]).find(text=>/أُصدر .*(?:شيك واحد|شيكان|شيكات|شيكًا|شيك) بقيمة/.test(text))||''};});
     assert.deepEqual(mixed.issued,['QA-MIX-0','QA-MIX-1'],'the supplier payables get their cheques');
     assert.equal(mixed.payrollOpen,true,'the payroll payable stays open for a transfer');
     assert.match(mixed.alert,/رواتب تُصرف بتحويل فقط/,'the skipped payable and its reason are reported');

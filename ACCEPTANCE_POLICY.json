@@ -11,6 +11,18 @@
     ],
     [
       "node",
+      "tests/build681-review-leftovers.cjs"
+    ],
+    [
+      "node",
+      "tests/build680-large-spend-and-mobility-names-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build679-investor-close-value-and-names.cjs"
+    ],
+    [
+      "node",
       "tests/build678-balance-capacity-and-details-browser.cjs"
     ],
     [
@@ -75,6 +87,30 @@
     ],
     [
       "node",
+      "tests/build473-purchase-notice-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-logistics-staged-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build651-i18n-source-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-payroll-settlement-index.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-bulk-payables-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build661-english-founding-browser.cjs"
     ],
     [
@@ -100,10 +136,6 @@
     [
       "node",
       "tests/build371-calendar-cancel-maintenance-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build651-i18n-source-contract.cjs"
     ],
     [
       "node",
@@ -204,10 +236,6 @@
     [
       "node",
       "tests/build334-calendar-advance-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-logistics-staged-contract.cjs"
     ],
     [
       "node",
@@ -660,10 +688,6 @@
     [
       "node",
       "tests/build649-levels-page-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-bulk-payables-browser.cjs"
     ],
     [
       "node",
@@ -1719,10 +1743,6 @@
     ],
     [
       "node",
-      "tests/build340-payroll-settlement-index.cjs"
-    ],
-    [
-      "node",
       "tests/build353-compaction-scope.cjs"
     ],
     [
@@ -1875,15 +1895,7 @@
     ],
     [
       "node",
-      "tests/build473-purchase-notice-work.cjs"
-    ],
-    [
-      "node",
       "tests/build616-marker-step-projection.cjs"
-    ],
-    [
-      "node",
-      "tests/fleet-business-boundary.cjs"
     ],
     [
       "node",
@@ -1955,6 +1967,34 @@
     ],
     [
       "node",
+      "tests/build334-identity-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/build543-external-claim-recovery.cjs"
+    ],
+    [
+      "node",
+      "tests/build549-intercompany-loan-interest.cjs"
+    ],
+    [
+      "node",
+      "tests/company-platform-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/persistence-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/build516-tracked-collections.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-market-discovery-contract.cjs"
+    ],
+    [
+      "node",
       "tests/build657-road-dispatch-depots.cjs"
     ],
     [
@@ -1984,10 +2024,6 @@
     [
       "node",
       "tests/build340-map-presentation.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-identity-regressions.cjs"
     ],
     [
       "node",
@@ -2083,14 +2119,6 @@
     ],
     [
       "node",
-      "tests/build543-external-claim-recovery.cjs"
-    ],
-    [
-      "node",
-      "tests/build549-intercompany-loan-interest.cjs"
-    ],
-    [
-      "node",
       "tests/build551-conference-keynote-slides.cjs"
     ],
     [
@@ -2123,10 +2151,6 @@
     ],
     [
       "node",
-      "tests/company-platform-regressions.cjs"
-    ],
-    [
-      "node",
       "tests/build358-asset-realism.cjs"
     ],
     [
@@ -2156,10 +2180,6 @@
     [
       "node",
       "tests/build481-diagnostic-fleet-proof.cjs"
-    ],
-    [
-      "node",
-      "tests/persistence-regressions.cjs"
     ],
     [
       "node",
@@ -2207,10 +2227,6 @@
     ],
     [
       "node",
-      "tests/build516-tracked-collections.cjs"
-    ],
-    [
-      "node",
       "tests/build519-idempotency-tracked.cjs"
     ],
     [
@@ -2236,10 +2252,6 @@
     [
       "node",
       "tests/build334-dynamic-finance-company-ids.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-market-discovery-contract.cjs"
     ],
     [
       "node",
@@ -3450,6 +3462,18 @@
     [
       "node",
       "tests/build678-balance-capacity-and-details-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build679-investor-close-value-and-names.cjs"
+    ],
+    [
+      "node",
+      "tests/build680-large-spend-and-mobility-names-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build681-review-leftovers.cjs"
     ],
     [
       "node",

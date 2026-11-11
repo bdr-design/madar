@@ -127,6 +127,8 @@
       if(refund.kind==='earned'){
         const credit=h.findFinanceDocument(s,'hospitalityDocuments','reference',refund.creditNoteReference);
         if(!booking||!credit||credit.company!==company||cents(credit.amount)!==amount||day<refund.dueDay)throw new Error('hospitality-credit-refund-proof-missing');
+        // Build 679: under the investor licence a refund the hotel's cash does not cover is paid from the card.
+        if(cents(account.balance)<amount)h.investorCover?.(s,company,money(amount),'استرداد ضيافة');
         if(cents(account.balance)<amount)return {paid:false,reason:'insufficient-cash',amount:0};
         const before=account.balance;account.balance=money(cents(before)-amount);const ref=`PAY-${refund.id}`;
         h.journal(s,company,'سداد إشعار دائن لضيافة',[{account:'استردادات ضيافة مستحقة',debit:money(amount)},{account:account.id,credit:money(amount)}],ref);
@@ -134,6 +136,7 @@
         refund.status='paid';refund.paidDay=day;refund.documentReference=ref;root.totals.refunded+=amount;refresh();return {paid:true,amount:money(amount),receipt};
       }
       if(!booking||day<refund.dueDay||amount>booking.refundReserved||amount>booking.depositCollected-booking.depositApplied-booking.depositRefunded)throw new Error('hospitality-refund-invalid');
+      if(cents(account.balance)<amount)h.investorCover?.(s,company,money(amount),'استرداد ضيافة');
       if(cents(account.balance)<amount)return {paid:false,reason:'insufficient-cash',amount:0};
       const before=account.balance;account.balance=money(cents(before)-amount);const ref=`HOSP-REFUND:${company}:${refund.id}`;
       h.journal(s,company,'استرداد تأمين حجز غير مكتسب',[{account:'تأمينات حجوزات عملاء',debit:money(amount)},{account:account.id,credit:money(amount)}],ref);

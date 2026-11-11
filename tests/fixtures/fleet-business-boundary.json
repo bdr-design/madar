@@ -953,6 +953,58 @@
         "after": "capacity:'42 موقفًا · مركز تسليم وتشغيل للشاحنات'",
         "sha256": "ed75b547758fe33b640cb81068d579de9d2f89be5c31c6567ee40b1cb033d2f8"
       }
+    ],
+    "WebApp/mobility-core.js": [
+      {
+        "before": "{id:'eco-ev',name:'GH Go Electric'",
+        "after": "{id:'eco-ev',name:'ANI Go Electric'",
+        "sha256": "fa7cf8f7a9615feee5a39a0d1d4b5c6056d06aa3ad52617e5f3411eb5e1e7893"
+      },
+      {
+        "before": "{id:'comfort',name:'GH Comfort'",
+        "after": "{id:'comfort',name:'ANI Comfort'",
+        "sha256": "6cae188c6da7445c4f994fb846a1aee44f00a291c4d09b8bbcf2ba04a70346a2"
+      },
+      {
+        "before": "{id:'premium',name:'GH Black'",
+        "after": "{id:'premium',name:'ANI Black'",
+        "sha256": "4f4c48e13419a950db3a5f462feeed4f99e5f8df2e09477935e7992f6a72f494"
+      },
+      {
+        "before": "{id:'accessible-van',name:'GH Access'",
+        "after": "{id:'accessible-van',name:'ANI Access'",
+        "sha256": "6c208d20bc0765bd6369dce2f81c33ab25b8c9441535d7557f6c6fd0e32c80f1"
+      },
+      {
+        "before": "row.name=`فريق سائقي GH Mobility · ${city}`",
+        "after": "row.name=`فريق سائقي ANI Mobility · ${city}`",
+        "sha256": "0a8338863fc76f89e0e92b1642debfb60a4489e16470c41b8732bbe5092b8e05"
+      },
+      {
+        "before": "name:`فريق سائقي GH Mobility · ${cityLabel}`",
+        "after": "name:`فريق سائقي ANI Mobility · ${cityLabel}`",
+        "sha256": "f9057539b68c899a269c3aa9baa9de372b87ac1e0371c87e4a406ed18dd69741"
+      },
+      {
+        "before": "beneficiary:'مورّدو أسطول GH Mobility'",
+        "after": "beneficiary:'مورّدو أسطول ANI Mobility'",
+        "sha256": "fde713404aa1b618f478b69a33e3b3cb4a4fdc969f6e7756549f05c60e3aaa36"
+      },
+      {
+        "before": "شراء يدوي وتسليم فوري · GH Mobility · ${meta.city}",
+        "after": "شراء يدوي وتسليم فوري · ANI Mobility · ${meta.city}",
+        "sha256": "3733ccb69b14df5047362ec8ec3b65195da3353559f2e2cd8e464246d78e2334"
+      },
+      {
+        "before": "beneficiary:'GH Mobility Service Network'",
+        "after": "beneficiary:'شبكة صيانة ANI Mobility'",
+        "sha256": "d2eb67ad4e2cf1665475c1beca07024780c123afdeb151281b1e841fded624fb"
+      },
+      {
+        "before": "<h3>ملخص أسطول GH Mobility</h3>",
+        "after": "<h3>ملخص أسطول ANI Mobility</h3>",
+        "sha256": "b366ef2f55b3b56afd39e7f5f9e05e8136e8cdd2e8257ae9c0b7263f543cca22"
+      }
     ]
   }
 }
