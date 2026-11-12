@@ -10,8 +10,8 @@
 //     paid, the band itself is bought; facilities stop at their band;
 //  4. an early licence (the marine company, level 5, two levels ahead) is one signed command: the group pays the approved
 //     fee by a documented expense, the licence is recorded, the company opens, and a second licence is refused;
-//  5. (owner, approved pricing) investor mode is unlimited money only: the levels stay (media, level 6, is refused with
-//     its level) and the experience keeps counting; turned off, the limits are as they were
+//  5. this is the development edition: investor mode lifts the levels (Build 689; in the store edition, the approved
+//     pricing keeps them: build647) and the experience keeps counting; turned off, the limits are as they were
 //     (telecom, level 8, is refused);
 //  6. the level tile beside the cash shows the level and opens the levels page; the page shows the level, the early
 //     licences within reach and the table; a day's close is counted once (lastClosedDay) and the level never goes down;
@@ -78,13 +78,13 @@ const command=(page,domain,name,payload)=>page.evaluate(async([domain,name,paylo
     const again=await command(page,'progression','early-licence',{key:'company:sea',fee:licence.quote.fee});assert.equal(again.ok,false,'4: no second licence or charge');
     // 5.
     await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);
-    const investing=await page.evaluate(()=>({on:GH_FINANCE_CORE.investorMode(__GH_STATE__),active:GH_PROGRESSION_CORE.active(__GH_STATE__),blocker:__AUDIT__.openingBlocker('media'),xp:__GH_STATE__.progression.xp}));
-    assert.equal(investing.on,true);assert.equal(investing.active,true,'5: investor mode keeps the levels');assert.match(investing.blocker,/المستوى 6/,'5: media stays at its level in investor mode');
-    assert.equal(await page.evaluate(()=>__AUDIT__.openCompany('media')),false,'5: media does not open in investor mode');await settle(page);
+    const investing=await page.evaluate(()=>({edition:window.GH_EDITION||'',on:GH_FINANCE_CORE.investorMode(__GH_STATE__),active:GH_PROGRESSION_CORE.active(__GH_STATE__),limited:GH_PROGRESSION_CORE.limited(__GH_STATE__),unlocked:GH_PROGRESSION_CORE.unlocked(__GH_STATE__,'company:media'),blocker:__AUDIT__.openingBlocker('media'),xp:__GH_STATE__.progression.xp}));
+    assert.notEqual(investing.edition,'release','5: the development edition');assert.equal(investing.on,true);assert.equal(investing.active,true,'5: the career is still counted');
+    assert.equal(investing.limited,false,'5: investor mode lifts the levels');assert.equal(investing.unlocked,true,'5: media (level 6) is open in investor mode');assert.doesNotMatch(String(investing.blocker||''),/المستوى/,'5: no level blocks media in investor mode');
     assert.ok(await page.evaluate(xp=>{GH_PROGRESSION_CORE.onCommand(__GH_STATE__,'finance','transfer',{});return __GH_STATE__.progression.xp>xp;},investing.xp),'5: the experience keeps counting in investor mode');
     await page.evaluate(()=>__AUDIT__.toggleInvestorMode());await settle(page);
     const after=await page.evaluate(()=>({active:GH_PROGRESSION_CORE.active(__GH_STATE__),media:__GH_STATE__.openedCompanies.includes('media'),blocker:__AUDIT__.openingBlocker('telecom')}));
-    assert.equal(after.active,true);assert.equal(after.media,false,'5: nothing opened early');assert.match(after.blocker,/المستوى 8/,'5: the limits are as they were');
+    assert.equal(after.active,true);assert.equal(after.media,false,'5: nothing opened by the mode itself');assert.match(after.blocker,/المستوى 8/,'5: the limits are as they were');
     // 6.
     // The tile is read as the game drew it: no updateKpis() is called by the test.
     const readTile=()=>page.evaluate(()=>{const t=document.getElementById('levelKpi');return {hidden:t.hidden,value:document.getElementById('levelKpiValue').textContent,level:__GH_STATE__.progression.level};});

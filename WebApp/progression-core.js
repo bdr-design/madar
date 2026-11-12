@@ -88,8 +88,13 @@
   function root(state){return plainObject(state?.progression)?state.progression:null;}
   // Investor mode is read from its one owner (GH_FINANCE_CORE.investorMode), as every other reader does.
   function investorMode(state){return globalThis.GH_FINANCE_CORE?.investorMode?.(state)===true;}
-  // Limits apply to a career game, investor mode or not.
+  // A career game counts its experience and its level, investor mode or not.
   function active(state){const p=root(state);return !!p&&p.mode==='career';}
+  // Build 689 (owner: «فيه مشكلة بالتطوير ان اللعبة تبقى على مستويات ومايفتح مع تفعيل وضع المستثمر»): the approved pricing
+  // (the investor licence is unlimited money only, the levels stay) is the store edition's (GH_EDITION 'release'). In the
+  // development edition investor mode is free and opens everything, as it did before that pricing: no company, model, band
+  // or tool is held back by the level; the level and the experience still count.
+  function limited(state){return active(state)&&!(investorMode(state)&&globalThis.GH_EDITION!=='release');}
   function levelForXp(xp){xp=Math.max(0,Number(xp)||0);let level=1;for(let i=1;i<XP.length;i++){if(xp>=XP[i])level=i+1;else break;}return level;}
   function level(state){const p=root(state);if(!p||p.mode!=='career')return null;return Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(p.level)||1)));}
   function title(lvl){for(const [at,name] of TITLES)if(lvl>=at)return name;return TITLES[TITLES.length-1][1];}
@@ -106,7 +111,7 @@
   }
   function licensed(state,key){const p=root(state);return !!p&&plainObject(p.licences)&&!!p.licences[key];}
   // A Plus subscriber runs the autopilot from level 1 (approved «فنتورا بلس»).
-  function unlocked(state,key){if(!active(state))return true;const need=requirement(key);return need===null||level(state)>=need||licensed(state,licenceKey(key))||(key==='tool:autopilot'&&entitled(state,'plus'));}
+  function unlocked(state,key){if(!limited(state))return true;const need=requirement(key);return need===null||level(state)>=need||licensed(state,licenceKey(key))||(key==='tool:autopilot'&&entitled(state,'plus'));}
   function labelFor(key){
     key=String(key||'');const at=key.indexOf(':'),kind=key.slice(0,at),id=key.slice(at+1);
     if(kind==='company')return COMPANY_LABEL[id]||'هذه الشركة';
@@ -124,7 +129,7 @@
   // Limits on held counts (facilities, fleets, regional headquarters). Infinity when none applies.
   function companyLevel(company){return own(COMPANY,company)?COMPANY[company]:1;}
   function bandLimit(state,company,kind){
-    if(!active(state))return Infinity;const lvl=level(state);
+    if(!limited(state))return Infinity;const lvl=level(state);
     if(kind==='facility'&&company==='group'){for(const [at,count] of HQ_STEPS)if(lvl>=at)return count;return 1;}
     if(lvl>=(kind==='facility'?FACILITY_LIFT:FLEET_LIFT))return Infinity;
     const bands=BANDS[kind];if(!bands)return Infinity;const band=Math.floor((lvl-companyLevel(company))/2);if(band<0)return bands[0];return band>=bands.length?Infinity:bands[band];
@@ -147,14 +152,14 @@
     if(lvl>=(kind==='facility'?FACILITY_LIFT:FLEET_LIFT))return Infinity;const bands=BANDS[kind];if(!bands)return Infinity;const band=Math.floor((lvl-companyLevel(company))/2);if(band<0)return bands[0];return band>=bands.length?Infinity:bands[band];
   }
   function requireRoom(state,company,kind,adding){
-    if(!active(state))return true;adding=Math.max(0,Math.floor(Number(adding)||0));if(!adding)return true;const limit=bandLimit(state,company,kind);if(limit===Infinity)return true;
+    if(!limited(state))return true;adding=Math.max(0,Math.floor(Number(adding)||0));if(!adding)return true;const limit=bandLimit(state,company,kind);if(limit===Infinity)return true;
     const held=kind==='facility'?heldFacilities(state,company):heldFleet(state,company);if(held+adding>limit)throw capError(state,company,kind,limit,held,adding);return true;
   }
 
   // The player command gate (GH_DOMAIN_COMMANDS, player dispatches only; the day's own system work is never refused).
   function facilityCompany(payload){const row=plainObject(payload?.facility)?payload.facility:payload;return facilityOwner(row);}
   function checkCommand(state,domain,name,payload={}){
-    if(!active(state))return true;domain=String(domain||'');name=String(name||'');payload=plainObject(payload)?payload:{};
+    if(!limited(state))return true;domain=String(domain||'');name=String(name||'');payload=plainObject(payload)?payload:{};
     if(domain==='corporate'&&name==='open-company')return require(state,`company:${String(payload.type||payload.companyId||'')}`);
     if(domain==='asset-purchase'&&name==='authorize-order'){
       const order=plainObject(payload.order)?payload.order:{},company=String(payload.ownerCompanyId||order.ownerCompanyId||''),itemId=String(order.item?.id||order.itemId||'');
@@ -340,6 +345,6 @@
   }
 
   return Object.freeze({VERSION,SCHEMA,MAX_LEVEL,XP,DIFFICULTY,CAREER_MODES,COMPANY,MODEL,USED_BASE,FEATURE,TOOL,BANDS,HQ_STEPS,FLEET_LIFT,FACILITY_LIFT,COMPANY_LABEL,
-    XP_DAYS,xpRate,xpToday,active,level,levelForXp,title,requirement,unlocked,check,require,checkCommand,bandLimit,limitAt,requireRoom,heldFacilities,heldFleet,nextBandLevel,
+    XP_DAYS,xpRate,xpToday,active,limited,level,levelForXp,title,requirement,unlocked,check,require,checkCommand,bandLimit,limitAt,requireRoom,heldFacilities,heldFleet,nextBandLevel,
     initial,isCareerMode,validate,summary,opensAt,labelFor,modelKey,MILESTONES,MILESTONE_LABEL,COMMAND_LABEL,TOOL_LABEL,grantsFor,startTasks,licenceQuote,licenceKey,LICENCE_REASON,DOMAIN,LICENCE_COMMAND,owner,install,isInstalled:()=>installed,addXp,milestone,onCommand,closeDay,entitled,multiplier});
 });

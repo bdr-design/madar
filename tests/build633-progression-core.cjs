@@ -7,7 +7,8 @@
 //     table; a used line takes its new model's level; every listed tool is a real player command;
 //  3. the founding offers the three career modes (capital from the difficulty: 1B, 250M, 50M) beside the three free-play
 //     modes, the career-normal mode chosen by default; a career mode founds a career root at level 1, any other free play;
-//  4. limits apply to a career game, investor mode or not: none for free play or an absent root;
+//  4. limits apply to a career game: none for free play or an absent root; investor mode keeps them in the store edition
+//     (approved pricing) and lifts them in the development edition (Build 689), the level and experience counting in both;
 //  5. the command gate refuses a company, a model, a tool or a count past a band with the level that opens it, accepts
 //     what the level opens, never refuses repaying or selling, and a licence opens its key early;
 //  6. the bands of facilities and fleets follow the company's own level, lift whole at 27 (fleets) and 29 (facilities),
@@ -65,7 +66,13 @@ for(const mode of ['balanced','investor','sandbox',undefined,'x']){const root=P.
 
 // 4.
 assert.equal(P.active(career(1)),true);assert.equal(P.active({}),false,'4: a save from before levels is open');assert.equal(P.active({progression:P.initial('sandbox')}),false,'4: free play is open');
-assert.equal(P.active(career(1,{godMoney:true,infiniteMoney:true})),true,'4: investor mode keeps the levels');assert.equal(P.unlocked(career(1,{godMoney:true,infiniteMoney:true}),'company:sports'),false,'4: investor mode opens nothing early');
+{const investing=()=>career(1,{godMoney:true,infiniteMoney:true});
+  // The store edition: the investor licence is unlimited money only, the levels stay.
+  s.GH_EDITION='release';try{assert.equal(P.active(investing()),true);assert.equal(P.limited(investing()),true,'4: store edition: investor mode keeps the levels');assert.equal(P.unlocked(investing(),'company:sports'),false,'4: store edition: investor mode opens nothing early');assert.notEqual(P.bandLimit(investing(),'road','road'),Infinity);assert.throws(()=>P.checkCommand(investing(),'corporate','open-company',{type:'sports'}),/المستوى/);}finally{delete s.GH_EDITION;}
+  // The development edition: investor mode opens everything; the career still counts its level and experience.
+  assert.equal(P.active(investing()),true,'4: development edition: the career is still counted');assert.equal(P.limited(investing()),false,'4: development edition: investor mode lifts the levels');
+  assert.equal(P.unlocked(investing(),'company:sports'),true);assert.equal(P.checkCommand(investing(),'corporate','open-company',{type:'sports'}),true);assert.equal(P.bandLimit(investing(),'road','road'),Infinity,'4: development edition: no band');
+  assert.equal(P.limited(career(1)),true,'4: development edition outside investor mode: the levels apply');assert.equal(P.unlocked(career(1),'company:sports'),false);}
 for(const state of [{},{progression:P.initial('balanced')}]){
   assert.equal(P.unlocked(state,'company:sports'),true);assert.equal(P.checkCommand(state,'corporate','open-company',{type:'sports'}),true);assert.equal(P.bandLimit(state,'road','road'),Infinity);
   assert.equal(P.checkCommand(state,'mobility','buy-fleet',{quantity:1e6}),true);}

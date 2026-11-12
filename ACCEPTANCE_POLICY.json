@@ -3,6 +3,86 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build634-progression-career-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build633-progression-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build675-task-targets-and-page-texts-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build673-tender-and-investor-card.cjs"
+    ],
+    [
+      "node",
+      "tests/build379-financial-posting-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build679-investor-close-value-and-names.cjs"
+    ],
+    [
+      "node",
+      "tests/build678-balance-capacity-and-details-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build674-counted-texts-and-managers.cjs"
+    ],
+    [
+      "node",
+      "tests/build672-message-strip-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build669-investor-holding-balance-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build667-obligation-budget.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-map-controls-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build656-store-no-redirect-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build636-store-release-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-release-edition-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build647-store-plus-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build649-levels-page-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build556-investor-card-page-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build558-investor-card-load-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build635-store-core.cjs"
+    ],
+    [
+      "node",
       "tests/build443-company-review-work.cjs"
     ],
     [
@@ -43,14 +123,6 @@
     ],
     [
       "node",
-      "tests/build675-task-targets-and-page-texts-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build673-tender-and-investor-card.cjs"
-    ],
-    [
-      "node",
       "tests/build666-party-capacity.cjs"
     ],
     [
@@ -76,14 +148,6 @@
     [
       "node",
       "tests/build646-development-device-roads-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build634-progression-career-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build633-progression-core.cjs"
     ],
     [
       "node",
@@ -152,10 +216,6 @@
     [
       "node",
       "tests/build374-cheque-payable-lifecycle.cjs"
-    ],
-    [
-      "node",
-      "tests/build379-financial-posting-browser.cjs"
     ],
     [
       "node",
@@ -691,22 +751,6 @@
     ],
     [
       "node",
-      "tests/build679-investor-close-value-and-names.cjs"
-    ],
-    [
-      "node",
-      "tests/build678-balance-capacity-and-details-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build674-counted-texts-and-managers.cjs"
-    ],
-    [
-      "node",
-      "tests/build672-message-strip-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build671-settle-all-ceiling-browser.cjs"
     ],
     [
@@ -715,15 +759,7 @@
     ],
     [
       "node",
-      "tests/build669-investor-holding-balance-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build668-project-finance-prepaid.cjs"
-    ],
-    [
-      "node",
-      "tests/build667-obligation-budget.cjs"
     ],
     [
       "node",
@@ -764,14 +800,6 @@
     [
       "node",
       "tests/build659-english-shell-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-map-controls-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build656-store-no-redirect-browser.cjs"
     ],
     [
       "node",
@@ -964,14 +992,6 @@
     [
       "node",
       "tests/build459-navigation-scroll-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build636-store-release-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-release-edition-browser.cjs"
     ],
     [
       "node",
@@ -1199,19 +1219,11 @@
     ],
     [
       "node",
-      "tests/build647-store-plus-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build641-release-player-tasks-browser.cjs"
     ],
     [
       "node",
       "tests/build645-legal-consent-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build649-levels-page-browser.cjs"
     ],
     [
       "node",
@@ -1240,10 +1252,6 @@
     [
       "node",
       "tests/build528-reopen-navigation-guard-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build556-investor-card-page-browser.cjs"
     ],
     [
       "node",
@@ -1308,10 +1316,6 @@
     [
       "node",
       "tests/build391-hospitality-core.cjs"
-    ],
-    [
-      "node",
-      "tests/build558-investor-card-load-browser.cjs"
     ],
     [
       "node",
@@ -1784,10 +1788,6 @@
     [
       "node",
       "tests/build564-group-dividends.cjs"
-    ],
-    [
-      "node",
-      "tests/build635-store-core.cjs"
     ],
     [
       "node",

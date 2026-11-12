@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "607af886dd31c43aed4c1cc28c5953415f6fac5ba6f02130bfd676c1395efda6",
-  "webapp_tree_sha256": "1508e8ed39e602974f1be26939bf4f846f52f5ddb136b16ebeb312504ed2578a",
+  "source_tree_sha256": "a35f3e30a6232e504ee67705f7f081495be7b76f1207ceb00ae9f4b5add8c6ca",
+  "webapp_tree_sha256": "e7dea48acf17425c547c82ef29a83e786ea0c181779786dbc75abc087229b964",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -3851,8 +3851,8 @@
       "sha256": "69dbbeafb20e0b455deaf42dfea1d38c789d84c48f1f60199563c3785849465f"
     },
     "WebApp/progression-core.js": {
-      "bytes": 37817,
-      "sha256": "f5cc3e7d67cdbc52ffdf4e440456fb66f788f322228ef34172adb3d51ca4e12a"
+      "bytes": 38475,
+      "sha256": "cdc6eae78d378a465d4e1e389263bcd49509808a0571e0585fa34daceee7f6d8"
     },
     "WebApp/progression.css": {
       "bytes": 1910,
@@ -4088,7 +4088,7 @@
     },
     "project.yml": {
       "bytes": 2585,
-      "sha256": "d314cad2e4121a3297a1e586392e32a5a50c48d6a3b860c2c2aa7cf5deccf7e1"
+      "sha256": "1711032ff0b3813ceb99579d7808af9dcdc5eeb0bed363ef8d98012812a97d10"
     },
     "BUILD": {
       "bytes": 4,
