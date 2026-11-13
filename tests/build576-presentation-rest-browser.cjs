@@ -43,7 +43,12 @@ const CONFERENCE={year:2026,group:{name:'المجموعة',grossRevenue:500000,e
 async function boot(root){
  const browser=await chromium.launch({headless:true}),errors=[];let env;try{
   env=await bootAtOrigin({browser,root,errors,fleetWorker:true,viewport:{width:956,height:440},beforeScripts:{run:async page=>{await page.evaluate(installVault);await page.evaluate(counters);}}});const {page}=env;page.setDefaultTimeout(120000);
-  await prepareCommandWorld(page,{count:2});const cdp=await page.context().newCDPSession(page);await cdp.send('Performance.enable');
+  await prepareCommandWorld(page,{count:2});
+  // Build 694 (plan batch 2): the world's aircraft are marked for the automatic dispatch after the day's close, which the
+  // source before (6511258) does not have; cleared here (nothing to clear there) so a calendar advance across midnight
+  // sends no fleet in the background of the measured windows, and both sources rest on the same world.
+  await page.evaluate(()=>{for(const row of Object.values(__GH_STATE__.advanced?.companies||{}))if(row&&typeof row==='object')delete row.autoDispatchPending;});
+  const cdp=await page.context().newCDPSession(page);await cdp.send('Performance.enable');
   const busy=async()=>(await cdp.send('Performance.getMetrics')).metrics.find(m=>m.name==='TaskDuration').value*1000;
   const sample=()=>page.evaluate(()=>({frames:window.__qaFrames,display:window.__qaDisplay,timer:window.__qaTimer,ticks:__AUDIT__.simulationRuntime.snapshot().ticks,sim:__GH_STATE__.simSeconds,at:performance.now()}));
   const measure=async(ms=3000)=>{await page.waitForTimeout(1200);const a=await sample(),b0=await busy();await page.waitForTimeout(ms);const b=await sample(),b1=await busy(),s=(b.at-a.at)/1000;return {frames:(b.frames-a.frames)/s,ticks:(b.ticks-a.ticks)/s,sim:(b.sim-a.sim)/s,busy:(b1-b0)/s,display:(b.display-a.display)/s,timer:(b.timer-a.timer)/s};};

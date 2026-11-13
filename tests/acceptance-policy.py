@@ -58,9 +58,11 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
-# Now, rebuilt from the previous list (which the builds of dfe0e82 passed): first the review rounds 6-9 (the owner: «حل المشاكل وعيد تمريرها للتحقق», «يجب ان يراجع الوكلاء كل شي», «موافق بس تأكد انها ماتخرب شي»): build571 (a press during the automatic dispatch
+# Now, rebuilt from the previous list (which the builds of dfe0e82 passed): first build558, which failed on build 145 (its world's fleet now departs after the close and earned what the card was
+# to cover; the mark is cleared there); then the review rounds 6-9 (the owner: «حل المشاكل وعيد تمريرها للتحقق», «يجب ان يراجع الوكلاء كل شي», «موافق بس تأكد انها ماتخرب شي»): build571 (a press during the automatic dispatch
 # was refused), build700, build694 and build689, which failed here while it was written (newest first: the licence
-# test, the autopilot dispatch actor pin, the Arabic hiring alert); then what the changes touch or could break: build692, build693 (pools),
+# test, the autopilot dispatch actor pin, the Arabic hiring alert); then build576, which shares build558's
+# world (its mark cleared too); then what the changes touch or could break: build692, build693 (pools),
 # build469 and build379 (the cheque button), build696, build382 and build633-634, build649 (campaign lock, one shared
 # licence), build394 and build612 (hotel alert, bank card), the destination ranking (build340 plan and worker, build371
 # window, build374 capacity; the first three ran after the preflight before), the fingerprint readers
@@ -362,10 +364,12 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build558-investor-card-load-browser.cjs'],
     ['node', 'tests/build571-tax-month-close-browser.cjs'],
     ['node', 'tests/build700-review-fixes.cjs'],
     ['node', 'tests/build694-auto-dispatch-after-close-browser.cjs'],
     ['node', 'tests/build689-hotel-team-at-opening.cjs'],
+    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build692-mobility-counts-kept.cjs'],
     ['node', 'tests/build693-mobility-dispatch-pools.cjs'],
     ['node', 'tests/build469-app-notice-work.cjs'],
@@ -620,7 +624,6 @@ expected_preflight=[
     ['node', 'tests/build376-release-edition-browser.cjs'],
     ['node', 'tests/build647-store-plus-browser.cjs'],
     ['node', 'tests/build556-investor-card-page-browser.cjs'],
-    ['node', 'tests/build558-investor-card-load-browser.cjs'],
     ['node', 'tests/build687-export-many-chunks.cjs'],
     ['node', 'tests/build686-dispatch-facility-index.cjs'],
     ['node', 'tests/build685-tracked-chunks-past-budget.cjs'],
@@ -721,7 +724,6 @@ expected_preflight=[
     ['node', 'tests/build510-validation-cache-reasons.cjs'],
     ['node', 'tests/build526-prestage-fleet-chunks-only.cjs'],
     ['node', 'tests/build406-save-chunk-transport.cjs'],
-    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build460-render-idle-browser.cjs'],
     ['node', 'tests/build671-settle-all-ceiling-browser.cjs'],
     ['node', 'tests/build664-new-game-flow-browser.cjs'],

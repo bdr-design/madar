@@ -38,7 +38,10 @@ async function boot(root){
  const browser=await chromium.launch({headless:true}),errors=[];let env;try{
   env=await bootAtOrigin({browser,root,errors,fleetWorker:true,viewport:{width:1180,height:820},beforeScripts:{fn:installVault}});const {page}=env;page.setDefaultTimeout(120000);await prepareCommandWorld(page,{count:2});
   const settled=()=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked()&&!__AUDIT__.simulationEngine.snapshot().manualAdvance);
-  await page.evaluate(()=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;for(const t of Object.keys(s.companyFinance))if(t!=='group'){F.book(s,t).accounts[0].balance=0;}F.reconcile(s);__AUDIT__.save?.();});await settled();
+  // Build 694 (plan batch 2): aircraft bought by the world are marked for the automatic dispatch after the day's close;
+  // the source before the card has no such dispatch, so its fleet stays idle and needs the card. The mark is cleared
+  // here (on this source; nothing to clear on the other) so both worlds play the same ten days with the fleet idle.
+  await page.evaluate(()=>{const s=__GH_STATE__,F=GH_FINANCE_CORE;for(const row of Object.values(s.advanced?.companies||{}))if(row&&typeof row==='object')delete row.autoDispatchPending;for(const t of Object.keys(s.companyFinance))if(t!=='group'){F.book(s,t).accounts[0].balance=0;}F.reconcile(s);__AUDIT__.save?.();});await settled();
   const cdp=await page.context().newCDPSession(page);
   const counts=()=>page.evaluate(()=>{const s=__GH_STATE__;return {founder:s.finance.transfers.filter(t=>t.kind==='founder-investment').length,journal:s.finance.journalEntries.length,proofs:JSON.stringify(s.documentProofs||s.finance.documentProofs||{}).length,save:JSON.stringify(s).length-JSON.stringify(s.finance.investorCard||null).length-JSON.stringify(s.diagnostics||null).length};});
   // Each long task is counted on the day it started in (reported).

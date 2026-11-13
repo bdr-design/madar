@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build558-investor-card-load-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build571-tax-month-close-browser.cjs"
     ],
     [
@@ -16,6 +20,10 @@
     [
       "node",
       "tests/build689-hotel-team-at-opening.cjs"
+    ],
+    [
+      "node",
+      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -1035,10 +1043,6 @@
     ],
     [
       "node",
-      "tests/build558-investor-card-load-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build687-export-many-chunks.cjs"
     ],
     [
@@ -1436,10 +1440,6 @@
     [
       "node",
       "tests/build406-save-chunk-transport.cjs"
-    ],
-    [
-      "node",
-      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
