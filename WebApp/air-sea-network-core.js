@@ -81,11 +81,17 @@
   function haversine(a,b){const rad=Math.PI/180,lat1=a[0]*rad,lat2=b[0]*rad,dLat=(b[0]-a[0])*rad,dLon=(b[1]-a[1])*rad,h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;return 2*6371.0088*Math.asin(Math.sqrt(h));}
   function routeSector(coords){const lat=Number(coords?.[0])||0,lon=((Number(coords?.[1])||0)+540)%360-180,latBand=lat<-23?'S':lat>23?'N':'E',lonBand=Math.floor((lon+180)/45);return `${latBand}:${Math.max(0,Math.min(7,lonBand))}`;}
   function routeDistanceBand(distance){return distance<2000?'near':distance<6500?'mid':'far';}
-  function destinationContext(input){return {destinations:new Map(input.ledger.destinations),sectors:new Map(input.ledger.sectors),bands:new Map(input.ledger.bands),coords:input.ledger.coords};}
+  // Review round 6 (a profile of the automatic dispatch: half its apply measured the separation from every destination
+  // already chosen): the separation is the least great-circle distance, and the distance only grows with the haversine
+  // term, so the least term is found first (the latitude's cosine kept per point) and the distance taken once. Each term
+  // is computed as haversine computes it, so the result is the same number.
+  function separationPoints(coords){const rad=Math.PI/180;return coords.map(point=>({lat:point[0],lon:point[1],cos:Math.cos(point[0]*rad)}));}
+  function leastSeparation(points,coords){const rad=Math.PI/180,lat=coords[0],lon=coords[1],cos=Math.cos(lat*rad);let least=Infinity;for(const point of points){const dLat=(lat-point.lat)*rad,dLon=(lon-point.lon)*rad,h=Math.sin(dLat/2)**2+point.cos*cos*Math.sin(dLon/2)**2;if(h<least)least=h;}return 2*6371.0088*Math.asin(Math.sqrt(least));}
+  function destinationContext(input){return {destinations:new Map(input.ledger.destinations),sectors:new Map(input.ledger.sectors),bands:new Map(input.ledger.bands),coords:input.ledger.coords,points:null};}
   function rankSample(input,sample,context=destinationContext(input),includeSeparation=true){
     const direct=haversine(input.originCoords,sample.coords),range=Number(input.rangeKm)||0;if(direct<35||(range&&direct>range*1.005))return null;
     const sector=routeSector(sample.coords),band=routeDistanceBand(direct),reuse=Number(context.destinations.get(sample.key))||0,sectorUse=Number(context.sectors.get(sector))||0,bandUse=Number(context.bands.get(band))||0;
-    let separation=20000;if(includeSeparation&&context.coords.length){separation=Infinity;for(const point of context.coords)separation=Math.min(separation,haversine(point,sample.coords));}
+    let separation=20000;if(includeSeparation&&context.coords.length){if(!context.points)context.points=separationPoints(context.coords);separation=leastSeparation(context.points,sample.coords);}
     return {sampleIndex:sample.sampleIndex,worldIndex:sample.worldIndex,direct,reuse,sectorUse,bandUse,separation};
   }
   const compareDestination=(a,b)=>a.reuse-b.reuse||a.sectorUse-b.sectorUse||a.bandUse-b.bandUse||b.separation-a.separation||a.sampleIndex-b.sampleIndex;

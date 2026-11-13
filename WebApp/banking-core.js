@@ -503,10 +503,25 @@
   // Automatic treasury (off unless the player turns it on): each day the cash above 1.6x the liquidity floor is invested
   // in 90-day sovereign paper down to 1.3x, and cash below the floor is topped up with 180-day wholesale funding (at most
   // 15% of deposits outstanding). The floor is the one investLiquidity already enforces.
-  function setAutoLiquidity(state,p){const bank=ensure(state);bank.autoLiquidity=p.enabled===true;return {enabled:bank.autoLiquidity};}
+  // Review round 4 (a reader: with the housekeeping policy on, «إيقاف» on the treasury changed nothing and the card said
+  // it was off): the player's own switch is kept as an explicit choice; the housekeeping policy runs the treasury unless
+  // the player turned it off afterwards (switching the policy on again clears that choice).
+  function setAutoLiquidity(state,p){const bank=ensure(state);bank.autoLiquidity=p.enabled===true;if(p.enabled===true)delete bank.autoLiquidityOff;else bank.autoLiquidityOff=true;return {enabled:treasuryOn(state)};}
+  // Review round 4 (owner's default: a feature run automatically keeps its own level): the automatic treasury invests and
+  // raises wholesale funding, which a career opens at level 18 (invest-liquidity); below it the switch and the policy
+  // are kept and wait.
+  function treasuryLevelOpen(state){const P=globalThis.GH_PROGRESSION_CORE;return P?.unlocked?.(state,'command:banking:invest-liquidity')!==false&&P?.unlocked?.(state,'command:banking:raise-wholesale-funding')!==false;}
+  function treasuryOn(state){const bank=state?.bank;if(!bank||!treasuryLevelOpen(state))return false;if(bank.autoLiquidity===true)return true;return bank.housekeeping===true&&bank.autoLiquidityOff!==true&&globalThis.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')!==false;}
+  // Plan batch 3 (the owner: «لاتخلي شي من الخطه نفذه بدقه»): the bank's housekeeping as one policy of the autopilot: the
+  // daily liquidity management and pooling run (as set-auto-liquidity on) and the corporate credit limits are reviewed
+  // every 30 days by the autopilot (review-limits, the button's command).
+  function setHousekeeping(state,p){if(p.enabled===true&&globalThis.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')===false)throw new Error('autopilot-locked');const bank=ensure(state);if(p.enabled===true){bank.housekeeping=true;delete bank.autoLiquidityOff;}else delete bank.housekeeping;return {enabled:p.enabled===true};}
+  function limitsReviewDue(state){const bank=state?.bank;if(bank?.housekeeping!==true)return false;const reviews=Object.values(bank.corporateClients||{}).map(row=>Number(row?.lastReview)).filter(Number.isFinite),last=reviews.length?Math.max(...reviews):-Infinity;return (Number(state.simSeconds)||0)-last>=30*86400;}
   function liquidityFloor(bank){return Math.max(5000000,num(bank.deposits)*.12);}
   function autoLiquidity(state,bank,F){
-    if(bank.autoLiquidity!==true)return null;
+    // Review: the housekeeping policy runs the liquidity management only while the autopilot is unlocked (the policy is
+    // kept when a Plus lapses, and acts again when it returns); the explicit auto-liquidity switch works as before.
+    if(!treasuryOn(state))return null;
     const account=F.book(state,'bank').accounts[0],floor=liquidityFloor(bank),cash=num(account.balance);
     if(cash>floor*1.6){const amount=Math.floor((cash-floor*1.3)/100000)*100000;if(amount>=1000000){const security=investLiquidity(state,{amount,kind:'sovereign',termDays:90},F);return {invested:amount,securityId:security.id};}}
     if(cash<floor&&num(bank.deposits)>0){const room=Math.max(0,num(bank.deposits)*.15-num(bank.wholesaleFunding)),amount=Math.min(room,Math.ceil((floor*1.3-cash)/100000)*100000);if(amount>=1000000){const facility=raiseWholesaleFunding(state,{amount,termDays:180},F);return {wholesale:amount,facilityId:facility.id};}}
@@ -682,7 +697,7 @@
     if(cmd==='set-deposit-pricing')return setDepositPricing(state,p);
     if(cmd==='set-risk-policy')return setRiskPolicy(state,p);
     if(cmd==='set-risk-preset')return setRiskPreset(state,p);
-    if(cmd==='set-auto-liquidity')return setAutoLiquidity(state,p);
+    if(cmd==='set-auto-liquidity')return setAutoLiquidity(state,p);if(cmd==='set-housekeeping')return setHousekeeping(state,p);
     if(cmd==='resolve-npl')return resolveNpl(state,p,F);
     if(cmd==='raise-wholesale-funding')return raiseWholesaleFunding(state,p,F);
     if(cmd==='invest-liquidity')return investLiquidity(state,p,F);
@@ -707,5 +722,5 @@
     if(cmd==='tick-day')return tickDay(state,p,F);
     throw new Error(`Unknown banking command: ${cmd}`);
   }
-  const API={corporateClientView,corporateClientsCurrent,operatingAcquisitionPreview,CET1_DISTRIBUTION_FLOOR,distributableCash,originateMarketMortgage,RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,campaignQuote,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,onFinancialDayStages,executeStages,tickDayStages,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API={treasuryOn,treasuryLevelOpen,limitsReviewDue,corporateClientView,corporateClientsCurrent,operatingAcquisitionPreview,CET1_DISTRIBUTION_FLOOR,distributableCash,originateMarketMortgage,RISK_PRESETS,riskPreset,liquidityFloor,nonPerformingLoans,campaignCost,campaignQuote,CAMPAIGN_DAYS,loanRequestQuote,customerFinancingQuote,customerDisbursementForSale,MAX_OPEN_REQUESTS,branchMarket,countryPopulation,VERSION,DAILY_FINANCIAL_ORDER:100,onFinancialDay,onFinancialDayStages,executeStages,tickDayStages,ALL_BRANCH_SERVICES,PRODUCTS,DEPOSIT_PRODUCTS,RISK_GRADES,DEPOSIT_STANCES,FUNDING_TERMS,LIQUIDITY,depositRates,loanRate,loanRateQuote,liquidityYield,wholesaleRate,ensure,migrateLegacyBranches,execute,reconcilePrudential,creditRiskPreview,dormant,operatingCosts,statementAdjustments,intercompanyBalanceEliminations};globalThis.GH_BANKING_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('banking',API);if(globalThis.window&&window!==globalThis)window.GH_BANKING_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

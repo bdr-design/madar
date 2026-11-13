@@ -29,7 +29,7 @@ const atDay=(w,day)=>{w.state.simSeconds=day*86400;};
 // Objects made in the owners' realm are compared through JSON (their prototypes differ from this realm's).
 const same=(actual,expected,message)=>assert.equal(JSON.stringify(actual),JSON.stringify(expected),message);
 const cash=(w,c='dealership')=>Math.round(w.F.operating(w.state,c)*100);
-assert.equal(world().P.KINDS.join(','),'insurance,realestate,telecom,bank,hospitality,receivables,taxes,payables,cheques,returned','the day\'s order: decisions, money in, money out');
+assert.equal(world().P.KINDS.join(','),'insurance,realestate,telecom,bank,hospitality,receivables,funding,taxes,payables,cheques,returned,campaigns,salaries,continuation,housekeeping,repairs','the day\'s order: decisions, money in, the holding\'s funding (build691), the day\'s obligations (VAT, payables, cheques), then the spending the policies choose (the standing campaigns, build696, pay that follows the market, build697, research and renewals that continue, build698, the bank\'s housekeeping and hotel maintenance by policy, build699), after the cheques due today (review)');
 
 // 1. Receivables.
 {const w=world();
@@ -68,7 +68,7 @@ assert.equal(world().P.KINDS.join(','),'insurance,realestate,telecom,bank,hospit
   const small=w.sys('finance','accrue-expense',{company:'dealership',amount:20000,note:'AP supplier bill',dueDay:0});
   const large=w.sys('finance','accrue-expense',{company:'dealership',amount:w.F.operating(w.state,'dealership')+1,note:'AP large bill',dueDay:0});
   const tried=new Set(),step=w.P.next(w.state,'payables',{F:w.F,tried});
-  same(step.commands,[{domain:'finance',name:'settle-payable',payload:{number:small.number,method:'transfer'}}],'3: the covered payable only, by transfer');
+  same(step.commands,[{domain:'finance',name:'settle-payables-run',payload:{company:'dealership',numbers:[small.number],method:'transfer'}}],'3: the covered payable only, by transfer, in the company\'s payment run (decision 2)');
   assert.ok(tried.has(`payables:${large.number}`),'3: the uncovered one is tried once and left');
   const before=cash(w);run(w,step);assert.equal(before-cash(w),2000000,'3: paid once');
   assert.ok(!w.state.finance.payables.some(r=>r.number===small.number),'3: settled');assert.ok(w.state.finance.payables.some(r=>r.number===large.number),'3: the large one stays open');

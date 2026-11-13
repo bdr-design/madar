@@ -107,7 +107,7 @@ for(const payer of ['owner','autopilot']){const world=plant();for(let day=FIRST;
   assert.ok(Math.abs(now.operatingInterestAccrued-openAmount-residual)<.01,`4 ${payer}: no interest is added on a repaid principal`);
   world.dayClose(world.due+7);assert.ok(Math.abs(world.facility().operatingInterestAccrued-openAmount-residual)<.01,`4 ${payer}: nor the day after`);assert.equal(world.invoices().length,1,`4 ${payer}: no second invoice while the first is open`);
   world.player('finance','transfer',{from:'group',to:'power',amount:5000000,note:'cash returns'});
-  if(payer==='autopilot'){const paid=world.autopilot();assert.ok(paid.some(row=>row.command.name==='settle-payable'&&row.command.payload.number===open),'4 autopilot: the autopilot pays the open invoice');}
+  if(payer==='autopilot'){const paid=world.autopilot();assert.ok(paid.some(row=>row.command.name==='settle-payables-run'&&row.command.payload.numbers.includes(open)),'4 autopilot: the autopilot pays the open invoice');}
   world.dayClose(world.due+8);now=world.facility();
   const invoices=world.invoices();assert.equal(invoices.length,2,`4 ${payer}: the open invoice and one last invoice`);assert.deepEqual(invoices.map(row=>row.status),['مسددة','مسددة'],`4 ${payer}: both paid`);
   assert.deepEqual([invoices[0].total,invoices[1].total],[cents(openAmount),cents(residual)],`4 ${payer}: the month, then the interest to the repayment`);

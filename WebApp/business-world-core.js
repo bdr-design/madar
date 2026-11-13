@@ -128,7 +128,7 @@ const NEWS_COMMANDS=Object.freeze({
  corporate:new Set(['found-group','open-company','rename-company','set-ipo','record-agm']),
  facilities:new Set(['create','expand','close','open-regional-hq']),
  procurement:new Set(['purchase-assets','award-construction','complete-construction']),
- finance:new Set(['issue-cheque','settle-cheque','settle-payable','pay-taxes','collect-receivable','collect-receivables-by-cheque','record-payroll-report','close-vat-period','founder-investment','founder-withdrawal','investor-card-return','investor-card-return-all']),
+ finance:new Set(['issue-cheque','settle-cheque','settle-payable','settle-payables-run','pay-taxes','collect-receivable','collect-receivables-by-cheque','record-payroll-report','close-vat-period','founder-investment','founder-withdrawal','investor-card-return','investor-card-return-all']),
  hr:new Set(['appoint-official-manager','appoint-all-official-managers','dismiss-official-manager','hire','hire-executive'])
 });
 // Completed sector decisions, not recurring ticks, price refreshes, pending offers or simulation telemetry.
@@ -185,6 +185,7 @@ function recordCommandNews(s,domain,name,p={},r,meta={},before){
   if(name==='issue-cheque'||name==='settle-payable'&&r?.method==='cheque')title=`إصدار شيك لصالح التزامات ${companyName}`;
   else if(name==='settle-cheque')title=r?.settled?`صرف شيك من حساب ${companyName}`:`ارتجاع شيك على ${companyName}`;
   else if(name==='settle-payable')title=`سداد التزامات ${companyName} بتحويل بنكي`;
+  else if(name==='settle-payables-run'){count=num(r?.count);if(!count)return null;title=`دفعة سداد لالتزامات ${companyName} بتحويل بنكي`;detail=`كشف الدفعة: ${(Array.isArray(r?.numbers)?r.numbers:[]).slice(0,12).join('، ')}${num(r?.count)>12?'…':''}`;}
   else if(name==='pay-taxes'){if(!num(r?.count))return null;title=`سداد الضريبة المستحقة على ${companyName}`;}
   else if(name==='collect-receivable'||name==='collect-receivables-by-cheque'){count=num(r?.count)||1;if(!amount)return null;title=`تحصيل مستحقات ${companyName}`;}
   else if(name==='record-payroll-report'){title='اعتماد مسير رواتب المجموعة';company='group';detail='يتضمن المبلغ إجمالي المسير؛ تعرض صفحة المصدر المصروف والمستحق.';destination='labor';destinationId='payroll';}

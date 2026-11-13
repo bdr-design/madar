@@ -7,9 +7,11 @@
     return items.map(row=>({row,active:isActive(row),cost:isActive(row)?cost(row,Math.max(1,counts.get(row.country)||0)):0}));
   }
   function quote(state,company,rows,duration=30){
-    const day=dayOf(state),targets=[],seen=new Set();let total=0;
+    // Review round 8: `running` counts the active branches whose campaign is still on (the card tells them from a company
+    // with no working branch at all); nothing else of the quote changes.
+    const day=dayOf(state),targets=[],seen=new Set();let total=0,running=0;
     for(const item of rows){
-      const row=item.row,id=String(row?.id||'');if(!item.active||Number(row.campaignUntil)>day)continue;
+      const row=item.row,id=String(row?.id||'');if(item.active&&Number(row.campaignUntil)>day)running++;if(!item.active||Number(row.campaignUntil)>day)continue;
       const cost=Number(item.cost);if(!id||seen.has(id)||!Number.isSafeInteger(cost)||cost<=0)throw new Error('campaign-branch-quote-invalid');
       seen.add(id);targets.push({id,cost});total+=cost;
     }
@@ -17,7 +19,7 @@
     targets.sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);
     const hash=globalThis.GH_AUTHORIZATION?.digest;if(typeof hash!=='function')throw new Error('campaign-quote-owner-unavailable');
     const quoteKey=hash({company,day,duration,targets});
-    return {company,day,duration,until:day+duration,count:targets.length,skipped:rows.length-targets.length,total,quoteKey,targets};
+    return {company,day,duration,until:day+duration,count:targets.length,skipped:rows.length-targets.length,running,total,quoteKey,targets};
   }
   function launch(state,company,root,rows,p={},duration=30,onSpend=null){
     if(!globalThis.GH_TRANSACTION_CORE?.isActive?.())throw new Error('campaign-transaction-required');

@@ -177,14 +177,24 @@
   // maintenance, contractor invoice and cheque; never while another plan is booked or running, never without the cash.
   const AUTO_MAINTENANCE_LOSS=5,AUTO_MAINTENANCE_LEAD_DAYS=7;
   function setAutoMaintenance(state,p){const energy=ensure(state);energy.autoMaintenance=p.enabled===true;return {enabled:energy.autoMaintenance};}
+  // Plan batch 3 (the owner: «لاتخلي شي من الخطه نفذه بدقه»): the automatic maintenance existed but was off unless turned
+  // on. With the autopilot (level 7 or Plus in a career; always outside one) it is on until the player turns it off; an
+  // explicit choice either way is kept. Without the autopilot it stays off unless turned on, as before.
+  function autoMaintenanceOn(state){const energy=state?.energy||{};if(energy.autoMaintenance===true)return true;if(energy.autoMaintenance===false)return false;return globalThis.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')!==false;}
   function performanceLoss(site,day){const worn=Math.max(0,day-Number(site.commissionedDay??day)-Number(site.recoveredWearDays||0));return Math.min(35,num(site.degradationRate)*worn/365*100);}
   function autoMaintenance(state,energy,day){
-    if(energy.autoMaintenance!==true)return null;
+    if(!autoMaintenanceOn(state))return null;
     if(energy.maintenancePlans.some(row=>row.status==='مجدولة'||row.status==='قيد التنفيذ'))return null;
     const candidates=energy.sites.filter(site=>site.commissioned&&performanceLoss(site,day)>=AUTO_MAINTENANCE_LOSS).sort((a,b)=>performanceLoss(b,day)-performanceLoss(a,day)||String(a.id).localeCompare(String(b.id)));
     const site=candidates[0];if(!site)return null;
     const cost=num(maintenanceQuote(site).cost),F=globalThis.GH_FINANCE_CORE;if(cost>0&&!(globalThis.GH_FINANCE_CORE?.investorMode?.(state))&&num(F?.operating?.(state,'power'))<cost)return null;
-    return scheduleMaintenance(state,{siteId:site.id,startDay:day+AUTO_MAINTENANCE_LEAD_DAYS});
+    const planned=scheduleMaintenance(state,{siteId:site.id,startDay:day+AUTO_MAINTENANCE_LEAD_DAYS});
+    // Review round 4 (owner's default): automatic maintenance that runs by the autopilot's default (the player never chose)
+    // says so once, the first time it books a visit, with where to turn it off.
+    if(planned&&energy.autoMaintenance!==true&&energy.autoMaintenance!==false&&energy.autoMaintenanceNoticed!==true){energy.autoMaintenanceNoticed=true;const text=`جدول الطيار الآلي صيانة ${site.name||site.id} تلقائيًا (الصيانة التلقائية للطاقة تعمل مع الطيار الآلي). يمكن إيقافها من صفحة الطاقة › التشغيل.`;
+      // Review round 6: through the operations owner's alert (its cap, event log and repeats), as the other notices.
+      if(typeof globalThis.GH_OPERATIONS_CORE?.execute==='function')globalThis.GH_OPERATIONS_CORE.execute({state},'record-alert',{text,type:'operation'});else{state.alerts=Array.isArray(state.alerts)?state.alerts:[];state.alerts.unshift(text);}}
+    return planned;
   }
   function projectFinanceRate(state){const F=globalThis.GH_FINANCE_CORE;if(!F?.floatingDebtRate)throw new Error('finance-core-missing');return Math.round((F.floatingDebtRate(state)+PROJECT_PREMIUM)*1e5)/1e5;}
   function projectFinanceRoom(energy,site){return Math.max(0,num(site.capex)*PROJECT_LEVERAGE-energy.projectFinance.filter(row=>row.siteId===site.id&&row.status!=='مسدد').reduce((sum,row)=>sum+num(row.outstanding),0));}
@@ -387,5 +397,5 @@
   }
   function* executeStages(ctx,cmd,p={}){if(cmd!=='tick-day')throw new Error('energy-staged-command-invalid');return yield* tickDayStages(ctx.state||ctx,p);}
   function execute(ctx,cmd,p={}){const state=ctx.state||ctx;if(cmd==='acquire-operating')return globalThis.GH_OPERATING_ACQUISITIONS.acquire(state,'power',p);if(cmd==='acquire-operating-batch')return globalThis.GH_OPERATING_ACQUISITIONS.acquireBatch(state,'power',p);if(cmd==='ensure')return ensure(state);if(cmd==='accept-ppa')return acceptPpa(state,p);if(cmd==='set-dispatch-policy')return setDispatchPolicy(state,p);if(cmd==='sign-fuel-contract')return signFuelContract(state,p);if(cmd==='schedule-maintenance')return scheduleMaintenance(state,p);if(cmd==='set-auto-maintenance')return setAutoMaintenance(state,p);if(cmd==='finance-project')return financeProject(state,p);if(cmd==='accelerate-construction')return accelerateConstruction(state,p);if(cmd==='bid-tender')return bidTender(state,p);if(cmd==='tick-day')return tickDay(state,p);throw new Error(`Unknown energy command: ${cmd}`);}
-  const API={CONSTRUCTION_ACCELERATION_RATE,constructionProgress,constructionAccelerationQuote,AUTO_MAINTENANCE_LOSS,tenderQuote,MAX_OPEN_TENDERS,VERSION,DAILY_FINANCIAL_ORDER:200,onFinancialDay,onFinancialDayStages,executeStages,KIND,FUEL_TERMS,fuelOffer,maintenanceQuote,outageAging,projectFinanceRate,projectFinanceRoom,ensure,economics,siteEconomics,acceptPpa,tickDay,execute};globalThis.GH_ENERGY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('energy',API);if(globalThis.window&&window!==globalThis)window.GH_ENERGY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API={autoMaintenanceOn,CONSTRUCTION_ACCELERATION_RATE,constructionProgress,constructionAccelerationQuote,AUTO_MAINTENANCE_LOSS,tenderQuote,MAX_OPEN_TENDERS,VERSION,DAILY_FINANCIAL_ORDER:200,onFinancialDay,onFinancialDayStages,executeStages,KIND,FUEL_TERMS,fuelOffer,maintenanceQuote,outageAging,projectFinanceRate,projectFinanceRoom,ensure,economics,siteEconomics,acceptPpa,tickDay,execute};globalThis.GH_ENERGY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('energy',API);if(globalThis.window&&window!==globalThis)window.GH_ENERGY_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

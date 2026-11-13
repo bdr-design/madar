@@ -9,7 +9,7 @@ const results=[];
   const nativeDialogs=[];page.on('dialog',async dialog=>{nativeDialogs.push(dialog.message());await dialog.dismiss();});
   await page.evaluate(async()=>{await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type:'hospitality',capital:120000000},{silent:true});await __AUDIT__.runAuthorizedDomainCommand('corporate','open-company',{type:'bank',capital:100000000},{silent:true});__AUDIT__.openDrawer('hospitality',{company:'hospitality',tab:'properties'});});
   await page.evaluate(installVault);
-  const snap=()=>page.evaluate(()=>({cash:GH_FINANCE_CORE.operating(__GH_STATE__,'hospitality'),revision:__GH_STATE__.saveRevision,hospitality:JSON.stringify(__GH_STATE__.hospitality||null),books:JSON.stringify(__GH_STATE__.companyFinance),sites:JSON.stringify(__GH_STATE__.customHubs)}));
+  const snap=()=>page.evaluate(()=>({cash:GH_FINANCE_CORE.operating(__GH_STATE__,'hospitality'),revision:__GH_STATE__.saveRevision,hospitality:JSON.stringify(__GH_STATE__.hospitality||null),books:JSON.stringify(__GH_STATE__.companyFinance),sites:JSON.stringify(__GH_STATE__.customHubs),staff:JSON.stringify(__GH_STATE__.advanced?.facilities||null),contracts:JSON.stringify(__GH_STATE__.advanced?.labor?.employmentContracts||null)}));
   async function open(tab){await page.evaluate(tab=>__AUDIT__.openDrawer('hospitality',{company:'hospitality',tab}),tab);}
   async function review(name){const btn=page.locator(`[data-gh-action="hospitality-${name}"]`).first();await btn.click();await page.locator('.ui-confirm[open]').waitFor();return btn;}
   async function finish(){await page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__&&!document.querySelector('.ui-confirm[open]')&&![...document.querySelectorAll('[data-gh-action^="hospitality-"]')].some(b=>b.dataset.busy));}
@@ -26,9 +26,16 @@ const results=[];
   results.push({engine:engine.name(),case:'one native ACK publishes creation, payment, contract and notice together'});
   const beforeFailure=await snap();await page.evaluate(()=>{__DIFF_VAULT__.mode='commit-nack';__DIFF_VAULT__.attempts=[];});await accept('accelerate');assert.deepEqual(await snap(),beforeFailure);assert.equal(await page.evaluate(()=>__DIFF_VAULT__.attempts.length),1);
   results.push({engine:engine.name(),case:'native refusal restores accelerated construction and books without a second save'});
-  await page.evaluate(()=>{__DIFF_VAULT__.mode='ok';__DIFF_VAULT__.attempts=[];});await accept('accelerate');assert.equal(await page.evaluate(()=>GH_HOSPITALITY_CORE.read(__GH_STATE__).properties[0].status),'operating');assert.equal(await page.evaluate(()=>__DIFF_VAULT__.attempts.length),1);
-  await page.evaluate(()=>{__DIFF_VAULT__.attempts=[];});await accept('hire');assert.equal(await page.evaluate(()=>GH_HOSPITALITY_CORE.summary(__GH_STATE__).properties[0].staffing.coverage),1);assert.equal(await page.evaluate(()=>__DIFF_VAULT__.attempts.length),1);
-  results.push({engine:engine.name(),case:'acceleration finishes the actual building and hiring uses one saved command'});
+  // Review round 4 (a reader: the browser press of «استكمال فريق» was no longer covered): the opening's own hire is made to
+  // fail here (it is then undone and the property opens unstaffed, as build689 proves), so the button has a team to hire.
+  await page.evaluate(()=>{__DIFF_VAULT__.mode='ok';__DIFF_VAULT__.attempts=[];const hr=GH_HR_CORE,original=hr.execute;window.__QA_HR_EXECUTE__=original;hr.execute=(ctx,cmd,p)=>{if(cmd==='hire'&&String(p?.source||'').includes('تعيين آلي'))throw new Error('qa-opening-hire-down');return original(ctx,cmd,p);};});
+  await accept('accelerate');await page.evaluate(()=>{GH_HR_CORE.execute=window.__QA_HR_EXECUTE__;delete window.__QA_HR_EXECUTE__;});
+  assert.equal(await page.evaluate(()=>GH_HOSPITALITY_CORE.read(__GH_STATE__).properties[0].status),'operating');assert.equal(await page.evaluate(()=>__DIFF_VAULT__.attempts.length),1);
+  assert.ok(await page.evaluate(()=>GH_HOSPITALITY_CORE.summary(__GH_STATE__).properties[0].staffing.coverage<1),'the failed opening hire left the property unstaffed');
+  await open('properties');assert.equal(await page.locator('[data-gh-action="hospitality-hire"]').first().isDisabled(),false,'the button has a team to hire');
+  const beforeHireCancel=await snap();await review('hire');await page.locator('.ui-confirm [data-confirm=cancel]').click();await finish();assert.deepEqual(await snap(),beforeHireCancel,'cancelling the hire changes nothing');
+  await page.evaluate(()=>{__DIFF_VAULT__.attempts=[];});await accept('hire');assert.equal(await page.evaluate(()=>GH_HOSPITALITY_CORE.summary(__GH_STATE__).properties[0].staffing.coverage),1,'the press staffs it');assert.equal(await page.evaluate(()=>__DIFF_VAULT__.attempts.length),1,'with one saved command');
+  results.push({engine:engine.name(),case:'acceleration finishes the actual building; the hire button staffs it with one saved command'});
   await open('reservations');await page.fill('#hospCustomer','شركة حجز المتصفح');await page.fill('#hospRooms','3');await page.fill('#hospArrival','2026-01-21');await page.fill('#hospDeparture','2026-01-24');await accept('reserve');
   assert.equal(await page.evaluate(()=>GH_HOSPITALITY_CORE.read(__GH_STATE__).bookings.length),1);
   // This gate follows the player's own booking through the close; the company autopilot, which accepts the market's

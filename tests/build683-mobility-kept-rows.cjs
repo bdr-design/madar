@@ -23,8 +23,9 @@ const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
   for(const [index,line] of lines.entries()){
     for(const name of ['vehicle','driver']){
       const write=new RegExp(`\\bdelete ${name}\\.[A-Za-z]+|\\b${name}\\.[A-Za-z]+(?:\\+\\+|--|\\s*[-+*/]?=(?!=))`).exec(line);if(!write)continue;writes++;
-      const kept=line.indexOf(`keepRow(${name})`);
-      assert.ok(kept>=0&&kept<write.index,`mobility-core.js:${index+1} edits a ${name} in place before keeping it: ${line.slice(Math.max(0,write.index-40),write.index+60)}`);
+      // Build 692 (W2): the three edits that keep the dispatch pools up to date keep the row as keepRow(row,true).
+      const kept=[`keepRow(${name})`,`keepRow(${name},true)`].map(form=>line.indexOf(form)).filter(at=>at>=0).reduce((a,b)=>Math.min(a,b),Infinity),found=kept!==Infinity;
+      assert.ok(found&&kept<write.index,`mobility-core.js:${index+1} edits a ${name} in place before keeping it: ${line.slice(Math.max(0,write.index-40),write.index+60)}`);
     }
   }
   assert.ok(writes>=11,`the in-place edits of vehicles and drivers, a deleted field among them, are found (${writes})`);

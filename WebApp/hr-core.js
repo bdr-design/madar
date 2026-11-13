@@ -112,7 +112,28 @@
   }
   // A transient index belongs to one snapshot/reconciliation only. Never keep
   // it across a vehicle transfer, sale, delivery, rollback or state replacement.
-  function mobilityCenterCounts(state){const counts=new Map();(state.mobility?.vehicles||[]).forEach(vehicle=>{const center=vehicle?.centerId;if(center===center)counts.set(center,(counts.get(center)||0)+1);});return counts;}
+  // Plan batch 1 (W1): the counts are kept for the vehicles array they were read from while its length holds. A car's
+  // centre is set when it is bought and never edited in place; a purchase pushes (the length changes), a sale or a
+  // rollback replaces the array. The only in-place edit is the legacy migration that gives a car with no centre 'RUH':
+  // an array holding such a car is never kept, so it cannot go stale. Every simulation slice read the 30,000 cars
+  // twice (its request and its staleness check); it now reads them when they change. Callers only read the map.
+  // Review (a reader): a publish keeps the live vehicles array and rewrites its rows (a sale and a purchase at the same
+  // length read the former counts); every replacement of the state drops the kept counts.
+  let mobilityCountCache=new WeakMap(),mobilityCountObserved=false;
+  function observeMobilityCountReplacement(){if(mobilityCountObserved)return;const tx=globalThis.GH_TRANSACTION_CORE;if(typeof tx?.registerStateReplacementObserver!=='function')return;tx.registerStateReplacementObserver(()=>{mobilityCountCache=new WeakMap();});mobilityCountObserved=true;}
+  // An array holding a car with no centre, or a falsy one ('' , 0, NaN: the migration gives each 'RUH' in place), is not kept.
+  // Review round 7 (a reader: a transaction that ran the migration and then rolled back put the cars' missing centres
+  // back in place, with no replacement, while the counts kept them under RUH): counts are kept and read only once the
+  // migration is part of the state (routeSchemaVersion 3, restored with the rows by the same rollback).
+  function mobilityCenterCounts(state){observeMobilityCountReplacement();const vehicles=state.mobility?.vehicles||[],settled=state.mobility?.routeSchemaVersion===3;const kept=settled&&Array.isArray(vehicles)?mobilityCountCache.get(vehicles):null;if(kept&&kept.length===vehicles.length)return kept.counts;
+    const counts=new Map();let unplaced=false;vehicles.forEach(vehicle=>{const center=vehicle?.centerId;if(!center)unplaced=true;if(center===center)counts.set(center,(counts.get(center)||0)+1);});
+    // Review round 10 (the owner: «سوي المناسب»): counts kept inside a transaction leave with it when it rolls back (a
+    // scoped rollback puts rows back in place with no replacement event); between the steps of a staged transaction no undo
+    // can be registered, so nothing is kept there (the counts are still read; the step's own read keeps them).
+    const tx=globalThis.GH_TRANSACTION_CORE,active=tx?.isActive?.()===true,between=!active&&tx?.isStaged?.(state)===true;
+    if(settled&&Array.isArray(vehicles)&&!unplaced&&!between){const cache=mobilityCountCache,entry={length:vehicles.length,counts};
+      if(active&&typeof tx.registerUndo==='function')tx.registerUndo(()=>{if(cache.get(vehicles)===entry)cache.delete(vehicles);});cache.set(vehicles,entry);}
+    return counts;}
   function facilityGaps(state,ctx,company='all'){
     const facilities=(ctx?.getDynamicFacilities?.(state)||[...(state.globalBases||[]),...(state.customHubs||[])]).filter(f=>f&&f.owned===true),rows=[];let mobilityCounts=null;state.advanced=state.advanced||{};state.advanced.facilities=state.advanced.facilities||{};
     // A facility still under construction (a hotel or resort before completion) has no operating team to staff yet: HR
@@ -202,7 +223,13 @@
   // how many crews quit and how fast they are replaced (GH_REALISM updateCrews).
   const SALARY_LEVELS=Object.freeze([.9,.95,1,1.05,1.1,1.15,1.2,1.3]);
   function setSalaryIndex(state,p){const hr=ensure(state),company=salaryCompany(state,p.company),index=Number(p.index);if(!SALARY_LEVELS.includes(index))throw new Error('salary-index-invalid');const policy=hr.salaryPolicy[company],day=Math.floor((Number(state.simSeconds)||0)/86400),before=policy.salaryIndex;policy.lastRaisePct=Math.round((index/before-1)*1e4)/100;policy.lastRaiseDay=day;policy.salaryIndex=index;policy.history.unshift({day,from:before,to:index});policy.history=policy.history.slice(0,24);return {company,index,from:before};}
-  function execute(ctx,cmd,p={}){const state=ctx.state||ctx;if(cmd==='tick-day')return tickDay(state,p.day);if(cmd==='set-salary-index')return setSalaryIndex(state,p);if(cmd==='appoint-official-manager')return appointOfficialManager(state,p);if(cmd==='appoint-all-official-managers')return appointAllOfficialManagers(state,p);if(cmd==='dismiss-official-manager')return dismissOfficialManager(state,p);if(cmd==='hire')return executeHiring(state,ctx,p.company||'all',p.source||'HR Domain Command',p.scope||'all');if(cmd==='hire-executive')throw new Error('legacy-executives-retired');if(cmd==='requisition')return createRequisition(state,ctx,p.company||'all',p.source||'domain');throw new Error(`Unknown HR command: ${cmd}`);}
-  const API={VERSION,SALARY_LEVELS,managerSkill,get MANAGER_COMPANIES(){return managerCompanies();},OFFICIAL_MANAGER_CANDIDATES,MANAGER_CANDIDATE_POOL,ensure,snapshot,companySnapshots,health,createRequisition,executeHiring,reconcileFacilityStaffing,migrateFacilityStaffing,officialManager,officialManagerCandidates,appointOfficialManager,appointAllOfficialManagers,dismissOfficialManager,facilityNeed,mobilityCenterCounts,companyOfFacility,tickDay,salaryMultiplier,salaryHistory,execute};
+  // Plan batch 3 (the owner: «لاتخلي شي من الخطه نفذه بدقه»): a company's pay can follow the market. Market wages rise about
+  // 3% a year (realism economy.wageIndex) and a company paying below them loses crews faster. With the policy the
+  // autopilot raises the company's pay level, never lowers it, to the first allowed level at or above the market wage
+  // (marketSalaryLevel), through set-salary-index as the player's button does. A policy of the autopilot.
+  function setSalaryFollowMarket(state,p){const hr=ensure(state),company=salaryCompany(state,p.company);if(p.enabled===true&&globalThis.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')===false)throw new Error('autopilot-locked');const policy=hr.salaryPolicy[company];if(!policy)throw new Error('salary-company-invalid');if(p.enabled===true)policy.followMarket=true;else delete policy.followMarket;return {company,enabled:p.enabled===true};}
+  function marketSalaryLevel(state,company){const wage=Number(state?.realism?.economy?.wageIndex)||1,current=salaryMultiplier(state,company),target=SALARY_LEVELS.find(level=>level>=wage-1e-9)||SALARY_LEVELS[SALARY_LEVELS.length-1];return target>current+1e-9?target:null;}
+  function execute(ctx,cmd,p={}){const state=ctx.state||ctx;if(cmd==='tick-day')return tickDay(state,p.day);if(cmd==='set-salary-index')return setSalaryIndex(state,p);if(cmd==='set-salary-follow-market')return setSalaryFollowMarket(state,p);if(cmd==='appoint-official-manager')return appointOfficialManager(state,p);if(cmd==='appoint-all-official-managers')return appointAllOfficialManagers(state,p);if(cmd==='dismiss-official-manager')return dismissOfficialManager(state,p);if(cmd==='hire')return executeHiring(state,ctx,p.company||'all',p.source||'HR Domain Command',p.scope||'all');if(cmd==='hire-executive')throw new Error('legacy-executives-retired');if(cmd==='requisition')return createRequisition(state,ctx,p.company||'all',p.source||'domain');throw new Error(`Unknown HR command: ${cmd}`);}
+  const API={VERSION,SALARY_LEVELS,marketSalaryLevel,managerSkill,get MANAGER_COMPANIES(){return managerCompanies();},OFFICIAL_MANAGER_CANDIDATES,MANAGER_CANDIDATE_POOL,ensure,snapshot,companySnapshots,health,createRequisition,executeHiring,reconcileFacilityStaffing,migrateFacilityStaffing,officialManager,officialManagerCandidates,appointOfficialManager,appointAllOfficialManagers,dismissOfficialManager,facilityNeed,mobilityCenterCounts,companyOfFacility,tickDay,salaryMultiplier,salaryHistory,execute};
   globalThis.GH_HR_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('hr',API);if(globalThis.window&&window!==globalThis)window.GH_HR_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

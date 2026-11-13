@@ -263,14 +263,20 @@
   // only. Every edit in place of a vehicle or a driver in this file is preceded by keepRow; a rolled-back slice comes
   // back exact (tests/build358-row-snapshot-rollback.cjs, tests/build683-mobility-kept-rows.cjs).
   const OWNER_KEPT_ROWS=Object.freeze(['vehicles','drivers']);
-  function keepRow(row){
+  // Plan batch 1 (W2): the dispatch pools below hold each centre's available vehicles and online drivers between steps.
+  // They are kept up to date by the three edits that move a row in or out of them (a trip assigned, completed or
+  // released: keepRow(row,true)); any other edit of a vehicle or a driver (keepRow(row)) and any rollback of kept rows
+  // makes every pool stale, and the next dispatch builds it again from the rows.
+  // (The count lives on the function, so a copy of keepRow lifted alone still runs.)
+  function keepRow(row,poolKept=false){
+    if(!poolKept)keepRow.epoch=(keepRow.epoch||0)+1;
     const tx=globalThis.GH_TRANSACTION_CORE;
     if(!row||typeof row!=='object'||typeof tx?.isActive!=='function'||!tx.isActive()||typeof tx.registerUndo!=='function'||typeof tx.transactionMemoGet!=='function'||typeof tx.transactionMemoSet!=='function')return row;
     let kept=tx.transactionMemoGet('mobility-kept-rows');
     if(!kept){
       kept=new Map();tx.transactionMemoSet('mobility-kept-rows',kept);const rows=kept;
       // The members as they were: the same keys in the same order with the same values (as a row-level snapshot restores).
-      tx.registerUndo(()=>{for(const [ref,before] of rows){const keys=before.keys,values=before.values,current=Object.keys(ref);let same=current.length===keys.length;if(same)for(let i=0;i<keys.length;i++)if(current[i]!==keys[i]){same=false;break;}if(same){for(const key of keys)if(ref[key]!==values[key])ref[key]=values[key];}else{for(const key of current)delete ref[key];for(const key of keys)ref[key]=values[key];}}rows.clear();},()=>rows.clear());
+      tx.registerUndo(()=>{keepRow.epoch=(keepRow.epoch||0)+1;for(const [ref,before] of rows){const keys=before.keys,values=before.values,current=Object.keys(ref);let same=current.length===keys.length;if(same)for(let i=0;i<keys.length;i++)if(current[i]!==keys[i]){same=false;break;}if(same){for(const key of keys)if(ref[key]!==values[key])ref[key]=values[key];}else{for(const key of current)delete ref[key];for(const key of keys)ref[key]=values[key];}}rows.clear();},()=>rows.clear());
     }
     if(!kept.has(row))kept.set(row,{keys:Object.keys(row),values:{...row}});
     return row;
@@ -537,7 +543,116 @@
     }
     return rowsByCenter;
   }
+  // Plan batch 1 (W2; «+ يوم» at 30,000 cars spent 2.1 s filtering each centre's fleet and 0.95 s in findIndex, desktop):
+  // a centre's pool keeps its available vehicles (all, by class, and by zone within each) and its online drivers (by id,
+  // by asset, the shared ones), each list in the order of the centre's rows, as the scan built them on every call. A call
+  // reads them with its own pointers (what it took or passed over is skipped as the scan's splice dropped it) and moves
+  // the vehicles and drivers it assigned out at the end. A centre whose rows hold the same object twice keeps no pool:
+  // dispatchScan, the former code, serves it.
+  const dispatchPools=new WeakMap();
+  function poolSlot(list,pos,place){let lo=0,hi=list.length;while(lo<hi){const mid=(lo+hi)>>1;if(place.get(list[mid])<pos)lo=mid+1;else hi=mid;}return lo;}
+  function poolPut(list,row,place){list.splice(poolSlot(list,place.get(row),place),0,row);}
+  function poolCut(list,row,place){const at=poolSlot(list,place.get(row),place);if(list[at]===row)list.splice(at,1);}
+  function poolQueue(){return {items:[],zones:new Map()};}
+  // Review round 4 (a reader: a rebuild cost 4.5 times a scan at 30,000 cars, each row placed by a binary search and a
+  // splice): a build adds the rows in their own order, so `append` puts each at the end of its lists directly.
+  function poolAddVehicle(pool,vehicle,append=false){
+    const cls=vehicle.assetClass,zone=vehicle.zoneId;pool.vehicleKeys.set(vehicle,{cls,zone});pool.inPool.add(vehicle);
+    let byClass=pool.byClass.get(cls);if(!byClass){byClass=poolQueue();pool.byClass.set(cls,byClass);}
+    for(const queue of [pool.all,byClass]){if(append)queue.items.push(vehicle);else poolPut(queue.items,vehicle,pool.vehiclePos);let bucket=queue.zones.get(zone);if(!bucket){bucket=[];queue.zones.set(zone,bucket);}if(append)bucket.push(vehicle);else poolPut(bucket,vehicle,pool.vehiclePos);}
+  }
+  function poolRemoveVehicle(pool,vehicle){
+    const keys=pool.vehicleKeys.get(vehicle);if(!keys)return;pool.vehicleKeys.delete(vehicle);pool.inPool.delete(vehicle);
+    for(const queue of [pool.all,pool.byClass.get(keys.cls)])if(queue){poolCut(queue.items,vehicle,pool.vehiclePos);const bucket=queue.zones.get(keys.zone);if(bucket)poolCut(bucket,vehicle,pool.vehiclePos);}
+  }
+  // The scan's maps were built from the online drivers in order: the last driver of an id (or an asset) wins.
+  function poolLatest(pool,key,value,driver){const map=pool[key],held=map.get(value);if(!held||pool.driverPos.get(held)<pool.driverPos.get(driver))map.set(value,driver);}
+  function poolAddDriver(pool,driver,append=false){
+    const assetId=driver.assetId,legacy=!assetId&&!pool.dedicated.has(driver.id);pool.driverKeys.set(driver,{id:driver.id,assetId,legacy});pool.onlineSet.add(driver);
+    pool.idCount.set(driver.id,(pool.idCount.get(driver.id)||0)+1);if(assetId)pool.assetCount.set(assetId,(pool.assetCount.get(assetId)||0)+1);
+    if(append){pool.online.push(driver);pool.driverById.set(driver.id,driver);if(assetId)pool.driverByAsset.set(assetId,driver);if(legacy)pool.legacy.push(driver);return;}
+    poolPut(pool.online,driver,pool.driverPos);poolLatest(pool,'driverById',driver.id,driver);if(assetId)poolLatest(pool,'driverByAsset',assetId,driver);if(legacy)poolPut(pool.legacy,driver,pool.driverPos);
+  }
+  function poolRemoveDriver(pool,driver){
+    const keys=pool.driverKeys.get(driver);if(!keys)return;pool.driverKeys.delete(driver);pool.onlineSet.delete(driver);poolCut(pool.online,driver,pool.driverPos);if(keys.legacy)poolCut(pool.legacy,driver,pool.driverPos);
+    // Review (a reader measured the pools slower than the scan: every driver taken walked the centre's online drivers twice
+    // for another of its id or asset): the walk runs only while another online driver of that id or asset remains.
+    const left=(counts,value)=>{const n=(counts.get(value)||1)-1;if(n>0)counts.set(value,n);else counts.delete(value);return n;};
+    const reset=(key,value,remaining,match)=>{if(pool[key].get(value)!==driver)return;pool[key].delete(value);if(!remaining)return;for(let i=pool.online.length-1;i>=0;i--){const other=pool.online[i],kept=pool.driverKeys.get(other);if(match(kept)){pool[key].set(value,other);break;}}};
+    reset('driverById',keys.id,left(pool.idCount,keys.id),kept=>kept.id===keys.id);if(keys.assetId)reset('driverByAsset',keys.assetId,left(pool.assetCount,keys.assetId),kept=>kept.assetId===keys.assetId);
+  }
+  // Review (a reader: a state restored in place, as the recovery path does, writes the saved status into the same rows
+  // with no keepRow; the pools kept a car already on a trip, which took a second one): any replacement of the state
+  // drops every pool (the epoch), observed from the transaction owner once it is loaded.
+  // Review round 6 (a reader: every durable command publishes the state, so every press rebuilt every pool, 2.6 times a
+  // scan at 30,000 cars): a replacement no longer drops the pools; it makes each one checked against its rows before its
+  // next use (one pass: the same rows in the same places, the same ids, each row in or out of the pool as its status says,
+  // under the same class and zone, drivers under the same id, asset and kind). A pool that differs in anything is rebuilt.
+  // The check runs as the replacement ends (before any trip or slice touches the published rows), on the pools last used;
+  // a pool not checked then (another holder) is checked before its next use as a fallback.
+  // Review round 7 (a reader: the check ran on every durable command's publish, 2.3-3.8 ms at 30,000 cars, also for a
+  // command that never touched the mobility root): a replacement whose snapshot holds the same mobility object as its
+  // target restores nothing in mobility (restoreValue returns at target===snapshot), so it checks nothing and marks
+  // nothing; the pair is matched by a stack ('before' pushes, 'after' pops). A scoped rollback promoted to a full one
+  // restores mobility's rows after its 'after' (restoreEntry); those rows were changed through keepRow, whose undo moves
+  // the epoch and drops every pool, as before this round.
+  let poolReplacementObserved=false,poolReplaced=0,lastPoolHolder=null;const replacementTouches=[];
+  function revalidatePools(holder){for(const [centerId,pool] of [...holder.centers])if(!poolStillValid(holder.indexes,centerId,pool))holder.centers.delete(centerId);holder.replaced=poolReplaced;}
+  function observePoolReplacement(){if(poolReplacementObserved)return;const tx=globalThis.GH_TRANSACTION_CORE;if(typeof tx?.registerStateReplacementObserver!=='function')return;tx.registerStateReplacementObserver(event=>{if(event?.phase==='before'){replacementTouches.push(!(event.target&&event.snapshot&&event.target.mobility===event.snapshot.mobility));return;}if(replacementTouches.length&&replacementTouches.pop()===false)return;poolReplaced++;if(event?.ok!==false&&lastPoolHolder?.indexes)revalidatePools(lastPoolHolder);});poolReplacementObserved=true;}
+  function poolStillValid(indexes,centerId,pool){
+    if(!pool)return false;const vehicles=indexes.vehiclesByCenter.get(centerId)||[],drivers=indexes.driversByCenter.get(centerId)||[];
+    if(vehicles.length!==pool.vehicleIds.length||drivers.length!==pool.driverPos.size)return false;
+    for(let i=0;i<vehicles.length;i++){const v=vehicles[i];if(pool.vehiclePos.get(v)!==i||v.id!==pool.vehicleIds[i])return false;const available=v.status==='available';if(available!==pool.inPool.has(v))return false;if(available){const k=pool.vehicleKeys.get(v);if(k.cls!==v.assetClass||k.zone!==v.zoneId)return false;}}
+    for(let i=0;i<drivers.length;i++){const d=drivers[i];if(pool.driverPos.get(d)!==i)return false;const online=d.status==='online';if(online!==pool.onlineSet.has(d))return false;if(online){const k=pool.driverKeys.get(d);if(k.id!==d.id||k.assetId!==d.assetId||k.legacy!==(!d.assetId&&!pool.dedicated.has(d.id)))return false;}}
+    return true;
+  }
+  function poolHolder(indexes){
+    observePoolReplacement();const groups=indexes?.vehiclesByCenter;if(!groups)return null;let holder=dispatchPools.get(groups);
+    if(!holder||holder.epoch!==(keepRow.epoch||0)||holder.drivers!==indexes.driversByCenter||holder.dedicated!==indexes.dedicatedDriverIds){holder={epoch:keepRow.epoch||0,replaced:poolReplaced,drivers:indexes.driversByCenter,dedicated:indexes.dedicatedDriverIds,indexes,centers:new Map()};dispatchPools.set(groups,holder);}
+    else if(holder.replaced!==poolReplaced)revalidatePools(holder);
+    lastPoolHolder=holder;
+    return holder;
+  }
+  function dispatchPool(indexes,centerId){
+    const holder=poolHolder(indexes);if(!holder)return null;if(holder.centers.has(centerId))return holder.centers.get(centerId);
+    const pool={vehiclePos:new Map(),driverPos:new Map(),vehicleKeys:new Map(),driverKeys:new Map(),inPool:new Set(),onlineSet:new Set(),all:poolQueue(),byClass:new Map(),online:[],legacy:[],driverById:new Map(),driverByAsset:new Map(),idCount:new Map(),assetCount:new Map(),dedicated:indexes.dedicatedDriverIds};
+    let usable=true;const vehicles=indexes.vehiclesByCenter.get(centerId)||[],drivers=indexes.driversByCenter.get(centerId)||[];pool.vehicleIds=vehicles.map(vehicle=>vehicle.id);
+    // Review: two rows with one vehicle id (kept from older saves) both return to service when a trip of that id ends; the
+    // scan reads them afresh, a pool would keep the twin in its former zone. Such a centre is served by the scan.
+    const ids=new Set();vehicles.forEach((vehicle,index)=>{if(pool.vehiclePos.has(vehicle)||ids.has(vehicle.id))usable=false;else{pool.vehiclePos.set(vehicle,index);ids.add(vehicle.id);}});
+    drivers.forEach((driver,index)=>{if(pool.driverPos.has(driver))usable=false;else pool.driverPos.set(driver,index);});
+    if(usable){for(const vehicle of vehicles)if(vehicle.status==='available')poolAddVehicle(pool,vehicle,true);for(const driver of drivers)if(driver.status==='online')poolAddDriver(pool,driver,true);}
+    holder.centers.set(centerId,usable?pool:null);return usable?pool:null;
+  }
+  // A completed or released trip puts its vehicle and driver back (in their place); a row the pool does not know drops it.
+  function poolKnown(indexes,centerId){const holder=indexes?.vehiclesByCenter?dispatchPools.get(indexes.vehiclesByCenter):null;if(!holder||holder.epoch!==(keepRow.epoch||0)||holder.replaced!==poolReplaced||holder.drivers!==indexes.driversByCenter)return null;return {holder,pool:holder.centers.get(centerId)||null};}
+  // Review (a reader): a completed trip rewrites every row of its vehicle id, a twin already available in another centre
+  // included (its zone changes in place); a row already in the pool is put back under its current class and zone.
+  function poolVehicleBack(indexes,vehicle){const found=poolKnown(indexes,vehicle.centerId||'RUH');if(!found?.pool)return;if(!found.pool.vehiclePos.has(vehicle)){found.holder.centers.delete(vehicle.centerId||'RUH');return;}if(found.pool.inPool.has(vehicle)){const kept=found.pool.vehicleKeys.get(vehicle);if(vehicle.status==='available'&&kept&&kept.cls===vehicle.assetClass&&kept.zone===vehicle.zoneId)return;poolRemoveVehicle(found.pool,vehicle);}if(vehicle.status==='available')poolAddVehicle(found.pool,vehicle);}
+  function poolDriverBack(indexes,driver){const found=poolKnown(indexes,driver.centerId||'RUH');if(!found?.pool)return;if(!found.pool.driverPos.has(driver)){found.holder.centers.delete(driver.centerId||'RUH');return;}if(driver.status==='online'&&!found.pool.onlineSet.has(driver))poolAddDriver(found.pool,driver);}
   function dispatch(m,at,centerId,zones,indexes,queued){
+    if(!queued.length)return 0;
+    const pool=dispatchPool(indexes,centerId);if(!pool)return dispatchScan(m,at,centerId,zones,indexes,queued);
+    let assigned=0;const claimedVehicles=new Set(),claimedDrivers=new Set(),takenVehicles=[],takenDrivers=[],views=new Map();
+    const view=queue=>{let seen=views.get(queue);if(!seen){seen={queue,dropped:new Set(),tail:queue.items.length,zone:new Map()};views.set(queue,seen);}return seen;};
+    let legacyTop=pool.legacy.length;
+    const driverFor=vehicle=>{const fixed=pool.driverById.get(vehicle.driverId)||pool.driverByAsset.get(vehicle.id);if(fixed&&!claimedDrivers.has(fixed.id))return fixed;while(legacyTop>0){const fallback=pool.legacy[--legacyTop];if(!claimedDrivers.has(fallback.id))return fallback;}return null;};
+    const takeFrom=(queue,pickupZone)=>{if(!queue)return null;const seen=view(queue);
+      while(true){let vehicle=null;
+        const bucket=pickupZone===pickupZone?queue.zones.get(pickupZone):null;
+        if(bucket){let index=seen.zone.get(pickupZone)||0;while(index<bucket.length&&(seen.dropped.has(bucket[index])||claimedVehicles.has(bucket[index].id)))index++;seen.zone.set(pickupZone,index);if(index<bucket.length)vehicle=bucket[index];}
+        if(!vehicle){let tail=seen.tail;while(tail>0&&seen.dropped.has(queue.items[tail-1]))tail--;seen.tail=tail;if(!tail)return null;vehicle=queue.items[tail-1];}
+        seen.dropped.add(vehicle);if(claimedVehicles.has(vehicle.id))continue;const driver=driverFor(vehicle);if(!driver)continue;claimedVehicles.add(vehicle.id);claimedDrivers.add(driver.id);takenVehicles.push(vehicle);takenDrivers.push(driver);return {vehicle,driver};}};
+    const takeAssignment=(service,pickupZone)=>takeFrom(pool.byClass.get(service),pickupZone)||takeFrom(pool.all,pickupZone);
+    for(const request of queued){
+      const exclusiveKey=streetRouteKey(centerId,request.fromZone,request.toZone);if(indexes.activeRouteKeys.has(exclusiveKey))continue;
+      const assignment=takeAssignment(request.service,request.fromZone);if(!assignment)break;const {vehicle,driver}=assignment;
+      const from=zones.find(z=>z.id===request.fromZone)||zones[0],to=zones.find(z=>z.id===request.toZone)||from,key=exclusiveKey,cached=m.streetRoutes[key],verified=validStreetRoute(cached?.route),route=verified?clone(cached.route):[[...from.coords],[...from.coords]],pickup=45+Math.round(random(`pickup:${request.id}`,25,150)),roadSeconds=Math.max(180,Number(cached?.durationSeconds)||Math.round(request.distanceKm/30*3600)),duration=pickup+roadSeconds;request.status='active';request.acceptedAt=at;request.vehicleId=vehicle.id;request.driverId=driver.id;request.tripId=id(m,'TRIP');keepRow(vehicle,true);keepRow(driver,true);vehicle.status='moving';vehicle.tripId=request.tripId;vehicle.routeLocked=true;vehicle.routeVersion=3;driver.status='on-trip';driver.tripId=request.tripId;m.activeTrips.push({id:request.tripId,ownerCompanyId:m.ownerCompanyId,requestId:request.id,vehicleId:vehicle.id,driverId:driver.id,centerId,fromZone:request.fromZone,toZone:request.toZone,exclusiveRouteKey:key,acceptedAt:at,startedAt:at,routingReadyAt:verified?at:null,routingDeadlineAt:verified?null:at+ROUTE_WAIT_TIMEOUT_SECONDS,dueAt:verified?at+duration:null,duration,pickupSeconds:pickup,distanceKm:Number(cached?.distanceKm)||request.distanceKm,fare:request.fare,progress:0,route,routeLocked:true,routeVersion:3,routeVerified:verified,routeSource:verified?'OSRM · شبكة الشوارع الفعلية':'بانتظار مسار شارع موثّق'});indexes.activeRouteKeys.add(key);m.kpis.accepted++;assigned++;
+    }
+    for(const vehicle of takenVehicles)poolRemoveVehicle(pool,vehicle);for(const driver of takenDrivers)poolRemoveDriver(pool,driver);
+    if(assigned)noteMapStructureChange();return assigned;
+  }
+  function dispatchScan(m,at,centerId,zones,indexes,queued){
     let assigned=0;
     if(!queued.length)return 0;
     const available=(indexes.vehiclesByCenter.get(centerId)||[]).filter(v=>v.status==='available'),onlineDrivers=(indexes.driversByCenter.get(centerId)||[]).filter(d=>d.status==='online'),driverById=new Map(onlineDrivers.map(driver=>[driver.id,driver])),driverByAsset=new Map(onlineDrivers.filter(driver=>driver.assetId).map(driver=>[driver.assetId,driver])),legacyDrivers=onlineDrivers.filter(driver=>!driver.assetId&&!indexes.dedicatedDriverIds.has(driver.id)),byClass=new Map(),claimedVehicles=new Set(),claimedDrivers=new Set();
@@ -548,7 +663,7 @@
     for(const request of queued){
       const exclusiveKey=streetRouteKey(centerId,request.fromZone,request.toZone);if(indexes.activeRouteKeys.has(exclusiveKey))continue;
       const assignment=takeAssignment(request.service,request.fromZone);if(!assignment)break;const {vehicle,driver}=assignment;
-      const from=zones.find(z=>z.id===request.fromZone)||zones[0],to=zones.find(z=>z.id===request.toZone)||from,key=exclusiveKey,cached=m.streetRoutes[key],verified=validStreetRoute(cached?.route),route=verified?clone(cached.route):[[...from.coords],[...from.coords]],pickup=45+Math.round(random(`pickup:${request.id}`,25,150)),roadSeconds=Math.max(180,Number(cached?.durationSeconds)||Math.round(request.distanceKm/30*3600)),duration=pickup+roadSeconds;request.status='active';request.acceptedAt=at;request.vehicleId=vehicle.id;request.driverId=driver.id;request.tripId=id(m,'TRIP');keepRow(vehicle);keepRow(driver);vehicle.status='moving';vehicle.tripId=request.tripId;vehicle.routeLocked=true;vehicle.routeVersion=3;driver.status='on-trip';driver.tripId=request.tripId;m.activeTrips.push({id:request.tripId,ownerCompanyId:m.ownerCompanyId,requestId:request.id,vehicleId:vehicle.id,driverId:driver.id,centerId,fromZone:request.fromZone,toZone:request.toZone,exclusiveRouteKey:key,acceptedAt:at,startedAt:at,routingReadyAt:verified?at:null,routingDeadlineAt:verified?null:at+ROUTE_WAIT_TIMEOUT_SECONDS,dueAt:verified?at+duration:null,duration,pickupSeconds:pickup,distanceKm:Number(cached?.distanceKm)||request.distanceKm,fare:request.fare,progress:0,route,routeLocked:true,routeVersion:3,routeVerified:verified,routeSource:verified?'OSRM · شبكة الشوارع الفعلية':'بانتظار مسار شارع موثّق'});indexes.activeRouteKeys.add(key);m.kpis.accepted++;assigned++;
+      const from=zones.find(z=>z.id===request.fromZone)||zones[0],to=zones.find(z=>z.id===request.toZone)||from,key=exclusiveKey,cached=m.streetRoutes[key],verified=validStreetRoute(cached?.route),route=verified?clone(cached.route):[[...from.coords],[...from.coords]],pickup=45+Math.round(random(`pickup:${request.id}`,25,150)),roadSeconds=Math.max(180,Number(cached?.durationSeconds)||Math.round(request.distanceKm/30*3600)),duration=pickup+roadSeconds;request.status='active';request.acceptedAt=at;request.vehicleId=vehicle.id;request.driverId=driver.id;request.tripId=id(m,'TRIP');keepRow(vehicle,true);keepRow(driver,true);vehicle.status='moving';vehicle.tripId=request.tripId;vehicle.routeLocked=true;vehicle.routeVersion=3;driver.status='on-trip';driver.tripId=request.tripId;m.activeTrips.push({id:request.tripId,ownerCompanyId:m.ownerCompanyId,requestId:request.id,vehicleId:vehicle.id,driverId:driver.id,centerId,fromZone:request.fromZone,toZone:request.toZone,exclusiveRouteKey:key,acceptedAt:at,startedAt:at,routingReadyAt:verified?at:null,routingDeadlineAt:verified?null:at+ROUTE_WAIT_TIMEOUT_SECONDS,dueAt:verified?at+duration:null,duration,pickupSeconds:pickup,distanceKm:Number(cached?.distanceKm)||request.distanceKm,fare:request.fare,progress:0,route,routeLocked:true,routeVersion:3,routeVerified:verified,routeSource:verified?'OSRM · شبكة الشوارع الفعلية':'بانتظار مسار شارع موثّق'});indexes.activeRouteKeys.add(key);m.kpis.accepted++;assigned++;
     }
     if(assigned)noteMapStructureChange();return assigned;
   }
@@ -563,8 +678,8 @@
     for(const trip of done){if(trip.ownerCompanyId!==company)throw new Error(`mobility-trip-owner-conflict:${trip.id}`);const request=requestIndex.get(trip.requestId),driverPay=trip.fare*.10,platform=trip.fare-driverPay,cid=trip.centerId||'RUH';if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));if(request){request.status='completed';request.completedAt=trip.dueAt;}gross+=trip.fare;payout+=driverPay;const pc=perCenter[cid]||(perCenter[cid]={completed:0,gross:0,payout:0});pc.completed++;pc.gross+=trip.fare;pc.payout+=driverPay;const day=tripDayRow(m,Math.floor(Number(trip.dueAt)/86400),cid);day.completed++;day.grossBookings+=trip.fare;day.driverPayouts+=driverPay;day.platformRevenue+=platform;day.distanceKm+=Number(trip.distanceKm)||0;}
     indexes=indexes||simulationIndexes(m);
     const vehiclesById=resolveTripRows(indexes,'vehiclesById',m.vehicles,vehicleTrips),driversById=resolveTripRows(indexes,'driversById',m.drivers,driverTrips);
-    for(const [vehicleId,trip] of vehicleTrips)for(const vehicle of vehiclesById.get(vehicleId)||[]){keepRow(vehicle);vehicle.status='available';vehicle.zoneId=trip.toZone;vehicle.tripId=null;vehicle.totalTrips++;vehicle.totalKm+=trip.distanceKm;vehicle.battery=Math.max(18,vehicle.battery-trip.distanceKm*.42);if(vehicle.battery<30)vehicle.battery=100;}
-    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){keepRow(driver);driver.status='online';driver.zoneId=trip.toZone;driver.tripId=null;}
+    for(const [vehicleId,trip] of vehicleTrips)for(const vehicle of vehiclesById.get(vehicleId)||[]){keepRow(vehicle,true);vehicle.status='available';vehicle.zoneId=trip.toZone;vehicle.tripId=null;vehicle.totalTrips++;vehicle.totalKm+=trip.distanceKm;vehicle.battery=Math.max(18,vehicle.battery-trip.distanceKm*.42);if(vehicle.battery<30)vehicle.battery=100;poolVehicleBack(indexes,vehicle);}
+    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){keepRow(driver,true);driver.status='online';driver.zoneId=trip.toZone;driver.tripId=null;poolDriverBack(indexes,driver);}
     m.activeTrips=open;pruneRequests(m);closeTripDays(m,at);
     const operatingCost=payout+gross*.16,profit=gross-operatingCost,money={[company]:profit},revenue={[company]:gross},costs={[company]:operatingCost},count={[company]:done.length};m.kpis.completed+=done.length;m.kpis.grossBookings+=gross;m.kpis.driverPayouts+=payout;m.kpis.platformRevenue+=profit;
     for(const cid of Object.keys(perCenter)){const pc=perCenter[cid],centerOpCost=pc.payout+pc.gross*.16,centerProfit=pc.gross-centerOpCost,ck=centerKpis(m,cid);ck.completed+=pc.completed;ck.grossBookings+=pc.gross;ck.driverPayouts+=pc.payout;ck.platformRevenue+=centerProfit;}
@@ -576,8 +691,8 @@
     for(const trip of expired){if(indexes)indexes.activeRouteKeys.delete(streetRouteKey(trip.centerId,trip.fromZone,trip.toZone));const request=requests.get(trip.requestId),reason='تعذر تثبيت مسار شارع خلال 15 دقيقة';if(request){request.status='cancelled';request.cancelledAt=at;request.cancelReason=reason;}m.kpis.cancelled++;tripDayRow(m,Math.floor(at/86400),trip.centerId||'RUH').cancelled++;m.events.unshift({id:id(m,'MOB-EV'),at,type:'ROUTE_TIMEOUT_RELEASED',ownerCompanyId:m.ownerCompanyId||'mobility',tripId:trip.id,vehicleId:trip.vehicleId,driverId:trip.driverId,centerId:trip.centerId});}
     indexes=indexes||simulationIndexes(m);
     const vehiclesById=resolveTripRows(indexes,'vehiclesById',m.vehicles,vehicleTrips),driversById=resolveTripRows(indexes,'driversById',m.drivers,driverTrips);
-    for(const [vehicleId,trip] of vehicleTrips)for(const vehicle of vehiclesById.get(vehicleId)||[]){keepRow(vehicle);vehicle.status='available';vehicle.zoneId=trip.fromZone||vehicle.zoneId;vehicle.tripId=null;}
-    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){keepRow(driver);driver.status='online';driver.zoneId=trip.fromZone||driver.zoneId;driver.tripId=null;}
+    for(const [vehicleId,trip] of vehicleTrips)for(const vehicle of vehiclesById.get(vehicleId)||[]){keepRow(vehicle,true);vehicle.status='available';vehicle.zoneId=trip.fromZone||vehicle.zoneId;vehicle.tripId=null;poolVehicleBack(indexes,vehicle);}
+    for(const [driverId,trip] of driverTrips)for(const driver of driversById.get(driverId)||[]){keepRow(driver,true);driver.status='online';driver.zoneId=trip.fromZone||driver.zoneId;driver.tripId=null;poolDriverBack(indexes,driver);}
     m.activeTrips=m.activeTrips.filter(trip=>!ids.has(trip.id));m.events=m.events.slice(0,600);noteMapStructureChange();return expired.length;
   }
   function advanceMobilityState(state,m,target,indexes=null){

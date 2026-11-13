@@ -66,7 +66,7 @@
     set(local){if(window.GH_EDITION==='release')return false;window.GH_LOCAL_ROADS=local===true;try{if(local===true)localStorage.setItem(ROAD_SOURCE_KEY,'device');else localStorage.removeItem(ROAD_SOURCE_KEY);}catch(_error){}return true;}
   });
   let hardResetInProgress=false,hardResetSettlement=Promise.resolve({committed:false});
-  let durableCommandInProgress=false;
+  let durableCommandInProgress=false,durableCommandAutomatic=false;
   let assetPurchaseHolds=0; // Build 373: asset orders being quoted; the simulation is suspended meanwhile (buyAsset).
   let diagnosticExportTail=Promise.resolve();window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__=false;
   let mapInteractionActive=false,lastMarkerFrameAt=0,lastMapStructureSignature='',visualResyncRequested=false;
@@ -403,12 +403,13 @@
     route.routingSource='شبكة GH البحرية · ممرات تقديرية وليست ملاحة فعلية';prepareRoute(route);return true;
   }
   function nearestTechnicalAirport(target,previous,destination,maxLegKm,excluded){
-    let best=null,bestScore=Infinity;const eligible=worldInfrastructureSpatialIndex('airport',false);
+    // Review round 6: the target's distance to the destination is the same for every airport (taken once).
+    let best=null,bestScore=Infinity;const eligible=worldInfrastructureSpatialIndex('airport',false),targetToDestination=haversine(target,destination);
     for(const index of eligible.majorIndices){
       const row=eligible.rows[index];if(excluded.has(row[0]))continue;
       const coords=[row[6],row[7]];
       if(haversine(previous,coords)>maxLegKm*.97)continue;
-      const score=haversine(target,coords)+Math.max(0,haversine(coords,destination)-haversine(target,destination))*.16;
+      const score=haversine(target,coords)+Math.max(0,haversine(coords,destination)-targetToDestination)*.16;
       if(score<bestScore){bestScore=score;best={entity:airportEntity(row),coords};}
     }
     return best;
@@ -1168,10 +1169,14 @@
   // waits for it to settle instead of being refused as concurrent. One still copying, validating or saving refuses it.
   // Callers wait for this first, then for staged work and any sliced save the settled command left running.
   async function durablePublicationSettled(){if(durableCommandInProgress&&window.__GH_DURABLE_COMMAND_CONTEXT__?.published===true)await durableCommandSettlement;}
-  async function runDurableStateCommand(name,apply,{afterCommit=null,silent=false,fleetMutation=null}={}){
-    await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
+  // Review round 9 (build571 under load: the player's «سداد الضريبة» met the automatic dispatch's command after the day's
+  // close and was refused, durable-transaction-in-progress): a player's command waits for an automatic one in flight (it
+  // ends on its own in about a second) instead of being refused; a player's own second press is still refused.
+  async function automaticDurableSettled(){for(let i=0;i<8&&durableCommandInProgress&&durableCommandAutomatic;i++){await durableCommandSettlement.catch(()=>null);await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();}}
+  async function runDurableStateCommand(name,apply,{afterCommit=null,silent=false,fleetMutation=null,systemActor=null}={}){
+    await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();if(!systemActor)await automaticDurableSettled();
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()){if(!silent)notice('الحفظ مشغول بعملية أخرى. لم يتغير أي أصل؛ أعد المحاولة بعد لحظات.');return false;}
-    durableCommandInProgress=true;
+    durableCommandInProgress=true;durableCommandAutomatic=!!systemActor;
     let draft=null,committed=false,settleDurableCommand=null,rootSessions=[],afterPublishTasks=[],fleetMutationSession=null,fleetMutationClient=null,fleetMutationSettled=false,staging=null,durableContext=null;
     durableCommandSettlement=new Promise(resolve=>{settleDurableCommand=resolve;});
     await fleetStepSettled();
@@ -1235,7 +1240,7 @@
       // before the draft was published in it (inheritVerified, routeRuntimeForState) left {draft:null} set, which refused
       // every authorized command and every sliced save until another durable command replaced it.
       const context=durableContext&&window.__GH_DURABLE_COMMAND_CONTEXT__===durableContext?durableContext:null;
-      if(context)delete window.__GH_DURABLE_COMMAND_CONTEXT__;durableCommandInProgress=false;
+      if(context)delete window.__GH_DURABLE_COMMAND_CONTEXT__;durableCommandInProgress=false;durableCommandAutomatic=false;
       // Build 372: the rows a command wrote reach the engine thread's replica now, at the end of the command (a fleet bought
       // in back-to-back commands, before any slice, used to reach it as one whole copy when play started; a later task found
       // the next command already running).
@@ -1315,10 +1320,10 @@
     if(domain&&typeof domain==='object'&&!Array.isArray(domain)){const request=domain;domain=request.domain;name=request.name;payload=request.payload||{};options={...request,...options};}
     domain=String(domain||'').trim();name=String(name||'').trim();if(!domain||!name)throw new Error('authorized-command-invalid');
     const authority=founderAuthorization(state);if(!authority.signature||!authority.mandate){openSignatureDialog?.({required:true});if(!options.silent)notice('اعتمد توقيعك المرئي أولًا. لم تُنفذ المعاملة.');throw new Error('active-visual-seal-required');}
-    await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();
+    await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();await automaticDurableSettled();
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked())throw new Error('durable-transaction-in-progress');
     const envelope=window.GH_AUTHORIZATION.buildActiveEnvelope(state,{domain,name,payload,principalId:FOUNDER_PRINCIPAL_ID,actor:{kind:'player',principalId:FOUNDER_PRINCIPAL_ID},idempotencyKey:options.idempotencyKey||authorizationIdempotencyKey(state,domain,name,payload)});
-    durableCommandInProgress=true;let committed=false,settle=null;durableCommandSettlement=new Promise(resolve=>{settle=resolve;});
+    durableCommandInProgress=true;durableCommandAutomatic=false;let committed=false,settle=null;durableCommandSettlement=new Promise(resolve=>{settle=resolve;});
     try{
       await fleetStepSettled();
       const livePreferences=captureLivePreferences();
@@ -1339,7 +1344,9 @@
     const authority=founderAuthorization(state);if(!authority.signature||!authority.mandate){openSignatureDialog?.({required:true});if(!options.silent)notice('اعتمد توقيعك المرئي أولًا. لم تُنفذ المعاملة.');return false;}
     const startedAtMs=Math.max(0,Number(options.traceStartedAtMs)||Date.now()),commandName=`authorized:${name}`;
     try{const result=await runDurableStateCommand(`authorized:${name}`,async context=>{
-      const dispatch=(domain,command,payload={},dispatchOptions={})=>authorizedDraftDispatch(context.state,domain,command,payload,dispatchOptions);
+      // Review round 8 (a reader: the automatic dispatch minted the founder's signed intent with no press): a composite run
+      // by the autopilot dispatches as the autopilot's system actor, under the founder's mandate as its other decisions do.
+      const dispatch=options.systemActor?(domain,command,payload={},dispatchOptions={})=>dispatchSystemCommand({...(dispatchOptions.context||{}),state:context.state},domain,command,payload,{...(dispatchOptions.commandOptions||{}),actor:options.systemActor}):(domain,command,payload={},dispatchOptions={})=>authorizedDraftDispatch(context.state,domain,command,payload,dispatchOptions);
       const recordAlert=(text,type='operation')=>window.GH_OPERATIONS_CORE.execute({state:context.state},'record-alert',{text,type});
       const run=()=>apply({...context,dispatch,recordAlert});
       return /^settle-all-(?:payables|cheques)(?::|$)/.test(String(name))&&window.GH_FINANCE_CORE?.withSettlementBatch?window.GH_FINANCE_CORE.withSettlementBatch(context.state,run):run();
@@ -1447,12 +1454,16 @@
   async function settleIssuedCheque(id){const navigationRevision=drawerNavigationRevision;
     const cheque=state.finance.cheques.find(row=>row.id===id);if(!cheque){notice('الشيك غير موجود.');return false;}
     const stayPanel=activeDrawerPanel,stayArg=activeDrawerArg,stayScroll=$('drawerBody')?.scrollTop||0;let result;
-    try{const out=await runAuthorizedDomainCommand('finance','settle-cheque',{id},{successNotice:result=>result.settled===true?(result.reason==='already-settled'?`الشيك ${id} مصروف سابقًا؛ لم يُخصم المبلغ مرة أخرى.`:`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`):''});result=out.result;if(result.settled!==true)throw new Error(result.reason||'cheque-not-settled');}
-    catch(error){if(error?.durableCommitted!==true)notice(`تعذر صرف الشيك: ${String(error.message||error)}`);return false;}
+    // Review round 7: a cheque that bounces now (issued, not covered) is saved returned: the notice says it bounced and the
+    // drawer shows its new button; one already returned and still not covered is refused with nothing written.
+    try{const out=await runAuthorizedDomainCommand('finance','settle-cheque',{id},{silent:true,successNotice:result=>result.settled===true?(result.reason==='already-settled'?`الشيك ${id} مصروف سابقًا؛ لم يُخصم المبلغ مرة أخرى.`:`تم صرف الشيك ${id} وخصم ${fmtMoney(cheque.amount)} من الحساب الجاري لـ${companyFinanceName(cheque.company||'group')}.`):''});result=out.result;}
+    // One notice per press (silent: the generic «أُلغيت المعاملة» line is replaced by the cheque's own).
+    catch(error){const reason=String(error?.message||error);if(error?.durableCommitted!==true)notice(reason==='insufficient-funds-or-budget'?`لم يُصرف الشيك ${id}: الرصيد الجاري أو ميزانية الشهر لا يغطيه، فبقي مرتجعًا. يُقدَّم من جديد متى توفّر الرصيد.`:reason==='active-visual-seal-required'?'اعتمد توقيعك المرئي أولًا. لم تُنفذ المعاملة.':`تعذر صرف الشيك: ${window.GH_REASON_TEXT?window.GH_REASON_TEXT(error):reason}`);return false;}
+    if(result?.settled!==true)notice(result?.reason==='insufficient-funds-or-budget'?`لم يُصرف الشيك ${id}: الرصيد الجاري أو ميزانية الشهر لا يغطيه، فارتدّ وصار مرتجعًا. يُقدَّم من جديد متى توفّر الرصيد.`:`تعذر صرف الشيك: ${result?.reason||'cheque-not-settled'}`);
     // Finance validated the posting before durable ACK. A later presentation failure must never report payment failure.
     try{updateKpis();if(stayPanel){reopenDrawer(navigationRevision,stayPanel,stayArg,undefined,{scrollTop:stayScroll});}}
     catch(error){console.warn('Cheque committed; presentation refresh failed',error);}
-    return true;
+    return result?.settled===true;
   }
   async function spendCompany(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=await runAuthorizedDomainCommand('finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable});return !!out.result;}
   function spendCompanySystem(company,amount,note='مصروف تشغيلي',method='تحويل بنكي',taxable=true){if(!validMoney(Number(amount)))return false;const out=dispatchSystemCommand({state},'finance','spend',{company,amount,note,method:method==='نقدي'?'تحويل بنكي':method,taxable,closeOwned:true,obligation:true},{actor:'financial-close'});return !!out.result;}
@@ -2234,7 +2245,7 @@
     return summary;
   }
   async function runFleetDispatchStages(stages){let next;do{const deadline=performance.now()+FLEET_DISPATCH_FRAME_BUDGET_MS;do next=stages.next();while(!next.done&&performance.now()<deadline);if(!next.done)await yieldFleetPlanning();}while(!next.done);return next.value;}
-  async function applyFleetDispatchWorkerPlan({draft,dispatch,companyId,mode,assignments,routeTable}){
+  async function applyFleetDispatchWorkerPlan({draft,dispatch,companyId,mode,assignments,routeTable,transient=null}){
     const core=window.GH_FLEET_DISPATCH_CORE,store=draft?.fleet,size=window.GH_FLEET_DATA.size(draft);
     if(!core?.applyStages||!window.GH_FLEET_STORE?.isStore?.(store)||!Array.isArray(assignments)||!assignments.length||!routeTable||typeof routeTable!=='object')throw new Error('fleet-dispatch-worker-contract-invalid');
     const expectedRouteIds=[],expectedRouteSet=new Set(),projectionTrace={projectionYields:0,projectionMaxSliceMs:0};await cooperativeFleetLoop(assignments.length,index=>{const routeId=assignments[index]?.routeId;if(!expectedRouteSet.has(routeId)){expectedRouteSet.add(routeId);expectedRouteIds.push(routeId);}},projectionTrace);
@@ -2250,12 +2261,12 @@
       const exactReplica=typeof client.replicaSyncable==='function'?client.replicaSyncable(store):typeof client.replicaReady==='function'?client.replicaReady(store):size<FLEET_THREAD_EARLY_ROWS;
       if(size<FLEET_THREAD_EARLY_ROWS||exactReplica){const asked=client.dispatchPlan(store,{input,timeout:120000});if(asked)found=await asked;}
     }
-    if(found){if(!client.current(found,store))throw new Error('fleet-dispatch-worker-stale');plan=found.plan;}
+    if(found){if(!client.current(found,store))throw fleetTransientError('fleet-dispatch-worker-stale',transient);plan=found.plan;}
     else if(size<FLEET_THREAD_EARLY_ROWS){
       // Small development fleets retain the old no-Worker compatibility without exposing the production-scale path to
       // a main-thread scan.  Compute on a detached replica because the durable draft's real store already has a journal.
       const replica=window.GH_FLEET_STORE.importReplica(window.GH_FLEET_STORE.exportReplica(store));plan=core.compute({fleet:replica,simSeconds,routesRevision,customRoutes:input.registeredRoutes},input);
-    }else throw new Error(client?'fleet-dispatch-worker-not-ready':'fleet-dispatch-worker-unavailable');
+    }else throw client?fleetTransientError('fleet-dispatch-worker-not-ready',transient):new Error('fleet-dispatch-worker-unavailable');
     const workerMs=performance.now()-workerStarted;
     const assertContextCurrent=()=>{if(Number(draft.routesRevision)!==routesRevision||!Object.is(Number(draft.simSeconds)||0,simSeconds)||fleetDispatchRevision(fleetCatalogSpecsSnapshot(),'catalog')!==catalogRevision||fleetDispatchRevision(fleetDispatchOwnershipSnapshot(draft),'ownership')!==ownershipRevision)throw new Error('fleet-dispatch-worker-context-stale');};assertContextCurrent();
     const summary=validateFleetDispatchSummary(plan?.summary,assignments.length,expectedRouteIds),digest=value=>window.GH_AUTHORIZATION.digest(value),digestStarted=performance.now(),digestManifest=await runFleetDispatchStages(core.digestStages(plan,input,{chunkSize:32,digest})),digestMs=performance.now()-digestStarted;
@@ -2308,18 +2319,87 @@
       return seen.size===input.assets.length&&planned.size===input.assets.length;
     }catch(_error){return false;}
   }
-  async function fleetDispatchQuery(s,name,params){
+  // Review (a reader): the dispatch's own queries and plan raise the same transient answers (stale, not ready) as the
+  // automatic dispatch's probe, and the dispatch reports them as a plain refusal; each raise is counted so the automatic
+  // dispatch can tell a transient day from a refusal. Review round 7 (a reader: one counter for every caller let a
+  // player's query raised meanwhile turn a real refusal into a deferral): counted on the caller's own scope object only.
+  const fleetTransientError=(code,scope=null)=>{if(scope)scope.raised=(Number(scope.raised)||0)+1;return new Error(code);};
+  async function fleetDispatchQuery(s,name,params,transient=null){
     const client=fleetEngineThreadClient,store=s?.fleet,large=window.GH_FLEET_DATA.size(s)>=FLEET_THREAD_EARLY_ROWS;
     if(client&&!client.disabled&&typeof client.query==='function'&&window.GH_FLEET_STORE?.isStore?.(store)){
       const asked=client.query(store,{name,params,simSeconds:s.simSeconds});
-      if(asked){const found=await asked;if(found&&client.current(found,store))return found.result;if(large)throw new Error('fleet-dispatch-query-stale');}
-      else if(large)throw new Error('fleet-dispatch-worker-not-ready');
+      if(asked){const found=await asked;if(found&&client.current(found,store))return found.result;if(large)throw fleetTransientError('fleet-dispatch-query-stale',transient);}
+      else if(large)throw fleetTransientError('fleet-dispatch-worker-not-ready',transient);
     }else if(large)throw new Error('fleet-dispatch-worker-unavailable');
     return window.GH_FLEET_QUERY.run(name,s,window.GH_FLEET_DATA,{...params,legacyOwner:mode=>COMPANY_PLATFORM.ownerForLegacyAssetMode?.(mode)});
   }
   // The network planner (GH_AIR_SEA_NETWORK_CORE) plans at most 20,000 assets per call.
   const SHARED_DISPATCH_LIMIT=20000;
-  async function dispatchSharedInternationalNetwork(companyInput,navigationRevision=drawerNavigationRevision){
+  // Plan batch 2 (A1; the owner: «لاتخلي شي من الخطه نفذه بدقه»): a company's new aircraft, ships and trucks (a purchase)
+  // and those the engine stopped (an old shared route retired on arrival) waited idle, paying crews and insurance, until
+  // the player pressed the dispatch button. The company is marked (advanced.companies[id].autoDispatchPending) and, after
+  // the day's close, its idle assets of that mode depart through the very dispatch the button runs, at most
+  // AUTO_DISPATCH_LIMIT a company a day (one command each), so the work stays bounded; the button still dispatches all at
+  // once. The mark stays while assets are left and the last day placed some; it is cleared when none is left, when none
+  // could be placed (no route capacity: trying every day would cost the same work for nothing) or when none was found.
+  const AUTO_DISPATCH_LIMIT=2000;
+  function setAutoDispatchPending(target,companyId,pending){
+    // Review round 5: a mark is made only while the autopilot can act on it (a mark made while locked sent every idle asset,
+    // parked ones included, on the first close after unlocking); clearing is always allowed.
+    const id=String(companyId||'');if(!id||id==='group')return;if(pending&&window.GH_PROGRESSION_CORE?.unlocked?.(target,'tool:autopilot')===false)return;target.advanced=target.advanced||{};const companies=target.advanced.companies=target.advanced.companies&&typeof target.advanced.companies==='object'?target.advanced.companies:{};
+    if(pending){const row=companies[id]=companies[id]&&typeof companies[id]==='object'?companies[id]:{};row.autoDispatchPending=true;}
+    else if(companies[id]&&typeof companies[id]==='object')delete companies[id].autoDispatchPending;
+  }
+  let autoDispatchRunning=null,autoDispatchFailuresEpoch;const autoDispatchFailures=new Map(),AUTO_DISPATCH_FAILURE_LIMIT=3;
+  const autoDispatchNoneLeft=error=>/متاحة للمغادرة/.test(String(error?.message||error||''));
+  // Review (a reader): the fleet worker answers for one revision of the fleet; a slice that moved it (stale) or a worker
+  // still starting (not ready) is no refusal of the dispatch. Such a day keeps the mark and counts no failure.
+  const autoDispatchTransient=error=>/^fleet-dispatch-(query-stale|worker-not-ready|worker-stale)$/.test(String(error?.message||error||''));
+  // Review round 7 (a reader: a clear met an open simulation slice, failed, and the failure count was already gone, so the
+  // day's probe and dispatch ran again daily): the clear waits for the slice, reports whether it was written, and the
+  // count is dropped only once it was.
+  async function clearAutoDispatchPending(companyId,day,sameGame=()=>true){
+    try{await stagedStateSettled();if(!sameGame())return false;window.GH_TRANSACTION_CORE.execute(state,{label:'auto-dispatch:clear',scope:['advanced'],writeRoots:['advanced'],apply:()=>setAutoDispatchPending(state,companyId,false)});return true;}
+    catch(error){diag('AUTO_DISPATCH_SKIPPED',{companyId,day,error:`clear: ${String(error?.message||error).slice(0,160)}`},'info');return false;}
+  }
+  async function runAutoDispatch(day){
+    const authority=founderAuthorization(state);if(!authority.signature||!authority.mandate)return {skipped:'signature'};
+    // Review round 4 (a reader): a new game or a hard reset while a probe or the trucks' planning was awaited let the loop
+    // go on with the former game's companies; the run stops at the first await that finds another game.
+    const epoch=state.resetEpoch,sameGame=()=>state.resetEpoch===epoch&&!hardResetInProgress;if(autoDispatchFailuresEpoch!==epoch){autoDispatchFailures.clear();autoDispatchFailuresEpoch=epoch;}
+    const opened=new Set(state.openedCompanies||[]),marked=Object.entries(state.advanced?.companies||{}).filter(([,row])=>row?.autoDispatchPending===true).map(([id])=>id).sort(),companies=marked.filter(id=>opened.has(id)),done=[];
+    // Review round 7 (a reader: a closed company's mark queued an empty task every day and fired on reopening): cleared.
+    for(const companyId of marked)if(!opened.has(companyId)){autoDispatchFailures.delete(companyId);await clearAutoDispatchPending(companyId,day,sameGame);if(!sameGame())return {day,companies:done,stopped:'game-changed'};}
+    for(const companyId of companies){
+      if(!sameGame())return {day,companies:done,stopped:'game-changed'};
+      const modes=companyRouteModes(companyId),mode=modes.find(value=>['air','sea'].includes(value))||(modes.includes('road')?'road':null),transient={raised:0};let result=null,failure=null;
+      try{
+        // One idle asset is enough to know there is work (a limit of 1 on the fleet worker's pass): none, no command.
+        const probe=mode?await fleetDispatchQuery(state,'dispatchEligible',{companyId,type:mode,limit:1},transient):null;
+        if(!sameGame())return {day,companies:done,stopped:'game-changed'};
+        if(!mode||!probe?.indices?.length)result={departed:0,none:true};
+        else if(mode==='road')result=await dispatchExistingDistinctNetworkBatch(companyId,null,{auto:true,limit:AUTO_DISPATCH_LIMIT,transient});
+        else result=await dispatchSharedInternationalNetwork(companyId,-1,{auto:true,limit:AUTO_DISPATCH_LIMIT,transient});
+      }catch(error){if(autoDispatchNoneLeft(error))result={departed:0,none:true};else if(autoDispatchTransient(error)){diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:String(error?.message||error).slice(0,120)},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true});continue;}else failure=error;}
+      if(!sameGame())return {day,companies:done,stopped:'game-changed'};
+      if(result===false&&!failure&&transient.raised>0){diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:'fleet-transient-in-dispatch'},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true});continue;}
+      // Review round 7 (a verifier): the worker plan's stale answer (an older fleet revision) is transient as the query's is, and
+  // a transient answer to the second probe defers the day as the first's does.
+  // Review round 7 (a reader: the command catches its own errors and answers false, so «none left» raised inside it,
+      // an asset the player sent or sold after the probe, was counted a failure): a refusal is probed again, and with no
+      // idle asset left it is the day with nothing to send.
+      if(result===false&&!failure){try{const again=await fleetDispatchQuery(state,'dispatchEligible',{companyId,type:mode,limit:1},transient);if(!sameGame())return {day,companies:done,stopped:'game-changed'};if(!again?.indices?.length)result={departed:0,none:true};}catch(error){if(!sameGame())return {day,companies:done,stopped:'game-changed'};if(autoDispatchTransient(error)){diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:String(error?.message||error).slice(0,120)},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true});continue;}}}
+      if(result===false&&!failure)failure=new Error('auto-dispatch-not-run');
+      // Placed some: the dispatch kept or cleared the mark with its own commit. Found or placed none: cleared here. A
+      // dispatch that could not run (busy, refused) keeps it for the next day, at most AUTO_DISPATCH_FAILURE_LIMIT days.
+      if(failure){const count=(autoDispatchFailures.get(companyId)||0)+1;autoDispatchFailures.set(companyId,count);diag('AUTO_DISPATCH_SKIPPED',{companyId,day,attempt:count,error:String(failure?.message||failure).slice(0,200)},'info');if(count>=AUTO_DISPATCH_FAILURE_LIMIT&&await clearAutoDispatchPending(companyId,day,sameGame))autoDispatchFailures.delete(companyId);}
+      else{autoDispatchFailures.delete(companyId);if(!result?.departed)await clearAutoDispatchPending(companyId,day,sameGame);}
+      if(!sameGame())return {day,companies:done,stopped:'game-changed'};
+      done.push({companyId,departed:Number(result?.departed)||0,remaining:Number(result?.remaining)||0,failed:failure?String(failure?.message||failure).slice(0,120):null});
+    }
+    return {day,companies:done};
+  }
+  async function dispatchSharedInternationalNetwork(companyInput,navigationRevision=drawerNavigationRevision,options={}){
     const companyId=routeCompanyFromInput(companyInput),type=companyId?companyRouteModes(companyId).find(mode=>['air','sea'].includes(mode)):null;
     if(!companyId||!type)throw new Error('unsupported-shared-international-company');
     await yieldFleetPlanning();
@@ -2334,7 +2414,7 @@
       // assets that stay on their routes.
       // Build 372: that pass (fleet-query-core dispatchEligible) runs on the fleet engine's worker when its replica is
       // this store (the draft shares the live fleet; nothing is written to it before here), else here, as before.
-      const F=window.GH_FLEET_DATA,idlePass=await fleetDispatchQuery(draft,'dispatchEligible',{companyId,type,limit:SHARED_DISPATCH_LIMIT});
+      const F=window.GH_FLEET_DATA,idlePass=await fleetDispatchQuery(draft,'dispatchEligible',{companyId,type,limit:options.limit||SHARED_DISPATCH_LIMIT},options.transient||null);
       const eligibleUnsorted=await cooperativeFleetMap(idlePass.indices,index=>F.viewAt(draft,index),source.metrics),initialLoads=new Map(idlePass.initialLoads);let remaining=idlePass.remaining,remainingOnRoutes=idlePass.remainingOnRoutes;
       if(!eligibleUnsorted.length)throw new Error(`لا توجد ${label} متاحة للمغادرة`);
       source.metrics.assetsPlanned=eligibleUnsorted.length;
@@ -2418,15 +2498,16 @@
       // ordinary authorized commands; all fleet rows below are covered by one compact signed dispatch intent.
       const routeTable={},routeRefOf=(routeId,baseFacility)=>{const ref=`${routeId}@${baseFacility||''}`;if(!Object.prototype.hasOwnProperty.call(routeTable,ref))routeTable[ref]=routeMatchingFacilityFor(draft,routes,routeId,baseFacility);return ref;};
       const batch=await cooperativeFleetMap(assignments,({asset,route})=>({id:asset.id,routeId:route.id,baseFacility:asset.baseFacility,phase:'turnaround',routeRef:routeRefOf(route.id,asset.baseFacility)}),source.metrics);
-      const dispatchPlan=await applyFleetDispatchWorkerPlan({draft,dispatch,companyId,mode:type,assignments:batch,routeTable}),{summary}=dispatchPlan,{routeIds,moving,scheduled}=summary;
+      const dispatchPlan=await applyFleetDispatchWorkerPlan({draft,dispatch,companyId,mode:type,assignments:batch,routeTable,transient:options.transient||null}),{summary}=dispatchPlan,{routeIds,moving,scheduled}=summary;
       source.metrics.dispatchWorkerMs=dispatchPlan.workerMs;source.metrics.dispatchDigestMs=dispatchPlan.digestMs;source.metrics.dispatchReplayMs=dispatchPlan.applyMs;source.metrics.projectionYields=(Number(source.metrics.projectionYields)||0)+dispatchPlan.projectionYields;source.metrics.projectionMaxSliceMs=Math.max(Number(source.metrics.projectionMaxSliceMs)||0,dispatchPlan.projectionMaxSliceMs);
       if(summary.count!==plannedCount)throw new Error(`رفض محرك الأسطول جدولة مغادرة ${label}`);
       if(previousRouteIds.size){const inUse=new Set(summary.inUseRouteIds),registered=new Map((draft.customRoutes||[]).map(route=>[route.id,route])),retired=[...previousRouteIds];await cooperativeFleetLoop(retired.length,index=>{const routeId=retired[index];if(!inUse.has(routeId)&&registered.has(routeId)){window.GH_ROUTE_CORE.execute({state:draft},'delete',{id:routeId});delete routes[routeId];}},source.metrics);}
       source.metrics.routesUsed=routeIds.length;source.metrics.dispatchTotalMs=performance.now()-dispatchStarted;
-      window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`وُزعت ${countText(plannedCount,type==='air'?'aircraft':'ship')} في عملية واحدة على المسارات ${routeLabel} المشتركة (عددها ${fmtNumber(routeIds.length)})؛ ${moving} غادرت و${scheduled} مجدولة بفتحات زمنية، والمسارات الجديدة ${fmtNumber(createdRoutes.length)} فقط.${capacityRemaining?` بقيت ${capacityRemaining} دون مغادرة لعدم توافر سعة مسارات مناسبة؛ لم تتغير حالتها.`:''}${sharedBatches?` نفدت الوجهات المميزة ضمن المدى لبعض نقاط الانطلاق، فانضمت ${sharedBatches} دفعة إلى مسارات قائمة منها.`:''}`,type:'dispatch'});
+      if(options.auto)setAutoDispatchPending(draft,companyId,remaining>0&&plannedCount>0&&!capacityRemaining);
+      window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`${options.auto?'توزيع آلي بعد إقفال اليوم: ':''}وُزعت ${countText(plannedCount,type==='air'?'aircraft':'ship')} في عملية واحدة على المسارات ${routeLabel} المشتركة (عددها ${fmtNumber(routeIds.length)})؛ ${moving} غادرت و${scheduled} مجدولة بفتحات زمنية، والمسارات الجديدة ${fmtNumber(createdRoutes.length)} فقط.${capacityRemaining?` بقيت ${capacityRemaining} دون مغادرة لعدم توافر سعة مسارات مناسبة؛ لم تتغير حالتها.`:''}${sharedBatches?` نفدت الوجهات المميزة ضمن المدى لبعض نقاط الانطلاق، فانضمت ${sharedBatches} دفعة إلى مسارات قائمة منها.`:''}`,type:'dispatch'});
       return {departed:plannedCount,routeIds,moving,scheduled,createdRoutes:createdRoutes.length,sharedBatches,targetLoad,routeCapacity:capacity,remaining,capacityLimited:capacityRemaining>0,planner:source.snapshot()};
       }catch(error){error.assetDepartureTrace={...(error.assetDepartureTrace||{}),mode:type,attempts:source.metrics.assetsPlanned||0,blocked:source.metrics.assetsPlanned||0,planner:{...(error.assetDepartureTrace?.planner||{}),source:source.snapshot()}};throw error;}finally{routeWorker?.close();}
-    },{afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();reopenDrawer(navigationRevision,'routes',companyId);}});
+    },{silent:options.auto===true,systemActor:options.auto===true?(window.GH_COMPANY_AUTOPILOT?.ACTOR||'company-autopilot'):null,afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();reopenDrawer(navigationRevision,'routes',companyId);}});
   }
   async function dispatchInternationalNetwork(companyInput){
     const companyId=routeCompanyFromInput(companyInput),mode=companyId?companyRouteModes(companyId).find(value=>['air','sea'].includes(value)):null;
@@ -2456,13 +2537,15 @@
   function roadPlanningMarkup(){return roadPlanning?`<p class="road-plan-status" role="status" aria-live="polite">${esc(roadPlanning.text)}</p><button class="secondary-btn cancel-road-plan">إلغاء حساب المسارات</button>`:'';}
   function updateRoadPlanning(done,total){if(!roadPlanning)return;roadPlanning.text=`حساب المسارات ${done} / ${total} — لن تنطلق الشاحنات حتى اكتمال الدفعة`;document.querySelectorAll('.road-plan-status').forEach(node=>{node.textContent=roadPlanning.text;});}
   function roadAssetFingerprint(asset){return JSON.stringify([asset.id,asset.type,asset.baseFacility,asset.routeId,asset.routeSlot,asset.phase,asset.departureScheduled,asset.deliveryStatus,asset.salePending,asset.specs,asset.staffing]);}
-  async function dispatchExistingDistinctNetworkBatch(companyInput,assetId=null){
+  async function dispatchExistingDistinctNetworkBatch(companyInput,assetId=null,options={}){
+    // A1: the automatic dispatch after the close shows no notice of its own (its result is one alert line).
+    const say=options.auto?()=>{}:notice;
     const companyId=routeCompanyFromInput(companyInput,state,'road'),type='road';
-    if(!companyId){notice('اختر شركة لوجستية واحدة صالحة لهذا الأمر.');return false;}
-    if(roadPlanning){notice('حساب مسارات اللوجستيات جارٍ بالفعل.');return false;}
+    if(!companyId){say('اختر شركة لوجستية واحدة صالحة لهذا الأمر.');return false;}
+    if(roadPlanning){say('حساب مسارات اللوجستيات جارٍ بالفعل.');return false;}
     const roadStartedAtMs=Date.now();
-    let idlePass;try{idlePass=await fleetDispatchQuery(state,'dispatchEligible',{companyId,type,assetId,limit:assetId?1:SHARED_DISPATCH_LIMIT,includeModeRouteIds:true});}catch(error){notice(`تعذر تجهيز نسخة العامل المطابقة للأسطول: ${String(error.message||error)}`);return false;}
-    if(!idlePass.indices.length){notice('لا توجد شاحنات متاحة للمغادرة');return false;}
+    let idlePass;try{idlePass=await fleetDispatchQuery(state,'dispatchEligible',{companyId,type,assetId,limit:assetId?1:(options.limit||SHARED_DISPATCH_LIMIT),includeModeRouteIds:true},options.transient||null);}catch(error){say(`تعذر تجهيز نسخة العامل المطابقة للأسطول: ${String(error.message||error)}`);return false;}
+    if(!idlePass.indices.length){if(options.auto)return {departed:0,none:true,remaining:0};say('لا توجد شاحنات متاحة للمغادرة');return false;}
     const roadTrace={assetsRequested:idlePass.indices.length,routeCandidateCount:0,originCount:0,workerUsed:false,planningMs:0,plannedAssignments:0,plannedRoutes:0,createdRoutes:0,sharedAssignments:0,maxRouteLoad:0,maxRouteCapacity:0,projectionYields:0,projectionMaxSliceMs:0},preview=new Array(idlePass.indices.length),fingerprints=new Map();
     await cooperativeFleetLoop(idlePass.indices.length,index=>{const asset=window.GH_FLEET_DATA.viewAt(state,idlePass.indices[index]),plain=window.GH_FLEET_DATA.plain(asset);preview[index]=plain;fingerprints.set(plain.id,roadAssetFingerprint(plain));},roadTrace);
     const snapshot={resetEpoch:state.resetEpoch,customRoutes:state.customRoutes,determinism:state.determinism},runtime=routeRuntimeForState(state),initialLoadByRoute=new Map(idlePass.initialLoads),controller=new AbortController(),facilityRows=dynamicFacilitiesFor(state),facilityIndex=new Map(facilityRows.map(facility=>[facility.id,facility]));
@@ -2521,17 +2604,18 @@
         roadTrace.projectionMaxSliceMs=Math.max(roadTrace.projectionMaxSliceMs,performance.now()-verificationSliceStarted);
         const routeTable={},routeRefOf=(routeId,baseFacility)=>{const ref=`${routeId}@${baseFacility||''}`;if(!Object.prototype.hasOwnProperty.call(routeTable,ref))routeTable[ref]=routeMatchingFacilityFor(draft,routes,routeId,baseFacility);return ref;};
         await cooperativeFleetLoop(assignments.length,index=>{const row=assignments[index];row.routeRef=routeRefOf(row.routeId,row.baseFacility);},roadTrace);
-        const dispatchPlan=await applyFleetDispatchWorkerPlan({draft,dispatch,companyId,mode:type,assignments,routeTable}),{summary}=dispatchPlan,{scheduled,moving}=summary;
+        const dispatchPlan=await applyFleetDispatchWorkerPlan({draft,dispatch,companyId,mode:type,assignments,routeTable,transient:options.transient||null}),{summary}=dispatchPlan,{scheduled,moving}=summary;
         if(summary.count!==current.length)throw new Error('رفض محرك الأسطول جدولة مغادرة الشاحنات');
         if(previousRouteIds.size){
           const roadRoutesInUse=new Set(summary.inUseRouteIds),registered=new Map((draft.customRoutes||[]).map(route=>[route.id,route]));
           const retiredIds=[...previousRouteIds];await cooperativeFleetLoop(retiredIds.length,index=>{const routeId=retiredIds[index],retired=registered.get(routeId);if(retired?.automaticRoad===true&&!roadRoutesInUse.has(routeId)){window.GH_ROUTE_CORE.execute({state:draft},'delete',{id:routeId});delete routes[routeId];}},roadTrace);
         }
         const routeIds=[...assignedRouteIds],routeCount=routeIds.length;roadTrace.createdRoutes=createdRoutes.size;roadTrace.plannedRoutes=routeCount;roadTrace.assigned=current.length;roadTrace.scheduled=scheduled;roadTrace.dispatchWorkerMs=dispatchPlan.workerMs;roadTrace.dispatchDigestMs=dispatchPlan.digestMs;roadTrace.dispatchReplayMs=dispatchPlan.applyMs;roadTrace.projectionYields+=dispatchPlan.projectionYields;roadTrace.projectionMaxSliceMs=Math.max(roadTrace.projectionMaxSliceMs,dispatchPlan.projectionMaxSliceMs);roadTrace.dispatchApplyMs=performance.now()-routeApplyStarted;
-        window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`جُدولت ${countText(current.length,'truck')} في عملية واحدة على ${countText(routeCount,'route',undefined,true)} · ${companyFinanceName(companyId)}؛ أُنشئ تلقائيًا: ${countText(createdRoutes.size,'route')}.`,type:'dispatch'});return {departed:current.length,type,companyId,routeCount,routeIds,createdRoutes:createdRoutes.size,scheduled,moving,remaining:Number(idlePass.remaining)||0,planner:roadTrace};
+        if(options.auto)setAutoDispatchPending(draft,companyId,(Number(idlePass.remaining)||0)>0&&current.length>0);
+        window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`${options.auto?'توزيع آلي بعد إقفال اليوم: ':''}جُدولت ${countText(current.length,'truck')} في عملية واحدة على ${countText(routeCount,'route',undefined,true)} · ${companyFinanceName(companyId)}؛ أُنشئ تلقائيًا: ${countText(createdRoutes.size,'route')}.`,type:'dispatch'});return {departed:current.length,type,companyId,routeCount,routeIds,createdRoutes:createdRoutes.size,scheduled,moving,remaining:Number(idlePass.remaining)||0,planner:roadTrace};
         }catch(error){error.assetDepartureTrace={...(error.assetDepartureTrace||{}),mode:'road',attempts:preview.length,blocked:preview.length,planner:{...roadTrace}};throw error;}
-      },{afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();},traceStartedAtMs:roadStartedAtMs});
-    }catch(error){recordAssetDepartureTrace({source:'automatic-road-planning',attempts:preview.length,blocked:preview.length,modeCounts:{road:preview.length},reasonCounts:{[String(error?.code||error?.message||'road-route-plan-failed').slice(0,120)]:preview.length},error:String(error?.message||error).slice(0,240),planner:{...roadTrace},performance:departurePerformanceSnapshot(roadStartedAtMs,`authorized:bulk-shared-departure:${companyId}`),simSeconds:Number(state.simSeconds)||0});notice(String(error.message||error));return false;}
+      },{silent:options.auto===true,systemActor:options.auto===true?(window.GH_COMPANY_AUTOPILOT?.ACTOR||'company-autopilot'):null,afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();},traceStartedAtMs:roadStartedAtMs});
+    }catch(error){recordAssetDepartureTrace({source:'automatic-road-planning',attempts:preview.length,blocked:preview.length,modeCounts:{road:preview.length},reasonCounts:{[String(error?.code||error?.message||'road-route-plan-failed').slice(0,120)]:preview.length},error:String(error?.message||error).slice(0,240),planner:{...roadTrace},performance:departurePerformanceSnapshot(roadStartedAtMs,`authorized:bulk-shared-departure:${companyId}`),simSeconds:Number(state.simSeconds)||0});say(String(error.message||error));return false;}
     finally{clearTimeout(timer);roadPlanning=null;if(activeDrawerPanel==='routes')renderRouteCenterInto();}
   }
   async function dispatchExistingDistinctNetwork(companyInput,assetId=null){
@@ -3903,9 +3987,15 @@
   // Owner («نفذ الباقي»: each step captured all 22 roots, the five company domains whole): a step takes only the
   // company domain its commands decide in; the finance steps (receivables, taxes, payables, cheques) none of them. The
   // write audit of build612 enforces each step's roots (a write outside them fails the step and the test).
-  const AUTOPILOT_DOMAIN_ROOTS=Object.freeze(['insurance','realEstate','customerCompanies','bank','hospitality']),AUTOPILOT_KIND_ROOT=Object.freeze({insurance:'insurance',realestate:'realEstate',telecom:'customerCompanies',bank:'bank',hospitality:'hospitality'});
-  const AUTOPILOT_KIND_SCOPES=new Map(),AUTOPILOT_DECISION_KINDS=new Set(['insurance','realestate','telecom','bank','hospitality']);
-  const autopilotScope=kind=>{let scope=AUTOPILOT_KIND_SCOPES.get(kind);if(!scope){const own=AUTOPILOT_KIND_ROOT[kind]||null;scope=Object.freeze(AUTOPILOT_SCOPE.filter(root=>!AUTOPILOT_DOMAIN_ROOTS.includes(root)||root===own));AUTOPILOT_KIND_SCOPES.set(kind,scope);}return scope;};
+  const AUTOPILOT_DOMAIN_ROOTS=Object.freeze(['insurance','realEstate','customerCompanies','bank','hospitality']),AUTOPILOT_KIND_ROOT=Object.freeze({insurance:'insurance',realestate:'realEstate',telecom:'customerCompanies',bank:'bank',hospitality:'hospitality',housekeeping:'bank',repairs:'hospitality'});
+  const AUTOPILOT_KIND_SCOPES=new Map(),AUTOPILOT_DECISION_KINDS=new Set(['insurance','realestate','telecom','bank','hospitality','campaigns','salaries','continuation','housekeeping','repairs']);
+  // Review (two readers): the campaigns of the bank, insurance, telecom and the dealership and the hotels' repairs pay by
+  // cheque, whose cashing records the counterparty (businessWorld): outside the step's roots, a failed step left it
+  // written. A campaign step now takes the domain of the company it launches for (one a step), pay that follows the market
+  // the HR state (advanced), research and renewals advanced and research, and none of them the other company domains
+  // (each a whole-root copy a step).
+  const AUTOPILOT_CAMPAIGN_ROOT=Object.freeze({bank:'bank',insurance:'insurance',telecom:'customerCompanies',dealership:'customerCompanies'}),AUTOPILOT_EXTRA_ROOTS=Object.freeze({campaigns:['businessWorld'],repairs:['businessWorld'],salaries:['advanced'],continuation:['advanced','research']});
+  const autopilotScope=step=>{const kind=typeof step==='string'?step:step?.kind,own=kind==='campaigns'?(AUTOPILOT_CAMPAIGN_ROOT[step?.company]||'hospitality'):(AUTOPILOT_KIND_ROOT[kind]||null),key=`${kind}|${own}`;let scope=AUTOPILOT_KIND_SCOPES.get(key);if(!scope){scope=Object.freeze([...AUTOPILOT_SCOPE.filter(root=>!AUTOPILOT_DOMAIN_ROOTS.includes(root)||root===own),...(AUTOPILOT_EXTRA_ROOTS[kind]||[])]);AUTOPILOT_KIND_SCOPES.set(key,scope);}return scope;};
   const AUTOPILOT_ROW_ROOTS=Object.freeze({finance:{level:'containers'},treasury:{level:'containers'},domainRuntime:{level:'containers'},controlPlane:{level:'rows'},eventLog:{level:'root'},alerts:{level:'root'}});
   function queueCompanyAutopilot(day){
     if(!window.GH_COMPANY_AUTOPILOT||maintenanceQueue.some(row=>row.task==='autopilot'))return;
@@ -3923,16 +4013,41 @@
     if(step.kind==='bank')return line('قرار آلي للبنك (طلبات القروض)',[[r.approved,'موافق عليه'],[r.rejected,'مرفوض'],[r.skipped,'مؤجل']]);
     if(step.kind==='hospitality')return line('قرار آلي للضيافة (عروض الإقامة)',[[r.accepted,'مقبول'],[r.skipped,'متجاوز']]);
     if(step.kind==='receivables')return r.count?`تحصيل آلي لـ ${companyFinanceName(step.company)}: ذمم مدينة ${fmtNumber(Number(r.count))} بقيمة ${fmtMoney(Number(r.amount)||0)}.`:'';
+    if(step.kind==='repairs')return r?.propertyId||r?.cost||r?.amount?`صيانة آلية لمنشأة ضيافة لدى ${companyFinanceName(step.company)} حسب سياسة الصيانة.`:'صيانة آلية لمنشأة ضيافة حسب سياسة الصيانة.';
+    if(step.kind==='housekeeping')return 'مراجعة آلية لحدود ائتمان عملاء البنك من الشركات (كل 30 يومًا).';
+    if(step.kind==='continuation'){const name=step.commands[0]?.name;return name==='research-fund'?`تمويل آلي للمرحلة التالية من بحث ${step.commands[0].payload.project}.`:name==='cyber-drill'?'تجديد آلي لتمرين الاستجابة السيبرانية بعد تراجع التغطية.':name==='safety-audit'?'تجديد آلي لتدقيق السلامة HSE بعد انتهاء خطته.':'';}
+    if(step.kind==='salaries')return step.index?`رفع آلي لأجور ${companyFinanceName(step.company)} إلى ${(Number(step.index)*100).toFixed(0)}% من الأساس لمواكبة أجور السوق.`:'';
+    if(step.kind==='campaigns')return r.count&&!r.idempotent?`حملة مستمرة آلية لـ ${companyFinanceName(step.company)}: ${fmtNumber(Number(r.count))} فرعًا بتكلفة ${fmtMoney(Number(r.cost)||0)} بشيك واحد.`:'';
+    if(step.kind==='funding')return r.count?`تمويل آلي من القابضة لمستحقات اليوم: ${(step.rows||[]).map(row=>`${companyFinanceName(row.company)} ${fmtMoney(Number(row.amount)||0)}`).join(' · ')} (الإجمالي ${fmtMoney(Number(r.total)||0)}).`:'';
     if(step.kind==='taxes')return r.amount>0?`سداد آلي لضريبة ${companyFinanceName(step.company)}: ${fmtMoney(Number(r.amount)||0)}.`:'';
-    const total=results.reduce((sum,row)=>sum+(Number(row?.amount)||0),0),done=step.kind==='payables'?results.length:results.filter(row=>row?.settled===true).length;
+    const total=results.reduce((sum,row)=>sum+(Number(row?.amount)||0),0),done=step.kind==='payables'?results.reduce((sum,row)=>sum+(Number(row?.count)||0),0):results.filter(row=>row?.settled===true).length;
     if(step.kind==='payables')return `سداد آلي بتحويل بنكي: ذمم دائنة ${fmtNumber(done)} بقيمة ${fmtMoney(total)}.`;
     return done?`${step.kind==='returned'?'إعادة تقديم آلية':'صرف آلي'}: ${countText(done,'cheque')} بقيمة ${fmtMoney(results.filter(row=>row?.settled===true).reduce((sum,row)=>sum+(Number(row.amount)||0),0))}.`:'';
   }
-  function runCompanyAutopilotStep(step){
+  // Review (a reader: the bank's credit review failed every day above 2,048 assets): review-limits values each company's
+  // fleet as collateral, from the fleet worker's summary above the bank's own main-thread limit (as the button does). The
+  // autopilot's review takes the cached summary when it is exact for this state, or asks the worker and runs once its
+  // answer is exact (the same day's step, nothing else in flight); when it cannot, nothing is written and the review is
+  // due again the next day.
+  const AUTOPILOT_REVIEW_MAIN_LIMIT=2048;
+  function runAutopilotReview(step){
+    if(!(Number(window.GH_FLEET_DATA?.size?.(state))>AUTOPILOT_REVIEW_MAIN_LIMIT))return runCompanyAutopilotStep(step);
+    const ready=currentFleetUiSummary([],{dynamic:false});if(ready)return runCompanyAutopilotStep(step,{fleetSummary:ready});
+    const target=state,TX=window.GH_TRANSACTION_CORE,day=Math.floor((Number(state.simSeconds)||0)/86400);
+    requireFleetUiSummary([],{dynamic:false}).then(summary=>{
+      // As the maintenance runner: never during a hard reset or a diagnostic export; and the review must still be due (the
+      // button may have reviewed meanwhile).
+      const busy=durableCommandInProgress||hardResetInProgress||window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||TX?.isDurableActive?.(state)||TX?.isStaged?.(state)||TX?.isActive?.(),due=window.GH_BANKING_CORE?.limitsReviewDue?.(state)===true;
+      if(state!==target||busy||!due||Math.floor((Number(state.simSeconds)||0)/86400)!==day||summary?.current?.(state)!==true){diag('COMPANY_AUTOPILOT_REVIEW_DEFERRED',{day,reason:state!==target?'state-replaced':busy?'busy':!due?'not-due':summary?'not-current':'no-summary'},'info');return;}
+      runCompanyAutopilotStep(step,{fleetSummary:summary});
+    }).catch(error=>diag('COMPANY_AUTOPILOT_REVIEW_DEFERRED',{day,reason:String(error?.message||error).slice(0,120)},'info'));
+    return null;
+  }
+  function runCompanyAutopilotStep(step,context=null){
     const TX=window.GH_TRANSACTION_CORE,audit=globalThis.__GH_BUILD339_WRITE_AUDIT__===true,metric=runtimeInstrumentation.maintenance.autopilot||(runtimeInstrumentation.maintenance.autopilot={steps:0,failed:0,last:null});
     try{
-      const scope=autopilotScope(step.kind),out=TX.execute(state,{label:`company-autopilot:${step.kind}`,scope,writeRoots:scope,scopedJoin:true,rowRoots:AUTOPILOT_ROW_ROOTS,auditWrites:audit,enforceWriteRoots:audit,apply:()=>{
-        const results=step.commands.map(command=>dispatchSystemCommand({state},command.domain,command.name,command.payload,{actor:window.GH_COMPANY_AUTOPILOT.ACTOR}).result);
+      const scope=autopilotScope(step),out=TX.execute(state,{label:`company-autopilot:${step.kind}`,scope,writeRoots:scope,scopedJoin:true,rowRoots:AUTOPILOT_ROW_ROOTS,auditWrites:audit,enforceWriteRoots:audit,apply:()=>{
+        const results=step.commands.map(command=>dispatchSystemCommand({...(context||{}),state},command.domain,command.name,command.payload,{actor:window.GH_COMPANY_AUTOPILOT.ACTOR}).result);
         const text=companyAutopilotNotice(step,results);if(text)pushAlert(text);return results;
       }});
       if(!out.committed)throw new Error(out.reason||'company-autopilot-rejected');
@@ -3952,7 +4067,7 @@
       let step=null;try{step=P.next(state,entry.kinds[0],{tried:entry.tried,F:window.GH_FINANCE_CORE});}catch(error){diag('COMPANY_AUTOPILOT_STEP_SKIPPED',{kind:entry.kinds[0],error:String(error?.message||error).slice(0,200)},'info');step=null;}
       if(!step){entry.kinds.shift();continue;}
       for(const key of step.keys)entry.tried.add(key);entry.steps++;entry.lastStage=step.kind;
-      runCompanyAutopilotStep(step);
+      if(step.kind==='housekeeping')runAutopilotReview(step);else runCompanyAutopilotStep(step);
       if(appMetricClock()-started>=AUTOPILOT_FRAME_MS)return false;
     }
     return true;
@@ -3963,8 +4078,18 @@
     return {task:'schema',steps:schema.validationSteps(state,{trustVerified:true,fleetClasses:fleetClassesForValidation,fleetValidation:maintenanceFleetValidation}),mark:mark(),markOf:mark};
   }
   function haltOnGlobalFault(health,central){if(requiresGlobalHalt(health,central)){simulationEngine.cancelAdvance?.('global-halt',{immediate:true});state.speed=0;pushAlert('أُوقفت المحاكاة لأن خللًا في سلامة الحفظ أو سجل الأوامر قد يهدد الحالة كاملة. مشكلات القطاعات الأخرى تبقى معزولة داخل قطاعها.');}}
+  // A1: after the autopilot, the marked companies' idle assets depart (runAutoDispatch, one at a time, in the background
+  // like a press of the button; nothing is queued while companies are marked by none).
+  function queueAutoDispatch(day){
+    // Review round 4 (owner's default: the automatic dispatch is a decision of the autopilot, as the other automatic
+    // decisions): it waits while the autopilot is locked (a career below level 7 without Plus); the marks are kept.
+    if(window.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')===false)return;
+    if(maintenanceQueue.some(row=>row.task==='auto-dispatch'))return;if(!Object.values(state.advanced?.companies||{}).some(row=>row?.autoDispatchPending===true))return;
+    maintenanceQueue.push({task:'auto-dispatch',day:Math.max(0,Math.floor(Number(day)||0))});runtimeInstrumentation.maintenance.pending=maintenanceQueue.map(row=>row.task);
+  }
   function runMaintenanceTask(entry){
     if(entry.task==='autopilot')return companyAutopilotFrame(entry);
+    if(entry.task==='auto-dispatch'){if(!autoDispatchRunning){runtimeInstrumentation.maintenance.autoDispatchRunning=true;autoDispatchRunning=runAutoDispatch(entry.day).catch(error=>{diag('AUTO_DISPATCH_SKIPPED',{day:entry.day,error:String(error?.message||error).slice(0,200)},'info');return null;}).finally(()=>{autoDispatchRunning=null;runtimeInstrumentation.maintenance.autoDispatchRunning=false;});}return true;}
     if(entry.task==='compact'){if(compactSimulationState(false,{schemaDue:false})){const sections=schemaSectionsTask();if(sections){maintenanceQueue.splice(1,0,sections);runtimeInstrumentation.maintenance.pending=maintenanceQueue.map(row=>row.task);}else globalThis.__GH_HOURLY_SCHEMA_DUE__=true;}return true;}
     // Build 359: collecting unreferenced records lists every document and record, so it runs once per game day (and when
     // the hot window nears its admission limit); converting earlier versions takes only what changed (each hour).
@@ -4430,7 +4555,7 @@
             if(window.GH_FLEET_DATA.size(state)>2048)yield* prepareCompanyFleetEvidenceStages();
             for(const companyId of Object.keys(journal.tripCount))window.GH_CORPORATE_CORE?.model?.(state,companyId);
             if(journal.retiredRouteIds.length)TX.extendScope(state,SIMULATION_TRANSACTION_SCOPE);
-            if(journal.retiredRouteIds.length){const activeRouteIds=window.GH_FLEET_DATA.distinctRefs(state,'routeId');for(const routeId of new Set(journal.retiredRouteIds))if(!activeRouteIds.has(routeId)&&(state.customRoutes||[]).some(route=>route.id===routeId))window.GH_ROUTE_CORE.execute({state},'delete',{id:routeId});}
+            if(journal.retiredRouteIds.length){const activeRouteIds=window.GH_FLEET_DATA.distinctRefs(state,'routeId'),routesById=new Map((state.customRoutes||[]).map(route=>[route.id,route]));for(const routeId of new Set(journal.retiredRouteIds)){const route=routesById.get(routeId),routeOwner=route?routeOwnerCompanyId(route):'';if(routeOwner)setAutoDispatchPending(state,routeOwner,true);if(!activeRouteIds.has(routeId)&&route)window.GH_ROUTE_CORE.execute({state},'delete',{id:routeId});}}
             yield 'slice.route-effects';
             window.GH_FINANCE_CORE.execute({state},'apply-simulation-journal',{journal});
             window.GH_CORPORATE_CORE.execute({state},'adjust-group-value',{delta:Number(journal.groupValue)||0});
@@ -4515,7 +4640,7 @@
         // after the slice commits; runDeferredMaintenance advances exactly one
         // bounded section per frame and moves the map revision only after an
         // atomic compaction publish.
-        if(completedBoundary.day!==null){queueFleetMaintenance(completedBoundary.day);queueCompanyAutopilot(completedBoundary.day);}
+        if(completedBoundary.day!==null){queueFleetMaintenance(completedBoundary.day);queueCompanyAutopilot(completedBoundary.day);queueAutoDispatch(completedBoundary.day);}
         if(out.events||journal.saleIds.length||journal.retiredRouteIds.length)window.GH_MAP_STRUCTURE_REVISION=((Number(window.GH_MAP_STRUCTURE_REVISION)||0)+1)>>>0;
         if(out.departureTrace)recordAssetDepartureTrace({...out.departureTrace,source:'simulation-slice',simSeconds:completeTo});
         for(const routeId of new Set(journal.retiredRouteIds))if(!BASE_ROUTE_IDS.has(routeId)&&!(state.customRoutes||[]).some(route=>route.id===routeId))delete routeTemplates[routeId];
@@ -5469,7 +5594,7 @@
     const cards=companies.map(company=>{
       let index=1;try{index=HR.salaryMultiplier(state,company.id);}catch{}
       const row=state.realism?.crews?.[company.id],shortage=R.crewShortage(state,company.id),ratio=index/wage,name=esc(COMPANY_PLATFORM.resolveIdentity(state,company.id)?.shortName||company.id);
-      return `<article class="list-item crew-card"><div class="list-item-head"><div><h3>${name}</h3><p>الأجر ${(ratio*100).toFixed(1)}% من السوق · الاستقالات ${row?(row.annualQuitRate*100).toFixed(1):'8.0'}% سنويًا</p></div><span class="tag ${shortage>.03?'negative':shortage<.015?'positive':''}">الطواقم ${((1-shortage)*100).toFixed(1)}%</span></div>${metricsMarkup([['رحلات ملغاة بسبب النقص',`${(shortage*100).toFixed(1)}%`],['مستوى الأجور',`${(index*100).toFixed(0)}%`]])}<div class="company-transfer-form"><label class="wide">مستوى الأجور<select data-salary-index>${HR.SALARY_LEVELS.map(level=>`<option value="${level}"${Math.abs(level-index)<1e-9?' selected':''}>${(level*100).toFixed(0)}% من الأساس · ${((level/wage)*100).toFixed(0)}% من السوق</option>`).join('')}</select></label></div><div class="action-row"><button class="primary-btn salary-save" data-company="${esc(company.id)}">اعتماد مستوى الأجور</button></div></article>`;
+      return `<article class="list-item crew-card"><div class="list-item-head"><div><h3>${name}</h3><p>الأجر ${(ratio*100).toFixed(1)}% من السوق · الاستقالات ${row?(row.annualQuitRate*100).toFixed(1):'8.0'}% سنويًا</p></div><span class="tag ${shortage>.03?'negative':shortage<.015?'positive':''}">الطواقم ${((1-shortage)*100).toFixed(1)}%</span></div>${metricsMarkup([['رحلات ملغاة بسبب النقص',`${(shortage*100).toFixed(1)}%`],['مستوى الأجور',`${(index*100).toFixed(0)}%`]])}<div class="company-transfer-form"><label class="wide">مستوى الأجور<select data-salary-index>${HR.SALARY_LEVELS.map(level=>`<option value="${level}"${Math.abs(level-index)<1e-9?' selected':''}>${(level*100).toFixed(0)}% من الأساس · ${((level/wage)*100).toFixed(0)}% من السوق</option>`).join('')}</select></label></div><div class="action-row"><button class="primary-btn salary-save" data-company="${esc(company.id)}">اعتماد مستوى الأجور</button>${(follow=>window.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')===false&&!follow?'':`<button class="secondary-btn salary-follow" data-company="${esc(company.id)}" data-enabled="${follow?'false':'true'}">${follow?'إيقاف مواكبة السوق':'مواكبة أجور السوق تلقائيًا'}</button>`)(state.advanced?.labor?.salaryPolicy?.[(()=>{try{return HR?.salaryCompany?.(state,company.id)||company.id;}catch(_error){return company.id;}})()]?.followMarket===true)}</div></article>`;
     }).join('');
     return `<div class="list"><article class="list-item"><div class="list-item-head"><div><h3>${esc(globalThis.GH_MADAR?.titleFor?.(state,'crews',arg)||'الطواقم والأجور')}</h3><p>أجور السوق ترتفع نحو 3% سنويًا. الأجر الأقل من السوق يرفع الاستقالات ويبطئ التعيين، فتُلغى رحلات بقدر النقص. الأجر الأعلى يرفع مسير الرواتب كله.</p></div><span class="tag">السوق ${(wage*100).toFixed(1)}%</span></div></article>${cards||'<div class="empty">افتح شركة طيران أو بحرية أو برية أولًا.</div>'}</div>`;
   }
@@ -6243,7 +6368,7 @@ ${page}</div>`;
       <div class="cq-amount"><div class="cq-words" style="--cq-fit:${chequeFit(words.length,CHEQUE_WORDS_FIT)}">${esc(words)}</div><div class="cq-box"><small>المبلغ · ${esc(currency)}</small><span class="cq-figure" style="--cq-fit:${chequeFit(figure.length,CHEQUE_FIGURE_FIT)}">${mono(figure)}</span></div></div>
       <footer class="cq-bottom"><div class="cq-memo"><b><span>البيان: </span>${esc(purpose)}</b><small>${c.invoiceNumber?`الفاتورة ${mono(c.invoiceNumber)} · `:c.invoiceNumbers?.length?`${fmtNumber(c.invoiceNumbers.length)} فواتير · `:''}صدر ${mono(issued.date)}</small></div><div class="cq-sig">${incoming?'':companyStampMarkup(company)}${signatureVisual}<span>${incoming?'توقيع الساحب':'عن '+esc(i.name)+' · التوقيع'}</span></div></footer>
       <div class="cq-micr" dir="ltr">⑈${digits}⑈ ⑆${docDigits(`branch|${bank.bic}`,9)}⑆ ${bankAccountNumber(account)}⑈</div>${stamp}
-    </article>${status==='صادر'?`<div class="action-row cheque-actions"><button class="primary-btn settle-cheque-now" data-id="${esc(c.id)}">صرف الشيك الآن</button><span class="section-mini">الإصدار وحده لا يخصم الرصيد؛ الخصم يتم عند الصرف.</span></div>`:''}</div>`;
+    </article>${status==='صادر'?`<div class="action-row cheque-actions"><button class="primary-btn settle-cheque-now" data-id="${esc(c.id)}">صرف الشيك الآن</button><span class="section-mini">الإصدار وحده لا يخصم الرصيد؛ الخصم يتم عند الصرف.</span></div>`:status==='مرتجع'&&c.direction!=='incoming'?`<div class="action-row cheque-actions"><button class="primary-btn settle-cheque-now" data-id="${esc(c.id)}">إعادة تقديم الشيك</button><span class="section-mini">يُقدَّم الشيك المرتجع للصرف من جديد متى غطاه الرصيد والميزانية؛ وإلا يبقى مرتجعًا.</span></div>`:''}</div>`;
   }
   function invoiceArt(d){
     const company=documentCompanyKey(d),i=financeDocumentIdentity(company),own=COMPANY_PLATFORM.resolveIdentity?.(state,company),income=d.kind==='دخل',counterparty=formalFinanceParty(d.counterparty,company,income?'customer':'supplier'),party=legalPartyRecord(counterparty);
@@ -6451,7 +6576,7 @@ ${page}</div>`;
   function renderMobilityAsset(id){
     const vehicle=window.GH_MOBILITY_CORE?.findVehicle?.(state,id);if(!vehicle)return '<div class="empty">سيارة Mobility غير موجودة.</div>';
     const center=window.GH_MOBILITY_CORE?.centerMeta?.(state,vehicle.centerId),trip=(state.mobility?.activeTrips||[]).find(row=>row.vehicleId===vehicle.id),driver=(state.mobility?.drivers||[]).find(row=>row.id===(trip?.driverId||vehicle.driverId)||row.assetId===vehicle.id)||null;
-    return `<div class="list"><article class="list-item sector-mobility"><div class="list-item-head"><div><h3>${iconInline(vehicle.icon,'mobility')}${esc(vehicle.name)}</h3><p>${esc(vehicle.model||vehicle.assetClass)} · ${esc(center?.city||vehicle.baseLocation||'—')}</p></div><span class="tag ${vehicle.status==='moving'?'positive':''}">${vehicle.status==='moving'?'في رحلة':'متاحة'}</span></div><div class="metric-row"><div><span>الحالة</span><b>${Math.round(vehicle.condition||0)}%</b></div><div><span>البطارية</span><b>${Math.round(vehicle.battery||0)}%</b></div><div><span>الرحلات</span><b>${fmtNumber(vehicle.totalTrips||0)}</b></div><div><span>المسافة</span><b>${fmtNumber(vehicle.totalKm||0)} كم</b></div></div><div class="metric-row"><div><span>المركز</span><b>${esc(center?.city||'—')}</b></div><div><span>السائق الثابت</span><b>${esc(driver?.name||'مخصص تلقائيًا')}</b></div><div><span>الراتب الشهري</span><b>${fmtMoney(6000)}</b></div></div>${trip?`<div class="spec-row"><span>الرحلة الحالية</span><b>${Math.round((trip.progress||0)*100)}% · ${fmtNumber(trip.distanceKm||0)} كم</b></div>`:''}</article><div class="action-row"><button class="primary-btn focus-mobility-asset" data-id="${esc(vehicle.id)}">عرض على الخريطة</button><button class="secondary-btn service-mobility-asset" data-id="${esc(vehicle.id)}" ${vehicle.status==='moving'?'disabled':''}>صيانة وشحن</button><button class="danger-soft sell-mobility-asset" data-id="${esc(vehicle.id)}" ${vehicle.status==='moving'?'disabled':''}>بيع السيارة</button></div>${vehicle.status==='moving'?'<p class="warning">الصيانة والبيع مقفلان حتى تنتهي الرحلة الحالية.</p>':''}</div>`;
+    return `<div class="list"><article class="list-item sector-mobility"><div class="list-item-head"><div><h3>${iconInline(vehicle.icon,'mobility')}${esc(vehicle.name)}</h3><p>${esc(vehicle.model||vehicle.assetClass)} · ${esc(center?.city||vehicle.baseLocation||'—')}</p></div><span class="tag ${vehicle.status==='moving'?'positive':''}">${vehicle.status==='moving'?'في رحلة':'متاحة'}</span></div><div class="metric-row"><div><span>الحالة</span><b>${Math.round(vehicle.condition||0)}%</b></div><div><span>البطارية</span><b>${Math.round(vehicle.battery||0)}%</b></div><div><span>الرحلات</span><b>${fmtNumber(vehicle.totalTrips||0)}</b></div><div><span>المسافة</span><b>${fmtNumber(vehicle.totalKm||0)} كم</b></div></div><div class="metric-row"><div><span>المركز</span><b>${esc(center?.city||'—')}</b></div><div><span>السائق الثابت</span><b>${esc(driver?.name||'مخصص تلقائيًا')}</b></div><div><span>الراتب الشهري</span><b>${fmtMoney(6000)}</b></div></div>${trip?`<div class="spec-row"><span>الرحلة الحالية</span><b>${Math.round((trip.progress||0)*100)}% · ${fmtNumber(trip.distanceKm||0)} كم</b></div>`:''}</article><div class="action-row"><button class="primary-btn focus-mobility-asset" data-id="${esc(vehicle.id)}">عرض على الخريطة</button><button class="danger-soft sell-mobility-asset" data-id="${esc(vehicle.id)}" ${vehicle.status==='moving'?'disabled':''}>بيع السيارة</button></div>${vehicle.status==='moving'?'<p class="warning">البيع مقفل حتى تنتهي الرحلة الحالية.</p>':''}</div>`;
   }
   let buttonOperationSequence=0;
   function beginButtonOperation(button,label='جارٍ التنفيذ…'){
@@ -6486,6 +6611,8 @@ ${page}</div>`;
     document.querySelectorAll('[data-open]').forEach(b=>{if(b.closest('#ownedVirtualList')||drawerOpenBindings.has(b))return;drawerOpenBindings.add(b);b.dataset.interactionBound='1';b.addEventListener('click',()=>globalThis.GH_INTERACTION?.run?globalThis.GH_INTERACTION.run(b,()=>openDrawer(b.dataset.open,b.dataset.arg||undefined),{action:`open:${b.dataset.open}`,state,navigation:true}):openDrawer(b.dataset.open,b.dataset.arg||undefined));});
     drawerRoot.querySelectorAll('.inspect-contract').forEach(b=>b.addEventListener('click',()=>inspectContract(b.dataset.id,b)));
     drawerRoot.querySelectorAll('.bid-contract').forEach(b=>b.addEventListener('click',()=>bidContract(b.dataset.id)));
+    // Plan batch 3: pay that follows the market (the autopilot raises it, never lowers it).
+    drawerRoot.querySelectorAll('.salary-follow').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الحفظ…');if(!release)return;const company=b.dataset.company,enabled=b.dataset.enabled==='true';try{await runAuthorizedDomainCommand('hr','set-salary-follow-market',{company,enabled},{successNotice:_result=>enabled?`ستواكب أجور ${companyFinanceName(company)} السوق: يرفعها الطيار الآلي إلى أول مستوى لا يقل عن أجور السوق.`:`أُوقفت مواكبة السوق لأجور ${companyFinanceName(company)}.`});(navigationRevision===drawerNavigationRevision)&&openDrawer('crews',activeDrawerArg);}catch(_error){}finally{release();}}));
     drawerRoot.querySelectorAll('.salary-save').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الاعتماد…');if(!release)return;const company=b.dataset.company,index=Number(b.closest('.crew-card')?.querySelector('[data-salary-index]')?.value);try{await runAuthorizedDomainCommand('hr','set-salary-index',{company,index},{successNotice:_result=>`صار مستوى أجور ${companyFinanceName(company)} ${(index*100).toFixed(0)}% من الأساس، ويظهر في المسير القادم.`});updateKpis();(navigationRevision===drawerNavigationRevision)&&openDrawer('crews',activeDrawerArg);}catch(_error){}finally{release();}}));
     drawerRoot.querySelectorAll('.maintenance-save').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الاعتماد…');if(!release)return;const companyId=b.dataset.company,card=b.closest('.maintenance-card'),policy=card?.querySelector('[data-maintenance-policy]')?.value,cover=card?.querySelector('[data-insurance-cover]')?.value;try{await runAuthorizedCompositeCommand('maintenance-and-cover',({dispatch,recordAlert})=>{dispatch('corporate','set-maintenance-policy',{companyId,policy});dispatch('corporate','set-insurance-cover',{companyId,cover});recordAlert(`اعتُمدت صيانة ${MAINTENANCE_COPY[policy]?.[0]||policy} وتغطية ${String(INSURANCE_COPY[cover]||cover).split(' · ')[0]} لـ ${companyFinanceName(companyId)}.`);});updateKpis();reopenDrawer(navigationRevision,'maintenance',activeDrawerArg);}catch(_error){}finally{release();}}));
     drawerRoot.querySelectorAll('.budget-save').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الاعتماد…');if(!release)return;const company=b.dataset.company,card=b.closest('.budget-card'),limit=Math.max(0,Number(card?.querySelector('[data-budget-limit]')?.value)||0),lines=Object.fromEntries([...(card?.querySelectorAll('[data-budget-line]')||[])].map(input=>[input.dataset.budgetLine,Math.max(0,Number(input.value)||0)]));try{if(limit<=0)throw new Error('budget-limit-required');await runAuthorizedDomainCommand('finance','set-budget',{company,limit,lines},{successNotice:_result=>`اعتُمدت ميزانية ${companyFinanceName(company)} الشهرية بسقف ${fmtMoney(limit)}.`});updateKpis();(navigationRevision===drawerNavigationRevision)&&openDrawer('budgets',activeDrawerArg);}catch(error){if(error.message==='budget-limit-required')notice('حدد سقفًا شهريًا أكبر من صفر، أو ألغِ السقف.');else if(/budget-(line-)?below-month-spend/.test(error.message))notice('لا يمكن خفض السقف تحت ما صُرف وحُجز هذا الشهر. ارفع السقف أو انتظر بداية الشهر التالي.');}finally{release();}}));
@@ -6520,7 +6647,9 @@ ${page}</div>`;
     const ownedStatus=document.getElementById('ownedAssetStatus');if(ownedStatus)ownedStatus.addEventListener('change',e=>{ownedFilterStatus=e.target.value;refreshFleetListSnapshotIfStale();clearFleetListSearchRequest();renderOwnedAssetsInto();});
     drawerRoot.querySelectorAll('.focus-owned-asset').forEach(b=>{if(!b.closest('#ownedVirtualList'))b.addEventListener('click',()=>focusOwnedAsset(b.dataset.id));});
     drawerRoot.querySelectorAll('.focus-mobility-asset').forEach(b=>{if(!b.closest('#ownedVirtualList'))b.addEventListener('click',()=>focusMobilityAsset(b.dataset.id));});
-    drawerRoot.querySelectorAll('.service-mobility-asset').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.busy)return;b.dataset.busy='1';b.disabled=true;if(!serviceMobilityAsset(b.dataset.id)){delete b.dataset.busy;b.disabled=false;}}));
+    // Decision 1 (the owner: «لاتخلي شي من الخطه نفذه بدقه»; the lightest and safest of the two): a Mobility car's condition
+    // never wears and its battery recharges by itself after trips, so «صيانة وشحن» only wrote an invoice and a cheque
+    // for nothing. The button is gone; the command stays for saves and scripts that still send it.
     drawerRoot.querySelectorAll('.sell-mobility-asset').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ مراجعة البيع…');if(!release)return;try{await sellMobilityAsset(b.dataset.id);}finally{release();}}));
     drawerRoot.querySelectorAll('.create-global-route').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ إنشاء المسار…');if(!release)return;try{await createGlobalRoute(b.dataset.asset,b.dataset.key);}finally{release();}}));
     drawerRoot.querySelectorAll('.assign-route-center').forEach(b=>b.addEventListener('click',async()=>{const routeId=b.dataset.route,select=[...document.querySelectorAll('.route-asset-select')].find(row=>row.dataset.route===routeId),assetId=select?.value;if(!assetId){notice('اختر أصلًا متاحًا لهذا المسار.');return;}const release=beginButtonOperation(b,'جارٍ تعيين المسار…');if(!release)return;try{await assignRoute(assetId,routeId,{returnToRoutes:true});}finally{release();}}));
@@ -6668,7 +6797,11 @@ ${page}</div>`;
   function tenderWaitDays(id){const day=window.GH_CONTRACTS_CORE?.retenderDay?.(state,id);return day==null?0:Math.max(1,day-Math.floor((Number(state.simSeconds)||0)/86400));}
   // Build 359: each appointed official manager adds 1.2% to a bid's chance (the legacy executive roster did before).
   function officialManagerCount(target){return COMPANY_PLATFORM.listInstances(target,{includeGroup:false,openedOnly:true}).filter(company=>window.GH_HR_CORE?.officialManager?.(target,company.id)).length;}
-  async function bidContract(id){const navigationRevision=drawerNavigationRevision;const c=contracts.find(x=>x.id===id);if(!c){pushAlert('تعذر تقديم العرض؛ المناقصة لم تعد متاحة. أعد فتح قسم العقود.');return;}if(state.acceptedContracts.includes(id)){pushAlert('هذه المناقصة موقّعة بالفعل ولا يمكن تقديم عرض جديد عليها.');return;}{const wait=tenderWaitDays(id);if(wait>0){notice(`رست هذه المناقصة على منافس؛ يُعاد طرحها بعد ${countText(wait,'day',undefined,true)}.`,'warning');return;}}if(state.contractRegistry?.[id]?.status==='بانتظار التوقيع'){notice('فازت المجموعة بهذه المناقصة بالفعل؛ العقد بانتظار توقيعك.');return;}if(state.contractRegistry?.[id]){notice(reasonText({message:'tender-closed'}),'warning');return;}{const blocked=contractCapacityReason(c);if(blocked){notice(`لا يمكن تقديم العرض: ${blocked}`,'warning');return;}}const reputation=.78+officialManagerCount(state)*.012+state.branches.length*.01,winChance=clamp(c.bidBase*reputation,.45,.93),won=simRandom('contract-bid')<winChance,rival=won?null:window.GH_BUSINESS_WORLD?.competitorForSector?.(state,c.sector);try{await runAuthorizedDomainCommand('contracts','bid',{id,won,number:won?nextId('GH-CN'):null,client:c.client,sector:c.sector,category:c.category,title:c.name,value:c.value,termMonths:c.termMonths,region:c.region,sla:c.sla,penalty:c.penalty,capacity:c.capacity,payment:c.payment,competitorId:rival?.id||null,competitorName:rival?.displayName||null},{successNotice:_result=>won?`فازت المجموعة بمناقصة ${c.name}. العقد بانتظار توقيعك قبل بدء التشغيل.`:`لم يفز عرض المجموعة بمناقصة ${c.name}. تمت الترسية على ${rival?.displayName||'منافس آخر'} وسُجلت النتيجة في السوق التجاري؛ يُعاد طرحها بعد ${countText(window.GH_CONTRACTS_CORE?.RETENDER_DAYS||30,'day')}.`});updateKpis();reopenDrawer(navigationRevision,'contracts',activeDrawerPanel==='contracts'?activeDrawerArg:undefined);}catch(error){notice(`تعذر تسجيل نتيجة المناقصة: ${reasonText(error)}`,'warning');}}
+  async function bidContract(id){const navigationRevision=drawerNavigationRevision;const c=contracts.find(x=>x.id===id);if(!c){pushAlert('تعذر تقديم العرض؛ المناقصة لم تعد متاحة. أعد فتح قسم العقود.');return;}if(state.acceptedContracts.includes(id)){pushAlert('هذه المناقصة موقّعة بالفعل ولا يمكن تقديم عرض جديد عليها.');return;}{const wait=tenderWaitDays(id);if(wait>0){notice(`رست هذه المناقصة على منافس؛ يُعاد طرحها بعد ${countText(wait,'day',undefined,true)}.`,'warning');return;}}if(state.contractRegistry?.[id]?.status==='بانتظار التوقيع'){notice('فازت المجموعة بهذه المناقصة بالفعل؛ العقد بانتظار توقيعك.');return;}if(state.contractRegistry?.[id]){notice(reasonText({message:'tender-closed'}),'warning');return;}{const blocked=contractCapacityReason(c);if(blocked){notice(`لا يمكن تقديم العرض: ${blocked}`,'warning');return;}}const reputation=.78+officialManagerCount(state)*.012+state.branches.length*.01,winChance=clamp(c.bidBase*reputation,.45,.93),won=simRandom('contract-bid')<winChance,rival=won?null:window.GH_BUSINESS_WORLD?.competitorForSector?.(state,c.sector);
+    // Build 690 (owner: «نفذ بدقه»): a won tender that only one operating company can carry out is signed with it at once, by
+    // the very function the «توقيع» button calls (signContract: the same command, document and deposit). With two or more
+    // eligible companies the player still chooses; a signature that fails leaves the contract awaiting it, as before.
+    const eligibleSigners=won?eligibleContractCompanyIds(c):[],signer=eligibleSigners.length===1?eligibleSigners[0]:null;try{await runAuthorizedDomainCommand('contracts','bid',{id,won,number:won?nextId('GH-CN'):null,client:c.client,sector:c.sector,category:c.category,title:c.name,value:c.value,termMonths:c.termMonths,region:c.region,sla:c.sla,penalty:c.penalty,capacity:c.capacity,payment:c.payment,competitorId:rival?.id||null,competitorName:rival?.displayName||null},{successNotice:_result=>won?(signer?`فازت المجموعة بمناقصة ${c.name}، والعقد يُرسل للتوقيع باسم ${companyFinanceName(signer)}، الشركة الوحيدة المؤهلة لتنفيذه. يظهر تأكيد التوقيع أو سبب تعذره بعد لحظة.`:`فازت المجموعة بمناقصة ${c.name}. العقد بانتظار توقيعك قبل بدء التشغيل.`):`لم يفز عرض المجموعة بمناقصة ${c.name}. تمت الترسية على ${rival?.displayName||'منافس آخر'} وسُجلت النتيجة في السوق التجاري؛ يُعاد طرحها بعد ${countText(window.GH_CONTRACTS_CORE?.RETENDER_DAYS||30,'day')}.`});updateKpis();reopenDrawer(navigationRevision,'contracts',activeDrawerPanel==='contracts'?activeDrawerArg:undefined);}catch(error){notice(`تعذر تسجيل نتيجة المناقصة: ${reasonText(error)}`,'warning');return;}if(signer&&state.contractRegistry?.[id]?.status==='بانتظار التوقيع')await signContract(id,signer);}
   async function signContract(id,companyInput=null){const navigationRevision=drawerNavigationRevision;const c=contracts.find(x=>x.id===id);if(!c){pushAlert('تعذر توقيع هذا العقد؛ لم يعد متاحًا.');return;}const eligible=eligibleContractCompanyIds(c),companyId=companyInput&&eligible.includes(companyInput)?companyInput:(eligible.length===1?eligible[0]:null);if(!companyId){notice(eligible.length?'اختر الشركة المنفذة لهذا العقد قبل التوقيع.':'لا توجد شركة تشغيلية مؤهلة لهذا العقد.');return false;}try{const doc=(await runAuthorizedDomainCommand('contracts','sign',{id,company:companyId,companyId,ownerCompanyId:companyId,sector:c.sector,category:c.category,deposit:Math.round(c.value*.1),name:c.name,client:c.client,value:c.value,termMonths:c.termMonths,region:c.region,sla:c.sla,penalty:c.penalty,capacity:c.capacity,payment:c.payment,taxable:companyTaxable(state,companyId)},{successNotice:doc=>`تم توقيع ${doc.number} باسم ${companyFinanceName(companyId)} مع ${c.client}، وحفظ مستنده الرسمي، وتحويل الدفعة المقدمة إلى حساب الشركة المنفذة.`})).result;updateKpis();reopenDrawer(navigationRevision,'contracts',activeDrawerPanel==='contracts'?activeDrawerArg:undefined);return true;}catch(error){notice(`تعذر توقيع العقد: ${error.message}`);return false;}}
 
   async function tradeStock(sym,qty){const navigationRevision=drawerNavigationRevision;try{const result=(await runAuthorizedDomainCommand('market','trade-stock',{sym,qty},{successNotice:result=>`${qty>0?'شراء':'بيع'} ${fmtNumber(Math.abs(qty))} سهم من ${sym} بقيمة ${fmtMoney(result.value)}.`})).result;updateKpis();reopenDrawer(navigationRevision,'stocks',`sym:${sym}`);return true;}catch(error){notice(`تعذر تنفيذ الصفقة: ${error.message}`);return false;}}
@@ -7036,6 +7169,7 @@ ${page}</div>`;
         const receiptRows=[],adapter=Apply.createAdapter(draft,{baseline:transactionBaseline,current,fleetData:window.GH_FLEET_DATA,storeApi:window.GH_FLEET_STORE,transactionCore:window.GH_TRANSACTION_CORE,planCore:Plan,contextToken:order.contextToken,facilityOf:facilityId=>[...(draft.globalBases||[]),...(draft.customHubs||[])].find(row=>String(row?.id)===String(facilityId))||null,capacityOf:facility=>window.GH_FACILITY_CORE.assetCapacity(facility),validateGroup:(group,facility)=>facilityOwnerCompanyId(facility)===ownerCompanyId&&window.GH_FACILITY_CORE.isAssetFacilityCompatible({assetMode:type,ownerCompanyId,assetClass},facility,draft)===true,manageReceipts:false,manageLabor:true,manageGroupValue:true,maxSynchronousBaselineRows:0,onGroupFinished:(_group,out)=>receiptRows.push(out.receipt)});let progressed=0;
         const pace=frameWorkPacer(),applied=await Plan.applyAtomic(bound.plan,adapter,{budgetMs:2,maxRowsPerSlice:512,yieldControl:async stage=>{if(fleetMutation&&fleetMutation.flush()!==true)throw new Error('asset-purchase-replica-flush-failed');const done=Math.max(0,Math.floor(Number(stage?.done)||0));if(done>progressed){progressed=done;try{purchaseOptions.progress?.(done,totalQty,Math.ceil(done/Order.ROW_STAGE_HINT),order.rowStageCount);}catch(_error){}}await pace();}});if(applied.count!==totalQty||receiptRows.length!==order.allocations.length)throw new Error('asset-purchase-apply-incomplete');if(fleetMutation&&fleetMutation.finish()!==true)throw new Error('asset-purchase-replica-final-flush-failed');if(progressed<totalQty)try{purchaseOptions.progress?.(totalQty,totalQty,order.rowStageCount,order.rowStageCount);}catch(_error){}
         const ledger=await driveAssetPurchaseStages(publishAssetPurchaseLedgerStages(draft,receiptRows,bound.audit,{orderDigest:intentPayload.orderDigest,authorizationProofId:authorized.authorizationProofId,commandId:authorized.commandId,supplierTransactionId:paid.transaction?.id}),{}),first=bound.audit.allocations[0];if(!first?.deliveryOrderId)throw new Error('asset-purchase-delivery-order-missing');
+        if(companyRouteModes(ownerCompanyId).some(mode=>['air','sea','road'].includes(mode)))setAutoDispatchPending(draft,ownerCompanyId,true);
         const shown=order.allocations.slice(0,6).map(row=>`${row.baseName}: ${fmtNumber(row.qty)}`).join(' · '),more=order.allocations.length>6?` · و${fmtNumber(order.allocations.length-6)} منشأة أخرى`:'';recordAlert(`تم شراء وتسليم ${fmtNumber(totalQty)} × ${item.name} بأمر تجاري وشيك واحد، وتطبيق الصفوف في ${fmtNumber(order.rowStageCount)} مراحل قصيرة (${shown}${more}). مرجع المورد ${first.deliveryOrderId}.`,'procurement');
         return {orderId:first.deliveryOrderId,requestRef:order.requestRef,count:totalQty,deliveryOrderIds:bound.audit.allocations.map(row=>row.deliveryOrderId),allocations:order.allocations.map(row=>({baseId:row.baseId,baseName:row.baseName,qty:row.qty})),rowStageCount:order.rowStageCount,authorizationProofId:authorized.authorizationProofId,orderDigest:intentPayload.orderDigest,purchaseOrder:ledger.purchaseOrder};
       },{silent,fleetMutation:{required:totalQty>=512,label:`asset-purchase:${order.requestRef}`},afterCommit:()=>{updateKpis();if(!silent)reopenDrawer(navigationRevision,'assetMarket',type);}});

@@ -38,7 +38,7 @@ const canonical=page=>page.evaluate(()=>{
   const replica=GH_FLEET_STORE.exportReplica(s.fleet);
   return JSON.stringify({state,fleet:{length:replica.length,live:replica.live,values:replica.values,extras:replica.extras,words:Array.from(new Uint32Array(replica.rows))}});
 });
-const settle=page=>page.waitForFunction(()=>!window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked()&&!__AUDIT__.simulationEngine.snapshot().manualAdvance&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__),null,{timeout:300000});
+const settle=page=>page.waitForFunction(()=>{const m=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.maintenance||{};return !window.__GH_DURABLE_COMMAND_CONTEXT__&&!GH_PERSISTENCE.isLocked()&&!__AUDIT__.simulationEngine.snapshot().manualAdvance&&!GH_TRANSACTION_CORE.isStaged(__GH_STATE__)&&m.autoDispatchRunning!==true&&!(m.pending||[]).some(t=>t==='autopilot'||t==='auto-dispatch');},null,{timeout:300000});
 const storageOf=page=>page.evaluate(()=>Array.from({length:localStorage.length},(_,i)=>{const key=localStorage.key(i);return [key,localStorage.getItem(key)];}));
 const advance=page=>page.evaluate(async hours=>{
   const a=__AUDIT__,s=__GH_STATE__;window.__GH_MANUAL_CALENDAR_WINDOWS__=false;const start=s.simSeconds,day=s.lastFinancialDay;
@@ -98,7 +98,12 @@ const advance=page=>page.evaluate(async hours=>{
       assert.deepEqual(old.calls,{},`2: no removed function ran in the source before (${JSON.stringify(old.calls)})`);
       assert.equal(old.control,1,'2: (a direct call is counted)');
       assert.equal(current.loaded,old.loaded,'2: the same saved world loads to the same state');
-      assert.equal(current.state,old.state,'2: exactly the source before\'s state after 26 hours and a daily close');
+      // Build 694 (A1): the saved world's purchase marked the airline for the automatic dispatch after the close; this source
+      // clears the mark at that close (none idle is left), a field the source before neither reads nor writes. It alone is
+      // set aside here, and checked: everything else is exactly the source before's state.
+      const unmark=text=>{const value=JSON.parse(text);const rows=value?.state?.advanced?.companies||{};const marked=Object.keys(rows).filter(id=>rows[id]?.autoDispatchPending===true);for(const id of Object.keys(rows))if(rows[id]&&typeof rows[id]==='object')delete rows[id].autoDispatchPending;return {text:JSON.stringify(value),marked};};
+      const now=unmark(current.state),was=unmark(old.state);assert.deepEqual(now.marked,[],'2: this source cleared the automatic-dispatch mark at the close');
+      assert.equal(now.text,was.text,'2: exactly the source before\'s state after 26 hours and a daily close');
       // 3.
       const reload=async(root,storage)=>{const env=await boot({browser,errors,root,storage,fleetWorker:true});env.page.setDefaultTimeout(600000);await settle(env.page);const state=await canonical(env.page);await env.page.close();return state;};
       const beforeLoads=await reload(tree,old.saved),nowLoads=await reload(SOURCE,old.saved);

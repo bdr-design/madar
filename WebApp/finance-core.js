@@ -9,7 +9,7 @@ const num=v=>Math.max(0,Number(v)||0), now=s=>Number(s.simSeconds)||0;
 function writableRow(list,index){const row=list[index];if(!row||typeof row!=='object'||!Object.isFrozen(row))return row;const copy=clone(row);list[index]=copy;invalidateFinanceLookupIndexes();return copy;}
 let activeExecutionMeta=null,activeEnsureTarget=null,activeEnsureComplete=false;
 let activeSettlementBatch=null;
-const SETTLEMENT_COMMANDS=new Set(['settle-payable','issue-cheque','settle-cheque']);
+const SETTLEMENT_COMMANDS=new Set(['settle-payable','settle-payables-run','issue-cheque','settle-cheque']);
 function settlementBatchFor(s){const b=activeSettlementBatch;return b&&b.state===s&&globalThis.__GH_DURABLE_COMMAND_CONTEXT__===b.context&&b.context.draft===s&&s.finance===b.finance&&s.companyFinance===b.books&&s.treasury===b.treasury&&s.companyRegistry===b.registry&&s.openedCompanies===b.opened&&globalThis.GH_COMPANY_PLATFORM===b.platform?b:null;}
 function invalidateSettlementBatch(s,domain,name){const b=activeSettlementBatch;if(b&&b.state===s&&!(domain==='finance'&&SETTLEMENT_COMMANDS.has(name))){b.ready=false;b.memo.clear();}}
 async function withSettlementBatch(s,apply){
@@ -751,6 +751,17 @@ function payableChequeBlocker(s,number){
  const a=num(item.total??item.amount);if(a<=0||Math.abs(num(inv.total??inv.amount)-a)>.01)return 'cheque-linked-amount-mismatch';
  return null;
 }
+// Plan decision 2 (the owner: «لاتخلي شي من الخطه نفذه بدقه»): a payment run, as banks run them: one command settles a
+// company's listed payables by transfer, each through settlePayable (the same documents, entries, budget and statuses
+// as one by one), all or none (a refusal rolls the run back whole). The autopilot sent a command per payable (about
+// 1,500 a day in a large world, each with its own command record and proof); a run is one per company per step.
+function settlePayablesRun(s,p={}){
+ ensure(s);const company=requireCompany(s,p.company),numbers=[...new Set((Array.isArray(p.numbers)?p.numbers:[]).map(String).filter(Boolean))];
+ if(!numbers.length)throw new Error('payables-run-empty');if(numbers.length>200)throw new Error('payables-run-too-long');
+ for(const n of numbers){const row=financeRowByNumber(s,'payables',n);if(!row)throw new Error(`payable-not-found:${n}`);if(requireCompany(s,row.company)!==company)throw new Error(`payables-run-company-mismatch:${n}`);}
+ let total=0;for(const n of numbers){const out=settlePayable(s,{number:n,method:'transfer'});total+=num(out?.amount);}
+ return {company,count:numbers.length,total,amount:total,numbers,method:'transfer'};
+}
 function settlePayable(s,p){
   const n=String(p.number||''),item=financeRowByNumber(s,'payables',n);if(!item)throw new Error('payable-not-found');
   const t=requireCompany(s,item.company),a=num(item.total??item.amount),inv=findFinanceDocument(s,'invoices','number',n),line=inv?.budgetLine||item.budgetLine||lineFor(inv?.note||item.note||'',inv?.method||item.method||''),reserved=num(inv?.budgetReserved),budgetObligation=inv?.budgetObligation===true,payroll=inv?.payrollShortfall===true||item.payrollShortfall===true,linkedReport=s.finance.payrollReports.find(row=>row.id===(inv?.payrollReportId||item.payrollReportId)||row.lines?.some(reportLine=>reportLine.dueRef===n)),reportId=linkedReport?.id||null,b=book(s,t),method=String(p.method||'transfer');
@@ -831,6 +842,10 @@ function settleCheque(s,p){
  const t=requireCompany(s,c.company),a=num(c.amount),inv=c.invoiceNumber?financeRowByNumber(s,'invoices',c.invoiceNumber):null,payable=c.invoiceNumber?financeRowByNumber(s,'payables',c.invoiceNumber):null;
  if(c.invoiceNumber){if(!inv||!payable)throw new Error('cheque-linked-payable-not-found');if(requireCompany(s,inv.company)!==t||requireCompany(s,payable.company)!==t)throw new Error('cheque-linked-company-mismatch');if(inv.kind!=='مصروف'||['مدفوعة','مسددة','محصلة'].includes(inv.status))throw new Error('cheque-linked-invoice-not-payable');if(Math.abs(num(inv.total??inv.amount)-a)>.01||Math.abs(num(payable.total??payable.amount)-a)>.01)throw new Error('cheque-linked-amount-mismatch');const counterparty=String(inv.counterparty||payable.counterparty||'').trim();if(counterparty&&String(c.beneficiary||'').trim()!==counterparty)throw new Error('cheque-linked-beneficiary-mismatch');}
  const funding=chequeFunding(s,t,a,c,inv,p.line),line=funding.line,reserved=funding.reserved,budgetObligation=funding.budgetObligation,b=book(s,t);
+ // Review round 6: a returned cheque presented again and still not covered stays returned as it is (rewriting it with no
+ // change was refused: document-amendment-no-material-change). Review round 7 (a reader: returned as a result, the
+ // command was saved with nothing changed and wrote a «ارتجاع شيك» news line each press): it is refused before any write.
+ if(funding.blocker&&c.status==='مرتجع')throw new Error('insufficient-funds-or-budget');
  if(funding.blocker){amendProtectedDocument(s,c,'cheque','cheque-returned',row=>{row.status='مرتجع';row.returnedAt=now(s);});if(inv)amendInvoice(s,inv,'invoice-cheque-returned',row=>{row.status='شيك مرتجع';});return chequeResult(c,false,'insufficient-funds-or-budget');}
  coverFromInvestorCard(s,t,a,'صرف شيك');const balanceBefore=b.accounts[0].balance;b.accounts[0].balance-=a;const budgetedAmount=Math.min(a,reserved);if(budgetedAmount>0)consumeReserved(s,t,budgetedAmount,line);if(!budgetObligation&&a>budgetedAmount)consumeBudget(s,t,a-budgetedAmount,line);amendProtectedDocument(s,c,'cheque','cheque-cleared',row=>{row.status='مصروف';row.clearedAt=now(s);});
  if(payable){if(inv)amendInvoice(s,inv,'invoice-cheque-cleared',row=>{row.status='مسددة';row.settledAt=now(s);row.budgetReserved=0;});s.finance.payables=s.finance.payables.filter(x=>x.number!==c.invoiceNumber);journal(s,t,`صرف ${c.id} · تسوية ${c.invoiceNumber}`,[{account:'ذمم دائنة',debit:a},{account:b.accounts[0].id,credit:a}],c.id);}else journal(s,t,`صرف ${c.id} · ${c.note}`,[{account:'مصروف تشغيلي',debit:a},{account:b.accounts[0].id,credit:a}],c.id);
@@ -1168,6 +1183,7 @@ function execute(ctx,cmd,p={},meta={}){
    case'collect-receivable':return collectReceivable(s,p);
    case'collect-receivables-by-cheque':return collectReceivablesByCheque(s,p);
    case'settle-payable':return settlePayable(s,p);
+   case'settle-payables-run':return settlePayablesRun(s,p);
    case'settle-due-terms':return settleDueTerms(s,p);
    case'pay-taxes':return payTaxes(s,p);
    case'issue-cheque':return issueCheque(s,p);
@@ -1242,5 +1258,5 @@ const FINAL_DOCUMENT=Object.freeze({
 // company's ledger and the treasury ledger are sealed whole.
 for(const [root,keys] of [['finance',['journalEntries']],['companyFinance',['*.ledger']],['treasury',['ledger']]])(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys])))(root,keys);
 for(const [bucket,member] of Object.entries(FINAL_DOCUMENT))(globalThis.GH_TRANSACTION_CORE?.registerSealedCollections||((root,keys,options)=>(globalThis.__GH_PENDING_SEALED_COLLECTIONS__=globalThis.__GH_PENDING_SEALED_COLLECTIONS__||[]).push([root,keys,options])))('finance',[bucket],{member});
-const API={VERSION,zeroRateConstructionVat,investorMode,investorCardReturnPlan:s=>{ensure(s);return investorCardReturnPlan(s);},transferByReference:findTransferByReference,takeOffCloseIntercompany,withSettlementBatch,invalidateSettlementBatch,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,hasFunds,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,payableTransferBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute,executeStages};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+const API={VERSION,zeroRateConstructionVat,investorMode,cashPoolEligible:(s,t)=>cashPoolEligible(s,t),companyName:(s,t)=>companyName(s,t),investorCardReturnPlan:s=>{ensure(s);return investorCardReturnPlan(s);},transferByReference:findTransferByReference,takeOffCloseIntercompany,withSettlementBatch,invalidateSettlementBatch,assertAccountPosting,companyTaxNumber,invoiceTaxProfile,takeOffClosePnl,invalidateLookupIndexes:invalidateFinanceLookupIndexes,findArchivedDocument,RATING_SPREAD,floatingDebtRate,fixedDebtQuote,debtRate,interestBearing,hasFunds,debtOutstanding,debtStatus,debtView,adjustDebtOutstanding,reconcileDebtBalances,transferBankFacility,payableChequeBlocker,payableTransferBlocker,chequeFundingBlocker,zeroRateFleetPurchaseVat,FLEET_PURCHASE_NOTE,COMPANY_METRIC_KEYSPACE:'company-instance-id/v1',annualPerformance,TYPES,companyIds,supportsCompany,requireCompany,companyMetricMap,collectionProfile,ensure,makeBook,book,operating,total,budget,remaining,lineRemaining,lineFor,canSpend,consumeBudget,reserveBudget,consumeReserved,releaseReserved,reconcile,journal,invoice,issueInvoice,payByCheque,performance,monthlyStatement,calendarMonthForDay,centralTreasuryPolicy,intercompanyLoanSnapshot,closeVatPeriod,withCollectionBatch,execute,executeStages};globalThis.GH_FINANCE_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register?.('finance',API);if(globalThis.window&&window!==globalThis)window.GH_FINANCE_CORE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

@@ -48,7 +48,9 @@
   // taxes, cheques, collections, contracts, hiring, a company's own decisions). Repaying a debt or a loan, and selling a
   // stake held, are never refused.
   const FEATURE=Object.freeze({
-    'banking:branch-campaign':2,'insurance:office-campaign':2,'customer-companies:telecom-branch-campaign':2,'customer-companies:dealership-showroom-campaign':2,'services:set-price-level':2,'finance:raise-debt':2,
+    'banking:branch-campaign':2,'insurance:office-campaign':2,'customer-companies:telecom-branch-campaign':2,'customer-companies:dealership-showroom-campaign':2,
+    // Review round 6: the campaign of all branches at once opens with the campaign of one branch (it opened at level 1).
+    'banking:branch-campaigns':2,'insurance:office-campaigns':2,'customer-companies:telecom-branches-campaign':2,'customer-companies:dealership-showrooms-campaign':2,'services:set-price-level':2,'finance:raise-debt':2,
     'finance:transfer-reserve':3,'finance:bulk-transfer':3,
     'market:hedge-fuel':5,
     'market:trade-stock':6,
@@ -61,7 +63,7 @@
     'banking:raise-wholesale-funding':18,'banking:trade-instrument':18,'banking:invest-liquidity':18,
     'realestate:finance-construction':24,'realestate:sell-to-fund':24
   });
-  const COMMAND_LABEL=Object.freeze({'banking:branch-campaign':'حملات فروع البنك','insurance:office-campaign':'حملات مكاتب التأمين','customer-companies:telecom-branch-campaign':'حملات فروع الاتصالات','customer-companies:dealership-showroom-campaign':'حملات معارض السيارات','services:set-price-level':'مستويات أسعار الخدمات','finance:raise-debt':'الاقتراض الخارجي',
+  const COMMAND_LABEL=Object.freeze({'banking:branch-campaigns':'حملة فروع البنك كلها','insurance:office-campaigns':'حملة مكاتب التأمين كلها','customer-companies:telecom-branches-campaign':'حملة فروع الاتصالات كلها','customer-companies:dealership-showrooms-campaign':'حملة معارض الوكالة كلها','banking:branch-campaign':'حملات فروع البنك','insurance:office-campaign':'حملات مكاتب التأمين','customer-companies:telecom-branch-campaign':'حملات فروع الاتصالات','customer-companies:dealership-showroom-campaign':'حملات معارض السيارات','services:set-price-level':'مستويات أسعار الخدمات','finance:raise-debt':'الاقتراض الخارجي',
     'finance:transfer-reserve':'تحويل الاحتياطي','finance:bulk-transfer':'التحويل الجماعي','market:hedge-fuel':'تحوّط الوقود','market:trade-stock':'تداول الأسهم',
     'finance:issue-intercompany-loan':'القروض بين الشركات','finance:cash-pool-sweep':'تجميع النقد','finance:set-central-treasury-policy':'سياسة الخزينة المركزية',
     'governance:safety-audit':'تدقيق السلامة','governance:cyber-drill':'تمرين الأمن السيبراني','governance:esg-program':'برنامج الاستدامة','governance:sea-cii-plan':'خطة CII البحرية',
@@ -274,7 +276,10 @@
     if(kind==='command'||kind==='tool'){const need=requirement(key);return need?LICENCE_TOOL_BASE*need/5:null;}
     return null;
   }
-  function licenceKey(key){key=String(key||'');const at=key.indexOf(':');if(at<0)return key;return key.slice(0,at)==='model'?`model:${modelKey(key.slice(at+1))}`:key;}
+  // Review round 8 (a reader: a player who licensed a branch's campaign early lost the campaign of all branches when it got
+  // its own level-2 entry): a company's two campaign commands share one licence, the one-branch campaign's.
+  const SHARED_LICENCE=Object.freeze({'command:banking:branch-campaigns':'command:banking:branch-campaign','command:insurance:office-campaigns':'command:insurance:office-campaign','command:customer-companies:telecom-branches-campaign':'command:customer-companies:telecom-branch-campaign','command:customer-companies:dealership-showrooms-campaign':'command:customer-companies:dealership-showroom-campaign'});
+  function licenceKey(key){key=String(key||'');const at=key.indexOf(':');if(at<0)return key;if(own(SHARED_LICENCE,key))return SHARED_LICENCE[key];return key.slice(0,at)==='model'?`model:${modelKey(key.slice(at+1))}`:key;}
   function licenceQuote(state,key){
     key=licenceKey(key);if(!active(state))return {ok:false,reason:'progression-not-active'};
     const need=requirement(key);if(need===null)return {ok:false,reason:'licence-unknown-key'};const now=level(state),ahead=need-now;

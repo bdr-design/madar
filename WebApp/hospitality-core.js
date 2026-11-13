@@ -71,16 +71,40 @@
     if(lease)commission(s,property,day);
     return {companyId:id,propertyId:ref,cost:quote.cost,completeDay:property.completeDay,chequeId:paid.cheque.id,legalDocumentId:legal.id};
   }
+  // Build 689 (owner: «نفذ بدقه»; a play-through found a finished hotel opened with no team, so its walk-in demand was 0
+  // until the player pressed «توظيف»): the property's team is hired when it opens and when an expansion opens, by the very
+  // command that button sends (GH_HR_CORE 'hire', this facility only). It hires the facility's missing staff only: a
+  // property already staffed hires no one, and the button afterwards hires no one more. A hiring that fails leaves the
+  // property open, as it was before this build, and says so; the day goes on.
+  // Review (two readers): the hiring writes the facility's staff and its contract before it checks the cover, and can then
+  // refuse (hr-hiring-incomplete); the refusal was caught here and the half hire stayed. What it wrote is undone now:
+  // the facility's staff row as it was, and no contract it added.
+  function hireTeam(s,property){
+    const hr=globalThis.GH_HR_CORE,site=facility(s,property);if(typeof hr?.execute!=='function'||!site)return null;
+    const facilities=s.advanced?.facilities||null,id=property.facilityId,had=!!facilities&&Object.prototype.hasOwnProperty.call(facilities,id),row=had?facilities[id]:undefined,kept=row&&typeof row==='object'?{...row}:row;
+    const contracts=s.advanced?.labor?.employmentContracts,before=new Set(Array.isArray(contracts)?contracts:[]);
+    try{return hr.execute({state:s,facilityId:id,getDynamicFacilities:()=>[site]},'hire',{company:property.companyId,scope:'facility',source:'فريق تشغيل الضيافة · تعيين آلي عند التشغيل'});}
+    catch(error){
+      const now=s.advanced?.facilities;if(now){if(!had)delete now[id];else if(row&&typeof row==='object'){for(const key of Object.keys(row))if(!(key in kept))delete row[key];Object.assign(row,kept);now[id]=row;}else now[id]=row;}
+      const list=s.advanced?.labor?.employmentContracts;if(Array.isArray(list))for(let i=list.length-1;i>=0;i--)if(!before.has(list[i]))list.splice(i,1);
+      // Review round 8 (a reader: the raw code read inside the Arabic line): the reason in Arabic when the app knows it,
+      // else a plain Arabic cause.
+      const known=String(globalThis.GH_REASON_TEXT?.(error)||''),reason=/[\u0600-\u06FF]/.test(known)?known.replace(/[.。]\s*$/,''):'لم يكتمل التوظيف (الرصيد أو الميزانية أو حدود التوظيف)';
+      const text=`تعذر تعيين فريق ${site.name||property.id} آليًا: ${reason.slice(0,140)}. وظّفه من صفحة الضيافة.`;
+      if(typeof globalThis.GH_OPERATIONS_CORE?.execute==='function')globalThis.GH_OPERATIONS_CORE.execute({state:s},'record-alert',{text,type:'operation'});else{s.alerts=Array.isArray(s.alerts)?s.alerts:[];s.alerts.unshift(text);}return null;
+    }
+  }
   function commission(s,property,day){
     if(property.expansion&&day>=property.expansion.completeDay){
       const extra=property.expansion;property.rooms=property.rooms.map((n,i)=>n+extra.rooms[i]);property.capitalized+=extra.capitalized;property.expansion=null;
       F().journal(s,property.companyId,'تشغيل توسعة منشأة ضيافة',[{account:'منشآت وتجهيزات ضيافة',debit:money(extra.capitalized)},{account:'منشآت ضيافة تحت الإنشاء',credit:money(extra.capitalized)}],`HOSP-EXPAND-OPEN-${property.id}-${extra.startDay}`);
       const site=facility(s,property);if(site){site.roomCount=property.rooms.reduce((a,b)=>a+b,0);site.capacity=`${site.roomCount} غرفة`;site.dailyCost=Math.round(TYPES[property.kind].dailyCost*property.rooms.reduce((a,b)=>a+b,0)/TYPES[property.kind].rooms.reduce((a,b)=>a+b,0));}
+      if(property.status==='operating')hireTeam(s,property);
     }
     if(property.status!=='construction'||day<property.completeDay)return false;
     property.status='operating';property.openedDay=day;const f=facility(s,property);if(!f)throw new Error('hospitality-facility-missing');
     f.dailyCost=TYPES[property.kind].dailyCost;f.constructionStatus='مكتمل';
-    F().journal(s,property.companyId,'بدء تشغيل منشأة ضيافة',[{account:'منشآت وتجهيزات ضيافة',debit:money(property.capitalized)},{account:'منشآت ضيافة تحت الإنشاء',credit:money(property.capitalized)}],`HOSP-OPEN-${property.id}`);return true;
+    F().journal(s,property.companyId,'بدء تشغيل منشأة ضيافة',[{account:'منشآت وتجهيزات ضيافة',debit:money(property.capitalized)},{account:'منشآت ضيافة تحت الإنشاء',credit:money(property.capitalized)}],`HOSP-OPEN-${property.id}`);hireTeam(s,property);return true;
   }
   function propertyAccelerationQuote(s,id,p){const day=today(s);if(!p||p.status!=='construction'||p.accelerated||p.completeDay<=day)return null;return {companyId:id,propertyId:p.id,fee:Math.max(10000,Math.round(p.constructionCost*.1*(p.completeDay-day)/TYPES[p.kind].days*(globalThis.GH_STORE_CORE?.accelerationFactor?.(s)??1))),completeDay:day};}
   function accelerationQuote(s,id,propertyId){const root=read(s,id);return propertyAccelerationQuote(s,id,root&&findProperty(root,propertyId));}
@@ -276,9 +300,13 @@
       const net=amount(paid.invoice.subtotal);F().journal(s,id,'رسملة إنشاء توسعة ضيافة',[{account:'منشآت ضيافة تحت الإنشاء',debit:money(net)},{account:'مصروف تشغيلي',credit:money(net)}],paid.cheque.id);
       property.expansion={startDay:today(s),completeDay:today(s)+90,capitalized:net,rooms:property.rooms.map(n=>Math.max(1,Math.floor(n*.4))),chequeId:paid.cheque.id};return copy(property.expansion);
     }
+    // Plan batch 3 (the owner: «لاتخلي شي من الخطه نفذه بدقه»): a hotel company's maintenance policy, as the fleet's: the
+    // autopilot repairs a property on an incident (damage or rooms out of service) or below the policy's condition
+    // (preventive 90, standard 80, deferred 65), through repair-property at its quoted cost. A policy of the autopilot.
+    if(cmd==='set-repair-policy'){if(String(p.policy||'')!=='off'&&globalThis.GH_PROGRESSION_CORE?.unlocked?.(s,'tool:autopilot')===false)throw new Error('autopilot-locked');const policy=String(p.policy||'');if(policy!=='off'&&!Object.hasOwn(REPAIR_THRESHOLDS,policy))throw new Error('hospitality-repair-policy-invalid');const root=ensure(s,id);if(policy==='off')delete root.repairPolicy;else root.repairPolicy=policy;return {companyId:id,policy};}
     if(cmd==='repair-property'){
       const property=findProperty(ensure(s,id),p.propertyId);if(property.status!=='operating'||property.condition>=100&&property.outOfService===0)throw new Error('hospitality-maintenance-unnecessary');
-      const cost=property.damage?property.damage.repairGross/100:Math.max(1000,Math.round(property.constructionCost*.001*(100-property.condition+property.outOfService)/100));if(p.expectedCost!==cost)throw new Error('hospitality-maintenance-quote-changed');if(property.damage&&(property.repairClaims||[]).filter(r=>!r.claimReference).length>=16)throw new Error('hospitality-insurance-claims-pending-limit');
+      const cost=repairCost(property);if(p.expectedCost!==cost)throw new Error('hospitality-maintenance-quote-changed');if(property.damage&&(property.repairClaims||[]).filter(r=>!r.claimReference).length>=16)throw new Error('hospitality-insurance-claims-pending-limit');
       const paid=F().execute({state:s},'pay-by-cheque',{company:id,amount:cost,line:'other',requestRef:`HOSP-REPAIR-${property.id}-${today(s)}`,beneficiary:'مورد صيانة مرافق الضيافة',note:`صيانة ${property.name}`},meta);if(paid.cheque?.status!=='مصروف')throw new Error('hospitality-maintenance-unpaid');if(property.damage){property.repairClaims=property.repairClaims||[];if(property.repairClaims.filter(r=>!r.claimReference).length>=16)throw new Error('hospitality-insurance-claims-pending-limit');property.repairClaims=property.repairClaims.filter(r=>!r.claimReference).concat(property.repairClaims.filter(r=>r.claimReference).slice(-8));property.repairClaims.push({id:paid.cheque.id,invoiceNumber:paid.invoice.number,net:amount(paid.invoice.subtotal),incidentDocumentReference:property.damage.documentReference,coverageServiceId:property.damage.coverageServiceId,day:today(s)});}property.damage=null;property.condition=100;property.outOfService=0;return {propertyId:property.id,cost,chequeId:paid.cheque.id};
     }
     if(cmd==='close-property'){
@@ -297,6 +325,10 @@
     if(!globalThis.GH_TRANSACTION_CORE?.isActive?.())return commands.dispatchSystem({state:ctx.state},'hospitality','tick-day',payload,{actor:'simulation-scheduler'}).result;
     return yield* commands.dispatchSystemStages({state:ctx.state},'hospitality','tick-day',payload,{actor:'simulation-scheduler'});
   }
+  const REPAIR_THRESHOLDS=Object.freeze({preventive:90,standard:80,deferred:65});
+  // The repair quote repair-property charges (one formula for the button, the command and the autopilot).
+  function repairCost(property){return property.damage?property.damage.repairGross/100:Math.max(1000,Math.round(property.constructionCost*.001*(100-property.condition+property.outOfService)/100));}
+  function repairDue(property,policy){if(property?.status!=='operating'||!Object.hasOwn(REPAIR_THRESHOLDS,policy))return false;if(property.condition>=100&&property.outOfService===0)return false;return !!property.damage||Number(property.outOfService)>0||Number(property.condition)<REPAIR_THRESHOLDS[policy];}
   function campaignQuote(s,id){const root=read(s,id);return globalThis.GH_BRANCH_CAMPAIGN.quote(s,id,(root?.properties||[]).map(row=>({row,active:row.status==='operating',cost:row.rooms.reduce((a,b)=>a+b,0)*100})),30);}
   function* validationSteps(s){
     const errors=[],all=s?.hospitality,object=v=>!!v&&typeof v==='object'&&!Array.isArray(v),array=(v,max)=>Array.isArray(v)&&v.length<=max;
@@ -364,6 +396,6 @@
   function validateState(s){return drain(validationSteps(s));}
   const AUTH=globalThis.GH_AUTHORIZATION;if(!AUTH?.registerCommandTargetResolver)throw new Error('hospitality-authorization-owner-missing');
   AUTH.registerCommandTargetResolver('hospitality',({state,name,payload})=>{const id=String(payload.companyId||payload.company||'');company(state,id);const root=read(state,id);if(payload.propertyId&&!root?.properties.some(row=>row.id===payload.propertyId))throw new Error('hospitality-target-property-mismatch');if(payload.bookingId&&!root?.bookings.some(row=>row.id===payload.bookingId))throw new Error('hospitality-target-booking-mismatch');const result=name==='lease-property'?[id,'realestate']:[id],provider=name==='sign-service'?payload.providerCompanyId:name==='claim-repair'?root?.properties.find(p=>p.id===payload.propertyId)?.services.find(row=>row.id===root?.properties.find(p=>p.id===payload.propertyId)?.repairClaims?.find(r=>r.id===payload.repairId)?.coverageServiceId)?.providerCompanyId:name==='cancel-service'?root?.properties.find(p=>p.id===payload.propertyId)?.services.find(r=>r.id===payload.serviceId)?.providerCompanyId:null;if(provider&&provider!=='external')result.push(provider);return result;});
-  const API=Object.freeze({VERSION,SCHEMA,HORIZON,MAX_PROPERTIES,MAX_BOOKINGS,TYPES,CLASSES,PRICE_LEVELS,DAILY_FINANCIAL_ORDER:440,destinations,destinationMeta,ensure,read,propertyQuote,buildQuote,leaseQuote,bookingQuote,accelerationQuote,summary:currentSummary,campaignQuote,free,dailyResult,execute,executeStages,onFinancialDayStages,validateState,validationSteps,propertyForFacility,canClose,validate:()=>true,transactionScope:()=>null});
+  const API=Object.freeze({REPAIR_THRESHOLDS,repairCost,repairDue,VERSION,SCHEMA,HORIZON,MAX_PROPERTIES,MAX_BOOKINGS,TYPES,CLASSES,PRICE_LEVELS,DAILY_FINANCIAL_ORDER:440,destinations,destinationMeta,ensure,read,propertyQuote,buildQuote,leaseQuote,bookingQuote,accelerationQuote,summary:currentSummary,campaignQuote,free,dailyResult,execute,executeStages,onFinancialDayStages,validateState,validationSteps,propertyForFacility,canClose,validate:()=>true,transactionScope:()=>null});
   globalThis.GH_HOSPITALITY_CORE=API;globalThis.GH_DOMAIN_COMMANDS?.register('hospitality',API);
 })();

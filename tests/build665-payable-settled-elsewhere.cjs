@@ -61,7 +61,7 @@ const settledOnce=(world,label)=>{const facility=world.facility(),history=Array.
 
 // 1. The autopilot pays first.
 {const world=plant();world.fund(2000000);const cashBefore=world.cash(),steps=world.autopilot();
-  assert.deepEqual(steps.map(row=>[row.command.name,row.command.payload.number]),[['settle-payable',world.number]],'1: the autopilot takes the open interest invoice');assert.equal(cents(cashBefore-world.cash()),cents(world.amount),'1: and pays it');
+  assert.deepEqual(steps.map(row=>[row.command.name,(row.command.payload.numbers||[row.command.payload.number]).join(',')]),[['settle-payables-run',world.number]],'1: the autopilot takes the open interest invoice (in a payment run, decision 2)');assert.equal(cents(cashBefore-world.cash()),cents(world.amount),'1: and pays it');
   const afterAutopilot=world.cash();closes(world,[world.due+1,world.due+2,world.due+3]);settledOnce(world,'1');
   assert.deepEqual(position(world),control,'1: the financing and the cash are what they are when the owner pays its own invoice');
   assert.ok(world.cash()<=afterAutopilot+1e-6&&afterAutopilot-world.cash()<world.amount/2,'1: the owner pays no second time (only its daily costs move the cash)');
@@ -113,7 +113,7 @@ const hotelControl=(()=>{const world=hotel();world.fund();const before=world.cas
 // 3. The player pays; the autopilot pays; a cheque; the control.
 {const world=hotel();world.fund();const before=world.cash();world.player('finance','settle-payable',{number:world.number,method:'transfer'});assert.equal(cents(before-world.cash()),cents(world.total),'3: the player pays the bill');
   closes(world,[15,16,17]);billSettled(world,'3 player');assert.deepEqual(hotelPosition(world),hotelControl,'3: the account, the service and the cash are what they are when the hotel pays its own bill');}
-{const world=hotel();world.fund();const steps=world.autopilot();assert.deepEqual(steps.map(row=>row.command.payload.number),[world.number],'3: the autopilot takes the open bill');closes(world,[15,16,17]);billSettled(world,'3 autopilot');assert.deepEqual(hotelPosition(world),hotelControl,'3: the same position as the control');}
+{const world=hotel();world.fund();const steps=world.autopilot();assert.deepEqual(steps.flatMap(row=>row.command.payload.numbers||[row.command.payload.number]),[world.number],'3: the autopilot takes the open bill (in a payment run, decision 2)');closes(world,[15,16,17]);billSettled(world,'3 autopilot');assert.deepEqual(hotelPosition(world),hotelControl,'3: the same position as the control');}
 {const world=hotel();world.fund();const cheque=world.player('finance','settle-payable',{number:world.number,method:'cheque'});closes(world,[15]);assert.notEqual(world.account().settled,true,'3: while the cheque is in issue the hotel waits');
   world.system('finance','settle-cheque',{id:cheque.chequeId},'finance-scheduler');closes(world,[16,17]);billSettled(world,'3 cheque');}
 // A bill that is neither payable nor settled is still refused (a broken state is not papered over).

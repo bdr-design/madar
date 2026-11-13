@@ -18,7 +18,10 @@
 //  4. with the write audit on, no step writes a root outside the autopilot's declared scope (so a rollback covers it);
 //  5. nothing runs twice: the planner has nothing left for the decided requests, and the decisions survive a save and a
 //     reload exactly;
-//  6. no error is logged.
+//  6. build691, outside the investor mode (the scenario above runs in it, where the card covers each payment and the
+//     holding funds nothing): a company short of a bill due today is funded by the holding in one bulk transfer under the
+//     write audit (no step skipped), the bill is paid, the player is told, and the transfer is made once;
+//  7. no error is logged.
 const assert=require('node:assert/strict'),path=require('node:path');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app'),request=require('./helpers/request-decisions-fixture.cjs');
 const ROOT=process.env.GH_TEST_SOURCE_DIR||path.resolve(__dirname,'..');
@@ -29,6 +32,9 @@ const nextDay=page=>page.evaluate(async()=>{const a=__AUDIT__,s=__GH_STATE__,day
   a.simulationEngine.advanceTo((Math.floor(s.simSeconds/86400)+1)*86400,{speed:600,batchSeconds:3600,reason:'qa-612',maxSeconds:3*86400});
   for(let i=0;i<120000&&(a.simulationEngine.snapshot().manualAdvance||GH_TRANSACTION_CORE.isStaged(s));i++)await new Promise(r=>setTimeout(r,2));
   for(let i=0;i<600&&GH_APP_RUNTIME_METRICS.snapshot().maintenance.pending.length;i++)await new Promise(r=>setTimeout(r,10));
+  // Build 694 (A1): a company the fixture's purchases marked dispatches its idle assets after the close in the background,
+  // like a press of the button: wait for that durable command too.
+  const busy=()=>(()=>{const m=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.maintenance||{};return !!window.__GH_DURABLE_COMMAND_CONTEXT__||GH_PERSISTENCE.isLocked()||m.autoDispatchRunning===true||(m.pending||[]).some(t=>t==='autopilot'||t==='auto-dispatch');})();let calm=0;for(let i=0;i<12000&&calm<2;i++){await new Promise(r=>setTimeout(r,20));if(busy())calm=0;else if(i%10===0)calm++;}if(calm<2)throw new Error('autopilot-did-not-settle');
   await a.whenStateIdle();return {closed:s.lastFinancialDay-day,pending:GH_APP_RUNTIME_METRICS.snapshot().maintenance.pending};});
 // The business outcome: the five owners whole (their requests, histories, decision batches, policies, leases, loans,
 // contracts and bookings) and every company's current account to the cent.
@@ -136,8 +142,19 @@ function requests(page){
     const control=await open({beforeApp:async page=>page.evaluate(()=>{const P=window.GH_COMPANY_AUTOPILOT;window.GH_COMPANY_AUTOPILOT=Object.freeze({...P,next(s,kind,o){return kind==='insurance'?null:P.next(s,kind,o);}});})});
     await nextDay(control);const controlInsurance=await control.evaluate(()=>JSON.stringify(__GH_STATE__.insurance));
     assert.equal(failed.insurance,controlInsurance,'3: the insurance owner is exactly as a day without that step leaves it');await control.close();await failing.close();
-    // 6.
-    assert.deepEqual(errors,[],'6: no error');
+    // 6. Outside the investor mode.
+    {const fund=await open({audit:true});
+      await fund.evaluate(async()=>{const a=__AUDIT__,s=__GH_STATE__,F=GH_FINANCE_CORE;s.godMoney=false;s.infiniteMoney=false;
+        const held=F.operating(s,'dealership');if(held>0)await a.runAuthorizedDomainCommand('finance','transfer',{from:'dealership',to:'group',amount:held,note:'QA 612 funding setup'},{silent:true});
+        await a.runAuthorizedDomainCommand('finance','accrue-expense',{company:'dealership',amount:5000000,note:'QA 612 funded bill',dueDay:Math.floor(s.simSeconds/86400)+1},{silent:true});await a.whenStateIdle();});
+      assert.equal((await nextDay(fund)).closed,1,'6: the day closed');
+      const got=await fund.evaluate(()=>{const s=__GH_STATE__;return {investor:GH_FINANCE_CORE.investorMode(s),skipped:(s.diagnostics?.events||[]).filter(e=>e.type==='COMPANY_AUTOPILOT_STEP_SKIPPED').length,
+        transfers:(s.finance.transfers||[]).filter(r=>/^AUTO-FUND-\d+-dealership$/.test(String(r.reference||r.ref||''))).length,open:(s.finance.payables||[]).some(r=>r.note==='QA 612 funded bill'),
+        alert:(s.alerts||[]).map(x=>String(x.text||x)).some(x=>/^تمويل آلي من القابضة لمستحقات اليوم: .+ \(الإجمالي /.test(x))};});
+      assert.deepEqual(got,{investor:false,skipped:0,transfers:1,open:false,alert:true},`6: the holding funded the short company once under the write audit, the bill is paid, the player told (${JSON.stringify(got)})`);
+      await fund.close();}
+    // 7.
+    assert.deepEqual(errors,[],'7: no error');
     console.log(JSON.stringify({suite:'build612-company-autopilot-browser',ok:true,steps:run.metric.steps,alerts:run.alerts.length,sent:sent.length}));
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
