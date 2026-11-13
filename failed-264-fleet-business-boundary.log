@@ -1,0 +1,27 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: fleet customer/price boundary changed: WebApp/governance-core.js
++ actual - expected
+
++ '58acd4777d62fff353aedae7d57feb486d797a17bdf1c011a9a34e9ee0877d48'
+- '33d58c5e284b4ccf8b8926bca6b9c9c16f91989a8bbe7f04af9df8f31f59dfa4'
+
+    at Object.<anonymous> (/Users/runner/work/madar/madar/tests/fleet-business-boundary.cjs:24:9)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '58acd4777d62fff353aedae7d57feb486d797a17bdf1c011a9a34e9ee0877d48',
+  expected: '33d58c5e284b4ccf8b8926bca6b9c9c16f91989a8bbe7f04af9df8f31f59dfa4',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0
