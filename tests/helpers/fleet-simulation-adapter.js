@@ -16,6 +16,9 @@ function fragment(start,end){
 }
 const EFFECTS=fragment('  function makeSimulationEffects(){','  const SIMULATION_ASSET_FIELDS=');
 const JOB=fragment('  const SIMULATION_TRANSACTION_SCOPE=',"  if(!window.GH_TRANSACTION_CORE?.execute)throw new Error('Transaction Core compatibility");
+// Plan batch 2 (A1): a slice that places a company's new air, sea or road assets marks it for the automatic dispatch after
+// the day's close; the marking function is lifted as written.
+const AUTO_DISPATCH_MARK=fragment('  function setAutoDispatchPending(','  let autoDispatchRunning=null');
 
 function makeAsset(id,{route=fixture.routes.A1,from=7200,progress=0,phase='moving',...overrides}={}){
   const asset=fixture.make(route.type||route.routeMode,route.id,{id,phase,progress,...overrides});
@@ -41,6 +44,8 @@ function createSimulationAdapter({from=7200,assets=null,routeOverrides={},financ
     // Build 371: a committed day queues the staged fleet maintenance owner (runDeferredMaintenance in app.js).
     queueFleetMaintenance:day=>{s.__fleetMaintenanceDays.push(day);},
     queueCompanyAutopilot:day=>{(s.__companyAutopilotDays||(s.__companyAutopilotDays=[])).push(day);},
+    // Plan batch 2 (A1): after the autopilot, a committed day queues the automatic dispatch of the marked companies.
+    queueAutoDispatch:day=>{(s.__autoDispatchDays||(s.__autoDispatchDays=[])).push(day);},
     processFinancialDay:day=>{s.__financialDays.push(day);state.lastFinancialDay=day;},
     processMarket:hour=>{s.__marketHours.push(hour);state.lastMarketHour=hour;},
     diag:()=>{},pushAlert:()=>{},routeDistance:()=>0,
@@ -52,7 +57,7 @@ function createSimulationAdapter({from=7200,assets=null,routeOverrides={},financ
     commit:(target,_root,journal)=>s.GH_FLEET_DATA.commitJournal(target,journal),
     rollback:(target,_root,journal)=>s.GH_FLEET_DATA.rollbackJournal(target,journal)
   });
-  vm.runInContext(`${EFFECTS}\n${JOB}\nthis.__makeFleetSliceJob=(sliceSeconds,meta)=>createSimulationSliceJob(sliceSeconds,meta);this.__resolveFleetRoute=fleetResolveRoute;`,s,{filename:'fleet-simulation-adapter-test.js'});
+  vm.runInContext(`${AUTO_DISPATCH_MARK}\n${EFFECTS}\n${JOB}\nthis.__makeFleetSliceJob=(sliceSeconds,meta)=>createSimulationSliceJob(sliceSeconds,meta);this.__resolveFleetRoute=fleetResolveRoute;`,s,{filename:'fleet-simulation-adapter-test.js'});
   return {
     e,s,state,templates,assets:rows,
     // These unit suites exercise the explicit synchronous fallback contract.

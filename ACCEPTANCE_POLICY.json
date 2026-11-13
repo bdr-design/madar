@@ -3,7 +3,83 @@
   "preflight_commands": [
     [
       "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-simulation-write-set-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-600-air-calendar-regression.cjs"
+    ],
+    [
+      "node",
+      "tests/fleet-regressions.cjs"
+    ],
+    [
+      "node",
+      "tests/build353-steady-slice-rollback.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-sim-smoothness.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-corridor-index.cjs"
+    ],
+    [
+      "node",
+      "tests/build405-worker-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build444-document-pages.cjs"
+    ],
+    [
+      "node",
       "tests/build558-investor-card-load-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-calendar-owner-cadence.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-r2-snapshot-budget.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-fault-isolation.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-slice-atomic.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-simulation-transaction-worker.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-asset-departure-trace.cjs"
+    ],
+    [
+      "node",
+      "tests/build576-presentation-rest-browser.cjs"
+    ],
+    [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    [
+      "python3",
+      "tests/build334-source-layout.py"
+    ],
+    [
+      "node",
+      "tests/build359-map-modes-browser.cjs"
     ],
     [
       "node",
@@ -20,10 +96,6 @@
     [
       "node",
       "tests/build689-hotel-team-at-opening.cjs"
-    ],
-    [
-      "node",
-      "tests/build576-presentation-rest-browser.cjs"
     ],
     [
       "node",
@@ -88,14 +160,6 @@
     [
       "node",
       "tests/build374-route-capacity.cjs"
-    ],
-    [
-      "python3",
-      "tests/acceptance-policy.py"
-    ],
-    [
-      "python3",
-      "tests/build334-source-layout.py"
     ],
     [
       "node",
@@ -428,10 +492,6 @@
     [
       "node",
       "tests/build363-company-economics-balance.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-calendar-owner-cadence.cjs"
     ],
     [
       "node",
@@ -1055,19 +1115,7 @@
     ],
     [
       "node",
-      "tests/fleet-business-boundary.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-sim-smoothness.cjs"
-    ],
-    [
-      "node",
       "tests/build372-map-summary-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-map-modes-browser.cjs"
     ],
     [
       "node",
@@ -1312,10 +1360,6 @@
     [
       "node",
       "tests/build372-field-classes-worker-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/fleet-regressions.cjs"
     ],
     [
       "node",
@@ -1640,10 +1684,6 @@
     [
       "node",
       "tests/build388-change-tracking-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build405-worker-close-browser.cjs"
     ],
     [
       "node",
@@ -2095,10 +2135,6 @@
     ],
     [
       "node",
-      "tests/build444-document-pages.cjs"
-    ],
-    [
-      "node",
       "tests/build317-finance-depth-test.js"
     ],
     [
@@ -2119,15 +2155,7 @@
     ],
     [
       "node",
-      "tests/build334-600-air-calendar-regression.cjs"
-    ],
-    [
-      "node",
       "tests/build440-document-collection-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-r2-snapshot-budget.cjs"
     ],
     [
       "node",
@@ -2220,10 +2248,6 @@
     [
       "node",
       "tests/build623-worker-extras-packing.cjs"
-    ],
-    [
-      "node",
-      "tests/build353-steady-slice-rollback.cjs"
     ],
     [
       "node",
@@ -2571,26 +2595,6 @@
     ],
     [
       "node",
-      "tests/build334-simulation-fault-isolation.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-simulation-slice-atomic.cjs"
-    ],
-    [
-      "node",
-      "tests/build339-simulation-write-set-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build340-simulation-transaction-worker.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-asset-departure-trace.cjs"
-    ],
-    [
-      "node",
       "tests/build334-accrual-cash-separation-contract.cjs"
     ],
     [
@@ -2608,10 +2612,6 @@
     [
       "node",
       "tests/build340-route-center-index.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-corridor-index.cjs"
     ],
     [
       "node",

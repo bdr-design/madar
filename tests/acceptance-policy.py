@@ -58,7 +58,14 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
-# Now, rebuilt from the previous list (which the builds of dfe0e82 passed): first build558, which failed on build 145 (its world's fleet now departs after the close and earned what the card was
+# Now, first the gates store build 21 (9ef65a4) failed, in its order: fleet-business-boundary (the plan's governance and
+# Mobility edits, recorded as reviewed edits), build339, build334-600, fleet-regressions and build353 (the slice adapter
+# lacked the automatic dispatch's mark and queue), build359-sim-smoothness and build359-corridor-index (their source pins),
+# build405 (its leased fleet left by the automatic dispatch during the held check; the mark is cleared), build444 (the
+# re-present button of a returned cheque) and build558; then the other gates on that adapter (build334 cadence, r2,
+# fault isolation, slice atomic, build340 worker, build371 trace), build576 (changed in 386917d, not built since), this
+# file and build334-source-layout (the integrity list); then build359-map-modes, which failed once there and
+# passed on its retry; then the list before, rebuilt from the previous list (which the builds of dfe0e82 passed): build558, which failed on build 145 (its world's fleet now departs after the close and earned what the card was
 # to cover; the mark is cleared there); then the review rounds 6-9 (the owner: «حل المشاكل وعيد تمريرها للتحقق», «يجب ان يراجع الوكلاء كل شي», «موافق بس تأكد انها ماتخرب شي»): build571 (a press during the automatic dispatch
 # was refused), build700, build694 and build689, which failed here while it was written (newest first: the licence
 # test, the autopilot dispatch actor pin, the Arabic hiring alert); then build576, which shares build558's
@@ -364,12 +371,30 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/fleet-business-boundary.cjs'],
+    ['node', 'tests/build339-simulation-write-set-contract.cjs'],
+    ['node', 'tests/build334-600-air-calendar-regression.cjs'],
+    ['node', 'tests/fleet-regressions.cjs'],
+    ['node', 'tests/build353-steady-slice-rollback.cjs'],
+    ['node', 'tests/build359-sim-smoothness.cjs'],
+    ['node', 'tests/build359-corridor-index.cjs'],
+    ['node', 'tests/build405-worker-close-browser.cjs'],
+    ['node', 'tests/build444-document-pages.cjs'],
     ['node', 'tests/build558-investor-card-load-browser.cjs'],
+    ['node', 'tests/build334-calendar-owner-cadence.cjs'],
+    ['node', 'tests/build334-r2-snapshot-budget.cjs'],
+    ['node', 'tests/build334-simulation-fault-isolation.cjs'],
+    ['node', 'tests/build334-simulation-slice-atomic.cjs'],
+    ['node', 'tests/build340-simulation-transaction-worker.cjs'],
+    ['node', 'tests/build371-asset-departure-trace.cjs'],
+    ['node', 'tests/build576-presentation-rest-browser.cjs'],
+    ['python3', 'tests/acceptance-policy.py'],
+    ['python3', 'tests/build334-source-layout.py'],
+    ['node', 'tests/build359-map-modes-browser.cjs'],
     ['node', 'tests/build571-tax-month-close-browser.cjs'],
     ['node', 'tests/build700-review-fixes.cjs'],
     ['node', 'tests/build694-auto-dispatch-after-close-browser.cjs'],
     ['node', 'tests/build689-hotel-team-at-opening.cjs'],
-    ['node', 'tests/build576-presentation-rest-browser.cjs'],
     ['node', 'tests/build692-mobility-counts-kept.cjs'],
     ['node', 'tests/build693-mobility-dispatch-pools.cjs'],
     ['node', 'tests/build469-app-notice-work.cjs'],
@@ -386,8 +411,6 @@ expected_preflight=[
     ['node', 'tests/build340-air-sea-network-worker.cjs'],
     ['node', 'tests/build371-destination-window.cjs'],
     ['node', 'tests/build374-route-capacity.cjs'],
-    ['python3', 'tests/acceptance-policy.py'],
-    ['python3', 'tests/build334-source-layout.py'],
     ['node', 'tests/build339-accrued-obligation-cash-shortfall.cjs'],
     ['node', 'tests/build358-payment-terms.cjs'],
     ['node', 'tests/build371-air-fleet-series-browser.cjs'],
@@ -471,7 +494,6 @@ expected_preflight=[
     ['node', 'tests/build336-hour83-calendar-proof-regression.cjs'],
     ['node', 'tests/build336-proof-ledger-compaction-regression.cjs'],
     ['node', 'tests/build363-company-economics-balance.cjs'],
-    ['node', 'tests/build334-calendar-owner-cadence.cjs'],
     ['node', 'tests/build434-service-panel-fleet-work.cjs'],
     ['node', 'tests/build582-directory-type-weight.cjs'],
     ['node', 'tests/build479-facility-scope-work.cjs'],
@@ -627,10 +649,7 @@ expected_preflight=[
     ['node', 'tests/build687-export-many-chunks.cjs'],
     ['node', 'tests/build686-dispatch-facility-index.cjs'],
     ['node', 'tests/build685-tracked-chunks-past-budget.cjs'],
-    ['node', 'tests/fleet-business-boundary.cjs'],
-    ['node', 'tests/build359-sim-smoothness.cjs'],
     ['node', 'tests/build372-map-summary-worker-browser.cjs'],
-    ['node', 'tests/build359-map-modes-browser.cjs'],
     ['node', 'tests/build371-native-update-isolation-browser.cjs'],
     ['node', 'tests/build371-old-save-trip-correction-browser.cjs'],
     ['node', 'tests/build358-staged-full-scope.cjs'],
@@ -692,7 +711,6 @@ expected_preflight=[
     ['node', 'tests/native-save-worker-browser.cjs'],
     ['node', 'tests/save-pipeline-browser.cjs'],
     ['node', 'tests/build372-field-classes-worker-browser.cjs'],
-    ['node', 'tests/fleet-regressions.cjs'],
     ['node', 'tests/build372-replica-log-browser.cjs'],
     ['node', 'tests/save-checksum-worker-browser.cjs'],
     ['node', 'tests/build583-boot-proof-single-hash.cjs'],
@@ -774,7 +792,6 @@ expected_preflight=[
     ['node', 'tests/build358-budgets-browser.cjs'],
     ['node', 'tests/build358-founding-charter-browser.cjs'],
     ['node', 'tests/build388-change-tracking-browser.cjs'],
-    ['node', 'tests/build405-worker-close-browser.cjs'],
     ['node', 'tests/build502-consolidated-cash-order.cjs'],
     ['node', 'tests/build567-budget-lapsed-reservation.cjs'],
     ['node', 'tests/build569-company-evidence-pending.cjs'],
@@ -887,15 +904,12 @@ expected_preflight=[
     ['node', 'tests/build315-procurement-idempotency-test.js'],
     ['node', 'tests/build334-delivery-atomic-reconciliation.cjs'],
     ['node', 'tests/build564-group-dividends.cjs'],
-    ['node', 'tests/build444-document-pages.cjs'],
     ['node', 'tests/build317-finance-depth-test.js'],
     ['node', 'tests/build340-procurement-batch.cjs'],
     ['node', 'tests/build359-schema-byte-limits.cjs'],
     ['node', 'tests/build417-document-amendment-work.cjs'],
     ['node', 'tests/build334-document-proof-v3-security.cjs'],
-    ['node', 'tests/build334-600-air-calendar-regression.cjs'],
     ['node', 'tests/build440-document-collection-work.cjs'],
-    ['node', 'tests/build334-r2-snapshot-budget.cjs'],
     ['node', 'tests/build334-archived-proof-retention-open.cjs'],
     ['node', 'tests/build334-deferred-save-lifecycle.cjs'],
     ['node', 'tests/build335-compaction-v2-60day-pressure.cjs'],
@@ -919,7 +933,6 @@ expected_preflight=[
     ['node', 'tests/build407-diagnostic-lifecycle.cjs'],
     ['node', 'tests/build616-marker-step-projection.cjs'],
     ['node', 'tests/build623-worker-extras-packing.cjs'],
-    ['node', 'tests/build353-steady-slice-rollback.cjs'],
     ['node', 'tests/build372-asset-purchase-worker-browser.cjs'],
     ['node', 'tests/build372-fleet-dispatch-worker-browser.cjs'],
     ['node', 'tests/build372-large-fleet-main-thread-policy-browser.cjs'],
@@ -1006,17 +1019,11 @@ expected_preflight=[
     ['node', 'tests/build372-store-maintenance-stages.cjs'],
     ['node', 'tests/build457-canvas-idle-work.cjs'],
     ['node', 'tests/build334-presentation-work-contract.cjs'],
-    ['node', 'tests/build334-simulation-fault-isolation.cjs'],
-    ['node', 'tests/build334-simulation-slice-atomic.cjs'],
-    ['node', 'tests/build339-simulation-write-set-contract.cjs'],
-    ['node', 'tests/build340-simulation-transaction-worker.cjs'],
-    ['node', 'tests/build371-asset-departure-trace.cjs'],
     ['node', 'tests/build334-accrual-cash-separation-contract.cjs'],
     ['node', 'tests/build334-durable-postcommit-contract.cjs'],
     ['node', 'tests/build339-architecture-bootstrap.cjs'],
     ['node', 'tests/build339-time-golden.cjs'],
     ['node', 'tests/build340-route-center-index.cjs'],
-    ['node', 'tests/build359-corridor-index.cjs'],
     ['node', 'tests/build488-route-preview-payload.cjs'],
     ['node', 'tests/build497-route-preview-reuse.cjs'],
     ['node', 'tests/build340-simulation-worker-scheduler.cjs'],

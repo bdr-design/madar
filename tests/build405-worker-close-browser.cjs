@@ -17,6 +17,10 @@ const QTY=2305;
    const r=GH_WORLD_DATA.airports.find(row=>row[0]==='OMDB');
    await a.runAuthorizedDomainCommand('facilities','create',{facility:{id:'QA-WORKER-BASE',name:'QA Worker Base',kind:'airport-base',company:'air',ownerCompanyId:'air',owned:true,sourceKey:'air:OMDB',code:r[1]||'OMDB',icao:'OMDB',iata:r[1],city:r[3]||'—',country:String(r[5]||'—'),coords:[r[6],r[7]]},bucket:'globalBases'},{silent:true});
    const model=GH_ASSET_CATALOG.air.used[0];if(!await a.buyAsset('air','used',model.id,'lease',qty,'QA-WORKER-BASE',true,'QA-WORKER-CLOSE','air'))throw new Error('fixture-purchase-failed');
+   // Plan batch 2 (A1, commit 9ef65a4): the leased aircraft mark the company for the automatic dispatch after the day's
+   // close, which would send them in the background of the held check below and move rows the pause must restore. The
+   // mark is cleared so the fleet stays idle, as this gate measured it; the automatic dispatch has its own gates (build694).
+   for(const row of Object.values(s().advanced?.companies||{}))if(row&&typeof row==='object')delete row.autoDispatchPending;
    await GH_PERSISTENCE.drain();
    const request=a.simulationEngine.advanceTo(86399,{reason:'qa-worker-close',speed:300});if(!request.accepted)throw new Error(JSON.stringify(request));
   },QTY);

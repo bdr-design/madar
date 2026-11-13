@@ -64,7 +64,8 @@ test('the dispatch runs in chunks and yields after each new route',()=>{
   assert.match(app,/FLEET_DISPATCH_FRAME_BUDGET_MS=6/);
   assert.match(app,/if\(index\+1<total&&\(sliceRows>=FLEET_PROJECTION_MAX_ROWS\|\|elapsed>=FLEET_DISPATCH_FRAME_BUDGET_MS\)\)\{[^}]*await yieldFleetPlanning\(\);/);
   assert.match(app,/const asked=client\.dispatchPlan\(store,\{input,timeout:120000\}\)/);
-  assert.match(app,/await applyFleetDispatchWorkerPlan\(\{draft,dispatch,companyId,mode:type,assignments:batch,routeTable\}\)/);
+  // Review round 9 (commit 9ef65a4): the plan carries the caller's own record of transient worker answers.
+  assert.match(app,/await applyFleetDispatchWorkerPlan\(\{draft,dispatch,companyId,mode:type,assignments:batch,routeTable,transient:options\.transient\|\|null\}\)/);
   assert.doesNotMatch(app,/dispatch\('fleet','assign-routes-batch',\{assignments:batch,routes:routeTable\}\)/,'no single assignment of the whole batch');
   return {frameBudgetMs:6};
 });
