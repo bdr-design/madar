@@ -1,0 +1,68 @@
+{
+  "cases" : [
+    {
+      "name" : "custom-scheme main document allowed",
+      "ok" : true
+    },
+    {
+      "name" : "same-origin subframe denied",
+      "ok" : true
+    },
+    {
+      "name" : "wrong local host denied",
+      "ok" : true
+    },
+    {
+      "name" : "about blank denied",
+      "ok" : true
+    },
+    {
+      "name" : "different webview denied",
+      "ok" : true
+    }
+  ],
+  "failed" : 0,
+  "full_game_test" : false,
+  "iphone_test" : false,
+  "messages" : [
+    {
+      "accepted" : true,
+      "isMainFrame" : true,
+      "phase" : "local-main-and-subframe",
+      "sameWebView" : true,
+      "url" : "gh:\/\/app\/index.html"
+    },
+    {
+      "accepted" : false,
+      "isMainFrame" : false,
+      "phase" : "local-main-and-subframe",
+      "sameWebView" : true,
+      "url" : "gh:\/\/app\/frame.html"
+    },
+    {
+      "accepted" : false,
+      "isMainFrame" : true,
+      "phase" : "wrong-host",
+      "sameWebView" : true,
+      "url" : "gh:\/\/other\/index.html"
+    },
+    {
+      "accepted" : false,
+      "isMainFrame" : true,
+      "phase" : "blank-document",
+      "sameWebView" : true,
+      "url" : "about:blank"
+    },
+    {
+      "accepted" : false,
+      "isMainFrame" : true,
+      "phase" : "other-webview",
+      "sameWebView" : false,
+      "url" : "gh:\/\/app\/other.html"
+    }
+  ],
+  "passed" : 5,
+  "platform" : "macOS",
+  "realWKWebView" : true,
+  "total" : 5
+}
