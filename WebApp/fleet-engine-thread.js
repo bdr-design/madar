@@ -237,7 +237,7 @@
       if(reason&&!newReplica(store,reason))return false;
       // The same freshness predicate already guards queries. An unchanged replica has no log or packet to build.
       if(!reason&&synced.length===store.length&&synced.valuesLength===store.values.length&&STORE.replicaClean(store)&&routesRevision()===routesAt){stats.lastSyncMs=0;return routesReady;}
-      const started=clock(),log=STORE.drainReplica(store);
+      const started=clock(),log=STORE.drainReplica(store),tiersBefore=synced.tiers||null;synced.tiers=STORE.staticSnapshot(store);
       // Columns rewritten wholesale travel exactly as logged. columnWriter logs `present` itself, once, when it first
       // exposes a previously absent field; adding it unconditionally copied another million-entry column on every close.
       const columnNames=log.columns.length?[...new Set(log.columns)]:null;
@@ -261,8 +261,16 @@
         post({type:'routes',replace:true,plans:closeRouteKeys(keys)});
       }else if(indices.length){const keys=new Set();addRouteKeys(store,keys,indices);const plans=keys.size?closeRouteKeys(keys):null;if(plans?.length)post({type:'routes',replace:false,plans});}
       if(indices.length||values.changes.length||values.length!==synced.valuesLength||store.length!==synced.length||log.compactions.length){
+        // Heaviness batch A2 (iPhone diagnostic DX-1794605111560): the replica moves the tiers of a synced row's chunk only
+        // where the store moved them: every tier of a chunk any writer other than a rollback wrote since the last drain
+        // (foreign), and in a chunk only a rollback restored, the tiers the store moved since the last drain. Before, every
+        // synced chunk moved every tier (staticRows:true), so a cancelled slice made the worker re-check the static save
+        // proof of every restored chunk. The first sync of a replica moves them all.
+        let staticRows=true;
+        if(tiersBefore&&indices.length){const chunks=Math.ceil(store.length/STORE.CHUNK_ROWS),rowChunks=new Uint8Array(chunks),foreign=new Uint8Array(chunks),moved=STORE.staticChunksSince(store,tiersBefore);for(let k=0;k<indices.length;k++)rowChunks[indices[k]>>>STORE.CHUNK_SHIFT]=1;for(const chunk of log.foreignChunks||[])if(chunk<chunks)foreign[chunk]=1;
+          const pick=list=>{const chosen=new Uint8Array(chunks);for(const chunk of list)if(rowChunks[chunk])chosen[chunk]=1;const out=[];for(let chunk=0;chunk<chunks;chunk++)if(chosen[chunk]||rowChunks[chunk]&&foreign[chunk])out.push(chunk);return out;};staticRows={static:pick(moved.static),identity:pick(moved.identity),routed:pick(moved.routed)};}
         const rows=STORE.readRows(store,indices),count=indices.length;
-        post({type:'sync',...(into||{}),length:store.length,live:store.live,structure:store.structure,values,rows:{indices,bytes:rows.bytes,extras:rows.extras}},[rows.bytes,indices.buffer]);
+        post({type:'sync',...(into||{}),length:store.length,live:store.live,structure:store.structure,values,rows:{indices,bytes:rows.bytes,extras:rows.extras},staticRows},[rows.bytes,indices.buffer]);
         stats.rowsSent+=count;
       }
       if(columnPlan){

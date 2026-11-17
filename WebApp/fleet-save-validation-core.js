@@ -43,7 +43,12 @@
     for(const row of Array.isArray(params.routes)?params.routes:[])if(Array.isArray(row)&&row.length>=3&&!routes.has(row[0])){const mode=String(row[1]||''),base=ROUTE_FLEET_CAPACITY[mode]||1,stored=Number(row[3]);routes.set(row[0],{mode,owner:String(row[2]||''),capacity:Number.isSafeInteger(stored)&&stored>base?Math.min(stored,8192):base});}
     const registryCompanies=new Set((Array.isArray(params.registryCompanies)?params.registryCompanies:[]).map(String)),companyReferenceCompanies=new Set((Array.isArray(params.companyReferenceCompanies)?params.companyReferenceCompanies:params.registryCompanies||[]).map(String)),definitionCompanies=new Set((Array.isArray(params.definitionCompanies)?params.definitionCompanies:[]).map(String));
     const legacyOwners=object(params.legacyAssetOwners)?params.legacyAssetOwners:{};
-    return {routeIds,routes,registryCompanies,companyReferenceCompanies,definitionCompanies,legacyOwners,contextToken:contextToken(params)};
+    // iPhone diagnostic DX-1794605111560: every automatic dispatch raised a route's capacity and the static cache below
+    // re-checked all 23 chunks (223-236 ms on the worker). The static checks (staticChunk) read only the companies and the
+    // platform pair, never routes or their capacity; their cache is keyed on these parts alone. The live pass and the
+    // summary keep the whole contextToken.
+    const staticToken='['+JSON.stringify([...registryCompanies])+','+JSON.stringify([...companyReferenceCompanies])+','+staticTokenTail(params)+']';
+    return {routeIds,routes,registryCompanies,companyReferenceCompanies,definitionCompanies,legacyOwners,contextToken:contextToken(params),staticToken};
   }
   // The company platform's fleet predicates, on the worker's existing identity class tables. No row strings or class
   // tables cross the worker boundary. A malformed large fleet fails closed with bounded error evidence.
@@ -176,8 +181,8 @@
     // iPhone diagnostic DX-1792378248326: the first command after a day close re-checked all 30 chunks (2.3 s on the
     // worker) and nothing said why. The reason is kept with the existing counters (no extra pass): which part of the
     // cache key moved, and for each re-checked chunk whether its identity version, bounds or interned values changed.
-    let reset='';if(!cache)reset='empty';else if(cache.stamp!==stamp)reset=cache.stamp.split(':')[0]!==stamp.split(':')[0]?'epoch':'chunk-mass';else if(cache.contextToken!==context.contextToken)reset='context';else if(cache.inspector!==inspector)reset='inspector';
-    if(reset){cache={stamp,contextToken:context.contextToken,inspector,chunks:[]};staticCache.set(store,cache);}
+    let reset='';if(!cache)reset='empty';else if(cache.stamp!==stamp)reset=cache.stamp.split(':')[0]!==stamp.split(':')[0]?'epoch':'chunk-mass';else if(cache.staticToken!==context.staticToken)reset='context';else if(cache.inspector!==inspector)reset='inspector';
+    if(reset){cache={stamp,staticToken:context.staticToken,inspector,chunks:[]};staticCache.set(store,cache);}
     if(cache.chunks.length>count)cache.chunks.length=count;
     const tables=[],miss={version:0,bounds:0,refs:0,new:0};let checked=0,reused=0;
     for(let chunk=0;chunk<count;chunk++){

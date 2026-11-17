@@ -1158,5 +1158,15 @@
         "sha256": "3a536cb191eded595e3110b820443dc4053bdd2d66359185de33b3de808d8820"
       }
     ]
+  },
+  "approved_live_clock_edits_reason": "Owner instruction 2026-11-17 «نفذ الحل ... على دفعات بدقه واختبارات صارمه» (heaviness batch B, iPhone diagnostic DX-1794605111560): a suspension at live speed (a player's durable command, a save) keeps the pacing backlog accrued before it instead of clearing it, so the clock does not wait a fresh second after each command. Game-time pacing only: no customer, price, fare or cost logic. Newest of all: reversed first.",
+  "approved_live_clock_edits": {
+    "WebApp/simulation-core.js": [
+      {
+        "before": "      if(hidden||suspended||(speed<=0&&!advancing)){pacing.clearBacklog();cancelJob(hidden?'hidden':speed<=0?'paused':'suspended');maybeRender(now,speed);return;}\n",
+        "after": "      // A suspension cancels the slice in flight (redone from the committed state) and keeps the backlog accrued before it\n      // (pacing observeLiveFrame); hidden, paused and a calendar advance clear it as before.\n      if(hidden||suspended||(speed<=0&&!advancing)){if(hidden||speed<=0||advancing)pacing.clearBacklog();cancelJob(hidden?'hidden':speed<=0?'paused':'suspended');maybeRender(now,speed);return;}\n",
+        "sha256": "568cc19966532973d77c0091d7318d4e53acfab3f9bcce4cdb4ae1f4664a9306"
+      }
+    ]
   }
 }

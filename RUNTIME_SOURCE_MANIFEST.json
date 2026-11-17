@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "build": 362,
   "save_schema": "3.0.0",
-  "source_tree_sha256": "485237d5ab0615cf9e96a9504cfab5ceaad685a47ec835ff8600d50b01ea3585",
-  "webapp_tree_sha256": "a6238c7b12db11e226d1edb3ef3f1dc300d2f7bd7a6f9da63875950768b0213b",
+  "source_tree_sha256": "7a1bcd4bf1def98b0397b13d3d1ae50ab03a5ffbdd7ccf878fa6c87a4b4dae08",
+  "webapp_tree_sha256": "a59bd845dd5116a37fe24031686788031ff12756c279e76660c9a79b17042dc3",
   "files": {
     "WebApp/THIRD_PARTY_NOTICES.txt": {
       "bytes": 1501,
@@ -23,8 +23,8 @@
       "sha256": "71612fdabc72cbd0327a5dcc28b02576a011d8c710ee24b6a5c11b6d918e24cf"
     },
     "WebApp/app.js": {
-      "bytes": 1163725,
-      "sha256": "e8dfcc60a511f899485652d4c8b84dbe6a8de0a8e3965e682ad9db89122978b7"
+      "bytes": 1164157,
+      "sha256": "f230b485d10509b484ee82dc008dd7b768dbe8f22985eb21d182f15e5d2795c2"
     },
     "WebApp/arabic-copy-core.js": {
       "bytes": 9718,
@@ -3559,12 +3559,12 @@
       "sha256": "37b1182693df9ebcc3ccc9286e2db5ba9038257ee89549b4627dd922495be0cb"
     },
     "WebApp/fleet-engine-thread.js": {
-      "bytes": 66530,
-      "sha256": "f6111bec1be3436fb35d088f9e31c23a22c5438ab5470df124d6d4dee0ddf589"
+      "bytes": 67931,
+      "sha256": "63db76676c2c804a44d8abd6754405eef8f989c4302e992d88790f6837e7c5ad"
     },
     "WebApp/fleet-engine-worker.js": {
-      "bytes": 33631,
-      "sha256": "e67c1d0f775217c6650b212f4793ab5cf5b5b7ea54917c4f2e18b1e5c82ed232"
+      "bytes": 33861,
+      "sha256": "d8468d5e6bcb0afae4b6f61a0c72282462e1b04e40a53be2c8e806dd2e4f489b"
     },
     "WebApp/fleet-event-core.js": {
       "bytes": 48967,
@@ -3615,8 +3615,8 @@
       "sha256": "57b0ae2712ebb734f14b0faf91542e342d851af048ebe1774cad191a9cda8125"
     },
     "WebApp/fleet-save-validation-core.js": {
-      "bytes": 32897,
-      "sha256": "20ca95ed835032a6ddf487dd5d2f20ccb064921cd585b4f720211755a3048dde"
+      "bytes": 33462,
+      "sha256": "ab4f36e5f701db181b57d6af1b090ebc640cf72816fda3b559d1d8b86eccea52"
     },
     "WebApp/fleet-staffing-reconcile-plan-core.js": {
       "bytes": 14409,
@@ -3627,8 +3627,8 @@
       "sha256": "b57ada3180793432214dd8c5e8a5183d2241b884519acf0547ab01e7e47cf32b"
     },
     "WebApp/fleet-store-core.js": {
-      "bytes": 135177,
-      "sha256": "b8184b501f40c448b257ff58cb86bdd56e837a0fc4b3d749b7fa36eaee2aa2be"
+      "bytes": 138649,
+      "sha256": "4c082392dfe44129dbd77e8f04ed9a464d780008c4d25f935a86dd382ba67b5b"
     },
     "WebApp/fleet-ui-summary-core.js": {
       "bytes": 17172,
@@ -3939,12 +3939,12 @@
       "sha256": "0e3f6cece32b6c12432a0d4ec77926f812b0417e5c3a7c357604b659a2ff7ed8"
     },
     "WebApp/simulation-core.js": {
-      "bytes": 40160,
-      "sha256": "e77c59593dd4f5e008de53d508823a79376ebc345174c1b89228c765dc429d6f"
+      "bytes": 40409,
+      "sha256": "08439ef0a6d3e84be39bb29cc7b4dfd4d65df7f3689fb051d22ae28c7020d4b7"
     },
     "WebApp/simulation-pacing-core.js": {
-      "bytes": 4376,
-      "sha256": "7daaa15ba90e1c8cb5d803ddcdf76bb550940d462565c3b41108e0c750731560"
+      "bytes": 4981,
+      "sha256": "f89edbefe406cb11aac2c04657589ac30574cd86954c8b0087be160b7a1d2900"
     },
     "WebApp/simulation-runtime-core.js": {
       "bytes": 5067,
@@ -4088,7 +4088,7 @@
     },
     "project.yml": {
       "bytes": 2585,
-      "sha256": "b3a710247cecf692384f2565f55aec40d0d516c1393748d29baabea0fc715083"
+      "sha256": "b048422bd33271dea0cf24888f75def76da11879f57075d83ed4d92f1e758a27"
     },
     "BUILD": {
       "bytes": 4,

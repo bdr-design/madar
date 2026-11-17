@@ -239,7 +239,8 @@ self.addEventListener('message',event=>{
         if(message.length<store.length)STORE.truncateReplica(store,message.length);
         if(message.length>store.length){STORE.ensureCapacity(store,message.length);store.length=message.length;}
         if(message.values)STORE.applyValueChanges(store,message.values);
-        if(message.rows&&message.rows.indices.length)STORE.writeRows(store,message.rows.indices,message.rows.bytes,message.rows.extras,{staticRows:true,trackIds:true});
+        // The thread names the chunks whose tiers moved (heaviness batch A2); an older or first sync moves them all.
+        if(message.rows&&message.rows.indices.length)STORE.writeRows(store,message.rows.indices,message.rows.bytes,message.rows.extras,{staticRows:message.staticRows&&typeof message.staticRows==='object'&&!Array.isArray(message.staticRows)?message.staticRows:true,trackIds:true});
         store.live=message.live;store.structure=message.structure;
         afterDayMetricsSync(metrics,message);
         return;

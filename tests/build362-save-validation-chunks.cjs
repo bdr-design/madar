@@ -1,7 +1,8 @@
 'use strict';
 // Build 362 follow-up (iPhone diagnostic DX-1792142505027, 980,000 assets): every player decision waited ~2.0 s for the
 // fleet worker's save validation. GH_FLEET_SAVE_VALIDATION.summarize now keeps the checks of fields an operating fleet
-// does not rewrite per store chunk (keyed on identityVersions, the store stamp, the context and the text inspector) and
+// does not rewrite per store chunk (keyed on identityVersions, the store stamp, the static context (the companies and
+// the platform pair; never routes or their capacity: DX-1794605111560) and the text inspector) and
 // runs only the time-derived and route checks over every row. Proven here against summarizeReference (the former
 // one-pass validator) after every kind of write: deep equality of the whole result, including the order of its errors
 // and company errors, the company error cap and overflow, and reuse only where nothing a static check reads has moved.
@@ -88,9 +89,21 @@ test('duplicate ids, appended and removed rows stay exact',()=>{
   return {dup,added,removed};
 });
 
-test('mass column writes, a new context and a new text inspector check again',()=>{
+test('mass column writes, a new static context and a new text inspector check again; a route change does not',()=>{
   const write=STORE.columnWriter(store,['condition']);write(at(0,3),'condition',101);const mass=same('column writer');
-  params={...params,routeIds:params.routeIds.filter(id=>id!=='A1')};const context=same('route registry changed');assert.equal(context.checked,chunks(),'a new context checks every chunk');
+  // iPhone diagnostic DX-1794605111560: each automatic dispatch changed the route list or a route's capacity and the
+  // static cache re-checked every chunk. The static checks read no route: a route change reuses every chunk, while the
+  // live pass (every call, every row) still sees it, so the result changes and still equals the reference.
+  const beforeRoutes=CORE.summarize(state,FLEET,params);
+  params={...params,routeIds:params.routeIds.filter(id=>id!=='A1')};const context=same('route registry changed');assert.equal(context.checked,0,'a route list change reuses every static chunk');assert.equal(context.reused,chunks());
+  assert.notDeepStrictEqual(CORE.summarize(state,FLEET,params),beforeRoutes,'the live pass sees the route list change');
+  params={...params,routes:params.routes.map(row=>row[0]==='S1'?[row[0],row[1],row[2],64]:row)};const capacity=same('route capacity raised');assert.equal(capacity.checked,0,'a capacity change reuses every static chunk');assert.equal(capacity.reused,chunks());
+  // A route's owner or mode change is read by the live pass only (asset-route-company): every static chunk is reused.
+  params={...params,routes:params.routes.map(row=>row[0]==='R1'?[row[0],'air','sea',row[3]]:row)};const ownerMode=same('route owner and mode changed');assert.equal(ownerMode.checked,0,'a route owner or mode change reuses every static chunk');
+  // Each part of the static context, changed alone, checks every chunk again (the registry with its reference list kept
+  // explicit, so the reference fallback does not move with it).
+  for(const [label,patch] of [['registry companies',{registryCompanies:['air','sea'],companyReferenceCompanies:['air','sea','road']}],['definition companies',{definitionCompanies:['air','sea']}],['legacy asset owners',{legacyAssetOwners:{air:'air',sea:'sea'}}],['company reference companies',{companyReferenceCompanies:['air','sea']}]]){
+    const kept=params;params={...params,...patch};const changed=same(`${label} changed`);assert.equal(changed.checked,chunks(),`${label}: every chunk checked again`);params=kept;same(`${label} restored`);}
   // A company registry change moves the static owner checks themselves.
   const companies=params;params={...params,registryCompanies:['air','sea'],definitionCompanies:['air','sea'],legacyAssetOwners:{air:'air',sea:'sea'}};const registry=same('company registry changed');assert.equal(registry.checked,chunks());params=companies;same('company registry restored');
   // A replaced interned value changes every row that references it without a row write: the store stamp moves.

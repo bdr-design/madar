@@ -40,9 +40,16 @@ for(const how of ['owner','extras','column','membership','epoch','buffer','value
  if(how==='epoch')S.bumpEpoch(target);
  if(how==='buffer')target.rows=target.rows.slice(0);
  if(how==='values')target.values=structuredClone(target.values);
- if(how==='rollback'){const journal=S.beginJournal(target);S.set(target,1,'condition',42);S.rollbackJournal(journal);}
+ if(how==='rollback'){const journal=S.beginJournal(target);S.set(target,1,'ownerCompanyId','sea');S.rollbackJournal(journal);}
  assert.equal(S.identityCurrent(target,stamp),false,how);
 }
+// Heaviness batch A2 (iPhone diagnostic DX-1794605111560): a rolled-back journal moves a tier only where it moved inside
+// the journal. An identity write that interns no new value, seen by a snapshot taken inside the journal, still expires
+// that snapshot on rollback; a rolled-back engine write keeps evidence taken before the journal.
+{const target=S.fromAssets(rows,{at:0}),values=target.values.length,journal=S.beginJournal(target);S.set(target,1,'name','renamed');assert.equal(target.values.length,values,'the write interns no new value');
+ const inner=S.identitySnapshot(target);S.rollbackJournal(journal);assert.equal(S.identityCurrent(target,inner),false,'a snapshot taken inside the journal expires on rollback');}
+{const target=S.fromAssets(rows,{at:0}),before=S.identitySnapshot(target),journal=S.beginJournal(target);S.set(target,1,'condition',42);S.rollbackJournal(journal);
+ assert.equal(S.identityCurrent(target,before),true,'a rolled-back engine write keeps the evidence taken before the journal');}
 // Actual integrity reader: worker evidence or an explicit unavailable issue; never a synchronous fleet walk.
 state.fleet=S.fromAssets(rows,{at:0});const evidence=V.summarizeCompany(state,F,params());let fullWalks=0;
 s.GH_FLEET_DATA={...F,forEachFieldClasses(){fullWalks++;throw new Error('forbidden-main-fleet-scan');},forEachFields(){fullWalks++;throw new Error('forbidden-main-fleet-scan');}};

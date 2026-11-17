@@ -42,7 +42,13 @@
       if(!Number.isFinite(realDelta)||realDelta<0)realDelta=0;
       let dropped=0,clamped=false,stalled=false,excess=0;
       if(realDelta>cfg.maxRealDelta){dropped=realDelta;droppedRealSeconds+=realDelta;stallGaps++;realDelta=0;stalled=true;}
-      if(hidden||suspended||paused){backlog=0;return {realDelta,droppedRealSeconds:dropped,clamped,stalled,backlog,clampedSimSeconds:0};}
+      if(hidden||paused){backlog=0;return {realDelta,droppedRealSeconds:dropped,clamped,stalled,backlog,clampedSimSeconds:0};}
+      // iPhone diagnostic DX-1794605111560 (27 commands in 63 s ran the clock at 55% of 300x): a suspension (a player's
+      // durable command, a save lock, an asset purchase hold, a diagnostic export) accrues no time and keeps the backlog
+      // accrued before it, so the clock resumes where it stood instead of waiting a fresh full second. Hidden and paused
+      // still clear it, and hidden time is never replayed; the host resets the engine for a reset, a recovery or the
+      // conference.
+      if(suspended)return {realDelta:0,droppedRealSeconds:dropped,clamped,stalled,backlog,clampedSimSeconds:0};
       backlog+=realDelta*Math.max(0,Number(speed)||0);
       // clampedSimSeconds: the game time the cap drops (counted only; the backlog is never authoritative economic time).
       const cap=backlogCap(speed);if(backlog>cap){excess=backlog-cap;clampedSimSeconds+=excess;backlog=cap;backlogClamps++;clamped=true;}

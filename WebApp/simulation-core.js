@@ -459,7 +459,9 @@
         if(cooldownNext){cooldownNext=false;health.cooldownFrames=(health.cooldownFrames||0)+1;maybeRender(now,speed);return;}
         if(runDeferredWork()){maybeRender(now,speed);return;}
       }else if(job&&cooldownNext&&!hidden&&!suspended){cooldownNext=false;health.cooldownFrames=(health.cooldownFrames||0)+1;maybeRender(now,speed);return;}
-      if(hidden||suspended||(speed<=0&&!advancing)){pacing.clearBacklog();cancelJob(hidden?'hidden':speed<=0?'paused':'suspended');maybeRender(now,speed);return;}
+      // A suspension cancels the slice in flight (redone from the committed state) and keeps the backlog accrued before it
+      // (pacing observeLiveFrame); hidden, paused and a calendar advance clear it as before.
+      if(hidden||suspended||(speed<=0&&!advancing)){if(hidden||speed<=0||advancing)pacing.clearBacklog();cancelJob(hidden?'hidden':speed<=0?'paused':'suspended');maybeRender(now,speed);return;}
       work(now,speed);completeManualAdvance();maybeRender(now,speed);
     }
 

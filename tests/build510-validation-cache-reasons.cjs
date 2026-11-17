@@ -20,8 +20,13 @@ const warm=run('warm');assert.equal(warm.reset,'');assert.equal(warm.checked,0);
 // An identity write in chunk 0 only: that chunk reports 'version', the other is reused.
 const index=FLEET.indexOf(state,'CR-0000010');STORE.set(store,index,'name','Renamed CR');
 const renamed=run('renamed');assert.equal(renamed.reset,'');assert.equal(renamed.miss.version,1);assert.equal(renamed.checked,1);
-// A context change (new route list) resets the cache with 'context'.
-params={...params,routeIds:[...params.routeIds,'NEW']};const context=run('context');assert.equal(context.reset,'context');
+// A route change (a new route list or a raised capacity, as every automatic dispatch makes: DX-1794605111560) does not
+// move the static checks, which read no route: nothing is reset and every chunk is reused. A change of the static context
+// (the companies, the definitions, the legacy owners) resets the cache with 'context'.
+params={...params,routeIds:[...params.routeIds,'NEW']};const routesOnly=run('routes');assert.equal(routesOnly.reset,'');assert.equal(routesOnly.checked,0);assert.equal(routesOnly.reused,Math.ceil(store.length/CHUNK));
+params={...params,routes:params.routes.map(row=>row[0]==='A1'?[row[0],row[1],row[2],64]:row)};const capacity=run('capacity');assert.equal(capacity.reset,'');assert.equal(capacity.checked,0);
+params={...params,definitionCompanies:['air','sea']};const definitions=run('definitions');assert.equal(definitions.reset,'context');
+params={...params,definitionCompanies:['air','sea','road'],registryCompanies:['air','sea']};const context=run('context');assert.equal(context.reset,'context');
 const thread=fs.readFileSync(path.join(ROOT,'WebApp/fleet-engine-thread.js'),'utf8');
 assert.match(thread,/stats\.lastSaveValidationReset=String\(message\.validation\.lastReset\|\|''\)/,'the client keeps the reason in its stats');
 // The client times a durable command's save validation (iPhone: a command waited 1.65 s for a 434 ms pass): its round

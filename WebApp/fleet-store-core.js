@@ -199,6 +199,8 @@
     if(r.routedVersions.length<chunks){const next=new Uint32Array(chunks);next.set(r.routedVersions);r.routedVersions=next;}
     if(r.replica.bits.length<Math.ceil(cap/32)){const next=new Uint32Array(Math.ceil(cap/32));next.set(r.replica.bits);r.replica.bits=next;}
     if(r.replica.chunks.length<chunks){const next=new Uint8Array(chunks);next.set(r.replica.chunks);r.replica.chunks=next;}
+    if(r.replica.foreign.length<chunks){const next=new Uint8Array(chunks);next.set(r.replica.foreign);r.replica.foreign=next;}
+    if(r.journal&&r.journal.active&&r.journal.pendingTiers.length<chunks){const next=new Uint8Array(chunks);next.set(r.journal.pendingTiers);r.journal.pendingTiers=next;}
     if(r.journal&&r.journal.active&&r.journal.seen.length<cap){const seen=new Uint8Array(cap);seen.set(r.journal.seen);r.journal.seen=seen;}
   }
   function ensureCapacity(store,needed){
@@ -299,7 +301,8 @@
   function beginJournal(store){
     const r=rt(store);if(r.journal&&r.journal.active)return r.journal;
     const journal={store,runtime:r,length:store.length,live:store.live,structure:store.structure,revision:store.revision,high:store.revision,highStructure:store.structure,valuesLength:store.values.length,reused:[],
-      log:takeLog(r),seen:takeSeen(r,store.capacity),fields:new Map(),preparedFields:new Map(),ids:r.ids,idOps:[],idCollision:false,active:true};
+      log:takeLog(r),seen:takeSeen(r,store.capacity),fields:new Map(),preparedFields:new Map(),ids:r.ids,idOps:[],idCollision:false,active:true,
+      tiers:{static:r.staticVersions.slice(),identity:r.identityVersions.slice(),routed:r.routedVersions.slice()},pendingTiers:new Uint8Array(r.staticVersions.length)};
     r.journal=journal;return journal;
   }
   function journalFor(store){
@@ -329,12 +332,15 @@
   // too) and every compaction, in order. Rows the thread replays from its own worker are not logged (withoutReplicaLog):
   // the replica already holds them. The log lives on the runtime: a new runtime (a decoded or restored store) starts a
   // new one, and the thread then needs a new replica.
-  function newReplicaLog(capacity){const rows=Math.max(1,capacity);return {bits:new Uint32Array(Math.ceil(rows/32)),chunks:new Uint8Array(Math.ceil(rows/CHUNK_ROWS)),rowsVersion:0,drainVersion:0,any:false,columns:null,reportedColumns:null,columnPlan:null,compactions:[],valueBits:new Uint32Array(1),valueRefs:[],valuesDirty:false,trackValues:false,suppress:0,disabled:false};}
+  function newReplicaLog(capacity){const rows=Math.max(1,capacity);return {bits:new Uint32Array(Math.ceil(rows/32)),chunks:new Uint8Array(Math.ceil(rows/CHUNK_ROWS)),foreign:new Uint8Array(Math.ceil(rows/CHUNK_ROWS)),restoring:false,rowsVersion:0,drainVersion:0,any:false,columns:null,reportedColumns:null,columnPlan:null,compactions:[],valueBits:new Uint32Array(1),valueRefs:[],valuesDirty:false,trackValues:false,suppress:0,disabled:false};}
   function logReplica(r,index){
     const log=r.replica;if(log.disabled||log.suppress)return;
     // A retained mass-write plan describes the state at the instant it completed. Any later row write may override one
     // of its fields, so the exact plan can no longer replace the final row image on the replica.
     log.columnPlan=null;log.bits[index>>>5]|=1<<(index&31);log.chunks[index>>>CHUNK_SHIFT]=1;log.rowsVersion++;log.any=true;
+    // A row a rollback restored (its preimage) is logged as `restoring`; any other writer marks its chunk foreign, and the
+    // replica moves every tier of a foreign chunk (the engine thread's sync).
+    if(!log.restoring)log.foreign[index>>>CHUNK_SHIFT]=1;
   }
   function logReplicaColumn(r,name,reported=true){const log=r.replica;if(log.disabled||log.suppress)return;log.columnPlan=null;if(!log.columns)log.columns=new Set();log.columns.add(name);if(reported){if(!log.reportedColumns)log.reportedColumns=new Set();log.reportedColumns.add(name);}log.any=true;}
   // Interned values are mirrored by reference number. Keep a compact, single-consumer change log just like the row
@@ -413,13 +419,22 @@
     // snapshot).
     const snaps=[...journal.fields].map(([name,snap])=>{const [view,k]=SLOTS[name];return {name,target:v[view],per:PER_ROW[view],k,copy:snap.copy,logCount:snap.logCount,quiet:snap.quiet===true};});
     for(const s of snaps){const n=Math.min(s.copy.length,store.capacity);for(let index=0;index<n;index++)s.target[index*s.per+s.k]=s.copy[index];}
-    const words=v.u32;
-    for(let slotIndex=0;slotIndex<log.count;slotIndex++){
+    const words=v.u32,restored=new Uint8Array(Math.max(1,Math.ceil(store.capacity/CHUNK_ROWS)));
+    // The restored rows are logged for the replica as `restoring` (not foreign).
+    r.replica.restoring=true;try{for(let slotIndex=0;slotIndex<log.count;slotIndex++){
       const index=log.rows[slotIndex],block=log.segments[slotIndex>>>LOG_SEGMENT_SHIFT],src=(slotIndex&LOG_SEGMENT_MASK)*WORDS_PER_ROW,dst=index*WORDS_PER_ROW;
-      for(let k=0;k<WORDS_PER_ROW;k++)words[dst+k]=block[src+k];
+      restored[index>>>CHUNK_SHIFT]=1;for(let k=0;k<WORDS_PER_ROW;k++)words[dst+k]=block[src+k];
       for(const s of snaps)if(slotIndex>=s.logCount&&index<s.copy.length)s.target[index*s.per+s.k]=s.copy[index];
       const extras=log.extras[slotIndex];if(extras===undefined)dropExtras(store,index);else putExtras(store,index,extras);
-      markDirty(r,index);logDirty(r,index);
+      markEngineDirty(r,index);logDirty(r,index);
+    }}finally{r.replica.restoring=false;
+    // iPhone diagnostic DX-1794605111560: every cancelled slice bumped the static, identity and routed versions of every
+    // restored chunk, so the save validation re-checked 15 of 23 chunks after each command. A restored row's bytes are its
+    // preimage: a tier moves on rollback only in a chunk where it moved during the journal, or where a staged writer wrote
+    // rows and had not yet moved their tiers (writeRows without a tier list; pendingTiers). A cache built inside the
+    // journal is still expired; a cache from before it stays valid. (In `finally`, a chunk marked before its row is copied:
+    // rows restored before a throw, and the row it threw on, still move their tiers.)
+    for(let chunk=0;chunk<restored.length;chunk++)if(restored[chunk]){const pending=chunk<journal.pendingTiers.length&&journal.pendingTiers[chunk]===1;for(const [name,before] of [['staticVersions',journal.tiers.static],['identityVersions',journal.tiers.identity],['routedVersions',journal.tiers.routed]]){const versions=r[name];if(pending||chunk>=before.length||versions[chunk]!==before[chunk])versions[chunk]++;}}
     }
     for(let index=journal.length;index<store.length;index++){dropExtras(store,index);v.u8[index*STRIDE+O.flags]=0;markDirty(r,index);logDirty(r,index);}
     const structureChanged=store.structure!==journal.structure;
@@ -672,7 +687,7 @@
   // valuesDirty}. Draining clears it. Cost is proportional to changed chunks and value refs; it never scans or copies
   // the full intern table.
   function drainReplica(store){
-    const r=rt(store),log=r.replica,out={runtime:r.uid,rows:null,columns:log.columns?[...log.columns]:[],reportedColumns:log.reportedColumns?[...log.reportedColumns]:[],columnPlan:log.columnPlan,compactions:log.compactions,valueRefs:Int32Array.from(log.valueRefs),valuesDirty:log.valuesDirty};
+    const r=rt(store),log=r.replica,out={runtime:r.uid,rows:null,foreignChunks:null,columns:log.columns?[...log.columns]:[],reportedColumns:log.reportedColumns?[...log.reportedColumns]:[],columnPlan:log.columnPlan,compactions:log.compactions,valueRefs:Int32Array.from(log.valueRefs),valuesDirty:log.valuesDirty};
     r.replicaBaseline=true;
     const list=[];
     if(log.any){
@@ -686,6 +701,7 @@
         }
       }
     }
+    const foreign=[];for(let chunk=0;chunk<log.foreign.length;chunk++)if(log.foreign[chunk]){foreign.push(chunk);log.foreign[chunk]=0;}out.foreignChunks=foreign;
     out.rows=Int32Array.from(list);log.columns=null;log.reportedColumns=null;log.columnPlan=null;log.compactions=[];log.any=false;log.rowsVersion++;log.drainVersion++;
     for(const ref of log.valueRefs)log.valueBits[ref>>>5]&=~(1<<(ref&31));log.valueRefs=[];log.valuesDirty=false;if(!log.disabled)log.trackValues=true;
     return out;
@@ -763,7 +779,9 @@
   function truncateReplica(store,length){
     if(!(length>=0&&length<=store.length))throw new Error('fleet-replica-truncate-invalid');
     const u8=views(store).u8;for(let index=length;index<store.length;index++){dropExtras(store,index);u8[index*STRIDE+O.flags]=0;}
-    store.length=length;const r=rt(store);r.chunkMassVersion++;r.overlayVersion++;bumpEpoch(store);
+    // Heaviness batch A2 review: the replica's cached profile, lease and payroll groups counted the truncated rows (a
+    // purchase rolled back on the thread); before A2 a later staticRows:true sync reset them by accident.
+    store.length=length;const r=rt(store);r.chunkMassVersion++;r.overlayVersion++;invalidateProfiles(store);bumpEpoch(store);
   }
   // The owner of the dirty log runs `fn` writing rows it tracks itself (the
   // event engine). When the log was fully drained before, it stays in sync.
@@ -1261,7 +1279,7 @@
     if(!fresh())return {stale:true,removed:0,length:store.length};
     if(write!==live||deadCount!==dead.length)throw new Error('fleet-store-compact-live-count');
     store.rows=targetBuffer;store.capacity=targetCapacity;replaceExtras(store,nextExtras);store.length=write;store.live=write;store.structure++;store.revision++;
-    r.views=makeViews(targetBuffer);replica.bits=nextBits;replica.chunks=nextChunks;replica.columnPlan=null;replica.compactions.push({dead,length});replica.rowsVersion++;replica.any=true;
+    r.views=makeViews(targetBuffer);replica.bits=nextBits;replica.chunks=nextChunks;replica.foreign=new Uint8Array(nextChunks.length).fill(1);replica.columnPlan=null;replica.compactions.push({dead,length});replica.rowsVersion++;replica.any=true;
     r.allDirty=true;r.massVersion++;r.chunkMassVersion++;r.overlayVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);
     return {stale:false,removed:dead.length,length:write};
   }
@@ -1467,7 +1485,12 @@
       const extra=extras?.[k];if(extra===undefined||extra===null)dropExtras(store,index);else putExtras(store,index,extra);
       if(tracked){const id=isAlive(store,index)?idAt(store,index):undefined;if(id!==previousId)idsMove(store,index,previousId,id);}
     }
-    const r=rt(store);
+    const r=rt(store),journal=r.journal&&r.journal.active?r.journal:null;
+    // Heaviness batch A2: a staged writer (the thread's step replay, the dispatch apply) writes rows without a tier list
+    // and moves their tiers in a later call. Until then a rollback of the journal moves every tier of those chunks; the
+    // call that moves the tiers settles them: a tier list settles every pending chunk (it is the staged writer's last
+    // call); `true` settles only the chunks of the rows it writes (it moves their tiers now; with no rows, none).
+    if(journal){const pending=journal.pendingTiers;if(staticRows&&typeof staticRows==='object')pending.fill(0);else if(rowEnd>rowStart){const mark=staticRows?0:1;for(let k=rowStart;k<rowEnd;k++){const chunk=indices[k]>>>CHUNK_SHIFT;if(chunk<pending.length)pending[chunk]=mark;}}}
     // `staticRows`: true marks the chunks of every row written; a list names the chunks to mark (Build 371: the engine
     // thread lists the chunks its replica wrote outside the fast path, instead of every chunk once any row did).
     // ({static,identity} chunk lists, from staticChunksSince; a plain list marks both tiers.)

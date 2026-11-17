@@ -7589,15 +7589,19 @@ ${page}</div>`;
   // whose listener is installed when it loads.
   let deviceFrameIntervalMs=0;const applyDeviceState=d=>{deviceFrameIntervalMs=d?.lowPowerMode===true||d?.thermalState==='serious'||d?.thermalState==='critical'?1000/30:0;};
   applyDeviceState(window.GH_DIAGNOSTICS?.deviceState?.());window.addEventListener('gh-native-device-state',event=>applyDeviceState(event.detail||{}));
-  // What holds the loop (and resets the engine when it begins): the conference, a reset, a durable command or a save.
+  // What holds the loop: the conference, a reset, a durable command or a save. When it begins the engine is reset unless
+  // holdAdvanceThroughLock below holds it (a durable command or a save, outside a reset, a recovery or a cancelling advance).
   function loopLockReason(){return window.GH_CONFERENCE?.isPresentationActive?.()?'conference-3d':hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()?'lifecycle-lock':'';}
-  // A resting loop sees a lock that began meanwhile only at its next pass, and seeing it resets the engine, which cancels
+  // A resting loop sees a lock that began meanwhile only at its next pass, and seeing it reset the engine, which cancelled
   // a calendar advance accepted in between (build530: "+ day" pressed as the founding command publishes). The advance sees
   // the lock first, as the loop at the display rate did within a frame.
   // A player command or a save that begins during a calendar advance holds the advance instead of cancelling it (the
   // engine pauses it while the host is suspended, slice cancelled, and resumes it after): the iPhone file lost 28 days of
   // a requested advance to a command. A recovery or a reset still cancels it, as before.
-  function holdAdvanceThroughLock(lock){if(lock!=='lifecycle-lock'||hardResetInProgress||window.GH_PERSISTENCE.telemetry?.().recoveryRequired===true)return false;const advance=simulationEngine.snapshot().manualAdvance;return !!advance&&!advance.cancelling;}
+  // The same holds live play (iPhone diagnostic DX-1794605111560: each command reset the engine and its backlog, so the
+  // clock waited a fresh second after every press): the engine cancels the slice in flight while suspended and keeps the
+  // backlog accrued before the command; nothing accrues during it.
+  function holdAdvanceThroughLock(lock){if(lock!=='lifecycle-lock'||hardResetInProgress||window.GH_PERSISTENCE.telemetry?.().recoveryRequired===true)return false;const advance=simulationEngine.snapshot().manualAdvance;return !advance?.cancelling;}
   function observeLoopLock(){const lock=loopLockReason();if(!lock||lastLoopGuardReason===lock)return false;lastLoopGuardReason=lock;if(!holdAdvanceThroughLock(lock))simulationEngine.reset(performance.now(),lock);simulationRuntime.wake();return true;}
   // The engine's two reads without its snapshot object; an engine without them (a test's stand-in) gives its snapshot.
   function simulationManualActive(){return typeof simulationEngine.manualActive==='function'?simulationEngine.manualActive():!!simulationEngine.snapshot().manualAdvance;}
