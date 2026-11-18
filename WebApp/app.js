@@ -1779,40 +1779,73 @@
   // template kept the new geometry). The live state is written only when no command, staged slice or persistence lock
   // holds it; applyRoadGeometryWhenSettled waits for that.
   function liveStateWritable(){return !durableCommandInProgress&&!window.__GH_DURABLE_COMMAND_CONTEXT__&&!hardResetInProgress&&!stagedStateBusy()&&window.GH_PERSISTENCE.isLocked()!==true;}
-  async function applyRoadGeometryWhenSettled(routeId,geometry,saveCache=true){
-    // The geometry belongs to the game and route it was requested for: after a hard reset (resetEpoch), a route rebuilt
-    // between other endpoints, or one whose verified road geometry (or canonical cache entry) arrived meanwhile, it is
-    // dropped. A save lock that outlasts about 10 s (a recovery-required save keeps it until a reload) drops it too; the
-    // next start fetches it again.
-    const epoch=Number(state.resetEpoch)||0,requested=routeTemplates[routeId],from=requested?.fromFacility,to=requested?.toFacility;
+  // The geometry belongs to the game and route it was requested for: after a hard reset (resetEpoch), a route rebuilt
+  // between other endpoints, or one whose verified road geometry (or canonical cache entry) arrived meanwhile, it is
+  // dropped. That is checked when it is requested, on each wait and again in the task that reads the route for its plan.
+  function roadGeometryRequest(routeId){const requested=routeTemplates[routeId];return {epoch:Number(state.resetEpoch)||0,from:requested?.fromFacility,to:requested?.toFacility};}
+  function roadGeometryRequestCurrent(routeId,request){
+    const current=routeTemplates[routeId];
+    if((Number(state.resetEpoch)||0)!==request.epoch||!current||current.fromFacility!==request.from||current.toFacility!==request.to)return false;
+    return !((current.roadGeometryVersion===311&&Number(current.roadNetworkDistanceKm)>0)||state.routeCache?.[routeId]?.canonicalRouteId===routeId);
+  }
+  // Geometries apply one after another (roadGeometryChain), each waiting its turn for the live state like a command: a
+  // save lock or command, the engine replica, the slice in flight. A wait that runs out mid-way (ROAD_GEOMETRY_RETRY)
+  // starts the wait again; about 200 frames of waiting (a recovery-required save keeps its lock until a reload) drop it,
+  // and the next start fetches it again. Each attempt begins after a frame with the simulation's drain released, so a
+  // slice can run between two geometries and between attempts.
+  function applyRoadGeometryWhenSettled(routeId,geometry,saveCache=true){
+    const request=roadGeometryRequest(routeId),run=roadGeometryChain.then(()=>settledRoadGeometry(routeId,geometry,saveCache,request));
+    roadGeometryChain=run.then(()=>{},()=>{});return run;
+  }
+  async function settledRoadGeometry(routeId,geometry,saveCache,request){
     for(let attempt=0;attempt<200;attempt++){
-      await diagnosticLifecycleSettled();
-      const current=routeTemplates[routeId];
-      if((Number(state.resetEpoch)||0)!==epoch||!current||current.fromFacility!==from||current.toFacility!==to)return false;
-      if((current.roadGeometryVersion===311&&Number(current.roadNetworkDistanceKm)>0)||state.routeCache?.[routeId]?.canonicalRouteId===routeId)return false;
-      if(liveStateWritable()){
-        // Build 373: after a rolled-back command the engine replica is rebuilt off the UI thread; the geometry waits for
-        // it (as it waits for the command) instead of being dropped by a single refused attempt.
-        const client=fleetEngineThreadClient,store=state.fleet;
-        if(client&&!client.disabled&&typeof client.replicaReady==='function'&&!client.replicaReady(store)){client.prime?.(store);if(!client.replicaReady(store)){await yieldForInteractivePaint(50);continue;}}
-        return applyRoadGeometry(routeId,geometry,saveCache);
-      }
-      await yieldForInteractivePaint(50);
+      await yieldForInteractivePaint(50);await diagnosticLifecycleSettled();
+      if(!roadGeometryRequestCurrent(routeId,request))return false;
+      // (Within ROAD_GEOMETRY_PLAN_TIMEOUT_MS of a plan that timed out, until the worker's late answer, the geometries
+      // queued are dropped: a hung worker must not hold the simulation's drain once per queued geometry.)
+      if(performance.now()-roadGeometryPlanTimedOutAt<ROAD_GEOMETRY_PLAN_TIMEOUT_MS)return false;
+      if(!liveStateWritable())continue;
+      // Build 373: after a rolled-back command the engine replica is rebuilt off the UI thread; the geometry waits for
+      // it (as it waits for the command) instead of being dropped by a single refused attempt.
+      const client=fleetEngineThreadClient,store=state.fleet;
+      if(client&&!client.disabled&&typeof client.replicaReady==='function'&&!client.replicaReady(store)){client.prime?.(store);if(!client.replicaReady(store))continue;}
+      const result=await drainedRoadGeometry(routeId,geometry,saveCache,request);
+      if(result!==ROAD_GEOMETRY_RETRY)return result;
     }
     return false;
   }
   function fleetCatalogSpecsSnapshot(){const out={};for(const [type,group] of Object.entries(assetCatalog||{})){const rows={};for(const item of [...(group?.new||[]),...(group?.used||[])])if(item?.id&&!(item.id in rows))rows[item.id]=clone(item.specs||null);out[type]=rows;}return out;}
   function roadGeometrySourceToken(routeId,tpl,saveCache){return JSON.stringify([routeId,Boolean(saveCache),Number(state.routesRevision)||0,Number(state.resetEpoch)||0,tpl?.fromFacility,tpl?.toFacility,tpl?.roadGeometryVersion,tpl?.roadNetworkDistanceKm,tpl?.distanceKm,tpl?.tripSeconds,tpl?.effectiveSpeedKmh,routeGeometrySignature(tpl)]);}
-  async function applyRoadGeometry(routeId,geometry,saveCache=true){
+  // A road geometry is applied with the simulation drained from start to commit: the slice in flight finishes (its finish
+  // included) and no new one starts while the worker plans the change and its staged transaction runs, so no slice begins
+  // its own transaction while this one is open (other writers, such as a maintenance part, can still make the plan stale:
+  // it is then refused, as before). Geometries apply one after another, each with a plan made after the one before it.
+  // (Callers use applyRoadGeometryWhenSettled; applyRoadGeometry runs inside drainedRoadGeometry, which returns
+  // ROAD_GEOMETRY_RETRY when a wait runs out: the request is then waited for again with the drain released.)
+  async function drainedRoadGeometry(routeId,geometry,saveCache,request){
+    if(!liveStateWritable())return ROAD_GEOMETRY_RETRY;
+    foreignStagedDrains++;
+    try{
+      for(let waits=0;simulationJobActive();waits++){if(waits>=240)return ROAD_GEOMETRY_RETRY;await yieldForInteractivePaint();}
+      // (In the task that reads the route for the plan: a reset or rebuilt route during the waits is not planned.)
+      if(!roadGeometryRequestCurrent(routeId,request))return false;
+      if(!liveStateWritable())return ROAD_GEOMETRY_RETRY;
+      return await applyRoadGeometry(routeId,geometry,saveCache);
+    }finally{foreignStagedDrains--;}
+  }
+  async function applyRoadGeometry(routeId,geometry,saveCache){
+    // (Refused, as since Build 372, before its first await; drainedRoadGeometry checks the same in the same task first.)
     if(!liveStateWritable())return false;
     const source=routeTemplates[routeId],core=window.GH_FLEET_ROUTE_NORMALIZATION,fleet=window.GH_FLEET_DATA,store=state?.fleet;if(!source||!geometry?.route||!core?.capture||!window.GH_FLEET_STORE?.isStore?.(store))return false;
     // Build the replacement privately.  Neither the live template nor a truck changes before the worker's exact plan
     // is current and the staged rollback point exists.
     const next=clone(source);next.route=clone(geometry.route);next.routingSource='OSRM · شبكة طرق فعلية';prepareRoute(next);if(geometry.durationSeconds)next.effectiveSpeedKmh=clamp(next.distanceKm/(geometry.durationSeconds/3600),42,82);next.tripSeconds=next.distanceKm/next.effectiveSpeedKmh*3600;
     const sourceToken=roadGeometrySourceToken(routeId,source,saveCache),catalogSpecs=fleetCatalogSpecsSnapshot(),catalogToken=APP_VERSION,stamp=core.capture(state,fleet,{routeId,route:next,catalogToken,requestToken:sourceToken}),request=core.serializableCapture(stamp);
-    await fleetStepSettled();const client=fleetEngineThread();if(!client||!client.prime?.(store))return false;
+    await fleetStepSettled();const client=fleetEngineThread();if(!client||client.disabled)return false;if(!client.prime?.(store))return ROAD_GEOMETRY_RETRY;
     const asked=client.query(store,{name:'routeNormalizationPlan',params:{routeId,route:next,catalogSpecs,request},simSeconds:state.simSeconds});if(!asked)return false;
-    const found=await asked,currentSource=routeTemplates[routeId],freshCatalog=fleetCatalogSpecsSnapshot();
+    // (Bounded: a worker that never answers must not hold the simulation's drain.)
+    let planTimer=null;const timedOut=new Promise(resolve=>{planTimer=setTimeout(()=>{const breaker=roadGeometryPlanTimedOutAt=performance.now(),clear=()=>{if(roadGeometryPlanTimedOutAt===breaker)roadGeometryPlanTimedOutAt=-Infinity;};asked.then(clear,clear);resolve(null);},ROAD_GEOMETRY_PLAN_TIMEOUT_MS);});
+    const found=await Promise.race([asked,timedOut]).finally(()=>clearTimeout(planTimer)),currentSource=routeTemplates[routeId],freshCatalog=fleetCatalogSpecsSnapshot();
     if(!found||!client.current(found,store)||roadGeometrySourceToken(routeId,currentSource,saveCache)!==sourceToken||!core.current(stamp,state,fleet,{routeId,route:next,catalogSpecs:freshCatalog,catalogToken,requestToken:sourceToken,result:found.result}))return false;
     const plan=found.result,TX=window.GH_TRANSACTION_CORE,scope=saveCache?['fleet','routeCache','routesRevision','domainRuntime','businessLedger','controlPlane']:['fleet'];
     const apply=function*(){
@@ -1823,13 +1856,21 @@
       for(const chunk of core.chunks(plan,256)){for(let offset=chunk.from;offset<chunk.to;offset++)fleet.update(state,fleet.viewAt(state,plan.indices[offset]),plan.templates[chunk.templateRefs[offset-chunk.from]]);yield 'road-geometry.rows';}
       return true;
     };
+    // (Checked in the same task as beginStaged: no slice in flight and the live state writable.)
+    for(let waits=0;!liveStateWritable()||simulationJobActive();waits++){if(waits>=240)return ROAD_GEOMETRY_RETRY;await yieldForInteractivePaint();}
+    // (A reset or a changed route during that wait: refused quietly here rather than as a stale plan inside the transaction.)
+    if(roadGeometrySourceToken(routeId,routeTemplates[routeId],saveCache)!==sourceToken)return false;
     let staged;try{staged=TX.beginStaged(state,{label:`road-geometry:${routeId}`,scope,writeRoots:scope,scopedJoin:true,stagedScope:true,rowRoots:{domainRuntime:{level:'containers'},controlPlane:{level:'rows'}},apply});
       // Build 373: the frame loop rolls back a staged transaction no owner holds (activeStagedSlice); this one is held for
       // its whole run, or the loop aborted every road geometry as orphaned between its stages.
-      activeStagedSlice=staged;while(!staged.done){await yieldForInteractivePaint();staged.step(-Infinity);}if(staged.error)throw staged.error;if(!staged.result?.committed)throw new Error(staged.result?.reason||'road-geometry-transaction-rejected');}
+      // Batch H item 6: as many stages a frame as fit ROAD_GEOMETRY_STAGE_BUDGET_MS, the next one's cost predicted from the
+      // longest recent stage (decaying); at least one stage a frame, a '-wait' stage ends the frame. Same stages, same order.
+      activeStagedSlice=staged;let longestStage=0;while(!staged.done){await yieldForInteractivePaint();const frameStarted=performance.now();do{const stageStarted=performance.now();staged.step(-Infinity);longestStage=Math.max(longestStage*.9,performance.now()-stageStarted);}while(!staged.done&&!/-wait$/.test(String(staged.stage||''))&&performance.now()-frameStarted+longestStage<ROAD_GEOMETRY_STAGE_BUDGET_MS);}if(staged.error)throw staged.error;if(!staged.result?.committed)throw new Error(staged.result?.reason||'road-geometry-transaction-rejected');}
     catch(error){if(staged&&!staged.done)staged.abort('road-geometry-failed');nonCritical('road-geometry-cache',error);return false;}
     finally{if(staged&&activeStagedSlice===staged)activeStagedSlice=null;}
-    Object.assign(source,next);return true;
+    // A command committed during the plan rebuilds routeTemplates with new objects (replaceLiveState): the geometry goes
+    // to the live template (equal to source by the token checks), not the detached one captured before the plan.
+    Object.assign(routeTemplates[routeId]||source,next);return true;
   }
   const ROUTE_CACHE_MAX_AGE_DAYS = 90;
   function isRouteCacheFresh(cached){
@@ -2391,7 +2432,7 @@
   // at most AUTO_DISPATCH_RUN_HOLD_MS, with the gap between companies too, and stops while the app is hidden (the marks
   // stay for the next close). Road plans before its command and is capped lower. Kept in memory only.
   const AUTO_DISPATCH_DAILY_LIMIT=20000,AUTO_DISPATCH_BUDGET_MS=1000,AUTO_DISPATCH_RUN_HOLD_MS=4500,AUTO_DISPATCH_GAP_MS=1500,AUTO_DISPATCH_MAX={air:SHARED_DISPATCH_LIMIT,sea:SHARED_DISPATCH_LIMIT,road:10000};
-  const autoDispatchSizes=new Map();let autoDispatchSizesEpoch,autoDispatchVisibility=0;
+  const autoDispatchSizes=new Map();let autoDispatchSizesEpoch,autoDispatchVisibility=0;// (Also the frame recorder's visibility count.)
   // Hidden with an automatic dispatch not saved yet (a hide save is refused while a command runs): the save is asked for
   // once the command in flight has settled.
   document.addEventListener?.('visibilitychange',()=>{autoDispatchVisibility++;if(document.hidden&&deferredSavePending())durableCommandSettlement.then(()=>{if(deferredSavePending())scheduleSimulationPersistence();}).catch(()=>{});});
@@ -4483,7 +4524,8 @@
     const client=fleetEngineThreadClient;if(!client?.busy)return Promise.resolve();
     return Promise.race([client.idle(),new Promise(resolve=>setTimeout(resolve,2000))]);
   }
-  let activeStagedSlice=null;
+  let activeStagedSlice=null,foreignStagedDrains=0,roadGeometryChain=Promise.resolve(),roadGeometryPlanTimedOutAt=-Infinity;
+  const ROAD_GEOMETRY_PLAN_TIMEOUT_MS=10000,ROAD_GEOMETRY_STAGE_BUDGET_MS=4,ROAD_GEOMETRY_RETRY='retry';
   let calendarWindowFallbackFrom=null;
   function calendarWindowLimit({from,target,batchSeconds,maintenanceDueAt}={}){
     if(globalThis.__GH_MANUAL_CALENDAR_WINDOWS__===false)return 0;
@@ -4596,7 +4638,7 @@
         if(cancelled)return true;
         if(windowFailure){abortForFallback();return true;}
         if(awaitingFleet){const pending=fleetStepPending();if(windowFailure){abortForFallback();return true;}if(pending)return {pending:true};awaitingFleet=false;}
-        if(!staged){if(Math.abs((Number(state.simSeconds)||0)-from)>1e-6){stagedConflict=true;ready=true;return true;}staged=TX.beginStaged(state,transactionOptions());activeStagedSlice=staged;}
+        if(!staged){if(Math.abs((Number(state.simSeconds)||0)-from)>1e-6){stagedConflict=true;ready=true;return true;}if(TX.isStaged?.(state)===true)return {pending:true};staged=TX.beginStaged(state,transactionOptions());activeStagedSlice=staged;}
         else if(window.GH_FLEET_DATA.size(state)===0){
           // With an empty fleet, every child hour is local and synchronous, so
           // the staged transaction can safely consume the frame's bounded
@@ -4756,6 +4798,8 @@
         if(cancelled)return true;if(!staged&&fleetStepPending())return {pending:true};if(!stagedSlice){ready=true;return true;}
         if(!staged){
           if(Math.abs((Number(state.simSeconds)||0)-from)>1e-6){stagedConflict=true;ready=true;return true;}
+          // (Another owner's staged transaction is open: wait for it rather than fail; the simulation is normally drained then.)
+          if(TX.isStaged?.(state)===true)return {pending:true};
           staged=TX.beginStaged(state,transactionOptions());activeStagedSlice=staged;
         }else staged.step(Number.isFinite(Number(options?.deadline))?Number(options.deadline):-Infinity);
         if(staged.done){ready=true;return true;}
@@ -4958,7 +5002,7 @@
         pushAlert(`توقف تقديم التاريخ وقائيًا عند آخر حالة معتمدة (${formatSimDate()}). السبب: ${reason}. لم تُعتمد حركة أصل أو إيراد جزئي.`);
       }
     },
-    isDraining:()=>fleetQueryDrains>0,
+    isDraining:()=>fleetQueryDrains>0||foreignStagedDrains>0,
     isSuspended:()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||assetPurchaseHolds>0||fleetQueryHolds>0||window.GH_PERSISTENCE.isLocked()||window.GH_CONFERENCE?.isPresentationActive?.()||state.timeRecovery?.active===true,
     canRecoverFatal:()=>!state.simulationKernel?.runtimeFatal&&!state.simulationKernel?.lastAdvanceFailure&&!state.simulationKernel?.boundaryRecovery?.failed&&!window.GH_PERSISTENCE.telemetry?.().recoveryRequired,
     onFatal:error=>{simulationEngine.cancelAdvance?.('simulation-fatal',{immediate:true});state.speed=0;state.simulationKernel=state.simulationKernel||{};const diagnostic=error?.diagnostic||{name:error?.name||'Error',message:String(error?.message||error),code:error?.code||null,transactionLabel:error?.transactionLabel||null,transactionStage:error?.transactionStage||null};state.simulationKernel.runtimeFatal={at:state.simSeconds,code:error?.code||'SIM_FATAL_STATE',error:diagnostic};if(!state.simulationKernel.lastAdvanceFailure)state.simulationKernel.lastAdvanceFailure={reason:'simulation-fatal',stage:error?.transactionStage||'finish',from:state.simSeconds,to:state.simSeconds,at:state.simSeconds,retries:0,code:error?.code||'SIM_FATAL_STATE',error:String(error?.message||error).slice(0,500),errorDetail:diagnostic};diag('SIM_FATAL',diagnostic,'critical');try{const evidence=captureDiagnosticEvidence({recordEvent:true,trackTransitions:true,storeResult:true});window.GH_CONTROL_PLANE?.check?.(state,{evidence});}catch(healthError){console.error('تعذر تحديث الصحة بعد خطأ المحاكاة',healthError);}console.error('Simulation Core fatal error',error);try{pushAlert('أوقف محرك المحاكاة الوقت لحماية الحفظ بعد خطأ داخلي. افتح مركز الإجراءات لمراجعة السبب قبل إعادة المحاولة.');}catch(alertError){console.error('تعذر تسجيل تنبيه خطأ المحاكاة',alertError);}},
@@ -7804,7 +7848,7 @@ ${page}</div>`;
   function simulationManualActive(){return typeof simulationEngine.manualActive==='function'?simulationEngine.manualActive():!!simulationEngine.snapshot().manualAdvance;}
   function simulationJobActive(){return typeof simulationEngine.jobActive==='function'?simulationEngine.jobActive():!!simulationEngine.snapshot().jobActive;}
   const latestSimulationTransaction=()=>window.GH_TRANSACTION_CORE?.telemetry?.()?.lastSimulation||null;
-  function recordGuardedDiagnosticFrame(now,callbackStartMs,guardReason){const callbackEndMs=appMetricClock(),fleetSize=window.GH_FLEET_DATA.size(state)+(state.mobility?.vehicles?.length||0);window.GH_DIAGNOSTICS?.recorderFrame?.(state,{rafTimestampMs:Number(now),callbackStartMs,callbackEndMs,simSeconds:state.simSeconds,visible:!document.hidden,hidden:!!document.hidden,panel:activeDrawerPanel||'map',mapActive:!!map,fleetSize,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,simulationStage:guardReason,guardReason,simulationProgressExpected:false},{transactionProvider:latestSimulationTransaction});}
+  function recordGuardedDiagnosticFrame(now,callbackStartMs,guardReason){const callbackEndMs=appMetricClock(),fleetSize=window.GH_FLEET_DATA.size(state)+(state.mobility?.vehicles?.length||0);window.GH_DIAGNOSTICS?.recorderFrame?.(state,{rafTimestampMs:Number(now),callbackStartMs,callbackEndMs,simSeconds:state.simSeconds,visible:!document.hidden,hidden:!!document.hidden,visibilityEpoch:autoDispatchVisibility,panel:activeDrawerPanel||'map',mapActive:!!map,fleetSize,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,simulationStage:guardReason,guardReason,simulationProgressExpected:false},{transactionProvider:latestSimulationTransaction});}
   function presentationFrameInterval(){const fleetSize=window.GH_FLEET_DATA.size(state),advancing=typeof simulationEngine.manualActive==='function'?simulationEngine.manualActive():!!simulationEngine.snapshot().manualAdvance;if(document.hidden)return 1000;if(activeDrawerPanel||advancing)return fleetSize>2000?300:fleetSize>750?220:fleetSize>250?150:100;if(fleetSize>3000)return 220;if(fleetSize>1500)return 180;if(fleetSize>750)return 140;if(fleetSize>400)return 110;if(fleetSize>180)return 80;return 55;}
   function loop(now){
     const frameIntervalMs=lastLoopRafTimestamp===null?null:Math.max(0,now-lastLoopRafTimestamp);lastLoopRafTimestamp=now;
@@ -7833,7 +7877,7 @@ ${page}</div>`;
     const fleetSizeForMap=window.GH_FLEET_DATA.size(state),mapStructureInterval=fleetSizeForMap>3000?30000:fleetSizeForMap>1000?20000:8000,deferredLate=mapLoopRenderDeferredAt>0&&now-mapLoopRenderDeferredAt>=MAP_LOOP_RENDER_DEFER_MS;if(map&&(deferredLate||now-lastMapRenderAt>=mapStructureInterval)){if(deferredLate){mapLoopRenderDeferredAt=0;endLoopFollowUp();}else lastMapRenderAt=now;if(mapStructureSignature()!==lastMapStructureSignature&&(deferredLate||!deferLoopRenderToSummary(now))){stageStarted=appMetricClock();mapSummaryFollowUpRender=true;mapRenderReason=deferredLate?'loop-late':'loop';let drawn=true;try{drawn=renderMap()!==false;}finally{mapSummaryFollowUpRender=false;mapRenderReason='';}if(drawn){structuralRenderMs=Math.max(0,appMetricClock()-stageStarted);structureRendered=true;recordRenderMetric('structural-render',structuralRenderMs,{fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});}}}
     const simulationSnapshot=frameRecorderActive?simulationEngine.snapshot():null,callbackEndMs=measureFrame?appMetricClock():0,frameWorkMs=measureFrame?Math.max(0,callbackEndMs-frameStarted):0;
     if(measureFrame)recordRenderMetric('frame',frameWorkMs,{frameIntervalMs,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size});
-    if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});
+    if(frameRecorderActive)window.GH_DIAGNOSTICS.recorderFrame(state,{rafTimestampMs:Number(now),callbackStartMs:frameStarted,callbackEndMs,simSeconds:state.simSeconds,simulationMs,simulationTaskMs,simulationTaskMaxMs,simulationTaskCount,simulationTaskFirstStartedAtMs,simulationTaskLastEndedAtMs,targetUpdateMs,markerAnimationMs,structuralRenderMs,targetUpdated,markerAnimated,structureRendered,fleetSize:fleetSizeForMap,ownMarkers:ownMarkers.size,mobilityMarkers:renderedMobilityIds.size,panel:activeDrawerPanel||'map',mapActive:!!map,visible:!document.hidden,hidden:!!document.hidden,visibilityEpoch:autoDispatchVisibility,simulationStage:simulationSnapshot?.lastWorkStage,simulationGovernor:simulationSnapshot?.governor,simulationBacklog:simulationSnapshot?.backlog,simulationJobActive:simulationSnapshot?.jobActive,manualAdvance:!!simulationSnapshot?.manualAdvance,lastCreateMs:simulationSnapshot?.lastCreateMs,lastChunkMs:simulationSnapshot?.lastChunkMs,lastFinishMs:simulationSnapshot?.lastFinishMs,lastCycleMs:simulationSnapshot?.lastCycleMs,simulationStages:simulationSnapshot?.lastFrame||null,renderParts:Number(simulationSnapshot?.lastFrame?.renderMs)>0?runtimeInstrumentation.simRender.last:null},{transactionProvider:latestSimulationTransaction});
     nextLoopPass(state.speed===0&&!simulationManualActive()&&!markerMotionPending&&!mapLoopRenderDeferredAt&&!frameRecorderActive);
   }
   simulationEngine.reset(performance.now());

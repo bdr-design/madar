@@ -58,6 +58,13 @@ with tempfile.TemporaryDirectory(prefix='madar-vm-host-') as tmp:
 
 declared=contract(root)
 assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
+# Batch H, part 2 (owner 18 Nov 2026: «أثبته ثم أصلحه»): build442 first (it failed while the road geometry's generator
+# moved into another function; the body keeps its name), then build584 (it failed: its expected request key predates the
+# maintenance lines batch F added to the summary request), build701 (it failed while the slice code called a helper absent
+# from its extracted section), then build710 (new: a road geometry's staged transaction no longer collides with a slice),
+# then build711 (new: the worst frame gap kept by the recorder), then the gates the fixes touch or could fail: the road
+# geometry gates, the recorder gates (build339, build376, build658), build372 route normalization, and the gates that
+# read the simulation's suspension (build707, build704, build371 calendar cancel); then this file.
 # Batch H (owner 18 Nov 2026: «كمل اهم شي يزيل الثقل»): build709 (new browser gate; it failed here on its purchase fixture
 # before the fleet worker was enabled) and build469 (it failed on the new service helper) first, then this file, then the
 # gates the batch touched or could fail: build372 insurance worker (the early condition-sum ask), the money-files
@@ -400,21 +407,33 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build442-fleet-review-work.cjs'],
+    ['node', 'tests/build584-summary-one-in-flight.cjs'],
+    ['node', 'tests/build701-command-keeps-clock.cjs'],
+    ['node', 'tests/build710-road-geometry-collision-browser.cjs'],
+    ['node', 'tests/build711-worst-gap-evidence.cjs'],
+    ['node', 'tests/build371-custom-road-geometry-browser.cjs'],
+    ['node', 'tests/build371-durable-fleet-isolation-browser.cjs'],
+    ['node', 'tests/build372-route-normalization-plan.cjs'],
+    ['node', 'tests/build707-engine-drain.cjs'],
+    ['node', 'tests/build704-road-held-query-browser.cjs'],
+    ['node', 'tests/build371-calendar-cancel-settle-core.cjs'],
+    ['node', 'tests/build339-diagnostic-frame-trace.cjs'],
+    ['node', 'tests/build376-frame-work-attribution.cjs'],
+    ['node', 'tests/build658-recorder-cadence-equivalence.cjs'],
+    ['python3', 'tests/acceptance-policy.py'],
     ['node', 'tests/build705-fault-balance.cjs'],
     ['node', 'tests/build708-chunk-upload-pool.cjs'],
     ['node', 'tests/build372-insurance-condition-worker.cjs'],
     ['node', 'tests/fleet-business-boundary.cjs'],
     ['node', 'tests/build709-retired-route-browser.cjs'],
     ['node', 'tests/build469-app-notice-work.cjs'],
-    ['python3', 'tests/acceptance-policy.py'],
     ['node', 'tests/build700-review-fixes.cjs'],
     ['node', 'tests/build383-save-encoding.cjs'],
     ['node', 'tests/build706-maintenance-ui-browser.cjs'],
     ['node', 'tests/build703-auto-dispatch-deferred-save-browser.cjs'],
     ['node', 'tests/build372-fleet-ui-summary.cjs'],
     ['node', 'tests/build518-maintenance-worst-first.cjs'],
-    ['node', 'tests/build704-road-held-query-browser.cjs'],
-    ['node', 'tests/build707-engine-drain.cjs'],
     ['node', 'tests/build405-worker-close-browser.cjs'],
     ['node', 'tests/build358-maintenance.cjs'],
     ['node', 'tests/build372-fleet-day-core.cjs'],
@@ -424,8 +443,6 @@ expected_preflight=[
     ['node', 'tests/build672-message-strip-browser.cjs'],
     ['node', 'tests/build694-auto-dispatch-after-close-browser.cjs'],
     ['node', 'tests/build702-rollback-tier-evidence.cjs'],
-    ['node', 'tests/build701-command-keeps-clock.cjs'],
-    ['node', 'tests/build371-calendar-cancel-settle-core.cjs'],
     ['node', 'tests/build372-fleet-day-worker.cjs'],
     ['node', 'tests/build372-fleet-day-slice-parity.cjs'],
     ['node', 'tests/build374-daily-worker-integration.cjs'],
@@ -570,8 +587,6 @@ expected_preflight=[
     ['node', 'tests/build646-development-device-roads-browser.cjs'],
     ['node', 'tests/build340-map-status-cache.cjs'],
     ['node', 'tests/build359-road-dispatch-browser.cjs'],
-    ['node', 'tests/build371-custom-road-geometry-browser.cjs'],
-    ['node', 'tests/build371-durable-fleet-isolation-browser.cjs'],
     ['node', 'tests/build500-sale-navigation.cjs'],
     ['node', 'tests/build386-confirmation-browser.cjs'],
     ['node', 'tests/build334-dynamic-company-consumers.cjs'],
@@ -995,10 +1010,8 @@ expected_preflight=[
     ['node', 'tests/build372-asset-purchase-plan.cjs'],
     ['node', 'tests/build372-fleet-health-worker-browser.cjs'],
     ['node', 'tests/build456-list-build-budget.cjs'],
-    ['node', 'tests/build339-diagnostic-frame-trace.cjs'],
     ['node', 'tests/build439-summary-single-request.cjs'],
     ['node', 'tests/build464-summary-projection-boundary.cjs'],
-    ['node', 'tests/build584-summary-one-in-flight.cjs'],
     ['node', 'tests/build340-hotpath-profiler.cjs'],
     ['node', 'tests/build367-company-static-identities.cjs'],
     ['node', 'tests/build407-diagnostic-lifecycle.cjs'],
@@ -1010,14 +1023,12 @@ expected_preflight=[
     ['node', 'tests/build429-worker-value-collection-browser.cjs'],
     ['node', 'tests/persistence-regressions.cjs'],
     ['node', 'tests/build657-road-dispatch-depots.cjs'],
-    ['node', 'tests/build658-recorder-cadence-equivalence.cjs'],
     ['node', 'tests/build652-native-document-scripts.cjs'],
     ['node', 'tests/build334-security-contract.cjs'],
     ['node', 'tests/build644-game-name.cjs'],
     ['node', 'tests/build340-map-presentation.cjs'],
     ['node', 'tests/build334-simulation-time-contract.cjs'],
     ['node', 'tests/build340-media-assets.cjs'],
-    ['node', 'tests/build376-frame-work-attribution.cjs'],
     ['node', 'tests/build340-route-planner-cooperative.cjs'],
     ['node', 'tests/build340-route-planner-worker.cjs'],
     ['node', 'tests/build358-route-quotas.cjs'],
@@ -1095,7 +1106,6 @@ expected_preflight=[
     ['node', 'tests/build372-global-route-candidates.cjs'],
     ['node', 'tests/build372-legacy-route-plan.cjs'],
     ['node', 'tests/build372-manual-departure-plan.cjs'],
-    ['node', 'tests/build372-route-normalization-plan.cjs'],
     ['node', 'tests/build372-route-reference-proof.cjs'],
     ['node', 'tests/build372-staffing-reconcile-plan.cjs'],
     ['node', 'tests/build372-startup-normalization-plan.cjs'],
@@ -1103,7 +1113,6 @@ expected_preflight=[
     ['node', 'tests/build372-startup-staffing-worker-apply.cjs'],
     ['node', 'tests/build427-day-profile-work.cjs'],
     ['node', 'tests/build438-day-scratch-work.cjs'],
-    ['node', 'tests/build442-fleet-review-work.cjs'],
     ['node', 'tests/build474-event-trace-work.cjs'],
     ['node', 'tests/build482-worker-route-conflicts.cjs'],
     ['node', 'tests/build505-fleet-maintenance-guard.cjs'],

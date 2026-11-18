@@ -3,6 +3,66 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build442-fleet-review-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build584-summary-one-in-flight.cjs"
+    ],
+    [
+      "node",
+      "tests/build701-command-keeps-clock.cjs"
+    ],
+    [
+      "node",
+      "tests/build710-road-geometry-collision-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build711-worst-gap-evidence.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-custom-road-geometry-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-durable-fleet-isolation-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-route-normalization-plan.cjs"
+    ],
+    [
+      "node",
+      "tests/build707-engine-drain.cjs"
+    ],
+    [
+      "node",
+      "tests/build704-road-held-query-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-calendar-cancel-settle-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build339-diagnostic-frame-trace.cjs"
+    ],
+    [
+      "node",
+      "tests/build376-frame-work-attribution.cjs"
+    ],
+    [
+      "node",
+      "tests/build658-recorder-cadence-equivalence.cjs"
+    ],
+    [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
       "tests/build705-fault-balance.cjs"
     ],
     [
@@ -24,10 +84,6 @@
     [
       "node",
       "tests/build469-app-notice-work.cjs"
-    ],
-    [
-      "python3",
-      "tests/acceptance-policy.py"
     ],
     [
       "node",
@@ -52,14 +108,6 @@
     [
       "node",
       "tests/build518-maintenance-worst-first.cjs"
-    ],
-    [
-      "node",
-      "tests/build704-road-held-query-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build707-engine-drain.cjs"
     ],
     [
       "node",
@@ -96,14 +144,6 @@
     [
       "node",
       "tests/build702-rollback-tier-evidence.cjs"
-    ],
-    [
-      "node",
-      "tests/build701-command-keeps-clock.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-calendar-cancel-settle-core.cjs"
     ],
     [
       "node",
@@ -680,14 +720,6 @@
     [
       "node",
       "tests/build359-road-dispatch-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-custom-road-geometry-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-durable-fleet-isolation-browser.cjs"
     ],
     [
       "node",
@@ -2383,19 +2415,11 @@
     ],
     [
       "node",
-      "tests/build339-diagnostic-frame-trace.cjs"
-    ],
-    [
-      "node",
       "tests/build439-summary-single-request.cjs"
     ],
     [
       "node",
       "tests/build464-summary-projection-boundary.cjs"
-    ],
-    [
-      "node",
-      "tests/build584-summary-one-in-flight.cjs"
     ],
     [
       "node",
@@ -2443,10 +2467,6 @@
     ],
     [
       "node",
-      "tests/build658-recorder-cadence-equivalence.cjs"
-    ],
-    [
-      "node",
       "tests/build652-native-document-scripts.cjs"
     ],
     [
@@ -2468,10 +2488,6 @@
     [
       "node",
       "tests/build340-media-assets.cjs"
-    ],
-    [
-      "node",
-      "tests/build376-frame-work-attribution.cjs"
     ],
     [
       "node",
@@ -2783,10 +2799,6 @@
     ],
     [
       "node",
-      "tests/build372-route-normalization-plan.cjs"
-    ],
-    [
-      "node",
       "tests/build372-route-reference-proof.cjs"
     ],
     [
@@ -2812,10 +2824,6 @@
     [
       "node",
       "tests/build438-day-scratch-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build442-fleet-review-work.cjs"
     ],
     [
       "node",
@@ -3710,6 +3718,14 @@
     [
       "node",
       "tests/build709-retired-route-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build710-road-geometry-collision-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build711-worst-gap-evidence.cjs"
     ],
     [
       "node",

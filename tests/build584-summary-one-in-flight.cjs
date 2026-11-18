@@ -72,7 +72,8 @@ async function run(label,source){
     // facility key again, waited for that query instead).
     const p=environment(source),f=[{id:'AP-1',city:'A',kind:'airport-base'}];p.api.read(f);p.move(1);p.api.read();p.api.read(f);
     r.projectionPosted=p.posted.length;p.queue.splice(1,1)[0].resolve();await flush();
-    const projected=p.api.read(f);r.projected=!!projected?.result?.projected&&projected.result.requestKey===JSON.stringify({legacyOwner:{air:'air'},facilities:[{id:'AP-1',city:'A',mode:'air'}]});
+    // (Batch F added the maintenance lines to the request.)
+    const projected=p.api.read(f);r.projected=!!projected?.result?.projected&&projected.result.requestKey===JSON.stringify({legacyOwner:{air:'air'},facilities:[{id:'AP-1',city:'A',mode:'air'}],maintenanceLines:[]});
     const d=environment(source);d.client.disabled=true;assert.equal(await d.api.require([],{timeoutMs:0}),null);r.disabledPosted=d.posted.length;
   }
   // 6.
