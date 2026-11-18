@@ -407,6 +407,7 @@ assert ['node','tests/phone-layout-browser.cjs'] in declared['commands']
 # or their fingerprints, and this file, whose pinned list changed); then build487-route-pages, which failed in build 93
 # and passed since; then the gates build 95 passed, in their previous order.
 expected_preflight=[
+    ['node', 'tests/build558-investor-card-load-browser.cjs'],
     ['node', 'tests/build442-fleet-review-work.cjs'],
     ['node', 'tests/build584-summary-one-in-flight.cjs'],
     ['node', 'tests/build701-command-keeps-clock.cjs'],
@@ -511,7 +512,6 @@ expected_preflight=[
     ['node', 'tests/build359-sim-smoothness.cjs'],
     ['node', 'tests/build359-corridor-index.cjs'],
     ['node', 'tests/build444-document-pages.cjs'],
-    ['node', 'tests/build558-investor-card-load-browser.cjs'],
     ['node', 'tests/build334-calendar-owner-cadence.cjs'],
     ['node', 'tests/build334-r2-snapshot-budget.cjs'],
     ['node', 'tests/build334-simulation-slice-atomic.cjs'],

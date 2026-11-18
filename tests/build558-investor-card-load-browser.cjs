@@ -2,7 +2,17 @@
 // The investor card adds no weight to play (owner: «لاثقل على اللعبة … اختبارات صارمة جدًا لمعرفة اي اسباب ثقل»).
 // Measured in the real app with the processor slowed four times, on this source and on the source before the card (run
 // from its own tree), the same world with every company's current account emptied so that play needs the card:
-//  1. ten game days write as many founder transfers, signed documents and journal entries as before, and no bigger save.
+//  1. ten game days write as many founder transfers and signed documents as before, the same journal entries kind by
+//     kind (the card's top-ups against the old founder investments, one for one), and no bigger save. The entries are
+//     taken after each day (the daily compaction moves entries older than two days out of the journal). Batch F (owner,
+//     17 Nov 2026) changed the incident rules after the old source: a parked asset has no accident (B3: the idle world's
+//     aircraft) and a repair restores the damage, so no check the next day (B2). Those entries (incident repairs,
+//     insurance claims, periodic checks and their settlements, and the collection of a claim paid by an outside insurer,
+//     by its EXT-FLEET-CLAIM reference) are counted together and may only be fewer; so may the save and proofs they
+//     would have added (the slack the "no bigger" checks now have). On this world
+//     the old source wrote 9 more of them in ten days: with B3 undone here, an incident repair, three claim payouts and
+//     their three collections came back (a claim paid by an outside insurer is credited and collected at once,
+//     finance-core credit), and only the 2 next-day checks B2 removed were still missing.
 //     The save is weighed without the card's statement and without the app's diagnostics (its event log, counters, open
 //     issues and last health report), which record how the machine ran: the governor's events come from ten-second
 //     windows of wall time and carry the chunks' timings. With them, this source's save moved by up to 1,402 bytes from
@@ -47,11 +57,14 @@ async function boot(root){
   // Each long task is counted on the day it started in (reported).
   const days=async()=>{
    await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});const start=await counts();
+   await page.evaluate(()=>{const kindOf=e=>{const d=String(e.description||'');if(/شحن من بطاقة المستثمر|استثمار المؤسس/.test(d))return 'funding';if(/إصلاح أضرار|تعويض مطالبة تأمين|صيانة دورية/.test(d)||String(e.sourceRef||'').startsWith('EXT-FLEET-CLAIM-'))return 'batch-f';return d.replace(/[A-Z]{2,}[A-Z0-9-]*/g,'').replace(/[0-9]+/g,'').replace(/\s+/g,' ').trim();};
+    const seen=new Set(__GH_STATE__.finance.journalEntries.map(e=>e.id)),kinds={};window.__qa558={kinds,take:()=>{for(const e of __GH_STATE__.finance.journalEntries)if(!seen.has(e.id)){seen.add(e.id);const k=kindOf(e);kinds[k]=(kinds[k]||0)+1;}}};});
    await page.evaluate(()=>{window.__qaLong=[];window.__qaObserver=new PerformanceObserver(list=>{for(const e of list.getEntries())window.__qaLong.push([e.startTime,e.duration]);});window.__qaObserver.observe({type:'longtask'});});
-   const marks=await page.evaluate(async days=>{const marks=[performance.now()];for(let d=0;d<days;d++){const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+86400,{reason:'qa-investor-card-load',speed:300});if(!r.accepted)throw Error(JSON.stringify(r));await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});marks.push(performance.now());}return marks;},DAYS);
+   const marks=await page.evaluate(async days=>{const marks=[performance.now()];for(let d=0;d<days;d++){const r=__AUDIT__.simulationEngine.advanceTo(__GH_STATE__.simSeconds+86400,{reason:'qa-investor-card-load',speed:300});if(!r.accepted)throw Error(JSON.stringify(r));await new Promise(done=>{const wait=()=>__AUDIT__.simulationEngine.snapshot().manualAdvance?setTimeout(wait,20):done();wait();});marks.push(performance.now());window.__qa558.take();}return marks;},DAYS);
    await settled();const tasks=await page.evaluate(()=>{window.__qaObserver.disconnect();return window.__qaLong;}),end=await counts();await cdp.send('Emulation.setCPUThrottlingRate',{rate:1});
    const day=Array(DAYS).fill(0);for(const [at,ms] of tasks){const next=marks.findIndex(mark=>at<mark);day[next===0?0:next<0?DAYS-1:next-1]+=ms;}
-   return {wall:marks[DAYS]-marks[0],day,founder:end.founder-start.founder,journal:end.journal-start.journal,proofs:end.proofs-start.proofs,save:end.save};
+   const kinds=await page.evaluate(()=>{window.__qa558.take();return window.__qa558.kinds;});
+   return {wall:marks[DAYS]-marks[0],day,founder:end.founder-start.founder,journal:end.journal-start.journal,kinds,proofs:end.proofs-start.proofs,save:end.save};
   };
   // The app times each open's stages itself (GH_DIAGNOSTICS.recordMainThreadWork); 'ui.render' is building the page and its DOM.
   const pages=async()=>{
@@ -82,7 +95,9 @@ async function both(roots,work){
   const now={...plays[0].now,...lighter('now')},before={...plays[0].before,...lighter('before')};delete now.day;delete before.day;
   // 1 (in both plays)
   for(const {now,before} of plays){
-   assert(now.founder>0,`1: play needed the card (${now.founder})`);assert.equal(now.founder,before.founder,'1: as many founder transfers');assert.equal(now.journal,before.journal,'1: as many journal entries');
+   assert(now.founder>0,`1: play needed the card (${now.founder})`);assert.equal(now.founder,before.founder,'1: as many founder transfers');assert.ok((now.kinds.funding||0)>0,`1: the card wrote its entries (${JSON.stringify(now.kinds)})`);
+   for(const kind of new Set([...Object.keys(now.kinds),...Object.keys(before.kinds)])){const a=now.kinds[kind]||0,b=before.kinds[kind]||0;
+    if(kind==='batch-f')assert.ok(a<=b,`1: incident, claim and check entries (batch F rules) only fewer (${a} vs ${b})`);else assert.equal(a,b,`1: as many "${kind}" journal entries (${JSON.stringify(now.kinds)} vs ${JSON.stringify(before.kinds)})`);}
    assert(now.proofs<=before.proofs,`1: no bigger proofs (${now.proofs} vs ${before.proofs})`);assert(now.save<=before.save,`1: no bigger save (${now.save} vs ${before.save})`);
   }
   // 2

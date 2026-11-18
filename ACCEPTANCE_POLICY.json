@@ -3,6 +3,10 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build558-investor-card-load-browser.cjs"
+    ],
+    [
+      "node",
       "tests/build442-fleet-review-work.cjs"
     ],
     [
@@ -416,10 +420,6 @@
     [
       "node",
       "tests/build444-document-pages.cjs"
-    ],
-    [
-      "node",
-      "tests/build558-investor-card-load-browser.cjs"
     ],
     [
       "node",
