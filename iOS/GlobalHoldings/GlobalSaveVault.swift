@@ -117,6 +117,9 @@ final class GlobalSaveVault {
         let resetEpoch: Double
         let chunkIds: [String]
         let file: FileIdentity
+        /// False when the envelope verified but its chunk manifest did not parse: chunkIds is then empty and proves
+        /// nothing, so the chunk collector scans that file like any other protector.
+        let manifestValid: Bool
     }
     private var slotHeaders: [String: SlotHeader] = [:]
     /// Chunk ids found in a vault file, by path, while the file stays the same one.
@@ -158,6 +161,11 @@ final class GlobalSaveVault {
     private let garbageQueue = DispatchQueue(label: "com.globalholdings.save-vault-gc", qos: .background)
     private var chunkGarbageScheduled = false
     private var chunkGarbageWaiters: [() -> Void] = []
+    /// A commit made while a pass runs asks for one more pass when it ends (its replaced chunks are collected then).
+    private var chunkGarbageRerun = false
+    /// Delay before a pass aborted by a changed vault file runs again; doubled per abort up to 30 s, reset by a pass
+    /// that completes (an unreadable file must not make the collector reread every file every 250 ms).
+    private var chunkGarbageRetryMs = 250
     private var lastChunkGarbageReport: ChunkGarbageReport?
     private static let chunkGarbageDeleteBatch = 8
 
@@ -371,7 +379,7 @@ final class GlobalSaveVault {
         guard let written = try? Data(contentsOf: url(slot)), written == stored, let file = fileIdentity(url(slot)) else {
             throw VaultError.message("Native save verification failed after write.")
         }
-        slotHeaders[slot] = SlotHeader(generation: generation, slot: slot, saveRevision: validation.saveRevision, resetEpoch: validation.resetEpoch, chunkIds: chunkIds, file: file)
+        slotHeaders[slot] = SlotHeader(generation: generation, slot: slot, saveRevision: validation.saveRevision, resetEpoch: validation.resetEpoch, chunkIds: chunkIds, file: file, manifestValid: true)
         lap("verifyMs")
         scheduleChunkGarbageLocked(generation: generation)
         lap("chunkGcScheduleMs")
@@ -423,7 +431,7 @@ final class GlobalSaveVault {
         if let cached = slotHeaders[slot], cached.file == identity { return cached }
         slotHeaders[slot] = nil
         guard let read = readVerifiedEnvelope(file) else { return nil }
-        let header = SlotHeader(generation: read.envelope.generation, slot: read.envelope.slot, saveRevision: read.envelope.saveRevision ?? 0, resetEpoch: read.envelope.resetEpoch ?? 0, chunkIds: read.info.chunkIds ?? [], file: identity)
+        let header = SlotHeader(generation: read.envelope.generation, slot: read.envelope.slot, saveRevision: read.envelope.saveRevision ?? 0, resetEpoch: read.envelope.resetEpoch ?? 0, chunkIds: read.info.chunkIds ?? [], file: identity, manifestValid: read.info.chunkIds != nil)
         slotHeaders[slot] = header
         return header
     }
@@ -734,7 +742,7 @@ final class GlobalSaveVault {
         ["A", "B"].compactMap { slot -> Envelope? in
             let file = url(slot)
             guard let identity = fileIdentity(file), let read = readVerifiedEnvelope(file) else { slotHeaders[slot] = nil; return nil }
-            slotHeaders[slot] = SlotHeader(generation: read.envelope.generation, slot: read.envelope.slot, saveRevision: read.envelope.saveRevision ?? 0, resetEpoch: read.envelope.resetEpoch ?? 0, chunkIds: read.info.chunkIds ?? [], file: identity)
+            slotHeaders[slot] = SlotHeader(generation: read.envelope.generation, slot: read.envelope.slot, saveRevision: read.envelope.saveRevision ?? 0, resetEpoch: read.envelope.resetEpoch ?? 0, chunkIds: read.info.chunkIds ?? [], file: identity, manifestValid: read.info.chunkIds != nil)
             return read.envelope
         }
     }
@@ -998,13 +1006,14 @@ final class GlobalSaveVault {
     /// sweeping returns to the serial vault queue and removes at most eight chunks per batch. No directory scan, large
     /// vault-file read, or unbounded unlink loop is part of the save acknowledgement path.
     private func scheduleChunkGarbageLocked(generation: Int) {
-        guard !chunkGarbageScheduled else { return }
+        guard !chunkGarbageScheduled else { chunkGarbageRerun = true; return }
         chunkGarbageScheduled = true
+        chunkGarbageRerun = false
         let cutoff = Date().addingTimeInterval(-GlobalSaveVault.chunkGracePeriod)
         recentChunkUploads = recentChunkUploads.filter { $0.value > cutoff }
         var headers: [String: ChunkReferences] = [:]
-        for slot in ["A", "B"] where slotHeaders[slot] != nil {
-            let header = slotHeaders[slot]!
+        for slot in ["A", "B"] {
+            guard let header = slotHeaders[slot], header.manifestValid else { continue }
             headers[url(slot).path] = ChunkReferences(file: header.file, ids: Set(header.chunkIds))
         }
         let presence = chunkPresence.mapValues { ChunkReferences(file: $0.file, ids: $0.ids) }
@@ -1012,7 +1021,7 @@ final class GlobalSaveVault {
         garbageQueue.async { [weak self] in
             guard let self else { return }
             guard let plan = self.makeChunkGarbagePlan(snapshot) else {
-                self.queue.async { self.chunkGarbageScheduled = false; self.finishChunkGarbageLocked() }
+                self.queue.async { self.chunkGarbageScheduled = false; self.endChunkGarbagePassLocked() }
                 return
             }
             var protected = Set<String>(), protectedByFile: [String: Set<String>] = [:], scannedBytes = 0, scanSucceeded = true
@@ -1020,10 +1029,10 @@ final class GlobalSaveVault {
                 // A release vault file is encrypted: its chunk ids are read from the plain bytes (an unreadable one stops the pass).
                 guard let stored = try? Data(contentsOf: file, options: .mappedIfSafe), let data = VentoraSaveSeal.plainBytes(stored) else { scanSucceeded = false; break }
                 scannedBytes += data.count
-                var found = Set<String>()
-                for id in plan.candidates {
-                    if data.range(of: Data(id.utf8)) != nil { protected.insert(id); found.insert(id) }
-                }
+                // One pass over the file per candidate length (GlobalSaveVault.chunkIdsPresent): the same ids a
+                // substring search for each candidate finds, without rereading the file once per candidate.
+                let found = GlobalSaveVault.chunkIdsPresent(in: data, candidates: plan.candidates)
+                protected.formUnion(found)
                 if !found.isEmpty { protectedByFile[file.path] = found }
             }
             self.queue.async {
@@ -1038,7 +1047,8 @@ final class GlobalSaveVault {
         var candidates = Set(names.filter { $0.hasSuffix(".chunk") }.map { String($0.dropLast(6)) })
         candidates.subtract(snapshot.recent)
         guard !candidates.isEmpty else { return nil }
-        let vaultFiles = ((try? fm.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? []).filter { $0.pathExtension == "json" }
+        guard let listing = try? fm.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return nil }
+        let vaultFiles = listing.filter { $0.pathExtension == "json" }
         var identities: [String: FileIdentity] = [:]
         for file in vaultFiles { if let identity = fileIdentity(file) { identities[file.path] = identity } }
         // An unreadable protector is not proof that it has no references. Leak safely and retry on a later pass.
@@ -1052,20 +1062,40 @@ final class GlobalSaveVault {
     }
 
     private func applyChunkGarbagePlanLocked(_ plan: ChunkGarbagePlan, protected: Set<String>, protectedByFile: [String: Set<String>], scannedBytes: Int, scanSucceeded: Bool, remaining: Set<String>, deleted: Int) {
-        // The complete set and identity of protecting JSON files must still match the mark phase. This also catches a
-        // newly created manual slot/reset journal, not only a replacement of an existing A/B file.
-        let files = ((try? fm.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? []).filter { $0.pathExtension == "json" }
+        // The set and identity of the protecting JSON files are checked again before every batch (below). This also
+        // catches a newly created manual slot/reset journal. A folder that cannot be listed proves nothing: abort.
+        let listing = try? fm.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)
+        let files = (listing ?? []).filter { $0.pathExtension == "json" }
         var identities: [String: FileIdentity] = [:]
         for file in files { if let identity = fileIdentity(file) { identities[file.path] = identity } }
-        guard scanSucceeded, identities.count == files.count, identities == plan.vaultFiles else {
-            recordChunkGarbageLocked(plan, scannedBytes: scannedBytes, protected: protected.count, deleted: deleted, aborted: true)
-            chunkGarbageScheduled = false
-            queue.asyncAfter(deadline: .now() + .milliseconds(250)) { self.scheduleChunkGarbageLocked(generation: self.currentSlotHeaderLocked()?.generation ?? plan.generation) }
-            return
-        }
+        // Every other vault file (manual slots and their backups, reset journals, rollback checkpoints) must be the very
+        // file the mark phase saw. The A/B slots are rewritten by every commit; a pass no longer aborts for that: before
+        // each batch the current verified header of each slot (both, so the fallback save keeps its chunks) protects its
+        // manifest, and a slot without such a header is protected only if it is the file the mark phase scanned.
+        let slotPaths = Set(["A", "B"].map { url($0).path })
+        var slotsCovered = true
         let cutoff = Date().addingTimeInterval(-GlobalSaveVault.chunkGracePeriod)
         recentChunkUploads = recentChunkUploads.filter { $0.value > cutoff }
-        let safe = remaining.filter { recentChunkUploads[$0] == nil }
+        var safe = remaining.filter { recentChunkUploads[$0] == nil }
+        for slot in ["A", "B"] {
+            let path = url(slot).path
+            guard let current = identities[path] ?? fileIdentity(url(slot)) else {
+                if fm.fileExists(atPath: path) { slotsCovered = false }
+                continue
+            }
+            if let header = slotHeaders[slot], header.manifestValid, header.file == current { safe.subtract(header.chunkIds); continue }
+            if plan.filesToScan.contains(where: { $0.path == path }), plan.vaultFiles[path] == current { continue }
+            slotsCovered = false
+        }
+        guard listing != nil, scanSucceeded, slotsCovered, identities.count == files.count, identities.filter({ !slotPaths.contains($0.key) }) == plan.vaultFiles.filter({ !slotPaths.contains($0.key) }) else {
+            recordChunkGarbageLocked(plan, scannedBytes: scannedBytes, protected: protected.count, deleted: deleted, aborted: true)
+            chunkGarbageScheduled = false
+            chunkGarbageRerun = false
+            let delay = chunkGarbageRetryMs
+            chunkGarbageRetryMs = min(chunkGarbageRetryMs * 2, 30_000)
+            queue.asyncAfter(deadline: .now() + .milliseconds(delay)) { self.scheduleChunkGarbageLocked(generation: self.currentSlotHeaderLocked()?.generation ?? plan.generation) }
+            return
+        }
         let batch = safe.sorted().prefix(GlobalSaveVault.chunkGarbageDeleteBatch)
         var removed = 0
         for id in batch {
@@ -1087,7 +1117,87 @@ final class GlobalSaveVault {
         }
         recordChunkGarbageLocked(plan, scannedBytes: scannedBytes, protected: protected.count, deleted: deleted + removed, aborted: false)
         chunkGarbageScheduled = false
+        chunkGarbageRetryMs = 250
+        endChunkGarbagePassLocked()
+    }
+
+    /// A pass ended without an abort: one more runs if a commit asked for it meanwhile, otherwise the drain waiters
+    /// are released.
+    private func endChunkGarbagePassLocked() {
+        chunkGarbageRetryMs = 250
+        if chunkGarbageRerun {
+            chunkGarbageRerun = false
+            scheduleChunkGarbageLocked(generation: currentSlotHeaderLocked()?.generation ?? 0)
+            return
+        }
         finishChunkGarbageLocked()
+    }
+
+    /// The candidates that occur anywhere in `data` as a byte substring: the set `data.range(of: Data(id.utf8)) != nil`
+    /// gives for each one, found in one pass over the bytes per distinct candidate length (Rabin-Karp, every hash hit
+    /// confirmed byte by byte, so a collision only costs time). A candidate made of chunk-id bytes ([0-9A-Za-z._-])
+    /// can only occur inside a run of such bytes, so the rolling window restarts at any other byte; a candidate with
+    /// any other byte (or empty) is searched as before.
+    static func chunkIdsPresent(in data: Data, candidates: Set<String>) -> Set<String> {
+        var found = Set<String>()
+        var byLength: [Int: [[UInt8]]] = [:]
+        for id in candidates {
+            let bytes = Array(id.utf8)
+            if bytes.isEmpty || !bytes.allSatisfy({ isChunkIdByte($0) }) {
+                if data.range(of: Data(id.utf8)) != nil { found.insert(id) }
+                continue
+            }
+            byLength[bytes.count, default: []].append(bytes)
+        }
+        guard !byLength.isEmpty else { return found }
+        let base: UInt64 = 1_099_511_628_211
+        data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
+            let count = raw.count
+            for (length, ids) in byLength where length <= count {
+                var table: [UInt64: [Int]] = [:]
+                var filter = [UInt64](repeating: 0, count: 1 << 14)
+                for (index, id) in ids.enumerated() {
+                    var hash: UInt64 = 0
+                    for byte in id { hash = hash &* base &+ UInt64(byte) }
+                    table[hash, default: []].append(index)
+                    let bit = Int(hash & 0xFFFFF)
+                    filter[bit >> 6] |= 1 << UInt64(bit & 63)
+                }
+                var power: UInt64 = 1
+                for _ in 1..<length { power = power &* base }
+                var hash: UInt64 = 0
+                var run = 0
+                var i = 0
+                while i < count {
+                    let byte = raw[i]
+                    if !isChunkIdByte(byte) { run = 0; hash = 0; i += 1; continue }
+                    if run < length {
+                        hash = hash &* base &+ UInt64(byte)
+                        run += 1
+                    } else {
+                        hash = (hash &- UInt64(raw[i - length]) &* power) &* base &+ UInt64(byte)
+                    }
+                    if run == length {
+                        let bit = Int(hash & 0xFFFFF)
+                        if filter[bit >> 6] & (1 << UInt64(bit & 63)) != 0, let hits = table[hash] {
+                            let start = i - length + 1
+                            for index in hits {
+                                let id = ids[index]
+                                var same = true
+                                for k in 0..<length where raw[start + k] != id[k] { same = false; break }
+                                if same { found.insert(String(decoding: id, as: UTF8.self)) }
+                            }
+                        }
+                    }
+                    i += 1
+                }
+            }
+        }
+        return found
+    }
+
+    private static func isChunkIdByte(_ byte: UInt8) -> Bool {
+        (48...57).contains(byte) || (65...90).contains(byte) || (97...122).contains(byte) || byte == 46 || byte == 95 || byte == 45
     }
 
     private func recordChunkGarbageLocked(_ plan: ChunkGarbagePlan, scannedBytes: Int, protected: Int, deleted: Int, aborted: Bool) {

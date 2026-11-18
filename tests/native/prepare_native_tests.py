@@ -334,6 +334,85 @@ test("a slot file changed on disk is verified again before the next commit") {
     do{let _:Int=try wait{commit(stale,try! envelope(stale),$0)}}catch{refused=true}
     try check(refused,"Stale revision accepted after a slot was rewritten")
 }
+// Batch H (iPhone diagnostic DX-1795041751015: cleanup passes of 2,947-7,907 candidates took 8-101 s, 3 of 4 aborted): the
+// mark phase scans each file once (GlobalSaveVault.chunkIdsPresent), and a commit (an A/B rewrite) no longer aborts a pass.
+test("chunk id scan finds exactly the ids a substring search finds") {
+    var seed:UInt64=0x9E3779B97F4A7C15
+    func next()->Int {seed=seed &* 6364136223846793005 &+ 1442695040888963407;return Int(seed>>33)}
+    let alphabet=Array("ab.0-_".utf8),noise=Array("ab.0-_\\"{}:, ".utf8)
+    for round in 0..<400 {
+        var candidates=Set<String>()
+        for _ in 0..<(1+next()%20) {candidates.insert(String(decoding:(0..<(1+next()%7)).map{_ in alphabet[next()%alphabet.count]},as:UTF8.self))}
+        if round%5==0 {candidates.insert("a\\"b")}
+        let list=candidates.sorted()
+        var bytes:[UInt8]=[]
+        for _ in 0..<(next()%40) {
+            if next()%2==0 {bytes+=Array(list[next()%list.count].utf8)}
+            else {bytes+=(0..<(1+next()%5)).map{_ in noise[next()%noise.count]}}
+        }
+        // A slice whose startIndex is not 0, as a file read can be.
+        let data=Data([9,9,9]+bytes).dropFirst(3)
+        let found=GlobalSaveVault.chunkIdsPresent(in:data,candidates:candidates)
+        let expected=Set(candidates.filter{data.range(of:Data($0.utf8)) != nil})
+        try check(found==expected,"Scan differs in round \\(round): \\(found.sorted()) vs \\(expected.sorted())")
+    }
+    let nonce="mj3k9q2x8f7a6b5c4d3e2",ids:[String]=["v","c","o","t","0.r","0.l"].flatMap{kind in (1...300).map{"\\(nonce).\\(kind).\\(String($0,radix:36))"}}
+    var text="{\\"chunks\\":["
+    for (index,id) in ids.enumerated() where index%3==0 {text+="\\"\\(id)\\","}
+    text+="\\"x\\"],\\"lane\\":\\"\\(ids[4]).4096\\",\\"tail\\":\\"\\(ids[ids.count-1])"
+    let data=Data(text.utf8),all=Set(ids)
+    let expected=Set(all.filter{data.range(of:Data($0.utf8)) != nil})
+    try check(GlobalSaveVault.chunkIdsPresent(in:data,candidates:all)==expected && expected.count>ids.count/3,"Scan differs on save-like ids")
+}
+func currentRevision()->Int {vault.currentSave().flatMap{try? JSONSerialization.jsonObject(with:Data($0.utf8)) as? [String:Any]}?["saveRevision"] as? Int ?? 8}
+func staleCopies(_ prefix:String,_ count:Int,late:String) throws {
+    // A pass still running from the last commit would not list these copies; let it end first.
+    try drainChunkGarbage()
+    let source=chunkFolder.appendingPathComponent("s1.b.2.chunk")
+    for index in 0..<count {try fm.copyItem(at:source,to:chunkFolder.appendingPathComponent("\\(prefix).\\(index).chunk"))}
+    try fm.copyItem(at:source,to:chunkFolder.appendingPathComponent(late+".chunk"))
+}
+func staleLeft(_ prefix:String)->Int {chunkFiles().filter{$0.hasPrefix(prefix+".")}.count}
+// Starts a cleanup pass over the copies and returns once its deletions have begun but many copies remain (the write the
+// caller then makes lands between two delete batches); the returned flag turns true when the drain completes.
+final class DrainFlag {var done=false}
+func startPassAndWait(_ prefix:String,_ count:Int) throws -> DrainFlag {
+    let flag=DrainFlag();vault.drainChunkGarbageAsync{flag.done=true}
+    let deadline=Date().addingTimeInterval(30)
+    while staleLeft(prefix)==count && Date()<deadline {RunLoop.current.run(until:Date().addingTimeInterval(0.002))}
+    let left=staleLeft(prefix)
+    try check(left<count && left>16,"The write did not land inside the pass (\\(left) of \\(count) copies left)")
+    return flag
+}
+func finishDrain(_ flag:DrainFlag) throws {
+    let deadline=Date().addingTimeInterval(60)
+    while !flag.done && Date()<deadline {RunLoop.current.run(until:Date().addingTimeInterval(0.002))}
+    try check(flag.done,"Cleanup did not finish")
+}
+test("a commit during a cleanup pass does not abort it and protects the chunk it lists") {
+    try staleCopies("gcold",400,late:"zzzz.late.1")
+    let flag=try startPassAndWait("gcold",400)
+    let j=try chunkJSON(currentRevision()+1,["s1.a.1","zzzz.late.1"]);let _:Int=try wait{commit(j,try! envelope(j),$0)}
+    try finishDrain(flag)
+    try check(chunkFiles().contains("zzzz.late.1.chunk"),"Chunk listed by a commit made during the pass was collected")
+    try check(staleLeft("gcold")==0,"Stale chunks kept: \\(staleLeft("gcold"))")
+    try check(try vault.chunkData(id:"zzzz.late.1")==chunkB,"Kept chunk unreadable")
+    // One pass deleted all 400 without aborting (an aborted pass leaves a retry that reports only the rest).
+    let k=try chunkJSON(currentRevision()+1,["s1.a.1","zzzz.late.1"]);let gen:Int=try wait{commit(k,try! envelope(k),$0)}
+    let stages=vault.takeCommitTimings(generation:gen) ?? [:]
+    try check(stages["backgroundChunkGcAborted"]==0 && stages["backgroundChunkGcDeleted"]==400,"The commit aborted or split the pass: \\(stages)")
+}
+test("a manual slot saved during a cleanup pass aborts it and keeps the chunk it lists") {
+    try staleCopies("gcslot",400,late:"zzzz.slot.1")
+    let flag=try startPassAndWait("gcslot",400)
+    let slot=try chunkJSON(currentRevision(),["zzzz.slot.1"]);let _:GlobalSaveVault.ManualSlotMetadata=try wait{manual(1,slot,try! envelope(slot,action:"saveManualSlot"),$0)}
+    try finishDrain(flag)
+    try check(chunkFiles().contains("zzzz.slot.1.chunk"),"Chunk listed by a manual slot saved during the pass was collected")
+    try check(staleLeft("gcslot")==0,"Stale chunks kept: \\(staleLeft("gcslot"))")
+    let _:Void=try wait{vault.clearManualSlotAsync(1,completion:$0)}
+    try drainChunkGarbage()
+    try check(!chunkFiles().contains("zzzz.slot.1.chunk"),"Chunk of a cleared slot kept")
+}
 // Build 358 (save size): text chunks of sealed collections listed in stateCodec.chunks are required and kept like fleet chunks.
 func textJSON(_ rev:Int,fleet:[String],text:[String]) throws -> String {
     let rows:[String:Any]=["$ghBinary":"chunks-v1","byteLength":fleet.count*8,"chunkBytes":8,"chunks":fleet]

@@ -3,6 +3,62 @@
   "preflight_commands": [
     [
       "node",
+      "tests/build712-company-card-period-net-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-tabs-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-dynamic-company-consumers.cjs"
+    ],
+    [
+      "node",
+      "tests/build364-company-overview-summary.cjs"
+    ],
+    [
+      "node",
+      "tests/build443-company-review-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build434-service-panel-fleet-work.cjs"
+    ],
+    [
+      "node",
+      "tests/build366-mobility-dashboard-lightweight.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-tabs-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build637-launch-native-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build360-native-runtime-ready.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-native-chunked-save.cjs"
+    ],
+    [
+      "node",
+      "tests/build651-i18n-source-contract.cjs"
+    ],
+    [
+      "node",
+      "tests/build644-game-name.cjs"
+    ],
+    [
+      "node",
+      "tests/build652-native-document-scripts.cjs"
+    ],
+    [
+      "node",
       "tests/build558-investor-card-load-browser.cjs"
     ],
     [
@@ -675,10 +731,6 @@
     ],
     [
       "node",
-      "tests/build443-company-review-work.cjs"
-    ],
-    [
-      "node",
       "tests/build688-mobility-network-safe-size.cjs"
     ],
     [
@@ -731,10 +783,6 @@
     ],
     [
       "node",
-      "tests/build334-dynamic-company-consumers.cjs"
-    ],
-    [
-      "node",
       "tests/core-regressions.cjs"
     ],
     [
@@ -780,10 +828,6 @@
     [
       "node",
       "tests/build360-iphone-failure-recovery.cjs"
-    ],
-    [
-      "node",
-      "tests/build366-mobility-dashboard-lightweight.cjs"
     ],
     [
       "node",
@@ -840,10 +884,6 @@
     [
       "node",
       "tests/build363-company-economics-balance.cjs"
-    ],
-    [
-      "node",
-      "tests/build434-service-panel-fleet-work.cjs"
     ],
     [
       "node",
@@ -908,10 +948,6 @@
     [
       "node",
       "tests/build339-day-boundary-write-map.cjs"
-    ],
-    [
-      "node",
-      "tests/build364-company-overview-summary.cjs"
     ],
     [
       "node",
@@ -1331,10 +1367,6 @@
     ],
     [
       "node",
-      "tests/build334-tabs-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build334-identity-regressions.cjs"
     ],
     [
@@ -1480,10 +1512,6 @@
     [
       "node",
       "tests/build493-backup-export-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build358-native-chunked-save.cjs"
     ],
     [
       "node",
@@ -1779,10 +1807,6 @@
     ],
     [
       "node",
-      "tests/build651-i18n-source-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build340-payroll-settlement-index.cjs"
     ],
     [
@@ -1920,10 +1944,6 @@
     [
       "node",
       "tests/build334-market-discovery-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-tabs-browser.cjs"
     ],
     [
       "node",
@@ -2467,15 +2487,7 @@
     ],
     [
       "node",
-      "tests/build652-native-document-scripts.cjs"
-    ],
-    [
-      "node",
       "tests/build334-security-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build644-game-name.cjs"
     ],
     [
       "node",
@@ -2559,19 +2571,11 @@
     ],
     [
       "node",
-      "tests/build637-launch-native-contract.cjs"
-    ],
-    [
-      "node",
       "tests/build655-store-capture-protection.cjs"
     ],
     [
       "node",
       "tests/build498-native-save-export-contract.cjs"
-    ],
-    [
-      "node",
-      "tests/build360-native-runtime-ready.cjs"
     ],
     [
       "node",
@@ -3726,6 +3730,10 @@
     [
       "node",
       "tests/build711-worst-gap-evidence.cjs"
+    ],
+    [
+      "node",
+      "tests/build712-company-card-period-net-browser.cjs"
     ],
     [
       "node",
