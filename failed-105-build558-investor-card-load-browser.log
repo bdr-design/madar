@@ -1,0 +1,13 @@
+AssertionError [ERR_ASSERTION]: 1: as many journal entries
+
+-26 !== -17
+
+    at /Users/runner/work/madar/madar/tests/build558-investor-card-load-browser.cjs:85:148
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: -26,
+  expected: -17,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
