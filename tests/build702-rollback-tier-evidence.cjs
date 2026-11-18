@@ -93,6 +93,43 @@ const results=[];
    const extras=journal.log.extras;journal.log.extras=new Proxy(extras,{get(o,k){if(k==='1')throw new Error('build702-injected');return o[k];}});
    assert.throws(()=>STORE.rollbackJournal(journal),/build702-injected/,'S11: the injected error reaches the caller');const moved=STORE.staticChunksSince(t,inner);
    for(const tier of ['static','identity','routed'])assert.deepEqual(moved[tier],[0,1],`S11: ${tier} moves on both restored chunks after the throw`);}
+  // S12. Two staged writers in one journal: one writer's tier list settles only its own chunks (post-review: any list
+  // settled every pending chunk, so the other writer's rows kept the route table from its yield after the rollback).
+  for(const shape of ['two chunks','one chunk']){const rows=build(C+400,'S12'),store=STORE.fromAssets(rows,{at:0}),x=rows.findIndex(a=>a.routeId==='A1'),y=shape==='one chunk'?rows.findIndex((a,i)=>i>x&&a.routeId==='A1'):C+rows.slice(C).findIndex(a=>a.routeId==='A1');assert.ok(x>=0&&y>x,'S12: rows');
+   const scratch=STORE.importReplica(STORE.exportReplica(store));STORE.set(scratch,x,'routeId','S1');const image=STORE.readRows(scratch,Int32Array.of(x)),other=STORE.readRows(store,Int32Array.of(y));
+   const listed=()=>{const table=STORE.refRowTables(store,'routeId')[0],at=table.values.indexOf('S1');return at<0?false:[...table.rows[at]].includes(x);};
+   const journal=STORE.beginJournal(store),a=STORE.stagedWriter(),b=STORE.stagedWriter();STORE.writeRows(store,Int32Array.of(x),image.bytes,image.extras,{writer:a});STORE.writeRows(store,Int32Array.of(y),other.bytes,other.extras,{writer:b});assert.equal(listed(),true,`S12 ${shape}: the yield sees A's staged row`);
+   STORE.writeRows(store,new Int32Array(0),new ArrayBuffer(0),[],{staticRows:{static:[],identity:[],routed:[]},writer:b});STORE.rollbackJournal(journal);
+   assert.equal(listed(),false,`S12 ${shape}: B's settled list leaves A's chunk pending; it follows the rollback`);assert.equal(STORE.get(store,x,'routeId'),'A1');
+   // Both settled (each by its own list): an engine-only rollback keeps the evidence from before the journal.
+   const kept=STORE.identitySnapshot(store),again=STORE.beginJournal(store),c=STORE.stagedWriter(),d=STORE.stagedWriter(),same=STORE.readRows(store,Int32Array.of(x,y));STORE.writeRows(store,Int32Array.of(x,y),same.bytes,same.extras,{writer:c});STORE.writeRows(store,Int32Array.of(y),STORE.readRows(store,Int32Array.of(y)).bytes,[undefined],{writer:d});
+   for(const w of [c,d])STORE.writeRows(store,new Int32Array(0),new ArrayBuffer(0),[],{staticRows:{static:[],identity:[],routed:[]},writer:w});STORE.rollbackJournal(again);assert.equal(STORE.identityCurrent(store,kept),true,`S12 ${shape}: two settled writers rolled back keep the evidence`);}
+  // S12b. A writer reused in a later journal counts its chunk again there; an empty replay settle (a tier list with no
+  // rows, its own writer) leaves another writer's chunk pending (post-review round 2).
+  {const rows=build(C+400,'S12b'),store=STORE.fromAssets(rows,{at:0}),x=rows.findIndex(a=>a.routeId==='A1');
+   const scratch=STORE.importReplica(STORE.exportReplica(store));STORE.set(scratch,x,'routeId','S1');const image=STORE.readRows(scratch,Int32Array.of(x));
+   const listed=()=>{const table=STORE.refRowTables(store,'routeId')[0],at=table.values.indexOf('S1');return at<0?false:[...table.rows[at]].includes(x);};
+   // Each journal starts after an identity write in the chunk, so the route table is rebuilt inside its yield.
+   let renames=0;const fresh=()=>STORE.set(store,x+1,'name',`S12b fresh ${++renames}`);
+   const a=STORE.stagedWriter(),first=STORE.beginJournal(store);STORE.writeRows(store,Int32Array.of(x),image.bytes,image.extras,{writer:a});STORE.rollbackJournal(first);assert.equal(listed(),false,'S12b: first journal follows the rollback');
+   fresh();const second=STORE.beginJournal(store);STORE.writeRows(store,Int32Array.of(x),image.bytes,image.extras,{writer:a});assert.equal(listed(),true,'S12b: the yield sees the reused writer\'s row');STORE.rollbackJournal(second);assert.equal(listed(),false,'S12b: a reused writer counts its chunk in the new journal');
+   fresh();const third=STORE.beginJournal(store),b=STORE.stagedWriter();STORE.writeRows(store,Int32Array.of(x),image.bytes,image.extras,{writer:b});assert.equal(listed(),true);
+   STORE.writeRows(store,new Int32Array(0),new ArrayBuffer(0),[],{staticRows:{static:[],identity:[],routed:[]},writer:STORE.stagedWriter()});STORE.rollbackJournal(third);assert.equal(listed(),false,'S12b: an empty settle with its own writer leaves B pending');
+   // A write that throws part way (a row out of range after a good one) leaves its chunk pending.
+   fresh();const fourth=STORE.beginJournal(store),c=STORE.stagedWriter(),two=STORE.readRows(scratch,Int32Array.of(x,x));assert.throws(()=>STORE.writeRows(store,Int32Array.of(x,store.length+5),two.bytes,two.extras,{writer:c}),/out-of-range/);assert.equal(listed(),true,'S12b: the first row was written');
+   STORE.rollbackJournal(fourth);assert.equal(listed(),false,'S12b: a write that threw part way leaves its chunk pending');}
+  // S14. The staged writers pass their own writer (post-review: the store's frozen API cannot be spied on, and the
+  // dispatch apply refuses any other write while it runs, so the wiring is pinned in the source): the dispatch apply on
+  // its row slices and its tier list; the thread's step replay on its row slices, its last slice and its empty replay.
+  {const fs=require('node:fs'),root=process.env.GH_TEST_SOURCE_DIR||require('node:path').resolve(__dirname,'..'),read=name=>fs.readFileSync(require('node:path').join(root,'WebApp',name),'utf8');
+   const dispatch=read('fleet-dispatch-core.js'),thread=read('fleet-engine-thread.js');
+   assert.ok(dispatch.includes('const writer=STORE.stagedWriter?.()||null;')&&dispatch.includes('STORE.writeRows(recordStore,partIndices,partBytes,partExtras,{writer});')&&dispatch.includes('staticRows:plan.staticRows,writer});'),'S14: the dispatch apply writes and settles with its own writer');
+   assert.ok(thread.includes('staticRows:message.staticRows,writer:STORE.stagedWriter?.()||null})));return;}'),'S14: the empty step replay settles with its own writer');
+   assert.ok(thread.includes('const writer=STORE.stagedWriter?.()||null;')&&thread.includes("staticRows:message.staticRows===true?true:last?message.staticRows:false,writer})));"),'S14: the step replay writes and settles with its own writer');}
+  // S13. Both compactions (in place and staged) log every chunk foreign: the replica moves every tier.
+  for(const staged of [false,true]){const rows=build(C+400,'S13'),store=STORE.fromAssets(rows,{at:0});STORE.drainReplica(store);STORE.removeMany(store,[3,C+5]);STORE.drainReplica(store);
+   if(staged){const stages=STORE.compactRowsStages(store,{rowSlice:4096});let step;do step=stages.next();while(!step.done);}else STORE.compactRows(store);
+   const log=STORE.drainReplica(store),chunks=Math.ceil(store.length/C);for(let chunk=0;chunk<chunks;chunk++)assert.ok(log.foreignChunks.includes(chunk),`S13 ${staged?'staged':'in place'}: chunk ${chunk} foreign`);}
   results.push({name:'S. store tiers'});
 }
 

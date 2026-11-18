@@ -303,7 +303,7 @@ self.addEventListener('message',event=>{
           const result=self.GH_FLEET_QUERY.run(String(message.name),{fleet:store,simSeconds:Number(message.simSeconds)||0},self.GH_FLEET_DATA,params);
           if(cached)result.dailyMetrics=cached.value;
           if(message.name==='fleetDay'&&result?.dailyMetrics)dayMetricsCache={store,revision:store.revision,length:store.length,structure:store.structure,value:result.dailyMetrics};
-          const transfers=[];for(const view of [result?.columns?.indices,result?.columns?.values])if(ArrayBuffer.isView(view)&&view.buffer instanceof ArrayBuffer&&view.buffer.byteLength&&!transfers.includes(view.buffer))transfers.push(view.buffer);
+          const transfers=[];for(const view of [result?.columns?.indices,result?.columns?.values,result?.maintenanceRows])if(ArrayBuffer.isView(view)&&view.buffer instanceof ArrayBuffer&&view.buffer.byteLength&&!transfers.includes(view.buffer))transfers.push(view.buffer);
           // Build 362 follow-up: how much of a save validation reused its per-chunk static checks (diagnostics evidence).
           const validation=String(message.name)==='saveValidation'&&typeof self.GH_FLEET_SAVE_VALIDATION?.staticStats==='function'?self.GH_FLEET_SAVE_VALIDATION.staticStats():null;
           self.postMessage({type:'query',version:VERSION,id:message.id,result,ms:performance.now()-started,...(validation?{validation}:{})},transfers);

@@ -200,7 +200,7 @@
     if(r.replica.bits.length<Math.ceil(cap/32)){const next=new Uint32Array(Math.ceil(cap/32));next.set(r.replica.bits);r.replica.bits=next;}
     if(r.replica.chunks.length<chunks){const next=new Uint8Array(chunks);next.set(r.replica.chunks);r.replica.chunks=next;}
     if(r.replica.foreign.length<chunks){const next=new Uint8Array(chunks);next.set(r.replica.foreign);r.replica.foreign=next;}
-    if(r.journal&&r.journal.active&&r.journal.pendingTiers.length<chunks){const next=new Uint8Array(chunks);next.set(r.journal.pendingTiers);r.journal.pendingTiers=next;}
+    if(r.journal&&r.journal.active&&r.journal.pendingTiers.length<chunks){const next=new Uint32Array(chunks);next.set(r.journal.pendingTiers);r.journal.pendingTiers=next;}
     if(r.journal&&r.journal.active&&r.journal.seen.length<cap){const seen=new Uint8Array(cap);seen.set(r.journal.seen);r.journal.seen=seen;}
   }
   function ensureCapacity(store,needed){
@@ -302,7 +302,7 @@
     const r=rt(store);if(r.journal&&r.journal.active)return r.journal;
     const journal={store,runtime:r,length:store.length,live:store.live,structure:store.structure,revision:store.revision,high:store.revision,highStructure:store.structure,valuesLength:store.values.length,reused:[],
       log:takeLog(r),seen:takeSeen(r,store.capacity),fields:new Map(),preparedFields:new Map(),ids:r.ids,idOps:[],idCollision:false,active:true,
-      tiers:{static:r.staticVersions.slice(),identity:r.identityVersions.slice(),routed:r.routedVersions.slice()},pendingTiers:new Uint8Array(r.staticVersions.length)};
+      tiers:{static:r.staticVersions.slice(),identity:r.identityVersions.slice(),routed:r.routedVersions.slice()},pendingTiers:new Uint32Array(r.staticVersions.length),anonymousPending:new Set()};
     r.journal=journal;return journal;
   }
   function journalFor(store){
@@ -434,7 +434,7 @@
     // rows and had not yet moved their tiers (writeRows without a tier list; pendingTiers). A cache built inside the
     // journal is still expired; a cache from before it stays valid. (In `finally`, a chunk marked before its row is copied:
     // rows restored before a throw, and the row it threw on, still move their tiers.)
-    for(let chunk=0;chunk<restored.length;chunk++)if(restored[chunk]){const pending=chunk<journal.pendingTiers.length&&journal.pendingTiers[chunk]===1;for(const [name,before] of [['staticVersions',journal.tiers.static],['identityVersions',journal.tiers.identity],['routedVersions',journal.tiers.routed]]){const versions=r[name];if(pending||chunk>=before.length||versions[chunk]!==before[chunk])versions[chunk]++;}}
+    for(let chunk=0;chunk<restored.length;chunk++)if(restored[chunk]){const pending=chunk<journal.pendingTiers.length&&journal.pendingTiers[chunk]>0;for(const [name,before] of [['staticVersions',journal.tiers.static],['identityVersions',journal.tiers.identity],['routedVersions',journal.tiers.routed]]){const versions=r[name];if(pending||chunk>=before.length||versions[chunk]!==before[chunk])versions[chunk]++;}}
     }
     for(let index=journal.length;index<store.length;index++){dropExtras(store,index);v.u8[index*STRIDE+O.flags]=0;markDirty(r,index);logDirty(r,index);}
     const structureChanged=store.structure!==journal.structure;
@@ -1241,6 +1241,8 @@
         if(lo&&(bits[index>>>5]&(1<<(index&31)))){bits[index>>>5]&=~(1<<(index&31));const to=index-lo;bits[to>>>5]|=1<<(to&31);log.chunks[to>>>CHUNK_SHIFT]=1;}
       }
     }
+    // Every chunk's rows moved: the replica moves every tier (as the staged compaction does).
+    log.foreign=new Uint8Array(Math.max(log.foreign.length,Math.ceil(Math.max(1,store.capacity)/CHUNK_ROWS))).fill(1);
     log.columnPlan=null;log.compactions.push({dead:Int32Array.from(dead),length});log.rowsVersion++;log.any=true;
     r.allDirty=true;r.massVersion++;r.chunkMassVersion++;r.overlayVersion++;r.dirty=[];r.dirtyLost=true;bumpEpoch(store);return {removed,length:write};
   }
@@ -1473,11 +1475,24 @@
   // `trackIds` (the engine thread's replica sync): a row whose id changes (a purchase appended it, a slot was reused)
   // is moved in the built id index, which raw row bytes otherwise bypass; without it a bought asset stayed invisible to
   // indexOf on the replica until the next epoch. Main-thread step writes never change ids and do not pay for it.
-  function writeRows(store,indices,bytes,extras,{revisionDelta=0,staticRows=false,trackIds=false,rowStart=0,rowEnd=indices.length,reserveRows=rowEnd-rowStart}={}){
+  // A staged writer's identity for writeRows (`writer`): its rows' chunks stay pending until its own tier list.
+  function stagedWriter(){return {chunks:new Set()};}
+  function writeRows(store,indices,bytes,extras,{revisionDelta=0,staticRows=false,trackIds=false,rowStart=0,rowEnd=indices.length,reserveRows=rowEnd-rowStart,writer=null}={}){
     const before=store.revision,touch=toucher(store),src=new Uint32Array(bytes),dst=views(store).u32,tracked=trackIds&&!!runtime.get(store)?.ids;
     if(!Number.isSafeInteger(rowStart)||!Number.isSafeInteger(rowEnd)||rowStart<0||rowEnd<rowStart||rowEnd>indices.length)throw new Error('fleet-replica-row-range-invalid');
     if(rowEnd>rowStart){journalFor(store);reserveLog(store,reserveRows);}
     if(src.length!==indices.length*WORDS_PER_ROW)throw new Error('fleet-replica-rows-invalid');
+    // Heaviness batch A2: a staged writer (the thread's step replay, the dispatch apply) writes rows without a tier list
+    // and moves their tiers in a later call. Until then a rollback of the journal moves every tier of those chunks; the
+    // call that moves the tiers settles them. A writer (stagedWriter(), one per staged apply) counts its chunks once each
+    // per journal (pendingTiers counts the writers still holding a chunk) and its tier list settles only its own chunks,
+    // so one writer's list never settles another's rows (post-review: two staged writers in one journal). A write
+    // without a writer is one anonymous writer whose list settles every pending chunk (as before). `true` settles the
+    // chunks of the rows it writes (it moves their tiers now; with no rows, none). The chunks are marked before the rows
+    // are written, so a write that throws part way still leaves them pending.
+    const r=rt(store),journal=r.journal&&r.journal.active?r.journal:null,pending=journal?journal.pendingTiers:null;
+    let owned=null;if(journal&&writer&&writer.chunks instanceof Set){if(writer.journal!==journal){writer.chunks.clear();writer.journal=journal;}owned=writer.chunks;}
+    if(journal&&!staticRows&&rowEnd>rowStart){const held=owned||journal.anonymousPending;for(let k=rowStart;k<rowEnd;k++){const chunk=indices[k]>>>CHUNK_SHIFT;if(!held.has(chunk)){held.add(chunk);if(chunk<pending.length)pending[chunk]++;}}}
     for(let k=rowStart;k<rowEnd;k++){
       const index=indices[k];if(!(index>=0&&index<store.length))throw new Error('fleet-replica-row-out-of-range');
       const previousId=tracked&&isAlive(store,index)?idAt(store,index):undefined;
@@ -1485,12 +1500,10 @@
       const extra=extras?.[k];if(extra===undefined||extra===null)dropExtras(store,index);else putExtras(store,index,extra);
       if(tracked){const id=isAlive(store,index)?idAt(store,index):undefined;if(id!==previousId)idsMove(store,index,previousId,id);}
     }
-    const r=rt(store),journal=r.journal&&r.journal.active?r.journal:null;
-    // Heaviness batch A2: a staged writer (the thread's step replay, the dispatch apply) writes rows without a tier list
-    // and moves their tiers in a later call. Until then a rollback of the journal moves every tier of those chunks; the
-    // call that moves the tiers settles them: a tier list settles every pending chunk (it is the staged writer's last
-    // call); `true` settles only the chunks of the rows it writes (it moves their tiers now; with no rows, none).
-    if(journal){const pending=journal.pendingTiers;if(staticRows&&typeof staticRows==='object')pending.fill(0);else if(rowEnd>rowStart){const mark=staticRows?0:1;for(let k=rowStart;k<rowEnd;k++){const chunk=indices[k]>>>CHUNK_SHIFT;if(chunk<pending.length)pending[chunk]=mark;}}}
+    if(journal){const pending=journal.pendingTiers;// (read again: a capacity growth while writing replaces it)
+      if(staticRows&&typeof staticRows==='object'){if(owned){for(const chunk of owned)if(chunk<pending.length&&pending[chunk]>0)pending[chunk]--;owned.clear();}else{pending.fill(0);journal.anonymousPending.clear();}}
+      else if(staticRows&&rowEnd>rowStart)for(let k=rowStart;k<rowEnd;k++){const chunk=indices[k]>>>CHUNK_SHIFT;if(chunk<pending.length)pending[chunk]=0;journal.anonymousPending.delete(chunk);owned?.delete(chunk);}
+    }
     // `staticRows`: true marks the chunks of every row written; a list names the chunks to mark (Build 371: the engine
     // thread lists the chunks its replica wrote outside the fast path, instead of every chunk once any row did).
     // ({static,identity} chunk lists, from staticChunksSince; a plain list marks both tiers.)
@@ -1506,7 +1519,7 @@
   }
 
   const API=Object.freeze({extrasVersion,VERSION,SCHEMA,CHUNK_SHIFT,CHUNK_ROWS,ALIVE,EXTRAS,I32_NULL,PROFILE_FIELDS,BINDING_FIELDS,HOT_FIELDS,HOT_BIT,STRIDE,F64_PER_ROW,WORDS_PER_ROW,SLOTS,SLOT_NAMES,O,
-    create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
+    create,isStore,ensureCapacity,reserveCapacityStages,trimCapacity,isAlive,add,replace,remove,removeMany,set,patch,touch,toucher,remember,rememberColumn,readColumns,writeColumns,drainDirty,drainReplica,replicaClean,replicaPending,withoutReplicaLog,disableReplicaLog,captureReplicaChanges,setReplicaSeed,hasReplicaSeed,takeReplicaSeed,beginReplicaSnapshot,replicaSnapshotFresh,compactRowsAt,truncateReplica,staticSnapshot,staticChunksSince,stagedWriter,withoutDirtyLog,get,peek,keys,setGroupField,materialize,fromAssets,toAssets,forEachLive,buildIndex,indexOf,find,idAt,
     views,slot,setSlot,profileRefCounts,profileRefCountsStages,columnWriter,columnPlanStages,columnPlanActive,identitySnapshot,identityCurrent,inheritChunkCacheRuntime,intern,value,valueKey,forEachPeek,splitPattern,joinPattern,compactRows,compactRowsStages,collectValues,collectValuesStages,planValueCollection,applyValueCollectionPlanStages,distinctRefs,refRowTables,stats,epoch,valuesGeneration,valueRevision,bumpEpoch,beginJournal,journalFor,rollbackJournal,endJournal,journalStats,isPresent,extrasOf,dirtyChunks,clearDirtyChunks,chunkStamp,exportReplica,importReplica,valueChanges,replicaValueChanges,applyValueChanges,internAt,readRows,writeRows,forEachClass,idCollisions,forEachLeaseGroup,forEachPayrollGroup,
     // Fields whose in-place writes leave identityVersions alone (engine, carried seconds, route tier): a per-chunk table
     // keyed on identityVersions must not read them (GH_FLEET_SAVE_VALIDATION's static checks verify this).

@@ -68,11 +68,12 @@
 @media (max-height:400px){.dx-banner{height:88px}.ui-confirm.dx-solo{padding-bottom:12px}.dx-solo .dx-acts{padding-top:12px}.dx-info{min-height:min(220px,calc(100dvh - 24px))}}
 /* Build 672: the message strip (GH_INTERFACE.toast), under the top bar and over every page, in the light pills of the top
    bar. Only its close button takes a tap: a tap on the message itself reaches the page under it. */
-.ui-toasts{position:fixed;inset-block-start:calc(env(safe-area-inset-top,0px) + 46px);inset-inline:0;z-index:9000;display:grid;justify-items:center;gap:6px;padding-inline:12px;pointer-events:none}
-.ui-toast{display:flex;align-items:center;gap:9px;max-width:min(520px,100%);padding-block:8px;padding-inline:12px 10px;border-radius:16px;background:#FFFFFF;color:#10283A;border:1px solid rgba(13,59,87,.14);box-shadow:0 10px 26px rgba(9,34,52,.26);font:600 12.5px/1.5 var(--font,system-ui);animation:ui-toast-in .14s ease-out}
-.ui-toast i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--ui-toast-tone,#0D3B57);color:#FFFFFF;display:grid;place-items:center;font:800 13px/1 system-ui;font-style:normal}
-.ui-toast p{margin:0;flex:1;min-width:0;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}
-.ui-toast button{pointer-events:auto;cursor:pointer;flex:none;min-width:28px;min-height:28px;border:0;background:none;color:#7C8E9B;font:700 17px/1 system-ui;padding:2px 4px}
+.ui-toasts{position:fixed;inset-block-start:calc(env(safe-area-inset-top,0px) + 46px);inset-inline:0;z-index:9000;display:grid;justify-items:center;gap:4px;padding-inline:12px;pointer-events:none}
+/* Batch E (design ج): a compact capsule, 30 points for one line, two lines at most. */
+.ui-toast{display:flex;align-items:center;gap:7px;max-width:min(520px,100%);padding-block:4px;padding-inline:10px 2px;border-radius:15px;background:#FFFFFF;color:#10283A;border:1px solid rgba(13,59,87,.14);box-shadow:0 10px 26px rgba(9,34,52,.26);font:600 12px/1.35 var(--font,system-ui);animation:ui-toast-in .14s ease-out}
+.ui-toast i{flex:none;width:18px;height:18px;border-radius:50%;background:var(--ui-toast-tone,#0D3B57);color:#FFFFFF;display:grid;place-items:center;font:800 11px/1 system-ui;font-style:normal}
+.ui-toast p{margin:0;flex:1;min-width:0;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.ui-toast button{pointer-events:auto;cursor:pointer;flex:none;min-width:28px;min-height:28px;margin-block:-4px;border:0;background:none;color:#7C8E9B;font:700 15px/1 system-ui;padding:0 4px}
 .ui-toast.warn{--ui-toast-tone:#D9911E}.ui-toast.ok{--ui-toast-tone:#1F9D6B}.ui-toast.err{--ui-toast-tone:#D14B41}
 /* Build 678: the monthly record's row was 430 points in a 318-point page (its last column lay outside). The design's own
    sheet is kept as approved; the page's rule is here. */

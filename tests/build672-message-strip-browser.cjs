@@ -24,13 +24,28 @@
 //      without the alerts' owner (a level-up) is shown;
 //  10. a notice raised while the save is locked is shown without being written; notices raised during a command are
 //      joined and take the gravest kind; an English refusal is a warning; the kind is named to assistive technology,
-//      the close button is labelled and at least 28 points, and a long message is cut at five lines.
+//      the close button is labelled and at least 28 points, and a long message is cut at two lines;
+//  12. (batch E, the owner: design ج, then «ثانيتان للعادية و5 للتحذير») a message stays 2 s, a warning or an error 5 s,
+//      whatever its length, and not less;
+//  13. (batch E) the strip is a compact capsule: one line at most 32 points high, two lines at most, the close button at
+//      least 28 points inside its row, under the top bar, in portrait and landscape;
+//  14. (batch E) the lines the game writes by itself (the automatic dispatch, a cheque cleared at its date, payroll
+//      settled automatically, the weekly indicator, a dividend paid) stay in the list and off the strip; a bounced cheque,
+//      the player's own cheque, the high-risk indicator and a level-up are shown; a joined line is hidden only when every
+//      part is automatic.
+// (Batch E: the strip's own timers are held while the checks read it — see QA_TOASTS below — so a 2 s life cannot race
+// the reads; check 12 measures the life with the real timers.)
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app');
 (async()=>{
   const browser=await chromium.launch({headless:true}),errors=[];
   try{
     const {page}=await boot({browser,errors,viewport:{width:844,height:390}});page.setDefaultTimeout(60000);
+    // The strip's timers (each message's __drop) are held for the reads; the delay each asked for is recorded.
+    const holdToasts=()=>page.evaluate(()=>{const real=window.__QA_TOASTS__?.real||window.setTimeout;window.__QA_TOASTS__={real,asked:[]};
+      window.setTimeout=function(fn,ms,...rest){if(typeof fn==='function'&&/\.__drop\(\)/.test(String(fn))){window.__QA_TOASTS__.asked.push(ms);return real.call(window,fn,600000);}return real.call(window,fn,ms,...rest);};});
+    await holdToasts();
+    await page.evaluate(()=>{window.__QA_ROWS__=0;new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1&&node.matches?.('.ui-toast'))window.__QA_ROWS__++;}).observe(document.documentElement,{childList:true,subtree:true});});
     const shown=()=>page.evaluate(()=>[...document.querySelectorAll('#uiToasts .ui-toast')].map(node=>({kind:node.dataset.kind,text:node.querySelector('p').textContent,markup:node.querySelector('p').children.length})));
     const gone=()=>page.waitForFunction(()=>!document.getElementById('uiToasts'),null,{timeout:20000});
     // (a message may expire between the count and the click: the click is then given up, and the count read again)
@@ -44,7 +59,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     await page.waitForFunction(()=>document.querySelectorAll('#uiToasts .ui-toast').length===1);const refusal=await shown(),alert=await page.evaluate(()=>String(__GH_STATE__.alerts[0]));
     assert.equal(await page.evaluate(()=>__GH_STATE__.alerts.length),before+1,'1: the refusal is written to the alerts list');assert.match(alert,/^لا يوجد دين قائم على/,'1: it is the repayment\'s refusal');
     assert.deepEqual(refusal,[{kind:'warn',text:alert,markup:0}],'1: and shown on the strip as a warning, with that text');
-    const place=await page.evaluate(()=>{const host=document.getElementById('uiToasts'),row=host.firstElementChild.getBoundingClientRect(),bar=document.querySelector('.topbar,#topbar,header')?.getBoundingClientRect();return {inShell:document.getElementById('app').contains(host),top:row.top,bottom:row.bottom,left:row.left,right:row.right,width:innerWidth,height:innerHeight,role:host.getAttribute('role'),live:host.getAttribute('aria-live')};});
+    const place=await page.evaluate(()=>{const host=document.getElementById('uiToasts'),row=host.firstElementChild.getBoundingClientRect(),bar=document.querySelector('.topbar')?.getBoundingClientRect();return {inShell:document.getElementById('app').contains(host),top:row.top,bottom:row.bottom,left:row.left,right:row.right,width:innerWidth,height:innerHeight,role:host.getAttribute('role'),live:host.getAttribute('aria-live')};});
     assert.deepEqual({inShell:place.inShell,role:place.role,live:place.live},{inShell:false,role:'status',live:'polite'},'1: the strip is announced politely and sits outside the game shell');
     assert.ok(place.top>=40&&place.bottom<place.height/2&&place.left>=0&&place.right<=place.width,`1: under the top bar, inside the screen (${JSON.stringify(place)})`);
     console.log('1 ok: a real refusal is shown as a warning with the text the alerts list holds');
@@ -137,7 +152,7 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     assert.deepEqual({role:parts.role,label:parts.label,hidden:parts.hidden,close:parts.close},{role:'img',label:'تحذير',hidden:null,close:'إغلاق الرسالة'},'10: the kind and the close button are named');assert.ok(parts.width>=28&&parts.height>=28,`10: the close button is at least 28 points (${parts.width}×${parts.height})`);
     await closeAll();await notify('تعذر توزيع الأسطول: '+'مسار طويل بين مدينتين بعيدتين جدًا '.repeat(24),'error');await page.waitForFunction(()=>document.querySelectorAll('#uiToasts .ui-toast').length===1);
     const long=await page.evaluate(()=>{const body=document.querySelector('#uiToasts .ui-toast p'),style=getComputedStyle(body);return {lines:Math.round(body.clientHeight/parseFloat(style.lineHeight)),cut:body.scrollHeight>body.clientHeight+1,clamp:style.webkitLineClamp,bottom:document.getElementById('uiToasts').getBoundingClientRect().bottom};});
-    assert.deepEqual({lines:long.lines,cut:long.cut,clamp:long.clamp},{lines:5,cut:true,clamp:'5'},'10: a long message is cut at five lines, with an ellipsis');assert.ok(long.bottom<=195,`10: and leaves half the screen free (${long.bottom})`);await closeAll();
+    assert.deepEqual({lines:long.lines,cut:long.cut,clamp:long.clamp},{lines:2,cut:true,clamp:'2'},'10: a long message is cut at two lines, with an ellipsis');assert.ok(long.bottom<=195,`10: and leaves half the screen free (${long.bottom})`);await closeAll();
     console.log('10 ok: the locked save, joined notices, English refusals, the names and the size of the parts, and long messages');
     // 11 (Build 681, review). A burst between two reads that pushes the list as last read off the list, with alerts written
     // without their owner among it (a month advanced at once: headlines, a level-up): its gravest and its newest are shown.
@@ -158,6 +173,49 @@ const {chromium}=require('playwright'),{boot}=require('./helpers/local-dom-app')
     await refresh();await page.waitForFunction(()=>document.querySelectorAll('#uiToasts .ui-toast').length===2,null,{timeout:5000});
     assert.deepEqual(await texts(),[['warn','ارتجع الشيك CHQ-NEWS لعدم كفاية الرصيد.'],['info',news.newest]],'11: the cheque is shown though few of the lines after it were counted');await closeAll();await refresh();assert.deepEqual(await texts(),[],'11: once');
     console.log('11 ok: a burst that leaves no place for the list as last read shows its gravest and its newest');
-    assert.deepEqual(errors,[]);console.log('build672 message strip: 11 checks passed');
+    // 12. The life, with the real timers: present just before it ends, gone at its end; the length does not lengthen it.
+    {await closeAll();const asked=await page.evaluate(()=>window.__QA_TOASTS__.asked.slice()),rowsAdded=await page.evaluate(()=>window.__QA_ROWS__);assert.equal(asked.length,rowsAdded,`12: every message shown asked for its timer through the hold (${asked.length} timers, ${rowsAdded} rows)`);assert.ok(asked.length>0&&asked.every(ms=>ms===2000||ms===5000),`12: every message asked for 2 s or 5 s (${asked})`);
+      const life=await page.evaluate(async()=>{const real=window.__QA_TOASTS__.real;window.setTimeout=real;const out=[];
+        for(const [kind,text,ms] of [['info','رسالة عادية للقياس.',2000],['success','تم للقياس.',2000],['info','نص طويل جدًا للقياس '.repeat(30),2000],['warning','تعذر الأمر للقياس.',5000],['error','خطأ للقياس.',5000]]){
+          const started=performance.now();GH_INTERFACE.toast(text,kind);const row=[...document.querySelectorAll('#uiToasts .ui-toast')].find(node=>node.dataset.text===text.replace(/\s+/g,' ').trim());let removedAt=null;
+          const seen=new MutationObserver(()=>{if(removedAt===null&&!row.isConnected)removedAt=performance.now()-started;});seen.observe(document.body,{childList:true,subtree:true});
+          const before=await new Promise(resolve=>real(()=>resolve(row.isConnected),ms-100)),after=await new Promise(resolve=>real(()=>resolve(row.isConnected),100));await new Promise(resolve=>real(resolve,0));seen.disconnect();
+          out.push({kind,ms,before,after,removedAt:removedAt===null?null:Math.round(removedAt)});row.isConnected&&row.__drop();}
+        return out;});
+      for(const row of life){assert.equal(row.before,true,`12: a ${row.kind} message is still shown just before ${row.ms} ms (${JSON.stringify(row)})`);assert.equal(row.after,false,`12: and gone at ${row.ms} ms (${JSON.stringify(row)})`);assert.ok(row.removedAt>=row.ms-2,`12: not removed early (${JSON.stringify(row)})`);}
+      await holdToasts();console.log('12 ok: 2 s a message, 5 s a warning or an error, whatever the length');}
+    // 13. The size: portrait and landscape.
+    for(const [width,height] of [[390,844],[844,390]]){await page.setViewportSize({width,height});await closeAll();
+      await notify('رسالة قصيرة.','info');await page.waitForFunction(()=>document.querySelectorAll('#uiToasts .ui-toast').length===1);
+      const one=await page.evaluate(()=>{for(const node of document.querySelectorAll('#uiToasts .ui-toast'))for(const animation of node.getAnimations?.()||[])animation.finish();const row=document.querySelector('#uiToasts .ui-toast').getBoundingClientRect(),button=document.querySelector('#uiToasts .ui-toast button').getBoundingClientRect(),bar=document.querySelector('.topbar')?.getBoundingClientRect();return {height:row.height,top:row.top,button:{w:button.width,h:button.height,top:button.top,bottom:button.bottom},rowTop:row.top,rowBottom:row.bottom,bar:bar?bar.bottom:null,right:row.right,width:innerWidth};});
+      assert.ok(one.height>=24&&one.height<=32,`13: one line is a capsule of at most 32 points at ${width}×${height} (${JSON.stringify(one)})`);
+      assert.ok(one.button.w>=28&&one.button.h>=28&&one.button.top>=one.rowTop-1&&one.button.bottom<=one.rowBottom+1,`13: the close button is 28 points, inside its row (${JSON.stringify(one)})`);
+      assert.ok(one.bar!=null&&one.bar>0&&one.top>=one.bar&&one.right<=one.width,`13: under the top bar, inside the screen (${JSON.stringify(one)})`);
+      await closeAll();await notify('تعذر توزيع الأسطول: '+'مسار طويل بين مدينتين بعيدتين جدًا '.repeat(24),'error');await notify('رسالة ثانية قصيرة.','info');await page.waitForFunction(()=>document.querySelectorAll('#uiToasts .ui-toast').length===2);
+      const two=await page.evaluate(()=>{const body=document.querySelector('#uiToasts .ui-toast p'),style=getComputedStyle(body);return {lines:Math.round(body.clientHeight/parseFloat(style.lineHeight)),bottom:document.getElementById('uiToasts').getBoundingClientRect().bottom};});
+      assert.ok(two.lines===2&&two.bottom<=150,`13: two lines at most, and two messages end within 150 points at ${width}×${height} (${JSON.stringify(two)})`);await closeAll();}
+    await page.setViewportSize({width:844,height:390});console.log('13 ok: a compact capsule, two lines at most, in portrait and landscape');
+    // 14. Automatic lines stay in the list and off the strip; the actionable ones are shown.
+    {const write=text=>page.evaluate(text=>GH_OPERATIONS_CORE.execute({state:__GH_STATE__},'record-alert',{text,type:'operation'}),text);await closeAll();await refresh();
+      const hidden=['توزيع آلي بعد إقفال اليوم: وُزعت 2,000 طائرة في عملية واحدة على المسارات الجوية المشتركة (عددها 40).','تم صرف الشيك CHQ-701 من حساب شركة الطيران وتسجيله في الدفتر المالي.','سويت الرواتب المستحقة تلقائيًا: 12 راتبًا بقيمة 1,200,000 $.','مؤشر التشغيل الأسبوعي: 120 أصلًا متحركًا، جاهزية الأسطول 92%، صافي اليوم 10,000 $.','صُرف توزيع أرباح الربع 2 للمؤسس: 1,000,000 $.','توزيع آلي بعد إقفال اليوم: جُدولت 500 شاحنة في عملية واحدة. • تم صرف الشيك CHQ-702 من حساب القابضة وتسجيله في الدفتر المالي.'];
+      for(const text of hidden){await write(text);await refresh();assert.deepEqual(await texts(),[],`14: kept off the strip: ${text}`);assert.equal(await page.evaluate(()=>String(__GH_STATE__.alerts[0])),text,'14: and kept in the list');}
+      const shownLines=[['warn','ارتجع الشيك CHQ-703 لعدم كفاية رصيد أو ميزانية القابضة.'],['info','تم صرف الشيك CHQ-704 وخصم 1,000 $ من الحساب الجاري لـ القابضة.'],['warn','مؤشر التشغيل: مخاطر تشغيلية مرتفعة (61/100). افحص الصيانة والسيولة قبل فتح التزامات جديدة.'],['info','ترقية المجموعة إلى المستوى 6: أدوات جديدة.'],['warn','رحّلت تسوية نقدية غير مغطاة بقيمة $1.0M في الطيران إلى إقفال اليوم التالي دون إسقاطها.'],['warn','صدر تقرير رواتب يوم 27: صُرف $3.0M وسُجل $1.1M كرواتب مستحقة، بلا انتظار اعتماد.'],['warn','A1: تسليم 3 أصل بانتظار قاعدة/مركز مملوك متوافق مع الطيران.'],['warn','خفض محرك الحماية السرعة إلى 60× لحماية الأداء.']];
+      for(const [kind,text] of shownLines){await write(text);await refresh();const now=await texts();assert.equal(now.length,1,`14: shown: ${text} (${JSON.stringify(now)})`);assert.deepEqual(now[0],[kind,text],`14: as ${kind}`);await closeAll();await refresh();}
+      // A joined line shows its parts that are not automatic, with their kind (the bounced cheque is not cut off by them).
+      await write('توزيع آلي بعد إقفال اليوم: وُزعت 10 طائرات في عملية واحدة على المسارات الجوية المشتركة (عددها 4)؛ 8 غادرت و2 مجدولة. • ارتجع الشيك CHQ-705 لعدم كفاية رصيد أو ميزانية القابضة.');await refresh();
+      assert.deepEqual(await texts(),[['warn','ارتجع الشيك CHQ-705 لعدم كفاية رصيد أو ميزانية القابضة.']],'14: a joined line shows its own part');await closeAll();await refresh();
+      console.log('14 ok: the automatic lines stay in the list; the bounced cheque, the player\'s cheque, the risk and a level-up are shown');}
+    // 15. A notice raised while the save is locked is written to the list once persistence is free, and not shown twice;
+    // an automatic line raised that way is not shown at all.
+    {await closeAll();await refresh();const out=await page.evaluate(async()=>{const real=window.GH_PERSISTENCE,before=__GH_STATE__.alerts.length,seen=[];let lockedNow=true;
+        const observer=new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1&&node.matches?.('.ui-toast'))seen.push(node.querySelector('p').textContent);});observer.observe(document.body,{childList:true,subtree:true});
+        window.GH_PERSISTENCE=Object.create(real,{isLocked:{value:()=>lockedNow}});
+        try{window.GH_INTERACTION_NOTICE('اكتمل الحفظ اليدوي للقسم.','info');window.GH_INTERACTION_NOTICE('تم صرف الشيك CHQ-801 من حساب القابضة وتسجيله في الدفتر المالي.');}finally{}
+        await new Promise(r=>window.__QA_TOASTS__.real.call(window,r,50));const whileLocked=__GH_STATE__.alerts.length-before;lockedNow=false;window.GH_PERSISTENCE=real;
+        await new Promise(r=>window.__QA_TOASTS__.real.call(window,r,1600));__AUDIT__.updateKpis();await new Promise(r=>window.__QA_TOASTS__.real.call(window,r,50));observer.disconnect();
+        return {whileLocked,written:__GH_STATE__.alerts.slice(0,3).map(String),seen};});
+      assert.equal(out.whileLocked,0,'15: nothing written while locked');assert.ok(out.written.includes('اكتمل الحفظ اليدوي للقسم.'),`15: written once free (${JSON.stringify(out)})`);
+      assert.deepEqual(out.seen,['اكتمل الحفظ اليدوي للقسم.'],`15: shown once, the automatic line not at all (${JSON.stringify(out)})`);await closeAll();console.log('15 ok: a notice raised while the save is locked is written once free, shown once');}
+    assert.deepEqual(errors,[]);console.log('build672 message strip: 15 checks passed');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

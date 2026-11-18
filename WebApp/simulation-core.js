@@ -317,6 +317,9 @@
       const adaptiveBudget=Math.max(cfg.adaptiveFrameBudgetMinMs,Math.min(baseBudget,baseBudget*governorFactor*cadenceFactor));health.activeFrameBudgetMs=adaptiveBudget;
       const deadline=pacing.executionDeadline(!!manualAdvance||liveDayClose,adaptiveBudget);
       while(clock()<deadline){
+        // A drain (the host's soft hold: a query of the live fleet waits for the step in flight) lets the job in flight
+        // finish and commit but starts no new one; a suspension would cancel it and redo it (the clock stepped back).
+        if(!job&&adapter.isDraining?.()===true)break;
         if(!job&&adapter.hasDeferredWork?.()===true)break;
         if(!job&&!startJob(speed))break;
         if(throttlePending){consumeThrottlePending();break;}

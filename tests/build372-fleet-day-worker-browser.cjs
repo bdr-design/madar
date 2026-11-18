@@ -30,6 +30,8 @@ const server=http.createServer((request,response)=>{
         id:`REAL-DAY-${String(index).padStart(5,'0')}`,ownerCompanyId:index%7?'air':'road',assetMode:index%7?'air':'road',type:index%7?'air':'road',ownership:index%5?'owned':'lease',purchasePrice:45000000+index,monthlyLease:300000,leaseTermMonths:72,condition:55+(index%46),phase:index%3?'turnaround':'moving',flightHours:index%700,flightCycles:index%200,nextCheckHours:600,specs:{capacity:180,capacityUnit:'مقعد'},lastTrip:{distanceKm:900+(index%300),revenue:70000,fuelCost:12000,crewCost:5000,maintReserve:2500},staffing:{mode:'automatic-fixed',ready:true,total:8,monthlyPayroll:90000}
       }));
       assets[3].flightHours=Math.fround(.1);assets[4].flightCycles=.1;assets[6].nextCheckHours=Infinity;
+      // Batch F (fault 2): a checked aircraft's hours restart at 0 / 600, so the infinite counter is kept on a row above its line.
+      for(const index of [3,4,6])assets[index].condition=100;
       const state={fleet:STORE.fromAssets(assets,{at:86400}),simSeconds:86400,realism:{economy:{airDemand:113,bunker:null}}},store=state.fleet;
       const params={simSeconds:state.simSeconds,ownerResolution:{platform:true,knownCompanies:[],legacyOwners:[['air','air'],['road','road']]},maintenancePolicies:[['air','preventive'],['road','standard']],airDemand:113,bunker:null};
       const client=GH_FLEET_ENGINE_THREAD.create({workerFactory:()=>new Worker('fleet-engine-worker.js'),resolveRoute:()=>null,routesRevision:()=>0,catalogSpecs:()=>({}),timeoutMs:60000});

@@ -155,8 +155,9 @@
     for(let from=0;from<plan.values.length;from+=rowsPerStage){const to=Math.min(plan.values.length,from+rowsPerStage);for(let k=from;k<to;k++){const [ref,value]=plan.values[k];if(!STORE.internAt(recordStore,ref,value))throw new Error(`fleet-dispatch-plan-value-conflict:${ref}`);}if(to<plan.values.length)yield {stage:'fleet.dispatch.values',done:to,total:plan.values.length};}
     if(recordStore.values.length!==plan.valuesLength)throw new Error('fleet-dispatch-plan-values-length');
     const sourceRevision=plan.tag.revision;
-    for(let from=0;from<plan.count;from+=rowsPerStage){const to=Math.min(plan.count,from+rowsPerStage),partIndices=plan.indices.slice(from,to),partBytes=plan.bytes.slice(from*STORE.STRIDE,to*STORE.STRIDE),partExtras=plan.extras.slice(from,to);STORE.writeRows(recordStore,partIndices,partBytes,partExtras);if(to<plan.count)yield {stage:'fleet.dispatch.apply',done:to,total:plan.count};}
-    const targetRevision=sourceRevision+plan.revisionDelta;if(recordStore.revision>targetRevision)throw new Error('fleet-dispatch-plan-revision-overrun');STORE.writeRows(recordStore,new Int32Array(0),new ArrayBuffer(0),[],{revisionDelta:Math.max(0,targetRevision-recordStore.revision),staticRows:plan.staticRows});
+    const writer=STORE.stagedWriter?.()||null;
+    for(let from=0;from<plan.count;from+=rowsPerStage){const to=Math.min(plan.count,from+rowsPerStage),partIndices=plan.indices.slice(from,to),partBytes=plan.bytes.slice(from*STORE.STRIDE,to*STORE.STRIDE),partExtras=plan.extras.slice(from,to);STORE.writeRows(recordStore,partIndices,partBytes,partExtras,{writer});if(to<plan.count)yield {stage:'fleet.dispatch.apply',done:to,total:plan.count};}
+    const targetRevision=sourceRevision+plan.revisionDelta;if(recordStore.revision>targetRevision)throw new Error('fleet-dispatch-plan-revision-overrun');STORE.writeRows(recordStore,new Int32Array(0),new ArrayBuffer(0),[],{revisionDelta:Math.max(0,targetRevision-recordStore.revision),staticRows:plan.staticRows,writer});
     return clone(plan.summary);
   }
   function apply(state,plan,input={},options={}){const stages=applyStages(state,plan,input,options);let step;do step=stages.next();while(!step.done);return step.value;}

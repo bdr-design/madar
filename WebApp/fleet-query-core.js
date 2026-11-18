@@ -147,6 +147,11 @@
     const indices=ArrayBuffer.isView(result.indices)?result.indices:null,valueView=ArrayBuffer.isView(values)?values:null;
     return indices||valueView?{...result,columns:{...(indices?{indices}:{}),...(valueView?{values:valueView}:{})}}:result;
   };
+  function maintenanceBacklog(state,fleet,params={}){
+    const core=globalThis.GH_FLEET_DAY_CORE||(typeof require==='function'?require('./fleet-day-core.js'):null);if(!core?.maintenanceBacklog)throw new Error('fleet-day-core-missing');
+    const inputState={fleet:state?.fleet,simSeconds:Number(state?.simSeconds)||0,advanced:{companies:{}}};
+    return core.maintenanceBacklog(inputState,fleet,{ownerResolution:params.ownerResolution,maintenancePolicies:params.maintenancePolicies,companyId:params.companyId,slice:params.slice});
+  }
   function uiSummary(state,fleet,params){return queryModule('GH_FLEET_UI_SUMMARY','compute')(state,fleet,params||{});}
   function globalRouteCandidates(state,fleet,params){return transferablePlan(queryModule('GH_FLEET_GLOBAL_ROUTE_QUERY')(state,fleet,params||{}));}
   function routeNormalizationPlan(state,fleet,params){const result=queryModule('GH_FLEET_ROUTE_NORMALIZATION')(state,fleet,params||{});return transferablePlan(result,result?.templateRefs);}
@@ -158,7 +163,7 @@
   function referenceUsage(state,fleet,params){const result=queryModule('GH_FLEET_REFERENCE_QUERY')(state,fleet,params||{});return result?.legacy?result:{...result,columns:{indices:result.routeCounts,values:result.baseCounts}};}
   function saveChunkProof(state,_fleet,params){return queryModule('GH_STATE_CODEC','fleetRowChecksum')(state.fleet,params?.index,params?.totalByteLength);}
   function valueCollection(state){const plan=queryModule('GH_FLEET_STORE','planValueCollection')(state.fleet);if(plan?.stale)throw new Error('fleet-value-plan-stale');return {version:plan.version,rowCount:plan.rowCount,valuesLength:plan.valuesLength,columns:{indices:plan.indices}};}
-  const QUERIES=Object.freeze({saveChunkProof,valueCollection,dispatchEligible,routeCards,conditionSum,companyValidation,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
+  const QUERIES=Object.freeze({maintenanceBacklog,saveChunkProof,valueCollection,dispatchEligible,routeCards,conditionSum,companyValidation,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage});
   function run(name,state,fleet,params){const query=QUERIES[name];if(!query)throw new Error(`fleet-query-unknown:${name}`);return query(state,fleet,params||{});}
   const API=Object.freeze({VERSION,DISPATCH_FIELDS,CARD_FIELDS,ROUTE_CENTER_FIELDS,ROUTE_CENTER_RESULT_FIELDS,dispatchEligible,routeCards,conditionSum,identityIntegrity,saveValidation,purchaseBaseline,fleetDay,routeCenter,uiSummary,globalRouteCandidates,routeNormalizationPlan,startupNormalizationPlan,legacyRoutePlan,staffingReconcilePlan,salePlan,manualDeparturePlan,referenceUsage,run,names:Object.freeze(Object.keys(QUERIES))});
   globalThis.GH_FLEET_QUERY=API;

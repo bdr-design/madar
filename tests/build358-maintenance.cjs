@@ -4,6 +4,10 @@
 // below its company's line, restores it to 100% through the fleet owner and bills the work (MNT-<company>-<day>,
 // 7-day terms, maintenance line). The fleet's average condition after the checks is the company's wear on the next
 // day's trips: more fuel and delay losses, in the slice engine and on the main thread alike.
+// Batch F (owner, 17 Nov 2026): a check is priced by the wear it restores (B1: the former flat price at the standard
+// line, x1.5 at 70%), a checked aircraft starts again at 0 flight hours, next check at 600 (fault 2), an accident's
+// repair bill restores the damage so the asset keeps its condition (B2), and the deductible's minimum per incident is
+// capped at 1% of the average asset (standard; B4).
 process.env.GH_TEST_SOURCE_DIR=process.env.GH_TEST_SOURCE_DIR||require('path').resolve(__dirname,'..');
 const assert=require('node:assert/strict');
 const {scenario}=require('./helpers/business-scenario');
@@ -15,7 +19,8 @@ assert.ok(out.ok);assert.equal(R.onSimulationTime(state,state.simSeconds),10);
 const ids=[];FLEET.scan(state,['id'],row=>{ids.push(row.id);});
 const setCondition=(list,value)=>{for(const id of list)FLEET.update(state,id,{condition:value});};
 const conditions=()=>{const map={};FLEET.scan(state,['id','condition'],row=>{map[row.id]=row.condition;});return map;};
-setCondition(ids.slice(0,4),70);setCondition(ids.slice(4),95);
+setCondition(ids.slice(0,4),70);setCondition(ids.slice(4),95);for(const id of ids)FLEET.update(state,id,{flightHours:700,nextCheckHours:600});
+const hours=()=>{const map={};FLEET.scan(state,['id','flightHours','nextCheckHours'],row=>{map[row.id]=[row.flightHours,row.nextCheckHours];});return map;};
 const DAY=86400;let day=Math.floor(state.simSeconds/DAY)+1;
 const close=()=>{state.simSeconds=day*DAY;R.onDay(state,day);return day++;};
 
@@ -25,7 +30,9 @@ const first=close(),after=conditions();
 assert.deepEqual(ids.slice(0,4).map(id=>after[id]),[100,100,100,100]);assert.deepEqual(ids.slice(4).map(id=>after[id]),Array(6).fill(95));
 const row=state.realism.maintenance.companies.air;assert.equal(row.checks,4);assert.equal(row.threshold,80);assert.ok(Math.abs(row.avgCondition-97)<1e-9);
 const bill=state.finance.payables.find(doc=>doc.number===`MNT-AIR-${first}`);
-assert.ok(bill&&bill.autoSettle===true&&bill.dueDay===first+7,'a maintenance invoice on 7-day terms');assert.equal(row.cost,Math.round(4*item.price*.004));
+assert.ok(bill&&bill.autoSettle===true&&bill.dueDay===first+7,'a maintenance invoice on 7-day terms');assert.equal(row.cost,Math.round(4*item.price*.004*30/20),'priced by the wear restored (30 points: 1.5 times a check at the line)');
+const afterHours=hours();assert.deepEqual(ids.slice(0,4).map(id=>afterHours[id]),Array(4).fill([0,600]),'a checked aircraft starts again at 0 hours, next check at 600');assert.deepEqual(ids.slice(4).map(id=>afterHours[id]),Array(6).fill([700,600]),'an aircraft not checked keeps its hours');
+assert.equal(state.realism.aviation.maintenanceDue,10,'due: the six unchecked aircraft past their hours, and the four checked today under min(72%, line)');
 
 // 2. Wear reaches every trip: +0.6% fuel and -0.45% revenue at 97%, the same on both engines.
 assert.ok(Math.abs(R.fleetWear(state,'air')-.03)<1e-12);
@@ -44,16 +51,16 @@ assert.ok(Math.abs(R.fleetWear(state,'air')-.025)<1e-12);
 
 // 4. Incidents: risk by mode raised by wear; the repair is billed in full and the cover pays above its deductible.
 const drain=gen=>{let step;while(!(step=gen.next()).done){}};
-const fleetOf=(risk,conditionSum,unsafe=0)=>({companies:new Map([['air',{count:10,conditionSum,value:10*item.price,risk,premium:10*item.price*.0035,sample:ids.map(id=>({id,price:item.price})),due:[],cost:0,restored:0,threshold:80,licence:10*25000,unsafe,fine:unsafe*40000}]])});
+const fleetOf=(risk,conditionSum,unsafe=0)=>({companies:new Map([['air',{count:10,conditionSum,value:10*item.price,risk,premium:10*item.price*.0035,sample:ids.map(id=>({id,price:item.price})),checks:0,cost:0,restored:0,threshold:80,licence:10*25000,unsafe,fine:unsafe*40000}]])});
 assert.equal(R.insuranceCover(state,'air'),'standard');
 command('corporate','open-company',{type:'insurance',capital:200000000,legalName:'Test Group Insurer'});
 state.advanced.insurance.fleetPolicies=[{id:'POLICY-INT-QA',day:0,company:'air',insurerCompanyId:'insurance',cover:'standard',assetCount:10,insuredValue:10*item.price,premium:0,status:'سارية',transferReference:'POLICY-PREMIUM-QA'}];
-let incidentDay=0;for(let d=1000;d<1400;d++){state.simSeconds=d*DAY;drain(R.runIncidents(state,fleetOf(2,950),d));if(state.realism.incidents[0]?.day===d){incidentDay=d;break;}}
+const beforeIncidents=conditions();let incidentDay=0;for(let d=1000;d<1400;d++){state.simSeconds=d*DAY;drain(R.runIncidents(state,fleetOf(2,950),d));if(state.realism.incidents[0]?.day===d){incidentDay=d;break;}}
 const incident=state.realism.incidents[0];assert.ok(incidentDay&&[2,3].includes(incident.count),`2.6 expected incidents a day: ${incident?.count}`);
-assert.equal(incident.loss,Math.round(incident.count*item.price*.15));assert.equal(incident.deductible,Math.max(250000,incident.loss*.10));assert.equal(incident.covered,incident.loss-incident.deductible);
+assert.equal(incident.loss,Math.round(incident.count*item.price*.15));assert.equal(incident.deductible,Math.max(incident.count*Math.min(250000,item.price*.01),incident.loss*.10));assert.equal(incident.covered,incident.loss-incident.deductible);
 assert.ok(state.finance.payables.some(doc=>doc.number===`INC-AIR-${incidentDay}`),'the repair is billed in full');
 const claim=state.advanced.insurance.claims.find(row=>row.id===incident.claimId);assert.ok(claim&&claim.status==='قيد الفحص'&&claim.covered===incident.covered);assert.equal(claim.insurerCompanyId,'insurance');assert.equal(claim.policyReference,'POLICY-INT-QA','the claim stays bound to its internal fleet policy');
-assert.ok(incident.assets.every(id=>conditions()[id]===55),'the damaged assets are left at 55%');
+assert.ok(incident.assets.length>0&&incident.assets.every(id=>conditions()[id]===beforeIncidents[id]),'the repair bill restores the damage: the assets keep their condition');
 const cashBefore=s.GH_FINANCE_CORE.operating(state,'air'),insurerCashBefore=s.GH_FINANCE_CORE.operating(state,'insurance');state.simSeconds=(incidentDay+3)*DAY;R.onDay(state,incidentDay+3);
 const paidClaim=state.advanced.insurance.claims.find(row=>row.id===incident.claimId),claimTransfer=state.finance.transfers.find(row=>row.reference===paidClaim.transferReference);
 assert.equal(paidClaim.status,'مدفوعة','the insurer pays after its review');assert.equal(paidClaim.provider,'شركة التأمين التابعة');assert.ok(paidClaim.transferReference);assert.equal(claimTransfer?.kind,'intercompany-service');assert.equal(claimTransfer.fromCompany,'insurance');assert.equal(claimTransfer.toCompany,'air');assert.equal(claimTransfer.amount,incident.covered);assert.equal(s.GH_FINANCE_CORE.operating(state,'insurance'),insurerCashBefore-incident.covered);assert.equal(s.GH_FINANCE_CORE.operating(state,'air'),cashBefore+incident.covered);

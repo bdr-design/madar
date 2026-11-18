@@ -19,7 +19,7 @@ function makeRowsFleet(initial){
   };
   return {api,metrics,add(row){rows.push(row);membership++;},replace(next){rows=next.slice();source={};},update(index,patch){rows[index]={...rows[index],...patch};},rows:()=>rows};
 }
-function statusMatch(row,status){return status==='all'||(status==='moving'?(row.phase==='moving'||row.status==='moving'):status==='ready'?(row.phase==='turnaround'||row.status==='available'):status==='service'?Number(row.condition)<85:(!['moving','turnaround'].includes(row.phase)&&row.status!=='moving'));}
+function statusMatch(row,status){return status==='all'||(status==='moving'?(row.phase==='moving'||row.status==='moving'):status==='ready'?(row.phase==='turnaround'||row.status==='available'):status==='service'?Math.max(0,Math.min(100,Number(row.condition)||100))<80:(!['moving','turnaround'].includes(row.phase)&&row.status!=='moving'));}
 function reference(rows,filter){const owner=filter.owner??filter.ownerCompanyId,q=QUERY.normalizeSearch(filter.search??filter.query??''),status=filter.status||'all';const out=[];for(let i=0;i<rows.length;i++){const row=rows[i];if(!row||row.id===undefined)continue;if(owner&&owner!=='all'&&String(row.ownerCompanyId||row.companyId||'')!==String(owner))continue;if(!statusMatch(row,status))continue;const text=QUERY.normalizeSearch(`${row.id||''} ${row.name||''} ${row.model||''} ${row.baseFacility||''}`);if(!q||text.includes(q))out.push(i);}return out;}
 
 (async()=>{
@@ -38,6 +38,12 @@ function reference(rows,filter){const owner=filter.owner??filter.ownerCompanyId,
     {id:'REAL-SEA-1',ownerCompanyId:'sea',phase:'turnaround',condition:99,name:'Ocean',model:'VLCC',baseFacility:'JED'}
   ])},realQuery=QUERY.create({fleetData:FLEET}),realRows=realQuery.query(realState,{owner:'air',status:'service',search:'cargo'});
   check(realRows.length===1&&FLEET.idAtRow(realState,realRows[0])==='REAL-AIR-2','real GH_FLEET_DATA store query stays on the public access boundary');
+  // Batch F (fault 1): the service filter follows the owner's line (serviceLine), and a policy change rebuilds the index.
+  {let lines={air:90};const lined=QUERY.create({fleetData:FLEET,serviceLine:(_state,owner)=>lines[owner]??80,dependencyRevision:()=>JSON.stringify(lines)});
+    const ids=()=>Array.from(lined.query(realState,{owner:'air',status:'service'}),index=>FLEET.idAtRow(realState,index));
+    check(JSON.stringify(ids())===JSON.stringify(['REAL-AIR-2']),'air at 90: 72 is under, 96 is not');lines={air:65};check(ids().length===0,'a policy change (65) rebuilds the index: 72 is above the line');
+    lines={air:97};check(JSON.stringify(ids())===JSON.stringify(['REAL-AIR-1','REAL-AIR-2']),'97: both under');
+    check(app.includes('serviceLine:(target,owner)=>')&&app.includes('dependencyRevision:target=>maintenanceLinesKey(target)'),'the app passes each company\'s line and rebuilds on a policy change');}
   const rows=[
     {id:'A-1',ownerCompanyId:'air-one',phase:'moving',condition:96,name:'صقر الجزيرة',model:'A350',baseFacility:'RUH'},
     {id:'A-2',ownerCompanyId:'air-one',phase:'turnaround',condition:79,name:'Falcon Cargo',model:'B777F',baseFacility:'JED'},

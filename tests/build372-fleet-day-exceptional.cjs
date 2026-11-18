@@ -20,6 +20,9 @@ function setup(){
   assets[10].flightHours=-0;             // || preserves the original +0 result
   assets[12].flightCycles=-Infinity;
   assets[2200].flightCycles=.1;          // a late exceptional row proves full preflight precedes every write
+  // Batch F (fault 2): a checked aircraft (under its line) restarts at 0 hours / 600, so the exceptional inputs sit on rows
+  // above the line, where the original counters carry through.
+  for(const index of [4,5,8,9,10,12,2200])assets[index].condition=100;
   state.fleet=s.GH_FLEET_STORE.fromAssets(assets,{at:state.simSeconds});delete state.assets;
   const day=Math.floor((Number(state.simSeconds)||0)/86400)+1;state.simSeconds=day*86400;
   const original=s.GH_FLEET_DATA;let ownerCountScans=0;

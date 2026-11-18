@@ -12,7 +12,7 @@
   // ensureAsync/queryAsync so a million-row pass never silently blocks a UI
   // event. Returned row arrays are caller-owned copies; idsView is the
   // allocation-free option and fails closed as soon as its signature changes.
-  const VERSION='1.0.0';
+  const VERSION='1.1.0';
   const ALL_OWNER=Symbol('all-fleet-owners');
   const EMPTY_ROWS=new Int32Array(0);
   const DEFAULT_SEARCH_FIELDS=Object.freeze(['id','name','model','baseFacility']);
@@ -70,6 +70,10 @@
     const maxCacheEntries=Math.max(1,Math.floor(Number(options.maxCacheEntries)||12)),maxCacheRows=Math.max(1,Math.floor(Number(options.maxCacheRows)||1_000_000));
     const rawSyncLimit=options.maxSyncBuildRows===undefined?50_000:Number(options.maxSyncBuildRows),maxSyncBuildRows=rawSyncLimit===Infinity?Infinity:Math.max(0,Math.floor(rawSyncLimit)||0),rawQueryLimit=options.maxSyncQueryRows===undefined?50_000:Number(options.maxSyncQueryRows),maxSyncQueryRows=rawQueryLimit===Infinity?Infinity:Math.max(0,Math.floor(rawQueryLimit)||0),maxPendingQueries=Math.max(1,Math.floor(Number(options.maxPendingQueries)||2));
     const searchText=typeof options.searchText==='function'?options.searchText:null,dependencyRevision=typeof options.dependencyRevision==='function'?options.dependencyRevision:null;
+    // Batch F (fault 1): «needs maintenance» is an asset under its owner's policy line (serviceLine(state, owner), as the
+    // daily check reads it: a missing condition is 100), default the standard line 80. Changing a policy changes
+    // dependencyRevision, which rebuilds the index.
+    const serviceLine=typeof options.serviceLine==='function'?options.serviceLine:null;
     const indexes=new WeakMap(),pendingBuilds=new WeakMap(),invalidations=new WeakMap(),buildTickets=new WeakMap();
     const totals={builds:0,buildScanCalls:0,queryCalls:0,queryCacheHits:0,querySearchPasses:0,queryRowsTested:0,asyncYields:0,maxBuildSliceMs:0,maxQuerySliceMs:0};
     const buildSlices=[],querySlices=[];
@@ -87,12 +91,13 @@
       let out='';for(const field of searchFields){const value=row[field];if(value===undefined||value===null||value==='')continue;out+=(out?' ':'')+String(value);}return normalize(out);
     }
     function makeBuilder(state,sig){
-      const length=Math.max(0,Math.floor(Number(F.scanLength(state))||0)),pool=new BytePool(chunkBytes),textChunk=new Uint32Array(length),textOffset=new Uint32Array(length),textLength=new Uint32Array(length),byOwner=new Map(),global=collectors();let live=0;
+      const length=Math.max(0,Math.floor(Number(F.scanLength(state))||0)),pool=new BytePool(chunkBytes),textChunk=new Uint32Array(length),textOffset=new Uint32Array(length),textLength=new Uint32Array(length),byOwner=new Map(),global=collectors(),lines=new Map();let live=0;
+      const lineOf=owner=>{let line=lines.get(owner);if(line===undefined){const value=serviceLine?Number(serviceLine(state,owner)):80;line=Number.isFinite(value)?value:80;lines.set(owner,line);}return line;};
       function record(key){let value=byOwner.get(key);if(!value){value=collectors();byOwner.set(key,value);}return value;}
       function append(target,rowIndex,moving,ready,idle,service){target.all.push(rowIndex);if(moving)target.moving.push(rowIndex);if(ready)target.ready.push(rowIndex);if(idle)target.idle.push(rowIndex);if(service)target.service.push(rowIndex);}
       function add(row,rowIndex){
         if(typeof row.id!=='string'||!row.id)return;
-        const owner=String(row.ownerCompanyId||row.companyId||''),moving=row.phase==='moving'||row.status==='moving',ready=row.phase==='turnaround'||row.status==='available',idle=!['moving','turnaround'].includes(row.phase)&&row.status!=='moving',service=Number(row.condition)<85;
+        const owner=String(row.ownerCompanyId||row.companyId||''),moving=row.phase==='moving'||row.status==='moving',ready=row.phase==='turnaround'||row.status==='available',idle=!['moving','turnaround'].includes(row.phase)&&row.status!=='moving',service=Math.max(0,Math.min(100,Number(row.condition)||100))<lineOf(owner);
         append(global,rowIndex,moving,ready,idle,service);append(record(owner),rowIndex,moving,ready,idle,service);
         const bytes=encoder.encode(rowSearchText(row)),where=pool.add(bytes);textChunk[rowIndex]=where[0];textOffset[rowIndex]=where[1];textLength[rowIndex]=where[2];live++;
       }

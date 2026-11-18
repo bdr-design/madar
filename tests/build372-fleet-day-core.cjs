@@ -2,20 +2,23 @@
 // Differential contract for the pure daily fleet pass.  The reference below
 // is deliberately self-contained: it does not call helpers exported by the
 // implementation under test.
+// Batch F (owner, 17 Nov 2026): every row under its owner's line is checked (no daily cap) and listed in row order
+// (maintenanceRows), a check costs price x CHECK_COST x (100 - condition) / 20, a parked row (no route, or idle) carries
+// no incident risk and is not sampled, and a checked aircraft's counters restart at 0 hours, next check at 600.
 const assert=require('node:assert/strict');
 const STORE=require('../WebApp/fleet-store-core.js');
 const FLEET=require('../WebApp/fleet-access-core.js');
 const DAY=require('../WebApp/fleet-day-core.js');
 const QUERY=require('../WebApp/fleet-query-core.js');
 
-const REF_FIELDS=['id','ownerCompanyId','companyId','company','assetMode','type','purchasePrice','condition','ownership','monthlyLease','leaseTermMonths','leaseStartSeconds','deliveredAtSeconds','year','lastTrip','staffing','specs','phase','flightHours','flightCycles','nextCheckHours'];
+const REF_FIELDS=['id','ownerCompanyId','companyId','company','assetMode','type','purchasePrice','condition','ownership','monthlyLease','leaseTermMonths','leaseStartSeconds','deliveredAtSeconds','year','lastTrip','staffing','specs','phase','flightHours','flightCycles','nextCheckHours','routeId'];
 const YEARS={air:20,sea:25,road:8,power:25,bank:12,group:20},SALVAGE={air:.12,sea:.15,road:.08,power:.10,bank:.05,group:.05};
 const POLICIES={preventive:90,standard:80,deferred:65},CHECK_COST={air:.004,sea:.003,road:.006},INCIDENT={air:.000044,sea:.000077,road:.00038},PREMIUM={air:.0035,sea:.006,road:.03};
 const LICENCE={air:25000,sea:15000,road:1200},FINE={air:40000,sea:30000,road:5000},DWT={'TEU':13,'طن':1,'م³':.5,'سيارات':2.5,'سيارة':2.5,'راكب':50};
 const own=(value,key)=>Object.prototype.hasOwnProperty.call(value,key),clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0)),modeOf=row=>String(row?.assetMode||row?.type||'').trim();
 
 function reference(state,ownerDescriptor,maintenancePolicies){
-  const candidates=new Map(),known=new Set(ownerDescriptor.knownCompanies||[]),legacy=new Map(ownerDescriptor.legacyOwners||[]),ownerCache=new Map(),totals=new Map(),maintenance=new Map();
+  const checkedRows=[],known=new Set(ownerDescriptor.knownCompanies||[]),legacy=new Map(ownerDescriptor.legacyOwners||[]),ownerCache=new Map(),totals=new Map(),maintenance=new Map();
   const ownerOf=row=>{const explicit=String(row?.ownerCompanyId||row?.companyId||'').trim();if(explicit)return explicit;const company=String(row?.company||'').trim();if(company&&ownerDescriptor.platform&&known.has(company))return company;const mode=modeOf(row);return String(ownerDescriptor.platform?(legacy.get(mode)||''):mode).trim();};
   const policyMap=new Map(maintenancePolicies),simSeconds=Math.max(0,Number(state.simSeconds)||0),simYear=2026+Math.floor(simSeconds/(365*86400)),monthlyRate=Math.pow(1.07,1/12)-1;
   const demand=clamp((state.realism.economy.airDemand||100)/100,.65,1.35),bunker=Math.max(1,state.realism.economy.bunker);
@@ -35,22 +38,19 @@ function reference(state,ownerDescriptor,maintenancePolicies){
     }
     total.fuelCost+=Number(row.lastTrip?.fuelCost)||0;total.maintReserve+=Number(row.lastTrip?.maintReserve)||0;total.payroll+=Number(row.staffing?.monthlyPayroll)||0;
 
-    let maint=maintenance.get(owner);if(!maint){const raw=policyMap.get(owner),policy=own(POLICIES,raw)?raw:'standard';maint={threshold:POLICIES[policy],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};maintenance.set(owner,maint);}
-    const mode=modeOf(row);maint.conditionSum+=condition;maint.count++;maint.value+=price;maint.risk+=INCIDENT[mode]||INCIDENT.road;maint.premium+=price*(PREMIUM[mode]||PREMIUM.road);maint.licence+=LICENCE[mode]||LICENCE.road;if(condition<65){maint.unsafe++;maint.fine+=FINE[mode]||FINE.road;}if(maint.sample.length<64)maint.sample.push({id:row.id,price});if(condition<maint.threshold){if(!candidates.has(maint))candidates.set(maint,[]);candidates.get(maint).push({index,id:row.id,condition,cost:Math.max(0,Number(row.purchasePrice)||0)*(CHECK_COST[modeOf(row)]||CHECK_COST.road)});}
+    let maint=maintenance.get(owner);if(!maint){const raw=policyMap.get(owner),policy=own(POLICIES,raw)?raw:'standard';maint={threshold:POLICIES[policy],conditionSum:0,restored:0,count:0,checks:0,cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};maintenance.set(owner,maint);}
+    const mode=modeOf(row),parked=!row.routeId||row.phase==='idle',checked=condition<maint.threshold;maint.conditionSum+=condition;maint.count++;maint.value+=price;if(!parked)maint.risk+=INCIDENT[mode]||INCIDENT.road;maint.premium+=price*(PREMIUM[mode]||PREMIUM.road);maint.licence+=LICENCE[mode]||LICENCE.road;if(condition<65){maint.unsafe++;maint.fine+=FINE[mode]||FINE.road;}if(!parked&&maint.sample.length<64)maint.sample.push({id:row.id,price});if(checked){checkedRows.push(index);maint.checks++;maint.restored+=100-condition;maint.cost+=price*(CHECK_COST[mode]||CHECK_COST.road)*(100-condition)/20;}
 
     if(mode==='air'){
       const cap=Math.max(0,Number(row.specs?.capacity)||0),distance=Math.max(0,Number(row.lastTrip?.distanceKm)||Number(row.lastTrip?.distance)||0),factor=clamp(.82+(condition-70)*.004,.70,1.06),lf=clamp(.78*demand*factor,.52,.96);ask+=cap*Math.max(1,distance);rpk+=cap*lf*Math.max(1,distance);rev+=Number(row.lastTrip?.revenue)||0;
       const fc=Number(row.lastTrip?.fuelCost)||0,cc=Number(row.lastTrip?.crewCost)||0,reserve=Number(row.lastTrip?.maintReserve)||0;fuel+=fc;maintReserve+=reserve;maintExposure+=Math.max(0,(100-condition)/100)*(Number(row.purchasePrice)||0)*.0008;cost+=fc+cc+reserve;if(row.phase==='moving')movingAir++;airCondition+=condition;airCount++;
-      const hours=(Number(row.flightHours)||0)+(row.phase==='moving'?4:0),cycles=(Number(row.flightCycles)||0)+(row.phase==='turnaround'?1:0),next=Number(row.nextCheckHours)||600;indices.push(index);values.push(hours,cycles,next);if(hours>=next||Number(row.condition)<72)maintenanceDue++;if(Number(row.condition)<60)aog++;
+      const hours=checked?0:(Number(row.flightHours)||0)+(row.phase==='moving'?4:0),cycles=(Number(row.flightCycles)||0)+(row.phase==='turnaround'?1:0),next=checked?600:Number(row.nextCheckHours)||600;indices.push(index);values.push(hours,cycles,next);if(hours>=next||Number(row.condition)<Math.min(72,maint.threshold))maintenanceDue++;if(Number(row.condition)<60)aog++;
     }else if(mode==='sea'){
       const distance=Math.max(1,Number(row.lastTrip?.distanceKm)||Number(row.lastTrip?.distance)||1),capacity=Math.max(1,Number(row.specs?.capacity)||Number(row.specs?.teu)||Number(row.specs?.dwt)||1);seaDistance+=distance;seaTransport+=distance*capacity;const tonnes=Math.max(0,Number(row.lastTrip?.fuelCost)||0)/bunker;seaFuelProxy+=tonnes;const per=DWT[String(row.specs?.capacityUnit||'')],dwt=per?Math.max(0,Number(row.specs?.capacity)||0)*per:0;if(dwt>0&&tonnes>0){const work=dwt*distance/1.852;seaCo2+=tonnes*3.114*1e6;seaWork+=work;seaRefWork+=1984*Math.pow(Math.max(1,dwt),-.489)*work;}seaCondition+=condition;if(row.phase==='moving')movingSea++;seaCount++;if(Number(row.condition)<70)seaDryDock++;
     }else if(mode==='road'){roadCount++;if(Number(row.condition)<70)roadWeak++;if(Number(row.condition)<75)roadDamaged++;}
     const raw=Number(row.condition);insured+=raw||100;readiness+=raw||0;
   });
-  // Owner decision (19 Oct 2026): the 2,000 daily checks go to the lowest condition first, ties in row order; the chosen
-  // rows are summed in row order.
-  for(const [maint,rows] of candidates){const chosen=rows.slice().sort((a,b)=>a.condition-b.condition||a.index-b.index).slice(0,2000).sort((a,b)=>a.index-b.index);for(const row of chosen){maint.due.push(row.id);maint.restored+=100-row.condition;maint.cost+=row.cost;}}
-  return {ownerTotals:[...totals],ops:{ask,rpk,rev,cost,fuel,movingAir,airCondition,maintReserve,maintExposure,airCount,maintenanceDue,aog,seaDistance,seaFuelProxy,seaTransport,seaCo2,seaWork,seaRefWork,seaCondition,movingSea,seaCount,seaDryDock,roadCount,roadWeak,roadDamaged},maintenance:[...maintenance],condition:{insured,readiness},indices,values};
+  return {ownerTotals:[...totals],ops:{ask,rpk,rev,cost,fuel,movingAir,airCondition,maintReserve,maintExposure,airCount,maintenanceDue,aog,seaDistance,seaFuelProxy,seaTransport,seaCo2,seaWork,seaRefWork,seaCondition,movingSea,seaCount,seaDryDock,roadCount,roadWeak,roadDamaged},maintenance:[...maintenance],rows:checkedRows,condition:{insured,readiness},indices,values};
 }
 
 function exact(actual,expected,path='result'){
@@ -77,17 +77,18 @@ const baseAssets=[
   {id:'DAY-ROAD-0001',company:'unknown-company',type:'road',ownership:'owned',purchasePrice:-500,condition:69,phase:'idle',specs:{capacity:12},lastTrip:{distanceKm:220,fuelCost:300}},
   {id:'DAY-AIR-0003',company:'unknown-company',type:'air',ownership:'owned',purchasePrice:40000000,year:2035,condition:55,phase:'idle',flightHours:0,flightCycles:0,nextCheckHours:0,specs:{capacity:90},lastTrip:{distanceKm:0,revenue:1,fuelCost:2,crewCost:3,maintReserve:4}},
 ];
-// The last five bulk rows are the worst: they take five of the 2,000 checks from the end of the tied rows.
-for(let i=0;i<2005;i++)baseAssets.push({id:`DAY-BULK-${String(i).padStart(4,'0')}`,ownerCompanyId:'bulk',assetMode:'road',ownership:'owned',purchasePrice:1000+i,condition:i>=2000?40:50,phase:'idle'});
+// 2,005 bulk rows under the line (more than the former 2,000 cap), on a route; the last five parked (no incident risk).
+for(let i=0;i<2005;i++)baseAssets.push({id:`DAY-BULK-${String(i).padStart(4,'0')}`,ownerCompanyId:'bulk',assetMode:'road',ownership:'owned',purchasePrice:1000+i,condition:i>=2000?40:50,phase:i>=2000?'idle':'turnaround',routeId:'R-BULK'});
 
 function makeState(assets){const state={simSeconds:86400*800,realism:{economy:{airDemand:117,bunker:713}},advanced:{companies:{}}};state.fleet=STORE.fromAssets(assets,{at:state.simSeconds});return state;}
 function comparePass(state){
   const before=STORE.toAssets(state.fleet),revision=state.fleet.revision,expected=reference(state,ownerResolution,maintenancePolicies),actual=DAY.compute(state,FLEET,{ownerResolution,maintenancePolicies,storeApi:STORE});
   assert.equal(actual.schema,'gh-fleet-day-v1');assert.equal(actual.legacy,false);assert.equal(actual.columns.rejectNaN,true);assert.ok(actual.columns.indices instanceof Int32Array);assert.ok(actual.columns.values instanceof Float32Array);assert.ok(actual.columns.exceptional.indices instanceof Int32Array);assert.ok(actual.columns.exceptional.values instanceof Float64Array);assert.deepEqual(actual.columns.fields,['flightHours','flightCycles','nextCheckHours']);
-  const merged=mergedColumnPlan(actual.columns);exact(actual.ownerTotals,expected.ownerTotals,'ownerTotals');exact(actual.ops,expected.ops,'ops');exact(actual.maintenance,expected.maintenance,'maintenance');exact(actual.condition,expected.condition,'condition');exact(merged.indices,expected.indices,'columns.indices');exact(merged.values,expected.values,'columns.values');
+  const merged=mergedColumnPlan(actual.columns);exact(actual.ownerTotals,expected.ownerTotals,'ownerTotals');exact(actual.ops,expected.ops,'ops');exact(actual.maintenance,expected.maintenance,'maintenance');exact(actual.condition,expected.condition,'condition');assert.ok(actual.maintenanceRows instanceof Int32Array,'the checked rows are an Int32Array');exact(Array.from(actual.maintenanceRows),expected.rows,'maintenanceRows');exact(merged.indices,expected.indices,'columns.indices');exact(merged.values,expected.values,'columns.values');
   assert.equal(actual.columns.totalCount,expected.indices.length,'all air rows are represented once');assert.equal(actual.columns.indices.buffer,actual.columns.exceptional.indices.buffer,'both index views share one transferable buffer');assert.equal(actual.columns.values.buffer,actual.columns.exceptional.values.buffer,'both value views share one transferable buffer');
   assert.deepEqual(actual.ownerTotals.map(entry=>entry[0]),['alpha','sea-known','road-legacy','air-legacy','bulk'],'owner Map insertion order');assert.deepEqual(actual.maintenance.map(entry=>entry[0]),['alpha','sea-known','road-legacy','air-legacy','bulk'],'maintenance Map insertion order');
-  const bulk=actual.maintenance.find(([owner])=>owner==='bulk')[1];assert.equal(bulk.due.length,2000,'maintenance due cap');assert.equal(bulk.sample.length,64,'incident sample cap');assert.deepEqual(bulk.due.slice(0,2),['DAY-BULK-0000','DAY-BULK-0001']);assert.equal(bulk.due[1994],'DAY-BULK-1994');assert.deepEqual(bulk.due.slice(-5),['DAY-BULK-2000','DAY-BULK-2001','DAY-BULK-2002','DAY-BULK-2003','DAY-BULK-2004'],'the worst rows are checked first');
+  const bulk=actual.maintenance.find(([owner])=>owner==='bulk')[1];assert.equal(bulk.checks,2005,'no daily cap: every bulk row under the line');assert.equal(bulk.sample.length,64,'incident sample cap');assert.ok(Math.abs(bulk.risk-2000*INCIDENT.road)<1e-12,'the five parked rows carry no risk');
+  const road=actual.maintenance.find(([owner])=>owner==='road-legacy')[1];assert.equal(road.risk,0,'an idle truck is parked: no risk');assert.equal(road.sample.length,0,'and never sampled');
   assert.equal(state.fleet.revision,revision,'pure pass does not write revision');assert.deepEqual(STORE.toAssets(state.fleet),before,'pure pass does not alter fleet');return actual;
 }
 
@@ -100,7 +101,8 @@ unsafeAssets[1]={...unsafeAssets[1],flightCycles:.1};             // stored in e
 const unsafeState=makeState(unsafeAssets),unsafe=comparePass(unsafeState),extra=STORE.extrasOf(unsafeState.fleet,1);
 assert.ok(extra&&own(extra,'flightCycles'),'fixture keeps the target field in extras');assert.equal(unsafe.columns.unsupported,false);assert.ok(unsafe.columns.exceptional.count>=1);assert.ok(unsafe.columns.nonExactRows>=1);assert.ok(unsafe.columns.extrasRows>=1);assert.ok(unsafe.columns.reasons.includes('non-hot-exact'));assert.ok(unsafe.columns.reasons.includes('extras'));
 
-const infiniteState=makeState(baseAssets.map((row,index)=>index===baseAssets.length-1?{...row,type:'air',assetMode:'air',flightHours:Infinity,flightCycles:0,nextCheckHours:600}:row));
+// (above its line: a checked aircraft's hours would restart at 0)
+const infiniteState=makeState(baseAssets.map((row,index)=>index===baseAssets.length-1?{...row,type:'air',assetMode:'air',flightHours:Infinity,flightCycles:0,nextCheckHours:600,condition:100}:row));
 const infinite=DAY.compute(infiniteState,FLEET,{ownerResolution,maintenancePolicies,storeApi:STORE});
 assert.equal(infinite.columns.unsupported,false,'a non-finite late row stays in the exact exception stream');
 assert.ok(infinite.columns.exceptional.values.some(value=>value===Infinity),'Infinity survives the Float64 exception plan');
@@ -126,14 +128,13 @@ assert.equal(unresolved.legacy,true,'missing serializable owner resolution is re
   assert.equal(indexBuffer.byteLength,0);assert.equal(valueBuffer.byteLength,0);assert.equal(moved.indices.length,fastCount);assert.equal(moved.exceptional.indices[0],total-1);assert.equal(moved.indices.buffer,moved.exceptional.indices.buffer);assert.equal(moved.values.buffer,moved.exceptional.values.buffer);assert.equal(moved.exceptional.values[0],Infinity);assert.equal(moved.exceptional.values[1],-Infinity);assert.ok(Object.is(moved.exceptional.values[2],-0));
 }
 
-// Worst-first over capacity with mixed conditions (owner decision, 19 Oct 2026): two owners past the 2,000 checks, tied
-// and distinct conditions, rows rejected once the heap is full, against the self-contained reference.
-const mixedAssets=[],levels=[55,60,70,75,79];
-for(let i=0;i<6000;i++){const owner=i%2?'mix-a':'mix-b',c=i%7===0?55+((i*7919)%2500)/100:levels[(i*31)%levels.length];mixedAssets.push({id:`DAY-MIX-${String(i).padStart(4,'0')}`,ownerCompanyId:owner,assetMode:'road',ownership:'owned',purchasePrice:5000+(i*37)%9000,condition:c,phase:'idle'});}
+// Two owners over the former cap with mixed conditions: every row under the line, ascending row order, the reference sums.
+const mixedAssets=[],levels=[55,60,70,75,79,92];
+for(let i=0;i<6000;i++){const owner=i%2?'mix-a':'mix-b',c=i%7===0?55+((i*7919)%2500)/100:levels[(i*31)%levels.length];mixedAssets.push({id:`DAY-MIX-${String(i).padStart(4,'0')}`,ownerCompanyId:owner,assetMode:'road',ownership:'owned',purchasePrice:5000+(i*37)%9000,condition:c,phase:'turnaround',routeId:'R-MIX'});}
 {const policies=[['mix-a','preventive'],['mix-b','preventive']],state=makeState(mixedAssets),expected=reference(state,ownerResolution,policies),actual=DAY.compute(state,FLEET,{ownerResolution,maintenancePolicies:policies,storeApi:STORE});
-  exact(actual.maintenance,expected.maintenance,'mixed.maintenance');for(const [owner,row] of actual.maintenance)assert.equal(row.due.length,2000,`${owner}: the capacity is used`);
-  const a=actual.maintenance.find(([owner])=>owner==='mix-a')[1],rows=new Map(mixedAssets.map((row,i)=>[row.id,{c:row.condition,i}])),chosen=a.due.map(id=>rows.get(id));
-  assert.ok(chosen.every((row,k)=>k===0||row.i>chosen[k-1].i),'due in row order');const worst=Math.max(...chosen.map(row=>row.c));assert.ok(mixedAssets.filter((row,i)=>i%2&&!a.due.includes(row.id)).every(row=>row.condition>=worst),'no unchosen row is worse than a chosen one');}
+  exact(actual.maintenance,expected.maintenance,'mixed.maintenance');exact(Array.from(actual.maintenanceRows),expected.rows,'mixed.maintenanceRows');
+  const under=mixedAssets.filter(row=>row.condition<90).length;assert.ok(under>4000,'fixture: far over the former cap');assert.equal(actual.maintenanceRows.length,under,'every row under the line');
+  assert.ok(Array.from(actual.maintenanceRows).every((row,k,list)=>k===0||row>list[k-1]),'ascending row order');assert.ok(Array.from(actual.maintenanceRows).every(index=>mixedAssets[index].condition<90),'only rows under the line');}
 
 console.log(JSON.stringify({suite:'build372-fleet-day-core',rows:baseAssets.length,airRows:safe.columns.totalCount,owners:safe.ownerTotals.length,exceptionalRows:unsafe.columns.exceptionalRows}));
 console.log('BUILD372_FLEET_DAY_CORE_PASS');

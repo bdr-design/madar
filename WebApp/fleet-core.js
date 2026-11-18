@@ -38,7 +38,38 @@
   const clone=value=>globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value));
   const simDay=state=>Math.floor((Number(state?.simSeconds)||0)/86400);
   const platform=()=>globalThis.GH_COMPANY_PLATFORM||null;
-  const assetMode=asset=>String(asset?.assetMode||asset?.type||'').trim();
+  const assetMode=asset=>String(asset?.assetMode||asset?.type||'').trim(),REPAIR_BATCH_LIMIT=2000;
+  // Fault 3: an isolated asset leaves its trip at its departure base; one bound to release a retired shared route on
+  // arrival is released as that arrival would (idle, no route), or it would stay on the retired route for good.
+  function isolatedReturn(asset){const reset={progress:0,dwellRemaining:0,departureScheduled:false,departureScheduledAt:undefined};return asset.releaseExclusiveRouteOnArrival?{...reset,phase:'idle',routeId:null,routeSignature:null,releaseExclusiveRouteOnArrival:false}:{...reset,phase:asset.routeId?'turnaround':'idle'};}
+  // Batch H (owner, 18 Nov 2026: «يُحذف كما عند الوصول»): servicing or returning an asset isolated while moving frees the
+  // retired route it was bound to leave on arrival. As on arrival, the route is deleted when no other asset uses it; after a
+  // service (not a return to base: the asset keeps its fault) its owner is marked for the automatic dispatch. Which assets
+  // use it comes from the worker's reference proof the app binds to the command (context.fleetReferenceUsage, this asset
+  // excluded), used before the asset is written while it is current; a fleet of at most 2,048 rows without one reads the
+  // store after the write; a larger one without a current proof (none, stale, or asked for other bases than the delete
+  // would check now) keeps the route registered, as before this batch, rather than scanning the fleet here or refusing the
+  // service: the player can delete it.
+  const RETIRED_ROUTE_STORE_ROWS=2048;
+  function freeRetiredRoute(ctx,state,asset){
+    if(asset.phase!=='moving'||asset.releaseExclusiveRouteOnArrival!==true)return null;
+    const id=String(asset.routeId||''),route=id?(state.customRoutes||[]).find(row=>row?.id===id):null;if(!route)return null;
+    const plan={id,owner:routeOwnerCompanyId(route),deleted:false},R=globalThis.GH_ROUTE_CORE,Q=globalThis.GH_FLEET_REFERENCE_QUERY,proof=ctx&&ctx!==state?ctx.fleetReferenceUsage:null;
+    if(R?.execute&&Q?.lookup&&proof&&typeof proof.current==='function'&&proof.current(state)===true){
+      // (The whole request the delete will check, bases included: endpoints changed while the worker counted make it stale.)
+      const expected=typeof R.referenceRequest==='function'?R.referenceRequest(state,'delete',{id,assetId:asset.id}):null;
+      if(expected&&Q.requestKey(proof.params||{})===Q.requestKey(expected)&&Q.validPlan(proof.result,proof.params)&&Q.lookup(proof.result).route(id)===0){R.execute({state,fleetReferenceUsage:proof},'delete',{id,assetId:asset.id});plan.deleted=true;}
+      plan.proved=true;
+    }
+    return plan;
+  }
+  function finishRetiredRoute(state,plan,markDispatch){
+    if(!plan)return;
+    const R=globalThis.GH_ROUTE_CORE,fleet=fleetData();
+    if(!plan.deleted&&!plan.proved&&R?.execute&&fleet.size(state)<=RETIRED_ROUTE_STORE_ROWS&&(state.customRoutes||[]).some(row=>row?.id===plan.id)&&!fleet.distinctRefs(state,'routeId').has(plan.id)){R.execute({state},'delete',{id:plan.id});plan.deleted=true;}
+    if(markDispatch&&plan.owner&&plan.owner!=='group'&&globalThis.GH_PROGRESSION_CORE?.unlocked?.(state,'tool:autopilot')!==false){state.advanced=state.advanced||{};const companies=state.advanced.companies=state.advanced.companies&&typeof state.advanced.companies==='object'?state.advanced.companies:{};const row=companies[plan.owner]=companies[plan.owner]&&typeof companies[plan.owner]==='object'?companies[plan.owner]:{};row.autoDispatchPending=true;}
+  }
+  function maintenanceQuote(asset){const quote=globalThis.GH_REALISM?.maintenanceQuote;if(typeof quote!=='function')throw new Error('maintenance-quote-missing');return quote(asset);}
   const routeMode=route=>String(route?.routeMode||route?.type||'').trim();
   const fleetData=()=>{const api=globalThis.GH_FLEET_DATA||(typeof require==='function'?require('./fleet-access-core.js'):null);if(!api)throw new Error('fleet-data-access-unavailable');return api;};
   // Read-only catalog query for the existing operations provider. Discovery
@@ -296,7 +327,7 @@
     for(const p of rows){
       const asset=p?.id?assetById.get(p.id):null,route=batchRoute(p,routeTable);if(!asset||requested.has(asset.id))throw new Error('route-assignment-contract');requested.add(asset.id);
       const assetOwner=requireFleetAsset(state,asset),routeOwner=requireFleetRoute(state,route);
-      if(!route||route.id!==p.routeId||routeOwner.mode!==assetOwner.mode||routeOwner.companyId!==assetOwner.companyId||asset.phase==='moving'||asset.salePending||asset.deliveryStatus==='pending'||(p.phase!=null&&p.phase!=='turnaround')||(p.baseFacility!=null&&p.baseFacility!==asset.baseFacility)||![route.fromFacility,route.toFacility].includes(asset.baseFacility))throw new Error('route-assignment-contract');
+      if(!route||route.id!==p.routeId||routeOwner.mode!==assetOwner.mode||routeOwner.companyId!==assetOwner.companyId||(asset.phase==='moving'&&!asset.simulationFault)||asset.salePending||asset.deliveryStatus==='pending'||(p.phase!=null&&p.phase!=='turnaround')||(p.baseFacility!=null&&p.baseFacility!==asset.baseFacility)||![route.fromFacility,route.toFacility].includes(asset.baseFacility))throw new Error('route-assignment-contract');
       if(assetOwner.mode==='air')validateAirRoute(route,asset.id);
       let used=slotUsage.get(p.routeId);if(!used){used=new Set();slotUsage.set(p.routeId,used);}
       let slot=0;const preferred=asset.routeId===p.routeId&&Number.isInteger(asset.routeSlot)&&asset.routeSlot>=0?asset.routeSlot:null;
@@ -622,16 +653,43 @@
       if(!company||!modes.includes(mode)||Number(state.routesRevision)!==Number(p.routesRevision)||!Object.is(Number(state.simSeconds)||0,Number(p.simSeconds)))return {ok:false,reason:'fleet-dispatch-intent-context'};
       return true;
     }
-    if(['service','assign-route','depart','request-sale','finalize-sale','return-lease','sell','dispose'].includes(cmd)&&!asset)return {ok:false,reason:'asset-not-found'};
-    if(cmd==='service'&&asset.phase==='moving')return {ok:false,reason:'asset-moving'};
+    if(['service','assign-route','depart','request-sale','finalize-sale','return-lease','sell','dispose','return-to-base'].includes(cmd)&&!asset)return {ok:false,reason:'asset-not-found'};
+    // Batch F (fault 3): an asset isolated by a simulation fault while moving can be serviced (back at its departure base)
+    // or brought back to its base; a healthy moving asset is still refused.
+    if(cmd==='service'&&asset.phase==='moving'&&!asset.simulationFault)return {ok:false,reason:'asset-moving'};
+    if(cmd==='return-to-base'&&!(asset.phase==='moving'&&asset.simulationFault))return {ok:false,reason:'return-to-base-not-isolated'};
+    if(cmd==='repair-batch'){const ids=Array.isArray(p.ids)?p.ids:[];if(!String(p.companyId||'')||!ids.length||ids.length>REPAIR_BATCH_LIMIT||ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length||!Number.isSafeInteger(Number(p.expectedCost))||Number(p.expectedCost)<0)return {ok:false,reason:'repair-batch-invalid'};}
     return true;
   }
   function execute(ctx,cmd,p={}){
     const state=ctx.state||ctx,asset=p.id?find(state,p.id):null;
     if(cmd==='dispatch-plan-intent')return {schema:DISPATCH_INTENT_SCHEMA,companyId:String(p.companyId),mode:String(p.mode),count:Number(p.count),requestKey:String(p.requestKey),routesRevision:Number(p.routesRevision),simSeconds:Number(p.simSeconds),catalogRevision:String(p.catalogRevision).toLowerCase(),ownershipRevision:String(p.ownershipRevision).toLowerCase(),assignmentDigest:String(p.assignmentDigest).toLowerCase(),planDigest:String(p.planDigest).toLowerCase(),routeIds:[...p.routeIds]};
     if(cmd==='service'){
-      const owner=requireFleetAsset(state,asset),cost=Math.max(0,Number(p.cost)||0),supplier=p.supplier||'شبكة الصيانة المعتمدة';let payment=null;if(cost>0){const finance=globalThis.GH_FINANCE_CORE;if(!finance?.execute)throw new Error('finance-core-missing');payment=finance.execute({state},'pay-by-cheque',{company:owner.companyId,amount:cost,note:p.note||`صيانة ${asset.name}`,beneficiary:supplier,line:'maintenance',taxable:p.taxable!==false,requestRef:`MAINT-${asset.id}-${Math.floor(Number(state.simSeconds)||0)}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('maintenance-cheque-not-cleared');}
-      const fleet=fleetData();return fleet.plain(fleet.update(state,asset,{fuel:100,condition:100,crewBlocked:false,simulationFault:undefined,lastMaintenanceAt:Number(state.simSeconds)||0,lastMaintenanceCost:cost,lastMaintenanceSupplier:supplier,lastMaintenanceCheque:payment?.cheque?.id||null,lastMaintenanceInvoice:payment?.invoice?.number||null}));
+      // B5 (owner, 17 Nov 2026): the service is priced like the daily check of the same asset (GH_REALISM.maintenanceQuote,
+      // by the wear restored; free at 100%: refuel and fault reset), never by the caller's `cost`; a quote the player saw
+      // that no longer matches is refused.
+      const owner=requireFleetAsset(state,asset),cost=maintenanceQuote(asset),supplier=p.supplier||'شبكة الصيانة المعتمدة';let payment=null;
+      if(p.expectedCost!==undefined&&Number(p.expectedCost)!==cost)throw new Error('fleet-service-quote-changed');if(cost>0){const finance=globalThis.GH_FINANCE_CORE;if(!finance?.execute)throw new Error('finance-core-missing');payment=finance.execute({state},'pay-by-cheque',{company:owner.companyId,amount:cost,note:p.note||`صيانة ${asset.name}`,beneficiary:supplier,line:'maintenance',taxable:p.taxable!==false,requestRef:`MAINT-${asset.id}-${Math.floor(Number(state.simSeconds)||0)}-${cost}-${asset.lastMaintenanceCheque||'first'}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('maintenance-cheque-not-cleared');}
+      // Fault 3: an isolated asset serviced while moving is back at its departure base (the trip is cancelled: no arrival,
+      // no trip income). Fault 2: an aircraft starts again at 0 flight hours, next check at 600.
+      const fleet=fleetData(),retired=freeRetiredRoute(ctx,state,asset),back=asset.phase==='moving'?isolatedReturn(asset):{},hours=assetMode(asset)==='air'?{flightHours:0,nextCheckHours:600}:{};
+      const serviced=fleet.plain(fleet.update(state,asset,{...back,...hours,fuel:100,condition:100,crewBlocked:false,simulationFault:undefined,lastMaintenanceAt:Number(state.simSeconds)||0,lastMaintenanceCost:cost,lastMaintenanceSupplier:supplier,lastMaintenanceCheque:payment?.cheque?.id||null,lastMaintenanceInvoice:payment?.invoice?.number||null}));
+      finishRetiredRoute(state,retired,true);return serviced;
+    }
+    // Fault 3: an asset isolated while moving parks at its departure base, no fee; the fault stays until it is serviced or
+    // given a route again.
+    if(cmd==='return-to-base'){requireFleetAsset(state,asset);const fleet=fleetData(),retired=freeRetiredRoute(ctx,state,asset),back=fleet.plain(fleet.update(state,asset,isolatedReturn(asset)));finishRetiredRoute(state,retired,false);return back;}
+    // «إصلاح الكل الآن» (owner, 17 Nov 2026): a slice of at most REPAIR_BATCH_LIMIT assets of one company, every one under its
+    // line, at the close's price (the sum of their quotes, which must equal the quote the player accepted), paid now by a
+    // cleared cheque; each restored to 100% (an aircraft's hours reset). Several slices run as one signed durable command.
+    if(cmd==='repair-batch'){
+      const R=globalThis.GH_REALISM,F=globalThis.GH_FINANCE_CORE,fleet=fleetData(),companyId=String(p.companyId);if(!R?.maintenancePolicy||!F?.execute)throw new Error('repair-batch-core-missing');
+      // (The owner check is asked once per owner, mode and class, as the fleet's other batch commands do.)
+      const line=R.MAINTENANCE_POLICIES[R.maintenancePolicy(state,companyId)],owners=new Map(),assets=p.ids.map(id=>{const row=find(state,id);if(!row)throw new Error('asset-not-found');const key=`${row.ownerCompanyId}\u0000${row.companyId}\u0000${row.company}\u0000${row.assetMode}\u0000${row.type}\u0000${row.assetClass}`;let owner=owners.get(key);if(!owner){owner=requireFleetAsset(state,row);owners.set(key,owner);}if(owner.companyId!==companyId)throw new Error('repair-batch-company');if(!(Math.max(0,Math.min(100,Number(row.condition)||100))<line))throw new Error('repair-asset-above-line');return row;});
+      let cost=0;for(const row of assets)cost+=maintenanceQuote(row);if(cost!==Number(p.expectedCost))throw new Error('repair-quote-stale');
+      let payment=null;if(cost>0){payment=F.execute({state},'pay-by-cheque',{company:companyId,amount:cost,note:`إصلاح ${assets.length} ${assets.length===1?'أصل':'أصول'} الآن`,beneficiary:'شبكة الصيانة المعتمدة',line:'maintenance',taxable:true,requestRef:`MNT-NOW-${companyId.toUpperCase()}-${Math.floor(Number(state.simSeconds)||0)}-${assets[0].id}-${assets.length}-${cost}`});if(!payment?.cheque?.id||payment.cheque.status!=='مصروف')throw new Error('maintenance-cheque-not-cleared');}
+      for(const row of assets)fleet.update(state,row,assetMode(row)==='air'?{condition:100,flightHours:0,nextCheckHours:600}:{condition:100});
+      return {companyId,count:assets.length,cost,cheque:payment?.cheque?.id||null};
     }
     if(cmd==='assign-route')return assignRoutesBatch(state,[p])[0];
     if(cmd==='assign-routes-batch')return assignRoutesBatch(state,p.assignments,p.routes);

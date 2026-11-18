@@ -227,7 +227,7 @@
     const fleet=fleetData(),r=migrate(state),write=fleet.columnWriter(state,['flightHours','flightCycles','nextCheckHours']),demand=clamp((r.economy.airDemand||100)/100,.65,1.35),bunker=Math.max(1,r.economy.bunker);
     let ask=0,rpk=0,rev=0,cost=0,fuel=0,movingAir=0,airCondition=0,maintReserve=0,maintExposure=0,airCount=0,maintenanceDue=0,aog=0;
     let seaDistance=0,seaFuelProxy=0,seaTransport=0,seaCo2=0,seaWork=0,seaRefWork=0,seaCondition=0,movingSea=0,seaCount=0,seaDryDock=0,roadCount=0,roadWeak=0,roadDamaged=0;
-    const visit=(a,index)=>{
+    const visit=(a,index,line=80)=>{
       const mode=assetMode(a);
       if(mode==='air'){
         const cap=Math.max(0,Number(a.specs?.capacity)||0),d=Math.max(0,Number(a.lastTrip?.distanceKm)||Number(a.lastTrip?.distance)||0),condition=clamp(Number(a.condition)||100,0,100);
@@ -236,9 +236,11 @@
         const fuelCost=Number(a.lastTrip?.fuelCost)||0,crewCost=Number(a.lastTrip?.crewCost)||0,reserve=Number(a.lastTrip?.maintReserve)||0;
         fuel+=fuelCost;maintReserve+=reserve;maintExposure+=Math.max(0,(100-condition)/100)*(Number(a.purchasePrice)||0)*.0008;cost+=fuelCost+crewCost+reserve;
         if(a.phase==='moving')movingAir++;airCondition+=condition;airCount++;
-        const flightHours=(Number(a.flightHours)||0)+(a.phase==='moving'?4:0),flightCycles=(Number(a.flightCycles)||0)+(a.phase==='turnaround'?1:0),nextCheckHours=Number(a.nextCheckHours)||600;
+        // Batch F (fault 2): an aircraft checked at this close (under its line) starts again at 0 hours, next check at 600.
+        // The due count reads the hours after that and the condition against min(72, line) (fleet-day-core twin).
+        const checked=condition<line,flightHours=checked?0:(Number(a.flightHours)||0)+(a.phase==='moving'?4:0),flightCycles=(Number(a.flightCycles)||0)+(a.phase==='turnaround'?1:0),nextCheckHours=checked?AIR_CHECK_HOURS:Number(a.nextCheckHours)||600;
         write(index,'flightHours',flightHours);write(index,'flightCycles',flightCycles);write(index,'nextCheckHours',nextCheckHours);
-        if(flightHours>=nextCheckHours||Number(a.condition)<72)maintenanceDue++;if(Number(a.condition)<60)aog++;
+        if(flightHours>=nextCheckHours||Number(a.condition)<Math.min(72,line))maintenanceDue++;if(Number(a.condition)<60)aog++;
       }else if(mode==='sea'){
         const d=Math.max(1,Number(a.lastTrip?.distanceKm)||Number(a.lastTrip?.distance)||1),cap=Math.max(1,Number(a.specs?.capacity)||Number(a.specs?.teu)||Number(a.specs?.dwt)||1),cond=clamp(Number(a.condition)||100,0,100);seaDistance+=d;seaTransport+=d*cap;const fuelTonnes=Math.max(0,Number(a.lastTrip?.fuelCost)||0)/bunker;seaFuelProxy+=fuelTonnes;const dwt=ciiDeadweight(a.specs);if(dwt>0&&fuelTonnes>0){const work=dwt*d/1.852;seaCo2+=fuelTonnes*CII_CO2_PER_TONNE*1e6;seaWork+=work;seaRefWork+=ciiReference(dwt)*work;}seaCondition+=cond;if(a.phase==='moving')movingSea++;
         seaCount++;if(Number(a.condition)<70)seaDryDock++;
@@ -303,8 +305,31 @@
   // describes the store (current()) at the fleet revision and time updateInsurance then reads. Otherwise, and in any
   // other context, updateInsurance reads the store itself as before.
   const CONDITION_SUM_WAITS=600;
-  function* conditionSumFromWorker(state){
+  // Batch H3 (owner, 18 Nov 2026): the day close asks for the condition sum as soon as its fleet writes are done (after
+  // the maintenance), so the worker counts while the notices, bank, market share, risk and rating run. The early answer is
+  // used only if it was asked under the same key (fleet revision, store, simSeconds) and is current where it is used: the
+  // same answer the late ask gets (byte-identical). Unanswered at the wait cap: today's rule (no second ask); answered but
+  // unusable: asked again as today. Never throws here.
+  function askConditionSum(state){
+    const provider=globalThis.GH_FLEET_QUERY_PROVIDER,key=conditionSumKey(state),large=fleetData().size(state)>2048;
+    if(!key||sameKey(conditionSumMemo,state,key)&&(!large||fleetDailyMetrics(state))||globalThis.GH_TRANSACTION_CORE?.isStaged?.(state)!==true||!fleetData().size(state))return null;
+    let asked=null;try{asked=provider?.(state,'conditionSum',large?{dailyMetrics:true}:{});}catch(_error){asked=null;}
+    if(!asked||typeof asked.then!=='function')return null;
+    const box={done:false,value:null};asked.then(value=>{box.done=true;box.value=value;},()=>{box.done=true;});
+    return {state,key,large,box};
+  }
+  function* conditionSumFromWorker(state,early=null){
     workerConditionSum=null;
+    if(early&&early.state===state&&sameKey({state,key:early.key},state,conditionSumKey(state))){
+      for(let waits=0;!early.box.done&&waits<CONDITION_SUM_WAITS;waits++)yield 'realism.insurance-wait';
+      if(!early.box.done){if(early.large)throw new Error('fleet-condition-worker-unavailable');return;}
+      const found=early.box.value,rawSum=found?.result?.sum,rawReadiness=found?.result?.readiness,sum=Number(rawSum),readiness=Number(rawReadiness),key=conditionSumKey(state);
+      if(sameKey({state,key:early.key},state,key)&&found&&typeof found.current==='function'&&found.current()===true&&typeof rawSum==='number'&&typeof rawReadiness==='number'&&Number.isFinite(sum)&&Number.isFinite(readiness)){
+        workerConditionSum={state,key,sum};conditionSumMemo={state,key,sum,readiness};
+        if(early.large&&!rememberDailyMetrics(state,found.result.dailyMetrics))throw new Error('fleet-daily-metrics-invalid');
+        return;
+      }
+    }
     const provider=globalThis.GH_FLEET_QUERY_PROVIDER,key=conditionSumKey(state);
     const large=fleetData().size(state)>2048;
     if(!key||sameKey(conditionSumMemo,state,key)&&(!large||fleetDailyMetrics(state))||globalThis.GH_TRANSACTION_CORE?.isStaged?.(state)!==true||!fleetData().size(state))return;
@@ -464,52 +489,90 @@
   // Nothing the close computes before the operations stage reads the flight counters, and they change no field the
   // totals read, so every result is the one the separate passes gave; the memos keep the fleet revision after the writes.
   // Fleet maintenance (Build 358 step 3). Each company sets the condition at which an asset gets its check. The daily
-  // close checks the assets below it (at most CHECKS_PER_DAY per company: the maintenance network's daily capacity),
-  // restores their condition through the fleet owner, and bills the work on 7-day terms. The fleet's average
+  // close checks every asset below it (owner, 17 Nov 2026, C1: the 2,000 a day cap left a fleet larger than it under the
+  // line for good), restores their condition (and an aircraft's flight hours) through the fleet owner, and bills the work
+  // on 7-day terms. The fleet's average
   // condition after the checks is the company's wear for the next day's trips (fuel burn and delay losses,
   // GH_SIMULATION_ASSET_CORE.computeTripEconomics and GH_ADVANCED.adjustTripEconomics).
-  const MAINTENANCE_POLICIES=Object.freeze({preventive:90,standard:80,deferred:65}),CHECK_COST=Object.freeze({air:.004,sea:.003,road:.006}),CHECKS_PER_DAY=2000,MAINTENANCE_STEP=256;
-  // Owner decision (19 Oct 2026): the daily checks go to a company's lowest-condition assets, ties in row order (the
-  // first rows under the line took them all, and a fleet larger than the capacity never reached its later rows). Twin
-  // of fleet-day-core's queueCheck/settleChecks (the worker pass): keep both the same.
-  const lessUrgent=(a,b)=>a.condition>b.condition||(a.condition===b.condition&&a.index>b.index);
-  function queueCheck(heap,condition,index,id){
-    let at;
-    if(heap.length<CHECKS_PER_DAY){at=heap.length;heap.push({condition,index,id,cost:0});
-      while(at>0){const up=(at-1)>>1;if(!lessUrgent(heap[at],heap[up]))break;const swap=heap[at];heap[at]=heap[up];heap[up]=swap;at=up;}return heap[at];}
-    const entry=heap[0];if(condition>entry.condition||(condition===entry.condition&&index>entry.index))return null;
-    entry.condition=condition;entry.index=index;entry.id=id;at=0;
-    for(;;){const left=at*2+1,right=left+1;let top=at;if(left<heap.length&&lessUrgent(heap[left],heap[top]))top=left;if(right<heap.length&&lessUrgent(heap[right],heap[top]))top=right;if(top===at)break;const swap=heap[at];heap[at]=heap[top];heap[top]=swap;at=top;}
-    return entry;
-  }
-  function settleChecks(acc,heap){heap.sort((a,b)=>a.index-b.index);for(const entry of heap){acc.due.push(entry.id);acc.restored+=100-entry.condition;acc.cost+=entry.cost;}heap.length=0;}
+  const MAINTENANCE_POLICIES=Object.freeze({preventive:90,standard:80,deferred:65}),CHECK_COST=Object.freeze({air:.004,sea:.003,road:.006}),MAINTENANCE_STEP=128,MAINTENANCE_COLUMN_ROWS=16384,AIR_CHECK_HOURS=600;
+  // Owner decision (17 Nov 2026, B1): a check is priced by the wear it restores. CHECK_COST is the share of the asset's
+  // price for restoring 20 points (a check at the standard line, 80%), so a check at 70% costs 1.5 times that and one at
+  // 90% half. Twin of fleet-day-core's checkCost (the worker pass): keep both the same.
+  const CHECK_REFERENCE_WEAR=20;
+  function checkCost(price,mode,condition){return price*(CHECK_COST[mode]||CHECK_COST.road)*(100-condition)/CHECK_REFERENCE_WEAR;}
+  // B5: the manual service and the «repair all» command charge the close's price for the same asset, rounded as the close
+  // rounds a bill. An asset at 100% costs nothing to service (refuel and fault reset only).
+  function maintenanceQuote(asset){const condition=clamp(Number(asset?.condition)||100,0,100);return Math.round(checkCost(Math.max(0,Number(asset?.purchasePrice)||0),assetMode(asset),condition));}
   function maintenancePolicy(state,companyId){const policy=state.advanced?.companies?.[companyId]?.maintenancePolicy;return Object.prototype.hasOwnProperty.call(MAINTENANCE_POLICIES,policy)?policy:'standard';}
   function maintenanceVisitor(state){
-    const companies=new Map(),owners=new Map(),checks=new Map();
+    // `rows` lists the checked rows of every company in row order (the scan's order), so the close writes them through one
+    // ordered column plan (runMaintenance). visit returns the asset's line, for the aircraft due count (opsVisitor).
+    const companies=new Map(),owners=new Map(),rows=[];
     const visit=(a,index)=>{
       const ownerKey=`${a.ownerCompanyId}\u0000${a.companyId}\u0000${a.company}\u0000${a.assetMode}\u0000${a.type}`;let owner=owners.get(ownerKey);if(owner===undefined){owner=assetOwnerCompanyId(state,a);owners.set(ownerKey,owner);}
-      let acc=companies.get(owner);if(!acc){acc={threshold:MAINTENANCE_POLICIES[maintenancePolicy(state,owner)],conditionSum:0,restored:0,count:0,due:[],cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};companies.set(owner,acc);checks.set(acc,[]);}
-      const condition=clamp(Number(a.condition)||100,0,100),mode=assetMode(a),price=Math.max(0,Number(a.purchasePrice)||0);acc.conditionSum+=condition;acc.count++;acc.value+=price;acc.risk+=INCIDENT_RATE[mode]||INCIDENT_RATE.road;acc.premium+=price*(PREMIUM_RATE[mode]||PREMIUM_RATE.road);acc.licence+=LICENCE_FEE[mode]||LICENCE_FEE.road;if(condition<UNSAFE_CONDITION){acc.unsafe++;acc.fine+=INSPECTION_FINE[mode]||INSPECTION_FINE.road;}if(acc.sample.length<INCIDENT_SAMPLE)acc.sample.push({id:a.id,price});
-      if(condition<acc.threshold){const entry=queueCheck(checks.get(acc),condition,index,a.id);if(entry)entry.cost=Math.max(0,Number(a.purchasePrice)||0)*(CHECK_COST[assetMode(a)]||CHECK_COST.road);}
+      let acc=companies.get(owner);if(!acc){acc={threshold:MAINTENANCE_POLICIES[maintenancePolicy(state,owner)],conditionSum:0,restored:0,count:0,checks:0,cost:0,value:0,risk:0,premium:0,sample:[],licence:0,fine:0,unsafe:0};companies.set(owner,acc);}
+      const condition=clamp(Number(a.condition)||100,0,100),mode=assetMode(a),price=Math.max(0,Number(a.purchasePrice)||0);
+      // B3 (owner, 17 Nov 2026): an asset with no route, or idle, is parked and has no accident. A faulted asset is not.
+      const parked=!a.routeId||a.phase==='idle';acc.conditionSum+=condition;acc.count++;acc.value+=price;if(!parked)acc.risk+=INCIDENT_RATE[mode]||INCIDENT_RATE.road;acc.premium+=price*(PREMIUM_RATE[mode]||PREMIUM_RATE.road);acc.licence+=LICENCE_FEE[mode]||LICENCE_FEE.road;if(condition<UNSAFE_CONDITION){acc.unsafe++;acc.fine+=INSPECTION_FINE[mode]||INSPECTION_FINE.road;}if(!parked&&acc.sample.length<INCIDENT_SAMPLE)acc.sample.push({id:a.id,price});
+      if(condition<acc.threshold){rows.push(index);acc.checks++;acc.restored+=100-condition;acc.cost+=checkCost(price,mode,condition);}
+      return acc.threshold;
     };
-    return {visit,companies,finish:()=>{for(const acc of companies.values())settleChecks(acc,checks.get(acc));}};
+    return {visit,companies,rows,finish:()=>{}};
   }
   // A check writes the condition only, an engine column written in place. It also stamped lastMaintenanceAt, which nothing
   // reads: a field outside the columns, so a checked row kept an extras entry for good (the slow path of every later
   // scan; 500k rows all with one: the worker's day pass 436 -> 1,050 ms on desktop) and its chunk's identity version
   // moved, so the first save after the close checked that chunk's static tables again (2.3 s for 30 chunks on iPhone).
-  // Worst-first spreads the checks over the fleet, so the stamp would have reached every chunk.
+  // The checks spread over the fleet, so the stamp would have reached every chunk.
+  // An aircraft's flight hours are reset by the same check (0, next check at 600 h); the fleet-day pass writes them with
+  // the day's counters (the row is known to be checked there), so this stage writes the condition only.
+  // C1 (owner, 17 Nov 2026): every checked row of the day, in row order, is restored in bounded slices: up to
+  // MAINTENANCE_COLUMN_ROWS by id (128 a step; post-review: 256 measured 15.8 ms on desktop; the worker's replica takes only those rows, and the day's typed
+  // counter plan keeps its sparse transfer; build405), above it through one ordered column plan (1,024 rows a step; the
+  // store prepares the condition column's undo copy in slices, the ordinary rollback contract; the replica then takes
+  // whole columns once, cheaper than that many rows). The rows were found
+  // by this close's fleet pass and nothing adds, removes or moves a row in between (checked: `rowsToken`).
+  function maintenanceRowsToken(state){const fleet=fleetData(),store=fleet.storeOf?.(state);return store?`store:${store.structure}:${store.length}`:`array:${fleet.size(state)}`;}
+  function* restoreCheckedRows(state,maintenance){
+    const fleet=fleetData(),rows=maintenance.rows||[],count=rows.length;if(!count)return;
+    if(maintenance.rowsToken!==maintenanceRowsToken(state))throw new Error('realism-maintenance-rows-changed');
+    if(count<=MAINTENANCE_COLUMN_ROWS){
+      for(let i=0;i<count;i+=MAINTENANCE_STEP){const end=Math.min(count,i+MAINTENANCE_STEP);for(let k=i;k<end;k++){const id=fleet.idAtRow(state,rows[k]);if(id===undefined)throw new Error('realism-maintenance-row-missing');fleet.update(state,id,{condition:100});}yield 'realism.maintenance';}
+      return;
+    }
+    const indices=rows instanceof Int32Array?rows:Int32Array.from(rows),values=new Float64Array(count).fill(100);
+    yield* fleet.columnPlanStages(state,{fields:['condition'],indices,values,count,rejectNaN:true},{rowSlice:FLEET_DAY_APPLY_ROWS,label:'realism.maintenance'});
+    yield 'realism.maintenance';
+  }
   function* runMaintenance(state,maintenance,day){
-    const r=migrate(state),fleet=fleetData(),F=globalThis.GH_FINANCE_CORE;r.maintenance=r.maintenance&&typeof r.maintenance==='object'?r.maintenance:{};r.maintenance.companies={};
+    const r=migrate(state),F=globalThis.GH_FINANCE_CORE;r.maintenance=r.maintenance&&typeof r.maintenance==='object'?r.maintenance:{};r.maintenance.companies={};
+    yield* restoreCheckedRows(state,maintenance);
     for(const [companyId,acc] of maintenance.companies){
-      for(let i=0;i<acc.due.length;i+=MAINTENANCE_STEP){for(const id of acc.due.slice(i,i+MAINTENANCE_STEP))fleet.update(state,id,{condition:100});yield 'realism.maintenance';}
-      const cost=Math.round(acc.cost);if(cost>0&&F?.execute)F.execute({state},'accrue-expense',{company:companyId,amount:cost,note:`صيانة دورية لـ ${acc.due.length} ${acc.due.length===1?'أصل':'أصول'} · اليوم ${day}`,method:'فاتورة صيانة',taxable:true,dueDay:day+7,number:`MNT-${String(companyId).toUpperCase()}-${day}`,paymentTerms:7,counterparty:'شبكة الصيانة المعتمدة',line:'maintenance'});
-      r.maintenance.companies[companyId]={day,policy:maintenancePolicy(state,companyId),threshold:acc.threshold,assets:acc.count,checks:acc.due.length,cost,avgCondition:acc.count?(acc.conditionSum+acc.restored)/acc.count:100};
+      const cost=Math.round(acc.cost);if(cost>0&&F?.execute)F.execute({state},'accrue-expense',{company:companyId,amount:cost,note:`صيانة دورية لـ ${acc.checks} ${acc.checks===1?'أصل':'أصول'} · اليوم ${day}`,method:'فاتورة صيانة',taxable:true,dueDay:day+7,number:`MNT-${String(companyId).toUpperCase()}-${day}`,paymentTerms:7,counterparty:'شبكة الصيانة المعتمدة',line:'maintenance'});
+      r.maintenance.companies[companyId]={day,policy:maintenancePolicy(state,companyId),threshold:acc.threshold,assets:acc.count,checks:acc.checks,cost,avgCondition:acc.count?(acc.conditionSum+acc.restored)/acc.count:100};
+    }
+  }
+  // Fault 4 (owner, 17 Nov 2026): one notice a day per company with an accident that day or a large check bill (at least
+  // $50M or 10% of its operating cash): the accidents, damage and insured amount, the checks and their bill and terms.
+  // It only reads what the close billed; a refused notice never stops the close.
+  const NOTICE_BILL_FLOOR=50e6,NOTICE_BILL_CASH_SHARE=.1;
+  function* maintenanceNotices(state,maintenance,day){
+    const r=state.realism||{},commands=globalThis.GH_DOMAIN_COMMANDS,F=globalThis.GH_FINANCE_CORE;if(typeof commands?.dispatchSystem!=='function')return;
+    for(const companyId of maintenance.companies.keys()){
+      const row=r.maintenance?.companies?.[companyId],incident=(r.incidents||[]).find(entry=>entry.company===companyId&&entry.day===day),bill=Math.max(0,Number(row?.cost)||0),cash=Number(F?.operating?.(state,companyId));
+      const large=bill>0&&(bill>=NOTICE_BILL_FLOOR||(Number.isFinite(cash)&&cash>0&&bill>=cash*NOTICE_BILL_CASH_SHARE));if(!incident&&!large)continue;
+      const parts=[];
+      if(incident)parts.push(`${incident.count===1?'حادث واحد':`${incident.count} حوادث`} بأضرار ${money(incident.loss)} تُفوتر خلال 7 أيام${incident.covered>0?`، ويعوّض التأمين ${money(incident.covered)} بعد مراجعته 3 أيام`:'، بلا تعويض تأمين'}`);
+      if(large)parts.push(`فحص ${Number(row.checks)||0} ${Number(row.checks)===1?'أصل':'أصول'} بفاتورة ${money(bill)} تُستحق بعد 7 أيام`);
+      const text=`صيانة ${entityName(state,companyId)} · اليوم ${day}: ${parts.join('، و')}.`;
+      try{commands.dispatchSystem({state},'operations','record-alert',{text,type:'maintenance'},{actor:'simulation'});}catch(_error){}
+      yield 'realism.maintenance-notice';
     }
   }
   // Incidents and insurance (Build 358 step 3). Every asset-day carries an incident risk by mode (air, sea, road), raised
-  // by the fleet's wear before the day's checks; an incident costs a share of an asset's value and leaves it at 55%.
-  // The repair is billed in full (INC-<company>-<day>, 7-day terms). A company's cover (none / standard / full) opens a
+  // by the fleet's wear before the day's checks; an incident costs a share of an asset's value. B2 (owner, 17 Nov 2026):
+  // that repair bill restores the damage, so the asset keeps its condition (it was left at 55% and checked again, a
+  // second bill the next day). B3: parked assets carry no risk. The repair is billed in full (INC-<company>-<day>, 7-day terms). A company's cover (none / standard / full) opens a
   // claim for the loss above its deductible, which the insurer pays after its 3-day review (updateInsurance); the
   // premium (a share of fleet value by mode, times the market's renewal index) is billed every 30 days.
   const INCIDENT_RATE=Object.freeze({air:.000044,sea:.000077,road:.00038}),PREMIUM_RATE=Object.freeze({air:.0035,sea:.006,road:.03}),INCIDENT_SEVERITY=.15,INCIDENT_SAMPLE=64,INCIDENT_DAMAGE_LIMIT=50;
@@ -522,7 +585,9 @@
   function ciiDeadweight(specs){const per=CII_DWT_PER_UNIT[String(specs?.capacityUnit||'')];return per?Math.max(0,Number(specs?.capacity)||0)*per:0;}
   function ciiReference(dwt){return 1984*Math.pow(Math.max(1,dwt),-.489);}
   const LICENCE_FEE=Object.freeze({air:25000,sea:15000,road:1200}),INSPECTION_FINE=Object.freeze({air:40000,sea:30000,road:5000}),INSPECTION_LINE=75,UNSAFE_CONDITION=65;
-  const INSURANCE_COVERS=Object.freeze({none:{deductible:1,premium:0},standard:{deductible:.10,minimum:250000,premium:1},full:{deductible:.02,minimum:50000,premium:1.35}});
+  // B4 (owner, 17 Nov 2026): the minimum deductible per incident is capped at a share of the average asset's value (1%
+  // standard, 0.25% full), so a truck's loss is not swallowed by an aircraft's 250,000 minimum.
+  const INSURANCE_COVERS=Object.freeze({none:{deductible:1,premium:0},standard:{deductible:.10,minimum:250000,minimumShare:.01,premium:1},full:{deductible:.02,minimum:50000,minimumShare:.0025,premium:1.35}});
   function insuranceCover(state,companyId){const cover=state.advanced?.companies?.[companyId]?.insuranceCover;return Object.prototype.hasOwnProperty.call(INSURANCE_COVERS,cover)?cover:'standard';}
   function* runIncidents(state,maintenance,day){
     const r=migrate(state),fleet=fleetData(),F=globalThis.GH_FINANCE_CORE,stamp=Number(state.simSeconds)||0;r.incidents=Array.isArray(r.incidents)?r.incidents:[];
@@ -540,9 +605,9 @@
       if(day%30===15&&acc.unsafe>0&&acc.conditionSum/acc.count<INSPECTION_LINE){const fine=Math.round(acc.fine*planFine);if(F?.execute)F.execute({state},'accrue-expense',{company:companyId,amount:fine,note:`غرامة تفتيش السلامة: ${acc.unsafe} أصل تحت ${UNSAFE_CONDITION}%`,method:'غرامة حكومية',taxable:false,dueDay:day+7,number:`FINE-${String(companyId).toUpperCase()}-${day}`,paymentTerms:7,counterparty:'هيئة السلامة',line:'other'});r.inspections=Array.isArray(r.inspections)?r.inspections:[];r.inspections.unshift({day,company:companyId,unsafe:acc.unsafe,fine,avgCondition:acc.conditionSum/acc.count});r.inspections=r.inspections.slice(0,60);}
       if(!count)continue;
       const hit=[];for(let i=0;i<Math.min(count,INCIDENT_DAMAGE_LIMIT,acc.sample.length);i++){const pick=acc.sample[Math.floor(rand(`incident:${companyId}:${day}:${i}`)*acc.sample.length)%acc.sample.length];if(!hit.includes(pick))hit.push(pick);}
-      const average=acc.value/acc.count,loss=Math.round(count*average*INCIDENT_SEVERITY*(Number(globalThis.GH_GOVERNANCE_CORE?.programEffects?.(state)?.incidentRepair)||1));for(const asset of hit)fleet.update(state,asset.id,{condition:55,lastIncidentAt:stamp});
+      const average=acc.value/acc.count,loss=Math.round(count*average*INCIDENT_SEVERITY*(Number(globalThis.GH_GOVERNANCE_CORE?.programEffects?.(state)?.incidentRepair)||1));
       if(loss>0&&F?.execute)F.execute({state},'accrue-expense',{company:companyId,amount:loss,note:`إصلاح أضرار ${count===1?'حادث':`${count} حوادث`} · اليوم ${day}`,method:'فاتورة إصلاح',taxable:true,dueDay:day+7,number:`INC-${String(companyId).toUpperCase()}-${day}`,paymentTerms:7,counterparty:'ورش الإصلاح المعتمدة',line:'maintenance'});
-      const deductible=terms.premium>0?Math.max(terms.minimum||0,loss*terms.deductible):loss,covered=Math.max(0,loss-deductible);let claimId=null;
+      const deductible=terms.premium>0?Math.max(count*Math.min(terms.minimum||0,average*(terms.minimumShare||0)),loss*terms.deductible):loss,covered=Math.max(0,loss-deductible);let claimId=null;
       if(covered>0){claimId=`CLM-${String(companyId).toUpperCase()}-${day}`;const policy=book.fleetPolicies.find(row=>row.company===companyId&&row.status==='سارية');book.claims.unshift({id:claimId,company:companyId,ownerCompanyId:companyId,insurerCompanyId:policy?.insurerCompanyId||null,policyReference:policy?.id||null,openedAt:stamp,status:'قيد الفحص',loss,deductible,covered,reserve:covered,incidents:count});book.claims=book.claims.slice(0,200);}
 
       r.incidents.unshift({day,company:companyId,count,loss,cover,deductible:Math.min(loss,deductible),covered,claimId,assets:hit.map(asset=>asset.id)});r.incidents=r.incidents.slice(0,120);
@@ -573,7 +638,7 @@
   function crewShortage(state,companyId){const staffing=Number(state.realism?.crews?.[companyId]?.staffing);return Number.isFinite(staffing)?clamp(1-staffing,0,.5):0;}
   // The wear a company's trips carry: 0 for a fleet at 100%, 0.2 at an average of 80%.
   function fleetWear(state,companyId){const avg=Number(state.realism?.maintenance?.companies?.[companyId]?.avgCondition);return Number.isFinite(avg)?clamp((100-avg)/100,0,.45):0;}
-  const FLEET_DAY_FIELDS=Object.freeze([...new Set(['id',...OWNER_TOTAL_FIELDS,...OPS_FIELDS])]);
+  const FLEET_DAY_FIELDS=Object.freeze([...new Set(['id',...OWNER_TOTAL_FIELDS,...OPS_FIELDS,'routeId'])]);
   const FLEET_DAY_WAITS=600,FLEET_DAY_APPLY_ROWS=1024,FLEET_DAY_SCHEMA='gh-fleet-day-v1';
   // The definition-derived names (each definition's id, definitionId and aliases) and legacy modes cannot change once
   // the Company Platform is sealed: they are read once per sealed platform, not on each of the close's 3-6 calls. A name
@@ -605,7 +670,7 @@
   const fleetDayNumberKey=value=>typeof value!=='number'?['other',String(value)]:Number.isNaN(value)?['nan']:value===Infinity?['infinity',1]:value===-Infinity?['infinity',-1]:Object.is(value,-0)?['number','-0']:['number',String(value)];
   const fleetDayContextKey=params=>JSON.stringify({...params,simSeconds:fleetDayNumberKey(params?.simSeconds),airDemand:fleetDayNumberKey(params?.airDemand),bunker:fleetDayNumberKey(params?.bunker)});
   const FLEET_DAY_OWNER_TOTAL_KEYS=Object.freeze(['assetVal','depr','leaseLiab','rou','leaseInterest','owned','fuelCost','maintReserve','payroll']);
-  const FLEET_DAY_MAINTENANCE_NUMBER_KEYS=Object.freeze(['threshold','conditionSum','restored','count','cost','value','risk','premium','licence','fine','unsafe']);
+  const FLEET_DAY_MAINTENANCE_NUMBER_KEYS=Object.freeze(['threshold','conditionSum','restored','count','checks','cost','value','risk','premium','licence','fine','unsafe']);
   const FLEET_DAY_OP_KEYS=Object.freeze(['ask','rpk','rev','cost','fuel','movingAir','airCondition','maintReserve','maintExposure','airCount','maintenanceDue','aog','seaDistance','seaFuelProxy','seaTransport','seaCo2','seaWork','seaRefWork','seaCondition','movingSea','seaCount','seaDryDock','roadCount','roadWeak','roadDamaged']);
   const fleetDayNumberRecord=(value,keys)=>!!value&&typeof value==='object'&&!Array.isArray(value)&&keys.every(key=>typeof value[key]==='number');
   function fleetDayEntryMap(entries,kind){
@@ -615,7 +680,7 @@
       const value=entry[1];
       if(kind==='owner'){
         if(!fleetDayNumberRecord(value,FLEET_DAY_OWNER_TOTAL_KEYS))return null;
-      }else if(!fleetDayNumberRecord(value,FLEET_DAY_MAINTENANCE_NUMBER_KEYS)||!Array.isArray(value.due)||!Array.isArray(value.sample))return null;
+      }else if(!fleetDayNumberRecord(value,FLEET_DAY_MAINTENANCE_NUMBER_KEYS)||!Number.isSafeInteger(value.checks)||value.checks<0||!Array.isArray(value.sample))return null;
       map.set(entry[0],value);
     }
     return map;
@@ -625,7 +690,10 @@
     const plan=result.columns,count=Number(plan?.count),indices=plan?.indices,values=plan?.values,exceptional=plan?.exceptional,exceptionalCount=Number(exceptional?.count),exceptionalIndices=exceptional?.indices,exceptionalValues=exceptional?.values,totalCount=Number(plan?.totalCount);
     if(!(plan?.unsupported===false&&plan.rejectNaN===true&&Array.isArray(plan.fields)&&plan.fields.length===3&&plan.fields[0]==='flightHours'&&plan.fields[1]==='flightCycles'&&plan.fields[2]==='nextCheckHours'&&Number.isSafeInteger(count)&&count>=0&&indices instanceof Int32Array&&values instanceof Float32Array&&indices.length===count&&values.length===count*3&&Number.isSafeInteger(exceptionalCount)&&exceptionalCount>=0&&exceptionalIndices instanceof Int32Array&&exceptionalValues instanceof Float64Array&&exceptionalIndices.length===exceptionalCount&&exceptionalValues.length===exceptionalCount*3&&Number.isSafeInteger(totalCount)&&totalCount===count+exceptionalCount&&totalCount===result.ops.airCount&&indices.buffer===exceptionalIndices.buffer&&values.buffer===exceptionalValues.buffer&&typeof result.condition?.insured==='number'&&typeof result.condition?.readiness==='number'&&Number.isFinite(result.condition.insured)&&Number.isFinite(result.condition.readiness)))return null;
     const ownerTotals=fleetDayEntryMap(result.ownerTotals,'owner'),maintenanceCompanies=fleetDayEntryMap(result.maintenance,'maintenance');
-    return ownerTotals&&maintenanceCompanies?{ownerTotals,maintenanceCompanies}:null;
+    // The checked rows: ascending row indices, as many as the companies' checks (the column plan checks each is alive).
+    const rows=result.maintenanceRows;if(!(rows instanceof Int32Array))return null;let checks=0;if(maintenanceCompanies)for(const acc of maintenanceCompanies.values())checks+=acc.checks;
+    if(rows.length!==checks)return null;for(let i=0,previous=-1;i<rows.length;i++){if(rows[i]<=previous)return null;previous=rows[i];}
+    return ownerTotals&&maintenanceCompanies?{ownerTotals,maintenanceCompanies,rows}:null;
   }
   function* applyFleetDayResult(state,result,prepared,current,contextKey){
     const fleet=fleetData(),plan=result.columns,store=fleet.storeOf(state),STORE=globalThis.GH_FLEET_STORE;
@@ -652,7 +720,7 @@
     ownerTotalsMemo={state,key:ownerTotalsKey(state),totals:prepared.ownerTotals};
     const key=conditionSumKey(state);conditionSumMemo=key?{state,key,sum:result.condition.insured,readiness:result.condition.readiness}:null;
     if(result.dailyMetrics&&!rememberDailyMetrics(state,result.dailyMetrics))throw new Error('fleet-daily-metrics-invalid');
-    const maintenance={companies:prepared.maintenanceCompanies};
+    const maintenance={companies:prepared.maintenanceCompanies,rows:prepared.rows,rowsToken:maintenanceRowsToken(state)};
     return {maintenance,finish:day=>finishOps(state,day,result.ops)};
   }
   // iPhone diagnostic DX-1792378248326 (980,000 assets): the close's first wait was the worker's day pass (1,576 ms),
@@ -691,10 +759,11 @@
     const worker=yield* fleetDayFromWorker(state);if(worker)return worker;
     const fleet=fleetData(),owner=ownerTotalsVisitor(state),ops=opsVisitor(state),maintenance=maintenanceVisitor(state);let insured=0,readiness=0;
     if(fleet.size(state)>2048&&globalThis.GH_TRANSACTION_CORE?.isStaged?.(state)===true)throw new Error('fleet-day-worker-unavailable');
-    yield* fleet.scanStages(state,FLEET_DAY_FIELDS,(a,index)=>{owner.visit(a);ops.visit(a,index);maintenance.visit(a,index);const condition=Number(a.condition);insured+=condition||100;readiness+=condition||0;},OPS_SLICE_ROWS,'realism.fleet-day');
+    const rowsToken=maintenanceRowsToken(state);
+    yield* fleet.scanStages(state,FLEET_DAY_FIELDS,(a,index)=>{owner.visit(a);ops.visit(a,index,maintenance.visit(a,index));const condition=Number(a.condition);insured+=condition||100;readiness+=condition||0;},OPS_SLICE_ROWS,'realism.fleet-day');
     maintenance.finish();ownerTotalsMemo={state,key:ownerTotalsKey(state),totals:owner.totals};
     const key=conditionSumKey(state);conditionSumMemo=key?{state,key,sum:insured,readiness}:null;
-    ops.maintenance=maintenance;return ops;
+    maintenance.rowsToken=rowsToken;ops.maintenance=maintenance;return ops;
   }
   function* dailyIdentityFromWorker(state){
     const fleet=fleetData(),rows=fleet.size(state);if(rows<=2048||globalThis.GH_TRANSACTION_CORE?.isStaged?.(state)!==true)return null;
@@ -718,13 +787,18 @@
     updateCrews(state,day,[...ops.maintenance.companies.keys()]);
     yield* runIncidents(state,ops.maintenance,day);
     yield* runMaintenance(state,ops.maintenance,day);
+    // (The fleet writes of the close are done: the condition sum is asked now; its answer is used before updateInsurance.
+    // The ask yields once after its work (a frame boundary when the step budget is spent), named as the maintenance stage it follows: the close's phase totals keep
+    // 64 names and are full.)
+    const earlyConditionSum=askConditionSum(state);if(earlyConditionSum)yield 'realism.maintenance';
+    yield* maintenanceNotices(state,ops.maintenance,day);
     // Preserve the owner order and results, but return to the frame scheduler between owners. The former combined
     // market/risk and programs stages were measured as one 10-14 ms step on iPhone.
     updateBank(state);yield 'realism.bank';
     updateMarketShare(state,day,marketFleetCounts);yield 'realism.market-share';
     updateRisk(state,day);yield 'realism.risk';
     updateRating(state);yield 'realism.rating';
-    yield* conditionSumFromWorker(state);
+    yield* conditionSumFromWorker(state,earlyConditionSum);
     updateInsurance(state);workerConditionSum=null;yield 'realism.insurance';
     recordMarketDay(state,day);yield 'realism.market-day';
     updateTaxFxAndDividends(state,day);yield 'realism.tax-fx-dividends';
@@ -778,5 +852,5 @@
     ${section('سلامة النواة','فحص وقائي يومي يمنع التكرار والأرصدة غير الرقمية والأحداث المكررة.',`<div class="metric-row">${metric('Integrity issues',String(r.controls.issues.length),r.controls.issues.length?'negative':'positive')}${metric('Schema',r.schema)}${metric('Core',r.version)}</div>${r.controls.issues.length?`<div class="realism-alerts">${r.controls.issues.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}`)}
   </div>`;}
   function financeHTML(state){const r=migrate(state),types=companyTypes(state);return `<article class="list-item realism-finance-appendix"><div class="list-item-head"><div><h3>القوائم المالية 2.0</h3><p>30 يومًا متحركًا · توحيد القوائم مع استبعاد التعاملات الداخلية والتزامات الإيجار.</p></div><span class="tag positive">${esc(r.rating.grade)}</span></div><div class="realism-mini-grid">${types.map(t=>{const s=r.financial.statements[t]||statements(state,t);return `<div><span>${esc(entityName(state,t))}</span><b>${money(s.net||0)}</b><small>إيراد ${money(s.revenue||0)} · أصول ${money(s.assets||0)}</small></div>`}).join('')}</div></article><article class="list-item realism-finance-appendix"><h3>المخطط والفعلي والمتوقع والانحراف</h3><div class="realism-budget-table">${types.map(t=>{const b=r.budgets[t]||(r.budgets[t]=defaultBudget()),plan=Object.values(b.lines).reduce((a,x)=>a+(Number(x)||0),0),actual=Object.values(b.actual).reduce((a,x)=>a+(Number(x)||0),0),forecast=Object.values(b.forecast).reduce((a,x)=>a+(Number(x)||0),0);return `<div><b>${esc(entityName(state,t))}</b><span>${money(plan)}</span><span>${money(actual)}</span><span>${money(forecast)}</span><span class="${forecast<=plan?'positive':'negative'}">${money(forecast-plan)}</span></div>`}).join('')}<div class="budget-head"><b>الشركة</b><span>المخطط</span><span>الفعلي</span><span>المتوقع</span><span>الانحراف</span></div></div></article>`;}
-  window.GH_REALISM={VERSION,SCHEMA,migrate,fleetReadinessTotal,fleetDailyMetrics,reconcilePendingDeliveryCount,hasPendingDeliveries,nextDeliveryDueAt,deliveryDueBy,simulationSliceLimit,onHour,onDay,onDayStages,prefetchFleetDay,onSimulationTime:deliverDueAssetsAt,tripModifier,fuelForward,gasForward,recordMarketDay,updateRating,updateEnergyAdequacy,MAINTENANCE_POLICIES,maintenancePolicy,fleetWear,INSURANCE_COVERS,insuranceCover,runIncidents,updateCrews,crewShortage,payRatio,render,financeHTML,statements,bankingMetrics,deliveryCapacity,companyTypes,assetMode,assetOwnerCompanyId};
+  window.GH_REALISM={VERSION,SCHEMA,migrate,fleetReadinessTotal,fleetDailyMetrics,reconcilePendingDeliveryCount,hasPendingDeliveries,nextDeliveryDueAt,deliveryDueBy,simulationSliceLimit,onHour,onDay,onDayStages,prefetchFleetDay,onSimulationTime:deliverDueAssetsAt,tripModifier,fuelForward,gasForward,recordMarketDay,updateRating,updateEnergyAdequacy,MAINTENANCE_POLICIES,CHECK_COST,maintenancePolicy,maintenanceQuote,checkCost,fleetDayParams:fleetDayWorkerParams,fleetWear,INSURANCE_COVERS,insuranceCover,runIncidents,updateCrews,crewShortage,payRatio,render,financeHTML,statements,bankingMetrics,deliveryCapacity,companyTypes,assetMode,assetOwnerCompanyId};
 })();

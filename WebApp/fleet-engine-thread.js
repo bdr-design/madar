@@ -488,9 +488,10 @@
     function* replayRows(store,rows,message,options){
       const before=store.revision,total=rows.indices.length,target=before+Math.max(0,Math.floor(Number(message.revisionDelta)||0));
       // Ranges view the same immutable worker image; they do not copy subarrays or gather all rows again.
-      if(!total){STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{revisionDelta:message.revisionDelta,staticRows:message.staticRows})));return;}
+      if(!total){STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{revisionDelta:message.revisionDelta,staticRows:message.staticRows,writer:STORE.stagedWriter?.()||null})));return;}
+      const writer=STORE.stagedWriter?.()||null;
       for(let start=0;start<total;){const end=Math.min(total,start+options.rowSlice),last=end===total;
-        STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{rowStart:start,rowEnd:end,reserveRows:start===0?total:end-start,revisionDelta:last?Math.max(0,target-store.revision):0,staticRows:message.staticRows===true?true:last?message.staticRows:false})));
+        STORE.withoutReplicaLog(store,()=>STORE.withoutDirtyLog(store,()=>STORE.writeRows(store,rows.indices,rows.bytes,rows.extras,{rowStart:start,rowEnd:end,reserveRows:start===0?total:end-start,revisionDelta:last?Math.max(0,target-store.revision):0,staticRows:message.staticRows===true?true:last?message.staticRows:false,writer})));
         start=end;if(start<total)yield 'fleet.replay-rows';
       }
     }

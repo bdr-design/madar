@@ -206,7 +206,8 @@
   const routeEndpointIds=state=>Object.entries(state?.routeEndpoints||{}).filter(([,endpoint])=>endpoint?.routeEndpoint).map(([id])=>id);
   function referenceRequest(state,command,payload={}){
     if(command==='replace')return {routeIds:[text(payload.replaceId,80)],baseIds:routeEndpointIds(state),excludeAssetId:text(payload.assetId,100)};
-    if(command==='delete')return {routeIds:[text(payload.id,80)],baseIds:routeEndpointIds(state)};
+    // (Batch H: a fleet command freeing an isolated asset's retired route counts the other assets only.)
+    if(command==='delete')return {routeIds:[text(payload.id,80)],baseIds:routeEndpointIds(state),...(payload.assetId?{excludeAssetId:text(payload.assetId,100)}:{})};
     if(command==='dedupe')return {collectRouteIds:true};
     return null;
   }

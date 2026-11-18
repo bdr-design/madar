@@ -11,7 +11,7 @@
 (()=>{
   'use strict';
 
-  const VERSION='1.2.0',SCHEMA='gh-fleet-ui-summary-v3';
+  const VERSION='1.3.0',SCHEMA='gh-fleet-ui-summary-v4';
   const FIELDS=Object.freeze([
     'ownerCompanyId','companyId','assetMode','type','phase','status','routeId','simulationFault',
     'salePending','condition','purchasePrice','baseFacility','from','to','staffing'
@@ -83,14 +83,16 @@
   }
 
   const freshStats=()=>({total:0,moving:0,movingRaw:0,routed:0,active:0,needsService:0,healthy:0,pendingSale:0,conditionSum:0,purchasePrice:0,bookValue70:0,bankCollateral55:0});
-  function addStats(out,row,presentedPhase){
+  // Batch F (fault 1): «needs maintenance» is an asset under its company's policy line (options.maintenanceLines, as the
+  // daily check reads it: a missing condition is 100), not under a fixed 85 the checks never reach.
+  function addStats(out,row,presentedPhase,needs){
     const condition=Number(row.condition),price=Math.max(0,Number(row.purchasePrice)||0);
     out.total++;
     if(presentedPhase==='moving')out.moving++;
     if(row.phase==='moving'||row.status==='moving')out.movingRaw++;
     if(row.routeId)out.routed++;
     if(row.routeId||row.phase==='moving'||row.status==='moving')out.active++;
-    if(condition<85)out.needsService++;
+    if(needs)out.needsService++;
     if(condition>=65)out.healthy++;
     if(row.salePending)out.pendingSale++;
     out.conditionSum+=condition||100;
@@ -167,11 +169,13 @@
   function compute(state,fleet,options={}){
     if(!fleet||typeof fleet.scan!=='function')throw new TypeError('fleet-ui-summary-scan-unavailable');
     const flag={legacy:false},resolveOwner=ownerResolver(options,flag),owners=new Map(),modes=new Map(),types=new Map(),bases=new Map(),all=freshStats();
-    const descriptors=normalizeFacilities(options),locations=facilityCounter(descriptors),payroll=payrollAccumulator(state,fleet,options);
+    const descriptors=normalizeFacilities(options),locations=facilityCounter(descriptors),payroll=payrollAccumulator(state,fleet,options),lines=new Map(Array.isArray(options.maintenanceLines)?options.maintenanceLines.filter(row=>Array.isArray(row)&&Number.isFinite(Number(row[1]))).map(([id,line])=>[String(id),Number(line)]):[]);
     fleet.scan(state,FIELDS,row=>{
       const owner=resolveOwner(state,row),mode=modeOf(row),type=row.type,presented=typeof fleet.presentedPhase==='function'?fleet.presentedPhase(state,row):row.phase;
-      addStats(all,row,presented);addStats(bucket(modes,mode),row,presented);addStats(bucket(types,type),row,presented);
-      if(owner){const owned=ownerBucket(owners,owner);addStats(owned,row,presented);addStats(bucket(owned.modes,mode),row,presented);if(row.routeId)owned.routes.add(row.routeId);}
+      // (The line is found and compared once a row: post-review, a 1M-row pass went 3.0 -> 4.5 s with it in each addStats.)
+      const line=lines.get(owner)??80,needs=(Number(row.condition)||100)<line;
+      addStats(all,row,presented,needs);addStats(bucket(modes,mode),row,presented,needs);addStats(bucket(types,type),row,presented,needs);
+      if(owner){const owned=ownerBucket(owners,owner);addStats(owned,row,presented,needs);addStats(bucket(owned.modes,mode),row,presented,needs);if(row.routeId)owned.routes.add(row.routeId);}
       // app.js/facility-core use row.baseFacility || null for these counts.
       if(row.baseFacility)bases.set(row.baseFacility,(bases.get(row.baseFacility)||0)+1);
       if(descriptors.length)locations.visit(row);
@@ -204,7 +208,7 @@
   }
   function hash(value){let out=2166136261>>>0;for(let index=0;index<value.length;index++){out^=value.charCodeAt(index);out=Math.imul(out,16777619);}return (out>>>0).toString(36);}
   function requestKey(options={}){
-    const relevant={legacyOwner:options.legacyOwner??null,facilities:options.facilities??null,airports:options.airports??null,ports:options.ports??null,resolveOwner:options.resolveOwner??null};
+    const relevant={legacyOwner:options.legacyOwner??null,facilities:options.facilities??null,airports:options.airports??null,ports:options.ports??null,resolveOwner:options.resolveOwner??null,maintenanceLines:options.maintenanceLines??null};
     return `${SCHEMA}:${hash(stable(relevant))}`;
   }
 

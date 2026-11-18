@@ -3,15 +3,143 @@
   "preflight_commands": [
     [
       "node",
-      "tests/build404-worker-close-read-models.cjs"
+      "tests/build705-fault-balance.cjs"
+    ],
+    [
+      "node",
+      "tests/build708-chunk-upload-pool.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-insurance-condition-worker.cjs"
+    ],
+    [
+      "node",
+      "tests/fleet-business-boundary.cjs"
+    ],
+    [
+      "node",
+      "tests/build709-retired-route-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build469-app-notice-work.cjs"
+    ],
+    [
+      "python3",
+      "tests/acceptance-policy.py"
+    ],
+    [
+      "node",
+      "tests/build700-review-fixes.cjs"
+    ],
+    [
+      "node",
+      "tests/build383-save-encoding.cjs"
+    ],
+    [
+      "node",
+      "tests/build706-maintenance-ui-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build703-auto-dispatch-deferred-save-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-ui-summary.cjs"
+    ],
+    [
+      "node",
+      "tests/build518-maintenance-worst-first.cjs"
+    ],
+    [
+      "node",
+      "tests/build704-road-held-query-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build707-engine-drain.cjs"
+    ],
+    [
+      "node",
+      "tests/build405-worker-close-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build358-maintenance.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-exceptional.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build359-fleet-list-query.cjs"
+    ],
+    [
+      "node",
+      "tests/build672-message-strip-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build694-auto-dispatch-after-close-browser.cjs"
     ],
     [
       "node",
       "tests/build702-rollback-tier-evidence.cjs"
     ],
     [
-      "python3",
-      "tests/acceptance-policy.py"
+      "node",
+      "tests/build701-command-keeps-clock.cjs"
+    ],
+    [
+      "node",
+      "tests/build371-calendar-cancel-settle-core.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-worker.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-fleet-day-slice-parity.cjs"
+    ],
+    [
+      "node",
+      "tests/build374-daily-worker-integration.cjs"
+    ],
+    [
+      "node",
+      "tests/build522-fleet-day-prefetch.cjs"
+    ],
+    [
+      "node",
+      "tests/build372-maintenance-health-worker-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build463-ui-summary-projection.cjs"
+    ],
+    [
+      "node",
+      "tests/build334-simulation-fault-isolation.cjs"
+    ],
+    [
+      "node",
+      "tests/build340-simulation-asset-engine.cjs"
+    ],
+    [
+      "node",
+      "tests/build404-worker-close-read-models.cjs"
     ],
     [
       "node",
@@ -115,23 +243,11 @@
     ],
     [
       "node",
-      "tests/build701-command-keeps-clock.cjs"
-    ],
-    [
-      "node",
-      "tests/fleet-business-boundary.cjs"
-    ],
-    [
-      "node",
       "tests/build362-save-validation-chunks.cjs"
     ],
     [
       "node",
       "tests/build510-validation-cache-reasons.cjs"
-    ],
-    [
-      "node",
-      "tests/build371-calendar-cancel-settle-core.cjs"
     ],
     [
       "node",
@@ -259,10 +375,6 @@
     ],
     [
       "node",
-      "tests/build405-worker-close-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build444-document-pages.cjs"
     ],
     [
@@ -276,10 +388,6 @@
     [
       "node",
       "tests/build334-r2-snapshot-budget.cjs"
-    ],
-    [
-      "node",
-      "tests/build334-simulation-fault-isolation.cjs"
     ],
     [
       "node",
@@ -307,14 +415,6 @@
     ],
     [
       "node",
-      "tests/build700-review-fixes.cjs"
-    ],
-    [
-      "node",
-      "tests/build694-auto-dispatch-after-close-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build689-hotel-team-at-opening.cjs"
     ],
     [
@@ -324,10 +424,6 @@
     [
       "node",
       "tests/build693-mobility-dispatch-pools.cjs"
-    ],
-    [
-      "node",
-      "tests/build469-app-notice-work.cjs"
     ],
     [
       "node",
@@ -1283,10 +1379,6 @@
     ],
     [
       "node",
-      "tests/build672-message-strip-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build669-investor-holding-balance-browser.cjs"
     ],
     [
@@ -1356,10 +1448,6 @@
     [
       "node",
       "tests/build493-backup-export-browser.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-maintenance-health-worker-browser.cjs"
     ],
     [
       "node",
@@ -1599,10 +1687,6 @@
     ],
     [
       "node",
-      "tests/build383-save-encoding.cjs"
-    ],
-    [
-      "node",
       "tests/build340-fleet-disposal-batch.cjs"
     ],
     [
@@ -1736,10 +1820,6 @@
     [
       "node",
       "tests/build458-stable-ui-writes.cjs"
-    ],
-    [
-      "node",
-      "tests/build340-simulation-asset-engine.cjs"
     ],
     [
       "node",
@@ -1987,10 +2067,6 @@
     ],
     [
       "node",
-      "tests/build358-maintenance.cjs"
-    ],
-    [
-      "node",
       "tests/build358-schema-sections.cjs"
     ],
     [
@@ -2147,10 +2223,6 @@
     ],
     [
       "node",
-      "tests/build522-fleet-day-prefetch.cjs"
-    ],
-    [
-      "node",
       "tests/build503-recorder-stage-names-browser.cjs"
     ],
     [
@@ -2175,10 +2247,6 @@
     ],
     [
       "node",
-      "tests/build374-daily-worker-integration.cjs"
-    ],
-    [
-      "node",
       "tests/build379-realism-identity.cjs"
     ],
     [
@@ -2187,31 +2255,11 @@
     ],
     [
       "node",
-      "tests/build518-maintenance-worst-first.cjs"
-    ],
-    [
-      "node",
       "tests/build362-empty-calendar-browser.cjs"
     ],
     [
       "node",
       "tests/build334-r2-delivery-lazy-index.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-exceptional.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-slice-parity.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-fleet-day-worker.cjs"
-    ],
-    [
-      "node",
-      "tests/build372-insurance-condition-worker.cjs"
     ],
     [
       "node",
@@ -2375,10 +2423,6 @@
     ],
     [
       "node",
-      "tests/build372-fleet-day-worker-browser.cjs"
-    ],
-    [
-      "node",
       "tests/build372-fleet-query-worker-browser.cjs"
     ],
     [
@@ -2452,10 +2496,6 @@
     [
       "node",
       "tests/build357-fleet-list-virtualizer.cjs"
-    ],
-    [
-      "node",
-      "tests/build359-fleet-list-query.cjs"
     ],
     [
       "node",
@@ -2643,10 +2683,6 @@
     ],
     [
       "node",
-      "tests/build372-fleet-ui-summary.cjs"
-    ],
-    [
-      "node",
       "tests/build457-canvas-idle-work.cjs"
     ],
     [
@@ -2727,10 +2763,6 @@
     ],
     [
       "node",
-      "tests/build372-fleet-day-core.cjs"
-    ],
-    [
-      "node",
       "tests/build372-fleet-reference-query.cjs"
     ],
     [
@@ -2784,10 +2816,6 @@
     [
       "node",
       "tests/build442-fleet-review-work.cjs"
-    ],
-    [
-      "node",
-      "tests/build463-ui-summary-projection.cjs"
     ],
     [
       "node",
@@ -3654,6 +3682,34 @@
     [
       "node",
       "tests/build702-rollback-tier-evidence.cjs"
+    ],
+    [
+      "node",
+      "tests/build703-auto-dispatch-deferred-save-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build704-road-held-query-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build705-fault-balance.cjs"
+    ],
+    [
+      "node",
+      "tests/build706-maintenance-ui-browser.cjs"
+    ],
+    [
+      "node",
+      "tests/build707-engine-drain.cjs"
+    ],
+    [
+      "node",
+      "tests/build708-chunk-upload-pool.cjs"
+    ],
+    [
+      "node",
+      "tests/build709-retired-route-browser.cjs"
     ],
     [
       "node",

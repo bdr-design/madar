@@ -68,6 +68,7 @@
   let hardResetInProgress=false,hardResetSettlement=Promise.resolve({committed:false});
   let durableCommandInProgress=false,durableCommandAutomatic=false;
   let assetPurchaseHolds=0; // Build 373: asset orders being quoted; the simulation is suspended meanwhile (buyAsset).
+  let fleetQueryHolds=0,fleetQueryDrains=0; // Batch D (road): a dispatch's query of the live fleet; the simulation is suspended meanwhile (after a drain: the step in flight finishes first).
   let diagnosticExportTail=Promise.resolve();window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__=false;
   let mapInteractionActive=false,lastMarkerFrameAt=0,lastMapStructureSignature='',visualResyncRequested=false;
   // The frame loop's rest (loop): a marker still moving keeps it at the display rate; the timer of a resting pass.
@@ -867,6 +868,10 @@
     if(document.hidden||window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||simulationPersistenceTask||window.GH_PERSISTENCE.isLocked())return false;
     // The owner's choice: no checkpoint while a calendar advance runs.
     if(simulationManualActive())return false;
+    // Heaviness batch D: an automatic dispatch not saved yet is saved (an ordinary save) once no advance or dispatch runs,
+    // every 10 s at first, then less often while a save is refused (up to 5 min); whatever the checkpoint policy (a cap of 0 included).
+    // (A checkpoint save: dropped if a calendar advance begins before it runs; at most every 10 s.)
+    if(!autoDispatchRunning&&nowMs-lastDeferredSaveAttemptMs>=deferredSaveSpacingMs&&deferredSavePending()){if(lastDeferredSaveAttemptMs>-Infinity)deferredSaveSpacingMs=Math.min(300000,deferredSaveSpacingMs*2);lastDeferredSaveAttemptMs=nowMs;diag('SAVE_DEFERRED_DISPATCH',{saveRevision:Number(state.saveRevision)||0});return scheduleSimulationPersistence({checkpoint:true});}
     const reason=checkpointDue(nowMs);if(!reason)return false;
     lastCheckpointAttempt={atMs:nowMs,revision:Number(state.saveRevision)||0};diag('SAVE_CHECKPOINT',{reason,simSeconds:Number(state.simSeconds)||0,saveRevision:Number(state.saveRevision)||0});
     return scheduleSimulationPersistence({checkpoint:true});
@@ -974,7 +979,19 @@
     window.__GH_STATE__=state;
     }finally{window.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'command.publish',traceStarted,appMetricClock());}
   }
-  let durableCommandSettlement=Promise.resolve({committed:false,saveRevision:Number(state.saveRevision)||0});
+  let durableCommandSettlement=Promise.resolve({committed:false,durable:false,saveRevision:Number(state.saveRevision)||0});
+  // Heaviness batch D: the automatic dispatch's published revision until a save of the main game reaches it (the store's
+  // persistedRevision, acknowledged commits only; a manual slot or an export never counts). A new game ends it.
+  // (A save asked for while one is pending waits 10 s, doubled each time the dispatch is still unsaved after it, up to
+  // 5 min: a save that keeps failing is not retried every 10 s through play.)
+  let deferredDurableSave=null,lastDeferredSaveAttemptMs=-Infinity,deferredSaveSpacingMs=10000,deferredRefusals=0;
+  function deferredSavePending(){
+    const pending=deferredDurableSave;if(!pending)return false;
+    if(pending.resetEpoch!==(Number(state.resetEpoch)||0)){deferredDurableSave=null;return false;}
+    const saved=window.GH_PERSISTENCE.persistedRevision?.();
+    if(saved&&saved.resetEpoch===pending.resetEpoch&&Number(saved.saveRevision)>=pending.saveRevision){deferredDurableSave=null;deferredSaveSpacingMs=10000;return false;}
+    return true;
+  }
   // Build 358 (lighter commands): a command's draft is validated section by section (GH_SAVE_SCHEMA.validationSteps) and
   // saved in slices (commitDurableState yieldToFrame), with a frame painted whenever a slice has run 10 ms. The draft is
   // private and the lifecycle lock holds the live state still, so the result is the one-shot result.
@@ -1080,9 +1097,12 @@
   // whole-fleet pass on this thread: a missing/busy/stale worker leaves an explicit loading value and retries after an
   // idle prime.  `dynamic` consumers additionally pin simulation time because presentedPhase is part of their result.
   const fleetUiSummaryCache=new Map();let fleetUiSummaryCacheStore=null,fleetUiSummaryProjectSource=null,fleetUiSummaryRefreshTimer=null,fleetUiSummaryPrimeTask=null;
+  // Batch F (fault 1): each company's maintenance line, for the «يحتاج صيانة» counter and list filter (one entry a company).
+  function maintenanceLines(target=state){const R=window.GH_REALISM;if(!R?.maintenancePolicy)return [];return Object.keys(target?.advanced?.companies||{}).sort().map(id=>[id,R.MAINTENANCE_POLICIES[R.maintenancePolicy(target,id)]]);}
+  function maintenanceLinesKey(target=state){return maintenanceLines(target).map(([id,line])=>`${id}:${line}`).join('|');}
   function fleetUiSummaryOptions(facilities=[]){
     const rows=[];for(const facility of facilities||[]){const mode=facility?.kind==='airport'||facility?.kind==='airport-base'?'air':facility?.kind==='port'||facility?.kind==='port-base'?'sea':String(facility?.mode||'');if((mode==='air'||mode==='sea')&&facility?.id!=null)rows.push({id:facility.id,city:facility.city,mode});}
-    return {legacyOwner:routeCenterLegacyOwnerMap(),facilities:rows};
+    return {legacyOwner:routeCenterLegacyOwnerMap(),facilities:rows,maintenanceLines:maintenanceLines()};
   }
   function scheduleFleetUiSummaryRefresh(){
     if(fleetUiSummaryRefreshTimer!==null)return;fleetUiSummaryRefreshTimer=setTimeout(()=>{fleetUiSummaryRefreshTimer=null;if(!$('drawer')?.classList.contains('open')||!activeDrawerPanel||activeDrawerPanel==='content')return;if(activeDrawerPanel==='assetMarket'){refreshAssetMarketSummary();return;}openDrawer(activeDrawerPanel,activeDrawerArg);},0);
@@ -1173,10 +1193,16 @@
   // close and was refused, durable-transaction-in-progress): a player's command waits for an automatic one in flight (it
   // ends on its own in about a second) instead of being refused; a player's own second press is still refused.
   async function automaticDurableSettled(){for(let i=0;i<8&&durableCommandInProgress&&durableCommandAutomatic;i++){await durableCommandSettlement.catch(()=>null);await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();}}
-  async function runDurableStateCommand(name,apply,{afterCommit=null,silent=false,fleetMutation=null,systemActor=null}={}){
+  async function runDurableStateCommand(name,apply,{afterCommit=null,silent=false,fleetMutation=null,systemActor=null,deferPersist=false}={}){
     await durablePublicationSettled();await stagedStateSettled();await window.GH_PERSISTENCE.slicedSettled?.();if(!systemActor)await automaticDurableSettled();
     if(window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||window.GH_PERSISTENCE.isLocked()){if(!silent)notice('الحفظ مشغول بعملية أخرى. لم يتغير أي أصل؛ أعد المحاولة بعد لحظات.');return false;}
     durableCommandInProgress=true;durableCommandAutomatic=!!systemActor;
+    // Heaviness batch D (the owner: «بلا حفظ مستقل»): the automatic dispatch after the day close is not saved by its own
+    // command; every check before the save runs, the published state is saved by the next ordinary save (requested
+    // below and by the checkpoint while one is pending; the background save never coalesces it away). Only for the
+    // autopilot's system actor, and never while the app is hidden (then it saves as before).
+    // (Nor when the last save was near its size limit: only commitDurableState checks the limits.)
+    const deferred=deferPersist===true&&!!systemActor&&!document.hidden&&window.GH_PERSISTENCE.nearSizeLimit?.()!==true;
     let draft=null,committed=false,settleDurableCommand=null,rootSessions=[],afterPublishTasks=[],fleetMutationSession=null,fleetMutationClient=null,fleetMutationSettled=false,staging=null,durableContext=null;
     durableCommandSettlement=new Promise(resolve=>{settleDurableCommand=resolve;});
     await fleetStepSettled();
@@ -1206,7 +1232,7 @@
       draft.saveRevision=previousRevision+1;
       {const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-save',fields:carried});}
       // As in executeDurable, overlap preparation with an actual worker wait; ready evidence needs one serialization.
-      let stagingStarted=false;const onFleetValidationWait=largeNativeSave()?()=>{if(stagingStarted)return;stagingStarted=true;try{staging=window.GH_PERSISTENCE.prestageDurableChunks?.(draft,{yieldToFrame:()=>yieldForInteractivePaint()})||null;}catch(_error){staging=null;}}:undefined;
+      let stagingStarted=false;const onFleetValidationWait=largeNativeSave()&&!deferred?()=>{if(stagingStarted)return;stagingStarted=true;try{staging=window.GH_PERSISTENCE.prestageDurableChunks?.(draft,{yieldToFrame:()=>yieldForInteractivePaint()})||null;}catch(_error){staging=null;}}:undefined;
       // Use elapsed work since the last cooperative slice, not three unconditional frame waits for every large fleet.
       // Clone/apply and schema already yield by budget; a worker wait also ends its UI task. Keep the last schema
       // slice's start so integrity cannot silently extend it beyond the command's four-millisecond work budget.
@@ -1223,18 +1249,25 @@
       await yieldIfBusy();
       // The save is serialized while the staging still uploads; persistence waits for it before its own uploads
       // (prestageWaitMs is that wait, inside persistMs).
-      mark=clockNow();const persisted=await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,validatedFleetRevision,yieldToFrame:()=>yieldForInteractivePaint(),...(staging?.settled?{staging}:{})});lap('persistMs');
+      mark=clockNow();const persisted=deferred?null:await window.GH_PERSISTENCE.commitDurableState(draft,{storageKey,appVersion:APP_VERSION,prevalidated:true,validatedFleetRevision,yieldToFrame:()=>yieldForInteractivePaint(),...(staging?.settled?{staging}:{})});lap('persistMs');timing.deferred=deferred;
+      // A deferred commit is refused (rolled back) when persistence was locked or needs recovery meanwhile: the save that
+      // would carry it could not run (the checks commitDurableState makes first).
+      if(deferred&&window.GH_PERSISTENCE.isLocked()){deferredRefusals++;throw new Error(`${name}-deferred-persistence-locked`);}
+      // Post-review: a save that ran meanwhile (a native dirty flush, a slice queued behind a slot) took this revision for
+      // the state before the command; the command is refused (rolled back) rather than published under a saved number.
+      if(deferred&&Math.max(0,Math.floor(Number(state.saveRevision)||0))!==previousRevision){deferredRefusals++;throw new Error(`${name}-deferred-revision-moved`);}
       if(staging?.settled){const staged=await staging.settled.catch(()=>null);timing.prestageOk=staged?.ok===true;timing.prestageUploads=Number(staged?.uploads)||0;timing.prestageBytes=Number(staged?.bytes)||0;timing.prestageWallMs=Number(staged?.wallMs)||0;timing.prestageWaitMs=Number(persisted?.stagingWaitMs)||0;mark=clockNow();}
       // Storage has already committed. A publication failure is a recovery
       // condition, never a successful rollback and never safe to retry blindly.
       // A recovery lock raised in the frame after the publication owns the runtime: the committed event, the one write
       // after it, is then left out (the macOS gate locked the runtime for recovery there; build531).
-      committed=true;transactionCore?.commitJournaledRoots?.(rootSessions);rootSessions=[];if(fleetMutationSession){if(fleetMutationClient.settleMutation(fleetMutationSession,'commit')!==true)throw new Error('fleet-mutation-commit-rejected');fleetMutationSettled=true;}{const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-publish',fields:carried});}replaceLiveState(draft);if(window.__GH_DURABLE_COMMAND_CONTEXT__)window.__GH_DURABLE_COMMAND_CONTEXT__.published=true;await yieldForInteractivePaint(document.hidden?0:80);for(const task of afterPublishTasks)try{await task(value,window.__GH_DURABLE_COMMAND_CONTEXT__);}catch(error){console.warn(`Durable command after-publish hook failed [${name}]`,error);}lap('publishMs');if(window.GH_PERSISTENCE.isLocked?.()!==true)diag('DURABLE_COMMAND_COMMITTED',{name,saveRevision:state.saveRevision});
+      committed=true;transactionCore?.commitJournaledRoots?.(rootSessions);rootSessions=[];if(fleetMutationSession){if(fleetMutationClient.settleMutation(fleetMutationSession,'commit')!==true)throw new Error('fleet-mutation-commit-rejected');fleetMutationSettled=true;}{const carried=carryLivePreferences(draft,livePreferences);if(carried.length)diag('DURABLE_COMMAND_LIVE_FIELDS_CARRIED',{name,stage:'before-publish',fields:carried});}replaceLiveState(draft);if(window.__GH_DURABLE_COMMAND_CONTEXT__)window.__GH_DURABLE_COMMAND_CONTEXT__.published=true;await yieldForInteractivePaint(document.hidden?0:80);for(const task of afterPublishTasks)try{await task(value,window.__GH_DURABLE_COMMAND_CONTEXT__);}catch(error){console.warn(`Durable command after-publish hook failed [${name}]`,error);}lap('publishMs');if(deferred){if(!deferredSavePending()){lastDeferredSaveAttemptMs=-Infinity;deferredSaveSpacingMs=10000;}deferredDurableSave={name,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0};diag('DURABLE_COMMAND_DEFERRED',{name,saveRevision:state.saveRevision});if(document.hidden)durableCommandSettlement.then(()=>scheduleSimulationPersistence()).catch(()=>{});}else if(window.GH_PERSISTENCE.isLocked?.()!==true)diag('DURABLE_COMMAND_COMMITTED',{name,saveRevision:state.saveRevision});
       if(afterCommit){try{await afterCommit(value);}catch(error){diag('DURABLE_COMMAND_PRESENTATION_FAILED',{name,saveRevision:state.saveRevision,reason:String(error.message||error)},'warning');console.warn(`Durable command committed but presentation refresh failed [${name}]`,error);if(!silent)notice('تم حفظ العملية بنجاح، لكن تعذر تحديث العرض. أعد فتح القسم لرؤية الحالة المحفوظة.','warning');}}
       return value;
-    }catch(error){if(committed){window.GH_PERSISTENCE.markRecoveryRequired('durable-publish-failed-after-ack',{durableCommitted:true,saveRevision:Number(draft?.saveRevision)||0});state.speed=0;simulationEngine.cancelAdvance?.('durable-publication-failed-after-ack',{immediate:true});diag('DURABLE_PUBLISH_FAILED_AFTER_ACK',{name,saveRevision:Number(draft?.saveRevision)||0,reason:String(error.message||error)},'critical');console.error(`Durable command publication failed after device acknowledgement [${name}]`,error);return true;}try{window.GH_TRANSACTION_CORE?.rollbackJournaledRoots?.(rootSessions);rootSessions=[];}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-rollback-failed');error.rollbackError=rollbackError;error.critical=true;}finally{if(fleetMutationSession&&!fleetMutationSettled){try{fleetMutationClient?.settleMutation?.(fleetMutationSession,'rollback');fleetMutationSettled=true;}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-replica-rollback-failed');error.replicaRollbackError=rollbackError;error.critical=true;}}}const reason=String(error.message||error),sharedDeparture=String(name||'').match(/^authorized:bulk-shared-departure:(.+)$/);if(sharedDeparture){const companyId=sharedDeparture[1],mode=companyRouteModes(companyId).find(value=>['air','sea','road'].includes(value)),trace=error.assetDepartureTrace||{},code=String(error.code||reason.slice(0,64)||'dispatch-rollback');recordAssetDepartureTrace({source:'durable-command-rollback',attempts:Math.max(1,Number(trace.attempts)||1),blocked:Math.max(1,Number(trace.blocked)||1),modeCounts:{[trace.mode||mode||'unknown']:Math.max(1,Number(trace.blocked)||1)},reasonCounts:{[code]:Math.max(1,Number(trace.blocked)||1)},error:reason,samples:[{outcome:'blocked',mode:trace.mode||mode||'unknown',reasonCode:code,companyId,commandName:String(name).slice(0,100),error:reason.slice(0,180),planner:trace.planner||undefined,attemptedAssets:Number(trace.attempts)||1}],simSeconds:Number(state.simSeconds)||0});}const capExceeded=reason.startsWith('fleet-persistence-record-cap:'),saveTooLarge=['save-size-hard-limit','native-save-size-hard-limit'].some(prefix=>reason.includes(prefix)),playerMessage=capExceeded?'بلغ الأسطول الحد المؤقت الآمن للحفظ. لم يُخصم أي مبلغ ولم يُضف أي أصل.':saveTooLarge?'تجاوز الحفظ الحد الحالي؛ أُلغيت العملية ولم يُخصم أي مبلغ.':`أُلغي الأمر بالكامل ولم يتغير أي أصل: ${window.GH_REASON_TEXT?window.GH_REASON_TEXT(reason):reason}`;diag('DURABLE_COMMAND_ROLLED_BACK',{name,reason},'warning');console.warn(`Durable command rolled back [${name}]`,error);if(!silent)notice(playerMessage);return false;}
+    }catch(error){if(committed&&deferred){window.GH_PERSISTENCE.markRecoveryRequired('deferred-dispatch-publish-failed',{durableCommitted:false,saveRevision:Number(draft?.saveRevision)||0});state.speed=0;simulationEngine.cancelAdvance?.('deferred-dispatch-publish-failed',{immediate:true});diag('DURABLE_DEFERRED_PUBLISH_FAILED',{name,saveRevision:Number(draft?.saveRevision)||0,reason:String(error.message||error)},'critical');console.error(`Deferred command publication failed [${name}]`,error);return false;}
+      if(committed){window.GH_PERSISTENCE.markRecoveryRequired('durable-publish-failed-after-ack',{durableCommitted:true,saveRevision:Number(draft?.saveRevision)||0});state.speed=0;simulationEngine.cancelAdvance?.('durable-publication-failed-after-ack',{immediate:true});diag('DURABLE_PUBLISH_FAILED_AFTER_ACK',{name,saveRevision:Number(draft?.saveRevision)||0,reason:String(error.message||error)},'critical');console.error(`Durable command publication failed after device acknowledgement [${name}]`,error);return true;}try{window.GH_TRANSACTION_CORE?.rollbackJournaledRoots?.(rootSessions);rootSessions=[];}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-rollback-failed');error.rollbackError=rollbackError;error.critical=true;}finally{if(fleetMutationSession&&!fleetMutationSettled){try{fleetMutationClient?.settleMutation?.(fleetMutationSession,'rollback');fleetMutationSettled=true;}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-replica-rollback-failed');error.replicaRollbackError=rollbackError;error.critical=true;}}}const reason=String(error.message||error),sharedDeparture=String(name||'').match(/^authorized:bulk-shared-departure:(.+)$/);if(sharedDeparture){const companyId=sharedDeparture[1],mode=companyRouteModes(companyId).find(value=>['air','sea','road'].includes(value)),trace=error.assetDepartureTrace||{},code=String(error.code||reason.slice(0,64)||'dispatch-rollback');recordAssetDepartureTrace({source:'durable-command-rollback',attempts:Math.max(1,Number(trace.attempts)||1),blocked:Math.max(1,Number(trace.blocked)||1),modeCounts:{[trace.mode||mode||'unknown']:Math.max(1,Number(trace.blocked)||1)},reasonCounts:{[code]:Math.max(1,Number(trace.blocked)||1)},error:reason,samples:[{outcome:'blocked',mode:trace.mode||mode||'unknown',reasonCode:code,companyId,commandName:String(name).slice(0,100),error:reason.slice(0,180),planner:trace.planner||undefined,attemptedAssets:Number(trace.attempts)||1}],simSeconds:Number(state.simSeconds)||0});}const capExceeded=reason.startsWith('fleet-persistence-record-cap:'),saveTooLarge=['save-size-hard-limit','native-save-size-hard-limit'].some(prefix=>reason.includes(prefix)),playerMessage=capExceeded?'بلغ الأسطول الحد المؤقت الآمن للحفظ. لم يُخصم أي مبلغ ولم يُضف أي أصل.':saveTooLarge?'تجاوز الحفظ الحد الحالي؛ أُلغيت العملية ولم يُخصم أي مبلغ.':`أُلغي الأمر بالكامل ولم يتغير أي أصل: ${window.GH_REASON_TEXT?window.GH_REASON_TEXT(reason):reason}`;diag('DURABLE_COMMAND_ROLLED_BACK',{name,reason},'warning');console.warn(`Durable command rolled back [${name}]`,error);if(!silent)notice(playerMessage);return false;}
     finally{
-      staging?.release?.();lap('afterMs');timing.committed=committed;timing.totalMs=Math.max(0,clockNow()-durableStart);for(const key of Object.keys(timing))if(typeof timing[key]==='number')timing[key]=Math.round(timing[key]*10)/10;const durableSink=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.durable;if(durableSink){durableSink.last=timing;durableSink.samples.push(timing);if(durableSink.samples.length>16)durableSink.samples.shift();}
+      staging?.release?.();lap('afterMs');timing.committed=committed;timing.saveRevision=committed?Number(draft?.saveRevision)||0:null;timing.totalMs=Math.max(0,clockNow()-durableStart);for(const key of Object.keys(timing))if(typeof timing[key]==='number')timing[key]=Math.round(timing[key]*10)/10;const durableSink=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.durable;if(durableSink){durableSink.last=timing;durableSink.samples.push(timing);if(durableSink.samples.length>16)durableSink.samples.shift();}
       if(!committed&&rootSessions.length)try{window.GH_TRANSACTION_CORE?.rollbackJournaledRoots?.(rootSessions);rootSessions=[];}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-rollback-failed');console.error('Durable command fleet rollback failed',rollbackError);}if(fleetMutationSession&&!fleetMutationSettled){try{fleetMutationClient?.settleMutation?.(fleetMutationSession,'rollback');fleetMutationSettled=true;}catch(rollbackError){window.GH_PERSISTENCE.markRecoveryRequired('durable-command-fleet-replica-rollback-failed');console.error('Durable command fleet replica rollback failed',rollbackError);}}
       // The command releases the context it set, by identity (as transaction-core does): a throw after the clone and
       // before the draft was published in it (inheritVerified, routeRuntimeForState) left {draft:null} set, which refused
@@ -1245,7 +1278,7 @@
       // in back-to-back commands, before any slice, used to reach it as one whole copy when play started; a later task found
       // the next command already running).
       if(committed)try{primeFleetThreadAfterCommand();}catch(error){console.warn("fleet thread prime after command",error);}
-      settleDurableCommand?.({committed,saveRevision:Number(state.saveRevision)||0});
+      settleDurableCommand?.({committed,durable:committed&&!deferred,saveRevision:Number(state.saveRevision)||0});
       if(context?.notices?.length)setTimeout(()=>{for(const row of context.notices)notice(row.text,row.kind);},0);
     }
   }
@@ -1392,10 +1425,10 @@
   const canSpend = amount => canCompanySpend('group',amount);
   // Inventory review: a refusal reached the player as its internal code («insufficient-funds-or-budget»,
   // «duplicate-route», «company-not-found:»). The notices read the reason in Arabic; an unknown code is shown as is.
-  const COMMAND_REASON_TEXT=Object.freeze({'tender-closed':'أُغلقت هذه المناقصة؛ عقدها مسجّل في سجل العقود.','tender-awarded-elsewhere':'رست هذه المناقصة على منافس؛ يُعاد طرحها بعد ثلاثين يومًا من ترسيتها.','tender-already-won':'فازت المجموعة بهذه المناقصة بالفعل؛ العقد بانتظار التوقيع.','borrower-fee-budget':'سقف ميزانية الشركة المقترضة لا يتسع لرسوم ترتيب التسهيل هذا الشهر.','insufficient-funds-or-budget':'الرصيد أو الميزانية الشهرية لا تكفي لهذه العملية.','insufficient-cash':'الرصيد غير كافٍ لهذه العملية.','insufficient-funds':'الرصيد غير كافٍ لهذه العملية.','duplicate-route':'هذا المسار موجود مسبقًا بين القاعدتين.','hospitality-construction-in-progress':'المنشأة قيد الإنشاء؛ لا تُغلق قبل اكتمالها.','diagnostic-export-state-changed':'تغيرت حالة اللعبة أثناء تجهيز التقرير؛ أعد المحاولة.'});
+  const COMMAND_REASON_TEXT=Object.freeze({'fleet-dispatch-worker-not-ready':'حاسب الأسطول مشغول الآن؛ أعد المحاولة بعد لحظات.','fleet-dispatch-query-stale':'تغيّر الأسطول أثناء الحساب؛ أعد المحاولة بعد لحظات.','fleet-dispatch-worker-stale':'تغيّر الأسطول أثناء حساب المسارات؛ أعد المحاولة بعد لحظات.','fleet-dispatch-worker-unavailable':'حاسب الأسطول غير متاح الآن؛ أعد فتح اللعبة ثم أعد المحاولة.','fleet-service-quote-changed':'تغيرت حالة الأصل بعد عرض السعر؛ افتح الأصل وأعد طلب الصيانة.','repair-quote-stale':'تغيرت حالة الأسطول بعد عرض الإصلاح؛ لم يُدفع شيء. أعد الضغط لعرض جديد.','repair-batch-company':'أحد الأصول لا يتبع هذه الشركة؛ لم يُنفذ الإصلاح.','repair-asset-above-line':'أحد الأصول صار فوق حد الصيانة بعد العرض؛ لم يُدفع شيء. أعد الضغط لعرض جديد.','repair-batch-invalid':'طلب الإصلاح غير صالح؛ لم يُنفذ شيء.','return-to-base-not-isolated':'الإعادة إلى القاعدة للأصل المعزول أثناء الحركة فقط.','asset-moving':'لا يمكن صيانة الأصل أثناء الحركة.','maintenance-cheque-not-cleared':'لم يُصرف شيك الصيانة (سيولة أو ميزانية الصيانة غير كافية)؛ لم يتغير الأصل.','tender-closed':'أُغلقت هذه المناقصة؛ عقدها مسجّل في سجل العقود.','tender-awarded-elsewhere':'رست هذه المناقصة على منافس؛ يُعاد طرحها بعد ثلاثين يومًا من ترسيتها.','tender-already-won':'فازت المجموعة بهذه المناقصة بالفعل؛ العقد بانتظار التوقيع.','borrower-fee-budget':'سقف ميزانية الشركة المقترضة لا يتسع لرسوم ترتيب التسهيل هذا الشهر.','insufficient-funds-or-budget':'الرصيد أو الميزانية الشهرية لا تكفي لهذه العملية.','insufficient-cash':'الرصيد غير كافٍ لهذه العملية.','insufficient-funds':'الرصيد غير كافٍ لهذه العملية.','duplicate-route':'هذا المسار موجود مسبقًا بين القاعدتين.','hospitality-construction-in-progress':'المنشأة قيد الإنشاء؛ لا تُغلق قبل اكتمالها.','diagnostic-export-state-changed':'تغيرت حالة اللعبة أثناء تجهيز التقرير؛ أعد المحاولة.'});
   const reasonText=error=>{const message=String(error?.message||error||'');return COMMAND_REASON_TEXT[message]||(/^company-not-found/.test(message)?'الشركة المطلوبة غير موجودة لهذه العملية.':message);};
   window.GH_REASON_TEXT=reasonText;
-  const pendingInteractionNotices=new Set();
+  const pendingInteractionNotices=new Set(),lockedNotices=[],alertsShownLocked=new Set();
   window.GH_INTERACTION_NOTICE=(text,kind)=>{
     const message=String(text||'تعذر تنفيذ الإجراء.');noteAlertKind(message,kind);
     if(durableCommandInProgress){
@@ -1408,7 +1441,11 @@
       return true;
     }
     // Recovery/background persistence owns its status UI; never write through its lock for a button notice.
-    if(window.GH_PERSISTENCE.isLocked()){window.GH_INTERFACE?.toast?.(message,alertKinds.get(message)||'warning');alertKinds.delete(message);return false;}
+    if(window.GH_PERSISTENCE.isLocked()){const raised=alertKinds.get(message);let kind=raised||'warning',show=true;try{kind=raised&&raised!=='info'?raised:alertToastKind(message);show=!!raised||!automaticAlert(message);}catch(_error){}if(show)window.GH_INTERFACE?.toast?.(message,kind);alertKinds.delete(message);
+      // Batch E (a message lives 2-5 s): the notice is written to the list once persistence is free again (checked every
+      // second, for a minute), so it is not lost with the strip.
+      if(!lockedNotices.some(row=>row.message===message)&&lockedNotices.length<16){lockedNotices.push({message,kind});if(lockedNotices.length===1){const epoch=Number(state.resetEpoch)||0;let tries=0;const flush=()=>{if((Number(state.resetEpoch)||0)!==epoch||++tries>60){lockedNotices.length=0;return;}if(window.GH_PERSISTENCE.isLocked()){setTimeout(flush,1000);return;}const rows=lockedNotices.splice(0);for(const row of rows){alertsShownLocked.add(row.message);pushAlert(row.message);}};setTimeout(flush,1000);}}
+      return false;}
     return pushAlert(message);
   };
   function notice(text,kind='info'){
@@ -1497,6 +1534,9 @@
     normalizeSearch,
     maxCacheEntries:16,
     maxCacheRows:1_000_000,
+    // Batch F (fault 1): the «تحتاج صيانة» filter follows each company's maintenance line, as the counter does.
+    serviceLine:(target,owner)=>window.GH_REALISM?.MAINTENANCE_POLICIES?.[window.GH_REALISM.maintenancePolicy(target,owner)]??80,
+    dependencyRevision:target=>maintenanceLinesKey(target),
     searchText:row=>`${row.id||''} ${row.name||''} ${row.model||''} ${row.baseFacility||''} ${fleetListSearchFacilityNames.get(row.baseFacility)||''}`
   })||null;
   let fleetListQueryWarm=null,fleetListQueryWarmState=null,fleetListQueryWarmSource=null,fleetListQueryWarmMembership='',fleetListQueryFreshAt=0,fleetListQueryFreshBuilds=0;
@@ -2339,10 +2379,32 @@
   // and those the engine stopped (an old shared route retired on arrival) waited idle, paying crews and insurance, until
   // the player pressed the dispatch button. The company is marked (advanced.companies[id].autoDispatchPending) and, after
   // the day's close, its idle assets of that mode depart through the very dispatch the button runs, at most
-  // AUTO_DISPATCH_LIMIT a company a day (one command each), so the work stays bounded; the button still dispatches all at
+  // bounded commands a company a day (batch D below), so the work stays bounded; the button still dispatches all at
   // once. The mark stays while assets are left and the last day placed some; it is cleared when none is left, when none
   // could be placed (no route capacity: trying every day would cost the same work for nothing) or when none was found.
   const AUTO_DISPATCH_LIMIT=2000;
+  // Heaviness batch D (the owner: «أوامر متعددة في اليوم»): after a day's close a company's idle assets leave in several
+  // bounded commands, up to AUTO_DISPATCH_DAILY_LIMIT a day, the clock running between them. Each command holds the clock
+  // (it holds the live state), so its size follows the last measured hold of that company and mode: it starts at
+  // AUTO_DISPATCH_LIMIT and grows (at most twice a command) while a command stays within AUTO_DISPATCH_BUDGET_MS,
+  // shrinking at once when one does not; a failed command starts it over. The whole run (every company) holds the clock
+  // at most AUTO_DISPATCH_RUN_HOLD_MS, with the gap between companies too, and stops while the app is hidden (the marks
+  // stay for the next close). Road plans before its command and is capped lower. Kept in memory only.
+  const AUTO_DISPATCH_DAILY_LIMIT=20000,AUTO_DISPATCH_BUDGET_MS=1000,AUTO_DISPATCH_RUN_HOLD_MS=4500,AUTO_DISPATCH_GAP_MS=1500,AUTO_DISPATCH_MAX={air:SHARED_DISPATCH_LIMIT,sea:SHARED_DISPATCH_LIMIT,road:10000};
+  const autoDispatchSizes=new Map();let autoDispatchSizesEpoch,autoDispatchVisibility=0;
+  // Hidden with an automatic dispatch not saved yet (a hide save is refused while a command runs): the save is asked for
+  // once the command in flight has settled.
+  document.addEventListener?.('visibilitychange',()=>{autoDispatchVisibility++;if(document.hidden&&deferredSavePending())durableCommandSettlement.then(()=>{if(deferredSavePending())scheduleSimulationPersistence();}).catch(()=>{});});
+  function autoDispatchLimit(companyId,mode){const row=autoDispatchSizes.get(`${companyId}:${mode}`);return row?row.limit:AUTO_DISPATCH_LIMIT;}
+  // A sample counts only for a committed command, the page visible throughout, at least 500 assets, not capacity-bound.
+  function noteAutoDispatchHold(companyId,mode,{holdMs,departed,capacityLimited,visible}){
+    if(!(holdMs>0)||!(departed>=500)||capacityLimited||!visible)return;
+    // The hold per asset (a command cut short by the day's share is measured by its own size); the larger of the last and
+    // the running mean, so one fast command does not grow it too far.
+    const key=`${companyId}:${mode}`,row=autoDispatchSizes.get(key)||{limit:AUTO_DISPATCH_LIMIT,rate:null},rate=holdMs/departed,mean=row.rate==null?rate:row.rate*.5+rate*.5,prev=row.limit;
+    const next=Math.floor(Math.min(2*prev,AUTO_DISPATCH_BUDGET_MS/Math.max(rate,mean))/500)*500;
+    autoDispatchSizes.set(key,{limit:Math.max(AUTO_DISPATCH_LIMIT,Math.min(AUTO_DISPATCH_MAX[mode]||AUTO_DISPATCH_LIMIT,next)),rate:mean});
+  }
   function setAutoDispatchPending(target,companyId,pending){
     // Review round 5: a mark is made only while the autopilot can act on it (a mark made while locked sent every idle asset,
     // parked ones included, on the first close after unlocking); clearing is always allowed.
@@ -2366,36 +2428,76 @@
     const authority=founderAuthorization(state);if(!authority.signature||!authority.mandate)return {skipped:'signature'};
     // Review round 4 (a reader): a new game or a hard reset while a probe or the trucks' planning was awaited let the loop
     // go on with the former game's companies; the run stops at the first await that finds another game.
-    const epoch=state.resetEpoch,sameGame=()=>state.resetEpoch===epoch&&!hardResetInProgress;if(autoDispatchFailuresEpoch!==epoch){autoDispatchFailures.clear();autoDispatchFailuresEpoch=epoch;}
-    const opened=new Set(state.openedCompanies||[]),marked=Object.entries(state.advanced?.companies||{}).filter(([,row])=>row?.autoDispatchPending===true).map(([id])=>id).sort(),companies=marked.filter(id=>opened.has(id)),done=[];
+    const epoch=state.resetEpoch,sameGame=()=>state.resetEpoch===epoch&&!hardResetInProgress;if(autoDispatchFailuresEpoch!==epoch){autoDispatchFailures.clear();autoDispatchFailuresEpoch=epoch;}if(autoDispatchSizesEpoch!==epoch){autoDispatchSizes.clear();autoDispatchSizesEpoch=epoch;}
+    const opened=new Set(state.openedCompanies||[]),marked=Object.entries(state.advanced?.companies||{}).filter(([,row])=>row?.autoDispatchPending===true).map(([id])=>id).sort(),sorted=marked.filter(id=>opened.has(id)),done=[];
+    // (The companies take turns being first, a day each, so one fleet does not spend every run's clock budget.)
+    const turn=sorted.length?Math.max(0,Math.floor(Number(day)||0))%sorted.length:0,companies=[...sorted.slice(turn),...sorted.slice(0,turn)];
     // Review round 7 (a reader: a closed company's mark queued an empty task every day and fired on reopening): cleared.
     for(const companyId of marked)if(!opened.has(companyId)){autoDispatchFailures.delete(companyId);await clearAutoDispatchPending(companyId,day,sameGame);if(!sameGame())return {day,companies:done,stopped:'game-changed'};}
+    // Post-review: a probe holds the clock too (up to the drain, the step in flight and the 5 s answer); its time counts in
+    // the run's budget, and after one transient probe refusal (a backlogged worker) the other companies wait for the next
+    // close instead of each being held in turn.
+    let runHoldMs=0,runCommands=0,runDeparted=0,runProbeMs=0,runTransient=false;
     for(const companyId of companies){
       if(!sameGame())return {day,companies:done,stopped:'game-changed'};
-      const modes=companyRouteModes(companyId),mode=modes.find(value=>['air','sea'].includes(value))||(modes.includes('road')?'road':null),transient={raised:0};let result=null,failure=null;
+      if(runTransient||(runCommands>0&&document.hidden)||((runCommands>0||runProbeMs>0)&&AUTO_DISPATCH_RUN_HOLD_MS-runHoldMs-runProbeMs<=0)){const stoppedBy=runTransient?'fleet-transient-earlier':runCommands>0&&document.hidden?'app-hidden':'run-clock-budget';diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:stoppedBy},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true,stoppedBy});continue;}
+      const modes=companyRouteModes(companyId),mode=modes.find(value=>['air','sea'].includes(value))||(modes.includes('road')?'road':null),transient={raised:0};let result=null,failure=null,held=false,stoppedBy=null,heldSeen=0,saveRefusals=0;
+      // (Every held query of this company counts: the probe, the road command's own query, the re-probe. A busy worker
+      // defers the other companies; a deferred command refused for a save that ran meanwhile defers this one only.)
+      const counts=()=>transient.raised>0?{raised:Number(transient.raised)||0,saveRefusals}:{},account=()=>{const now=Number(transient.heldMs)||0;runProbeMs+=now-heldSeen;heldSeen=now;if((Number(transient.raised)||0)-saveRefusals>0)runTransient=true;};
       try{
         // One idle asset is enough to know there is work (a limit of 1 on the fleet worker's pass): none, no command.
-        const probe=mode?await fleetDispatchQuery(state,'dispatchEligible',{companyId,type:mode,limit:1},transient):null;
+        let probe=null;try{probe=mode?await heldFleetDispatchQuery(state,'dispatchEligible',{companyId,type:mode,limit:1},transient):null;}catch(error){if(autoDispatchTransient(error))runTransient=true;throw error;}finally{account();}
         if(!sameGame())return {day,companies:done,stopped:'game-changed'};
         if(!mode||!probe?.indices?.length)result={departed:0,none:true};
-        else if(mode==='road')result=await dispatchExistingDistinctNetworkBatch(companyId,null,{auto:true,limit:AUTO_DISPATCH_LIMIT,transient});
-        else result=await dispatchSharedInternationalNetwork(companyId,-1,{auto:true,limit:AUTO_DISPATCH_LIMIT,transient});
-      }catch(error){if(autoDispatchNoneLeft(error))result={departed:0,none:true};else if(autoDispatchTransient(error)){diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:String(error?.message||error).slice(0,120)},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true});continue;}else failure=error;}
+        else{
+          // Bounded commands until the day's share, none left, a route capacity limit, or a refusal; the clock runs between.
+          let dayDeparted=0,last=null,commands=0;
+          for(;;){
+            // The run's clock budget spent, or the app hidden: no further command (the mark stays; no failure). Between
+            // companies the clock runs as between commands.
+            // A command's hold is foreseen from the measured hold per asset: the run stops (or the command is made smaller,
+            // never under AUTO_DISPATCH_LIMIT) rather than pass the budget.
+            // (A company not measured yet is foreseen at this run's own hold per asset.)
+            const rate=autoDispatchSizes.get(`${companyId}:${mode}`)?.rate||(runDeparted>0?runHoldMs/runDeparted:0),left=AUTO_DISPATCH_RUN_HOLD_MS-runHoldMs-runProbeMs,next=last?Math.min(AUTO_DISPATCH_LIMIT,Math.max(1,Number(last.remaining)||0)):AUTO_DISPATCH_LIMIT;
+            // (Post-review: the foresight is for the assets actually left, not a whole AUTO_DISPATCH_LIMIT command.)
+            if(runCommands>0&&(left<=0||document.hidden||rate*next>left)){held=true;stoppedBy=document.hidden?'app-hidden':'run-clock-budget';result=last?{...last,departed:dayDeparted,commands}:null;break;}
+            if(runCommands>0&&!commands){await new Promise(resolve=>setTimeout(resolve,AUTO_DISPATCH_GAP_MS));await stagedStateSettled();if(!sameGame())return {day,companies:done,stopped:'game-changed'};if(document.hidden){held=true;result=null;break;}}
+            const limit=Math.min(autoDispatchLimit(companyId,mode),AUTO_DISPATCH_DAILY_LIMIT-dayDeparted,runCommands>0&&rate>0?Math.max(AUTO_DISPATCH_LIMIT,Math.floor(left/rate/500)*500):Infinity),seenVisibility=autoDispatchVisibility,visibleAtStart=!document.hidden,name=`authorized:bulk-shared-departure:${companyId}`;
+            // A later command that throws keeps what the earlier ones placed (each committed itself); the first one's error
+            // is the day's, as before.
+            // A deferred command refused for a save that ran meanwhile is transient (the day keeps the mark, no failure).
+            const refusalsBefore=deferredRefusals,recordBefore=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.durable?.last;let step;try{step=mode==='road'?await dispatchExistingDistinctNetworkBatch(companyId,null,{auto:true,limit,transient}):await dispatchSharedInternationalNetwork(companyId,-1,{auto:true,limit,transient});}catch(error){if(!last)throw error;diag('AUTO_DISPATCH_SKIPPED',{companyId,day,error:`after ${commands} command(s): ${String(error?.message||error).slice(0,160)}`},'info');step=null;}commands++;
+            if(step===false&&deferredRefusals>refusalsBefore){transient.raised++;saveRefusals++;}
+            account();
+            const timing=window.__GH_APP_RUNTIME_INSTRUMENTATION__?.durable?.last,own=!!timing&&timing!==recordBefore&&timing.name===name&&(!step||timing.saveRevision==null||timing.saveRevision===Number(state.saveRevision));runCommands++;if(own){runHoldMs+=Number(timing.totalMs)||0;runDeparted+=Number(step?.departed)||0;}
+            if(step&&step.departed&&own&&timing.committed)noteAutoDispatchHold(companyId,mode,{holdMs:Number(timing.totalMs)||0,departed:Number(step.departed)||0,capacityLimited:step.capacityLimited===true,visible:visibleAtStart&&!document.hidden&&seenVisibility===autoDispatchVisibility});
+            if(!step||!step.departed){result=last?{...last,departed:dayDeparted,commands}:step;break;}
+            dayDeparted+=Number(step.departed)||0;last=step;
+            if(!(Number(step.remaining)>0)||step.capacityLimited||dayDeparted>=AUTO_DISPATCH_DAILY_LIMIT||!sameGame()){result={...step,departed:dayDeparted,commands};break;}
+            // The budget spent (or the app hidden): stop now, not after the gap (the mark stays: assets are left).
+            if(runHoldMs+runProbeMs>=AUTO_DISPATCH_RUN_HOLD_MS||document.hidden||(autoDispatchSizes.get(`${companyId}:${mode}`)?.rate||0)*Math.min(AUTO_DISPATCH_LIMIT,Number(step.remaining)||0)>AUTO_DISPATCH_RUN_HOLD_MS-runHoldMs-runProbeMs){stoppedBy=document.hidden?'app-hidden':'run-clock-budget';result={...step,departed:dayDeparted,commands};break;}
+            await new Promise(resolve=>setTimeout(resolve,AUTO_DISPATCH_GAP_MS));await stagedStateSettled();
+            if(!sameGame()){result={...step,departed:dayDeparted,commands};break;}
+          }
+        }
+        if(held&&!result){account();stoppedBy=stoppedBy||(document.hidden?'app-hidden':'run-clock-budget');diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:stoppedBy},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true,stoppedBy,...counts()});continue;}
+      }catch(error){if(autoDispatchNoneLeft(error))result={departed:0,none:true};else if(autoDispatchTransient(error)){account();diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:String(error?.message||error).slice(0,120)},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true,stoppedBy:'fleet-transient',...counts()});continue;}else failure=error;}
       if(!sameGame())return {day,companies:done,stopped:'game-changed'};
-      if(result===false&&!failure&&transient.raised>0){diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:'fleet-transient-in-dispatch'},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true});continue;}
+      if(result===false&&!failure&&transient.raised>0){account();const reason=(Number(transient.raised)||0)>saveRefusals?'fleet-transient-in-dispatch':'deferred-save-refused';diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:reason},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true,stoppedBy:reason,...counts()});continue;}
       // Review round 7 (a verifier): the worker plan's stale answer (an older fleet revision) is transient as the query's is, and
   // a transient answer to the second probe defers the day as the first's does.
   // Review round 7 (a reader: the command catches its own errors and answers false, so «none left» raised inside it,
       // an asset the player sent or sold after the probe, was counted a failure): a refusal is probed again, and with no
       // idle asset left it is the day with nothing to send.
-      if(result===false&&!failure){try{const again=await fleetDispatchQuery(state,'dispatchEligible',{companyId,type:mode,limit:1},transient);if(!sameGame())return {day,companies:done,stopped:'game-changed'};if(!again?.indices?.length)result={departed:0,none:true};}catch(error){if(!sameGame())return {day,companies:done,stopped:'game-changed'};if(autoDispatchTransient(error)){diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:String(error?.message||error).slice(0,120)},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true});continue;}}}
+      if(result===false&&!failure){try{let again=null;try{again=await heldFleetDispatchQuery(state,'dispatchEligible',{companyId,type:mode,limit:1},transient);}finally{account();}if(!sameGame())return {day,companies:done,stopped:'game-changed'};if(!again?.indices?.length)result={departed:0,none:true};}catch(error){if(!sameGame())return {day,companies:done,stopped:'game-changed'};if(autoDispatchTransient(error)){diag('AUTO_DISPATCH_DEFERRED',{companyId,day,error:String(error?.message||error).slice(0,120)},'info');done.push({companyId,departed:0,remaining:0,failed:null,deferred:true,stoppedBy:'fleet-transient',...counts()});continue;}}}
       if(result===false&&!failure)failure=new Error('auto-dispatch-not-run');
       // Placed some: the dispatch kept or cleared the mark with its own commit. Found or placed none: cleared here. A
       // dispatch that could not run (busy, refused) keeps it for the next day, at most AUTO_DISPATCH_FAILURE_LIMIT days.
-      if(failure){const count=(autoDispatchFailures.get(companyId)||0)+1;autoDispatchFailures.set(companyId,count);diag('AUTO_DISPATCH_SKIPPED',{companyId,day,attempt:count,error:String(failure?.message||failure).slice(0,200)},'info');if(count>=AUTO_DISPATCH_FAILURE_LIMIT&&await clearAutoDispatchPending(companyId,day,sameGame))autoDispatchFailures.delete(companyId);}
+      if(failure){autoDispatchSizes.delete(`${companyId}:${mode}`);const count=(autoDispatchFailures.get(companyId)||0)+1;autoDispatchFailures.set(companyId,count);diag('AUTO_DISPATCH_SKIPPED',{companyId,day,attempt:count,error:String(failure?.message||failure).slice(0,200)},'info');if(count>=AUTO_DISPATCH_FAILURE_LIMIT&&await clearAutoDispatchPending(companyId,day,sameGame))autoDispatchFailures.delete(companyId);}
       else{autoDispatchFailures.delete(companyId);if(!result?.departed)await clearAutoDispatchPending(companyId,day,sameGame);}
       if(!sameGame())return {day,companies:done,stopped:'game-changed'};
-      done.push({companyId,departed:Number(result?.departed)||0,remaining:Number(result?.remaining)||0,failed:failure?String(failure?.message||failure).slice(0,120):null});
+      account();done.push({companyId,departed:Number(result?.departed)||0,remaining:Number(result?.remaining)||0,failed:failure?String(failure?.message||failure).slice(0,120):null,...(stoppedBy?{stoppedBy}:{}),...counts()});
     }
     return {day,companies:done};
   }
@@ -2507,7 +2609,7 @@
       window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`${options.auto?'توزيع آلي بعد إقفال اليوم: ':''}وُزعت ${countText(plannedCount,type==='air'?'aircraft':'ship')} في عملية واحدة على المسارات ${routeLabel} المشتركة (عددها ${fmtNumber(routeIds.length)})؛ ${moving} غادرت و${scheduled} مجدولة بفتحات زمنية، والمسارات الجديدة ${fmtNumber(createdRoutes.length)} فقط.${capacityRemaining?` بقيت ${capacityRemaining} دون مغادرة لعدم توافر سعة مسارات مناسبة؛ لم تتغير حالتها.`:''}${sharedBatches?` نفدت الوجهات المميزة ضمن المدى لبعض نقاط الانطلاق، فانضمت ${sharedBatches} دفعة إلى مسارات قائمة منها.`:''}`,type:'dispatch'});
       return {departed:plannedCount,routeIds,moving,scheduled,createdRoutes:createdRoutes.length,sharedBatches,targetLoad,routeCapacity:capacity,remaining,capacityLimited:capacityRemaining>0,planner:source.snapshot()};
       }catch(error){error.assetDepartureTrace={...(error.assetDepartureTrace||{}),mode:type,attempts:source.metrics.assetsPlanned||0,blocked:source.metrics.assetsPlanned||0,planner:{...(error.assetDepartureTrace?.planner||{}),source:source.snapshot()}};throw error;}finally{routeWorker?.close();}
-    },{silent:options.auto===true,systemActor:options.auto===true?(window.GH_COMPANY_AUTOPILOT?.ACTOR||'company-autopilot'):null,afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();reopenDrawer(navigationRevision,'routes',companyId);}});
+    },{silent:options.auto===true,systemActor:options.auto===true?(window.GH_COMPANY_AUTOPILOT?.ACTOR||'company-autopilot'):null,deferPersist:options.auto===true,afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();reopenDrawer(navigationRevision,'routes',companyId);}});
   }
   async function dispatchInternationalNetwork(companyInput){
     const companyId=routeCompanyFromInput(companyInput),mode=companyId?companyRouteModes(companyId).find(value=>['air','sea'].includes(value)):null;
@@ -2543,16 +2645,22 @@
     const companyId=routeCompanyFromInput(companyInput,state,'road'),type='road';
     if(!companyId){say('اختر شركة لوجستية واحدة صالحة لهذا الأمر.');return false;}
     if(roadPlanning){say('حساب مسارات اللوجستيات جارٍ بالفعل.');return false;}
-    const roadStartedAtMs=Date.now();
-    let idlePass;try{idlePass=await fleetDispatchQuery(state,'dispatchEligible',{companyId,type,assetId,limit:assetId?1:(options.limit||SHARED_DISPATCH_LIMIT),includeModeRouteIds:true},options.transient||null);}catch(error){say(`تعذر تجهيز نسخة العامل المطابقة للأسطول: ${String(error.message||error)}`);return false;}
-    if(!idlePass.indices.length){if(options.auto)return {departed:0,none:true,remaining:0};say('لا توجد شاحنات متاحة للمغادرة');return false;}
+    // The planning is reserved before the held query (two presses, or a press and the automatic dispatch, start one);
+    // released on every way out before the planning's own finally.
+    const roadStartedAtMs=Date.now(),controller=new AbortController(),reservation={controller,text:'جاري تجهيز مسارات الشاحنات…'},release=()=>{if(roadPlanning===reservation)roadPlanning=null;};roadPlanning=reservation;
+    const roadEpoch=state.resetEpoch;let idlePass;try{idlePass=await heldFleetDispatchQuery(state,'dispatchEligible',{companyId,type,assetId,limit:assetId?1:(options.limit||SHARED_DISPATCH_LIMIT),includeModeRouteIds:true},options.transient||null);}catch(error){release();say(`تعذر تجهيز نسخة العامل المطابقة للأسطول: ${reasonText(error)}`);return false;}
+    // (A new game during the held query: its rows are not this query's.)
+    if(state.resetEpoch!==roadEpoch){release();return false;}
+    // (Post-review: an answer without its rows released nothing and held the planning until a reload.)
+    if(!idlePass||typeof idlePass.indices?.length!=='number'){release();say('تعذر تجهيز نسخة العامل المطابقة للأسطول: جواب غير مكتمل.');return false;}
+    if(!idlePass.indices.length){release();if(options.auto)return {departed:0,none:true,remaining:0};say('لا توجد شاحنات متاحة للمغادرة');return false;}
     const roadTrace={assetsRequested:idlePass.indices.length,routeCandidateCount:0,originCount:0,workerUsed:false,planningMs:0,plannedAssignments:0,plannedRoutes:0,createdRoutes:0,sharedAssignments:0,maxRouteLoad:0,maxRouteCapacity:0,projectionYields:0,projectionMaxSliceMs:0},preview=new Array(idlePass.indices.length),fingerprints=new Map();
-    await cooperativeFleetLoop(idlePass.indices.length,index=>{const asset=window.GH_FLEET_DATA.viewAt(state,idlePass.indices[index]),plain=window.GH_FLEET_DATA.plain(asset);preview[index]=plain;fingerprints.set(plain.id,roadAssetFingerprint(plain));},roadTrace);
-    const snapshot={resetEpoch:state.resetEpoch,customRoutes:state.customRoutes,determinism:state.determinism},runtime=routeRuntimeForState(state),initialLoadByRoute=new Map(idlePass.initialLoads),controller=new AbortController(),facilityRows=dynamicFacilitiesFor(state),facilityIndex=new Map(facilityRows.map(facility=>[facility.id,facility]));
-    roadPlanning={controller,text:'جاري تجهيز مسارات الشاحنات…'};
-    if(activeDrawerPanel==='routes')renderRouteCenterInto();
+    try{await cooperativeFleetLoop(idlePass.indices.length,index=>{const asset=window.GH_FLEET_DATA.viewAt(state,idlePass.indices[index]),plain=window.GH_FLEET_DATA.plain(asset);preview[index]=plain;fingerprints.set(plain.id,roadAssetFingerprint(plain));},roadTrace);}catch(error){release();throw error;}
+    const {snapshot,runtime,initialLoadByRoute,facilityRows,facilityIndex}=(()=>{try{const snapshot={resetEpoch:state.resetEpoch,customRoutes:state.customRoutes,determinism:state.determinism},runtime=routeRuntimeForState(state),initialLoadByRoute=new Map(idlePass.initialLoads),facilityRows=dynamicFacilitiesFor(state),facilityIndex=new Map(facilityRows.map(facility=>[facility.id,facility]));return {snapshot,runtime,initialLoadByRoute,facilityRows,facilityIndex};}catch(error){release();throw error;}})();
+    roadPlanning={controller,text:reservation.text};
     const timer=setTimeout(()=>controller.abort(),180000);
     try{
+      if(activeDrawerPanel==='routes')renderRouteCenterInto();
       // Build 358 (million-asset routes): trucks plan within the road quota; when the fleet outgrows it at the base load
       // (64 per route), new routes carry the even share (fleetCapacity) instead of the dispatch being refused.
       const roadBaseCapacity=window.GH_FLEET_CORE.routeCapacity('road'),roadBudget=window.GH_ROUTE_CORE.modeRouteBudget(state,'road'),availableRoadRoutes=roadBudget.planning;let stayingOnRoad=0;for(const load of initialLoadByRoute.values())stayingOnRoad+=load;
@@ -2614,7 +2722,7 @@
         if(options.auto)setAutoDispatchPending(draft,companyId,(Number(idlePass.remaining)||0)>0&&current.length>0);
         window.GH_OPERATIONS_CORE.execute({state:draft},'record-alert',{text:`${options.auto?'توزيع آلي بعد إقفال اليوم: ':''}جُدولت ${countText(current.length,'truck')} في عملية واحدة على ${countText(routeCount,'route',undefined,true)} · ${companyFinanceName(companyId)}؛ أُنشئ تلقائيًا: ${countText(createdRoutes.size,'route')}.`,type:'dispatch'});return {departed:current.length,type,companyId,routeCount,routeIds,createdRoutes:createdRoutes.size,scheduled,moving,remaining:Number(idlePass.remaining)||0,planner:roadTrace};
         }catch(error){error.assetDepartureTrace={...(error.assetDepartureTrace||{}),mode:'road',attempts:preview.length,blocked:preview.length,planner:{...roadTrace}};throw error;}
-      },{silent:options.auto===true,systemActor:options.auto===true?(window.GH_COMPANY_AUTOPILOT?.ACTOR||'company-autopilot'):null,afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();},traceStartedAtMs:roadStartedAtMs});
+      },{silent:options.auto===true,systemActor:options.auto===true?(window.GH_COMPANY_AUTOPILOT?.ACTOR||'company-autopilot'):null,deferPersist:options.auto===true,afterCommit:()=>{lastDepartureBlocked=[];renderMap();updateKpis();},traceStartedAtMs:roadStartedAtMs});
     }catch(error){recordAssetDepartureTrace({source:'automatic-road-planning',attempts:preview.length,blocked:preview.length,modeCounts:{road:preview.length},reasonCounts:{[String(error?.code||error?.message||'road-route-plan-failed').slice(0,120)]:preview.length},error:String(error?.message||error).slice(0,240),planner:{...roadTrace},performance:departurePerformanceSnapshot(roadStartedAtMs,`authorized:bulk-shared-departure:${companyId}`),simSeconds:Number(state.simSeconds)||0});say(String(error.message||error));return false;}
     finally{clearTimeout(timer);roadPlanning=null;if(activeDrawerPanel==='routes')renderRouteCenterInto();}
   }
@@ -3362,11 +3470,25 @@
   // read where the top bar is refreshed: a few string comparisons, and nothing when nothing was written. The alerts a
   // save already holds are not shown again at its load.
   const alertKinds=new Map();let alertCursor=null;
-  const ALERT_WARNING=/^(?:تعذر|تعذّر|لا يمكن|لا يوجد|لا توجد|لا يكفي|لم |رفض|رُفض|ارتجع|أُوقف|أوقف|توقف|أُلغي|ألغي|اعتمد توقيعك|Could not|Cannot|Can\u2019t|Can't|Unable|No |Not |Refused|Stopped|Cancelled|Failed)/;
+  const ALERT_WARNING=/^(?:تعذر|تعذّر|لا يمكن|لا يوجد|لا توجد|لا يكفي|لم |رفض|رُفض|ارتجع|أُوقف|أوقف|توقف|تم إيقاف|خفض حاكم الأداء|أُلغي|ألغي|اعتمد توقيعك|Could not|Cannot|Can\u2019t|Can't|Unable|No |Not |Refused|Stopped|Cancelled|Failed)/;
   // Build 676 (review of the strip): the simulation's own line for each completed trip, and its summary of many, stays in
   // the list and off the strip: at 300× those lines kept two messages on the screen through play, over the drawer's
   // title and tabs, and a bounced cheque written before two of them was never shown.
   const ALERT_ROUTINE=/ أكمل (?:رحلة\.|\d+ رحلات )|: اكتملت [\d,]+ رحلة في هذه الفترة\./;
+  // Batch E (design ج): the lines the game writes by itself (the automatic dispatch, a cheque cleared at its date, payroll
+  // and the monthly close, the weekly indicator, the autopilot's decisions, deliveries, a project commissioned, the founder's
+  // salary, a dividend paid, the four economy headlines) stay in the list and off the strip, unless raised with a kind; a
+  // joined line is hidden only when every part is one. Anchored whole, so the player's own cheque, a bounced cheque, the
+  // risk indicator, stops and refusals still show.
+  // (Batch F: the daily maintenance notice with a check bill only stays in the list; one with an accident is shown.)
+  const ALERT_AUTOMATIC=/^(?:صيانة [^\n]+ · اليوم \d+: فحص |توزيع آلي بعد إقفال اليوم: |تم صرف الشيك \S+ من حساب .+ وتسجيله في الدفتر المالي\.$|سويت الرواتب المستحقة تلقائيًا: |صدر تقرير رواتب يوم 27 وصُرف كامل المسير |إغلاق شهري مستقل لكل شركة\. |مؤشر التشغيل الأسبوعي: |قرار آلي لل|تحصيل آلي لـ |صيانة آلية لمنشأة ضيافة |مراجعة آلية لحدود ائتمان |تمويل آلي (?:للمرحلة التالية|من القابضة لمستحقات اليوم)|تجديد آلي ل|رفع آلي لأجور |حملة مستمرة آلية لـ |سداد آلي (?:لضريبة |بتحويل بنكي: )|(?:صرف آلي|إعادة تقديم آلية): |تم استلام .+آليًا\. (?:الأصل جاهز|جميع الأصول جاهزة) للتشغيل\.$|بدأ التشغيل التجاري لمشروع |وصل راتب المؤسس لشهر |صُرف توزيع أرباح الربع |(?:ارتفاع مؤشر الشحن رفع تسعير العقود البحرية والجوية|ارتفاع الطاقة والوقود يستدعي مراجعة هوامش المسارات|ارتفاع أسعار الكهرباء يعزز ربحية أصول الطاقة|استقرار نسبي في الشحن والطاقة مع مراقبة أسعار الفائدة)\.$)/;
+  const automaticAlert=text=>text.split(' • ').every(part=>ALERT_AUTOMATIC.test(part));
+  // Lines the game writes by itself that need the player (a 5 s warning): the risk indicator, an uncovered settlement
+  // carried over, payroll left owed, a delivery waiting for a base, a speed cut.
+  const ALERT_ATTENTION=/^(?:مؤشر التشغيل: مخاطر|رحّلت تسوية نقدية|صدر تقرير رواتب يوم \d+: صُرف .+ وسُجل |خفض (?:حاكم الأداء|محرك الحماية) )|: تسليم .+ بانتظار /;
+  const alertToastKind=text=>ALERT_WARNING.test(text)||ALERT_ATTENTION.test(text)?'warning':'info';
+  // A joined line (alerts deferred through a slice) shows its parts that are not automatic, with the gravest kind of them.
+  function alertToastRow(text,raised){const parts=String(text).split(' • ');const kept=raised?parts:parts.filter(part=>!ALERT_AUTOMATIC.test(part)&&!ALERT_ROUTINE.test(part));if(!kept.length)return null;const shown=kept.join(' • ');return {text:shown,kind:raised&&raised!=='info'?raised:kept.some(part=>alertToastKind(part)==='warning')?'warning':'info'};}
   const ALERT_RANK=Object.freeze({error:0,warning:1,disabled:1,success:2,info:3});
   function gravestAlertKind(messages){const order=['error','warning','disabled','success','info'];let best=null;for(const text of messages){const kind=alertKinds.get(String(text));if(kind&&(best===null||order.indexOf(kind)<order.indexOf(best)))best=kind;}return best||undefined;}
   function noteAlertKind(text,kind){if(!kind)return;if(alertKinds.size>=64)alertKinds.delete(alertKinds.keys().next().value);alertKinds.set(String(text),kind);}
@@ -3396,7 +3518,7 @@
     if(fresh<0&&written>0){fresh=alerts.length;for(let offset=Math.max(1,alerts.length-head.length+1);offset<alerts.length;offset++)if(same(offset)){fresh=offset;break;}}
     mark();if(fresh<=0)return 0;
     const show=window.GH_INTERFACE?.toast;if(typeof show!=='function')return 0;
-    const rows=[];for(let index=0;index<fresh;index++){const text=String(alerts[index]),raised=alertKinds.get(text);if(!raised&&ALERT_ROUTINE.test(text))continue;alertKinds.delete(text);rows.push({index,text,kind:raised&&raised!=='info'?raised:ALERT_WARNING.test(text)?'warning':'info'});}
+    const rows=[];for(let index=0;index<fresh;index++){const text=String(alerts[index]),raised=alertKinds.get(text);if(alertsShownLocked.delete(text))continue;if(!raised&&(ALERT_ROUTINE.test(text)||automaticAlert(text)))continue;alertKinds.delete(text);const row=alertToastRow(text,raised);if(row)rows.push({index,...row});}
     // At most two: the gravest, then the newest; shown in the order they were written.
     rows.sort((a,b)=>ALERT_RANK[a.kind]-ALERT_RANK[b.kind]||a.index-b.index);for(const row of rows.slice(0,2).sort((a,b)=>b.index-a.index))show(row.text,row.kind);
     return fresh;
@@ -4089,7 +4211,7 @@
   }
   function runMaintenanceTask(entry){
     if(entry.task==='autopilot')return companyAutopilotFrame(entry);
-    if(entry.task==='auto-dispatch'){if(!autoDispatchRunning){runtimeInstrumentation.maintenance.autoDispatchRunning=true;autoDispatchRunning=runAutoDispatch(entry.day).catch(error=>{diag('AUTO_DISPATCH_SKIPPED',{day:entry.day,error:String(error?.message||error).slice(0,200)},'info');return null;}).finally(()=>{autoDispatchRunning=null;runtimeInstrumentation.maintenance.autoDispatchRunning=false;});}return true;}
+    if(entry.task==='auto-dispatch'){if(!autoDispatchRunning){runtimeInstrumentation.maintenance.autoDispatchRunning=true;autoDispatchRunning=runAutoDispatch(entry.day).then(out=>{runtimeInstrumentation.maintenance.lastAutoDispatch={day:entry.day,...(out?.stopped?{stopped:out.stopped}:{}),...(out?.skipped?{skipped:out.skipped}:{}),companies:Array.isArray(out?.companies)?out.companies.map(row=>({...row})):[]};return out;}).catch(error=>{runtimeInstrumentation.maintenance.lastAutoDispatch={day:entry.day,error:String(error?.message||error).slice(0,200),companies:[]};diag('AUTO_DISPATCH_SKIPPED',{day:entry.day,error:String(error?.message||error).slice(0,200)},'info');return null;}).finally(()=>{autoDispatchRunning=null;runtimeInstrumentation.maintenance.autoDispatchRunning=false;if(deferredSavePending()&&!simulationManualActive())scheduleSimulationPersistence({checkpoint:true});});}return true;}
     if(entry.task==='compact'){if(compactSimulationState(false,{schemaDue:false})){const sections=schemaSectionsTask();if(sections){maintenanceQueue.splice(1,0,sections);runtimeInstrumentation.maintenance.pending=maintenanceQueue.map(row=>row.task);}else globalThis.__GH_HOURLY_SCHEMA_DUE__=true;}return true;}
     // Build 359: collecting unreferenced records lists every document and record, so it runs once per game day (and when
     // the hot window nears its admission limit); converting earlier versions takes only what changed (each hour).
@@ -4336,6 +4458,27 @@
   // A command that may write the fleet waits until no step is in flight on the thread. The lifecycle guard suspends
   // the sole simulation runtime and atomically cancels its slice before the command proceeds; a stale worker result
   // is still refused. The timeout is only a final liveness guard.
+  // Batch D (road, the automatic dispatch's probes): a query of the live fleet asked while a simulation step was on its way
+  // to the fleet worker was refused (fleet-dispatch-worker-not-ready: the replica had not replayed it), every day for a
+  // large road fleet during a calendar advance and for the road button. The simulation is held for the query alone (as
+  // a purchase's quote is held) and the step in flight settles first; the step's own wait stays capped.
+  async function heldFleetDispatchQuery(target,name,params,transient){
+    // The worker's answer is awaited at most 5 s under the hold (a backlogged worker: the query is refused as not ready,
+    // a transient answer, and the clock moves again).
+    // Road post-review: the hold cancelled the step in flight (redone from the committed state), so the clock went back up
+    // to an hour on a press during an advance. The engine first drains (finishes the job in flight, starts none; at most
+    // 2 s, then the hold cancels it as before), and the hold is raised in the same turn the drain ends.
+    // (A small fleet's query runs on the main thread when the worker refuses it: no hold, as before.)
+    if(window.GH_FLEET_DATA.size(target)<FLEET_THREAD_EARLY_ROWS)return fleetDispatchQuery(target,name,params,transient);
+    await drainSimulation();
+    // (The time the clock is held is reported on `transient`, for the automatic dispatch's run budget.)
+    const heldFrom=performance.now();fleetQueryHolds++;let timer=null;try{await stagedStateSettled();await fleetStepSettled();const answer=fleetDispatchQuery(target,name,params,transient);answer.catch(()=>{});
+      return await Promise.race([answer,new Promise((_,reject)=>{timer=setTimeout(()=>{if(transient&&typeof transient==='object')transient.raised=(Number(transient.raised)||0)+1;reject(new Error('fleet-dispatch-worker-not-ready'));},5000);})]);}finally{clearTimeout(timer);fleetQueryHolds--;if(transient&&typeof transient==='object')transient.heldMs=(Number(transient.heldMs)||0)+(performance.now()-heldFrom);}
+  }
+  // The engine finishes the step in flight and starts none. A staged step (a day close over many frames) is always waited
+  // for: cancelling it would roll the clock back (post-review: a close past the 2 s cap stepped it back 2 hours); any other
+  // step at most 2 s (it commits at its end, so a hold cancelling it moves nothing back).
+  async function drainSimulation(){fleetQueryDrains++;try{for(const until=performance.now()+2000;simulationJobActive()&&(performance.now()<until||stagedStateBusy());)await new Promise(resolve=>setTimeout(resolve,16));}finally{fleetQueryDrains--;}}
   function fleetStepSettled(){
     const client=fleetEngineThreadClient;if(!client?.busy)return Promise.resolve();
     return Promise.race([client.idle(),new Promise(resolve=>setTimeout(resolve,2000))]);
@@ -4815,7 +4958,8 @@
         pushAlert(`توقف تقديم التاريخ وقائيًا عند آخر حالة معتمدة (${formatSimDate()}). السبب: ${reason}. لم تُعتمد حركة أصل أو إيراد جزئي.`);
       }
     },
-    isSuspended:()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||assetPurchaseHolds>0||window.GH_PERSISTENCE.isLocked()||window.GH_CONFERENCE?.isPresentationActive?.()||state.timeRecovery?.active===true,
+    isDraining:()=>fleetQueryDrains>0,
+    isSuspended:()=>window.__GH_DIAGNOSTIC_EXPORT_IN_PROGRESS__===true||hardResetInProgress||durableCommandInProgress||assetPurchaseHolds>0||fleetQueryHolds>0||window.GH_PERSISTENCE.isLocked()||window.GH_CONFERENCE?.isPresentationActive?.()||state.timeRecovery?.active===true,
     canRecoverFatal:()=>!state.simulationKernel?.runtimeFatal&&!state.simulationKernel?.lastAdvanceFailure&&!state.simulationKernel?.boundaryRecovery?.failed&&!window.GH_PERSISTENCE.telemetry?.().recoveryRequired,
     onFatal:error=>{simulationEngine.cancelAdvance?.('simulation-fatal',{immediate:true});state.speed=0;state.simulationKernel=state.simulationKernel||{};const diagnostic=error?.diagnostic||{name:error?.name||'Error',message:String(error?.message||error),code:error?.code||null,transactionLabel:error?.transactionLabel||null,transactionStage:error?.transactionStage||null};state.simulationKernel.runtimeFatal={at:state.simSeconds,code:error?.code||'SIM_FATAL_STATE',error:diagnostic};if(!state.simulationKernel.lastAdvanceFailure)state.simulationKernel.lastAdvanceFailure={reason:'simulation-fatal',stage:error?.transactionStage||'finish',from:state.simSeconds,to:state.simSeconds,at:state.simSeconds,retries:0,code:error?.code||'SIM_FATAL_STATE',error:String(error?.message||error).slice(0,500),errorDetail:diagnostic};diag('SIM_FATAL',diagnostic,'critical');try{const evidence=captureDiagnosticEvidence({recordEvent:true,trackTransitions:true,storeResult:true});window.GH_CONTROL_PLANE?.check?.(state,{evidence});}catch(healthError){console.error('تعذر تحديث الصحة بعد خطأ المحاكاة',healthError);}console.error('Simulation Core fatal error',error);try{pushAlert('أوقف محرك المحاكاة الوقت لحماية الحفظ بعد خطأ داخلي. افتح مركز الإجراءات لمراجعة السبب قبل إعادة المحاولة.');}catch(alertError){console.error('تعذر تسجيل تنبيه خطأ المحاكاة',alertError);}},
     onPauseAfterDayClose:()=>pauseAfterDayClose(),
@@ -5392,11 +5536,12 @@
         if(hardResetInProgress)pending.push(hardResetSettlement);
         waitedForLifecycle=true;diag('BACKGROUND_SAVE_WAIT_LIFECYCLE',{saveRevision:revisionAtRequest,resetEpoch:resetEpochAtRequest,durableCommandInProgress,hardResetInProgress});
         const settled=await Promise.all(pending);
-        if(settled.some(row=>row?.committed===true))durabilityEstablished=true;
+        // A deferred (not yet saved) automatic dispatch establishes nothing: only a stored commit does.
+        if(settled.some(row=>row?.committed===true&&row?.durable!==false))durabilityEstablished=true;
       }
       // A Native-acknowledged durable command or reset already established the
       // newest logical state. Coalesce instead of racing a second revision.
-      if(waitedForLifecycle&&(durabilityEstablished||Math.max(0,Math.floor(Number(state.saveRevision)||0))>revisionAtRequest||(Number(state.resetEpoch)||0)!==resetEpochAtRequest)){
+      if(waitedForLifecycle&&!deferredSavePending()&&(durabilityEstablished||Math.max(0,Math.floor(Number(state.saveRevision)||0))>revisionAtRequest||(Number(state.resetEpoch)||0)!==resetEpochAtRequest)){
         await window.GH_PERSISTENCE.drain();diag('BACKGROUND_SAVE_COALESCED',{saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0});
         return {saveRevision:Number(state.saveRevision)||0,simSeconds:Number(state.simSeconds)||0,resetEpoch:Number(state.resetEpoch)||0,coalesced:true};
       }
@@ -5576,16 +5721,16 @@
   }
   // العمليات ← الصيانة: each fleet company's policy (the condition at which an asset gets its check), what the last
   // daily close did, and what the fleet's wear costs on every trip.
-  const INSURANCE_COPY=Object.freeze({none:'بلا تأمين · الشركة تتحمل كل الأضرار',standard:'قياسية · تحمّل 10% (250 ألف كحد أدنى)',full:'شاملة · تحمّل 2% بقسط أعلى 35%'});
-  const MAINTENANCE_COPY=Object.freeze({preventive:['وقائية','فحص عند 90%: تكلفة أعلى وأسطول في أفضل حال'],standard:['قياسية','فحص عند 80%: توازن بين التكلفة والأداء'],deferred:['مؤجلة','فحص عند 65%: أرخص الآن، ووقود أكثر وتأخيرات']});
+  const INSURANCE_COPY=Object.freeze({none:'بلا تأمين · الشركة تتحمل كل الأضرار',standard:'قياسية · تحمّل 10% (حد أدنى 250 ألف أو 1% من قيمة الأصل، أيهما أقل)',full:'شاملة · تحمّل 2% (حد أدنى 50 ألف أو 0.25% من قيمة الأصل) بقسط أعلى 35%'});
+  const MAINTENANCE_COPY=Object.freeze({preventive:['وقائية','فحص عند 90%: فحوص أكثر وأصغر وأسطول في أفضل حال'],standard:['قياسية','فحص عند 80%: توازن بين التكلفة والأداء'],deferred:['مؤجلة','فحص عند 65%: فحوص أقل وأكبر، ووقود أكثر وتأخيرات']});
   function renderMaintenance(arg){
     const R=window.GH_REALISM,scope=typeof arg==='string'&&arg?arg:null,companies=COMPANY_PLATFORM.listInstances(state,{includeGroup:false,openedOnly:true}).filter(company=>window.GH_MARKET_CORE.companyFuel(state,company.id)&&(!scope||company.id===scope));
     const cards=companies.map(company=>{
       const policy=R.maintenancePolicy(state,company.id),last=state.realism?.maintenance?.companies?.[company.id],wear=R.fleetWear(state,company.id),name=esc(COMPANY_PLATFORM.resolveIdentity(state,company.id)?.shortName||company.id);
       const cover=R.insuranceCover(state,company.id),day=Math.floor((Number(state.simSeconds)||0)/86400),recent=(state.realism?.incidents||[]).filter(row=>row.company===company.id&&day-row.day<30),incidents=recent.reduce((n,row)=>n+row.count,0),losses=recent.reduce((n,row)=>n+row.loss,0),covered=recent.reduce((n,row)=>n+row.covered,0),fine=(state.realism?.inspections||[]).find(row=>row.company===company.id&&day-row.day<30);
-      return `<article class="list-item maintenance-card"><div class="list-item-head"><div><h3>${name}</h3><p>${last?`آخر إقفال: ${fmtNumber(last.checks)} فحص بتكلفة ${fmtMoney(last.cost)} ${Number(last.assets)>0?`لأسطول من ${countText(last.assets,'asset')}`:'ولا أصول في الأسطول'}`:'لم يمر إقفال يومي بعد.'}</p></div><span class="tag ${wear>.15?'negative':wear<.08?'positive':''}">الحالة ${last?Number(last.avgCondition).toFixed(1):'100'}%</span></div>${metricsMarkup([['الوقود الإضافي',`${(wear*20).toFixed(1)==='0.0'?'':'+'}${(wear*20).toFixed(1)}%`],['خسارة التأخير',`${(wear*15).toFixed(1)==='0.0'?'':'−'}${(wear*15).toFixed(1)}%`],['حوادث 30 يومًا',fmtNumber(incidents)],['الأضرار / تعويض التأمين',`${fmtMoney(losses)} / ${fmtMoney(covered)}`]])}${fine?`<p class="section-mini negative">غرامة تفتيش السلامة ${fmtMoney(fine.fine)}: ${countText(fine.unsafe,'asset')} تحت 65% ومتوسط الأسطول ${Number(fine.avgCondition).toFixed(1)}%.</p>`:''}<div class="company-transfer-form"><label class="wide">سياسة الصيانة<select data-maintenance-policy>${Object.entries(MAINTENANCE_COPY).map(([id,[label,copy]])=>`<option value="${id}"${id===policy?' selected':''}>${label} · ${copy}</option>`).join('')}</select></label><label class="wide">تغطية التأمين<select data-insurance-cover>${Object.entries(INSURANCE_COPY).map(([id,label])=>`<option value="${id}"${id===cover?' selected':''}>${label}</option>`).join('')}</select></label></div><div class="action-row"><button class="primary-btn maintenance-save" data-company="${esc(company.id)}">اعتماد السياسة والتغطية</button></div></article>`;
+      return `<article class="list-item maintenance-card"><div class="list-item-head"><div><h3>${name}</h3><p>${last?`آخر إقفال: ${fmtNumber(last.checks)} فحص بتكلفة ${fmtMoney(last.cost)} ${Number(last.assets)>0?`لأسطول من ${countText(last.assets,'asset')}`:'ولا أصول في الأسطول'}`:'لم يمر إقفال يومي بعد.'}</p></div><span class="tag ${wear>.15?'negative':wear<.08?'positive':''}">الحالة ${last?Number(last.avgCondition).toFixed(1):'100'}%</span></div>${metricsMarkup([['الوقود الإضافي',`${(wear*20).toFixed(1)==='0.0'?'':'+'}${(wear*20).toFixed(1)}%`],['خسارة التأخير',`${(wear*15).toFixed(1)==='0.0'?'':'−'}${(wear*15).toFixed(1)}%`],['حوادث 30 يومًا',fmtNumber(incidents)],['الأضرار / تعويض التأمين',`${fmtMoney(losses)} / ${fmtMoney(covered)}`]])}${fine?`<p class="section-mini negative">غرامة تفتيش السلامة ${fmtMoney(fine.fine)}: ${countText(fine.unsafe,'asset')} تحت 65% ومتوسط الأسطول ${Number(fine.avgCondition).toFixed(1)}%.</p>`:''}<div class="company-transfer-form"><label class="wide">سياسة الصيانة<select data-maintenance-policy>${Object.entries(MAINTENANCE_COPY).map(([id,[label,copy]])=>`<option value="${id}"${id===policy?' selected':''}>${label} · ${copy}</option>`).join('')}</select></label><label class="wide">تغطية التأمين<select data-insurance-cover>${Object.entries(INSURANCE_COPY).map(([id,label])=>`<option value="${id}"${id===cover?' selected':''}>${label}</option>`).join('')}</select></label></div><div class="action-row"><button class="primary-btn maintenance-save" data-company="${esc(company.id)}">اعتماد السياسة والتغطية</button><button class="secondary-btn repair-all-now" data-company="${esc(company.id)}">إصلاح الكل الآن</button></div></article>`;
     }).join('');
-    return `<div class="list"><article class="list-item"><div class="list-item-head"><div><h3>صيانة الأسطول</h3><p>الإقفال اليومي يفحص كل أصل تحت حد شركته، حتى ${fmtNumber(2000)} فحص يوميًا لكل شركة، الأسوأ حالة أولًا، ويعيد حالته إلى 100%. الأسطول المتهالك يرفع احتمال الحوادث، وتُفوتر الإصلاحات كاملة ويعوّض التأمين ما فوق التحمّل بعد 3 أيام. القسط شهري حسب قيمة الأسطول. هيئة السلامة تفتش شهريًا وتغرّم الأسطول الذي يقل متوسطه عن 75%، ورخص التشغيل تُجدد سنويًا.</p></div></div></article>${cards||'<div class="empty">افتح شركة طيران أو بحرية أو برية أولًا.</div>'}</div>`;
+    return `<div class="list"><article class="list-item"><div class="list-item-head"><div><h3>صيانة الأسطول</h3><p>الإقفال اليومي يفحص كل أصل تحت حد شركته ويعيد حالته إلى 100%، ويُصفّر ساعات طيران الطائرة. سعر الفحص بقدر التآكل الذي يصلحه، فتتقارب السياسات في التكلفة على المدى الطويل. الأصل المتوقف بلا مسار لا يتعرض لحوادث. الأسطول المتهالك يرفع احتمال الحوادث، وتُفوتر الإصلاحات كاملة ويعوّض التأمين ما فوق التحمّل بعد 3 أيام. القسط شهري حسب قيمة الأسطول. هيئة السلامة تفتش شهريًا وتغرّم الأسطول الذي يقل متوسطه عن 75%، ورخص التشغيل تُجدد سنويًا.</p></div></div></article>${cards||'<div class="empty">افتح شركة طيران أو بحرية أو برية أولًا.</div>'}</div>`;
   }
   // الإدارة ← الأجور والطواقم: each fleet company's pay against the market wage, the quit rate it causes, the staffed
   // share of its fleet's crews and the trips the shortage cancels; the pay level is the decision.
@@ -6570,8 +6715,8 @@ ${page}</div>`;
     <div class="list-item-head"><div><h3>${a.icon} ${a.name}</h3><p>${a.model||typeName(a.type)} · سنة ${a.year||2026}</p></div><span class="tag">حالة ${a.condition.toFixed(1)}%</span></div><div class="metric-row"><div><span>الوقود</span><b>${Math.round(a.fuel)}%</b></div><div><span>المسار</span><b>${tpl?tpl.name:'غير معين'}</b></div><div><span>الوضع</span><b>${assetStatus(a)}</b></div></div><div class="metric-row"><div><span>الملكية</span><b>${a.ownership==='lease'?'تأجير تشغيلي':a.ownership==='finance'?'تمويل':'مملوك'}</b></div><div><span>القيمة الأصلية</span><b>${fmtMoney(a.purchasePrice||cat?.price||0)}</b></div><div><span>الالتزام الشهري</span><b>${a.ownership==='lease'?fmtMoney(a.monthlyLease):'—'}</b></div></div></article>
     ${eco?`<article class="list-item"><h3>تفصيل آخر دورة تشغيل</h3><div class="metric-row"><div><span>الإيراد</span><b class="positive">${fmtMoney(eco.revenue)}</b></div><div><span>الوقود</span><b class="negative">-${fmtMoney(eco.fuelCost)}</b></div><div><span>الراتب الثابت</span><b>${fmtMoney(eco.fixedMonthlyPayroll||a.staffing?.monthlyPayroll||0)}/شهر</b></div></div><div class="metric-row two" style="margin-top:6px"><div><span>احتياطي صيانة</span><b class="negative">-${fmtMoney(eco.maintReserve)}</b></div><div><span>هامش الرحلة قبل مسير 27</span><b class="${eco.margin>=0?'positive':'negative'}">${fmtMoney(eco.margin)}</b></div></div></article>`:''}
     <article class="list-item"><div class="list-item-head"><div><h3>الطاقم الثابت والراتب</h3><p>أُنشئ تلقائيًا مع التسليم، وهو جزء من الأصل ولا يحتاج إلى إجراء في HR.</p></div><span class="tag ${a.staffing?.ready?'positive':'negative'}">${a.staffing?.ready?'جاهز':'غير مكتمل'}</span></div><div class="metric-row"><div><span>إجمالي الطاقم</span><b>${fmtNumber(a.staffing?.total||0)}</b></div><div><span>الراتب الشهري</span><b>${fmtMoney(a.staffing?.monthlyPayroll||0)}</b></div><div><span>العقد</span><b>${esc(a.staffing?.contractId||'—')}</b></div></div>${(a.staffing?.roles||[]).map(role=>`<div class="spec-row"><span>${esc(role.name)}</span><b>${fmtNumber(role.count)} · ${fmtMoney(role.monthlyPayroll)}/شهر</b></div>`).join('')}</article>
-    ${a.simulationFault?`<article class="list-item danger-zone"><h3>عزل وقائي لهذا الأصل فقط</h3><p class="warning">أوقف المحرك هذا الأصل بعد خلل محلي (${esc(a.simulationFault.code||'ASSET_SIMULATION_ISOLATED')}) كي تبقى بقية الشركات واللعبة عاملة. نفّذ الصيانة أو أعد تعيين مساره لإزالة العزل بعد الفحص.</p><small>${esc(a.simulationFault.detail||'لم تتوفر تفاصيل إضافية.')}</small></article>`:''}
-    <div class="action-row"><button class="primary-btn" data-open="routes" data-arg="${esc(a.type)}">${a.routeId?'فتح مسار الأصل':'اختيار مسار من مركز المسارات'}</button>${a.type==='road'&&!a.routeId&&a.phase!=='moving'&&!a.salePending?`<button class="secondary-btn depart-now" data-id="${a.id}">تشغيل بمسار تلقائي</button>`:''}${a.phase==='turnaround'&&a.routeId&&!a.departureScheduled?`<button class="secondary-btn depart-now" data-id="${a.id}">غادر الآن</button>`:''}<button class="secondary-btn focus-owned-asset" data-id="${a.id}">عرض على الخريطة</button><button class="secondary-btn service-asset" data-id="${a.id}" ${a.phase==='moving'?'disabled':''}>صيانة وتعبئة</button><button class="danger-soft sell-asset" data-id="${a.id}" ${a.salePending&&a.phase==='moving'?'disabled':''}>${a.salePending?(a.phase==='moving'?'أمر البيع قيد العودة':'إكمال البيع'):'بيع الأصل'}</button></div>${a.salePending?'<p class="warning">أمر البيع نشط: سيكمل الأصل الرحلة الحالية فقط، ثم يتوقف في مركز/قاعدة الوصول ويباع تلقائيًا. لن يتم البيع أثناء الرحلة.</p>':a.phase==='moving'?'<p class="warning">الصيانة وتغيير المسار مقفلان أثناء الحركة. يمكنك إصدار أمر بيع وسيتم التنفيذ تلقائيًا بعد الوصول.</p>':''}</div>`;
+    ${a.simulationFault?`<article class="list-item danger-zone"><h3>عزل وقائي لهذا الأصل فقط</h3><p class="warning">أوقف المحرك هذا الأصل بعد خلل محلي (${esc(a.simulationFault.code||'ASSET_SIMULATION_ISOLATED')}) كي تبقى بقية الشركات واللعبة عاملة. نفّذ الصيانة أو أعد تعيين مساره لإزالة العزل بعد الفحص${a.phase==='moving'?'، أو أعده إلى قاعدة انطلاقه أولًا':''}.</p><small>${esc(a.simulationFault.detail||'لم تتوفر تفاصيل إضافية.')}</small></article>`:''}
+    <div class="action-row"><button class="primary-btn" data-open="routes" data-arg="${esc(a.type)}">${a.routeId?'فتح مسار الأصل':'اختيار مسار من مركز المسارات'}</button>${a.type==='road'&&!a.routeId&&a.phase!=='moving'&&!a.salePending?`<button class="secondary-btn depart-now" data-id="${a.id}">تشغيل بمسار تلقائي</button>`:''}${a.phase==='turnaround'&&a.routeId&&!a.departureScheduled?`<button class="secondary-btn depart-now" data-id="${a.id}">غادر الآن</button>`:''}<button class="secondary-btn focus-owned-asset" data-id="${a.id}">عرض على الخريطة</button><button class="secondary-btn service-asset" data-id="${a.id}" ${a.phase==='moving'&&!a.simulationFault?'disabled':''}>صيانة وتعبئة</button>${a.phase==='moving'&&a.simulationFault?`<button class="secondary-btn return-to-base" data-id="${a.id}">إعادة إلى القاعدة</button>`:''}<button class="danger-soft sell-asset" data-id="${a.id}" ${a.salePending&&a.phase==='moving'?'disabled':''}>${a.salePending?(a.phase==='moving'?'أمر البيع قيد العودة':'إكمال البيع'):'بيع الأصل'}</button></div>${a.salePending?'<p class="warning">أمر البيع نشط: سيكمل الأصل الرحلة الحالية فقط، ثم يتوقف في مركز/قاعدة الوصول ويباع تلقائيًا. لن يتم البيع أثناء الرحلة.</p>':a.phase==='moving'?'<p class="warning">الصيانة وتغيير المسار مقفلان أثناء الحركة. يمكنك إصدار أمر بيع وسيتم التنفيذ تلقائيًا بعد الوصول.</p>':''}</div>`;
   }
   function renderMobilityAsset(id){
     const vehicle=window.GH_MOBILITY_CORE?.findVehicle?.(state,id);if(!vehicle)return '<div class="empty">سيارة Mobility غير موجودة.</div>';
@@ -6614,6 +6759,7 @@ ${page}</div>`;
     // Plan batch 3: pay that follows the market (the autopilot raises it, never lowers it).
     drawerRoot.querySelectorAll('.salary-follow').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الحفظ…');if(!release)return;const company=b.dataset.company,enabled=b.dataset.enabled==='true';try{await runAuthorizedDomainCommand('hr','set-salary-follow-market',{company,enabled},{successNotice:_result=>enabled?`ستواكب أجور ${companyFinanceName(company)} السوق: يرفعها الطيار الآلي إلى أول مستوى لا يقل عن أجور السوق.`:`أُوقفت مواكبة السوق لأجور ${companyFinanceName(company)}.`});(navigationRevision===drawerNavigationRevision)&&openDrawer('crews',activeDrawerArg);}catch(_error){}finally{release();}}));
     drawerRoot.querySelectorAll('.salary-save').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الاعتماد…');if(!release)return;const company=b.dataset.company,index=Number(b.closest('.crew-card')?.querySelector('[data-salary-index]')?.value);try{await runAuthorizedDomainCommand('hr','set-salary-index',{company,index},{successNotice:_result=>`صار مستوى أجور ${companyFinanceName(company)} ${(index*100).toFixed(0)}% من الأساس، ويظهر في المسير القادم.`});updateKpis();(navigationRevision===drawerNavigationRevision)&&openDrawer('crews',activeDrawerArg);}catch(_error){}finally{release();}}));
+    drawerRoot.querySelectorAll('.repair-all-now').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ حساب الإصلاح…');if(!release)return;try{await repairAllNow(b.dataset.company);}finally{release();}}));
     drawerRoot.querySelectorAll('.maintenance-save').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الاعتماد…');if(!release)return;const companyId=b.dataset.company,card=b.closest('.maintenance-card'),policy=card?.querySelector('[data-maintenance-policy]')?.value,cover=card?.querySelector('[data-insurance-cover]')?.value;try{await runAuthorizedCompositeCommand('maintenance-and-cover',({dispatch,recordAlert})=>{dispatch('corporate','set-maintenance-policy',{companyId,policy});dispatch('corporate','set-insurance-cover',{companyId,cover});recordAlert(`اعتُمدت صيانة ${MAINTENANCE_COPY[policy]?.[0]||policy} وتغطية ${String(INSURANCE_COPY[cover]||cover).split(' · ')[0]} لـ ${companyFinanceName(companyId)}.`);});updateKpis();reopenDrawer(navigationRevision,'maintenance',activeDrawerArg);}catch(_error){}finally{release();}}));
     drawerRoot.querySelectorAll('.budget-save').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الاعتماد…');if(!release)return;const company=b.dataset.company,card=b.closest('.budget-card'),limit=Math.max(0,Number(card?.querySelector('[data-budget-limit]')?.value)||0),lines=Object.fromEntries([...(card?.querySelectorAll('[data-budget-line]')||[])].map(input=>[input.dataset.budgetLine,Math.max(0,Number(input.value)||0)]));try{if(limit<=0)throw new Error('budget-limit-required');await runAuthorizedDomainCommand('finance','set-budget',{company,limit,lines},{successNotice:_result=>`اعتُمدت ميزانية ${companyFinanceName(company)} الشهرية بسقف ${fmtMoney(limit)}.`});updateKpis();(navigationRevision===drawerNavigationRevision)&&openDrawer('budgets',activeDrawerArg);}catch(error){if(error.message==='budget-limit-required')notice('حدد سقفًا شهريًا أكبر من صفر، أو ألغِ السقف.');else if(/budget-(line-)?below-month-spend/.test(error.message))notice('لا يمكن خفض السقف تحت ما صُرف وحُجز هذا الشهر. ارفع السقف أو انتظر بداية الشهر التالي.');}finally{release();}}));
     drawerRoot.querySelectorAll('.budget-clear').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ الإلغاء…');if(!release)return;const company=b.dataset.company;try{await runAuthorizedDomainCommand('finance','reset-budget',{company},{successNotice:_result=>`أُلغي سقف ميزانية ${companyFinanceName(company)}.`});updateKpis();(navigationRevision===drawerNavigationRevision)&&openDrawer('budgets',activeDrawerPanel==='budgets'?activeDrawerArg:undefined);}catch(_error){}finally{release();}}));
@@ -6653,7 +6799,9 @@ ${page}</div>`;
     drawerRoot.querySelectorAll('.sell-mobility-asset').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ مراجعة البيع…');if(!release)return;try{await sellMobilityAsset(b.dataset.id);}finally{release();}}));
     drawerRoot.querySelectorAll('.create-global-route').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ إنشاء المسار…');if(!release)return;try{await createGlobalRoute(b.dataset.asset,b.dataset.key);}finally{release();}}));
     drawerRoot.querySelectorAll('.assign-route-center').forEach(b=>b.addEventListener('click',async()=>{const routeId=b.dataset.route,select=[...document.querySelectorAll('.route-asset-select')].find(row=>row.dataset.route===routeId),assetId=select?.value;if(!assetId){notice('اختر أصلًا متاحًا لهذا المسار.');return;}const release=beginButtonOperation(b,'جارٍ تعيين المسار…');if(!release)return;try{await assignRoute(assetId,routeId,{returnToRoutes:true});}finally{release();}}));
-    drawerRoot.querySelectorAll('.service-asset').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.busy)return;b.dataset.busy='1';b.disabled=true;if(!serviceAsset(b.dataset.id)){delete b.dataset.busy;b.disabled=false;}}));
+    // (serviceAsset is asynchronous: the button is released when it resolves without a result, a cancelled confirm too.)
+    drawerRoot.querySelectorAll('.service-asset').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.busy)return;b.dataset.busy='1';b.disabled=true;Promise.resolve(serviceAsset(b.dataset.id)).then(ok=>{if(!ok&&b.isConnected){delete b.dataset.busy;b.disabled=false;}});}));
+    drawerRoot.querySelectorAll('.return-to-base').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.busy)return;b.dataset.busy='1';b.disabled=true;Promise.resolve(returnAssetToBase(b.dataset.id)).then(ok=>{if(!ok&&b.isConnected){delete b.dataset.busy;b.disabled=false;}});}));
     drawerRoot.querySelectorAll('.depart-now').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ جدولة المغادرة…');if(!release)return;try{await departNow(b.dataset.id);}finally{release();}}));
     drawerRoot.querySelectorAll('.depart-route').forEach(b=>b.addEventListener('click',async()=>{const navigationRevision=drawerNavigationRevision;const release=beginButtonOperation(b,'جارٍ جدولة المسار…');if(!release)return;try{const companyId=b.dataset.company||routeOwnerCompanyId(routeTemplates[b.dataset.route]),ok=await departRouteAssets(b.dataset.route,companyId);if(ok)reopenDrawer(navigationRevision,'routes',companyId);}finally{release();}}));
     drawerRoot.querySelectorAll('.sell-asset').forEach(b=>b.addEventListener('click',async()=>{const release=beginButtonOperation(b,'جارٍ مراجعة البيع…');if(!release)return;try{await sellAsset(b.dataset.id);}finally{release();}}));
@@ -7202,7 +7350,7 @@ ${page}</div>`;
     return runAuthorizedCompositeCommand('assign-route',({state:draft,routes,dispatch})=>{
       const asset=window.GH_FLEET_DATA.get(draft,assetId),route=routes[routeId];
       if(!asset||!route||assetModeOf(asset)!==routeModeOf(route)||!assetOwnerCompanyId(asset)||assetOwnerCompanyId(asset)!==routeOwnerCompanyId(route))throw new Error('الأصل أو المسار لا يتبعان الشركة نفسها');
-      if(asset.phase==='moving'||asset.salePending||asset.deliveryStatus==='pending')throw new Error('الأصل غير متاح لتغيير المسار');
+      if((asset.phase==='moving'&&!asset.simulationFault)||asset.salePending||asset.deliveryStatus==='pending')throw new Error('الأصل غير متاح لتغيير المسار');
       if(!routeFitsAsset(asset,route))throw new Error('المسار يتجاوز مدى الأصل أو قيود التشغيل');
       if(!asset.baseFacility||(!sameUnderlyingFacilityFor(draft,asset.baseFacility,route.fromFacility)&&!sameUnderlyingFacilityFor(draft,asset.baseFacility,route.toFacility)))throw new Error('الأصل ليس موجودًا في إحدى نقطتي المسار');
       const conflict=window.GH_FLEET_CORE.routeConflict(draft,asset.id,route.id,route);if(conflict)throw new Error(asset.type==='air'?`المسار أو ممر مماثل محجوز للأصل ${conflict.name}`:`مسار الأسطول بلغ سعته التشغيلية (${countText(window.GH_FLEET_CORE.routeCapacity(route),'asset')}).`);
@@ -7214,7 +7362,56 @@ ${page}</div>`;
   }
   async function serviceAsset(id){
     const navigationRevision=drawerNavigationRevision;
-    const a=window.GH_FLEET_DATA.get(state,id);if(!a){notice('الأصل غير موجود');return false;}if(a.phase==='moving'){notice('لا يمكن صيانة الأصل أثناء الحركة');return false;}const cost=a.type==='air'?78000:a.type==='sea'?145000:2800,supplier=a.type==='air'?'Global MRO Aviation':a.type==='sea'?'Oceanic Technical Services':'RoadFleet Maintenance';try{const result=(await runAuthorizedDomainCommand('fleet','service',{id,cost,supplier,note:`صيانة وتعبئة كاملة ${a.name} · ${supplier}`,method:'تحويل صيانة',taxable:true},{successNotice:result=>result?(`اكتملت صيانة وتعبئة ${a.name} لدى ${supplier} بقيمة ${fmtMoney(cost)} وأصبحت الحالة 100%.`):''})).result;if(!result)throw new Error('لم يرجع محرك الأسطول إثبات الصيانة');updateKpis();reopenDrawer(navigationRevision,'assetManage',id);return true;}catch(error){notice(`تعذر صيانة الأصل: ${error.message}`);return false;}
+    const a=window.GH_FLEET_DATA.get(state,id);if(!a){notice('الأصل غير موجود');return false;}
+    // Batch F: an asset isolated while moving can be serviced (it returns to its departure base); a healthy one cannot.
+    if(a.phase==='moving'&&!a.simulationFault){notice('لا يمكن صيانة الأصل أثناء الحركة');return false;}
+    // B5 (owner, 17 Nov 2026): the close's price for this asset (by the wear restored), confirmed before it is charged.
+    const cost=window.GH_REALISM.maintenanceQuote(a),supplier=a.type==='air'?'Global MRO Aviation':a.type==='sea'?'Oceanic Technical Services':'RoadFleet Maintenance',condition=Math.max(0,Math.min(100,Number(a.condition)||100));
+    if((cost>0||a.phase==='moving')&&!await ask(`صيانة ${a.name} لدى ${supplier} من ${condition.toFixed(1)}% إلى 100% ${cost>0?`بسعر الفحص اليومي نفسه: ${fmtMoney(cost)}، تُدفع بشيك الآن.`:'بلا تكلفة صيانة.'}${a.phase==='moving'?' ويعود الأصل إلى قاعدة انطلاقه وتُلغى رحلته الحالية.':''}`,'normal','fleet-service',{title:'صيانة الأصل',accept:'صيانة الآن'}))return false;
+    try{const result=(await withRetiredRouteProof(a,extra=>runAuthorizedDomainCommand('fleet','service',{id,expectedCost:cost,supplier,note:`صيانة وتعبئة كاملة ${a.name} · ${supplier}`,method:'تحويل صيانة',taxable:true},{...extra,successNotice:result=>result?(cost>0?`اكتملت صيانة وتعبئة ${a.name} لدى ${supplier} بقيمة ${fmtMoney(cost)} وأصبحت الحالة 100%.`:`اكتملت تعبئة ${a.name}؛ حالته 100% فلا تكلفة صيانة.`):''}))).result;if(!result)throw new Error('لم يرجع محرك الأسطول إثبات الصيانة');updateKpis();reopenDrawer(navigationRevision,'assetManage',id);return true;}catch(error){notice(`تعذر صيانة الأصل: ${window.GH_REASON_TEXT?window.GH_REASON_TEXT(error):error.message}`);return false;}
+  }
+  // «إصلاح الكل الآن» (owner, 17 Nov 2026): every asset of the company under its maintenance line, no cap, at the close's
+  // price (each asset's quote), confirmed with the count and the total, paid now by cheque; run as signed repair-batch
+  // steps in one durable command (one save; a refusal at any step discards it whole; the frame
+  // paints between steps; 500 assets a step). The quote is the worker's pass over the replica for a large fleet (the simulation held for it).
+  // Post-review: a moving asset wears every tick, so its quote went stale between the quote and the accept whenever the
+  // clock ran (the command refused). The simulation is held from the quote to the commit (after a drain: the step in
+  // flight finishes first), as a purchase holds it. Steps of 500 assets (2,000 measured 126-206 ms on desktop).
+  async function repairAllNow(companyId){
+    const navigationRevision=drawerNavigationRevision,name=companyFinanceName(companyId),R=window.GH_REALISM;
+    await drainSimulation();
+    assetPurchaseHolds++;try{return await repairAllHeld(companyId,navigationRevision,name,R);}finally{assetPurchaseHolds--;}
+  }
+  async function repairAllHeld(companyId,navigationRevision,name,R){
+    let quote=null;try{quote=await heldFleetDispatchQuery(state,'maintenanceBacklog',{...R.fleetDayParams(state),companyId,slice:500},null);}catch(error){notice(`تعذر حساب عرض الإصلاح الآن: ${window.GH_REASON_TEXT?window.GH_REASON_TEXT(error):error.message}`);return false;}
+    if(!quote||quote.legacy===true||!Array.isArray(quote.slices)){notice('تعذر حساب عرض الإصلاح الآن؛ أعد المحاولة بعد لحظات.');return false;}
+    if(!quote.count){notice(`لا أصول تحت حد الصيانة (${quote.line}%) في ${name} الآن.`);return false;}
+    if(!await ask(`إصلاح ${countText(quote.count,'asset')} تحت حد الصيانة (${quote.line}%) في ${name} الآن بسعر الفحص اليومي نفسه، فتعود كلها إلى 100%.\n\nالإجمالي ${fmtMoney(quote.cost)}، يُدفع بشيك الآن${quote.slices.length>1?` (${fmtNumber(quote.slices.length)} شيكات)`:''}. إن تغيرت حالة الأسطول قبل التنفيذ يُلغى الأمر كاملًا ولا يُدفع شيء.`,quote.cost>0?'high':'normal','repair-all',{title:'إصلاح الكل الآن',accept:'إصلاح الكل'}))return false;
+    // (Each step's key is the signed payload's digest at this save revision; the cheque's reference names its first asset,
+    // count and cost, so a second press at the same second is a new cheque, not a free replay of the first.)
+    const steps=quote.slices.map(slice=>({domain:'fleet',name:'repair-batch',payload:{companyId,ids:slice.ids,expectedCost:slice.cost}}));
+    const result=await runAuthorizedSteps(`repair-all:${companyId}`,steps,{afterCommit:()=>{notice(`أُصلح ${countText(quote.count,'asset')} في ${name} بقيمة ${fmtMoney(quote.cost)} وعادت إلى 100%.`);updateKpis();reopenDrawer(navigationRevision,'maintenance',activeDrawerArg);}});
+    return result!==false;
+  }
+  // Fault 3: an asset isolated while moving parks at its departure base, no fee; the fault stays until service or a route.
+  // Batch H (retired route): an isolated asset bound to leave a retired route frees it; fleet-core deletes the route when
+  // no other asset uses it. For a fleet above 2,048 rows the count comes from the worker (the asset excluded), bound to the
+  // command as its reference proof, the game held from the answer to the commit so it stays current; without an answer
+  // the command runs as before and the route stays registered (the player can delete it).
+  async function withRetiredRouteProof(asset,run){
+    const routeId=String(asset?.routeId||'');
+    if(!(asset?.phase==='moving'&&asset.releaseExclusiveRouteOnArrival===true&&routeId)||window.GH_FLEET_DATA.size(state)<=FLEET_THREAD_EARLY_ROWS)return run({});
+    await drainSimulation();assetPurchaseHolds++;
+    try{
+      let proof=null;
+      try{const Q=window.GH_FLEET_REFERENCE_QUERY,params=window.GH_ROUTE_CORE.referenceRequest(state,'delete',{id:routeId,assetId:asset.id}),result=await heldFleetDispatchQuery(state,'referenceUsage',params),stamp=Q.capture(state,window.GH_FLEET_DATA,params);proof={params,result,current:target=>Q.current(stamp,target,window.GH_FLEET_DATA,params)};}catch(_error){proof=null;}
+      return await run(proof?{context:{fleetReferenceUsage:proof}}:{});
+    }finally{assetPurchaseHolds--;}
+  }
+  async function returnAssetToBase(id){
+    const navigationRevision=drawerNavigationRevision,a=window.GH_FLEET_DATA.get(state,id);if(!a){notice('الأصل غير موجود');return false;}
+    if(!(a.phase==='moving'&&a.simulationFault)){notice('الإعادة إلى القاعدة للأصل المعزول أثناء الحركة فقط.');return false;}
+    try{const result=(await withRetiredRouteProof(a,extra=>runAuthorizedDomainCommand('fleet','return-to-base',{id},{...extra,successNotice:()=>`عاد ${a.name} إلى قاعدة انطلاقه. يبقى معزولًا حتى صيانته أو تعيين مساره.`}))).result;if(!result)throw new Error('لم يرجع محرك الأسطول إثبات الإعادة');reopenDrawer(navigationRevision,'assetManage',id);return true;}catch(error){notice(`تعذرت إعادة الأصل: ${window.GH_REASON_TEXT?window.GH_REASON_TEXT(error):error.message}`);return false;}
   }
   // مصدر واحد لسبب تعطل أصل بعينه. الطاقم جزء ثابت من سجل الأصل ولا ينتظر قسم HR.
   // conflictContext: one GH_FLEET_CORE.routeConflictContext for every asset checked against the same unchanged state.

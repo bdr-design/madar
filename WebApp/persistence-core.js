@@ -70,20 +70,25 @@
   // identical because the same TextEncoder output is measured and hashed.
   function utf8(text){return globalThis.TextEncoder?new TextEncoder().encode(text):null;}
   function bytes(text,encoded=null){if(encoded)return encoded.byteLength;if(globalThis.TextEncoder)return new TextEncoder().encode(text).byteLength;let n=0;for(const c of text){const p=c.codePointAt(0);n+=p<128?1:p<2048?2:p<65536?3:4;}return n;}
+  // Heaviness batch D (post-review round 2): every measured save (ordinary, durable, sliced: all measure here) leaves its
+  // size, and a save refused for its size leaves a flag until one fits again; nearSizeLimit reads both.
+  let measuredSize=null,sizeRefused=false;
+  const noteMeasuredSize=(utf8Bytes,storageBytes,total,native)=>{measuredSize={utf8Bytes,storageBytes,total,native};sizeRefused=false;};
   function inspectJSON(json,key='',options={},encoded=null){
     if(typeof json!=='string')throw new Error('serialization-failed');
     const utf8Bytes=bytes(json,encoded),storageBytes=json.length*2,hard=Math.min(PERSISTENCE_LIMITS.hardBytes,options.hardBytes||PERSISTENCE_LIMITS.hardBytes);
     let totalStorageBytes=storageBytes+String(key).length*2;
     for(let i=0;i<(localStorage.length||0);i++){const k=localStorage.key(i);if(k!==key)totalStorageBytes+=(String(k).length+(localStorage.getItem(k)||'').length)*2;}
     const warning=utf8Bytes>=Math.min(PERSISTENCE_LIMITS.softBytes,options.softBytes||PERSISTENCE_LIMITS.softBytes)||storageBytes>=PERSISTENCE_LIMITS.softBytes;
-    if(utf8Bytes>hard||storageBytes>hard||totalStorageBytes>PERSISTENCE_LIMITS.storageBytes){const e=new Error('save-size-hard-limit');e.measurement={utf8Bytes,storageBytes,totalStorageBytes};throw e;}
-    return {utf8Bytes,storageBytes,totalStorageBytes,warning};
+    if(utf8Bytes>hard||storageBytes>hard||totalStorageBytes>PERSISTENCE_LIMITS.storageBytes){if(options.mirror!==true)sizeRefused=true;const e=new Error('save-size-hard-limit');e.measurement={utf8Bytes,storageBytes,totalStorageBytes};throw e;}
+    // (A native save's browser mirror is not the save: it leaves the native measurement as it is.)
+    if(options.mirror!==true)noteMeasuredSize(utf8Bytes,storageBytes,totalStorageBytes,false);return {utf8Bytes,storageBytes,totalStorageBytes,warning};
   }
   function inspectNativeJSON(json,encoded=null){
     if(typeof json!=='string')throw new Error('serialization-failed');
     const utf8Bytes=bytes(json,encoded),storageBytes=json.length*2,warning=utf8Bytes>=PERSISTENCE_LIMITS.softBytes;
-    if(utf8Bytes>PERSISTENCE_LIMITS.nativeHardBytes){const e=new Error('native-save-size-hard-limit');e.measurement={utf8Bytes,storageBytes};throw e;}
-    return {utf8Bytes,storageBytes,totalStorageBytes:null,warning};
+    if(utf8Bytes>PERSISTENCE_LIMITS.nativeHardBytes){sizeRefused=true;const e=new Error('native-save-size-hard-limit');e.measurement={utf8Bytes,storageBytes};throw e;}
+    noteMeasuredSize(utf8Bytes,storageBytes,null,true);return {utf8Bytes,storageBytes,totalStorageBytes:null,warning};
   }
   function restoreRaw(key,raw){if(raw===null)localStorage.removeItem(key);else localStorage.setItem(key,raw);if(localStorage.getItem(key)!==raw)throw new Error('save-rollback-verification');}
   function writeJSON(key,json,options={},encoded=null){
@@ -157,8 +162,28 @@
   // the upload runs, and a save must be one consistent instant), and uploadChunks sends them before the commit that
   // lists them. The vault refuses a commit whose chunks are missing; vaultChunks is cleared after any reset and any
   // such refusal, so the next save uploads again (an upload of a chunk the vault holds is checked and accepted).
+  // Heaviness batch D: the revision and reset epoch of the last save of the main game the store acknowledged (a durable
+  // commit, an ordinary save once acknowledged, a reset). Manual slots and exports never count. The automatic dispatch,
+  // which no longer saves itself, is pending until this reaches its revision.
+  let persisted={saveRevision:null,resetEpoch:null};
+  function notePersisted(saveRevision,resetEpoch){const revision=Math.max(0,Math.floor(Number(saveRevision)||0)),epoch=Number(resetEpoch)||0;if(persisted.resetEpoch!==epoch||!(persisted.saveRevision>=revision))persisted={saveRevision:revision,resetEpoch:epoch};}
   const vaultChunks=new Set(),chunkPending=new Map();let chunkSequence=0,lastCommittedChunkIds=null,vaultEpoch=0;
   const CHUNK_ACK_TIMEOUT_MS=60000;
+  // Batch H1 (owner, 18 Nov 2026; iPhone: 166-211 chunks after each day close uploaded one by one in 424-511 ms, the clock
+  // held): over the game's own gh: scheme up to 4 chunk uploads are in flight, a chunk over 4 MiB alone (so at most 16 MiB
+  // in flight). The bridge (Android, an older IPA) stays one at a time. The save worker accepts two requests at once, so every
+  // encoding an upload asks of it (packbits, base64 for the bridge fallback) goes through one slot, in launch order: the
+  // uploads never ask it more than one at a time, as before.
+  const UPLOAD_CONCURRENCY=4,UPLOAD_SOLO_BYTES=4*1024*1024;
+  // (The bridge fallback of a gh: upload, an older IPA without the POST route, is one message at a time too, through its
+  // own slot; after a pool's first failure an encoding or bridge message still queued is skipped.)
+  let encodingSlot=Promise.resolve(),bridgeSlot=Promise.resolve();
+  function inEncodingSlot(task){const run=encodingSlot.then(task,task);encodingSlot=run.then(()=>{},()=>{});return run;}
+  function inBridgeSlot(task){const run=bridgeSlot.then(task,task);bridgeSlot=run.then(()=>{},()=>{});return run;}
+  // (`stop` is the pool's flag: set by its first failure, and at once by a failing encoding or bridge message, so the next
+  // one queued in the slot sees it.)
+  const poolStopped=stop=>{if(stop?.stopped===true){const error=new Error('chunk-upload-pool-stopped');error.code='POOL_STOPPED';throw error;}};
+  async function stoppingOnFailure(stop,task){poolStopped(stop);try{return await task();}catch(error){if(stop)stop.stopped=true;throw error;}}
   function noteVaultChunks(ids){for(const id of Array.isArray(ids)?ids:[])if(typeof id==='string'&&id)vaultChunks.add(id);}
   function forgetVaultChunks(){vaultChunks.clear();lastCommittedChunkIds=null;vaultEpoch++;}
   // Keep upload knowledge for the current and previous committed manifests, not every historic upload. Forgetting
@@ -294,28 +319,29 @@
   // Chunks travel as the raw bytes of a fetch POST to the game's own gh://app scheme (measured on CI WebKit: a 4 MiB
   // body arrives intact in ~34 ms, no base64 string). A runtime without that route answers 404 or rejects the request;
   // the chunk then goes as base64 over saveBridge ('storeSaveChunk'), which every native build understands.
-  async function uploadChunk(id,bytes,kind=null){
+  async function uploadChunk(id,bytes,kind=null,stop=null){
     const rawBytes=bytes.byteLength;let wire=bytes,encoding='identity',workerMs=0;
     // Only a native host advertising the decoder receives compressed data. Existing IPAs keep the exact old route.
     // The existing worker owns the extra computation, on demand during a save; no gameplay scan or new worker/timer.
     if(kind==='lane'&&rawBytes>=32768&&rawBytes<=4194304&&globalThis.GH_NATIVE_CHUNK_ENCODINGS?.includes?.('gh-packbits-v1')&&typeof globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER==='function'){
       // 128 is an existing wire-codec stride accepted by every advertising
       // native host. It is independent of the lane's logical 8-byte records.
-      const packed=await globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER(bytes,128,{transferOwnership:true});
+      const packed=await inEncodingSlot(()=>stoppingOnFailure(stop,()=>globalThis.GH_SAVE_CHUNK_ENCODING_PROVIDER(bytes,128,{transferOwnership:true})));
       if(!packed||packed.rawBytes!==rawBytes||!ArrayBuffer.isView(packed.bytes)||packed.bytes.BYTES_PER_ELEMENT!==1||!(packed.encoding==='identity'&&packed.bytes.byteLength===rawBytes||packed.encoding==='gh-packbits-v1'&&packed.bytes.byteLength>=20&&packed.bytes.byteLength<=Math.floor(rawBytes*.875)))throw new Error('save-chunk-encoding-evidence-invalid');
       wire=packed.bytes;encoding=packed.encoding;workerMs=Number(packed.workerMs)||0;
     }
     const result={bytes:rawBytes,wireBytes:wire.byteLength,encoding,workerMs};
-    if(typeof globalThis.fetch!=='function'||globalThis.location?.protocol!=='gh:'){await uploadChunkMessage(id,wire,{encoding,rawBytes,kind});return result;}
+    if(typeof globalThis.fetch!=='function'||globalThis.location?.protocol!=='gh:'){await uploadChunkMessage(id,wire,{encoding,rawBytes,kind,stop});return result;}
     const headers=encoding==='identity'?undefined:{'X-GH-Chunk-Encoding':encoding,'X-GH-Chunk-Raw-Bytes':String(rawBytes)};
     await globalThis.fetch(`gh://app/save-chunk/${encodeURIComponent(id)}`,{method:'POST',body:wire,headers,cache:'no-store'}).then(async response=>{
-      if(response.status===404||response.status===405)return uploadChunkMessage(id,wire,{encoding,rawBytes,kind});
+      if(response.status===404||response.status===405)return uploadChunkMessage(id,wire,{encoding,rawBytes,kind,stop});
       let detail={};try{detail=await response.json();}catch{}
       if(!response.ok||detail.ok!==true||detail.id!==id){const error=new Error(detail.message||`native-chunk-http-${response.status}`);error.code='CHUNK_NACK';throw error;}
-    },error=>{if(error?.code==='CHUNK_NACK')throw error;return uploadChunkMessage(id,wire,{encoding,rawBytes,kind});});
+    },error=>{if(error?.code==='CHUNK_NACK')throw error;return uploadChunkMessage(id,wire,{encoding,rawBytes,kind,stop});});
     return result;
   }
-  async function uploadChunkMessage(id,bytes,{encoding='identity',rawBytes=bytes.byteLength,kind=null}={}){
+  function uploadChunkMessage(id,bytes,options={}){return inBridgeSlot(()=>stoppingOnFailure(options.stop,()=>uploadChunkBridge(id,bytes,options)));}
+  async function uploadChunkBridge(id,bytes,{encoding='identity',rawBytes=bytes.byteLength,kind=null,stop=null}={}){
     const bridge=bridgeFor('commitSave');if(!bridge)throw new Error('native-chunk-bridge-unavailable');
     // Keep the legacy bridge byte-identical, with bounded fleet-chunk encoding away from the UI thread.
     // Compact fleet overlay pages can be smaller than the old 256 KiB worker threshold while still being emitted in
@@ -323,7 +349,7 @@
     // Stored compression can shrink a fleet container below the old 32 KiB threshold.
     // Its bridge fallback stays on the existing worker even when the compressed output is tiny.
     if(kind==='lane-container'&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER!=='function')throw new Error('save-encoding-worker-unavailable');
-    const base64=(kind==='lane-container'||bytes.byteLength>=32768)&&bytes.byteLength<=4194304&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER==='function'?await globalThis.GH_SAVE_ENCODING_PROVIDER(bytes):stateCodec().bytesToBase64(bytes);
+    const base64=(kind==='lane-container'||bytes.byteLength>=32768)&&bytes.byteLength<=4194304&&typeof globalThis.GH_SAVE_ENCODING_PROVIDER==='function'?await inEncodingSlot(()=>stoppingOnFailure(stop,()=>globalThis.GH_SAVE_ENCODING_PROVIDER(bytes))):stateCodec().bytesToBase64(bytes);
     return new Promise((resolve,reject)=>{
       const requestId=`storeSaveChunk-${Date.now()}-${++chunkSequence}`,timer=setTimeout(()=>{chunkPending.delete(requestId);const error=new Error('native-chunk-ack-timeout');error.code='ACK_TIMEOUT';reject(error);},CHUNK_ACK_TIMEOUT_MS);
       chunkPending.set(requestId,{id,resolve,reject,timer});
@@ -333,8 +359,22 @@
   }
   async function uploadChunks(uploads){
     const started=clock(),bytesByKind={};let bytes=0,wireBytes=0,encodingWorkerMs=0,compressedChunks=0;
-    for(const upload of uploads||[]){if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}const sent=await uploadChunk(upload.id,upload.bytes,upload.kind);vaultChunks.add(upload.id);bytes+=sent.bytes;wireBytes+=sent.wireBytes;encodingWorkerMs+=sent.workerMs;if(sent.encoding!=='identity')compressedChunks++;const kind=String(upload.kind||'chunk').slice(0,32);bytesByKind[kind]=(bytesByKind[kind]||0)+sent.bytes;upload.bytes=null;}
-    if(uploads?.length)rememberTiming({kind:'chunk-upload',chunks:uploads.length,bytes,bytesByKind,wireBytes,encodingWorkerMs,compressedChunks,ms:Math.max(0,clock()-started)});
+    const concurrency=typeof globalThis.fetch==='function'&&globalThis.location?.protocol==='gh:'?UPLOAD_CONCURRENCY:1,running=new Set(),launched=new Set(),stop={stopped:false};let failed=false,failure=null,peakInFlight=0;
+    // A chunk enters vaultChunks only once its own upload is acknowledged; after the first failure nothing new starts,
+    // the ones in flight are awaited (each is recorded if it succeeded) and the first error is rethrown (`failed`, not the
+    // error's truth: a rejection without a value still fails the list, as the one-by-one loop did).
+    for(const upload of uploads||[]){
+      if(failed)break;if(vaultChunks.has(upload.id)){upload.bytes=null;continue;}if(launched.has(upload.id)){upload.bytes=null;continue;}launched.add(upload.id);
+      const size=Number(upload.bytes?.byteLength)||0,solo=size>UPLOAD_SOLO_BYTES;
+      while(running.size&&(running.size>=concurrency||solo||[...running].some(row=>row.solo)))await Promise.race([...running].map(row=>row.done));
+      if(failed)break;
+      const row={solo};running.add(row);peakInFlight=Math.max(peakInFlight,running.size);
+      row.done=uploadChunk(upload.id,upload.bytes,upload.kind,stop).then(sent=>{vaultChunks.add(upload.id);bytes+=sent.bytes;wireBytes+=sent.wireBytes;encodingWorkerMs+=sent.workerMs;if(sent.encoding!=='identity')compressedChunks++;const kind=String(upload.kind||'chunk').slice(0,32);bytesByKind[kind]=(bytesByKind[kind]||0)+sent.bytes;upload.bytes=null;},error=>{if(!failed||failure?.code==='POOL_STOPPED'&&error?.code!=='POOL_STOPPED')failure=error;failed=true;stop.stopped=true;}).finally(()=>{running.delete(row);});
+    }
+    while(running.size)await Promise.all([...running].map(row=>row.done));
+    // (A rejection without a value, or with a falsy one, becomes an error, so the callers that read its code or message see a failure.)
+    if(failed)throw failure||Object.assign(new Error('chunk-upload-failed'),{code:'CHUNK_UPLOAD_FAILED'});
+    if(uploads?.length)rememberTiming({kind:'chunk-upload',chunks:uploads.length,bytes,bytesByKind,wireBytes,encodingWorkerMs,compressedChunks,concurrency,peakInFlight,ms:Math.max(0,clock()-started)});
   }
   // A commit refused for a missing chunk means vaultChunks was stale: forget it so the next save uploads its chunks.
   function noteNativeRefusal(error){if(/Missing save chunk/i.test(String(error?.message||'')))forgetVaultChunks();return error;}
@@ -439,10 +479,10 @@
       timing.browserCacheMs=Math.max(0,clock()-stageStart);timing.cacheReason=cache?.ok===false?cache.reason:null;timing.ok=true;timing.totalSyncMs=Math.max(0,clock()-syncStart);globalThis.GH_DIAGNOSTICS?.recordMainThreadWork?.(state,'save.prepare',syncStart,clock());lastSaveBreakdown=rememberTiming(timing);lastSaveAtMs=clock();
     }catch(error){state.saveRevision=previousRevision;timing.totalSyncMs=Math.max(0,clock()-syncStart);timing.error=String(error.message||error);lastSaveBreakdown=rememberTiming(timing);return {ok:false,reason:`serialization-or-schema:${error.message||error}`,...error.measurement};}
     const out={ok:true,json,...measurement,browserCache:cache?.ok!==false,cacheReason:cache?.ok===false?cache.reason:null,previous:cache?.previous??null,saveRevision:nextRevision};
-    if(!nativeBridge){ordinaryError=null;acknowledgeSaveChanges(state,changeToken);return out;}
+    if(!nativeBridge){ordinaryError=null;acknowledgeSaveChanges(state,changeToken);notePersisted(nextRevision,resetEpoch);return out;}
     const nativeMetadata={appVersion,...options,saveRevision:nextRevision,resetEpoch,saveSchemaVersion:saveSchemaVersion(state)};
     const work=Promise.resolve().then(()=>{if(recoveryRequired)throw new Error('native-recovery-required');return uploadChunks(nativeSave?.uploads);}).then(()=>requestNative('commitSave',json,{...nativeMetadata,encoded})).catch(error=>{throw noteNativeRefusal(error);});
-    ordinaryInFlight=work.then(ack=>{ordinaryError=null;acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);return ack;},error=>{
+    ordinaryInFlight=work.then(ack=>{ordinaryError=null;acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);notePersisted(nextRevision,resetEpoch);return ack;},error=>{
       ordinaryError=error;
       if(cache?.ok)try{if(localStorage.getItem(storageKey)===json)restoreRaw(storageKey,cache.previous);}catch(e){error.rollbackError=String(e.message||e);}
       const uncertainNative=error.code==='ACK_TIMEOUT';recoveryRequired=true;status({ok:false,reason:error.message,critical:!!error.rollbackError,requiresMemoryRollback:false,requiresNativeReconciliation:true,storageKey});return {ok:false,reason:error.message,uncertainNative};
@@ -502,11 +542,11 @@
           ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state),encoded});}catch(error){throw noteNativeRefusal(error);}ordinaryError=null;
         const cache=nativeSave?.chunked?{ok:false,reason:'chunked-native-save',previous:null,bypassed:true}:(measurement.utf8Bytes>PERSISTENCE_LIMITS.hardBytes||measurement.storageBytes>PERSISTENCE_LIMITS.hardBytes)?{ok:false,reason:'browser-cache-size-bypass',previous:null,bypassed:true}:writeJSON(storageKey,json,{...options,mirror:true},encoded);
         if(!cache.ok&&!nativeSave?.chunked)status({ok:true,warning:true,reason:'browser-cache-skipped',cacheReason:cache.reason,durable:true,utf8Bytes:measurement.utf8Bytes,mirror:true});
-        acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:Math.max(0,clock()-syncStart)});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason,stagingWaitMs:durableTiming.stagingWaitMs||0};
+        acknowledgeVaultChunks(nativeSave);acknowledgeSaveChanges(state,changeToken);notePersisted(state.saveRevision,state.resetEpoch);telemetry({operation:'durable-commit',ok:true,utf8Bytes:measurement.utf8Bytes,native:true,browserCache:cache.ok,durationMs:Math.max(0,clock()-syncStart)});status({ok:true,validated:true,durable:true,native:true,saveRevision:Number(state.saveRevision)||0});return {ok:true,json,...measurement,ack,durable:true,browserCache:cache.ok,cacheReason:cache.ok?null:cache.reason,stagingWaitMs:durableTiming.stagingWaitMs||0};
       }
       written=writeJSON(storageKey,json,options);if(!written.ok)throw new Error(written.reason);
       const ack=await requestNative('commitSave',json,{appVersion,...options,saveRevision:Number(state.saveRevision)||0,resetEpoch:Number(state.resetEpoch)||0,saveSchemaVersion:saveSchemaVersion(state)});ordinaryError=null;
-      acknowledgeSaveChanges(state,changeToken);telemetry({operation:'durable-commit',ok:true,utf8Bytes:written.utf8Bytes,native:false,durationMs:Math.max(0,clock()-syncStart)});status({ok:true,validated:true,durable:true,native:false,saveRevision:Number(state.saveRevision)||0});return {...written,ack,durable:true};
+      acknowledgeSaveChanges(state,changeToken);notePersisted(state.saveRevision,state.resetEpoch);telemetry({operation:'durable-commit',ok:true,utf8Bytes:written.utf8Bytes,native:false,durationMs:Math.max(0,clock()-syncStart)});status({ok:true,validated:true,durable:true,native:false,saveRevision:Number(state.saveRevision)||0});return {...written,ack,durable:true};
     }catch(error){
       if(written?.ok)try{if(localStorage.getItem(storageKey)===written.json)restoreRaw(storageKey,written.previous);}catch(rollbackError){error.rollbackError=String(rollbackError.message||rollbackError);}
       const uncertainNative=error.code==='ACK_TIMEOUT';if(error.rollbackError||uncertainNative){recoveryRequired=true;error.critical=true;}status({ok:false,reason:String(error.message||error),critical:!!error.critical,durable:true,requiresNativeReconciliation:uncertainNative,storageKey});throw error;
@@ -624,7 +664,7 @@
       }
       if(apply)apply(next);
       for(const key of cleanupKeys)if(key!==storageKey&&key!==resetMarkerKey)try{localStorage.removeItem(key);}catch{}
-      ordinaryError=null;clearOrdinaryDirty();return {ok:true,native:nativeAttempted,generation};
+      ordinaryError=null;clearOrdinaryDirty();notePersisted(next.saveRevision,next.resetEpoch);return {ok:true,native:nativeAttempted,generation};
     }catch(error){
       try{if(browserTouched)restoreRaw(storageKey,oldRaw);if(resetMarkerKey&&browserTouched)restoreRaw(resetMarkerKey,oldMarker);}catch(e){error.rollbackError=String(e.message||e);}
       // Once a New Game reset that clears manual slots has been ACKed by Native,
@@ -697,6 +737,10 @@
   function migrateMetadata(state){state.advanced=state.advanced||{};state.advanced.saveSlots=Array.isArray(state.advanced.saveSlots)?state.advanced.saveSlots:[null,null,null];for(let i=0;i<SLOT_COUNT;i++){const s=slotStatus(i);state.advanced.saveSlots[i]=s.exists?{date:s.meta?.label||`اليوم ${s.meta?.day||'—'}`,version:s.meta?.appVersion||'legacy',simSeconds:Number(s.meta?.simSeconds)||0}:null;}return state.advanced.saveSlots;}
   const API=Object.freeze({VERSION,requireFullValidation,fullValidationRequired:()=>fullValidationReason,noteVaultChunks,forgetVaultChunks,prestageDurableChunks,vaultChunkCount:()=>vaultChunks.size,SLOT_FORMAT,LIMITS:PERSISTENCE_LIMITS,fleetRecordLimit,slotStatus,saveSlot,loadSlot,exportSave,migrateMetadata,parseSlot,inspectJSON,inspectNativeJSON,writeJSON,writeState,commitState,commitDurableState,recoverBrowserState,acknowledgeRecovery,markRecoveryRequired,requestNative,receiveAck,receiveSlotAck,drain,replaceState,isLocked:()=>locked||durableLocked||slicedLocked||recoveryRequired,commitStateSliced,slicedSettled,slicedActive:()=>!!slicedSave,
     // Cheap read for the save policy (GH_SAVE_POLICY): when the last save of any kind ran.
-    saveCadence:()=>({lastSaveAtMs}),telemetry:()=>({generation,pending:pending.size,slotPending:slotPending.size,ordinaryInFlight:!!ordinaryInFlight,ordinaryDirty,recoveryRequired,samples:clone(samples),timings:{lastSaveBreakdown:clone(lastSaveBreakdown),lastNativeAck:clone(lastNativeAck),samples:clone(timingSamples)}})});
+    saveCadence:()=>({lastSaveAtMs}),persistedRevision:()=>({...persisted}),
+    // Heaviness batch D (post-review): the last measured save is at or past its soft size (native: its manifest; browser:
+    // the save or the whole store), or one was refused for its size: a command that would not be checked against the size
+    // limits itself (the deferred automatic dispatch) saves as before. No save measured yet (just loaded) counts as near.
+    nearSizeLimit:()=>{if(sizeRefused||!measuredSize)return true;if(measuredSize.native)return measuredSize.utf8Bytes>=PERSISTENCE_LIMITS.nativeSoftBytes;return measuredSize.utf8Bytes>=PERSISTENCE_LIMITS.softBytes||measuredSize.storageBytes>=PERSISTENCE_LIMITS.softBytes||Number(measuredSize.total)>=PERSISTENCE_LIMITS.storageBytes*.8;},telemetry:()=>({generation,pending:pending.size,slotPending:slotPending.size,ordinaryInFlight:!!ordinaryInFlight,ordinaryDirty,recoveryRequired,samples:clone(samples),timings:{lastSaveBreakdown:clone(lastSaveBreakdown),lastNativeAck:clone(lastNativeAck),samples:clone(timingSamples)}})});
   globalThis.GH_PERSISTENCE=API;if(globalThis.window&&window!==globalThis)window.GH_PERSISTENCE=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })();

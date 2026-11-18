@@ -20,6 +20,9 @@ const assets=[
   // this row proves the UI summary preserves that existing rule.
   {id:'R1',assetMode:'road',type:'road',phase:'moving',routeId:'RR-1',condition:99,purchasePrice:75,baseFacility:'D-1',staffing:{ready:true,monthlyPayroll:3300,total:2}},
   {id:'F1',ownerCompanyId:'sky',assetMode:'air',type:'air',routeId:'AR-FAULT',simulationFault:'bad-row',condition:88,purchasePrice:1,baseFacility:'AP-RUH',staffing:{ready:true,monthlyPayroll:'bad',total:NaN}},
+  // (An owner without a listed line is on the standard 80: 79.9% is under it, 80% is not.)
+  {id:'U1',ownerCompanyId:'unlisted',assetMode:'road',type:'road',phase:'idle',routeId:null,condition:79.9,purchasePrice:10,baseFacility:'D-1'},
+  {id:'U2',ownerCompanyId:'unlisted',assetMode:'road',type:'road',phase:'idle',routeId:null,condition:80,purchasePrice:10,baseFacility:'D-1'},
   {id:'X1',ownerCompanyId:'odd',assetMode:'special',type:'sky',phase:'idle',routeId:null,condition:'bad',purchasePrice:'bad',baseFacility:0}
 ];
 const options={legacyOwner:{air:'sky',road:'roads'},facilities:[
@@ -28,7 +31,10 @@ const options={legacyOwner:{air:'sky',road:'roads'},facilities:[
   {id:'P-JED',city:'Jeddah',mode:'sea'},
   {id:'P-JED-2',city:'Jeddah',mode:'sea'},
   {id:'P-DXB',city:'Dubai',mode:'sea'}
-]};
+// Batch F (fault 1): «needs maintenance» is under the owner's policy line (sky preventive 90, marine-co deferred 65;
+// the others standard 80), a missing condition read as 100, as the daily check reads it.
+],maintenanceLines:[['sky',90],['marine-co',65]]};
+const lineOf=owner=>({sky:90,'marine-co':65})[owner]??80,underLine=(row,owner)=>Math.max(0,Math.min(100,Number(row.condition)||100))<lineOf(owner);
 const state={simSeconds:12345,fleet:STORE.fromAssets(assets,{at:12345})};
 
 const modeOf=row=>String(row?.assetMode||row?.type||'').trim();
@@ -50,14 +56,14 @@ assert.ok(Object.is(result.staffing.headcount,expectedHeadcount),'headcount is b
 assert.ok(Object.is(result.all.headcount,expectedHeadcount),'global headcount mirrors staffing summary');
 assert.equal(result.staffing.staffedAssets,4,'only ready assets with a profile owner enter compact-store payroll');
 
-for(const owner of ['sky','marine-co','roads','odd']){
+for(const owner of ['sky','marine-co','roads','odd','unlisted']){
   const rows=views.filter(row=>ownerOf(row)===owner),actual=index.owner(owner);
   assert.ok(actual,owner);assert.equal(actual.total,rows.length,`${owner}: total`);
   assert.equal(actual.moving,rows.filter(row=>FLEET.presentedPhase(state,row)==='moving').length,`${owner}: presented moving`);
   assert.equal(actual.movingRaw,rows.filter(row=>row.phase==='moving'||row.status==='moving').length,`${owner}: raw moving`);
   assert.equal(actual.routed,rows.filter(row=>row.routeId).length,`${owner}: routed`);
   assert.equal(actual.active,rows.filter(row=>row.routeId||row.phase==='moving'||row.status==='moving').length,`${owner}: active`);
-  assert.equal(actual.needsService,rows.filter(row=>Number(row.condition)<85).length,`${owner}: service`);
+  assert.equal(actual.needsService,rows.filter(row=>underLine(row,owner)).length,`${owner}: service (under the owner's line)`);
   assert.equal(actual.healthy,rows.filter(row=>Number(row.condition)>=65).length,`${owner}: healthy`);
   assert.equal(actual.pendingSale,rows.filter(row=>row.salePending).length,`${owner}: pending`);
   assert.equal(actual.routeCount,new Set(rows.map(row=>row.routeId).filter(Boolean)).size,`${owner}: route count`);
@@ -72,6 +78,8 @@ for(const owner of ['sky','marine-co','roads','odd']){
   for(const mode of new Set(rows.map(modeOf)))assert.equal(index.ownerMode(owner,mode).total,rows.filter(row=>modeOf(row)===mode).length,`${owner}/${mode}`);
 }
 
+{const sky=index.owner('sky'),marine=index.owner('marine-co');assert.equal(sky.needsService,3,'sky (90): 82 and 64 and 88 are under, the missing-condition row is not');assert.equal(marine.needsService,0,'marine-co (65): 70, 84.5 and 91 are above');assert.equal(index.owner('unlisted').needsService,1,'an owner without a line: the standard 80 (79.9% under, 80% not)');
+  assert.notEqual(SUMMARY.requestKey(options),SUMMARY.requestKey({...options,maintenanceLines:[['sky',80],['marine-co',65]]}),'a policy change is a new request');}
 for(const mode of new Set(views.map(modeOf)))assert.equal(index.mode(mode).total,views.filter(row=>modeOf(row)===mode).length,`mode ${mode}`);
 for(const type of new Set(views.map(row=>row.type)))assert.equal(index.type(type).total,views.filter(row=>row.type===type).length,`type ${type}`);
 for(const base of ['AP-RUH','P-JED','P-DXB','D-1'])assert.equal(index.base(base),views.filter(row=>row.baseFacility===base).length,`base ${base}`);
