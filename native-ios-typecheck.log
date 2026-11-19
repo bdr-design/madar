@@ -1,0 +1,15 @@
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/GameViewController.swift:531:16: warning: 'contentEdgeInsets' was deprecated in iOS 15.0: This property is ignored when using UIButtonConfiguration
+ 529 |         let button = makeButton(title: title, primary: false)
+ 530 |         button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+ 531 |         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
+     |                `- warning: 'contentEdgeInsets' was deprecated in iOS 15.0: This property is ignored when using UIButtonConfiguration
+ 532 |         return button
+ 533 |     }
+
+/Users/runner/work/madar/madar/iOS/GlobalHoldings/GameViewController.swift:640:119: warning: variable 'self' was written to, but never read
+ 638 |                 return
+ 639 |             }
+ 640 |             GlobalSaveVault.shared.commitAsync(save, runtimeVersion: GlobalGameStorage.shared.currentVersion) { [weak self] result in
+     |                                                                                                                       `- warning: variable 'self' was written to, but never read
+ 641 |                 if case .success(let generation) = result {
+ 642 |                     GlobalGameStorage.shared.noteCurrentSaveGeneration(generation)
